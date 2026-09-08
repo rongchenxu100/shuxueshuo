@@ -26,6 +26,7 @@ from shuxueshuo_server.solver.runtime.llm_clients import (
 from shuxueshuo_server.solver.runtime.macro_atomicity import (
     contains_private_path_projection_marker,
 )
+from shuxueshuo_server.solver.student_display import find_internal_math_tokens
 
 from .annotated_teaching import (
     DERIVE_MARKERS,
@@ -159,6 +160,7 @@ class ScopeLessonValidationResult:
     syntax_repaired: bool = False
     repaired_response: str | None = None
     appended_suffix: str = ""
+    removed_suffix: str = ""
 
     @property
     def fallback_used(self) -> bool:
@@ -220,6 +222,7 @@ class ScopeLessonValidationResult:
                 self.independent_material_merge_repaired
             ),
             "appended_suffix": self.appended_suffix,
+            "removed_suffix": self.removed_suffix,
             "repaired_response_hash": (
                 _stable_hash(self.repaired_response)
                 if self.repaired_response is not None
@@ -362,6 +365,7 @@ class ScopeLessonGenerationResult:
                 self.validation.independent_material_merge_repaired
             ),
             "appended_suffix": self.validation.appended_suffix,
+            "removed_suffix": self.validation.removed_suffix,
             "scope_sources": dict(self.validation.scope_sources),
             "hashes": dict(self.projection_audit["hashes"]),
             "usage": self.usage,
@@ -403,6 +407,7 @@ class _ParsedJSONResponse:
     syntax_repaired: bool
     repaired_text: str | None = None
     appended_suffix: str = ""
+    removed_suffix: str = ""
 
 
 class LessonScopeContentValidator:
@@ -444,15 +449,27 @@ class LessonScopeContentValidator:
             )
             return self._whole_fallback_result(diagnostics, parsed=None)
         if parsed.syntax_repaired:
+            repair_code = (
+                "lesson_scope_json_trailing_closers_repaired"
+                if parsed.removed_suffix
+                else "lesson_scope_json_closers_repaired"
+            )
+            repair_message = (
+                "provider response contained only redundant JSON closing "
+                f"delimiters after one complete root object; removed "
+                f"{parsed.removed_suffix!r}"
+                if parsed.removed_suffix
+                else (
+                    "provider response ended with unclosed JSON containers; "
+                    f"appended {parsed.appended_suffix!r}"
+                )
+            )
             diagnostics.append(
                 ScopeLessonDiagnostic(
-                    code="lesson_scope_json_closers_repaired",
+                    code=repair_code,
                     stage="parse",
                     path="$",
-                    message=(
-                        "provider response ended with unclosed JSON containers; "
-                        f"appended {parsed.appended_suffix!r}"
-                    ),
+                    message=repair_message,
                     severity="warning",
                 )
             )
@@ -462,6 +479,7 @@ class LessonScopeContentValidator:
             syntax_repaired=parsed.syntax_repaired,
             repaired_response=parsed.repaired_text,
             appended_suffix=parsed.appended_suffix,
+            removed_suffix=parsed.removed_suffix,
         )
 
     def validate_payload(
@@ -472,6 +490,7 @@ class LessonScopeContentValidator:
         syntax_repaired: bool = False,
         repaired_response: str | None = None,
         appended_suffix: str = "",
+        removed_suffix: str = "",
     ) -> ScopeLessonValidationResult:
         parsed = _json_clone(payload)
         diagnostics = list(initial_diagnostics)
@@ -572,6 +591,7 @@ class LessonScopeContentValidator:
             syntax_repaired=syntax_repaired,
             repaired_response=repaired_response,
             appended_suffix=appended_suffix,
+            removed_suffix=removed_suffix,
         )
 
     def fallback_for_transport(
@@ -643,11 +663,36 @@ class LessonScopeContentValidator:
             expected_fields.add("steps")
         if contract.goal_containers:
             expected_fields.add("goals")
-        if set(raw_body) != expected_fields:
+        normalized_raw_body = dict(raw_body)
+        if not fallback_mode:
+            ignorable_empty_fields = {
+                "steps": isinstance(normalized_raw_body.get("steps"), list)
+                and not normalized_raw_body.get("steps"),
+                "goals": isinstance(normalized_raw_body.get("goals"), Mapping)
+                and not normalized_raw_body.get("goals"),
+            }
+            for field, is_empty in ignorable_empty_fields.items():
+                if (
+                    field not in expected_fields
+                    and field in normalized_raw_body
+                    and is_empty
+                ):
+                    normalized_raw_body.pop(field)
+                    warnings.append(
+                        _diag(
+                            "lesson_scope_empty_container_field_ignored",
+                            "scope",
+                            f"{path}.{field}",
+                            f"ignored empty inapplicable Scope field {field!r}",
+                            scope_ref,
+                            severity="warning",
+                        )
+                    )
+        if set(normalized_raw_body) != expected_fields:
             raise _ScopeRejected(
                 (_diag("lesson_scope_body_fields_invalid", "scope", path, f"Scope body fields must be exactly {sorted(expected_fields)}", scope_ref),)
             )
-        raw_goals = raw_body.get("goals", {})
+        raw_goals = normalized_raw_body.get("goals", {})
         expected_goals = tuple(
             item.container_ref.removeprefix("goal:")
             for item in contract.goal_containers
@@ -671,7 +716,7 @@ class LessonScopeContentValidator:
             if contract.scope_container.materials:
                 steps, bound_scope, step_warnings = self._validate_container_steps(
                     contract.scope_container,
-                    raw_body.get("steps"),
+                    normalized_raw_body.get("steps"),
                     path=f"{path}.steps",
                     fallback_mode=fallback_mode,
                 )
@@ -1047,6 +1092,18 @@ class LessonScopeContentValidator:
                     "authority",
                     path,
                     "student text must not contain HTML, script, or code fences",
+                    scope_ref,
+                )
+            )
+        internal_math_hits = find_internal_math_tokens(text_payload)
+        if internal_math_hits:
+            errors.append(
+                _diag(
+                    "lesson_scope_internal_math_syntax",
+                    "authority",
+                    path,
+                    "student text contains internal math syntax: "
+                    f"{internal_math_hits}",
                     scope_ref,
                 )
             )
@@ -1888,6 +1945,36 @@ def _parse_json_object_with_eof_repair(raw: str) -> _ParsedJSONResponse:
     try:
         payload = json.loads(text)
     except json.JSONDecodeError as exc:
+        if exc.msg == "Extra data":
+            decoder = json.JSONDecoder()
+            try:
+                prefix_payload, prefix_end = decoder.raw_decode(text)
+            except json.JSONDecodeError as prefix_exc:
+                raise ValueError(
+                    "JSON has no complete root object before trailing data"
+                ) from prefix_exc
+            removed_suffix = text[prefix_end:].strip()
+            non_whitespace_suffix = "".join(
+                character
+                for character in removed_suffix
+                if not character.isspace()
+            )
+            if (
+                isinstance(prefix_payload, dict)
+                and removed_suffix
+                and len(non_whitespace_suffix) <= 8
+                and set(non_whitespace_suffix) <= {"}", "]"}
+            ):
+                repaired = text[:prefix_end].rstrip()
+                return _ParsedJSONResponse(
+                    payload=prefix_payload,
+                    syntax_repaired=True,
+                    repaired_text=repaired,
+                    removed_suffix=removed_suffix,
+                )
+            raise ValueError(
+                "JSON trailing data is not solely redundant closing delimiters"
+            ) from exc
         if exc.pos != len(text):
             raise ValueError(
                 "JSON syntax error is not an EOF-only missing closer"
@@ -1954,7 +2041,10 @@ def _parse_strict_json_object(raw: str) -> dict[str, Any]:
 
 
 def _split_derive_line(value: str) -> tuple[str, str]:
-    marker, separator, text = value.strip().partition(" ")
+    stripped = value.strip()
+    if stripped.startswith(("解方程", "解不等式", "解得")):
+        return "计算", stripped
+    marker, separator, text = stripped.partition(" ")
     if not separator:
         return "", ""
     return marker, text.strip()
@@ -2139,6 +2229,8 @@ def _diag(
     path: str,
     message: str,
     scope_ref: str,
+    *,
+    severity: Literal["error", "warning"] = "error",
 ) -> ScopeLessonDiagnostic:
     return ScopeLessonDiagnostic(
         code=code,
@@ -2146,6 +2238,7 @@ def _diag(
         path=path,
         message=message,
         scope_ref=scope_ref,
+        severity=severity,
     )
 
 

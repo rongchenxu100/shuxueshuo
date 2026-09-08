@@ -10,14 +10,14 @@
     "verified_answer_count": 4
   },
   "hashes": {
-    "annotated_plan": "38508730e5d0f0d7211e707653487ce6acaede185e63b85bc8f452e59345cf57",
+    "annotated_plan": "af480eb61e22d46cfe0a19c49fefeab42ea738cd59652482aa40ca7e70c1ea71",
     "output_schema": "c3af6c55f1278763863261a498f2c35e468535df26dd1f0db3168f0cd286f499",
-    "prompt": "acb02b69c5ec6bc38a45e52717774743399ef884362e28de874ab845374bd3f6"
+    "prompt": "a4826d362374ffacf405a4188c7a63b4d516a5bd67bba8c61272390b027fa257"
   },
   "prompt_chars": {
-    "system": 1316,
-    "user": 12126,
-    "total": 13442,
+    "system": 1533,
+    "user": 12421,
+    "total": 13954,
     "b0_total": 54707,
     "smaller_than_b0": true
   },

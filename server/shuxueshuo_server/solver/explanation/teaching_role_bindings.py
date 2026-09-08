@@ -14,7 +14,12 @@ import sympy as sp
 from shuxueshuo_server.solver.contracts import TeachingUnitSpec
 from shuxueshuo_server.solver.student_display import student_math_display
 
-from .models import ExplanationSnapshot, TeachingSource, iter_teaching_sources
+from .models import (
+    ExplanationSnapshot,
+    TeachingSource,
+    iter_teaching_sources,
+    teaching_source_owners,
+)
 
 
 class TeachingRoleBindingError(ValueError):
@@ -121,53 +126,99 @@ def _quadratic_from_constraints(
     }
     coefficients = _output_value(source, "coefficients")
     relation = _coefficient_mapping_display(coefficients)
-    curve_point = _one_input(source, "curve_point", required=False)
-    if curve_point is None:
-        relation = relation or _known_coefficient_inputs(source)
-        roles.update(
-            {
-                "constraints": relation,
-                "constraint_origin": "题设给出当前二次函数的系数条件",
-                "constraint_derivation": relation,
-            }
-        )
-        return roles
-
-    base = _curve_expression_for_point(curve_point, snapshot)
-    pair = _point_pair(curve_point.get("value"))
-    label = _point_label(curve_point)
-    if base is None or pair is None or not label or not relation:
-        raise TeachingRoleBindingError(
-            f"teaching_quadratic_curve_constraint_invalid: {source.source_step_id}"
-        )
-    x = sp.Symbol("x")
-    x_value, y_value = pair
-    substituted = _quadratic_substitution_simplified_display(base, x_value)
-    residual = sp.simplify(base.subs(x, x_value) - y_value)
-    factored = sp.factor(residual)
-    factored_display = _math(factored)
-    equation = f"{_math(y_value)}＝{substituted}"
-    if factored_display != substituted:
-        equation += f"＝{factored_display}"
-    dynamic = [
-        f"∵{_point_display(label, pair)} 在 y＝{_quadratic_expression_display(base)} 上",
-        f"∴{equation}",
-    ]
-    condition = _nonzero_factor_condition(factored, snapshot)
-    if condition:
-        dynamic.append(f"∵{condition}")
-    dynamic.extend(
-        (
-            f"∴{relation}",
-            f"∴y＝{result}{roles['completed_square_suffix']}",
-        )
+    point_items = _input_items(
+        source,
+        "curve_point",
+        "curve_points",
+        "p1",
+        "p2",
     )
+    constraint_displays = _quadratic_constraint_displays(
+        source,
+        coefficients=coefficients,
+    )
+    known_substitutions = _quadratic_known_substitutions(
+        source,
+        coefficients=coefficients,
+    )
+    if not relation:
+        relation = "，".join(constraint_displays)
+    if not relation:
+        raise TeachingRoleBindingError(
+            f"teaching_quadratic_constraint_result_missing: {source.source_step_id}"
+        )
+
+    dynamic: list[str] = []
+    point_equations: list[str] = []
+    x = sp.Symbol("x")
+    for point_item in point_items:
+        base = _curve_expression_for_point(point_item, snapshot)
+        pair = _point_pair(point_item.get("value"))
+        label = _point_label(point_item)
+        if base is None or pair is None or not label:
+            raise TeachingRoleBindingError(
+                "teaching_quadratic_curve_constraint_invalid: "
+                f"{source.source_step_id}"
+            )
+        x_value, y_value = pair
+        working_base = sp.simplify(base.subs(known_substitutions))
+        substituted = _quadratic_substitution_simplified_display(
+            working_base,
+            x_value,
+        )
+        residual = sp.simplify(working_base.subs(x, x_value) - y_value)
+        factored = sp.factor(residual)
+        equation = f"{_math(y_value)}＝{substituted}"
+        factored_display = _math(factored)
+        if len(point_items) == 1 and factored_display != substituted:
+            equation += f"＝{factored_display}"
+        dynamic.extend(
+            (
+                f"∵{_point_display(label, pair)} 在 "
+                f"y＝{_quadratic_expression_display(base)} 上",
+                f"∴代入 {label} 点坐标，得 {equation}",
+            )
+        )
+        point_equations.append(equation)
+        if len(point_items) == 1:
+            condition = _nonzero_factor_condition(factored, snapshot)
+            if condition:
+                dynamic.append(f"∵{condition}")
+
+    if point_items and constraint_displays:
+        dynamic.insert(0, f"∵题设还给出 {'，'.join(constraint_displays)}")
+    if point_items:
+        solve_action = "联立上述方程" if len(point_equations) > 1 else "化简上述方程"
+        dynamic.append(f"计算{solve_action}，得 {relation}")
+    else:
+        origin = "，".join(constraint_displays) or relation
+        relation_derivations = _quadratic_relation_derivation_displays(
+            source,
+            coefficients=coefficients,
+            known_substitutions=known_substitutions,
+        )
+        source_expression = _matching_quadratic_source_expression(
+            snapshot,
+            coefficients=coefficients,
+            result=parabola,
+        )
+        dynamic.append(f"∵已知系数条件为 {origin}")
+        dynamic.extend(relation_derivations)
+        if source_expression is not None:
+            dynamic.append(
+                f"计算代入 y＝"
+                f"{_quadratic_expression_display(source_expression)}，"
+                f"得 y＝{result}"
+            )
+        elif not relation_derivations:
+            dynamic.append(f"计算由系数条件得 {relation}")
+    dynamic.append(f"∴y＝{result}{roles['completed_square_suffix']}")
     roles.update(
         {
             "constraints": relation,
             "constraint_origin": dynamic[0].removeprefix("∵"),
             "constraint_derivation": "；".join(
-                value.removeprefix("∵").removeprefix("∴")
+                value.removeprefix("∵").removeprefix("∴").removeprefix("计算")
                 for value in dynamic[1:-1]
             ),
             "derive_items": dynamic,
@@ -216,9 +267,17 @@ def _quadratic_y_axis_intercept(
     quadratic = _input_expr(source, "quadratic")
     point = _output_point(source, "point")
     label = _output_label(source, "point")
+    parabola = _quadratic_expression_display(quadratic)
+    value = sp.simplify(quadratic.subs(sp.Symbol("x"), 0))
     return {
-        "quadratic": f"y＝{_quadratic_expression_display(quadratic)}",
+        "quadratic": f"y＝{parabola}",
         "point": _point_display(label, point),
+        "derive_items": (
+            "∵y 轴上的点满足 x＝0",
+            f"计算代入 x＝0，得 y＝"
+            f"{_quadratic_substitution_display(quadratic, sp.Integer(0))}＝{_math(value)}",
+            f"∴{_point_display(label, point)}",
+        ),
     }
 
 
@@ -226,7 +285,6 @@ def _right_angle_equal_length_candidates(
     source: TeachingSource,
     snapshot: ExplanationSnapshot,
 ) -> Mapping[str, Any]:
-    del snapshot
     relation = _one_input(source, "right_angle_equal_length")
     target_item = _one_input(source, "target")
     assert relation is not None and target_item is not None
@@ -243,11 +301,62 @@ def _right_angle_equal_length_candidates(
         )
     anchor = angle[1]
     reference = angle[2] if target == angle[0] else angle[0]
+    anchor_item = _find_point_input_by_label(source, anchor)
+    reference_item = _find_point_input_by_label(source, reference)
+    anchor_pair = (
+        _point_pair(anchor_item.get("value"))
+        if anchor_item
+        else _snapshot_point_pair(anchor, snapshot, source=source)
+    )
+    reference_pair = (
+        _point_pair(reference_item.get("value"))
+        if reference_item
+        else _snapshot_point_pair(reference, snapshot, source=source)
+    )
+    dynamic: list[str] = [
+        f"∵以 {anchor} 为直角顶点，且 {anchor}{target}＝{anchor}{reference}、"
+        f"∠{target}{anchor}{reference}＝90°",
+    ]
+    dx = sp.simplify(reference_pair[0] - anchor_pair[0])
+    dy = sp.simplify(reference_pair[1] - anchor_pair[1])
+    candidates = _point_list(source.outputs["candidates"].get("value"))
+    if len(candidates) != 2:
+        raise TeachingRoleBindingError(
+            "teaching_right_angle_equal_length_candidates_invalid"
+        )
+    candidate_labels = tuple(
+        _indexed_point_label(target, index) for index in range(1, 3)
+    )
+    candidate_displays = tuple(
+        _point_display(label, point)
+        for label, point in zip(candidate_labels, candidates, strict=True)
+    )
+    dynamic.append(
+        f"∵{_point_display(anchor, anchor_pair)}，"
+        f"{_point_display(reference, reference_pair)}，"
+        f"从 {anchor} 到 {reference} 横向变化 {_math(dx)}、"
+        f"纵向变化 {_math(dy)}"
+    )
+    dynamic.append(
+        f"设将 {anchor}{reference} 绕 {anchor} 顺、逆时针旋转 90°，"
+        f"所得端点分别为 {candidate_labels[0]}、{candidate_labels[1]}"
+    )
+    dynamic.append(
+        "∴旋转后横、纵坐标差互换，并改变其中一个方向，"
+        f"所以 {target} 的两个候选位置为 "
+        + "，".join(candidate_displays)
+    )
+    construction_result = "，".join(candidate_displays)
     return {
         "anchor": anchor,
         "reference": reference,
         "target": target,
-        "candidates": _item_display(source.outputs["candidates"]),
+        "candidates": construction_result,
+        "construction_title": "由直角等腰关系构造候选点",
+        "construction_nav_title": "构造候选点",
+        "construction_goal": "把已知直角边顺、逆时针旋转 90°，列出所有等长候选点。",
+        "construction_result": construction_result,
+        "derive_items": tuple(dynamic),
     }
 
 
@@ -267,10 +376,28 @@ def _midpoint_from_definition(
         raise TeachingRoleBindingError(
             "teaching_midpoint_definition_endpoints_invalid"
         )
+    p1_pair = _snapshot_point_pair(endpoints[0], snapshot, source=source)
+    p2_pair = _snapshot_point_pair(endpoints[1], snapshot, source=source)
+    midpoint = _output_point(source, "midpoint")
+    midpoint_label = _output_label(source, "midpoint")
+    p1 = _point_display(endpoints[0], p1_pair)
+    p2 = _point_display(endpoints[1], p2_pair)
+    midpoint_display = _point_display(midpoint_label, midpoint)
+    calculation = (
+        f"x_{midpoint_label}＝({_coordinate_operand(p1_pair[0])}＋"
+        f"{_coordinate_operand(p2_pair[0])})/2＝{_math(midpoint[0])}，"
+        f"y_{midpoint_label}＝({_coordinate_operand(p1_pair[1])}＋"
+        f"{_coordinate_operand(p2_pair[1])})/2＝{_math(midpoint[1])}"
+    )
     return {
-        "p1": _snapshot_point_display(endpoints[0], snapshot),
-        "p2": _snapshot_point_display(endpoints[1], snapshot),
-        "midpoint": _item_display(source.outputs["midpoint"]),
+        "p1": p1,
+        "p2": p2,
+        "midpoint": midpoint_display,
+        "derive_items": (
+            f"∵线段两端点为 {p1}、{p2}",
+            f"计算由中点公式，{calculation}",
+            f"∴中点为 {midpoint_display}",
+        ),
     }
 
 
@@ -278,17 +405,42 @@ def _parameter_from_segment_length(
     source: TeachingSource,
     snapshot: ExplanationSnapshot,
 ) -> Mapping[str, Any]:
+    parameter = _parameter_output_target(source)
+    parameter_value = _item_display(source.outputs["parameter_value"])
+    condition = _segment_condition_display(source)
+    equations = _calculation_equation_displays(source)
+    if not equations:
+        raise TeachingRoleBindingError(
+            f"teaching_segment_parameter_equation_missing: {source.source_step_id}"
+        )
+    p1 = _input_point_display(source, "p1", snapshot)
+    p2 = _input_point_display(source, "p2", snapshot)
+    dynamic = [
+        f"∵目标线段端点为 {p1}、{p2}",
+        f"∵题设长度条件为 {condition}",
+    ]
+    for equation in equations:
+        dynamic.append(f"计算由距离公式建立方程 {equation}")
+    candidates = _real_calculation_solutions(source, parameter)
+    if candidates:
+        dynamic.append(
+            f"计算解方程，得 "
+            f"{_solution_candidates_display(parameter, candidates)}"
+        )
+    if len(candidates) > 1:
+        filter_context = _parameter_filter_context(source, snapshot, parameter)
+        dynamic.append(
+            f"∵根据 {filter_context}，保留 "
+            f"{parameter}＝{parameter_value}"
+        )
+    dynamic.append(f"∴{parameter}＝{parameter_value}")
     return {
-        "p1": _input_point_display(source, "p1", snapshot),
-        "p2": _input_point_display(source, "p2", snapshot),
-        "condition": _first_input_display(
-            source,
-            "condition",
-            "length_squared",
-            "segment_length_relation",
-        ),
-        "parameter": _parameter_output_target(source),
-        "parameter_value": _item_display(source.outputs["parameter_value"]),
+        "p1": p1,
+        "p2": p2,
+        "condition": condition,
+        "parameter": parameter,
+        "parameter_value": parameter_value,
+        "derive_items": tuple(dynamic),
     }
 
 
@@ -296,19 +448,35 @@ def _parameter_from_minimum_value(
     source: TeachingSource,
     snapshot: ExplanationSnapshot,
 ) -> Mapping[str, Any]:
-    del snapshot
+    minimum_expression = _first_input_display(source, "minimum_expression")
+    condition = _first_input_display(source, "condition", "minimum_value")
+    parameter = _parameter_output_target(source)
+    parameter_value = _item_display(source.outputs["parameter_value"])
+    equations = _calculation_equation_displays(source)
+    equation = equations[0] if equations else f"{minimum_expression}＝{condition}"
+    candidates = _real_calculation_solutions(source, parameter)
+    dynamic = [
+        f"∵题设要求 {equation}",
+        (
+            f"计算解方程，得 "
+            f"{_solution_candidates_display(parameter, candidates)}"
+            if candidates
+            else f"计算解关于 {parameter} 的方程"
+        ),
+    ]
+    if len(candidates) > 1:
+        filter_context = _parameter_filter_context(source, snapshot, parameter)
+        dynamic.append(
+            f"∵根据 {filter_context}，保留 "
+            f"{parameter}＝{parameter_value}"
+        )
+    dynamic.append(f"∴{parameter}＝{parameter_value}")
     return {
-        "minimum_expression": _first_input_display(
-            source,
-            "minimum_expression",
-        ),
-        "condition": _first_input_display(
-            source,
-            "condition",
-            "minimum_value",
-        ),
-        "parameter": _parameter_output_target(source),
-        "parameter_value": _item_display(source.outputs["parameter_value"]),
+        "minimum_expression": minimum_expression,
+        "condition": condition,
+        "parameter": parameter,
+        "parameter_value": parameter_value,
+        "derive_items": tuple(dynamic),
     }
 
 
@@ -316,7 +484,6 @@ def _angle_sum_equal_angle(
     source: TeachingSource,
     snapshot: ExplanationSnapshot,
 ) -> Mapping[str, Any]:
-    del snapshot
     condition_item = _one_input(source, "condition")
     assert condition_item is not None
     condition_value = condition_item.get("value")
@@ -337,9 +504,27 @@ def _angle_sum_equal_angle(
     right = terms[1]
     if not left or not _valid_angle_name(right):
         raise TeachingRoleBindingError("teaching_equal_angle_roles_invalid")
+    condition = f"∠{terms[0]}＋∠{terms[1]}＝{value}°"
+    equality = f"∠{left}＝∠{right}"
+    reference = str(equality_value.get("reference_angle") or "")
+    reference_value = _math(
+        equality_value.get("reference_angle_value") or condition_value.get("value")
+    )
+    reference_proof = _reference_angle_proof(
+        reference,
+        reference_value=reference_value,
+        snapshot=snapshot,
+        source=source,
+    )
+    dynamic = [
+        *reference_proof,
+        f"∵∠{reference}＝∠{terms[0]}＋∠{left}，且 {condition}",
+        f"∴两式消去公共角 ∠{terms[0]}，得 {equality}",
+    ]
     return {
-        "condition": f"∠{terms[0]}＋∠{terms[1]}＝{value}°",
-        "angle_equality": f"∠{left}＝∠{right}",
+        "condition": condition,
+        "angle_equality": equality,
+        "derive_items": tuple(dynamic),
     }
 
 
@@ -351,10 +536,57 @@ def _axis_intercept_from_equal_angle(
     assert equality_item is not None
     equality = _referenced_angle_equality(equality_item, snapshot)
     point = _output_point(source, "point")
-    label = _first_unused_point_label(_problem_point_labels(snapshot))
+    label = _anonymous_point_output_label(source, snapshot)
+    match = re.fullmatch(r"∠([^＝]+)＝∠(.+)", equality)
+    if match is None:
+        raise TeachingRoleBindingError("teaching_angle_equality_display_invalid")
+    left, right = match.groups()
+    if len(left) != 3 or len(right) != 3:
+        raise TeachingRoleBindingError("teaching_angle_equality_points_invalid")
+
+    target_angle = f"{left[:2]}{label}"
+    origin_label = left[0]
+    x_axis_label = left[1]
+    reference_x_label = right[0]
+    y_axis_label = right[1]
+    right_origin_label = right[2]
+    if right_origin_label != origin_label:
+        raise TeachingRoleBindingError("teaching_equal_angle_origin_mismatch")
+
+    origin = _snapshot_point_pair(origin_label, snapshot, source=source)
+    x_axis_point = _snapshot_point_pair(x_axis_label, snapshot, source=source)
+    reference_x_point = _snapshot_point_pair(
+        reference_x_label,
+        snapshot,
+        source=source,
+    )
+    y_axis_point = _snapshot_point_pair(y_axis_label, snapshot, source=source)
+    ob = _point_distance(origin, x_axis_point)
+    of = _point_distance(origin, point)
+    ao = _point_distance(origin, reference_x_point)
+    co = _point_distance(origin, y_axis_point)
+    ray_point = left[2]
+    position = _axis_position_statement(label, point, origin=origin)
+    dynamic = (
+        f"∵{x_axis_label}、{ray_point}、{label} 共线，所以 "
+        f"∠{target_angle}＝∠{left}＝∠{right}",
+        f"∵Rt△{x_axis_label}{origin_label}{label} 与 "
+        f"Rt△{reference_x_label}{origin_label}{y_axis_label} 均为直角三角形",
+        f"∴tan∠{target_angle}＝{origin_label}{label}/{origin_label}{x_axis_label}，"
+        f"tan∠{right}＝{reference_x_label}{origin_label}/{y_axis_label}{origin_label}",
+        f"∴{origin_label}{label}/{origin_label}{x_axis_label}＝"
+        f"{reference_x_label}{origin_label}/{y_axis_label}{origin_label}",
+        f"计算{origin_label}{x_axis_label}＝{_math(ob)}，"
+        f"{reference_x_label}{origin_label}＝{_math(ao)}，"
+        f"{y_axis_label}{origin_label}＝{_math(co)}，所以 "
+        f"{origin_label}{label}＝{_math(of)}",
+        f"∵{position}",
+        f"∴{_point_display(label, point)}",
+    )
     return {
         "angle_equality": equality,
         "point": _point_display(label, point),
+        "derive_items": dynamic,
     }
 
 
@@ -362,14 +594,44 @@ def _line_parabola_intersection(
     source: TeachingSource,
     snapshot: ExplanationSnapshot,
 ) -> Mapping[str, Any]:
+    line_p1_item = _one_input(source, "line_p1")
+    line_p2_item = _one_input(source, "line_p2")
+    assert line_p1_item is not None and line_p2_item is not None
+    line_p1_pair = _point_pair(line_p1_item.get("value"))
+    line_p2_pair = _point_pair(line_p2_item.get("value"))
+    if line_p1_pair is None or line_p2_pair is None:
+        raise TeachingRoleBindingError("teaching_line_points_invalid")
+    line_p1 = _input_point_display(source, "line_p1", snapshot)
+    line_p2 = _input_point_display(source, "line_p2", snapshot)
+    known_point = _input_point_display(source, "known_point", snapshot)
+    parabola_expr = _input_expr(source, "parabola")
+    parabola = f"y＝{_quadratic_expression_display(parabola_expr)}"
+    line_equation, line_expr = _line_equation(line_p1_pair, line_p2_pair)
+    target_pair = _output_point(source, "point")
+    target = _point_display(_output_label(source, "point"), target_pair)
+    known_pair = _point_pair(_one_input(source, "known_point").get("value"))
+    if line_expr is None or known_pair is None:
+        raise TeachingRoleBindingError("teaching_line_parabola_equation_invalid")
+    x = sp.Symbol("x")
+    intersection_equation = sp.Eq(line_expr, parabola_expr)
+    roots = tuple(
+        sorted(
+            (sp.simplify(item) for item in sp.solve(intersection_equation, x)),
+            key=sp.default_sort_key,
+        )
+    )
     return {
-        "line_p1": _input_point_display(source, "line_p1", snapshot),
-        "line_p2": _input_point_display(source, "line_p2", snapshot),
-        "parabola": f"y＝{_quadratic_expression_display(_input_expr(source, 'parabola'))}",
-        "known_point": _input_point_display(source, "known_point", snapshot),
-        "point": _point_display(
-            _output_label(source, "point"),
-            _output_point(source, "point"),
+        "line_p1": line_p1,
+        "line_p2": line_p2,
+        "parabola": parabola,
+        "known_point": known_point,
+        "point": target,
+        "derive_items": (
+            f"作连接 {line_p1}、{line_p2}，得直线 {line_equation}",
+            f"计算联立 {line_equation} 与 {parabola}，得 "
+            + " 或 ".join(f"x＝{_math(root)}" for root in roots),
+            f"∵{known_point} 是已知交点，排除 x＝{_math(known_pair[0])}",
+            f"∴另一交点为 {target}",
         ),
     }
 
@@ -378,14 +640,44 @@ def _quadratic_vertex(
     source: TeachingSource,
     snapshot: ExplanationSnapshot,
 ) -> Mapping[str, Any]:
-    del snapshot
     parabola = _input_expr(source, "parabola")
     point = _output_point(source, "point")
-    label = _output_label(source, "point")
+    output_label = _output_label(source, "point")
+    semantic_label = _semantic_problem_point_label(
+        source,
+        snapshot,
+        definition="vertex",
+    )
+    label = (
+        semantic_label
+        if semantic_label and output_label not in _problem_point_labels(snapshot)
+        else output_label or semantic_label
+    )
     vertex_form = _completed_square_expression(parabola)
+    parabola_display = _quadratic_expression_display(parabola)
+    point_display = _point_display(label, point)
+    if vertex_form:
+        calculation = f"配方，得 y＝{vertex_form}"
+    else:
+        x = sp.Symbol("x")
+        poly = sp.Poly(parabola, x)
+        a = sp.simplify(poly.coeff_monomial(x**2))
+        b = sp.simplify(poly.coeff_monomial(x))
+        calculation = (
+            f"由 x_顶＝－({_math(b)})/[2×({_math(a)})]"
+            f"＝{_math(point[0])}，"
+            f"代入得 y_顶＝{_math(point[1])}"
+        )
+        if a == 0:
+            raise TeachingRoleBindingError("teaching_quadratic_vertex_not_quadratic")
     return {
-        "parabola_vertex_form": f"y＝{vertex_form or _quadratic_expression_display(parabola)}",
-        "vertex_point": _point_display(label, point),
+        "parabola_vertex_form": f"y＝{vertex_form or parabola_display}",
+        "vertex_point": point_display,
+        "derive_items": (
+            f"∵抛物线为 y＝{parabola_display}",
+            f"计算{calculation}",
+            f"∴顶点为 {point_display}",
+        ),
     }
 
 
@@ -535,20 +827,36 @@ def _curve_point_candidates(
         for candidate in candidates
         if (value := _parameter_value(target_pair, candidate, parameter)) is not None
     ]
+    target_display = _point_display(target_label, target_pair)
+    curve_display = _point_display(curve_label, curve_pair)
+    curve_equation = f"y＝{_quadratic_expression_display(parabola)}"
+    substitution_equation = (
+        f"{_math(curve_y)}＝{_quadratic_substitution_display(parabola, x_arg)}"
+    )
+    parameter_equation = (
+        f"{_quadratic_in_variable_display(coefficients, _math(x_arg))}＝0"
+    )
+    parameter_solutions = _solutions_display(str(parameter), parameter_values)
+    target_candidates = " 或 ".join(
+        _point_display(target_label, point) for point in candidates
+    )
     return {
         "target_label": target_label,
         "curve_kind": "抛物线",
-        "curve_point": _point_display(curve_label, curve_pair),
-        "curve_equation": f"y＝{_quadratic_expression_display(parabola)}",
-        "substitution_equation": (
-            f"{_math(curve_y)}＝{_quadratic_substitution_display(parabola, x_arg)}"
-        ),
-        "parameter_equation": (
-            f"{_quadratic_in_variable_display(coefficients, _math(x_arg))}＝0"
-        ),
-        "parameter_solutions": _solutions_display(str(parameter), parameter_values),
-        "target_candidates": " 或 ".join(
-            _point_display(target_label, point) for point in candidates
+        "curve_point": curve_display,
+        "curve_equation": curve_equation,
+        "substitution_equation": substitution_equation,
+        "parameter_equation": parameter_equation,
+        "parameter_solutions": parameter_solutions,
+        "target_candidates": target_candidates,
+        "derive_items": (
+            f"∵{target_display} 与 {curve_display} 都由同一参数 "
+            f"{_math(parameter)} 表示",
+            f"∵{curve_display} 在 {curve_equation} 上",
+            f"∴代入曲线点坐标，得 {substitution_equation}",
+            f"计算整理为 {parameter_equation}",
+            f"计算解得 {parameter_solutions}",
+            f"∴把参数值代回 {target_display}，得 {target_candidates}",
         ),
     }
 
@@ -557,7 +865,6 @@ def _parameter_from_expression(
     source: TeachingSource,
     snapshot: ExplanationSnapshot,
 ) -> Mapping[str, Any]:
-    del snapshot
     expression = _one_input(source, "expression")
     condition = _one_input(source, "minimum_value", required=False)
     if condition is None:
@@ -568,11 +875,45 @@ def _parameter_from_expression(
     parameter_item = _one_input(source, "parameter")
     parameter = _item_display(parameter_item)
     output = _output_value(source, "parameter_value")
+    equation_displays = _calculation_equation_displays(source)
+    equation = (
+        equation_displays[0]
+        if equation_displays
+        else f"{_math(expression.get('value'))}＝{_math(target)}"
+    )
+    expression_value = _expr(expression.get("value"))
+    target_value = _expr(target)
+    candidates = _real_calculation_solutions(source, parameter)
+    branch_derivation = _piecewise_parameter_derivation(
+        expression_value,
+        target=target_value,
+        parameter=parameter,
+    )
+    if branch_derivation:
+        dynamic = list(branch_derivation)
+    else:
+        dynamic = [
+            f"∵题设要求 {equation}",
+            (
+                f"计算解方程，得 "
+                f"{_solution_candidates_display(parameter, candidates)}"
+                if candidates
+                else f"计算解关于 {parameter} 的方程"
+            ),
+        ]
+    if len(candidates) > 1:
+        filter_context = _parameter_filter_context(source, snapshot, parameter)
+        dynamic.append(
+            f"∵根据 {filter_context}，保留 "
+            f"{parameter}＝{_math(output)}"
+        )
+    dynamic.append(f"∴{parameter}＝{_math(output)}")
     return {
         "expression": _math(expression.get("value")),
         "target_value": _math(target),
         "parameter": parameter,
         "parameter_value": _math(output),
+        "derive_items": tuple(dynamic),
     }
 
 
@@ -604,11 +945,23 @@ def _evaluate_point(
     output_display = str(output_item.get("display") or "").strip()
     if output_display.startswith("("):
         output_display = label + output_display
+    source_point_display = source_display or _raw_point_display(label, source_pair)
+    evaluated_point_display = output_display or _raw_point_display(label, output)
+    coordinate_calculation = (
+        f"x_{label}＝{_math(source_pair[0])}＝{_math(output[0])}，"
+        f"y_{label}＝{_math(source_pair[1])}＝{_math(output[1])}"
+    )
     return {
-        "source_point": source_display or _raw_point_display(label, source_pair),
+        "source_point": source_point_display,
         "parameter": parameter,
         "parameter_value": _math(value_item.get("value")),
-        "evaluated_point": output_display or _raw_point_display(label, output),
+        "evaluated_point": evaluated_point_display,
+        "derive_items": (
+            f"∵{source_point_display}，{parameter}＝{_math(value_item.get('value'))}",
+            f"计算将 {parameter}＝{_math(value_item.get('value'))} 代入："
+            f"{coordinate_calculation}",
+            f"∴{evaluated_point_display}",
+        ),
     }
 
 
@@ -646,6 +999,245 @@ def _translated_point(
         "source_point": _point_display(source_label, source_pair),
         "target_point": _point_display(target_label, target_pair),
         "vector": f"({_math(vector[0])},{_math(vector[1])})",
+        "derive_items": (
+            f"∵{_point_display(source_label, source_pair)} 按向量 "
+            f"({_math(vector[0])},{_math(vector[1])}) 平移",
+            f"计算横、纵坐标分别相加："
+            f"({_math(source_pair[0])}＋({_math(vector[0])})，"
+            f"{_math(source_pair[1])}＋({_math(vector[1])}))",
+            f"∴{_point_display(target_label, target_pair)}",
+        ),
+    }
+
+
+def _distance_between_points(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    del snapshot
+    p1_item = _one_input(source, "p1")
+    p2_item = _one_input(source, "p2")
+    assert p1_item is not None and p2_item is not None
+    p1 = _point_pair(p1_item.get("value"))
+    p2 = _point_pair(p2_item.get("value"))
+    if p1 is None or p2 is None:
+        raise TeachingRoleBindingError("teaching_distance_points_invalid")
+    p1_display = _item_display(p1_item)
+    p2_display = _item_display(p2_item)
+    p1_label = _point_label(p1_item)
+    p2_label = _point_label(p2_item)
+    segment = f"{p1_label}{p2_label}" if p1_label and p2_label else "两点距离"
+    distance = _expr(_output_value(source, "distance"))
+    distance_display = _item_display(
+        source.outputs.get("evaluated_distance")
+        or source.outputs.get("distance")
+        or {}
+    )
+    formula = (
+        f"{segment}＝√[({_math(p2[0])}－({_math(p1[0])}))²＋"
+        f"({_math(p2[1])}－({_math(p1[1])}))²]"
+    )
+    dynamic = [
+        f"∵两端点为 {p1_display} 与 {p2_display}",
+        f"计算由两点距离公式，{formula}＝{_math(distance)}",
+    ]
+    parameter_identity_item = _one_input(source, "parameter", required=False)
+    parameter_value_item = _one_input(
+        source,
+        "parameter_value",
+        required=False,
+    )
+    if (
+        parameter_value_item is not None
+        and "evaluated_distance" in source.outputs
+    ):
+        parameter = _parameter_name_from_bound_inputs(
+            parameter_item=parameter_identity_item,
+            value_item=parameter_value_item,
+        )
+        dynamic.append(
+            f"计算代入 {parameter}＝{_math(parameter_value_item.get('value'))}，"
+            f"得 {distance_display}"
+        )
+    dynamic.append(f"∴{segment}＝{distance_display}")
+    return {
+        "p1": p1_display,
+        "p2": p2_display,
+        "distance": distance_display,
+        "derive_items": tuple(dynamic),
+    }
+
+
+def _equal_length_ray_point(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    del snapshot
+    anchor_item = _one_input(source, "anchor")
+    reference_item = _one_input(source, "reference_point")
+    ray_item = _one_input(source, "ray_point")
+    assert (
+        anchor_item is not None
+        and reference_item is not None
+        and ray_item is not None
+    )
+    anchor = _point_pair(anchor_item.get("value"))
+    reference = _point_pair(reference_item.get("value"))
+    ray_point = _point_pair(ray_item.get("value"))
+    target = _output_point(source, "point")
+    if anchor is None or reference is None or ray_point is None:
+        raise TeachingRoleBindingError("teaching_equal_length_ray_points_invalid")
+    anchor_label = _point_label(anchor_item)
+    reference_label = _point_label(reference_item)
+    ray_label = _point_label(ray_item)
+    target_label = _output_label(source, "point")
+    reference_length = _point_distance(anchor, reference)
+    target_display = _point_display(target_label, target)
+    return {
+        "anchor": _point_display(anchor_label, anchor),
+        "reference_point": _point_display(reference_label, reference),
+        "ray_point": _point_display(ray_label, ray_point),
+        "point": target_display,
+        "derive_items": (
+            f"∵射线 {anchor_label}{ray_label} 由 "
+            f"{_point_display(anchor_label, anchor)}、"
+            f"{_point_display(ray_label, ray_point)} 确定",
+            f"计算参考线段 {anchor_label}{reference_label}＝{_math(reference_length)}",
+            f"作在射线 {anchor_label}{ray_label} 上截取 "
+            f"{anchor_label}{target_label}＝{anchor_label}{reference_label}",
+            f"∴{target_display}",
+        ),
+    }
+
+
+def _line_intersection(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    del snapshot
+    items = {
+        name: _one_input(source, name)
+        for name in ("line1_p1", "line1_p2", "line2_p1", "line2_p2")
+    }
+    pairs = {
+        name: _point_pair(item.get("value")) if item is not None else None
+        for name, item in items.items()
+    }
+    if any(pair is None for pair in pairs.values()):
+        raise TeachingRoleBindingError("teaching_line_intersection_points_invalid")
+    line1, _ = _line_equation(
+        _require_point_pair(pairs["line1_p1"]),
+        _require_point_pair(pairs["line1_p2"]),
+    )
+    line2, _ = _line_equation(
+        _require_point_pair(pairs["line2_p1"]),
+        _require_point_pair(pairs["line2_p2"]),
+    )
+    intersection_pair = _output_point(source, "intersection")
+    intersection = _point_display(
+        _output_label(source, "intersection"),
+        intersection_pair,
+    )
+    displays = {
+        name: _item_display(item)
+        for name, item in items.items()
+        if item is not None
+    }
+    return {
+        **displays,
+        "intersection": intersection,
+        "derive_items": (
+            f"∵第一条直线经过 {displays['line1_p1']}、{displays['line1_p2']}，"
+            f"其方程为 {line1}",
+            f"∵第二条直线经过 {displays['line2_p1']}、{displays['line2_p2']}，"
+            f"其方程为 {line2}",
+            f"计算联立 {line1} 与 {line2}，解得 "
+            f"x＝{_math(intersection_pair[0])}，y＝{_math(intersection_pair[1])}",
+            f"∴交点为 {intersection}",
+        ),
+    }
+
+
+def _point_on_parabola_at_x(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    del snapshot
+    parabola = _input_expr(source, "parabola")
+    point = _output_point(source, "point")
+    label = _output_label(source, "point")
+    curve_display = _quadratic_expression_display(parabola)
+    substitution = _quadratic_substitution_display(parabola, point[0])
+    point_display = _point_display(label, point)
+    return {
+        "parabola": f"y＝{curve_display}",
+        "point": point_display,
+        "derive_items": (
+            f"∵{label or '目标点'} 在 y＝{curve_display} 上，且 x＝{_math(point[0])}",
+            f"计算代入横坐标，y＝{substitution}＝{_math(point[1])}",
+            f"∴{point_display}",
+        ),
+    }
+
+
+def _quadratic_axis_from_relation(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    del snapshot
+    relation_item = _one_input(source, "coefficient_relation")
+    assert relation_item is not None
+    relation = _item_display(relation_item)
+    raw = relation_item.get("value")
+    equation_text = raw.get("equation") if isinstance(raw, Mapping) else raw
+    equation = _parse_equation(equation_text)
+    axis_point = _output_point(source, "axis_point")
+    axis_display = _point_display(_output_label(source, "axis_point"), axis_point)
+    substitution = ""
+    if equation is not None:
+        b = sp.Symbol("b")
+        solutions = sp.solve(equation, b)
+        if len(solutions) == 1:
+            substitution = f"由 {relation} 得 b＝{_math(solutions[0])}，"
+    return {
+        "coefficient_relation": relation,
+        "axis_point": axis_display,
+        "derive_items": (
+            "∵二次函数的对称轴为 x＝－b/(2a)",
+            f"计算{substitution}代入得 x＝{_math(axis_point[0])}",
+            f"∴对称轴与 x 轴交于 {axis_display}",
+        ),
+    }
+
+
+def _evaluate_expression_at_parameter(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+) -> Mapping[str, Any]:
+    del snapshot
+    expression_item = _one_input(source, "expression")
+    parameter_item = _one_input(source, "parameter", required=False)
+    value_item = _one_input(source, "parameter_value")
+    assert expression_item is not None and value_item is not None
+    output_name, output_item = next(iter(source.outputs.items()))
+    parameter = _parameter_name_from_bound_inputs(
+        parameter_item=parameter_item,
+        value_item=value_item,
+    )
+    expression_display = _item_display(expression_item)
+    evaluated_display = _item_display(output_item)
+    return {
+        "expression": expression_display,
+        "parameter": parameter,
+        "parameter_value": _math(value_item.get("value")),
+        "evaluated_result": evaluated_display,
+        "derive_items": (
+            f"∵{parameter}＝{_math(value_item.get('value'))}",
+            f"计算把 {parameter}＝{_math(value_item.get('value'))} 代入 "
+            f"{expression_display}，化简得 {evaluated_display}",
+            f"∴{evaluated_display}",
+        ),
+        output_name: evaluated_display,
     }
 
 
@@ -663,6 +1255,226 @@ def _one_input(
     raise TeachingRoleBindingError(
         f"teaching_input_cardinality_invalid: {source.source_step_id}.{name}"
     )
+
+
+def _input_items(
+    source: TeachingSource,
+    *names: str,
+) -> tuple[Mapping[str, Any], ...]:
+    result: list[Mapping[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for name in names:
+        for item in source.inputs.get(name, ()):
+            key = (
+                str(item.get("ref") or ""),
+                repr(item.get("value")),
+            )
+            if key in seen:
+                continue
+            seen.add(key)
+            result.append(item)
+    return tuple(result)
+
+
+def _quadratic_constraint_displays(
+    source: TeachingSource,
+    *,
+    coefficients: Any,
+) -> tuple[str, ...]:
+    """Render the actual coefficient facts without leaking input ref spelling."""
+
+    result: list[str] = []
+    coefficient_values = (
+        {
+            str(name): _expr(value)
+            for name, value in coefficients.items()
+        }
+        if isinstance(coefficients, Mapping)
+        else {}
+    )
+    for item in source.inputs.get("known_coefficients", ()):
+        value = _expr(item.get("value"))
+        name = _coefficient_name_for_input(item, coefficient_values)
+        if name:
+            result.append(f"{name}＝{_math(value)}")
+        else:
+            result.append(f"已知系数取值为 {_math(value)}")
+    for item in _input_items(
+        source,
+        "coefficient_relation",
+        "extra_equation",
+        "parameter_value",
+    ):
+        result.append(_item_display(item))
+    return tuple(dict.fromkeys(result))
+
+
+def _quadratic_known_substitutions(
+    source: TeachingSource,
+    *,
+    coefficients: Any,
+) -> dict[sp.Symbol, sp.Expr]:
+    if not isinstance(coefficients, Mapping):
+        return {}
+    coefficient_values = {
+        str(name): _expr(value)
+        for name, value in coefficients.items()
+    }
+    substitutions: dict[sp.Symbol, sp.Expr] = {}
+    for item in source.inputs.get("known_coefficients", ()):
+        value = _expr(item.get("value"))
+        name = _coefficient_name_for_input(item, coefficient_values)
+        if name:
+            substitutions[sp.Symbol(name)] = value
+    return substitutions
+
+
+def _quadratic_relation_derivation_displays(
+    source: TeachingSource,
+    *,
+    coefficients: Any,
+    known_substitutions: Mapping[sp.Symbol, sp.Expr],
+) -> tuple[str, ...]:
+    """Explain coefficients derived from typed relations, not only final substitution.
+
+    Runtime has already verified the returned coefficient mapping.  This projector
+    identifies which coefficients were supplied directly and which were obtained
+    from a public coefficient equation, then exposes that missing algebraic link to
+    the student.  It never infers a coefficient name from display text.
+    """
+
+    if not isinstance(coefficients, Mapping):
+        return ()
+    relation_items = _input_items(
+        source,
+        "coefficient_relation",
+        "extra_equation",
+    )
+    equations = tuple(
+        equation
+        for item in relation_items
+        if (
+            equation := _parse_equation(
+                item.get("value", {}).get("equation")
+                if isinstance(item.get("value"), Mapping)
+                else item.get("value")
+            )
+        )
+        is not None
+    )
+    if not equations:
+        return ()
+
+    relation_symbols = set().union(*(equation.free_symbols for equation in equations))
+    output_values = {
+        sp.Symbol(str(name)): _expr(value)
+        for name, value in coefficients.items()
+    }
+    derived = {
+        symbol: value
+        for symbol, value in output_values.items()
+        if symbol in relation_symbols
+        and symbol not in known_substitutions
+        and sp.simplify(value - symbol) != 0
+    }
+    if not derived:
+        return ()
+
+    # Fail loudly if a future runtime returns a mapping that does not actually
+    # satisfy the public equations this teaching line cites.
+    for equation in equations:
+        residual = sp.simplify(
+            (equation.lhs - equation.rhs).subs(output_values, simultaneous=True)
+        )
+        if residual != 0:
+            raise TeachingRoleBindingError(
+                "teaching_quadratic_relation_output_mismatch: "
+                f"{source.source_step_id}"
+            )
+
+    known_used = {
+        symbol: value
+        for symbol, value in known_substitutions.items()
+        if symbol in relation_symbols
+    }
+    relation_text = "，".join(_equation_display(equation) for equation in equations)
+    known_text = "，".join(
+        f"{symbol.name}＝{_math(value)}"
+        for symbol, value in sorted(known_used.items(), key=lambda item: item[0].name)
+    )
+    derived_text = "，".join(
+        f"{symbol.name}＝{_math(value)}"
+        for symbol, value in sorted(derived.items(), key=lambda item: item[0].name)
+    )
+    action = (
+        f"将 {known_text} 代入 {relation_text}"
+        if known_text
+        else f"由 {relation_text}"
+    )
+    return (f"计算{action}，解得 {derived_text}",)
+
+
+def _matching_quadratic_source_expression(
+    snapshot: ExplanationSnapshot,
+    *,
+    coefficients: Any,
+    result: sp.Expr,
+) -> sp.Expr | None:
+    """Find the public quadratic template whose verified coefficients yield result."""
+
+    if not isinstance(coefficients, Mapping):
+        return None
+    substitutions = {
+        sp.Symbol(str(name)): _expr(value) for name, value in coefficients.items()
+    }
+    x = sp.Symbol("x")
+    matches: list[sp.Expr] = []
+    for entity in (snapshot.problem or {}).get("entities") or ():
+        if not isinstance(entity, Mapping) or entity.get("entity_type") != "function":
+            continue
+        raw_expression = entity.get("expression")
+        if raw_expression in (None, ""):
+            continue
+        expression = _expr(raw_expression)
+        try:
+            if sp.Poly(expression, x).degree() != 2:
+                continue
+        except sp.PolynomialError:
+            continue
+        if sp.simplify(expression.subs(substitutions) - result) != 0:
+            continue
+        if not any(sp.simplify(expression - existing) == 0 for existing in matches):
+            matches.append(expression)
+    return matches[0] if len(matches) == 1 else None
+
+
+def _coefficient_name_for_input(
+    item: Mapping[str, Any],
+    coefficient_values: Mapping[str, sp.Expr],
+) -> str:
+    """Resolve a known coefficient by public SourceRef identity, then value."""
+
+    value = _expr(item.get("value"))
+    ref = item.get("ref")
+    if isinstance(ref, Mapping) and ref.get("kind") == "source":
+        tokens = tuple(
+            token
+            for token in re.split(r"[^A-Za-z0-9]+|_", str(ref.get("ref") or ""))
+            if token
+        )
+        identity_matches = [
+            name
+            for name, candidate in coefficient_values.items()
+            if name in tokens and sp.simplify(candidate - value) == 0
+        ]
+        if len(identity_matches) == 1:
+            return identity_matches[0]
+    value_matches = [
+        name
+        for name, candidate in coefficient_values.items()
+        if sp.simplify(candidate - value) == 0
+    ]
+    return value_matches[0] if len(value_matches) == 1 else ""
 
 
 def _first_input_display(source: TeachingSource, *names: str) -> str:
@@ -694,38 +1506,212 @@ def _parameter_output_target(source: TeachingSource) -> str:
     )
 
 
-def _snapshot_point_display(
+def _snapshot_point_pair(
     label: str,
     snapshot: ExplanationSnapshot,
-) -> str:
-    pairs: set[tuple[sp.Expr, sp.Expr]] = set()
+    *,
+    source: TeachingSource | None = None,
+) -> tuple[sp.Expr, sp.Expr]:
+    pairs: list[tuple[sp.Expr, sp.Expr]] = []
+    owners = teaching_source_owners(snapshot.root_scope)
+    current_owner = (
+        owners.get(source.source_step_id, ("", None))
+        if source
+        else ("", None)
+    )
+    current_scope = current_owner[0]
+    dependency_steps = _explicit_dependency_step_ids(source) if source else set()
+    parent_by_scope = _scope_parent_map(snapshot)
+
+    def add(pair: tuple[sp.Expr, sp.Expr]) -> None:
+        if not any(_same_point(pair, existing) for existing in pairs):
+            pairs.append(pair)
+
     for entity in (snapshot.problem or {}).get("entities") or ():
         if not isinstance(entity, Mapping) or str(entity.get("name") or "") != label:
             continue
+        entity_scope = str(entity.get("scope_id") or "problem")
+        if current_scope and not _scope_is_visible(
+            entity_scope,
+            from_scope=current_scope,
+            parent_by_scope=parent_by_scope,
+        ):
+            continue
         pair = _point_pair(entity.get("coordinate"))
+        if pair is None and entity.get("definition") == "coordinate_origin":
+            pair = (sp.Integer(0), sp.Integer(0))
         if pair is not None:
-            pairs.add(pair)
+            add(pair)
     for candidate in iter_teaching_sources(snapshot.root_scope):
+        candidate_owner = owners.get(candidate.source_step_id, ("", None))
+        if (
+            current_scope
+            and candidate.source_step_id not in dependency_steps
+            and not _teaching_owner_is_visible(
+                candidate_owner,
+                from_owner=current_owner,
+                parent_by_scope=parent_by_scope,
+            )
+        ):
+            continue
         for name, result in candidate.outputs.items():
             target = str(candidate.output_targets.get(name) or "").rsplit(":", 1)[-1]
             if target != label and _point_label(result) != label:
                 continue
             pair = _point_pair(result.get("value"))
             if pair is not None:
-                pairs.add(pair)
+                add(pair)
         for items in candidate.inputs.values():
             for item in items:
                 if _point_label(item) != label:
                     continue
                 pair = _point_pair(item.get("value"))
                 if pair is not None:
-                    pairs.add(pair)
+                    add(pair)
     if len(pairs) != 1:
         raise TeachingRoleBindingError(
             "teaching_point_identity_value_ambiguous: "
             f"label={label}, count={len(pairs)}"
         )
-    return _point_display(label, next(iter(pairs)))
+    return pairs[0]
+
+
+def _semantic_problem_point_label(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+    *,
+    definition: str,
+) -> str:
+    """Resolve a public point role from ProblemIR semantics, never from ID text."""
+
+    owners = teaching_source_owners(snapshot.root_scope)
+    current_scope, _ = owners.get(source.source_step_id, ("", None))
+    parent_by_scope = _scope_parent_map(snapshot)
+    scope_rank: dict[str, int] = {}
+    cursor: str | None = current_scope
+    distance = 0
+    while cursor is not None:
+        scope_rank[cursor] = distance
+        cursor = parent_by_scope.get(cursor)
+        distance += 1
+    scope_rank.setdefault("problem", distance)
+
+    candidates: list[tuple[int, str]] = []
+    for entity in (snapshot.problem or {}).get("entities") or ():
+        if not isinstance(entity, Mapping):
+            continue
+        if (
+            entity.get("entity_type") != "point"
+            or entity.get("definition") != definition
+        ):
+            continue
+        scope_ref = str(entity.get("scope_id") or "problem")
+        label = str(entity.get("name") or "")
+        if (
+            not re.fullmatch(r"[A-Z](?:[0-9]+|[′']+)?", label)
+            or scope_ref not in scope_rank
+        ):
+            continue
+        candidates.append((scope_rank[scope_ref], label))
+    if not candidates:
+        return ""
+    nearest = min(rank for rank, _ in candidates)
+    labels = sorted({label for rank, label in candidates if rank == nearest})
+    return labels[0] if len(labels) == 1 else ""
+
+
+def _parameter_filter_context(
+    source: TeachingSource,
+    snapshot: ExplanationSnapshot,
+    parameter: str,
+) -> str:
+    owners = teaching_source_owners(snapshot.root_scope)
+    current_scope, _ = owners.get(source.source_step_id, ("", None))
+    parent_by_scope = _scope_parent_map(snapshot)
+    operator_display = {
+        ">": "＞",
+        ">=": "≥",
+        "<": "＜",
+        "<=": "≤",
+        "=": "＝",
+        "==": "＝",
+        "!=": "≠",
+    }
+    constraints: list[str] = []
+    for fact in (snapshot.problem or {}).get("facts") or ():
+        if not isinstance(fact, Mapping) or fact.get("type") != "symbol_constraint":
+            continue
+        subject = str(fact.get("subject") or "").rsplit(":", 1)[-1]
+        fact_scope = str(fact.get("scope_id") or "problem")
+        if subject != parameter or not _scope_is_visible(
+            fact_scope,
+            from_scope=current_scope,
+            parent_by_scope=parent_by_scope,
+        ):
+            continue
+        operator = operator_display.get(str(fact.get("operator") or ""))
+        if operator and fact.get("value") not in (None, ""):
+            constraints.append(f"{parameter}{operator}{_math(fact['value'])}")
+    return "、".join(dict.fromkeys(constraints)) or "题设中的参数范围"
+
+
+def _scope_parent_map(snapshot: ExplanationSnapshot) -> dict[str, str | None]:
+    result: dict[str, str | None] = {"problem": None}
+
+    def visit(scope: Any, parent: str | None) -> None:
+        result[scope.scope_ref] = parent
+        for child in scope.children:
+            visit(child, scope.scope_ref)
+
+    root_parent = None if snapshot.root_scope.scope_ref == "problem" else "problem"
+    visit(snapshot.root_scope, root_parent)
+    return result
+
+
+def _scope_is_visible(
+    candidate_scope: str,
+    *,
+    from_scope: str,
+    parent_by_scope: Mapping[str, str | None],
+) -> bool:
+    cursor: str | None = from_scope
+    while cursor is not None:
+        if cursor == candidate_scope:
+            return True
+        cursor = parent_by_scope.get(cursor)
+    return candidate_scope == "problem"
+
+
+def _teaching_owner_is_visible(
+    candidate_owner: tuple[str, str | None],
+    *,
+    from_owner: tuple[str, str | None],
+    parent_by_scope: Mapping[str, str | None],
+) -> bool:
+    candidate_scope, candidate_goal = candidate_owner
+    from_scope, from_goal = from_owner
+    if not _scope_is_visible(
+        candidate_scope,
+        from_scope=from_scope,
+        parent_by_scope=parent_by_scope,
+    ):
+        return False
+    if candidate_scope == from_scope:
+        return candidate_goal is None or candidate_goal == from_goal
+    return candidate_goal is None
+
+
+def _explicit_dependency_step_ids(source: TeachingSource) -> set[str]:
+    result: set[str] = set()
+    for items in source.inputs.values():
+        for item in items:
+            for key in ("ref", "resolved_from"):
+                ref = item.get(key)
+                if isinstance(ref, Mapping) and ref.get("kind") == "step_result":
+                    step_id = str(ref.get("step_id") or "")
+                    if step_id:
+                        result.add(step_id)
+    return result
 
 
 def _output_value(source: TeachingSource, name: str) -> Any:
@@ -759,7 +1745,7 @@ def _output_point(source: TeachingSource, name: str) -> tuple[sp.Expr, sp.Expr]:
 def _output_label(source: TeachingSource, name: str) -> str:
     target = str(source.output_targets.get(name) or "")
     if target:
-        return target
+        return target.rsplit(":", 1)[-1]
     item = source.outputs.get(name)
     return _point_label(item or {})
 
@@ -791,6 +1777,25 @@ def _input_point_display(
         if producer is not None:
             label = _anonymous_point_output_label(producer, snapshot)
     return _point_display(label, pair) if label else f"({_math(pair[0])},{_math(pair[1])})"
+
+
+def _find_point_input_by_label(
+    source: TeachingSource,
+    label: str,
+) -> Mapping[str, Any] | None:
+    matches = [
+        item
+        for items in source.inputs.values()
+        for item in items
+        if _point_label(item) == label and _point_pair(item.get("value")) is not None
+    ]
+    if len(matches) > 1:
+        unique = {repr(item.get("value")) for item in matches}
+        if len(unique) != 1:
+            raise TeachingRoleBindingError(
+                f"teaching_point_input_ambiguous: {source.source_step_id}.{label}"
+            )
+    return matches[0] if matches else None
 
 
 def _anonymous_point_output_label(
@@ -833,7 +1838,12 @@ def _referenced_angle_equality(
 
 
 def _valid_angle_name(value: str) -> bool:
-    return bool(re.fullmatch(r"[A-Z][A-Za-z0-9_′']*[A-Z][A-Za-z0-9_′']*[A-Z][A-Za-z0-9_′']*", value))
+    angle_pattern = (
+        r"[A-Z][A-Za-z0-9_′']*"
+        r"[A-Z][A-Za-z0-9_′']*"
+        r"[A-Z][A-Za-z0-9_′']*"
+    )
+    return bool(re.fullmatch(angle_pattern, value))
 
 
 def _difference_angle(angle: str, reference: str) -> str:
@@ -849,6 +1859,85 @@ def _difference_angle(angle: str, reference: str) -> str:
     left = next(iter(reference_rays - shared))
     right = next(iter(angle_rays - shared))
     return f"{left}{angle[1]}{right}"
+
+
+def _reference_angle_proof(
+    reference: str,
+    *,
+    reference_value: str,
+    snapshot: ExplanationSnapshot,
+    source: TeachingSource,
+) -> tuple[str, ...]:
+    """Reconstruct the coordinate proof for a verified reference angle."""
+
+    if len(reference) != 3 or not _valid_angle_name(reference):
+        raise TeachingRoleBindingError("teaching_reference_angle_points_invalid")
+    labels = tuple(reference)
+    points = {
+        label: _snapshot_point_pair(label, snapshot, source=source)
+        for label in labels
+    }
+    right_vertex = ""
+    other_vertices: tuple[str, str] | None = None
+    for candidate in labels:
+        others = tuple(label for label in labels if label != candidate)
+        if len(others) != 2:
+            continue
+        origin = points[candidate]
+        vector1 = (
+            sp.simplify(points[others[0]][0] - origin[0]),
+            sp.simplify(points[others[0]][1] - origin[1]),
+        )
+        vector2 = (
+            sp.simplify(points[others[1]][0] - origin[0]),
+            sp.simplify(points[others[1]][1] - origin[1]),
+        )
+        dot = sp.simplify(vector1[0] * vector2[0] + vector1[1] * vector2[1])
+        if dot == 0:
+            right_vertex = candidate
+            other_vertices = (others[0], others[1])
+            break
+    if not right_vertex or other_vertices is None:
+        raise TeachingRoleBindingError("teaching_reference_right_angle_missing")
+    first, second = other_vertices
+    first_length = _point_distance(points[right_vertex], points[first])
+    second_length = _point_distance(points[right_vertex], points[second])
+    if sp.simplify(first_length - second_length) != 0:
+        raise TeachingRoleBindingError("teaching_reference_equal_legs_missing")
+    triangle = f"{first}{right_vertex}{second}"
+    return (
+        f"∵{_point_display(first, points[first])}、"
+        f"{_point_display(right_vertex, points[right_vertex])}、"
+        f"{_point_display(second, points[second])}，且 "
+        f"{right_vertex}{first}⊥{right_vertex}{second}",
+        f"计算{right_vertex}{first}＝{_math(first_length)}，"
+        f"{right_vertex}{second}＝{_math(second_length)}",
+        f"∴Rt△{triangle} 为等腰直角三角形，所以 "
+        f"∠{reference}＝{reference_value}°",
+    )
+
+
+def _axis_position_statement(
+    label: str,
+    point: tuple[sp.Expr, sp.Expr],
+    *,
+    origin: tuple[sp.Expr, sp.Expr],
+) -> str:
+    if sp.simplify(point[0] - origin[0]) == 0:
+        delta = sp.simplify(point[1] - origin[1])
+        if delta.is_negative:
+            return f"{label} 在 y 轴负半轴上"
+        if delta.is_positive:
+            return f"{label} 在 y 轴正半轴上"
+        return f"{label} 与原点重合"
+    if sp.simplify(point[1] - origin[1]) == 0:
+        delta = sp.simplify(point[0] - origin[0])
+        if delta.is_negative:
+            return f"{label} 在 x 轴负半轴上"
+        if delta.is_positive:
+            return f"{label} 在 x 轴正半轴上"
+        return f"{label} 与原点重合"
+    raise TeachingRoleBindingError("teaching_axis_intercept_not_on_axis")
 
 
 def _first_unused_point_label(used: set[str]) -> str:
@@ -888,6 +1977,293 @@ def _point_pair(value: Any) -> tuple[sp.Expr, sp.Expr] | None:
         return None
 
 
+def _require_point_pair(
+    value: tuple[sp.Expr, sp.Expr] | None,
+) -> tuple[sp.Expr, sp.Expr]:
+    if value is None:
+        raise TeachingRoleBindingError("teaching_point_value_missing")
+    return value
+
+
+def _point_distance(
+    left: tuple[sp.Expr, sp.Expr],
+    right: tuple[sp.Expr, sp.Expr],
+) -> sp.Expr:
+    return sp.simplify(
+        sp.sqrt((right[0] - left[0]) ** 2 + (right[1] - left[1]) ** 2)
+    )
+
+
+def _line_equation(
+    p1: tuple[sp.Expr, sp.Expr],
+    p2: tuple[sp.Expr, sp.Expr],
+) -> tuple[str, sp.Expr | None]:
+    if _same_point(p1, p2):
+        raise TeachingRoleBindingError("teaching_line_points_coincident")
+    x = sp.Symbol("x")
+    if sp.simplify(p2[0] - p1[0]) == 0:
+        return f"x＝{_math(p1[0])}", None
+    slope = sp.simplify((p2[1] - p1[1]) / (p2[0] - p1[0]))
+    intercept = sp.simplify(p1[1] - slope * p1[0])
+    expression = sp.expand(slope * x + intercept)
+    return f"y＝{_linear_expression_display(expression)}", expression
+
+
+def _linear_expression_display(expression: sp.Expr) -> str:
+    x = sp.Symbol("x")
+    poly = sp.Poly(sp.expand(expression), x)
+    if poly.degree() > 1:
+        return _math(expression)
+    return _join_terms(
+        (
+            _coefficient_term(poly.coeff_monomial(x), "x"),
+            _constant_term(poly.coeff_monomial(1)),
+        )
+    ) or "0"
+
+
+def _parse_equation(value: Any) -> sp.Equality | None:
+    if isinstance(value, sp.Equality):
+        return value
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        parsed = sp.sympify(text, locals={"Eq": sp.Eq, "sqrt": sp.sqrt})
+    except (sp.SympifyError, TypeError, ValueError):
+        if "=" not in text or text.count("=") != 1:
+            return None
+        left, right = text.split("=", 1)
+        try:
+            parsed = sp.Eq(sp.sympify(left), sp.sympify(right))
+        except (sp.SympifyError, TypeError, ValueError):
+            return None
+    return parsed if isinstance(parsed, sp.Equality) else None
+
+
+def _equation_display(value: Any) -> str:
+    equation = _parse_equation(value)
+    if equation is not None:
+        return f"{_math(equation.lhs)}＝{_math(equation.rhs)}"
+    return _student_text(str(value))
+
+
+def _calculation_equation_displays(source: TeachingSource) -> tuple[str, ...]:
+    equations: list[str] = []
+    for calculation in source.calculations:
+        if str(calculation.get("kind") or "") != "equation_system":
+            continue
+        raw_equations = calculation.get("equations") or ()
+        if isinstance(raw_equations, str):
+            raw_equations = (raw_equations,)
+        if not isinstance(raw_equations, Sequence):
+            continue
+        equations.extend(_equation_display(value) for value in raw_equations)
+    return tuple(dict.fromkeys(equations))
+
+
+def _real_calculation_solutions(
+    source: TeachingSource,
+    parameter: str,
+) -> tuple[sp.Expr, ...]:
+    """Recover all real equation candidates before runtime constraint filtering."""
+
+    raw_equations: list[Any] = []
+    for calculation in source.calculations:
+        if str(calculation.get("kind") or "") != "equation_system":
+            continue
+        values = calculation.get("equations") or ()
+        if isinstance(values, str):
+            values = (values,)
+        if isinstance(values, Sequence):
+            raw_equations.extend(values)
+    if not raw_equations or not parameter:
+        return ()
+
+    result: list[sp.Expr] = []
+    for raw in raw_equations:
+        equation = _parse_equation(raw)
+        if equation is None:
+            continue
+        for candidate in _solve_real_equation(equation, parameter):
+            if not any(sp.simplify(candidate - existing) == 0 for existing in result):
+                result.append(candidate)
+    return tuple(sorted(result, key=sp.default_sort_key))
+
+
+def _solve_real_equation(
+    equation: sp.Equality,
+    parameter: str,
+) -> tuple[sp.Expr, ...]:
+    matching_symbols = [
+        symbol for symbol in equation.free_symbols if symbol.name == parameter
+    ]
+    if len(matching_symbols) != 1:
+        return ()
+    real_parameter = sp.Symbol(parameter, real=True)
+    real_equation = equation.xreplace({matching_symbols[0]: real_parameter})
+    try:
+        solutions = sp.solve(real_equation, real_parameter)
+    except (NotImplementedError, TypeError, ValueError):
+        return ()
+    result: list[sp.Expr] = []
+    for solution in solutions:
+        candidate = sp.simplify(solution)
+        if candidate.is_real is False:
+            continue
+        if not any(sp.simplify(candidate - existing) == 0 for existing in result):
+            result.append(candidate)
+    return tuple(sorted(result, key=sp.default_sort_key))
+
+
+def _piecewise_parameter_derivation(
+    expression: sp.Expr,
+    *,
+    target: sp.Expr,
+    parameter: str,
+) -> tuple[str, ...]:
+    if not isinstance(expression, sp.Piecewise):
+        return ()
+    parameter_symbols = [
+        symbol for symbol in expression.free_symbols if symbol.name == parameter
+    ]
+    if len(parameter_symbols) != 1:
+        return ()
+    source_parameter = parameter_symbols[0]
+    previous_conditions: list[sp.Expr] = []
+    lines = ["∵当前表达式需按参数范围分段讨论"]
+    for branch_expression, condition in expression.args:
+        if condition is sp.true:
+            effective_condition = sp.simplify_logic(
+                sp.And(*(sp.Not(item) for item in previous_conditions))
+            )
+        else:
+            effective_condition = condition
+            previous_conditions.append(condition)
+        equation = sp.Eq(branch_expression, target)
+        candidates = _solve_real_equation(equation, parameter)
+        valid_candidates = tuple(
+            candidate
+            for candidate in candidates
+            if _condition_accepts_candidate(
+                effective_condition,
+                source_parameter=source_parameter,
+                candidate=candidate,
+            )
+        )
+        result = (
+            _solution_candidates_display(parameter, valid_candidates)
+            if valid_candidates
+            else "无符合该分支范围的解"
+        )
+        lines.append(
+            f"计算当 {_condition_display(effective_condition)} 时，令 "
+            f"{_math(branch_expression)}＝{_math(target)}，解得 {result}"
+        )
+    return tuple(lines)
+
+
+def _condition_accepts_candidate(
+    condition: sp.Expr,
+    *,
+    source_parameter: sp.Symbol,
+    candidate: sp.Expr,
+) -> bool:
+    result = sp.simplify(condition.subs(source_parameter, candidate))
+    return result is sp.true
+
+
+def _condition_display(condition: sp.Expr) -> str:
+    text = sp.sstr(condition)
+    return (
+        text.replace(">=", "≥")
+        .replace("<=", "≤")
+        .replace(">", "＞")
+        .replace("<", "＜")
+        .replace(" & ", " 且 ")
+        .replace(" | ", " 或 ")
+    )
+
+
+def _solution_candidates_display(
+    parameter: str,
+    values: Sequence[sp.Expr],
+) -> str:
+    return " 或 ".join(f"{parameter}＝{_math(value)}" for value in values)
+
+
+def _segment_condition_display(source: TeachingSource) -> str:
+    items = _input_items(
+        source,
+        "condition",
+        "length_squared",
+        "segment_length_relation",
+    )
+    if len(items) != 1:
+        raise TeachingRoleBindingError(
+            f"teaching_segment_condition_cardinality_invalid: {source.source_step_id}"
+        )
+    item = items[0]
+    value = item.get("value")
+    if not isinstance(value, Mapping):
+        return _item_display(item)
+    condition_type = str(value.get("type") or item.get("runtime_type") or "")
+    if condition_type == "length_squared":
+        segment = str(value.get("segment") or "").strip()
+        squared_value = value.get("value")
+        if segment and squared_value not in (None, ""):
+            return f"{segment}²＝{_math(squared_value)}"
+    if condition_type == "segment_length_relation":
+        left = str(value.get("left_segment") or "").strip()
+        right = str(value.get("right_segment") or "").strip()
+        scale = _expr(value.get("scale") or 1)
+        if left and right:
+            right_term = right if scale == 1 else f"{_math(scale)}{right}"
+            return f"{left}＝{right_term}"
+    equation = value.get("equation")
+    if equation:
+        return _equation_display(equation)
+    return _item_display(item)
+
+
+def _parameter_name_from_bound_inputs(
+    *,
+    parameter_item: Mapping[str, Any] | None,
+    value_item: Mapping[str, Any],
+) -> str:
+    """Read parameter identity from binding authority, never expression deltas.
+
+    New snapshots expose the compiler-bound ``parameter`` input directly.
+    Older recorded snapshots predate that projection and retain the same
+    identity on ``parameter_value.ref``; that is a binding-origin fallback,
+    not an inference from before/after expressions.  Consequently a verified
+    idempotent substitution remains teachable when its value is unchanged.
+    """
+
+    if parameter_item is not None:
+        raw_value = parameter_item.get("value")
+        if isinstance(raw_value, str) and re.fullmatch(
+            r"[A-Za-z][A-Za-z0-9_]*",
+            raw_value,
+        ):
+            return raw_value
+        display = str(parameter_item.get("display") or "")
+        if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", display):
+            return display
+        ref = parameter_item.get("ref")
+        if isinstance(ref, Mapping) and ref.get("kind") == "source":
+            source_ref = str(ref.get("ref") or "")
+            if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", source_ref):
+                return source_ref
+
+    value_ref = value_item.get("ref")
+    if isinstance(value_ref, Mapping) and value_ref.get("kind") == "source":
+        source_ref = str(value_ref.get("ref") or "")
+        if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", source_ref):
+            return source_ref
+    raise TeachingRoleBindingError("teaching_parameter_identity_missing")
+
+
 def _point_list(value: Any) -> list[tuple[sp.Expr, sp.Expr]]:
     if not isinstance(value, Sequence) or isinstance(value, str | bytes):
         return []
@@ -896,6 +2272,17 @@ def _point_list(value: Any) -> list[tuple[sp.Expr, sp.Expr]]:
 
 def _point_display(label: str, pair: tuple[sp.Expr, sp.Expr]) -> str:
     return f"{label}({_math(pair[0])},{_math(pair[1])})"
+
+
+def _indexed_point_label(label: str, index: int) -> str:
+    subscript_digits = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+    return f"{label}{str(index).translate(subscript_digits)}"
+
+
+def _coordinate_operand(value: sp.Expr) -> str:
+    simplified = sp.simplify(value)
+    display = _math(simplified)
+    return display if simplified.is_Atom or simplified.is_nonnegative else f"({display})"
 
 
 def _raw_point_display(label: str, pair: tuple[sp.Expr, sp.Expr]) -> str:
@@ -951,6 +2338,12 @@ def _quadratic_expression_display(expression: Any) -> str:
             _constant_term(poly.coeff_monomial(1)),
         )
     )
+
+
+def student_quadratic_expression_display(expression: Any) -> str:
+    """Public student-order wrapper shared by Function and Macro binders."""
+
+    return _quadratic_expression_display(expression)
 
 
 def _quadratic_title_action(expression: sp.Expr) -> str:
@@ -1018,11 +2411,6 @@ def _coefficient_mapping_display(value: Any) -> str:
     return "，".join(f"{name}＝{_math(raw)}" for name, raw in value.items())
 
 
-def _known_coefficient_inputs(source: TeachingSource) -> str:
-    values = source.inputs.get("known_coefficients", ())
-    return "，".join(_item_display(item) for item in values)
-
-
 def _curve_expression_for_point(
     item: Mapping[str, Any],
     snapshot: ExplanationSnapshot,
@@ -1041,7 +2429,17 @@ def _curve_expression_for_point(
         None,
     )
     curve_handle = str(point.get("of") or "") if point else ""
-    if point is not None and not curve_handle:
+    direct_curve = next(
+        (
+            entity
+            for entity in entities
+            if str(entity.get("handle") or "") == curve_handle
+            and entity.get("entity_type") == "function"
+            and entity.get("expression") not in (None, "")
+        ),
+        None,
+    )
+    if point is not None and direct_curve is None:
         point_handle = str(point.get("handle") or "")
         matching_curves = {
             str(fact.get("curve") or "")
@@ -1343,6 +2741,12 @@ _ROLE_BINDERS: dict[str, RoleBinder] = {
     "angle_sum_equal_angle_candidates": _angle_sum_equal_angle,
     "axis_intercept_from_equal_acute_angles": _axis_intercept_from_equal_angle,
     "line_parabola_second_intersection_point": _line_parabola_intersection,
+    "distance_between_points": _distance_between_points,
+    "equal_length_ray_point": _equal_length_ray_point,
+    "line_intersection_point": _line_intersection,
+    "point_on_parabola_at_x": _point_on_parabola_at_x,
+    "quadratic_axis_from_relation": _quadratic_axis_from_relation,
+    "evaluate_expression_at_parameter": _evaluate_expression_at_parameter,
     "generic_source": lambda source, snapshot: _generic_roles(source),
     "generic_trace": lambda source, snapshot: _generic_roles(source),
 }

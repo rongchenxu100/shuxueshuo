@@ -30,7 +30,9 @@ SPEC = RecipeSpecSource(
                 ),
                 title_template="由直角等腰关系构造候选点",
                 nav_title_template="构造候选点",
-                goal_template="将已知直角边顺、逆时针旋转 90°，完整列出候选点。",
+                goal_template=(
+                    "利用直角等腰关系和坐标投影，完整构造两个候选点。"
+                ),
                 derive_templates=(
                     ("∵", "{construction_condition}"),
                     ("作", "将已知边分别顺、逆时针旋转 90°"),
@@ -48,9 +50,11 @@ SPEC = RecipeSpecSource(
                     "right_angle_equal_length_construct_and_select/"
                     "select_candidate"
                 ),
-                title_template="根据题设条件筛选候选点",
-                nav_title_template="筛选候选点",
-                goal_template="逐一检查候选点，保留满足题设方向或范围条件的唯一点。",
+                title_template="根据题设条件确定唯一候选点",
+                nav_title_template="筛选唯一点",
+                goal_template=(
+                    "逐一判断两个候选点是否满足题设方向或范围，保留唯一合法点。"
+                ),
                 derive_templates=(
                     ("∵", "筛选条件为 {selection_condition}"),
                     ("计算", "{candidate_decisions}"),

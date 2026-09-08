@@ -413,18 +413,34 @@ def test_generated_json_specs_match_code_source() -> None:
     assert actual == expected
 
 
-def test_weighted_geometry_profiles_are_code_owned_by_atomic_kernel() -> None:
+def test_familiar_weighted_geometry_profiles_are_teaching_only() -> None:
+    from shuxueshuo_server.solver.explanation.weighted_axis_teaching_profiles import (
+        WEIGHTED_AXIS_TEACHING_PROFILES,
+        select_weighted_axis_teaching_profile,
+    )
     from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
-        WEIGHTED_TRIANGLE_GEOMETRY_PROFILES,
+        weighted_triangle_geometry_for_weight,
     )
 
     assert {
         profile.profile_id
-        for profile in WEIGHTED_TRIANGLE_GEOMETRY_PROFILES
+        for profile in WEIGHTED_AXIS_TEACHING_PROFILES
     } == {
-        "sqrt2_right_isosceles",
-        "weight2_30_60",
+        "right_isosceles_45",
+        "right_triangle_30_60",
     }
+    assert weighted_triangle_geometry_for_weight(3).weight == 3
+    assert (
+        select_weighted_axis_teaching_profile(
+            weight=weighted_triangle_geometry_for_weight(3).weight,
+            geometry={
+                "projection_triangle_relation": {
+                    "kind": "pythagorean"
+                }
+            },
+        )
+        is None
+    )
 
 
 def test_evaluate_point_has_no_retired_path_trial_hint() -> None:

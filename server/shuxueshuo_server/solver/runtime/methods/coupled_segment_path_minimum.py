@@ -6,6 +6,8 @@ synthetic reflection points and witness details stay private to this Method.
 
 from __future__ import annotations
 
+from typing import Mapping
+
 from shuxueshuo_server.solver.contracts import PointRef
 
 from ._common import *
@@ -55,6 +57,15 @@ class CoupledSegmentPathMinimumMethod:
         )
         results.append(reduction)
         transformation = reduction.outputs["path_transformation"].value
+        moving_locus_segment_name = str(
+            transformation.get("moving_locus_segment_name") or ""
+        )
+        if not moving_locus_segment_name:
+            raise method_precondition_failed(
+                "the reduced path omitted its typed moving-locus segment",
+                role="moving_locus",
+                repair_action="select_connected_coupled_path_facts",
+            )
 
         direction = (
             sp.simplify(second_segment_end[0] - joint_point[0]),
@@ -73,6 +84,7 @@ class CoupledSegmentPathMinimumMethod:
             "start_point": joint_point,
             "direction": direction,
             "equation": f"line({moving_point_ref.name})",
+            "student_display": f"线段{moving_locus_segment_name}",
         }
 
         straightening = BrokenPathStraighteningCandidatesMethod().run(
@@ -127,11 +139,12 @@ class CoupledSegmentPathMinimumMethod:
         )
 
         selected = selected_result.outputs["selected_candidate"].value
+        replacement_geometry = transformation.get("replacement_geometry")
         evidence = {
             "original_objective": str(transformation["original_path"]),
             "reduced_objective": str(transformation["transformed_path"]),
             "equivalence_proof": (str(transformation["segment_equality"]),),
-            "moving_locus": str(moving_locus["equation"]),
+            "moving_locus": str(moving_locus["student_display"]),
             "minimum_strategy": str(selected.get("strategy", "reflection")),
             "minimum_expression": kernel.sstr(minimum_expression),
             "attainment_point": tuple(kernel.sstr(item) for item in attainment_point),
@@ -147,6 +160,11 @@ class CoupledSegmentPathMinimumMethod:
             "straightened_path": str(selected["straightened_path"]),
             "segment_equality": str(transformation["segment_equality"]),
             "minimum_segment": str(selected["minimum_segment"]),
+            **(
+                {"replacement_geometry": dict(replacement_geometry)}
+                if isinstance(replacement_geometry, Mapping)
+                else {}
+            ),
         }
         return StatelessMethodResult(
             method_id=self.method_id,

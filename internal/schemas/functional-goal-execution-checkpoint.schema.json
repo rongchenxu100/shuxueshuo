@@ -1003,6 +1003,12 @@
             "selection_condition": {
               "type": "string",
               "minLength": 1
+            },
+            "construction_geometry": {
+              "type": "object"
+            },
+            "selection_geometry": {
+              "type": "object"
             }
           },
           "additionalProperties": false

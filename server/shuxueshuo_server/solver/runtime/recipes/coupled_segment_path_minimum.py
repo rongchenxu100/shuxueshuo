@@ -36,14 +36,19 @@ SPEC = RecipeSpecSource(
                 ),
                 title_template="利用线段关系替换耦合端点",
                 nav_title_template="端点替换",
-                goal_template="用题设线段关系把两动点路径等价化为单动点路径。",
+                goal_template=(
+                    "由运行时验证的几何关系作垂足，证明垂直平分线，"
+                    "再把两动点路径等价化为单动点路径。"
+                ),
                 derive_templates=(
                     ("∵", "{replacement_equality}"),
                     ("∴", "{original_objective}＝{reduced_objective}"),
                 ),
                 box_templates=("{original_objective}＝{reduced_objective}",),
                 role_schema={
-                    "replacement_equality": "题设关系证明的已有端点替换。",
+                    "replacement_equality": (
+                        "由结构化几何证书证明的已有端点替换。"
+                    ),
                     "original_objective": "题设两动点路径。",
                     "reduced_objective": "替换后的单动点路径。",
                 },

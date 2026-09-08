@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.explanation.annotated_teaching import (
     build_projection_audit,
     find_forbidden_llm_tokens,
     lesson_scope_content_schema,
+    llm_facing_annotated_plan_payload,
     render_annotated_teaching_prompt,
 )
 from shuxueshuo_server.solver.explanation.models import (
@@ -273,7 +274,9 @@ def test_dynamic_output_schema_uses_fixed_scope_and_goal_owners(projection) -> N
     ]
 
 
-def test_final_prompt_is_compact_shared_and_contains_exact_plan_once(projection) -> None:
+def test_final_prompt_is_compact_shared_and_contains_student_safe_plan_once(
+    projection,
+) -> None:
     schema = lesson_scope_content_schema(projection.plan)
     prompt = render_annotated_teaching_prompt(
         projection.plan,
@@ -325,8 +328,11 @@ def test_final_prompt_is_compact_shared_and_contains_exact_plan_once(projection)
         "goal:ii.E": ["s2", "s3", "s7"],
     }
     assert "## 必须独立的教学材料" in prompt.user
-    assert "- Goal i_2.E：s1、s2、s3" in prompt.user
-    assert "- Goal ii.E：s2、s3、s7" in prompt.user
+    assert '- Goal i_2.E：必须分别输出 ["s1"]、["s2"]、["s3"]' in prompt.user
+    assert '- Goal ii.E：必须分别输出 ["s2"]、["s3"]、["s7"]' in prompt.user
+    assert "## 可考虑合并的连续材料" in prompt.user
+    assert '- Goal ii.E：["s4","s5","s6"]' in prompt.user
+    assert "source_steps 数组都必须恰好只有这一个元素" in prompt.system
     assert "requires_independent_lesson_step" not in prompt.user
     assert "AtomicPathMinimumMarker" not in prompt.user
     assert "local_interaction" not in prompt.user
@@ -335,7 +341,9 @@ def test_final_prompt_is_compact_shared_and_contains_exact_plan_once(projection)
     assert "show_fixed_endpoint" not in prompt.user
     assert "show_axis_context" not in prompt.user
     plan_json = prompt.user.split("## Annotated Teaching Plan\n\n", 1)[1]
-    assert json.loads(plan_json) == projection.plan.to_payload()
+    assert json.loads(plan_json) == llm_facing_annotated_plan_payload(
+        projection.plan
+    )
 
 
 def test_projection_fails_loud_on_answer_or_private_identity_mismatch(snapshot) -> None:

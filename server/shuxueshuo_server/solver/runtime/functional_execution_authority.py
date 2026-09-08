@@ -643,6 +643,8 @@ class RightAngleConstructSelectExecutionEvidence:
     construction_checks: tuple[str, ...]
     selection_condition: str
     candidate_decisions: tuple[str, ...]
+    construction_geometry: Mapping[str, Any] | None = None
+    selection_geometry: Mapping[str, Any] | None = None
     macro_id: str = "right_angle_equal_length_construct_and_select"
     schema_version: str = RIGHT_ANGLE_CONSTRUCT_SELECT_EVIDENCE_CONTRACT
     evidence_id: str = field(init=False)
@@ -661,6 +663,10 @@ class RightAngleConstructSelectExecutionEvidence:
             raise ValueError("right-angle evidence requires checks and selection condition")
         if len(self.candidate_decisions) != len(self.candidates):
             raise ValueError("right-angle candidate decisions must cover every candidate")
+        for field_name in ("construction_geometry", "selection_geometry"):
+            value = getattr(self, field_name)
+            if value is not None:
+                object.__setattr__(self, field_name, _freeze_json(value))
         object.__setattr__(
             self,
             "evidence_id",
@@ -678,6 +684,12 @@ class RightAngleConstructSelectExecutionEvidence:
             "selection_condition": self.selection_condition,
             "candidate_decisions": list(self.candidate_decisions),
         }
+        if self.construction_geometry is not None:
+            payload["construction_geometry"] = thaw_json(
+                self.construction_geometry
+            )
+        if self.selection_geometry is not None:
+            payload["selection_geometry"] = thaw_json(self.selection_geometry)
         if include_id:
             payload["evidence_id"] = self.evidence_id
         return payload
@@ -704,7 +716,10 @@ class RightAngleConstructSelectExecutionEvidence:
             "candidate_decisions",
             "evidence_id",
         }
-        if set(payload) != expected:
+        optional = {"construction_geometry", "selection_geometry"}
+        if not expected.issubset(payload) or not set(payload).issubset(
+            expected | optional
+        ):
             raise ValueError("right-angle evidence payload fields do not match contract")
         evidence = cls(
             schema_version=_nonempty(payload.get("schema_version"), "schema_version"),
@@ -728,6 +743,22 @@ class RightAngleConstructSelectExecutionEvidence:
                 for item in _sequence(
                     payload.get("candidate_decisions"), "candidate_decisions"
                 )
+            ),
+            construction_geometry=(
+                _required_mapping(
+                    payload.get("construction_geometry"),
+                    "construction_geometry",
+                )
+                if payload.get("construction_geometry") is not None
+                else None
+            ),
+            selection_geometry=(
+                _required_mapping(
+                    payload.get("selection_geometry"),
+                    "selection_geometry",
+                )
+                if payload.get("selection_geometry") is not None
+                else None
             ),
         )
         if payload.get("evidence_id") != evidence.evidence_id:
@@ -981,7 +1012,10 @@ def direct_macro_teaching_evidence_schema(
                 "items": nonempty,
             },
             "selection_condition": nonempty,
+            "construction_geometry": {"type": "object"},
+            "selection_geometry": {"type": "object"},
         }
+        optional = {"construction_geometry", "selection_geometry"}
     elif schema_version == CURVE_CANDIDATE_PARAMETER_EVIDENCE_CONTRACT:
         specific = {
             "candidate_equations": {
@@ -994,13 +1028,14 @@ def direct_macro_teaching_evidence_schema(
             "parameter_value": nonempty,
             "solved_curve": nonempty,
         }
+        optional = set()
     else:
         raise ValueError("unsupported direct Macro teaching evidence schema")
     properties = {**common_properties, **specific}
     schema: dict[str, Any] = {
         "title": title,
         "type": "object",
-        "required": list(properties),
+        "required": [name for name in properties if name not in optional],
         "properties": properties,
         "additionalProperties": False,
     }

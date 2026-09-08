@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 
 import pytest
 
 from _problem_planning_support import cached_planning_binding_fixture
 
 from shuxueshuo_server.solver.explanation import ExplanationSnapshotBuilder
+from shuxueshuo_server.solver.explanation import (
+    evidence_projectors as evidence_projectors_module,
+)
 from shuxueshuo_server.solver.explanation.evidence_projectors import (
     SYMBOLIC_CLOSURE_TEACHING_EVIDENCE_CONTRACT,
     TeachingEvidenceProjectionError,
@@ -16,6 +20,7 @@ from shuxueshuo_server.solver.explanation.models import iter_teaching_sources
 from shuxueshuo_server.solver.lesson_authoring_support import CASE_ID
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    RightAngleConstructSelectExecutionEvidence,
     SymbolicClosureExecutionEvidence,
     functional_execution_evidence_from_payload,
 )
@@ -58,6 +63,194 @@ def test_path_minimum_projector_exposes_complete_public_proof(snapshot) -> None:
         "path_attainment",
     }
     assert all(item["passed"] for item in source.checks)
+
+
+def test_weighted_projector_only_attaches_public_point_identities() -> None:
+    original = {
+        "original_objective": "runtime-owned original",
+        "reduced_objective": "runtime-owned reduction",
+        "equivalence_proof": ["runtime-owned proof"],
+        "role_resolutions": [
+            {"role": "fixed_point", "chosen_ref": "A"},
+            {"role": "curve_point", "chosen_ref": "D"},
+            {"role": "moving_point", "chosen_ref": "M"},
+        ],
+        "constructions": [
+            {
+                "kind": "weighted_right_triangle",
+                "auxiliary_point_formula": ["3*m/4-1/4", "sqrt(3)*(m+1)/4"],
+                "path_equivalence": {
+                    "weighted_segment": ["curve_point", "moving_point"],
+                    "unit_segment": ["fixed_point", "moving_point"],
+                    "auxiliary_segment": ["auxiliary_point", "moving_point"],
+                    "scale": "2",
+                },
+                "triangle_geometry": {
+                    "kind": "weighted_right_triangle",
+                    "right_angle_vertex_role": "auxiliary_point",
+                    "hypotenuse_role": "fixed_to_moving",
+                    "scaled_leg_role": "auxiliary_to_moving",
+                },
+            }
+        ],
+    }
+
+    projected = evidence_projectors_module._studentize_weighted_path_witness(
+        original,
+        planning_context=SimpleNamespace(scopes=()),
+    )
+
+    assert projected["original_objective"] == original["original_objective"]
+    assert projected["reduced_objective"] == original["reduced_objective"]
+    assert projected["equivalence_proof"] == original["equivalence_proof"]
+    assert original["constructions"][0]["path_equivalence"][
+        "auxiliary_segment"
+    ] == ["auxiliary_point", "moving_point"]
+    assert projected["constructions"][0]["path_equivalence"] == {
+        "weighted_segment": ["D", "M"],
+        "unit_segment": ["A", "M"],
+        "auxiliary_segment": ["Q", "M"],
+        "scale": "2",
+    }
+    assert projected["constructions"][0]["triangle_geometry"] == {
+        "kind": "weighted_right_triangle",
+        "right_angle_vertex_role": "Q",
+        "hypotenuse_role": "AM",
+        "scaled_leg_role": "QM",
+    }
+    assert projected["constructions"][0]["student_auxiliary_point"][
+        "label"
+    ] == "Q"
+
+
+def test_coupled_projector_only_names_verified_projection_roles() -> None:
+    geometry = {
+        "kind": "right_isosceles_perpendicular_bisector",
+        "roles": {
+            "right_vertex": "P",
+            "first_leg_vertex": "Q",
+            "second_leg_vertex": "R",
+            "first_leg_moving_point": "X",
+            "hypotenuse_moving_point": "Y",
+        },
+        "verified_relations": [
+            "right_isosceles_frame",
+            "projection_rectangle",
+            "perpendicular_bisector",
+        ],
+    }
+    original = {
+        "original_objective": "XY+ZY",
+        "reduced_objective": "PY+ZY",
+        "equivalence_proof": ["XY=PY"],
+        "constructions": [
+            {
+                "kind": "existing_fixed_endpoint_replacement",
+                "segment_equality": "XY=PY",
+                "geometry_certificate": geometry,
+            }
+        ],
+    }
+
+    projected = evidence_projectors_module._studentize_coupled_path_witness(
+        original,
+        planning_context=SimpleNamespace(scopes=()),
+    )
+
+    assert projected["original_objective"] == "XY+ZY"
+    assert projected["reduced_objective"] == "PY+ZY"
+    assert projected["equivalence_proof"] == ["XY=PY"]
+    assert "student_second_leg_projection" not in geometry
+    certificate = projected["constructions"][0]["geometry_certificate"]
+    assert certificate["roles"] == geometry["roles"]
+    assert certificate["verified_relations"] == geometry["verified_relations"]
+    assert certificate["student_second_leg_projection"] == {"label": "H"}
+    assert certificate["student_first_leg_projection"] == {"label": "K"}
+
+
+def test_right_angle_projection_preserves_runtime_geometry_and_only_names_feet() -> None:
+    evidence = RightAngleConstructSelectExecutionEvidence(
+        step_id="construct_R",
+        candidates=(("5", "3 - u"), ("1", "u - 3")),
+        selected_point=("5", "3 - u"),
+        construction_checks=("两条直角边垂直且等长",),
+        selection_condition="R 在第四象限，且 u>3",
+        candidate_decisions=("候选 1 保留", "候选 2 排除"),
+        construction_geometry={
+            "kind": "axis_projection_candidate_construction",
+            "axis": "x",
+            "reference_projection": ["u", "0"],
+            "reference_lengths": {
+                "anchor_to_projection": "u - 3",
+                "reference_to_projection": "2",
+            },
+            "candidate_branches": [
+                {
+                    "point": ["5", "3 - u"],
+                    "projection": ["5", "0"],
+                    "lengths": {
+                        "anchor_to_projection": "2",
+                        "candidate_to_projection": "u - 3",
+                    },
+                },
+                {
+                    "point": ["1", "u - 3"],
+                    "projection": ["1", "0"],
+                    "lengths": {
+                        "anchor_to_projection": "2",
+                        "candidate_to_projection": "u - 3",
+                    },
+                },
+            ],
+        },
+        selection_geometry={
+            "kind": "axis_projection_congruence",
+            "axis": "x",
+            "reference_projection": ["u", "0"],
+            "selected_projection": ["5", "0"],
+            "lengths": {
+                "anchor_to_reference_projection": "u - 3",
+                "reference_to_reference_projection": "2",
+                "anchor_to_selected_projection": "2",
+                "selected_to_selected_projection": "u - 3",
+            },
+        },
+    )
+
+    projected = (
+        evidence_projectors_module.RightAngleConstructSelectTeachingEvidenceProjector()
+        .project(
+            evidence,
+            planning_context=SimpleNamespace(scopes=()),
+        )
+        .payload
+    )
+
+    geometry = projected["selection_geometry"]
+    assert geometry["lengths"] == evidence.to_payload()["selection_geometry"][
+        "lengths"
+    ]
+    assert geometry["student_reference_projection"]["label"] == "U"
+    assert geometry["student_selected_projection"]["label"] == "V"
+    assert "student_reference_projection" not in evidence.to_payload()[
+        "selection_geometry"
+    ]
+    construction = projected["construction_geometry"]
+    assert construction["student_reference_projection"]["label"] == "U"
+    assert [
+        item["student_projection"]["label"]
+        for item in construction["candidate_branches"]
+    ] == ["V", "W"]
+    assert "student_reference_projection" not in evidence.to_payload()[
+        "construction_geometry"
+    ]
+    assert all(
+        "student_projection" not in item
+        for item in evidence.to_payload()["construction_geometry"][
+            "candidate_branches"
+        ]
+    )
+    assert functional_execution_evidence_from_payload(evidence.to_payload()) == evidence
 
 
 def test_symbolic_closure_is_public_evidence_not_transaction_state(snapshot) -> None:

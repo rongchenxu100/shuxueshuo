@@ -1,6 +1,6 @@
 {
   "schema_version": "lesson-capability-coverage/v1",
-  "registry_fingerprint": "44600713a8028f9c2e39251642a2e0135886f6fdfa030d8141db0a6c1b746dc6",
+  "registry_fingerprint": "5c03359216dbdd60e4a0536a7db6a9a91adf9c3b08ed46ed6dd175e7f74225f5",
   "summary": {
     "public_capability_count": 29,
     "public_function_count": 23,
@@ -1070,9 +1070,11 @@
           ]
         }
       },
-      "teaching_disposition": "approved_generic",
-      "teaching_units": [],
-      "generic_teaching_reason": "单次代入求值可由统一 verified-input/output 教学模板完整表达",
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "evaluate_expression_at_parameter/substitute_parameter"
+      ],
+      "generic_teaching_reason": null,
       "visual_disposition": "explicit",
       "visual_components": [
         "EvaluatedParabolaMarker"
@@ -4145,6 +4147,7 @@
               "type": "PointList",
               "binding": "internal_only",
               "value_cardinality": "aggregate",
+              "required": false,
               "desc": "返回值是一个整体的 PointList 聚合值，不是单个对象。该 return 是 internal_only，不能设置 return binding。"
             }
           ]

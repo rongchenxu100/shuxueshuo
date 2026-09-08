@@ -135,7 +135,7 @@ SPEC = MethodSpecSource(
             "reference_point": "参考线段的另一个端点。",
             "point": "构造所得点。",
         },
-        role_binder_id="generic_source",
+        role_binder_id="equal_length_ray_point",
     ),
     visual=MethodVisualSpec(
         role_schema={

@@ -123,7 +123,7 @@ SPEC = MethodSpecSource(
             "parabola": "当前抛物线解析式。",
             "point": "指定横坐标对应的曲线上点。",
         },
-        role_binder_id="generic_source",
+        role_binder_id="point_on_parabola_at_x",
     ),
     visual=MethodVisualSpec(
         role_schema={

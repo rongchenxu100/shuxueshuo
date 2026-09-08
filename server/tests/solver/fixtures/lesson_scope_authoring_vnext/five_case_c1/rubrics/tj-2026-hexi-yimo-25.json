@@ -1,0 +1,62 @@
+{
+  "schema_version": "lesson-teaching-rubric/v1",
+  "problem_id": "tj-2026-hexi-yimo-25",
+  "points": [
+    {
+      "point_id": "right_angle_candidates",
+      "description": "把已知直角边顺、逆时针旋转 90°，完整保留点 D 的两个候选位置。",
+      "source_step_id": "derive_right_angle_candidates_ii",
+      "required_pattern_groups": [
+        ["横、纵坐标差互换"],
+        ["(-b-3,-1)"],
+        ["(b+1,1)"]
+      ]
+    },
+    {
+      "point_id": "candidate_filter_and_parameter",
+      "description": "把候选代入曲线，筛选合法点并闭合参数。",
+      "source_step_id": "select_curve_candidate_ii",
+      "required_pattern_groups": [
+        ["b=-1+√2", "b=√2-1", "b=-1+sqrt(2)"],
+        ["(√2,1)"]
+      ]
+    },
+    {
+      "point_id": "parameterized_curve_point_M",
+      "description": "把给定横坐标代入含参抛物线得到点 M。",
+      "source_step_id": "derive_curve_point_iii",
+      "required_pattern_groups": [
+        ["M(b+1/2,-b/2-3/4)"]
+      ]
+    },
+    {
+      "point_id": "weighted_path_domain_minimum",
+      "description": "消去路径权重，作轴上垂线构造等腰直角三角形，逐段算出内部最小值，并说明正半轴边界分支。",
+      "source_step_id": "derive_weighted_minimum_iii",
+      "required_pattern_groups": [
+        ["√2MN+AN"],
+        ["MH⊥x轴"],
+        ["△MHN是等腰直角三角形", "Rt△MHN是等腰直角三角形"],
+        ["MH=HN=(2b+3)/4"],
+        ["MN+QN=3√2(2b+3)/8"],
+        [
+          "最小值=√2·3√2(2b+3)/8=(6b+9)/4",
+          "最小值=√2×3√2(2b+3)/8=(6b+9)/4"
+        ],
+        ["b>1/2"],
+        ["3b/2+9/4"],
+        ["0<b≤1/2"],
+        ["正半轴端点O"],
+        ["√(40b²+56b+26)/4+1"]
+      ]
+    },
+    {
+      "point_id": "solve_parameter_b",
+      "description": "由题设最小值反求并筛选参数 b。",
+      "source_step_id": "solve_parameter_iii",
+      "required_pattern_groups": [
+        ["b=2"]
+      ]
+    }
+  ]
+}

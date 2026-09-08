@@ -264,6 +264,47 @@ def test_repeated_method_specs_bind_distinct_runtime_occurrences(snapshot) -> No
     assert "G(1/4-3c/4,-c/2-1/2)" in evaluate_g.derive[0][1]
 
 
+def test_known_coefficient_identity_does_not_depend_on_distinct_values(
+    snapshot,
+) -> None:
+    source = TeachingSource(
+        source_step_id="same_value_coefficients",
+        capability_id="quadratic_from_constraints",
+        inputs={
+            "known_coefficients": (
+                {
+                    "ref": {"kind": "source", "ref": "symbol_value_a"},
+                    "runtime_type": "ParameterValue",
+                    "value": "1",
+                    "display": "1",
+                },
+                {
+                    "ref": {"kind": "source", "ref": "symbol_value_b"},
+                    "runtime_type": "ParameterValue",
+                    "value": "1",
+                    "display": "1",
+                },
+            )
+        },
+        outputs={
+            "coefficients": {
+                "runtime_type": "Coefficients",
+                "value": {"a": "1", "b": "1"},
+                "display": '{"a":"1","b":"1"}',
+            },
+            "parabola": {
+                "runtime_type": "Parabola",
+                "value": "x**2 + x",
+                "display": "x²+x",
+            },
+        },
+    )
+    unit = TeachingSpecBinder().bind_source(source, snapshot=snapshot)[0]
+    text = json.dumps(unit.to_payload(), ensure_ascii=False)
+    assert "a＝1，b＝1" in text
+    assert "已知系数取值" not in text
+
+
 def test_x_intercept_spec_shows_all_roots_and_verified_side_selection(snapshot) -> None:
     source = next(
         item
@@ -483,7 +524,7 @@ def test_snapshot_step_wire_omits_internal_evidence_refs(snapshot) -> None:
     assert source.checks
 
 
-def test_method_with_approved_generic_unit_still_has_default_candidate() -> None:
+def test_expression_evaluation_uses_explicit_verified_substitution_unit() -> None:
     source = TeachingSource(
         source_step_id="distance",
         capability_id="evaluate_expression_at_parameter",
@@ -499,8 +540,134 @@ def test_method_with_approved_generic_unit_still_has_default_candidate() -> None
     )
     payload = TeachingSpecBinder().generic_spec_payload(source)
     assert payload["kind"] == "function"
-    assert payload["declared"] is False
-    assert payload["teaching_unit"]["unit_key"].endswith("/default")
+    assert payload["declared"] is True
+    assert payload["teaching_unit"]["unit_key"] == (
+        "evaluate_expression_at_parameter/substitute_parameter"
+    )
+    assert payload["teaching_unit"]["role_binder_id"] == (
+        "evaluate_expression_at_parameter"
+    )
+
+
+def test_expression_evaluation_noop_uses_bound_parameter_identity() -> None:
+    source = TeachingSource(
+        source_step_id="evaluate_closed_expression",
+        capability_id="evaluate_expression_at_parameter",
+        inputs={
+            "expression": (
+                {
+                    "ref": {
+                        "kind": "step_result",
+                        "step_id": "closed_expression",
+                        "return": "expression",
+                    },
+                    "runtime_type": "Expression",
+                    "value": "5",
+                    "display": "5",
+                },
+            ),
+            "parameter": (
+                {
+                    "ref": {"kind": "source", "ref": "m"},
+                    "runtime_type": "Symbol",
+                    "value": "m",
+                    "display": "m",
+                },
+            ),
+            "parameter_value": (
+                {
+                    "ref": {
+                        "kind": "step_result",
+                        "step_id": "solve_m",
+                        "return": "parameter_value",
+                    },
+                    "runtime_type": "ParameterValue",
+                    "value": "3",
+                    "display": "3",
+                },
+            ),
+        },
+        outputs={
+            "evaluated_expression": {
+                "runtime_type": "Expression",
+                "value": "5",
+                "display": "5",
+            }
+        },
+        intent="对已经闭合的表达式执行安全求值。",
+    )
+
+    unit = TeachingSpecBinder().bind_source(source, snapshot=None)[0]
+
+    assert unit.derive == (
+        ("∵", "m＝3"),
+        ("计算", "把 m＝3 代入 5，化简得 5"),
+        ("∴", "5"),
+    )
+
+
+def test_parameterized_distance_uses_bound_parameter_identity() -> None:
+    source = TeachingSource(
+        source_step_id="evaluate_parameterized_distance",
+        capability_id="distance_between_points",
+        inputs={
+            "p1": (
+                {
+                    "ref": {"kind": "source", "ref": "P"},
+                    "runtime_type": "Point",
+                    "value": ["0", "0"],
+                    "display": "P(0,0)",
+                },
+            ),
+            "p2": (
+                {
+                    "ref": {"kind": "source", "ref": "Q"},
+                    "runtime_type": "Point",
+                    "value": ["m", "0"],
+                    "display": "Q(m,0)",
+                },
+            ),
+            "parameter": (
+                {
+                    "ref": {"kind": "source", "ref": "m"},
+                    "runtime_type": "Symbol",
+                    "value": "m",
+                    "display": "m",
+                },
+            ),
+            "parameter_value": (
+                {
+                    "ref": {
+                        "kind": "step_result",
+                        "step_id": "solve_m",
+                        "return": "parameter_value",
+                    },
+                    "runtime_type": "ParameterValue",
+                    "value": "3",
+                    "display": "3",
+                },
+            ),
+        },
+        outputs={
+            "distance": {
+                "runtime_type": "MinimumExpression",
+                "value": "m",
+                "display": "m",
+            },
+            "evaluated_distance": {
+                "runtime_type": "MinimumExpression",
+                "value": "3",
+                "display": "3",
+            },
+        },
+        intent="求参数确定后的两点距离。",
+    )
+
+    unit = TeachingSpecBinder().bind_source(source, snapshot=None)[0]
+
+    assert ("计算", "代入 m＝3，得 3") in unit.derive
+    assert unit.derive[-1] == ("∴", "PQ＝3")
+    assert unit.box == ("3",)
 
 
 def test_macro_teaching_contract_rejects_zero_or_two_paths() -> None:

@@ -128,7 +128,7 @@ SPEC = MethodSpecSource(
             "p2": "第二个端点。",
             "distance": "实际物化的距离结果。",
         },
-        role_binder_id="generic_source",
+        role_binder_id="distance_between_points",
     ),
     visual=MethodVisualSpec(
         role_schema={

@@ -20,7 +20,10 @@ from shuxueshuo_server.solver.contracts import TeachingUnitSpec
 from shuxueshuo_server.solver.runtime.macro_atomicity import (
     contains_private_path_projection_marker,
 )
-from shuxueshuo_server.solver.student_display import student_math_display
+from shuxueshuo_server.solver.student_display import (
+    find_internal_math_tokens,
+    student_math_display,
+)
 
 from .models import (
     ExplanationSnapshot,
@@ -426,10 +429,16 @@ class AnnotatedTeachingPlanProjector:
             snapshot.root_scope,
             question_goals=question_goals,
         )
+        student_object_aliases, student_output_labels = _student_object_projection(
+            snapshot,
+            sources=sources,
+        )
         answers = _project_answers(
             snapshot,
             source_by_id=source_by_id,
             question_goals=question_goals,
+            student_object_aliases=student_object_aliases,
+            student_output_labels=student_output_labels,
         )
         authority_containers: dict[str, list[dict[str, Any]]] = {}
         diagnostics: list[TeachingProjectionDiagnostic] = []
@@ -439,10 +448,19 @@ class AnnotatedTeachingPlanProjector:
             *,
             container_ref: str,
         ) -> AnnotatedTeachingStep:
-            inputs = _project_inputs(source, source_by_id=source_by_id)
+            inputs = _project_inputs(
+                source,
+                source_by_id=source_by_id,
+                student_object_aliases=student_object_aliases,
+                student_output_labels=student_output_labels,
+            )
             outputs = {
                 name: _project_runtime_result(
                     value,
+                    student_object_aliases=student_object_aliases,
+                    display_label=student_output_labels.get(
+                        (source.source_step_id, name)
+                    ),
                     path=(
                         f"$.root_scope.steps[{source.source_step_id!r}]"
                         f".execution.outputs[{name!r}]"
@@ -576,6 +594,11 @@ class AnnotatedTeachingPlanProjector:
             "verified_execution_hash": snapshot.verified_execution_hash,
             "snapshot_hash": explanation_snapshot_content_hash(snapshot),
             "annotated_plan_hash": _stable_hash(plan_payload),
+            "student_object_aliases": dict(student_object_aliases),
+            "student_output_labels": {
+                f"{step_id}.{return_name}": label
+                for (step_id, return_name), label in student_output_labels.items()
+            },
             "containers": authority_containers,
             "independent_step_refs": {
                 container_ref: [
@@ -859,6 +882,22 @@ def lesson_scope_content_schema(plan: AnnotatedTeachingPlan) -> dict[str, Any]:
     return schema
 
 
+def llm_facing_annotated_plan_payload(
+    plan: AnnotatedTeachingPlan,
+) -> dict[str, Any]:
+    """Keep typed authority intact while hiding CAS notation from the LLM."""
+
+    payload = _studentize_internal_math_value(plan.to_payload())
+    hits = find_internal_math_tokens(payload)
+    if hits:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_prompt_internal_math_syntax",
+            "$.root_scope",
+            f"LLM-facing plan contains internal math syntax: {hits}",
+        )
+    return payload
+
+
 def render_annotated_teaching_prompt(
     plan: AnnotatedTeachingPlan,
     *,
@@ -880,7 +919,7 @@ def render_annotated_teaching_prompt(
 学生步骤的边界应对应一次需要理解的新数学思考，而不是一次代码调用。逐项审视同一 Scope/Goal 内相邻的 materials，判断学生在其间是否需要转换思路。
 若后续 material 引入新的解题策略、定理、几何构造、证明、候选分支判断或题目单独要求的结果，应另起一步。若后续 material 只是把刚得到的结论代入已有表达式、坐标或对象，或完成同一推理下的直接计算、化简和结果展开，不需要新的选择或理由，则应与产生该结论的 material 合为一个学生步骤。
 输入输出依赖可以帮助识别同一认知动作，但“相邻”“较短”或“存在依赖”本身都不是合并理由。合并的目的是减少没有新教学意义的步骤切换，而不是压缩数学内容；合并后必须完整保留关键依据、计算和每个必要结果。
-列为“必须独立”的 step_ref 必须各自单独输出，不得合并。
+列为“必须独立”的 step_ref 必须各自单独输出：任何包含该 step_ref 的 source_steps 数组都必须恰好只有这一个元素。Prompt 同时会列出可考虑合并的连续区间；它们只是允许范围，仍须按学生是否需要转换思路来判断，不要求机械合并。
 完善并润色 title、nav_title、goal 和 derive，让学生清楚每一步为什么成立、得到什么以及如何衔接下一步。数学语言为主，只补充少量必要的自然语言。
 derive 可以改写已有推导的措辞、合并重复表达，并补充不产生新数学事实的自然语言衔接；只能使用当前 materials 的 derive、calculations 和 conclusions 中已经明确给出的计算，不得自行新增代入、化简、方程、坐标计算或数值运算。
 输入中的数学事实、计算结果、conclusions 和最终 answers 已经由解题器验证；不要重新解题或修改它们。结论由代码写入课程，你不需要返回 conclusions 或 box。
@@ -889,8 +928,10 @@ derive 可以改写已有推导的措辞、合并重复表达，并补充不产�
 每个 Scope/Goal 只能改写自己 materials 中已有的数学内容。父 Scope 的结果可以作为 child Scope 的既有上下文；child Scope 或 sibling Scope 的结果绝不能提前写回父 Scope或其他容器。
 每份 material 都有当前 Scope/Goal 内的局部 step_ref。每个输出步骤用 source_steps 列出它合并的 step_ref；只能合并同一容器内相邻步骤，编号必须保持原顺序，所有编号必须恰好使用一次。
 derive 的每一行必须是一个字符串，并以“作 ”“设 ”“∵ ”“∴ ”或“计算 ”开头。
+所有数学内容必须写成学生在试卷上使用的形式：根式写“√”，分段结果用中文分情况叙述，等式与不等式使用数学符号。严禁输出 Eq(...)、sqrt(...)、Piecewise(...)、**、True、False 等计算机代数内部字符串。
 只能使用输入已经给出的对象、数值、关系和结论，不得编造数学事实或内部标识。
 返回严格符合给定 JSON Schema 的单个 JSON 对象，不要输出 Markdown、HTML 或解释性前言。"""
+    llm_plan_payload = llm_facing_annotated_plan_payload(plan)
     sections = [
             "## 输出 JSON Schema\n\n"
             + _compact_json(schema),
@@ -906,7 +947,7 @@ derive 的每一行必须是一个字符串，并以“作 ”“设 ”“∵ �
         sections.append(independent_materials)
     sections.append(
         "## Annotated Teaching Plan\n\n"
-        + _compact_json(plan.to_payload())
+        + _compact_json(llm_plan_payload)
     )
     user = "\n\n".join(sections)
     prompt = AnnotatedTeachingPrompt(system=system, user=user)
@@ -928,7 +969,8 @@ def _independent_material_prompt_section(
             "$.authority.independent_step_refs",
             "independent material authority must be an object",
         )
-    rows: list[str] = []
+    independent_rows: list[str] = []
+    merge_candidate_rows: list[str] = []
     for container_ref, records in containers.items():
         if not isinstance(records, Sequence) or isinstance(records, str | bytes):
             raise AnnotatedTeachingProjectionError(
@@ -961,10 +1003,39 @@ def _independent_material_prompt_section(
                 f"$.authority.independent_step_refs[{container_ref!r}]",
                 f"expected {expected}, observed {observed_refs}",
             )
+        owner_kind, _, owner_ref = str(container_ref).partition(":")
+        label = "Scope" if owner_kind == "scope" else "Goal"
         if observed_refs:
-            owner_kind, _, owner_ref = str(container_ref).partition(":")
-            label = "Scope" if owner_kind == "scope" else "Goal"
-            rows.append(f"- {label} {owner_ref}：{'、'.join(observed_refs)}")
+            singleton_arrays = "、".join(
+                f'["{step_ref}"]' for step_ref in observed_refs
+            )
+            independent_rows.append(
+                f"- {label} {owner_ref}：必须分别输出 {singleton_arrays}"
+            )
+
+        independent = set(observed_refs)
+        mergeable_runs: list[list[str]] = []
+        current_run: list[str] = []
+        for record in records:
+            if not isinstance(record, Mapping):
+                continue
+            step_ref = str(record.get("teaching_step_ref") or "")
+            if step_ref in independent:
+                if len(current_run) >= 2:
+                    mergeable_runs.append(current_run)
+                current_run = []
+                continue
+            current_run.append(step_ref)
+        if len(current_run) >= 2:
+            mergeable_runs.append(current_run)
+        if mergeable_runs:
+            rendered_runs = "、".join(
+                "[" + ",".join(f'\"{item}\"' for item in run) + "]"
+                for run in mergeable_runs
+            )
+            merge_candidate_rows.append(
+                f"- {label} {owner_ref}：{rendered_runs}"
+            )
     unknown = sorted(set(raw) - set(containers))
     if unknown:
         raise AnnotatedTeachingProjectionError(
@@ -972,16 +1043,30 @@ def _independent_material_prompt_section(
             "$.authority.independent_step_refs",
             f"unknown material containers: {unknown}",
         )
-    if not rows:
+    if not independent_rows and not merge_candidate_rows:
         return ""
-    return "\n".join(
-        (
-            "## 必须独立的教学材料",
-            "",
-            "以下 step_ref 必须各自单独成步，不得合并：",
-            *rows,
+    sections: list[str] = []
+    if independent_rows:
+        sections.extend(
+            (
+                "## 必须独立的教学材料",
+                "",
+                "以下每个 step_ref 都必须作为 source_steps 的唯一元素单独成步；严禁把同一行中的两个 ref 放入同一个数组：",
+                *independent_rows,
+            )
         )
-    )
+    if merge_candidate_rows:
+        if sections:
+            sections.append("")
+        sections.extend(
+            (
+                "## 可考虑合并的连续材料",
+                "",
+                "以下是代码按独立边界计算出的最大连续区间。只能在同一列出的区间内考虑合并；是否合并仍由学生是否需要转换思路决定：",
+                *merge_candidate_rows,
+            )
+        )
+    return "\n".join(sections)
 
 
 def build_projection_audit(
@@ -1188,11 +1273,163 @@ def _validate_question_goal_owners(
                 )
 
 
+def _student_object_projection(
+    snapshot: ExplanationSnapshot,
+    *,
+    sources: Sequence[TeachingSource],
+) -> tuple[dict[str, str], dict[tuple[str, str], str]]:
+    """Assign student labels to anonymous public objects by typed provenance.
+
+    A producer such as ``AngleEquality`` can mention the identity of a point
+    that a later Step materializes.  That identity is intentionally stable for
+    the runtime, but it is not a student-facing point name.  Resolve the
+    producer/consumer edge and the consumer's public ``Point`` return first,
+    then allocate one unused label shared by both values.  No Step-ID parsing
+    or string replacement participates in the decision.
+    """
+
+    used_labels = {
+        str(entity.get("name") or "")
+        for entity in (snapshot.problem or {}).get("entities") or ()
+        if isinstance(entity, Mapping)
+        and entity.get("entity_type") == "point"
+        and entity.get("name")
+    }
+    for source in sources:
+        for return_name, output in source.outputs.items():
+            label = _declared_student_point_label(source, return_name, output)
+            if label:
+                used_labels.add(label)
+
+    identity_aliases: dict[str, str] = {}
+    output_labels: dict[tuple[str, str], str] = {}
+    for producer in sources:
+        for return_name, output in producer.outputs.items():
+            if str(output.get("runtime_type") or "") != "AngleEquality":
+                continue
+            value = output.get("value")
+            if not isinstance(value, Mapping):
+                continue
+            angle_points = _angle_equality_point_names(value)
+            anonymous_names = tuple(
+                dict.fromkeys(
+                    name
+                    for name in angle_points
+                    if name not in used_labels and name not in identity_aliases
+                )
+            )
+            if not anonymous_names:
+                continue
+
+            consumers = [
+                source
+                for source in sources
+                if _source_consumes_result(
+                    source,
+                    producer_step_id=producer.source_step_id,
+                    return_name=return_name,
+                )
+            ]
+            point_outputs = [
+                (consumer, output_name, child)
+                for consumer in consumers
+                for output_name, child in consumer.outputs.items()
+                if str(child.get("runtime_type") or "") == "Point"
+            ]
+            if len(anonymous_names) != 1 or len(point_outputs) != 1:
+                raise AnnotatedTeachingProjectionError(
+                    "teaching_student_object_alias_ambiguous",
+                    f"$.steps[{producer.source_step_id!r}].outputs[{return_name!r}]",
+                    "anonymous relation object must resolve to exactly one public Point return",
+                )
+
+            consumer, point_return, point_output = point_outputs[0]
+            public_label = _declared_student_point_label(
+                consumer,
+                point_return,
+                point_output,
+            )
+            if not public_label:
+                public_label = _first_unused_student_point_label(used_labels)
+            used_labels.add(public_label)
+            identity_aliases[anonymous_names[0]] = public_label
+            output_labels[(consumer.source_step_id, point_return)] = public_label
+
+    return identity_aliases, output_labels
+
+
+def _angle_equality_point_names(value: Mapping[str, Any]) -> tuple[str, ...]:
+    result: list[str] = []
+    for field in ("left_angle_points", "right_angle_points"):
+        points = value.get(field)
+        if not isinstance(points, Sequence) or isinstance(points, str | bytes):
+            raise AnnotatedTeachingProjectionError(
+                "teaching_angle_equality_projection_invalid",
+                f"$.{field}",
+                "AngleEquality point roles must be an ordered list",
+            )
+        result.extend(str(point) for point in points if str(point))
+    return tuple(result)
+
+
+def _source_consumes_result(
+    source: TeachingSource,
+    *,
+    producer_step_id: str,
+    return_name: str,
+) -> bool:
+    for items in source.inputs.values():
+        for item in items:
+            for field in ("resolved_from", "ref"):
+                ref = item.get(field)
+                if not isinstance(ref, Mapping) or ref.get("kind") != "step_result":
+                    continue
+                if (
+                    str(ref.get("step_id") or "") == producer_step_id
+                    and str(ref.get("return") or "") == return_name
+                ):
+                    return True
+    return False
+
+
+def _declared_student_point_label(
+    source: TeachingSource,
+    return_name: str,
+    output: Mapping[str, Any],
+) -> str:
+    target = str(source.output_targets.get(return_name) or "").rsplit(":", 1)[-1]
+    if _is_student_point_label(target):
+        return target
+    display = str(output.get("display") or "")
+    match = re.match(r"\s*([A-Z][A-Za-z0-9_′']*)\s*\(", display)
+    return match.group(1) if match and _is_student_point_label(match.group(1)) else ""
+
+
+def _is_student_point_label(value: str) -> bool:
+    return bool(re.fullmatch(r"[A-Z](?:[0-9]+|[′']+)?", value))
+
+
+def _first_unused_student_point_label(used: set[str]) -> str:
+    for codepoint in range(ord("A"), ord("Z") + 1):
+        label = chr(codepoint)
+        if label not in used:
+            return label
+    suffix = 1
+    while True:
+        for codepoint in range(ord("A"), ord("Z") + 1):
+            label = f"{chr(codepoint)}{suffix}"
+            if label not in used:
+                return label
+        suffix += 1
+
+
 def _project_answers(
     snapshot: ExplanationSnapshot,
     *,
     source_by_id: Mapping[str, TeachingSource],
     question_goals: Mapping[str, Mapping[str, Any]],
+    student_object_aliases: Mapping[str, str],
+    student_output_labels: Mapping[tuple[str, str], str],
 ) -> dict[str, Mapping[str, Any]]:
     result: dict[str, Mapping[str, Any]] = {}
     for scope in iter_teaching_scopes(snapshot.root_scope):
@@ -1218,6 +1455,10 @@ def _project_answers(
             )
             projected = _project_runtime_result(
                 output,
+                student_object_aliases=student_object_aliases,
+                display_label=student_output_labels.get(
+                    (producer_id, return_name)
+                ),
                 path=f"$.answers[{goal.goal_ref!r}]",
             )
             if not _answer_values_equal(
@@ -1264,10 +1505,150 @@ def _answer_values_equal(
     )
 
 
+def _project_student_runtime_value(
+    value: Any,
+    *,
+    runtime_type: str,
+    student_object_aliases: Mapping[str, str],
+    path: str,
+) -> Any:
+    projected = _json_clone(value)
+    if runtime_type != "AngleEquality" or not student_object_aliases:
+        return projected
+    if not isinstance(projected, Mapping):
+        raise AnnotatedTeachingProjectionError(
+            "teaching_angle_equality_projection_invalid",
+            path,
+            "AngleEquality must be an object",
+        )
+
+    result = dict(projected)
+    for field, angle_field in (
+        ("left_angle_points", "left_angle"),
+        ("right_angle_points", "right_angle"),
+    ):
+        raw_points = result.get(field)
+        if not isinstance(raw_points, Sequence) or isinstance(
+            raw_points,
+            str | bytes,
+        ):
+            raise AnnotatedTeachingProjectionError(
+                "teaching_angle_equality_projection_invalid",
+                f"{path}.{field}",
+                "AngleEquality point roles must be an ordered list",
+            )
+        points = [
+            student_object_aliases.get(str(point), str(point))
+            for point in raw_points
+        ]
+        result[field] = points
+        result[angle_field] = "".join(points)
+
+    leaked = sorted(
+        alias
+        for alias in student_object_aliases
+        if _contains_exact_string(result, alias)
+    )
+    if leaked:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_student_object_alias_incomplete",
+            path,
+            f"typed relation still contains internal object identities: {leaked}",
+        )
+    return result
+
+
+def _studentize_internal_math_value(value: Any) -> Any:
+    """Remove CAS spellings from every value exposed to the Lesson LLM."""
+
+    if isinstance(value, Mapping):
+        return {
+            str(key): _studentize_internal_math_value(child)
+            for key, child in value.items()
+        }
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes):
+        return [_studentize_internal_math_value(child) for child in value]
+    if not isinstance(value, str) or not find_internal_math_tokens(value):
+        return value
+    result: str
+    try:
+        encoded = json.loads(value)
+    except (TypeError, ValueError):
+        encoded = None
+    if isinstance(encoded, (Mapping, list)):
+        result = json.dumps(
+            _studentize_internal_math_value(encoded),
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+    else:
+        result = student_math_display(value, fullwidth_operators=True)
+    remaining = find_internal_math_tokens(result)
+    if remaining:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_value_internal_math_syntax",
+            "$.runtime_value",
+            f"student projection still contains internal math syntax: {remaining}",
+        )
+    return result
+
+
+def _contains_exact_string(value: Any, target: str) -> bool:
+    if isinstance(value, Mapping):
+        return any(
+            _contains_exact_string(key, target)
+            or _contains_exact_string(child, target)
+            for key, child in value.items()
+        )
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes):
+        return any(_contains_exact_string(child, target) for child in value)
+    return isinstance(value, str) and value == target
+
+
+def _project_student_runtime_display(
+    *,
+    runtime_type: str,
+    value: Any,
+    fallback: str,
+    label: str | None = None,
+) -> str:
+    if runtime_type == "AngleEquality" and isinstance(value, Mapping):
+        left = str(value.get("left_angle") or "")
+        right = str(value.get("right_angle") or "")
+        if left and right:
+            return f"∠{left}＝∠{right}"
+    if (
+        runtime_type == "Point"
+        and label
+        and isinstance(value, Sequence)
+        and not isinstance(value, str | bytes)
+        and len(value) == 2
+    ):
+        return f"{label}{_display_point(value)}"
+    return fallback
+
+
+def _referenced_student_output_label(
+    ref: Any,
+    *,
+    student_output_labels: Mapping[tuple[str, str], str],
+) -> str | None:
+    if not isinstance(ref, Mapping) or ref.get("kind") != "step_result":
+        return None
+    return student_output_labels.get(
+        (
+            str(ref.get("step_id") or ""),
+            str(ref.get("return") or ""),
+        )
+    )
+
+
 def _project_inputs(
     source: TeachingSource,
     *,
     source_by_id: Mapping[str, TeachingSource],
+    student_object_aliases: Mapping[str, str],
+    student_output_labels: Mapping[tuple[str, str], str],
 ) -> dict[str, tuple[Mapping[str, Any], ...]]:
     result: dict[str, tuple[Mapping[str, Any], ...]] = {}
     for arg_name, items in source.inputs.items():
@@ -1293,7 +1674,24 @@ def _project_inputs(
                     ),
                     "ref/runtime_type/value/display must all be present",
                 )
-            value = _json_clone(item["value"])
+            value = _project_student_runtime_value(
+                item["value"],
+                runtime_type=runtime_type,
+                student_object_aliases=student_object_aliases,
+                path=(
+                    f"$.steps[{source.source_step_id!r}]"
+                    f".inputs[{arg_name!r}][{index}].value"
+                ),
+            )
+            display = _project_student_runtime_display(
+                runtime_type=runtime_type,
+                value=value,
+                fallback=display,
+                label=_referenced_student_output_label(
+                    ref,
+                    student_output_labels=student_output_labels,
+                ),
+            )
             _assert_public_value(
                 value,
                 path=(
@@ -1366,6 +1764,8 @@ def _project_reference(
 def _project_runtime_result(
     value: Mapping[str, Any],
     *,
+    student_object_aliases: Mapping[str, str],
+    display_label: str | None = None,
     path: str,
 ) -> dict[str, Any]:
     runtime_type = str(value.get("runtime_type") or "")
@@ -1376,7 +1776,18 @@ def _project_runtime_result(
             path,
             "runtime_type/value/display must all be present",
         )
-    public_value = _json_clone(value["value"])
+    public_value = _project_student_runtime_value(
+        value["value"],
+        runtime_type=runtime_type,
+        student_object_aliases=student_object_aliases,
+        path=f"{path}.value",
+    )
+    display = _project_student_runtime_display(
+        runtime_type=runtime_type,
+        value=public_value,
+        fallback=display,
+        label=display_label,
+    )
     _assert_public_value(public_value, path=f"{path}.value")
     _assert_public_value(display, path=f"{path}.display")
     return {
@@ -1685,6 +2096,13 @@ def _public_material(unit: BoundTeachingUnit) -> AnnotatedTeachingMaterial:
         suggested_derive=derive,
         suggested_box=tuple(unit.box),
     )
+    internal_math_hits = find_internal_math_tokens(material.to_payload())
+    if internal_math_hits:
+        raise AnnotatedTeachingProjectionError(
+            "teaching_material_internal_math_syntax",
+            f"$.teaching_materials[{unit.source_step_id!r}]",
+            f"student text contains internal math syntax: {internal_math_hits}",
+        )
     _assert_llm_safe(
         material.to_payload(),
         path=f"$.teaching_materials[{unit.source_step_id!r}]",
@@ -1887,5 +2305,6 @@ __all__ = [
     "build_projection_audit",
     "find_forbidden_llm_tokens",
     "lesson_scope_content_schema",
+    "llm_facing_annotated_plan_payload",
     "render_annotated_teaching_prompt",
 ]

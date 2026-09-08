@@ -67,7 +67,25 @@ class SelectPointByQuadrantConstraintMethod:
                     selected,
                     locked=False,
                     source=self.method_id,
-                )
+                ),
+                "selection_evidence": TypedValue(
+                    "Condition",
+                    {
+                        "kind": "quadrant_candidate_selection",
+                        "target": target.name,
+                        "selected_point": tuple(
+                            kernel.sstr(item) for item in selected
+                        ),
+                        "quadrant": quadrant_text,
+                        "parameter": parameter.name,
+                        "parameter_constraint": {
+                            "operator": operator,
+                            "value": kernel.sstr(lower_bound),
+                        },
+                    },
+                    locked=True,
+                    source=self.method_id,
+                ),
             },
             checks=[
                 _check("quadrant_filter_unique", True, "象限与参数约束选出唯一候选点"),
@@ -129,8 +147,10 @@ SPEC = MethodSpecSource(
         exact_result=("candidates",),
     ),
     outputs={
-    "selected_point": "Point"
+    "selected_point": "Point",
+    "selection_evidence": "Condition"
 },
+    internal_outputs=("selection_evidence",),
     preconditions=('candidates 至少包含一个点', 'quadrant 必须给出明确象限', 'parameter_constraint 必须显式给出参数下界'),
     postconditions=('selected_point 是 candidates 中唯一满足象限和参数约束的点',),
     trace_template=('根据 {target} 的象限条件和参数约束，从候选点中筛选唯一坐标。',),

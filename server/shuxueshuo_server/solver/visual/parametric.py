@@ -47,21 +47,152 @@ class ParametricExpressionResolver:
                     result.append(interaction)
         for spec in interaction_specs:
             kind = str(spec.get("kind") or "")
-            if kind != "square_axis_motion":
+            if kind == "square_axis_motion":
+                interaction = self._square_axis_motion_interaction(
+                    lesson_step,
+                    bindings,
+                )
+                error_code = "visual_square_axis_motion_unresolved"
+            elif kind == "weighted_axis_motion":
+                interaction = self._weighted_axis_motion_interaction(
+                    lesson_step,
+                    bindings,
+                )
+                error_code = "visual_weighted_axis_motion_unresolved"
+            else:
                 raise ValueError(
                     f"visual_local_interaction_kind_unknown: {kind or '<empty>'}"
                 )
-            interaction = self._square_axis_motion_interaction(
-                lesson_step,
-                bindings,
-            )
             if interaction is None:
                 raise ValueError(
-                    "visual_square_axis_motion_unresolved: "
+                    f"{error_code}: "
                     f"{lesson_step.lesson_step_id}"
                 )
             result.append(interaction)
         return tuple(_unique_interactions(result))
+
+    def _weighted_axis_motion_interaction(
+        self,
+        lesson_step: LessonStep,
+        bindings: VisualRoleBindings,
+    ) -> JsonObject | None:
+        """Animate the verified weighted construction with one local axis point.
+
+        The public witness owns the moving-point role, its parameter, and the
+        auxiliary-point formula.  This method only assigns a finite viewport-
+        derived demonstration window; it never chooses a student point name
+        or reconstructs the weighted geometry from presentation text.
+        """
+
+        marker = _first_weighted_axis_motion_marker(bindings)
+        if marker is None:
+            return None
+        roles = marker.get("roles") if isinstance(marker.get("roles"), dict) else {}
+        refs = (
+            marker.get("role_point_refs")
+            if isinstance(marker.get("role_point_refs"), dict)
+            else {}
+        )
+        moving_label = str(roles.get("moving_point") or "")
+        auxiliary_label = str(roles.get("auxiliary_point") or "")
+        moving_ref = str(refs.get(moving_label) or "")
+        auxiliary_ref = str(refs.get(auxiliary_label) or "")
+        parameter_name = str(marker.get("dynamic_parameter") or "")
+        dynamic_constraint = marker.get("dynamic_constraint")
+        raw_formula = marker.get("auxiliary_point_coordinates")
+        if (
+            not moving_label
+            or not auxiliary_label
+            or not moving_ref
+            or not auxiliary_ref
+            or not parameter_name
+            or not isinstance(dynamic_constraint, dict)
+            or not isinstance(raw_formula, (list, tuple))
+            or len(raw_formula) != 2
+        ):
+            return None
+        parameter = sp.Symbol(parameter_name)
+        try:
+            auxiliary = (
+                sp.sympify(str(raw_formula[0]), locals={"sqrt": sp.sqrt}),
+                sp.sympify(str(raw_formula[1]), locals={"sqrt": sp.sqrt}),
+            )
+        except (sp.SympifyError, TypeError, ValueError):
+            return None
+        allowed = {parameter}
+        if set(auxiliary[0].free_symbols) - allowed or set(auxiliary[1].free_symbols) - allowed:
+            return None
+
+        domain = self.geometry_spec.get("domain") or {}
+        try:
+            viewport_min = float(domain["minX"])
+            viewport_max = float(domain["maxX"])
+        except (KeyError, TypeError, ValueError):
+            return None
+        if not math.isfinite(viewport_min) or not math.isfinite(viewport_max):
+            return None
+        width = viewport_max - viewport_min
+        if width <= 0:
+            return None
+        margin = width * 0.12
+        step = max(width / 240, 0.01)
+        constrained = _constraint_domain_and_window(
+            parameter_name=parameter_name,
+            constraint=dynamic_constraint,
+            viewport_min=viewport_min + margin,
+            viewport_max=viewport_max - margin,
+            step=step,
+        )
+        if constrained is None:
+            return None
+        mathematical_domain, minimum, maximum, default = constrained
+        controls = (
+            []
+            if mathematical_domain.get("kind") == "exact"
+            else [
+                {
+                    "var": parameter_name,
+                    "label": f"动点 {moving_label}",
+                    "min": round(minimum, 6),
+                    "max": round(maximum, 6),
+                    "step": round(step, 6),
+                    "scale": 1,
+                    "precision": 2,
+                }
+            ]
+        )
+        return {
+            "id": f"{lesson_step.id}:weighted_axis_motion",
+            "component": "LocalSlider",
+            "parameter": parameter_name,
+            "mathematical_domain": mathematical_domain,
+            "domain": {
+                "min": round(minimum, 6),
+                "max": round(maximum, 6),
+                "step": round(step, 6),
+                "default": round(default, 6),
+            },
+            "controls": controls,
+            "note": (
+                f"拖动{moving_label}，观察辅助点{auxiliary_label}与等价路径同步变化。"
+            ),
+            "parameterized_points": {
+                moving_ref: {
+                    "expression": [parameter_name, "0"],
+                    "source": {
+                        "type": "weighted_axis_path_minimum",
+                        "role": "moving_point",
+                    },
+                },
+                auxiliary_ref: {
+                    "expression": _format_pair(auxiliary),
+                    "source": {
+                        "type": "weighted_axis_path_minimum",
+                        "role": "student_auxiliary_point",
+                    },
+                },
+            },
+        }
 
     def _square_axis_motion_interaction(
         self,
@@ -467,6 +598,79 @@ def _first_square_axis_motion_marker(
         ):
             return marker
     return None
+
+
+def _first_weighted_axis_motion_marker(
+    bindings: VisualRoleBindings,
+) -> JsonObject | None:
+    for marker in bindings.atomic_path_minimum_markers:
+        if (
+            isinstance(marker, dict)
+            and marker.get("construction_kind") == "weighted_right_triangle"
+            and isinstance(marker.get("roles"), dict)
+            and isinstance(marker.get("role_point_refs"), dict)
+        ):
+            return marker
+    return None
+
+
+def _constraint_domain_and_window(
+    *,
+    parameter_name: str,
+    constraint: Mapping[str, Any],
+    viewport_min: float,
+    viewport_max: float,
+    step: float,
+) -> tuple[JsonObject, float, float, float] | None:
+    """Intersect a finite demonstration window with verified math authority."""
+
+    operator = str(constraint.get("operator") or "")
+    try:
+        bound_expression = sp.sympify(str(constraint.get("value")))
+        if bound_expression.free_symbols:
+            return None
+        bound = float(sp.N(bound_expression))
+    except (TypeError, ValueError, sp.SympifyError):
+        return None
+    if not math.isfinite(bound):
+        return None
+    span = max(viewport_max - viewport_min, 1.0)
+    expression = f"{parameter_name}{operator}{sp.sstr(bound_expression)}"
+    mathematical_domain: JsonObject = {
+        "kind": "inequality",
+        "expression": expression,
+    }
+    if operator in {">", ">="}:
+        legal_start = bound + step if operator == ">" else bound
+        minimum = max(viewport_min, legal_start)
+        maximum = (
+            viewport_max
+            if viewport_max > minimum
+            else minimum + span
+        )
+    elif operator in {"<", "<="}:
+        legal_end = bound - step if operator == "<" else bound
+        maximum = min(viewport_max, legal_end)
+        minimum = (
+            viewport_min
+            if viewport_min < maximum
+            else maximum - span
+        )
+    elif operator in {"=", "=="}:
+        return (
+            {"kind": "exact", "value": sp.sstr(bound_expression)},
+            bound,
+            bound,
+            bound,
+        )
+    else:
+        return None
+    if not all(math.isfinite(item) for item in (minimum, maximum)):
+        return None
+    if maximum <= minimum:
+        return None
+    default = minimum + (maximum - minimum) / 2
+    return mathematical_domain, minimum, maximum, default
 
 
 def _axis_motion_point(

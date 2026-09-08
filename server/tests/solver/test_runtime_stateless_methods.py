@@ -4,6 +4,7 @@
 typed inputs 和 SympyKernel。
 """
 
+from copy import deepcopy
 import inspect
 
 import sympy as sp
@@ -67,8 +68,15 @@ from shuxueshuo_server.solver.runtime.methods._internal.path.two_moving_points_p
 from shuxueshuo_server.solver.runtime.methods._internal.path.weighted_axis_path_triangle_transform import (
     WeightedAxisPathTriangleTransformMethod,
 )
+from shuxueshuo_server.solver.runtime.methods.weighted_axis_path_minimum import (
+    WeightedAxisPathMinimumMethod,
+)
 from shuxueshuo_server.solver.runtime.models import PointRef
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+from shuxueshuo_server.solver.runtime.right_angle_selection_geometry import (
+    build_axis_projection_candidate_construction_witness,
+    build_axis_projection_congruence_witness,
+)
 from shuxueshuo_server.solver.runtime.symbolic_target_closure import (
     solve_target_symbol_closure,
 )
@@ -1064,6 +1072,9 @@ def test_right_angle_equal_length_candidates_method() -> None:
     )
 
     assert result.outputs["candidates"].value == [(2, -2), (0, 2)]
+    assert result.outputs["construction_evidence"].value["kind"] == (
+        "right_angle_equal_length_rotation"
+    )
     assert all(check.ok for check in result.checks)
 
 
@@ -1367,7 +1378,87 @@ def test_select_point_by_quadrant_constraint_uses_explicit_m_greater_than_2() ->
     )
 
     assert result.outputs["selected_point"].value == (2, 1 - m)
+    assert result.outputs["selection_evidence"].value == {
+        "kind": "quadrant_candidate_selection",
+        "target": "N",
+        "selected_point": ("2", "1 - m"),
+        "quadrant": "第四象限",
+        "parameter": "m",
+        "parameter_constraint": {"operator": ">", "value": "2"},
+    }
     assert all(check.ok for check in result.checks)
+
+
+def test_axis_projection_congruence_witness_generalizes_to_renamed_points() -> None:
+    kernel = SympyKernel()
+    u = kernel.symbols(["u"])["u"]
+    target = PointRef("R", "$question.scope.points.R")
+    constructed = RightAngleEqualLengthCandidatesMethod().run(
+        {
+            "anchor": (sp.Integer(3), sp.Integer(0)),
+            "reference": (u, sp.Integer(2)),
+            "target": target,
+        },
+        kernel,
+    )
+    selected = SelectPointByQuadrantConstraintMethod().run(
+        {
+            "candidates": constructed.outputs["candidates"].value,
+            "target": target,
+            "quadrant": {"quadrant": "第四象限"},
+            "parameter": u,
+            "parameter_constraint": {"operator": ">", "value": sp.Integer(3)},
+        },
+        kernel,
+    )
+
+    geometry = build_axis_projection_congruence_witness(
+        constructed.outputs["construction_evidence"].value,
+        selected.outputs["selection_evidence"].value,
+    )
+    construction_geometry = build_axis_projection_candidate_construction_witness(
+        constructed.outputs["construction_evidence"].value,
+        selected.outputs["selection_evidence"].value,
+    )
+
+    assert geometry is not None
+    assert geometry["anchor"] == ("3", "0")
+    assert geometry["reference"] == ("u", "2")
+    assert geometry["selected_point"] == ("5", "3 - u")
+    assert geometry["reference_projection"] == ("u", "0")
+    assert geometry["selected_projection"] == ("5", "0")
+    assert geometry["lengths"] == {
+        "anchor_to_reference_projection": "u - 3",
+        "reference_to_reference_projection": "2",
+        "anchor_to_selected_projection": "2",
+        "selected_to_selected_projection": "u - 3",
+    }
+    assert construction_geometry is not None
+    assert construction_geometry["anchor"] == ("3", "0")
+    assert construction_geometry["reference"] == ("u", "2")
+    assert construction_geometry["reference_projection"] == ("u", "0")
+    assert construction_geometry["reference_lengths"] == {
+        "anchor_to_projection": "u - 3",
+        "reference_to_projection": "2",
+    }
+    assert construction_geometry["candidate_branches"] == (
+        {
+            "point": ("5", "3 - u"),
+            "projection": ("5", "0"),
+            "lengths": {
+                "anchor_to_projection": "2",
+                "candidate_to_projection": "u - 3",
+            },
+        },
+        {
+            "point": ("1", "u - 3"),
+            "projection": ("1", "0"),
+            "lengths": {
+                "anchor_to_projection": "2",
+                "candidate_to_projection": "u - 3",
+            },
+        },
+    )
 
 
 def test_select_point_by_quadrant_constraint_accepts_canonical_english_quadrant() -> None:
@@ -2000,6 +2091,71 @@ def test_two_moving_points_path_reduction_method() -> None:
         "fact:ii:segment_G_on_MN",
         "fact:ii:segment_DE_eq_sqrt2_NG",
     ]
+    geometry = transformation["replacement_geometry"]
+    assert geometry["kind"] == "right_isosceles_perpendicular_bisector"
+    assert geometry["roles"] == {
+        "right_vertex": "D",
+        "first_leg_vertex": "M",
+        "second_leg_vertex": "N",
+        "first_leg_moving_point": "E",
+        "hypotenuse_moving_point": "G",
+    }
+    assert geometry["binding"] == {
+        "left_segment": ("D", "E"),
+        "right_segment": ("N", "G"),
+        "scale": "sqrt(2)",
+    }
+    assert all(check.ok for check in result.checks)
+
+
+def test_coupled_replacement_geometry_generalizes_to_renamed_translated_frame() -> None:
+    kernel = SympyKernel()
+    result = TwoMovingPointsPathReductionMethod().run(
+        {
+            "original_path": {
+                "path": "XY+ZY",
+                "terms": [["X", "Y"], ["Z", "Y"]],
+            },
+            "first_moving_membership": {
+                "point": "X",
+                "segment": ["P", "Q"],
+            },
+            "second_moving_membership": {
+                "point": "Y",
+                "segment": ["Q", "R"],
+            },
+            "binding_relation": {
+                "left_term": {
+                    "scale": "1",
+                    "segment": ["P", "X"],
+                },
+                "right_term": {
+                    "scale": "sqrt(2)",
+                    "segment": ["R", "Y"],
+                },
+            },
+            "first_segment_start": (sp.Integer(3), sp.Integer(4)),
+            "joint_point": (sp.Integer(5), sp.Integer(5)),
+            "second_segment_end": (sp.Integer(2), sp.Integer(6)),
+        },
+        kernel,
+    )
+
+    transformation = result.outputs["path_transformation"].value
+    assert transformation["segment_equality"] == "XY=PY"
+    assert transformation["transformed_path"] == "PY+ZY"
+    geometry = transformation["replacement_geometry"]
+    assert geometry["roles"] == {
+        "right_vertex": "P",
+        "first_leg_vertex": "Q",
+        "second_leg_vertex": "R",
+        "first_leg_moving_point": "X",
+        "hypotenuse_moving_point": "Y",
+    }
+    assert geometry["replacement"] == {
+        "left_segment": ("X", "Y"),
+        "right_segment": ("P", "Y"),
+    }
     assert all(check.ok for check in result.checks)
 
 
@@ -2355,7 +2511,7 @@ def test_weighted_axis_path_triangle_transform_method() -> None:
 
 
 def test_weighted_axis_path_triangle_transform_method_supports_weight_2() -> None:
-    """weight=2 时应使用 30°/60° 直角三角形转化。"""
+    """weight=2 时 runtime 只发布经校验的直角三角形结构。"""
     kernel = SympyKernel()
     symbols = kernel.symbols(["m"])
     m = symbols["m"]
@@ -2377,33 +2533,92 @@ def test_weighted_axis_path_triangle_transform_method_supports_weight_2() -> Non
     )
     assert result.outputs["path_transformation"].value["inner_path"] == "DM+QM"
     assert result.outputs["path_transformation"].value["scale"] == 2
-    assert result.outputs["path_transformation"].value["geometry"] == "30_60_90"
-    assert result.outputs["auxiliary_locus"].value["direction"] == (3, sp.sqrt(3))
+    geometry = result.outputs["path_transformation"].value["geometry"]
+    assert geometry["kind"] == "weighted_right_triangle"
+    assert geometry["hypotenuse_to_leg_scale"] == "2"
+    assert geometry["leg_factor"] == "3/4"
+    assert geometry["height_factor"] == "sqrt(3)/4"
+    assert result.outputs["auxiliary_locus"].value["direction"] == (sp.sqrt(3), 1)
     assert all(check.ok for check in result.checks)
 
 
-def test_weighted_axis_path_triangle_transform_rejects_unregistered_weight() -> None:
+def test_weighted_axis_path_triangle_transform_supports_new_legal_weight() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["n"])
+    n = symbols["n"]
 
-    with pytest.raises(StatelessMethodError) as error:
-        WeightedAxisPathTriangleTransformMethod().run(
-            {
-                "condition": {"path": "3*MN+AN", "value": "10"},
-                "fixed_point": (-1, 0),
-                "moving_point": (symbols["n"], 0),
-                "dynamic_parameter": symbols["n"],
-                "auxiliary_point_ref": PointRef(
-                    "Q",
-                    "$question.ii.points.Q",
-                ),
+    result = WeightedAxisPathTriangleTransformMethod().run(
+        {
+            "condition": {"path": "3*MN+AN", "value": "10"},
+            "fixed_point": (-1, 0),
+            "moving_point": (n, 0),
+            "dynamic_parameter": n,
+            "auxiliary_point_ref": PointRef(
+                "Q",
+                "$question.ii.points.Q",
+            ),
+        },
+        kernel,
+    )
+
+    assert result.outputs["auxiliary_point"].value == (
+        (8 * n - 1) / 9,
+        2 * sp.sqrt(2) * (n + 1) / 9,
+    )
+    transformation = result.outputs["path_transformation"].value
+    assert transformation["scale"] == 3
+    assert transformation["geometry"]["kind"] == "weighted_right_triangle"
+    assert "geometry_profile_id" not in transformation
+    assert all(check.ok for check in result.checks)
+
+
+def test_weighted_axis_path_minimum_supports_weight_without_teaching_profile() -> None:
+    kernel = SympyKernel()
+    symbols = kernel.symbols(["b", "m"])
+    b, m = symbols["b"], symbols["m"]
+
+    result = WeightedAxisPathMinimumMethod().run(
+        {
+            "path_condition": {
+                "path": "3DM+AM",
+                "terms": [
+                    {"scale": "3", "segment": ["D", "M"]},
+                    {"scale": "1", "segment": ["A", "M"]},
+                ],
+                "value": "10",
             },
-            kernel,
-        )
+            "fixed_point": (-1, 0),
+            "curve_point": (b + 2, -b - 3),
+            "moving_point": (m, 0),
+            "moving_point_ref": PointRef(
+                "M",
+                "$question.ii.points.M",
+            ),
+            "parameter": b,
+            "dynamic_parameter": m,
+            "parameter_constraint": {
+                "operator": ">",
+                "value": sp.Integer(0),
+            },
+            "dynamic_constraint": {
+                "operator": ">",
+                "value": sp.Integer(0),
+            },
+        },
+        kernel,
+    )
 
-    assert error.value.authority.code == "functional.method_precondition_failed"
-    assert error.value.authority.retryability == "planner_repairable"
-    assert error.value.authority.observed["weight"] == "3"
+    expected = b + 2 * sp.sqrt(2) * (b + 3) + 3
+    assert sp.simplify(
+        result.outputs["minimum_expression"].value - expected
+    ) == 0
+    geometry = result.outputs["evidence"].value[
+        "axis_projection_geometry"
+    ]
+    assert geometry["projection_triangle_relation"] == {
+        "kind": "pythagorean"
+    }
+    assert all(check.ok for check in result.checks)
 
 
 def test_linked_broken_path_geometric_minimum_method() -> None:
@@ -2446,7 +2661,7 @@ def test_linked_broken_path_geometric_minimum_method() -> None:
     assert all(check.ok for check in result.checks)
 
 
-def test_linked_broken_path_rejects_geometry_profile_drift() -> None:
+def test_linked_broken_path_rejects_structural_geometry_drift() -> None:
     kernel = SympyKernel()
     symbols = kernel.symbols(["b", "n"])
     b, n = symbols["b"], symbols["n"]
@@ -2460,10 +2675,10 @@ def test_linked_broken_path_rejects_geometry_profile_drift() -> None:
         },
         kernel,
     )
-    transformation = dict(
+    transformation = deepcopy(
         transform.outputs["path_transformation"].value
     )
-    transformation["geometry_profile_id"] = "weight2_30_60"
+    transformation["geometry"]["hypotenuse_to_leg_scale"] = "2"
 
     with pytest.raises(StatelessMethodError) as error:
         LinkedBrokenPathMinimumExpressionMethod().run(
@@ -2495,7 +2710,9 @@ def test_linked_broken_path_rejects_geometry_profile_drift() -> None:
 
     assert error.value.authority.code == "planner.method_contract_invalid"
     assert error.value.authority.retryability == "configuration"
-    assert error.value.authority.observed["field"] == "geometry_profile_id"
+    assert error.value.authority.observed["field"] == (
+        "hypotenuse_to_leg_scale"
+    )
 
 
 def test_linked_broken_path_minimum_expression_method() -> None:

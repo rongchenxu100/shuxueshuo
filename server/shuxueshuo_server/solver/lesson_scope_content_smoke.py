@@ -150,6 +150,7 @@ def run_scope_lesson_batch(
                 failures.append(
                     _write_unclassified_failure(
                         batch_dir / sample_id,
+                        problem_id=snapshot.problem_id,
                         sample_id=sample_id,
                         error=exc,
                     )
@@ -159,6 +160,7 @@ def run_scope_lesson_batch(
 
     summary = _batch_summary(
         mode=mode,
+        problem_id=snapshot.problem_id,
         runs=runs,
         failures=failures,
         expected_samples=samples_per_case,
@@ -242,6 +244,7 @@ def _run_sample(
             generation.validation.independent_material_merge_repaired
         ),
         "appended_suffix": generation.validation.appended_suffix,
+        "removed_suffix": generation.validation.removed_suffix,
         "scope_sources": dict(generation.validation.scope_sources),
         "semantic_attempt_count": generation.semantic_attempt_count,
         "transport_request_count": len(generation.transport_attempts),
@@ -255,6 +258,12 @@ def _run_sample(
         "teaching_coverage_rate": evaluation["teaching_quality"][
             "coverage_rate"
         ],
+        "teaching_point_count": len(
+            evaluation["teaching_quality"]["required_points"]["covered"]
+        )
+        + len(
+            evaluation["teaching_quality"]["required_points"]["missing"]
+        ),
         "covered_teaching_points": evaluation["teaching_quality"][
             "required_points"
         ]["covered"],
@@ -349,6 +358,7 @@ def _write_sample_artifacts(
 def _batch_summary(
     *,
     mode: SmokeMode,
+    problem_id: str,
     runs: Sequence[ScopeLessonSmokeSample],
     failures: Sequence[Mapping[str, Any]],
     expected_samples: int,
@@ -368,7 +378,7 @@ def _batch_summary(
     return {
         "schema_version": BATCH_SUMMARY_CONTRACT,
         "mode": mode,
-        "problem_id": CASE_ID,
+        "problem_id": problem_id,
         "sample_count": expected_samples,
         "completed_sample_count": len(runs),
         "unclassified_failure_count": len(failures),
@@ -388,6 +398,10 @@ def _batch_summary(
             bool(run.result["authority_pass"]) for run in runs
         ),
         "rubric_5_of_5_count": sum(
+            float(run.result["teaching_coverage_rate"]) == 1.0
+            for run in runs
+        ),
+        "rubric_full_coverage_count": sum(
             float(run.result["teaching_coverage_rate"]) == 1.0
             for run in runs
         ),
@@ -702,13 +716,14 @@ def _scope_source_for_container(
 def _write_unclassified_failure(
     sample_dir: Path,
     *,
+    problem_id: str,
     sample_id: str,
     error: Exception,
 ) -> dict[str, Any]:
     sample_dir.mkdir(parents=True, exist_ok=True)
     payload = {
         "schema_version": SAMPLE_RESULT_CONTRACT,
-        "problem_id": CASE_ID,
+        "problem_id": problem_id,
         "sample_id": sample_id,
         "completion_ok": False,
         "direct_acceptance": False,

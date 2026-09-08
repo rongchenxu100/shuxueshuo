@@ -121,6 +121,58 @@ def test_visual_specs_dispatch_only_through_component_registries() -> None:
         assert recipes.specs[recipe_id].visual is not None
 
 
+@pytest.mark.parametrize(
+    ("constraint", "expected_domain", "expected_min", "expected_max"),
+    (
+        (
+            {"operator": ">", "value": "0"},
+            {"kind": "inequality", "expression": "u>0"},
+            0.1,
+            4.0,
+        ),
+        (
+            {"operator": "<=", "value": "2"},
+            {"kind": "inequality", "expression": "u<=2"},
+            -4.0,
+            2.0,
+        ),
+    ),
+)
+def test_weighted_axis_slider_window_respects_verified_dynamic_constraint(
+    constraint,
+    expected_domain,
+    expected_min,
+    expected_max,
+) -> None:
+    constrained = visual_parametric._constraint_domain_and_window(
+        parameter_name="u",
+        constraint=constraint,
+        viewport_min=-4.0,
+        viewport_max=4.0,
+        step=0.1,
+    )
+
+    assert constrained is not None
+    mathematical_domain, minimum, maximum, default = constrained
+    assert mathematical_domain == expected_domain
+    assert minimum == pytest.approx(expected_min)
+    assert maximum == pytest.approx(expected_max)
+    assert minimum <= default <= maximum
+
+
+def test_weighted_axis_slider_rejects_unresolved_symbolic_constraint() -> None:
+    assert (
+        visual_parametric._constraint_domain_and_window(
+            parameter_name="u",
+            constraint={"operator": ">", "value": "b"},
+            viewport_min=-4.0,
+            viewport_max=4.0,
+            step=0.1,
+        )
+        is None
+    )
+
+
 def test_visual_context_is_spec_driven_not_capability_switched() -> None:
     source = inspect.getsource(visual_builder._visual_context_for_step)
 

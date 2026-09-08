@@ -280,6 +280,34 @@ def test_eof_only_missing_closers_are_repaired_then_fully_validated(validator) -
     assert result.diagnostics[0].severity == "warning"
 
 
+@pytest.mark.parametrize("trailing", ["}", "}\n]", "]  }"])
+def test_redundant_trailing_closers_are_removed_then_fully_validated(
+    validator,
+    trailing,
+) -> None:
+    complete = json.dumps(
+        validator.deterministic_fallback,
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    raw = complete + trailing
+
+    result = validator.validate_raw(raw)
+
+    assert result.direct_acceptance is True
+    assert result.syntax_repaired is True
+    assert result.appended_suffix == ""
+    assert result.removed_suffix == trailing.strip()
+    assert result.repaired_response == complete
+    assert result.contract_pass is True
+    assert result.authority_pass is True
+    assert (
+        result.diagnostics[0].code
+        == "lesson_scope_json_trailing_closers_repaired"
+    )
+    assert result.diagnostics[0].severity == "warning"
+
+
 @pytest.mark.parametrize(
     "raw",
     [
@@ -287,6 +315,7 @@ def test_eof_only_missing_closers_are_repaired_then_fully_validated(validator) -
         '{"i":{"steps":[}',
         '{"i":{"steps":["unterminated',
         '{"i":{}} trailing',
+        '{"i":{}} {"i":{}}',
     ],
 )
 def test_non_closer_json_errors_are_never_repaired(validator, raw) -> None:
@@ -309,6 +338,69 @@ def test_missing_scope_is_local_but_unknown_scope_is_root_failure(validator) -> 
     result = validator.validate_payload(unknown)
     assert result.whole_fallback is True
     assert result.diagnostics[0].code == "lesson_scope_unknown_scope"
+
+
+def test_equation_solving_derive_action_is_accepted_as_calculation(
+    validator,
+) -> None:
+    payload = copy.deepcopy(validator.deterministic_fallback)
+    payload["ii"]["goals"]["ii.E"][4]["derive"][-1] = (
+        "解方程并根据 c＞1 筛选，得 c＝5"
+    )
+
+    result = validator.validate_payload(payload)
+
+    assert result.direct_acceptance is True
+    assert result.contract_pass is True
+    assert result.scope_sources["ii"] == "llm"
+    assert result.accepted_content["ii"]["goals"]["ii.E"][4]["derive"][-1] == [
+        "计算",
+        "解方程并根据 c＞1 筛选，得 c＝5",
+    ]
+
+
+def test_empty_inapplicable_scope_container_field_is_ignored(validator) -> None:
+    payload = copy.deepcopy(validator.deterministic_fallback)
+    payload["i"]["goals"] = {}
+
+    result = validator.validate_payload(payload)
+
+    assert result.direct_acceptance is True
+    assert result.contract_pass is True
+    assert result.scope_sources["i"] == "llm"
+    assert "goals" not in result.accepted_content["i"]
+    diagnostic = next(
+        item
+        for item in result.diagnostics
+        if item.code == "lesson_scope_empty_container_field_ignored"
+    )
+    assert diagnostic.severity == "warning"
+    assert diagnostic.path == "$['i'].goals"
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("goals", {"invented": []}),
+        ("goals", []),
+        ("invented", {}),
+    ],
+)
+def test_nonempty_wrongly_typed_or_unknown_scope_fields_still_fail(
+    validator,
+    field,
+    value,
+) -> None:
+    payload = copy.deepcopy(validator.deterministic_fallback)
+    payload["i"][field] = value
+
+    result = validator.validate_payload(payload)
+
+    assert result.scope_sources["i"] == "deterministic_fallback"
+    assert any(
+        item.code == "lesson_scope_body_fields_invalid"
+        for item in result.diagnostics
+    )
 
 
 @pytest.mark.parametrize("removed_field", ["box", "visuals"])
@@ -341,6 +433,25 @@ def test_private_or_unknown_object_text_falls_back_scope(validator) -> None:
     result = validator.validate_payload(unknown)
     assert result.scope_sources["i"] == "deterministic_fallback"
     assert any(item.code == "lesson_scope_unexpected_object" for item in result.diagnostics)
+
+
+def test_internal_computer_algebra_text_falls_back_scope(validator) -> None:
+    payload = copy.deepcopy(validator.deterministic_fallback)
+    payload["i"]["steps"][0]["derive"][0] = (
+        "计算 Eq(x**2, sqrt(4))，Piecewise((1, True))"
+    )
+
+    result = validator.validate_payload(payload)
+
+    assert result.scope_sources["i"] == "deterministic_fallback"
+    diagnostic = next(
+        item
+        for item in result.diagnostics
+        if item.code == "lesson_scope_internal_math_syntax"
+    )
+    assert "Eq" in diagnostic.message
+    assert "sqrt" in diagnostic.message
+    assert "Piecewise" in diagnostic.message
 
 
 def test_future_result_is_an_authority_failure(validator) -> None:

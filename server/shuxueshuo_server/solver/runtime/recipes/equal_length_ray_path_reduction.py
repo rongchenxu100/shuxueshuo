@@ -53,14 +53,16 @@ SPEC = RecipeSpecSource(
                 goal_template="在等价路径中利用两点之间线段最短得到最小值。",
                 derive_templates=(
                     ("∵", "{original_objective}＝{reduced_objective}"),
-                    ("∴", "{minimum_reason}"),
+                    ("∴", "{minimum_inequality}"),
+                    ("计算", "{minimum_calculation}"),
                     ("∴", "路径最小值为 {minimum_expression}"),
                 ),
                 box_templates=("路径最小值为 {minimum_expression}",),
                 role_schema={
                     "original_objective": "题设两动点路径。",
                     "reduced_objective": "降维后的单动点路径。",
-                    "minimum_reason": "由 verified winner 给出的直线最短依据。",
+                    "minimum_inequality": "由两点之间线段最短得到的具体不等式。",
+                    "minimum_calculation": "由最短线段两端点坐标得到的距离计算。",
                     "minimum_expression": "路径最小值表达式。",
                 },
                 role_binder_id="equal_length_ray_path_reduction",

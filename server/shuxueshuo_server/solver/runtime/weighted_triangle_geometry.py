@@ -1,157 +1,158 @@
-"""Declarative geometry profiles for weighted-axis path transforms."""
+"""Weight-generic structural facts for weighted-axis triangle transforms.
+
+This runtime module deliberately knows nothing about student teaching profiles.
+For every constant real weight ``w > 1`` it derives the same right-triangle
+construction coefficients. Familiar 45° and 30°/60° narratives are selected
+later by the explanation layer from these verified facts.
+"""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Mapping
 
 import sympy as sp
 
 
-class WeightedTriangleGeometryUnsupportedError(ValueError):
-    """A public weight has no registered geometry profile."""
+class WeightedTriangleGeometryDomainError(ValueError):
+    """The weight cannot define the required real right triangle."""
 
-    def __init__(self, weight: sp.Expr, supported: tuple[str, ...]) -> None:
+    def __init__(self, weight: sp.Expr) -> None:
         self.weight = sp.simplify(weight)
-        self.supported = supported
         super().__init__(
-            "weighted triangle geometry is not registered: "
-            f"weight={self.weight}; supported={', '.join(supported)}"
+            "weighted triangle geometry requires a constant real weight > 1: "
+            f"weight={self.weight}"
         )
 
 
 class WeightedTriangleGeometryContractError(ValueError):
-    """A materialized transformation drifts from its registered profile."""
+    """A materialized transformation drifts from its structural facts."""
 
     def __init__(self, field: str, expected: Any, observed: Any) -> None:
         self.field = field
         self.expected = expected
         self.observed = observed
         super().__init__(
-            "weighted transformation profile drift: "
+            "weighted transformation geometry drift: "
             f"field={field}; expected={expected}; observed={observed}"
         )
 
 
 @dataclass(frozen=True)
-class WeightedTriangleGeometryProfile:
-    profile_id: str
-    weight_expression: str
-    construction: str
-    geometry: str
-    title: str
-    angle_label: str
-    direction: tuple[str, str]
+class WeightedTriangleGeometryFacts:
+    """Algebraic coefficients shared by every legal weighted construction."""
 
-    @property
-    def weight(self) -> sp.Expr:
-        return sp.sympify(self.weight_expression)
+    weight: sp.Expr
+    radicand: sp.Expr
+    leg_factor: sp.Expr
+    height_factor: sp.Expr
 
     @property
     def direction_value(self) -> tuple[sp.Expr, sp.Expr]:
-        dx, dy = self.direction
-        return (sp.sympify(dx), sp.sympify(dy))
+        return (sp.sqrt(self.radicand), sp.Integer(1))
 
     def to_payload(self) -> dict[str, Any]:
         return {
-            "profile_id": self.profile_id,
-            "weight_expression": self.weight_expression,
-            "construction": self.construction,
-            "geometry": self.geometry,
-            "title": self.title,
-            "angle_label": self.angle_label,
-            "direction": list(self.direction),
+            "kind": "weighted_right_triangle",
+            "right_angle_vertex_role": "auxiliary_point",
+            "hypotenuse_role": "fixed_to_moving",
+            "scaled_leg_role": "auxiliary_to_moving",
+            "hypotenuse_to_leg_scale": sp.sstr(self.weight),
+            "leg_factor": sp.sstr(self.leg_factor),
+            "height_factor": sp.sstr(self.height_factor),
+            "locus_direction": [
+                sp.sstr(item) for item in self.direction_value
+            ],
         }
-
-
-WEIGHTED_TRIANGLE_GEOMETRY_PROFILES = (
-    WeightedTriangleGeometryProfile(
-        profile_id="sqrt2_right_isosceles",
-        weight_expression="sqrt(2)",
-        construction="right_isosceles_triangle",
-        geometry="45_45_90",
-        title="等腰直角三角形",
-        angle_label="45 度",
-        direction=("1", "1"),
-    ),
-    WeightedTriangleGeometryProfile(
-        profile_id="weight2_30_60",
-        weight_expression="2",
-        construction="right_triangle_30_60",
-        geometry="30_60_90",
-        title="30°/60° 直角三角形",
-        angle_label="30 度",
-        direction=("3", "sqrt(3)"),
-    ),
-)
 
 
 def weighted_triangle_geometry_for_weight(
     weight: sp.Expr,
-) -> WeightedTriangleGeometryProfile:
+) -> WeightedTriangleGeometryFacts:
+    """Derive the structural construction for any constant real ``w > 1``."""
+
     simplified = sp.simplify(weight)
-    matches = tuple(
-        profile
-        for profile in WEIGHTED_TRIANGLE_GEOMETRY_PROFILES
-        if sp.simplify(simplified - profile.weight) == 0
+    if (
+        simplified.free_symbols
+        or simplified.is_real is False
+        or sp.simplify(simplified - 1).is_positive is not True
+    ):
+        raise WeightedTriangleGeometryDomainError(simplified)
+    weight_squared = sp.simplify(simplified**2)
+    radicand = sp.simplify(weight_squared - 1)
+    return WeightedTriangleGeometryFacts(
+        weight=simplified,
+        radicand=radicand,
+        leg_factor=sp.simplify(radicand / weight_squared),
+        height_factor=sp.simplify(sp.sqrt(radicand) / weight_squared),
     )
-    if len(matches) != 1:
-        supported = tuple(
-            profile.weight_expression
-            for profile in WEIGHTED_TRIANGLE_GEOMETRY_PROFILES
-        )
-        raise WeightedTriangleGeometryUnsupportedError(simplified, supported)
-    return matches[0]
 
 
 def weighted_triangle_geometry_for_transformation(
-    transformation: dict[str, Any],
-) -> WeightedTriangleGeometryProfile:
-    if "scale" not in transformation or "geometry" not in transformation:
+    transformation: Mapping[str, Any],
+) -> WeightedTriangleGeometryFacts:
+    """Validate only the structural fields consumed by the minimum kernel."""
+
+    if transformation.get("type") != "weighted_axis_triangle_transform":
         raise WeightedTriangleGeometryContractError(
-            "required_fields",
-            ("scale", "geometry"),
-            tuple(sorted(transformation)),
+            "type",
+            "weighted_axis_triangle_transform",
+            transformation.get("type"),
         )
-    profile = weighted_triangle_geometry_for_weight(
+    if "scale" not in transformation:
+        raise WeightedTriangleGeometryContractError(
+            "scale",
+            "constant real weight > 1",
+            None,
+        )
+    facts = weighted_triangle_geometry_for_weight(
         sp.sympify(transformation["scale"])
     )
-    if str(transformation["geometry"]) != profile.geometry:
+    geometry = transformation.get("geometry")
+    if not isinstance(geometry, Mapping):
         raise WeightedTriangleGeometryContractError(
             "geometry",
-            profile.geometry,
-            transformation["geometry"],
+            "structured weighted-right-triangle facts",
+            geometry,
         )
-    profile_id = transformation.get("geometry_profile_id")
-    if profile_id is not None and str(profile_id) != profile.profile_id:
-        raise WeightedTriangleGeometryContractError(
-            "geometry_profile_id",
-            profile.profile_id,
-            profile_id,
-        )
-    construction = transformation.get("construction")
-    if construction is not None and str(construction) != profile.construction:
-        raise WeightedTriangleGeometryContractError(
-            "construction",
-            profile.construction,
-            construction,
-        )
-    return profile
-
-
-def weighted_triangle_geometry_payloads() -> tuple[dict[str, Any], ...]:
-    return tuple(
-        profile.to_payload()
-        for profile in WEIGHTED_TRIANGLE_GEOMETRY_PROFILES
-    )
+    expected = facts.to_payload()
+    for field in (
+        "kind",
+        "right_angle_vertex_role",
+        "hypotenuse_role",
+        "scaled_leg_role",
+    ):
+        if geometry.get(field) != expected[field]:
+            raise WeightedTriangleGeometryContractError(
+                field,
+                expected[field],
+                geometry.get(field),
+            )
+    for field in (
+        "hypotenuse_to_leg_scale",
+        "leg_factor",
+        "height_factor",
+    ):
+        try:
+            matches = sp.simplify(
+                sp.sympify(geometry.get(field))
+                - sp.sympify(expected[field])
+            ) == 0
+        except (TypeError, ValueError, sp.SympifyError):
+            matches = False
+        if not matches:
+            raise WeightedTriangleGeometryContractError(
+                field,
+                expected[field],
+                geometry.get(field),
+            )
+    return facts
 
 
 __all__ = [
-    "WEIGHTED_TRIANGLE_GEOMETRY_PROFILES",
     "WeightedTriangleGeometryContractError",
-    "WeightedTriangleGeometryProfile",
-    "WeightedTriangleGeometryUnsupportedError",
+    "WeightedTriangleGeometryDomainError",
+    "WeightedTriangleGeometryFacts",
     "weighted_triangle_geometry_for_transformation",
     "weighted_triangle_geometry_for_weight",
-    "weighted_triangle_geometry_payloads",
 ]

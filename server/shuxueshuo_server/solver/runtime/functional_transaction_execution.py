@@ -166,6 +166,9 @@ from shuxueshuo_server.solver.runtime.recipe_compiler import (
     ExactCompiledStep,
     FunctionalCapabilityCompiler,
 )
+from shuxueshuo_server.solver.runtime.right_angle_selection_geometry import (
+    build_axis_projection_candidate_construction_witness,
+)
 from shuxueshuo_server.solver.runtime.runtime_type_compatibility import (
     runtime_type_compatible,
 )
@@ -5563,6 +5566,23 @@ def _with_direct_macro_teaching_evidence(
             + ("保留" if (x, y) == selected_point else "排除")
             for x, y in candidates
         )
+        construction_evidence = _required_method_output_value(
+            constructed,
+            "construction_evidence",
+        )
+        selection_evidence = _required_method_output_value(
+            selected,
+            "selection_evidence",
+        )
+        construction_geometry = (
+            build_axis_projection_candidate_construction_witness(
+                construction_evidence,
+                selection_evidence,
+            )
+            if isinstance(construction_evidence, Mapping)
+            and isinstance(selection_evidence, Mapping)
+            else None
+        )
         evidence = RightAngleConstructSelectExecutionEvidence(
             step_id=compiled.call_id,
             candidates=candidates,
@@ -5570,6 +5590,7 @@ def _with_direct_macro_teaching_evidence(
             construction_checks=construction_checks,
             selection_condition=selection_condition,
             candidate_decisions=decisions,
+            construction_geometry=construction_geometry,
         )
         return replace(compiled, direct_macro_teaching_evidence=evidence)
 

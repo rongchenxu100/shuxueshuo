@@ -1,6 +1,6 @@
 {
   "schema_version": "lesson-capability-synthetic-scenarios/v1",
-  "registry_fingerprint": "44600713a8028f9c2e39251642a2e0135886f6fdfa030d8141db0a6c1b746dc6",
+  "registry_fingerprint": "5c03359216dbdd60e4a0536a7db6a9a91adf9c3b08ed46ed6dd175e7f74225f5",
   "scenarios": {
     "distance_between_points": {
       "schema_version": "lesson-capability-synthetic-scenario/v1",

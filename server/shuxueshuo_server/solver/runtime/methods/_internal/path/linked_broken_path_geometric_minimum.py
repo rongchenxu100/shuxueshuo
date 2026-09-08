@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
     WeightedTriangleGeometryContractError,
-    WeightedTriangleGeometryUnsupportedError,
+    WeightedTriangleGeometryDomainError,
     weighted_triangle_geometry_for_transformation,
 )
 
@@ -22,7 +22,7 @@ class LinkedBrokenPathGeometricMinimumMethod:
     method 处理另一类联动辅助点：先构造 Q，把一个加权线段转成同倍率的
     ``QN``，再研究 ``MN+QN``。这里封装的是这个“联动点 Q”版本：
 
-    - Q 随 N 在一条固定 45° 射线上运动；
+    - Q 随 N 在一条由已验证结构事实确定的固定射线上运动；
     - ``MN+QN`` 的最短状态由折线拉直给出，即 M、N、Q 共线；
     - 最短线段还需垂直于 Q 的运动射线。
 
@@ -369,31 +369,26 @@ def _dot_with_direction(point: Point, origin: Point, direction: tuple[sp.Expr, s
 
 
 def _supported_transformation_scale(transformation: dict[str, Any]) -> sp.Expr:
-    """读取并校验 weighted triangle transform 的倍率。
-
-    ``weighted_axis_path_triangle_transform`` 负责判断具体权重是否可构造；本 method
-    只接受已经带有受支持 geometry 标记的转化结果，再按通用点到直线距离公式求
-    最短表达式。
-    """
+    """读取并校验 weight-generic triangle transform 的结构倍率。"""
     try:
         return weighted_triangle_geometry_for_transformation(transformation).weight
-    except WeightedTriangleGeometryUnsupportedError as exc:
+    except WeightedTriangleGeometryDomainError as exc:
         raise method_precondition_failed(
-            "path transformation uses an unsupported triangle geometry weight",
+            "path transformation requires a constant real weight greater than one",
             arg_name="path_transformation",
-            role="geometry_profile",
-            expected={"supported_weights": list(exc.supported)},
+            role="path_weight",
+            expected={"domain": "constant real weight > 1"},
             observed={"weight": str(exc.weight)},
-            repair_action="choose_supported_path_transformation",
+            repair_action="choose_valid_path_transformation",
         ) from exc
     except WeightedTriangleGeometryContractError as exc:
         raise StatelessMethodError(
             "planner.method_contract_invalid",
-            "materialized path transformation drifts from its geometry profile",
+            "materialized path transformation drifts from its structural geometry",
             category="configuration",
             retryability="configuration",
             arg_name="path_transformation",
-            role="geometry_profile",
+            role="triangle_geometry",
             expected={"field": exc.field, "value": str(exc.expected)},
             observed={"field": exc.field, "value": str(exc.observed)},
             repair_action="fix_runtime_contract",

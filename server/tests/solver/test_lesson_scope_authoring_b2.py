@@ -133,8 +133,10 @@ def test_b2_prompt_and_audit_are_ready_for_manual_review(snapshot_and_artifacts)
     assert '"source_steps":["s1","s2","s3"]' in artifacts.prompt.user
     assert "material_count" not in artifacts.prompt.system
     assert "## 必须独立的教学材料" in artifacts.prompt.user
-    assert "Goal i_2.E：s1、s2、s3" in artifacts.prompt.user
-    assert "Goal ii.E：s2、s3、s7" in artifacts.prompt.user
+    assert 'Goal i_2.E：必须分别输出 ["s1"]、["s2"]、["s3"]' in artifacts.prompt.user
+    assert 'Goal ii.E：必须分别输出 ["s2"]、["s3"]、["s7"]' in artifacts.prompt.user
+    assert "## 可考虑合并的连续材料" in artifacts.prompt.user
+    assert 'Goal ii.E：["s4","s5","s6"]' in artifacts.prompt.user
 
 
 def test_b2_review_html_is_self_contained_and_exposes_raw_prompt_tabs(

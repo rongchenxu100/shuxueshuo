@@ -46,9 +46,9 @@ SPEC = RecipeSpecSource(
             ),
             TeachingUnitSpec(
                 unit_key="weighted_axis_path_minimum/domain_minimum",
-                title_template="拉直折线并检查取等点的定义域",
-                nav_title_template="加权路径最值",
-                goal_template="拉直普通折线，并检查取等状态是否落在动点合法范围内。",
+                title_template="作垂线构造直角三角形求路径最小值",
+                nav_title_template="几何求最值",
+                goal_template="把普通折线拉直，再作轴上垂线构造特殊直角三角形，逐段计算最短长度并说明边界。",
                 derive_templates=(
                     ("∵", "辅助点的轨迹为 {auxiliary_locus}"),
                     ("∴", "{minimum_reason}"),
@@ -77,6 +77,9 @@ SPEC = RecipeSpecSource(
                 {
                     "component": "AtomicPathMinimumMarker",
                     "context_roles": ["input_curve"],
+                    "local_interaction": {
+                        "kind": "weighted_axis_motion",
+                    },
                     "requires_independent_lesson_step": True,
                 },
             ),
@@ -84,6 +87,9 @@ SPEC = RecipeSpecSource(
                 {
                     "component": "AtomicPathMinimumMarker",
                     "context_roles": ["input_curve"],
+                    "local_interaction": {
+                        "kind": "weighted_axis_motion",
+                    },
                     "requires_independent_lesson_step": True,
                 },
             ),

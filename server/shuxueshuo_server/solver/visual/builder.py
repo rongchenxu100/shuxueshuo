@@ -2616,10 +2616,33 @@ def _materialize_frame_visual_auxiliaries(
             existing = moving.get(scoped_ref) or fixed.get(scoped_ref)
             expression_pair = [str(expression[0]), str(expression[1])]
             if existing is not None and list(existing) != expression_pair:
-                raise ValueError(
-                    "visual_geometry_identity_conflict: "
-                    f"{scoped_ref}: {existing} != {expression_pair}"
+                meta = point_meta.get(scoped_ref)
+                source_ids = {
+                    str(item)
+                    for item in (
+                        meta.get("sourceStepIds", ())
+                        if isinstance(meta, dict)
+                        else ()
+                    )
+                }
+                same_public_object = (
+                    isinstance(meta, dict)
+                    and str(meta.get("label") or "") == label
+                    and bool(
+                        source_ids.intersection(lesson_step.source_step_ids)
+                    )
                 )
+                if not same_public_object:
+                    raise ValueError(
+                        "visual_geometry_identity_conflict: "
+                        f"{scoped_ref}: {existing} != {expression_pair}"
+                    )
+                # One public point may have a symbolic, Frame-local state and
+                # a later verified exact/attainment state.  Preserve the
+                # registry definition and let this interaction override the
+                # same semantic geometry identity only in the current Frame.
+                ref_map[raw_ref] = scoped_ref
+                continue
             moving[scoped_ref] = expression_pair
             point_meta[scoped_ref] = {
                 "label": label,
@@ -5670,6 +5693,18 @@ def _atomic_path_minimum_marker_items(
     triangle_fill = str(template.get("triangle_fill") or COLOR_RESULT_REGION_FILL)
     for marker in bindings.atomic_path_minimum_markers:
         marker_start = len(items)
+        if marker.get("construction_kind") == "weighted_right_triangle":
+            items.extend(
+                _weighted_path_minimum_marker_items(
+                    template,
+                    marker,
+                    persistence=persistence,
+                    path_color=path_color,
+                    auxiliary_color=reflected_color,
+                    triangle_fill=triangle_fill,
+                )
+            )
+            continue
         locus = marker.get("locus_line") if isinstance(marker.get("locus_line"), dict) else {}
         locus_from = str(locus.get("from") or "")
         locus_to = str(locus.get("to") or "")
@@ -5820,6 +5855,90 @@ def _atomic_path_minimum_marker_items(
                 marker.get("reflection_segment"),
                 marker.get("minimum_segment"),
             ),
+        )
+    return items
+
+
+def _weighted_path_minimum_marker_items(
+    template: dict[str, Any],
+    marker: dict[str, Any],
+    *,
+    persistence: str,
+    path_color: str,
+    auxiliary_color: str,
+    triangle_fill: str,
+) -> list[JsonObject]:
+    """Render a weighted path from its public witness-bound point roles."""
+
+    items: list[JsonObject] = []
+    refs = (
+        marker.get("role_point_refs")
+        if isinstance(marker.get("role_point_refs"), dict)
+        else {}
+    )
+    roles = marker.get("roles") if isinstance(marker.get("roles"), dict) else {}
+    moving_label = str(roles.get("moving_point") or "")
+    auxiliary_label = str(roles.get("auxiliary_point") or "")
+    moving_ref = str(refs.get(moving_label) or "")
+    auxiliary_ref = str(refs.get(auxiliary_label) or "")
+    vertices = [
+        str(item) for item in marker.get("triangle_outline") or () if str(item)
+    ]
+    if len(vertices) == 3 and len(set(vertices)) == 3:
+        items.append(
+            {
+                "component": "OutlineRegion",
+                "handle": f"region:weighted-path:{'-'.join(vertices)}",
+                "vertices": vertices,
+                "fill": triangle_fill,
+                "color": auxiliary_color,
+                "width": 1.2,
+                "persistence": "step_only",
+                "metadata": {"low_level_type": "outlineRegion"},
+            }
+        )
+
+    unit_id = str(template.get("_source_unit_id") or "")
+    segments_key = (
+        "reduced_segments" if unit_id == "domain_minimum" else "original_segments"
+    )
+    for segment in marker.get(segments_key) or ():
+        items.extend(
+            _line_from_segment_payload(
+                segment,
+                color=path_color,
+                width=2.4,
+            )
+        )
+    relation = marker.get("weighted_relation")
+    items.extend(
+        _distance_marker_from_segment_payload(
+            relation,
+            color=auxiliary_color,
+            width=2.0,
+            offset_px=18,
+            persistence="step_only",
+        )
+    )
+    for label, geometry_ref, dy in (
+        (moving_label, moving_ref, 18),
+        (auxiliary_label, auxiliary_ref, -18),
+    ):
+        if not label or not geometry_ref:
+            continue
+        items.append(
+            {
+                "component": "Point",
+                "handle": f"point:{geometry_ref}",
+                "at": geometry_ref,
+                "labelText": label,
+                "color": auxiliary_color,
+                "dx": 14,
+                "dy": dy,
+                "persistence": persistence,
+                "decay_state": "muted",
+                "metadata": {"low_level_type": "point"},
+            }
         )
     return items
 

@@ -15,7 +15,7 @@ from ..._common import _canonical_reference_name, _canonical_segment_name
 class TwoMovingPointsPathReductionMethod:
     """把两个受约束动点的路径转成“已有固定点到动点”的单动点路径。
 
-    这个 method 不绑定南开题的 E/G/D/M/N 点名。它只要求输入描述清楚：
+    这个 method 不绑定任何题目的具体点名。它只要求输入描述清楚：
 
     - 第一个动点在哪条边上；
     - 第二个动点在哪条边上；
@@ -90,6 +90,22 @@ class TwoMovingPointsPathReductionMethod:
         right_distance_squared = kernel.distance_squared(second_segment_end, second_moving_point)
         moving_distance_squared = kernel.distance_squared(first_moving_point, second_moving_point)
         replacement_distance_squared = kernel.distance_squared(first_segment_start, second_moving_point)
+        replacement_geometry = _right_isosceles_replacement_geometry(
+            kernel=kernel,
+            first_segment_names=first_segment_names,
+            second_segment_names=second_segment_names,
+            fixed_name=fixed_name,
+            joint_point=joint_point,
+            second_fixed_name=second_fixed_name,
+            first_moving_name=first_moving_name,
+            second_moving_name=second_moving_name,
+            first_segment_start=first_segment_start,
+            second_segment_end=second_segment_end,
+            first_moving_point=first_moving_point,
+            second_moving_point=second_moving_point,
+            left_scale=left_scale,
+            right_scale=right_scale,
+        )
         transformation = {
             "type": "existing_fixed_endpoint_replacement",
             "original_path": path_text,
@@ -99,6 +115,7 @@ class TwoMovingPointsPathReductionMethod:
             "replacement_segment": replacement_segment,
             "replacement_fixed_endpoint": fixed_name,
             "replacement_moving_point": second_moving_name,
+            "moving_locus_segment_name": second_segment,
             "creates_auxiliary_point": False,
             "reason": str(binding_relation.get("description", "")),
             **_structured_transformation_metadata(
@@ -107,7 +124,51 @@ class TwoMovingPointsPathReductionMethod:
                 second_membership=second_membership,
                 binding_relation=binding_relation,
             ),
+            **(
+                {"replacement_geometry": replacement_geometry}
+                if replacement_geometry is not None
+                else {}
+            ),
         }
+        checks = [
+            _check(
+                "moving_points_binding_relation",
+                sp.simplify(
+                    left_scale**2 * left_distance_squared
+                    - right_scale**2 * right_distance_squared
+                )
+                == 0,
+                "两个动点的绑定线段关系成立",
+            ),
+            _check(
+                "moving_segment_equal_fixed_segment",
+                sp.simplify(
+                    moving_distance_squared - replacement_distance_squared
+                )
+                == 0,
+                f"{replaced_segment} 与 {replacement_segment} 等长",
+            ),
+        ]
+        if replacement_geometry is not None:
+            checks.extend(
+                (
+                    _check(
+                        "right_isosceles_replacement_frame",
+                        True,
+                        "端点替换对应一个等腰直角三角形框架",
+                    ),
+                    _check(
+                        "projection_rectangle_verified",
+                        True,
+                        "两个垂足构成矩形并给出对应边等长",
+                    ),
+                    _check(
+                        "perpendicular_bisector_replacement_verified",
+                        True,
+                        f"垂直平分线证明 {replaced_segment}＝{replacement_segment}",
+                    ),
+                )
+            )
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs={
@@ -117,21 +178,7 @@ class TwoMovingPointsPathReductionMethod:
                     source=self.method_id,
                 )
             },
-            checks=[
-                _check(
-                    "moving_points_binding_relation",
-                    sp.simplify(
-                        left_scale**2 * left_distance_squared
-                        - right_scale**2 * right_distance_squared
-                    ) == 0,
-                    "两个动点的绑定线段关系成立",
-                ),
-                _check(
-                    "moving_segment_equal_fixed_segment",
-                    sp.simplify(moving_distance_squared - replacement_distance_squared) == 0,
-                    f"{replaced_segment} 与 {replacement_segment} 等长",
-                ),
-            ],
+            checks=checks,
             trace_fragments=[
                 _step(
                     self.method_id,
@@ -143,6 +190,203 @@ class TwoMovingPointsPathReductionMethod:
                 )
             ],
         )
+
+
+def _right_isosceles_replacement_geometry(
+    *,
+    kernel: SympyKernel,
+    first_segment_names: list[str],
+    second_segment_names: list[str],
+    fixed_name: str,
+    joint_point: Point,
+    second_fixed_name: str,
+    first_moving_name: str,
+    second_moving_name: str,
+    first_segment_start: Point,
+    second_segment_end: Point,
+    first_moving_point: Point,
+    second_moving_point: Point,
+    left_scale: sp.Expr,
+    right_scale: sp.Expr,
+) -> dict[str, Any] | None:
+    """Recognize and certify the reusable perpendicular-bisector proof.
+
+    The calculation path does not depend on this profile.  If a valid
+    endpoint replacement has another geometry, the Method still returns its
+    algebraically verified result and teaching can use the shorter equality.
+    """
+
+    shared = set(first_segment_names) & set(second_segment_names)
+    if len(shared) != 1:
+        return None
+    joint_name = next(iter(shared))
+    if fixed_name == joint_name or second_fixed_name == joint_name:
+        return None
+    first_leg = tuple(
+        sp.simplify(b - a)
+        for a, b in zip(first_segment_start, joint_point, strict=True)
+    )
+    second_leg = tuple(
+        sp.simplify(b - a)
+        for a, b in zip(first_segment_start, second_segment_end, strict=True)
+    )
+    first_norm = sp.simplify(sum(item**2 for item in first_leg))
+    second_norm = sp.simplify(sum(item**2 for item in second_leg))
+    if (
+        sp.simplify(sum(a * b for a, b in zip(first_leg, second_leg, strict=True)))
+        != 0
+        or sp.simplify(first_norm - second_norm) != 0
+        or not is_definitely_positive(first_norm)
+    ):
+        return None
+    scale = sp.simplify(right_scale / left_scale)
+    if sp.simplify(scale - sp.sqrt(2)) != 0:
+        return None
+
+    first_foot = _orthogonal_projection(
+        second_moving_point,
+        start=first_segment_start,
+        direction=first_leg,
+    )
+    second_foot = _orthogonal_projection(
+        second_moving_point,
+        start=first_segment_start,
+        direction=second_leg,
+    )
+    vector_equalities = (
+        _same_vector(
+            first_segment_start,
+            first_foot,
+            second_foot,
+            second_moving_point,
+        ),
+        _same_vector(
+            first_segment_start,
+            second_foot,
+            first_foot,
+            second_moving_point,
+        ),
+        _same_vector(
+            first_segment_start,
+            first_foot,
+            first_foot,
+            first_moving_point,
+        ),
+    )
+    right_subtriangle = (
+        sp.simplify(
+            kernel.distance_squared(second_moving_point, second_foot)
+            - kernel.distance_squared(second_segment_end, second_foot)
+        )
+        == 0
+    )
+    first_projection_right = sp.simplify(
+        sum(
+            (a - b) * direction
+            for a, b, direction in zip(
+                second_moving_point,
+                first_foot,
+                first_leg,
+                strict=True,
+            )
+        )
+    ) == 0
+    second_projection_right = sp.simplify(
+        sum(
+            (a - b) * direction
+            for a, b, direction in zip(
+                second_moving_point,
+                second_foot,
+                second_leg,
+                strict=True,
+            )
+        )
+    ) == 0
+    replacement_equal = sp.simplify(
+        kernel.distance_squared(first_moving_point, second_moving_point)
+        - kernel.distance_squared(first_segment_start, second_moving_point)
+    ) == 0
+    if not all(
+        (
+            *vector_equalities,
+            right_subtriangle,
+            first_projection_right,
+            second_projection_right,
+            replacement_equal,
+        )
+    ):
+        return None
+    return {
+        "kind": "right_isosceles_perpendicular_bisector",
+        "roles": {
+            "right_vertex": fixed_name,
+            "first_leg_vertex": joint_name,
+            "second_leg_vertex": second_fixed_name,
+            "first_leg_moving_point": first_moving_name,
+            "hypotenuse_moving_point": second_moving_name,
+        },
+        "first_leg": (fixed_name, joint_name),
+        "second_leg": (fixed_name, second_fixed_name),
+        "hypotenuse": (joint_name, second_fixed_name),
+        "binding": {
+            "left_segment": (fixed_name, first_moving_name),
+            "right_segment": (second_fixed_name, second_moving_name),
+            "scale": kernel.sstr(scale),
+        },
+        "replacement": {
+            "left_segment": (first_moving_name, second_moving_name),
+            "right_segment": (fixed_name, second_moving_name),
+        },
+        "verified_relations": (
+            "right_isosceles_frame",
+            "hypotenuse_projection_isosceles",
+            "projection_rectangle",
+            "first_projection_is_binding_midpoint",
+            "perpendicular_bisector",
+            "endpoint_distances_equal",
+        ),
+    }
+
+
+def _orthogonal_projection(
+    point: Point,
+    *,
+    start: Point,
+    direction: tuple[sp.Expr, sp.Expr],
+) -> Point:
+    denominator = sp.simplify(sum(item**2 for item in direction))
+    factor = sp.simplify(
+        sum(
+            (coordinate - origin) * component
+            for coordinate, origin, component in zip(
+                point,
+                start,
+                direction,
+                strict=True,
+            )
+        )
+        / denominator
+    )
+    return tuple(
+        sp.simplify(origin + factor * component)
+        for origin, component in zip(start, direction, strict=True)
+    )  # type: ignore[return-value]
+
+
+def _same_vector(
+    first_start: Point,
+    first_end: Point,
+    second_start: Point,
+    second_end: Point,
+) -> bool:
+    return all(
+        sp.simplify(
+            (first_end[index] - first_start[index])
+            - (second_end[index] - second_start[index])
+        )
+        == 0
+        for index in range(2)
+    )
 
 
 def _binding_relation_terms(

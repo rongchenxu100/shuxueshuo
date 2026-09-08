@@ -137,7 +137,7 @@ SPEC = MethodSpecSource(
             "coefficient_relation": "题设给出的二次项、一次项系数关系。",
             "axis_point": "对称轴与 x 轴的交点。",
         },
-        role_binder_id="generic_source",
+        role_binder_id="quadratic_axis_from_relation",
     ),
     visual=MethodVisualSpec(
         role_schema={

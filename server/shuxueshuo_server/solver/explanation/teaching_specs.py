@@ -6,6 +6,8 @@ from dataclasses import dataclass
 import re
 from typing import Any, Callable, Mapping, Sequence
 
+import sympy as sp
+
 from shuxueshuo_server.solver.contracts import TeachingUnitSpec
 from shuxueshuo_server.solver.runtime.macro_atomicity import (
     contains_private_path_projection_marker,
@@ -13,13 +15,23 @@ from shuxueshuo_server.solver.runtime.macro_atomicity import (
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes._spec import MacroTeachingSpec
+from shuxueshuo_server.solver.runtime.right_angle_selection_geometry import (
+    build_axis_projection_congruence_witness,
+)
 from shuxueshuo_server.solver.student_display import student_math_display
 
-from .models import ExplanationSnapshot, TeachingSource
+from .models import ExplanationSnapshot, TeachingSource, iter_teaching_sources
 from .teaching_role_bindings import (
     TeachingRoleBindingError,
+    _next_point_label,
+    _snapshot_point_pair,
     bind_teaching_roles,
     format_teaching_template,
+    student_quadratic_expression_display,
+)
+from .weighted_axis_teaching_profiles import (
+    WeightedAxisTeachingProfile,
+    select_weighted_axis_teaching_profile,
 )
 
 
@@ -390,16 +402,21 @@ def _macro_roles(
     ):
         return _coupled_segment_macro_roles(source, witness=witness)
     if source.capability_id == "weighted_axis_path_minimum":
-        return _weighted_axis_macro_roles(source, witness=witness)
+        return _weighted_axis_macro_roles(
+            source,
+            witness=witness,
+        )
     if source.capability_id == "right_angle_equal_length_construct_and_select":
         return _right_angle_construct_select_macro_roles(
             source,
             witness=witness,
+            snapshot=snapshot,
         )
     if source.capability_id == "curve_candidate_parameter_solve":
         return _curve_candidate_parameter_macro_roles(
             source,
             witness=witness,
+            snapshot=snapshot,
         )
     raise TeachingSpecBindingError(
         "teaching_spec_macro_role_binder_missing: "
@@ -509,6 +526,7 @@ def _right_angle_construct_select_macro_roles(
     source: TeachingSource,
     *,
     witness: Mapping[str, Any],
+    snapshot: ExplanationSnapshot,
 ) -> dict[str, Any]:
     candidates = _macro_point_list(
         source,
@@ -527,19 +545,290 @@ def _right_angle_construct_select_macro_roles(
             "teaching_spec_macro_construct_select_evidence_incomplete: "
             f"{source.source_step_id}"
         )
-    return {
-        "construction_condition": "；".join(checks),
-        "candidate_points": "，".join(_point_coordinates(item) for item in candidates),
+    target_label = str(
+        source.output_targets.get("selected_target_point") or ""
+    ).rsplit(":", 1)[-1]
+    selected_display = (
+        _labeled_macro_point(target_label, selected)
+        if re.fullmatch(r"[A-Z](?:[0-9]+|[′']+)?", target_label)
+        else _point_coordinates(selected)
+    )
+    candidate_labels = tuple(
+        _indexed_candidate_label(target_label, index)
+        for index in range(1, len(candidates) + 1)
+    )
+    labeled_candidates = tuple(
+        _labeled_macro_point(label, point)
+        for label, point in zip(candidate_labels, candidates, strict=True)
+    )
+    anchor, reference = _right_angle_relation_points(
+        source,
+        target_label=target_label,
+    )
+    roles: dict[str, Any] = {
+        "construction_condition": (
+            f"∠{reference}{anchor}{target_label}＝90°，"
+            f"{anchor}{reference}＝{anchor}{target_label}"
+        ),
+        "candidate_points": "，".join(labeled_candidates),
         "selection_condition": str(witness.get("selection_condition") or ""),
         "candidate_decisions": "；".join(decisions),
-        "selected_point": _point_coordinates(selected),
+        "selected_point": selected_display,
     }
+    derive_by_unit: dict[str, tuple[str, ...]] = {}
+    construction_geometry = witness.get("construction_geometry")
+    if isinstance(construction_geometry, Mapping):
+        geometric_derive = _right_angle_candidates_axis_congruence_derive(
+            source,
+            geometry=construction_geometry,
+            target_label=target_label,
+            candidate_labels=candidate_labels,
+        )
+        if geometric_derive:
+            derive_by_unit[
+                "right_angle_equal_length_construct_and_select/construct_candidates"
+            ] = geometric_derive
+    selection_derive = _right_angle_candidate_selection_derive(
+        candidates=candidates,
+        candidate_labels=candidate_labels,
+        selected=selected,
+        selected_display=selected_display,
+        selection_condition=roles["selection_condition"],
+    )
+    if selection_derive:
+        derive_by_unit[
+            "right_angle_equal_length_construct_and_select/select_candidate"
+        ] = selection_derive
+    if derive_by_unit:
+        roles["derive_items_by_unit"] = derive_by_unit
+    return roles
+
+
+def _right_angle_candidates_axis_congruence_derive(
+    source: TeachingSource,
+    *,
+    geometry: Mapping[str, Any],
+    target_label: str,
+    candidate_labels: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Render one runtime-certified projection proof for all candidates."""
+
+    if geometry.get("kind") != "axis_projection_candidate_construction":
+        return ()
+    try:
+        anchor, reference = _right_angle_relation_points(
+            source,
+            target_label=target_label,
+        )
+    except TeachingSpecBindingError:
+        return ()
+    anchor_pair = geometry.get("anchor")
+    reference_pair = geometry.get("reference")
+    reference_projection = geometry.get("student_reference_projection")
+    reference_lengths = geometry.get("reference_lengths")
+    branches = geometry.get("candidate_branches")
+    if not all(
+        isinstance(item, Mapping)
+        for item in (reference_projection, reference_lengths)
+    ) or not isinstance(branches, Sequence) or isinstance(branches, str | bytes):
+        return ()
+    assert isinstance(reference_projection, Mapping)
+    assert isinstance(reference_lengths, Mapping)
+    if len(branches) != len(candidate_labels):
+        return ()
+    if not all(
+        isinstance(item, Sequence)
+        and not isinstance(item, str | bytes)
+        and len(item) == 2
+        for item in (anchor_pair, reference_pair)
+    ):
+        return ()
+    reference_foot = str(reference_projection.get("label") or "")
+    reference_foot_pair = reference_projection.get("coordinates")
+    if (
+        not reference_foot
+        or not isinstance(reference_foot_pair, Sequence)
+        or isinstance(reference_foot_pair, str | bytes)
+        or len(reference_foot_pair) != 2
+    ):
+        return ()
+    axis = str(geometry.get("axis") or "")
+    projection_line = geometry.get("projection_line")
+    if axis not in {"x", "y"} or not isinstance(projection_line, Mapping):
+        return ()
+    line_text = (
+        f"{axis} 轴"
+        if projection_line.get("kind") == "coordinate_axis"
+        else f"过{anchor}且平行于 {axis} 轴的直线"
+    )
+
+    branch_rows: list[tuple[str, str, Sequence[Any], Sequence[Any]]] = []
+    for label, raw_branch in zip(candidate_labels, branches, strict=True):
+        if not isinstance(raw_branch, Mapping):
+            return ()
+        point = raw_branch.get("point")
+        projection = raw_branch.get("student_projection")
+        lengths = raw_branch.get("lengths")
+        if not isinstance(projection, Mapping) or not isinstance(lengths, Mapping):
+            return ()
+        foot = str(projection.get("label") or "")
+        foot_pair = projection.get("coordinates")
+        if not foot or not all(
+            isinstance(item, Sequence)
+            and not isinstance(item, str | bytes)
+            and len(item) == 2
+            for item in (point, foot_pair)
+        ):
+            return ()
+        if (
+            _student_math_text(lengths.get("anchor_to_projection"))
+            != _student_math_text(reference_lengths.get("reference_to_projection"))
+            or _student_math_text(lengths.get("candidate_to_projection"))
+            != _student_math_text(reference_lengths.get("anchor_to_projection"))
+        ):
+            return ()
+        branch_rows.append((label, foot, point, foot_pair))
+
+    construction_parts = [
+        f"{reference}{reference_foot}⊥{line_text}于{reference_foot}",
+        *(
+            f"{label}{foot}⊥{line_text}于{foot}"
+            for label, foot, _, _ in branch_rows
+        ),
+    ]
+    anchor_display = _labeled_macro_point(anchor, anchor_pair)
+    reference_display = _labeled_macro_point(reference, reference_pair)
+    reference_foot_display = _labeled_macro_point(
+        reference_foot,
+        reference_foot_pair,
+    )
+    anchor_reference_length = _student_math_text(
+        reference_lengths.get("anchor_to_projection")
+    )
+    reference_projection_length = _student_math_text(
+        reference_lengths.get("reference_to_projection")
+    )
+    angle_equalities = "＝".join(
+        f"∠{reference}{anchor}{label}" for label, _, _, _ in branch_rows
+    )
+    segment_equalities = "＝".join(
+        (
+            f"{anchor}{reference}",
+            *(f"{anchor}{label}" for label, _, _, _ in branch_rows),
+        )
+    )
+    congruent_triangles = "≌".join(
+        (
+            f"Rt△{anchor}{reference_foot}{reference}",
+            *(
+                f"Rt△{label}{foot}{anchor}"
+                for label, foot, _, _ in branch_rows
+            ),
+        )
+    )
+    horizontal_equalities = "＝".join(
+        (
+            *(f"{anchor}{foot}" for _, foot, _, _ in branch_rows),
+            f"{reference}{reference_foot}",
+            reference_projection_length,
+        )
+    )
+    vertical_equalities = "＝".join(
+        (
+            *(f"{label}{foot}" for label, foot, _, _ in branch_rows),
+            f"{anchor}{reference_foot}",
+            anchor_reference_length,
+        )
+    )
+    branch_points = "，".join(
+        (
+            *(
+                _labeled_macro_point(foot, foot_pair)
+                for _, foot, _, foot_pair in branch_rows
+            ),
+            *(
+                _labeled_macro_point(label, point)
+                for label, _, point, _ in branch_rows
+            ),
+        )
+    )
+    return (
+        "设两个候选点分别为" + "、".join(candidate_labels),
+        "作" + "，".join(construction_parts),
+        f"∵{anchor_display}，{reference_display}",
+        f"∴{reference_foot_display}，"
+        f"{anchor}{reference_foot}＝{anchor_reference_length}，"
+        f"{reference}{reference_foot}＝{reference_projection_length}",
+        f"∵{angle_equalities}＝90°，{segment_equalities}",
+        f"∴{congruent_triangles}",
+        f"∴{horizontal_equalities}，{vertical_equalities}",
+        f"∴{branch_points}",
+    )
+
+
+def _right_angle_candidate_selection_derive(
+    *,
+    candidates: tuple[tuple[str, str], ...],
+    candidate_labels: tuple[str, ...],
+    selected: tuple[str, str],
+    selected_display: str,
+    selection_condition: str,
+) -> tuple[str, ...]:
+    if len(candidates) != len(candidate_labels) or not selection_condition:
+        return ()
+    decisions = []
+    for label, point in zip(candidate_labels, candidates, strict=True):
+        decision = (
+            "满足上述条件"
+            if _macro_same_point(point, selected)
+            else "不满足上述条件"
+        )
+        decisions.append(f"{_labeled_macro_point(label, point)}{decision}")
+    condition = (
+        _student_relation_text(selection_condition)
+        .replace(">", "＞")
+        .replace("<", "＜")
+    )
+    return (
+        f"∵{condition}",
+        "计算逐一判断，" + "；".join(decisions),
+        f"∴唯一符合题意的点为{selected_display}",
+    )
+
+
+def _right_angle_relation_points(
+    source: TeachingSource,
+    *,
+    target_label: str,
+) -> tuple[str, str]:
+    relation_items = source.inputs.get("right_angle_equal_length", ())
+    if len(relation_items) != 1:
+        raise TeachingSpecBindingError(
+            "teaching_spec_right_angle_relation_missing: "
+            f"{source.source_step_id}"
+        )
+    relation = relation_items[0].get("value")
+    if not isinstance(relation, Mapping):
+        raise TeachingSpecBindingError(
+            "teaching_spec_right_angle_relation_invalid: "
+            f"{source.source_step_id}"
+        )
+    angle = tuple(str(item) for item in relation.get("angle") or ())
+    if len(angle) != 3 or target_label not in {angle[0], angle[2]}:
+        raise TeachingSpecBindingError(
+            "teaching_spec_right_angle_relation_roles_invalid: "
+            f"{source.source_step_id}"
+        )
+    anchor = angle[1]
+    reference = angle[2] if target_label == angle[0] else angle[0]
+    return anchor, reference
 
 
 def _curve_candidate_parameter_macro_roles(
     source: TeachingSource,
     *,
     witness: Mapping[str, Any],
+    snapshot: ExplanationSnapshot,
 ) -> dict[str, Any]:
     candidates = _macro_point_list(
         source,
@@ -560,17 +849,450 @@ def _curve_candidate_parameter_macro_roles(
         )
     parameter_name = str(witness.get("parameter_name") or "参数")
     parameter_value = str(witness.get("parameter_value") or "")
+    parameter_equation = str(witness.get("parameter_equation") or "")
+    matching = [
+        index
+        for index, equation in enumerate(equations)
+        if _macro_equations_equivalent(equation, parameter_equation)
+    ]
+    if len(matching) != 1:
+        raise TeachingSpecBindingError(
+            "teaching_spec_macro_curve_parameter_equation_ambiguous: "
+            f"{source.source_step_id}"
+        )
+    selected_symbolic = candidates[matching[0]]
+    parameter_symbol = sp.Symbol(parameter_name)
+    parameter_expr = _macro_sympify(parameter_value)
+    substituted = tuple(
+        sp.simplify(_macro_sympify(item).subs(parameter_symbol, parameter_expr))
+        for item in selected_symbolic
+    )
+    selected_expr = tuple(_macro_sympify(item) for item in selected)
+    if any(
+        sp.simplify(actual - expected) != 0
+        for actual, expected in zip(substituted, selected_expr, strict=True)
+    ):
+        raise TeachingSpecBindingError(
+            "teaching_spec_macro_curve_selected_point_mismatch: "
+            f"{source.source_step_id}"
+        )
+
+    target_item = _single_macro_input(source, "target_point")
+    target_label = str(target_item.get("display") or "").strip()
+    if not re.fullmatch(r"[A-Z](?:[0-9]+|[′']+)?", target_label):
+        raise TeachingSpecBindingError(
+            "teaching_spec_macro_curve_target_label_invalid: "
+            f"{source.source_step_id}"
+        )
+    parabola_item = _single_macro_input(source, "parabola")
+    parabola = _macro_sympify(parabola_item.get("value"))
+    x_value, y_value = (_macro_sympify(item) for item in selected_symbolic)
+    curve_substitution = sp.expand(parabola.subs(sp.Symbol("x"), x_value))
+    residual = sp.expand(curve_substitution - y_value)
+    constraint = _macro_symbol_constraint_text(
+        source,
+        parameter_name=parameter_name,
+    )
+    symbolic_point = _labeled_macro_point(target_label, selected_symbolic)
+    selected_point = _labeled_macro_point(target_label, selected_expr)
+    parameter_result = (
+        f"{parameter_name}＝{_student_parameter_value_text(parameter_expr)}"
+    )
+    curve_equation = (
+        "y＝" + student_quadratic_expression_display(parabola)
+    )
+    selected_construction = _selected_candidate_construction_profile(
+        source,
+        snapshot=snapshot,
+        target_label=target_label,
+        selected_symbolic=selected_symbolic,
+        parameter_name=parameter_name,
+    )
+    filter_derive = [
+        *selected_construction,
+        f"∵{target_label} 在抛物线 {curve_equation} 上",
+        f"∴将 {symbolic_point} 代入，得 "
+        f"{_student_math_text(y_value)}＝"
+        f"{_student_math_text(sp.sstr(curve_substitution))}",
+        f"∴{_student_math_text(residual)}＝0",
+        f"∵{constraint}",
+        f"∴{parameter_result}",
+    ]
     return {
-        "candidate_points": "，".join(_point_coordinates(item) for item in candidates),
-        "candidate_substitutions": "；".join(equations),
-        "candidate_decisions": "；".join(decisions),
-        "selected_point": _point_coordinates(selected),
-        "parameter_equation": str(witness.get("parameter_equation") or ""),
-        "parameter_result": f"{parameter_name}＝{parameter_value}",
-        "solved_curve": student_math_display(
-            str(witness.get("solved_curve") or "")
+        "candidate_points": "，".join(
+            _labeled_macro_point(target_label, item) for item in candidates
         ),
+        "candidate_substitutions": "；".join(
+            _student_math_text(item) for item in equations
+        ),
+        "candidate_decisions": "；".join(
+            _student_relation_text(item) for item in decisions
+        ),
+        "selected_symbolic_point": symbolic_point,
+        "selected_point": selected_point,
+        "curve_equation": curve_equation,
+        "substitution_equation": (
+            f"{_student_math_text(y_value)}＝"
+            f"{_student_math_text(sp.sstr(curve_substitution))}"
+        ),
+        "zero_equation": f"{_student_math_text(residual)}＝0",
+        "parameter_constraint": constraint,
+        "parameter_equation": _student_math_text(parameter_equation),
+        "parameter_result": parameter_result,
+        "solved_curve": (
+            "y＝"
+            + student_quadratic_expression_display(
+                str(witness.get("solved_curve") or "")
+            )
+        ),
+        "derive_items_by_unit": {
+            "curve_candidate_parameter_solve/filter_candidates": tuple(
+                filter_derive
+            ),
+            "curve_candidate_parameter_solve/solve_parameter_and_curve": (
+                f"∵{parameter_result}，{symbolic_point}",
+                f"∴{selected_point}",
+            ),
+        },
     }
+
+
+def _selected_candidate_construction_profile(
+    source: TeachingSource,
+    *,
+    snapshot: ExplanationSnapshot,
+    target_label: str,
+    selected_symbolic: tuple[sp.Expr, sp.Expr],
+    parameter_name: str,
+) -> tuple[str, ...]:
+    """Render optional geometry only after the downstream branch is verified.
+
+    The candidate-producing Method remains responsible solely for producing
+    both rotations.  This downstream teaching profile may use the Macro's
+    already-selected symbolic branch to replace a coordinate rotation with a
+    student construction.  A non-matching configuration simply receives the
+    normal curve-substitution explanation.
+    """
+
+    candidates_item = _single_macro_input(source, "candidates")
+    ref = candidates_item.get("ref")
+    if not isinstance(ref, Mapping) or ref.get("kind") != "step_result":
+        return ()
+    producer_id = str(ref.get("step_id") or "")
+    producers = [
+        item
+        for item in iter_teaching_sources(snapshot.root_scope)
+        if item.source_step_id == producer_id
+        and item.capability_id == "right_angle_equal_length_candidates"
+    ]
+    if len(producers) != 1:
+        return ()
+    producer = producers[0]
+    relation_items = producer.inputs.get("right_angle_equal_length", ())
+    target_items = producer.inputs.get("target", ())
+    if len(relation_items) != 1 or len(target_items) != 1:
+        return ()
+    relation = relation_items[0].get("value")
+    if not isinstance(relation, Mapping):
+        return ()
+    angle = tuple(str(item) for item in relation.get("angle") or ())
+    produced_target = str(target_items[0].get("display") or "")
+    if (
+        len(angle) != 3
+        or produced_target != target_label
+        or target_label not in {angle[0], angle[2]}
+    ):
+        return ()
+    anchor = angle[1]
+    reference = angle[2] if target_label == angle[0] else angle[0]
+    try:
+        anchor_pair = _snapshot_point_pair(anchor, snapshot, source=producer)
+        reference_pair = _snapshot_point_pair(reference, snapshot, source=producer)
+    except TeachingRoleBindingError:
+        return ()
+    candidates = _macro_point_list(
+        source,
+        candidates_item.get("value"),
+        role="candidates",
+    )
+    if not any(_macro_same_point(selected_symbolic, item) for item in candidates):
+        return ()
+    selected_pair = tuple(_macro_sympify(item) for item in selected_symbolic)
+    constraint_item = _single_macro_input(source, "symbol_constraint")
+    constraint_value = constraint_item.get("value")
+    if not isinstance(constraint_value, Mapping):
+        return ()
+    subject = str(constraint_value.get("subject") or "").rsplit(":", 1)[-1]
+    if subject != parameter_name:
+        return ()
+    geometry = build_axis_projection_congruence_witness(
+        {
+            "kind": "right_angle_equal_length_rotation",
+            "anchor": tuple(sp.sstr(item) for item in anchor_pair),
+            "reference": tuple(sp.sstr(item) for item in reference_pair),
+            "candidates": tuple(
+                tuple(sp.sstr(_macro_sympify(value)) for value in candidate)
+                for candidate in candidates
+            ),
+        },
+        {
+            "kind": "quadrant_candidate_selection",
+            "selected_point": tuple(sp.sstr(item) for item in selected_pair),
+            "parameter": parameter_name,
+            "parameter_constraint": {
+                "operator": str(constraint_value.get("operator") or ""),
+                "value": str(constraint_value.get("value") or ""),
+            },
+        },
+    )
+    if geometry is None:
+        return ()
+    reference_foot_pair = tuple(
+        _macro_sympify(item) for item in geometry["reference_projection"]
+    )
+    selected_foot_pair = tuple(
+        _macro_sympify(item) for item in geometry["selected_projection"]
+    )
+    lengths = geometry["lengths"]
+
+    used = _student_point_labels(snapshot)
+    reference_foot_label = _point_label_at(snapshot, reference_foot_pair)
+    reference_foot_is_existing = bool(reference_foot_label)
+    if (
+        not reference_foot_label
+        and _macro_same_point(reference_foot_pair, (sp.Integer(0), sp.Integer(0)))
+    ):
+        reference_foot_label = "O"
+        reference_foot_is_existing = True
+    if not reference_foot_label:
+        reference_foot_label = _next_point_label(used)
+    used.add(reference_foot_label)
+    selected_foot_label = _point_label_at(snapshot, selected_foot_pair)
+    selected_foot_is_existing = bool(selected_foot_label)
+    if not selected_foot_label:
+        selected_foot_label = (
+            "H" if "H" not in used else _next_point_label(used)
+        )
+    target_display = _labeled_macro_point(target_label, selected_pair)
+    selected_foot_display = _labeled_macro_point(
+        selected_foot_label,
+        selected_foot_pair,
+    )
+    reference_display = _labeled_macro_point(reference, reference_pair)
+    axis = str(geometry.get("axis") or "")
+    line = geometry.get("projection_line")
+    if axis not in {"x", "y"} or not isinstance(line, Mapping):
+        return ()
+    line_text = (
+        f"{axis} 轴"
+        if line.get("kind") == "coordinate_axis"
+        else f"过{anchor}且平行于 {axis} 轴的直线"
+    )
+    constructions: list[str] = []
+    if not reference_foot_is_existing:
+        constructions.append(
+            f"{reference}{reference_foot_label}⊥{line_text}，"
+            f"垂足为 {reference_foot_label}"
+        )
+    if not selected_foot_is_existing:
+        constructions.append(
+            f"{target_label}{selected_foot_label}⊥{line_text}，"
+            f"垂足为 {selected_foot_label}"
+        )
+    if not constructions:
+        return ()
+    anchor_reference_length = _student_math_text(
+        lengths["anchor_to_reference_projection"]
+    )
+    reference_projection_length = _student_math_text(
+        lengths["reference_to_reference_projection"]
+    )
+    anchor_selected_length = _student_math_text(
+        lengths["anchor_to_selected_projection"]
+    )
+    selected_projection_length = _student_math_text(
+        lengths["selected_to_selected_projection"]
+    )
+    return (
+        "作" + "；".join(constructions),
+        f"∵{reference_display}",
+        f"∴{anchor}{reference_foot_label}＝{anchor_reference_length}，"
+        f"{reference_foot_label}{reference}＝{reference_projection_length}",
+        f"∵∠{reference}{anchor}{target_label}＝90°，"
+        f"{anchor}{reference}＝{anchor}{target_label}",
+        f"∴Rt△{anchor}{reference_foot_label}{reference}≌"
+        f"Rt△{target_label}{selected_foot_label}{anchor}",
+        f"∴{anchor}{selected_foot_label}＝"
+        f"{reference_foot_label}{reference}＝{anchor_selected_length}，"
+        f"{target_label}{selected_foot_label}＝"
+        f"{anchor}{reference_foot_label}＝{selected_projection_length}",
+        f"∴{selected_foot_display}，{target_display}",
+    )
+
+
+def _macro_same_point(
+    left: tuple[sp.Expr, sp.Expr],
+    right: tuple[sp.Expr, sp.Expr],
+) -> bool:
+    return all(
+        sp.simplify(_macro_sympify(left_item) - _macro_sympify(right_item)) == 0
+        for left_item, right_item in zip(left, right, strict=True)
+    )
+
+
+def _student_point_labels(snapshot: ExplanationSnapshot) -> set[str]:
+    labels = {
+        str(item.get("name") or "")
+        for item in (snapshot.problem or {}).get("entities", ())
+        if isinstance(item, Mapping) and item.get("entity_type") == "point"
+    }
+    for candidate in iter_teaching_sources(snapshot.root_scope):
+        labels.update(
+            str(candidate.output_targets.get(name) or "").rsplit(":", 1)[-1]
+            for name in candidate.outputs
+            if candidate.output_targets.get(name)
+        )
+        labels.update(
+            str(item.get("display") or "")
+            for item in candidate.outputs.values()
+            if re.fullmatch(
+                r"[A-Z](?:[0-9]+|[′']+)?",
+                str(item.get("display") or ""),
+            )
+        )
+    return {item for item in labels if item}
+
+
+def _point_label_at(
+    snapshot: ExplanationSnapshot,
+    pair: tuple[sp.Expr, sp.Expr],
+) -> str:
+    matches: set[str] = set()
+    for item in (snapshot.problem or {}).get("entities", ()):
+        if not isinstance(item, Mapping) or item.get("entity_type") != "point":
+            continue
+        coordinate = item.get("coordinate")
+        if item.get("definition") == "coordinate_origin" and coordinate is None:
+            coordinate = (0, 0)
+        if (
+            isinstance(coordinate, Sequence)
+            and not isinstance(coordinate, str | bytes)
+            and len(coordinate) == 2
+        ):
+            candidate = tuple(_macro_sympify(value) for value in coordinate)
+            if _macro_same_point(pair, candidate):
+                label = str(item.get("name") or "")
+                if label:
+                    matches.add(label)
+    return next(iter(matches)) if len(matches) == 1 else ""
+
+
+def _single_macro_input(
+    source: TeachingSource,
+    name: str,
+) -> Mapping[str, Any]:
+    items = source.inputs.get(name, ())
+    if len(items) != 1 or not isinstance(items[0], Mapping):
+        raise TeachingSpecBindingError(
+            f"teaching_spec_macro_input_invalid: {source.source_step_id}.{name}"
+        )
+    return items[0]
+
+
+def _macro_sympify(value: Any) -> sp.Expr:
+    try:
+        return sp.sympify(
+            str(value),
+            locals={
+                "Abs": sp.Abs,
+                "Eq": sp.Eq,
+                "Piecewise": sp.Piecewise,
+                "sqrt": sp.sqrt,
+            },
+        )
+    except (TypeError, ValueError, SyntaxError, sp.SympifyError) as exc:
+        raise TeachingSpecBindingError(
+            f"teaching_spec_macro_math_invalid: {value!r}"
+        ) from exc
+
+
+def _macro_equations_equivalent(left: Any, right: Any) -> bool:
+    left_equation = _macro_sympify(left)
+    right_equation = _macro_sympify(right)
+    if not isinstance(left_equation, sp.Equality) or not isinstance(
+        right_equation, sp.Equality
+    ):
+        return False
+    left_residual = sp.expand(left_equation.lhs - left_equation.rhs)
+    right_residual = sp.expand(right_equation.lhs - right_equation.rhs)
+    return (
+        sp.simplify(left_residual - right_residual) == 0
+        or sp.simplify(left_residual + right_residual) == 0
+    )
+
+
+def _macro_symbol_constraint_text(
+    source: TeachingSource,
+    *,
+    parameter_name: str,
+) -> str:
+    item = _single_macro_input(source, "symbol_constraint")
+    value = item.get("value")
+    if not isinstance(value, Mapping):
+        raise TeachingSpecBindingError(
+            "teaching_spec_macro_symbol_constraint_invalid: "
+            f"{source.source_step_id}"
+        )
+    subject = str(value.get("subject") or "").rsplit(":", 1)[-1]
+    operator = {
+        ">": "＞",
+        ">=": "≥",
+        "<": "＜",
+        "<=": "≤",
+        "=": "＝",
+        "==": "＝",
+        "!=": "≠",
+    }.get(str(value.get("operator") or ""))
+    if subject != parameter_name or not operator or value.get("value") in (None, ""):
+        raise TeachingSpecBindingError(
+            "teaching_spec_macro_symbol_constraint_invalid: "
+            f"{source.source_step_id}"
+        )
+    return f"{subject}{operator}{_student_math_text(value['value'])}"
+
+
+def _student_parameter_value_text(value: sp.Expr) -> str:
+    """Put positive terms before negative terms in short student answers."""
+
+    expression = sp.simplify(value)
+    if not isinstance(expression, sp.Add):
+        return _student_math_text(expression)
+    terms = tuple(sp.Add.make_args(expression))
+    ordered = tuple(item for item in terms if not item.could_extract_minus_sign()) + tuple(
+        item for item in terms if item.could_extract_minus_sign()
+    )
+    text = ""
+    for term in ordered:
+        negative = term.could_extract_minus_sign()
+        body = _student_math_text(-term if negative else term)
+        if not text:
+            text = ("－" if negative else "") + body
+        else:
+            text += ("－" if negative else "＋") + body
+    return text
+
+
+def _labeled_macro_point(label: str, values: Sequence[Any]) -> str:
+    return (
+        f"{label}("
+        + ",".join(_student_math_text(item) for item in values)
+        + ")"
+    )
+
+
+def _indexed_candidate_label(label: str, index: int) -> str:
+    subscript_digits = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+    return f"{label}{str(index).translate(subscript_digits)}"
 
 
 def _macro_point_list(
@@ -618,26 +1340,50 @@ def _equal_length_ray_macro_roles(
     anchor = str(construction.get("anchor") or "公共端点")
     reference = str(construction.get("reference_point") or "参考点")
     ray_point = str(construction.get("ray_direction_point") or "射线方向点")
-    coordinate = construction.get("coordinate")
-    coordinate_text = ""
-    if isinstance(coordinate, Sequence) and not isinstance(
-        coordinate, str | bytes
-    ):
-        coordinate_text = _point_coordinates(coordinate)
     auxiliary_construction = (
-        f"在射线{anchor}{ray_point}上构造{label}{coordinate_text}，"
+        f"在射线{anchor}{ray_point}上构造{label}，"
         f"使{anchor}{label}＝{anchor}{reference}"
+    )
+    minimum_segment = str(construction.get("minimum_segment") or "")
+    components = construction.get("minimum_distance_components")
+    if (
+        not minimum_segment
+        or not isinstance(components, Sequence)
+        or isinstance(components, str | bytes)
+        or len(components) != 2
+    ):
+        raise TeachingSpecBindingError(
+            "teaching_spec_equal_length_minimum_distance_missing: "
+            f"{source.source_step_id}"
+        )
+    component_terms = "＋".join(
+        f"({_student_math_text(item)})²" for item in components
+    )
+    minimum_expression = _student_math_text(
+        str(witness.get("minimum_expression") or "")
     )
     return {
         "auxiliary_construction": auxiliary_construction,
-        "congruence_facts": "；".join(proof[:-2] or proof[:-1]),
-        "replacement_equality": proof[-2] if len(proof) >= 2 else proof[-1],
-        "original_objective": str(witness.get("original_objective") or ""),
-        "reduced_objective": str(witness.get("reduced_objective") or ""),
-        "minimum_reason": "化简后的折线路径不短于两端点间的直线距离",
-        "minimum_expression": student_math_display(
-            str(witness.get("minimum_expression") or "")
+        "congruence_facts": "；".join(
+            _student_relation_text(item) for item in (proof[:-2] or proof[:-1])
         ),
+        "replacement_equality": _student_relation_text(
+            proof[-2] if len(proof) >= 2 else proof[-1]
+        ),
+        "original_objective": _student_relation_text(
+            str(witness.get("original_objective") or "")
+        ),
+        "reduced_objective": _student_relation_text(
+            str(witness.get("reduced_objective") or "")
+        ),
+        "minimum_inequality": (
+            f"{_student_relation_text(str(witness.get('reduced_objective') or ''))}"
+            f"≥{minimum_segment}"
+        ),
+        "minimum_calculation": (
+            f"{minimum_segment}＝√[{component_terms}]＝{minimum_expression}"
+        ),
+        "minimum_expression": minimum_expression,
     }
 
 
@@ -680,7 +1426,7 @@ def _coupled_segment_macro_roles(
     straightened_path = f"{transformed}＝{straightened}"
     if minimum_segment:
         straightened_path += f"≥{minimum_segment}"
-    return {
+    roles: dict[str, Any] = {
         "replacement_equality": str(
             replacement.get("segment_equality") or proof[0]
         ),
@@ -700,6 +1446,168 @@ def _coupled_segment_macro_roles(
         ),
         "attainment_point": f"{moving_point}{_point_coordinates(point_value)}",
     }
+    geometry = replacement.get("geometry_certificate")
+    if isinstance(geometry, Mapping):
+        geometric_derive = _coupled_replacement_geometry_derive(
+            source,
+            geometry=geometry,
+            original_objective=roles["original_objective"],
+            reduced_objective=roles["reduced_objective"],
+            replacement_equality=roles["replacement_equality"],
+        )
+        if geometric_derive:
+            roles["derive_items_by_unit"] = {
+                (
+                    "coupled_segment_endpoint_replacement_path_minimum/"
+                    "endpoint_replacement"
+                ): geometric_derive,
+            }
+    return roles
+
+
+def _coupled_replacement_geometry_derive(
+    source: TeachingSource,
+    *,
+    geometry: Mapping[str, Any],
+    original_objective: str,
+    reduced_objective: str,
+    replacement_equality: str,
+) -> tuple[str, ...]:
+    """Render the certified right-isosceles perpendicular-bisector proof."""
+
+    if geometry.get("kind") != "right_isosceles_perpendicular_bisector":
+        return ()
+    role_values = geometry.get("roles")
+    binding = geometry.get("binding")
+    replacement = geometry.get("replacement")
+    second_projection = geometry.get("student_second_leg_projection")
+    first_projection = geometry.get("student_first_leg_projection")
+    if not all(
+        isinstance(item, Mapping)
+        for item in (
+            role_values,
+            binding,
+            replacement,
+            second_projection,
+            first_projection,
+        )
+    ):
+        return ()
+    assert isinstance(role_values, Mapping)
+    assert isinstance(binding, Mapping)
+    assert isinstance(replacement, Mapping)
+    assert isinstance(second_projection, Mapping)
+    assert isinstance(first_projection, Mapping)
+    required_roles = {
+        "right_vertex",
+        "first_leg_vertex",
+        "second_leg_vertex",
+        "first_leg_moving_point",
+        "hypotenuse_moving_point",
+    }
+    if set(role_values) != required_roles:
+        return ()
+    labels = {key: str(value) for key, value in role_values.items()}
+    if any(not re.fullmatch(r"[A-Z](?:[0-9]+|[′']+)?", value) for value in labels.values()):
+        return ()
+    right = labels["right_vertex"]
+    first_vertex = labels["first_leg_vertex"]
+    second_vertex = labels["second_leg_vertex"]
+    first_moving = labels["first_leg_moving_point"]
+    hypotenuse_moving = labels["hypotenuse_moving_point"]
+    second_foot = str(second_projection.get("label") or "")
+    first_foot = str(first_projection.get("label") or "")
+    if not second_foot or not first_foot:
+        return ()
+    expected_segments = {
+        "first_leg": {right, first_vertex},
+        "second_leg": {right, second_vertex},
+        "hypotenuse": {first_vertex, second_vertex},
+    }
+    for field, expected in expected_segments.items():
+        raw = geometry.get(field)
+        if (
+            not isinstance(raw, Sequence)
+            or isinstance(raw, str | bytes)
+            or len(raw) != 2
+            or {str(item) for item in raw} != expected
+        ):
+            return ()
+    binding_left = _point_role_segment(binding.get("left_segment"))
+    binding_right = _point_role_segment(binding.get("right_segment"))
+    replacement_left = _point_role_segment(replacement.get("left_segment"))
+    replacement_right = _point_role_segment(replacement.get("right_segment"))
+    if (
+        binding_left != {right, first_moving}
+        or binding_right != {second_vertex, hypotenuse_moving}
+        or replacement_left != {first_moving, hypotenuse_moving}
+        or replacement_right != {right, hypotenuse_moving}
+        or sp.simplify(_macro_sympify(binding.get("scale")) - sp.sqrt(2)) != 0
+    ):
+        return ()
+    required_relations = {
+        "right_isosceles_frame",
+        "hypotenuse_projection_isosceles",
+        "projection_rectangle",
+        "first_projection_is_binding_midpoint",
+        "perpendicular_bisector",
+        "endpoint_distances_equal",
+    }
+    if not required_relations.issubset(
+        {str(item) for item in geometry.get("verified_relations", ())}
+    ):
+        return ()
+    source_relation = _single_macro_input(source, "segment_binding_relation")
+    source_value = source_relation.get("value")
+    if isinstance(source_value, Mapping):
+        source_scale = source_value.get("scale")
+        if source_scale is not None and (
+            sp.simplify(_macro_sympify(source_scale) - sp.sqrt(2)) != 0
+        ):
+            return ()
+
+    right_first = f"{right}{first_vertex}"
+    right_second = f"{right}{second_vertex}"
+    hypotenuse = f"{first_vertex}{second_vertex}"
+    binding_left_text = f"{right}{first_moving}"
+    binding_right_text = f"{second_vertex}{hypotenuse_moving}"
+    replacement_text = _student_relation_text(replacement_equality)
+    return (
+        f"作{hypotenuse_moving}{second_foot}⊥{right_second}于{second_foot}，"
+        f"{hypotenuse_moving}{first_foot}⊥{right_first}于{first_foot}",
+        f"∵△{right}{first_vertex}{second_vertex}是等腰直角三角形，"
+        f"{hypotenuse_moving}在线段{hypotenuse}上",
+        f"∴△{hypotenuse_moving}{second_vertex}{second_foot}"
+        "是等腰直角三角形",
+        f"∴{hypotenuse_moving}{second_foot}＝"
+        f"{second_foot}{second_vertex}＝{binding_right_text}/√2",
+        f"∵四边形{right}{first_foot}{hypotenuse_moving}{second_foot}是矩形",
+        f"∴{right}{first_foot}＝{hypotenuse_moving}{second_foot}，"
+        f"{hypotenuse_moving}{first_foot}＝{right}{second_foot}",
+        f"∵{binding_left_text}＝√2·{binding_right_text}＝"
+        f"2{hypotenuse_moving}{second_foot}",
+        f"∴{first_moving}{first_foot}＝{binding_left_text}－"
+        f"{right}{first_foot}＝{hypotenuse_moving}{second_foot}＝"
+        f"{right}{first_foot}",
+        f"∵{hypotenuse_moving}{first_foot}⊥{right_first}，"
+        f"{right}、{first_moving}、{first_foot}在直线{right_first}上",
+        f"∴{hypotenuse_moving}{first_foot}垂直平分"
+        f"{right}{first_moving}",
+        f"∴△{right}{hypotenuse_moving}{first_moving}是等腰三角形，"
+        f"{replacement_text}",
+        f"∴{_student_relation_text(original_objective)}＝"
+        f"{_student_relation_text(reduced_objective)}",
+    )
+
+
+def _point_role_segment(value: Any) -> set[str]:
+    if (
+        not isinstance(value, Sequence)
+        or isinstance(value, str | bytes)
+        or len(value) != 2
+    ):
+        return set()
+    return {str(item) for item in value}
 
 
 def _weighted_axis_macro_roles(
@@ -707,48 +1615,672 @@ def _weighted_axis_macro_roles(
     *,
     witness: Mapping[str, Any],
 ) -> dict[str, Any]:
-    proof = _macro_equivalence_proof(source, witness)
+    _macro_equivalence_proof(source, witness)
     construction = _macro_construction(
         source,
         witness,
         kind="weighted_right_triangle",
     )
-    formula = construction.get("auxiliary_point_formula")
-    formula_text = ""
-    if isinstance(formula, Sequence) and not isinstance(formula, str | bytes):
-        formula_text = f"，辅助点坐标为{_point_coordinates(formula)}"
-    weight = student_math_display(str(construction.get("weight") or ""))
+    student_auxiliary = construction.get("student_auxiliary_point")
+    if not isinstance(student_auxiliary, Mapping):
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_student_auxiliary_missing: "
+            f"{source.source_step_id}"
+        )
+    auxiliary_label = str(student_auxiliary.get("label") or "")
+    if not auxiliary_label:
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_student_auxiliary_missing: "
+            f"{source.source_step_id}"
+        )
+    weight_expression = _macro_sympify(construction.get("weight"))
+    weight = student_math_display(str(weight_expression))
+    resolved = {
+        str(item.get("role") or ""): str(item.get("chosen_ref") or "")
+        for item in witness.get("role_resolutions", ())
+        if isinstance(item, Mapping)
+    }
+    fixed = resolved.get("fixed_point", "")
+    curve = resolved.get("curve_point", "")
+    moving = resolved.get("moving_point", "")
+    if not fixed or not curve or not moving:
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_public_roles_missing: "
+            f"{source.source_step_id}"
+        )
     legal_domain = tuple(str(item) for item in witness.get("legal_domain", ()))
     domain_parts: list[str] = []
     for item in legal_domain[1:]:
-        if item.startswith("attainment condition: "):
+        if item.startswith("取等条件："):
+            condition = _student_math_text(item.removeprefix("取等条件："))
             domain_parts.append(
-                "取等条件为 "
-                + student_math_display(item.removeprefix("attainment condition: "))
+                "取等状态在整个参数定义域内均成立"
+                if condition == "恒成立"
+                else f"取等条件为 {condition}"
             )
-        elif item.startswith("boundary branch: "):
+        elif item.startswith("边界分支："):
             domain_parts.append(
                 "边界分支为 "
-                + student_math_display(item.removeprefix("boundary branch: "))
+                + _student_math_text(item.removeprefix("边界分支："))
             )
         else:
-            domain_parts.append(item)
+            domain_parts.append(_student_relation_text(item))
+    original_objective = _student_math_text(
+        str(witness.get("original_objective") or "")
+    )
+    locus_equation = _weighted_locus_equation(construction)
+    axis_geometry = construction.get("axis_projection_geometry")
+    if not isinstance(axis_geometry, Mapping):
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_axis_geometry_missing: "
+            f"{source.source_step_id}"
+        )
+    axis_side = _weighted_auxiliary_axis_side(axis_geometry)
+    fixed_moving = f"{fixed}{moving}"
+    auxiliary_moving = f"{auxiliary_label}{moving}"
+    curve_moving = f"{curve}{moving}"
+    moving_auxiliary = f"{moving}{auxiliary_label}"
+    curve_auxiliary = f"{curve}{auxiliary_label}"
+    (
+        weighted_segment,
+        unit_segment,
+        auxiliary_segment,
+    ) = _weighted_path_equivalence_segments(
+        source=source,
+        construction=construction,
+        labels={
+            "fixed_point": fixed,
+            "curve_point": curve,
+            "moving_point": moving,
+            "auxiliary_point": auxiliary_label,
+        },
+        weight=weight_expression,
+    )
+    reduced_objective = (
+        f"{weight}({weighted_segment}＋{auxiliary_segment})"
+    )
+    profile = select_weighted_axis_teaching_profile(
+        weight=weight_expression,
+        geometry=axis_geometry,
+    )
+    if profile is not None:
+        narrative = profile.reduction_narrative(
+            fixed=fixed,
+            auxiliary=auxiliary_label,
+            moving=moving,
+            axis_side=axis_side,
+        )
+        weighted_construction = narrative.construction
+        weighted_equivalence_reason = narrative.equivalence_reason
+        locus_angle: str | None = narrative.locus_angle
+    else:
+        weighted_construction = (
+            f"在 x 轴{axis_side}作 Rt△{fixed}{auxiliary_label}{moving}，"
+            f"使 ∠{fixed}{auxiliary_label}{moving}＝90°，"
+            f"{fixed_moving}＝{weight}·{auxiliary_moving}"
+        )
+        weighted_equivalence_reason = "由辅助直角三角形的边长关系可得"
+        locus_angle = None
+    weighted_side_relation = f"{unit_segment}＝{weight}·{auxiliary_segment}"
+    objective_expansion = (
+        f"{original_objective}＝{weight}{weighted_segment}＋"
+        f"{weight}{auxiliary_segment}"
+    )
+    auxiliary_locus_sentence = _weighted_auxiliary_locus_sentence(
+        geometry=axis_geometry,
+        auxiliary=auxiliary_label,
+        fixed=fixed,
+        angle=locus_angle,
+        locus_equation=locus_equation,
+    )
+    domain_condition = (
+        "；".join(dict.fromkeys(domain_parts))
+        if domain_parts
+        else "取等状态位于合法定义域内"
+    )
+    minimum_expression = _student_math_text(
+        str(witness.get("minimum_expression") or "")
+    )
+    minimum_derive = _weighted_axis_geometric_minimum_derive(
+        source=source,
+        construction=construction,
+        profile=profile,
+        weight=weight,
+        fixed=fixed,
+        curve=curve,
+        moving=moving,
+        auxiliary=auxiliary_label,
+        original_objective=original_objective,
+        reduced_objective=reduced_objective,
+        auxiliary_locus_sentence=auxiliary_locus_sentence,
+        domain_condition=domain_condition,
+        minimum_expression=minimum_expression,
+    )
     return {
-        "weighted_construction": (
-            f"根据权重 {weight} 构造对应的辅助直角三角形{formula_text}"
-        ),
-        "weighted_equivalence_reason": proof[0],
-        "original_objective": str(witness.get("original_objective") or ""),
-        "reduced_objective": str(witness.get("reduced_objective") or ""),
-        "auxiliary_locus": student_math_display(
-            str(construction.get("auxiliary_locus") or "")
-        ),
+        "weighted_construction": weighted_construction,
+        "weighted_equivalence_reason": weighted_equivalence_reason,
+        "weighted_side_relation": weighted_side_relation,
+        "objective_expansion": objective_expansion,
+        "original_objective": original_objective,
+        "reduced_objective": reduced_objective,
+        "auxiliary_locus": locus_equation,
+        "auxiliary_locus_sentence": auxiliary_locus_sentence,
         "minimum_reason": "把等价的普通折线拉直，得到内部最短距离",
-        "domain_condition": "；".join(domain_parts) or "取等状态位于合法定义域内",
-        "minimum_expression": student_math_display(
-            str(witness.get("minimum_expression") or "")
-        ),
+        "domain_condition": domain_condition,
+        "minimum_expression": minimum_expression,
+        "derive_items_by_unit": {
+            "weighted_axis_path_minimum/weighted_reduction": (
+                f"作{weighted_construction}",
+                f"∵{weighted_equivalence_reason}",
+                f"∴{weighted_side_relation}",
+                f"∴{objective_expansion}",
+                f"∴{original_objective}＝{reduced_objective}",
+                f"∵{moving} 在 x 轴上运动",
+                f"∴{auxiliary_locus_sentence}",
+            ),
+            "weighted_axis_path_minimum/domain_minimum": minimum_derive,
+        },
     }
+
+
+def _weighted_path_equivalence_segments(
+    *,
+    source: TeachingSource,
+    construction: Mapping[str, Any],
+    labels: Mapping[str, str],
+    weight: sp.Expr,
+) -> tuple[str, str, str]:
+    """Render only the role graph already published by runtime evidence."""
+
+    path_equivalence = construction.get("path_equivalence")
+    if not isinstance(path_equivalence, Mapping):
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_path_equivalence_missing: "
+            f"{source.source_step_id}"
+        )
+    try:
+        scale_matches = sp.simplify(
+            _macro_sympify(path_equivalence.get("scale")) - weight
+        ) == 0
+    except (TypeError, ValueError, sp.SympifyError):
+        scale_matches = False
+    if not scale_matches:
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_path_equivalence_scale_drift: "
+            f"{source.source_step_id}"
+        )
+
+    expected_roles = {
+        "weighted_segment": {
+            labels["curve_point"],
+            labels["moving_point"],
+        },
+        "unit_segment": {
+            labels["fixed_point"],
+            labels["moving_point"],
+        },
+        "auxiliary_segment": {
+            labels["auxiliary_point"],
+            labels["moving_point"],
+        },
+    }
+    rendered: list[str] = []
+    for field, expected in expected_roles.items():
+        raw = path_equivalence.get(field)
+        if (
+            not isinstance(raw, Sequence)
+            or isinstance(raw, str | bytes)
+            or len(raw) != 2
+            or {str(item) for item in raw} != expected
+        ):
+            raise TeachingSpecBindingError(
+                "teaching_spec_weighted_path_equivalence_invalid: "
+                f"{source.source_step_id}:{field}"
+            )
+        rendered.append("".join(str(item) for item in raw))
+    return rendered[0], rendered[1], rendered[2]
+
+
+def _weighted_auxiliary_axis_side(geometry: Mapping[str, Any]) -> str:
+    direction = geometry.get("locus_direction")
+    if (
+        not isinstance(direction, Sequence)
+        or isinstance(direction, str | bytes)
+        or len(direction) != 2
+    ):
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_locus_direction_missing"
+        )
+    vertical = _macro_sympify(direction[1])
+    if vertical.is_positive:
+        return "上方"
+    if vertical.is_negative:
+        return "下方"
+    raise TeachingSpecBindingError(
+        "teaching_spec_weighted_locus_side_undetermined"
+    )
+
+
+def _weighted_auxiliary_locus_sentence(
+    *,
+    geometry: Mapping[str, Any],
+    auxiliary: str,
+    fixed: str,
+    angle: str | None,
+    locus_equation: str,
+) -> str:
+    reference = geometry.get("locus_reference_point")
+    if (
+        not isinstance(reference, Sequence)
+        or isinstance(reference, str | bytes)
+        or len(reference) != 2
+    ):
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_locus_reference_missing"
+        )
+    reference_text = "(" + ",".join(
+        _student_coordinate_math(item) for item in reference
+    ) + ")"
+    x_value = _macro_sympify(reference[0])
+    y_value = _macro_sympify(reference[1])
+    if sp.simplify(x_value) == 0 and y_value.is_positive:
+        reference_description = f"y 轴正半轴点 {reference_text}"
+    elif sp.simplify(x_value) == 0:
+        reference_description = f"y 轴上的点 {reference_text}"
+    else:
+        reference_description = f"点 {reference_text}"
+    angle_description = f"{angle} " if angle else ""
+    return (
+        f"{auxiliary} 在过 {fixed} 且经过 {reference_description} 的 "
+        f"{angle_description}固定射线 {locus_equation} 上运动"
+    )
+
+
+def _weighted_axis_geometric_minimum_derive(
+    *,
+    source: TeachingSource,
+    construction: Mapping[str, Any],
+    profile: WeightedAxisTeachingProfile | None,
+    weight: str,
+    fixed: str,
+    curve: str,
+    moving: str,
+    auxiliary: str,
+    original_objective: str,
+    reduced_objective: str,
+    auxiliary_locus_sentence: str,
+    domain_condition: str,
+    minimum_expression: str,
+) -> tuple[str, ...]:
+    """Render the verified projection-triangle certificate as student proof."""
+
+    geometry = construction.get("axis_projection_geometry")
+    if not isinstance(geometry, Mapping):
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_axis_geometry_missing: "
+            f"{source.source_step_id}"
+        )
+    if geometry.get("kind") != "axis_projection_geometric_minimum":
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_axis_geometry_invalid: "
+            f"{source.source_step_id}"
+        )
+    projection = geometry.get("student_projection_point")
+    boundary = geometry.get("student_boundary_point")
+    if not isinstance(projection, Mapping) or not isinstance(boundary, Mapping):
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_axis_student_points_missing: "
+            f"{source.source_step_id}"
+        )
+    projection_label = str(projection.get("label") or "")
+    boundary_label = str(boundary.get("label") or "")
+    if not projection_label or not boundary_label:
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_axis_student_points_invalid: "
+            f"{source.source_step_id}"
+        )
+    moving_domain, moving_region, boundary_description = (
+        _weighted_axis_domain_phrases(geometry, moving=moving)
+    )
+
+    curve_point = _weighted_geometry_point(
+        geometry,
+        key="curve_point",
+        label=curve,
+        source=source,
+    )
+    fixed_point = _weighted_geometry_point(
+        geometry,
+        key="fixed_point",
+        label=fixed,
+        source=source,
+    )
+    interior_moving_point = _weighted_geometry_point(
+        geometry,
+        key="interior_moving_point",
+        label=moving,
+        source=source,
+        factor_coordinates=True,
+    )
+    boundary_point = _weighted_geometry_point(
+        geometry,
+        key="boundary_point",
+        label=boundary_label,
+        source=source,
+    )
+    vertical = _factored_student_math(geometry.get("vertical_leg_length"))
+    horizontal = _factored_student_math(geometry.get("horizontal_leg_length"))
+    curve_to_moving = _factored_student_math(
+        geometry.get("curve_to_moving_length")
+    )
+    curve_to_moving_squared = _factored_student_math(
+        geometry.get("curve_to_moving_length_squared")
+    )
+    fixed_to_projection = _factored_student_math(
+        geometry.get("fixed_to_projection_length")
+    )
+    fixed_to_moving = _factored_student_math(
+        geometry.get("fixed_to_moving_length")
+    )
+    auxiliary_to_moving = _factored_student_math(
+        geometry.get("auxiliary_to_moving_length")
+    )
+    straightened = _factored_student_math(geometry.get("straightened_length"))
+    scaled_minimum = _expanded_fraction_student_math(
+        geometry.get("scaled_interior_minimum")
+    )
+    attainment_condition = _student_math_text(
+        geometry.get("attainment_condition")
+    )
+    if not all(
+        (
+            vertical,
+            horizontal,
+            curve_to_moving,
+            curve_to_moving_squared,
+            fixed_to_projection,
+            fixed_to_moving,
+            auxiliary_to_moving,
+            straightened,
+            scaled_minimum,
+            attainment_condition,
+        )
+    ):
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_axis_geometry_values_missing: "
+            f"{source.source_step_id}"
+        )
+
+    curve_projection = f"{curve}{projection_label}"
+    projection_moving = f"{projection_label}{moving}"
+    fixed_projection = f"{fixed}{projection_label}"
+    fixed_moving = f"{fixed}{moving}"
+    curve_moving = f"{curve}{moving}"
+    auxiliary_moving = f"{auxiliary}{moving}"
+    moving_auxiliary = f"{moving}{auxiliary}"
+    curve_auxiliary = f"{curve}{auxiliary}"
+    fixed_auxiliary = f"{fixed}{auxiliary}"
+
+    derive: list[str] = [
+        "∵两点之间线段最短",
+        f"∴{curve_moving}＋{moving_auxiliary}≥{curve_auxiliary}",
+        f"∴当 {curve}、{moving}、{auxiliary} 三点共线时，折线最短",
+        f"∵{auxiliary_locus_sentence}",
+        f"∴{curve_auxiliary} 的最小值是 {curve} 到这条射线的垂线段",
+        f"∴最短时 {curve_auxiliary}⊥{fixed_auxiliary}",
+        f"作{curve_projection}⊥x 轴，垂足为 {projection_label}",
+    ]
+    if profile is not None:
+        derive.extend(
+            profile.projection_lines(
+                fixed_auxiliary=fixed_auxiliary,
+                curve=curve,
+                projection=projection_label,
+                moving=moving,
+                curve_point=curve_point,
+                curve_projection=curve_projection,
+                projection_moving=projection_moving,
+                curve_moving=curve_moving,
+                vertical=vertical,
+                horizontal=horizontal,
+                curve_to_moving=curve_to_moving,
+            )
+        )
+    else:
+        derive.extend(
+            (
+                f"∵{curve_point}",
+                f"∴{curve_projection}＝{vertical}，"
+                f"{projection_moving}＝{horizontal}",
+                f"∵Rt△{curve}{projection_label}{moving} 为直角三角形",
+                f"∴{curve_moving}²＝{curve_projection}²＋"
+                f"{projection_moving}²＝{curve_to_moving_squared}",
+                f"∴{curve_moving}＝{curve_to_moving}",
+            )
+        )
+
+    decomposition = str(geometry.get("fixed_moving_decomposition") or "")
+    if decomposition == "projection_minus_horizontal":
+        derive.append(
+            f"∵{fixed_moving}＝{fixed_projection}－{projection_moving}＝"
+            f"{fixed_to_moving}"
+        )
+    elif decomposition == "projection_plus_horizontal":
+        derive.append(
+            f"∵{fixed_moving}＝{fixed_projection}＋{projection_moving}＝"
+            f"{fixed_to_moving}"
+        )
+    elif decomposition == "horizontal_minus_projection":
+        derive.append(
+            f"∵{fixed_moving}＝{projection_moving}－{fixed_projection}＝"
+            f"{fixed_to_moving}"
+        )
+    else:
+        derive.append(f"∵由横坐标可得 {fixed_moving}＝{fixed_to_moving}")
+    derive.extend(
+        (
+            f"∵{fixed_moving}＝{weight}·{auxiliary_moving}",
+            f"∴{auxiliary_moving}＝{_student_radical_product(auxiliary_to_moving)}",
+            f"∴{curve_moving}＋{auxiliary_moving}＝{straightened}",
+            f"∵{original_objective}＝{reduced_objective}",
+            (
+                f"∴最小值＝{weight}·{straightened}＝{scaled_minimum}"
+                if attainment_condition == "恒成立"
+                else f"∴当 {attainment_condition} 时，最小值＝"
+                f"{weight}·{straightened}＝{scaled_minimum}"
+            ),
+        )
+    )
+
+    boundary_minimum = geometry.get("boundary_minimum_expression")
+    if boundary_minimum is not None:
+        complement = _weighted_parameter_complement_range(geometry)
+        boundary_curve_squared = _macro_sympify(
+            geometry.get("boundary_curve_distance_squared")
+        )
+        boundary_curve_distance = _factored_student_math(
+            sp.sqrt(boundary_curve_squared)
+        )
+        boundary_fixed = _factored_student_math(
+            geometry.get("boundary_fixed_length")
+        )
+        boundary_minimum_display = _student_math_text(boundary_minimum)
+        derive.extend(
+            (
+                f"∵取等时 {interior_moving_point}，且 {moving_domain}",
+                f"∴取等条件为 {attainment_condition}",
+                f"∵当 {complement} 时，上述取等点不在{moving_region}内",
+                f"∴此时最小值在{boundary_description} {boundary_label} 取得",
+                f"∵{curve_point}，{fixed_point}，{boundary_point}",
+                f"∴{curve}{boundary_label}＝{boundary_curve_distance}，"
+                f"{fixed}{boundary_label}＝{boundary_fixed}",
+                f"∴最小值＝{weight}·{curve}{boundary_label}＋"
+                f"{fixed}{boundary_label}＝{boundary_minimum_display}",
+                f"∴完整最小值为 {minimum_expression}",
+            )
+        )
+    else:
+        derive.extend(
+            (
+                f"∵{domain_condition}",
+                f"∴完整最小值为 {minimum_expression}",
+            )
+        )
+    return tuple(derive)
+
+
+def _weighted_geometry_point(
+    geometry: Mapping[str, Any],
+    *,
+    key: str,
+    label: str,
+    source: TeachingSource,
+    factor_coordinates: bool = False,
+) -> str:
+    values = geometry.get(key)
+    if not isinstance(values, Sequence) or isinstance(values, str | bytes):
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_axis_point_missing: "
+            f"{source.source_step_id}:{key}"
+        )
+    if len(values) != 2:
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_axis_point_invalid: "
+            f"{source.source_step_id}:{key}"
+        )
+    formatter = (
+        _factored_student_math
+        if factor_coordinates
+        else _student_coordinate_math
+    )
+    return f"{label}({','.join(formatter(item) for item in values)})"
+
+
+def _student_coordinate_math(value: Any) -> str:
+    try:
+        expression = _macro_sympify(value)
+    except (TypeError, ValueError, sp.SympifyError):
+        return _student_math_text(value)
+    expanded = sp.expand(expression)
+    if (
+        isinstance(expanded, sp.Add)
+        and expanded.args
+        and all(term.could_extract_minus_sign() for term in expanded.args)
+    ):
+        return _factored_student_math(expanded)
+    return _student_math_text(str(expanded))
+
+
+def _factored_student_math(value: Any) -> str:
+    try:
+        expression = _macro_sympify(value)
+    except (TypeError, ValueError, sp.SympifyError):
+        return _student_math_text(value)
+    factored = str(sp.factor(expression))
+    if "-(-" in factored:
+        factored = str(sp.together(expression))
+    return _student_math_text(factored)
+
+
+def _expanded_fraction_student_math(value: Any) -> str:
+    try:
+        expression = _macro_sympify(value)
+    except (TypeError, ValueError, sp.SympifyError):
+        return _student_math_text(value)
+    numerator, denominator = sp.fraction(sp.together(expression))
+    numerator_text = _student_math_text(str(sp.expand(numerator)))
+    if denominator == 1:
+        return numerator_text
+    denominator_text = _student_math_text(str(denominator))
+    if isinstance(sp.expand(numerator), sp.Add):
+        numerator_text = f"({numerator_text})"
+    return f"{numerator_text}/{denominator_text}"
+
+
+def _student_radical_product(value: str) -> str:
+    return re.sub(r"(√\d+)\(", r"\1·(", value)
+
+
+def _weighted_parameter_complement_range(
+    geometry: Mapping[str, Any],
+) -> str:
+    parameter = str(geometry.get("parameter") or "")
+    domain = geometry.get("parameter_constraint")
+    attainment = _macro_sympify(geometry.get("attainment_condition"))
+    if (
+        parameter
+        and isinstance(domain, Mapping)
+        and domain.get("operator") == ">"
+        and isinstance(attainment, sp.StrictGreaterThan)
+        and str(attainment.lhs) == parameter
+    ):
+        lower = _student_math_text(domain.get("value"))
+        upper = _student_math_text(attainment.rhs)
+        return f"{lower}＜{parameter}≤{upper}"
+    return "不满足内部取等条件"
+
+
+def _weighted_axis_domain_phrases(
+    geometry: Mapping[str, Any],
+    *,
+    moving: str,
+) -> tuple[str, str, str]:
+    constraint = geometry.get("dynamic_constraint")
+    dynamic_parameter = str(geometry.get("dynamic_parameter") or "")
+    if not isinstance(constraint, Mapping) or not dynamic_parameter:
+        raise TeachingSpecBindingError(
+            "teaching_spec_weighted_dynamic_domain_missing"
+        )
+    operator = str(constraint.get("operator") or "")
+    lower = _macro_sympify(constraint.get("value"))
+    if operator == ">" and sp.simplify(lower) == 0:
+        return (
+            f"{moving} 在 x 轴正半轴上",
+            " x 轴正半轴",
+            "正半轴端点",
+        )
+    relation = _student_math_text(
+        f"{dynamic_parameter}{operator}{lower}"
+    )
+    return (
+        f"{moving} 在 x 轴上且 {relation}",
+        "题设的轴上范围",
+        "该范围的端点",
+    )
+
+
+def _weighted_locus_equation(construction: Mapping[str, Any]) -> str:
+    raw = str(construction.get("auxiliary_locus") or "").strip()
+    if not raw:
+        raise TeachingSpecBindingError("teaching_spec_weighted_locus_missing")
+    try:
+        if "=" in raw and not raw.lstrip().startswith("Eq("):
+            left, right = raw.split("=", 1)
+            expression = _macro_sympify(left) - _macro_sympify(right)
+        else:
+            parsed = _macro_sympify(raw)
+            expression = (
+                parsed.lhs - parsed.rhs
+                if isinstance(parsed, sp.Equality)
+                else parsed
+            )
+        y = sp.Symbol("y")
+        solutions = sp.solve(sp.Eq(expression, 0), y)
+    except (
+        TypeError,
+        ValueError,
+        NotImplementedError,
+        sp.SympifyError,
+        TeachingSpecBindingError,
+    ) as exc:
+        raise TeachingSpecBindingError(
+            f"teaching_spec_weighted_locus_invalid: {raw!r}"
+        ) from exc
+    if len(solutions) != 1:
+        raise TeachingSpecBindingError(
+            f"teaching_spec_weighted_locus_invalid: {raw!r}"
+        )
+    return "y＝" + _student_math_text(sp.simplify(solutions[0]))
 
 
 def _macro_equivalence_proof(
@@ -807,6 +2339,21 @@ def _student_point_name(value: str) -> str:
 
 def _student_prime_text(value: str) -> str:
     return value.replace("_prime", "′").replace("A_prime", "A′")
+
+
+def _student_relation_text(value: Any) -> str:
+    """Studentize operators without removing spaces from Chinese prose."""
+
+    return (
+        _student_prime_text(str(value))
+        .replace("=", "＝")
+        .replace("+", "＋")
+        .replace("-", "－")
+    )
+
+
+def _student_math_text(value: Any) -> str:
+    return student_math_display(value, fullwidth_operators=True)
 
 
 def _point_coordinates(values: Sequence[Any]) -> str:
@@ -881,7 +2428,14 @@ def _bound_derive(
 ) -> tuple[tuple[str, str], ...]:
     """Prefer verified, runtime-bound proof lines when a role binder provides them."""
 
-    dynamic = roles.get("derive_items")
+    dynamic_by_unit = roles.get("derive_items_by_unit")
+    dynamic = (
+        dynamic_by_unit.get(unit.unit_key)
+        if isinstance(dynamic_by_unit, Mapping)
+        else None
+    )
+    if dynamic is None:
+        dynamic = roles.get("derive_items")
     if isinstance(dynamic, Sequence) and not isinstance(dynamic, str | bytes):
         result: list[tuple[str, str]] = []
         for raw in dynamic:

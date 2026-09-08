@@ -64,6 +64,17 @@ def build_coupled_segment_path_execution_witness(
             }
         )
     )
+    replacement_geometry = evidence.get("replacement_geometry")
+    replacement_construction = {
+        "kind": "existing_fixed_endpoint_replacement",
+        "segment_equality": str(evidence["segment_equality"]),
+        "moving_locus": str(evidence["moving_locus"]),
+        **(
+            {"geometry_certificate": dict(replacement_geometry)}
+            if isinstance(replacement_geometry, Mapping)
+            else {}
+        ),
+    }
     return PathMinimumWitness(
         step_id=compiled.call_id,
         macro_id="coupled_segment_endpoint_replacement_path_minimum",
@@ -71,11 +82,7 @@ def build_coupled_segment_path_execution_witness(
         reduced_objective=str(evidence["reduced_objective"]),
         role_resolutions=report.role_resolutions,
         constructions=(
-            {
-                "kind": "existing_fixed_endpoint_replacement",
-                "segment_equality": str(evidence["segment_equality"]),
-                "moving_locus": str(evidence["moving_locus"]),
-            },
+            replacement_construction,
             {
                 "kind": "line_reflection",
                 "reflected_point": list(evidence["reflected_point"]),
@@ -94,8 +101,8 @@ def build_coupled_segment_path_execution_witness(
             str(item) for item in evidence["equivalence_proof"]
         ),
         legal_domain=(
-            "the selected path, segment relation and connected memberships are visible in the call scope",
-            "the segment relation proves an existing fixed-endpoint replacement without creating a public auxiliary object",
+            "所选路径、线段关系与相连的动点范围在当前步骤中均已确定",
+            "题设线段关系证明了已有固定端点替换，无需引入新的公开辅助点",
         ),
         minimum_strategy=str(evidence["minimum_strategy"]),
         minimum_expression=str(evidence["minimum_expression"]),

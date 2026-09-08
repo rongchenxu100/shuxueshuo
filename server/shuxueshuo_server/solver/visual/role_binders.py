@@ -2325,6 +2325,101 @@ class VisualRoleBinderRegistry:
                             witness.get("minimum_expression") or ""
                         ),
                     }
+        if "weighted_axis_path_minimum" in lesson_step.capability_ids:
+            witness = _macro_evidence_for_lesson_step(
+                snapshot,
+                lesson_step,
+                macro_id="weighted_axis_path_minimum",
+            )
+            if witness is None:
+                return {}
+            constructions = [
+                item
+                for item in witness.get("constructions", ())
+                if isinstance(item, dict)
+                and item.get("kind") == "weighted_right_triangle"
+            ]
+            if len(constructions) != 1:
+                raise ValueError(
+                    "visual_weighted_path_construction_invalid: "
+                    f"step={lesson_step.lesson_step_id}, "
+                    f"observed={len(constructions)}"
+                )
+            construction = constructions[0]
+            student_auxiliary = construction.get("student_auxiliary_point")
+            if not isinstance(student_auxiliary, dict):
+                raise ValueError(
+                    "visual_weighted_path_student_auxiliary_missing: "
+                    f"step={lesson_step.lesson_step_id}"
+                )
+            auxiliary_label = str(student_auxiliary.get("label") or "")
+            auxiliary_coordinates = student_auxiliary.get("coordinates")
+            if (
+                not auxiliary_label
+                or not isinstance(auxiliary_coordinates, (list, tuple))
+                or len(auxiliary_coordinates) != 2
+            ):
+                raise ValueError(
+                    "visual_weighted_path_student_auxiliary_invalid: "
+                    f"step={lesson_step.lesson_step_id}"
+                )
+            axis_geometry = construction.get("axis_projection_geometry")
+            dynamic_constraint = (
+                axis_geometry.get("dynamic_constraint")
+                if isinstance(axis_geometry, dict)
+                else None
+            )
+            if not isinstance(dynamic_constraint, dict):
+                raise ValueError(
+                    "visual_weighted_path_dynamic_constraint_missing: "
+                    f"step={lesson_step.lesson_step_id}"
+                )
+            roles = {
+                str(item.get("role") or ""): str(item.get("chosen_ref") or "")
+                for item in witness.get("role_resolutions", ())
+                if isinstance(item, dict)
+            }
+            required = {
+                "fixed_point",
+                "curve_point",
+                "moving_point",
+                "dynamic_parameter",
+            }
+            missing = sorted(
+                role for role in required if not str(roles.get(role) or "")
+            )
+            if missing:
+                raise ValueError(
+                    "visual_weighted_path_public_roles_missing: "
+                    f"step={lesson_step.lesson_step_id}, missing={missing}"
+                )
+            return {
+                "construction_kind": "weighted_right_triangle",
+                "fixed_point": roles["fixed_point"],
+                "curve_point": roles["curve_point"],
+                "moving_point": roles["moving_point"],
+                "dynamic_parameter": roles["dynamic_parameter"],
+                "dynamic_constraint": dict(dynamic_constraint),
+                "auxiliary_point": auxiliary_label,
+                "auxiliary_point_coordinates": [
+                    str(item) for item in auxiliary_coordinates
+                ],
+                "auxiliary_locus": str(
+                    construction.get("auxiliary_locus") or ""
+                ),
+                "weight": str(construction.get("weight") or ""),
+                "original_objective": str(
+                    witness.get("original_objective") or ""
+                ),
+                "reduced_objective": (
+                    f"{construction.get('weight')}*"
+                    f"({roles['curve_point']}{roles['moving_point']}+"
+                    f"{auxiliary_label}{roles['moving_point']})"
+                ),
+                "minimum_expression": str(
+                    witness.get("minimum_expression") or ""
+                ),
+            }
         return {}
 
     def _atomic_path_minimum_markers(
@@ -2337,6 +2432,12 @@ class VisualRoleBinderRegistry:
     ) -> list[dict[str, Any]]:
         if not roles_payload:
             return []
+        if roles_payload.get("construction_kind") == "weighted_right_triangle":
+            return self._weighted_path_minimum_markers(
+                lesson_step,
+                roles_payload,
+                point_handles,
+            )
         source = str(roles_payload.get("reflect_source") or "")
         reflected = str(roles_payload.get("reflected_point_name") or "")
         moving = str(roles_payload.get("moving_point") or "")
@@ -2444,6 +2545,104 @@ class VisualRoleBinderRegistry:
             item for item in marker["straightened_segments"] if item
         ]
         return [marker]
+
+    def _weighted_path_minimum_markers(
+        self,
+        lesson_step: LessonStep,
+        roles_payload: dict[str, Any],
+        point_handles: dict[str, str],
+    ) -> list[dict[str, Any]]:
+        fixed = str(roles_payload.get("fixed_point") or "")
+        curve = str(roles_payload.get("curve_point") or "")
+        moving = str(roles_payload.get("moving_point") or "")
+        auxiliary = str(roles_payload.get("auxiliary_point") or "")
+        if not all((fixed, curve, moving, auxiliary)):
+            return []
+
+        def existing_geom(label: str) -> str:
+            return str(
+                point_handles.get(label)
+                or self.index.geometry_point_name(label, lesson_step.scope_id)
+                or ""
+            )
+
+        fixed_ref = existing_geom(fixed)
+        curve_ref = existing_geom(curve)
+        if not fixed_ref or not curve_ref:
+            return []
+
+        # The moving and auxiliary points are Frame-local constructions.  Raw
+        # public labels are temporary role references only; the interaction
+        # materializer replaces them with branch-scoped geometry identities
+        # before VisualStepIR is serialized.
+        role_point_refs = {
+            fixed: fixed_ref,
+            curve: curve_ref,
+            moving: moving,
+            auxiliary: auxiliary,
+        }
+
+        def segment(start: str, end: str, label: str = "") -> dict[str, str]:
+            return {
+                "from": role_point_refs[start],
+                "to": role_point_refs[end],
+                **({"label": label} if label else {}),
+            }
+
+        weight = student_math_display(
+            str(roles_payload.get("weight") or ""),
+            fullwidth_operators=True,
+        )
+        return [
+            {
+                "construction_kind": "weighted_right_triangle",
+                "roles": {
+                    "fixed_point": fixed,
+                    "curve_point": curve,
+                    "moving_point": moving,
+                    "auxiliary_point": auxiliary,
+                },
+                "role_point_refs": role_point_refs,
+                "dynamic_parameter": str(
+                    roles_payload.get("dynamic_parameter") or ""
+                ),
+                "dynamic_constraint": dict(
+                    roles_payload.get("dynamic_constraint") or {}
+                ),
+                "auxiliary_point_coordinates": list(
+                    roles_payload.get("auxiliary_point_coordinates") or ()
+                ),
+                "triangle_outline": [fixed_ref, auxiliary, moving],
+                "original_segments": (
+                    segment(curve, moving),
+                    segment(fixed, moving),
+                ),
+                "reduced_segments": (
+                    segment(curve, moving),
+                    segment(auxiliary, moving),
+                ),
+                "weighted_relation": segment(
+                    fixed,
+                    moving,
+                    f"{fixed}{moving}＝{weight}·{auxiliary}{moving}",
+                ),
+                "path_equality": _student_path_equality(
+                    str(roles_payload.get("original_objective") or ""),
+                    str(roles_payload.get("reduced_objective") or ""),
+                ),
+                "auxiliary_locus": _line_equation_display(
+                    {
+                        "equation": str(
+                            roles_payload.get("auxiliary_locus") or ""
+                        )
+                    }
+                ),
+                "minimum_expression": student_math_display(
+                    str(roles_payload.get("minimum_expression") or ""),
+                    fullwidth_operators=True,
+                ),
+            }
+        ]
 
     def _dynamic_point_ref_for_label(
         self,
@@ -3094,6 +3293,17 @@ def _point_labels_from_square_path_roles(payload: dict[str, Any]) -> set[str]:
 
 def _point_labels_from_atomic_path_roles(payload: dict[str, Any]) -> set[str]:
     labels: set[str] = set()
+    if payload.get("construction_kind") == "weighted_right_triangle":
+        for key in (
+            "fixed_point",
+            "curve_point",
+            "moving_point",
+            "auxiliary_point",
+        ):
+            value = str(payload.get(key) or "")
+            if value:
+                labels.add(value)
+        return labels
     for key in (
         "reflect_source",
         "reflected_point_name",

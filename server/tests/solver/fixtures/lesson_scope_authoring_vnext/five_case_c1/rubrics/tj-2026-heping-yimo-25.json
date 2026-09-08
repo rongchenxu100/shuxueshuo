@@ -1,0 +1,49 @@
+{
+  "schema_version": "lesson-teaching-rubric/v1",
+  "problem_id": "tj-2026-heping-yimo-25",
+  "points": [
+    {
+      "point_id": "line_curve_intersection",
+      "description": "由辅助直线与抛物线的交点关系求出点 E。",
+      "source_step_id": "derive_curve_intersection_E_i",
+      "required_pattern_groups": [
+        ["联立", "交点"],
+        ["E(-2/3,-11/9)"]
+      ]
+    },
+    {
+      "point_id": "parameterized_parabola",
+      "description": "由 A 在抛物线上得到系数关系并写出含参解析式。",
+      "source_step_id": "derive_parametric_parabola_ii",
+      "required_pattern_groups": [
+        ["b=a-3"],
+        ["y=ax²+(a-3)x-3", "y=ax^2+(a-3)x-3"]
+      ]
+    },
+    {
+      "point_id": "equal_length_path_reduction",
+      "description": "利用等长构造证明 BN=MG，并把原路径化为 OM+MG。",
+      "source_step_id": "reduce_equal_length_ray_path_ii",
+      "required_pattern_groups": [
+        ["BN=MG"],
+        ["OM+BN=OM+MG"]
+      ]
+    },
+    {
+      "point_id": "equal_length_path_minimum",
+      "description": "给出化简后折线路径的最小值表达式。",
+      "source_step_id": "reduce_equal_length_ray_path_ii",
+      "required_pattern_groups": [
+        ["3√(2a²+1)/|a|", "3sqrt(2a^2+1)/|a|"]
+      ]
+    },
+    {
+      "point_id": "solve_parameter_a",
+      "description": "由题设最小值反求并筛选参数 a。",
+      "source_step_id": "solve_parameter_from_minimum_ii",
+      "required_pattern_groups": [
+        ["a=3/4"]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": "lesson-teaching-rubric/v1",
+  "problem_id": "tj-2026-xiqing-yimo-25",
+  "points": [
+    {
+      "point_id": "parameterized_parabola",
+      "description": "由 A 在抛物线上得到系数关系并写出含参解析式。",
+      "source_step_id": "derive_parametric_parabola_ii",
+      "required_pattern_groups": [
+        ["c=b+1"],
+        ["y=-x²+bx+b+1", "y=-x^2+bx+b+1"]
+      ]
+    },
+    {
+      "point_id": "parameterized_curve_point_D",
+      "description": "把已知横坐标代入抛物线得到点 D 的含参坐标。",
+      "source_step_id": "derive_curve_point_D_ii",
+      "required_pattern_groups": [
+        ["D(b+2,-b-3)"]
+      ]
+    },
+    {
+      "point_id": "segment_relation_parameter",
+      "description": "由线段长度关系建立方程并筛选参数 b。",
+      "source_step_id": "solve_parameter_from_segment_relation_ii",
+      "required_pattern_groups": [
+        ["b=1"]
+      ]
+    },
+    {
+      "point_id": "weighted_path_minimum",
+      "description": "通过辅助直角三角形消去权重，作轴上垂线构造 30°—60° 直角三角形，并逐段算出最小值表达式。",
+      "source_step_id": "derive_weighted_minimum_ii",
+      "required_pattern_groups": [
+        ["2*DM+AM", "2DM+AM"],
+        ["DH⊥x轴"],
+        ["Rt△DHM", "△DHM"],
+        ["∠DMH=60°"],
+        ["DH=b+3"],
+        ["HM=√3(b+3)/3"],
+        ["DM=2√3(b+3)/3"],
+        ["AM=AH-HM=(3-√3)(b+3)/3"],
+        ["QM=(3-√3)(b+3)/6"],
+        ["DM+QM=(1+√3)(b+3)/2"],
+        ["b+√3b+3+3√3", "(1+√3)(b+3)"]
+      ]
+    },
+    {
+      "point_id": "minimum_value_parameter",
+      "description": "由题设最小值反求并筛选参数 b。",
+      "source_step_id": "solve_parameter_from_minimum_ii",
+      "required_pattern_groups": [
+        ["b=2"]
+      ]
+    }
+  ]
+}

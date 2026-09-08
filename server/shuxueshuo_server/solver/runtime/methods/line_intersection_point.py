@@ -139,7 +139,7 @@ SPEC = MethodSpecSource(
             "line2_p2": "第二条直线端点二。",
             "intersection": "两直线交点。",
         },
-        role_binder_id="generic_source",
+        role_binder_id="line_intersection_point",
     ),
     visual=MethodVisualSpec(
         role_schema={

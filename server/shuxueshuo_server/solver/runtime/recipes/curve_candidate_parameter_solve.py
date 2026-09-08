@@ -29,24 +29,21 @@ SPEC = RecipeSpecSource(
         teaching_units=(
             TeachingUnitSpec(
                 unit_key="curve_candidate_parameter_solve/filter_candidates",
-                title_template="把候选点代入曲线条件",
-                nav_title_template="筛选候选点",
-                goal_template="逐个代入候选点，说明每个分支被保留或排除的原因。",
+                title_template="将点代入抛物线求参数",
+                nav_title_template="代入求参数",
+                goal_template="把几何构造得到的点代入抛物线，结合参数范围求出参数。",
                 derive_templates=(
                     ("∵", "候选点为 {candidate_points}"),
                     ("计算", "{candidate_substitutions}"),
                     ("∴", "筛选结果为 {candidate_decisions}"),
                 ),
-                # The candidate-filter unit may explain which branch survives,
-                # but only the closing unit publishes the Goal answer.  Keeping
-                # the final point out of this intermediate conclusion preserves
-                # one unambiguous answer-producing teaching unit.
-                box_templates=("候选筛选完成",),
+                box_templates=("{parameter_result}",),
                 role_schema={
                     "candidate_points": "前序几何构造产生的候选点。",
                     "candidate_substitutions": "每个候选点代入当前曲线得到的方程。",
                     "candidate_decisions": "各分支的保留或排除理由。",
                     "selected_point": "曲线条件保留的唯一候选点。",
+                    "parameter_result": "结合范围筛选后的唯一参数值。",
                 },
                 role_binder_id="curve_candidate_parameter_solve",
             ),
@@ -54,20 +51,16 @@ SPEC = RecipeSpecSource(
                 unit_key=(
                     "curve_candidate_parameter_solve/solve_parameter_and_curve"
                 ),
-                title_template="求参数并闭合点与曲线",
-                nav_title_template="求参数并回代",
-                goal_template="由保留点建立参数方程，求出参数并回代点和曲线。",
+                title_template="回代参数求点的坐标",
+                nav_title_template="回代求点",
+                goal_template="把上一步求出的参数直接代回点的坐标。",
                 derive_templates=(
                     ("∵", "保留点满足当前曲线条件"),
                     ("计算", "{parameter_equation}"),
                     ("∴", "{parameter_result}"),
                     ("∴", "最终点为 {selected_point}，曲线为 {solved_curve}"),
                 ),
-                box_templates=(
-                    "{parameter_result}",
-                    "{selected_point}",
-                    "{solved_curve}",
-                ),
+                box_templates=("{selected_point}",),
                 role_schema={
                     "parameter_equation": "由保留点代入曲线得到的参数方程。",
                     "parameter_result": "筛选后的唯一参数值。",
