@@ -1,6 +1,6 @@
 {
   "schema_version": "lesson-capability-occurrences/v1",
-  "registry_fingerprint": "5c03359216dbdd60e4a0536a7db6a9a91adf9c3b08ed46ed6dd175e7f74225f5",
+  "registry_fingerprint": "855559dc97c8a75db7d8d1aad3096d85e480c6dc400d0170e225c92f41fff215",
   "capabilities": {
     "angle_sum_equal_angle_candidates": [
       {

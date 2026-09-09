@@ -59,6 +59,12 @@ class ParametricExpressionResolver:
                     bindings,
                 )
                 error_code = "visual_weighted_axis_motion_unresolved"
+            elif kind == "coupled_segment_motion":
+                interaction = self._coupled_segment_motion_interaction(
+                    lesson_step,
+                    bindings,
+                )
+                error_code = "visual_coupled_segment_motion_unresolved"
             else:
                 raise ValueError(
                     f"visual_local_interaction_kind_unknown: {kind or '<empty>'}"
@@ -70,6 +76,179 @@ class ParametricExpressionResolver:
                 )
             result.append(interaction)
         return tuple(_unique_interactions(result))
+
+    def _coupled_segment_motion_interaction(
+        self,
+        lesson_step: LessonStep,
+        bindings: VisualRoleBindings,
+    ) -> JsonObject | None:
+        """Link a segment point to every certificate-derived dependent point."""
+
+        marker = _first_coupled_segment_motion_marker(bindings)
+        if marker is None:
+            return None
+        motion = (
+            marker.get("coupled_motion")
+            if isinstance(marker.get("coupled_motion"), dict)
+            else {}
+        )
+        moving_ref = str(motion.get("moving_ref") or "")
+        moving_label = str(motion.get("moving_label") or "")
+        dependent_label = str(motion.get("dependent_label") or "")
+        segment_start = str(motion.get("segment_start") or "")
+        segment_end = str(motion.get("segment_end") or "")
+        start_expr = self._point_expr(segment_start)
+        end_expr = self._point_expr(segment_end)
+        if (
+            not moving_ref
+            or not moving_label
+            or start_expr is None
+            or end_expr is None
+        ):
+            return None
+
+        parameter_name = _fresh_local_parameter_name(self.geometry_spec)
+        parameter = sp.Symbol(parameter_name)
+        moving_expr = _interpolate(start_expr, end_expr, parameter)
+        parameterized_points: dict[str, JsonObject] = {
+            moving_ref: {
+                "expression": _format_pair(moving_expr),
+                "source": {
+                    "type": "coupled_segment_motion",
+                    "role": "hypotenuse_moving_point",
+                    "segment_start": segment_start,
+                    "segment_end": segment_end,
+                },
+            }
+        }
+        carriers: list[JsonObject] = [
+            {
+                "kind": "segment",
+                "moving_point": moving_ref,
+                "from": segment_start,
+                "to": segment_end,
+                "persistence": "step_only",
+            }
+        ]
+
+        anchor_ref = str(motion.get("anchor") or "")
+        first_leg_moving_ref = str(motion.get("first_leg_moving") or "")
+        first_projection_ref = str(motion.get("first_projection") or "")
+        second_projection_ref = str(motion.get("second_projection") or "")
+        anchor_expr = self._point_expr(anchor_ref) if anchor_ref else None
+        if (
+            anchor_expr is not None
+            and first_leg_moving_ref
+            and first_projection_ref
+            and second_projection_ref
+        ):
+            one_minus = 1 - parameter
+            parameterized_points.update(
+                {
+                    first_leg_moving_ref: {
+                        "expression": _format_pair(
+                            _interpolate(anchor_expr, start_expr, 2 * one_minus)
+                        ),
+                        "source": {
+                            "type": "coupled_segment_motion",
+                            "role": "first_leg_moving_point",
+                        },
+                    },
+                    first_projection_ref: {
+                        "expression": _format_pair(
+                            _interpolate(anchor_expr, start_expr, one_minus)
+                        ),
+                        "source": {
+                            "type": "coupled_segment_motion",
+                            "role": "first_leg_projection",
+                        },
+                    },
+                    second_projection_ref: {
+                        "expression": _format_pair(
+                            _interpolate(anchor_expr, end_expr, parameter)
+                        ),
+                        "source": {
+                            "type": "coupled_segment_motion",
+                            "role": "second_leg_projection",
+                        },
+                    },
+                }
+            )
+            carriers.append(
+                {
+                    "kind": "segment",
+                    "moving_point": first_leg_moving_ref,
+                    "from": anchor_ref,
+                    "to": segment_start,
+                    "persistence": "step_only",
+                }
+            )
+
+        domain = (
+            marker.get("motion_domain")
+            if isinstance(marker.get("motion_domain"), dict)
+            else {}
+        )
+        try:
+            minimum = float(sp.N(sp.sympify(str(domain.get("min") or 0))))
+            maximum = float(sp.N(sp.sympify(str(domain.get("max") or 1))))
+            default = float(
+                sp.N(sp.sympify(str(domain.get("default") or "1/2")))
+            )
+        except (sp.SympifyError, TypeError, ValueError):
+            return None
+        attainment = _shared_sympy_pair(marker.get("attainment_point"))
+        if attainment is not None:
+            for index in range(2):
+                delta = sp.simplify(end_expr[index] - start_expr[index])
+                if delta == 0:
+                    continue
+                ratio = sp.simplify(
+                    (attainment[index] - start_expr[index]) / delta
+                )
+                if not ratio.free_symbols:
+                    candidate = float(sp.N(ratio))
+                    if minimum <= candidate <= maximum:
+                        default = candidate
+                break
+
+        return {
+            "id": f"{lesson_step.id}:coupled_segment_motion",
+            "component": "LocalSlider",
+            "parameter": parameter_name,
+            "mathematical_domain": {
+                "kind": "closed_interval",
+                "min": minimum,
+                "max": maximum,
+            },
+            "domain": {
+                "min": minimum,
+                "max": maximum,
+                "step": 0.01,
+                "default": round(default, 6),
+            },
+            "controls": [
+                {
+                    "var": parameter_name,
+                    "label": (
+                        f"动点 {moving_label}（{dependent_label} 联动）"
+                        if dependent_label
+                        else f"动点 {moving_label}"
+                    ),
+                    "min": minimum,
+                    "max": maximum,
+                    "step": 0.01,
+                    "scale": 1,
+                    "precision": 2,
+                }
+            ],
+            "note": (
+                f"拖动{moving_label}，观察"
+                f"{dependent_label or '相关动点'}与路径同步变化。"
+            ),
+            "parameterized_points": parameterized_points,
+            "constraint_carriers": carriers,
+        }
 
     def _weighted_axis_motion_interaction(
         self,
@@ -414,6 +593,11 @@ class ParametricExpressionResolver:
             "id": f"{lesson_step.id}:equal_length_local_slider",
             "component": component,
             "parameter": self.local_parameter,
+            "mathematical_domain": {
+                "kind": "closed_interval",
+                "min": 0,
+                "max": 1,
+            },
             "domain": {
                 "min": 0,
                 "max": 1,
@@ -442,6 +626,24 @@ class ParametricExpressionResolver:
                     },
                 },
             },
+            # The moving-point formulas own their exact geometric carriers.
+            # Keeping these beside the interaction prevents a renderer from
+            # showing a movable point after hiding the segment or ray that
+            # defines its legal positions.
+            "constraint_carriers": [
+                {
+                    "kind": "segment",
+                    "moving_point": segment_moving,
+                    "from": anchor,
+                    "to": reference,
+                },
+                {
+                    "kind": "ray",
+                    "moving_point": ray_moving,
+                    "from": anchor,
+                    "to": auxiliary,
+                },
+            ],
         }
 
     def _point_expr(self, point_id: str) -> tuple[sp.Expr, sp.Expr] | None:
@@ -609,6 +811,23 @@ def _first_weighted_axis_motion_marker(
             and marker.get("construction_kind") == "weighted_right_triangle"
             and isinstance(marker.get("roles"), dict)
             and isinstance(marker.get("role_point_refs"), dict)
+        ):
+            return marker
+    return None
+
+
+def _first_coupled_segment_motion_marker(
+    bindings: VisualRoleBindings,
+) -> JsonObject | None:
+    for marker in (
+        *bindings.equal_length_path_markers,
+        *bindings.atomic_path_minimum_markers,
+    ):
+        if (
+            isinstance(marker, dict)
+            and marker.get("construction_kind")
+            in {None, "", "coupled_segment_endpoint_replacement"}
+            and isinstance(marker.get("coupled_motion"), dict)
         ):
             return marker
     return None

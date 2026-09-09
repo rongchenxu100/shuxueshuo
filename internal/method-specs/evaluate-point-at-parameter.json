@@ -118,7 +118,8 @@
     ],
     "annotation_templates": [],
     "timeline_templates": [],
-    "role_binder_id": "evaluate_point_at_parameter"
+    "role_binder_id": "evaluate_point_at_parameter",
+    "continuation_policy": "preserve_prior_path_scene"
   },
   "plan_transformer": "substitute_read_point_parameters",
   "plan_transformer_scope": "single_invocation",

@@ -477,16 +477,17 @@ def test_hexi_yimo_projects_the_reviewed_geometry_and_parameter_flow(
         "AH＝OC＝b＋2，DH＝AO＝1",
         "H(b＋1,0)，D(b＋1,1)",
     ):
-        assert fragment in solve_b
+        assert fragment not in solve_b
 
+    assert "将 D₁(－b－3,－1) 代入" in solve_b
+    assert "将 D₂(b＋1,1) 代入" in solve_b
     assert "D 在抛物线 y＝2x²－bx－b－2 上" in solve_b
-    assert "将 D(b＋1,1) 代入，得 1＝b²＋2b" in solve_b
-    assert "b²＋2b－1＝0" in solve_b
+    assert "将 D₂(b＋1,1) 代入，得b(b＋2)＝1" in solve_b
     assert "b＞0" in solve_b
     assert "b＝√2－1" in solve_b
 
     substitute = json.dumps(curve_materials[1].to_payload(), ensure_ascii=False)
-    assert "b＝√2－1，D(b＋1,1)" in substitute
+    assert "b＝√2－1，D₂(b＋1,1)" in substitute
     assert "D(√2,1)" in substitute
     assert "Eq(" not in substitute
 
@@ -510,22 +511,35 @@ def test_hexi_yimo_projects_the_reviewed_geometry_and_parameter_flow(
         "两点之间线段最短",
         "MN＋NQ≥MQ",
         "M、N、Q 三点共线时，折线最短",
-        "MQ 的最小值是 M 到这条射线的垂线段",
-        "MH⊥x 轴，垂足为 H",
-        "△MHN 是等腰直角三角形",
-        "M(b＋1/2,－(2b＋3)/4)",
-        "MH＝HN＝(2b＋3)/4",
-        "MN＝√2·(2b＋3)/4",
-        "AN＝AH－HN＝(2b＋3)/4",
-        "QN＝√2·(2b＋3)/8",
-        "MN＋QN＝3√2(2b＋3)/8",
-        "最小值＝√2·3√2(2b＋3)/8＝(6b＋9)/4",
-        "N((2b－1)/4,0)",
-        "0＜b≤1/2",
-        "最小值在正半轴端点 O 取得",
-        "MO＝√(20b²＋28b＋13)/4，AO＝1",
+        "最短时 MQ⊥AQ",
+        "取等时 N((2b－1)/4,0)",
+        "取等条件为 b＞1/2",
+        "√2MN＋AN 的最小值为 (6b＋9)/4",
     ):
         assert fragment in minimum
+    for forbidden in (
+        "MH⊥x 轴",
+        "△MHN 是等腰直角三角形",
+        "MH＝HN",
+        "MN＋QN＝3√2",
+        "0＜b≤1/2",
+        "最小值在正半轴端点 O 取得",
+        "MO＝√(20b²＋28b＋13)/4",
+        "√(40b²＋56b＋26)/4＋1",
+    ):
+        assert forbidden not in minimum
+
+    solve_parameter = json.dumps(
+        binder.bind_source(
+            sources["solve_parameter_iii"],
+            snapshot=snapshot,
+        )[0].to_payload(),
+        ensure_ascii=False,
+    )
+    assert "取等条件为 b ＞ 1/2" in solve_parameter
+    assert "3b/2＋9/4＝21/4，解得 b＝2" in solve_parameter
+    assert "分段讨论" not in solve_parameter
+    assert "√(40b²＋56b＋26)" not in solve_parameter
 
 
 def test_all_public_teaching_materials_hide_internal_math_syntax(c0_inputs) -> None:
@@ -552,6 +566,58 @@ def test_all_public_teaching_materials_hide_internal_math_syntax(c0_inputs) -> N
                     )
                 )
     assert leaks == []
+
+
+def test_hexi_open_axis_endpoint_infimum_is_not_public_teaching(
+    c0_inputs,
+) -> None:
+    snapshots, _ = c0_inputs
+    snapshot = next(
+        item for item in snapshots if item.problem_id == "tj-2026-hexi-yimo-25"
+    )
+    public_plan = json.dumps(
+        llm_facing_annotated_plan_payload(
+            AnnotatedTeachingPlanProjector().project(snapshot).plan
+        ),
+        ensure_ascii=False,
+    )
+
+    assert "取等条件为 b＞1/2" in public_plan
+    assert "取等时 N((2b－1)/4,0)" in public_plan
+    assert "√2MN＋AN 的最小值为 (6b＋9)/4" in public_plan
+    assert "b＝2" in public_plan
+    for forbidden in (
+        "MH⊥x 轴",
+        "△MHN 是等腰直角三角形",
+        "MH＝HN",
+        "MN＋QN＝3√2",
+        "0＜b≤1/2",
+        "端点 O 取得",
+        "sqrt(40*b**2 + 56*b + 26)",
+        "√(40b²＋56b＋26)",
+        "nan",
+    ):
+        assert forbidden not in public_plan
+
+
+def test_xiqing_global_attainment_has_natural_student_wording(c0_inputs) -> None:
+    snapshots, _ = c0_inputs
+    snapshot = next(
+        item for item in snapshots if item.problem_id == "tj-2026-xiqing-yimo-25"
+    )
+    source = next(
+        item
+        for item in iter_teaching_sources(snapshot.root_scope)
+        if item.source_step_id == "derive_weighted_minimum_ii"
+    )
+    minimum = json.dumps(
+        TeachingSpecBinder().bind_source(source, snapshot=snapshot)[1].to_payload(),
+        ensure_ascii=False,
+    )
+
+    assert "取等状态在定义域内恒成立" in minimum
+    assert "最小值为 b＋√3b＋3＋3√3" in minimum
+    assert "当 恒成立 时" not in minimum
 
 
 def test_deferred_point_identity_is_projected_once_as_a_student_label(
@@ -778,11 +844,8 @@ def test_weighted_path_auxiliary_point_has_one_computed_student_identity(
             str(item["role"]): str(item["chosen_ref"])
             for item in evidence[0]["role_resolutions"]
         }
-        assert (
-            f"{roles['curve_point']}{projection['label']}⊥x 轴"
-            in public_text
-        )
-        assert "三角形" in public_text
+        assert f"{roles['curve_point']}{label}⊥" in public_text
+        assert f"{roles['curve_point']}{projection['label']}⊥x 轴" not in public_text
 
 
 def test_weighted_path_geometry_teaching_contains_no_case_literal() -> None:

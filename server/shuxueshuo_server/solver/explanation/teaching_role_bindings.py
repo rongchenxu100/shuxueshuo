@@ -2130,9 +2130,47 @@ def _piecewise_parameter_derivation(
     if len(parameter_symbols) != 1:
         return ()
     source_parameter = parameter_symbols[0]
+    defined_branches = tuple(
+        (branch_expression, condition)
+        for branch_expression, condition in expression.args
+        if branch_expression is not sp.nan
+    )
+    has_undefined_default = any(
+        branch_expression is sp.nan and condition is sp.true
+        for branch_expression, condition in expression.args
+    )
+    if len(defined_branches) == 1 and has_undefined_default:
+        branch_expression, condition = defined_branches[0]
+        candidates = _solve_real_equation(
+            sp.Eq(branch_expression, target),
+            parameter,
+        )
+        valid_candidates = tuple(
+            candidate
+            for candidate in candidates
+            if _condition_accepts_candidate(
+                condition,
+                source_parameter=source_parameter,
+                candidate=candidate,
+            )
+        )
+        result = (
+            _solution_candidates_display(parameter, valid_candidates)
+            if valid_candidates
+            else "无符合取等条件的解"
+        )
+        return (
+            f"∵取等条件为 {_condition_display(condition)}",
+            f"计算令 {_math(branch_expression)}＝{_math(target)}，解得 {result}",
+        )
     previous_conditions: list[sp.Expr] = []
     lines = ["∵当前表达式需按参数范围分段讨论"]
     for branch_expression, condition in expression.args:
+        # SymPy inserts nan as the implicit default for a conditionally
+        # defined expression.  It means "no attained value here", not a
+        # second branch for students or the Lesson LLM to solve.
+        if branch_expression is sp.nan:
+            continue
         if condition is sp.true:
             effective_condition = sp.simplify_logic(
                 sp.And(*(sp.Not(item) for item in previous_conditions))

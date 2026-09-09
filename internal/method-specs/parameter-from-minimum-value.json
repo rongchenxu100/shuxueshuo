@@ -94,7 +94,14 @@
     },
     "role_binder_id": "parameter_from_minimum_value"
   },
-  "no_new_visual_reason": "本步骤只在已验证的最小值表达式上求参数，不产生新的几何对象。",
+  "visual": {
+    "role_schema": {},
+    "scene_templates": [],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "generic_visual",
+    "continuation_policy": "preserve_prior_path_scene"
+  },
   "plan_transformer": "validate_student_single_degree_of_freedom",
   "plan_transformer_scope": "all_invocations",
   "symbolic_closure": {

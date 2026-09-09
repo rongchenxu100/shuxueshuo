@@ -1151,6 +1151,7 @@ def _parse_visual(raw: object) -> MethodVisualSpec | None:
         annotation_templates=tuple(dict(item) for item in annotation_templates if isinstance(item, dict)),
         timeline_templates=tuple(dict(item) for item in timeline_templates if isinstance(item, dict)),
         role_binder_id=str(raw.get("role_binder_id", "generic_visual")),
+        continuation_policy=str(raw.get("continuation_policy") or ""),
     )
 
 

@@ -76,6 +76,48 @@ def heping_yimo_page() -> HepingYimoPage:
     )
 
 
+@pytest.fixture(scope="module")
+def hexi_yimo_page() -> HepingYimoPage:
+    snapshot = _solve_hexi_snapshot()
+    lesson = LessonAuthoringPipeline().build(snapshot).lesson
+    visual_ir = VisualStepBuilder().build(snapshot=snapshot, lesson=lesson)
+    VisualStepIRValidator().validate(visual_ir, lesson=lesson)
+    return HepingYimoPage(
+        snapshot=snapshot,
+        lesson=lesson,
+        visual_ir=visual_ir,
+        compiled=forward_compile(visual_ir),
+    )
+
+
+@pytest.fixture(scope="module")
+def xiqing_yimo_page() -> HepingYimoPage:
+    snapshot = _solve_xiqing_snapshot()
+    lesson = LessonAuthoringPipeline().build(snapshot).lesson
+    visual_ir = VisualStepBuilder().build(snapshot=snapshot, lesson=lesson)
+    VisualStepIRValidator().validate(visual_ir, lesson=lesson)
+    return HepingYimoPage(
+        snapshot=snapshot,
+        lesson=lesson,
+        visual_ir=visual_ir,
+        compiled=forward_compile(visual_ir),
+    )
+
+
+@pytest.fixture(scope="module")
+def nankai_yimo_page() -> HepingYimoPage:
+    snapshot = _solve_nankai_snapshot()
+    lesson = LessonAuthoringPipeline().build(snapshot).lesson
+    visual_ir = VisualStepBuilder().build(snapshot=snapshot, lesson=lesson)
+    VisualStepIRValidator().validate(visual_ir, lesson=lesson)
+    return HepingYimoPage(
+        snapshot=snapshot,
+        lesson=lesson,
+        visual_ir=visual_ir,
+        compiled=forward_compile(visual_ir),
+    )
+
+
 def test_visual_sympy_pair_uses_shared_axis_parameter_and_power_normalization() -> None:
     pair = sympy_pair(
         ["_axis_param_i^2 + abs(x)", "y*y + sqrt(4)"],
@@ -237,6 +279,31 @@ def test_parameterized_point_identity_is_inferred_from_public_result_types(
         "produce_moving_point": frozenset({("ii", "u")}),
         "consume_moving_point": frozenset({("ii", "u")}),
     }
+
+
+def test_parameter_value_output_inherits_unique_input_parameter_identity() -> None:
+    source = TeachingSource(
+        source_step_id="solve_parameter",
+        capability_id="parameter_from_expression_value",
+        inputs={
+            "parameter": (
+                {
+                    "runtime_type": "ParameterValue",
+                    "value": "b",
+                    "display": "b",
+                },
+            )
+        },
+        outputs={
+            "parameter_value": {
+                "runtime_type": "ParameterValue",
+                "value": "2",
+                "display": "2",
+            }
+        },
+    )
+
+    assert visual_builder.verified_parameter_values_from_source(source) == {"b": "2"}
 
 
 def test_dynamic_point_choice_uses_typed_provenance_not_internal_id_text() -> None:
@@ -478,6 +545,35 @@ def test_equal_length_units_have_distinct_complete_frames(
     assert any(obj.component == "OutlineRegion" for obj in minimum.objects)
 
 
+def test_moving_points_keep_their_constraint_carriers_visible(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_unit(heping_yimo_page, "minimum_by_segment")
+    carrier_by_role = {
+        obj.role: set(obj.geometry_refs)
+        for obj in frame.objects
+        if obj.role.startswith("motion_carrier:")
+    }
+
+    assert carrier_by_role["motion_carrier:segment:point_M_ii"] == {
+        "point_C_problem",
+        "point_B_ii",
+    }
+    assert carrier_by_role["motion_carrier:ray:point_N_ii"] == {
+        "point_C_problem",
+        "point_G_ii",
+    }
+
+
+def test_equal_length_construction_viewport_uses_slider_bounds_not_render_window(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_unit(heping_yimo_page, "path_reduction")
+
+    assert frame.viewport["maxX"] - frame.viewport["minX"] < 10
+    assert frame.viewport["maxY"] - frame.viewport["minY"] < 10
+
+
 def test_equal_length_parameter_default_preserves_constructed_geometry(
     heping_yimo_page: HepingYimoPage,
 ) -> None:
@@ -495,6 +591,57 @@ def test_equal_length_parameter_default_preserves_constructed_geometry(
 
     assert sp.simplify(_distance(c, g) - _distance(c, b)) == 0
     assert sp.simplify(_distance(c, n) - _distance(c, m)) == 0
+
+
+def test_minimum_frame_defaults_to_attainment_and_calculation_step_keeps_it(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    minimum = _frame_for_unit(heping_yimo_page, "minimum_by_segment")
+    calculation = _frame_for_source(
+        heping_yimo_page,
+        "solve_parameter_from_minimum_ii",
+    )
+    minimum_parameters = {item["name"]: item for item in minimum.local_parameters}
+    calculation_parameters = {
+        item["name"]: item for item in calculation.local_parameters
+    }
+
+    assert minimum_parameters["u"]["mathematical_domain"] == {
+        "kind": "closed_interval",
+        "min": 0,
+        "max": 1,
+    }
+    assert 0 < minimum_parameters["u"]["default_value"] < 1
+    assert (
+        calculation_parameters["u"]["default_value"]
+        == minimum_parameters["u"]["default_value"]
+    )
+    assert calculation_parameters["u"]["controls"] == []
+
+    environment = {
+        str(item["name"]): sp.sympify(str(item["default_value"]))
+        for item in minimum.local_parameters
+    }
+    origin = _point_pair(
+        heping_yimo_page.visual_ir.geometry_registry,
+        "O",
+        environment,
+    )
+    moving = _point_pair(
+        heping_yimo_page.visual_ir.geometry_registry,
+        "point_M_ii",
+        environment,
+    )
+    auxiliary = _point_pair(
+        heping_yimo_page.visual_ir.geometry_registry,
+        "point_G_ii",
+        environment,
+    )
+    collinearity_error = sp.N(
+        (moving[0] - origin[0]) * (auxiliary[1] - origin[1])
+        - (moving[1] - origin[1]) * (auxiliary[0] - origin[0])
+    )
+    assert abs(float(collinearity_error)) < 1e-5
 
 
 def test_recursive_branch_state_does_not_backflow_between_parts(
@@ -552,6 +699,110 @@ def test_angle_step_never_imports_future_intersection_point(
 ) -> None:
     frame = _frame_for_source(heping_yimo_page, "derive_equal_angle_i")
     assert "point_F_i_2" not in _refs(frame)
+
+
+def test_angle_step_closes_reference_triangle_without_revealing_future_coordinate(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_source(heping_yimo_page, "derive_equal_angle_i")
+    reference_triangle = next(
+        obj
+        for obj in frame.objects
+        if obj.component == "OutlineRegion"
+        and set(obj.component_payload.get("vertices") or ())
+        == {"point_C_problem", "point_B_i_2", "O"}
+    )
+
+    assert reference_triangle.state == "context"
+    assert any(
+        obj.component == "Point" and obj.geometry_refs == ("point_E_i_2",)
+        for obj in frame.objects
+    )
+    assert not any(
+        obj.component == "CoordinateLabel"
+        and obj.geometry_refs == ("point_E_i_2",)
+        for obj in frame.objects
+    )
+
+
+def test_chained_angle_equality_exposes_transitive_triangle_pair() -> None:
+    assert visual_role_binders._angle_equalities_from_texts(
+        ["∠OBF＝∠OBE＝∠ACO"]
+    ) == [
+        ("OBF", "OBE"),
+        ("OBE", "ACO"),
+        ("OBF", "ACO"),
+    ]
+    assert visual_role_binders._select_axis_intercept_equality(
+        [("OBF", "OBE"), ("OBE", "ACO"), ("OBF", "ACO")],
+        result_label="F",
+    ) == ("OBF", "ACO")
+
+
+def test_axis_intercept_step_focuses_new_point_and_keeps_future_coordinate_hidden(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_source(heping_yimo_page, "derive_axis_intercept_F_i")
+
+    assert any(
+        obj.component == "EqualAcuteAngleInterceptMarker"
+        for obj in frame.objects
+    )
+    assert any(
+        obj.component == "Point"
+        and obj.geometry_refs == ("point_F_i_2",)
+        and obj.state == "focus"
+        for obj in frame.objects
+    )
+    assert any(
+        obj.component == "CoordinateLabel"
+        and obj.geometry_refs == ("point_F_i_2",)
+        and str(obj.display_label).replace(" ", "") == "F(0,－1)"
+        for obj in frame.objects
+    )
+    assert not any(
+        obj.component == "CoordinateLabel"
+        and obj.geometry_refs == ("point_E_i_2",)
+        for obj in frame.objects
+    )
+
+
+def test_carried_angle_never_outlives_its_supporting_sides(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_source(heping_yimo_page, "derive_axis_intercept_F_i")
+    angle = next(obj for obj in frame.objects if obj.component == "AngleArc")
+    vertex = str(angle.component_payload["vertex"])
+    rays = {
+        str(angle.component_payload["rayA"]),
+        str(angle.component_payload["rayB"]),
+    }
+    rendered_edges = {
+        frozenset(obj.geometry_refs)
+        for obj in frame.objects
+        if obj.component in {"ColoredLine", "DashedLine", "DistanceMarker"}
+        and len(obj.geometry_refs) == 2
+    }
+
+    assert {frozenset((vertex, ray)) for ray in rays} <= rendered_edges
+
+
+def test_line_parabola_intersection_focuses_target_not_construction_point(
+    heping_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_source(heping_yimo_page, "derive_curve_intersection_E_i")
+    point_states = {
+        ref: obj.state
+        for obj in frame.objects
+        if obj.component == "Point"
+        for ref in obj.geometry_refs
+        if ref in {"point_E_i_2", "point_F_i_2"}
+    }
+
+    assert point_states == {
+        "point_E_i_2": "focus",
+        "point_F_i_2": "context",
+    }
 
 
 def test_role_binder_resolves_same_label_by_current_branch(
@@ -621,6 +872,559 @@ def test_compiled_visual_labels_are_mathematical_not_internal_or_prose(
     assert texts
     assert not any(re.search(r"(?:point_|_axis_|_problem|_i_2|_ii)", text) for text in texts)
     assert not any(re.search(r"[一-鿿]", text) for text in texts)
+
+
+def test_curve_visibility_does_not_leak_a_later_solved_state(
+    hexi_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_source(hexi_yimo_page, "derive_parametric_parabola_ii")
+    curve_refs = {
+        ref
+        for item in frame.objects
+        if item.component == "Parabola"
+        for ref in item.geometry_refs
+    }
+    assert curve_refs == {"curve_ii_parabola"}
+
+
+def test_nankai_quadratic_context_and_vertices_are_visible(
+    nankai_yimo_page: HepingYimoPage,
+) -> None:
+    axis_frame = _frame_for_source(nankai_yimo_page, "i_derive_D")
+    axis = next(
+        item for item in axis_frame.objects if item.component == "AxisOfSymmetry"
+    )
+    assert axis.geometry_refs == ()
+    assert axis.component_payload["xExpr"] == "1"
+
+    part_i_curve = _frame_for_source(nankai_yimo_page, "i_derive_parabola")
+    assert part_i_curve.viewport["minY"] <= -7 <= part_i_curve.viewport["maxY"]
+
+    candidate_frame = _frame_for_unit(
+        nankai_yimo_page,
+        "construct_candidates",
+    )
+    assert any(
+        item.component == "Parabola"
+        and item.geometry_refs == ("curve_ii_parabola",)
+        for item in candidate_frame.objects
+    )
+
+    part_ii_curve = _frame_for_source(nankai_yimo_page, "ii_derive_parabola")
+    environment = {
+        str(item["name"]): sp.sympify(str(item["default_value"]))
+        for item in part_ii_curve.local_parameters
+    }
+    expression = _curve_expression(
+        nankai_yimo_page.visual_ir.geometry_registry,
+        "curve_ii_parabola",
+        environment,
+    )
+    x = sp.Symbol("x")
+    coefficient = sp.expand(expression).coeff(x, 2)
+    vertex_x = sp.simplify(-sp.expand(expression).coeff(x, 1) / (2 * coefficient))
+    vertex_y = sp.simplify(expression.subs(x, vertex_x))
+    viewport = part_ii_curve.viewport
+    assert viewport["minX"] < float(vertex_x) - 1
+    assert viewport["maxX"] > float(vertex_x) + 1
+    assert viewport["minY"] <= float(vertex_y) <= viewport["maxY"]
+
+
+def test_nankai_candidate_construction_visualizes_the_complete_proof(
+    nankai_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_unit(nankai_yimo_page, "construct_candidates")
+    geometry = nankai_yimo_page.visual_ir.geometry_registry
+    labels_by_ref = {
+        str(point_id): str(meta.get("label") or "")
+        for point_id, meta in geometry["pointMeta"].items()
+        if isinstance(meta, dict)
+    }
+    visible_point_labels = {
+        item.display_label
+        for item in frame.objects
+        if item.component == "Point"
+    }
+    assert {"D", "M", "U", "V", "W", "N₁", "N₂"} <= visible_point_labels
+
+    right_angles = {
+        tuple(labels_by_ref.get(ref, "") for ref in item.geometry_refs)
+        for item in frame.objects
+        if item.component == "RightAngle"
+    }
+    assert ("D", "M", "N₁") in right_angles
+    assert ("D", "M", "N₂") in right_angles
+
+    dashed_segments = {
+        frozenset(labels_by_ref.get(ref, "") for ref in item.geometry_refs)
+        for item in frame.objects
+        if item.component == "DashedLine"
+    }
+    assert {
+        frozenset(("M", "U")),
+        frozenset(("N₁", "V")),
+        frozenset(("N₂", "W")),
+    } <= dashed_segments
+
+    d_points = [
+        item
+        for item in frame.objects
+        if item.component == "Point" and item.display_label == "D"
+    ]
+    assert len(d_points) == 1
+    assert d_points[0].geometry_refs == ("point_D_problem",)
+    assert d_points[0].component_payload.get("showLabel") is False
+    assert sum(
+        item.component == "CoordinateLabel"
+        and item.geometry_refs == ("point_D_problem",)
+        for item in frame.objects
+    ) == 1
+
+
+def test_nankai_selected_candidate_replaces_the_candidate_construction(
+    nankai_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_unit(nankai_yimo_page, "select_candidate")
+    point_labels = [
+        item.display_label
+        for item in frame.objects
+        if item.component == "Point"
+    ]
+
+    assert point_labels.count("N") == 1
+    assert not {"N₁", "N₂", "U", "V", "W"}.intersection(point_labels)
+    assert not any(
+        item.role.startswith("candidate_construction:")
+        for item in frame.objects
+    )
+    assert not any(
+        item.component in {"RightAngle", "DistanceMarker", "DashedLine"}
+        for item in frame.objects
+    )
+    assert any(
+        item.component == "CoordinateLabel"
+        and item.geometry_refs == ("point_N_ii",)
+        and str(item.display_label).replace(" ", "") == "N(2,1－m)"
+        for item in frame.objects
+    )
+
+
+def test_nankai_endpoint_replacement_shows_g_and_its_rectangle_certificate(
+    nankai_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_unit(nankai_yimo_page, "endpoint_replacement")
+    geometry = nankai_yimo_page.visual_ir.geometry_registry
+    labels_by_ref = {
+        str(point_id): str(meta.get("label") or "")
+        for point_id, meta in geometry["pointMeta"].items()
+        if isinstance(meta, dict)
+    }
+    point_labels = {
+        item.display_label
+        for item in frame.objects
+        if item.component == "Point"
+    }
+
+    assert {"D", "M", "N", "E", "G", "K", "H"} <= point_labels
+    rectangle = next(
+        item for item in frame.objects if item.component == "OutlineRegion"
+    )
+    assert [labels_by_ref[ref] for ref in rectangle.geometry_refs] == [
+        "D",
+        "K",
+        "G",
+        "H",
+    ]
+    equality = next(
+        item
+        for item in frame.objects
+        if item.component == "EquivalentSegmentMarker"
+    )
+    assert equality.display_label == "EG=DG"
+    assert {
+        frozenset((labels_by_ref[segment["from"]], labels_by_ref[segment["to"]]))
+        for segment in equality.component_payload["segments"]
+    } == {frozenset(("E", "G")), frozenset(("D", "G"))}
+    assert {
+        labels_by_ref[item.component_payload["vertex"]]
+        for item in frame.objects
+        if item.component == "RightAngle"
+    } == {"K", "H"}
+
+    point_ref_by_label = {
+        item.display_label: item.geometry_refs[0]
+        for item in frame.objects
+        if item.component == "Point" and len(item.geometry_refs) == 1
+    }
+    assert any(
+        item.component == "ColoredLine"
+        and set(item.geometry_refs)
+        == {point_ref_by_label["F"], point_ref_by_label["G"]}
+        for item in frame.objects
+    )
+    parameters = {
+        str(item["name"]): item for item in frame.local_parameters
+    }
+    motion = parameters["u"]
+    assert motion["mathematical_domain"] == {
+        "kind": "closed_interval",
+        "min": 0.5,
+        "max": 1.0,
+    }
+    assert motion["controls"][0]["label"] == "动点 G（E 联动）"
+    assert {
+        point_ref_by_label["E"],
+        point_ref_by_label["G"],
+        point_ref_by_label["K"],
+        point_ref_by_label["H"],
+    } <= set(motion["parameterized_points"])
+
+
+def test_nankai_reflection_minimum_shows_the_complete_moving_path(
+    nankai_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_unit(nankai_yimo_page, "reflection_minimum")
+    geometry = nankai_yimo_page.visual_ir.geometry_registry
+    point_ref_by_label = {
+        item.display_label: item.geometry_refs[0]
+        for item in frame.objects
+        if item.component == "Point" and len(item.geometry_refs) == 1
+    }
+
+    assert {"D", "D′", "F", "G", "M", "N"} <= set(point_ref_by_label)
+    assert sum(
+        item.component == "Point" and item.display_label == "D"
+        for item in frame.objects
+    ) == 1
+    expected_segments = {
+        frozenset((point_ref_by_label["D"], point_ref_by_label["G"])),
+        frozenset((point_ref_by_label["D′"], point_ref_by_label["G"])),
+        frozenset((point_ref_by_label["F"], point_ref_by_label["G"])),
+        frozenset((point_ref_by_label["D′"], point_ref_by_label["F"])),
+    }
+    rendered_segments = {
+        frozenset(item.geometry_refs)
+        for item in frame.objects
+        if item.component in {"ColoredLine", "DashedLine"}
+        and len(item.geometry_refs) == 2
+    }
+    assert expected_segments <= rendered_segments
+    assert sum(
+        item.component in {"ColoredLine", "DashedLine"}
+        and frozenset(item.geometry_refs)
+        == frozenset((point_ref_by_label["F"], point_ref_by_label["G"]))
+        for item in frame.objects
+    ) == 1
+    stale_construction_g_refs = {
+        str(point_id)
+        for point_id, meta in geometry["pointMeta"].items()
+        if isinstance(meta, dict)
+        and meta.get("definition") == "endpoint_replacement_construction"
+        and meta.get("constructionRole") == "hypotenuse_moving_point"
+    }
+    assert not any(
+        stale_construction_g_refs.intersection(item.geometry_refs)
+        for item in frame.objects
+    )
+    assert any(
+        item.component == "LocusLine"
+        and set(item.geometry_refs)
+        == {point_ref_by_label["M"], point_ref_by_label["N"]}
+        for item in frame.objects
+    )
+    motion = next(
+        item for item in frame.local_parameters if item["name"] == "u"
+    )
+    assert point_ref_by_label["G"] == "point_G_ii"
+    assert motion["controls"][0]["label"] == "动点 G"
+    assert motion["default_value"] == pytest.approx(2 / 3, abs=1e-6)
+    assert set(motion["parameterized_points"]) == {point_ref_by_label["G"]}
+
+    environment = {"m": sp.Integer(4), "u": sp.Rational(2, 3)}
+    moving_expression = motion["parameterized_points"][
+        point_ref_by_label["G"]
+    ]["expression"]
+    point_g = tuple(
+        sp.sympify(value).subs(environment) for value in moving_expression
+    )
+    point_d_prime = _point_pair(geometry, point_ref_by_label["D′"], environment)
+    point_f = _point_pair(geometry, point_ref_by_label["F"], environment)
+    determinant = sp.simplify(
+        (point_g[0] - point_d_prime[0]) * (point_f[1] - point_d_prime[1])
+        - (point_g[1] - point_d_prime[1]) * (point_f[0] - point_d_prime[0])
+    )
+    assert determinant == 0
+
+
+@pytest.mark.parametrize(
+    ("source_step_id", "parameter_value"),
+    (
+        ("ii_1_solve_m", 3),
+        ("ii_1_evaluate_minimum", 3),
+        ("ii_1_specialize_parabola", 3),
+        ("ii_2_solve_m", 8),
+        ("ii_2_evaluate_G", 8),
+        ("ii_2_specialize_parabola", 8),
+    ),
+)
+def test_nankai_calculation_steps_freeze_the_path_scene_at_attainment(
+    nankai_yimo_page: HepingYimoPage,
+    source_step_id: str,
+    parameter_value: int,
+) -> None:
+    frame = _frame_for_source(nankai_yimo_page, source_step_id)
+    point_ref_by_label = {
+        item.display_label: item.geometry_refs[0]
+        for item in frame.objects
+        if item.component == "Point" and len(item.geometry_refs) == 1
+    }
+
+    assert {"D", "D′", "F", "G", "M", "N"} <= set(point_ref_by_label)
+    expected_segments = {
+        frozenset((point_ref_by_label["D′"], point_ref_by_label["G"])),
+        frozenset((point_ref_by_label["G"], point_ref_by_label["F"])),
+        frozenset((point_ref_by_label["D′"], point_ref_by_label["F"])),
+    }
+    rendered_segments = {
+        frozenset(item.geometry_refs)
+        for item in frame.objects
+        if item.component in {"ColoredLine", "DashedLine"}
+        and len(item.geometry_refs) == 2
+    }
+    assert expected_segments <= rendered_segments
+    assert any(
+        item.component == "LocusLine"
+        and set(item.geometry_refs)
+        == {point_ref_by_label["M"], point_ref_by_label["N"]}
+        for item in frame.objects
+    )
+    assert not any(
+        item.role == "parameter_length:target" for item in frame.objects
+    )
+    assert sum(
+        item.component == "Point" and item.display_label == "G"
+        for item in frame.objects
+    ) == 1
+
+    geometry = nankai_yimo_page.visual_ir.geometry_registry
+    environment = {"m": sp.Integer(parameter_value)}
+    point_d_prime = _point_pair(
+        geometry,
+        point_ref_by_label["D′"],
+        environment,
+    )
+    point_f = _point_pair(geometry, point_ref_by_label["F"], environment)
+    point_g = _point_pair(geometry, point_ref_by_label["G"], environment)
+    determinant = sp.simplify(
+        (point_g[0] - point_d_prime[0]) * (point_f[1] - point_d_prime[1])
+        - (point_g[1] - point_d_prime[1]) * (point_f[0] - point_d_prime[0])
+    )
+    assert determinant == 0
+
+
+def test_anonymous_quadratic_vertex_is_visible_and_framed(
+    xiqing_yimo_page: HepingYimoPage,
+) -> None:
+    derive_frame = _frame_for_source(xiqing_yimo_page, "derive_parabola_i")
+    vertex_frame = _frame_for_source(xiqing_yimo_page, "derive_vertex_i")
+
+    for frame in (derive_frame, vertex_frame):
+        viewport = frame.viewport
+        assert viewport["minX"] <= 2 <= viewport["maxX"]
+        assert viewport["minY"] <= 9 <= viewport["maxY"]
+
+    assert any(
+        item.component == "Point"
+        and item.geometry_refs == ("curve_i_parabola_vertex",)
+        for item in vertex_frame.objects
+    )
+
+    intercept_frame = _frame_for_source(
+        xiqing_yimo_page,
+        "derive_x_intercept_B_ii",
+    )
+    assert intercept_frame.viewport["minX"] <= -1
+    assert intercept_frame.viewport["maxY"] >= 4.2
+    assert intercept_frame.viewport["minY"] > -5.1
+
+    final_frame = _frame_for_source(
+        xiqing_yimo_page,
+        "solve_parameter_from_minimum_ii",
+    )
+    parameters = {
+        str(item["name"]): item
+        for item in final_frame.local_parameters
+    }
+    assert parameters["b"]["mathematical_domain"] == {
+        "kind": "exact",
+        "value": "2",
+    }
+    assert parameters["b"]["default_value"] == pytest.approx(2)
+    assert parameters["m"]["default_value"] == pytest.approx(
+        float(4 - 5 * sp.sqrt(3) / 3)
+    )
+
+    environment = {
+        name: sp.sympify(str(item["default_value"]))
+        for name, item in parameters.items()
+    }
+    geometry = xiqing_yimo_page.visual_ir.geometry_registry
+    point_d = _point_pair(geometry, "point_D_ii", environment)
+    point_m = _point_pair(geometry, "point_M_ii_2", environment)
+    point_q = _point_pair(geometry, "point_Q_ii_2", environment)
+    determinant = sp.simplify(
+        (point_m[0] - point_d[0]) * (point_q[1] - point_d[1])
+        - (point_m[1] - point_d[1]) * (point_q[0] - point_d[0])
+    )
+    assert abs(float(sp.N(determinant))) < 1e-9
+
+
+def test_weighted_path_minimum_frame_shows_broken_and_shortest_paths(
+    hexi_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_unit(hexi_yimo_page, "domain_minimum")
+    segments = {
+        (item.component, item.geometry_refs)
+        for item in frame.objects
+        if item.component in {"ColoredLine", "DashedLine"}
+    }
+
+    assert ("ColoredLine", ("point_M_iii", "point_N_iii")) in segments
+    assert ("ColoredLine", ("point_Q_iii", "point_N_iii")) in segments
+    assert ("ColoredLine", ("point_A_iii", "point_Q_iii")) in segments
+    assert ("DashedLine", ("point_M_iii", "point_Q_iii")) in segments
+
+
+def test_parameter_calculation_keeps_shortest_path_and_auxiliary_ray(
+    hexi_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_source(hexi_yimo_page, "solve_parameter_iii")
+    segments = {
+        (item.component, item.geometry_refs)
+        for item in frame.objects
+        if item.component in {"ColoredLine", "DashedLine"}
+    }
+
+    assert ("ColoredLine", ("point_A_iii", "point_Q_iii")) in segments
+    assert ("DashedLine", ("point_M_iii", "point_Q_iii")) in segments
+
+
+def test_right_angle_candidates_use_indexed_target_labels(
+    hexi_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_source(hexi_yimo_page, "derive_right_angle_candidates_ii")
+    labels = {
+        item.display_label
+        for item in frame.objects
+        if item.component == "Point"
+    }
+    assert {"D₁", "D₂"} <= labels
+    assert "候选1" not in labels
+    assert "候选2" not in labels
+
+
+def test_curve_candidate_filter_compares_both_indexed_points_at_solved_parameter(
+    hexi_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_unit(hexi_yimo_page, "filter_candidates")
+    geometry = hexi_yimo_page.visual_ir.geometry_registry
+    candidates = {
+        item.display_label: item
+        for item in frame.objects
+        if item.role in {"candidate:selected", "candidate:rejected"}
+    }
+    assert set(candidates) == {"D₁", "D₂"}
+    assert candidates["D₁"].role == "candidate:rejected"
+    assert candidates["D₂"].role == "candidate:selected"
+    assert not any(
+        item.role.startswith("axis_projection:")
+        for item in frame.objects
+    )
+
+    parameters = {item["name"]: item for item in frame.local_parameters}
+    assert parameters["b"]["mathematical_domain"] == {
+        "kind": "exact",
+        "value": "-1 + sqrt(2)",
+    }
+    environment = {"b": sp.sqrt(2) - 1}
+    curve = _curve_expression(geometry, "curve_ii_parabola", environment)
+    selected_point = _point_pair(
+        geometry,
+        candidates["D₂"].geometry_refs[0],
+        environment,
+    )
+    rejected_point = _point_pair(
+        geometry,
+        candidates["D₁"].geometry_refs[0],
+        environment,
+    )
+    x = sp.Symbol("x")
+    assert sp.simplify(curve.subs(x, selected_point[0]) - selected_point[1]) == 0
+    assert sp.simplify(curve.subs(x, rejected_point[0]) - rejected_point[1]) != 0
+
+
+def test_curve_candidate_filter_teaches_selection_without_rederiving_coordinates(
+    hexi_yimo_page: HepingYimoPage,
+) -> None:
+    step = next(
+        item
+        for item in hexi_yimo_page.lesson.steps
+        if item.teaching_unit_keys
+        == ("curve_candidate_parameter_solve/filter_candidates",)
+    )
+    text = "\n".join([step.title, step.goal, *(line for _, line in step.derive)])
+
+    assert "筛选D" in step.title
+    assert "D₁" in text and "D₂" in text
+    assert "代入" in text
+    assert "全等三角形" not in text
+    assert "DH⊥" not in text
+
+
+def test_solved_curve_replaces_parameterized_curve_in_same_branch(
+    hexi_yimo_page: HepingYimoPage,
+) -> None:
+    frame = _frame_for_unit(hexi_yimo_page, "solve_parameter_and_curve")
+    geometry = hexi_yimo_page.visual_ir.geometry_registry
+    curve_refs = {
+        ref
+        for item in frame.objects
+        if item.component == "Parabola"
+        for ref in item.geometry_refs
+    }
+    assert curve_refs == {"curve_ii_solved_parabola"}
+    parameters = {item["name"]: item for item in frame.local_parameters}
+    assert parameters["b"]["mathematical_domain"]["kind"] == "exact"
+
+    environment = {"b": sp.sqrt(2) - 1}
+    curve = _curve_expression(
+        geometry,
+        "curve_ii_solved_parabola",
+        environment,
+    )
+    x = sp.Symbol("x")
+    point_refs = {
+        str(meta.get("label") or ""): ref
+        for ref, meta in geometry["pointMeta"].items()
+        if isinstance(meta, dict)
+        and str(meta.get("scopeRoot") or "") == "ii"
+        and str(meta.get("label") or "") in {"C", "D"}
+        and meta.get("definition") != "public_candidate"
+    }
+    assert set(point_refs) == {"C", "D"}
+    for label in ("C", "D"):
+        point = _point_pair(geometry, point_refs[label], environment)
+        assert sp.simplify(curve.subs(x, point[0]) - point[1]) == 0
+
+    coordinate_labels = {
+        item.display_label
+        for item in frame.objects
+        if item.component == "CoordinateLabel"
+    }
+    compact_labels = {text.replace(" ", "") for text in coordinate_labels}
+    assert "D(√2,1)" in compact_labels
+    assert "C(0,－√2－1)" in compact_labels
+    assert not any("sqrt" in text for text in coordinate_labels)
 
 
 def _frame_for_source(page: HepingYimoPage, source_step_id: str) -> VisualFrame:
@@ -718,6 +1522,25 @@ def _distance(left: tuple[sp.Expr, sp.Expr], right: tuple[sp.Expr, sp.Expr]) -> 
     return sp.sqrt((left[0] - right[0]) ** 2 + (left[1] - right[1]) ** 2)
 
 
+def _curve_expression(
+    geometry: Mapping[str, Any],
+    curve_id: str,
+    environment: Mapping[str, sp.Expr],
+) -> sp.Expr:
+    raw = next(
+        curve
+        for curve in geometry.get("curves") or ()
+        if isinstance(curve, dict) and str(curve.get("id") or "") == curve_id
+    )
+    x = sp.Symbol("x")
+    substitutions = {sp.Symbol(name): value for name, value in environment.items()}
+    expression = sum(
+        sp.sympify(str(raw[key])) * x**power
+        for key, power in (("a", 2), ("b", 1), ("c", 0))
+    )
+    return sp.simplify(expression.subs(substitutions))
+
+
 @cache
 def _solve_heping_snapshot() -> ExplanationSnapshot:
     config = SolverRuntimeConfig(planner_mode="strategy", llm_provider="recorded")
@@ -727,6 +1550,48 @@ def _solve_heping_snapshot() -> ExplanationSnapshot:
         max_attempts=config.max_llm_attempts,
     )
     bundle, *_ = cached_planning_binding_fixture("tj-2026-heping-yimo-25")
+    result = orchestrator.solve_verified(bundle)
+    assert result.status == "ok", result.errors
+    return ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)
+
+
+@cache
+def _solve_hexi_snapshot() -> ExplanationSnapshot:
+    config = SolverRuntimeConfig(planner_mode="strategy", llm_provider="recorded")
+    orchestrator = RuntimeOrchestrator(
+        family_registry=config.build_family_registry(),
+        default_planner_provider=config.build_default_planner_provider(),
+        max_attempts=config.max_llm_attempts,
+    )
+    bundle, *_ = cached_planning_binding_fixture("tj-2026-hexi-yimo-25")
+    result = orchestrator.solve_verified(bundle)
+    assert result.status == "ok", result.errors
+    return ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)
+
+
+@cache
+def _solve_xiqing_snapshot() -> ExplanationSnapshot:
+    config = SolverRuntimeConfig(planner_mode="strategy", llm_provider="recorded")
+    orchestrator = RuntimeOrchestrator(
+        family_registry=config.build_family_registry(),
+        default_planner_provider=config.build_default_planner_provider(),
+        max_attempts=config.max_llm_attempts,
+    )
+    bundle, *_ = cached_planning_binding_fixture("tj-2026-xiqing-yimo-25")
+    result = orchestrator.solve_verified(bundle)
+    assert result.status == "ok", result.errors
+    return ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)
+
+
+@cache
+def _solve_nankai_snapshot() -> ExplanationSnapshot:
+    config = SolverRuntimeConfig(planner_mode="strategy", llm_provider="recorded")
+    orchestrator = RuntimeOrchestrator(
+        family_registry=config.build_family_registry(),
+        default_planner_provider=config.build_default_planner_provider(),
+        max_attempts=config.max_llm_attempts,
+    )
+    bundle, *_ = cached_planning_binding_fixture("tj-2026-nankai-yimo-25")
     result = orchestrator.solve_verified(bundle)
     assert result.status == "ok", result.errors
     return ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)

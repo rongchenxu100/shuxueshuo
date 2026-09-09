@@ -37,7 +37,7 @@ PlannerMode = Literal["deterministic", "strategy"]
 LLMProviderName = Literal["recorded", "deepseek", "doubao"]
 
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
-DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
+DEFAULT_DEEPSEEK_MODEL = "DeepSeek-V4.1-Flash-Expires-On-0910"
 DEFAULT_DOUBAO_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
 DEFAULT_DOUBAO_MODEL = "doubao-seed-2-1-turbo-260628"
 

@@ -141,6 +141,7 @@ SPEC = MethodSpecSource(
             },
         ),
         role_binder_id="evaluate_point_at_parameter",
+        continuation_policy="preserve_prior_path_scene",
     ),
     repair_hints=(
         {

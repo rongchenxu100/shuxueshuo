@@ -1139,6 +1139,17 @@ class MethodVisualSpec:
     annotation_templates: tuple[dict[str, Any], ...] = ()
     timeline_templates: tuple[dict[str, Any], ...] = ()
     role_binder_id: str = "generic_visual"
+    continuation_policy: str = ""
+
+    def __post_init__(self) -> None:
+        if self.continuation_policy not in {
+            "",
+            "preserve_prior_path_scene",
+        }:
+            raise ValueError(
+                "MethodVisualSpec continuation_policy is unsupported: "
+                f"{self.continuation_policy}"
+            )
 
 
 @dataclass(frozen=True)

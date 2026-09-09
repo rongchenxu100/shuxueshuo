@@ -43,6 +43,12 @@ def test_student_math_display_renders_piecewise_without_internal_tokens() -> Non
     assert find_internal_math_tokens(nested) == []
 
 
+def test_student_math_display_hides_undefined_piecewise_default() -> None:
+    assert student_math_display(
+        "Piecewise((3*b/2 + 9/4, b > 1/2), (nan, True))"
+    ) == "当 b＞1/2 时为 3b/2+9/4"
+
+
 def test_internal_math_token_scan_checks_student_values_not_contract_keys() -> None:
     assert find_internal_math_tokens(
         {"minimum_expression": "当 b＞1/2 时为 √2；其余情况为 1"}

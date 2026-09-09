@@ -47,6 +47,10 @@
         "-1",
         "0"
       ],
+      "curve_i_parabola_vertex": [
+        "-1",
+        "4"
+      ],
       "point_A_i": [
         "-3",
         "0"
@@ -104,6 +108,10 @@
       "M_axis_ii": [
         "1/2-c/2",
         "0"
+      ],
+      "curve_ii_parabola_vertex": [
+        "1/2-c/2",
+        "c+((c-1)*(c-1))/4"
       ],
       "point_A_ii": [
         "-c",
@@ -229,6 +237,24 @@
         "definition": "axis_x_intercept",
         "sourceCurveId": "curve_ii_parabola",
         "sourceRef": "point:problem:M"
+      },
+      "curve_i_parabola_vertex": {
+        "label": "",
+        "scopeId": "i",
+        "scopeRoot": "i",
+        "definition": "curve_vertex_feature",
+        "sourceCurveId": "curve_i_parabola",
+        "display": "(－1, 4)",
+        "visualOnly": true
+      },
+      "curve_ii_parabola_vertex": {
+        "label": "",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "definition": "curve_vertex_feature",
+        "sourceCurveId": "curve_ii_parabola",
+        "display": "(1/2－c/2, c＋(c－1)²/4)",
+        "visualOnly": true
       },
       "point_A_i": {
         "label": "A",
@@ -382,8 +408,8 @@
                 "viewport": {
                   "minX": -3.72,
                   "maxX": 1.72,
-                  "minY": -4.08,
-                  "maxY": 4.08
+                  "minY": -2.08,
+                  "maxY": 6.08
                 },
                 "objects": [
                   {
@@ -429,7 +455,8 @@
                       "labelText": "A",
                       "color": "#b45309",
                       "dx": 14,
-                      "dy": -18
+                      "dy": -18,
+                      "showLabel": false
                     },
                     "display_label": "A"
                   },
@@ -449,11 +476,11 @@
                     "state": "focus",
                     "component_payload": {
                       "at": "point_A_i",
-                      "text": "A(-3,0)",
+                      "text": "A(－3,0)",
                       "dx": 14,
                       "dy": -24
                     },
-                    "display_label": "A(-3,0)"
+                    "display_label": "A(－3,0)"
                   },
                   {
                     "visual_object_id": "visual:point:4f40a1617d26bf77",
@@ -477,28 +504,6 @@
                       "dy": -18
                     },
                     "display_label": "B"
-                  },
-                  {
-                    "visual_object_id": "visual:coordinatelabel:3e69161d141116bb",
-                    "component": "CoordinateLabel",
-                    "role": "coordinate:point_B_i",
-                    "source_refs": [
-                      {
-                        "kind": "functional_step",
-                        "step_id": "derive_x_intercept_A_i"
-                      }
-                    ],
-                    "geometry_refs": [
-                      "point_B_i"
-                    ],
-                    "state": "context",
-                    "component_payload": {
-                      "at": "point_B_i",
-                      "text": "B(1,0)",
-                      "dx": 14,
-                      "dy": -24
-                    },
-                    "display_label": "B(1,0)"
                   }
                 ],
                 "local_parameters": [],
@@ -578,7 +583,8 @@
                               "labelText": "A",
                               "color": "#b45309",
                               "dx": 14,
-                              "dy": -18
+                              "dy": -18,
+                              "showLabel": false
                             },
                             "display_label": "A"
                           },
@@ -598,11 +604,11 @@
                             "state": "context",
                             "component_payload": {
                               "at": "point_A_i",
-                              "text": "A(-3,0)",
+                              "text": "A(－3,0)",
                               "dx": 14,
                               "dy": -24
                             },
-                            "display_label": "A(-3,0)"
+                            "display_label": "A(－3,0)"
                           },
                           {
                             "visual_object_id": "visual:point:4f40a1617d26bf77",
@@ -626,28 +632,6 @@
                               "dy": -18
                             },
                             "display_label": "B"
-                          },
-                          {
-                            "visual_object_id": "visual:coordinatelabel:3e69161d141116bb",
-                            "component": "CoordinateLabel",
-                            "role": "coordinate:point_B_i",
-                            "source_refs": [
-                              {
-                                "kind": "functional_step",
-                                "step_id": "derive_x_intercept_A_i"
-                              }
-                            ],
-                            "geometry_refs": [
-                              "point_B_i"
-                            ],
-                            "state": "context",
-                            "component_payload": {
-                              "at": "point_B_i",
-                              "text": "B(1,0)",
-                              "dx": 14,
-                              "dy": -24
-                            },
-                            "display_label": "B(1,0)"
                           },
                           {
                             "visual_object_id": "visual:point:fef6497f273d0196",
@@ -713,7 +697,8 @@
                               "labelText": "P",
                               "color": "#b45309",
                               "dx": 14,
-                              "dy": -18
+                              "dy": -18,
+                              "showLabel": false
                             },
                             "display_label": "P"
                           },
@@ -733,11 +718,11 @@
                             "state": "focus",
                             "component_payload": {
                               "at": "point_P_problem",
-                              "text": "P(-1,4)",
+                              "text": "P(－1,4)",
                               "dx": 14,
                               "dy": -34
                             },
-                            "display_label": "P(-1,4)"
+                            "display_label": "P(－1,4)"
                           }
                         ],
                         "local_parameters": [],
@@ -816,7 +801,8 @@
                               "labelText": "A",
                               "color": "#b45309",
                               "dx": 14,
-                              "dy": -18
+                              "dy": -18,
+                              "showLabel": false
                             },
                             "display_label": "A"
                           },
@@ -836,11 +822,11 @@
                             "state": "context",
                             "component_payload": {
                               "at": "point_A_i",
-                              "text": "A(-3,0)",
+                              "text": "A(－3,0)",
                               "dx": 14,
                               "dy": -24
                             },
-                            "display_label": "A(-3,0)"
+                            "display_label": "A(－3,0)"
                           },
                           {
                             "visual_object_id": "visual:point:4f40a1617d26bf77",
@@ -864,28 +850,6 @@
                               "dy": -18
                             },
                             "display_label": "B"
-                          },
-                          {
-                            "visual_object_id": "visual:coordinatelabel:3e69161d141116bb",
-                            "component": "CoordinateLabel",
-                            "role": "coordinate:point_B_i",
-                            "source_refs": [
-                              {
-                                "kind": "functional_step",
-                                "step_id": "derive_x_intercept_A_i"
-                              }
-                            ],
-                            "geometry_refs": [
-                              "point_B_i"
-                            ],
-                            "state": "context",
-                            "component_payload": {
-                              "at": "point_B_i",
-                              "text": "B(1,0)",
-                              "dx": 14,
-                              "dy": -24
-                            },
-                            "display_label": "B(1,0)"
                           },
                           {
                             "visual_object_id": "visual:point:fef6497f273d0196",
@@ -975,7 +939,8 @@
                               "labelText": "E",
                               "color": "#dc2626",
                               "dx": 14,
-                              "dy": -18
+                              "dy": -18,
+                              "showLabel": false
                             },
                             "display_label": "E"
                           },
@@ -995,11 +960,11 @@
                             "state": "focus",
                             "component_payload": {
                               "at": "E_axis_i_2",
-                              "text": "E(-1,t)",
+                              "text": "E(－1,t)",
                               "dx": 14,
                               "dy": -28
                             },
-                            "display_label": "E(-1,t)"
+                            "display_label": "E(－1,t)"
                           }
                         ],
                         "local_parameters": [
@@ -1111,7 +1076,8 @@
                               "labelText": "A",
                               "color": "#b45309",
                               "dx": 14,
-                              "dy": -18
+                              "dy": -18,
+                              "showLabel": false
                             },
                             "display_label": "A"
                           },
@@ -1131,11 +1097,11 @@
                             "state": "context",
                             "component_payload": {
                               "at": "point_A_i",
-                              "text": "A(-3,0)",
+                              "text": "A(－3,0)",
                               "dx": 14,
                               "dy": -24
                             },
-                            "display_label": "A(-3,0)"
+                            "display_label": "A(－3,0)"
                           },
                           {
                             "visual_object_id": "visual:point:4f40a1617d26bf77",
@@ -1159,28 +1125,6 @@
                               "dy": -18
                             },
                             "display_label": "B"
-                          },
-                          {
-                            "visual_object_id": "visual:coordinatelabel:3e69161d141116bb",
-                            "component": "CoordinateLabel",
-                            "role": "coordinate:point_B_i",
-                            "source_refs": [
-                              {
-                                "kind": "functional_step",
-                                "step_id": "derive_x_intercept_A_i"
-                              }
-                            ],
-                            "geometry_refs": [
-                              "point_B_i"
-                            ],
-                            "state": "context",
-                            "component_payload": {
-                              "at": "point_B_i",
-                              "text": "B(1,0)",
-                              "dx": 14,
-                              "dy": -24
-                            },
-                            "display_label": "B(1,0)"
                           },
                           {
                             "visual_object_id": "visual:point:fef6497f273d0196",
@@ -1270,7 +1214,8 @@
                               "labelText": "E",
                               "color": "#dc2626",
                               "dx": 14,
-                              "dy": -18
+                              "dy": -18,
+                              "showLabel": false
                             },
                             "display_label": "E"
                           },
@@ -1290,11 +1235,11 @@
                             "state": "context",
                             "component_payload": {
                               "at": "E_axis_i_2",
-                              "text": "E(-1,t)",
+                              "text": "E(－1,t)",
                               "dx": 14,
                               "dy": -28
                             },
-                            "display_label": "E(-1,t)"
+                            "display_label": "E(－1,t)"
                           },
                           {
                             "visual_object_id": "visual:outlineregion:9452e030407e7a49",
@@ -1629,7 +1574,8 @@
                               "labelText": "G",
                               "color": "#b45309",
                               "dx": 14,
-                              "dy": 18
+                              "dy": 18,
+                              "showLabel": false
                             },
                             "display_label": "G"
                           },
@@ -1649,11 +1595,11 @@
                             "state": "focus",
                             "component_payload": {
                               "at": "G_axis_i_2",
-                              "text": "G(t-3,-2)",
+                              "text": "G(t－3,－2)",
                               "dx": 14,
                               "dy": 34
                             },
-                            "display_label": "G(t-3,-2)"
+                            "display_label": "G(t－3,－2)"
                           },
                           {
                             "visual_object_id": "visual:rightangle:31bd07d0a18c57f1",
@@ -1701,6 +1647,52 @@
                               "rayB": "K_axis_i_2",
                               "size": 10,
                               "color": "#0f766e"
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:c945a8527ae46da5",
+                            "component": "ColoredLine",
+                            "role": "angle_support",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_square_vertex_G_i"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "M_axis_i",
+                              "point_A_i"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "role": "angle_support",
+                              "from": "M_axis_i",
+                              "to": "point_A_i",
+                              "color": "#64748b",
+                              "width": 1.25
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:8845e7bff7c6501f",
+                            "component": "ColoredLine",
+                            "role": "angle_support",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_square_vertex_G_i"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "AG_proj_i_2",
+                              "point_A_i"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "role": "angle_support",
+                              "from": "AG_proj_i_2",
+                              "to": "point_A_i",
+                              "color": "#64748b",
+                              "width": 1.25
                             }
                           }
                         ],
@@ -1843,7 +1835,8 @@
                               "labelText": "A",
                               "color": "#b45309",
                               "dx": 14,
-                              "dy": -18
+                              "dy": -18,
+                              "showLabel": false
                             },
                             "display_label": "A"
                           },
@@ -1863,11 +1856,11 @@
                             "state": "context",
                             "component_payload": {
                               "at": "point_A_i",
-                              "text": "A(-3,0)",
+                              "text": "A(－3,0)",
                               "dx": 14,
                               "dy": -24
                             },
-                            "display_label": "A(-3,0)"
+                            "display_label": "A(－3,0)"
                           },
                           {
                             "visual_object_id": "visual:point:4f40a1617d26bf77",
@@ -1891,28 +1884,6 @@
                               "dy": -18
                             },
                             "display_label": "B"
-                          },
-                          {
-                            "visual_object_id": "visual:coordinatelabel:3e69161d141116bb",
-                            "component": "CoordinateLabel",
-                            "role": "coordinate:point_B_i",
-                            "source_refs": [
-                              {
-                                "kind": "functional_step",
-                                "step_id": "derive_x_intercept_A_i"
-                              }
-                            ],
-                            "geometry_refs": [
-                              "point_B_i"
-                            ],
-                            "state": "context",
-                            "component_payload": {
-                              "at": "point_B_i",
-                              "text": "B(1,0)",
-                              "dx": 14,
-                              "dy": -24
-                            },
-                            "display_label": "B(1,0)"
                           },
                           {
                             "visual_object_id": "visual:point:fef6497f273d0196",
@@ -2002,7 +1973,8 @@
                               "labelText": "E",
                               "color": "#dc2626",
                               "dx": 14,
-                              "dy": -18
+                              "dy": -18,
+                              "showLabel": false
                             },
                             "display_label": "E"
                           },
@@ -2022,11 +1994,11 @@
                             "state": "context",
                             "component_payload": {
                               "at": "E_axis_i_2",
-                              "text": "E(-1,t)",
+                              "text": "E(－1,t)",
                               "dx": 14,
                               "dy": -28
                             },
-                            "display_label": "E(-1,t)"
+                            "display_label": "E(－1,t)"
                           },
                           {
                             "visual_object_id": "visual:outlineregion:3a6d9277c75d252d",
@@ -2188,7 +2160,8 @@
                               "labelText": "G",
                               "color": "#b45309",
                               "dx": 14,
-                              "dy": 18
+                              "dy": 18,
+                              "showLabel": false
                             },
                             "display_label": "G"
                           },
@@ -2208,11 +2181,11 @@
                             "state": "context",
                             "component_payload": {
                               "at": "G_axis_i_2",
-                              "text": "G(t-3,-2)",
+                              "text": "G(t－3,－2)",
                               "dx": 14,
                               "dy": 34
                             },
-                            "display_label": "G(t-3,-2)"
+                            "display_label": "G(t－3,－2)"
                           },
                           {
                             "visual_object_id": "visual:point:233a35efe772e523",
@@ -2233,7 +2206,8 @@
                               "labelText": "E",
                               "color": "#b45309",
                               "dx": 14,
-                              "dy": 18
+                              "dy": 18,
+                              "showLabel": false
                             },
                             "display_label": "E"
                           },
@@ -2253,11 +2227,11 @@
                             "state": "focus",
                             "component_payload": {
                               "at": "E_axis_i_2_candidate_1",
-                              "text": "E(-1,2+√6)",
+                              "text": "E(－1,2＋√6)",
                               "dx": 14,
                               "dy": 34
                             },
-                            "display_label": "E(-1,2+√6)"
+                            "display_label": "E(－1,2＋√6)"
                           },
                           {
                             "visual_object_id": "visual:point:95a713eccb072daa",
@@ -2278,7 +2252,8 @@
                               "labelText": "E",
                               "color": "#b45309",
                               "dx": 14,
-                              "dy": 18
+                              "dy": 18,
+                              "showLabel": false
                             },
                             "display_label": "E"
                           },
@@ -2298,11 +2273,11 @@
                             "state": "focus",
                             "component_payload": {
                               "at": "E_axis_i_2_candidate_2",
-                              "text": "E(-1,2-√6)",
+                              "text": "E(－1,2－√6)",
                               "dx": 14,
                               "dy": 34
                             },
-                            "display_label": "E(-1,2-√6)"
+                            "display_label": "E(－1,2－√6)"
                           }
                         ],
                         "local_parameters": [
@@ -2429,10 +2404,10 @@
                       "quadratic_from_constraints/derive_function"
                     ],
                     "viewport": {
-                      "minX": -5.82,
-                      "maxX": -0.38,
-                      "minY": -4.08,
-                      "maxY": 4.08
+                      "minX": -3.838,
+                      "maxX": 1.738,
+                      "minY": -1.9787,
+                      "maxY": 6.1813
                     },
                     "objects": [
                       {
@@ -2530,10 +2505,10 @@
                       "quadratic_square_path_minimum/path_reduction"
                     ],
                     "viewport": {
-                      "minX": -4.2825,
-                      "maxX": 1.1575,
-                      "minY": -4.5925,
-                      "maxY": 3.5675
+                      "minX": -3.838,
+                      "maxX": 1.738,
+                      "minY": -3.1754,
+                      "maxY": 5.3279
                     },
                     "objects": [
                       {
@@ -2935,6 +2910,52 @@
                           "width": 1.5,
                           "dash": "7 6"
                         }
+                      },
+                      {
+                        "visual_object_id": "visual:coloredline:6354e62abc32a937",
+                        "component": "ColoredLine",
+                        "role": "angle_support",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "derive_path_minimum_ii"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "M_axis_ii",
+                          "point_A_ii"
+                        ],
+                        "state": "context",
+                        "component_payload": {
+                          "role": "angle_support",
+                          "from": "M_axis_ii",
+                          "to": "point_A_ii",
+                          "color": "#64748b",
+                          "width": 1.25
+                        }
+                      },
+                      {
+                        "visual_object_id": "visual:coloredline:22d56f861d0086a9",
+                        "component": "ColoredLine",
+                        "role": "angle_support",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "derive_path_minimum_ii"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "M_axis_ii",
+                          "E_axis_ii"
+                        ],
+                        "state": "context",
+                        "component_payload": {
+                          "role": "angle_support",
+                          "from": "M_axis_ii",
+                          "to": "E_axis_ii",
+                          "color": "#64748b",
+                          "width": 1.25
+                        }
                       }
                     ],
                     "local_parameters": [
@@ -3131,10 +3152,10 @@
                       "quadratic_square_path_minimum/reflection_minimum"
                     ],
                     "viewport": {
-                      "minX": -7.515,
-                      "maxX": 3.365,
-                      "minY": -6.13,
-                      "maxY": 2.03
+                      "minX": -3.838,
+                      "maxX": 1.738,
+                      "minY": -5.5944,
+                      "maxY": 5.697
                     },
                     "objects": [
                       {
@@ -3270,29 +3291,6 @@
                           "width": 2.0,
                           "dash": "7 5"
                         }
-                      },
-                      {
-                        "visual_object_id": "visual:coordinatelabel:8ce8f1168640b26d",
-                        "component": "CoordinateLabel",
-                        "role": "locus:label",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "G_locus_ii_end"
-                        ],
-                        "state": "focus",
-                        "component_payload": {
-                          "role": "locus:label",
-                          "at": "G_locus_ii_end",
-                          "text": "y＝－(c＋1)/2",
-                          "dx": -170,
-                          "dy": -14
-                        },
-                        "display_label": "y＝－(c＋1)/2"
                       },
                       {
                         "visual_object_id": "visual:outlineregion:a080b47dce42531f",
@@ -3433,33 +3431,12 @@
                         "component_payload": {
                           "at": "point_A_prime_ii",
                           "labelText": "A′",
+                          "role": "",
                           "color": "#b45309",
                           "dx": 14,
                           "dy": 18
                         },
                         "display_label": "A′"
-                      },
-                      {
-                        "visual_object_id": "visual:coordinatelabel:899c50ae6eca3205",
-                        "component": "CoordinateLabel",
-                        "role": "coordinate:point_A_prime_ii",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "point_A_prime_ii"
-                        ],
-                        "state": "focus",
-                        "component_payload": {
-                          "at": "point_A_prime_ii",
-                          "text": "A′(-c,-c-1)",
-                          "dx": 14,
-                          "dy": 34
-                        },
-                        "display_label": "A′(-c,-c-1)"
                       },
                       {
                         "visual_object_id": "visual:point:a5ee650ba7c2097d",
@@ -3791,29 +3768,6 @@
                         }
                       },
                       {
-                        "visual_object_id": "visual:coordinatelabel:8ce8f1168640b26d",
-                        "component": "CoordinateLabel",
-                        "role": "locus:label",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "G_locus_ii_end"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "role": "locus:label",
-                          "at": "G_locus_ii_end",
-                          "text": "y＝－(c＋1)/2",
-                          "dx": -170,
-                          "dy": -14
-                        },
-                        "display_label": "y＝－(c＋1)/2"
-                      },
-                      {
                         "visual_object_id": "visual:dashedline:6807d8cf3099adb8",
                         "component": "DashedLine",
                         "role": "dashedline",
@@ -3925,33 +3879,12 @@
                         "component_payload": {
                           "at": "point_A_prime_ii",
                           "labelText": "A′",
+                          "role": "",
                           "color": "#b45309",
                           "dx": 14,
                           "dy": 18
                         },
                         "display_label": "A′"
-                      },
-                      {
-                        "visual_object_id": "visual:coordinatelabel:899c50ae6eca3205",
-                        "component": "CoordinateLabel",
-                        "role": "coordinate:point_A_prime_ii",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "point_A_prime_ii"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "at": "point_A_prime_ii",
-                          "text": "A′(-c,-c-1)",
-                          "dx": 14,
-                          "dy": 34
-                        },
-                        "display_label": "A′(-c,-c-1)"
                       },
                       {
                         "visual_object_id": "visual:point:a5ee650ba7c2097d",
@@ -4017,10 +3950,10 @@
                       "evaluate_point_at_parameter/substitute_point_parameter"
                     ],
                     "viewport": {
-                      "minX": -6.22,
-                      "maxX": -0.78,
-                      "minY": -7.08,
-                      "maxY": 1.08
+                      "minX": -6.08,
+                      "maxX": 2.08,
+                      "minY": -8.7,
+                      "maxY": 11.7
                     },
                     "objects": [
                       {
@@ -4062,7 +3995,8 @@
                           "labelText": "A",
                           "color": "#b45309",
                           "dx": 14,
-                          "dy": -18
+                          "dy": -18,
+                          "showLabel": false
                         },
                         "display_label": "A"
                       },
@@ -4158,29 +4092,6 @@
                         }
                       },
                       {
-                        "visual_object_id": "visual:coordinatelabel:8ce8f1168640b26d",
-                        "component": "CoordinateLabel",
-                        "role": "locus:label",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "G_locus_ii_end"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "role": "locus:label",
-                          "at": "G_locus_ii_end",
-                          "text": "y＝－(c＋1)/2",
-                          "dx": -170,
-                          "dy": -14
-                        },
-                        "display_label": "y＝－(c＋1)/2"
-                      },
-                      {
                         "visual_object_id": "visual:dashedline:6807d8cf3099adb8",
                         "component": "DashedLine",
                         "role": "dashedline",
@@ -4292,33 +4203,12 @@
                         "component_payload": {
                           "at": "point_A_prime_ii",
                           "labelText": "A′",
+                          "role": "",
                           "color": "#b45309",
                           "dx": 14,
                           "dy": 18
                         },
                         "display_label": "A′"
-                      },
-                      {
-                        "visual_object_id": "visual:coordinatelabel:899c50ae6eca3205",
-                        "component": "CoordinateLabel",
-                        "role": "coordinate:point_A_prime_ii",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "point_A_prime_ii"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "at": "point_A_prime_ii",
-                          "text": "A′(-c,-c-1)",
-                          "dx": 14,
-                          "dy": 34
-                        },
-                        "display_label": "A′(-c,-c-1)"
                       },
                       {
                         "visual_object_id": "visual:point:a5ee650ba7c2097d",
@@ -4359,11 +4249,11 @@
                         "state": "focus",
                         "component_payload": {
                           "at": "point_A_ii",
-                          "text": "A(-5,0)",
+                          "text": "A(－5,0)",
                           "dx": 14,
                           "dy": -28
                         },
-                        "display_label": "A(-5,0)"
+                        "display_label": "A(－5,0)"
                       }
                     ],
                     "local_parameters": [
@@ -4451,7 +4341,8 @@
                           "labelText": "A",
                           "color": "#b45309",
                           "dx": 14,
-                          "dy": -18
+                          "dy": -18,
+                          "showLabel": false
                         },
                         "display_label": "A"
                       },
@@ -4518,7 +4409,8 @@
                           "labelText": "G",
                           "color": "#b45309",
                           "dx": 14,
-                          "dy": -18
+                          "dy": -18,
+                          "showLabel": false
                         },
                         "display_label": "G"
                       },
@@ -4545,29 +4437,6 @@
                           "width": 2.0,
                           "dash": "7 5"
                         }
-                      },
-                      {
-                        "visual_object_id": "visual:coordinatelabel:8ce8f1168640b26d",
-                        "component": "CoordinateLabel",
-                        "role": "locus:label",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "G_locus_ii_end"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "role": "locus:label",
-                          "at": "G_locus_ii_end",
-                          "text": "y＝－(c＋1)/2",
-                          "dx": -170,
-                          "dy": -14
-                        },
-                        "display_label": "y＝－(c＋1)/2"
                       },
                       {
                         "visual_object_id": "visual:dashedline:6807d8cf3099adb8",
@@ -4681,33 +4550,12 @@
                         "component_payload": {
                           "at": "point_A_prime_ii",
                           "labelText": "A′",
+                          "role": "",
                           "color": "#b45309",
                           "dx": 14,
                           "dy": 18
                         },
                         "display_label": "A′"
-                      },
-                      {
-                        "visual_object_id": "visual:coordinatelabel:899c50ae6eca3205",
-                        "component": "CoordinateLabel",
-                        "role": "coordinate:point_A_prime_ii",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "point_A_prime_ii"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "at": "point_A_prime_ii",
-                          "text": "A′(-c,-c-1)",
-                          "dx": 14,
-                          "dy": 34
-                        },
-                        "display_label": "A′(-c,-c-1)"
                       },
                       {
                         "visual_object_id": "visual:point:a5ee650ba7c2097d",
@@ -4748,11 +4596,11 @@
                         "state": "context",
                         "component_payload": {
                           "at": "point_A_ii",
-                          "text": "A(-5,0)",
+                          "text": "A(－5,0)",
                           "dx": 14,
                           "dy": -28
                         },
-                        "display_label": "A(-5,0)"
+                        "display_label": "A(－5,0)"
                       },
                       {
                         "visual_object_id": "visual:coordinatelabel:fad3477b175e5cd0",
@@ -4770,11 +4618,11 @@
                         "state": "focus",
                         "component_payload": {
                           "at": "point_G_ii",
-                          "text": "G(-7/2,-3)",
+                          "text": "G(－7/2,－3)",
                           "dx": 14,
                           "dy": -28
                         },
-                        "display_label": "G(-7/2,-3)"
+                        "display_label": "G(－7/2,－3)"
                       }
                     ],
                     "local_parameters": [
@@ -4817,10 +4665,10 @@
                       "square_adjacent_vertex_from_side/derive_adjacent_vertex"
                     ],
                     "viewport": {
-                      "minX": -5.81,
-                      "maxX": 0.31,
-                      "minY": -7.35,
-                      "maxY": 2.85
+                      "minX": -6.08,
+                      "maxX": 2.08,
+                      "minY": -8.7,
+                      "maxY": 11.7
                     },
                     "objects": [
                       {
@@ -4862,7 +4710,8 @@
                           "labelText": "A",
                           "color": "#b45309",
                           "dx": 14,
-                          "dy": -18
+                          "dy": -18,
+                          "showLabel": false
                         },
                         "display_label": "A"
                       },
@@ -4929,7 +4778,8 @@
                           "labelText": "G",
                           "color": "#b45309",
                           "dx": 14,
-                          "dy": -18
+                          "dy": -18,
+                          "showLabel": false
                         },
                         "display_label": "G"
                       },
@@ -4956,29 +4806,6 @@
                           "width": 2.0,
                           "dash": "7 5"
                         }
-                      },
-                      {
-                        "visual_object_id": "visual:coordinatelabel:8ce8f1168640b26d",
-                        "component": "CoordinateLabel",
-                        "role": "locus:label",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "G_locus_ii_end"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "role": "locus:label",
-                          "at": "G_locus_ii_end",
-                          "text": "y＝－(c＋1)/2",
-                          "dx": -170,
-                          "dy": -14
-                        },
-                        "display_label": "y＝－(c＋1)/2"
                       },
                       {
                         "visual_object_id": "visual:dashedline:6807d8cf3099adb8",
@@ -5092,33 +4919,12 @@
                         "component_payload": {
                           "at": "point_A_prime_ii",
                           "labelText": "A′",
+                          "role": "",
                           "color": "#b45309",
                           "dx": 14,
                           "dy": 18
                         },
                         "display_label": "A′"
-                      },
-                      {
-                        "visual_object_id": "visual:coordinatelabel:899c50ae6eca3205",
-                        "component": "CoordinateLabel",
-                        "role": "coordinate:point_A_prime_ii",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "derive_path_minimum_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "point_A_prime_ii"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "at": "point_A_prime_ii",
-                          "text": "A′(-c,-c-1)",
-                          "dx": 14,
-                          "dy": 34
-                        },
-                        "display_label": "A′(-c,-c-1)"
                       },
                       {
                         "visual_object_id": "visual:point:a5ee650ba7c2097d",
@@ -5159,11 +4965,11 @@
                         "state": "context",
                         "component_payload": {
                           "at": "point_A_ii",
-                          "text": "A(-5,0)",
+                          "text": "A(－5,0)",
                           "dx": 14,
                           "dy": -28
                         },
-                        "display_label": "A(-5,0)"
+                        "display_label": "A(－5,0)"
                       },
                       {
                         "visual_object_id": "visual:coordinatelabel:fad3477b175e5cd0",
@@ -5181,11 +4987,11 @@
                         "state": "context",
                         "component_payload": {
                           "at": "point_G_ii",
-                          "text": "G(-7/2,-3)",
+                          "text": "G(－7/2,－3)",
                           "dx": 14,
                           "dy": -28
                         },
-                        "display_label": "G(-7/2,-3)"
+                        "display_label": "G(－7/2,－3)"
                       },
                       {
                         "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
@@ -5208,30 +5014,6 @@
                           "dash": "7 6",
                           "role": "curve:axis"
                         }
-                      },
-                      {
-                        "visual_object_id": "visual:point:e54a8537872a4177",
-                        "component": "Point",
-                        "role": "axis_x_intercept",
-                        "source_refs": [
-                          {
-                            "kind": "functional_step",
-                            "step_id": "recover_target_point_E_ii"
-                          }
-                        ],
-                        "geometry_refs": [
-                          "M_axis_ii"
-                        ],
-                        "state": "context",
-                        "component_payload": {
-                          "at": "M_axis_ii",
-                          "labelText": "M",
-                          "color": "#64748b",
-                          "dx": 14,
-                          "dy": -18,
-                          "role": "axis_x_intercept"
-                        },
-                        "display_label": "M"
                       },
                       {
                         "visual_object_id": "visual:outlineregion:1879b5f28c5a09e1",
@@ -5446,7 +5228,8 @@
                           "labelText": "E",
                           "color": "#b45309",
                           "dx": 14,
-                          "dy": 18
+                          "dy": 18,
+                          "showLabel": false
                         },
                         "display_label": "E"
                       },
@@ -5466,11 +5249,11 @@
                         "state": "focus",
                         "component_payload": {
                           "at": "point_E_ii",
-                          "text": "E(-2,3/2)",
+                          "text": "E(－2,3/2)",
                           "dx": 14,
                           "dy": 34
                         },
-                        "display_label": "E(-2,3/2)"
+                        "display_label": "E(－2,3/2)"
                       },
                       {
                         "visual_object_id": "visual:point:4ddd2f2411e251dd",
@@ -5541,6 +5324,29 @@
                           "rayB": "K_axis_ii",
                           "size": 10,
                           "color": "#0f766e"
+                        }
+                      },
+                      {
+                        "visual_object_id": "visual:coloredline:ff13e834e90e7d4a",
+                        "component": "ColoredLine",
+                        "role": "angle_support",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "recover_target_point_E_ii"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "AG_proj_ii",
+                          "point_A_ii"
+                        ],
+                        "state": "context",
+                        "component_payload": {
+                          "role": "angle_support",
+                          "from": "AG_proj_ii",
+                          "to": "point_A_ii",
+                          "color": "#64748b",
+                          "width": 1.25
                         }
                       }
                     ],

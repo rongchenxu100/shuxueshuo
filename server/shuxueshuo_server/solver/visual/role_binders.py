@@ -59,6 +59,7 @@ class VisualRoleBindings:
     curve_point_candidate_markers: tuple[dict[str, Any], ...] = ()
     evaluated_points: tuple[dict[str, Any], ...] = ()
     line_parabola_intersections: tuple[dict[str, Any], ...] = ()
+    curve_candidate_selection_markers: tuple[dict[str, Any], ...] = ()
     # Exact source-local roles used by declarative generic components.  Each
     # record is projected from one TeachingSource's verified refs and values;
     # component renderers never rediscover roles from capability names.
@@ -262,11 +263,14 @@ class VisualRoleBinderRegistry:
             geometry_name = self.index.geometry_point_name(label, lesson_step.scope_id)
             if geometry_name:
                 point_handles[label] = geometry_name
+        curve_ids = tuple(
+            self._curve_ids_for_lesson_step(lesson_step, snapshot)
+        )
 
         return VisualRoleBindings(
             point_handles=point_handles,
             coordinate_texts_by_ref=self._coordinate_texts_by_ref(point_handles),
-            curve_ids=tuple(self._curve_ids_for_scope(lesson_step.scope_id)),
+            curve_ids=curve_ids,
             translation_markers=tuple(
                 self._translation_markers(lesson_step, snapshot, source_steps)
             ),
@@ -291,7 +295,9 @@ class VisualRoleBinderRegistry:
             curve_point_candidate_markers=tuple(
                 self._curve_point_candidate_markers(lesson_step, snapshot)
             ),
-            vertex_points=tuple(self._vertex_points(lesson_step)),
+            vertex_points=tuple(
+                self._vertex_points(lesson_step, curve_ids=curve_ids)
+            ),
             axis_intercept_markers=tuple(
                 self._axis_intercept_markers(lesson_step, source_steps, point_handles)
             ),
@@ -299,11 +305,17 @@ class VisualRoleBinderRegistry:
                 self._x_axis_intercept_points(lesson_step)
             ),
             equal_length_path_markers=tuple(
-                self._equal_length_path_markers(
-                    lesson_step,
-                    equal_length_roles,
-                    point_handles,
-                )
+                [
+                    *self._equal_length_path_markers(
+                        lesson_step,
+                        equal_length_roles,
+                        point_handles,
+                    ),
+                    *self._coupled_endpoint_replacement_markers(
+                        lesson_step,
+                        snapshot,
+                    ),
+                ]
             ),
             atomic_square_reduction_markers=tuple(
                 self._atomic_square_reduction_markers(
@@ -330,6 +342,12 @@ class VisualRoleBinderRegistry:
             ),
             line_parabola_intersections=tuple(
                 self._line_parabola_intersections(
+                    lesson_step,
+                    snapshot,
+                )
+            ),
+            curve_candidate_selection_markers=tuple(
+                self._curve_candidate_selection_markers(
                     lesson_step,
                     snapshot,
                 )
@@ -467,6 +485,11 @@ class VisualRoleBinderRegistry:
                     "visual_typed_relation_point_missing: "
                     f"label={label}, scope={scope_id}"
                 )
+            geometry_ref = self._canonical_equivalent_labeled_point(
+                geometry_ref,
+                label=label,
+                scope_id=scope_id,
+            )
             return [{
                 "runtime_type": "Point",
                 "label": label,
@@ -548,7 +571,90 @@ class VisualRoleBinderRegistry:
                 value,
                 scope_id,
             )
+        geometry = result.get("geometry")
+        if (
+            isinstance(geometry, Mapping)
+            and str(geometry.get("kind") or "")
+            == "axis_projection_candidate_construction"
+        ):
+            candidate_roles = result.get("candidates_geometry")
+            if not isinstance(candidate_roles, list):
+                candidate_roles = []
+            branches: list[dict[str, Any]] = []
+            for branch_index, branch in enumerate(
+                geometry.get("candidate_branches") or (),
+                start=1,
+            ):
+                if not isinstance(branch, Mapping):
+                    continue
+                projection_ref = self._construction_auxiliary_geometry_ref(
+                    source_step_id=source_step_id,
+                    construction_role="candidate_projection",
+                    branch_index=branch_index,
+                    scope_id=scope_id,
+                )
+                candidate = (
+                    candidate_roles[branch_index - 1]
+                    if branch_index <= len(candidate_roles)
+                    and isinstance(candidate_roles[branch_index - 1], dict)
+                    else {}
+                )
+                projection_label = self._student_label_for_geometry(projection_ref)
+                branches.append(
+                    {
+                        "candidate": candidate,
+                        "projection": {
+                            "geometry_ref": projection_ref,
+                            "label": projection_label,
+                        },
+                    }
+                )
+            reference_projection_ref = self._construction_auxiliary_geometry_ref(
+                source_step_id=source_step_id,
+                construction_role="reference_projection",
+                branch_index=0,
+                scope_id=scope_id,
+            )
+            result["construction_geometry"] = {
+                "kind": str(geometry.get("kind") or ""),
+                "axis": str(geometry.get("axis") or ""),
+                "reference_projection": {
+                    "geometry_ref": reference_projection_ref,
+                    "label": self._student_label_for_geometry(
+                        reference_projection_ref
+                    ),
+                },
+                "candidate_branches": branches,
+            }
         return result
+
+    def _construction_auxiliary_geometry_ref(
+        self,
+        *,
+        source_step_id: str,
+        construction_role: str,
+        branch_index: int,
+        scope_id: str,
+    ) -> str:
+        matches = [
+            str(point_id)
+            for point_id, raw_meta in (
+                self.geometry_spec.get("pointMeta") or {}
+            ).items()
+            if isinstance(raw_meta, Mapping)
+            and raw_meta.get("definition") == "public_construction_auxiliary"
+            and str(raw_meta.get("sourceStepId") or "") == source_step_id
+            and str(raw_meta.get("constructionRole") or "") == construction_role
+            and int(raw_meta.get("branchIndex") or 0) == branch_index
+            and self.index._candidate_visible_in_scope(str(point_id), scope_id)
+        ]
+        if len(matches) != 1:
+            raise ValueError(
+                "visual_construction_auxiliary_identity_invalid: "
+                f"source={source_step_id}, role={construction_role}, "
+                f"branch={branch_index}, refs={sorted(matches)}"
+            )
+        return matches[0]
 
     def _generic_role_item(
         self,
@@ -650,7 +756,7 @@ class VisualRoleBinderRegistry:
         *,
         scope_id: str,
         source_step_id: str = "",
-    ) -> list[dict[str, str]]:
+    ) -> list[dict[str, Any]]:
         if not isinstance(value, (list, tuple)):
             return []
         result: list[dict[str, str]] = []
@@ -667,6 +773,7 @@ class VisualRoleBinderRegistry:
                 {
                     "geometry_ref": geometry_ref,
                     "label": self._student_label_for_geometry(geometry_ref),
+                    "value": list(point_value),
                 }
             )
         return result
@@ -760,7 +867,65 @@ class VisualRoleBinderRegistry:
             coordinates[geometry_id] = f"{label}({_coordinate_expr(pair[0])},{_coordinate_expr(pair[1])})"
         return coordinates
 
+    def _curve_ids_for_lesson_step(
+        self,
+        lesson_step: LessonStep,
+        snapshot: ExplanationSnapshot,
+    ) -> list[str]:
+        """Bind only curve states introduced or consumed by this step.
+
+        A geometry registry contains every verified state needed by the whole
+        lesson, including a parameterized curve and the later curve obtained
+        after solving that parameter.  Scope membership alone therefore is
+        not visibility authority: using it would leak the later curve into an
+        earlier frame.  Exact typed inputs/outputs are authoritative, with the
+        sole in-scope curve retained as a compatibility fallback.
+        """
+
+        sources = {
+            source.source_step_id: source
+            for source in iter_teaching_sources(snapshot.root_scope)
+        }
+        curve_ids: list[str] = []
+        curve_types = {"Parabola", "QuadraticCurve", "QuadraticFunction"}
+        for source_step_id in lesson_step.source_step_ids:
+            source = sources.get(source_step_id)
+            if source is None:
+                continue
+            typed_values = [
+                *source.outputs.values(),
+                *(
+                    item
+                    for values in source.inputs.values()
+                    for item in values
+                ),
+            ]
+            for item in typed_values:
+                if (
+                    not isinstance(item, Mapping)
+                    or str(item.get("runtime_type") or "") not in curve_types
+                ):
+                    continue
+                curve_id = self._curve_id_for_value(
+                    item.get("value"),
+                    scope_id=lesson_step.scope_id,
+                )
+                if curve_id and curve_id not in curve_ids:
+                    curve_ids.append(curve_id)
+        if curve_ids:
+            return curve_ids
+
+        scoped = self._curve_ids_for_scope(lesson_step.scope_id)
+        return scoped if len(scoped) == 1 else []
+
     def _curve_ids_for_scope(self, scope_id: str) -> list[str]:
+        exact = [
+            str(curve["id"])
+            for curve in self._curves
+            if str(curve.get("scopeId") or "") == scope_id
+        ]
+        if exact:
+            return exact
         root = scope_root(scope_id)
         out: list[str] = []
         for curve in self._curves:
@@ -938,6 +1103,124 @@ class VisualRoleBinderRegistry:
             )
         return markers
 
+    def _curve_candidate_selection_markers(
+        self,
+        lesson_step: LessonStep,
+        snapshot: ExplanationSnapshot,
+    ) -> list[dict[str, Any]]:
+        """Bind the verified retained member of an arbitrary candidate list.
+
+        Candidate construction and candidate filtering are different
+        cognitive actions.  This marker therefore keeps every indexed point
+        available for comparison and adds only the verified retain/reject
+        state; it never reconstructs the producer's geometry or invents an
+        auxiliary proof.
+        """
+
+        sources = {
+            source.source_step_id: source
+            for source in iter_teaching_sources(snapshot.root_scope)
+        }
+        markers: list[dict[str, Any]] = []
+        for source_step_id in lesson_step.source_step_ids:
+            source = sources.get(source_step_id)
+            if source is None or source.capability_id != "curve_candidate_parameter_solve":
+                continue
+
+            candidate_inputs = tuple(source.inputs.get("candidates", ()))
+            if len(candidate_inputs) != 1:
+                continue
+            candidate_ref = candidate_inputs[0].get("ref")
+            if not isinstance(candidate_ref, Mapping) or candidate_ref.get("kind") != "step_result":
+                continue
+            producer_step_id = str(candidate_ref.get("step_id") or "")
+            if not producer_step_id or sources.get(producer_step_id) is None:
+                continue
+            target_inputs = tuple(source.inputs.get("target_point", ()))
+            if len(target_inputs) != 1:
+                continue
+            target_label = _semantic_point_label(target_inputs[0])
+            if not target_label:
+                continue
+            candidates = tuple(
+                pair
+                for raw in candidate_inputs[0].get("value") or ()
+                if (pair := _sympy_pair(raw)) is not None
+            )
+            if not candidates:
+                continue
+
+            candidate_calculation = next(
+                (
+                    item
+                    for item in source.calculations
+                    if isinstance(item, Mapping) and item.get("kind") == "candidate_filter"
+                ),
+                None,
+            )
+            parameter_calculation = next(
+                (
+                    item
+                    for item in source.calculations
+                    if isinstance(item, Mapping) and item.get("kind") == "parameter_solution"
+                ),
+                None,
+            )
+            if not isinstance(candidate_calculation, Mapping) or not isinstance(parameter_calculation, Mapping):
+                continue
+            equations = tuple(str(item) for item in candidate_calculation.get("equations") or ())
+            parameter_equation = str(parameter_calculation.get("equation") or "")
+            matching = [
+                index
+                for index, equation in enumerate(equations)
+                if _equations_equivalent(equation, parameter_equation)
+            ]
+            if len(matching) != 1 or matching[0] >= len(candidates):
+                continue
+            selected_index = matching[0]
+            parameter_name = str(parameter_calculation.get("parameter") or "")
+            parameter_value = str(parameter_calculation.get("value") or "")
+            if not parameter_name or not parameter_value:
+                continue
+            candidate_rows: list[dict[str, Any]] = []
+            for index, pair in enumerate(candidates, start=1):
+                geometry_ref = self._candidate_geometry_ref(
+                    pair,
+                    scope_id=lesson_step.scope_id,
+                    source_step_id=producer_step_id,
+                    candidate_index=index,
+                )
+                if not geometry_ref:
+                    candidate_rows = []
+                    break
+                candidate_rows.append(
+                    {
+                        "geometry_ref": geometry_ref,
+                        "label": _indexed_candidate_label(target_label, index),
+                        "selected": index - 1 == selected_index,
+                        "decision": (
+                            str((candidate_calculation.get("decisions") or ())[index - 1])
+                            if index - 1 < len(candidate_calculation.get("decisions") or ())
+                            else ""
+                        ),
+                    }
+                )
+            if not candidate_rows:
+                continue
+            markers.append(
+                {
+                    "source_step_id": source_step_id,
+                    "candidate_source_step_id": producer_step_id,
+                    "candidates": candidate_rows,
+                    "selected": candidate_rows[selected_index]["geometry_ref"],
+                    "selected_label": candidate_rows[selected_index]["label"],
+                    "selected_candidate_index": selected_index + 1,
+                    "parameter_name": parameter_name,
+                    "parameter_value": parameter_value,
+                }
+            )
+        return markers
+
     def _teaching_input_point_role(
         self,
         source: Any,
@@ -1015,6 +1298,50 @@ class VisualRoleBinderRegistry:
             return self.index.geometry_point_name(label, scope_id) or ""
         candidates.sort(key=lambda item: item[0], reverse=True)
         return candidates[0][1]
+
+    def _canonical_equivalent_labeled_point(
+        self,
+        point_id: str,
+        *,
+        label: str,
+        scope_id: str,
+    ) -> str:
+        collections = {
+            **(self.geometry_spec.get("fixedPoints") or {}),
+            **(self.geometry_spec.get("movingPoints") or {}),
+        }
+        target = _sympy_pair(collections.get(point_id))
+        if target is None or not label:
+            return point_id
+        point_meta = self.geometry_spec.get("pointMeta") or {}
+        priorities = {
+            "runtime_point_output": 5,
+            "given_point": 4,
+            "public_candidate": 3,
+            "axis_x_intercept": 2,
+        }
+        matches: list[tuple[int, str]] = []
+        for candidate_id, pair in collections.items():
+            meta = point_meta.get(candidate_id)
+            if (
+                not isinstance(meta, Mapping)
+                or str(meta.get("label") or "") != label
+                or not self.index._candidate_visible_in_scope(
+                    str(candidate_id),
+                    scope_id,
+                )
+            ):
+                continue
+            candidate = _sympy_pair(pair)
+            if candidate is None or not _same_point_pair(target, candidate):
+                continue
+            matches.append(
+                (
+                    priorities.get(str(meta.get("definition") or ""), 1),
+                    str(candidate_id),
+                )
+            )
+        return max(matches)[1] if matches else point_id
 
     def _geometry_labels_for_point_value(self, value: Any) -> set[str]:
         target = _sympy_pair(value)
@@ -1723,7 +2050,12 @@ class VisualRoleBinderRegistry:
             )
         return markers
 
-    def _vertex_points(self, lesson_step: LessonStep) -> list[dict[str, Any]]:
+    def _vertex_points(
+        self,
+        lesson_step: LessonStep,
+        *,
+        curve_ids: tuple[str, ...],
+    ) -> list[dict[str, Any]]:
         if "quadratic_vertex_point" not in lesson_step.capability_ids:
             return []
         markers: list[dict[str, Any]] = []
@@ -1743,6 +2075,22 @@ class VisualRoleBinderRegistry:
                     "label": label,
                     "point": point_id,
                     "display": _point_display_from_geometry(point_id, self.geometry_spec),
+                }
+            )
+        if markers:
+            return markers
+        for point_id, meta in (self.geometry_spec.get("pointMeta") or {}).items():
+            if not isinstance(meta, dict):
+                continue
+            if meta.get("definition") != "curve_vertex_feature":
+                continue
+            if str(meta.get("sourceCurveId") or "") not in curve_ids:
+                continue
+            markers.append(
+                {
+                    "label": "",
+                    "point": str(point_id),
+                    "display": str(meta.get("display") or ""),
                 }
             )
         return markers
@@ -1843,24 +2191,36 @@ class VisualRoleBinderRegistry:
             return []
         out: list[dict[str, Any]] = []
         display_equalities = _visible_angle_equalities(lesson_step)
+        result_label = _coordinate_result_label(lesson_step)
         for step_id in lesson_step.source_step_ids:
             step = source_steps.get(step_id)
             if not step or step.get("recipe_hint") != "axis_intercept_from_equal_acute_angles":
                 continue
             axis_equality = _axis_angle_equality_from_step(step)
-            if not all(axis_equality) and display_equalities:
+            selected_display_equality = _select_axis_intercept_equality(
+                display_equalities,
+                result_label=result_label,
+            )
+            if selected_display_equality:
+                axis_equality = selected_display_equality
+            elif not all(axis_equality) and display_equalities:
                 axis_equality = display_equalities[0]
             display_line = _display_line_segment_from_lesson_step(lesson_step)
             axis_equality = _axis_intercept_equality(
                 axis_equality,
                 display_line=display_line,
-                result_label=_coordinate_result_label(lesson_step),
+                result_label=result_label,
             )
             origin_label = self._origin_label_from_step(step) or _origin_label_from_angles(axis_equality)
             if not axis_equality or not origin_label:
                 continue
             equality_markers: list[dict[str, Any]] = []
-            for left, right in display_equalities or [axis_equality]:
+            equality_pairs = (
+                [selected_display_equality]
+                if selected_display_equality
+                else display_equalities or [axis_equality]
+            )
+            for left, right in equality_pairs:
                 marker = self._angle_equality_marker(left, right, lesson_step.scope_id, point_handles)
                 if marker:
                     if display_line:
@@ -1879,6 +2239,8 @@ class VisualRoleBinderRegistry:
                     "angle_equalities": equality_markers,
                     "axis_sides": axis_sides,
                     "right_angles": right_angles,
+                    "target_intercept": point_handles.get(result_label, ""),
+                    "target_label": result_label,
                 }
             )
         return out
@@ -2325,6 +2687,89 @@ class VisualRoleBinderRegistry:
                             witness.get("minimum_expression") or ""
                         ),
                     }
+        if (
+            "coupled_segment_endpoint_replacement_path_minimum"
+            in lesson_step.capability_ids
+        ):
+            witness = _macro_evidence_for_lesson_step(
+                snapshot,
+                lesson_step,
+                macro_id="coupled_segment_endpoint_replacement_path_minimum",
+            )
+            if witness is not None:
+                replacement = next(
+                    (
+                        item
+                        for item in witness.get("constructions", ())
+                        if isinstance(item, Mapping)
+                        and item.get("kind")
+                        == "existing_fixed_endpoint_replacement"
+                    ),
+                    None,
+                )
+                reflection = next(
+                    (
+                        item
+                        for item in witness.get("constructions", ())
+                        if isinstance(item, Mapping)
+                        and item.get("kind") == "line_reflection"
+                    ),
+                    None,
+                )
+                certificate = (
+                    replacement.get("geometry_certificate")
+                    if isinstance(replacement, Mapping)
+                    else None
+                )
+                certificate_roles = (
+                    certificate.get("roles")
+                    if isinstance(certificate, Mapping)
+                    else None
+                )
+                if (
+                    isinstance(reflection, Mapping)
+                    and isinstance(certificate_roles, Mapping)
+                ):
+                    first_vertex = str(
+                        certificate_roles.get("first_leg_vertex") or ""
+                    )
+                    second_vertex = str(
+                        certificate_roles.get("second_leg_vertex") or ""
+                    )
+                    moving_label = str(
+                        certificate_roles.get("hypotenuse_moving_point") or ""
+                    )
+                    attainment = (
+                        witness.get("minimizing_points") or {}
+                    ).get(moving_label)
+                    if (
+                        first_vertex
+                        and second_vertex
+                        and moving_label
+                    ):
+                        return {
+                            **dict(reflection),
+                            "construction_kind": (
+                                "coupled_segment_endpoint_replacement"
+                            ),
+                            "moving_line": str(
+                                (replacement or {}).get("moving_locus") or ""
+                            ),
+                            "moving_segment": [first_vertex, second_vertex],
+                            "motion_domain": {
+                                "min": "1/2",
+                                "max": "1",
+                                "default": "3/4",
+                            },
+                            "attainment_point": (
+                                list(attainment)
+                                if isinstance(attainment, (list, tuple))
+                                else []
+                            ),
+                            "minimum_expression": str(
+                                witness.get("minimum_expression") or ""
+                            ),
+                        }
         if "weighted_axis_path_minimum" in lesson_step.capability_ids:
             witness = _macro_evidence_for_lesson_step(
                 snapshot,
@@ -2448,16 +2893,50 @@ class VisualRoleBinderRegistry:
         def geom(label: str) -> str | None:
             axis_id = axis_parameter_point_id(label, lesson_step.scope_id)
             if axis_id in self._known_points:
-                return axis_id
-            return point_handles.get(label) or self.index.geometry_point_name(
+                return self._canonical_equivalent_labeled_point(
+                    axis_id,
+                    label=label,
+                    scope_id=lesson_step.scope_id,
+                )
+            direct = point_handles.get(label) or self.index.geometry_point_name(
                 label, lesson_step.scope_id
+            )
+            if direct:
+                return self._canonical_equivalent_labeled_point(
+                    direct,
+                    label=label,
+                    scope_id=lesson_step.scope_id,
+                )
+            same_branch = [
+                str(point_id)
+                for point_id, meta in (
+                    self.geometry_spec.get("pointMeta") or {}
+                ).items()
+                if isinstance(meta, Mapping)
+                and str(meta.get("label") or "") == label
+                and scope_root(str(meta.get("scopeId") or ""))
+                == scope_root(lesson_step.scope_id)
+                and meta.get("definition")
+                != "endpoint_replacement_construction"
+            ]
+            if len(same_branch) != 1:
+                return None
+            return self._canonical_equivalent_labeled_point(
+                same_branch[0],
+                label=label,
+                scope_id=lesson_step.scope_id,
             )
 
         moving_locus = str(roles_payload.get("moving_line") or "")
         source_ref = geom(source)
         reflected_ref = geom(reflected)
         moving_ref = (
-            self._dynamic_point_ref_for_label(moving, lesson_step.scope_id, moving_locus)
+            str(roles_payload.get("moving_point_ref") or "")
+            or self._dynamic_point_ref_for_label(
+                moving,
+                lesson_step.scope_id,
+                moving_locus,
+            )
             or geom(moving)
         )
         other_ref = geom(other)
@@ -2487,7 +2966,22 @@ class VisualRoleBinderRegistry:
         locus_start = locus_line_endpoint_id(moving, lesson_step.scope_id, "start")
         locus_end = locus_line_endpoint_id(moving, lesson_step.scope_id, "end")
         has_locus = locus_start in self._known_points and locus_end in self._known_points
+        moving_segment = [
+            str(item)
+            for item in roles_payload.get("moving_segment") or ()
+            if str(item)
+        ]
+        moving_segment_refs = [
+            role_geom(label) for label in moving_segment
+        ]
+        has_moving_segment = (
+            len(moving_segment_refs) == 2
+            and all(moving_segment_refs)
+        )
         marker: dict[str, Any] = {
+            "construction_kind": str(
+                roles_payload.get("construction_kind") or ""
+            ),
             "roles": {
                 "source_point": source,
                 "reflected_point": reflected,
@@ -2523,11 +3017,25 @@ class VisualRoleBinderRegistry:
             "path_equality": _student_path_equality(transformed_path, straightened_path),
             "moving_locus": _line_equation_display({"equation": moving_locus}) if moving_locus else "",
             "locus_line": {
-                "from": locus_start,
-                "to": locus_end,
-                "label": _line_equation_display({"equation": moving_locus}) if moving_locus else "",
+                "from": (
+                    moving_segment_refs[0]
+                    if has_moving_segment
+                    else locus_start
+                ),
+                "to": (
+                    moving_segment_refs[1]
+                    if has_moving_segment
+                    else locus_end
+                ),
+                "label": (
+                    ""
+                    if has_moving_segment
+                    else _line_equation_display({"equation": moving_locus})
+                    if moving_locus
+                    else ""
+                ),
             }
-            if has_locus
+            if has_locus or has_moving_segment
             else {},
             "reflected_display": _point_display_from_pair(_student_point_label(reflected), reflected_pair)
             if reflected_pair
@@ -2535,7 +3043,32 @@ class VisualRoleBinderRegistry:
             "minimum_expression": student_math_display(minimum_expr, fullwidth_operators=True)
             if minimum_expr
             else "",
+            "motion_domain": dict(roles_payload.get("motion_domain") or {}),
+            "attainment_point": list(
+                roles_payload.get("attainment_point") or ()
+            ),
         }
+        if (
+            marker["construction_kind"]
+            == "coupled_segment_endpoint_replacement"
+            and has_moving_segment
+        ):
+            marker["roles"]["locus_start_point"] = moving_segment[0]
+            marker["roles"]["locus_end_point"] = moving_segment[1]
+            marker["role_point_refs"][moving_segment[0]] = str(
+                moving_segment_refs[0]
+            )
+            marker["role_point_refs"][moving_segment[1]] = str(
+                moving_segment_refs[1]
+            )
+            marker["coupled_motion"] = {
+                "moving_label": moving,
+                "moving_ref": moving_ref,
+                "segment_start_label": moving_segment[0],
+                "segment_end_label": moving_segment[1],
+                "segment_start": str(moving_segment_refs[0]),
+                "segment_end": str(moving_segment_refs[1]),
+            }
         if linked_square:
             marker["linked_square"] = linked_square
         marker["original_segments"] = [
@@ -2621,6 +3154,8 @@ class VisualRoleBinderRegistry:
                     segment(curve, moving),
                     segment(auxiliary, moving),
                 ),
+                "minimum_segment": segment(curve, auxiliary),
+                "auxiliary_locus_segment": segment(fixed, auxiliary),
                 "weighted_relation": segment(
                     fixed,
                     moving,
@@ -2875,6 +3410,200 @@ class VisualRoleBinderRegistry:
         ):
             return []
         return [marker]
+
+    def _coupled_endpoint_replacement_markers(
+        self,
+        lesson_step: LessonStep,
+        snapshot: ExplanationSnapshot,
+    ) -> list[dict[str, Any]]:
+        """Bind the complete public geometry certificate for endpoint replacement."""
+
+        if (
+            "coupled_segment_endpoint_replacement_path_minimum"
+            not in lesson_step.capability_ids
+            or (
+                lesson_step.visual_unit_ids
+                and "endpoint_replacement" not in lesson_step.visual_unit_ids
+            )
+        ):
+            return []
+        witness = _macro_evidence_for_lesson_step(
+            snapshot,
+            lesson_step,
+            macro_id="coupled_segment_endpoint_replacement_path_minimum",
+        )
+        if witness is None:
+            return []
+        construction = next(
+            (
+                item
+                for item in witness.get("constructions") or ()
+                if isinstance(item, Mapping)
+                and item.get("kind") == "existing_fixed_endpoint_replacement"
+            ),
+            None,
+        )
+        reflection = next(
+            (
+                item
+                for item in witness.get("constructions") or ()
+                if isinstance(item, Mapping)
+                and item.get("kind") == "line_reflection"
+            ),
+            None,
+        )
+        certificate = (
+            construction.get("geometry_certificate")
+            if isinstance(construction, Mapping)
+            else None
+        )
+        roles = certificate.get("roles") if isinstance(certificate, Mapping) else None
+        if not isinstance(roles, Mapping):
+            return []
+        source_step_id = str(witness.get("step_id") or "")
+        student_first_projection = certificate.get("student_first_leg_projection")
+        student_second_projection = certificate.get("student_second_leg_projection")
+        labels = {
+            "anchor": str(roles.get("right_vertex") or ""),
+            "first_vertex": str(roles.get("first_leg_vertex") or ""),
+            "second_vertex": str(roles.get("second_leg_vertex") or ""),
+            "first_leg_moving": str(roles.get("first_leg_moving_point") or ""),
+            "moving": str(roles.get("hypotenuse_moving_point") or ""),
+            "first_projection": str(
+                (student_first_projection or {}).get("label")
+                if isinstance(student_first_projection, Mapping)
+                else ""
+            ),
+            "second_projection": str(
+                (student_second_projection or {}).get("label")
+                if isinstance(student_second_projection, Mapping)
+                else ""
+            ),
+            "other_fixed": str(
+                (reflection or {}).get("other_fixed_point")
+                if isinstance(reflection, Mapping)
+                else ""
+            ),
+        }
+        if any(not label for label in labels.values()):
+            raise ValueError(
+                "visual_endpoint_replacement_roles_incomplete: "
+                f"step={source_step_id}, roles={labels}"
+            )
+
+        def semantic_ref(label: str) -> str:
+            point_ref = self.index.geometry_point_name(label, lesson_step.scope_id)
+            if not point_ref:
+                same_branch = [
+                    str(point_id)
+                    for point_id, meta in (
+                        self.geometry_spec.get("pointMeta") or {}
+                    ).items()
+                    if isinstance(meta, Mapping)
+                    and str(meta.get("label") or "") == label
+                    and scope_root(str(meta.get("scopeId") or ""))
+                    == scope_root(lesson_step.scope_id)
+                    and meta.get("definition")
+                    != "endpoint_replacement_construction"
+                ]
+                if len(same_branch) == 1:
+                    point_ref = same_branch[0]
+            if not point_ref:
+                raise ValueError(
+                    "visual_endpoint_replacement_semantic_point_missing: "
+                    f"step={source_step_id}, label={label}"
+                )
+            return self._canonical_equivalent_labeled_point(
+                point_ref,
+                label=label,
+                scope_id=lesson_step.scope_id,
+            )
+
+        def construction_ref(role: str) -> str:
+            matches = [
+                str(point_id)
+                for point_id, meta in (
+                    self.geometry_spec.get("pointMeta") or {}
+                ).items()
+                if isinstance(meta, Mapping)
+                and meta.get("definition") == "endpoint_replacement_construction"
+                and str(meta.get("sourceStepId") or "") == source_step_id
+                and str(meta.get("constructionRole") or "") == role
+            ]
+            if len(matches) != 1:
+                raise ValueError(
+                    "visual_endpoint_replacement_construction_point_invalid: "
+                    f"step={source_step_id}, role={role}, refs={matches}"
+                )
+            return matches[0]
+
+        refs = {
+            "anchor": semantic_ref(labels["anchor"]),
+            "first_vertex": semantic_ref(labels["first_vertex"]),
+            "second_vertex": semantic_ref(labels["second_vertex"]),
+            "first_leg_moving": construction_ref("first_leg_moving_point"),
+            "moving": construction_ref("hypotenuse_moving_point"),
+            "first_projection": construction_ref("first_leg_projection"),
+            "second_projection": construction_ref("second_leg_projection"),
+            "other_fixed": semantic_ref(labels["other_fixed"]),
+        }
+        return [
+            {
+                "kind": "coupled_endpoint_replacement",
+                "source_step_id": source_step_id,
+                "labels": labels,
+                "refs": refs,
+                "frame_triangle": [
+                    refs["anchor"],
+                    refs["first_vertex"],
+                    refs["second_vertex"],
+                ],
+                "projection_rectangle": [
+                    refs["anchor"],
+                    refs["first_projection"],
+                    refs["moving"],
+                    refs["second_projection"],
+                ],
+                "equivalent_segments": [
+                    {
+                        "from": refs["first_leg_moving"],
+                        "to": refs["moving"],
+                        "label": (
+                            f"{labels['first_leg_moving']}{labels['moving']}"
+                        ),
+                    },
+                    {
+                        "from": refs["anchor"],
+                        "to": refs["moving"],
+                        "label": f"{labels['anchor']}{labels['moving']}",
+                    },
+                ],
+                "common_path_segment": {
+                    "from": refs["moving"],
+                    "to": refs["other_fixed"],
+                    "label": f"{labels['moving']}{labels['other_fixed']}",
+                },
+                "motion_domain": {
+                    "min": "1/2",
+                    "max": "1",
+                    "default": "3/4",
+                },
+                "coupled_motion": {
+                    "moving_label": labels["moving"],
+                    "dependent_label": labels["first_leg_moving"],
+                    "moving_ref": refs["moving"],
+                    "segment_start": refs["first_vertex"],
+                    "segment_end": refs["second_vertex"],
+                    "anchor": refs["anchor"],
+                    "first_leg_moving": refs["first_leg_moving"],
+                    "first_projection": refs["first_projection"],
+                    "second_projection": refs["second_projection"],
+                },
+                "equivalence_label": str(
+                    (construction or {}).get("segment_equality") or ""
+                ),
+            }
+        ]
 
 
 def _handle_tail(handle: str) -> str:
@@ -3313,6 +4042,11 @@ def _point_labels_from_atomic_path_roles(payload: dict[str, Any]) -> set[str]:
         value = str(payload.get(key) or "")
         if value:
             labels.add(value)
+    labels.update(
+        str(value)
+        for value in payload.get("moving_segment") or ()
+        if str(value)
+    )
     for key in ("transformed_path", "straightened_path", "segment_equality", "minimum_segment"):
         labels.update(_capital_point_labels(str(payload.get(key) or "")))
     return labels
@@ -3381,6 +4115,53 @@ def _path_norm(value: str) -> str:
 
 def _sympy_pair(value: Any) -> tuple[sp.Expr, sp.Expr] | None:
     return _shared_sympy_pair(value)
+
+
+def _semantic_point_label(item: Mapping[str, Any]) -> str:
+    value = item.get("value")
+    if isinstance(value, Mapping):
+        label = str(value.get("name") or "").strip()
+        if re.fullmatch(r"[A-Z](?:[0-9]+|[′']+)?", label):
+            return label
+    display = str(item.get("display") or "").strip()
+    if re.fullmatch(r"[A-Z](?:[0-9]+|[′']+)?", display):
+        return display
+    ref = item.get("ref")
+    if isinstance(ref, Mapping) and ref.get("kind") == "source":
+        label = str(ref.get("ref") or "").rsplit(":", 1)[-1]
+        if re.fullmatch(r"[A-Z](?:[0-9]+|[′']+)?", label):
+            return label
+    return ""
+
+
+def _equations_equivalent(left: str, right: str) -> bool:
+    def residual(value: str) -> sp.Expr | None:
+        try:
+            expression = sp.sympify(value)
+        except Exception:
+            return None
+        if isinstance(expression, sp.Equality):
+            return sp.expand(expression.lhs - expression.rhs)
+        return sp.expand(expression)
+
+    left_residual = residual(left)
+    right_residual = residual(right)
+    if left_residual is None or right_residual is None:
+        return False
+    if sp.simplify(left_residual - right_residual) == 0:
+        return True
+    if sp.simplify(left_residual + right_residual) == 0:
+        return True
+    try:
+        ratio = sp.simplify(left_residual / right_residual)
+    except Exception:
+        return False
+    return bool(ratio != 0 and not ratio.free_symbols)
+
+
+def _indexed_candidate_label(label: str, index: int) -> str:
+    subscript_digits = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
+    return f"{label}{str(index).translate(subscript_digits)}"
 
 
 def _fresh_projection_label(used_labels: set[str]) -> str:
@@ -3965,16 +4746,48 @@ def _angle_equalities_from_texts(text_parts: list[str]) -> list[tuple[str, str]]
     out: list[tuple[str, str]] = []
     seen: set[tuple[str, str]] = set()
     for text in text_parts:
-        for left, right in re.findall(
-            r"∠\s*([A-Z]{3})\s*[=＝]\s*∠\s*([A-Z]{3})",
-            text,
-        ):
-            item = (left, right)
-            if item in seen:
-                continue
-            seen.add(item)
-            out.append(item)
+        chains = re.findall(
+            r"∠\s*[A-Z]{3}(?:\s*[=＝]\s*∠\s*[A-Z]{3})+",
+            str(text),
+        )
+        for chain in chains:
+            angles = re.findall(r"∠\s*([A-Z]{3})", chain)
+            pairs = list(zip(angles, angles[1:]))
+            if len(angles) > 2:
+                pairs.append((angles[0], angles[-1]))
+            for item in pairs:
+                if item in seen:
+                    continue
+                seen.add(item)
+                out.append(item)
     return out
+
+
+def _select_axis_intercept_equality(
+    equalities: list[tuple[str, str]],
+    *,
+    result_label: str,
+) -> tuple[str, str] | None:
+    """Select the transitive equality that contains the newly found intercept.
+
+    Chained student derivations often read ``∠1＝∠2＝∠3``.  The first adjacent
+    pair can describe only collinearity, while the first-to-last pair is the
+    pair of right triangles used to compute the intercept.  Select by the
+    bound result label and the single shared vertex, never by point letters.
+    """
+
+    if not result_label:
+        return None
+    candidates: list[tuple[str, str]] = []
+    for left, right in equalities:
+        if len(left) != 3 or len(right) != 3:
+            continue
+        if (result_label in left) == (result_label in right):
+            continue
+        if len(set(left) & set(right)) != 1:
+            continue
+        candidates.append((left, right))
+    return candidates[0] if candidates else None
 
 
 def _axis_arm(vertex: str, endpoint: str, origin_labels: frozenset[str] | set[str]) -> bool:

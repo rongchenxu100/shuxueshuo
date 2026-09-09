@@ -97,6 +97,9 @@ SPEC = RecipeSpecSource(
                 {
                     "component": "EquivalentSegmentMarker",
                     "context_roles": ["input_curve"],
+                    "local_interaction": {
+                        "kind": "coupled_segment_motion",
+                    },
                     "requires_independent_lesson_step": True,
                 },
             ),
@@ -104,6 +107,9 @@ SPEC = RecipeSpecSource(
                 {
                     "component": "AtomicPathMinimumMarker",
                     "context_roles": ["input_curve"],
+                    "local_interaction": {
+                        "kind": "coupled_segment_motion",
+                    },
                     "requires_independent_lesson_step": True,
                 },
             ),

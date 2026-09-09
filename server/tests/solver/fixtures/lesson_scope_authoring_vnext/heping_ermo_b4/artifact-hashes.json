@@ -8,22 +8,22 @@
   },
   "semantic_hashes": {
     "snapshot": "b8222c8263523b25070879462ae5e4a860f34aa35d2bd605490c6f8617a2f6e4",
-    "prompt": "acb02b69c5ec6bc38a45e52717774743399ef884362e28de874ab845374bd3f6",
-    "annotated_plan": "38508730e5d0f0d7211e707653487ce6acaede185e63b85bc8f452e59345cf57",
+    "prompt": "a4826d362374ffacf405a4188c7a63b4d516a5bd67bba8c61272390b027fa257",
+    "annotated_plan": "af480eb61e22d46cfe0a19c49fefeab42ea738cd59652482aa40ca7e70c1ea71",
     "approved_lesson_ir": "ade5cdafe23ab9e621e4b9e28cd2422f9fde89339ec4b3ca626d57dfe3628af5",
-    "deterministic_lesson_ir": "9dcc09a2e6c2923b2450d8739929ae0ddbfdaf5597a1c90de51d52045b1c16f4"
+    "deterministic_lesson_ir": "78c0d73da6115da6527a4ce42135292c3f38ac3091f16439a09fd3218e832d3d"
   },
   "fixture_file_hashes": {
     "approved-lesson-ir.json": "0d5388f3a7b310ddfc3304820026ff27a29d9311362ae9c39019ae2d529fd273",
-    "deterministic-lesson-ir.json": "e622b6e3feeb3137f500a56450eea9af8266c4c3c3818226c7347830acbdb8c3",
-    "lesson-assembly-authority.json": "a1421d4004a93229be68200ecaf9f3bdf848a455fcac6fb428916f409fe9328f",
-    "visual-step-ir.json": "0fc8c3de7e744da95e80bb30116980d70debf8504affaf48ca2c2aeadf80a737",
-    "visual-state-authority.json": "52e84ad38520b5153a4f99039ab0f06b716090f4c48ad6de418567af0b73987e"
+    "deterministic-lesson-ir.json": "a746e2f99ff59c9c3a54fa134bca0319300c3797c16a82e58cde9e32cda7e0a2",
+    "lesson-assembly-authority.json": "8e656209ef524bca1f8ade86c24a68f9bb5f550d8b2d736dd7b7a904ff2d6630",
+    "visual-step-ir.json": "46bc5d1351cce731f0dd13f7c014d9b7d0f182a66209ed04da0db61a8c2540a3",
+    "visual-state-authority.json": "33cec30db6e389ede3d36c0ce13da8edcdc8ac0cd23b7ea3b13452bc56d635a0"
   },
   "compiled_artifact_hashes": {
-    "geometry-spec.json": "821764394d06f2545a80034b8bdb30a009b9590f897128f79214056427e939ad",
-    "step-decorations.json": "160f7cbc9a3e9bc95f09a0a6d143fe0e2654e7a1e0a29fba81d80cfdebd7be30",
+    "geometry-spec.json": "6e7b28ef9d26062918766f53360a4c2548213e8e0fa0ec150c38f48614a5bd67",
+    "step-decorations.json": "2f19030c06aad23f38211d80d5ce28cf2ed22c3e8c99811db8dd8188e90ba504",
     "lesson-data.json": "04a164ab2be1d56112cceeb0437610c81e6c6e6cc276ac9648d7b6b900eb0dae",
-    "lesson.html": "0b9576573b9d3316efe8155eb61d405035b11d531fa2dbb1f943fd83df21c712"
+    "lesson.html": "94b8350a73e2dc89334831910914a79f1dd952ffe44eff8ff71e42e6f0d09b63"
   }
 }

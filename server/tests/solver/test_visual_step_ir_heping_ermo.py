@@ -462,6 +462,93 @@ def test_semantic_viewport_ignores_unbounded_geometry_extent() -> None:
     ) == baseline
 
 
+def test_semantic_viewport_fits_focused_parabola_landmarks() -> None:
+    source = ({"kind": "functional_step", "step_id": "s"},)
+    curve = VisualObject(
+        visual_object_id="curve",
+        component="Parabola",
+        role="curve:parabola",
+        source_refs=source,
+        geometry_refs=("curve",),
+        state="focus",
+        component_payload={"curveId": "curve"},
+    )
+    point = VisualObject(
+        visual_object_id="point",
+        component="Point",
+        role="point:A",
+        source_refs=source,
+        geometry_refs=("A",),
+        state="context",
+        component_payload={"at": "A"},
+    )
+    viewport = SemanticViewportResolver().resolve(
+        objects=(curve, point),
+        geometry_spec={
+            "fixedPoints": {"A": [-1, 0]},
+            "movingPoints": {},
+            "curves": [
+                {"id": "curve", "type": "parabola", "a": -1, "b": 4, "c": 5}
+            ],
+        },
+        local_parameters=(),
+        parameter_values={},
+    )
+
+    for x, y in ((-1, 0), (0, 5), (2, 9), (5, 0)):
+        assert viewport["minX"] <= x <= viewport["maxX"]
+        assert viewport["minY"] <= y <= viewport["maxY"]
+
+
+def test_semantic_viewport_uses_curve_through_focused_point_not_unrelated_context() -> None:
+    source = ({"kind": "functional_step", "step_id": "s"},)
+    objects = (
+        VisualObject(
+            visual_object_id="curve",
+            component="Parabola",
+            role="curve:parabola",
+            source_refs=source,
+            geometry_refs=("curve",),
+            state="context",
+            component_payload={"curveId": "curve"},
+        ),
+        VisualObject(
+            visual_object_id="intercept",
+            component="Point",
+            role="point:B",
+            source_refs=source,
+            geometry_refs=("B",),
+            state="focus",
+            component_payload={"at": "B"},
+        ),
+        VisualObject(
+            visual_object_id="unrelated",
+            component="Point",
+            role="point:D",
+            source_refs=source,
+            geometry_refs=("D",),
+            state="context",
+            component_payload={"at": "D"},
+        ),
+    )
+    viewport = SemanticViewportResolver().resolve(
+        objects=objects,
+        geometry_spec={
+            "fixedPoints": {"B": [3, 0], "D": [4, -20]},
+            "movingPoints": {},
+            "curves": [
+                {"id": "curve", "type": "parabola", "a": -1, "b": 2, "c": 3}
+            ],
+        },
+        local_parameters=(),
+        parameter_values={},
+    )
+
+    assert viewport["minX"] <= -1 <= viewport["maxX"]
+    assert viewport["minY"] <= 4 <= viewport["maxY"]
+    assert viewport["minY"] > -20
+
+
 def test_b4v_macro_units_are_two_lesson_steps_with_one_complete_frame_each(
     heping_ermo_page: HepingErmoPage,
 ) -> None:
@@ -700,7 +787,12 @@ def test_b4v_compiler_visually_distinguishes_focus_and_context(
     assert point_a["showLabel"] is False
     assert point_b["color"] == "#64748b"
     assert point_b["opacity"] == pytest.approx(0.58)
-    assert point_b["showLabel"] is False
+    assert "showLabel" not in point_b
+    assert not any(
+        item.get("type") == "coordinateLabel"
+        and item.get("at") == "point_B_i"
+        for item in compiled_frame["add"]
+    )
 
 
 def _visual_step_for_source(page: HepingErmoPage, source_step_id: str) -> VisualStep:

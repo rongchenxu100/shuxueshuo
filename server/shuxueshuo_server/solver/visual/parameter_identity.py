@@ -5,14 +5,92 @@ from __future__ import annotations
 from typing import Any, Mapping
 import re
 
+import sympy as sp
+
 from shuxueshuo_server.solver.explanation.models import (
     ExplanationSnapshot,
+    TeachingSource,
     iter_teaching_sources,
     teaching_source_owners,
 )
 
 
 ParameterizedPointContext = tuple[str, str]
+
+
+def verified_parameter_values_from_source(
+    source: TeachingSource,
+) -> dict[str, str]:
+    """Return parameter values explicitly certified by one runtime source.
+
+    Atomic methods usually publish a ``ParameterValue`` output.  An atomic
+    macro can close a point and a curve together and expose the same verified
+    value in a ``parameter_solution`` calculation instead.  Both forms are
+    runtime evidence and must advance the visual state identically.
+    """
+
+    values: dict[str, str] = {}
+    input_parameter_names = {
+        text
+        for items in source.inputs.values()
+        for item in items
+        if isinstance(item, Mapping)
+        and str(item.get("runtime_type") or "") in {"ParameterValue", "Symbol"}
+        for candidate in (item.get("value"), item.get("display"))
+        if re.fullmatch(
+            r"[A-Za-z][A-Za-z0-9_]*",
+            text := str(candidate or "").strip(),
+        )
+    }
+
+    def publish(name: Any, value: Any) -> None:
+        normalized_name = str(name or "").strip()
+        normalized_value = str(value or "").strip()
+        if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", normalized_name):
+            return
+        if not normalized_value:
+            return
+        existing = values.get(normalized_name)
+        if existing is not None and existing != normalized_value:
+            try:
+                equivalent = (
+                    sp.simplify(
+                        sp.sympify(existing) - sp.sympify(normalized_value)
+                    )
+                    == 0
+                )
+            except Exception:
+                equivalent = False
+            if not equivalent:
+                raise ValueError(
+                    "visual_verified_parameter_value_conflict: "
+                    f"step={source.source_step_id}, parameter={normalized_name}, "
+                    f"values={[existing, normalized_value]}"
+                )
+            return
+        values[normalized_name] = normalized_value
+
+    for return_name, output in source.outputs.items():
+        if str(output.get("runtime_type") or "") != "ParameterValue":
+            continue
+        name = str(source.output_targets.get(return_name) or "")
+        if not name:
+            for candidate in (output.get("display"), output.get("value")):
+                text = str(candidate or "").strip()
+                if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", text):
+                    name = text
+                    break
+        if not name and len(input_parameter_names) == 1:
+            name = next(iter(input_parameter_names))
+        publish(name, output.get("value"))
+
+    for calculation in source.calculations:
+        if not isinstance(calculation, Mapping):
+            continue
+        if str(calculation.get("kind") or "") != "parameter_solution":
+            continue
+        publish(calculation.get("parameter"), calculation.get("value"))
+    return values
 
 
 def value_depends_on_symbol(value: Any, symbol: str) -> bool:

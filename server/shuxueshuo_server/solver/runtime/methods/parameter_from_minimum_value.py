@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import TeachingUnitSpec
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
 
 from shuxueshuo_server.solver.contracts import SymbolicClosureSpec
 from shuxueshuo_server.solver.runtime.quadratic_constraint_solver import (
@@ -159,6 +159,9 @@ SPEC = MethodSpecSource(
         },
         role_binder_id="parameter_from_minimum_value",
     ),
-    no_new_visual_reason="本步骤只在已验证的最小值表达式上求参数，不产生新的几何对象。",
+    visual=MethodVisualSpec(
+        role_schema={},
+        continuation_policy="preserve_prior_path_scene",
+    ),
     symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

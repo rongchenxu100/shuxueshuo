@@ -1,7 +1,7 @@
 {
   "schema_version": "lesson-capability-artifact-hashes/v1",
   "source_batch": "f5-f5c0-public-capability-review",
-  "registry_fingerprint": "5c03359216dbdd60e4a0536a7db6a9a91adf9c3b08ed46ed6dd175e7f74225f5",
+  "registry_fingerprint": "855559dc97c8a75db7d8d1aad3096d85e480c6dc400d0170e225c92f41fff215",
   "summary": {
     "public_capability_count": 29,
     "public_function_count": 23,
@@ -17,7 +17,7 @@
       "snapshot_hash": "b8222c8263523b25070879462ae5e4a860f34aa35d2bd605490c6f8617a2f6e4",
       "annotated_plan_hash": "af480eb61e22d46cfe0a19c49fefeab42ea738cd59652482aa40ca7e70c1ea71",
       "lesson_ir_hash": "78c0d73da6115da6527a4ce42135292c3f38ac3091f16439a09fd3218e832d3d",
-      "visual_step_ir_hash": "16ce69b5a1ab2c0b0b27e767c1fd1529849b3709d70e52655d985f71dab47bb8",
+      "visual_step_ir_hash": "d1b3ec0cc94b4f45e8ae89fa49415ab954341761b148434e00987fb052be59b7",
       "source_step_count": 12,
       "lesson_step_count": 13,
       "visual_frame_count": 13
@@ -27,17 +27,17 @@
       "snapshot_hash": "6937d2f3eb5d1655f0c51dcad6f2234f426596c9e2d7e49201459af0c17eaeb2",
       "annotated_plan_hash": "213c08b920f71128b392c2ebd7c925dac8763cafe443d2623f4f9494ae2a6e8f",
       "lesson_ir_hash": "4b3475301e2305670a2d02b4fda8b2346200ce9a0763690bbbefa2e98951b54c",
-      "visual_step_ir_hash": "ae9c6dd002df3a87f9602e508adee747a2ca7f78f9811c48dcab9be4f9c3a5c5",
+      "visual_step_ir_hash": "cc72e8d86efd372e68e5ed9c2c8d65d207724637ae251d2897be8a9aa509aa70",
       "source_step_count": 11,
       "lesson_step_count": 12,
       "visual_frame_count": 12
     },
     {
       "problem_id": "tj-2026-hexi-yimo-25",
-      "snapshot_hash": "5b3c7fe6513a6637cfbd469654e8d32b4a5ceea8eb32dfc5d3c09969db660f38",
-      "annotated_plan_hash": "cd7cfc32cc941d8f1b41e185449f233b1492b08c2a65cdcaf943e3e268f47908",
-      "lesson_ir_hash": "47b0d6876619651052b59be7db1c0fc887e476fcf3d583a838dc41dffccc2f1d",
-      "visual_step_ir_hash": "bc93c4d22d56bf0c17d93d7f3f93863bbfba02f61c962cc915c91bcf79ce47c8",
+      "snapshot_hash": "0404a6f7cbd443f094ae8bd0abc3bae3581b0cb1c96974cbeeeda4a1f872c04c",
+      "annotated_plan_hash": "ffb66c54a48b1adb7c76385f439fc33d4713be018966238c350bbb2337cd074c",
+      "lesson_ir_hash": "1bdd4587e2d4fc04f8748eb780c3e3180c48afcf4e921cc7c645496a88a11999",
+      "visual_step_ir_hash": "3500d2724fa987cfdadf4c4d1d503f3b575bcf1d8a0e4598afe2c0210da17d5d",
       "source_step_count": 10,
       "lesson_step_count": 12,
       "visual_frame_count": 12
@@ -47,17 +47,17 @@
       "snapshot_hash": "25058175b1fcf7a4048c76f4eac22576e2ca2f6efe027191408cfdb9bc54f7e6",
       "annotated_plan_hash": "90469d8b2461450d7fd623b81ca68c82962d61e1248c3b93681a8cc9bfd1d6fc",
       "lesson_ir_hash": "1223e7f13e7511e53ff6ff7cbc7d652c046b24fd4cd3f1bb560e225af252096f",
-      "visual_step_ir_hash": "cde2620694ae847eadd07aa8125c36446ae7d2e9aeb690b7672fa0b78fbd4d05",
+      "visual_step_ir_hash": "d4a64d681a1c57fb89a4ce2fdd8b52a692853cc4535c05d94f88827614c8df65",
       "source_step_count": 12,
       "lesson_step_count": 14,
       "visual_frame_count": 14
     },
     {
       "problem_id": "tj-2026-xiqing-yimo-25",
-      "snapshot_hash": "0b93780d567ee968274bcdf1463ed07ad0d472e3b1c1de602ae56c859cded21a",
-      "annotated_plan_hash": "54c6b1fd4a82bad3201fdeb7e30345d89579f329f522abc18438ab825eec9b87",
-      "lesson_ir_hash": "e6d66fcb0529b642f9729b11745ee599ad417dc5e299fc215ccf5aeb4bbefab0",
-      "visual_step_ir_hash": "154f07744f42843bb6ba300bbd7334eb858f8432abb46d1cec771b31cff14f98",
+      "snapshot_hash": "eca2b66051db8272fdae1081b5c72c4b3282fb7ebd66315b1eb86ab01af5cf3d",
+      "annotated_plan_hash": "9cd66eba844d12b85d66b87ad19f0f4a2411b71fc26ab93dea2dbfd58046be90",
+      "lesson_ir_hash": "4e3f3871ad4d7ef9357929e4b27571a637632263e284612f58994a06e3cc39f5",
+      "visual_step_ir_hash": "b47b366551bde028cd581b1af555a87ac8762791810ad93fa98fdca604e69890",
       "source_step_count": 9,
       "lesson_step_count": 10,
       "visual_frame_count": 10
@@ -79,7 +79,7 @@
       "snapshot_hash": "cced031fbfe90289b1a2063f2799fbd603b93660ccd667fe401796522507986e",
       "annotated_plan_hash": "a484ec58761b8ecc80b0b14a03eea64357c614335a24dea484af8b55b988fc4a",
       "lesson_ir_hash": "aec54ad92ca2787707f3f0141a68c6faa611763f6da5ff847e0609bfd0fb07b4",
-      "visual_step_ir_hash": "deb7e65a73bae07f8c086625f88aee05410fc4e3df0a24d82196d7cfcfa0cf08",
+      "visual_step_ir_hash": "3cb29aff3298ac321033e8f000620305388b6ed7e3c18a7883a7397df7861403",
       "source_step_count": 1,
       "lesson_step_count": 1,
       "visual_frame_count": 1
@@ -89,7 +89,7 @@
       "snapshot_hash": "7cb1cc72d436ada218de0dddac971feb98b38d7ad6869d9286f0b9dd8b369734",
       "annotated_plan_hash": "1e8f2b7a5d4e6a53f2b7680ca09edc3d64152dd11ca04801cce3a0808cb1e0f6",
       "lesson_ir_hash": "d98b5900d159d2de08476fc0e21a123eefca6682e44b93c8ecf49309bae9aad2",
-      "visual_step_ir_hash": "9fc3774e022e84633b4016e60e2daa934a1105f990eeef2ad7693a04a4f53e67",
+      "visual_step_ir_hash": "91272081f1e8b5d3265be3273f01a110e9bcd49d3d960b96fb2faae4cdd11e82",
       "source_step_count": 1,
       "lesson_step_count": 1,
       "visual_frame_count": 1

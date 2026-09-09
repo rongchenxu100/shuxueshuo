@@ -45,7 +45,7 @@ B3 = (
     / "server/tests/solver/fixtures/lesson_scope_authoring_vnext/heping_ermo_b3"
 )
 REVIEWED_PROMPT_HASH = (
-    "acb02b69c5ec6bc38a45e52717774743399ef884362e28de874ab845374bd3f6"
+    "a4826d362374ffacf405a4188c7a63b4d516a5bd67bba8c61272390b027fa257"
 )
 
 

@@ -624,8 +624,14 @@
         case "axisOfSymmetry": {
           var cidAx = elem.curveId || elem.curve;
           var cvAx = state.curves && cidAx ? state.curves[cidAx] : null;
-          if (!cvAx || cvAx.type !== "parabola" || Math.abs(cvAx.a) < 1e-12) return "";
-          var xSym = -cvAx.b / (2 * cvAx.a);
+          var xSym;
+          if (elem.xExpr != null) {
+            xSym = GE.evalExpr(String(elem.xExpr), state.env || {});
+            if (!Number.isFinite(xSym)) return "";
+          } else {
+            if (!cvAx || cvAx.type !== "parabola" || Math.abs(cvAx.a) < 1e-12) return "";
+            xSym = -cvAx.b / (2 * cvAx.a);
+          }
           var pLo = { x: xSym, y: domain.minY };
           var pHi = { x: xSym, y: domain.maxY };
           return lineSvg(pLo, pHi, elem.color || "#64748b", elem.width != null ? elem.width : 1.6, elem.dash || "10 7", { opacity: elem.opacity });

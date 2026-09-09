@@ -447,10 +447,13 @@ def _json_ready_hint(raw: dict[str, Any]) -> dict[str, Any]:
 
 
 def _json_ready_visual(visual: MethodVisualSpec) -> dict[str, Any]:
-    return {
+    payload = {
         "role_schema": dict(visual.role_schema),
         "scene_templates": [dict(item) for item in visual.scene_templates],
         "annotation_templates": [dict(item) for item in visual.annotation_templates],
         "timeline_templates": [dict(item) for item in visual.timeline_templates],
         "role_binder_id": visual.role_binder_id,
     }
+    if visual.continuation_policy:
+        payload["continuation_policy"] = visual.continuation_policy
+    return payload

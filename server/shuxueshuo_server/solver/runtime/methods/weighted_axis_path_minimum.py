@@ -269,7 +269,7 @@ class WeightedAxisPathMinimumMethod:
                         parameter=parameter,
                         parameter_constraint=parameter_constraint,
                     ),
-                    "取等域已由完整表达式或分段边界显式表示",
+                    "只在取等点属于动点定义域时发布最小值",
                 ),
                 _check(
                     "straightening_equality_is_reachable",
@@ -285,8 +285,8 @@ class WeightedAxisPathMinimumMethod:
                 _step(
                     self.method_id,
                     "加权轴上路径最值",
-                    "求完整最小值表达式",
-                    "在内部构造与权重匹配的辅助三角形，拉直路径并验证取等状态覆盖声明定义域。",
+                    "求可取得的最小值表达式",
+                    "在内部构造与权重匹配的辅助三角形，拉直路径并验证取等点属于动点定义域。",
                     (
                         f"权重={evidence['weight']}，构造关系已验证"
                     ),
@@ -410,17 +410,9 @@ def _evaluate_orientation(
     ) = _minimum_with_dynamic_domain(
         interior_minimum=interior_minimum,
         dynamic_expression=dynamic_expression,
-        curve_point=curve_point,
-        fixed_point=fixed_point,
-        moving_point=moving_point,
-        dynamic_parameter=dynamic_parameter,
         target_constraint=dynamic_constraint,
         parameter=parameter,
         parameter_constraint=parameter_constraint,
-        weight=sp.sympify(
-            transform.outputs["path_transformation"].value["weight"]
-        ),
-        kernel=kernel,
     )
     return _WeightedOrientationCandidate(
         orientation_sign=orientation_sign,
@@ -825,22 +817,17 @@ def _minimum_with_dynamic_domain(
     *,
     interior_minimum: sp.Expr,
     dynamic_expression: sp.Expr,
-    curve_point: Point,
-    fixed_point: Point,
-    moving_point: Point,
-    dynamic_parameter: sp.Symbol,
     target_constraint: dict[str, sp.Expr | str],
     parameter: sp.Symbol,
     parameter_constraint: dict[str, sp.Expr | str],
-    weight: sp.Expr,
-    kernel: SympyKernel,
 ) -> tuple[sp.Expr, sp.Expr, sp.Expr | None]:
-    """Represent an interior foot and a possible axis-boundary branch.
+    """Represent only minimum values that are attained in the moving domain.
 
     A line-distance calculation is valid only while its perpendicular foot
-    belongs to the declared moving-point ray.  When that condition depends on
-    the primary parameter, close the one-dimensional convex objective with
-    the ray's declared lower endpoint and publish both verified branches.
+    belongs to the declared moving-point ray.  For a strict lower-bound domain,
+    the excluded endpoint may determine an infimum but can never determine a
+    minimum.  Keep the interior branch guarded by its attainment condition and
+    do not publish the endpoint value as a minimum branch.
     """
 
     if str(target_constraint.get("operator", "")) != ">":
@@ -904,21 +891,12 @@ def _minimum_with_dynamic_domain(
             },
             repair_action="choose_applicable_weighted_path_capability",
         )
-    boundary_point = tuple(
-        sp.simplify(sp.sympify(item).subs(dynamic_parameter, lower))
-        for item in moving_point
-    )
-    boundary_minimum = sp.simplify(
-        weight * kernel.distance(curve_point, boundary_point)
-        + kernel.distance(fixed_point, boundary_point)
-    )
     return (
         sp.Piecewise(
             (sp.simplify(interior_minimum), attainment_condition),
-            (boundary_minimum, True),
         ),
         attainment_condition,
-        boundary_minimum,
+        None,
     )
 
 
@@ -983,11 +961,18 @@ def _constraint_branch_is_represented(
     parameter: sp.Symbol,
     parameter_constraint: dict[str, sp.Expr | str],
 ) -> bool:
-    del target_constraint, parameter, parameter_constraint
+    del parameter, parameter_constraint
     if candidate.attainment_condition is sp.S.true:
         return (
             candidate.boundary_minimum_expression is None
             and not isinstance(candidate.minimum_expression, sp.Piecewise)
+        )
+    if str(target_constraint.get("operator", "")) == ">":
+        return (
+            candidate.boundary_minimum_expression is None
+            and candidate.attainment_condition is not sp.S.false
+            and isinstance(candidate.minimum_expression, sp.Piecewise)
+            and len(candidate.minimum_expression.args) == 1
         )
     return (
         candidate.boundary_minimum_expression is not None
@@ -1002,8 +987,9 @@ SPEC = MethodSpecSource(
     summary=(
         "Given a two-term weighted path with one shared axis moving point, "
         "resolve the registered auxiliary-triangle geometry internally, prove "
-        "that the straightening equality state is reachable in the declared "
-        "domains, and return only the minimum expression."
+        "where the straightening equality state is reachable in the declared "
+        "moving domain, and return the minimum expression only on those "
+        "attained parameter branches."
     ),
     solves=("derive_weighted_axis_path_minimum",),
     inputs={
@@ -1048,8 +1034,8 @@ SPEC = MethodSpecSource(
         "the primary and dynamic parameter domains are explicit",
     ),
     postconditions=(
-        "minimum_expression equals the source weighted path minimum",
-        "the selected auxiliary-ray foot and original moving point make equality reachable",
+        "minimum_expression contains only parameter branches where the source weighted path minimum is attained",
+        "every published branch has a selected auxiliary-ray foot and original moving point that make equality reachable",
     ),
 )
 

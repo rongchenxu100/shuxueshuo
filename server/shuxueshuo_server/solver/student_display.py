@@ -162,6 +162,11 @@ def _structured_math_display(
     if isinstance(value, sp.Piecewise):
         branches: list[str] = []
         for expression, condition in value.args:
+            # A missing Piecewise default is SymPy's representation of an
+            # expression that is undefined outside its guarded domain.  It is
+            # not a mathematical branch and must never become student text.
+            if expression is sp.nan:
+                continue
             expression_text = _plain_sympy_display(
                 expression,
                 fullwidth_operators=fullwidth_operators,

@@ -16,9 +16,8 @@ SPEC = RecipeSpecSource(
     title="加权轴上路径最值",
     summary=(
         "Resolve a typed two-term weighted path, build the registered internal "
-        "right triangle, straighten the linked path, and return its complete "
-        "minimum expression with domain-boundary branches represented inside "
-        "the expression."
+        "right triangle, straighten the linked path, and return only minimum "
+        "branches whose equality state is attained in the moving domain."
     ),
     method_sequence=("weighted_axis_path_minimum_kernel",),
     execution_strategy="weighted_axis_path_minimum",
@@ -46,21 +45,24 @@ SPEC = RecipeSpecSource(
             ),
             TeachingUnitSpec(
                 unit_key="weighted_axis_path_minimum/domain_minimum",
-                title_template="作垂线构造直角三角形求路径最小值",
+                title_template="拉直折线求路径最小值",
                 nav_title_template="几何求最值",
-                goal_template="把普通折线拉直，再作轴上垂线构造特殊直角三角形，逐段计算最短长度并说明边界。",
+                goal_template="把普通折线拉直，由图中的最短路径直接得到最小值，并说明取等条件。",
                 derive_templates=(
                     ("∵", "辅助点的轨迹为 {auxiliary_locus}"),
                     ("∴", "{minimum_reason}"),
                     ("∵", "{domain_condition}"),
                     ("∴", "完整最小值为 {minimum_expression}"),
                 ),
-                box_templates=("最小值为 {minimum_expression}",),
+                box_templates=("{attained_minimum_conclusion}",),
                 role_schema={
                     "auxiliary_locus": "辅助点的 verified 合法轨迹。",
                     "minimum_reason": "拉直折线得到的内部最短距离。",
                     "domain_condition": "取等点与边界分支的 verified 定义域说明。",
-                    "minimum_expression": "覆盖合法域的完整最小值表达式。",
+                    "minimum_expression": "仅包含能够实际取到的最小值分支。",
+                    "attainment_condition": "最短路径取等时参数必须满足的条件。",
+                    "attained_minimum_expression": "合法取等分支上的最小值表达式。",
+                    "attained_minimum_conclusion": "按取等条件整理后的学生结论。",
                 },
                 role_binder_id="weighted_axis_path_minimum",
             ),

@@ -1,6 +1,6 @@
 {
   "schema_version": "lesson-capability-coverage/v1",
-  "registry_fingerprint": "5c03359216dbdd60e4a0536a7db6a9a91adf9c3b08ed46ed6dd175e7f74225f5",
+  "registry_fingerprint": "855559dc97c8a75db7d8d1aad3096d85e480c6dc400d0170e225c92f41fff215",
   "summary": {
     "public_capability_count": 29,
     "public_function_count": 23,
@@ -2325,9 +2325,9 @@
         "parameter_from_minimum_value/solve_parameter"
       ],
       "generic_teaching_reason": null,
-      "visual_disposition": "no_new_visual",
+      "visual_disposition": "explicit",
       "visual_components": [],
-      "no_new_visual_reason": "本步骤只在已验证的最小值表达式上求参数，不产生新的几何对象。",
+      "no_new_visual_reason": null,
       "diagnostics": [],
       "recorded_occurrences": [
         {
@@ -4258,6 +4258,7 @@
       "visual_disposition": "explicit",
       "visual_components": {
         "construct_candidates": [
+          "QuadraticContextMarker",
           "RightAngleEqualLengthCandidatesMarker"
         ],
         "select_candidate": [

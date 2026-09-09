@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from functools import lru_cache
 from hashlib import sha256
-from typing import Any, Callable
+from typing import Any, Callable, Mapping
 import copy
 import json
 import math
@@ -25,6 +25,7 @@ from shuxueshuo_server.solver.explanation.models import (
 )
 from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
 from shuxueshuo_server.solver.runtime.recipes import RecipeSpecRegistry
+from shuxueshuo_server.solver.student_display import student_math_display
 
 from .models import (
     JsonObject,
@@ -38,6 +39,7 @@ from .recursive_state import (
     RecursiveVisualStateResolver,
     VisualStepResolution,
     context_copy,
+    geometry_refs_from_scene_item,
     visual_objects_from_scene_items,
 )
 from .animation import AnimationTimelineBuilder
@@ -76,6 +78,7 @@ from .parametric import CandidateHitResolver, ParametricExpressionResolver
 from .parameter_identity import (
     parameterized_point_contexts_by_step,
     value_depends_on_symbol,
+    verified_parameter_values_from_source,
 )
 from .viewport import SemanticViewportResolver
 from .scene_items import (
@@ -164,6 +167,13 @@ class GeometrySpecBuilder:
         default_t = 0.75
         fixed_points, moving_points, point_meta = _geometry_points_from_snapshot(snapshot, lesson, default_t)
         curves = _curves_from_snapshot(snapshot)
+        _add_curve_vertex_feature_points(
+            fixed=fixed_points,
+            moving=moving_points,
+            point_meta=point_meta,
+            curves=curves,
+            parameter_name=parameter_name,
+        )
         _add_defined_points_from_curves(
             snapshot=snapshot,
             lesson=lesson,
@@ -205,6 +215,20 @@ class GeometrySpecBuilder:
             parameter_name=parameter_name,
         )
         _add_public_candidate_geometry(
+            snapshot=snapshot,
+            fixed=fixed_points,
+            moving=moving_points,
+            point_meta=point_meta,
+            parameter_name=parameter_name,
+        )
+        _add_public_construction_auxiliary_geometry(
+            snapshot=snapshot,
+            fixed=fixed_points,
+            moving=moving_points,
+            point_meta=point_meta,
+            parameter_name=parameter_name,
+        )
+        _add_endpoint_replacement_witness_geometry(
             snapshot=snapshot,
             fixed=fixed_points,
             moving=moving_points,
@@ -479,6 +503,62 @@ def _add_defined_points_from_curves(
                     "sourceRef": str(entity.get("handle") or ""),
                 },
             )
+
+
+def _add_curve_vertex_feature_points(
+    *,
+    fixed: dict[str, list[str]],
+    moving: dict[str, list[str]],
+    point_meta: dict[str, JsonObject],
+    curves: list[JsonObject],
+    parameter_name: str,
+) -> None:
+    """Register every quadratic vertex as a finite visual feature.
+
+    Some problems ask for "the vertex" without assigning it a point letter.
+    The runtime result is still verified, so the page needs a stable geometry
+    reference that the vertex visual can reveal without inventing a label.
+    """
+
+    x = sp.Symbol("x")
+    for curve in curves:
+        curve_id = str(curve.get("id") or "")
+        scope_id = str(curve.get("scopeId") or curve.get("scopeRoot") or "")
+        if not curve_id:
+            continue
+        try:
+            expression = (
+                sp.sympify(str(curve.get("a") or "0")) * x**2
+                + sp.sympify(str(curve.get("b") or "0")) * x
+                + sp.sympify(str(curve.get("c") or "0"))
+            )
+            coefficient = sp.expand(expression).coeff(x, 2)
+            if sp.simplify(coefficient) == 0:
+                continue
+            vertex_x = sp.simplify(
+                -sp.expand(expression).coeff(x, 1) / (2 * coefficient)
+            )
+            vertex_y = sp.simplify(expression.subs(x, vertex_x))
+        except Exception:
+            continue
+        point_id = f"{curve_id}_vertex"
+        pair = [_page_expr(vertex_x), _page_expr(vertex_y)]
+        if _pair_depends_on_parameter(pair, parameter_name):
+            moving.setdefault(point_id, pair)
+        else:
+            fixed.setdefault(point_id, pair)
+        point_meta.setdefault(
+            point_id,
+            {
+                "label": "",
+                "scopeId": scope_id,
+                "scopeRoot": _scope_root(scope_id),
+                "definition": "curve_vertex_feature",
+                "sourceCurveId": curve_id,
+                "display": f"({_point_value_text((vertex_x, vertex_y))})",
+                "visualOnly": True,
+            },
+        )
 
 
 def _add_square_corner_points(
@@ -899,6 +979,261 @@ def _add_public_candidate_geometry(
                 }
 
 
+def _add_public_construction_auxiliary_geometry(
+    *,
+    snapshot: ExplanationSnapshot,
+    fixed: dict[str, list[str]],
+    moving: dict[str, list[str]],
+    point_meta: dict[str, JsonObject],
+    parameter_name: str,
+) -> None:
+    """Register proof-construction points carried by verified calculations.
+
+    Candidate-producing methods may expose perpendicular-foot constructions
+    that are essential to the student proof but are not semantic problem
+    entities.  Preserve their typed source/role identity so coincident points
+    (for example a foot at the origin) remain independently labelable.
+    """
+
+    owners = teaching_source_owners(snapshot.root_scope)
+    for source in iter_teaching_sources(snapshot.root_scope):
+        owner = owners.get(source.source_step_id)
+        if owner is None:
+            raise ValueError(
+                "visual_construction_source_owner_missing: "
+                f"{source.source_step_id}"
+            )
+        scope_id = owner[0]
+        for calculation in source.calculations:
+            geometry = calculation.get("geometry")
+            if not isinstance(geometry, Mapping):
+                continue
+            if (
+                str(geometry.get("kind") or "")
+                != "axis_projection_candidate_construction"
+            ):
+                continue
+
+            auxiliary_points: list[tuple[str, int, Any, Mapping[str, Any]]] = []
+            student_reference = geometry.get("student_reference_projection")
+            if isinstance(student_reference, Mapping):
+                auxiliary_points.append(
+                    (
+                        "reference_projection",
+                        0,
+                        student_reference.get("coordinates")
+                        or geometry.get("reference_projection"),
+                        student_reference,
+                    )
+                )
+            for branch_index, branch in enumerate(
+                geometry.get("candidate_branches") or (),
+                start=1,
+            ):
+                if not isinstance(branch, Mapping):
+                    continue
+                student_projection = branch.get("student_projection")
+                if not isinstance(student_projection, Mapping):
+                    continue
+                auxiliary_points.append(
+                    (
+                        "candidate_projection",
+                        branch_index,
+                        student_projection.get("coordinates")
+                        or branch.get("projection"),
+                        student_projection,
+                    )
+                )
+
+            for role, branch_index, raw_point, student_point in auxiliary_points:
+                if not _is_point_value(raw_point):
+                    continue
+                role_token = role
+                if branch_index:
+                    role_token = f"{role}_{branch_index}"
+                point_id = scoped_point_id(
+                    (
+                        f"construction_{_safe_visual_token(source.source_step_id)}_"
+                        f"{role_token}"
+                    ),
+                    scope_id,
+                )
+                pair = _page_point_pair(raw_point)
+                if _pair_depends_on_parameter(pair, parameter_name):
+                    moving[point_id] = pair
+                    fixed.pop(point_id, None)
+                else:
+                    fixed[point_id] = pair
+                    moving.pop(point_id, None)
+                point_meta[point_id] = {
+                    "label": str(student_point.get("label") or ""),
+                    "scopeId": scope_id,
+                    "scopeRoot": _scope_root(scope_id),
+                    "definition": "public_construction_auxiliary",
+                    "sourceStepId": source.source_step_id,
+                    "constructionRole": role,
+                    "branchIndex": branch_index,
+                    "visualOnly": True,
+                }
+
+
+def _add_endpoint_replacement_witness_geometry(
+    *,
+    snapshot: ExplanationSnapshot,
+    fixed: dict[str, list[str]],
+    moving: dict[str, list[str]],
+    point_meta: dict[str, JsonObject],
+    parameter_name: str,
+) -> None:
+    """Materialize a representative verified endpoint-replacement diagram."""
+
+    owners = teaching_source_owners(snapshot.root_scope)
+    known_points = {**fixed, **moving}
+
+    def point_pair(label: str, scope_id: str) -> tuple[sp.Expr, sp.Expr] | None:
+        candidates: list[tuple[int, str]] = []
+        for point_id, meta in point_meta.items():
+            if not isinstance(meta, Mapping) or str(meta.get("label") or "") != label:
+                continue
+            meta_scope = str(meta.get("scopeId") or "")
+            meta_root = str(meta.get("scopeRoot") or _scope_root(meta_scope))
+            if meta_scope != scope_id and meta_root != _scope_root(scope_id):
+                continue
+            definition = str(meta.get("definition") or "")
+            priority = {
+                "runtime_point_output": 5,
+                "given_point": 4,
+                "axis_x_intercept": 3,
+                "public_candidate": 2,
+            }.get(definition, 1)
+            candidates.append((priority, point_id))
+        for _, point_id in sorted(candidates, reverse=True):
+            pair = _sympy_point_pair(known_points.get(point_id))
+            if pair is not None:
+                return pair
+        return None
+
+    for witness in snapshot.macro_evidence:
+        source_step_id = str(witness.get("step_id") or "")
+        construction = next(
+            (
+                item
+                for item in witness.get("constructions") or ()
+                if isinstance(item, Mapping)
+                and item.get("kind") == "existing_fixed_endpoint_replacement"
+            ),
+            None,
+        )
+        if not isinstance(construction, Mapping):
+            continue
+        owner = owners.get(source_step_id)
+        if owner is None:
+            raise ValueError(
+                "visual_endpoint_replacement_source_owner_missing: "
+                f"{source_step_id}"
+            )
+        scope_id = owner[0]
+        certificate = (
+            construction.get("geometry_certificate")
+            if isinstance(construction, Mapping)
+            else None
+        )
+        roles = certificate.get("roles") if isinstance(certificate, Mapping) else None
+        if not isinstance(roles, Mapping):
+            continue
+        anchor_label = str(roles.get("right_vertex") or "")
+        first_vertex_label = str(roles.get("first_leg_vertex") or "")
+        second_vertex_label = str(roles.get("second_leg_vertex") or "")
+        anchor = point_pair(anchor_label, scope_id)
+        first_vertex = point_pair(first_vertex_label, scope_id)
+        second_vertex = point_pair(second_vertex_label, scope_id)
+        if anchor is None or first_vertex is None or second_vertex is None:
+            raise ValueError(
+                "visual_endpoint_replacement_frame_points_missing: "
+                f"step={source_step_id}"
+            )
+
+        ratio = sp.Rational(3, 4)
+        one_minus = 1 - ratio
+
+        def interpolate(
+            start: tuple[sp.Expr, sp.Expr],
+            end: tuple[sp.Expr, sp.Expr],
+            amount: sp.Expr,
+        ) -> tuple[sp.Expr, sp.Expr]:
+            return (
+                sp.simplify(start[0] + amount * (end[0] - start[0])),
+                sp.simplify(start[1] + amount * (end[1] - start[1])),
+            )
+
+        first_leg_point = interpolate(anchor, first_vertex, 2 * one_minus)
+        moving_point = interpolate(first_vertex, second_vertex, ratio)
+        first_projection = interpolate(anchor, first_vertex, one_minus)
+        second_projection = interpolate(anchor, second_vertex, ratio)
+        student_first_projection = certificate.get("student_first_leg_projection")
+        student_second_projection = certificate.get("student_second_leg_projection")
+        visual_points = (
+            (
+                "first_leg_moving_point",
+                str(roles.get("first_leg_moving_point") or ""),
+                first_leg_point,
+            ),
+            (
+                "hypotenuse_moving_point",
+                str(roles.get("hypotenuse_moving_point") or ""),
+                moving_point,
+            ),
+            (
+                "first_leg_projection",
+                str(
+                    (student_first_projection or {}).get("label")
+                    if isinstance(student_first_projection, Mapping)
+                    else ""
+                ),
+                first_projection,
+            ),
+            (
+                "second_leg_projection",
+                str(
+                    (student_second_projection or {}).get("label")
+                    if isinstance(student_second_projection, Mapping)
+                    else ""
+                ),
+                second_projection,
+            ),
+        )
+        for construction_role, label, pair in visual_points:
+            if not label:
+                raise ValueError(
+                    "visual_endpoint_replacement_student_label_missing: "
+                    f"step={source_step_id}, role={construction_role}"
+                )
+            point_id = scoped_point_id(
+                (
+                    f"endpoint_replacement_{_safe_visual_token(source_step_id)}_"
+                    f"{construction_role}"
+                ),
+                scope_id,
+            )
+            page_pair = [_page_expr(pair[0]), _page_expr(pair[1])]
+            if _pair_depends_on_parameter(page_pair, parameter_name):
+                moving[point_id] = page_pair
+                fixed.pop(point_id, None)
+            else:
+                fixed[point_id] = page_pair
+                moving.pop(point_id, None)
+            known_points[point_id] = page_pair
+            point_meta[point_id] = {
+                "label": label,
+                "scopeId": scope_id,
+                "scopeRoot": _scope_root(scope_id),
+                "definition": "endpoint_replacement_construction",
+                "sourceStepId": source_step_id,
+                "constructionRole": construction_role,
+                "visualOnly": True,
+            }
+
+
 def _candidate_source_label(source: Any) -> str:
     targets = {
         str(value)
@@ -911,8 +1246,9 @@ def _candidate_source_label(source: Any) -> str:
         str(value.get("name") or "")
         for values in source.inputs.values()
         for item in values
-        if str(item.get("runtime_type") or "") == "PointRef"
+        if str(item.get("runtime_type") or "") in {"PointRef", "Point"}
         and isinstance((value := item.get("value")), Mapping)
+        and str(value.get("entity_type") or "point") == "point"
         and str(value.get("name") or "")
     }
     if len(point_ref_names) == 1:
@@ -2397,8 +2733,11 @@ def _visual_step_resolution(
         lesson_step,
         snapshot,
     )
-    for key, value in bindings.coordinate_texts_by_ref.items():
-        coordinate_texts.setdefault(key, value)
+    visible_coordinate_texts_by_ref = _visible_coordinate_texts_by_ref(
+        coordinate_texts,
+        geometry_spec,
+        parameter_values=render_state.parameters,
+    )
     frame_units = _visual_frame_unit_groups(lesson_step)
     frames: list[VisualFrame] = []
     published: tuple[VisualObject, ...] = ()
@@ -2407,10 +2746,21 @@ def _visual_step_resolution(
 
     for frame_index, unit_keys in enumerate(frame_units, start=1):
         frame_step = _lesson_step_for_visual_units(lesson_step, unit_keys)
-        frame_bindings = bindings
+        frame_bindings = replace(
+            bindings,
+            coordinate_texts_by_ref={
+                ref: text
+                for ref, text in visible_coordinate_texts_by_ref.items()
+                if ref in set(bindings.point_handles.values())
+            },
+        )
         interactions = ParametricExpressionResolver(
             geometry_spec=geometry_spec,
-            default_t=_branch_default_parameter_value(render_state),
+            default_t=_branch_default_parameter_value(
+                render_state,
+                geometry_spec=geometry_spec,
+                snapshot=snapshot,
+            ),
         ).interactions_for_step(
             frame_step,
             frame_bindings,
@@ -2424,11 +2774,9 @@ def _visual_step_resolution(
             bindings=frame_bindings,
             coordinate_texts=coordinate_texts,
         )
-        raw_items = _dedupe_scene_items(
-            [
-                *raw_items,
-                *_interaction_constraint_carrier_items(interactions),
-            ]
+        raw_items = _restrict_coordinate_labels_to_visible_facts(
+            raw_items,
+            visible_coordinate_texts_by_ref,
         )
         raw_items, interactions, auxiliary_ref_map = (
             _materialize_frame_visual_auxiliaries(
@@ -2438,7 +2786,32 @@ def _visual_step_resolution(
                 geometry_spec=geometry_spec,
             )
         )
+        equivalent_ref_map = _equivalent_labeled_geometry_ref_map(
+            raw_items,
+            geometry_spec,
+        )
+        if equivalent_ref_map:
+            raw_items = _replace_visual_geometry_refs(
+                raw_items,
+                equivalent_ref_map,
+            )
+            interactions = _replace_visual_geometry_refs(
+                interactions,
+                equivalent_ref_map,
+            )
+            auxiliary_ref_map = {
+                **auxiliary_ref_map,
+                **equivalent_ref_map,
+            }
+        raw_items = _dedupe_scene_items(
+            [
+                *raw_items,
+                *_interaction_constraint_carrier_items(interactions),
+            ]
+        )
+        raw_items = _close_standalone_angle_dependencies(raw_items)
         raw_items = _studentize_scene_point_labels(raw_items, geometry_spec)
+        raw_items = _hide_redundant_point_names(raw_items)
         current = visual_objects_from_scene_items(
             raw_items,
             owner_scope_ref=lesson_step.scope_id,
@@ -2464,6 +2837,16 @@ def _visual_step_resolution(
             context_copy(item)
             for item in render_state.last_frame
         )
+        inherited_context = _prune_superseded_candidate_context(
+            inherited_context,
+            current=current,
+            geometry_spec=geometry_spec,
+        )
+        inherited_context = _prune_replaced_curve_context(
+            inherited_context,
+            current=current,
+            geometry_spec=geometry_spec,
+        )
         inherited_reason = _branch_frame_inheritance_reason(
             frame_step,
             render_state,
@@ -2482,7 +2865,31 @@ def _visual_step_resolution(
             else ()
         )
         context = _merge_frame_objects(inherited_context, supplemental_context)
-        objects = _merge_frame_objects(context, current)
+        context = _prune_superseded_candidate_context(
+            context,
+            current=current,
+            geometry_spec=geometry_spec,
+        )
+        context = _prune_replaced_curve_context(
+            context,
+            current=current,
+            geometry_spec=geometry_spec,
+        )
+        context = _refresh_context_coordinate_labels(
+            context,
+            visible_coordinate_texts_by_ref,
+        )
+        calculation_continuation = _is_path_result_calculation_continuation(
+            lesson_step,
+            context,
+        )
+        scene_current = (
+            _path_result_calculation_updates(current)
+            if calculation_continuation
+            else current
+        )
+        objects = _merge_frame_objects(context, scene_current)
+        objects = _coalesce_visible_point_objects(objects)
         if not objects:
             if render_state.last_frame:
                 mode = "retain"
@@ -2502,7 +2909,7 @@ def _visual_step_resolution(
                     item,
                 ),
             )
-        for item in current:
+        for item in scene_current:
             visibility_reasons[item.visual_object_id] = "current_visual_spec_result_or_requirement"
         persistent_current = visual_objects_from_scene_items(
             [
@@ -2519,7 +2926,12 @@ def _visual_step_resolution(
                 for item in persistent_current
                 if not set(item.geometry_refs).intersection(suppressed_point_refs)
             )
+        if calculation_continuation:
+            persistent_current = _path_result_calculation_updates(
+                persistent_current
+            )
         published = _merge_frame_objects(context, persistent_current)
+        published = _coalesce_visible_point_objects(published)
         local_parameters = _local_parameters_for_frame(
             lesson_step=frame_step,
             state=render_state,
@@ -2535,6 +2947,14 @@ def _visual_step_resolution(
             local_parameters,
             visible_interactions,
             source_step_ids=tuple(lesson_step.source_step_ids),
+        )
+        local_parameters = _inherit_local_parameter_defaults(
+            local_parameters,
+            render_state.last_local_parameters,
+            active_interactions=visible_interactions,
+            objects=objects,
+            geometry_spec=geometry_spec,
+            parameter_values=render_state.parameters,
         )
         timeline = AnimationTimelineBuilder().timeline_for_step(
             frame_step,
@@ -2579,6 +2999,141 @@ def _visual_step_resolution(
     )
 
 
+def _prune_superseded_candidate_context(
+    inherited: tuple[VisualObject, ...],
+    *,
+    current: tuple[VisualObject, ...],
+    geometry_spec: JsonObject,
+) -> tuple[VisualObject, ...]:
+    """Replace an upstream candidate set with the selected branch diagram."""
+
+    point_meta = geometry_spec.get("pointMeta") or {}
+    selected_groups: set[tuple[str, int]] = set()
+    selected_source_steps: set[str] = set()
+    for item in current:
+        if item.role.startswith("candidate:selected_result:"):
+            selected_source_steps.add(item.role.split(":", 2)[-1])
+        if item.role == "candidate:selected" and item.geometry_refs:
+            meta = point_meta.get(item.geometry_refs[0])
+            if (
+                isinstance(meta, dict)
+                and meta.get("definition") == "public_candidate"
+            ):
+                source_step_id = str(meta.get("sourceStepId") or "")
+                candidate_group = int(meta.get("candidateGroup") or 1)
+                if source_step_id:
+                    selected_groups.add((source_step_id, candidate_group))
+                    selected_source_steps.add(source_step_id)
+    if not selected_groups and not selected_source_steps:
+        return inherited
+
+    superseded_refs = {
+        str(point_ref)
+        for point_ref, raw_meta in point_meta.items()
+        if isinstance(raw_meta, dict)
+        and (
+            (
+                raw_meta.get("definition") == "public_candidate"
+                and (
+                    str(raw_meta.get("sourceStepId") or ""),
+                    int(raw_meta.get("candidateGroup") or 1),
+                )
+                in selected_groups
+            )
+            or (
+                raw_meta.get("definition")
+                == "public_construction_auxiliary"
+                and str(raw_meta.get("sourceStepId") or "")
+                in selected_source_steps
+            )
+        )
+    }
+
+    def is_superseded(item: VisualObject) -> bool:
+        if set(item.geometry_refs).intersection(superseded_refs):
+            return True
+        return any(
+            item.role.startswith(f"candidate_construction:{source_step_id}:")
+            for source_step_id in selected_source_steps
+        )
+
+    return tuple(
+        item
+        for item in inherited
+        if not is_superseded(item)
+    )
+
+
+def _prune_replaced_curve_context(
+    inherited: tuple[VisualObject, ...],
+    *,
+    current: tuple[VisualObject, ...],
+    geometry_spec: JsonObject,
+) -> tuple[VisualObject, ...]:
+    """A newly drawn curve state replaces older states in the same branch."""
+
+    current_curve_refs = {
+        geometry_ref
+        for item in current
+        if item.component == "Parabola"
+        for geometry_ref in item.geometry_refs
+    }
+    if not current_curve_refs:
+        return inherited
+    curves = {
+        str(curve.get("id") or ""): curve
+        for curve in geometry_spec.get("curves") or ()
+        if isinstance(curve, dict) and str(curve.get("id") or "")
+    }
+    current_roots = {
+        str(curves[curve_ref].get("scopeRoot") or "")
+        for curve_ref in current_curve_refs
+        if curve_ref in curves
+    }
+    if not current_roots:
+        return inherited
+
+    def is_replaced(item: VisualObject) -> bool:
+        if item.component != "Parabola":
+            return False
+        for curve_ref in item.geometry_refs:
+            if curve_ref in current_curve_refs:
+                continue
+            curve = curves.get(curve_ref)
+            if isinstance(curve, dict) and str(curve.get("scopeRoot") or "") in current_roots:
+                return True
+        return False
+
+    return tuple(item for item in inherited if not is_replaced(item))
+
+
+def _refresh_context_coordinate_labels(
+    objects: tuple[VisualObject, ...],
+    visible_coordinate_texts_by_ref: Mapping[str, str],
+) -> tuple[VisualObject, ...]:
+    """Re-evaluate inherited labels when a verified parameter closes."""
+
+    result: list[VisualObject] = []
+    for item in objects:
+        if item.component != "CoordinateLabel" or len(item.geometry_refs) != 1:
+            result.append(item)
+            continue
+        text = visible_coordinate_texts_by_ref.get(item.geometry_refs[0])
+        if not text:
+            result.append(item)
+            continue
+        payload = copy.deepcopy(item.component_payload)
+        payload["text"] = text
+        result.append(
+            replace(
+                item,
+                component_payload=payload,
+                display_label=text,
+            )
+        )
+    return tuple(result)
+
+
 def _materialize_frame_visual_auxiliaries(
     raw_items: list[JsonObject],
     interactions: tuple[JsonObject, ...],
@@ -2600,6 +3155,61 @@ def _materialize_frame_visual_auxiliaries(
     point_meta = geometry_spec.setdefault("pointMeta", {})
     known = set(fixed) | set(moving)
     ref_map: dict[str, str] = {}
+
+    for item in raw_items:
+        if not isinstance(item, dict) or item.get("component") != "Point":
+            continue
+        raw_ref = str(item.get("at") or "")
+        metadata = item.get("metadata")
+        if (
+            not raw_ref
+            or raw_ref in known
+            or not isinstance(metadata, dict)
+        ):
+            continue
+        definition_pair = metadata.get("definition_pair")
+        label = str(
+            metadata.get("student_label")
+            or item.get("labelText")
+            or ""
+        ).strip()
+        if (
+            not isinstance(definition_pair, list)
+            or len(definition_pair) != 2
+            or not label
+        ):
+            continue
+        expression_pair = [
+            str(definition_pair[0]),
+            str(definition_pair[1]),
+        ]
+        scoped_ref = scoped_point_id(label, lesson_step.scope_id)
+        existing = moving.get(scoped_ref) or fixed.get(scoped_ref)
+        if existing is not None and list(existing) != expression_pair:
+            raise ValueError(
+                "visual_auxiliary_geometry_identity_conflict: "
+                f"{scoped_ref}: {existing} != {expression_pair}"
+            )
+        parameter_name = str(geometry_spec.get("movingParam") or "")
+        if parameter_name and _pair_depends_on_parameter(
+            expression_pair,
+            parameter_name,
+        ):
+            moving[scoped_ref] = expression_pair
+            fixed.pop(scoped_ref, None)
+        else:
+            fixed[scoped_ref] = expression_pair
+            moving.pop(scoped_ref, None)
+        point_meta[scoped_ref] = {
+            "label": label,
+            "scopeId": lesson_step.scope_id,
+            "scopeRoot": _scope_root(lesson_step.scope_id),
+            "definition": "visual_auxiliary_construction_point",
+            "sourceStepIds": list(lesson_step.source_step_ids),
+        }
+        ref_map[raw_ref] = scoped_ref
+        known.add(scoped_ref)
+
     for interaction in interactions:
         parameterized = interaction.get("parameterized_points")
         if not isinstance(parameterized, dict):
@@ -2662,6 +3272,185 @@ def _materialize_frame_visual_auxiliaries(
     )
 
 
+def _equivalent_labeled_geometry_ref_map(
+    items: list[JsonObject],
+    geometry_spec: JsonObject,
+) -> dict[str, str]:
+    """Coalesce visible aliases of one labeled mathematical point.
+
+    Curve-derived landmarks and runtime points may intentionally have
+    different registry ids.  When the public label and exact coordinate pair
+    agree in one frame, rendering both identities only creates duplicate
+    points and labels.  Blank-label visual features and differently labeled
+    coincident points remain distinct.
+    """
+
+    known_points = {
+        **(geometry_spec.get("fixedPoints") or {}),
+        **(geometry_spec.get("movingPoints") or {}),
+    }
+    point_meta = geometry_spec.get("pointMeta") or {}
+    visible_refs = {
+        ref
+        for item in items
+        if isinstance(item, Mapping)
+        for ref in geometry_refs_from_scene_item(item)
+        if ref in known_points
+    }
+    groups: dict[str, list[str]] = {}
+    for point_ref in visible_refs:
+        meta = point_meta.get(point_ref)
+        label = str((meta or {}).get("label") or "").strip()
+        if label:
+            groups.setdefault(label, []).append(point_ref)
+
+    definition_priority = {
+        "runtime_point_output": 5,
+        "given_point": 4,
+        "public_candidate": 3,
+        "axis_x_intercept": 2,
+    }
+    ref_map: dict[str, str] = {}
+    for refs in groups.values():
+        equivalent_groups: list[list[str]] = []
+        for point_ref in refs:
+            pair = _sympy_point_pair(known_points.get(point_ref))
+            if pair is None:
+                continue
+            matching = next(
+                (
+                    group
+                    for group in equivalent_groups
+                    if (
+                        (candidate_pair := _sympy_point_pair(
+                            known_points.get(group[0])
+                        ))
+                        is not None
+                        and _same_point_pair_value(pair, candidate_pair)
+                    )
+                ),
+                None,
+            )
+            if matching is None:
+                equivalent_groups.append([point_ref])
+            else:
+                matching.append(point_ref)
+        for group in equivalent_groups:
+            if len(group) < 2:
+                continue
+            canonical = max(
+                group,
+                key=lambda ref: (
+                    definition_priority.get(
+                        str((point_meta.get(ref) or {}).get("definition") or ""),
+                        1,
+                    ),
+                    -len(ref),
+                    ref,
+                ),
+            )
+            ref_map.update(
+                {point_ref: canonical for point_ref in group if point_ref != canonical}
+            )
+    return ref_map
+
+
+def _hide_redundant_point_names(items: list[JsonObject]) -> list[JsonObject]:
+    """A coordinate label already names its point; hide a second name label."""
+
+    coordinate_refs = {
+        str(item.get("at") or "")
+        for item in items
+        if isinstance(item, dict)
+        and item.get("component") == "CoordinateLabel"
+        and item.get("at")
+    }
+    result = copy.deepcopy(items)
+    for item in result:
+        if (
+            isinstance(item, dict)
+            and item.get("component") == "Point"
+            and str(item.get("at") or "") in coordinate_refs
+        ):
+            item["showLabel"] = False
+    return result
+
+
+def _is_path_result_calculation_continuation(
+    lesson_step: LessonStep,
+    context: tuple[VisualObject, ...],
+) -> bool:
+    """Keep a completed shortest path as the scene for later arithmetic.
+
+    A parameter-solving or substitution step may have its own generic visual
+    marker (for example, it may redraw the segment whose length produced the
+    parameter).  Once the preceding geometry step has already established a
+    shortest-path result, that marker is supporting algebra rather than a new
+    construction.  The completed path is therefore the more faithful visual
+    state to carry through those calculation-only steps.
+    """
+
+    return (
+        _visual_continuation_policy_for_lesson_step(lesson_step)
+        == "preserve_prior_path_scene"
+    ) and any(
+        item.role.startswith("path_result:") for item in context
+    )
+
+
+def _path_result_calculation_updates(
+    current: tuple[VisualObject, ...],
+) -> tuple[VisualObject, ...]:
+    """Apply only genuine scene updates after a shortest-path construction.
+
+    Later parameter-solving and substitution methods may emit generic segment
+    markers of their own.  Those would replace the just-completed geometry
+    story with a new diagram even though the student is only doing arithmetic.
+    Preserve the prior frame instead; a newly evaluated curve remains a real
+    scene update and is allowed through.  Moving points and their incident
+    segments already reference verified parameterized geometry, so changing
+    the branch parameter moves them together without redrawing the scene.
+    """
+
+    return tuple(
+        item
+        for item in current
+        if item.component in {"Parabola", "AxisOfSymmetry"}
+    )
+
+
+def _coalesce_visible_point_objects(
+    objects: tuple[VisualObject, ...],
+) -> tuple[VisualObject, ...]:
+    """Keep one rendered point per geometry ref and one label per point."""
+
+    coordinate_refs = {
+        item.geometry_refs[0]
+        for item in objects
+        if item.component == "CoordinateLabel" and len(item.geometry_refs) == 1
+    }
+    result: list[VisualObject] = []
+    point_indexes: dict[str, int] = {}
+    for item in objects:
+        if item.component != "Point" or len(item.geometry_refs) != 1:
+            result.append(item)
+            continue
+        point_ref = item.geometry_refs[0]
+        payload = copy.deepcopy(item.component_payload)
+        if point_ref in coordinate_refs:
+            payload["showLabel"] = False
+        normalized = replace(item, component_payload=payload)
+        prior_index = point_indexes.get(point_ref)
+        if prior_index is None:
+            point_indexes[point_ref] = len(result)
+            result.append(normalized)
+            continue
+        prior = result[prior_index]
+        if prior.state == "context" and normalized.state == "focus":
+            result[prior_index] = normalized
+    return tuple(result)
+
+
 def _studentize_scene_point_labels(
     items: list[JsonObject],
     geometry_spec: JsonObject,
@@ -2682,6 +3471,12 @@ def _studentize_scene_point_labels(
         geometry_ref = str(item.get("at") or "")
         meta = point_meta.get(geometry_ref)
         if not isinstance(meta, dict):
+            continue
+        item_metadata = item.get("metadata")
+        if (
+            isinstance(item_metadata, dict)
+            and item_metadata.get("preserve_student_label") is True
+        ):
             continue
         label = str(meta.get("label") or "").strip()
         if not label:
@@ -2796,28 +3591,8 @@ def _parameter_values_produced_by_lesson_step(
         source = sources.get(step_id)
         if source is None:
             continue
-        for return_name, output in source.outputs.items():
-            if str(output.get("runtime_type") or "") != "ParameterValue":
-                continue
-            value = output.get("value")
-            if value is None:
-                continue
-            name = str(source.output_targets.get(return_name) or "")
-            if not name:
-                name = _symbol_name_from_parameter_output(output)
-            if name:
-                values[name] = str(value)
+        values.update(verified_parameter_values_from_source(source))
     return values
-
-
-def _symbol_name_from_parameter_output(output: dict[str, Any]) -> str:
-    """Recover a public parameter symbol without consulting later answers."""
-
-    for candidate in (output.get("display"), output.get("value")):
-        text = str(candidate or "").strip()
-        if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", text):
-            return text
-    return ""
 
 
 def _lesson_step_has_exact_point_output(
@@ -4078,17 +4853,28 @@ def _merge_local_parameter_contracts(
         domain = interaction.get("domain") if isinstance(interaction.get("domain"), dict) else {}
         if name in by_name:
             current = by_name[name]
-            if not current.get("controls") and interaction.get("controls"):
+            if interaction.get("controls"):
                 current["controls"] = copy.deepcopy(interaction.get("controls") or [])
                 current["source_refs"] = [
                     {"kind": "functional_step", "step_id": step_id}
                     for step_id in source_step_ids
                 ]
                 current["note"] = str(interaction.get("note") or "")
-                current["parameterized_points"] = {
-                    **copy.deepcopy(current.get("parameterized_points") or {}),
-                    **copy.deepcopy(interaction.get("parameterized_points") or {}),
+            if interaction.get("mathematical_domain"):
+                current["mathematical_domain"] = copy.deepcopy(
+                    interaction["mathematical_domain"]
+                )
+            if domain:
+                current["display_window"] = {
+                    "min": domain.get("min", 0),
+                    "max": domain.get("max", 1),
+                    "step": domain.get("step", 0.01),
                 }
+                current["default_value"] = domain.get("default", 0.5)
+            current["parameterized_points"] = {
+                **copy.deepcopy(current.get("parameterized_points") or {}),
+                **copy.deepcopy(interaction.get("parameterized_points") or {}),
+            }
             continue
         by_name[name] = {
             "name": name,
@@ -4114,6 +4900,150 @@ def _merge_local_parameter_contracts(
             "note": str(interaction.get("note") or ""),
         }
     return tuple(by_name[name] for name in sorted(by_name) if name)
+
+
+def _inherit_local_parameter_defaults(
+    contracts: tuple[JsonObject, ...],
+    previous: tuple[JsonObject, ...],
+    *,
+    active_interactions: tuple[JsonObject, ...],
+    objects: tuple[VisualObject, ...],
+    geometry_spec: JsonObject,
+    parameter_values: Mapping[str, str],
+) -> tuple[JsonObject, ...]:
+    """Preserve the preceding diagram state across calculation-only steps.
+
+    A later step may add only a scalar conclusion while retaining the same
+    parameterized points.  Reconstructing local parameters from the geometry
+    registry would reset those points to an unrelated demonstration value.
+    We carry a default only when the parameter controls at least one identical
+    visible geometry ref and the current step has no new interaction for it.
+    """
+
+    if not contracts or not previous:
+        return contracts
+    active_names = {
+        str(item.get("parameter") or "")
+        for item in active_interactions
+        if str(item.get("parameter") or "")
+    }
+    visible_refs = {
+        geometry_ref
+        for item in objects
+        for geometry_ref in item.geometry_refs
+    }
+    previous_by_name = {
+        str(item.get("name") or ""): item
+        for item in previous
+        if str(item.get("name") or "")
+    }
+    result: list[JsonObject] = []
+    for contract in contracts:
+        current = copy.deepcopy(contract)
+        name = str(current.get("name") or "")
+        prior = previous_by_name.get(name)
+        if name in active_names or prior is None:
+            result.append(current)
+            continue
+        if str((current.get("mathematical_domain") or {}).get("kind") or "") == "exact":
+            result.append(current)
+            continue
+        attainment_default = _released_interaction_attainment_default(
+            name=name,
+            previous=prior,
+            visible_refs=visible_refs,
+            geometry_spec=geometry_spec,
+            parameter_values=parameter_values,
+        )
+        if attainment_default is not None:
+            window = current.get("display_window") or {}
+            minimum = float(window.get("min", attainment_default))
+            maximum = float(window.get("max", attainment_default))
+            if minimum <= attainment_default <= maximum:
+                current["default_value"] = attainment_default
+                result.append(current)
+                continue
+        current_refs = {
+            str(ref)
+            for ref in (current.get("parameterized_points") or {})
+            if str(ref) in visible_refs
+        }
+        previous_refs = {
+            str(ref)
+            for ref in (prior.get("parameterized_points") or {})
+            if str(ref) in visible_refs
+        }
+        if current_refs.intersection(previous_refs) and prior.get("default_value") is not None:
+            current["default_value"] = copy.deepcopy(prior["default_value"])
+        result.append(current)
+    return tuple(result)
+
+
+def _released_interaction_attainment_default(
+    *,
+    name: str,
+    previous: JsonObject,
+    visible_refs: set[str],
+    geometry_spec: JsonObject,
+    parameter_values: Mapping[str, str],
+) -> float | None:
+    """Snap a released moving-point control to its verified attainment point.
+
+    During an interactive minimum step a point may be overridden by a free
+    axis parameter.  A later calculation-only step restores the registry's
+    verified attainment coordinates.  Solving the former override against
+    those coordinates keeps linked auxiliary points in the same equality
+    state instead of retaining an arbitrary slider demonstration value.
+    """
+
+    if not name:
+        return None
+    parameter = sp.Symbol(name)
+    try:
+        substitutions = {
+            sp.Symbol(key): sp.sympify(str(value))
+            for key, value in parameter_values.items()
+            if key != name
+        }
+    except Exception:
+        return None
+    candidates: list[sp.Expr] = []
+    for point_ref, payload in (previous.get("parameterized_points") or {}).items():
+        if str(point_ref) not in visible_refs or not isinstance(payload, Mapping):
+            continue
+        previous_pair = sympy_pair(payload.get("expression"))
+        current_pair = sympy_pair(_geometry_point_pair(geometry_spec, str(point_ref)))
+        if previous_pair is None or current_pair is None:
+            continue
+        prior = tuple(sp.simplify(value.subs(substitutions)) for value in previous_pair)
+        attained = tuple(sp.simplify(value.subs(substitutions)) for value in current_pair)
+        if not any(parameter in value.free_symbols for value in prior):
+            continue
+        if any(parameter in value.free_symbols or value.free_symbols for value in attained):
+            continue
+        try:
+            solutions = sp.solve(
+                [sp.Eq(left, right) for left, right in zip(prior, attained, strict=True)],
+                [parameter],
+                dict=True,
+            )
+        except Exception:
+            continue
+        for solution in solutions:
+            value = sp.simplify(solution.get(parameter))
+            if value is None or value.free_symbols or value.is_real is False:
+                continue
+            candidates.append(value)
+    if not candidates:
+        return None
+    first = candidates[0]
+    if any(sp.simplify(candidate - first) != 0 for candidate in candidates[1:]):
+        return None
+    try:
+        numeric = float(sp.N(first))
+    except Exception:
+        return None
+    return numeric if math.isfinite(numeric) else None
 
 
 def _interactions_for_visible_objects(
@@ -4242,12 +5172,25 @@ def _expression_uses_symbol(expression: str, name: str) -> bool:
         return False
 
 
-def _branch_default_parameter_value(state: BranchVisualState) -> float:
-    for value in state.parameters.values():
+def _branch_default_parameter_value(
+    state: BranchVisualState,
+    *,
+    geometry_spec: JsonObject,
+    snapshot: ExplanationSnapshot,
+) -> float:
+    """Use the same primary-parameter value as the frame being rendered."""
+
+    name = str(geometry_spec.get("movingParam") or "")
+    if name and name in state.parameters:
         try:
-            return float(sp.N(sp.sympify(value)))
+            return float(sp.N(sp.sympify(state.parameters[name])))
         except Exception:
-            continue
+            pass
+    if name:
+        _mathematical_domain, _display_window, default = (
+            _parameter_domain_and_window(name, snapshot)
+        )
+        return default
     return 0.75
 
 
@@ -4396,6 +5339,30 @@ def _selected_visual_templates(
     return tuple(result)
 
 
+def _visual_continuation_policy_for_lesson_step(
+    lesson_step: LessonStep,
+) -> str:
+    """Resolve continuation behavior from code-owned visual specs.
+
+    The generic builder understands only the internal policy vocabulary; it
+    never switches on a public Function or Macro id.  Multiple capabilities
+    may be merged into one Lesson step, so non-empty policies must agree.
+    """
+
+    policies = {
+        str(spec.continuation_policy)
+        for capability_id in set(lesson_step.capability_ids)
+        if (spec := _method_visual_spec(capability_id)) is not None
+        and str(spec.continuation_policy)
+    }
+    if len(policies) > 1:
+        raise ValueError(
+            "visual_continuation_policy_conflict: "
+            f"step={lesson_step.lesson_step_id}, policies={sorted(policies)}"
+        )
+    return next(iter(policies), "")
+
+
 def _visual_context_policy_for_lesson_step(
     lesson_step: LessonStep,
 ) -> _VisualContextPolicy:
@@ -4510,6 +5477,38 @@ def _interaction_constraint_carrier_items(
                     f"{carrier!r}"
                 )
             kind = str(carrier.get("kind") or "")
+            if kind in {"segment", "ray"}:
+                start = str(carrier.get("from") or "")
+                end = str(carrier.get("to") or "")
+                moving_point = str(carrier.get("moving_point") or "")
+                if not start or not end or not moving_point:
+                    raise ValueError(
+                        "visual_interaction_constraint_carrier_endpoints_missing: "
+                        f"{carrier!r}"
+                    )
+                result.append(
+                    {
+                        "component": "ColoredLine" if kind == "segment" else "DashedLine",
+                        "role": f"motion_carrier:{kind}:{moving_point}",
+                        "handle": f"motion-carrier:{kind}:{start}-{end}",
+                        "from": start,
+                        "to": end,
+                        "color": COLOR_CONSTRAINT,
+                        "width": 1.8,
+                        "dash": "" if kind == "segment" else "7 5",
+                        "persistence": str(
+                            carrier.get("persistence") or "carry_forward"
+                        ),
+                        "decay_state": "muted",
+                        "metadata": {
+                            "low_level_type": (
+                                "coloredLine" if kind == "segment" else "dashedLine"
+                            ),
+                            "semantic_source": "interaction_constraint_carrier",
+                        },
+                    }
+                )
+                continue
             if kind != "curve_axis":
                 raise ValueError(
                     "visual_interaction_constraint_carrier_kind_unknown: "
@@ -4537,6 +5536,68 @@ def _interaction_constraint_carrier_items(
                 }
             )
     return result
+
+
+def _close_standalone_angle_dependencies(
+    scene_items: list[JsonObject],
+) -> list[JsonObject]:
+    """Keep every standalone angle attached to both defining rays.
+
+    An angle arc is not meaningful geometry by itself.  Its two carrier
+    segments inherit the angle's lifetime, so a carried-forward angle can
+    never outlive the sides that define it.  Composite angle components own
+    their support internally and therefore do not need this projection.
+    """
+
+    result = copy.deepcopy(scene_items)
+    line_indices: dict[frozenset[str], list[int]] = {}
+    for index, item in enumerate(result):
+        component = str(item.get("component") or "")
+        if component not in {"ColoredLine", "DashedLine", "DistanceMarker"}:
+            continue
+        start = str(item.get("from") or "")
+        end = str(item.get("to") or "")
+        if start and end:
+            line_indices.setdefault(frozenset((start, end)), []).append(index)
+
+    for item in scene_items:
+        if str(item.get("component") or "") not in {"AngleArc", "RightAngle"}:
+            continue
+        vertex = str(item.get("vertex") or "")
+        persistence = str(item.get("persistence") or "carry_forward")
+        for ray_key in ("rayA", "rayB"):
+            ray = str(item.get(ray_key) or "")
+            edge = frozenset((vertex, ray))
+            if not vertex or not ray or vertex == ray:
+                continue
+            existing_indices = line_indices.get(edge, [])
+            if existing_indices:
+                if persistence != "step_only":
+                    support = result[existing_indices[0]]
+                    if str(support.get("persistence") or "carry_forward") == "step_only":
+                        support["persistence"] = "carry_forward"
+                        support.setdefault("decay_state", "muted")
+                continue
+            line_indices[edge] = [len(result)]
+            result.append(
+                {
+                    "component": "ColoredLine",
+                    "role": "angle_support",
+                    "handle": f"angle-support:{vertex}-{ray}",
+                    "from": vertex,
+                    "to": ray,
+                    "color": COLOR_MUTED,
+                    "width": 1.25,
+                    "persistence": persistence,
+                    "decay_state": str(item.get("decay_state") or "muted"),
+                    "state": "muted",
+                    "metadata": {
+                        "low_level_type": "coloredLine",
+                        "semantic_source": "angle_dependency_closure",
+                    },
+                }
+            )
+    return _dedupe_scene_items(result)
 
 
 @lru_cache(maxsize=1)
@@ -5430,6 +6491,8 @@ def _congruent_triangle_marker_items(
 
 
 def _point_style_for_role(role: str) -> _PointVisualStyle:
+    if role in {"locus_start_point", "locus_end_point"}:
+        return POINT_CONTEXT
     if role == "auxiliary_point":
         return POINT_AUXILIARY
     if role in {"result_point", "reflected_point"}:
@@ -5573,6 +6636,11 @@ def _equivalent_segment_marker_items(
 ) -> list[JsonObject]:
     items: list[JsonObject] = []
     for marker in bindings.equal_length_path_markers:
+        if marker.get("kind") == "coupled_endpoint_replacement":
+            items.extend(
+                _coupled_endpoint_replacement_marker_items(template, marker)
+            )
+            continue
         segments = [
             dict(segment)
             for segment in marker.get("equivalent_segments") or ()
@@ -5591,6 +6659,135 @@ def _equivalent_segment_marker_items(
                 "dy": int(template.get("dy") or -16),
                 "persistence": "step_only",
             }
+        )
+    return items
+
+
+def _coupled_endpoint_replacement_marker_items(
+    template: dict[str, Any],
+    marker: dict[str, Any],
+) -> list[JsonObject]:
+    """Render the certificate that turns ``EG`` into the equal segment ``DG``."""
+
+    persistence = str(template.get("persistence") or "step_only")
+    labels = marker.get("labels") if isinstance(marker.get("labels"), dict) else {}
+    refs = marker.get("refs") if isinstance(marker.get("refs"), dict) else {}
+    required_roles = {
+        "anchor",
+        "first_vertex",
+        "second_vertex",
+        "first_leg_moving",
+        "moving",
+        "first_projection",
+        "second_projection",
+        "other_fixed",
+    }
+    if not required_roles.issubset(refs):
+        raise ValueError(
+            "visual_endpoint_replacement_marker_roles_missing: "
+            f"{sorted(required_roles - set(refs))}"
+        )
+    items: list[JsonObject] = [
+        {
+            "component": "OutlineRegion",
+            "vertices": list(marker.get("projection_rectangle") or ()),
+            "fill": COLOR_RESULT_REGION_FILL,
+            "color": COLOR_RESULT_REGION_STROKE,
+            "width": 1.8,
+            "persistence": persistence,
+            "metadata": {"low_level_type": "outlineRegion"},
+        }
+    ]
+    for start_role, end_role, role in (
+        ("anchor", "first_vertex", "endpoint_frame:first_leg"),
+        ("anchor", "second_vertex", "endpoint_frame:second_leg"),
+        ("first_vertex", "second_vertex", "endpoint_frame:hypotenuse"),
+    ):
+        line = _line_item(
+            str(refs[start_role]),
+            str(refs[end_role]),
+            color=COLOR_MUTED,
+            width=1.8,
+            persistence=persistence,
+            role=role,
+        )
+        if line is not None:
+            items.append(line)
+    for projection_role in ("first_projection", "second_projection"):
+        line = _line_item(
+            str(refs["moving"]),
+            str(refs[projection_role]),
+            color=COLOR_CONSTRAINT,
+            width=1.7,
+            persistence=persistence,
+            dash="5 5",
+            role=f"endpoint_frame:{projection_role}",
+        )
+        if line is not None:
+            items.append(line)
+        items.append(
+            {
+                "component": "RightAngle",
+                "vertex": str(refs[projection_role]),
+                "rayA": str(refs["anchor"]),
+                "rayB": str(refs["moving"]),
+                "color": COLOR_CONSTRAINT,
+                "size": 8,
+                "persistence": persistence,
+                "metadata": {"low_level_type": "rightAngle"},
+            }
+        )
+    segments = [
+        dict(segment)
+        for segment in marker.get("equivalent_segments") or ()
+        if isinstance(segment, dict)
+    ]
+    if len(segments) == 2:
+        items.append(
+            {
+                "component": "EquivalentSegmentMarker",
+                "segments": segments,
+                "label": str(marker.get("equivalence_label") or ""),
+                "color": COLOR_ACCENT,
+                "width": 2.5,
+                "dx": 12,
+                "dy": -16,
+                "persistence": persistence,
+            }
+        )
+    common_path = marker.get("common_path_segment")
+    items.extend(
+        _line_from_segment_payload(
+            common_path,
+            color=COLOR_PATH,
+            width=2.5,
+            persistence=persistence,
+        )
+    )
+    for role in (
+        "anchor",
+        "first_vertex",
+        "second_vertex",
+        "first_leg_moving",
+        "moving",
+        "first_projection",
+        "second_projection",
+        "other_fixed",
+    ):
+        color = (
+            COLOR_RESULT
+            if role in {"first_leg_moving", "moving"}
+            else COLOR_MUTED
+        )
+        items.extend(
+            _point_with_optional_label_items(
+                point=str(refs[role]),
+                label=str(labels.get(role) or ""),
+                display="",
+                color=color,
+                persistence=persistence,
+                label_dy=-24,
+            )
         )
     return items
 
@@ -5693,6 +6890,10 @@ def _atomic_path_minimum_marker_items(
     triangle_fill = str(template.get("triangle_fill") or COLOR_RESULT_REGION_FILL)
     for marker in bindings.atomic_path_minimum_markers:
         marker_start = len(items)
+        is_coupled = (
+            marker.get("construction_kind")
+            == "coupled_segment_endpoint_replacement"
+        )
         if marker.get("construction_kind") == "weighted_right_triangle":
             items.extend(
                 _weighted_path_minimum_marker_items(
@@ -5763,12 +6964,43 @@ def _atomic_path_minimum_marker_items(
                 }
             )
 
+        straightened_pairs = {
+            frozenset(
+                (
+                    str(segment.get("from") or ""),
+                    str(segment.get("to") or ""),
+                )
+            )
+            for segment in marker.get("straightened_segments") or ()
+            if isinstance(segment, dict)
+            and segment.get("from")
+            and segment.get("to")
+        }
         for segment in marker.get("original_segments") or ():
+            segment_pair = (
+                frozenset(
+                    (
+                        str(segment.get("from") or ""),
+                        str(segment.get("to") or ""),
+                    )
+                )
+                if isinstance(segment, dict)
+                else frozenset()
+            )
+            is_common_result_segment = is_coupled and segment_pair in straightened_pairs
             items.extend(
                 _line_from_segment_payload(
                     segment,
                     color=path_color,
                     width=2.0,
+                    persistence=persistence,
+                    role=(
+                        "path_result:common_segment"
+                        if is_common_result_segment
+                        else "path_construction:original_segment"
+                        if is_coupled
+                        else ""
+                    ),
                 )
             )
 
@@ -5778,6 +7010,11 @@ def _atomic_path_minimum_marker_items(
                 reflection_segment,
                 color=reflected_color,
                 width=2.2,
+                role=(
+                    "path_result:straightened_segment"
+                    if is_coupled
+                    else ""
+                ),
             )
         )
         equality = str(marker.get("segment_equality") or "")
@@ -5798,6 +7035,7 @@ def _atomic_path_minimum_marker_items(
                 minimum_segment,
                 color=reflected_color,
                 width=2.8,
+                role="path_result:minimum_segment" if is_coupled else "",
             )
         )
         items.extend(
@@ -5819,6 +7057,11 @@ def _atomic_path_minimum_marker_items(
                     "handle": f"point:{reflected_ref}",
                     "at": reflected_ref,
                     "labelText": display_label,
+                    "role": (
+                        "path_result:reflected_point"
+                        if is_coupled
+                        else ""
+                    ),
                     "color": reflected_color,
                     "dx": 14,
                     "dy": 18,
@@ -5839,13 +7082,22 @@ def _atomic_path_minimum_marker_items(
                         "metadata": {"low_level_type": "coordinateLabel"},
                     }
                 )
-        items.extend(
-            _missing_semantic_role_point_items(
-                items[marker_start:],
-                marker,
-                default_persistence=persistence,
-            )
+        missing_points = _missing_semantic_role_point_items(
+            items[marker_start:],
+            marker,
+            default_persistence=persistence,
         )
+        if is_coupled:
+            for point in missing_points:
+                semantic_role = str(
+                    (point.get("metadata") or {}).get("semantic_role") or ""
+                )
+                point["role"] = (
+                    f"path_result:{semantic_role}"
+                    if semantic_role in {"moving_point", "other_fixed_point"}
+                    else f"path_construction:{semantic_role}"
+                )
+        items.extend(missing_points)
         _assert_semantic_visual_closure(
             component="AtomicPathMinimumMarker",
             marker=marker,
@@ -5908,6 +7160,21 @@ def _weighted_path_minimum_marker_items(
                 segment,
                 color=path_color,
                 width=2.4,
+            )
+        )
+    if unit_id == "domain_minimum":
+        items.extend(
+            _line_from_segment_payload(
+                marker.get("auxiliary_locus_segment"),
+                color=auxiliary_color,
+                width=1.8,
+            )
+        )
+        items.extend(
+            _dashed_line_from_segment_payload(
+                marker.get("minimum_segment"),
+                color=auxiliary_color,
+                width=1.8,
             )
         )
     relation = marker.get("weighted_relation")
@@ -6005,9 +7272,32 @@ def _carry_forward_angle_guide_arm_items(marker: JsonObject) -> list[JsonObject]
     return out
 
 
-def _angle_reference_items(bindings: VisualRoleBindings) -> list[JsonObject]:
+def _angle_reference_items(
+    bindings: VisualRoleBindings,
+    *,
+    show_reference_triangle: bool = False,
+) -> list[JsonObject]:
     out: list[JsonObject] = []
     for marker in bindings.angle_references:
+        vertices = [
+            str(marker.get("rayA") or ""),
+            str(marker.get("vertex") or ""),
+            str(marker.get("rayB") or ""),
+        ]
+        if show_reference_triangle and all(vertices) and len(set(vertices)) == 3:
+            out.append(
+                {
+                    "component": "OutlineRegion",
+                    "vertices": vertices,
+                    "fill": COLOR_COORDINATE_TRIANGLE_FILL,
+                    "color": COLOR_CONSTRAINT,
+                    "width": 1.8,
+                    "dash": "",
+                    "state": "muted",
+                    "persistence": "step_only",
+                    "metadata": {"low_level_type": "outlineRegion"},
+                }
+            )
         item: JsonObject = {
             "component": "AngleArc",
             "vertex": marker.get("vertex"),
@@ -6033,7 +7323,10 @@ def _angle_equality_template_items(
     refs = _point_marker_refs_from_scene_items(tuple(marker_items))
     return [
         *marker_items,
-        *_angle_reference_items(bindings),
+        *_angle_reference_items(
+            bindings,
+            show_reference_triangle=True,
+        ),
         *_bound_point_items_for_refs(bindings, refs, style=POINT_ACTIVE),
         *_bound_coordinate_items_for_refs(bindings, refs),
     ]
@@ -6127,8 +7420,34 @@ def _equal_acute_angle_intercept_marker_items(
             }
         )
         refs = _point_marker_refs_from_scene_items(tuple(items[-1:]))
-        items.extend(_bound_point_items_for_refs(bindings, refs, style=POINT_ACTIVE))
-        items.extend(_bound_coordinate_items_for_refs(bindings, refs))
+        target_ref = str(marker.get("target_intercept") or "")
+        target_label = str(marker.get("target_label") or "")
+        if target_ref:
+            items.extend(
+                _bound_point_items_for_refs(
+                    bindings,
+                    refs - {target_ref},
+                    style=POINT_CONTEXT,
+                )
+            )
+            items.extend(
+                _point_with_optional_label_items(
+                    point=target_ref,
+                    label=target_label,
+                    display=str(bindings.coordinate_texts_by_ref.get(target_ref) or ""),
+                    color=COLOR_RESULT,
+                    persistence="carry_forward",
+                    label_dy=-28,
+                )
+            )
+        else:
+            items.extend(_bound_point_items_for_refs(bindings, refs, style=POINT_ACTIVE))
+        items.extend(
+            _bound_coordinate_items_for_refs(
+                bindings,
+                refs - ({target_ref} if target_ref else set()),
+            )
+        )
     return items
 
 
@@ -6528,7 +7847,7 @@ def _line_parabola_intersection_marker_items(
                     point=point,
                     label=label,
                     display="",
-                    color=COLOR_ACCENT,
+                    color=COLOR_MUTED,
                     persistence=persistence,
                     label_dy=-28,
                 )
@@ -6877,9 +8196,35 @@ def _quadratic_axis_relation_marker_items(
             for item in values
             if isinstance(item, dict) and str(item.get("curve_id") or "")
         ]
+        curve_ids: list[str] = []
         for curve in curve_roles:
             result.extend(_generic_curve_items(curve, persistence=persistence))
             curve_id = str(curve.get("curve_id") or "")
+            curve_ids.append(curve_id)
+        if not curve_ids:
+            result.extend(
+                _quadratic_context_marker_items(template, bindings)
+            )
+            curve_ids.extend(bindings.curve_ids)
+        if not curve_ids:
+            axis_point = _generic_output_item(record, output_role)
+            value = axis_point.get("value")
+            if _is_point_value(value):
+                x_expression = _page_expr(value[0])
+                result.append(
+                    {
+                        "component": "AxisOfSymmetry",
+                        "handle": f"axis:x={x_expression}",
+                        "xExpr": x_expression,
+                        "color": COLOR_CONSTRAINT,
+                        "width": 1.6,
+                        "dash": "7 6",
+                        "persistence": persistence,
+                        "decay_state": "muted",
+                        "metadata": {"low_level_type": "axisOfSymmetry"},
+                    }
+                )
+        for curve_id in curve_ids:
             result.append(
                 {
                     "component": "AxisOfSymmetry",
@@ -6901,6 +8246,29 @@ def _quadratic_axis_relation_marker_items(
             )
         )
     return result
+
+
+def _quadratic_context_marker_items(
+    template: dict[str, Any],
+    bindings: VisualRoleBindings,
+) -> list[JsonObject]:
+    """Show the sole verified in-scope parabola as muted diagram context."""
+
+    persistence = str(template.get("persistence") or "carry_forward")
+    color = str(template.get("context_color") or COLOR_MUTED)
+    return [
+        {
+            "component": "Parabola",
+            "curveId": curve_id,
+            "color": color,
+            "width": 2.2,
+            "state": "context",
+            "persistence": persistence,
+            "decay_state": "muted",
+            "metadata": {"low_level_type": "parabola"},
+        }
+        for curve_id in bindings.curve_ids
+    ]
 
 
 def _quadratic_y_axis_intercept_marker_items(
@@ -7066,6 +8434,7 @@ def _rotated_candidate_marker_items(
     input_roles = tuple(str(item) for item in template.get("input_roles") or ())
     result: list[JsonObject] = []
     for record in _generic_source_records(template, bindings):
+        record_start = len(result)
         anchor = _generic_input_item(record, input_roles[0]) if input_roles else {}
         reference = (
             _generic_input_item(record, input_roles[1])
@@ -7075,6 +8444,15 @@ def _rotated_candidate_marker_items(
         anchor_ref = str(anchor.get("geometry_ref") or "")
         reference_ref = str(reference.get("geometry_ref") or "")
         candidates = _generic_candidate_roles(record)
+        construction = next(
+            (
+                calculation.get("construction_geometry")
+                for calculation in record.get("calculations") or ()
+                if isinstance(calculation, dict)
+                and isinstance(calculation.get("construction_geometry"), dict)
+            ),
+            {},
+        )
         if anchor_ref and reference_ref:
             line = _line_item(
                 anchor_ref, reference_ref, color=COLOR_CONSTRAINT, width=2.1,
@@ -7082,7 +8460,21 @@ def _rotated_candidate_marker_items(
             )
             if line is not None:
                 result.append(line)
-        for candidate in candidates:
+            result.append(
+                {
+                    "component": "DistanceMarker",
+                    "from": anchor_ref,
+                    "to": reference_ref,
+                    "label": "=",
+                    "color": COLOR_CONSTRAINT,
+                    "width": 2.0,
+                    "offsetPx": 14,
+                    "persistence": persistence,
+                    "metadata": {"low_level_type": "distanceMarker"},
+                }
+            )
+        branches = construction.get("candidate_branches") or ()
+        for candidate_index, candidate in enumerate(candidates):
             candidate_ref = str(candidate.get("geometry_ref") or "")
             if anchor_ref and candidate_ref:
                 line = _line_item(
@@ -7104,6 +8496,19 @@ def _rotated_candidate_marker_items(
                             "metadata": {"low_level_type": "rightAngle"},
                         }
                     )
+                    result.append(
+                        {
+                            "component": "DistanceMarker",
+                            "from": anchor_ref,
+                            "to": candidate_ref,
+                            "label": "=",
+                            "color": COLOR_RESULT,
+                            "width": 2.0,
+                            "offsetPx": 14,
+                            "persistence": persistence,
+                            "metadata": {"low_level_type": "distanceMarker"},
+                        }
+                    )
             result.extend(
                 _generic_point_items(
                     {
@@ -7115,6 +8520,94 @@ def _rotated_candidate_marker_items(
                     coordinate=False,
                 )
             )
+            branch = (
+                branches[candidate_index]
+                if candidate_index < len(branches)
+                and isinstance(branches[candidate_index], dict)
+                else {}
+            )
+            projection = branch.get("projection") or {}
+            projection_ref = str(projection.get("geometry_ref") or "")
+            projection_line = _line_item(
+                candidate_ref,
+                projection_ref,
+                color=COLOR_MUTED,
+                width=1.6,
+                persistence=persistence,
+                dash="5 5",
+                role="right_equal:candidate_projection",
+            )
+            if projection_line is not None:
+                result.append(projection_line)
+            result.extend(
+                _generic_point_items(
+                    projection,
+                    color=COLOR_MUTED,
+                    persistence=persistence,
+                    coordinate=False,
+                )
+            )
+            if (
+                anchor_ref
+                and projection_ref
+                and candidate_ref
+                and anchor_ref != projection_ref
+                and candidate_ref != projection_ref
+            ):
+                result.append(
+                    {
+                        "component": "RightAngle",
+                        "vertex": projection_ref,
+                        "rayA": anchor_ref,
+                        "rayB": candidate_ref,
+                        "color": COLOR_MUTED,
+                        "size": 8,
+                        "persistence": persistence,
+                        "metadata": {"low_level_type": "rightAngle"},
+                    }
+                )
+        reference_projection = construction.get("reference_projection") or {}
+        reference_projection_ref = str(
+            reference_projection.get("geometry_ref") or ""
+        )
+        reference_projection_line = _line_item(
+            reference_ref,
+            reference_projection_ref,
+            color=COLOR_MUTED,
+            width=1.6,
+            persistence=persistence,
+            dash="5 5",
+            role="right_equal:reference_projection",
+        )
+        if reference_projection_line is not None:
+            result.append(reference_projection_line)
+        result.extend(
+            _generic_point_items(
+                reference_projection,
+                color=COLOR_MUTED,
+                persistence=persistence,
+                coordinate=False,
+            )
+        )
+        if (
+            anchor_ref
+            and reference_projection_ref
+            and reference_ref
+            and anchor_ref != reference_projection_ref
+            and reference_ref != reference_projection_ref
+        ):
+            result.append(
+                {
+                    "component": "RightAngle",
+                    "vertex": reference_projection_ref,
+                    "rayA": anchor_ref,
+                    "rayB": reference_ref,
+                    "color": COLOR_MUTED,
+                    "size": 8,
+                    "persistence": persistence,
+                    "metadata": {"low_level_type": "rightAngle"},
+                }
+            )
         for role in (anchor, reference):
             result.extend(
                 _generic_point_items(
@@ -7123,6 +8616,14 @@ def _rotated_candidate_marker_items(
                     persistence=persistence,
                     coordinate=False,
                 )
+            )
+        source_step_id = str(record.get("source_step_id") or "")
+        for item in result[record_start:]:
+            original_role = str(
+                item.get("role") or item.get("component") or "object"
+            )
+            item["role"] = (
+                f"candidate_construction:{source_step_id}:{original_role}"
             )
     return result
 
@@ -7144,25 +8645,34 @@ def _candidate_selection_marker_items(
             ),
             {},
         )
-        for candidate in candidates:
-            result.extend(
-                _generic_point_items(
-                    {
-                        "geometry_ref": candidate.get("geometry_ref"),
-                        "label": candidate.get("label"),
-                    },
-                    color=COLOR_MUTED,
-                    persistence="step_only",
-                    coordinate=False,
-                )
+        selected_value = selected.get("value")
+        selected_candidates = [
+            candidate
+            for candidate in candidates
+            if _same_point_pair_value(
+                _sympy_point_pair(candidate.get("value")) or (),
+                _sympy_point_pair(selected_value) or (),
             )
-        result.extend(
-            _generic_point_items(
-                selected,
-                color=COLOR_RESULT,
-                persistence=persistence,
+        ]
+        if len(selected_candidates) != 1:
+            raise ValueError(
+                "visual_candidate_selection_identity_invalid: "
+                f"source={record.get('source_step_id')}, "
+                f"matches={len(selected_candidates)}"
             )
+        selected_items = _generic_point_items(
+            selected,
+            color=COLOR_RESULT,
+            persistence=persistence,
         )
+        for item in selected_items:
+            if item.get("component") != "Point":
+                continue
+            item["role"] = (
+                "candidate:selected_result:"
+                f"{record.get('source_step_id') or ''}"
+            )
+        result.extend(selected_items)
     return result
 
 
@@ -7171,6 +8681,55 @@ def _curve_candidate_filter_marker_items(
     bindings: VisualRoleBindings,
 ) -> list[JsonObject]:
     result: list[JsonObject] = []
+    records = {
+        str(record.get("source_step_id") or ""): record
+        for record in _generic_source_records(template, bindings)
+    }
+    if bindings.curve_candidate_selection_markers:
+        for marker in bindings.curve_candidate_selection_markers:
+            source_step_id = str(marker.get("source_step_id") or "")
+            record = records.get(source_step_id, {})
+            for values in (record.get("inputs") or {}).values():
+                for role in values if isinstance(values, list) else ():
+                    if isinstance(role, dict):
+                        result.extend(
+                            _generic_curve_items(role, persistence="step_only")
+                        )
+            candidates = marker.get("candidates")
+            if not isinstance(candidates, list):
+                continue
+            for candidate in candidates:
+                if not isinstance(candidate, dict):
+                    continue
+                selected = candidate.get("selected") is True
+                point_ref = str(candidate.get("geometry_ref") or "")
+                label = str(candidate.get("label") or "")
+                if not point_ref or not label:
+                    continue
+                result.append(
+                    {
+                        "component": "Point",
+                        "role": (
+                            "candidate:selected" if selected else "candidate:rejected"
+                        ),
+                        "handle": f"point:{point_ref}",
+                        "at": point_ref,
+                        "labelText": label,
+                        "color": COLOR_RESULT if selected else COLOR_MUTED,
+                        "dx": 14,
+                        "dy": -18,
+                        "persistence": "step_only",
+                        "metadata": {
+                            "low_level_type": "point",
+                            "preserve_student_label": True,
+                            "candidate_decision": (
+                                "retain" if selected else "reject"
+                            ),
+                        },
+                    }
+                )
+        return _dedupe_scene_items(result)
+
     for record in _generic_source_records(template, bindings):
         for values in (record.get("inputs") or {}).values():
             for role in values if isinstance(values, list) else ():
@@ -7257,6 +8816,7 @@ _RECIPE_VISUAL_TEMPLATE_RENDERERS: dict[str, _VisualTemplateRenderer] = {
     "CongruentTriangleMarker": _congruent_triangle_marker_items,
     "EquivalentSegmentMarker": _equivalent_segment_marker_items,
     "PathMinimumTriangleMarker": _path_minimum_triangle_marker_items,
+    "QuadraticContextMarker": _quadratic_context_marker_items,
     "AtomicSquarePathReductionMarker": _atomic_square_path_reduction_marker_items,
     "CandidateSelectionMarker": _candidate_selection_marker_items,
     "CurveCandidateFilterMarker": _curve_candidate_filter_marker_items,
@@ -7300,6 +8860,8 @@ def _line_from_segment_payload(
     *,
     color: str,
     width: float,
+    persistence: str = "carry_forward",
+    role: str = "",
 ) -> list[JsonObject]:
     if not isinstance(segment, dict):
         return []
@@ -7315,9 +8877,10 @@ def _line_from_segment_payload(
             "to": end,
             "color": color,
             "width": width,
-            "persistence": "carry_forward",
+            "persistence": persistence,
             "decay_state": "muted",
             "metadata": {"low_level_type": "coloredLine"},
+            **({"role": role} if role else {}),
         }
     ]
 
@@ -7327,6 +8890,8 @@ def _dashed_line_from_segment_payload(
     *,
     color: str,
     width: float,
+    persistence: str = "carry_forward",
+    role: str = "",
 ) -> list[JsonObject]:
     if not isinstance(segment, dict):
         return []
@@ -7343,9 +8908,10 @@ def _dashed_line_from_segment_payload(
             "color": color,
             "width": width,
             "dash": "5 6",
-            "persistence": "carry_forward",
+            "persistence": persistence,
             "decay_state": "muted",
             "metadata": {"low_level_type": "dashedLine"},
+            **({"role": role} if role else {}),
         }
     ]
 
@@ -7553,11 +9119,155 @@ def _verified_coordinate_texts_for_lesson_step(
             continue
         labels = _point_labels_for_coordinate_source(source_step)
         values = runtime_points_by_source.get(source_step_id, ())
-        if len(labels) != 1 or len(values) != 1:
+        if len(values) != 1:
+            continue
+        if len(labels) != 1:
+            labels = _coordinate_conclusion_labels_for_value(
+                lesson_step,
+                values[0][0],
+            )
+        if len(labels) != 1:
             continue
         label = next(iter(labels))
         coordinates[label] = f"{label}({values[0][0]})"
     return coordinates
+
+
+def _coordinate_conclusion_labels_for_value(
+    lesson_step: LessonStep,
+    value_text: str,
+) -> set[str]:
+    """Bind a verified anonymous Point output to its student-facing label.
+
+    Some runtime methods return an auxiliary point without a public output
+    target.  LessonIR still names that point in its verified coordinate
+    conclusion.  We accept the label only when both displayed components
+    equal the runtime result after student-format normalization.
+    """
+
+    value_parts = [part.strip() for part in str(value_text).split(",")]
+    if len(value_parts) != 2:
+        return set()
+    expected = tuple(
+        _normalized_student_coordinate_component(student_math_display(part))
+        for part in value_parts
+    )
+    result: set[str] = set()
+    texts = [*lesson_step.box, *[text for _, text in lesson_step.derive]]
+    pattern = re.compile(
+        r"(?<![A-Za-z])([A-Z])\s*[（(]\s*([^,，()（）]+)\s*[,，]\s*([^()（）]+)\s*[）)]"
+    )
+    for text in texts:
+        for label, x_text, y_text in pattern.findall(str(text)):
+            actual = (
+                _normalized_student_coordinate_component(x_text),
+                _normalized_student_coordinate_component(y_text),
+            )
+            if actual == expected:
+                result.add(label)
+    return result
+
+
+def _normalized_student_coordinate_component(value: Any) -> str:
+    return (
+        str(value)
+        .strip()
+        .replace(" ", "")
+        .replace("－", "-")
+        .replace("−", "-")
+        .replace("＋", "+")
+        .replace("，", ",")
+    )
+
+
+def _visible_coordinate_texts_by_ref(
+    coordinate_texts: dict[str, str],
+    geometry_spec: JsonObject,
+    *,
+    parameter_values: Mapping[str, str] | None = None,
+) -> dict[str, str]:
+    """Map only already-known coordinate facts to renderable geometry ids.
+
+    The geometry registry intentionally contains points discovered later in
+    the solution so that every frame can reference stable identities.  Registry
+    presence is therefore not permission to display a coordinate.  Visibility
+    is derived from the verified source-step prefix above and joined to ids
+    through ``pointMeta``.
+    """
+
+    result: dict[str, str] = {}
+    point_meta = geometry_spec.get("pointMeta") or {}
+    known_refs = {
+        *map(str, (geometry_spec.get("fixedPoints") or {}).keys()),
+        *map(str, (geometry_spec.get("movingPoints") or {}).keys()),
+    }
+    for geometry_ref in sorted(known_refs):
+        meta = point_meta.get(geometry_ref)
+        label = str((meta or {}).get("label") or "") if isinstance(meta, dict) else ""
+        text = coordinate_texts.get(geometry_ref) or coordinate_texts.get(label)
+        if text:
+            pair = _geometry_point_pair(geometry_spec, geometry_ref)
+            resolved = _student_coordinate_with_parameters(
+                label,
+                pair,
+                parameter_values or {},
+            )
+            if resolved:
+                text = resolved
+            result[geometry_ref] = text
+    return result
+
+
+def _student_coordinate_with_parameters(
+    label: str,
+    pair: list[str] | None,
+    parameter_values: Mapping[str, str],
+) -> str:
+    """Evaluate an already-visible coordinate under verified frame state."""
+
+    if not label or pair is None or len(pair) != 2:
+        return ""
+    substitutions: dict[sp.Symbol, sp.Expr] = {}
+    try:
+        substitutions = {
+            sp.Symbol(str(name)): sp.sympify(str(value))
+            for name, value in parameter_values.items()
+        }
+        values = tuple(
+            sp.simplify(sp.sympify(str(component)).subs(substitutions))
+            for component in pair
+        )
+    except Exception:
+        return ""
+    return (
+        f"{label}("
+        + ",".join(
+            student_math_display(value, fullwidth_operators=True)
+            for value in values
+        )
+        + ")"
+    )
+
+
+def _restrict_coordinate_labels_to_visible_facts(
+    items: list[JsonObject],
+    visible_coordinate_texts_by_ref: dict[str, str],
+) -> list[JsonObject]:
+    """Prevent a scene component from revealing a later coordinate result."""
+
+    result: list[JsonObject] = []
+    for item in items:
+        if str(item.get("component") or "") != "CoordinateLabel":
+            result.append(item)
+            continue
+        geometry_ref = str(item.get("at") or "")
+        text = visible_coordinate_texts_by_ref.get(geometry_ref)
+        if not text:
+            continue
+        visible = copy.deepcopy(item)
+        visible["text"] = text
+        result.append(visible)
+    return result
 
 
 def _point_label_for_runtime_coordinate_fact(
@@ -7646,7 +9356,10 @@ def _is_point_list_value(value: Any) -> bool:
 
 
 def _point_value_text(value: Any) -> str:
-    return f"{value[0]}, {value[1]}"
+    return ", ".join(
+        student_math_display(item, fullwidth_operators=True)
+        for item in value
+    )
 
 
 def _scope_root(scope_id: str) -> str:

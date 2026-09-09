@@ -2,7 +2,7 @@
   "method_id": "weighted_axis_path_minimum_kernel",
   "title": "加权轴上路径最值内核",
   "description": "Transform one weighted two-term axis path and prove its minimum.",
-  "summary": "Given a two-term weighted path with one shared axis moving point, resolve the registered auxiliary-triangle geometry internally, prove that the straightening equality state is reachable in the declared domains, and return only the minimum expression.",
+  "summary": "Given a two-term weighted path with one shared axis moving point, resolve the registered auxiliary-triangle geometry internally, prove where the straightening equality state is reachable in the declared moving domain, and return the minimum expression only on those attained parameter branches.",
   "solves": [
     "derive_weighted_axis_path_minimum"
   ],
@@ -126,8 +126,8 @@
     "the primary and dynamic parameter domains are explicit"
   ],
   "postconditions": [
-    "minimum_expression equals the source weighted path minimum",
-    "the selected auxiliary-ray foot and original moving point make equality reachable"
+    "minimum_expression contains only parameter branches where the source weighted path minimum is attained",
+    "every published branch has a selected auxiliary-ray foot and original moving point that make equality reachable"
   ],
   "distinct_arg_groups": [
     [

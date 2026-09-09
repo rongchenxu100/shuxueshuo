@@ -155,7 +155,8 @@
     ],
     "annotation_templates": [],
     "timeline_templates": [],
-    "role_binder_id": "generic_visual"
+    "role_binder_id": "generic_visual",
+    "continuation_policy": "preserve_prior_path_scene"
   },
   "interchangeable_arg_groups": [
     [

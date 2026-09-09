@@ -202,6 +202,7 @@ SPEC = MethodSpecSource(
             },
         ),
         role_binder_id="generic_visual",
+        continuation_policy="preserve_prior_path_scene",
     ),
     symbolic_closure=_SYMBOLIC_CLOSURE_SPEC,
 )

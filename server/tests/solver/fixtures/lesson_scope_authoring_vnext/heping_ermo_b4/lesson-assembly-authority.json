@@ -1,7 +1,7 @@
 {
   "schema_version": "lesson-assembly-authority/v1",
   "snapshot_hash": "b8222c8263523b25070879462ae5e4a860f34aa35d2bd605490c6f8617a2f6e4",
-  "annotated_plan_hash": "38508730e5d0f0d7211e707653487ce6acaede185e63b85bc8f452e59345cf57",
+  "annotated_plan_hash": "af480eb61e22d46cfe0a19c49fefeab42ea738cd59652482aa40ca7e70c1ea71",
   "lesson_ir_hash": "ade5cdafe23ab9e621e4b9e28cd2422f9fde89339ec4b3ca626d57dfe3628af5",
   "lesson_steps": {
     "teach:group:bf93f6b6502f4e43": {

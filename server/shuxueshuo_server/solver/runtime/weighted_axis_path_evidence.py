@@ -76,6 +76,13 @@ def build_weighted_axis_path_execution_witness(
             "planner.macro_contract_invalid: weighted-axis kernel omitted "
             "its structural triangle or path-equivalence facts"
         )
+    legal_domain = [
+        "题设路径含一个带权项和一个单位权重项，且共享同一个轴上动点",
+        f"取等条件：{evidence['attainment_condition']}",
+    ]
+    if boundary_expression is not None:
+        legal_domain.append(f"边界分支：{boundary_expression}")
+
     return PathMinimumWitness(
         step_id=compiled.call_id,
         macro_id="weighted_axis_path_minimum",
@@ -105,19 +112,7 @@ def build_weighted_axis_path_execution_witness(
             "已验证的辅助直角三角形给出斜边与辅助直角边的倍率关系",
             "按同一倍率把原目标化为两段普通线段之和",
         ),
-        legal_domain=(
-            "题设路径含一个带权项和一个单位权重项，且共享同一个轴上动点",
-            (
-                "取等条件："
-                f"{evidence['attainment_condition']}"
-            ),
-            (
-                "边界分支："
-                f"{boundary_expression}"
-                if boundary_expression is not None
-                else "取等状态在整个参数定义域内均成立"
-            ),
-        ),
+        legal_domain=tuple(legal_domain),
         minimum_strategy=str(evidence["minimum_strategy"]),
         minimum_expression=str(evidence["minimum_expression"]),
         minimizing_points={

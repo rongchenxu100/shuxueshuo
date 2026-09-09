@@ -40,6 +40,7 @@ from .models import (
     VisualScope,
     VisualStep,
 )
+from .parameter_identity import verified_parameter_values_from_source
 
 
 VISUAL_STATE_AUTHORITY_CONTRACT = "visual-state-authority/v1"
@@ -56,13 +57,15 @@ class BranchVisualState:
     ``available`` is the complete visible scene at the current branch
     position, keyed by semantic visual-object identity rather than a
     student-facing label.  ``last_frame`` preserves the same scene in render
-    order.  ``parameters`` contains only values produced by steps already
-    executed on this branch.
+    order, while ``last_local_parameters`` preserves its frame-local display
+    state for a following calculation-only step.  ``parameters`` contains
+    only values produced by steps already executed on this branch.
     """
 
     available: dict[str, VisualObject] = field(default_factory=dict)
     parameters: dict[str, str] = field(default_factory=dict)
     last_frame: tuple[VisualObject, ...] = ()
+    last_local_parameters: tuple[JsonObject, ...] = ()
     last_container_ref: str | None = None
 
     def clone(self) -> "BranchVisualState":
@@ -70,6 +73,7 @@ class BranchVisualState:
             available=copy.deepcopy(self.available),
             parameters=dict(self.parameters),
             last_frame=copy.deepcopy(self.last_frame),
+            last_local_parameters=copy.deepcopy(self.last_local_parameters),
             last_container_ref=self.last_container_ref,
         )
 
@@ -232,6 +236,9 @@ class RecursiveVisualStateResolver:
                     context_copy(item)
                     for item in resolution.published_objects
                 )
+                state.last_local_parameters = copy.deepcopy(
+                    resolution.step.frames[-1].local_parameters
+                )
                 state.last_container_ref = container_ref
             self._publish_parameter_outputs(owned, state)
             after = set(state.available)
@@ -275,18 +282,7 @@ class RecursiveVisualStateResolver:
             source = self.sources.get(step_id)
             if source is None:
                 continue
-            for return_name, output in source.outputs.items():
-                runtime_type = str(output.get("runtime_type") or "")
-                if runtime_type != "ParameterValue":
-                    continue
-                value = output.get("value")
-                if value is None:
-                    continue
-                name = str(source.output_targets.get(return_name) or "")
-                if not name:
-                    name = _symbol_name_from_parameter_output(output)
-                if name:
-                    state.parameters[name] = str(value)
+            state.parameters.update(verified_parameter_values_from_source(source))
 
 
 def visual_objects_from_scene_items(
@@ -381,15 +377,6 @@ def visual_objects_from_scene_items(
 
 def context_copy(item: VisualObject) -> VisualObject:
     return replace(item, state="context")
-
-
-def _symbol_name_from_parameter_output(output: Mapping[str, Any]) -> str:
-    display = str(output.get("display") or "")
-    value = str(output.get("value") or "")
-    for candidate in (display, value):
-        if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", candidate):
-            return candidate
-    return ""
 
 
 def geometry_refs_from_scene_item(item: Mapping[str, Any]) -> list[str]:

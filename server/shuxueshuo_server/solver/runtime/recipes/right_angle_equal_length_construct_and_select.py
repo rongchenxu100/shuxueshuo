@@ -80,7 +80,13 @@ SPEC = RecipeSpecSource(
         teaching_substep_templates={
             "construct_candidates": (
                 {
+                    "component": "QuadraticContextMarker",
+                    "persistence": "carry_forward",
+                },
+                {
                     "component": "RightAngleEqualLengthCandidatesMarker",
+                    "input_roles": ["anchor", "reference"],
+                    "output_role": "candidates",
                     "requires_independent_lesson_step": True,
                     "persistence": "carry_forward",
                 },
