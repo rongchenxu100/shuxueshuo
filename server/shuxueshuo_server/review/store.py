@@ -105,6 +105,9 @@ class ReviewStore:
             doc = redact(doc, self.secrets)
             db.execute("UPDATE runs SET doc=? WHERE id=?", (json.dumps(doc), run_id))
             self._event(db, doc)
+            if doc["status"] == "succeeded":
+                from .versions import publish
+                publish(db, doc)
 
     def _event(self, db, doc):
         payload = {"schema_version": "review-event/v1", "run_id": doc["id"],
@@ -129,6 +132,8 @@ class ReviewStore:
             db.execute("INSERT INTO runs VALUES(?,?)", (run_id, json.dumps(doc)))
         self.add(run_id, "source", "input", "原始上传图片", content, media_type)
         self.add(run_id, "source", "output", "规范化图片", normalized, "image/png")
+        from .versions import Versions
+        Versions(self).attach(run_id, parent_run_id, requested=enqueue)
         with self.edit(run_id) as doc:
             doc["status"] = "queued" if enqueue else "initializing"
         return self.get(run_id)
@@ -175,6 +180,9 @@ class ReviewStore:
             stage["started_at" if status == "running" else "finished_at"] = time.time()
 
     def finish(self, run_id, *, error=None, interrupted=False):
+        from .versions import Versions
+        if error is None:
+            Versions(self).capture(run_id)
         with self.edit(run_id) as doc:
             if doc["status"] in TERMINAL:
                 return
@@ -260,12 +268,12 @@ class ReviewStore:
             raise ValueError("artifact integrity check failed")
         return ref, content
 
-    def rerun(self, run_id, from_stage=None):
+    def rerun(self, run_id, from_stage=None, *, enqueue=True):
         doc = self.get(run_id)
         ref = next(a for a in doc["artifacts"] if a["stage"] == "source" and a["role"] == "input")
         _, content = self.read(run_id, ref["id"])
         if from_stage is None:
-            return self.create(content, ref["media_type"], doc["filename"], parent_run_id=run_id)
+            return self.create(content, ref["media_type"], doc["filename"], parent_run_id=run_id, enqueue=enqueue)
         from .replay import KEYS, ARCHIVE, availability, archive_bytes, archive_source, find
         if from_stage not in KEYS:
             raise ValueError("未知重跑阶段")
@@ -302,7 +310,10 @@ class ReviewStore:
                 for stage in new["stages"]:
                     if stage["id"] in before:
                         stage.update(status="succeeded", summary="复用上一次成功产物", reused_from_run_id=run_id)
-                new["status"] = "queued"
+                        old = next(s for s in doc["stages"] if s["id"] == stage["id"])
+                        if old.get("manifest"):
+                            stage["manifest"] = old["manifest"]
+                new["status"] = "queued" if enqueue else "initializing"
             return self.get(child_id)
         except Exception as exc:
             self.finish(child_id, error=f"replay.prepare_failed: {exc}")
