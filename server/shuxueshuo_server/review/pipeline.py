@@ -162,11 +162,21 @@ def generate(store, run_id):
     from shuxueshuo_server.solver.visual.validator import VisualStepIRValidator
     from shuxueshuo_server.solver.visual.compiler import forward_compile
 
+    from .rebuild import BuildGuard
+    from .versions import Versions
+    from .problem_edit import install, load_contexts
+    guard = BuildGuard(store, run_id)
+    versions = Versions(store)
+    problem_revision = versions.revision(versions.info(run_id)["run_revision_id"])
+    manual = problem_revision is not None and problem_revision["kind"] == "manual"
+
     def add(stage, role, name, value, media="application/json"):
         return store.add(run_id, stage, role, name, payload(value), media)
     def start(stage, summary=""):
+        guard.check()
         store.stage(run_id, stage, "running", summary)
     def done(stage, summary):
+        guard.complete(stage)
         store.stage(run_id, stage, "succeeded", summary)
 
     from_stage = store.get(run_id).get("from_stage", "source")
@@ -183,7 +193,7 @@ def generate(store, run_id):
     store.secrets = tuple(s for s in (config.deepseek_api_key, config.doubao_api_key) if s)
     if (runs("solver") or runs("lesson")) and not config.deepseek_api_key:
         raise ValueError("configuration.missing: 需要 DEEPSEEK_API_KEY；不会切换 Mock")
-    if runs("extraction") and not config.doubao_api_key:
+    if runs("extraction") and not manual and not config.doubao_api_key:
         raise ValueError("configuration.missing: 需要 DOUBAO_API_KEY；不会切换 Mock")
     ocr_python = Path(os.environ.get("REVIEW_OCR_PYTHON", REPO / "server/.venv-ocr/bin/python"))
     if runs("observation") and not ocr_python.is_file():
@@ -208,6 +218,8 @@ def generate(store, run_id):
         if ocr.returncode:
             raise RuntimeError(f"observation.failed: OCR 进程退出 {ocr.returncode}，查看 OCR 进程日志")
         save_archive(store, run_id, "observation")
+        guard.complete("source")
+        guard.complete("observation")
     if position <= KEYS.index("evidence"):
         from shuxueshuo_server.solver.extraction.context import ProblemExtractionContext
         initial = ProblemExtractionContext.from_payload(read_json(store, run_id, "source", "Source / selection / initial Context"))
@@ -216,7 +228,11 @@ def generate(store, run_id):
             restore_archive(store, run_id, "observation" if from_stage == "extraction" else "extraction")
         extraction_store = relocated_extraction_store(store.root / run_id / "extraction-artifacts")
 
-    if runs("extraction"):
+    if runs("extraction") and manual:
+        start("extraction", "校验人工修订并生成新的验证题意与 Context")
+        install(store, run_id, problem_revision, context, (initial,), extraction_store)
+        done("extraction", "人工题意通过完整校验；未调用抽取模型")
+    elif runs("extraction"):
         start("extraction", "真实多模态题意抽取与数学合同校验")
         add("extraction", "input", "输入 Observation Context", context)
         provider = AuditedClient(DoubaoMultimodalExtractionProvider(api_key=config.doubao_api_key,
@@ -239,8 +255,8 @@ def generate(store, run_id):
 
         save_archive(store, run_id, "extraction")
     if position <= KEYS.index("evidence"):
-        final_context = ProblemExtractionContext.from_payload(read_json(store, run_id, "extraction", "Extraction Context"), ancestor_contexts=(initial, context))
-        bundle = VerifiedSolverProblemBundleLoader().load(final_context, extraction_store, ancestor_contexts=(initial, context))
+        final_context, ancestors = load_contexts(store, run_id)
+        bundle = VerifiedSolverProblemBundleLoader().load(final_context, extraction_store, ancestor_contexts=ancestors)
         authority = VerifiedPlannerProblemAuthority.from_bundle(bundle)
     if runs("projection"):
         start("projection")
@@ -349,8 +365,7 @@ def generate(store, run_id):
         add("page", "validation", tool, {"exit_code": proc.returncode, "stdout": proc.stdout, "stderr": proc.stderr})
         if proc.returncode:
             raise ValueError(f"page.compile_failed: {tool}")
-    if source_version() != revision:
-        raise ValueError("build.source_changed: 构建期间代码、Spec、提示词或 Schema 发生变化，请重新运行")
+    guard.check()
     html = (output / "lesson.html").read_bytes()
     inspect_page(html)
     add("page", "validation", "页面资源与版本一致性", {"ok": True, "source_version": revision, "standalone": True})

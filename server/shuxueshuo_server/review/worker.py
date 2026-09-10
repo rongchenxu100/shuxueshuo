@@ -12,6 +12,9 @@ from .store import ReviewStore
 def execute(store, run_id, pipeline):
     try:
         pipeline(store, run_id)
+        if store.get(run_id).get("target_dependencies"):
+            from .rebuild import BuildGuard
+            BuildGuard(store, run_id).check()
         store.finish(run_id)
     except Exception as exc:
         store.finish(run_id, error=f"{type(exc).__name__}: {exc}")

@@ -153,6 +153,7 @@ class ProblemDomainContextTransitionService:
         attempt_ledger: ExtractionAttemptLedger,
         artifacts: Sequence[ExtractionArtifactRef] = (),
         ancestor_contexts: Sequence[ProblemExtractionContext] = (),
+        producer: str = "problem_domain_extraction",
     ) -> ProblemExtractionContext:
         _require_artifact(verified_artifact, "verified_problem")
         _require_artifact(
@@ -193,7 +194,7 @@ class ProblemDomainContextTransitionService:
                 "family_id": verified_problem.family_id,
             },
             ancestor_contexts=ancestor_contexts,
-            producer="problem_domain_extraction",
+            producer=producer,
             producer_version="v1",
             projection=ExtractionProjection(
                 status="accepted",

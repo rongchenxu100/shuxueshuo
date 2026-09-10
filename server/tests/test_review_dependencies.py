@@ -78,3 +78,8 @@ def test_unknown_resources_are_visible(tmp_path):
     put(tmp_path, 'internal/schemas/new-contract.json', '{}')
     result = collect(tmp_path, CONFIG)
     assert result['unclassified_resources'] == [{'path': 'internal/schemas/new-contract.json', 'stage': 'source'}]
+
+
+def test_all_existing_production_resources_have_registered_owners():
+    # New resource names need ownership, or an explicit conservative fallback.
+    assert collect()['unclassified_resources'] == []

@@ -63,20 +63,22 @@ class Versions:
     def capture(self, run_id):
         """Import an authentic extracted revision; never invent stage version evidence."""
         info = self.info(run_id)
-        if info['run_revision_id']: return
+        prior = self.revision(info['run_revision_id'])
+        if prior and prior['kind'] == 'manual': return
         doc = self.store.get(run_id)
         ref = next((a for a in reversed(doc['artifacts']) if a['name'] == 'VerifiedProblem' and a['stage'] == 'extraction'), None)
         if not ref: return
         verified = json.loads(self.store.read(run_id, ref['id'])[1])
+        if prior and prior['semantic_hash'] == verified['semantic_hash']: return
         revision_id = 'extracted:' + run_id
-        record = {'id': revision_id, 'parent_id': None, 'source_run_id': run_id,
+        record = {'id': revision_id, 'parent_id': info['run_revision_id'], 'source_run_id': run_id,
                   'domain': verified['graph'], 'verified': verified, 'semantic_hash': verified['semantic_hash'],
                   'kind': 'extracted', 'created_at': time.time()}
         with self.store.connect() as db:
             db.execute('BEGIN IMMEDIATE')
             db.execute('INSERT OR IGNORE INTO review_revisions VALUES(?,?,?)', (revision_id, info['id'], json.dumps(record)))
-            db.execute('UPDATE review_run_versions SET revision_id=? WHERE run_id=? AND revision_id IS NULL', (revision_id, run_id))
-            db.execute('UPDATE review_subjects SET revision_id=? WHERE id=? AND revision_id IS NULL AND latest_run_id=?', (revision_id, info['id'], run_id))
+            db.execute('UPDATE review_run_versions SET revision_id=? WHERE run_id=? AND revision_id IS ?', (revision_id, run_id, info['run_revision_id']))
+            db.execute('UPDATE review_subjects SET revision_id=? WHERE id=? AND revision_id IS ? AND latest_run_id=?', (revision_id, info['id'], info['run_revision_id'], run_id))
 
     def save(self, run_id, base_revision_id, record):
         with self.store.connect() as db:

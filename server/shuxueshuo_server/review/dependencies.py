@@ -36,7 +36,7 @@ def digest(value):
 def inventory(root=REPO):
     paths = set()
     for directory, suffixes in (
-        ('server/shuxueshuo_server', {'.py'}), ('tools', {'.mjs', '.js'}),
+        ('server/shuxueshuo_server', None), ('tools', {'.mjs', '.js'}),
         ('internal/llm-prompts', None), ('internal/schemas', None),
         ('internal/templates', None), ('internal/config', None),
         ('internal/functional-plan-v2-fixtures', {'.json'}),
@@ -91,7 +91,11 @@ def resource_owner(path):
             return 'projection', False
         return 'extraction', False
     if '/solver/' in path: return 'solver', False
+    if path in {'server/pyproject.toml', 'server/uv.lock', 'server/shuxueshuo_server/__init__.py'}: return 'source', False
+    if path in {'server/shuxueshuo_server/main.py', 'server/shuxueshuo_server/wechat_jssdk.py'}: return None, False
     if '/review/' in path:
+        if Path(path).stem in {'api', 'worker', 'versions'}: return None, False
+        if Path(path).stem == 'problem_edit': return 'extraction', False
         if Path(path).stem == 'ocr': return 'observation', False
         return 'source', False
     return 'source', True
@@ -124,14 +128,18 @@ def collect(root=REPO, config=None):
         config = SolverRuntimeConfig.from_sources(llm_provider='deepseek', allow_same_problem_few_shot=False)
     resources = {key: {} for key in KEYS}
     unknown = []
-    for path, hashed in inventory(root).items():
+    observed = inventory(root)
+    for path, hashed in observed.items():
         stage, fallback = resource_owner(path)
+        if stage is None: continue
         if fallback: unknown.append({'path': path, 'stage': stage})
         if '/solver/runtime/' in path and path.endswith('.py') and ('/methods/' in path or '/macros/' in path or '/recipes/' in path):
             parts = spec_parts((root / path).read_text())
             for owner, value in parts.items(): resources[owner][path + '#' + owner] = value
         else:
             resources[stage][path] = hashed
+    if inventory(root) != observed:
+        raise ValueError('build.source_changed: 依赖探测期间文件变化')
     settings = {key: {} for key in KEYS}
     settings['observation'] = {'python': os.environ.get('REVIEW_OCR_PYTHON', str(root / 'server/.venv-ocr/bin/python'))}
     settings['extraction'] = {'model': config.doubao_model, 'endpoint_hash': digest(config.doubao_base_url), 'attempts': 3}
@@ -160,6 +168,8 @@ def probe():
         if result.returncode:
             raise ValueError('build.dependencies_invalid: 当前代码或配置无法生成依赖指纹')
         value = json.loads(result.stdout)
+        if inventory() != raw:
+            raise ValueError('build.source_changed: 依赖探测期间文件变化')
         _cache = key, value
         return json.loads(json.dumps(value))
 

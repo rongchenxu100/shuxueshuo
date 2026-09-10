@@ -57,7 +57,11 @@ async def upload(request: Request):
             if not isinstance(image, UploadFile):
                 raise HTTPException(422, "请选择一张完整单题截图")
             content = await image.read(MAX_BYTES + 1)
-            doc = await asyncio.to_thread(store.create, content, image.content_type or "", image.filename)
+            doc = await asyncio.to_thread(store.create, content, image.content_type or "", image.filename, enqueue=False)
+            from .versions import Versions
+            from .dependencies import probe
+            target = await asyncio.to_thread(probe)
+            Versions(store).enqueue(doc['id'], base_revision_id=None, target=target)
     except ValueError as exc:
         raise HTTPException(422, str(exc)) from exc
     return created(doc)
@@ -81,7 +85,11 @@ def rerun(run_id: str, request: Request, from_stage: str | None = None):
     store = store_for(request)
     checked_get(store, run_id)
     try:
-        return created(store.rerun(run_id, from_stage))
+        from .rebuild import plan, submit
+        preview = plan(store, run_id, from_stage or 'source')
+        if from_stage and preview['rerun_stages'][0] != from_stage:
+            raise ValueError('需要从 ' + preview['rerun_stages'][0] + ' 提前重跑；请先查看重建影响范围')
+        return created(submit(store, run_id, preview))
     except (ValueError, OSError) as exc:
         raise HTTPException(409, str(exc)) from exc
 
@@ -143,3 +151,55 @@ def page(run_id: str, path: str, request: Request):
         "X-Content-Type-Options": "nosniff", "Cache-Control": "no-store",
         "Content-Security-Policy": "sandbox allow-scripts; default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'",
     })
+
+
+@router.get('/runs/{run_id}/problem')
+def problem(run_id: str, request: Request):
+    from .problem_edit import editable
+    store = store_for(request)
+    checked_get(store, run_id)
+    try:
+        return editable(store, run_id)
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+
+
+@router.post('/runs/{run_id}/problem/{action}')
+async def edit_problem(run_id: str, action: str, request: Request):
+    from .problem_edit import preview
+    from .versions import Conflict
+    store = store_for(request)
+    checked_get(store, run_id)
+    if action not in {'preview', 'revisions'}: raise HTTPException(404, '未知操作')
+    try:
+        body = await request.json()
+        if not isinstance(body, dict): raise ValueError('需要 JSON 对象')
+        return await asyncio.to_thread(preview, store, run_id, body, save=action == 'revisions')
+    except Conflict as exc:
+        raise HTTPException(409, str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+
+
+@router.get('/runs/{run_id}/rebuild-plan')
+def rebuild_plan(run_id: str, request: Request, requested_stage: str | None = None):
+    from .rebuild import plan
+    store = store_for(request)
+    checked_get(store, run_id)
+    try:
+        return plan(store, run_id, requested_stage)
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+
+
+@router.post('/runs/{run_id}/rebuild', status_code=202)
+async def rebuild(run_id: str, request: Request):
+    from .rebuild import submit
+    store = store_for(request)
+    checked_get(store, run_id)
+    try:
+        body = await request.json()
+        if not isinstance(body, dict): raise ValueError('需要 JSON 对象')
+        return created(await asyncio.to_thread(submit, store, run_id, body))
+    except (ValueError, OSError) as exc:
+        raise HTTPException(409, str(exc)) from exc

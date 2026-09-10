@@ -320,7 +320,15 @@ def seed_visual_parent(store, client):
             filename, name = ("snapshot.json", "ExplanationSnapshot") if key == "evidence" else ("lesson.json", "LessonIR（实际采用）")
             source = Path(__file__).parent / "solver/fixtures/anonymous_point_visual" / filename
             store.add(run_id, key, "output", name, json.loads(source.read_text()))
+        from shuxueshuo_server.review import dependencies as deps
+        from shuxueshuo_server.review.replay import find
+        for inputs in deps.INPUTS.values():
+            for owner, name in inputs:
+                if owner == key and not find(store.get(run_id), owner, name):
+                    store.add(run_id, owner, "output", name, {"graph": {"problem_id": run_id}, "semantic_hash": "fixture"})
         store.stage(run_id, key, "succeeded")
+        with store.edit(run_id) as doc:
+            next(s for s in doc["stages"] if s["id"] == key)["manifest"] = deps.manifest(doc, key, deps.probe())
     store.stage(run_id, "visual", "running")
     store.finish(run_id, error="old visual failure")
     return run_id
@@ -331,6 +339,9 @@ def test_prompt_or_schema_change_during_build_blocks_page_registration(service, 
     from types import SimpleNamespace
     from shuxueshuo_server.review import pipeline
 
+    from shuxueshuo_server.review import dependencies as deps
+    from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
+    monkeypatch.setattr(deps, "probe", lambda: deps.collect(source_tree, SolverRuntimeConfig()))
     store, client = service
     parent = seed_visual_parent(store, client)
     child = store.rerun(parent, from_stage='visual')['id']
