@@ -1,6 +1,9 @@
 # VisualStepIR v2：递归 Scope 图形状态设计
 
-状态：`F5-F5B4V COMPLETE`；`F5-F5C0 COMPLETE`；`F5-F5C1 NEXT`。
+状态：`F5-F5B4V COMPLETE`；`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3 NEXT`。
+
+2026-09-09：当前优先验证[真实上传与下游重建](online-service-development-plan.md#11-实施顺序)。
+G1 的 LLM 视觉选择不列为必做项；G2 新动画和配音延后。现有确定性图形及交互仍须通过回归。
 
 ## 1. 目标与边界
 
@@ -235,7 +238,8 @@ verified public inputs/results 绑定 geometry identity、坐标和角色。Spec
 即可成为动点参数来源；后续只沿精确 StepResultRef 传播。它不依赖某个固定 Method ID。Frame
 标题直接使用绑定后的 Lesson `nav_title`，不再针对 unit key 维护重复文案映射。
 
-当前 B4V 不增加视觉 LLM。G1 中，同一次 Lesson LLM 可以从代码已成功绑定的
+当前不增加视觉 LLM。G1 仅为未排期的可选未来设计，不是当前 wire 或发布门禁；若后续启用，
+同一次 Lesson LLM 可以从代码已成功绑定的
 `available_visuals` 中选择 `visual_id/mode`；非法选择只回退该 LessonStep 的 deterministic
 default，不启动第二个视觉 LLM，也不允许 LLM 填写 roles、geometry refs、公式或 scene item。
 

@@ -570,6 +570,12 @@ def test_b4v_macro_units_are_two_lesson_steps_with_one_complete_frame_each(
     )
     reduction_refs = _geometry_refs(reduction)
     reflection_refs = _geometry_refs(reflection)
+    registry = heping_ermo_page.visual_ir.to_payload()["geometry_registry"]
+    assert not any(
+        meta.get("definition") == "anonymous_step_result"
+        and meta.get("sourceStepId") == "derive_path_minimum_ii"
+        for meta in registry["pointMeta"].values()
+    ), "verified named attainment must not acquire a second visual identity"
     assert {
         "point_A_ii",
         "E_axis_ii",

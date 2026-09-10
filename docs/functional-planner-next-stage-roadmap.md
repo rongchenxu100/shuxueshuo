@@ -1,5 +1,18 @@
 # 数学说系统路线图
 
+## 当前优先级（2026-09-09）
+
+下一步是 **G3：真实上传图片到课程页，以及上游变更后的正确重建**。
+G3-A 已从真实上传跑通一题及全过程 Review；下一步 G3-B 验证上游变化后的正确重建，
+之后扩到五题。具体工作与验收见
+[在线服务开发计划 §11](online-service-development-plan.md#11-实施顺序)。
+
+- 现有确定性 VisualSpec、角色绑定、滑块和最短路径状态继续使用。
+- G1 的 LLM 视觉选择不作为必做阶段，也不是课程页上线前置条件；仅保留为可选设计。
+- G2 新动画能力及后续配音延后，不阻塞无配音课程页；已有交互仍须正常工作。
+- C1 教学质量验收继续保留，但不阻塞 G3 接线；历史样本通过不等于当前上传链已通过。
+- 依赖失效、版本一致性和重建属于本阶段正确性要求；缓存、并发去重和 Best-of-N 仍留到 E。
+
 ## 总目标
 
 建立一条从题目图片到课程页的可追溯主链：
@@ -10,7 +23,7 @@
   -> VerifiedProblem + projection manifest
   -> ProblemPlanningContext + FunctionalPlan
   -> transactional runtime + VerifiedFunctionalPlanExecution
-  -> Explanation / Diagram / Voiceover / Animation
+  -> ExplanationSnapshot / LessonIR / VisualStepIR
   -> 课程页
 ```
 
@@ -29,9 +42,11 @@
 | F5-F4.3D：南开耦合路径 Macro | `COMPLETE` | 两公开输入、两公开输出；共享 Scope、构造点诊断、few-shot hash 与最终 live `1x3` 通过 |
 | F5-F4.3E：加权路径原子 Macro | `COMPLETE` | 单路径 Fact 输入、单表达式输出；河西/西青最终 live 各 `1x3` 均首轮通过 |
 | F5-F4.3F：旧能力清理与全量验收 | `COMPLETE` | 公开 Path 内部类型与兼容链已删除，compiler 原子门禁及完整投影门禁已落地 |
-| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A、F5-F5B0–B4/B4V、F5-F5C0 全能力覆盖已完成；F5-F5C1 五题 teaching-only 验收 NEXT |
-| G：Post-solver Context | `AFTER F5` | Explanation、Diagram、Voiceover、Animation Context |
-| E：端到端优化 | `AFTER F/G` | cache、最小失效、并发去重、条件式 Best-of-N |
+| F5-F5：Teaching scope | `IN PROGRESS` | F5-F5A、F5-F5B0–B4/B4V、F5-F5C0 已完成；C1 质量验收保留，不阻塞 G3 接线 |
+| G3：真实上传与课程页重建 | `IN PROGRESS` | G3-A 真实图片与全过程 Review 已完成；G3-B 依赖失效与重建为 NEXT |
+| G1：LLM 视觉选择 | `OPTIONAL / NOT SCHEDULED` | 保留设计，不作为必做阶段；当前视觉由代码确定 |
+| G2 / 配音 | `DEFERRED` | 新动画能力、配音与音画同步延后 |
+| E：端到端优化 | `AFTER G3` | cache、分层复用优化、并发去重、条件式 Best-of-N |
 
 已完成迁移的逐提交过程、旧协议说明和 batch 流水不保留在当前路线图；Git 历史与
 `internal/solver-runs/` 是历史证据源。
@@ -125,7 +140,7 @@ VerifiedSolverProblemBundle
 
 统一合同与分阶段实施见
 [Teaching Scope、学生步骤、可视化与动画设计](teaching-scope-student-visual-animation-design.md)。
-F5-F5B 的 LLM wire、无 semantic retry、同次调用视觉选择和和平二模纵向验收细节见
+F5-F5B 的 LLM wire、无 semantic retry、可选视觉选择设计和和平二模纵向验收细节见
 [Lesson Scope LLM Authoring vNext](lesson-scope-llm-authoring-vnext-design.md)。
 
 当前分段状态：
@@ -177,33 +192,35 @@ F5-F5B 的 LLM wire、无 semantic retry、同次调用视觉选择和和平二�
    审阅通过，approved/fallback fixtures 只用于回归。
 7. `F5-F5C0 COMPLETE`：从 Family Catalog 动态推导并人工审阅全部 `23 Function + 6 Macro`
    的教学/视觉覆盖；五题 recorded 覆盖 26 项，3 个 typed synthetic execution 补齐 29 项。
-8. `F5-F5C1 NEXT`：运行五题 teaching-only `5×3`，评测真实输入输出、token/耗时、步骤合并与
-   教学质量。
-9. `G1`：作为最后一个新增实现阶段，打开 Method/Macro `available_visuals`，由同一次 Lesson
-   LLM 只选择 `visual_id/mode`，代码绑定并确定性渲染 VisualStepIR 与课程页。
+8. `F5-F5C1 PENDING ACCEPTANCE`：保留五题 teaching-only `5×3` 教学质量验收；
+   记录真实输入输出、token/耗时、步骤合并与人工审阅。与 G3 推进，不作为接线前置条件。
+9. `G1 OPTIONAL / NOT SCHEDULED`：同次 Lesson LLM 选择 `visual_id/mode` 仅保留设计；
+   当前继续使用代码绑定和确定性渲染，不扩大 LLM wire。
 
-## Track G：解题后 Context
+## Track G3：真实上传与课程页重建（NEXT）
 
 ```text
-VerifiedFunctionalPlanExecution
-  -> LessonExplanationContext
-  -> DiagramContext
-  -> VoiceoverContext
-  -> AnimationContext
-  -> compiled lesson page
+真实上传图片
+  -> source / extraction / VerifiedProblem
+  -> VerifiedFunctionalPlanExecution
+  -> ExplanationSnapshot / LessonIR
+  -> VisualStepIR
+  -> compiled lesson page / 服务预览
 ```
 
 退出条件：
 
-- 五题均能从 verified solver artifact 编译课程页；
+- 先一题、再五题从真实上传走完主链；不手工替换 fixture 或拼装中间 artifact；
 - failed、provisional 和 shadow 数据不进入学生内容；
-- 上游 Context 变化会使下游显式 stale；
-- 至少一题完成图片到课程页的真实冷路径；
+- 题意、教学、视觉或渲染输入变化时，按依赖使受影响资产显式 stale 并正确重建；
+- 页面只能聚合同一构建所固定的依赖版本；旧任务晚完成不能覆盖新版本；
+- 失败可定位、可重试，不把旧页或半成品冒充新版本成功；
+- 已有图形、滑块及最短路径状态通过回归与人工审阅；无新增动画或配音要求；
 - latency、token、模型调用和 artifact dependency 可审计。
 
 ## Track E：端到端优化
 
-F/G 冷路径稳定后依次实施：
+G3 冷路径与变更重建正确性验收通过后依次实施（不等待 G1、G2 或配音）：
 
 1. 最终 Lesson artifact cache；
 2. 相同 dependency key 的并发构建去重；

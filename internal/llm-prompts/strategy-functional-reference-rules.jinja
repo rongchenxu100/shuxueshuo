@@ -1,0 +1,18 @@
+引用与步骤归属（首轮和修复轮共用）：
+
+- Scope直属步骤与Goal局部步骤是互斥的step所有权容器；每个step完整对象只能出现一次。
+  多个Goal消费的共同producer放它们的共同祖先scope，且其全部生产条件必须在那里可见。
+  只为单个Goal答案服务的步骤放该Goal。不得靠重复step或跨Scope引用代替合法归属。
+- 共享题面数学实体不等于共享当前数学状态。兄弟scope若使用不同局部条件、参数值或自由参数基，
+  必须各自生成局部状态，不能将局部条件提升到共同祖先。
+- 普通具名Entity默认使用字符串SourceRef；代码按capability读取身份或当前scope最近可见状态，并建立依赖。
+  匿名中间结果，以及catalog声明`reference_mode=exact_result`的return，使用较早、可见的
+  `{"step_id":"...","return":"..."}`，且consumer参数必须接受该返回类型。
+  exact-result即使携带已有Entity身份也不得改写成SourceRef。跨Goal不改变引用形式规则。
+- 跨Goal与跨Scope不同：只有在上述引用契约允许StepResultRef、producer Scope对consumer可见，
+  且引用恰为producer Goal的`answer_from`时，才能跨Goal读取精确答案；不能读取其内部return。
+  普通具名状态供多个Goal共享时，应使用可见Scope直属producer和SourceRef。
+- 子孙可读取祖先Scope的共享步骤；兄弟Scope、子到父的状态引用非法。改用StepResultRef不授予权限。
+  `answer_from`只选择本Goal或可见祖先Scope步骤的答案，不会发布状态到父Scope。
+- `step_id`全题唯一，按依赖顺序输出，禁止forward reference和循环。
+  SourceRef只能复制当前scope或祖先可见的Entity/Fact ref及Goal target_ref；禁止自造ref、scope前缀或把goal_ref当作输入。

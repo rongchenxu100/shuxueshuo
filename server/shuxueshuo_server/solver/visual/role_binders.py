@@ -19,6 +19,7 @@ from shuxueshuo_server.solver.explanation.models import (
 from shuxueshuo_server.solver.student_display import student_math_display
 
 from .geometry_naming import (
+    scope_lineage,
     GeometryPointScopeNamer,
     axis_parameter_candidate_point_id,
     axis_parameter_point_id,
@@ -164,6 +165,26 @@ def _public_point_semantic_ref(
     if target:
         return target
 
+    # A verified attainment calculation identifies its point explicitly even
+    # when the planner leaves output_targets empty. Coordinate coincidence
+    # elsewhere in the scene is deliberately not an identity source.
+    output = source.outputs.get(return_name, {})
+    if output.get("runtime_type") == "Point" and sum(
+        value.get("runtime_type") == "Point" for value in source.outputs.values()
+    ) == 1:
+        pair = _sympy_pair(output.get("value"))
+        attainment_targets = {
+            str(label)
+            for calculation in source.calculations
+            if calculation.get("kind") == "attainment"
+            for label, value in (calculation.get("points") or {}).items()
+            if pair is not None
+            and (candidate := _sympy_pair(value)) is not None
+            and _same_point_pair(pair, candidate)
+        }
+        if len(attainment_targets) == 1:
+            return next(iter(attainment_targets))
+
     goal_refs = {
         goal.goal_ref
         for scope in iter_teaching_scopes(snapshot.root_scope)
@@ -263,6 +284,13 @@ class VisualRoleBinderRegistry:
             geometry_name = self.index.geometry_point_name(label, lesson_step.scope_id)
             if geometry_name:
                 point_handles[label] = geometry_name
+        for point_id, meta in (self.geometry_spec.get("pointMeta") or {}).items():
+            if (
+                meta.get("definition") == "anonymous_step_result"
+                and meta.get("sourceStepId") in lesson_step.source_step_ids
+                and meta.get("scopeId") in scope_lineage(lesson_step.scope_id)
+            ):
+                point_handles[str(meta["label"])] = point_id
         curve_ids = tuple(
             self._curve_ids_for_lesson_step(lesson_step, snapshot)
         )
@@ -1239,6 +1267,28 @@ class VisualRoleBinderRegistry:
         if isinstance(ref, dict) and ref.get("kind") == "source":
             semantic_ref = str(ref.get("ref") or "")
         elif isinstance(ref, dict) and ref.get("kind") == "step_result":
+            exact_points = [
+                (point_id, meta)
+                for point_id, meta in (self.geometry_spec.get("pointMeta") or {}).items()
+                if meta.get("definition") == "anonymous_step_result"
+                and meta.get("sourceStepId") == ref.get("step_id")
+                and meta.get("returnName") == ref.get("return")
+            ]
+            if exact_points and (
+                len(exact_points) != 1
+                or exact_points[0][1].get("scopeId") not in scope_lineage(scope_id)
+            ):
+                return {}
+            if len(exact_points) == 1:
+                point_id, meta = exact_points[0]
+                registered = (
+                    (self.geometry_spec.get("fixedPoints") or {}).get(point_id)
+                    or (self.geometry_spec.get("movingPoints") or {}).get(point_id)
+                )
+                expected, actual = _sympy_pair(item.get("value")), _sympy_pair(registered)
+                if expected is not None and actual is not None and _same_point_pair(expected, actual):
+                    return {"point": point_id, "label": str(meta["label"])}
+                raise ValueError("visual_anonymous_point_value_mismatch: " + point_id)
             producer = sources.get(str(ref.get("step_id") or ""))
             if producer is not None:
                 semantic_ref = _public_point_semantic_ref(

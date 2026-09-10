@@ -1164,6 +1164,10 @@ def test_scope_visibility_feedback_distinguishes_identity_from_local_state(
     )
     assert "step scope 'problem'" in issue.message
     assert "candidate owner scopes" in issue.message
+    assert issue.details["producer"]["owner_scope_refs"] == ["ii", "iii"]
+    assert issue.details["consumer"]["scope_ref"] == "problem"
+    assert "authorized_scope_refs" not in issue.details
+    assert issue.details["allowed_actions"] == ["rewrite_open_scopes_with_compatible_visible_producers"]
     assert "'iii'" in issue.message
     assert "shared MathObject identity does not share scope-local state" in (
         issue.message
@@ -1904,3 +1908,38 @@ def _find_scope(scope, scope_ref):
         if found is not None:
             return found
     return None
+
+
+def test_explicit_sibling_reference_diagnostic_carries_both_owners(tmp_path):
+    case = "tj-2026-heping-yimo-25"
+    payload = load_v2_fixture_payload(case)
+    scope_i = _find_scope(payload["root_scope"], "i")
+    scope_i_1 = _find_scope(payload["root_scope"], "i_1")
+    scope_i_2 = _find_scope(payload["root_scope"], "i_2")
+    producer = next(s for s in scope_i["steps"] if s["step_id"] == "derive_parabola_i")
+    scope_i["steps"].remove(producer)
+    scope_i_1["goals"][0]["steps"] = [producer]
+    consumer = next(s for s in scope_i_2["goals"][0]["steps"] if s["step_id"] == "derive_x_intercept_B_i")
+    consumer["args"]["parabola"] = {"step_id": producer["step_id"], "return": "parabola"}
+    fixture = scope_native_reconciliation_fixture(tmp_path, case=case)
+    scoped, report = ScopedFunctionalPlanValidator().validate_payload_with_report(payload)
+    assert report.ok and scoped is not None
+    # Inspect authored ownership before any separately proved canonical
+    # relocation; diagnosis must not promise a SourceRef rewrite is sufficient.
+    from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+        _collect_independent_authority_issues, _step_locations, _unique_steps,
+    )
+    locations = _step_locations(scoped)
+    issues = _collect_independent_authority_issues(
+        scoped, locations=locations, by_id=_unique_steps(locations),
+        planning_context=fixture[1], binding_catalog=fixture[7],
+        capability_catalog=FunctionalCapabilityCatalog.from_family_spec(fixture[3].family_spec, fixture[3].method_specs),
+    )
+    issue = next(item for item in issues if item.code == "functional.step_scope_visibility_drift")
+    assert issue.details["repair_action"] == "repair_input_binding"
+    assert "use_named_entity_source_ref" not in issue.details["allowed_actions"]
+    assert issue.details["producer"]["scope_ref"] == "i_1"
+    assert issue.details["producer"]["goal_ref"] == "i_1.parabola"
+    assert issue.details["consumer"]["scope_ref"] == "i_2"
+    assert issue.details["consumer"]["step_id"] == consumer["step_id"]
+    assert "authorized_scope_refs" not in issue.details

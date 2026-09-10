@@ -37,7 +37,7 @@ PlannerMode = Literal["deterministic", "strategy"]
 LLMProviderName = Literal["recorded", "deepseek", "doubao"]
 
 DEFAULT_DEEPSEEK_BASE_URL = "https://api.deepseek.com"
-DEFAULT_DEEPSEEK_MODEL = "DeepSeek-V4.1-Flash-Expires-On-0910"
+DEFAULT_DEEPSEEK_MODEL = "deepseek-v4-flash"
 DEFAULT_DOUBAO_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
 DEFAULT_DOUBAO_MODEL = "doubao-seed-2-1-turbo-260628"
 
@@ -224,7 +224,9 @@ class SolverRuntimeConfig:
         """
         return DEFAULT_FAMILY_REGISTRY
 
-    def build_llm_client(self) -> LLMPlannerClient:
+    def build_llm_client(
+        self, *, thinking_effort: Literal["disabled", "low"] | None = None,
+    ) -> LLMPlannerClient:
         """根据 provider 配置创建 LLM client。"""
         if self.llm_provider == "recorded":
             raise SolverRuntimeConfigError("recorded provider does not use an LLM client")
@@ -237,6 +239,7 @@ class SolverRuntimeConfig:
                 api_key=self.deepseek_api_key,
                 base_url=self.deepseek_base_url,
                 model=self.llm_model or self.deepseek_model,
+                default_thinking_effort=thinking_effort,
             )
         if self.llm_provider == "doubao":
             if not self.doubao_api_key:

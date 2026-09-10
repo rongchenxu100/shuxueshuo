@@ -1708,6 +1708,9 @@ class FunctionalPlanReconciler:
                 answer_bindings=answer_bindings,
             )
             reconciliation_repairs.extend(resolved_answer_repairs)
+        issues = _enrich_return_identity_issues(
+            issues, plan=plan, catalog=catalog, semantic_index=semantic_index,
+        )
         return _PlacementLivenessProjectionStage().run(
             plan=plan,
             elaboration=elaboration,
@@ -2267,15 +2270,15 @@ class _PlacementLivenessProjectionStage:
                         )
                     )
         reconciled_tuple, version_rebases = rebase_live_state_versions(
-            tuple(reconciled)
+            tuple(reconciled), base_identity_index=base_identity_index,
         )
         reconciled = list(reconciled_tuple)
         reconciliation_repairs.extend(
             FunctionalDeterministicRepair(
                 item.call_id,
-                "rebase_transition_after_liveness",
+                ("rebase_transition_after_liveness" if item.selected_previous_version_id else "create_state_after_liveness"),
                 str(item.removed_previous_version_id.to_payload()),
-                str(item.selected_previous_version_id.to_payload()),
+                str(item.selected_previous_version_id.to_payload()) if item.selected_previous_version_id else "first_materialization",
             )
             for item in version_rebases
         )
@@ -3361,6 +3364,50 @@ def _initial_return_scope(
         )
     )
     return declared_scope_id
+
+
+def _enrich_return_identity_issues(issues, *, plan, catalog, semantic_index):
+    if not any(issue.code == "functional.return_identity_mismatch" for issue in issues):
+        return issues
+    origins = {}
+    infer_future_return_object_hints(
+        plan, catalog=catalog, semantic_index=semantic_index, binding_origins=origins,
+    )
+    calls = {call.call_id: call for call in plan.calls}
+    result = []
+    for issue in issues:
+        if issue.code != "functional.return_identity_mismatch":
+            result.append(issue)
+            continue
+        details = dict(issue.details or {})
+        return_name = details.get("return")
+        bindings = origins.get((issue.call_id, return_name), [])
+        downstream = [item for item in bindings if item["step_id"] != issue.call_id]
+        consumers = downstream or bindings
+        details["identity_binding_origins"] = consumers
+        details["capability_id"] = calls[issue.call_id].capability_id
+        details["expected"] = (
+            {"object": details.get("structured_ref") or details.get("inferred_ref")}
+            if details.get("structured_ref") or details.get("inferred_ref") else
+            {"identity_policy": "derived_role"} if details.get("identity_policy") == "derived_role" else
+            {"identity_count": 1}
+        )
+        details["observed"] = (
+            {"object": details.get("downstream_ref") or details.get("bound_ref")}
+            if details.get("downstream_ref") or details.get("bound_ref") else
+            {"objects": details.get("inferred_refs", [])}
+        )
+        details["repair_call_ids"] = list(dict.fromkeys(item["step_id"] for item in consumers))
+        if len(consumers) == 1:
+            consumer = consumers[0]
+            details["consumer"] = {key: consumer[key] for key in ("step_id", "scope_ref")}
+            details["path"] = (
+                f"goals[{consumer['ref']}].answer_from" if consumer["kind"] == "answer"
+                else f"steps[{consumer['step_id']}].output_targets.{consumer['return']}"
+            )
+        details["repair_action"] = "repair_input_binding"
+        result.append(replace(issue, details=details))
+    return result
 
 
 def _resolve_allocated_return_binding(

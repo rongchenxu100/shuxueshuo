@@ -45,7 +45,7 @@ def verified_parameter_values_from_source(
 
     def publish(name: Any, value: Any) -> None:
         normalized_name = str(name or "").strip()
-        normalized_value = str(value or "").strip()
+        normalized_value = str(value if value is not None else "").strip()
         if not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", normalized_name):
             return
         if not normalized_value:
@@ -71,6 +71,11 @@ def verified_parameter_values_from_source(
         values[normalized_name] = normalized_value
 
     for return_name, output in source.outputs.items():
+        if output.get("runtime_type") == "Coefficients" and isinstance(output.get("value"), Mapping):
+            for symbol, value in output["value"].items():
+                if not sp.sympify(str(value)).free_symbols:
+                    publish(symbol, value)
+            continue
         if str(output.get("runtime_type") or "") != "ParameterValue":
             continue
         name = str(source.output_targets.get(return_name) or "")

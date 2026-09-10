@@ -34,6 +34,7 @@ from .models import (
     VisualStep,
     VisualStepIR,
 )
+from .math_state import FrameMathStateResolver, resolve_attainment_constraints
 from .recursive_state import (
     BranchVisualState,
     RecursiveVisualStateResolver,
@@ -96,6 +97,7 @@ from .geometry_naming import (
     square_projection_point_id,
 )
 from .role_binders import VisualGeometryIndex, VisualRoleBinderRegistry, VisualRoleBindings
+from .role_binders import _public_point_semantic_ref
 from .sympy_helpers import sympy_pair
 
 
@@ -166,6 +168,10 @@ class GeometrySpecBuilder:
         parameter_name = _parameter_name(snapshot)
         default_t = 0.75
         fixed_points, moving_points, point_meta = _geometry_points_from_snapshot(snapshot, lesson, default_t)
+        _add_anonymous_result_points(
+            snapshot=snapshot, lesson=lesson, fixed=fixed_points, moving=moving_points,
+            point_meta=point_meta, parameter_name=parameter_name,
+        )
         curves = _curves_from_snapshot(snapshot)
         _add_curve_vertex_feature_points(
             fixed=fixed_points,
@@ -977,6 +983,71 @@ def _add_public_candidate_geometry(
                     "candidateIndex": candidate_index,
                     "visualOnly": True,
                 }
+
+
+def _add_anonymous_result_points(
+    *,
+    snapshot: ExplanationSnapshot,
+    lesson: LessonIR,
+    fixed: dict[str, list[str]],
+    moving: dict[str, list[str]],
+    point_meta: dict[str, JsonObject],
+    parameter_name: str,
+) -> None:
+    """Materialize consumed anonymous Point returns by exact producer identity."""
+    sources = tuple(iter_teaching_sources(snapshot.root_scope))
+    owners = teaching_source_owners(snapshot.root_scope)
+    used_labels = {str(meta.get("label") or "") for meta in point_meta.values()}
+    used_labels.update(str(e.get("name") or "") for e in (snapshot.problem or {}).get("entities", ()))
+    consumed = {
+        (str(ref.get("step_id")), str(ref.get("return")))
+        for source in sources
+        for values in source.inputs.values()
+        for value in values
+        if isinstance((ref := value.get("ref")), dict)
+        and ref.get("kind") == "step_result"
+    }
+    for source in sources:
+        scope_id = owners[source.source_step_id][0]
+        for return_name, output in source.outputs.items():
+            if (source.source_step_id, return_name) not in consumed:
+                continue
+            if output.get("runtime_type") != "Point" or not _is_point_value(output.get("value")):
+                continue
+            if _problem_point_handles_for_output(
+                source, return_name, snapshot=snapshot, scope_id=scope_id,
+            ):
+                continue
+            identity = json.dumps([scope_id, source.source_step_id, return_name])
+            point_id = "point_result_" + sha256(identity.encode()).hexdigest()[:24]
+            pair = _page_point_pair(output["value"])
+            labels = {
+                label
+                for step in lesson.steps
+                if source.source_step_id in step.source_step_ids
+                for label in _coordinate_conclusion_labels_for_value(step, ",".join(pair))
+            }
+            preferred = next(iter(labels)) if len(labels) == 1 else None
+            label = preferred if preferred and preferred not in used_labels else next(
+                (letter for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" if letter not in used_labels),
+                "",
+            )
+            if not label:
+                suffix = len(used_labels)
+                while f"P{suffix}" in used_labels:
+                    suffix += 1
+                label = f"P{suffix}"
+            used_labels.add(label)
+            (moving if _pair_depends_on_parameter(pair, parameter_name) else fixed)[point_id] = pair
+            point_meta[point_id] = {
+                "label": label,
+                "scopeId": scope_id,
+                "scopeRoot": _scope_root(scope_id),
+                "definition": "anonymous_step_result",
+                "sourceStepId": source.source_step_id,
+                "returnName": return_name,
+                "visualOnly": True,
+            }
 
 
 def _add_public_construction_auxiliary_geometry(
@@ -2459,7 +2530,38 @@ def _curves_from_snapshot(snapshot: ExplanationSnapshot) -> list[JsonObject]:
         for step in snapshot.effective_steps
         if isinstance(step, dict) and step.get("step_id")
     }
-    curves_by_key: dict[tuple[str, tuple[str, str, str]], tuple[dict[str, Any], tuple[str, str, str], int]] = {}
+    source_order = {step_id: index for index, step_id in enumerate(steps_by_id)}
+    sources = {s.source_step_id: s for s in iter_teaching_sources(snapshot.root_scope)}
+    def object_ref(item):
+        entities = [entity for entity in (snapshot.problem or {}).get("entities", ())
+                    if entity.get("entity_type") == "function"]
+        named = {str(e["handle"]) for e in entities if e.get("name") == item.get("name")}
+        if len(named) == 1:
+            return next(iter(named))
+        step = steps_by_id.get(str(item.get("source_step_id")), {})
+        inputs = {str(e["handle"]) for e in entities if e.get("handle") in step.get("reads", ())}
+        # A renamed closed result can refine the curve read by its producer.
+        # Never merge unrelated curves merely because their equations coincide.
+        source = sources.get(str(item.get("source_step_id")))
+        if len(inputs) == 1 and source is not None:
+            substitutions = {sp.Symbol(k): sp.sympify(v)
+                             for k, v in verified_parameter_values_from_source(source).items()}
+            for items in source.inputs.values():
+                for value in items:
+                    ref = value.get("ref", {})
+                    if value.get("runtime_type") == "ParameterValue" and ref.get("kind") == "source":
+                        symbol = str(ref.get("ref") or "")
+                        if re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", symbol):
+                            substitutions[sp.Symbol(symbol)] = sp.sympify(value["value"])
+            curves = [value for items in source.inputs.values() for value in items
+                      if value.get("runtime_type") == "Parabola"]
+            if len(curves) == 1 and sp.simplify(
+                sp.sympify(curves[0]["value"]).subs(substitutions) - sp.sympify(item["value"])
+            ) == 0:
+                return next(iter(inputs))
+        return (f"step-result:{item['source_step_id']}:{item.get('name', '')}"
+                if item.get("source_step_id") else str(item.get("handle") or ""))
+    curves_by_key = {}
     for item in snapshot.fact_index.values():
         if not isinstance(item, dict) or item.get("type") != "Parabola":
             continue
@@ -2470,7 +2572,7 @@ def _curves_from_snapshot(snapshot: ExplanationSnapshot) -> list[JsonObject]:
         if coeffs is None:
             continue
         scope_id = _curve_scope_for_fact(item, steps_by_id)
-        key = (_scope_root(scope_id), coeffs)
+        key = (scope_id, object_ref(item), coeffs)
         rank = _curve_fact_rank(item)
         if key in curves_by_key and curves_by_key[key][2] >= rank:
             continue
@@ -2486,6 +2588,8 @@ def _curves_from_snapshot(snapshot: ExplanationSnapshot) -> list[JsonObject]:
             "scopeId": scope_id,
             "scopeRoot": _scope_root(scope_id),
             "sourceHandle": str(item.get("handle") or ""),
+            "objectRef": object_ref(item),
+            "stateRevision": source_order.get(str(item.get("source_step_id")), -1),
             "a": coeffs[0],
             "b": coeffs[1],
             "c": coeffs[2],
@@ -2842,11 +2946,6 @@ def _visual_step_resolution(
             current=current,
             geometry_spec=geometry_spec,
         )
-        inherited_context = _prune_replaced_curve_context(
-            inherited_context,
-            current=current,
-            geometry_spec=geometry_spec,
-        )
         inherited_reason = _branch_frame_inheritance_reason(
             frame_step,
             render_state,
@@ -2866,11 +2965,6 @@ def _visual_step_resolution(
         )
         context = _merge_frame_objects(inherited_context, supplemental_context)
         context = _prune_superseded_candidate_context(
-            context,
-            current=current,
-            geometry_spec=geometry_spec,
-        )
-        context = _prune_replaced_curve_context(
             context,
             current=current,
             geometry_spec=geometry_spec,
@@ -2932,6 +3026,9 @@ def _visual_step_resolution(
             )
         published = _merge_frame_objects(context, persistent_current)
         published = _coalesce_visible_point_objects(published)
+        math_resolver = FrameMathStateResolver(geometry_spec, snapshot.problem or {}, lesson_step.scope_id)
+        objects, object_replacements = math_resolver.project(objects)
+        published, _ = math_resolver.project(published)
         local_parameters = _local_parameters_for_frame(
             lesson_step=frame_step,
             state=render_state,
@@ -2956,12 +3053,23 @@ def _visual_step_resolution(
             geometry_spec=geometry_spec,
             parameter_values=render_state.parameters,
         )
+        constraints = {c["parameter"]: c for c in render_state.mathematical_constraints}
+        for interaction in visible_interactions:
+            if interaction.get("attainment_constraint"):
+                constraint = interaction["attainment_constraint"]
+                constraints[constraint["parameter"]] = constraint
+        render_state.mathematical_constraints = tuple(constraints.values())
+        local_parameters, constraint_audit = resolve_attainment_constraints(
+            local_parameters, render_state.mathematical_constraints,
+            active_parameters={str(i.get("parameter")) for i in visible_interactions},
+        )
         timeline = AnimationTimelineBuilder().timeline_for_step(
             frame_step,
             frame_bindings,
             interactions=interactions,
         )
         timeline = _replace_visual_geometry_refs(timeline, auxiliary_ref_map)
+        timeline = _replace_visual_geometry_refs(timeline, object_replacements)
         timeline = _studentize_timeline(timeline, geometry_spec)
         frame = VisualFrame(
             frame_id=f"frame:{lesson_step.id}:{frame_index}",
@@ -2978,6 +3086,14 @@ def _visual_step_resolution(
             timeline=timeline if timeline.get("mode") != "none" else None,
             metadata={
                 "annotations": _annotations_for_lesson_step(frame_step),
+                "mathematical_state": {
+                    "schema_version": "visual-math-state/v1",
+                    "scope_id": lesson_step.scope_id,
+                    "source_step_ids": list(lesson_step.source_step_ids),
+                    "verified_parameters": dict(render_state.parameters),
+                    "object_replacements": object_replacements,
+                    "constraints": constraint_audit,
+                },
             },
         )
         frames.append(frame)
@@ -2996,6 +3112,7 @@ def _visual_step_resolution(
         step=step,
         published_objects=tuple(_dedupe_visual_objects(list(published))),
         visibility_reasons=visibility_reasons,
+        mathematical_constraints=render_state.mathematical_constraints,
     )
 
 
@@ -3062,49 +3179,6 @@ def _prune_superseded_candidate_context(
         for item in inherited
         if not is_superseded(item)
     )
-
-
-def _prune_replaced_curve_context(
-    inherited: tuple[VisualObject, ...],
-    *,
-    current: tuple[VisualObject, ...],
-    geometry_spec: JsonObject,
-) -> tuple[VisualObject, ...]:
-    """A newly drawn curve state replaces older states in the same branch."""
-
-    current_curve_refs = {
-        geometry_ref
-        for item in current
-        if item.component == "Parabola"
-        for geometry_ref in item.geometry_refs
-    }
-    if not current_curve_refs:
-        return inherited
-    curves = {
-        str(curve.get("id") or ""): curve
-        for curve in geometry_spec.get("curves") or ()
-        if isinstance(curve, dict) and str(curve.get("id") or "")
-    }
-    current_roots = {
-        str(curves[curve_ref].get("scopeRoot") or "")
-        for curve_ref in current_curve_refs
-        if curve_ref in curves
-    }
-    if not current_roots:
-        return inherited
-
-    def is_replaced(item: VisualObject) -> bool:
-        if item.component != "Parabola":
-            return False
-        for curve_ref in item.geometry_refs:
-            if curve_ref in current_curve_refs:
-                continue
-            curve = curves.get(curve_ref)
-            if isinstance(curve, dict) and str(curve.get("scopeRoot") or "") in current_roots:
-                return True
-        return False
-
-    return tuple(item for item in inherited if not is_replaced(item))
 
 
 def _refresh_context_coordinate_labels(
@@ -4405,7 +4479,7 @@ def _problem_point_handles_for_output(
     snapshot: ExplanationSnapshot,
     scope_id: str,
 ) -> set[str]:
-    semantic_ref = str(source.output_targets.get(return_name) or "")
+    semantic_ref = _public_point_semantic_ref(snapshot, source, return_name)
     if semantic_ref:
         handle = _resolve_problem_point_handle(snapshot, semantic_ref, scope_id)
         return {handle} if handle else set()

@@ -21,6 +21,7 @@ from shuxueshuo_server.solver.runtime.functional_scope_retry import (
     FUNCTIONAL_ANNOTATED_PLAN_CONTRACT,
     FunctionalAnnotatedPlanProjector,
     FunctionalScopeRepairCompiler,
+    FunctionalScopeRetryAuthority,
     FunctionalScopeRetryAuthorityProjector,
     FunctionalScopeRetryError,
     ScopedFunctionalScopeRetryService,
@@ -31,7 +32,9 @@ from shuxueshuo_server.solver.runtime.functional_scope_retry import (
 )
 from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FunctionalPlanAuthorityFrame,
+    FunctionalPlanContentCompiler,
     functional_plan_content_from_plan,
+    functional_plan_content_schema,
 )
 from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     rebase_restored_call_seed,
@@ -689,7 +692,9 @@ def test_scope_repair_schema_requires_exact_scopes_and_direct_goals(tmp_path) ->
     assert tuple(Draft202012Validator(schema).iter_errors(annotated_step))
 
 
-def test_repair_schema_allows_named_or_anonymous_point_inputs(tmp_path) -> None:
+def test_structural_repair_parser_allows_refs_before_merged_plan_normalization(
+    tmp_path,
+) -> None:
     fixture = goal_retry_fixture(tmp_path)
     authority = FunctionalScopeRetryAuthorityProjector().project(
         plan=fixture.failed_plan,
@@ -748,6 +753,105 @@ def test_scope_repair_normalizes_optional_empty_capability_args(tmp_path) -> Non
     assert [item.code for item in repair.normalizations] == [
         "functional.empty_optional_capability_arg_omitted"
     ]
+
+
+def test_repair_and_content_share_capability_parameter_contract(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=fixture.failed_plan,
+        execution=fixture.execution,
+    )
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        fixture.planning_context
+    )
+    catalog = fixture.capability_catalog
+    content_schema = functional_plan_content_schema(
+        frame, capability_catalog=catalog,
+    )
+    repair_schema = functional_scope_repair_schema_for_authority(
+        authority, capability_catalog=catalog, authority_frame=frame,
+        for_prompt=True,
+    )
+    Draft202012Validator.check_schema(repair_schema)
+
+    def step_validator(schema, name):
+        return Draft202012Validator({
+            "$defs": schema["$defs"], "$ref": f"#/$defs/{name}",
+        })
+
+    content_validator = step_validator(content_schema, "step")
+    repair_validator = step_validator(repair_schema, "repair_step")
+    result_ref = {"step_id": "produce_parabola", "return": "parabola"}
+    cases = [
+        ("quadratic_x_axis_intercept_point", {"parabola": "parabola"}, True),
+        # The recorded failure: named Function inputs cannot author an exact ref.
+        ("quadratic_x_axis_intercept_point", {"parabola": result_ref}, False),
+        ("quadratic_x_axis_intercept_point", {"parabola": ["parabola"]}, False),
+        ("quadratic_x_axis_intercept_point", {}, False),
+        ("quadratic_x_axis_intercept_point", {
+            "parabola": "parabola", "invented_arg": "A",
+        }, False),
+        ("quadratic_from_constraints", {"curve_points": ["A", "D"]}, True),
+        ("line_intersection_point", {
+            "line1_p1": {"step_id": "produce_point", "return": "point"},
+            "line1_p2": "K", "line2_p1": "E", "line2_p2": "G",
+        }, True),
+        ("parameter_from_expression_value", {
+            "expression": {"step_id": "reduce_path", "return": "minimum_expression"},
+            "minimum_value": "minimum_value", "parameter": "a",
+        }, True),
+        ("unknown_capability", {"parabola": "parabola"}, False),
+    ]
+    for capability_id, args, accepted in cases:
+        candidate = {"step_id": "probe", "capability_id": capability_id, "args": args}
+        assert content_validator.is_valid(candidate) is accepted, candidate
+        assert repair_validator.is_valid(candidate) is accepted, candidate
+
+    # Equal parameter/target contracts do not erase protocol-specific fields.
+    with_expectation = {
+        "step_id": "probe", "capability_id": "quadratic_from_constraints",
+        "args": {"curve_points": ["A", "D"]},
+        "return_expectations": {"parabola": "closed_state"},
+    }
+    assert content_validator.is_valid(with_expectation)
+    assert not repair_validator.is_valid(with_expectation)
+
+
+def test_shared_schema_does_not_normalize_an_invisible_named_producer(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        fixture.correct_payload
+    )
+    assert plan is not None and report.ok
+    sibling_producer = next(
+        item
+        for scope in iter_scopes(fixture.correct_payload["root_scope"])
+        if scope["scope_ref"] not in {"problem", "ii"}
+        for item in [
+            *scope.get("steps", []),
+            *(item for goal in scope.get("goals", []) for item in goal.get("steps", [])),
+        ]
+        if item["capability_id"] == "quadratic_from_constraints"
+    )
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        fixture.planning_context
+    )
+    content = functional_plan_content_from_plan(plan, frame=frame).to_payload()
+    consumer = next(
+        item for item in content["goal_plans"]["ii.a"]["steps"]
+        if item["step_id"] == "derive_x_intercept_B_ii"
+    )
+    consumer["args"]["parabola"] = {
+        "step_id": sibling_producer["step_id"], "return": "parabola",
+    }
+    result = FunctionalPlanContentCompiler().compile_payload(
+        content, frame=frame, capability_catalog=fixture.capability_catalog,
+    )
+    assert not result.report.ok
+    assert any(
+        issue.code == "functional.plan_content_schema_invalid"
+        for issue in result.report.issues
+    )
 
 
 def test_scope_repair_applies_complete_scope_atomically_and_preserves_children(
@@ -826,14 +930,20 @@ def test_cross_goal_step_ref_allows_only_exact_visible_public_answer() -> None:
         )
 
     sibling_consumer = _StepLocation(consumer_step, "iii", "iii.a", 1)
-    with pytest.raises(ScopedFunctionalPlanError):
+    with pytest.raises(ScopedFunctionalPlanError) as failure:
         _audit_explicit_dependency(
             producer,
             sibling_consumer,
             ref=ScopedStepResultRef("produce_answer", "answer"),
             published_answer_sources=answers,
             scope_parents=parents,
+            path="$.steps['consume_answer'].args['value'][0]",
         )
+    assert failure.value.path.endswith(".args['value'][0]")
+    assert failure.value.issues[0].details["producer"]["goal_ref"] == "ii.a"
+    assert failure.value.issues[0].details["consumer"]["goal_ref"] == "iii.a"
+    assert "authorized_scope_refs" not in failure.value.issues[0].details
+
 
 
 def test_restore_seed_excludes_open_scope_calls_and_dependency_descendants(
@@ -931,10 +1041,39 @@ def test_scope_repair_prompt_has_one_annotated_plan_and_one_replacement_map(
     assert "## Annotated Previous Plan" in prompt.user
     assert "整块替换" in prompt.system
     assert "Macro 始终是一个原子" in prompt.system
-    assert "repair_step_base" not in payload["output_json_schema"]["$defs"]
-    assert len(json.dumps(payload["output_json_schema"])) < 10_000
-    # R0 captured a 68,481-character v4 prompt for the same repair class.
-    assert len(combined) < 68_481
+    common = StrategyPromptRenderer().env.get_template(
+        "strategy-functional-reference-rules.jinja"
+    ).render().strip()
+    assert prompt.system.count(common) == 1
+    pass1 = StrategyPayloadBuilder(scoped_functional_few_shot_examples=[]).build_scoped(
+        fixture.inputs, problem_payload=fixture.problem_payload,
+        planner_state_context=fixture.planner_state_context,
+        problem_planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+    )
+    assert StrategyPromptRenderer().render_scoped(pass1).system.count(common) == 1
+    assert "跨Goal不改变引用形式规则" in common
+    assert "开放Scope和受影响后继均重新执行" in prompt.system
+    definitions = payload["output_json_schema"]["$defs"]
+    assert "repair_step_base" in definitions
+    public_ids = {
+        item["capability_id"]
+        for item in payload["functional_capability_catalog"]["capabilities"]
+    }
+    def capability_ids(value):
+        if isinstance(value, dict):
+            capability = value.get("capability_id", {})
+            if isinstance(capability, dict) and "const" in capability:
+                yield capability["const"]
+            for child in value.values():
+                yield from capability_ids(child)
+        elif isinstance(value, list):
+            for child in value:
+                yield from capability_ids(child)
+
+    assert set(capability_ids(definitions)) == public_ids
+    assert len(json.dumps(payload["output_json_schema"], ensure_ascii=False)) < 12_000
+    assert prompt.user.count('"title":"Functional Scope Repair v1"') == 1
     for removed in (
         "goal_retry_context",
         "goal_replacements",
@@ -947,8 +1086,9 @@ def test_scope_repair_prompt_has_one_annotated_plan_and_one_replacement_map(
         assert removed not in combined
 
 
+@pytest.mark.parametrize("connection_failure", [False, True])
 def test_scope_retry_service_switches_from_pass1_to_vnext_and_accepts_repair(
-    tmp_path,
+    tmp_path, connection_failure,
 ) -> None:
     fixture = goal_retry_fixture(tmp_path)
     correct_plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
@@ -973,6 +1113,11 @@ def test_scope_retry_service_switches_from_pass1_to_vnext_and_accepts_repair(
         "step_id": "derive_parametric_parabola_ii",
         "return": "parabola",
     }
+    next(
+        item
+        for item in repaired_steps
+        if item["step_id"] == "derive_parametric_parabola_ii"
+    )["output_targets"] = False
 
     class Client:
         provider_name = "recorded-test"
@@ -986,6 +1131,8 @@ def test_scope_retry_service_switches_from_pass1_to_vnext_and_accepts_repair(
 
         def complete(self, request):
             self.requests.append(request)
+            if connection_failure and len(self.requests) == 2:
+                raise ConnectionError("connection interrupted during repair")
             return self.responses.pop(0)
 
     client = Client()
@@ -1003,19 +1150,27 @@ def test_scope_retry_service_switches_from_pass1_to_vnext_and_accepts_repair(
         runtime_context=ContextBuilder().build(fixture.problem),
         planner_state_context=fixture.planner_state_context,
         problem_payload=fixture.problem_payload,
-        max_attempts=2,
+        max_attempts=3 if connection_failure else 2,
     )
 
     assert result.status == "accepted"
     assert [item.planner_protocol for item in result.attempts] == [
         "functional-plan-content/v2",
         "functional-scope-repair/v1",
-    ]
+    ] + (["functional-scope-repair/v1"] if connection_failure else [])
+    if connection_failure:
+        assert result.attempts[1].raw_response is None
+        assert result.attempts[1].scope_authority == result.attempts[2].scope_authority
+        assert result.attempts[1].payload == result.attempts[2].payload
     assert any(
         item.code == "functional.named_entity_result_ref_normalized"
-        for item in result.attempts[1].content_normalizations
+        for item in result.attempts[-1].content_normalizations
     )
-    repaired_plan = result.attempts[1].merged_plan
+    assert any(
+        item.code == "functional.false_output_targets_omitted"
+        for item in result.attempts[-1].content_normalizations
+    )
+    repaired_plan = result.attempts[-1].merged_plan
     assert repaired_plan is not None
     repaired_intercept = next(
         item
@@ -1075,3 +1230,426 @@ def test_production_retry_tree_contains_no_retired_v4_contract() -> None:
         "ScopedPublishedGoalResultRef",
     ):
         assert retired not in combined
+
+
+@pytest.mark.parametrize('failure_mode', ['recover', 'exhaust', 'nonretryable'])
+def test_provider_failure_preserves_attempt_history(tmp_path, failure_mode):
+    import httpx
+    from openai import APIConnectionError, APITimeoutError, AuthenticationError
+    from shuxueshuo_server.solver.runtime.orchestrator import _write_scoped_debug_attempts
+    from types import SimpleNamespace
+
+    fixture = goal_retry_fixture(tmp_path)
+    plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        fixture.correct_payload
+    )
+    assert plan is not None and report.ok
+    valid = functional_plan_content_from_plan(
+        plan, frame=FunctionalPlanAuthorityFrame.from_planning_context(fixture.planning_context)
+    ).to_payload()
+    invalid = deepcopy(valid)
+    first_goal = next(iter(invalid['goal_plans'].values()))
+    first_goal.pop('answer_from')
+    request = httpx.Request('POST', 'https://example.test/completions')
+
+    class Client:
+        # Deliberately stale metadata must never appear on a failed call.
+        last_usage = {'total_tokens': 123}
+        last_response_model = 'previous-model'
+        last_provider_attempts = ({'usage': {'total_tokens': 123}},)
+
+        def __init__(self):
+            self.requests = []
+
+        def complete(self, payload):
+            self.requests.append(payload)
+            index = len(self.requests)
+            if index == 1:
+                return json.dumps(invalid)
+            if failure_mode == 'nonretryable':
+                raise AuthenticationError('invalid credentials', response=httpx.Response(401, request=request), body=None)
+            if index == 2:
+                raise APIConnectionError(request=request)
+            if failure_mode == 'exhaust':
+                raise APITimeoutError(request=request)
+            return json.dumps(valid)
+
+    client = Client()
+    result = ScopedFunctionalScopeRetryService(
+        client, payload_builder=StrategyPayloadBuilder(scoped_functional_few_shot_examples=[]),
+    ).run(
+        inputs=fixture.inputs, planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog, handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context, problem_payload=fixture.problem_payload,
+        max_attempts=3,
+    )
+    assert len(result.attempts) == (2 if failure_mode == 'nonretryable' else 3)
+    assert result.status == ('accepted' if failure_mode == 'recover' else 'blocked')
+    assert result.attempts[0].content_validation_report.issues
+    failed_call = result.attempts[1]
+    assert failed_call.raw_response is None
+    assert failed_call.error.retryable is (failure_mode != 'nonretryable')
+    assert failed_call.llm_metadata['usage'] is None
+    assert failed_call.llm_metadata['response_model'] is None
+    assert failed_call.llm_metadata['provider_attempts'] is None
+    if failure_mode != 'nonretryable':
+        assert result.attempts[1].payload['authoring_feedback'] == result.attempts[2].payload['authoring_feedback']
+        assert result.attempts[1].payload['authoring_feedback']
+    debug_dir = tmp_path / 'provider-debug'
+    _write_scoped_debug_attempts(debug_dir, SimpleNamespace(), result)
+    assert (debug_dir / 'attempt-1.raw-response.txt').exists()
+    assert (debug_dir / 'attempt-1.validation-report.json').exists()
+    assert (debug_dir / 'attempt-2.scope-retry-error.json').exists()
+    assert (debug_dir / 'attempt-2.prompt.user.md').exists()
+    assert not (debug_dir / 'attempt-2.raw-response.txt').exists()
+    if failure_mode == 'exhaust':
+        assert (debug_dir / 'attempt-3.scope-retry-error.json').exists()
+        assert not (debug_dir / 'attempt-3.raw-response.txt').exists()
+
+
+def _goal_local_parabola_payload(fixture):
+    payload = deepcopy(fixture.correct_payload)
+    scopes = {s['scope_ref']: s for s in iter_scopes(payload['root_scope'])}
+    producer = next(s for s in scopes['i']['steps'] if s['capability_id'] == 'quadratic_from_constraints')
+    scopes['i']['steps'].remove(producer)
+    if not scopes['i']['steps']:
+        scopes['i'].pop('steps')
+    scopes['i_1']['goals'][0]['steps'] = [producer]
+    return payload
+
+
+def _placement_case(fixture):
+    payload = _goal_local_parabola_payload(fixture)
+    base, report = ScopedFunctionalPlanValidator().validate_payload_with_report(payload)
+    assert report.ok and base is not None
+    candidate_payload = deepcopy(payload)
+    step(candidate_payload, 'derive_x_intercept_B_i')['args']['parabola'] = {
+        'step_id': 'derive_parabola_i', 'return': 'parabola',
+    }
+    candidate, report = ScopedFunctionalPlanValidator().validate_payload_with_report(candidate_payload)
+    assert report.ok and candidate is not None
+    authority = FunctionalScopeRetryAuthority(base, scoped_functional_plan_id(base), 'test-checkpoint', ('i_1', 'i_2'))
+    return authority, candidate
+
+
+def test_candidate_placement_opens_common_scope_without_adopting_candidate(tmp_path):
+    fixture = goal_retry_fixture(tmp_path)
+    authority, candidate = _placement_case(fixture)
+    expanded, issues = FunctionalScopeRetryAuthorityProjector().expand_for_candidate_placement(
+        authority=authority, candidate=candidate,
+        frame=FunctionalPlanAuthorityFrame.from_planning_context(fixture.planning_context),
+        capability_catalog=fixture.capability_catalog,
+    )
+    assert expanded.editable_scope_refs == ('i', 'i_1', 'i_2')
+    assert expanded.base_plan is authority.base_plan
+    assert expanded.base_plan_hash == authority.base_plan_hash
+    assert expanded.checkpoint_id == authority.checkpoint_id
+    assert expanded.authority_id != authority.authority_id
+    assert issues[0]['expected'] == {'producer_scope_ref': 'i', 'producer_owner': 'scope_steps'}
+    assert issues[0]['consumer_step_ids'] == ['derive_x_intercept_B_i']
+
+
+@pytest.mark.parametrize('local_context', ['fact', 'entity'])
+def test_placement_does_not_lift_local_conditions_or_entities(tmp_path, local_context):
+    fixture = goal_retry_fixture(tmp_path)
+    authority, candidate = _placement_case(fixture)
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(fixture.planning_context)
+    if local_context == 'fact':
+        frame = replace(frame, source_facts={**frame.source_facts, 'i_1': ({'kind': 'symbol_value', 'ref': 'local_coefficient'},)})
+    else:
+        frame = replace(frame, source_ref_domain_types={**frame.source_ref_domain_types, 'i_1': {'local_point': 'Point'}})
+    expanded, issues = FunctionalScopeRetryAuthorityProjector().expand_for_candidate_placement(
+        authority=authority, candidate=candidate, frame=frame, capability_catalog=fixture.capability_catalog,
+    )
+    assert expanded is authority
+    assert not issues
+
+
+def test_placement_does_not_infer_shared_state_from_source_name(tmp_path):
+    fixture = goal_retry_fixture(tmp_path)
+    authority, _ = _placement_case(fixture)
+    expanded, issues = FunctionalScopeRetryAuthorityProjector().expand_for_candidate_placement(
+        authority=authority, candidate=authority.base_plan,
+        frame=FunctionalPlanAuthorityFrame.from_planning_context(fixture.planning_context),
+        capability_catalog=fixture.capability_catalog,
+    )
+    assert expanded is authority
+    assert not issues
+
+
+def test_candidate_cannot_rewrite_closed_scope_to_obtain_permission(tmp_path):
+    fixture = goal_retry_fixture(tmp_path)
+    authority, _ = _placement_case(fixture)
+    candidate, report = ScopedFunctionalPlanValidator().validate_payload_with_report(fixture.correct_payload)
+    assert report.ok and candidate is not None
+    with pytest.raises(FunctionalScopeRetryError) as caught:
+        FunctionalScopeRetryAuthorityProjector().expand_for_candidate_placement(
+            authority=authority, candidate=candidate,
+            frame=FunctionalPlanAuthorityFrame.from_planning_context(fixture.planning_context),
+            capability_catalog=fixture.capability_catalog,
+        )
+    assert caught.value.code == 'functional.scope_retry_boundary_violation'
+    assert not caught.value.retryable
+
+
+def test_scope_retry_reopens_parent_after_candidate_failure_and_reexecutes_it(tmp_path):
+    fixture = goal_retry_fixture(tmp_path)
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(fixture.planning_context)
+    initial = _goal_local_parabola_payload(fixture)
+    scopes = {s['scope_ref']: s for s in iter_scopes(initial['root_scope'])}
+    translated = next(s for s in scopes['problem']['steps'] if s['step_id'] == 'derive_translated_D_i')
+    scopes['problem']['steps'].remove(translated)
+    scopes['i']['steps'] = [translated]
+    step(initial, 'derive_parabola_i')['args']['curve_points'] = ['D']
+    initial_plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(initial)
+    assert report.ok and initial_plan is not None
+    initial_content = functional_plan_content_from_plan(initial_plan, frame=frame).to_payload()
+
+    correct = deepcopy(fixture.correct_payload)
+    correct_scopes = {s['scope_ref']: s for s in iter_scopes(correct['root_scope'])}
+    correct_scopes['problem']['steps'] = [s for s in correct_scopes['problem']['steps'] if s['step_id'] != 'derive_translated_D_i']
+    correct_scopes['i']['steps'].insert(0, deepcopy(translated))
+    local_d = deepcopy(translated)
+    local_d['step_id'] = 'derive_translated_D_ii'
+    correct_scopes['ii']['goals'][0]['steps'].insert(0, local_d)
+    correct_plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(correct)
+    assert report.ok and correct_plan is not None
+
+    class Client:
+        def __init__(self):
+            self.requests = []
+
+        def complete(self, request):
+            self.requests.append(request)
+            if len(self.requests) == 1:
+                return json.dumps(initial_content)
+            annotated = request['planner_payload']['annotated_previous_plan']
+            def walk(scope):
+                yield scope
+                for child in scope['children']:
+                    yield from walk(child)
+            open_scopes = [s['scope_ref'] for s in walk(annotated['root_scope']) if s['retry_editable']]
+            if len(self.requests) == 2:
+                assert 'i' not in open_scopes
+                replacements = {}
+                def pure(s):
+                    return {k: deepcopy(v) for k, v in s.items() if k not in {'execution', 'return_expectations'}}
+                for scope in walk(annotated['root_scope']):
+                    if scope['scope_ref'] not in open_scopes:
+                        continue
+                    replacements[scope['scope_ref']] = {
+                        'scope_steps': [pure(s) for s in scope['scope_steps']],
+                        'goals': {g: {'steps': [pure(s) for s in b['steps']], 'answer_from': b['answer_from']} for g, b in scope['goals'].items()},
+                    }
+                curve = replacements['i_1']['goals']['i_1.parabola']['steps'][0]
+                curve['args']['curve_points'] = ['A', 'D']
+                b = next(s for s in replacements['i_2']['goals']['i_2.E']['steps'] if s['step_id'] == 'derive_x_intercept_B_i')
+                b['args']['parabola'] = {'step_id': 'derive_parabola_i', 'return': 'parabola'}
+                return json.dumps({'schema_version': 'functional-scope-repair/v1', 'scope_replacements': replacements})
+            assert 'i' in open_scopes
+            assert 'problem' not in open_scopes
+            error = annotated['previous_response_error']
+            assert error['code'] == 'functional.shared_producer_scope_required'
+            assert error['details']['placement_issues'][0]['expected']['producer_scope_ref'] == 'i'
+            placement = error['details']['placement_issues'][0]
+            assert placement['producer']['goal_ref'] == 'i_1.parabola'
+            assert placement['consumers'][0]['scope_ref'] == 'i_2'
+            assert 'i' in error['details']['authorized_scope_refs']
+            leaf = next(item for item in error['details']['diagnostics'] if item['details'].get('step_id') == 'derive_x_intercept_B_i')
+            assert leaf['path'].endswith("['args']['parabola']")
+            assert leaf['details']['expected']['reference_form'] == 'SourceRef'
+            assert leaf['details']['observed']['reference_form'] == 'StepResultRef'
+            assert leaf['details']['producer']['scope_ref'] == 'i_1'
+            assert leaf['details']['consumer']['scope_ref'] == 'i_2'
+
+            # Failed candidate did not overwrite A1's execution tree.
+            old_curve = next(s for scope in walk(annotated['root_scope']) for body in scope['goals'].values() for s in body['steps'] if s['step_id'] == 'derive_parabola_i')
+            assert old_curve['args']['curve_points'] == 'D'
+            return json.dumps(_scope_repair_payload(correct_plan, *open_scopes))
+
+    from shuxueshuo_server.solver.runtime.functional_attempt_evidence import write_scoped_attempt_evidence
+    incremental = tmp_path / 'incremental-evidence'
+    phases = []
+    def observe(attempt):
+        phases.append((attempt.semantic_attempt, attempt.evidence_phase))
+        write_scoped_attempt_evidence(incremental, attempt)
+    client = Client()
+    result = ScopedFunctionalScopeRetryService(
+        client, payload_builder=StrategyPayloadBuilder(scoped_functional_few_shot_examples=[]),
+    ).run(
+        inputs=fixture.inputs, planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog, handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem), planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload, max_attempts=3, attempt_observer=observe,
+    )
+    assert len(result.attempts) == 3
+    second, third = result.attempts[1:]
+    assert second.error.code == 'functional.shared_producer_scope_required'
+    assert second.execution is None
+    assert third.scope_authority == second.result_scope_authority
+    assert third.scope_authority.base_plan_hash == second.scope_authority.base_plan_hash
+    assert third.scope_authority.checkpoint_id == second.scope_authority.checkpoint_id
+    assert result.status == 'accepted', [(a.error, a.execution) for a in result.attempts]
+    assert 'derive_translated_D_i' not in third.restored_call_ids
+    assert third.execution.checkpoint is not None
+    def execution_scopes(scope):
+        yield scope
+        for child in scope.children:
+            yield from execution_scopes(child)
+    d = next(s for scope in execution_scopes(third.execution.checkpoint.root_scope) for s in scope.scope_steps if s.step_id == 'derive_translated_D_i')
+    assert d.status == 'runtime_verified'
+    from types import SimpleNamespace
+    from shuxueshuo_server.solver.runtime.orchestrator import _write_scoped_debug_attempts
+    debug = tmp_path / 'placement-debug'
+    _write_scoped_debug_attempts(debug, SimpleNamespace(), result)
+    old_authority = json.loads((debug / 'attempt-2.scope-retry-authority.json').read_text())
+    new_authority = json.loads((debug / 'attempt-2.scope-retry-result-authority.json').read_text())
+    assert 'i' not in old_authority['editable_scope_refs']
+    assert 'i' in new_authority['editable_scope_refs']
+    assert old_authority['base_plan_hash'] == new_authority['base_plan_hash']
+    assert old_authority['checkpoint_id'] == new_authority['checkpoint_id']
+    full = json.loads((debug / 'attempt-2.validation-diagnostic-evidence.json').read_text())
+    prompt_error = json.loads((debug / 'attempt-2.scope-retry-error.json').read_text())
+    report = json.loads((debug / 'attempt-2.validation-report.json').read_text())
+    evidence = full['details']['diagnostics'][0]
+    assert evidence['details']['diagnostic_id'] == prompt_error['details']['diagnostics'][0]['details']['diagnostic_id']
+    assert evidence['details']['diagnostic_id'] == report['issues'][0]['details']['diagnostic_id']
+    assert 'schema_path' in evidence['details']
+    assert 'schema_path' not in prompt_error['details']['diagnostics'][0]['details']
+
+
+
+    from shuxueshuo_server.solver.runtime.functional_goal_execution import FunctionalGoalExecutionCheckpoint
+    from hashlib import sha256
+    assert (2, 'compiled') not in phases
+    assert (1, 'completed') in phases and (3, 'completed') in phases
+    rejected = json.loads((debug / 'attempt-2.evidence-index.json').read_text())
+    assert rejected['artifacts']['candidate-plan']['status'] == 'saved'
+    assert rejected['artifacts']['canonical-plan']['status'] == 'not_available'
+    assert rejected['artifacts']['transaction']['status'] == 'not_available'
+    candidate = json.loads((debug / 'attempt-2.candidate-plan.json').read_text())
+    base = json.loads((debug / 'attempt-2.base-plan.json').read_text())
+    assert step(candidate, 'derive_parabola_i')['args']['curve_points'] == ['A', 'D']
+    assert step(base, 'derive_parabola_i')['args']['curve_points'] == 'D'
+    first_checkpoint = json.loads((debug / 'attempt-1.checkpoint.json').read_text())
+    restored = FunctionalGoalExecutionCheckpoint.from_payload(first_checkpoint)
+    assert restored.checkpoint_id == old_authority['checkpoint_id']
+    assert restored.restore_state.runtime_seed is None
+    assert restored.authority_payload() == first_checkpoint
+    third_reuse = json.loads((debug / 'attempt-3.reuse.json').read_text())
+    assert 'derive_translated_D_i' not in third_reuse['actual_restored_call_ids']
+    assert 'derive_translated_D_i' in third_reuse['executed_call_ids']
+    assert third_reuse['base_checkpoint_id'] == first_checkpoint['checkpoint_id']
+    assert 'root_issues' in json.loads((debug / 'attempt-1.transaction.json').read_text())
+    for index in (1, 2, 3):
+        manifest = json.loads((incremental / f'attempt-{index}.evidence-index.json').read_text())
+        assert manifest['phase'] == 'completed'
+        for item in manifest['artifacts'].values():
+            if item['status'] == 'saved':
+                assert sha256((incremental / item['file']).read_bytes()).hexdigest() == item['sha256']
+
+
+def test_placement_requires_producer_inputs_visible_at_destination(tmp_path):
+    fixture = goal_retry_fixture(tmp_path)
+    authority, candidate = _placement_case(fixture)
+    payload = candidate.to_payload()
+    # E is owned by sibling i_2; naming it does not make it available at i.
+    step(payload, 'derive_parabola_i')['args']['curve_points'] = ['E']
+    invalid, report = ScopedFunctionalPlanValidator().validate_payload_with_report(payload)
+    assert report.ok and invalid is not None
+    expanded, issues = FunctionalScopeRetryAuthorityProjector().expand_for_candidate_placement(
+        authority=authority, candidate=invalid,
+        frame=FunctionalPlanAuthorityFrame.from_planning_context(fixture.planning_context),
+        capability_catalog=fixture.capability_catalog,
+    )
+    assert expanded is authority
+    assert not issues
+
+
+def test_audit_survives_execution_crash_with_received_and_compiled_evidence(tmp_path):
+    from types import SimpleNamespace
+    from shuxueshuo_server.solver.runtime.functional_attempt_evidence import write_scoped_attempt_evidence
+
+    fixture = goal_retry_fixture(tmp_path)
+    plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(fixture.correct_payload)
+    assert report.ok
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(fixture.planning_context)
+    payload = functional_plan_content_from_plan(plan, frame=frame).to_payload()
+    # An allowed normalization must be distinguishable from authored bytes.
+    first = next(iter(payload['scope_steps'].values()))[0]
+    first['return_expectations'] = {}
+    raw = json.dumps(payload)
+    debug = tmp_path / 'crash-evidence'
+    phases = []
+    def observe(attempt):
+        phases.append(attempt.evidence_phase)
+        write_scoped_attempt_evidence(debug, attempt)
+    def crash(*args, **kwargs):
+        index = json.loads((debug / 'attempt-1.evidence-index.json').read_text())
+        assert index['phase'] == 'compiled'
+        assert index['artifacts']['compiled-plan']['status'] == 'saved'
+        raise RuntimeError('unexpected execution failure')
+    with pytest.raises(RuntimeError, match='unexpected execution failure'):
+        ScopedFunctionalScopeRetryService(SimpleNamespace(complete=lambda request: raw),
+            execution_service=SimpleNamespace(execute_raw_json=crash)).run(
+            inputs=fixture.inputs, planning_context=fixture.planning_context,
+            problem_binding_catalog=fixture.binding_catalog, handle_registry=fixture.handle_registry,
+            runtime_context=ContextBuilder().build(fixture.problem), planner_state_context=fixture.planner_state_context,
+            problem_payload=fixture.problem_payload, max_attempts=1, attempt_observer=observe)
+    assert phases == ['requested', 'received', 'compiled', 'execution_failed']
+    assert json.loads((debug / 'attempt-1.raw-response.json').read_text())['text'] == raw
+    normalized = json.loads((debug / 'attempt-1.normalized-response.json').read_text())
+    assert 'return_expectations' not in next(iter(normalized['scope_steps'].values()))[0]
+    assert json.loads((debug / 'attempt-1.normalizations.json').read_text())['content']
+    index = json.loads((debug / 'attempt-1.evidence-index.json').read_text())
+    assert index['artifacts']['canonical-plan']['status'] == 'not_available'
+    assert index['artifacts']['checkpoint']['status'] == 'not_available'
+    assert index['phase'] == 'execution_failed'
+    assert json.loads((debug / 'attempt-1.blockers.json').read_text())['first_reported']['code'] == 'functional.execution_unexpected_failure'
+
+
+def test_transport_failure_keeps_proven_current_provider_evidence(tmp_path):
+    from shuxueshuo_server.solver.runtime.functional_attempt_evidence import write_scoped_attempt_evidence
+    fixture = goal_retry_fixture(tmp_path)
+    class Client:
+        last_invocation_id = 0
+        def complete(self, payload):
+            self.last_invocation_id += 1
+            self.last_provider_reasoning = [{'provider_attempt': 1, 'reasoning_content': 'partial reasoning'}]
+            self.last_provider_attempts = [{'provider_attempt': 1, 'visible_content': False}]
+            self.last_provider_requests = [{'provider_attempt': 1}, {'provider_attempt': 2}]
+            self.last_provider_responses = [{'provider_attempt': 1, 'text': ''}]
+            self.last_usage = {'total_tokens': 30}
+            raise ConnectionError('provider retry disconnected')
+    debug = tmp_path / 'provider-failure'
+    result = ScopedFunctionalScopeRetryService(Client()).run(
+        inputs=fixture.inputs, planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog, handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem), planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload, max_attempts=1,
+        attempt_observer=lambda attempt: write_scoped_attempt_evidence(debug, attempt))
+    attempt = result.attempts[0]
+    assert attempt.raw_response is None
+    assert attempt.llm_metadata['usage'] == {'total_tokens': 30}
+    assert attempt.llm_metadata['provider_attempts'][0]['provider_attempt'] == 1
+    reasoning = json.loads((debug / 'attempt-1.provider-reasoning.json').read_text())
+    assert reasoning['status'] == 'provided'
+    assert reasoning['attempts'][0]['reasoning_content'] == 'partial reasoning'
+    assert 'partial reasoning' not in (debug / 'attempt-1.request.json').read_text()
+    assert len(json.loads((debug / 'attempt-1.provider-requests.json').read_text())) == 2
+
+
+def test_invalid_repair_preserves_normalized_envelope_and_records(tmp_path):
+    fixture = goal_retry_fixture(tmp_path)
+    authority = FunctionalScopeRetryAuthorityProjector().project(plan=fixture.failed_plan, execution=fixture.execution)
+    payload = _scope_repair_payload(fixture.failed_plan, *authority.editable_scope_refs)
+    body = next(iter(payload['scope_replacements']['ii']['goals'].values()))
+    body['steps'][0]['return_expectations'] = {}
+    body['steps'][0].pop('args')
+    with pytest.raises(FunctionalScopeRetryError) as raised:
+        FunctionalScopeRepairCompiler().parse_json(json.dumps(payload), authority=authority)
+    assert raised.value.normalized_response is not None
+    normalized = next(iter(raised.value.normalized_response['scope_replacements']['ii']['goals'].values()))
+    assert 'return_expectations' not in normalized['steps'][0]
+    assert raised.value.content_normalizations

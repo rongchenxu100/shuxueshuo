@@ -44,9 +44,22 @@ def test_runtime_config_defaults_to_strategy_recorded(tmp_path) -> None:
     assert config.llm_provider == "recorded"
     assert config.deepseek_base_url == DEFAULT_DEEPSEEK_BASE_URL
     assert config.deepseek_model == DEFAULT_DEEPSEEK_MODEL
+    assert config.deepseek_model == "deepseek-v4-flash"
     assert config.max_llm_attempts == 3
     assert config.llm_debug_dir is None
     assert config.functional_few_shot_mode == "new_problem"
+
+
+def test_config_builds_review_thinking_client_without_changing_lesson_default(monkeypatch):
+    from shuxueshuo_server.solver.runtime import config as config_module
+    calls = []
+    monkeypatch.setattr(config_module, "DeepSeekPlannerClient", lambda **kw: calls.append(kw))
+    config = SolverRuntimeConfig(llm_provider="deepseek", deepseek_api_key="test-key")
+    config.build_llm_client(thinking_effort="low")
+    config.build_llm_client()
+    assert calls[0]["model"] == calls[1]["model"] == "deepseek-v4-flash"
+    assert calls[0]["default_thinking_effort"] == "low"
+    assert calls[1]["default_thinking_effort"] is None
 
 
 def test_runtime_config_maps_legacy_few_shot_boolean_to_functional_mode(

@@ -612,10 +612,9 @@ def test_minimum_frame_defaults_to_attainment_and_calculation_step_keeps_it(
         "max": 1,
     }
     assert 0 < minimum_parameters["u"]["default_value"] < 1
-    assert (
-        calculation_parameters["u"]["default_value"]
-        == minimum_parameters["u"]["default_value"]
-    )
+    assert calculation_parameters["u"]["mathematical_domain"] == {
+        "kind": "exact", "value": "5/9",
+    }
     assert calculation_parameters["u"]["controls"] == []
 
     environment = {

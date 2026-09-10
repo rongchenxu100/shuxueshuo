@@ -2,7 +2,12 @@
 
 状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
 `F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4/B4V COMPLETE`；
-`F5-F5C0 COMPLETE`；`F5-F5C1 NEXT`。
+`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3 NEXT`。
+
+2026-09-09 优先级调整：以[真实上传与变更重建计划](online-service-development-plan.md#11-实施顺序)
+为当前执行顺序。G1 的 LLM 视觉选择仅保留候选设计，本文涉及 `available_visuals` 和 LLM
+组件选择的合同只适用于未来可选 G1，不是当前生产 wire。G2 新动画及配音延后；
+已有图形、滑块与最短路径交互仍须通过门禁。C1 质量验收保留，但不阻塞 G3 接线。
 
 本文是 F5-F5 以及后续 Track G 教学链的统一规范入口。它定义：如何从
 `VerifiedFunctionalPlanExecution` 生成学生可见步骤，如何继续生成 `VisualStepIR` 与动画
@@ -772,7 +777,7 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 - coverage、occurrence、synthetic scenario、semantic hashes 与人工结论作为 regression-only
   fixture 保存，不进入 LLM 输入。
 
-### F5-F5C1：五题教学 LLM 验收（NEXT）
+### F5-F5C1：五题教学 LLM 验收（待验收，不阻塞 G3 接线）
 
 - 先用和平 live `1×3` 对真实 LLM 输出做结构、authority 与教学质量评测，按错误簇优化
   projector、Macro outline（仅 Macro）、prompt/schema 或通用 few-shot；
@@ -782,9 +787,11 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 -和平达到 `3/3` 后再扩到 equal-length、和平、南开、河西、西青 teaching-only `5×3`；
 -无 private Path marker、failed/shadow/provisional 数据，相同输入生成稳定 ID/owner。
 
-### G1：视觉组件选择与 VisualStepIR 收敛（本 F5-F5B/G1 计划最后实现）
+### G1：视觉组件选择（可选未来设计，不排期）
 
--前述纯 Lesson 链全部通过后才打开 `available_visuals`；
+以下候选方案不作为 G3 或当前发布前置条件；当前 VisualStepIR 继续确定性构建。
+
+-只有后续明确启用 G1 时才评估打开 `available_visuals`；
 - MethodVisualSpec/Macro outline unit 声明可用语义组件、binding contract、supported modes 与默认项；
 -代码先绑定角色，Lesson LLM 在同一次调用中只选择 `visual_id/mode`；
 -选择非法时保留 Lesson 正文并回退该步骤视觉默认值，不调用第二个 Visual LLM；
@@ -795,7 +802,7 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 -先完成和平 visual `1×3` 的组件选择、VisualStepIR、compiled page 与截图回归，再运行五题
   full lesson-page `5×3`。
 
-### G2：AnimationContext
+### G2：AnimationContext（新能力延后，配音亦延后）
 
 - AnimationContext 使用与 VisualStepIR 相同的递归 Scope/Goal 容器；
 - timeline 只引用有效 LessonStep/VisualStep/object ID；
@@ -804,11 +811,13 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 -保留已注册的 Method/Recipe visual spec，但删除绕过 LessonStep visual intent/role contract、
   仅按 capability 名或 DOM 残留猜动画的 fallback。
 
-### G3：Context 与课程页冷路径
+### G3：真实图片上传与课程页重建（NEXT）
 
-- Explanation、Diagram、Voiceover、Animation Context 记录 dependency/hash；
--局部 stale 和重建生效；
--至少一题完成图片到课程页真实冷路径，再扩到五题。
+-先接通真实上传、抽取、Solver、Lesson、Visual、编译与服务预览，不以旧 fixture 替代；
+-各阶段记录实际输入版本和 dependency/hash，局部 stale 与重建在本阶段完成；
+-验证题意、教学、视觉、渲染变化的失效边界与旧任务晚完成防护；
+-至少一题完成真实冷路径及变更重建，再扩到五题并人工审阅；
+-无新增动画或配音要求；已有交互继续验证；具体退出条件见在线服务开发计划 §11。
 
 ## 13. 测试矩阵
 
@@ -841,9 +850,9 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 ### 可视化
 
 - VisualStepIR root Scope 与 LessonIR 递归同构；
--每个 Lesson Step 只看到其连续消费 teaching materials 已成功绑定的 `available_visuals`；
-- LLM 只能选择动态枚举的 `visual_id/mode`，不能填写 component args；
--非法 visual selection 局部 fallback，不丢弃合法 Lesson body，也不重试 LLM；
+-每个 Lesson Step 的视觉由其消费的 teaching materials 与确定性 VisualSpec/binder 生成；
+-当前 Lesson LLM wire 不包含 `available_visuals/visuals`，不由 LLM 填写 component args；
+-未来若启用 G1，再增加动态枚举选择及非法选择局部 fallback 专项；
 - role binding 唯一；
 -同名不同对象不混淆；
 -ancestor persistent scene 与 sibling isolation；
@@ -852,7 +861,7 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 -缺组件生成 VisualGap；
 - private runtime identity 零泄漏。
 
-### 动画
+### 动画（已有功能回归；新增能力在 G2 验收）
 
 - AnimationContext root Scope 与 VisualStepIR 递归同构；
 -每个 beat 引用已声明对象；
@@ -865,8 +874,8 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 ## 14. 发布门禁
 
 - Canonical Plan 与 Snapshot Scope/Goal owner `100%` 同构；
-- Snapshot、LessonIR、VisualStepIR、AnimationContext 的 Scope/Goal topology 与 Canonical
-  Plan `100%` 同构；
+- Snapshot、LessonIR、VisualStepIR 的 Scope/Goal topology 与 Canonical Plan `100%` 同构；
+  若产出 AnimationContext，也须遵守同一 topology；
 -持久化 flat section/step ownership map 数量为 `0`；
 - `execution_scope_id → teaching owner` 推断数量为 `0`；
 - failed/provisional/shadow/dead-pruned 学生投影数量为 `0`；
@@ -876,10 +885,10 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 - VisualStepIR 中每个对象/role/annotation 有 source ref；
 - animation 中每个 beat 只使用已声明 visual object/action；
 - private Path type、synthetic PointRef、runtime path 和 internal identity 泄漏为 `0`；
--五题教学、视觉和动画 fixture 全部通过；
+-五题教学、视觉及已有交互 fixture 全部通过；不要求新增动画或配音；
 - Lesson 主链每个 sample 只有一次 semantic LLM 调用；
-- Method/Macro visual default 与 LLM selection 均经过同一 deterministic renderer；
--至少一题完成真实图片到课程页冷路径；
+- Method/Macro VisualSpec 经过确定性绑定与 renderer，不要求启用 LLM selection；
+-至少一题、再五题完成真实图片上传到服务课程页，并验证上游变更后的正确重建；
 - `git diff --check` 与 Solver/lesson page 全量门禁通过。
 
 ## 15. 明确不做

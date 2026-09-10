@@ -1,0 +1,38 @@
+.shell { width: 100%; min-width: 0; max-width: 1480px; margin: 0 auto; padding: 36px; color: #172c37; background: #f4f6f5; min-height: 100vh; font: 15px/1.6 system-ui, sans-serif; }
+.shell h1 { font-size: 28px; font-weight: 700; margin: 4px 0 10px; }
+.shell h2 { font-size: 21px; font-weight: 650; margin: 0 0 12px; }
+.shell p { margin: 10px 0; }
+.shell a { color: #087b71; text-decoration: underline; text-underline-offset: 3px; }
+.shell button { cursor: pointer; border-radius: 8px; padding: 9px 15px; background: #087b71; color: white; border: 1px solid transparent; font: inherit; }
+.shell button:disabled { opacity: .45; cursor: default; }
+.shell small { display: block; color: #667782; font-size: 12px; overflow-wrap: anywhere; }
+.shell input { border: 1px solid #ccd8dc; padding: 8px; border-radius: 8px; max-width: 100%; margin: 8px 12px 8px 0; background: white; }
+.eyebrow { color: #087b71; letter-spacing: .12em; font-size: 12px; font-weight: 700; }
+.panel, .content { background: white; border: 1px solid #dce4e4; border-radius: 14px; padding: 25px; margin-top: 22px; }
+.runRow { display: flex; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #edf1f1; text-decoration: none !important; gap: 20px; }
+.detailHeader { display: flex; align-items: center; gap: 22px; padding: 24px 0; }
+.detailHeader img { width: 120px; height: 100px; object-fit: contain; background: white; border-radius: 8px; }
+.detailHeader > div { flex: 1; min-width: 0; }
+.detailHeader h1 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.detailHeader > button { flex-shrink: 0; }
+.runRow > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.layout { display: grid; grid-template-columns: 235px minmax(0, 1fr); gap: 24px; align-items: start; }
+.stages { position: sticky; top: 18px; display: grid; gap: 8px; }
+.stages button { text-align: left; color: #314c5b; background: #e7eeed; }
+.stages button[aria-current] { background: #087b71; color: white; }
+.stages button[aria-current] small { color: #d0efeb; }
+.content { margin-top: 0; min-height: 600px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; border-bottom: 1px solid #dce4e4; padding-bottom: 15px; }
+.tabs button { background: #edf3f2; color: #34525b; }
+.tabs button[aria-pressed=true] { background: #087b71; color: white; }
+.artifact { border: 1px solid #dce4e4; border-radius: 10px; padding: 15px; margin: 12px 0; }
+.shell .artifactTitle { display: block; background: none; color: #233f4b; text-align: left; padding: 0; width: 100%; font-weight: 600; }
+.artifact pre { max-height: 550px; overflow: auto; padding: 16px; background: #f3f6f6; white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.7 ui-monospace, monospace; margin-top: 10px; }
+.artifactImage { max-width: 100%; max-height: 650px; object-fit: contain; }
+.actions { display: flex; gap: 20px; align-items: center; }
+.shell .actions button { padding: 3px 12px; background: #e7eeed; color: #087b71; }
+.preview { width: 100%; height: 850px; border: 1px solid #dae3e1; margin-top: 20px; border-radius: 10px; background: white; }
+.error { color: #a23028; background: #fff0eb; padding: 12px; border-radius: 8px; overflow-wrap: anywhere; }
+.empty { padding: 35px 0; color: #667782; }
+.shell [data-status=failed], .shell [data-status=interrupted] { color: #b44839; }
+@media (max-width: 800px) { .shell { padding: 18px; } .layout { grid-template-columns: 1fr; } .stages { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); } .detailHeader { flex-wrap: wrap; } .content { padding: 16px; } }

@@ -5,15 +5,10 @@
 - `execution`、`diagnostics`、`required_answer` 与 `retry_editable` 都是只读注解；不得复制到输出。
 - 只重写 `retry_editable=true` 的 Scope；必须完整返回该 Scope 的 `scope_steps` 和全部直属 Goal 的 `steps + answer_from`。
 - 不返回 child Scope。关闭的 Scope 不得出现在 `scope_replacements`。
-- 开放 Scope 是整块替换，不存在 editable/frozen step patch 或局部 merge。
+- 开放 Scope 是整块替换，不存在 editable/frozen step patch 或局部 merge。旧结果只供参考，开放Scope和受影响后继均重新执行。
+- 若错误给出共享producer的合法目标Scope，按本轮retry_editable范围完整重写相关Scope；不得自行扩大权限。
 
-引用规则：
-
-- 命名题面 Entity/Fact 默认使用可见 SourceRef 字符串。
-- 匿名中间结果，以及catalog声明`reference_mode=exact_result`的producer return，使用较早、可见步骤的
-  `{ "step_id": "...", "return": "..." }`；exact-result即使携带已有Entity身份也不得改写成SourceRef。
-- 跨 Goal 只能引用 producer Goal 当前 `answer_from` 所指向的精确 StepResultRef；不能读取其内部 return。
-- sibling、child-to-parent 或不可见 Scope 引用非法。
+{% include "strategy-functional-reference-rules.jinja" %}
 
 Macro 始终是一个原子 capability step。可以修改 Macro 参数或换用公开 capability，但不得展开或编辑 Macro 内部 invocation。
 

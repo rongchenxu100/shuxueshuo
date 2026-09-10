@@ -369,6 +369,8 @@
         "scopeId": "i",
         "scopeRoot": "i",
         "sourceHandle": "fact:i:derive_parabola_i_parabola",
+        "objectRef": "function:problem:parabola",
+        "stateRevision": 0,
         "a": "-1",
         "b": "-2",
         "c": "3"
@@ -379,6 +381,8 @@
         "scopeId": "ii",
         "scopeRoot": "ii",
         "sourceHandle": "fact:ii:derive_parametric_parabola_ii_parabola",
+        "objectRef": "function:problem:parabola",
+        "stateRevision": 6,
         "a": "-1",
         "b": "1-c",
         "c": "c"

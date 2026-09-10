@@ -1,0 +1,125 @@
+{
+  "schema_version": "functional-scope-repair/v1",
+  "scope_replacements": {
+    "i_2": {
+      "scope_steps": [],
+      "goals": {
+        "i_2.E": {
+          "steps": [
+            {
+              "step_id": "param_e_i2",
+              "capability_id": "quadratic_axis_parameterized_point",
+              "args": {
+                "parabola": "parabola"
+              },
+              "output_targets": {
+                "point": "E"
+              },
+              "intent": "在（Ⅰ）条件下参数化对称轴上的点 E"
+            },
+            {
+              "step_id": "g_from_e_i2",
+              "capability_id": "square_adjacent_vertex_from_side",
+              "args": {
+                "side_start": "A",
+                "side_end": "E",
+                "square": "square_ae_a_e_k_g"
+              },
+              "output_targets": {
+                "adjacent_vertex": "G"
+              },
+              "intent": "由正方形边 AE 构造位于 x 轴下方的顶点 G"
+            },
+            {
+              "step_id": "solve_e_i2",
+              "capability_id": "point_candidates_from_curve_point_condition",
+              "args": {
+                "target_point": "E",
+                "curve_point": "G",
+                "parabola": "parabola",
+                "parameter": {
+                  "step_id": "param_e_i2",
+                  "return": "parameter"
+                }
+              },
+              "intent": "利用点 G 在抛物线上反求点 E 的候选坐标"
+            }
+          ],
+          "answer_from": {
+            "step_id": "solve_e_i2",
+            "return": "candidates"
+          }
+        }
+      }
+    },
+    "ii": {
+      "scope_steps": [],
+      "goals": {
+        "ii.E": {
+          "steps": [
+            {
+              "step_id": "parabola_ii",
+              "capability_id": "quadratic_from_constraints",
+              "args": {
+                "curve_point": "A",
+                "free_parameters": "c"
+              },
+              "output_targets": {
+                "parabola": "parabola"
+              },
+              "intent": "利用点 A(-c,0) 约束抛物线，保留自由参数 c"
+            },
+            {
+              "step_id": "path_min_ii",
+              "capability_id": "quadratic_square_path_minimum",
+              "args": {
+                "parabola": "parabola",
+                "path_minimum_target": "path_minimum_target_h_f_m_g",
+                "square": "square_ae_a_e_k_g"
+              },
+              "intent": "求路径 HF+FM+MG 的最小表达式及取等点"
+            },
+            {
+              "step_id": "c_from_min_ii",
+              "capability_id": "parameter_from_expression_value",
+              "args": {
+                "expression": {
+                  "step_id": "path_min_ii",
+                  "return": "minimum_expression"
+                },
+                "minimum_value": "minimum_value",
+                "parameter": "c"
+              },
+              "output_targets": {
+                "parameter_value": "c"
+              },
+              "intent": "由最小值为 3√5 反求参数 c"
+            },
+            {
+              "step_id": "eval_e_ii",
+              "capability_id": "evaluate_point_at_parameter",
+              "args": {
+                "point": {
+                  "step_id": "path_min_ii",
+                  "return": "attainment_point"
+                },
+                "parameter_value": {
+                  "step_id": "c_from_min_ii",
+                  "return": "parameter_value"
+                }
+              },
+              "output_targets": {
+                "evaluated_point": "E"
+              },
+              "intent": "将参数 c 代入取等点，得到点 E 的坐标"
+            }
+          ],
+          "answer_from": {
+            "step_id": "eval_e_ii",
+            "return": "evaluated_point"
+          }
+        }
+      }
+    }
+  }
+}

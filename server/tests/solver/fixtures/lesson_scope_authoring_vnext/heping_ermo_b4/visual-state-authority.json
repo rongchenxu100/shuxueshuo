@@ -15,7 +15,10 @@
         "visual:point:4f40a1617d26bf77",
         "visual:point:98039193da992b37"
       ],
-      "parameter_values": {}
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "goal:i_1.P": {
       "available_before": [
@@ -32,7 +35,10 @@
         "visual:point:98039193da992b37",
         "visual:point:fef6497f273d0196"
       ],
-      "parameter_values": {}
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "scope:i_1": {
       "available_before": [
@@ -53,7 +59,10 @@
         "visual:point:4f40a1617d26bf77",
         "visual:point:98039193da992b37"
       ],
-      "parameter_values": {}
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "goal:i_2.E": {
       "available_before": [
@@ -85,7 +94,10 @@
         "visual:point:f5c529690f8e7671",
         "visual:point:fef6497f273d0196"
       ],
-      "parameter_values": {}
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "scope:i_2": {
       "available_before": [
@@ -106,7 +118,10 @@
         "visual:point:4f40a1617d26bf77",
         "visual:point:98039193da992b37"
       ],
-      "parameter_values": {}
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "scope:i": {
       "available_before": [],
@@ -122,7 +137,10 @@
         "visual:point:4f40a1617d26bf77",
         "visual:point:98039193da992b37"
       ],
-      "parameter_values": {}
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "goal:ii.E": {
       "available_before": [],
@@ -248,7 +266,10 @@
         "visual:point:98039193da992b37"
       ],
       "parameter_values_before": {},
-      "parameter_values_after": {}
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "teach:derive_vertex_P_i": {
       "container_ref": "goal:i_1.P",
@@ -395,8 +416,14 @@
         "visual:point:98039193da992b37",
         "visual:point:fef6497f273d0196"
       ],
-      "parameter_values_before": {},
-      "parameter_values_after": {}
+      "parameter_values_before": {
+        "b": "-2",
+        "c": "3"
+      },
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "teach:parameterize_axis_point_E_i": {
       "container_ref": "goal:i_2.E",
@@ -563,8 +590,14 @@
         "visual:point:f5c529690f8e7671",
         "visual:point:fef6497f273d0196"
       ],
-      "parameter_values_before": {},
-      "parameter_values_after": {}
+      "parameter_values_before": {
+        "b": "-2",
+        "c": "3"
+      },
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "teach:derive_square_vertex_G_i": {
       "container_ref": "goal:i_2.E",
@@ -1041,8 +1074,14 @@
         "visual:point:f5c529690f8e7671",
         "visual:point:fef6497f273d0196"
       ],
-      "parameter_values_before": {},
-      "parameter_values_after": {}
+      "parameter_values_before": {
+        "b": "-2",
+        "c": "3"
+      },
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "teach:solve_axis_point_candidates_i": {
       "container_ref": "goal:i_2.E",
@@ -1421,8 +1460,14 @@
         "visual:point:f5c529690f8e7671",
         "visual:point:fef6497f273d0196"
       ],
-      "parameter_values_before": {},
-      "parameter_values_after": {}
+      "parameter_values_before": {
+        "b": "-2",
+        "c": "3"
+      },
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
     },
     "teach:derive_parametric_parabola_ii": {
       "container_ref": "goal:ii.E",

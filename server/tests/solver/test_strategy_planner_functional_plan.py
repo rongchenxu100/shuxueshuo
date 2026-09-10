@@ -3573,14 +3573,14 @@ def test_liveness_rebases_transition_to_latest_surviving_version() -> None:
         selected_version_id=version_3,
         previous_version_id=removed_version_2,
         previous_write_step_id="removed_refinement",
-        source_version_ids=(removed_version_2,),
+        source_version_ids=(version_1,),
         computation_key=ComputationKey(
             "evaluate_point_at_parameter",
             (
                 ArgVersionBinding(
                     arg_name="point",
                     item_index=0,
-                    version_id=removed_version_2,
+                    version_id=version_1,
                 ),
             ),
         ),
@@ -7538,12 +7538,15 @@ def test_midpoint_condition_reconciles_target_identity_before_runtime() -> None:
         (item.code, item.details) for item in mismatched.issues
     ]
     mismatch = identity_issues[0]
-    assert mismatch.details == {
+    assert {key: mismatch.details[key] for key in ("return", "bound_ref", "inferred_ref", "semantic_role")} == {
         "return": "midpoint",
         "bound_ref": "D",
         "inferred_ref": "F",
         "semantic_role": "midpoint",
     }
+    assert mismatch.details["expected"] == {"object": "F"}
+    assert mismatch.details["observed"] == {"object": "D"}
+    assert mismatch.details["path"] == "steps[derive_midpoint].output_targets.midpoint"
 
 
 def test_intersection_state_validation_precedes_unrelated_output_evidence() -> None:

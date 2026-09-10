@@ -305,6 +305,20 @@ flowchart LR
 - 缺失capability、对象或数学关系不能由代码猜测；
 - Schema接受但compiler拒绝同一结构，属于代码契约冲突。
 
+Pass 1、Scope repair 的公开参数 Schema 和后端 content 校验共用
+`capability_bound_step_schema`，由同一 capability 契约生成；两种协议只保留各自的外层结构、
+编辑权限与字段限制。生产 repair prompt 必须传入实际公开的 capability catalog 与题目 authority frame。
+repair 的内部结构解析器允许先接收可归一的 wire 输入；具名结果引用需要合并完整 Plan 后验证
+producer 可见性和最新状态，才能归一，再进入共用的严格校验。因此“结构解析通过”不代表
+“公开参数契约通过”。回归应同时覆盖公开 Schema 一致性、安全归一和不可见 producer 不被误归一。
+上下文长度按实际渲染的每轮请求测量，不能把代码复用或 provider cache 命中当作请求内容减少。
+
+模型侧 Schema 使用同一生成器的精简投影：不展开逐 SourceRef 的参数互异约束，
+该要求保留在 Catalog 的 `input_requirements` 中，后端仍执行完整校验。
+`compact_prompt_schema` 只删除重复说明、提取相同定义为 `$ref` 并合并公共分支；
+repair 不生成协议已禁止的 `return_expectations` 定义。
+检查精简效果时分别记录 Schema 和整轮请求字符数，并回归参数类型、权限边界及后端互异约束。
+
 ### 6.2 Scope、Goal 与 step owner
 
 检查每个step是否只出现一次，并明确属于：
@@ -339,6 +353,16 @@ flowchart LR
 - Macro搜索：记录authored role、候选、runtime checks、winner和歧义原因；
 - 内部Method参数、`PointRef`、runtime path不得直接要求LLM补齐。
 
+Schema 与可见性诊断使用同一公开诊断 envelope：保留 `path`、capability、step、expected／observed、
+producer／consumer owner 与代码允许的修复动作。Schema 诊断从实际校验错误中选中 `capability_id`
+对应的分支，再提取字段叶子；未知 capability 不猜参数契约，无法唯一选定的内部联合类型保留候选。
+不能向模型回传完整 oneOf Schema，也不能用“改成 SourceRef”掩盖不可见 producer。
+
+Review 的 `validation-report.json` 与 `validation-diagnostic-evidence.json` 保存完整字段证据；
+`scope-retry-error.json` 保存实际发送的精简诊断。两者用 `diagnostic_id` 对照。
+模型反馈合并重复错误，最多 8 个独立错误、约 12,000 个 JSON 字符预算，长值截断并明确标记；
+完整证据不随 prompt 截断。权限以独立 authority 为准，诊断建议本身不授予权限。
+
 ### 6.5 Runtime、Closure 与 Answer
 
 按执行DAG而非Plan数组顺序查看：
@@ -356,6 +380,18 @@ flowchart LR
 
 ### 6.6 Retry
 
+首轮与 Scope repair 共用 `internal/llm-prompts/strategy-functional-reference-rules.jinja` 的
+引用与步骤归属规则。引用形式不授予 Scope 权限。
+
+候选合并后若出现共享 producer 归属错误，代码可通过明确的类型兼容引用、消费者 Scope 和
+题目 authority frame 推导共同祖先；仅当外提不会丢失任何局部条件、实体或待迁移的局部依赖时，
+开放原归属、目标 Scope 和需修改的消费者。无法证明时不猜测，不按同名 SourceRef 自动共享状态。
+关闭 Scope 的越权修改不作为扩权依据。失败候选只用于诊断；下一轮仍沿用最后有效的 base Plan
+和 checkpoint，权限变化保存在 `scope-retry-result-authority.json`。
+
+开放 Scope 仍整块重写、全部重算；其依赖后继也失效。旧成功结果只供模型参考，
+不为开放 Scope 增加 step 级保留、合并或缓存恢复。仅关闭且不受影响的调用沿用现有严格复用机制。
+
 对比上一轮与下一轮的实际prompt，确认：
 
 - Annotated Previous Plan 是否与 canonical Plan 同构且只出现一次；
@@ -367,6 +403,35 @@ flowchart LR
 - scope/Goal结构是否与Problem View对齐；
 - 下一轮是否收到上一轮canonical Plan，而不是空Plan或过期Plan；
 - repair应用后是否重新校验DAG、binding、answer和checkpoint。
+
+### 6.7 每轮审查产物索引
+
+`attempt-N.evidence-index.json`（`functional-attempt-evidence/v1`）是每轮文件的角色索引。
+每个已保存产物包含相对文件名及 SHA-256；未到达或未产生的阶段明确记为 `not_available`，
+不能拿上一轮 base 补作当前轮输出。索引最后写入，JSON 文件通过原子替换发布。
+
+| 文件后缀 | 证据角色 |
+|---|---|
+| `request`、`provider-requests` | 本轮实际 prompt／payload；provider 内部重试的实际 messages 和请求选项 |
+| `raw-response`、`provider-responses` | 原始文本、解析结果／解析错误；provider 各次可见返回 |
+| `normalized-response` | 原始 authoring envelope 的归一结果；即使后续结构校验失败也保留 |
+| `normalized-content` | repair 合并到 base 后，经过统一契约归一的 content |
+| `candidate-plan`、`compiled-plan`、`canonical-plan` | 组装候选、通过 content 校验的计划、本轮执行返回的 canonical 计划；不可混用 |
+| `normalizations`、`final-plan-contract-validation` | content、authority、runtime 归一记录及最终契约校验 |
+| `transaction`、`checkpoint` | 实际事务的图、事件、结果、状态写入；包含 typed payload 与签名的 checkpoint authority |
+| `base-plan`、`base-checkpoint`、`base-authority`、`result-authority` | 本轮消费的原始执行基础和前后重试权限 |
+| `reuse` | 请求恢复、实际恢复、实际执行、旧调用未请求恢复的列表；后者不直接等同于执行失败 |
+| `attempt-error`、`candidate-error`、`blockers` | 本轮异常、候选拒绝及首个报告阻断的阶段；调用时序以 transaction events 为准 |
+| `provider-reasoning` | provider 实际返回的 reasoning，或明确的未返回／不可用状态；不进入下一轮 prompt |
+
+索引 `phase` 区分 `requested`、`received`、`compiled`、`completed`、`execution_failed`。
+标准运行入口在这些边界即时落盘；未预期的执行异常保留已收到的原文和编译结果后继续按原策略抛错。
+provider 内部重试断线时，仅保留经 invocation 标识证明属于当前调用的 metadata 和 reasoning，
+不得借用上一轮客户端的 `last_*`。
+
+历史兼容文件 `functional-plan.json` 仍是 **raw-response 的别名**，不是 canonical plan。
+Review 将 raw／input／output／validation 按文件角色分类；完整 typed checkpoint 支持 authority
+序列化回读和签名校验，但其进程内 runtime seed 不会被 JSON 自动恢复，也不会因此扩大复用权限。
 
 ## 7. 强制图示规范
 

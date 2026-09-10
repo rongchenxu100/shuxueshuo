@@ -2106,7 +2106,19 @@ def answer_display_is_covered(display: str, student_box: str) -> bool:
 
     expected = _normalize_math_text(display)
     observed = _normalize_math_text(student_box)
-    if expected in observed:
+    # Textbook polynomial binders put a rational coefficient before the
+    # monomial (1/6x²), whereas verified answers use x²/6. Normalize only
+    # this exact syntactic identity, without evaluating untrusted prose or
+    # accepting merely similar coefficients/signs.
+    def rational_monomials(text: str) -> str:
+        def reorder(match: re.Match[str]) -> str:
+            numerator, denominator, monomial = match.groups()
+            return f"{'' if numerator == '1' else numerator}{monomial}/{denominator}"
+        text = re.sub(r"\(([0-9]+)/([1-9][0-9]*)\)([a-z](?:[²³]|\^[0-9]+)?)", reorder, text)
+        return re.sub(r"(?<![a-z0-9./])([0-9]+)/([1-9][0-9]*)([a-z](?:[²³]|\^[0-9]+)?)", reorder, text)
+    expected = rational_monomials(expected)
+    observed = rational_monomials(observed)
+    if re.search(r"(?<![a-z0-9./+\-])" + re.escape(expected) + r"(?![a-z0-9./²³^+\-])", observed):
         return True
     # Point and PointList answers are commonly rendered without a point label
     # in the verified answer map but with the problem's label in student text.

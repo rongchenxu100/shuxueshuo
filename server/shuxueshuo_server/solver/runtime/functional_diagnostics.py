@@ -530,9 +530,12 @@ class FunctionalPromptDiagnostic:
     scope_id: str | None = None
     step_id: str | None = None
     repair_call_ids: tuple[str, ...] = ()
+    path: str | None = None
+    details: Mapping[str, Any] = field(default_factory=dict)
     schema_version: str = FUNCTIONAL_PROMPT_DIAGNOSTIC_CONTRACT
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "details", _freeze(self.details))
         object.__setattr__(self, "subjects", tuple(self.subjects))
         object.__setattr__(self, "expected", _freeze(self.expected))
         object.__setattr__(self, "observed", _freeze(self.observed))
@@ -564,6 +567,10 @@ class FunctionalPromptDiagnostic:
         ):
             if value is not None:
                 payload[key] = value
+        if self.path is not None:
+            payload["path"] = self.path
+        if self.details:
+            payload["details"] = _thaw(self.details)
         return payload
 
     @classmethod
@@ -614,6 +621,8 @@ class FunctionalPromptDiagnostic:
             capability_id=_optional_string(candidate.get("capability_id")),
             scope_id=_optional_string(candidate.get("scope_id")),
             step_id=_optional_string(candidate.get("step_id")),
+            path=_optional_string(candidate.get("path")),
+            details=_mapping(candidate.get("details", {})),
         )
 
 
@@ -717,7 +726,25 @@ class FunctionalPromptDiagnosticProjector:
             )
         except ValueError as error:
             return self._configuration_failure(authority, str(error))
+        # Only explicitly supported evidence is projected. Internal Schema
+        # trees and arbitrary authority details never become prompt context.
+        try:
+            evidence = _project_prompt_value(
+                {key: authority.authority_details[key] for key in (
+                    "diagnostic_id", "producer", "consumer", "reference_policy",
+                    "allowed_actions", "authorized_scope_refs",
+                ) if key in authority.authority_details},
+                input_runtime_nodes=input_runtime_nodes,
+                answer_runtime_nodes=answer_runtime_nodes,
+                input_identities=input_identities,
+                answer_identities=answer_identities,
+                exact_result_refs=result_refs,
+            )
+        except ValueError:
+            return self._configuration_failure(authority, "diagnostic evidence contains an unmapped internal identity")
         prompt = FunctionalPromptDiagnostic(
+            path=_optional_string(authority.authority_details.get("path")),
+            details=evidence,
             code=authority.code,
             category=authority.category,
             stage=authority.stage,
@@ -731,10 +758,10 @@ class FunctionalPromptDiagnosticProjector:
             observed=_prompt_safe_mapping(_mapping(projected_observed)),
             repair_action=authority.repair_action,
             repair_call_ids=authority.repair_call_ids,
-            message=_REPAIR_MESSAGES.get(
+            message=("Fix identity binding." if authority.code == "functional.return_identity_mismatch" else _REPAIR_MESSAGES.get(
                 authority.repair_action,
                 _REPAIR_MESSAGES["repair_failed_step"],
-            ),
+            )),
         )
         _audit_projected_diagnostic(
             prompt.to_payload(),
@@ -853,6 +880,9 @@ def diagnostic_authority_from_issue(
             "materialized_points",
         ),
     )
+    if code == "functional.return_identity_mismatch":
+        expected = dict(details.get("expected") or expected)
+        observed = dict(details.get("observed") or observed)
     accepted_types = _string_sequence(details.get("accepted_item_types"))
     if accepted_types:
         expected.setdefault("accepted_types", list(accepted_types))
@@ -916,10 +946,11 @@ def diagnostic_authority_from_issue(
         capability_id=(
             capability_id or _optional_string(details.get("capability_id"))
         ),
-        scope_id=(scope_id or issue_scope_id),
+        scope_id=(scope_id or issue_scope_id or _optional_string(details.get("scope_id"))),
         step_id=(
             step_id
             or issue_step_id
+            or _optional_string(details.get("step_id"))
         ),
         subjects=subjects,
         expected=expected,
@@ -1358,7 +1389,10 @@ def _diagnostic_schema(*, prompt: bool) -> dict[str, Any]:
         },
         "message" if prompt else "original_message": {"type": "string"},
     }
-    if not prompt:
+    if prompt:
+        properties["path"] = nonempty
+        properties["details"] = {"type": "object"}
+    else:
         properties["authority_details"] = {"type": "object"}
     return {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -1947,3 +1981,285 @@ __all__ = [
     "normalize_macro_diagnostic_authority",
     "unexpected_method_error",
 ]
+
+
+# Authoring validation already uses public wire refs. It shares the runtime
+# diagnostic envelope without inventing runtime identities before compilation.
+def validation_diagnostic_id(issue: Mapping[str, Any]) -> str:
+    from hashlib import sha256
+
+    data = {key: issue.get(key) for key in ("code", "path", "details")}
+    return sha256(json.dumps(data, sort_keys=True, default=str, ensure_ascii=False).encode()).hexdigest()[:16]
+
+
+def _validation_json_type(value: Any) -> str:
+    if value is None:
+        return "null"
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, str):
+        return "string"
+    if isinstance(value, Mapping):
+        return "object"
+    if isinstance(value, (list, tuple)):
+        return "array"
+    if isinstance(value, int):
+        return "integer"
+    return "number"
+
+
+def _validation_schema_types(schema: Any) -> set[str]:
+    if not isinstance(schema, Mapping):
+        return set()
+    kind = schema.get("type", ())
+    result = {kind} if isinstance(kind, str) else set(kind)
+    for keyword in ("allOf", "anyOf", "oneOf"):
+        for child in schema.get(keyword, ()):
+            result.update(_validation_schema_types(child))
+    return result
+
+
+def _capability_discriminator(schema: Any) -> str | None:
+    if not isinstance(schema, Mapping):
+        return None
+    cap = schema.get("properties", {}).get("capability_id", {}).get("const")
+    if isinstance(cap, str):
+        return cap
+    for child in schema.get("allOf", ()):
+        cap = _capability_discriminator(child)
+        if cap is not None:
+            return cap
+    return None
+
+
+def _validation_branch_schema(error: Any, index: int) -> Mapping[str, Any]:
+    variant = error.validator_value[index]
+    if not isinstance(variant, Mapping):
+        return {}
+    if "$ref" not in variant:
+        return variant
+    # jsonschema has already resolved references. Use its resolved failing
+    # node rather than constructing a second resolver or fetching schemas.
+    def resolved(node):
+        if list(node.absolute_path) == list(error.absolute_path):
+            if isinstance(node.schema, Mapping) and "type" in node.schema:
+                return node.schema
+            for child in node.context:
+                result = resolved(child)
+                if result is not None:
+                    return result
+        return None
+    for child in error.context:
+        if child.relative_schema_path and child.relative_schema_path[0] == index:
+            schema = resolved(child)
+            if schema is not None:
+                return schema
+    return variant
+
+
+def _validation_leaves(error: Any):
+    """Choose a discriminator branch, never the shortest unrelated error.
+
+    Nested unions select a branch only when JSON shape proves it unique.
+    Otherwise retain the union with its alternatives; no arbitrary leaf wins.
+    """
+    if error.validator not in {"oneOf", "anyOf"} or not error.context:
+        yield error
+        return
+    variants = error.validator_value
+    discriminators = [_capability_discriminator(item) for item in variants]
+    selected = None
+    if any(value is not None for value in discriminators):
+        capability = error.instance.get("capability_id") if isinstance(error.instance, Mapping) else None
+        matches = [i for i, value in enumerate(discriminators) if value is not None and value == capability]
+        if len(matches) == 1:
+            selected = matches[0]
+    else:
+        actual = _validation_json_type(error.instance)
+        matches = [i for i in range(len(variants)) if actual in _validation_schema_types(_validation_branch_schema(error, i))]
+        if len(matches) == 1:
+            selected = matches[0]
+    if selected is None:
+        yield error
+        return
+    for child in error.context:
+        if child.relative_schema_path and child.relative_schema_path[0] == selected:
+            yield from _validation_leaves(child)
+
+
+def schema_validation_diagnostics(
+    errors: Sequence[Any], *, payload: Any, code: str,
+    goal_owners: Mapping[str, str] | None = None,
+) -> tuple[dict[str, Any], ...]:
+    """Extract precise public evidence from the *same* validating Schema."""
+    goal_owners = goal_owners or {}
+    indexed: dict[str, tuple[Mapping[str, Any], dict[str, Any]]] = {}
+
+    def owner_at(parts):
+        owner: dict[str, Any] = {}
+        if "scope_steps" in parts:
+            idx = parts.index("scope_steps")
+            owner = {"kind": "scope_steps"}
+            if idx + 1 < len(parts):
+                owner["scope_ref"] = parts[idx + 1]
+        if "goal_plans" in parts or "goals" in parts:
+            idx = parts.index("goal_plans") if "goal_plans" in parts else parts.index("goals")
+            goal = parts[idx + 1] if idx + 1 < len(parts) else None
+            owner = {"kind": "goal_steps", "goal_ref": goal}
+            if goal in goal_owners:
+                owner["scope_ref"] = goal_owners[goal]
+        if "scope_replacements" in parts:
+            owner["scope_ref"] = parts[parts.index("scope_replacements") + 1]
+        return owner
+
+    def index(value, parts=()):
+        if isinstance(value, Mapping):
+            if isinstance(value.get("step_id"), str) and "capability_id" in value:
+                indexed[value["step_id"]] = value, owner_at(parts)
+            for key, item in value.items():
+                index(item, (*parts, key))
+        elif isinstance(value, (tuple, list)):
+            for i, item in enumerate(value):
+                index(item, (*parts, i))
+
+    index(payload)
+    diagnostics = {}
+    for root in errors:
+        for error in _validation_leaves(root):
+            parts = list(error.absolute_path)
+            value = payload
+            step = None
+            for part in parts:
+                if isinstance(value, Mapping) and "capability_id" in value and "step_id" in value:
+                    step = value
+                value = value[part]
+            if isinstance(value, Mapping) and "capability_id" in value:
+                step = value
+            expected: dict[str, Any] = {}
+            observed = {"type": _validation_json_type(error.instance), "value": error.instance}
+            validator = str(error.validator)
+            message = f"Field violates {validator} constraint."
+            if validator in {"oneOf", "anyOf"}:
+                caps = [_capability_discriminator(v) for v in error.validator_value]
+                if any(cap is not None for cap in caps):
+                    parts.append("capability_id")
+                    actual = error.instance.get("capability_id") if isinstance(error.instance, Mapping) else None
+                    observed = {"type": _validation_json_type(actual), "value": actual}
+                    expected = {"capability_ids": [cap for cap in caps if cap is not None]}
+                    message = "Unknown or missing capability_id; select an exposed capability."
+                else:
+                    expected = {"alternatives": [
+                        {key: item[key] for key in ("type", "required", "enum", "const") if key in item}
+                        for item in (_validation_branch_schema(error, i) for i in range(len(error.validator_value)))
+                    ]}
+                    message = "Value must match exactly one allowed alternative." if validator == "oneOf" else "Value must match an allowed alternative."
+            elif validator == "required":
+                missing = [name for name in error.validator_value if name not in error.instance]
+                expected = {"required_fields": missing}
+                observed = {"missing_fields": missing}
+                if len(missing) == 1:
+                    parts.append(missing[0])
+                message = "Required field is missing."
+            elif validator == "additionalProperties" and isinstance(error.schema, Mapping) and not error.schema.get("patternProperties"):
+                extra = sorted(set(error.instance) - set(error.schema.get("properties", {})))
+                expected = {"additionalProperties": error.validator_value}
+                observed = {"unexpected_fields": extra}
+                message = "Undeclared fields are not allowed."
+            elif validator == "not":
+                # Distinctness and other negative rules: retain only involved
+                # values, not the entire input object or capability Schema.
+                names = error.validator_value.get("required", ()) if isinstance(error.validator_value, Mapping) else ()
+                expected = {"forbidden_combination": error.validator_value}
+                if names and isinstance(error.instance, Mapping):
+                    observed["value"] = {name: error.instance.get(name) for name in names}
+            else:
+                expected = {validator: error.validator_value}
+            if isinstance(error.instance, Mapping) and set(error.instance) == {"step_id", "return"}:
+                observed["reference_form"] = "StepResultRef"
+            if validator == "type" and error.validator_value == "string" and "args" in parts and parts[-1] not in {"step_id", "return"}:
+                expected["reference_form"] = "SourceRef"
+            details: dict[str, Any] = {
+                "validator": validator, "expected": expected, "observed": observed,
+                "repair_action": "choose_applicable_capability" if "capability_ids" in expected else "repair_capability_arguments",
+                "schema_path": list(error.absolute_schema_path),
+            }
+            if step is not None:
+                details.update(capability_id=step.get("capability_id"), step_id=step.get("step_id"))
+                details["consumer"] = {"step_id": step.get("step_id"), **owner_at(list(error.absolute_path))}
+            if observed.get("reference_form") == "StepResultRef":
+                producer_id = error.instance["step_id"]
+                if producer_id in indexed:
+                    details["producer"] = {"step_id": producer_id, **indexed[producer_id][1]}
+                details["reference_policy"] = "Changing reference syntax does not grant visibility; use only a compatible visible producer."
+            path = "$" + "".join(f"[{part}]" if isinstance(part, int) else f"[{part!r}]" for part in parts)
+            issue = {"code": code, "path": path, "message": message, "details": details}
+            identity = validation_diagnostic_id(issue)
+            details["diagnostic_id"] = identity
+            diagnostics.setdefault(identity, issue)
+    return tuple(diagnostics.values())
+
+
+def compact_validation_value(value: Any, *, depth: int = 0) -> Any:
+    """Bound public validation feedback; full evidence stays in the report."""
+    if isinstance(value, str):
+        return value if len(value) <= 320 else value[:320] + "…[truncated]"
+    if isinstance(value, Mapping):
+        if depth >= 10:
+            return {"truncated": True}
+        items = [(key, item) for key, item in value.items() if key not in {"validator_value", "schema_path"}]
+        result = {key: compact_validation_value(item, depth=depth + 1) for key, item in items[:20]}
+        if len(items) > 20:
+            result["omitted_fields"] = len(items) - 20
+        return result
+    if isinstance(value, (tuple, list)):
+        result = [compact_validation_value(item, depth=depth + 1) for item in value[:8]]
+        if len(value) > 8:
+            result.append({"omitted_items": len(value) - 8})
+        return result
+    return value
+
+
+def compact_validation_feedback(issues: Sequence[Mapping[str, Any]]) -> tuple[dict[str, Any], ...]:
+    unique = {}
+    for issue in issues:
+        identity = issue.get("details", {}).get("diagnostic_id") or validation_diagnostic_id(issue)
+        unique.setdefault(identity, issue)
+    feedback = []
+    budget = 12000
+    for identity, issue in unique.items():
+        candidate = compact_validation_value(issue)
+        candidate.setdefault("details", {}).setdefault("diagnostic_id", identity)
+        size = len(json.dumps(candidate, ensure_ascii=False))
+        if size > 3000:
+            details = candidate["details"]
+            for key in ("expected", "observed"):
+                value = details.get(key)
+                if value is not None and len(json.dumps(value, ensure_ascii=False)) > 1200:
+                    summary = {k: value[k] for k in ("type", "reference_form") if isinstance(value, Mapping) and k in value}
+                    details[key] = {**summary, "preview": json.dumps(value, ensure_ascii=False)[:800], "truncated": True}
+            candidate["details"] = {k: v for k, v in details.items() if k in {
+                "diagnostic_id", "step_id", "capability_id", "expected", "observed",
+                "producer", "consumer", "repair_action", "reference_policy",
+            }}
+            size = len(json.dumps(candidate, ensure_ascii=False))
+        if len(feedback) == 8 or size > budget:
+            break
+        feedback.append(candidate)
+        budget -= size
+    if len(feedback) < len(unique):
+        feedback.append({"code": "functional.diagnostics_truncated", "path": "$", "message": "Additional diagnostics are saved in the validation report.", "details": {"omitted_count": len(unique) - len(feedback)}})
+    return tuple(feedback)
+
+
+def reference_visibility_details(*, producer: Mapping[str, Any], consumer: Mapping[str, Any]) -> dict[str, Any]:
+    """Describe ownership, without guessing a relocation or granting rights."""
+    return {
+        "producer": dict(producer), "consumer": dict(consumer),
+        "step_id": consumer.get("step_id"),
+        "scope_id": consumer.get("scope_ref"),
+        "expected": {"producer_visibility": "visible Scope-owned state or permitted exact Goal answer"},
+        "observed": {"producer_visibility": "not_visible"},
+        "repair_action": "repair_input_binding",
+        "allowed_actions": ["rewrite_open_scopes_with_compatible_visible_producers"],
+        "reference_policy": "Changing reference syntax does not grant visibility. Relocation requires code-authorized Scopes; preserve local conditions.",
+    }

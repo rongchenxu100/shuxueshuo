@@ -67,6 +67,7 @@ class BranchVisualState:
     last_frame: tuple[VisualObject, ...] = ()
     last_local_parameters: tuple[JsonObject, ...] = ()
     last_container_ref: str | None = None
+    mathematical_constraints: tuple[JsonObject, ...] = ()
 
     def clone(self) -> "BranchVisualState":
         return BranchVisualState(
@@ -75,6 +76,7 @@ class BranchVisualState:
             last_frame=copy.deepcopy(self.last_frame),
             last_local_parameters=copy.deepcopy(self.last_local_parameters),
             last_container_ref=self.last_container_ref,
+            mathematical_constraints=copy.deepcopy(self.mathematical_constraints),
         )
 
     def publish(self, objects: tuple[VisualObject, ...]) -> None:
@@ -91,6 +93,7 @@ class VisualStepResolution:
     step: VisualStep
     published_objects: tuple[VisualObject, ...]
     visibility_reasons: Mapping[str, str]
+    mathematical_constraints: tuple[JsonObject, ...] = ()
 
 
 VisualStepResolver = Callable[
@@ -231,6 +234,7 @@ class RecursiveVisualStateResolver:
                     f"{owned.lesson_step_id}"
                 )
             state.publish(resolution.published_objects)
+            state.mathematical_constraints = copy.deepcopy(resolution.mathematical_constraints)
             if resolution.step.frames:
                 state.last_frame = tuple(
                     context_copy(item)

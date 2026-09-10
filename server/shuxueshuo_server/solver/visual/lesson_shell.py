@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 import copy
 import re
+import unicodedata
 
 from shuxueshuo_server.solver.explanation.lesson_ir import (
     LessonIR,
@@ -178,19 +179,37 @@ def _section_titles_for_lesson(
 ) -> dict[str, str]:
     problem_lines = _lesson_problem_line_texts(lesson_data)
     scope_labels = _snapshot_scope_labels(snapshot)
+    scope_parents = {
+        str(raw.get("scope_id")): str(raw.get("parent") or "")
+        for raw in (snapshot.problem.get("scopes", ()) if snapshot else ())
+        if isinstance(raw, dict)
+    }
     out: dict[str, str] = {}
     for section in lesson.sections:
         title = scope_labels.get(
             section.scope_id,
             str(section.title or section.scope_id),
         )
+        marker = _section_marker_from_title(title)
+        if marker:
+            parent, child = marker
+            if not parent:
+                parent_marker = _section_marker_from_title(
+                    scope_labels.get(scope_parents.get(section.scope_id, ""), "")
+                )
+                parent = (parent_marker[0] if parent_marker else "") or _parent_marker_from_scope(section.scope_id)
+            if parent:
+                title = f"第（{parent}）{child}问"
         goal = _question_target_for_section(
             title=title,
             scope_id=section.scope_id,
             problem_lines=problem_lines,
         )
         if not goal:
-            goal = _first_step_nav_title_for_section(lesson, section.scope_id)
+            goal = (
+                "公共推导" if section.scope_id in scope_parents.values()
+                else _first_step_nav_title_for_section(lesson, section.scope_id)
+            )
         if goal and _section_title_needs_goal(title):
             title = f"{title}：{goal}"
         out[section.scope_id] = title
@@ -234,8 +253,7 @@ def _lesson_problem_line_texts(lesson_data: JsonObject) -> list[str]:
 
 
 def _section_title_needs_goal(title: str) -> bool:
-    text = title.strip()
-    return bool(re.fullmatch(r"第[（(][^）)]+[）)](?:[①②③④⑤⑥⑦⑧⑨⑩])?问", text))
+    return _section_marker_from_title(title) is not None
 
 
 def _question_target_for_section(
@@ -245,27 +263,25 @@ def _question_target_for_section(
     problem_lines: list[str],
 ) -> str:
     marker = _section_marker_from_title(title)
-    parent = marker[0] if marker else _parent_marker_from_scope(scope_id)
-    child = marker[1] if marker else _child_marker_from_scope(scope_id)
+    parent = (marker[0] if marker else "") or _parent_marker_from_scope(scope_id)
+    child = (marker[1] if marker else "") or _child_marker_from_scope(scope_id)
     candidates: list[str] = []
     if child:
         candidates.extend(line for line in problem_lines if child in line)
-    if parent:
-        parent_markers = (f"（{parent}）", f"({parent})")
+    if parent and not child:
+        parent_markers = (f"({unicodedata.normalize('NFKC', parent).upper()})",)
         candidates.extend(
             line
             for line in problem_lines
-            if any(parent_marker in line for parent_marker in parent_markers)
+            if any(unicodedata.normalize("NFKC", line).strip().upper().startswith(parent_marker)
+                   for parent_marker in parent_markers)
         )
     for line in candidates:
         tail = line
         if child and child in tail:
             tail = tail.split(child, 1)[1]
         elif parent:
-            for parent_marker in (f"（{parent}）", f"({parent})"):
-                if parent_marker in tail:
-                    tail = tail.split(parent_marker, 1)[1]
-                    break
+            tail = re.sub(r"^\s*[（(][^）)]+[）)]", "", tail, count=1)
         target = _target_clause_from_question_text(tail)
         if target:
             return target
@@ -273,13 +289,19 @@ def _question_target_for_section(
 
 
 def _section_marker_from_title(title: str) -> tuple[str, str] | None:
+    text = title.strip()
+    if re.fullmatch(r"[①②③④⑤⑥⑦⑧⑨⑩]", text):
+        return ("", text)
     match = re.match(
-        r"^第[（(](?P<parent>[^）)]+)[）)](?P<child>[①②③④⑤⑥⑦⑧⑨⑩])?问$",
-        title.strip(),
+        r"^(?:第)?[（(]\s*(?P<parent>[ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩIVXivx\d一二三四五六七八九十]+)\s*[）)]"
+        r"(?P<child>[①②③④⑤⑥⑦⑧⑨⑩])?(?:问)?$",
+        text,
     )
     if not match:
         return None
-    return (match.group("parent"), match.group("child") or "")
+    parent = unicodedata.normalize("NFKC", match.group("parent")).upper()
+    roman = dict(zip(("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"), "ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩ"))
+    return (roman.get(parent, parent), match.group("child") or "")
 
 
 def _parent_marker_from_scope(scope_id: str) -> str:
@@ -316,11 +338,8 @@ def _target_clause_from_question_text(text: str) -> str:
     cleaned = re.sub(r"[；;。.\s]+$", "", cleaned)
     if not cleaned:
         return ""
-    for keyword in ("求", "证明", "判断", "确定", "写出", "说明"):
-        index = cleaned.rfind(keyword)
-        if index >= 0:
-            return cleaned[index:].strip(" ，,；;。.")
-    return cleaned
+    match = re.search(r"求|证明|判断|确定|写出|说明", cleaned)
+    return cleaned[match.start():].strip(" ，,；;。.") if match else ""
 
 
 def _first_step_nav_title_for_section(lesson: LessonIR, scope_id: str) -> str:

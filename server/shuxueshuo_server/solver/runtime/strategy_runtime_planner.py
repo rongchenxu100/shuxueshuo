@@ -292,6 +292,7 @@ class StrategyPlanner:
         inputs: PlannerInputs,
         *,
         max_attempts: int = 3,
+        attempt_observer: Any | None = None,
     ) -> ScopedFunctionalScopeRetryRunResult:
         """Run Pass 1 followed by annotated whole-Scope retries."""
 
@@ -329,6 +330,7 @@ class StrategyPlanner:
             planner_state_context=planner_state_context,
             problem_payload=problem_payload,
             max_attempts=max_attempts,
+            attempt_observer=attempt_observer,
         )
         representative = run_result.attempts[-1] if run_result.attempts else None
         replay = (

@@ -14,7 +14,7 @@ deterministic planner 跑通现有黄金用例。这个映射属于运行器配�
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
-from dataclasses import asdict, dataclass, is_dataclass
+from dataclasses import dataclass
 import json
 from pathlib import Path
 import time
@@ -269,9 +269,18 @@ class RuntimeOrchestrator:
                 previous_errors=[],
             )
             stage = "scoped_planner"
+            from inspect import signature
+
+            observer_options = {}
+            if self.debug_dir is not None and "attempt_observer" in signature(run_scoped).parameters:
+                observer_options["attempt_observer"] = lambda attempt: _write_debug_attempt(
+                    self.debug_dir, attempt.semantic_attempt, planner, None, None,
+                    scoped_attempt=attempt,
+                )
             scoped_result = run_scoped(
                 planner_inputs,
                 max_attempts=self.max_attempts,
+                **observer_options,
             )
             llm_call = _llm_call_from_planner(planner)
             _write_scoped_debug_attempts(
@@ -1047,6 +1056,12 @@ def _write_debug_attempt(
                 else _safe_json(scope_authority)
             ),
         )
+    result_scope_authority = getattr(scoped_attempt, "result_scope_authority", None)
+    if result_scope_authority is not None:
+        _write_json(
+            debug_dir / f"{prefix}.scope-retry-result-authority.json",
+            result_scope_authority.debug_payload(),
+        )
     planner_artifacts = getattr(planner, "artifacts", None)
     problem_authority = getattr(planner_artifacts, "problem_authority", None)
     problem_binding_catalog = getattr(
@@ -1091,9 +1106,10 @@ def _write_debug_attempt(
     if llm_metadata is not None:
         _write_json(
             debug_dir / f"{prefix}.llm-metadata.json",
-            llm_metadata,
+            {key: value for key, value in llm_metadata.items()
+             if key not in {"provider_reasoning", "provider_requests", "provider_responses"}},
         )
-    elif client is not None:
+    elif client is not None and scoped_attempt is None:
         scoped_attempts = tuple(
             getattr(
                 getattr(
@@ -1237,11 +1253,19 @@ def _write_debug_attempt(
         )
     scoped_error = getattr(scoped_attempt, "error", None)
     if scoped_error is not None:
+        full_payload = getattr(scoped_error, "to_payload", None)
+        if callable(full_payload):
+            _write_json(debug_dir / f"{prefix}.validation-diagnostic-evidence.json", full_payload())
         to_payload = getattr(scoped_error, "to_prompt_payload", None)
         _write_json(
             debug_dir / f"{prefix}.scope-retry-error.json",
             to_payload() if callable(to_payload) else _safe_json(scoped_error),
         )
+
+    if scoped_attempt is not None:
+        from .functional_attempt_evidence import write_scoped_attempt_evidence
+
+        write_scoped_attempt_evidence(debug_dir, scoped_attempt)
 
 
 def _write_scoped_debug_attempts(
@@ -1271,10 +1295,6 @@ def _write_json(path: Path, payload: Any) -> None:
 
 def _safe_json(value: Any) -> Any:
     """把 dataclass、tuple、复杂对象转成 debug JSON 友好形态。"""
-    if is_dataclass(value):
-        return _safe_json(asdict(value))
-    if isinstance(value, dict):
-        return {str(key): _safe_json(item) for key, item in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_safe_json(item) for item in value]
-    return value
+    from shuxueshuo_server.solver.runtime.llm_debug import safe_debug_json
+
+    return safe_debug_json(value)

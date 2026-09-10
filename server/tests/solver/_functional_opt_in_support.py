@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
 import os
 from pathlib import Path
 import re
@@ -37,6 +38,11 @@ from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
 )
 
 from _problem_planning_support import planning_binding_fixture
+from shuxueshuo_server.solver.runtime.scoped_functional_few_shots import (
+    default_scoped_functional_few_shot_dir,
+    validate_scoped_functional_few_shot_asset,
+    _plan_capability_ids,
+)
 
 
 RUN_FUNCTIONAL = (
@@ -58,7 +64,7 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
     )
     if not config.deepseek_api_key:
         pytest.skip("DEEPSEEK_API_KEY is not configured")
-    client = config.build_llm_client()
+    client = config.build_llm_client(thinking_effort="low")
     bundle, *_ = planning_binding_fixture(
         debug_dir / "_bundle-authority",
         case=case.problem_id,
@@ -223,16 +229,10 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             and replay.planner_state_context is not None,
             "missing successful Functional replay artifacts",
         )
-        selection = (artifacts.payload or {}).get(
-            "functional_few_shot_selection"
-        )
-        _record_gate(
+        _capture_assertion_gate(
             gate_checks,
             "strict_few_shot",
-            isinstance(selection, dict)
-            and selection.get("mode") == "strict_test"
-            and selection.get("source_problem_id") != case.problem_id,
-            str(selection),
+            lambda: _assert_v2_few_shot(_attempt_payload(debug_dir / "attempt-1")),
         )
         _capture_assertion_gate(
             gate_checks,
@@ -419,6 +419,31 @@ def _answer_mismatch(actual: Any, expected: Any) -> str | None:
     return None
 
 
+def _assert_v2_few_shot(payload: dict[str, Any]) -> None:
+    """Validate the actual scoped mechanism asset, not legacy retrieval metadata."""
+    selection = payload.get("functional_few_shot_selection")
+    assert isinstance(selection, dict)
+    assert selection.get("mode") == "v2_capability_subset"
+    assets = [
+        path for path in default_scoped_functional_few_shot_dir().glob("*.functional-few-shot.json")
+        if json.loads(path.read_text())["example_id"] == selection.get("example_id")
+    ]
+    assert len(assets) == 1, "selection must identify one registered mechanism"
+    asset = assets[0]
+    assert sha256(asset.read_bytes()).hexdigest() == selection.get("asset_sha256")
+    example = json.loads(asset.read_text())
+    validate_scoped_functional_few_shot_asset(example)
+    public_example = {key: value for key, value in example.items() if key != "example_id"}
+    assert payload.get("few_shot_examples") == [public_example]
+    _assert_no_few_shot_retrieval_metadata(public_example)
+    assert example["plan"]["root_scope"]["scope_ref"] == "example"
+    available = {
+        item["capability_id"]
+        for item in payload["functional_capability_catalog"]["capabilities"]
+    }
+    assert _plan_capability_ids(example["plan"]) <= available
+
+
 def _assert_attempt_protocol(debug_dir: Path) -> None:
     selections: list[dict[str, Any]] = []
     examples: list[Any] = []
@@ -455,7 +480,7 @@ def _assert_attempt_protocol(debug_dir: Path) -> None:
         if protocol == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
             selection = attempt_payload.get("functional_few_shot_selection")
             assert isinstance(selection, dict)
-            assert selection.get("mode") == "strict_test"
+            _assert_v2_few_shot(attempt_payload)
             few_shot_examples = attempt_payload.get("few_shot_examples")
             payload.update(
                 {
@@ -467,10 +492,15 @@ def _assert_attempt_protocol(debug_dir: Path) -> None:
                 previous_invalid = attempt_payload.get(
                     "previous_invalid_content"
                 )
-                assert isinstance(previous_invalid, dict)
-                assert previous_invalid, (
+                feedback = attempt_payload.get("authoring_feedback")
+                assert isinstance(feedback, list) and feedback, (
                     "a later Pass 1 attempt must explain why no canonical "
                     "Plan was available for Scope Repair"
+                )
+                assert all(isinstance(item, dict) and item.get("code") for item in feedback)
+                # Schema-invalid content may have no typed content object.
+                assert previous_invalid is None or (
+                    isinstance(previous_invalid, dict) and previous_invalid
                 )
             selections.append(selection)
             examples.append(few_shot_examples)

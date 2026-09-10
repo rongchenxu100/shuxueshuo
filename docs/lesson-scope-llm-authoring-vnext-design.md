@@ -2,9 +2,14 @@
 
 状态：`IMPLEMENTATION`。`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
 `F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4 / F5-F5B4V COMPLETE`；
-`F5-F5C0 COMPLETE`；`F5-F5C1 NEXT`。
+`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3 NEXT`；`G1 OPTIONAL / NOT SCHEDULED`。
 
-日期：2026-09-01。
+更新：2026-09-09。
+
+当前执行决策：优先[真实上传与变更重建](online-service-development-plan.md#11-实施顺序)。
+G1 的 LLM 视觉选择不列为必做阶段；本文所有 `available_visuals/visuals` wire、组件选择流程
+及其专项测试均仅是可选未来设计，不是当前生产合同或上线门禁。当前视觉由确定性 Spec/binder
+生成，Lesson LLM wire 继续不含这些字段。G2 新动画与配音延后；C1 质量验收不阻塞 G3 接线。
 
 本文只设计：
 
@@ -13,13 +18,13 @@ Verified FunctionalPlan execution
 → ExplanationSnapshot
 → 一次 Lesson LLM 学生化编排
 → recursive LessonIR
-→ 后续独立视觉选择与代码确定性 VisualStepIR
+→ 代码确定性 VisualStepIR（LLM 视觉选择为可选未来设计）
 ```
 
 本文不改变 FunctionalPlan、Scope Retry 或 Method runtime 合同；也不允许 LLM 生成几何、
-interaction formula 或 animation beat。本文同时定义 F5-F5B 学生步骤合同，以及最后一个实现
-阶段中 Lesson LLM 如何从代码已绑定的视觉候选中选择组件，再由现有 VisualStepIR builder
-确定性渲染。它是对以下文档中 F5-F5B 学生步骤部分的候选替代设计：
+interaction formula 或 animation beat。本文定义 F5-F5B 学生步骤合同，同时保留可选 G1 方案：
+Lesson LLM 从代码已绑定的视觉候选中选择组件，再由现有 VisualStepIR builder 确定性渲染。
+G1 不再是必做实现阶段。本文与以下文档共同描述教学链：
 
 - [Teaching Scope、学生步骤、可视化与动画设计](teaching-scope-student-visual-animation-design.md)；
 - [Explanation Builder 设计](explanation-builder-design.md)；
@@ -30,10 +35,10 @@ F5-F5B0 的只读基线、rubric、coverage inventory 与 recorded/live harness 
 artifact 已完成人工审阅并收口；F5-F5B2 的 Annotated Teaching Plan、动态输出 Schema、最终
 Prompt 与双 artifact Review 也已通过人工门禁。B3 的调用、解析、fallback 与评测已实现，
 精简协议后的 live 输出与人工门禁均已通过。recursive LessonIR、递归 VisualStepIR v2、
-完整 Frame 页面与图形状态审计也已完成人工审阅；下一阶段进入五题教学质量扩展。
+完整 Frame 页面与图形状态审计也已完成人工审阅；当前优先进入 G3 真实上传与重建。
 F5-F5C0 已进一步从五个 Family Catalog 动态推导全部 Planner 公开能力，补齐并人工审阅
 `23 Function + 6 Macro` 的 TeachingSpec/VisualSpec 覆盖；五题 recorded 覆盖 26 项，三个
-typed synthetic execution 补齐剩余 3 项。下一阶段只评测 Lesson LLM 的跨题润色与合并质量。
+typed synthetic execution 补齐剩余 3 项。C1 跨题润色与合并质量验收仍保留，不替代上传链验收。
 
 ## 1. 结论
 
@@ -2109,7 +2114,7 @@ semantic artifact hash 与 human review summary 固化在 `public_capability_c0/
 回归，不进入 Prompt、few-shot 或生成输入。C0 专项 `112 passed`；最终全部非 serial、非 live
 Solver 回归 `2326 passed, 7 skipped`；当前没有 serial 用例。
 
-### 18.9 F5-F5C1：LLM 输出质量迭代与五题扩展（NEXT）
+### 18.9 F5-F5C1：LLM 输出质量迭代与五题扩展（待验收，不阻塞 G3 接线）
 
 先只用和平 `1×3` 做优化闭环：
 
@@ -2142,9 +2147,9 @@ point coverage、平均 token 和 P50/P95 latency。禁止把和平点名、等�
 和平达到 `3/3` 后，再运行 equal-length、和平、南开、河西、西青五题 teaching-only `5×3`；
 此时仍不实现 visual selection，先稳定 Lesson 质量。
 
-### 18.10 G1：视觉组件选择与确定性渲染（最后实现）
+### 18.10 G1：视觉组件选择（可选未来设计，不排期）
 
-前述阶段全部通过后才实现：
+以下是保留的候选方案，仅在后续明确需要 LLM 选择视觉时再评估，不属于 G3 工作或发布门禁：
 
 - component registry 声明 required roles、student-facing description、supported modes、
   compatibility 与 renderer；
@@ -2182,14 +2187,14 @@ default，不重跑 LLM。
 - input/output/total token 与总耗时；
 - 编译 HTML 与截图/交互/动画回归。
 
-### 18.10 发布门禁与提交边界
+### 18.11 当前发布门禁与提交边界
 
-- B0–B4、C、G1 各自独立提交；G1 是本 F5-F5B/G1 计划最后一个新增生产能力的提交，
-  后续 G2 Animation/G3 Context 不属于本文实现范围；
+- B0–B4、C 与 G3 工作保持独立可验收边界；G3 的执行计划见在线服务开发计划，
+  不等待 G1、G2 或配音；
 - 每阶段先跑相关 recorded tests，再并行跑目标 smoke，集中分析失败簇；
 - 最终 `5×3` 前不得使用本题专用 few-shot；
 - 和平纵向 artifacts 能从 Snapshot 一直追到 compiled page；
 - Lesson 主链只有一次 LLM 调用，无 semantic retry；
-- visual selection 失败不丢弃合法 Lesson body；
+- 当前 VisualSpec/binder 与确定性渲染通过门禁；不要求启用或测试 LLM visual selection；
 - private identity、LLM-authored geometry、ghost write 和半成品 artifact 均为零；
 - 最后运行 `git diff --check`、Solver/Lesson/Visual 专项与页面 compiler 门禁。

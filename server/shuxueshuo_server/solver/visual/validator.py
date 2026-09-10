@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 from .models import VisualFrame, VisualStep, VisualStepIR
 from .recursive_state import geometry_refs_from_scene_item
 from .registry import ComponentTypeSpecRegistry, default_component_registry
+from .math_state import validate_frame_math_state
 
 if TYPE_CHECKING:
     from shuxueshuo_server.solver.explanation.lesson_ir import LessonIR, LessonScope
@@ -169,6 +170,10 @@ class VisualStepIRValidator:
             },
             frame_geometry_refs=frame_geometry_refs,
         )
+        try:
+            validate_frame_math_state(frame, geometry_registry)
+        except ValueError as exc:
+            raise VisualStepIRValidationError(f"{label}: {exc}") from exc
 
     def _validate_scene_item(self, item: dict[str, Any], label: str) -> None:
         component = item.get("component")

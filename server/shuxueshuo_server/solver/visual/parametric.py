@@ -575,6 +575,22 @@ class ParametricExpressionResolver:
         ]
         component = "LocalSlider"
         note = "拖动动点，观察单动点路径何时取最小值。"
+        attainment = {}
+        if is_minimum and fixed:
+            fixed_expr = self._point_expr(fixed)
+            if fixed_expr is not None:
+                equation = sp.simplify(
+                    (segment_expr[0] - fixed_expr[0]) * (auxiliary_expr[1] - fixed_expr[1])
+                    - (segment_expr[1] - fixed_expr[1]) * (auxiliary_expr[0] - fixed_expr[0])
+                )
+                attainment = {"attainment_constraint": {
+                    "kind": "collinear_on_segment", "parameter": self.local_parameter,
+                    "equation": str(equation), "domain": ["0", "1"],
+                    "geometry_refs": [fixed, segment_moving, auxiliary],
+                    "carrier": [anchor, segment_moving, reference],
+                    "equal_lengths": [anchor, segment_moving, anchor, ray_moving],
+                    "source_step_ids": list(lesson_step.source_step_ids),
+                }}
         if not is_minimum:
             component = "LinkedControls"
             controls.append(
@@ -591,6 +607,7 @@ class ParametricExpressionResolver:
             note = "拖动线段上的动点，射线上的动点按等长条件联动。"
         return {
             "id": f"{lesson_step.id}:equal_length_local_slider",
+            **attainment,
             "component": component,
             "parameter": self.local_parameter,
             "mathematical_domain": {

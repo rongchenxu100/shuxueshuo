@@ -1,4 +1,4 @@
-"""FastAPI：微信 JS-SDK 签名接口。"""
+"""FastAPI：微信 JS-SDK 签名与独立本机 Review 接口。"""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 
 from shuxueshuo_server.wechat_jssdk import WeChatJsSdkSigner
+from shuxueshuo_server.review.api import router as review_router
 
 # 本地开发：加载 server/.env
 _env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -26,6 +27,8 @@ def _require_env(name: str) -> str:
 
 
 app = FastAPI(title="数学说 API", version="0.1.0")
+
+app.include_router(review_router)
 
 _signer: WeChatJsSdkSigner | None = None
 

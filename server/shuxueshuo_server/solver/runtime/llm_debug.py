@@ -3,14 +3,21 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, is_dataclass
+import os
+import tempfile
+from dataclasses import fields, is_dataclass
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 
 def safe_debug_json(value: Any) -> Any:
-    if is_dataclass(value):
-        return safe_debug_json(asdict(value))
+    # asdict() deep-copies leaves and cannot copy frozen MappingProxyType
+    # authority/validation payloads. Walk fields without mutating the source.
+    if is_dataclass(value) and not isinstance(value, type):
+        return {
+            field.name: safe_debug_json(getattr(value, field.name))
+            for field in fields(value)
+        }
     if isinstance(value, Mapping):
         return {str(key): safe_debug_json(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
@@ -19,15 +26,18 @@ def safe_debug_json(value: Any) -> Any:
 
 
 def write_debug_json(path: Path, payload: Any) -> None:
-    path.write_text(
-        json.dumps(
-            safe_debug_json(payload),
-            ensure_ascii=False,
-            indent=2,
-            default=str,
-        ),
-        encoding="utf-8",
-    )
+    text = json.dumps(safe_debug_json(payload), ensure_ascii=False, indent=2, default=str)
+    # A completed JSON file is the journal's publication boundary.
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         prefix=f".{path.name}.", suffix=".tmp", delete=False) as output:
+            temporary = output.name
+            output.write(text)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None and os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def write_common_llm_attempt(

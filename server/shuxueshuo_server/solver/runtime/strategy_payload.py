@@ -325,6 +325,7 @@ class StrategyPayloadBuilder:
             "output_json_schema": functional_plan_content_schema(
                 frame,
                 capability_catalog=schema_catalog,
+                for_prompt=True,
             ),
         }
         if previous_invalid_content is not None:
@@ -365,6 +366,11 @@ class StrategyPayloadBuilder:
             ),
             "output_json_schema": functional_scope_repair_schema_for_authority(
                 retry_authority,
+                capability_catalog=_prompt_capability_catalog(inputs, base),
+                authority_frame=FunctionalPlanAuthorityFrame.from_planning_context(
+                    problem_planning_context
+                ),
+                for_prompt=True,
             ),
         }
 

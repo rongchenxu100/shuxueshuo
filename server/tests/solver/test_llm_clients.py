@@ -177,6 +177,28 @@ def test_deepseek_explicit_low_thinking_does_not_fake_a_repair_attempt() -> None
     assert client.last_provider_attempts[0]["reasoning_effort"] == "low"
 
 
+@pytest.mark.parametrize("attempt", [1, 2, 3])
+def test_client_default_low_thinking_preserves_messages_and_records_mode(attempt) -> None:
+    fake = _FakeOpenAIClient()
+    client = DeepSeekPlannerClient(
+        api_key="test-key", base_url="https://example.test", model="deepseek-v4-flash",
+        client_factory=lambda **_: fake, default_thinking_effort="low",
+    )
+    messages = [{"role": "user", "content": "return JSON"}]
+    request = {"planner_attempt": attempt, "messages": messages}
+    client.complete(request)
+    assert fake.create_kwargs["messages"] == messages
+    assert fake.create_kwargs["extra_body"] == {"thinking": {"type": "enabled"}}
+    assert fake.create_kwargs["reasoning_effort"] == "low"
+    assert client.last_provider_attempts[0]["thinking_mode"] == "enabled"
+    assert client.last_provider_attempts[0]["reasoning_effort"] == "low"
+    assert request == {"planner_attempt": attempt, "messages": messages}
+
+    client.complete({**request, "thinking_effort": "disabled"})
+    assert fake.create_kwargs["extra_body"] == {"thinking": {"type": "disabled"}}
+    assert "reasoning_effort" not in fake.create_kwargs
+
+
 def test_deepseek_rejects_unknown_explicit_thinking_effort() -> None:
     client = DeepSeekPlannerClient(
         api_key="test-key",
@@ -395,3 +417,60 @@ def test_scope_lesson_can_disable_hidden_sdk_retries() -> None:
     )
 
     assert factory_calls[0]["max_retries"] == 0
+
+
+def test_transport_failure_clears_previous_response_metadata():
+    fake = _FakeOpenAIClient()
+    client = DeepSeekPlannerClient(
+        api_key="test-key",
+        base_url="https://example.test",
+        model="test-model",
+        client_factory=lambda **kwargs: fake,
+    )
+    client.complete({'family_id': 'QuadraticPathMinimumSolver'})
+    assert client.last_usage['total_tokens'] == 12
+
+    def fail(**kwargs):
+        raise ConnectionError('connection interrupted')
+
+    fake.chat.completions.create = fail
+    with pytest.raises(ConnectionError):
+        client.complete({'family_id': 'QuadraticPathMinimumSolver'})
+    assert client.last_usage is None
+    assert client.last_response_model is None
+    assert client.last_provider_attempts == ()
+    assert client.last_provider_reasoning == ()
+
+
+def test_provider_retry_records_actual_messages_without_credentials():
+    from shuxueshuo_server.solver.runtime.llm_debug import contains_secret_or_data_url
+    fake = _SequentialOpenAIClient([None, '{"ok":true}'])
+    client = DeepSeekPlannerClient(api_key='secret-test-key', base_url='https://example.test',
+                                  model='test-model', client_factory=lambda **_: fake)
+    client.complete({'messages': [{'role': 'user', 'content': 'return JSON'}]})
+    assert len(client.last_provider_requests) == 2
+    assert client.last_provider_requests[0]['messages'] == fake.requests[0]['messages']
+    assert client.last_provider_requests[1]['messages'] == fake.requests[1]['messages']
+    assert len(client.last_provider_requests[1]['messages']) == len(client.last_provider_requests[0]['messages']) + 1
+    assert [item['text'] for item in client.last_provider_responses] == ['', '{"ok":true}']
+    assert not contains_secret_or_data_url(client.last_provider_requests)
+    assert 'secret-test-key' not in str(client.last_provider_requests)
+
+
+def test_transport_failure_after_reasoning_preserves_this_invocations_evidence():
+    fake = _SequentialOpenAIClient([None], reasonings=['provider supplied partial reasoning'])
+    client = DeepSeekPlannerClient(api_key='test-key', base_url='https://example.test',
+                                  model='test-model', client_factory=lambda **_: fake)
+    complete = fake.chat.completions.create
+    def fail_second(**kwargs):
+        if fake.requests:
+            raise ConnectionError('second request disconnected')
+        return complete(**kwargs)
+    fake.chat.completions.create = fail_second
+    with pytest.raises(ConnectionError):
+        client.complete({'messages': [{'role': 'user', 'content': 'return JSON'}]})
+    assert client.last_invocation_id == 1
+    assert len(client.last_provider_requests) == 2
+    assert len(client.last_provider_responses) == 1
+    assert client.last_provider_reasoning[0]['reasoning_content'] == 'provider supplied partial reasoning'
+    assert client.last_usage['total_tokens'] == 30
