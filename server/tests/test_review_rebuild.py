@@ -87,3 +87,36 @@ def test_guard_detects_inflight_change_and_saves_evidence(tmp_path, monkeypatch)
     with pytest.raises(ValueError, match='build.source_changed'): guard.complete('source')
     assert store.get(run)['artifacts'][-1]['name'] == '构建依赖变化证据'
     assert not store.get(run)['page_url']
+
+
+def test_revision_routes_keep_read_preview_and_save_separate(tmp_path):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from shuxueshuo_server.review.api import router
+    store = ReviewStore(tmp_path)
+    run = seed(store)
+    app = FastAPI()
+    app.state.review_store = store
+    app.include_router(router)
+    client = TestClient(app)
+    url = '/api/review/runs/' + run
+    body = client.get(url + '/problem').json()
+    assert 'verification_proof' not in body['domain']
+    assert 'runtime' not in body['domain']
+    assert client.post(url + '/problem/preview', json=body).json()['ok']
+    assert client.post(url + '/problem/revisions', json={**body, 'base_revision_id': 'old'}).status_code == 409
+    assert client.post(url + '/rebuild', json={'fingerprint': 'old'}).status_code == 409
+    assert len(store.list()) == 1
+    assert client.get(url + '/problem', headers={'Origin': 'https://example.com'}).status_code == 403
+    assert client.post(url + '/problem/revisions', json=body, headers={'Origin': 'https://example.com'}).status_code == 403
+
+
+def test_noop_semantic_reordering_does_not_invalidate(tmp_path):
+    store = ReviewStore(tmp_path)
+    run = seed(store)
+    body = editable(store, run)
+    body['domain']['root']['entities'].reverse()
+    saved = preview(store, run, body, save=True)
+    assert saved['ok']
+    assert saved['base_revision_id'] == body['base_revision_id']
+    assert not saved['affected_stages']

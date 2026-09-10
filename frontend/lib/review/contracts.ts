@@ -43,3 +43,20 @@ export async function reviewFetch(path: string, init?: RequestInit) {
   }
   return response.json();
 }
+
+export const RebuildPlanSchema = z.object({
+  schema_version: z.literal("review-rebuild-plan/v1"), run_id: z.string(),
+  base_revision_id: z.string().nullable(), requested_stage: z.string().nullable(),
+  fingerprint: z.string(), reuse_stages: z.array(z.string()), rerun_stages: z.array(z.string()),
+  reasons: z.array(z.object({ stage: z.string(), code: z.string(), message: z.string() })),
+  calls_models: z.boolean(), model_stages: z.array(z.string()), available: z.boolean(),
+  page_validity: z.enum(["unknown", "stale", "current"]), latest_run_id: z.string().nullable(),
+  page_run_id: z.string().nullable(),
+});
+export type RebuildPlan = z.infer<typeof RebuildPlanSchema>;
+export const EditableProblemSchema = z.object({ base_revision_id: z.string(), domain: z.record(z.string(), z.unknown()), schema: z.unknown() });
+export const ProblemPreviewSchema = z.object({
+  ok: z.boolean(), diagnostics: z.unknown(), diff: z.array(z.object({ path: z.string(), before: z.unknown(), after: z.unknown() })),
+  base_revision_id: z.string().optional(), affected_stages: z.array(z.string()).optional(),
+});
+export const pageValidityLabel = (value?: string) => ({ current: "当前有效", stale: "已过期 · 历史预览", unknown: "缺少版本证据 · 历史预览" }[value ?? "unknown"] ?? "版本检查中");

@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Artifact, ReviewRun, RunSchema, RunsSchema, StartSchema, reviewFetch, statusLabel, terminal } from "@/lib/review/contracts";
+import { Artifact, ReviewRun, RunSchema, RunsSchema, StartSchema, reviewFetch, statusLabel, terminal, pageValidityLabel } from "@/lib/review/contracts";
+import { RebuildPanel } from "./rebuild-ui";
 import styles from "./review.module.css";
 
 const date = (t: number) => new Date(t * 1000).toLocaleString();
@@ -47,12 +48,10 @@ export function ReviewList() {
 }
 
 export function ReviewDetail({ runId }: { runId: string }) {
-  const router = useRouter();
   const [run, setRun] = useState<ReviewRun | null>(null);
   const [selected, setSelected] = useState("source");
   const [tab, setTab] = useState("output");
   const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
   const [connected, setConnected] = useState(false);
   useEffect(() => {
     let active = true; let pending = false;
@@ -72,11 +71,11 @@ export function ReviewDetail({ runId }: { runId: string }) {
     const timer = setInterval(refresh, 5000);
     return () => { active = false; source.close(); clearInterval(timer); };
   }, [runId]);
-  async function rerun(fromStage?: string) {
-    setBusy(true);
-    try { const result = StartSchema.parse(await reviewFetch(`/api/review/runs/${runId}/rerun${fromStage ? `?from_stage=${encodeURIComponent(fromStage)}` : ""}`, { method: "POST" })); router.push(result.review_url); }
-    catch (e) { setError(e instanceof Error ? e.message : String(e)); }
-    finally { setBusy(false); }
+  const [request, setRequest] = useState<{ stage?: string; count: number }>({ count: 0 });
+  const [validity, setValidity] = useState("unknown");
+  function rerun(fromStage = "source") {
+    setRequest((old) => ({ stage: fromStage, count: old.count + 1 }));
+    document.getElementById("rebuild")?.scrollIntoView({ behavior: "smooth" });
   }
   const stage = run?.stages.find((s) => s.id === selected);
   const original = run?.artifacts.find((a) => a.stage === "source" && a.role === "input");
@@ -84,21 +83,22 @@ export function ReviewDetail({ runId }: { runId: string }) {
   return <main className={styles.shell}>
     <Link href="/review/runs">← 所有运行</Link>
     <header className={styles.detailHeader}>{original && <a href={original.url} target="_blank" rel="noreferrer"><Image unoptimized width={104} height={76} src={original.url} alt="原始上传题图" /></a>}
-      <div><p className={styles.eyebrow}>REAL PIPELINE · READ ONLY</p><h1 title={run?.filename}>{run?.filename ?? "载入运行…"}</h1><p>{run && `${statusLabel(run.status)} · ${date(run.created_at)} · 耗时 ${duration(run.started_at, run.finished_at)}`}</p>
+      <div><p className={styles.eyebrow}>G3-B · VERSIONED REVIEW</p><h1 title={run?.filename}>{run?.filename ?? "载入运行…"}</h1><p>{run && `${statusLabel(run.status)} · ${date(run.created_at)} · 耗时 ${duration(run.started_at, run.finished_at)}`}</p>
         <small>{runId} {run && !terminal(run.status) && (connected ? "· 实时更新" : "· 自动重连 / 轮询恢复")}</small>
         {run?.parent_run_id && <Link href={`/review/runs/${run.parent_run_id}`}>查看上一次运行</Link>}</div>
-      <button onClick={() => rerun()} disabled={!run || busy || !terminal(run.status)}>{busy ? "创建中…" : "整题重新运行"}</button>
+      <button onClick={() => rerun()} disabled={!run || !terminal(run.status)}>整题重新运行</button>
     </header>
     {error && <p role="alert" className={styles.error}>{error}</p>}
     {run?.error && <p role="alert" className={styles.error}>{run.error}</p>}
+    <RebuildPanel runId={runId} request={request} onValidity={setValidity} />
     <div className={styles.layout}>
       <nav className={styles.stages} aria-label="生成阶段">{run?.stages.map((s, i) => <button key={s.id} onClick={() => setSelected(s.id)} aria-current={selected === s.id ? "step" : undefined}><span>{i + 1}. {s.title}</span><small data-status={s.status}>{s.reused_from_run_id ? "已复用" : statusLabel(s.status)} · {duration(s.started_at, s.finished_at)}</small></button>)}
         <button onClick={() => setSelected("preview")} aria-current={selected === "preview" ? "step" : undefined}>最终课程页<small>{run?.page_url ? "可预览" : "尚未生成"}</small></button>
       </nav>
       <section className={styles.content}>
-        {selected === "preview" ? <><h2>最终课程页</h2>{run?.page_url ? <><a href={run.page_url} target="_blank" rel="noreferrer">新窗口打开课程页 ↗</a><iframe className={styles.preview} src={run.page_url} sandbox="allow-scripts" title="生成的课程页" /></> : <p>完整生成链通过校验后，课程页才会在这里出现。失败不会显示旧页面。</p>}</> : <>
+        {selected === "preview" ? <><h2>最终课程页</h2><p>{pageValidityLabel(validity)} · 运行 {runId.slice(0, 8)}</p>{run?.page_url ? <><a href={run.page_url} target="_blank" rel="noreferrer">新窗口打开课程页 ↗</a><iframe className={styles.preview} src={run.page_url} sandbox="allow-scripts" title="生成的课程页" /></> : <p>完整生成链通过校验后，课程页才会在这里出现。失败不会显示旧页面。</p>}</> : <>
           <h2>{stage?.title}</h2>
-          {stage && <div><button onClick={() => rerun(stage.id)} disabled={busy || !run?.rerun_options?.[stage.id]?.available}>{busy ? "创建中…" : "从此阶段重新运行"}</button>
+          {stage && <div><button onClick={() => rerun(stage.id)} disabled={!run?.rerun_options?.[stage.id]?.available}>从此阶段重新运行</button>
             <small>{run?.rerun_options?.[stage.id]?.reason || "新建运行记录，复用此前成功产物，使用当前代码执行本阶段及后续阶段。"}</small>
             {["source", "observation", "extraction", "projection", "solver", "evidence", "lesson"].includes(stage.id) && <small>后续包含模型调用，会使用当前配置并产生调用费用。</small>}
           </div>}

@@ -16,3 +16,28 @@ describe("Review contract", () => {
     expect(statusLabel("blocked")).toBe("被阻塞");
   });
 });
+
+import { RebuildPlanSchema, EditableProblemSchema, ProblemPreviewSchema, pageValidityLabel } from "./contracts";
+
+describe("Review revision and rebuild contracts", () => {
+  const plan = { schema_version: "review-rebuild-plan/v1", run_id: "run", base_revision_id: "revision",
+    requested_stage: "visual", fingerprint: "content-hash", reuse_stages: ["source", "solver", "lesson"],
+    rerun_stages: ["visual", "page"], reasons: [{ stage: "visual", code: "build.resource_changed", message: "VisualSpec" }],
+    calls_models: false, model_stages: [], available: true, page_validity: "stale", latest_run_id: "run", page_run_id: "old" };
+  it("preserves revision and fingerprint for optimistic submission", () => {
+    const checked = RebuildPlanSchema.parse(plan);
+    expect(checked.base_revision_id).toBe("revision");
+    expect(checked.fingerprint).toBe("content-hash");
+    expect(checked.calls_models).toBe(false);
+    expect(RebuildPlanSchema.safeParse({ ...plan, fingerprint: undefined }).success).toBe(false);
+  });
+  it("never labels unknown or stale output as current", () => {
+    expect(pageValidityLabel("unknown")).toContain("缺少版本证据");
+    expect(pageValidityLabel("stale")).toContain("历史预览");
+    expect(pageValidityLabel("current")).toBe("当前有效");
+  });
+  it("keeps invalid domain diagnostics and requires editable revision identity", () => {
+    expect(ProblemPreviewSchema.parse({ ok: false, diagnostics: [{ path: "$.family_id" }], diff: [] }).ok).toBe(false);
+    expect(EditableProblemSchema.safeParse({ domain: {}, schema: {} }).success).toBe(false);
+  });
+});

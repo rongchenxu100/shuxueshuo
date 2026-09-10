@@ -8,7 +8,6 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from threading import Lock
 
 from .store import REPO, STAGES
 
@@ -42,6 +41,7 @@ def inventory(root=REPO):
         ('internal/functional-plan-v2-fixtures', {'.json'}),
         ('internal/functional-plan-fixtures', {'.json'}),
         ('internal/functional-few-shots', {'.json'}),
+        ('internal/functional-few-shots-v2', {'.json'}),
         ('internal/functional-few-shot-manifests', {'.json'}),
         ('internal/functional-plan-scope-native-fixtures', {'.json'}),
         ('site/assets/js', {'.js'}), ('site/assets/css', {'.css'}),
@@ -150,28 +150,17 @@ def collect(root=REPO, config=None):
     return {'schema_version': 'review-dependency-snapshot/v1', 'stages': stages, 'fingerprint': digest(stages), 'unclassified_resources': unknown}
 
 
-_lock = Lock()
-_cache = None
-
-
 def probe():
-    """Only cache fingerprint computation; changed code is read in a fresh process."""
-    global _cache
-    raw = inventory()
-    env_file = REPO / 'server/.env'
-    key = digest([raw, sha256(env_file.read_bytes()).hexdigest() if env_file.exists() else '',
-                  {k: v for k, v in os.environ.items() if k.startswith(('SOLVER_', 'DEEPSEEK_', 'DOUBAO_', 'REVIEW_OCR_'))}])
-    with _lock:
-        if _cache is not None and _cache[0] == key:
-            return json.loads(json.dumps(_cache[1]))
-        result = subprocess.run([sys.executable, '-m', 'shuxueshuo_server.review.dependencies'], cwd=REPO / 'server', capture_output=True, text=True, timeout=60)
-        if result.returncode:
-            raise ValueError('build.dependencies_invalid: 当前代码或配置无法生成依赖指纹')
-        value = json.loads(result.stdout)
-        if inventory() != raw:
-            raise ValueError('build.source_changed: 依赖探测期间文件变化')
-        _cache = key, value
-        return json.loads(json.dumps(value))
+    """Fresh interpreter owns discovery, imports, and effective configuration.
+
+    Keeping even the inventory algorithm in the API process would miss newly
+    registered directories after a code edit. No generated results are cached.
+    """
+    result = subprocess.run([sys.executable, '-m', 'shuxueshuo_server.review.dependencies'],
+                            cwd=REPO / 'server', capture_output=True, text=True, timeout=60)
+    if result.returncode:
+        raise ValueError('build.dependencies_invalid: 当前代码或配置无法生成依赖指纹')
+    return json.loads(result.stdout)
 
 
 def stage_inputs(doc, stage):
@@ -193,7 +182,7 @@ def changes(doc, snapshot):
     for record in doc['stages']:
         stage = record['id']
         old = record.get('manifest')
-        if not old:
+        if not old or old.get('schema_version') != CONTRACT:
             reasons.append({'stage': stage, 'code': 'build.version_unknown', 'message': '缺少可验证的阶段版本记录'})
             continue
         current = snapshot['stages'][stage]

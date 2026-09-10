@@ -66,3 +66,21 @@ def test_migrate_legacy_without_rewriting_history(tmp_path):
     assert versions.info(a)['id'] == versions.info(b)['id']
     assert store.get(a) == old
     assert versions.info(b)['page_run_id'] is None
+
+
+def test_failed_latest_build_keeps_history_but_cannot_publish(tmp_path):
+    store = ReviewStore(tmp_path)
+    a = create(store)
+    versions = Versions(store)
+    target = {'stages': {s['id']: {'resources': {}, 'config': {}} for s in store.get(a)['stages']}}
+    with store.edit(a) as doc:
+        doc['target_dependencies'] = target
+        doc['status'] = 'succeeded'
+        for s in doc['stages']: s['manifest'] = {'resources': {}, 'config': {}}
+    b = create(store, a, enqueue=False)
+    versions.enqueue(b, base_revision_id=None, target=target)
+    store.finish(b, error='new build failed')
+    assert versions.info(a)['latest_run_id'] == b
+    assert versions.info(a)['page_run_id'] == a
+    assert store.get(a)['status'] == 'succeeded'
+    assert store.get(b)['status'] == 'failed'

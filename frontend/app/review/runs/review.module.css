@@ -36,3 +36,5 @@
 .empty { padding: 35px 0; color: #667782; }
 .shell [data-status=failed], .shell [data-status=interrupted] { color: #b44839; }
 @media (max-width: 800px) { .shell { padding: 18px; } .layout { grid-template-columns: 1fr; } .stages { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); } .detailHeader { flex-wrap: wrap; } .content { padding: 16px; } }
+
+.editor { display: block; width: 100%; min-height: 420px; padding: 14px; margin: 14px 0; border: 1px solid #ccd8dc; border-radius: 8px; font: 13px/1.6 ui-monospace, monospace; background: #f7faf9; color: #17313b; }

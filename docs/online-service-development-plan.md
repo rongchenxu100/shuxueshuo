@@ -169,7 +169,10 @@ API 至少覆盖 source、problem、lesson、scene、timeline、tutor session �
 退出条件：一张真实上传图片在服务中得到可审阅课程页，全链依赖可追溯；
 失败不能被标为成功，人工确认不能变成手工补齐执行产物。
 
-### G3-B：上游变化后正确重建（NEXT）
+### G3-B：上游变化后正确重建（COMPLETE · Review 范围 · 2026-09-10）
+
+[实现、API 与真实验收记录](review-rebuild-g3-b.md)。本轮在 Review 完成 JSON 编辑、差异预览、
+依赖失效计算及用户点击重建；复用 SQLite/worker/SSE，未迁移作者工作台或发布链。
 
 每个阶段固定其输入版本与实际消费的 dependency hash，包括相关生成配置、Spec 和编译器版本。
 依赖发生变化时先标记受影响资产 stale，再重建；新的 ready 页面只能引用验证通过的完整依赖闭包。
