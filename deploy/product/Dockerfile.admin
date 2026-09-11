@@ -1,0 +1,10 @@
+FROM postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f
+RUN apt-get update && apt-get install -y --no-install-recommends python3 python3-venv \
+    && rm -rf /var/lib/apt/lists/* && python3 -m venv /opt/product
+COPY deploy/product/requirements.lock /tmp/requirements.lock
+RUN /opt/product/bin/pip install --no-cache-dir --require-hashes -r /tmp/requirements.lock
+COPY server /app/server
+COPY internal/schemas /app/internal/schemas
+WORKDIR /app/server
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+ENTRYPOINT ["/opt/product/bin/python", "-m", "shuxueshuo_server.product.admin.cli"]

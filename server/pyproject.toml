@@ -5,6 +5,9 @@ description = "WeChat JS-SDK config API for 数学说"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+  "sqlalchemy>=2.0,<2.1",
+  "psycopg[binary]>=3.2,<4",
+  "alembic>=1.16,<2",
   "fastapi>=0.115.0",
   "python-multipart>=0.0.20",
   "uvicorn[standard]>=0.32.0",

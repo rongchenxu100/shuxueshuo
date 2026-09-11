@@ -83,3 +83,10 @@ def test_unknown_resources_are_visible(tmp_path):
 def test_all_existing_production_resources_have_registered_owners():
     # New resource names need ownership, or an explicit conservative fallback.
     assert collect()['unclassified_resources'] == []
+
+
+def test_product_persistence_is_not_a_review_math_dependency(tmp_path):
+    before = collect(tmp_path, CONFIG)
+    put(tmp_path, 'server/shuxueshuo_server/product/services.py', '# independent PostgreSQL service')
+    after = collect(tmp_path, CONFIG)
+    assert before == after
