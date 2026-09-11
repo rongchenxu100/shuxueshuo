@@ -122,3 +122,10 @@ PRODUCT_TEST_DATA_DIR='/absolute/path/p1-test' PRODUCT_TEST_INSTANCE=p1-test uv 
 不同环境的安装、依赖版本、实际测试数和备份恢复证据记录在 `docs/product-p1-acceptance.md`。
 
 退出码：0 成功，2 前置条件/参数错误，3 服务不可用，4 迁移或版本错误，5 完整性失败。
+## 敏感配置提交规则
+
+真实凭据仅存于本机 `.env` 配置：模型配置使用 `server/.env`，产品实例使用 Git 外数据根的 `config/*.env`。安装器生成的配置、日志和数据均保留在实例数据根，不加入仓库。
+
+Git 只允许提交无真实凭据的 `.env.example` 或 `*.env.example` 模板；密码、API key、cookie 等字段留空。不要使用 `git add -f` 绕过环境文件忽略规则。普通不含秘密的代码配置和发布清单可以提交。
+
+Review 文档可以记录环境变量名、公开模型 endpoint、本地端口和不可用于认证的运行 ID；不得记录真实凭据、认证请求头、带凭据的连接串或未脱敏的私有配置输出。

@@ -5,7 +5,7 @@
 所有命令从仓库根目录执行：
 
 ```bash
-cd /Users/haorong/projects/code/shuxueshuo
+cd "$HOME/projects/code/shuxueshuo"
 ```
 
 ## 常驻服务
