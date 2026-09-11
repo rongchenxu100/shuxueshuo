@@ -19,7 +19,9 @@ from .storage import parts
 
 def clean_config(value):
     if isinstance(value, dict):
-        return {str(k): '[REDACTED]' if re.search(r'key|password|secret|token|authorization|cookie', str(k), re.I)
+        public_fields = {'stage_key', 'pipeline_key', 'artifact_key', 'max_tokens', 'input_tokens', 'output_tokens',
+                         'prompt_tokens', 'completion_tokens', 'total_tokens', 'max_output_tokens'}
+        return {str(k): '[REDACTED]' if str(k) not in public_fields and re.search(r'key|password|secret|token|authorization|cookie', str(k), re.I)
                 else clean_config(v) for k, v in value.items()}
     if isinstance(value, list):
         return [clean_config(v) for v in value]
@@ -37,6 +39,22 @@ def update(c, t, resource_id, **values):
 
 
 def append_event(c, workspace_id, kind, aggregate_id, event_type, payload):
+    streams = {(kind, aggregate_id)}
+    problem_id = aggregate_id if kind == 'problem' else None
+    if kind == 'build':
+        problem_id = c.scalar(select(m.builds.c.problem_id).where(m.builds.c.id == aggregate_id))
+    if problem_id:
+        streams.update(('batch', bid) for bid in c.scalars(select(m.batch_items.c.batch_id).where(m.batch_items.c.problem_id == problem_id).distinct()))
+    result = None
+    for stream_kind, identity in sorted(streams, key=lambda x: (x[0], str(x[1]))):
+        value = _append_event(c, workspace_id, stream_kind, identity, event_type,
+            payload if (stream_kind, identity) == (kind, aggregate_id) else
+            {'aggregate_kind': kind, 'aggregate_id': str(aggregate_id), **payload})
+        if (stream_kind, identity) == (kind, aggregate_id): result = value
+    return result
+
+
+def _append_event(c, workspace_id, kind, aggregate_id, event_type, payload):
     c.execute(pg_insert(m.event_streams).values(workspace_id=workspace_id, stream_kind=kind,
         aggregate_id=aggregate_id).on_conflict_do_nothing(index_elements=['workspace_id', 'stream_kind', 'aggregate_id']))
     stream = c.execute(select(m.event_streams).filter_by(workspace_id=workspace_id,
@@ -56,7 +74,9 @@ class ProductService:
     def create_batch(self, ctx, name=None):
         with transaction(self.db) as c:
             member(c, ctx)
-            return dict(insert(c, m.batches, workspace_id=ctx.workspace_id, owner_user_id=ctx.user_id, name=name))
+            batch = insert(c, m.batches, workspace_id=ctx.workspace_id, owner_user_id=ctx.user_id, name=name)
+            append_event(c, ctx.workspace_id, 'batch', batch['id'], 'batch.created', {})
+            return dict(batch)
 
     def get_problem(self, ctx, problem_id):
         with transaction(self.db) as c:
@@ -121,8 +141,17 @@ class ProductService:
             ids = sorted({str(x['id']) for x in candidates})
             audit = {'filename': filename, 'media_type': detected, 'file_sha256': file_hash}
             if len(ids) > 1:
-                append_event(c, ctx.workspace_id, 'batch', batch_id, 'upload.ambiguous', {**audit, 'candidates': ids})
-                return {'status': 'ambiguous', 'candidate_ids': ids}
+                sid, aid = uuid4(), uuid4()
+                key = f'workspaces/{ctx.workspace_id}/sources/{sid}/{aid}'
+                stored = self.storage.put_immutable(key, BytesIO(content), file_hash)
+                self.artifacts.register(dict(id=aid, workspace_id=ctx.workspace_id, owner_user_id=ctx.user_id,
+                    artifact_type='source_original', storage_key=key, sha256=stored.sha256, size_bytes=stored.size_bytes,
+                    content_type=detected, access_class='private'), c)
+                insert(c, m.sources, id=sid, workspace_id=ctx.workspace_id, owner_user_id=ctx.user_id,
+                    original_artifact_id=aid, filename=filename, media_type=detected,
+                    metadata={**metadata, 'pending_batch_id': str(batch_id), 'candidate_ids': ids})
+                append_event(c, ctx.workspace_id, 'batch', batch_id, 'upload.ambiguous', {**audit, 'source_id': str(sid), 'candidates': ids})
+                return {'status': 'ambiguous', 'source_id': str(sid), 'candidate_ids': ids}
             if candidates:
                 chosen = sorted(candidates, key=lambda x: str(x['source_id']))[0]
                 problem_id, source_id = chosen['id'], chosen['source_id']
@@ -251,6 +280,22 @@ class ProductService:
                 parent = scoped(c, m.builds, ctx, parent_build_id)
                 if parent['problem_id'] != problem_id:
                     raise Conflict('build.wrong_parent')
+            if batch_item_id:
+                item = scoped(c, m.batch_items, ctx, batch_item_id, lock=True)
+                batch = scoped(c, m.batches, ctx, item['batch_id'])
+                if batch['owner_user_id'] != ctx.user_id or item['problem_id'] != problem_id or item['source_id'] != source_id:
+                    raise Conflict('batch_item.initial_build_conflict')
+                if item['initial_build_id']:
+                    old = scoped(c, m.builds, ctx, item['initial_build_id'])
+                    if any(old[k] != v for k, v in {'requested_revision_id': base_revision_id, 'effective_config': config,
+                        'target_dependencies': dependencies, 'deployment_version': deployment_version, 'pipeline_key': pipeline_key,
+                        'pipeline_version': pipeline_version, 'parent_build_id': parent_build_id, 'from_stage': from_stage}.items()):
+                        raise Conflict('batch_item.initial_build_conflict')
+                    job = row(c, m.jobs, build_id=old['id'])
+                    response = {'build_id': str(old['id']), 'job_id': str(job['id'])}
+                    insert(c, m.idempotency_requests, workspace_id=ctx.workspace_id, user_id=ctx.user_id, operation='build',
+                        request_id=request_id, request_hash=request_hash, resource_type='build', resource_id=old['id'], response_json=response)
+                    return response
             lock(c, 'pipeline', pipeline_key, pipeline_version)
             prior = c.execute(select(m.builds.c.pipeline_snapshot).where(m.builds.c.pipeline_key == pipeline_key,
                 m.builds.c.pipeline_version == pipeline_version).limit(1)).scalar()
@@ -380,6 +425,26 @@ class ProductService:
             c.execute(m.build_stages.update().where(m.build_stages.c.build_id == build_id,
                 m.build_stages.c.status != 'succeeded').values(status=status))
             append_event(c, ctx.workspace_id, 'build', build_id, 'build.' + status, {'code': code})
+
+    def fail_incompatible_deployment(self, ctx, build_id, code='execution.incompatible_environment'):
+        """Fail queued/running builds that a restarted deployment can no longer execute."""
+        with transaction(self.db) as c:
+            build = scoped(c, m.builds, ctx, build_id)
+            problem(c, ctx, build['problem_id'], write=True)
+            job = c.execute(select(m.jobs).where(m.jobs.c.build_id == build_id).with_for_update()).mappings().one()
+            if job['status'] in ('succeeded', 'failed', 'cancelled'):
+                return dict(job)
+            timestamp = now(c)
+            if job['active_execution_id']:
+                update(c, m.job_executions, job['active_execution_id'], status='failed', finished_at=timestamp, failure_code=code)
+                c.execute(m.stage_attempts.update().where(m.stage_attempts.c.execution_id == job['active_execution_id'],
+                    m.stage_attempts.c.status == 'running').values(status='failed', finished_at=timestamp))
+            update(c, m.jobs, job['id'], status='failed', lease_expires_at=None)
+            update(c, m.builds, build_id, status='failed', error_code=code, finished_at=timestamp)
+            c.execute(m.build_stages.update().where(m.build_stages.c.build_id == build_id,
+                m.build_stages.c.status != 'succeeded').values(status='failed'))
+            append_event(c, ctx.workspace_id, 'build', build_id, 'build.failed', {'code': code})
+            return dict(row(c, m.jobs, id=job['id']))
 
     def register_artifact(self, ctx, build_id, execution_id, epoch, *, content, artifact_type, content_type,
                           schema_version=None, access_class='private', attempt_id=None):
@@ -635,8 +700,11 @@ class ProductService:
             page = scoped(c, m.page_builds, ctx, page_id)
             build = scoped(c, m.builds, ctx, page['build_id'])
             problem(c, ctx, build['problem_id'], write=True)
-            return dict(insert(c, m.review_decisions, workspace_id=ctx.workspace_id, page_build_id=page_id,
+            review = dict(insert(c, m.review_decisions, workspace_id=ctx.workspace_id, page_build_id=page_id,
                 revision_id=page['revision_id'], reviewer_user_id=ctx.user_id, decision=decision, comment=comment, supersedes_id=supersedes_id))
+            append_event(c, ctx.workspace_id, 'build', build['id'], 'page.reviewed',
+                         {'page_id': str(page_id), 'review_id': str(review['id']), 'decision': decision})
+            return review
 
     def record_call(self, ctx, build_id, execution_id, epoch, attempt_id, audit_artifact_id, **fields):
         allowed = {'provider', 'request_model', 'response_model', 'provider_version', 'provider_request_id',

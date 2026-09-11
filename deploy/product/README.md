@@ -1,6 +1,6 @@
 # 产品 P1 安装与管理
 
-P1 提供 27 张产品表、不可变产物存储和内部事务接口。真实上传 API、页面 HTTP 路由、队列和 Worker 在 P2 接入。
+P1 提供 27 张产品表、不可变产物存储和内部事务接口。P2 已增加本地上传 API、页面 HTTP 路由、RabbitMQ/Celery 和 Review；完整启停命令见 [P2 本地运行手册](../../docs/product-p2-local-runbook.md)。本文件继续说明数据库底座和后续服务器部署。
 不读取或迁移旧 Review SQLite，不改变原 `site/` 及 Nginx 配置。
 
 ## 本地原生 PostgreSQL

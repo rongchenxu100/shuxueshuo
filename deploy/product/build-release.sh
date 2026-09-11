@@ -33,7 +33,7 @@ docker save -o "$output/images.tar" "shuxueshuo-product-admin:$release" "shuxues
 cp -R "$source_tree/repo/deploy/product" "$output/scripts"
 printf '%s\n' "PRODUCT_RELEASE_ID=$release" "PRODUCT_PLATFORM=$platform" "PRODUCT_ADMIN_IMAGE=$admin_id" \
   "PRODUCT_POSTGRES_IMAGE=$postgres_id" "PRODUCT_POSTGRES_MANIFEST=$postgres" \
-  "PRODUCT_ALEMBIC_REVISION=0001_product" "PRODUCT_SOURCE_REVISION=$source_revision" > "$output/release.env"
+  "PRODUCT_ALEMBIC_REVISION=0002_product_runtime_indexes" "PRODUCT_SOURCE_REVISION=$source_revision" > "$output/release.env"
 checksum "$output/images.tar" > "$output/images.sha256"
 # Hash all delivered scripts/configuration; server checks these before running a release.
 python3 - "$output" <<'PY'

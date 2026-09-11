@@ -1,9 +1,12 @@
 """Short, caller-owned transactions and deterministic transaction locks."""
 from contextlib import contextmanager
+from contextvars import ContextVar
 from hashlib import sha256
 import json
 
 from sqlalchemy import create_engine, text
+
+_current = ContextVar('product_transaction', default=None)
 
 
 def canonical(value):
@@ -26,6 +29,14 @@ def lock(connection, *parts):
 
 @contextmanager
 def transaction(db):
+    current = _current.get()
+    if current is not None and current[0] is db:
+        yield current[1]
+        return
     with db.begin() as connection:
         connection.execute(text("SET LOCAL lock_timeout = '10s'"))
-        yield connection
+        token = _current.set((db, connection))
+        try:
+            yield connection
+        finally:
+            _current.reset(token)

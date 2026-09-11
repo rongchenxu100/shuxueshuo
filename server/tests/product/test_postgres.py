@@ -518,3 +518,54 @@ def test_exhausted_delivery_closes_stages(setup):
         c.execute(m.jobs.update().where(m.jobs.c.id == build['job_id']).values(lease_expires_at=func.now() - text("interval '1 second'")))
     assert s.acquire_execution(ctx, build['job_id'], 'retry', deployment_version='test-v1')['status'] == 'failed'
     assert {stage['status'] for stage in s.build_snapshot(ctx, build['build_id'])['stages']} == {'failed'}
+
+
+def test_fail_incompatible_deployment_closes_queued_build(setup):
+    s, ctx, _ = setup
+    item = upload(s, ctx)
+    build = submit(s, ctx, item)
+    assert s.build_snapshot(ctx, build['build_id'])['build']['status'] == 'queued'
+    closed = s.fail_incompatible_deployment(ctx, build['build_id'])
+    assert closed['status'] == 'failed'
+    snapshot = s.build_snapshot(ctx, build['build_id'])
+    assert snapshot['build']['status'] == 'failed'
+    assert snapshot['build']['error_code'] == 'execution.incompatible_environment'
+    assert {stage['status'] for stage in snapshot['stages']} == {'failed'}
+    # Idempotent on already-terminal jobs.
+    assert s.fail_incompatible_deployment(ctx, build['build_id'])['status'] == 'failed'
+
+
+def test_publish_once_fails_retired_deployment_instead_of_routing(setup, monkeypatch):
+    from shuxueshuo_server.product import transport
+    from shuxueshuo_server.product.outbox import acknowledge
+    from shuxueshuo_server.product.services import now
+    from datetime import timedelta
+    from uuid import uuid4
+    s, ctx, _ = setup
+    item = upload(s, ctx)
+    build = submit(s, ctx, item, deployment_version='retired-v0')
+    with transaction(s.db) as c:
+        target = row(c, m.outbox_messages, job_id=build['job_id'])
+    def own_reserve(c, **_):
+        record = row(c, m.outbox_messages, id=target['id'])
+        token = uuid4()
+        c.execute(m.outbox_messages.update().where(m.outbox_messages.c.id == target['id']).values(
+            status='publishing', publisher_token=token,
+            locked_until=now(c) + timedelta(seconds=30), attempt_count=record['attempt_count'] + 1))
+        return [{**record, 'publisher_token': token}]
+    monkeypatch.setattr(transport, 'reserve', own_reserve)
+    sent = []
+    class Client:
+        def send_task(self, *args, **kwargs):
+            sent.append(kwargs)
+            raise AssertionError('retired deployments must not be published')
+    class App:
+        db = s.db
+        service = s
+    assert transport.publish_once(App(), Client(), current_version='current-v1') == 1
+    assert sent == []
+    snapshot = s.build_snapshot(ctx, build['build_id'])
+    assert snapshot['build']['status'] == 'failed'
+    assert snapshot['build']['error_code'] == 'execution.incompatible_environment'
+    with transaction(s.db) as c:
+        assert row(c, m.outbox_messages, id=target['id'])['status'] == 'published'

@@ -38,7 +38,8 @@ def main(argv=None):
     p.add_argument('--instance')
     p.add_argument('--port', type=int)
     p.add_argument('--pg-bin')
-    p.add_argument('command', choices=['configure', 'install', 'deploy', 'resume', 'bootstrap', 'migrate', 'seed', 'doctor', 'status', 'db-start', 'db-stop', 'backup', 'restore'])
+    p.add_argument('command', choices=['configure', 'install', 'deploy', 'resume', 'bootstrap', 'migrate', 'seed', 'doctor', 'status', 'db-start', 'db-stop', 'backup', 'restore',
+        'services-install', 'services-start', 'services-stop', 'services-status', 'services-doctor'])
     p.add_argument('--backup')
     p.add_argument('--target')
     args = p.parse_args(argv)
@@ -72,6 +73,9 @@ def main(argv=None):
 
 def execute(settings, args):
     operation = args.command
+    if operation.startswith('services-'):
+        from .runtime import execute as execute_runtime
+        return execute_runtime(settings, operation)
     if operation == 'deploy':
         from .backup import backup, stopped_writes
         with stopped_writes(settings, keep_on_failure=True):

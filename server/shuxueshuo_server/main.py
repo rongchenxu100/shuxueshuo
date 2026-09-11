@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 
 from shuxueshuo_server.wechat_jssdk import WeChatJsSdkSigner
-from shuxueshuo_server.review.api import router as review_router
 
 # 本地开发：加载 server/.env
 _env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -26,9 +25,13 @@ def _require_env(name: str) -> str:
     return v
 
 
-app = FastAPI(title="数学说 API", version="0.1.0")
-
-app.include_router(review_router)
+if os.environ.get('REVIEW_BACKEND', 'product') == 'legacy':
+    from shuxueshuo_server.review.api import router as review_router
+    app = FastAPI(title="数学说 API（legacy Review）", version="0.1.0")
+    app.include_router(review_router)
+else:
+    from shuxueshuo_server.product.api import create_app
+    app = create_app()
 
 _signer: WeChatJsSdkSigner | None = None
 

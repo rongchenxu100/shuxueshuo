@@ -116,6 +116,8 @@ choices(builds, 'status', 'initializing queued running succeeded failed interrup
 jobs = table('jobs', uid('build_id'), col('status'), num('execution_epoch', default='0'), uid('active_execution_id', True),
     stamp('lease_expires_at'), stamp('cancel_requested_at'), num('delivery_count', default='0'), obj('retry_budget'))
 unique(jobs, 'build_id')
+sa.Index('ix_jobs_expired_lease', jobs.c.lease_expires_at, jobs.c.id, postgresql_where=sa.text("status = 'running'"))
+sa.Index('ix_batch_items_problem', batch_items.c.problem_id, batch_items.c.batch_id)
 choices(jobs, 'status', 'queued running succeeded failed interrupted cancelled')
 job_executions = table('job_executions', uid('job_id'), num('epoch'), col('worker_id'), col('status'),
     stamp('started_at', False), stamp('heartbeat_at', False), stamp('finished_at'), col('failure_code', nullable=True))

@@ -74,6 +74,7 @@ def grant(c):
     c.exec_driver_sql('REVOKE CREATE ON SCHEMA public FROM PUBLIC')
     c.exec_driver_sql('GRANT USAGE ON SCHEMA public TO product_app')
     c.exec_driver_sql('REVOKE ALL ON ALL TABLES IN SCHEMA public FROM product_app')
+    c.exec_driver_sql('GRANT SELECT ON alembic_version TO product_app')
     for table in m.metadata.tables:
         columns = ','.join('"' + x.name + '"' for x in m.metadata.tables[table].c)
         c.exec_driver_sql(f'REVOKE UPDATE ({columns}) ON "{table}" FROM product_app')

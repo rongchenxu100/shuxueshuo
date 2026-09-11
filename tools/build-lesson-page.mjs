@@ -217,6 +217,11 @@ let html = replaceAll(template, {
 // Portable, isolated HTTP preview. Embed only our compiler-owned local assets;
 // never fetch URLs or rewrite a generated page outside the compiler.
 if (process.argv.includes("--standalone")) {
+  if (process.argv.includes("--product-preview")) {
+    html = html.replace(/\s*<meta property="og:image"[^>]*\/>/, '');
+    html = html.replace(/<header class="lesson-topbar"[^>]*>[\s\S]*?<\/header>/,
+      '<header class="lesson-topbar"><span class="lesson-title">题目解析</span></header>');
+  }
   const readAsset = (url) => {
     const asset = path.resolve(path.dirname(outPath), url.split("?")[0]);
     const root = path.join(repoRoot, "site/assets") + path.sep;

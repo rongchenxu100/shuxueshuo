@@ -1,2 +1,3 @@
 import { ReviewList } from "./review-ui";
-export default function Page() { return <ReviewList />; }
+import { ProductList } from "./product-ui";
+export default function Page() { return process.env.REVIEW_BACKEND === 'legacy' ? <ReviewList /> : <ProductList />; }
