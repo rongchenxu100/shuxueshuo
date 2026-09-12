@@ -42,6 +42,7 @@ services:
       REVIEW_OCR_PYTHON: /app/bin/ocr-python
       SHUXUESHUO_REPO: ${PRODUCT_REPO_HOST:?host repo path required}
       SHUXUESHUO_HOST_HOME: ${PRODUCT_HOST_HOME:?host home path required}
+      SHUXUESHUO_HOST_DATA_DIR: ${PRODUCT_DATA_DIR:?data root required}
       SHUXUESHUO_OCR_IMAGE: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
     ports:
       - "127.0.0.1:${PRODUCT_API_PORT:-8000}:8000"
@@ -92,6 +93,7 @@ services:
       REVIEW_OCR_PYTHON: /app/bin/ocr-python
       SHUXUESHUO_REPO: ${PRODUCT_REPO_HOST:?host repo path required}
       SHUXUESHUO_HOST_HOME: ${PRODUCT_HOST_HOME:?host home path required}
+      SHUXUESHUO_HOST_DATA_DIR: ${PRODUCT_DATA_DIR:?data root required}
       SHUXUESHUO_OCR_IMAGE: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
     volumes:
       - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
@@ -128,6 +130,7 @@ services:
       REVIEW_OCR_PYTHON: /app/bin/ocr-python
       SHUXUESHUO_REPO: ${PRODUCT_REPO_HOST:?host repo path required}
       SHUXUESHUO_HOST_HOME: ${PRODUCT_HOST_HOME:?host home path required}
+      SHUXUESHUO_HOST_DATA_DIR: ${PRODUCT_DATA_DIR:?data root required}
       SHUXUESHUO_OCR_IMAGE: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
     volumes:
       - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo

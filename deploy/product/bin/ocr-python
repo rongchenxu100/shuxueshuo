@@ -1,12 +1,16 @@
 #!/bin/bash
 # In-container OCR entrypoint. Docker daemon interprets -v paths on the host.
+# Must mount the product data root so observation can read work/*/normalized.png.
 set -euo pipefail
 REPO="${SHUXUESHUO_REPO:?SHUXUESHUO_REPO (host repo path) required}"
 HOST_HOME="${SHUXUESHUO_HOST_HOME:?SHUXUESHUO_HOST_HOME required}"
+# Host path for /srv/shuxueshuo (compose sets SHUXUESHUO_HOST_DATA_DIR).
+DATA_DIR="${SHUXUESHUO_HOST_DATA_DIR:-/srv/shuxueshuo}"
 IMAGE="${SHUXUESHUO_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}"
 exec docker run --rm \
   -v "${REPO}:/opt/shuxueshuo:ro" \
   -v "${HOST_HOME}/.paddlex:/root/.paddlex" \
+  -v "${DATA_DIR}:/var/lib/shuxueshuo" \
   -w /opt/shuxueshuo/server \
   -e PADDLE_PDX_MODEL_SOURCE=bos \
   -e PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True \
