@@ -1,8 +1,8 @@
 # VisualStepIR v2：递归 Scope 图形状态设计
 
-状态：`F5-F5B4V COMPLETE`；`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3 NEXT`。
+状态：`F5-F5B4V COMPLETE`；`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3-A/B COMPLETE (Review)`。
 
-2026-09-09：当前优先验证[真实上传与下游重建](online-service-development-plan.md#11-实施顺序)。
+当前优先级以[产品服务与工作台计划](online-service-development-plan.md#11-实施顺序)为准。
 G1 的 LLM 视觉选择不列为必做项；G2 新动画和配音延后。现有确定性图形及交互仍须通过回归。
 
 ## 1. 目标与边界

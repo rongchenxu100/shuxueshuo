@@ -2,12 +2,12 @@
 
 状态：`IMPLEMENTATION`。`F5-F5A COMPLETE`；`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
 `F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4/B4V COMPLETE`；
-`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3 NEXT`。
+`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3-A/B COMPLETE (Review)`。
 
-2026-09-09 优先级调整：以[真实上传与变更重建计划](online-service-development-plan.md#11-实施顺序)
+当前优先级以[产品服务与工作台计划](online-service-development-plan.md#11-实施顺序)
 为当前执行顺序。G1 的 LLM 视觉选择仅保留候选设计，本文涉及 `available_visuals` 和 LLM
 组件选择的合同只适用于未来可选 G1，不是当前生产 wire。G2 新动画及配音延后；
-已有图形、滑块与最短路径交互仍须通过门禁。C1 质量验收保留，但不阻塞 G3 接线。
+已有图形、滑块与最短路径交互仍须通过门禁。C1 质量验收保留，但不阻塞产品服务与工作台接线。
 
 本文是 F5-F5 以及后续 Track G 教学链的统一规范入口。它定义：如何从
 `VerifiedFunctionalPlanExecution` 生成学生可见步骤，如何继续生成 `VisualStepIR` 与动画
@@ -777,7 +777,7 @@ prompt/raw response、evaluation 与 recursive LessonIR。详细合同与各阶�
 - coverage、occurrence、synthetic scenario、semantic hashes 与人工结论作为 regression-only
   fixture 保存，不进入 LLM 输入。
 
-### F5-F5C1：五题教学 LLM 验收（待验收，不阻塞 G3 接线）
+### F5-F5C1：五题教学 LLM 验收（待验收，不阻塞产品服务与工作台接线）
 
 - 先用和平 live `1×3` 对真实 LLM 输出做结构、authority 与教学质量评测，按错误簇优化
   projector、Macro outline（仅 Macro）、prompt/schema 或通用 few-shot；

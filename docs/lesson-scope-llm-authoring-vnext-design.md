@@ -2,14 +2,14 @@
 
 状态：`IMPLEMENTATION`。`F5-F5B0 COMPLETE`；`F5-F5B1 COMPLETE`；
 `F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4 / F5-F5B4V COMPLETE`；
-`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3 NEXT`；`G1 OPTIONAL / NOT SCHEDULED`。
+`F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3-A/B COMPLETE (Review)`；`G1 OPTIONAL / NOT SCHEDULED`。
 
-更新：2026-09-09。
+更新：2026-09-10。
 
-当前执行决策：优先[真实上传与变更重建](online-service-development-plan.md#11-实施顺序)。
+当前执行顺序见[产品服务与工作台计划](online-service-development-plan.md#11-实施顺序)。
 G1 的 LLM 视觉选择不列为必做阶段；本文所有 `available_visuals/visuals` wire、组件选择流程
 及其专项测试均仅是可选未来设计，不是当前生产合同或上线门禁。当前视觉由确定性 Spec/binder
-生成，Lesson LLM wire 继续不含这些字段。G2 新动画与配音延后；C1 质量验收不阻塞 G3 接线。
+生成，Lesson LLM wire 继续不含这些字段。G2 新动画与配音延后；C1 质量验收不阻塞产品服务与工作台接线。
 
 本文只设计：
 
@@ -2114,7 +2114,7 @@ semantic artifact hash 与 human review summary 固化在 `public_capability_c0/
 回归，不进入 Prompt、few-shot 或生成输入。C0 专项 `112 passed`；最终全部非 serial、非 live
 Solver 回归 `2326 passed, 7 skipped`；当前没有 serial 用例。
 
-### 18.9 F5-F5C1：LLM 输出质量迭代与五题扩展（待验收，不阻塞 G3 接线）
+### 18.9 F5-F5C1：LLM 输出质量迭代与五题扩展（待验收，不阻塞产品服务与工作台接线）
 
 先只用和平 `1×3` 做优化闭环：
 

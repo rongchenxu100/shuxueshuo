@@ -1,6 +1,8 @@
-# G3-A 本机真实生成与阶段 Review
+# 本机 Review 运行手册
 
-入口：[运行列表](http://127.0.0.1:3000/review/runs)。独立于作者工作台的 Mock 上传接口。
+入口：[运行列表](http://127.0.0.1:3000/review/runs)。本文描述现有 SQLite/worker/SSE 实现；
+工作台仍是 Mock。目标产品架构见[产品服务架构](product-service-architecture.md)，
+迁移前仍按本文启动，不把 RabbitMQ/Celery 当作已经接通。
 
 ## 启动
 
@@ -23,8 +25,9 @@ npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
 所需配置沿用 `SolverRuntimeConfig`：`DEEPSEEK_API_KEY`、`DOUBAO_API_KEY`、对应的
-base URL/model 配置。密钥不写入 Review 产物。2026-09-10 起 `.env` 与代码默认模型
-统一使用 `deepseek-v4-flash`。Review 求解的 Pass 1 和语义重试均开启 low thinking，
+base URL/model 配置。密钥不写入 Review 产物。当前 `.env` 与求解代码默认模型
+使用 `deepseek-v4-flash`，提取仍使用豆包；DeepSeek 多模态切换尚待实施。该模型别名不代表固定权重版本。
+Review 求解的 Pass 1 和语义重试均开启 low thinking，
 通过 provider 请求选项设置，不增加 prompt 内容；学生讲解仍关闭 thinking。
 不同服务端请显式配置该服务实际支持的模型；失败时不会自动切换模型或 Mock。
 
@@ -40,7 +43,7 @@ OCR 必须预先安装在 `server/.venv-ocr`，并准备现有 Paddle 模型；�
 4. 最终课程页仅在全部阶段验证完成后开放，可在隔离 iframe 或独立窗口操作。
 5. 关闭/刷新浏览器不会取消任务。详情从 SQLite 恢复，SSE 支持 Last-Event-ID，另有轮询兜底。
 6. worker 异常退出后再次启动，将旧 running 标记 interrupted，不重做付费调用。
-   「重新运行」基于原始图片创建新的记录，保留父运行及全部旧产物。queued 任务继续顺序处理。
+   「重新运行」创建独立记录并保留父运行及旧产物；按影响范围重建可复用有效上游。queued 任务继续顺序处理。
 
 `internal/review-runs/` 是 git-ignored 的本机数据目录，可用 `REVIEW_DATA_DIR` 覆盖，
 API 与 worker 必须一致。SQLite 存 run/stage/event，文件目录存 UUID 产物和私有工作文件。
@@ -56,12 +59,11 @@ Host / Origin 仅作附加来源校验，`Forwarded` / `X-Forwarded-*` / `X-Real
 
 - `review-run/v1`、`review-stage/v1`、`review-artifact/v1`、`review-event/v1`。
 - artifact 保存 SHA256、producer、依赖 ID；下载前重新校验 hash，禁止任意路径访问。
-- G3-A 依赖采用保守的「全部先前证据」有向无环图，不做缓存复用；少数显式 raw→request 边
-  直接绑定实际请求。后续 G3-B 可缩小依赖范围，但不能丢失真实消费关系。
+- 原有产物依赖保留审计关联；G3-B 另用明确阶段输入及 manifest 判断失效与复用，
+  不直接把全部审计依赖当作重建范围。
 - 代码/Spec/运行配置版本、实际模型请求、Schema、raw 返回与最终采用内容独立保存。
-  构建源码哈希同时递归覆盖 `internal/llm-prompts/` 和 `internal/schemas/` 的路径与内容；
-  提示词或 Schema 在构建期间修改、增加、删除或改名，均会触发 `build.source_changed`，
-  拒绝登记新页面。仅文件时间变化和 Review 输出产物变化不会改变该源码哈希。
+  全局 `source_version` 只作审计；构建检查使用阶段实际依赖指纹，包含相关 prompt、Schema、Spec 和配置。
+  相关依赖变化触发 `build.source_changed`；无关文件、仅修改时间或 Review 输出不应使整条运行失效。
   执行 journal 在运行中持续导入，文件内容变化生成新 artifact，不覆盖历史版本。
 - Scope Retry、transport retry、语法修复及 deterministic fallback 沿用现有服务合同。
   没有返回内容时不创建假 raw；没有 usage 时显示「未提供」。
@@ -69,8 +71,8 @@ Host / Origin 仅作附加来源校验，`Forwarded` / `X-Forwarded-*` / `X-Real
 - 上传适配不接受题号、GoldCorpusCase、authored selection 或 expected answer。
 - 编译器 `--standalone` 嵌入固定 JS/CSS，不联网加载资源；内部模型文本按文本呈现。
   HTML 以 `sandbox allow-scripts` + CSP 隔离，无 same-origin 权限，不能访问 Review 的 DOM/storage/API。
-- 运行期间源码或 Spec 变化会拒绝登记页面，要求新运行；这是版本防混用，不是 G3-B 局部重建。
-- 本阶段不做编辑、审批、发布、配音、新动画、任务取消、分层复用或生产部署。
+- G3-B 已支持题意 JSON 编辑、预览、修订 CAS 与按影响范围重建；保存修订不自动调用模型。
+- 当前不提供完整人工通过流程、公开发布、配音、新动画、任务取消、跨题缓存或生产任务部署。
 
 ## 验证命令
 
@@ -94,29 +96,16 @@ node --test tools/tests/*.test.mjs
 
 真实外部验收与离线测试分开记录。失败运行是真实联调证据，不得替换为成功 fixture 或删除。
 
-## 2026-09-09 真实验收记录
+## 验收与重建说明
 
-- [全过程 Review：d81a3338](http://127.0.0.1:3000/review/runs/d81a333888bd4b2591ef176dde54ffb8)
-- [独立课程页](http://127.0.0.1:3000/api/review/runs/d81a333888bd4b2591ef176dde54ffb8/page/lesson.html)
-- 从网页上传南开完整单题截图（1152×730），后续所有 rerun 均重做 OCR/模型调用；
-  最终运行没有消费旧的 OCR、题意、Solver 或 Lesson 产物。
-- 九个阶段成功，总耗时 261 秒；真实题意抽取 1 次，Solver 2 次调用（含 Scope Retry），
-  教学 1 次调用。讲解采用混合结果：`ii` 为 deterministic fallback，其余 Scope 为 LLM，
-  并有独立教学材料拆分修复；完整拒绝/修复原因见「学生讲解 → 校验」。
-- 110 份登记产物逐一校验 SHA256，并验证依赖只指向本运行的既有产物。
-- 浏览器验证：运行中刷新恢复、失败证据/历史 rerun、独立打开课程页、iframe 内 G/E 滑块
-  联动与 SVG 更新、计算后续步骤 G/F/D′ 共线取等。未观察到浏览器 console error。
-- 离线：Review API/worker 26 passed；Solver 全量 2413 passed（不运行 live_llm；serial 无匹配）；
-  前端 83 passed，typecheck/lint/build 通过；页面工具 152 passed；`git diff --check` 通过。
-- 真实生成页仍保留课程质量 Review 项：题号括号/分值单位重复包装、部分图中 D 标签重复。
-  这不是 fixture 页面复用；它们在新规划拓扑下暴露，后续教学/视觉质量修复应保留这次产物作为证据，
-  不覆盖本次成功运行，也不等同于已经完成五题课程质量验收。
+当前修订、阶段 manifest、接口和有效验收摘要见[G3-B 说明](review-rebuild-g3-b.md)。
+本手册不维护旧运行的耗时、测试计数及已过期的中间问题清单；历史代码由 Git 追溯，原始运行证据保留。
 
 ## 从指定阶段重跑
 
 详情页每个阶段提供“从此阶段重新运行”。请求为 `POST /api/review/runs/{id}/rerun?from_stage=visual`，无参数仍为整题重跑。支持 source、observation、extraction、projection、solver、evidence、lesson、visual、page。
 
-重跑会创建子记录，保留 parent_run_id/from_stage。所选阶段之前必须全部成功，且恢复材料存在；此前产物按原始字节复制、验证 SHA256，记录 reused_from，依赖 ID 映射到子记录。当前及后续阶段重新执行，旧运行保持不变，失败时不展示旧页面。尚未结束的运行不能启动阶段重跑。源图标准化和来源身份准备开销很小，OCR 重跑时也会刷新来源配置；不会重用旧 OCR 输出。
+重跑会创建子记录，保留 parent_run_id/from_stage。实际起点受依赖计划约束：若需比所选阶段更早执行，返回 409 并要求查看影响范围。可复用前缀必须成功且恢复材料存在；此前产物按原始字节复制、验证 SHA256，记录 reused_from，依赖 ID 映射到子记录。当前及后续阶段重新执行，旧运行保持不变，失败时不展示旧页面。尚未结束的运行不能启动阶段重跑。源图标准化和来源身份准备开销很小，OCR 重跑时也会刷新来源配置；不会重用旧 OCR 输出。
 
 可恢复边界：
 
@@ -132,6 +121,6 @@ node --test tools/tests/*.test.mjs
 
 OCR 和抽取完成后会将独立产物库注册为 ZIP 检查点，每项仍按内容哈希校验。恢复时按哈希在新运行目录读取，不访问历史 locator，也不修改 Context 身份。旧记录若还留有原产物库，首次重跑时将其纳入检查点；旧记录没有完整教学证据输入时，教学证据按钮显示不可用，需从求解阶段重跑一次补齐。不能用旧 Snapshot 冒充重新执行的证据投影。
 
-图形/页面重跑不需要 OCR 环境或模型密钥，也不调用模型。更早的重跑会继续到后续模型阶段，页面注明这一点。Worker 每次派生新解释器加载当前代码；运行开始和页面完成时比对代码版本，期间代码变化会明确失败。
+实际计划仅执行图形/页面时，不需要 OCR 环境或模型密钥，也不调用模型；若失效或缺少恢复证据要求提前，按预览计划执行。更早的重跑会继续到后续模型阶段，页面注明这一点。Worker 每次派生新解释器加载当前代码；运行开始、阶段前后和最终登记检查目标依赖，相关变化会明确失败。
 
 复用内容中的原调用 ID、路径是历史记录，保留原字节；顶层 reused_from 和 dependency 引用说明其来自哪条运行。新阶段使用新的调用审计和代码版本。此功能以 Review 的九个流水线阶段为边界，不等同于重新执行某一条内部 LLM attempt 或单个数学 Function。
