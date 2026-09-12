@@ -33,3 +33,21 @@ def test_server_container_allows_docker_nat_peer(monkeypatch):
     check_peer(_conn('api', '172.18.0.4'))
     with pytest.raises(Forbidden, match='access.loopback_only'):
         check_peer(_conn('evil.example', '172.18.0.1'))
+
+
+def test_server_container_allows_public_studio_origin(monkeypatch):
+    monkeypatch.setenv('PRODUCT_IN_CONTAINER', '1')
+    monkeypatch.setenv('PRODUCT_MODE', 'server')
+    monkeypatch.delenv('PRODUCT_PUBLIC_ORIGINS', raising=False)
+    check_peer(_conn('127.0.0.1', '172.18.0.1', origin='https://studio.shuxueshuo.com'))
+    with pytest.raises(Forbidden, match='access.origin_rejected'):
+        check_peer(_conn('127.0.0.1', '172.18.0.1', origin='https://evil.example'))
+    monkeypatch.setenv('PRODUCT_PUBLIC_ORIGINS', 'https://studio.shuxueshuo.com,https://other.example')
+    check_peer(_conn('127.0.0.1', '172.18.0.1', origin='https://other.example'))
+
+
+def test_local_rejects_public_studio_origin(monkeypatch):
+    monkeypatch.delenv('PRODUCT_IN_CONTAINER', raising=False)
+    monkeypatch.setenv('PRODUCT_MODE', 'local')
+    with pytest.raises(Forbidden, match='access.origin_rejected'):
+        check_peer(_conn('127.0.0.1', '127.0.0.1', origin='https://studio.shuxueshuo.com'))

@@ -37,6 +37,7 @@ services:
       PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
       PRODUCT_API_PORT: ${PRODUCT_API_PORT:-8000}
       PRODUCT_FRONTEND_PORT: ${PRODUCT_FRONTEND_PORT:-3000}
+      PRODUCT_PUBLIC_ORIGINS: ${PRODUCT_PUBLIC_ORIGINS:-https://studio.shuxueshuo.com}
       REVIEW_BACKEND: product
       REVIEW_OCR_PYTHON: /app/bin/ocr-python
       SHUXUESHUO_REPO: ${PRODUCT_REPO_HOST:?host repo path required}

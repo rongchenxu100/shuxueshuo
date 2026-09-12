@@ -72,7 +72,7 @@ P1 `install` 只启动 PostgreSQL。包含 `PRODUCT_RABBITMQ_IMAGE` 与 `PRODUCT
 /absolute/path/release-amd64/scripts/manage.sh --mode server --data-dir /srv/shuxueshuo services-stop
 ```
 
-`services-stop` 停止 api/worker/publisher/rabbitmq，PostgreSQL 保持运行。服务器暂不启 Next 前端；API 监听 `127.0.0.1:8000`（`runtime.env` 的 `API_PORT`）。
+`services-stop` 停止 api/worker/publisher/rabbitmq，PostgreSQL 保持运行。服务器暂不在 Compose 内启 Next；Studio 前端仍按 [frontend-studio-workbench.md](../frontend-studio-workbench.md) 单独部署到 `127.0.0.1:3000`，由 `studio.shuxueshuo.com` Nginx 反代。产品 API 默认 `127.0.0.1:8000`（`runtime.env` 的 `API_PORT`）。
 容器内 OCR 走镜像自带的 `/app/bin/ocr-python`（经 `docker.sock` 调宿主机 OCR 镜像）；宿主机 `.venv-ocr` 封装仍可用于手工冒烟。
 
 普通管理命令自动读取实例保存的 release 路径。若镜像尚未加载，验证离线包哈希再 load。

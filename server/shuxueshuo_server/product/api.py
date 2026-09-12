@@ -25,6 +25,12 @@ router = APIRouter(prefix='/api/product/v1')
 LOOPBACK = {'127.0.0.1', '::1', 'localhost', 'testclient', 'testserver'}
 # Compose service DNS used by admin doctor / in-network probes on the server.
 SERVER_INTERNAL_HOSTS = {'api'}
+DEFAULT_PUBLIC_ORIGINS = 'https://studio.shuxueshuo.com'
+
+
+def _public_origins():
+    raw = os.environ.get('PRODUCT_PUBLIC_ORIGINS', DEFAULT_PUBLIC_ORIGINS)
+    return {part.strip() for part in raw.split(',') if part.strip()}
 
 
 def check_peer(connection):
@@ -47,6 +53,8 @@ def check_peer(connection):
     origin = connection.headers.get('origin')
     allowed = {f'http://{name}:{port}' for name in ('localhost', '127.0.0.1') for port in
                (os.environ.get('PRODUCT_FRONTEND_PORT', '3000'), os.environ.get('PRODUCT_API_PORT', '8000'))}
+    if server_container:
+        allowed |= _public_origins()
     if origin and origin not in allowed:
         raise Forbidden('access.origin_rejected')
 
