@@ -36,8 +36,19 @@ export const post = <T>(path: string, body: unknown, key = crypto.randomUUID()) 
 });
 
 export function websocketUrl() {
-  const origin = process.env.NEXT_PUBLIC_PRODUCT_WS_ORIGIN ?? 'ws://127.0.0.1:8000';
+  // Local: connect to product API on loopback. Production: same host as the page
+  // (Nginx proxies /api/product/ including WebSocket).
+  let origin = process.env.NEXT_PUBLIC_PRODUCT_WS_ORIGIN ?? 'ws://127.0.0.1:8000';
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (!['127.0.0.1', 'localhost', '[::1]'].includes(host)) {
+      origin = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}`;
+    }
+  }
   const url = new URL('/api/product/v1/ws', origin);
-  if (!['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname) || !['ws:', 'wss:'].includes(url.protocol)) throw new Error('WebSocket 地址必须是本机服务');
+  if (!['ws:', 'wss:'].includes(url.protocol)) throw new Error('WebSocket 协议无效');
+  const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname);
+  const sameSite = typeof window !== 'undefined' && url.hostname === window.location.hostname;
+  if (!loopback && !sameSite) throw new Error('WebSocket 地址必须是本机服务或当前站点');
   return url.toString();
 }

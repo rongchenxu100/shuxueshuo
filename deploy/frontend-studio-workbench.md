@@ -21,10 +21,10 @@ CentOS 服务器访问 Docker Hub 常超时，在 Mac 上构建后上传。
 
 ### 1. Mac 本地构建
 
-使用仓库 **main** 上的 `frontend/`（不要再用过期 worktree）：
+使用仓库 **main** 上的 `frontend/`（不要再用过期 worktree）。上传前在本机设置 `export DEPLOY_SSH='<user>@<ecs-host>'`（勿把真实 IP 写入仓库）。
 
 ```bash
-cd /Users/haorong/projects/code/shuxueshuo/frontend
+cd /path/to/shuxueshuo/frontend
 
 # WS 地址在构建期内联；生产必须指向 studio 域名
 docker buildx build \
@@ -35,13 +35,13 @@ docker buildx build \
   .
 
 docker save shuxueshuo-studio:latest | gzip > /tmp/shuxueshuo-studio.tar.gz
-scp /tmp/shuxueshuo-studio.tar.gz ronghao@39.107.235.86:/home/ronghao/
+scp /tmp/shuxueshuo-studio.tar.gz "${DEPLOY_SSH:?请先 export DEPLOY_SSH=user@ecs-host}:shuxueshuo-studio.tar.gz"
 ```
 
 ### 2. 服务器加载并启动
 
 ```bash
-docker load < /home/ronghao/shuxueshuo-studio.tar.gz
+docker load < "$HOME/shuxueshuo-studio.tar.gz"
 docker rm -f shuxueshuo-studio 2>/dev/null || true
 
 # 不要设置 WORKSPACE_MODE=mock
@@ -68,15 +68,15 @@ curl -sSI http://127.0.0.1:3000 | head
 
 ```bash
 # Mac
-cd /Users/haorong/projects/code/shuxueshuo/frontend
+cd /path/to/shuxueshuo/frontend
 docker buildx build --platform linux/amd64 \
   --build-arg NEXT_PUBLIC_PRODUCT_WS_ORIGIN=wss://studio.shuxueshuo.com \
   -t shuxueshuo-studio:latest --load .
 docker save shuxueshuo-studio:latest | gzip > /tmp/shuxueshuo-studio.tar.gz
-scp /tmp/shuxueshuo-studio.tar.gz ronghao@39.107.235.86:/home/ronghao/
+scp /tmp/shuxueshuo-studio.tar.gz "${DEPLOY_SSH:?请先 export DEPLOY_SSH=user@ecs-host}:shuxueshuo-studio.tar.gz"
 
 # 服务器
-docker load < /home/ronghao/shuxueshuo-studio.tar.gz
+docker load < "$HOME/shuxueshuo-studio.tar.gz"
 docker rm -f shuxueshuo-studio
 docker run -d --name shuxueshuo-studio --restart unless-stopped \
   -p 127.0.0.1:3000:3000 shuxueshuo-studio:latest
@@ -97,17 +97,16 @@ docker tag shuxueshuo-studio:latest shuxueshuo-studio:$(date +%Y%m%d-%H%M)
 - `location /` → `http://127.0.0.1:3000`
 
 ```bash
-sudo cp /home/ronghao/code/shuxueshuo/deploy/nginx/studio.shuxueshuo.com.conf \
+sudo cp "$HOME/code/shuxueshuo/deploy/nginx/studio.shuxueshuo.com.conf" \
   /etc/nginx/conf.d/studio.shuxueshuo.com.conf
-# 若仓库未更新，也可从发布机 scp 该文件
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-证书：
+证书路径与仓库内 Nginx 模板保持一致（按服务器实际部署用户调整；勿把私钥提交进 Git）：
 
 ```text
-/home/ronghao/cert/studio-shuxueshuo/studio.shuxueshuo.com.pem
-/home/ronghao/cert/studio-shuxueshuo/studio.shuxueshuo.com.key
+$HOME/cert/studio-shuxueshuo/studio.shuxueshuo.com.pem
+$HOME/cert/studio-shuxueshuo/studio.shuxueshuo.com.key
 ```
 
 仅对公网开放 80/443；**不要**长期对公网暴露 3000/8000。

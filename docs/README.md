@@ -8,7 +8,7 @@
 - [在线服务开发计划](online-service-development-plan.md)：一期拍照解析服务的 P1–P5 技术实施顺序和验收标准。
 - [产品服务架构](product-service-architecture.md)：PostgreSQL/Alembic、RabbitMQ/Celery、HTTP/WebSocket、存储、页面与学生空间的统一设计入口；待实施。
 - [产品数据库设计](product-database-design.md)：用户/工作空间、题目与修订、构建/产物、空库初始化及目录设计；P1 已实现，本地验收通过，服务器完整验收待完成。
-- [P1 安装与管理](../deploy/product/README.md)、[内部接口](product-p1-interfaces.md)、[验收记录](product-p1-acceptance.md)：原生 PostgreSQL 本地安装、服务器发布包、备份恢复和 P2 接入边界。
+- [P1 安装与管理](../deploy/product/README.md)、[服务器发布手册](../deploy/release.md)、[内部接口](product-p1-interfaces.md)、[验收记录](product-p1-acceptance.md)：原生 PostgreSQL 本地安装、服务器发布包、备份恢复和 P2 接入边界。
 - [本机 Review 手册](review-runs-local.md)：迁移前现有服务的启动、操作与恢复。
 - [Review 修订与重建](review-rebuild-g3-b.md)：已实现能力与有效验收摘要。
 - `problem-extraction-context-design.md`：当前图片提取、验证、投影与 Solver 接线边界。
