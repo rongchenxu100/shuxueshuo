@@ -28,13 +28,39 @@ docker pull --platform "$platform" "$postgres"
 docker buildx build --load --provenance=false --sbom=false --platform "$platform" \
   -f "$source_tree/repo/deploy/product/Dockerfile.admin" \
   -t "shuxueshuo-product-admin:$release" "$source_tree/repo"
-admin_id=$(docker image inspect --format '{{.Id}}' "shuxueshuo-product-admin:$release")
-postgres_id=$(docker image inspect --format '{{.Id}}' "$postgres")
 # Cross-arch Desktop pulls only one platform; save must pass --platform or it looks for the
 # missing host-arch digest and fails with "unable to create manifests file".
 # Do not retag the digest ref first — that hits the same Desktop bug on Apple Silicon.
 docker save --platform "$platform" -o "$output/images.tar" \
   "shuxueshuo-product-admin:$release" "$postgres"
+# Desktop inspect Id may be an index digest that vanishes after load. Record content IDs
+# embedded in images.tar — those are what the server can docker inspect after load.
+eval "$(python3 - "$output/images.tar" "shuxueshuo-product-admin:$release" <<'PY'
+import json, shlex, sys, tarfile
+
+def digest_of(config: str) -> str:
+    name = config.split('/')[-1]
+    if name.endswith('.json'):
+        name = name[:-5]
+    return name if name.startswith('sha256:') else f'sha256:{name}'
+
+with tarfile.open(sys.argv[1]) as tar:
+    manifest = json.load(tar.extractfile('manifest.json'))
+admin = postgres = None
+for item in manifest:
+    tags = [t for t in (item.get('RepoTags') or []) if t]
+    digest = digest_of(item['Config'])
+    if any(t == sys.argv[2] or t.endswith('/' + sys.argv[2]) for t in tags):
+        admin = digest
+    elif any('postgres' in t for t in tags) or not tags:
+        postgres = digest
+if not admin or not postgres:
+    raise SystemExit(f'could not resolve image digests from tar: admin={admin!r} postgres={postgres!r} manifest={manifest!r}')
+print(f'admin_id={shlex.quote(admin)}')
+print(f'postgres_id={shlex.quote(postgres)}')
+PY
+)"
+[[ "$admin_id" == sha256:* && "$postgres_id" == sha256:* ]] || fail '发布包镜像内容 ID 无效'
 cp -R "$source_tree/repo/deploy/product" "$output/scripts"
 printf '%s\n' "PRODUCT_RELEASE_ID=$release" "PRODUCT_PLATFORM=$platform" "PRODUCT_ADMIN_IMAGE=$admin_id" \
   "PRODUCT_POSTGRES_IMAGE=$postgres_id" "PRODUCT_POSTGRES_MANIFEST=$postgres" \
