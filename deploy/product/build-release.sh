@@ -24,11 +24,14 @@ tar -xf "$source_tree/source.tar" -C "$source_tree/repo"
 mkdir -p "$output"
 postgres='postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f'
 docker pull --platform "$platform" "$postgres"
-docker buildx build --load --platform "$platform" -f "$source_tree/repo/deploy/product/Dockerfile.admin" \
+# Disable attestations: Docker Desktop often breaks tag/save with missing attestation digests.
+docker buildx build --load --provenance=false --sbom=false --platform "$platform" \
+  -f "$source_tree/repo/deploy/product/Dockerfile.admin" \
   -t "shuxueshuo-product-admin:$release" "$source_tree/repo"
+# Tag by reference, not content ID; ID-based retag can fail on Desktop after digest pulls.
+docker tag "$postgres" "shuxueshuo-product-postgres:$release"
 admin_id=$(docker image inspect --format '{{.Id}}' "shuxueshuo-product-admin:$release")
-postgres_id=$(docker image inspect --format '{{.Id}}' "$postgres")
-docker tag "$postgres_id" "shuxueshuo-product-postgres:$release"
+postgres_id=$(docker image inspect --format '{{.Id}}' "shuxueshuo-product-postgres:$release")
 docker save -o "$output/images.tar" "shuxueshuo-product-admin:$release" "shuxueshuo-product-postgres:$release"
 cp -R "$source_tree/repo/deploy/product" "$output/scripts"
 printf '%s\n' "PRODUCT_RELEASE_ID=$release" "PRODUCT_PLATFORM=$platform" "PRODUCT_ADMIN_IMAGE=$admin_id" \
