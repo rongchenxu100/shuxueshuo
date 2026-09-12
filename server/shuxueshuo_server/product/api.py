@@ -23,13 +23,29 @@ from .repositories import scoped, row, problem
 
 router = APIRouter(prefix='/api/product/v1')
 LOOPBACK = {'127.0.0.1', '::1', 'localhost', 'testclient', 'testserver'}
+# Compose service DNS used by admin doctor / in-network probes on the server.
+SERVER_INTERNAL_HOSTS = {'api'}
 
 
 def check_peer(connection):
-    if not connection.client or connection.client.host not in LOOPBACK or connection.url.hostname not in LOOPBACK:
+    """Local: real loopback peer. Server containers: host publish is 127.0.0.1; Docker NATs the peer."""
+    if not connection.client:
+        raise Forbidden('access.loopback_only')
+    host = connection.url.hostname
+    client = connection.client.host
+    server_container = (
+        os.environ.get('PRODUCT_IN_CONTAINER') == '1'
+        and os.environ.get('PRODUCT_MODE', 'local') == 'server'
+    )
+    if host in LOOPBACK:
+        if client not in LOOPBACK and not server_container:
+            raise Forbidden('access.loopback_only')
+    elif server_container and host in SERVER_INTERNAL_HOSTS:
+        pass
+    else:
         raise Forbidden('access.loopback_only')
     origin = connection.headers.get('origin')
-    allowed = {f'http://{host}:{port}' for host in ('localhost', '127.0.0.1') for port in
+    allowed = {f'http://{name}:{port}' for name in ('localhost', '127.0.0.1') for port in
                (os.environ.get('PRODUCT_FRONTEND_PORT', '3000'), os.environ.get('PRODUCT_API_PORT', '8000'))}
     if origin and origin not in allowed:
         raise Forbidden('access.origin_rejected')

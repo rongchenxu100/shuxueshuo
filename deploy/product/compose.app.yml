@@ -35,6 +35,8 @@ services:
       PRODUCT_DATA_DIR: /var/lib/shuxueshuo
       PRODUCT_INSTANCE: ${PRODUCT_INSTANCE:-server}
       PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      PRODUCT_API_PORT: ${PRODUCT_API_PORT:-8000}
+      PRODUCT_FRONTEND_PORT: ${PRODUCT_FRONTEND_PORT:-3000}
       REVIEW_BACKEND: product
       REVIEW_OCR_PYTHON: /app/bin/ocr-python
       SHUXUESHUO_REPO: ${PRODUCT_REPO_HOST:?host repo path required}
@@ -83,6 +85,8 @@ services:
       PRODUCT_DATA_DIR: /var/lib/shuxueshuo
       PRODUCT_INSTANCE: ${PRODUCT_INSTANCE:-server}
       PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      PRODUCT_API_PORT: ${PRODUCT_API_PORT:-8000}
+      PRODUCT_FRONTEND_PORT: ${PRODUCT_FRONTEND_PORT:-3000}
       REVIEW_BACKEND: product
       REVIEW_OCR_PYTHON: /app/bin/ocr-python
       SHUXUESHUO_REPO: ${PRODUCT_REPO_HOST:?host repo path required}
@@ -109,16 +113,25 @@ services:
   publisher:
     image: ${PRODUCT_APP_IMAGE:?fixed app image required}
     user: "${PRODUCT_UID:-1000}:${PRODUCT_GID:-1000}"
+    group_add:
+      - "${PRODUCT_DOCKER_GID:?docker socket group required}"
     environment:
       PRODUCT_IN_CONTAINER: "1"
       PRODUCT_MODE: server
       PRODUCT_DATA_DIR: /var/lib/shuxueshuo
       PRODUCT_INSTANCE: ${PRODUCT_INSTANCE:-server}
       PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      PRODUCT_API_PORT: ${PRODUCT_API_PORT:-8000}
+      PRODUCT_FRONTEND_PORT: ${PRODUCT_FRONTEND_PORT:-3000}
       REVIEW_BACKEND: product
+      REVIEW_OCR_PYTHON: /app/bin/ocr-python
+      SHUXUESHUO_REPO: ${PRODUCT_REPO_HOST:?host repo path required}
+      SHUXUESHUO_HOST_HOME: ${PRODUCT_HOST_HOME:?host home path required}
+      SHUXUESHUO_OCR_IMAGE: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
     volumes:
       - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
       - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     working_dir: /app/server
     command: ["python", "-m", "shuxueshuo_server.product.transport", "publisher"]
     depends_on:
