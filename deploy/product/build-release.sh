@@ -23,16 +23,18 @@ mkdir "$source_tree/repo"
 tar -xf "$source_tree/source.tar" -C "$source_tree/repo"
 mkdir -p "$output"
 postgres='postgres:17.10-bookworm@sha256:9b18b78397054fce88a9552e9d5a3ad5bb7fd258c5b3cc1c5028e46373d6ea8f'
+# Pin by tag at pull time; release.env records the loadable content digest from images.tar.
+rabbitmq='rabbitmq:4.3.2'
 docker pull --platform "$platform" "$postgres"
+docker pull --platform "$platform" "$rabbitmq"
 # Disable attestations: Docker Desktop often breaks tag/save with missing attestation digests.
 docker buildx build --load --provenance=false --sbom=false --platform "$platform" \
   -f "$source_tree/repo/deploy/product/Dockerfile.admin" \
   -t "shuxueshuo-product-admin:$release" "$source_tree/repo"
 # Cross-arch Desktop pulls only one platform; save must pass --platform or it looks for the
 # missing host-arch digest and fails with "unable to create manifests file".
-# Do not retag the digest ref first — that hits the same Desktop bug on Apple Silicon.
 docker save --platform "$platform" -o "$output/images.tar" \
-  "shuxueshuo-product-admin:$release" "$postgres"
+  "shuxueshuo-product-admin:$release" "$postgres" "$rabbitmq"
 # Desktop inspect Id may be an index digest that vanishes after load. Record content IDs
 # embedded in images.tar — those are what the server can docker inspect after load.
 eval "$(python3 - "$output/images.tar" "shuxueshuo-product-admin:$release" <<'PY'
@@ -46,24 +48,31 @@ def digest_of(config: str) -> str:
 
 with tarfile.open(sys.argv[1]) as tar:
     manifest = json.load(tar.extractfile('manifest.json'))
-admin = postgres = None
+admin = postgres = rabbit = None
 for item in manifest:
     tags = [t for t in (item.get('RepoTags') or []) if t]
     digest = digest_of(item['Config'])
+    joined = ' '.join(tags)
     if any(t == sys.argv[2] or t.endswith('/' + sys.argv[2]) for t in tags):
         admin = digest
-    elif any('postgres' in t for t in tags) or not tags:
+    elif 'rabbitmq' in joined:
+        rabbit = digest
+    elif 'postgres' in joined:
         postgres = digest
-if not admin or not postgres:
-    raise SystemExit(f'could not resolve image digests from tar: admin={admin!r} postgres={postgres!r} manifest={manifest!r}')
+if not admin or not postgres or not rabbit:
+    raise SystemExit(
+        f'could not resolve image digests from tar: admin={admin!r} postgres={postgres!r} '
+        f'rabbitmq={rabbit!r} manifest={manifest!r}')
 print(f'admin_id={shlex.quote(admin)}')
 print(f'postgres_id={shlex.quote(postgres)}')
+print(f'rabbitmq_id={shlex.quote(rabbit)}')
 PY
 )"
-[[ "$admin_id" == sha256:* && "$postgres_id" == sha256:* ]] || fail '发布包镜像内容 ID 无效'
+[[ "$admin_id" == sha256:* && "$postgres_id" == sha256:* && "$rabbitmq_id" == sha256:* ]] || fail '发布包镜像内容 ID 无效'
 cp -R "$source_tree/repo/deploy/product" "$output/scripts"
 printf '%s\n' "PRODUCT_RELEASE_ID=$release" "PRODUCT_PLATFORM=$platform" "PRODUCT_ADMIN_IMAGE=$admin_id" \
   "PRODUCT_POSTGRES_IMAGE=$postgres_id" "PRODUCT_POSTGRES_MANIFEST=$postgres" \
+  "PRODUCT_RABBITMQ_IMAGE=$rabbitmq_id" "PRODUCT_RABBITMQ_MANIFEST=$rabbitmq" \
   "PRODUCT_ALEMBIC_REVISION=0002_product_runtime_indexes" "PRODUCT_SOURCE_REVISION=$source_revision" > "$output/release.env"
 checksum "$output/images.tar" > "$output/images.sha256"
 # Hash all delivered scripts/configuration; server checks these before running a release.

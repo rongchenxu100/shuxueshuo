@@ -155,14 +155,25 @@ def stop(runtime):
 
 
 def execute(settings, operation):
-    if settings.mode != 'local': raise ProductError('runtime.local_only')
+    if settings.mode == 'server':
+        from .server_runtime import execute as execute_server
+        return execute_server(settings, operation)
+    if settings.mode != 'local':
+        raise ProductError('runtime.local_only')
     runtime = RuntimeConfig.load(settings, initialize=operation == 'services-install')
     if operation == 'services-install':
         verify_dependencies(runtime)
         database.migrate(settings)
         broker.configure(runtime)
         return {'ok': True}
-    if operation == 'services-start': return start(runtime)
-    if operation == 'services-stop': return stop(runtime)
-    if operation == 'services-doctor': return doctor(runtime)
-    return {'processes': process_state(runtime), 'broker_running': broker.status(runtime), 'postgres_running': native.status(settings)}
+    if operation == 'services-start':
+        return start(runtime)
+    if operation == 'services-stop':
+        return stop(runtime)
+    if operation == 'services-doctor':
+        return doctor(runtime)
+    return {
+        'processes': process_state(runtime),
+        'broker_running': broker.status(runtime),
+        'postgres_running': native.status(settings),
+    }

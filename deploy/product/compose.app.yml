@@ -1,0 +1,33 @@
+# P2 application-side services. PostgreSQL remains in compose.yml.
+# RabbitMQ is the first server P2 service; API/Worker/publisher join later via Dockerfile.app.
+services:
+  rabbitmq:
+    image: ${PRODUCT_RABBITMQ_IMAGE:?fixed RabbitMQ image required}
+    environment:
+      RABBITMQ_DEFAULT_USER: ${PRODUCT_BROKER_USER:?broker user required}
+      RABBITMQ_DEFAULT_PASS: ${PRODUCT_BROKER_PASSWORD:?broker password required}
+      RABBITMQ_DEFAULT_VHOST: ${PRODUCT_BROKER_VHOST:?broker vhost required}
+      RABBITMQ_ERLANG_COOKIE: ${PRODUCT_BROKER_COOKIE:?broker cookie required}
+    ports:
+      - "127.0.0.1:${PRODUCT_BROKER_PORT:-5672}:5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+volumes:
+  rabbitmq_data:
+    name: shuxueshuo-product-${PRODUCT_INSTANCE:-server}_rabbitmq_data
+    labels:
+      product.data-root: ${PRODUCT_DATA_DIR}
+      product.instance: ${PRODUCT_INSTANCE:-server}

@@ -34,6 +34,7 @@ macOS 默认数据目录为 `$HOME/Library/Application Support/shuxueshuo/local`
 
 服务器预装 Docker/Compose，不要求 uv/Python。构建机需要 Docker buildx、Python 3；更新依赖锁时使用 uv。
 管理镜像基于固定 digest 的 PostgreSQL 17.10 bookworm，包含 pg_dump/pg_restore；Python 包使用锁定版本和哈希。
+P2 发布包额外包含固定平台的 RabbitMQ 4.3.2 镜像；API/Worker 应用镜像仍待后续 `Dockerfile.app` 交付。
 系统包在镜像构建时安装，交付以生成的镜像内容 ID 固定；不宣称跨时间重建得到逐字节相同的系统层。
 
 发布前必须提交所有修改和未跟踪文件，脚本在调用 Docker 前拒绝脏工作树。镜像构建和交付脚本均来自同一提交的
@@ -53,6 +54,25 @@ macOS 默认数据目录为 `$HOME/Library/Application Support/shuxueshuo/local`
 /absolute/path/release-amd64/scripts/server/install.sh --release /absolute/path/release-amd64 --data-dir /srv/shuxueshuo
 /absolute/path/release-amd64/scripts/manage.sh --mode server --data-dir /srv/shuxueshuo doctor
 ```
+
+### 服务器 P2：RabbitMQ（消息中间件）
+
+P1 `install` 只启动 PostgreSQL。包含 `PRODUCT_RABBITMQ_IMAGE` 的发布包可继续安装 broker：
+
+```bash
+# 生成 /srv/shuxueshuo/config/runtime.env（broker 密码、OCR 路径等）
+/absolute/path/release-amd64/scripts/manage.sh --mode server --data-dir /srv/shuxueshuo \
+  --release /absolute/path/release-amd64 services-install
+
+# 启动 Compose 中的 rabbitmq（仅 127.0.0.1:5672），并做 DB+broker 自检
+/absolute/path/release-amd64/scripts/manage.sh --mode server --data-dir /srv/shuxueshuo services-start
+/absolute/path/release-amd64/scripts/manage.sh --mode server --data-dir /srv/shuxueshuo services-doctor
+/absolute/path/release-amd64/scripts/manage.sh --mode server --data-dir /srv/shuxueshuo services-status
+/absolute/path/release-amd64/scripts/manage.sh --mode server --data-dir /srv/shuxueshuo services-stop
+```
+
+`services-stop` 只停止 RabbitMQ，PostgreSQL 保持运行。API/Worker/publisher/前端的服务器容器尚未交付；本地仍用 `local/install-services.sh` 与原生进程。
+OCR 继续使用宿主机 `server/.venv-ocr/bin/python` Docker 封装，路径写入 `runtime.env` 的 `OCR_PYTHON`。
 
 普通管理命令自动读取实例保存的 release 路径。若镜像尚未加载，验证离线包哈希再 load。
 数据库仅映射 `127.0.0.1:5432`，可通过 `--port` 修改；持久卷名绑定实例和数据根，不复用其他实例的卷。
