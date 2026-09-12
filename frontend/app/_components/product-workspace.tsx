@@ -100,7 +100,9 @@ export function ProductWorkspace() {
       if (result.kind === 'ambiguous') { setCandidates(result); return; }
       localStorage.removeItem(pendingUploadKey); pendingRef.current = null; setPending(null); setCandidates(null);
       showProblem(result.problem);
-      setNotice(result.reused ? '已找到相同图片，引用已有题目，没有重复生成。' : '图片已接收，正在为你生成解析。');
+      setNotice(result.reused
+        ? '已找到相同图片，引用已有题目，没有重复生成。'
+        : '图片已接收，正在为你生成解析。');
       await loadList();
     } catch (e) { setError(message(e)); }
     finally { inFlight.current = false; setBusy(false); }

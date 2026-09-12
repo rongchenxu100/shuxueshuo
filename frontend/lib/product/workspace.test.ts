@@ -54,13 +54,25 @@ describe('workspace upload recovery', () => {
     expect(save).toHaveBeenCalledWith(expect.objectContaining({ upload: uploaded }));
   });
 
-  it('references duplicates, including failed or unbuilt problems, without automatically generating', async () => {
-    for (const latest of [buildId, null]) {
-      const fetcher = vi.fn().mockResolvedValue(reply({ ...problem, latest_build_id: latest })); vi.stubGlobal('fetch', fetcher);
+  it('skips rebuild only when a reused image already has a live or successful build', async () => {
+    const newBuild = '77777777-7777-4777-8777-777777777777';
+    for (const status of ['succeeded', 'queued', 'running'] as const) {
+      const fetcher = vi.fn().mockResolvedValue(reply({ ...problem, latest_build_status: status }));
+      vi.stubGlobal('fetch', fetcher);
       const result = await continueUpload({ ...initial(), batch_id: batchId, upload: { ...uploaded, status: 'reused' } }, null, vi.fn());
-      expect(result).toMatchObject({ kind: 'accepted', reused: true, problem: { latest_build_id: latest } });
+      expect(result).toMatchObject({ kind: 'accepted', reused: true, problem: { latest_build_id: buildId } });
       expect(fetcher).toHaveBeenCalledTimes(1);
       expect(fetcher.mock.calls[0][1]?.method).toBeUndefined();
+    }
+    for (const status of ['failed', 'interrupted', 'cancelled', null] as const) {
+      const fetcher = vi.fn(async (url: string) => {
+        if (url.endsWith('/builds')) return reply({ build_id: newBuild });
+        return reply({ ...problem, latest_build_id: status === null ? null : buildId, latest_build_status: status });
+      });
+      vi.stubGlobal('fetch', fetcher);
+      const result = await continueUpload({ ...initial(), batch_id: batchId, upload: { ...uploaded, status: 'reused' } }, null, vi.fn());
+      expect(result).toMatchObject({ kind: 'accepted', reused: false, problem: { latest_build_id: newBuild } });
+      expect(fetcher.mock.calls.some(([url]) => String(url).endsWith('/builds'))).toBe(true);
     }
   });
 

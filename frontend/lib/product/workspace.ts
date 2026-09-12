@@ -64,15 +64,27 @@ export async function continueUpload(pending: PendingUpload, file: File | null, 
   const upload = state.upload;
   if (upload.status === 'ambiguous') return { kind: 'ambiguous' as const, source_id: upload.source_id!, candidates: upload.candidate_ids ?? [] };
   if (!upload.item) throw new Error('上传响应缺少题目关联，请稍后恢复该次请求。');
+  const problem = ProblemSchema.parse(await api(`/problems/${upload.item.problem_id}`));
+  // Same-image reuse must still start a new build when the latest run failed or never ran.
+  const latest = problem.latest_build_status;
+  const needsBuild = upload.status === 'created' ||
+    !problem.latest_build_id ||
+    !['succeeded', 'queued', 'running'].includes(latest ?? '');
   let buildId: string | null = null;
-  if (upload.status === 'created') {
+  let reusedIdle = false;
+  if (needsBuild) {
     const build = z.object({ build_id: z.string().uuid() }).parse(await post(`/problems/${upload.item.problem_id}/builds`, {
       source_id: upload.item.source_id, batch_item_id: upload.item.id,
     }, `${state.key}-build`));
     buildId = build.build_id;
+  } else {
+    reusedIdle = upload.status === 'reused';
   }
-  const problem = ProblemSchema.parse(await api(`/problems/${upload.item.problem_id}`));
-  return { kind: 'accepted' as const, problem: { ...problem, latest_build_id: buildId ?? problem.latest_build_id }, reused: upload.status === 'reused' };
+  return {
+    kind: 'accepted' as const,
+    problem: { ...problem, latest_build_id: buildId ?? problem.latest_build_id },
+    reused: reusedIdle,
+  };
 }
 
 export function previewPage(build: ProductBuild | null) {

@@ -44,6 +44,8 @@ services:
       SHUXUESHUO_HOST_HOME: ${PRODUCT_HOST_HOME:?host home path required}
       SHUXUESHUO_HOST_DATA_DIR: ${PRODUCT_DATA_DIR:?data root required}
       SHUXUESHUO_OCR_IMAGE: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
+      SHUXUESHUO_OCR_UID: ${PRODUCT_UID:-1000}
+      SHUXUESHUO_OCR_GID: ${PRODUCT_GID:-1000}
     ports:
       - "127.0.0.1:${PRODUCT_API_PORT:-8000}:8000"
     volumes:
@@ -95,6 +97,8 @@ services:
       SHUXUESHUO_HOST_HOME: ${PRODUCT_HOST_HOME:?host home path required}
       SHUXUESHUO_HOST_DATA_DIR: ${PRODUCT_DATA_DIR:?data root required}
       SHUXUESHUO_OCR_IMAGE: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
+      SHUXUESHUO_OCR_UID: ${PRODUCT_UID:-1000}
+      SHUXUESHUO_OCR_GID: ${PRODUCT_GID:-1000}
     volumes:
       - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
       - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
@@ -132,6 +136,8 @@ services:
       SHUXUESHUO_HOST_HOME: ${PRODUCT_HOST_HOME:?host home path required}
       SHUXUESHUO_HOST_DATA_DIR: ${PRODUCT_DATA_DIR:?data root required}
       SHUXUESHUO_OCR_IMAGE: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
+      SHUXUESHUO_OCR_UID: ${PRODUCT_UID:-1000}
+      SHUXUESHUO_OCR_GID: ${PRODUCT_GID:-1000}
     volumes:
       - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
       - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
