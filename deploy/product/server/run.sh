@@ -33,12 +33,13 @@ docker compose version >/dev/null
 # Parse a restricted data format, never source/eval the release manifest.
 PRODUCT_RABBITMQ_IMAGE=''
 PRODUCT_RABBITMQ_MANIFEST=''
+PRODUCT_APP_IMAGE=''
 while IFS='=' read -r key value; do
   [[ "$key" =~ ^PRODUCT_[A-Z_]+$ && "$value" =~ ^[a-zA-Z0-9/.:@_-]+$ ]] || fail '发布清单格式错误'
   case "$key" in
     PRODUCT_RELEASE_ID|PRODUCT_PLATFORM|PRODUCT_ADMIN_IMAGE|PRODUCT_POSTGRES_IMAGE|PRODUCT_POSTGRES_MANIFEST|PRODUCT_ALEMBIC_REVISION|PRODUCT_SOURCE_REVISION)
       export "$key=$value";;
-    PRODUCT_RABBITMQ_IMAGE|PRODUCT_RABBITMQ_MANIFEST)
+    PRODUCT_RABBITMQ_IMAGE|PRODUCT_RABBITMQ_MANIFEST|PRODUCT_APP_IMAGE)
       export "$key=$value";;
     *) fail '未知发布字段';;
   esac
@@ -50,6 +51,9 @@ docker image inspect "$PRODUCT_POSTGRES_IMAGE" >/dev/null 2>&1 || need_load=1
 if [[ -n "$PRODUCT_RABBITMQ_IMAGE" ]]; then
   docker image inspect "$PRODUCT_RABBITMQ_IMAGE" >/dev/null 2>&1 || need_load=1
 fi
+if [[ -n "$PRODUCT_APP_IMAGE" ]]; then
+  docker image inspect "$PRODUCT_APP_IMAGE" >/dev/null 2>&1 || need_load=1
+fi
 if [[ "$need_load" == 1 ]]; then
   [[ "$(checksum "$release/images.tar")" == "$(cat "$release/images.sha256")" ]] || fail '离线镜像包校验失败'
   docker load -i "$release/images.tar"
@@ -60,9 +64,23 @@ actual_platform=$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$PR
 [[ "$actual_platform" == "$PRODUCT_PLATFORM" ]] || fail '镜像架构与清单不一致'
 if ! cmp -s "$0" "$release/scripts/server/run.sh"; then fail '请使用目标发布包 scripts/server/run.sh 或对应版本脚本'; fi
 export PRODUCT_DATA_DIR="$root" PRODUCT_INSTANCE="$instance" PRODUCT_DB_PORT="$port" PRODUCT_UID="$(id -u)" PRODUCT_GID="$(id -g)"
-# Host OCR wrapper from the CentOS Docker OCR install; override with REVIEW_OCR_PYTHON if needed.
-REVIEW_OCR_PYTHON="${REVIEW_OCR_PYTHON:-/home/ronghao/code/shuxueshuo/server/.venv-ocr/bin/python}"
+# App containers use the in-image OCR wrapper; host .venv-ocr remains for manual smoke.
+REVIEW_OCR_PYTHON="${REVIEW_OCR_PYTHON:-/app/bin/ocr-python}"
 export REVIEW_OCR_PYTHON
+PRODUCT_HOST_HOME="${PRODUCT_HOST_HOME:-$HOME}"
+PRODUCT_REPO_HOST="${PRODUCT_REPO_HOST:-$PRODUCT_HOST_HOME/code/shuxueshuo}"
+PRODUCT_OCR_IMAGE="${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}"
+export PRODUCT_REPO_HOST PRODUCT_HOST_HOME PRODUCT_OCR_IMAGE
+if [[ -S /var/run/docker.sock ]]; then
+  if stat -c %g /var/run/docker.sock >/dev/null 2>&1; then
+    PRODUCT_DOCKER_GID=$(stat -c %g /var/run/docker.sock)
+  else
+    PRODUCT_DOCKER_GID=$(stat -f %g /var/run/docker.sock)
+  fi
+else
+  PRODUCT_DOCKER_GID=0
+fi
+export PRODUCT_DOCKER_GID
 mkdir -p "$root"
 mkdir -p "$root/locks"
 mkdir "$root/locks/server-operation" 2>/dev/null || fail '已有服务器管理操作运行；检查遗留锁后再重试'
@@ -83,7 +101,7 @@ export PRODUCT_BOOTSTRAP_PASSWORD
 compose=(docker compose --project-name "shuxueshuo-product-$instance" -f "$release/scripts/compose.yml" -f "$release/scripts/compose.server.yml")
 compose_app=("${compose[@]}" -f "$release/scripts/compose.app.yml")
 admin=("${compose[@]}" run --rm --no-deps -e "REVIEW_OCR_PYTHON=$REVIEW_OCR_PYTHON" admin --mode server --data-dir /var/lib/shuxueshuo --instance "$instance" --port "$port")
-# Join the app network so admin can resolve the rabbitmq service name.
+# Join the app network so admin can resolve rabbitmq/api service names.
 admin_net=("${compose_app[@]}" run --rm -e "REVIEW_OCR_PYTHON=$REVIEW_OCR_PYTHON" admin --mode server --data-dir /var/lib/shuxueshuo --instance "$instance" --port "$port")
 
 load_runtime_exports() {
@@ -93,8 +111,19 @@ load_runtime_exports() {
   PRODUCT_BROKER_PASSWORD=$(sed -n "s/^BROKER_PASSWORD='\([^']*\)'$/\1/p" "$root/config/runtime.env")
   PRODUCT_BROKER_VHOST=$(sed -n "s/^BROKER_VHOST='\([^']*\)'$/\1/p" "$root/config/runtime.env")
   PRODUCT_BROKER_COOKIE=$(sed -n "s/^BROKER_COOKIE='\([^']*\)'$/\1/p" "$root/config/runtime.env")
-  export PRODUCT_BROKER_PORT PRODUCT_BROKER_USER PRODUCT_BROKER_PASSWORD PRODUCT_BROKER_VHOST PRODUCT_BROKER_COOKIE
+  PRODUCT_API_PORT=$(sed -n "s/^API_PORT='\([^']*\)'$/\1/p" "$root/config/runtime.env")
+  export PRODUCT_BROKER_PORT PRODUCT_BROKER_USER PRODUCT_BROKER_PASSWORD PRODUCT_BROKER_VHOST PRODUCT_BROKER_COOKIE PRODUCT_API_PORT
   [[ -n "$PRODUCT_BROKER_PORT" && -n "$PRODUCT_BROKER_USER" && -n "$PRODUCT_BROKER_PASSWORD" && -n "$PRODUCT_BROKER_VHOST" && -n "$PRODUCT_BROKER_COOKIE" ]] || fail 'runtime.env broker 字段不完整'
+  PRODUCT_API_PORT=${PRODUCT_API_PORT:-8000}
+  export PRODUCT_API_PORT
+}
+
+require_app_release() {
+  [[ "$PRODUCT_APP_IMAGE" == sha256:* ]] || fail '当前发布包缺少 PRODUCT_APP_IMAGE；请使用包含 API/Worker 的 P2 发布包'
+  [[ "$PRODUCT_RABBITMQ_IMAGE" == sha256:* ]] || fail '当前发布包缺少 PRODUCT_RABBITMQ_IMAGE；请使用包含 RabbitMQ 的 P2 发布包'
+  [[ -f "$PRODUCT_REPO_HOST/server/.env" ]] || fail "缺少模型密钥文件：$PRODUCT_REPO_HOST/server/.env"
+  docker image inspect "$PRODUCT_OCR_IMAGE" >/dev/null 2>&1 || fail "缺少 OCR 镜像：$PRODUCT_OCR_IMAGE（请先按 deploy/ocr 安装）"
+  mkdir -p "$PRODUCT_HOST_HOME/.paddlex"
 }
 
 case "$operation" in
@@ -118,7 +147,7 @@ case "$operation" in
     [[ "$PRODUCT_RABBITMQ_IMAGE" == sha256:* ]] || fail '当前发布包缺少 PRODUCT_RABBITMQ_IMAGE；请使用包含 RabbitMQ 的 P2 发布包'
     "${admin[@]}" services-install;;
   services-start)
-    [[ "$PRODUCT_RABBITMQ_IMAGE" == sha256:* ]] || fail '当前发布包缺少 PRODUCT_RABBITMQ_IMAGE；请使用包含 RabbitMQ 的 P2 发布包'
+    require_app_release
     load_runtime_exports
     rabbit_volume="shuxueshuo-product-${instance}_rabbitmq_data"
     if docker volume inspect "$rabbit_volume" >/dev/null 2>&1; then
@@ -126,22 +155,24 @@ case "$operation" in
       [[ "$volume_root" == "$root" ]] || fail '已有 RabbitMQ 卷绑定另一数据目录，拒绝复用'
     fi
     "${compose[@]}" up -d --wait --wait-timeout 90 postgres
-    "${compose_app[@]}" up -d --wait --wait-timeout 90 rabbitmq
+    "${compose_app[@]}" up -d --wait --wait-timeout 120 rabbitmq api worker publisher
     "${admin_net[@]}" services-doctor;;
   services-stop)
+    [[ "$PRODUCT_APP_IMAGE" == sha256:* ]] || fail '当前发布包缺少 PRODUCT_APP_IMAGE；请使用包含 API/Worker 的 P2 发布包'
     [[ -f "$release/scripts/compose.app.yml" ]] || fail '发布包缺少 compose.app.yml'
     load_runtime_exports
-    "${compose_app[@]}" stop rabbitmq
-    printf '%s\n' '{"ok": true, "rabbitmq": "stopped", "postgres": "left_running"}';;
+    "${compose_app[@]}" stop api worker publisher rabbitmq
+    printf '%s\n' '{"ok": true, "api": "stopped", "worker": "stopped", "publisher": "stopped", "rabbitmq": "stopped", "postgres": "left_running"}';;
   services-status)
+    [[ "$PRODUCT_APP_IMAGE" == sha256:* ]] || fail '当前发布包缺少 PRODUCT_APP_IMAGE；请使用包含 API/Worker 的 P2 发布包'
     load_runtime_exports
-    "${compose_app[@]}" ps rabbitmq
+    "${compose_app[@]}" ps rabbitmq api worker publisher
     "${admin_net[@]}" services-status;;
   services-doctor)
-    [[ "$PRODUCT_RABBITMQ_IMAGE" == sha256:* ]] || fail '当前发布包缺少 PRODUCT_RABBITMQ_IMAGE；请使用包含 RabbitMQ 的 P2 发布包'
+    require_app_release
     load_runtime_exports
     "${compose[@]}" up -d --wait --wait-timeout 90 postgres
-    "${compose_app[@]}" up -d --wait --wait-timeout 90 rabbitmq
+    "${compose_app[@]}" up -d --wait --wait-timeout 120 rabbitmq api worker publisher
     "${admin_net[@]}" services-doctor;;
   *) "${admin[@]}" "$operation";;
 esac

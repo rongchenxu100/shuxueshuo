@@ -31,13 +31,16 @@ docker pull --platform "$platform" "$rabbitmq"
 docker buildx build --load --provenance=false --sbom=false --platform "$platform" \
   -f "$source_tree/repo/deploy/product/Dockerfile.admin" \
   -t "shuxueshuo-product-admin:$release" "$source_tree/repo"
+docker buildx build --load --provenance=false --sbom=false --platform "$platform" \
+  -f "$source_tree/repo/deploy/product/Dockerfile.app" \
+  -t "shuxueshuo-product-app:$release" "$source_tree/repo"
 # Cross-arch Desktop pulls only one platform; save must pass --platform or it looks for the
 # missing host-arch digest and fails with "unable to create manifests file".
 docker save --platform "$platform" -o "$output/images.tar" \
-  "shuxueshuo-product-admin:$release" "$postgres" "$rabbitmq"
+  "shuxueshuo-product-admin:$release" "shuxueshuo-product-app:$release" "$postgres" "$rabbitmq"
 # Desktop inspect Id may be an index digest that vanishes after load. Record content IDs
 # embedded in images.tar — those are what the server can docker inspect after load.
-eval "$(python3 - "$output/images.tar" "shuxueshuo-product-admin:$release" <<'PY'
+eval "$(python3 - "$output/images.tar" "shuxueshuo-product-admin:$release" "shuxueshuo-product-app:$release" <<'PY'
 import json, shlex, sys, tarfile
 
 def digest_of(config: str) -> str:
@@ -48,7 +51,7 @@ def digest_of(config: str) -> str:
 
 with tarfile.open(sys.argv[1]) as tar:
     manifest = json.load(tar.extractfile('manifest.json'))
-admin = postgres = rabbit = None
+admin = app = postgres = rabbit = None
 untagged = []
 for item in manifest:
     tags = [t for t in (item.get('RepoTags') or []) if t]
@@ -56,6 +59,8 @@ for item in manifest:
     joined = ' '.join(tags)
     if any(t == sys.argv[2] or t.endswith('/' + sys.argv[2]) for t in tags):
         admin = digest
+    elif any(t == sys.argv[3] or t.endswith('/' + sys.argv[3]) for t in tags):
+        app = digest
     elif 'rabbitmq' in joined:
         rabbit = digest
     elif 'postgres' in joined:
@@ -65,18 +70,20 @@ for item in manifest:
         untagged.append(digest)
 if postgres is None and len(untagged) == 1:
     postgres = untagged[0]
-if not admin or not postgres or not rabbit:
+if not admin or not app or not postgres or not rabbit:
     raise SystemExit(
-        f'could not resolve image digests from tar: admin={admin!r} postgres={postgres!r} '
+        f'could not resolve image digests from tar: admin={admin!r} app={app!r} postgres={postgres!r} '
         f'rabbitmq={rabbit!r} untagged={untagged!r} manifest={manifest!r}')
 print(f'admin_id={shlex.quote(admin)}')
+print(f'app_id={shlex.quote(app)}')
 print(f'postgres_id={shlex.quote(postgres)}')
 print(f'rabbitmq_id={shlex.quote(rabbit)}')
 PY
 )"
-[[ "$admin_id" == sha256:* && "$postgres_id" == sha256:* && "$rabbitmq_id" == sha256:* ]] || fail '发布包镜像内容 ID 无效'
+[[ "$admin_id" == sha256:* && "$app_id" == sha256:* && "$postgres_id" == sha256:* && "$rabbitmq_id" == sha256:* ]] || fail '发布包镜像内容 ID 无效'
 cp -R "$source_tree/repo/deploy/product" "$output/scripts"
 printf '%s\n' "PRODUCT_RELEASE_ID=$release" "PRODUCT_PLATFORM=$platform" "PRODUCT_ADMIN_IMAGE=$admin_id" \
+  "PRODUCT_APP_IMAGE=$app_id" \
   "PRODUCT_POSTGRES_IMAGE=$postgres_id" "PRODUCT_POSTGRES_MANIFEST=$postgres" \
   "PRODUCT_RABBITMQ_IMAGE=$rabbitmq_id" "PRODUCT_RABBITMQ_MANIFEST=$rabbitmq" \
   "PRODUCT_ALEMBIC_REVISION=0002_product_runtime_indexes" "PRODUCT_SOURCE_REVISION=$source_revision" > "$output/release.env"

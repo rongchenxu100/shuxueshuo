@@ -31,7 +31,9 @@ class RuntimeConfig:
                 'API_PORT': os.environ.get('PRODUCT_API_PORT', '8000'),
                 'FRONTEND_PORT': os.environ.get('PRODUCT_FRONTEND_PORT', '3000'),
                 'OCR_PYTHON': os.environ.get(
-                    'REVIEW_OCR_PYTHON', str(REPO / 'server/.venv-ocr/bin/python')),
+                    'REVIEW_OCR_PYTHON',
+                    '/app/bin/ocr-python' if settings.mode == 'server'
+                    else str(REPO / 'server/.venv-ocr/bin/python')),
             }
             if settings.mode == 'local':
                 defaults['RABBITMQ_BIN'] = os.environ.get(

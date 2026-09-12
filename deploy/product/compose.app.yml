@@ -1,5 +1,4 @@
 # P2 application-side services. PostgreSQL remains in compose.yml.
-# RabbitMQ is the first server P2 service; API/Worker/publisher join later via Dockerfile.app.
 services:
   rabbitmq:
     image: ${PRODUCT_RABBITMQ_IMAGE:?fixed RabbitMQ image required}
@@ -18,6 +17,115 @@ services:
       timeout: 5s
       retries: 30
       start_period: 20s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  api:
+    image: ${PRODUCT_APP_IMAGE:?fixed app image required}
+    user: "${PRODUCT_UID:-1000}:${PRODUCT_GID:-1000}"
+    group_add:
+      - "${PRODUCT_DOCKER_GID:?docker socket group required}"
+    environment:
+      PRODUCT_IN_CONTAINER: "1"
+      PRODUCT_MODE: server
+      PRODUCT_DATA_DIR: /var/lib/shuxueshuo
+      PRODUCT_INSTANCE: ${PRODUCT_INSTANCE:-server}
+      PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      REVIEW_BACKEND: product
+      REVIEW_OCR_PYTHON: /app/bin/ocr-python
+      SHUXUESHUO_REPO: ${PRODUCT_REPO_HOST:?host repo path required}
+      SHUXUESHUO_HOST_HOME: ${PRODUCT_HOST_HOME:?host home path required}
+      SHUXUESHUO_OCR_IMAGE: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
+    ports:
+      - "127.0.0.1:${PRODUCT_API_PORT:-8000}:8000"
+    volumes:
+      - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
+      - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app/server
+    command: ["uvicorn", "shuxueshuo_server.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/product/v1/health', timeout=3)",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  worker:
+    image: ${PRODUCT_APP_IMAGE:?fixed app image required}
+    user: "${PRODUCT_UID:-1000}:${PRODUCT_GID:-1000}"
+    group_add:
+      - "${PRODUCT_DOCKER_GID:?docker socket group required}"
+    environment:
+      PRODUCT_IN_CONTAINER: "1"
+      PRODUCT_MODE: server
+      PRODUCT_DATA_DIR: /var/lib/shuxueshuo
+      PRODUCT_INSTANCE: ${PRODUCT_INSTANCE:-server}
+      PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      REVIEW_BACKEND: product
+      REVIEW_OCR_PYTHON: /app/bin/ocr-python
+      SHUXUESHUO_REPO: ${PRODUCT_REPO_HOST:?host repo path required}
+      SHUXUESHUO_HOST_HOME: ${PRODUCT_HOST_HOME:?host home path required}
+      SHUXUESHUO_OCR_IMAGE: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
+    volumes:
+      - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
+      - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    working_dir: /app/server
+    command: ["python", "-m", "shuxueshuo_server.product.transport", "worker"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  publisher:
+    image: ${PRODUCT_APP_IMAGE:?fixed app image required}
+    user: "${PRODUCT_UID:-1000}:${PRODUCT_GID:-1000}"
+    environment:
+      PRODUCT_IN_CONTAINER: "1"
+      PRODUCT_MODE: server
+      PRODUCT_DATA_DIR: /var/lib/shuxueshuo
+      PRODUCT_INSTANCE: ${PRODUCT_INSTANCE:-server}
+      PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      REVIEW_BACKEND: product
+    volumes:
+      - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
+      - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
+    working_dir: /app/server
+    command: ["python", "-m", "shuxueshuo_server.product.transport", "publisher"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     restart: unless-stopped
     logging:
       driver: json-file

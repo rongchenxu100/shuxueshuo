@@ -36,6 +36,14 @@ def test_server_runtime_initialize_skips_rabbitmq_bin(tmp_path, monkeypatch):
     assert ':5672/' in runtime.broker_url
 
 
+def test_server_runtime_default_ocr_is_app_wrapper(tmp_path, monkeypatch):
+    monkeypatch.delenv('PRODUCT_RABBITMQ_BIN', raising=False)
+    monkeypatch.delenv('REVIEW_OCR_PYTHON', raising=False)
+    settings = _settings(tmp_path, 'server')
+    runtime = RuntimeConfig.load(settings, initialize=True)
+    assert runtime.values['OCR_PYTHON'] == '/app/bin/ocr-python'
+
+
 def test_server_broker_host_inside_container(tmp_path, monkeypatch):
     monkeypatch.setenv('REVIEW_OCR_PYTHON', '/opt/ocr/python')
     settings = _settings(tmp_path, 'server')

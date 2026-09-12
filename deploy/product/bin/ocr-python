@@ -1,0 +1,16 @@
+#!/bin/bash
+# In-container OCR entrypoint. Docker daemon interprets -v paths on the host.
+set -euo pipefail
+REPO="${SHUXUESHUO_REPO:?SHUXUESHUO_REPO (host repo path) required}"
+HOST_HOME="${SHUXUESHUO_HOST_HOME:?SHUXUESHUO_HOST_HOME required}"
+IMAGE="${SHUXUESHUO_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}"
+exec docker run --rm \
+  -v "${REPO}:/opt/shuxueshuo:ro" \
+  -v "${HOST_HOME}/.paddlex:/root/.paddlex" \
+  -w /opt/shuxueshuo/server \
+  -e PADDLE_PDX_MODEL_SOURCE=bos \
+  -e PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True \
+  -e OMP_NUM_THREADS=1 \
+  -e PYTHONPATH=/opt/shuxueshuo/server \
+  "${IMAGE}" \
+  python "$@"
