@@ -178,11 +178,22 @@ class PaddleF2ProviderWorker:
                 use_doc_orientation_classify=False,
                 use_doc_unwarping=False,
                 use_textline_orientation=False,
+                enable_mkldnn=False,
             )
         else:
             from paddlex import create_model
 
-            model = create_model(self._MODEL_NAMES[component])
+            # Linux CPU + Paddle 3.3：默认 mkldnn/PIR 会在 oneDNN 路径崩溃；强制 paddle 后端。
+            model = create_model(
+                self._MODEL_NAMES[component],
+                engine="paddle_static",
+                engine_config={
+                    "run_mode": "paddle",
+                    "device_type": "cpu",
+                    "cpu_threads": 1,
+                    "enable_new_ir": False,
+                },
+            )
         self._models[component] = model
         self._initialization_counts[component] += 1
         return model
