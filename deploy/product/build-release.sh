@@ -49,6 +49,7 @@ def digest_of(config: str) -> str:
 with tarfile.open(sys.argv[1]) as tar:
     manifest = json.load(tar.extractfile('manifest.json'))
 admin = postgres = rabbit = None
+untagged = []
 for item in manifest:
     tags = [t for t in (item.get('RepoTags') or []) if t]
     digest = digest_of(item['Config'])
@@ -59,10 +60,15 @@ for item in manifest:
         rabbit = digest
     elif 'postgres' in joined:
         postgres = digest
+    elif not tags:
+        # Digest-pinned postgres saves often omit RepoTags on Desktop.
+        untagged.append(digest)
+if postgres is None and len(untagged) == 1:
+    postgres = untagged[0]
 if not admin or not postgres or not rabbit:
     raise SystemExit(
         f'could not resolve image digests from tar: admin={admin!r} postgres={postgres!r} '
-        f'rabbitmq={rabbit!r} manifest={manifest!r}')
+        f'rabbitmq={rabbit!r} untagged={untagged!r} manifest={manifest!r}')
 print(f'admin_id={shlex.quote(admin)}')
 print(f'postgres_id={shlex.quote(postgres)}')
 print(f'rabbitmq_id={shlex.quote(rabbit)}')
