@@ -28,11 +28,13 @@ docker pull --platform "$platform" "$postgres"
 docker buildx build --load --provenance=false --sbom=false --platform "$platform" \
   -f "$source_tree/repo/deploy/product/Dockerfile.admin" \
   -t "shuxueshuo-product-admin:$release" "$source_tree/repo"
-# Tag by reference, not content ID; ID-based retag can fail on Desktop after digest pulls.
-docker tag "$postgres" "shuxueshuo-product-postgres:$release"
 admin_id=$(docker image inspect --format '{{.Id}}' "shuxueshuo-product-admin:$release")
-postgres_id=$(docker image inspect --format '{{.Id}}' "shuxueshuo-product-postgres:$release")
-docker save -o "$output/images.tar" "shuxueshuo-product-admin:$release" "shuxueshuo-product-postgres:$release"
+postgres_id=$(docker image inspect --format '{{.Id}}' "$postgres")
+# Cross-arch Desktop pulls only one platform; save must pass --platform or it looks for the
+# missing host-arch digest and fails with "unable to create manifests file".
+# Do not retag the digest ref first — that hits the same Desktop bug on Apple Silicon.
+docker save --platform "$platform" -o "$output/images.tar" \
+  "shuxueshuo-product-admin:$release" "$postgres"
 cp -R "$source_tree/repo/deploy/product" "$output/scripts"
 printf '%s\n' "PRODUCT_RELEASE_ID=$release" "PRODUCT_PLATFORM=$platform" "PRODUCT_ADMIN_IMAGE=$admin_id" \
   "PRODUCT_POSTGRES_IMAGE=$postgres_id" "PRODUCT_POSTGRES_MANIFEST=$postgres" \
