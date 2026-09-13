@@ -64,28 +64,18 @@ actual_platform=$(docker image inspect --format '{{.Os}}/{{.Architecture}}' "$PR
 [[ "$actual_platform" == "$PRODUCT_PLATFORM" ]] || fail '镜像架构与清单不一致'
 if ! cmp -s "$0" "$release/scripts/server/run.sh"; then fail '请使用目标发布包 scripts/server/run.sh 或对应版本脚本'; fi
 export PRODUCT_DATA_DIR="$root" PRODUCT_INSTANCE="$instance" PRODUCT_DB_PORT="$port" PRODUCT_UID="$(id -u)" PRODUCT_GID="$(id -g)"
-# App containers use the in-image OCR wrapper; host .venv-ocr remains for manual smoke.
-REVIEW_OCR_PYTHON="${REVIEW_OCR_PYTHON:-/app/bin/ocr-python}"
-export REVIEW_OCR_PYTHON
+# Server OCR is the compose sidecar (PRODUCT_OCR_URL). Mac/local uses REVIEW_OCR_PYTHON.
+PRODUCT_OCR_URL="${PRODUCT_OCR_URL:-http://ocr:8080}"
+export PRODUCT_OCR_URL
 PRODUCT_HOST_HOME="${PRODUCT_HOST_HOME:-$HOME}"
 PRODUCT_REPO_HOST="${PRODUCT_REPO_HOST:-$PRODUCT_HOST_HOME/code/shuxueshuo}"
 PRODUCT_OCR_IMAGE="${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}"
 export PRODUCT_REPO_HOST PRODUCT_HOST_HOME PRODUCT_OCR_IMAGE
-if [[ -S /var/run/docker.sock ]]; then
-  if stat -c %g /var/run/docker.sock >/dev/null 2>&1; then
-    PRODUCT_DOCKER_GID=$(stat -c %g /var/run/docker.sock)
-  else
-    PRODUCT_DOCKER_GID=$(stat -f %g /var/run/docker.sock)
-  fi
-else
-  PRODUCT_DOCKER_GID=0
-fi
-export PRODUCT_DOCKER_GID
 mkdir -p "$root"
 mkdir -p "$root/locks"
 mkdir "$root/locks/server-operation" 2>/dev/null || fail '已有服务器管理操作运行；检查遗留锁后再重试'
 trap 'rmdir "$root/locks/server-operation"' EXIT
-configure=(docker run --rm --user "$PRODUCT_UID:$PRODUCT_GID" -e PRODUCT_IN_CONTAINER=1 -e "PRODUCT_HOST_DATA_DIR=$root" -e "REVIEW_OCR_PYTHON=$REVIEW_OCR_PYTHON" -v "$root:/var/lib/shuxueshuo" "$PRODUCT_ADMIN_IMAGE")
+configure=(docker run --rm --user "$PRODUCT_UID:$PRODUCT_GID" -e PRODUCT_IN_CONTAINER=1 -e "PRODUCT_HOST_DATA_DIR=$root" -e "PRODUCT_OCR_URL=$PRODUCT_OCR_URL" -v "$root:/var/lib/shuxueshuo" "$PRODUCT_ADMIN_IMAGE")
 if [[ "$operation" == restore ]]; then
   [[ -n "$target" && -n "$backup" && ! -e "$root/config" ]] || fail '恢复需要新实例、新目录和 --backup'
   instance="$target"; export PRODUCT_INSTANCE="$instance"
@@ -100,9 +90,9 @@ PRODUCT_BOOTSTRAP_PASSWORD=$(sed -n "s/^PRODUCT_BOOTSTRAP_PASSWORD='\([^']*\)'$/
 export PRODUCT_BOOTSTRAP_PASSWORD
 compose=(docker compose --project-name "shuxueshuo-product-$instance" -f "$release/scripts/compose.yml" -f "$release/scripts/compose.server.yml")
 compose_app=("${compose[@]}" -f "$release/scripts/compose.app.yml")
-admin=("${compose[@]}" run --rm --no-deps -e "REVIEW_OCR_PYTHON=$REVIEW_OCR_PYTHON" admin --mode server --data-dir /var/lib/shuxueshuo --instance "$instance" --port "$port")
-# Join the app network so admin can resolve rabbitmq/api service names.
-admin_net=("${compose_app[@]}" run --rm -e "REVIEW_OCR_PYTHON=$REVIEW_OCR_PYTHON" admin --mode server --data-dir /var/lib/shuxueshuo --instance "$instance" --port "$port")
+admin=("${compose[@]}" run --rm --no-deps -e "PRODUCT_OCR_URL=$PRODUCT_OCR_URL" admin --mode server --data-dir /var/lib/shuxueshuo --instance "$instance" --port "$port")
+# Join the app network so admin can resolve rabbitmq/api/ocr service names.
+admin_net=("${compose_app[@]}" run --rm -e "PRODUCT_OCR_URL=$PRODUCT_OCR_URL" admin --mode server --data-dir /var/lib/shuxueshuo --instance "$instance" --port "$port")
 
 load_runtime_exports() {
   [[ -f "$root/config/runtime.env" ]] || fail '请先执行 services-install'
@@ -157,28 +147,30 @@ case "$operation" in
       [[ "$volume_root" == "$root" ]] || fail '已有 RabbitMQ 卷绑定另一数据目录，拒绝复用'
     fi
     "${compose[@]}" up -d --wait --wait-timeout 90 postgres
-    "${compose_app[@]}" up -d --wait --wait-timeout 120 rabbitmq api worker publisher
+    "${compose_app[@]}" up -d --wait --wait-timeout 240 rabbitmq ocr api worker publisher
     "${admin_net[@]}" services-doctor;;
   services-stop)
     [[ "$PRODUCT_APP_IMAGE" == sha256:* ]] || fail '当前发布包缺少 PRODUCT_APP_IMAGE；请使用包含 API/Worker 的 P2 发布包'
     [[ -f "$release/scripts/compose.app.yml" ]] || fail '发布包缺少 compose.app.yml'
     load_runtime_exports
-    "${compose_app[@]}" stop api worker publisher rabbitmq
-    printf '%s\n' '{"ok": true, "api": "stopped", "worker": "stopped", "publisher": "stopped", "rabbitmq": "stopped", "postgres": "left_running"}';;
+    "${compose_app[@]}" stop api worker publisher ocr rabbitmq
+    printf '%s\n' '{"ok": true, "api": "stopped", "worker": "stopped", "publisher": "stopped", "ocr": "stopped", "rabbitmq": "stopped", "postgres": "left_running"}';;
   services-status)
     [[ "$PRODUCT_APP_IMAGE" == sha256:* ]] || fail '当前发布包缺少 PRODUCT_APP_IMAGE；请使用包含 API/Worker 的 P2 发布包'
     load_runtime_exports
-    "${compose_app[@]}" ps rabbitmq api worker publisher
+    "${compose_app[@]}" ps rabbitmq ocr api worker publisher
     "${admin_net[@]}" services-status;;
   services-doctor)
     require_app_release
     load_runtime_exports
     "${compose[@]}" up -d --wait --wait-timeout 90 postgres
-    "${compose_app[@]}" up -d --wait --wait-timeout 120 rabbitmq api worker publisher
+    "${compose_app[@]}" up -d --wait --wait-timeout 240 rabbitmq ocr api worker publisher
     "${admin_net[@]}" services-doctor;;
   *) "${admin[@]}" "$operation";;
 esac
-if [[ "$operation" == install || "$operation" == deploy || "$operation" == restore || "$operation" == services-install ]]; then
+# services-start also pins release-path: otherwise a successful --release switch
+# leaves the next unattended start on the previous package.
+if [[ "$operation" == install || "$operation" == deploy || "$operation" == restore || "$operation" == services-install || "$operation" == services-start ]]; then
   printf '%s\n' "$release" > "$root/config/release-path"
   mkdir -p "$root/deployments"
   printf '{"release":"%s","operation":"%s","status":"succeeded"}\n' "$PRODUCT_RELEASE_ID" "$operation" > "$root/deployments/$(date -u +%Y%m%dT%H%M%SZ).json"

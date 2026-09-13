@@ -6,6 +6,17 @@ import sys
 import time
 from PIL import Image
 
+_PADDLE_WORKER = None
+
+
+def get_paddle_worker():
+    """Reuse one Paddle worker per process so sidecar warm models stay loaded."""
+    global _PADDLE_WORKER
+    if _PADDLE_WORKER is None:
+        from shuxueshuo_server.solver.extraction.paddle_worker import PaddleF2ProviderWorker
+        _PADDLE_WORKER = PaddleF2ProviderWorker()
+    return _PADDLE_WORKER
+
 
 class ObservationJournal:
     def __init__(self, directory, identity, phase):
@@ -43,12 +54,12 @@ def run(store, run_id, phase):
     from shuxueshuo_server.solver.extraction.observation_context import ObservationContextTransitionService, f2_semantic_config
     from shuxueshuo_server.solver.extraction.observation_pipeline import F2ObservationPipeline, crop_formula_request
     from shuxueshuo_server.solver.extraction.handwriting import ConservativeInkOriginAnalyzer
-    from shuxueshuo_server.solver.extraction.paddle_worker import PaddleF2ProviderWorker, FormulaWorkerInput
+    from shuxueshuo_server.solver.extraction.paddle_worker import FormulaWorkerInput
 
     image_ref = next(a for a in store.get(run_id)["artifacts"] if a["name"] == "规范化图片")
     _, content = store.read(run_id, image_ref["id"])
     artifacts = ExtractionArtifactStore(store.root / run_id / "extraction-artifacts")
-    worker = PaddleF2ProviderWorker()
+    worker = get_paddle_worker()
     ink = ConservativeInkOriginAnalyzer()
     manifests = worker.manifests() + (ink.provider,)
     source = ProblemSourceFingerprintService().fingerprint((SourceAssetInput(

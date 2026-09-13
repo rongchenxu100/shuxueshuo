@@ -74,24 +74,27 @@ class RuntimeConfig:
         )
 
     def environment(self):
-        # Server containers inject REVIEW_OCR_PYTHON=/app/bin/ocr-python; do not overwrite
-        # with a host path from runtime.env (e.g. server/.venv-ocr/bin/python).
+        # Prefer in-container PRODUCT_OCR_URL (sidecar). Fall back to REVIEW_OCR_PYTHON
+        # for Mac/local direct Paddle installs; do not overwrite with a stale host path
+        # from runtime.env when the container already injects OCR settings.
         if os.environ.get('PRODUCT_IN_CONTAINER') == '1' and self.settings.mode == 'server':
-            ocr = os.environ.get('REVIEW_OCR_PYTHON') or '/app/bin/ocr-python'
+            ocr = os.environ.get('REVIEW_OCR_PYTHON') or self.values.get('OCR_PYTHON') or ''
         else:
             ocr = self.values['OCR_PYTHON']
-        return {
+        env = {
             **os.environ,
             'PRODUCT_MODE': self.settings.mode,
             'PRODUCT_DATA_DIR': str(self.settings.root),
             'PRODUCT_INSTANCE': self.settings.instance,
             'PRODUCT_API_PORT': self.values['API_PORT'],
             'PRODUCT_FRONTEND_PORT': self.values['FRONTEND_PORT'],
-            'REVIEW_OCR_PYTHON': ocr,
             'PYTHONPATH': str(REPO / 'server'),
             'PYTHONUNBUFFERED': '1',
             'REVIEW_BACKEND': 'product',
         }
+        if ocr:
+            env['REVIEW_OCR_PYTHON'] = ocr
+        return env
 
 
 def load_runtime():

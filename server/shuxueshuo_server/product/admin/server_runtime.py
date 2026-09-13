@@ -39,15 +39,39 @@ def execute(settings, operation):
 
 
 def _ocr_configured(path_value, *, mode):
+    if os.environ.get('PRODUCT_OCR_URL'):
+        return True
     if not path_value:
         return False
     path = Path(path_value)
     if path.is_file():
         return True
-    # Server: admin cannot see app-image or host wrapper paths; start validates OCR image.
+    # Server: admin cannot see app-image paths; start validates OCR image / sidecar.
     if mode == 'server':
         return True
     return path_value == '/app/bin/ocr-python' or path_value.endswith('/bin/ocr-python')
+
+
+def _ocr_sidecar_health():
+    url = (os.environ.get('PRODUCT_OCR_URL') or '').rstrip('/')
+    if not url:
+        return {'ocr_sidecar': False, 'ocr_sidecar_configured': False}
+    try:
+        with urllib.request.urlopen(f'{url}/health', timeout=5) as response:
+            body = json.loads(response.read().decode())
+        return {
+            'ocr_sidecar': True,
+            'ocr_sidecar_configured': True,
+            'ocr_sidecar_url': url,
+            'ocr_sidecar_health': body,
+        }
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as exc:
+        return {
+            'ocr_sidecar': False,
+            'ocr_sidecar_configured': True,
+            'ocr_sidecar_url': url,
+            'ocr_sidecar_error': type(exc).__name__,
+        }
 
 
 def _api_health():
@@ -71,5 +95,6 @@ def doctor(runtime):
         'ocr_python': runtime.values['OCR_PYTHON'],
         'ocr_python_configured': _ocr_configured(runtime.values['OCR_PYTHON'], mode=runtime.settings.mode),
         'product_mode': os.environ.get('PRODUCT_MODE', runtime.settings.mode),
+        **_ocr_sidecar_health(),
         **_api_health(),
     }

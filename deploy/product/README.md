@@ -72,8 +72,16 @@ P1 `install` 只启动 PostgreSQL。包含 `PRODUCT_RABBITMQ_IMAGE` 与 `PRODUCT
 /absolute/path/release-amd64/scripts/manage.sh --mode server --data-dir /srv/shuxueshuo services-stop
 ```
 
-`services-stop` 停止 api/worker/publisher/rabbitmq，PostgreSQL 保持运行。服务器暂不在 Compose 内启 Next；Studio 前端仍按 [frontend-studio-workbench.md](../frontend-studio-workbench.md) 单独部署到 `127.0.0.1:3000`，由 `studio.shuxueshuo.com` Nginx 反代。产品 API 默认 `127.0.0.1:8000`（`runtime.env` 的 `API_PORT`）。
-容器内 OCR 走镜像自带的 `/app/bin/ocr-python`（经 `docker.sock` 调宿主机 OCR 镜像）；宿主机 `.venv-ocr` 封装仍可用于手工冒烟。
+`services-stop` 停止 api/worker/publisher/ocr/rabbitmq，PostgreSQL 保持运行。服务器暂不在 Compose 内启 Next；Studio 前端仍按 [frontend-studio-workbench.md](../frontend-studio-workbench.md) 单独部署到 `127.0.0.1:3000`，由 `studio.shuxueshuo.com` Nginx 反代。产品 API 默认 `127.0.0.1:8000`（`runtime.env` 的 `API_PORT`）。
+
+### OCR：本地 Mac vs 服务器
+
+| 环境 | 方式 |
+| --- | --- |
+| **Mac 本地**（`--mode local`） | 无 Docker；本机直接安装 Paddle；`REVIEW_OCR_PYTHON` 指向本机 Python。不设 `PRODUCT_OCR_URL`。 |
+| **服务器**（`compose.app`） | 常驻 `ocr` sidecar（`shuxueshuo-ocr` 镜像 + [`../ocr/sidecar_server.py`](../ocr/sidecar_server.py)）；worker 经 `PRODUCT_OCR_URL=http://ocr:8080` 调用。**不再**挂 `docker.sock` / 嵌套 `docker run`。 |
+
+服务器需已构建 OCR 镜像并预热 `~/.paddlex`（见 [OCR 文档](../ocr/README.md)）。sidecar 脚本与 observation 代码从宿主机仓库只读挂载，发版前请 `git pull` 仓库并打含新 compose/runner 的产品包。常驻模型会多占内存（约数百 MB～1G+），建议主机 ≥8G；2G 机不建议。
 
 普通管理命令自动读取实例保存的 release 路径。若镜像尚未加载，验证离线包哈希再 load。
 数据库仅映射 `127.0.0.1:5432`，可通过 `--port` 修改；持久卷名绑定实例和数据根，不复用其他实例的卷。

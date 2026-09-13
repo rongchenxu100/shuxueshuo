@@ -18,7 +18,7 @@
 | `server/shuxueshuo_server/product/**`、`deploy/product/**`（Compose/管理脚本） | **本机构建发布包 → 上传 → `services-start` 或 `deploy`** |
 | `frontend/**`（Studio 工作台） | **本机构建 `shuxueshuo-studio` → 上传 → `docker load` 换容器** |
 | `deploy/nginx/**`、主站静态 `site/**`、仓库说明 | 服务器 **`git pull`**，必要时 `nginx -t && reload` |
-| OCR wrapper / `deploy/ocr/**`（镜像未变） | 服务器 **`git pull`** 后按 OCR 文档处理 |
+| OCR wrapper / `deploy/ocr/**`（含 sidecar 脚本；镜像未变） | 服务器 **`git pull`**（sidecar 从仓库挂载）；compose/runner 变更仍须 **新产品包** |
 | 仅改 `server/.env` 模型密钥 | 改宿主机文件（**勿提交**）；**重启** api/worker/publisher 容器即可，无需新发布包 |
 
 以前「服务器 `git pull` 就发布」适合宿主机直接跑 `uvicorn`。现在产品与 Studio 跑在 **固定 digest 的镜像**里，业务代码变更必须打进镜像再换容器。
@@ -102,9 +102,14 @@ grep '^API_PORT=' /srv/shuxueshuo/config/runtime.env
 "$RELEASE/scripts/manage.sh" --mode server --data-dir /srv/shuxueshuo \
   --release "$RELEASE" services-start
 
+# services-start 会把 release-path 钉到本次 --release（旧包行为不会写，需手动写或升级管理脚本后再 start）
+cat /srv/shuxueshuo/config/release-path
+# 应等于 $RELEASE
+
 "$RELEASE/scripts/manage.sh" --mode server --data-dir /srv/shuxueshuo \
   --release "$RELEASE" services-doctor
 
+# doctor 期望含 ocr_sidecar: true；首次 OCR 预热可能要 1–2 分钟
 curl -sS http://127.0.0.1:8000/api/product/v1/health
 curl -sS http://127.0.0.1:8000/api/health
 docker ps --filter name=shuxueshuo-product-server
@@ -277,3 +282,5 @@ curl -sSI https://studio.shuxueshuo.com/ | head
 | WS 连不上 / 握手失败 | 查 Nginx `/api/product/` 与 `docker logs` api 容器；确认 `Host 127.0.0.1` |
 | `请使用目标发布包 scripts/...` | 命令加 `--release` 指向正在用的包路径 |
 | 服务器无 `python3` | 改 `runtime.env` 用 `sed`，不要用 python 脚本 |
+| doctor `ocr_sidecar: false` | 确认 OCR 镜像存在、`git pull` 含 `deploy/ocr/sidecar_server.py`、等预热结束（1–2 分钟）；`docker logs …-ocr-1` |
+| 构建时仍出现临时 OCR 容器名 | 仍在用旧发布包（嵌套 docker）；换含 sidecar 的 compose 后再 `services-start` |

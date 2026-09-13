@@ -4,6 +4,8 @@ from hashlib import sha256
 import json
 import os
 import subprocess
+import urllib.error
+import urllib.request
 from uuid import UUID
 
 from fastapi.encoders import jsonable_encoder
@@ -41,12 +43,22 @@ def dependencies(source, revision_id, snapshot):
     discovered = probe()
     config = {k: dict(v['config']) for k, v in discovered['stages'].items()}
     # Interpreter paths are local routing configuration, not public content.
-    interpreter = os.environ.get('REVIEW_OCR_PYTHON', str(REPO / 'server/.venv-ocr/bin/python'))
-    observed = subprocess.run([interpreter, '-c',
-        'import json; from shuxueshuo_server.solver.extraction.paddle_worker import PaddleF2ProviderWorker; print(json.dumps([m.to_payload() for m in PaddleF2ProviderWorker().manifests()]))'],
-        cwd=REPO / 'server', env={**os.environ, 'PYTHONPATH': str(REPO / 'server')}, capture_output=True, text=True, timeout=60)
-    if observed.returncode: raise ProductError('configuration.ocr_manifest_unavailable')
-    config['observation'] = {'interpreter_fingerprint': digest(config['observation']), 'providers': json.loads(observed.stdout)}
+    ocr_url = (os.environ.get('PRODUCT_OCR_URL') or '').rstrip('/')
+    if ocr_url:
+        try:
+            with urllib.request.urlopen(f'{ocr_url}/v1/manifests', timeout=60) as response:
+                manifest_body = json.loads(response.read().decode())
+            providers = manifest_body['providers']
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError, TypeError) as exc:
+            raise ProductError('configuration.ocr_manifest_unavailable') from exc
+        config['observation'] = {'interpreter_fingerprint': digest({'ocr_sidecar': ocr_url}), 'providers': providers}
+    else:
+        interpreter = os.environ.get('REVIEW_OCR_PYTHON', str(REPO / 'server/.venv-ocr/bin/python'))
+        observed = subprocess.run([interpreter, '-c',
+            'import json; from shuxueshuo_server.solver.extraction.paddle_worker import PaddleF2ProviderWorker; print(json.dumps([m.to_payload() for m in PaddleF2ProviderWorker().manifests()]))'],
+            cwd=REPO / 'server', env={**os.environ, 'PYTHONPATH': str(REPO / 'server')}, capture_output=True, text=True, timeout=60)
+        if observed.returncode: raise ProductError('configuration.ocr_manifest_unavailable')
+        config['observation'] = {'interpreter_fingerprint': digest(config['observation']), 'providers': json.loads(observed.stdout)}
     for key, limit in (('extraction', 3), ('solver', config['solver']['max_attempts']), ('lesson', 1)):
         config[key]['semantic_budget'] = limit
         config[key]['network_budget'] = limit * 2

@@ -1,4 +1,6 @@
 #!/bin/bash
+# DEPRECATED for product server: use compose service `ocr` + PRODUCT_OCR_URL instead.
+# Kept for emergency host smoke that still wants one-shot nested docker runs.
 # In-container OCR entrypoint. Docker daemon interprets -v paths on the host.
 # Must mount the product data root so observation can read/write work/*/.
 # Run as the product UID so nested writes match worker-owned directories.

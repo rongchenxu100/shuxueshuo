@@ -5,6 +5,8 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from uuid import UUID
 
 from PIL import Image, ImageOps
@@ -67,12 +69,41 @@ class StageRunner:
 
     def ocr(self, phase):
         x = self.x
-        interpreter = os.environ.get('REVIEW_OCR_PYTHON', str(REPO / 'server/.venv-ocr/bin/python'))
-        if not Path(interpreter).is_file(): raise ProductError('configuration.ocr_missing')
-        result = subprocess.run([interpreter, '-m', 'shuxueshuo_server.product.observation', str(x.work), str(x.build['source_id']), phase],
-            cwd=REPO / 'server', env={**os.environ, 'PYTHONPATH': str(REPO / 'server')}, capture_output=True, timeout=900)
-        x.add('OCR 进程日志', {'exit_code': result.returncode, 'stdout': result.stdout.decode(errors='replace'),
-                            'stderr': result.stderr.decode(errors='replace')}, role='validation')
+        work, source_id = str(x.work), str(x.build['source_id'])
+        url = (os.environ.get('PRODUCT_OCR_URL') or '').rstrip('/')
+        if url:
+            payload = json.dumps({'work_dir': work, 'source_id': source_id, 'phase': phase}).encode()
+            request = urllib.request.Request(
+                f'{url}/v1/observe', data=payload, method='POST',
+                headers={'Content-Type': 'application/json'})
+            try:
+                with urllib.request.urlopen(request, timeout=900) as response:
+                    body = json.loads(response.read().decode())
+            except urllib.error.HTTPError as exc:
+                raw = exc.read().decode(errors='replace')
+                try:
+                    body = json.loads(raw)
+                except json.JSONDecodeError:
+                    x.add('OCR 进程日志', {'exit_code': 1, 'stdout': '', 'stderr': f'sidecar HTTP {exc.code}: {raw}'}, role='validation')
+                    raise ProductError('observation.provider_failed') from exc
+            except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, ValueError) as exc:
+                x.add('OCR 进程日志', {'exit_code': 1, 'stdout': '', 'stderr': f'sidecar request failed: {exc}'}, role='validation')
+                raise ProductError('observation.provider_failed') from exc
+            exit_code = int(body.get('exit_code', 1))
+            x.add('OCR 进程日志', {
+                'exit_code': exit_code, 'stdout': body.get('stdout', ''), 'stderr': body.get('stderr', ''),
+                'via': 'sidecar', 'url': url,
+            }, role='validation')
+            if exit_code:
+                raise ProductError('observation.provider_failed')
+        else:
+            interpreter = os.environ.get('REVIEW_OCR_PYTHON', str(REPO / 'server/.venv-ocr/bin/python'))
+            if not Path(interpreter).is_file(): raise ProductError('configuration.ocr_missing')
+            result = subprocess.run([interpreter, '-m', 'shuxueshuo_server.product.observation', work, source_id, phase],
+                cwd=REPO / 'server', env={**os.environ, 'PYTHONPATH': str(REPO / 'server')}, capture_output=True, timeout=900)
+            x.add('OCR 进程日志', {'exit_code': result.returncode, 'stdout': result.stdout.decode(errors='replace'),
+                                'stderr': result.stderr.decode(errors='replace')}, role='validation')
+            if result.returncode: raise ProductError('observation.provider_failed')
         journal = x.work / f'{phase}-journal.json'
         if journal.exists():
             for entry in json.loads(journal.read_text()):
@@ -81,7 +112,6 @@ class StageRunner:
                 content = (x.work / name).read_bytes()
                 if entry['media_type'] == 'application/json': content = json.loads(content)
                 x.add(entry['name'], content, role=entry['role'], mime=entry['media_type'])
-        if result.returncode: raise ProductError('observation.provider_failed')
 
     def source(self):
         x = self.x
