@@ -6,7 +6,7 @@ import pytest
 
 from shuxueshuo_server.product.storage import LocalArtifactStorage
 from shuxueshuo_server.product.errors import ProductError, Conflict
-from shuxueshuo_server.product.pipelines import V1, validate, PipelineRegistry, affected, reusable
+from shuxueshuo_server.product.pipelines import V1, V2, validate, PipelineRegistry, affected, reusable
 
 
 def test_atomic_concurrent_no_overwrite(tmp_path):
@@ -47,7 +47,7 @@ def test_pipeline_evolution():
     changed = deepcopy(V1)
     changed['stages'].append(dict(stage_key='page_check', title='页面检查', ordinal=10, contract_version='v1', depends_on=['page']))
     changed['completion']['required_stages'].append('page_check')
-    registry.register('problem_lesson', 'v2', changed)
+    registry.register('problem_lesson', 'v3', changed)
     assert len(registry.get('problem_lesson', 'v1')['stages']) == 9
     with pytest.raises(Conflict):
         registry.register('problem_lesson', 'v1', changed)
@@ -58,6 +58,15 @@ def test_pipeline_evolution():
     assert reusable(V1, changed, 'source', manifest, manifest)
     changed['stages'][0]['contract_version'] = 'v2'
     assert not reusable(V1, changed, 'source', manifest, manifest)
+
+
+def test_source_review_contract_invalidates_only_extraction_and_downstream():
+    manifest = dict(inputs={}, resources={}, config={}, upstream={})
+    assert all(s['contract_version'] == 'v1' for s in V1['stages'])
+    assert reusable(V1, V2, 'source', manifest, manifest)
+    assert reusable(V1, V2, 'observation', manifest, manifest)
+    assert not reusable(V1, V2, 'extraction', manifest, manifest)
+    assert affected(V2, ['extraction']) == ['extraction', 'projection', 'solver', 'evidence', 'lesson', 'visual', 'page']
 
 
 @pytest.mark.parametrize('change', ['cycle', 'duplicate', 'ordinal', 'completion'])

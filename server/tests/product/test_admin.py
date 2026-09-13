@@ -80,7 +80,7 @@ def test_release_uses_committed_archive_not_live_or_ignored_files(tmp_path):
     # Fake the image transport only. Real git archive, tar, release packaging and checksums run.
     docker = binary / 'docker'
     docker.write_text('''#!/usr/bin/env python3
-import os,sys
+import os,sys,io,json,tarfile
 from pathlib import Path
 a=sys.argv[1:]
 if a[:2]==['buildx','build']:
@@ -91,7 +91,14 @@ if a[:2]==['buildx','build']:
 elif a[:2]==['image','inspect']:
     print('sha256:'+'a'*64)
 elif a[0]=='save':
-    Path(a[a.index('-o')+1]).write_bytes(b'fake image archive')
+    # Packaging reads content IDs from Docker's archive manifest, not inspect.
+    tags=a[a.index('-o')+2:]
+    manifest=[{'Config': str(i)*64+'.json', 'RepoTags': [tag], 'Layers': []}
+              for i,tag in enumerate(tags,1)]
+    content=json.dumps(manifest).encode()
+    with tarfile.open(a[a.index('-o')+1], 'w') as archive:
+        info=tarfile.TarInfo('manifest.json'); info.size=len(content)
+        archive.addfile(info,io.BytesIO(content))
 ''')
     docker.chmod(0o755)
     output = tmp_path / 'release'

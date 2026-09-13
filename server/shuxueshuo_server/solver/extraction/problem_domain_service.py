@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from io import BytesIO
 import json
+import math
 from typing import Any, Mapping, Protocol, Sequence
 
 from PIL import Image
@@ -65,6 +66,8 @@ from shuxueshuo_server.solver.extraction.source_identity import (
 )
 
 
+from .problem_source_review import SourceReviewer, review_issues
+
 PROBLEM_DOMAIN_PRIMARY_IMAGE_MAX_EDGE = 1600
 
 
@@ -93,6 +96,7 @@ class ProblemDomainExtractionAttemptResult:
     output_artifacts: tuple[ExtractionArtifactRef, ...]
     validation_artifact: ExtractionArtifactRef
     structured_error: Mapping[str, Any] | None
+    source_review: Mapping[str, Any] | None = None
 
     @property
     def ok(self) -> bool:
@@ -115,6 +119,7 @@ class ProblemDomainExtractionAttemptResult:
                 else None
             ),
             "validation": self.report.to_payload(),
+            "source_review": dict(self.source_review) if self.source_review else None,
             "structured_error": (
                 dict(self.structured_error) if self.structured_error else None
             ),
@@ -241,6 +246,10 @@ class ProblemDomainExtractionService:
                     solver_projection=result.projection,
                 )
 
+            if any(i.code == "extraction.problem_source_uncertain" for i in result.report.issues):
+                blocked_reason = "extraction.problem_source_uncertain"
+                break
+
             prompt_issues = _merge_issues(
                 (
                     current_draft.validation_report.issues
@@ -326,6 +335,7 @@ class ProblemDomainExtractionService:
             projection: SolverProblemProjection | None = None
             output_artifacts: list[ExtractionArtifactRef] = []
             structured_error: Mapping[str, Any] | None = None
+            source_review = None
             try:
                 response = self.provider.complete(request)
             except MultimodalProviderError as exc:
@@ -407,6 +417,21 @@ class ProblemDomainExtractionService:
                         resulting_draft = validation.draft
                         report = validation.report
                         projection = validation.projection
+                        differences = self.validator.source_differences(resulting_draft, pack)
+                        differences["canonicalization_actions"] = [a.to_payload() for a in canonicalization.actions]
+                        output_artifacts.append(self.output_artifact_store.put_json(
+                            kind="problem_source_differences", payload=differences))
+                        if report.ok and projection is not None and differences["differences"]:
+                            source_review, review_artifacts = SourceReviewer(self.output_artifact_store).review(
+                                context_id=context.manifest.context_id, draft=resulting_draft, pack=pack,
+                                reader=self.input_artifact_reader, provider=self.provider, differences=differences)
+                            output_artifacts.extend(review_artifacts)
+                            findings = review_issues(source_review, resulting_draft)
+                            if findings:
+                                validation = self.validator.validate(
+                                    resulting_draft, evidence_pack=pack,
+                                    expected_problem_id=expected_problem_id, source_review_issues=findings)
+                                resulting_draft, report, projection = validation.draft, validation.report, validation.projection
                         output_artifacts.append(
                             self.output_artifact_store.put_json(
                                 kind="problem_draft",
@@ -480,6 +505,7 @@ class ProblemDomainExtractionService:
                     output_artifacts=_unique_artifacts(output_artifacts),
                     validation_artifact=validation_artifact,
                     structured_error=structured_error,
+                    source_review=source_review,
                 ),
                 next_ledger,
             )
@@ -576,17 +602,29 @@ class ProblemDomainExtractionService:
         by_id = pack.region_by_id
         result: list[MultimodalProviderImage] = []
         for region_id in sorted(region_ids):
-            region = by_id.get(region_id)
-            if region is None:
-                continue
-            source_ref = next(
-                (
-                    artifact
-                    for artifact in context.state.artifacts
-                    if artifact.artifact_id == region.source_artifact_id
-                ),
-                None,
-            )
+            if region_id.startswith('source-review-bbox:'):
+                # Self-contained references survive issue serialization without
+                # adding synthetic OCR observations or requiring layout overlap.
+                try:
+                    value = json.loads(region_id.removeprefix('source-review-bbox:'))
+                    x0, y0, x1, y1 = value['bbox']
+                    if not all(type(v) in (int, float) and math.isfinite(v) and 0 <= v <= 1 for v in (x0, y0, x1, y1)) or x0 >= x1 or y0 >= y1:
+                        continue
+                    primary = next(i for i in pack.images if i.page_id == value['page_id'])
+                except (ValueError, TypeError, KeyError, StopIteration):
+                    continue
+                source_ref, page_id = primary.artifact, primary.page_id
+                polygon = ((x0, y0), (x1, y1))
+                zoom_id = f'zoom:source-review:{stable_hash(value)}'
+            else:
+                region = by_id.get(region_id)
+                if region is None:
+                    continue
+                source_ref = next(
+                    (artifact for artifact in context.state.artifacts
+                     if artifact.artifact_id == region.source_artifact_id), None)
+                page_id, polygon = region.page_id, region.polygon
+                zoom_id = f'zoom:{region_id}'
             if source_ref is None:
                 continue
             with Image.open(
@@ -595,19 +633,19 @@ class ProblemDomainExtractionService:
                 with source.convert("RGB") as image:
                     left = max(
                         0,
-                        int(min(x for x, _ in region.polygon) * image.width) - 24,
+                        int(min(x for x, _ in polygon) * image.width) - 24,
                     )
                     top = max(
                         0,
-                        int(min(y for _, y in region.polygon) * image.height) - 24,
+                        int(min(y for _, y in polygon) * image.height) - 24,
                     )
                     right = min(
                         image.width,
-                        int(max(x for x, _ in region.polygon) * image.width) + 24,
+                        int(max(x for x, _ in polygon) * image.width) + 24,
                     )
                     bottom = min(
                         image.height,
-                        int(max(y for _, y in region.polygon) * image.height) + 24,
+                        int(max(y for _, y in polygon) * image.height) + 24,
                     )
                     if right <= left or bottom <= top:
                         continue
@@ -624,8 +662,8 @@ class ProblemDomainExtractionService:
             )
             result.append(
                 MultimodalProviderImage(
-                    image_id=f"zoom:{region_id}",
-                    page_id=region.page_id,
+                    image_id=zoom_id,
+                    page_id=page_id,
                     role="zoom",
                     artifact=artifact,
                     content=buffer.getvalue(),

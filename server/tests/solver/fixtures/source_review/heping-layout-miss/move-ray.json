@@ -1,0 +1,10 @@
+{
+  "scope_path": "root/part2",
+  "entity": {
+    "id": "ray_CD",
+    "kind": "named_ray",
+    "label": "射线CD",
+    "origin": "point_C",
+    "through": "point_D"
+  }
+}

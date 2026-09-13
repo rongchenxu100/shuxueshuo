@@ -1,4 +1,5 @@
 """At-least-once transport; all authoritative task state lives in PostgreSQL."""
+from .pipelines import CURRENT_PIPELINE_VERSION
 from datetime import timedelta
 import os
 import signal
@@ -27,7 +28,7 @@ from .runtime_status import pulse
 
 
 def deployment(service):
-    return dependencies({'sha256': ''}, None, service.registry.get('problem_lesson', 'v1'))['deployment_version']
+    return dependencies({'sha256': ''}, None, service.registry.get('problem_lesson', CURRENT_PIPELINE_VERSION))['deployment_version']
 
 
 def queue_for(version): return 'product.build.' + version

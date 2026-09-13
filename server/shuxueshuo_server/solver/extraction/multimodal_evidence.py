@@ -205,6 +205,14 @@ class MultimodalEvidencePack:
             ],
             "origin_summary": _origin_summary(self.region_index),
             "review_items": _prompt_review_items(self),
+            "uncertain_regions": [
+                {"region_id": r.region_id, "page_id": r.page_id,
+                 "polygon": [list(p) for p in r.polygon], "origin": r.origin,
+                 "kind": r.kind, "confidence": r.confidence,
+                 "hint": next((w.hint for w in self.unresolved_items
+                               if r.region_id in w.region_refs and w.hint), None)}
+                for r in self.region_index if r.origin in {"unknown", "mixed"}
+            ],
         }
 
     @classmethod
@@ -766,6 +774,7 @@ def _prompt_review_items(
         high_value = (
             item.code in direct_question_codes
             or bool(overlaps_printed)
+            or any(r.origin in {"unknown", "mixed"} for r in regions)
         )
         if not high_value:
             continue

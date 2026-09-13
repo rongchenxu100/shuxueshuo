@@ -2,12 +2,19 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { api, post, BuildSchema, failureMessage, label, terminal, websocketUrl, type ProductBuild } from '@/lib/product/client';
+import { api, post, BuildSchema, failureMessage, formatDuration, label, stageElapsedMs, terminal, websocketUrl, type ProductBuild } from '@/lib/product/client';
 import { continueUpload, fileFingerprint, PendingUploadSchema, pendingUploadKey, ProblemListSchema, ProblemSchema,
   previewPage, stageLabel, problemTitle, processing, unreadResult, markResultRead, ReadResultsSchema, readResultsKey, type ReadResults, type PendingUpload, type WorkspaceProblem } from '@/lib/product/workspace';
 import styles from './product-workspace.module.css';
 
 const message = (error: unknown) => error instanceof Error ? error.message : '请求未完成，请稍后重试。';
+
+function formatUpdated(value?: string | null) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
 
 export function ProductWorkspace() {
   const [problems, setProblems] = useState<WorkspaceProblem[]>([]);
@@ -206,7 +213,10 @@ export function ProductWorkspace() {
               {processing(p) ? <span role="status" aria-label={p.latest_build_status === 'queued' ? '排队中' : '生成中'} className={styles.spinner} /> :
                 unreadResult(p, readResults) && <span role="status" aria-label="解析已完成，未读" className={styles.unread} />}
             </span>
-            <span className="mt-1 block text-xs text-zinc-500">{p.latest_build_status ? label(p.latest_build_status) : '尚未生成'}</span>
+            <span className="mt-1 block text-xs text-zinc-500">
+              {p.latest_build_status ? label(p.latest_build_status) : '尚未生成'}
+              {p.updated_at ? ` · ${formatUpdated(p.updated_at)}` : ''}
+            </span>
           </button>)}
           {!problems.length && !listError && <p className="p-3 text-sm text-zinc-500">上传第一张题目图片开始。</p>}
           {more && <button className={styles.button} onClick={() => void loadList(problems.at(-1))}>加载更多</button>}
@@ -269,6 +279,14 @@ function RunWorkspace({ problem, onComplete, notices, width, onWidth, onResizing
   const [build, setBuild] = useState<ProductBuild | null>(null);
   const [error, setError] = useState('');
   const [connected, setConnected] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  const live = Boolean(build && !terminal(build.status));
+  useEffect(() => {
+    if (!live) return;
+    setNow(Date.now());
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(tick);
+  }, [live, build?.id]);
   useEffect(() => {
     let stopped = false, fetching = false, completed = false;
     let watermark = 0;
@@ -327,10 +345,14 @@ function RunWorkspace({ problem, onComplete, notices, width, onWidth, onResizing
           {build?.status === 'succeeded' && !previewPage(build) && <p className={styles.muted}>解析版本已失效，请到审查页面确认并重新生成。</p>}
           {build?.status === 'cancelled' && <p className={styles.muted}>本次生成已取消，题目图片仍已保存。</p>}
           {build && !terminal(build.status) && <p className={styles.muted}>正在处理题目。关闭页面不会中断生成，稍后可以从左侧列表继续查看。</p>}
-          <ol aria-label="生成步骤">{build?.stages.map(stage => <li className={styles.stage} key={stage.id}>
-            <span className={styles.dot} data-status={stage.status}>{stage.status === 'succeeded' ? '✓' : stage.ordinal}</span>
-            <div className="min-w-0 flex-1"><p className="text-sm font-medium">{stageLabel(stage)}</p><p className="mt-1 text-xs text-zinc-500">{label(stage.status)}</p></div>
-          </li>)}</ol>
+          <ol aria-label="生成步骤">{build?.stages.map(stage => {
+            const elapsed = stageElapsedMs(build, stage.id, now);
+            const statusLine = [label(stage.status), elapsed != null ? formatDuration(elapsed) : null].filter(Boolean).join(' · ');
+            return <li className={styles.stage} key={stage.id}>
+              <span className={styles.dot} data-status={stage.status}>{stage.status === 'succeeded' ? '✓' : stage.ordinal}</span>
+              <div className="min-w-0 flex-1"><p className="text-sm font-medium">{stageLabel(stage)}</p><p className="mt-1 text-xs text-zinc-500">{statusLine}</p></div>
+            </li>;
+          })}</ol>
         </div>
       </div>{previewPage(build) && <ResizeHandle label="调整生成进度栏宽度" value={width} min={240} max={480} onChange={onWidth} onResizing={onResizing} reverse />}
     </section>

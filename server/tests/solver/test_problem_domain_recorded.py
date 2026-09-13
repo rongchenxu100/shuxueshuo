@@ -49,6 +49,11 @@ EXPECTED_IDENTITIES = {
 
 
 class _SourceIndependentValidator(ProblemDomainValidator):
+    def source_differences(self, draft, pack):
+        # This legacy suite uses an unrelated synthetic image; production-path
+        # image/observation coverage lives in test_problem_source_review.py.
+        return {"differences": []}
+
     def validate(self, draft, *, evidence_pack=None, expected_problem_id=None):
         return super().validate(draft, expected_problem_id=expected_problem_id)
 

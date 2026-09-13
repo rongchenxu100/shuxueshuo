@@ -1,0 +1,306 @@
+{
+  "schema_version": "problem-domain/v1",
+  "problem_id": "tj-2026-heping-yimo-25",
+  "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+  "source": {
+    "question_number": "25",
+    "score": "10分"
+  },
+  "root": {
+    "id": "root",
+    "label": "题目",
+    "source_text": [
+      "已知抛物线 y=ax²+bx-3（a，b 是常数，a>0）与 x 轴相交于点 A(-1,0) 和点 B，与 y 轴相交于点 C，将点 C 水平向右平移 2 个单位长度得到点 D，连接 BC。"
+    ],
+    "entities": [
+      {
+        "id": "parabola",
+        "kind": "quadratic_function",
+        "label": "抛物线"
+      },
+      {
+        "id": "x_var",
+        "kind": "symbol",
+        "label": "x",
+        "role": "function_variable"
+      },
+      {
+        "id": "a_coef",
+        "kind": "symbol",
+        "label": "a",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "id": "b_coef",
+        "kind": "symbol",
+        "label": "b",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "id": "point_A",
+        "kind": "point",
+        "label": "A",
+        "role": "x_axis_intercept"
+      },
+      {
+        "id": "point_B",
+        "kind": "point",
+        "label": "B",
+        "role": "x_axis_intercept"
+      },
+      {
+        "id": "point_C",
+        "kind": "point",
+        "label": "C",
+        "role": "y_axis_intercept"
+      },
+      {
+        "id": "point_D",
+        "kind": "point",
+        "label": "D",
+        "role": "translated_point"
+      },
+      {
+        "id": "point_O",
+        "kind": "point",
+        "label": "O",
+        "role": "origin"
+      },
+      {
+        "id": "ray_CD",
+        "kind": "named_ray",
+        "label": "射线CD",
+        "origin": "point_C",
+        "through": "point_D"
+      }
+    ],
+    "facts": [
+      {
+        "kind": "function_expression",
+        "function": "parabola",
+        "variable": "x_var",
+        "expression": "a * x**2 + b * x - 3"
+      },
+      {
+        "kind": "symbol_constraint",
+        "symbol": "a_coef",
+        "operator": ">",
+        "value": "0"
+      },
+      {
+        "kind": "point_construction",
+        "point": "point_O",
+        "construction": "origin"
+      },
+      {
+        "kind": "point_coordinate",
+        "point": "point_A",
+        "value": [
+          "-1",
+          "0"
+        ]
+      },
+      {
+        "kind": "point_on_curve",
+        "point": "point_A",
+        "curve": "parabola"
+      },
+      {
+        "kind": "point_construction",
+        "point": "point_B",
+        "construction": "x_axis_intercept",
+        "owner": "parabola",
+        "exclude_point": "point_A",
+        "side": "right"
+      },
+      {
+        "kind": "point_construction",
+        "point": "point_C",
+        "construction": "y_axis_intercept",
+        "owner": "parabola"
+      },
+      {
+        "kind": "point_construction",
+        "point": "point_D",
+        "construction": "translated_point",
+        "owner": "point_C",
+        "vector": [
+          "2",
+          "0"
+        ]
+      }
+    ],
+    "goals": [],
+    "children": [
+      {
+        "id": "part1",
+        "label": "(Ⅰ) 当点 D 落在该抛物线上时",
+        "source_text": [
+          "（Ⅰ）当点 D 落在该抛物线上时，"
+        ],
+        "entities": [],
+        "facts": [
+          {
+            "kind": "point_on_curve",
+            "point": "point_D",
+            "curve": "parabola"
+          }
+        ],
+        "goals": [],
+        "children": [
+          {
+            "id": "part1_1",
+            "label": "① 求抛物线的解析式",
+            "source_text": [
+              "①求抛物线的解析式；"
+            ],
+            "entities": [],
+            "facts": [],
+            "goals": [
+              {
+                "kind": "quadratic_equation",
+                "answer_key": "parabola_expression",
+                "target": "parabola"
+              }
+            ],
+            "children": []
+          },
+          {
+            "id": "part1_2",
+            "label": "② 求点 E 的坐标",
+            "source_text": [
+              "② 抛物线上的点 E 的横坐标为 m，且 -1<m<0，若 ∠CBE+∠ACO=45°，求点 E 的坐标；"
+            ],
+            "entities": [
+              {
+                "id": "point_E",
+                "kind": "point",
+                "label": "E",
+                "role": "curve_point"
+              },
+              {
+                "id": "m_param",
+                "kind": "symbol",
+                "label": "m",
+                "role": "dynamic_parameter"
+              }
+            ],
+            "facts": [
+              {
+                "kind": "point_on_curve_with_x",
+                "point": "point_E",
+                "curve": "parabola",
+                "x_symbol": "m_param",
+                "x_range": [
+                  "-1",
+                  "0"
+                ]
+              },
+              {
+                "kind": "angle_sum",
+                "angles": [
+                  {
+                    "start": "point_C",
+                    "vertex": "point_B",
+                    "end": "point_E"
+                  },
+                  {
+                    "start": "point_A",
+                    "vertex": "point_C",
+                    "end": "point_O"
+                  }
+                ],
+                "value": "45"
+              }
+            ],
+            "goals": [
+              {
+                "kind": "point_coordinate",
+                "answer_key": "point_E_coord",
+                "target": "point_E"
+              }
+            ],
+            "children": []
+          }
+        ]
+      },
+      {
+        "id": "part2",
+        "label": "(Ⅱ) 求 a 的值",
+        "source_text": [
+          "（Ⅱ）点 M 是线段 BC 上一动点，连接 OM。点 N 是射线 CD 上一动点，且满足 CN=CM，连接 BN。当 OM+BN 的最小值为 √34 时，求 a 的值。"
+        ],
+        "entities": [
+          {
+            "id": "point_M",
+            "kind": "point",
+            "label": "M",
+            "role": "moving_point_on_segment"
+          },
+          {
+            "id": "point_N",
+            "kind": "point",
+            "label": "N",
+            "role": "moving_point_on_ray"
+          }
+        ],
+        "facts": [
+          {
+            "kind": "point_on_segment",
+            "point": "point_M",
+            "segment": {
+              "start": "point_B",
+              "end": "point_C"
+            }
+          },
+          {
+            "kind": "point_on_ray",
+            "point": "point_N",
+            "ray": "ray_CD"
+          },
+          {
+            "kind": "equal_length",
+            "left": {
+              "start": "point_C",
+              "end": "point_N"
+            },
+            "right": {
+              "start": "point_C",
+              "end": "point_M"
+            }
+          },
+          {
+            "kind": "minimum_value_given",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "point_O",
+                    "end": "point_M"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "point_B",
+                    "end": "point_N"
+                  }
+                }
+              ]
+            },
+            "value": "sqrt(34)"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "parameter_value",
+            "answer_key": "a_value",
+            "target": "a_coef"
+          }
+        ],
+        "children": []
+      }
+    ]
+  }
+}

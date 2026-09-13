@@ -1,4 +1,5 @@
 """Product use cases. External calls and expensive domain validation precede transactions."""
+from .pipelines import CURRENT_PIPELINE_VERSION
 from datetime import timedelta
 from io import BytesIO
 from pathlib import PurePosixPath
@@ -248,7 +249,7 @@ class ProductService:
 
     def submit_build(self, ctx, problem_id, *, request_id, source_id, base_revision_id,
                      dependencies, config, deployment_version, from_stage='source', pipeline_key='problem_lesson',
-                     pipeline_version='v1', parent_build_id=None, batch_item_id=None, retry_budget=None):
+                     pipeline_version=CURRENT_PIPELINE_VERSION, parent_build_id=None, batch_item_id=None, retry_budget=None):
         snapshot = self.registry.get(pipeline_key, pipeline_version)
         if from_stage not in {s['stage_key'] for s in snapshot['stages']}:
             raise Conflict('pipeline.repreview_required')

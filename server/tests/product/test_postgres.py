@@ -145,9 +145,10 @@ def test_complete_page_and_resource_access(setup, domain, superseded, reuse_page
     def artifact(value, kind, schema=None, page=False, mime='application/json'):
         return s.register_artifact(*args, content=value if isinstance(value, bytes) else json.dumps(value).encode(),
             artifact_type=kind, content_type=mime, schema_version=schema, access_class='page' if page else 'private', attempt_id=attempt['id'])
-    for stage in s.registry.get('problem_lesson', 'v1')['stages']:
+    from shuxueshuo_server.product.pipelines import CURRENT_PIPELINE_VERSION
+    for stage in s.registry.get('problem_lesson', CURRENT_PIPELINE_VERSION)['stages']:
         attempt = s.begin_stage(*args, stage['stage_key'])
-        manifest = artifact(dict(stage_key=stage['stage_key'], contract_version='v1', inputs={}, resources={'test': 'v1'}, config={}, upstream={}), 'manifest')
+        manifest = artifact(dict(stage_key=stage['stage_key'], contract_version=stage['contract_version'], inputs={}, resources={'test': 'v1'}, config={}, upstream={}), 'manifest')
         checkpoint = artifact({'recorded': True}, 'checkpoint')
         outputs = []
         if stage['stage_key'] == 'page':
@@ -218,8 +219,8 @@ def test_definition_versions_and_deferred_stage_set(setup):
     old = submit(s, ctx, item)
     snapshot = s.registry.get('problem_lesson', 'v1')
     snapshot['stages'][0]['title'] = '新版来源展示'
-    s.registry.register('problem_lesson', 'v2', snapshot)
-    new = submit(s, ctx, item, pipeline_version='v2')
+    s.registry.register('problem_lesson', 'v3', snapshot)
+    new = submit(s, ctx, item, pipeline_version='v3')
     assert s.build_snapshot(ctx, old['build_id'])['stages'][0]['title'] != s.build_snapshot(ctx, new['build_id'])['stages'][0]['title']
     with pytest.raises(DBAPIError), transaction(s.db) as c:
         insert(c, m.build_stages, workspace_id=ctx.workspace_id, build_id=old['build_id'], stage_key='unregistered', ordinal=10, status='pending')

@@ -42,14 +42,14 @@ _VALIDATOR_IDS = (
     "lexical-reference/v1",
     "expression/v1",
     "entity-use/v1",
-    "source-literal/v1",
+    "source-literal/v2",
     "source-kind/v1",
     "fact-redundancy/v1",
     "curve-ordinate/v1",
     "definition-conflict/v1",
     "goal/v1",
-    "printed-source/v1",
-    "family-contract/v1",
+    "source-review/v1",
+    "family-contract/v2",
     "runtime-projection/v1",
     "method-readiness/v1",
     "context-build/v1",
@@ -105,14 +105,19 @@ class ProblemDomainValidator:
         self.projector = projector or ProblemDomainProjector()
         self.runtime_readiness = runtime_readiness or ProblemIRRuntimeReadinessValidator()
 
+    def source_differences(self, draft, pack):
+        from .problem_source_review import source_differences
+        return source_differences(draft, pack)
+
     def validate(
         self,
         draft: ProblemDraft,
         *,
         evidence_pack: MultimodalEvidencePack | None = None,
         expected_problem_id: str | None = None,
+        source_review_issues: Sequence[ProblemValidationIssue] = (),
     ) -> ProblemDomainValidationResult:
-        issues: list[ProblemValidationIssue] = []
+        issues: list[ProblemValidationIssue] = list(source_review_issues)
         dependencies: dict[str, set[str]] = {
             unit_id: set() for unit_id in draft.unit_registry
         }
@@ -172,11 +177,6 @@ class ProblemDomainValidator:
             )
             issues.extend(_validate_definition_conflicts(draft, index, dependencies))
             issues.extend(_validate_goals(draft, index, dependencies))
-
-        if evidence_pack is not None:
-            text_issue = _validate_printed_text_coverage(draft, evidence_pack)
-            if text_issue is not None:
-                issues.append(text_issue)
 
         family = next(
             (
@@ -736,7 +736,10 @@ def _validate_source_literals(
     *,
     evidence_pack: MultimodalEvidencePack | None,
 ) -> tuple[ProblemValidationIssue, ...]:
-    """Require model-created source identities to be visible in the question.
+    """Check identities against the draft's own scoped source transcription.
+
+    This checks internal consistency, not whether the original image supports
+    the transcription. Conditional independent image review checks that claim.
 
     Internal local ids are intentionally absent from this check. The source label
     is the model's claim that an object was named by the question; an expression
@@ -744,7 +747,6 @@ def _validate_source_literals(
     """
 
     issues: list[ProblemValidationIssue] = []
-    trusted_observation_text = _evidence_source_text(evidence_pack)
     for scope in draft.graph.root_scope.iter_scopes():
         source = _normalize_text(
             "".join(
@@ -771,9 +773,8 @@ def _validate_source_literals(
             if entity.kind == "symbol":
                 simple_symbol = re.fullmatch(r"[^\W\d_]", label) is not None
                 trusted_composite_symbol = bool(
-                    not simple_symbol
-                    and trusted_observation_text
-                    and normalized in trusted_observation_text
+                    re.fullmatch(r"[A-Za-z](?:_[A-Za-z0-9]+|[0-9]+)", label)
+                    and normalized in source
                 )
                 if not simple_symbol and not trusted_composite_symbol:
                     issues.append(
@@ -1176,7 +1177,6 @@ def _validate_family_contract(
     issues: list[ProblemValidationIssue] = []
     entity_counts, fact_counts = _family_source_primitive_counts(draft)
     missing: list[str] = []
-    source_text = _family_source_text(draft, evidence_pack)
     for requirement in family.required_source_requirements:
         counts = entity_counts if requirement.primitive_kind == "entity_type" else fact_counts
         observed = sum(counts.get(item, 0) for item in requirement.primitive_types)
@@ -1185,17 +1185,6 @@ def _validate_family_contract(
                 f"{requirement.primitive_kind} {list(requirement.primitive_types)}: {requirement.description}"
             )
             continue
-        if requirement.source_authority == "printed_source":
-            markers = tuple(_normalize_text(item) for item in requirement.printed_source_markers)
-            if not any(marker and marker in source_text for marker in markers):
-                issues.append(
-                    _issue(
-                        "extraction.problem_family_source_ungrounded",
-                        ("family",),
-                        f"{family.family_id} requires a printed source marker from {list(requirement.printed_source_markers)!r}",
-                        "select a family whose use_when is explicitly visible in the question",
-                    )
-                )
     if missing:
         addition_scopes = tuple(
             scope.unit_id for scope in draft.graph.root_scope.iter_scopes()

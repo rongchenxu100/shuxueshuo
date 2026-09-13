@@ -27,6 +27,14 @@ def payload(value):
     return value
 
 
+def require_source_review_config(build):
+    """Frozen legacy budgets cannot run a different extraction policy."""
+    config = build['effective_config'].get('extraction', {})
+    if any(config.get(key) != limit for key, limit in {
+        'draft_budget': 3, 'review_budget': 3, 'semantic_budget': 6, 'network_budget': 12}.items()):
+        raise Conflict('extraction.rebuild_required')
+
+
 class ExecutionContext:
     @classmethod
     def preview(cls, application, build, work):
@@ -56,6 +64,9 @@ class ExecutionContext:
     def guard(self, *, code=True):
         with transaction(self.service.db) as c: self.service._guard(c, *self.args)
         if code:
+            if any(s['stage_key'] == 'extraction' and s['contract_version'] != 'v2'
+                   for s in self.build['pipeline_snapshot']['stages']):
+                raise Conflict('extraction.rebuild_required')
             target = dependencies(self.source, self.build['requested_revision_id'], self.build['pipeline_snapshot'])
             if target['deployment_version'] != self.build['deployment_version'] or target['config'] != self.build['effective_config']:
                 raise Conflict('build.environment_changed')
@@ -223,7 +234,19 @@ class AuditedClient:
         x = self.context
         call_id = str(uuid4())
         req = request.redacted_payload() if hasattr(request, 'redacted_payload') else request
-        self.reserve('model.call_started', 'semantic_budget', call_id, digest(payload(req)))
+        review_key = None
+        if x.stage_key == 'extraction':
+            require_source_review_config(x.build)
+            review = getattr(request, 'contract_version', None) == 'problem-source-review/v1'
+            if review:
+                review_key = json.loads(request.prompt.user_suffix)['binding']
+                cached = self._restore_source_review(review_key)
+                if cached is not None:
+                    return cached
+            self.reserve('model.review_started' if review else 'model.draft_started',
+                         'review_budget' if review else 'draft_budget', call_id, review_key)
+        self.reserve('model.call_started', 'semantic_budget', call_id,
+                     None if x.stage_key == 'extraction' else digest(payload(req)))
         request_ref = x.add(f'{call_id} 实际请求', req, role='input')
         for image in getattr(request, 'images', []): x.add(f'{call_id} 图片 {image.role}', image.content, role='input', mime=image.artifact.media_type)
         started, result, failed, response_ref = time.monotonic(), None, False, None
@@ -233,6 +256,13 @@ class AuditedClient:
             result = self.client.complete(request)
             response_ref = x.add(f'{call_id} 原始返回', result.text if hasattr(result, 'text') else result, role='raw', mime='text/plain')
             if hasattr(result, 'raw_payload'): x.add(f'{call_id} provider payload', result.raw_payload, role='raw')
+            if review_key:
+                replay = x.add('source-review-replay:' + review_key, {
+                    'text': result.text, 'raw_payload': dict(result.raw_payload),
+                    'metadata': result.metadata_payload()}, role='call')
+                x.service.record_diagnostic(*x.args, code='model.review_completed',
+                    message='视觉复核响应已持久化。', severity='info', stage_attempt_id=x.attempt['id'],
+                    details={'binding': review_key, 'artifact_id': str(replay['id'])})
             return result
         except Exception:
             failed = True
@@ -251,3 +281,40 @@ class AuditedClient:
                 status='failed' if failed else 'succeeded', duration_ms=int((time.monotonic() - started) * 1000),
                 request_artifact_id=request_ref['id'], response_artifact_id=response_ref['id'] if response_ref else None,
                 input_tokens=usage.get('prompt_tokens', usage.get('input_tokens')), output_tokens=usage.get('completion_tokens', usage.get('output_tokens')), usage_json=meta.get('usage'))
+
+    def _restore_source_review(self, key):
+        """A fenced worker may reuse an audited response, never repeat an unknown call."""
+        from shuxueshuo_server.solver.extraction.multimodal_provider import MultimodalProviderResponse
+        x = self.context
+        with transaction(x.service.db) as c:
+            x.service._guard(c, *x.args)
+            prior = c.execute(select(m.diagnostics.c.details).where(
+                m.diagnostics.c.build_id == x.build['id'],
+                m.diagnostics.c.code == 'model.review_started',
+                m.diagnostics.c.details['request_hash'].astext == key)).first()
+            if not prior:
+                return None
+            completed = c.execute(select(m.diagnostics.c.details).where(
+                m.diagnostics.c.build_id == x.build['id'], m.diagnostics.c.code == 'model.review_completed',
+                m.diagnostics.c.details['binding'].astext == key)).scalar()
+            if not completed:
+                raise ProductError('model.source_review_outcome_unknown')
+            artifact_id = UUID(completed['artifact_id'])
+            artifact = x.service.artifacts.verified(c, x.ctx, artifact_id)
+            if artifact['producer_build_id'] != x.build['id']:
+                raise IntegrityFailure('model.source_review_wrong_build')
+        with x.service.storage.open(artifact['storage_key']) as f:
+            saved = json.load(f)
+        meta = saved['metadata']
+        return MultimodalProviderResponse(text=saved['text'], raw_payload=saved['raw_payload'],
+            request_model=meta['request_model'], response_model=meta['response_model'], usage={},
+            finish_reason=meta['finish_reason'], provider_attempts=(), latency_ms=0,
+            thinking_mode=meta['thinking_mode'], reasoning_effort=meta['reasoning_effort'],
+            contract_version='problem-source-review/v1', provider_name=meta['provider'])
+
+    def restore_source_review(self, request):
+        """Only restore an existing audited response; never reserve or call."""
+        require_source_review_config(self.context.build)
+        if self.context.stage_key != 'extraction' or request.contract_version != 'problem-source-review/v1':
+            raise ProductError('model.source_review_invalid_request')
+        return self._restore_source_review(json.loads(request.prompt.user_suffix)['binding'])

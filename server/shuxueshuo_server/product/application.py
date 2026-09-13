@@ -1,4 +1,5 @@
 """Product request use cases. Network/model work belongs exclusively to the worker."""
+from .pipelines import CURRENT_PIPELINE_VERSION
 from datetime import datetime
 from hashlib import sha256
 import json
@@ -63,6 +64,7 @@ def dependencies(source, revision_id, snapshot):
         config[key]['semantic_budget'] = limit
         config[key]['network_budget'] = limit * 2
         config[key]['sdk_retries'] = 0
+    config['extraction'].update(draft_budget=3, review_budget=3, semantic_budget=6, network_budget=12, source_review_contract='problem-source-review/v1')
     resources = {k: v['resources'] for k, v in discovered['stages'].items()}
     runtime = {str(p.relative_to(REPO)): sha256(p.read_bytes()).hexdigest()
                for p in sorted((REPO / 'server/shuxueshuo_server/product').rglob('*.py'))}
@@ -201,7 +203,7 @@ class Application:
         checked, verified = validate(domain, {'verified': base['verified_json'], 'domain': base['domain_json']})
         return {'ok': checked.ok, 'base_revision_id': str(base_id), 'diagnostics': checked.report.to_payload(),
                 'diff': diff(base['domain_json'], checked.draft.graph.wire_payload()),
-                'affected_stages': [s['stage_key'] for s in self.service.registry.get('problem_lesson', 'v1')['stages'][2:]] if verified and base['semantic_hash'] != verified.semantic_hash else []}
+                'affected_stages': [s['stage_key'] for s in self.service.registry.get('problem_lesson', CURRENT_PIPELINE_VERSION)['stages'][2:]] if verified and base['semantic_hash'] != verified.semantic_hash else []}
 
     def save_revision(self, problem_id, base_id, domain, key):
         return self.request('revision.save', key, {'problem_id': problem_id, 'base_id': base_id, 'domain': domain},
@@ -213,7 +215,7 @@ class Application:
             source = scoped(c, m.sources, self.ctx, source_id or p['primary_source_id'])
             original = self.service.artifacts.verified(c, self.ctx, source['original_artifact_id'])
             revision = row(c, m.problem_revisions, id=p['current_revision_id']) if p['current_revision_id'] else None
-        snapshot = self.service.registry.get('problem_lesson', 'v1')
+        snapshot = self.service.registry.get('problem_lesson', CURRENT_PIPELINE_VERSION)
         # Fingerprint every current revision (manual or extracted). Leaving extracted
         # revisions as null lets rebuild reuse a stale extraction checkpoint while
         # bind_requested_revision attaches a newer meaning.
@@ -233,7 +235,7 @@ class Application:
     def rebuild_preview(self, build_id, requested_stage=None):
         original = self.service.build_snapshot(self.ctx, build_id)['build']
         p, source, target = self.environment(original['problem_id'], original['source_id'])
-        snapshot = self.service.registry.get('problem_lesson', 'v1')
+        snapshot = self.service.registry.get('problem_lesson', CURRENT_PIPELINE_VERSION)
         keys = [s['stage_key'] for s in snapshot['stages']]
         if requested_stage is not None and requested_stage not in keys: raise Conflict('pipeline.repreview_required')
         reasons, reuse = [], []
@@ -244,6 +246,7 @@ class Application:
             for key in keys:
                 stage = rows.get(key)
                 if not stage or stage['status'] != 'succeeded': reasons.append({'stage': key, 'code': 'stage.incomplete'})
+                elif next((s['contract_version'] for s in original['pipeline_snapshot']['stages'] if s['stage_key'] == key), None) != next(s['contract_version'] for s in snapshot['stages'] if s['stage_key'] == key): reasons.append({'stage': key, 'code': 'build.contract_changed'})
                 elif original['target_dependencies'].get(key) != target['dependencies'][key]: reasons.append({'stage': key, 'code': 'build.dependencies_changed'})
                 elif key == 'extraction' and resolved_revision != current_revision:
                     # Parent extraction produced a different meaning than the rebuild request.

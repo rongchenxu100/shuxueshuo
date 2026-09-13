@@ -416,6 +416,33 @@ def test_given_minimum_materializes_target_for_non_parameter_goal() -> None:
     assert validation.report.ok, validation.report.to_payload()
 
 
+def test_diagonal_intersection_materializes_equivalent_square_center() -> None:
+    gold = _gold('tj-2026-heping-ermo-25')
+    payload = _gold('tj-2026-heping-ermo-25')
+    scope = _scope(payload, 'ii')
+    scope['facts'] = [f for f in scope['facts'] if f['kind'] != 'square_center']
+    result = ProblemDomainCanonicalizer().canonicalize(ProblemDraft.create(payload))
+    assert result.draft.semantic_hash == ProblemDraft.create(gold).semantic_hash
+    assert any(a.code == 'materialize_square_diagonal_center' for a in result.actions)
+    assert not ProblemDomainCanonicalizer().canonicalize(result.draft).actions
+
+
+@pytest.mark.parametrize('missing', ['one_diagonal', 'square', 'sibling'])
+def test_square_center_requires_both_local_diagonals_and_visible_square(missing) -> None:
+    payload = _gold('tj-2026-heping-ermo-25')
+    scope = _scope(payload, 'ii')
+    scope['facts'] = [f for f in scope['facts'] if f['kind'] != 'square_center']
+    if missing == 'square':
+        payload['root']['facts'] = [f for f in payload['root']['facts'] if f['kind'] != 'square']
+    else:
+        diagonal = next(f for f in scope['facts'] if f['kind'] == 'point_on_segment')
+        scope['facts'].remove(diagonal)
+        if missing == 'sibling':
+            _scope(payload, 'i')['facts'].append(diagonal)
+    result = ProblemDomainCanonicalizer().canonicalize(ProblemDraft.create(payload))
+    assert not any(a.code == 'materialize_square_diagonal_center' for a in result.actions)
+
+
 def test_square_center_materializes_both_diagonal_memberships() -> None:
     gold = _gold("tj-2026-heping-ermo-25")
     payload = json.loads(json.dumps(gold))

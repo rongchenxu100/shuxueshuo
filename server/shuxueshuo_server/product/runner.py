@@ -17,7 +17,7 @@ from .config import REPO
 from .db import transaction
 from . import models as m
 from .errors import Conflict, IntegrityFailure, ProductError
-from .execution import ExecutionContext, AuditedClient
+from .execution import ExecutionContext, AuditedClient, require_source_review_config
 from .repositories import row
 from .runtime_config import load_runtime
 from .transport import context_for
@@ -163,13 +163,22 @@ class StageRunner:
             x.add('Extraction Context ancestry', [initial.to_payload(), observation.to_payload()])
             x.service.bind_requested_revision(*x.args)
         else:
+            require_source_review_config(x.build)
             if not x.config.doubao_api_key: raise ProductError('configuration.extraction_key_missing')
             provider = AuditedClient(DoubaoMultimodalExtractionProvider(api_key=x.config.doubao_api_key,
                 base_url=x.config.doubao_base_url, model=x.config.doubao_model, request_timeout=180), x)
             result = ProblemDomainExtractionService(input_artifact_reader=store, output_artifact_store=store, provider=provider).run(
                 observation, attempt_ledger=ExtractionAttemptLedger.for_context(observation), ancestor_contexts=(initial,), max_attempts=3)
-            for attempt in result.attempts: x.add(f'attempt {attempt.attempt_number} 校验与采用情况', attempt, role='validation')
-            if not result.accepted: raise ProductError('extraction.blocked')
+            for attempt in result.attempts:
+                x.add(f'attempt {attempt.attempt_number} 校验与采用情况', attempt, role='validation')
+                if attempt.source_review:
+                    x.add(f'attempt {attempt.attempt_number} 原图复核报告', {
+                        'schema_version': 'problem-source-review-audit/v1',
+                        'review': attempt.source_review, 'adopted': attempt.ok},
+                        role='validation', kind='problem_source_review', schema='problem-source-review-audit/v1')
+            if not result.accepted:
+                x.add(ARCHIVE, archive_bytes(x.work / 'extraction-artifacts'), mime='application/zip')
+                raise ProductError(result.blocked_reason if result.blocked_reason == 'extraction.problem_source_uncertain' else 'extraction.blocked')
             final, verified = result.final_context, result.verified_problem
             # Revision binding and accepting the extraction checkpoint commit together.
             x.pending_revision = verified.to_payload()['graph']

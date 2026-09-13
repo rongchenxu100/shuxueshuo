@@ -64,6 +64,11 @@ def _domain_payload(case: str = "tj-2026-nankai-yimo-25") -> dict:
 class _SourceIndependentValidator(ProblemDomainValidator):
     """Exercise domain/runtime validation without the synthetic F2 OCR text."""
 
+    def source_differences(self, draft, pack):
+        # This legacy suite uses an unrelated synthetic image; production-path
+        # image/observation coverage lives in test_problem_source_review.py.
+        return {"differences": []}
+
     def validate(self, draft, *, evidence_pack=None, expected_problem_id=None):
         return super().validate(
             draft,

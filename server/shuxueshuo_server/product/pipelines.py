@@ -16,6 +16,11 @@ V1 = {
 }
 
 
+CURRENT_PIPELINE_VERSION = 'v2'
+V2 = deepcopy(V1)
+next(s for s in V2['stages'] if s['stage_key'] == 'extraction')['contract_version'] = 'v2'
+
+
 def validate(snapshot):
     if snapshot.get('schema_version') != 'product-pipeline/v1':
         raise ProductError('pipeline.unknown_schema')
@@ -55,7 +60,7 @@ def validate(snapshot):
 
 class PipelineRegistry:
     def __init__(self):
-        self._definitions = {('problem_lesson', 'v1'): validate(V1)}
+        self._definitions = {('problem_lesson', 'v1'): validate(V1), ('problem_lesson', 'v2'): validate(V2)}
 
     def register(self, key, version, snapshot):
         checked = validate(snapshot)

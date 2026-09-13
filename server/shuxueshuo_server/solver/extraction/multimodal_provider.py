@@ -161,7 +161,7 @@ class MultimodalProviderRequest:
     evidence_pack: MultimodalEvidencePack
     prompt: MultimodalExtractionPrompt
     images: tuple[MultimodalProviderImage, ...]
-    contract_version: Literal["problem-domain/v1", "problem-repair/v1"]
+    contract_version: Literal["problem-domain/v1", "problem-repair/v1", "problem-source-review/v1"]
     contract_schema: Mapping[str, Any]
     response_format: Mapping[str, Any]
     thinking_mode: Literal["disabled", "enabled"] = (
