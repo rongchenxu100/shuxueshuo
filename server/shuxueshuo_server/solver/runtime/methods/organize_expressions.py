@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from jsonschema import ValidationError
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
 from shuxueshuo_server.solver.math_kernel.expression_rewrite import (
     RewriteError,
     verify_chain,
@@ -140,16 +140,21 @@ SPEC = MethodSpecSource(
     summary="按 parameters.steps 验证完整有理式推导链；只返回最终表达式，不求极值。",
     preconditions=("所有变量和使用的条件已有绑定",),
     postconditions=("最终式与输入在原定义域上等价",),
-    explanation=MethodExplanationSpec(
+    teaching_unit=TeachingUnitSpec(
+        unit_key="organize_expressions/rewrite",
+        title_template="整理目标式",
+        nav_title_template="整理目标式",
+        goal_template="整理目标表达式",
+        derive_templates=(
+            ("推导", "{derive_items}"),
+            ("∴", "{result}"),
+        ),
+        box_templates=("{result}",),
         role_schema={
             "source": "原式",
             "result": "整理结果",
             "derive_items": "已验证推导",
         },
-        student_goal_template="整理目标表达式",
-        student_title_template="整理目标式",
-        student_nav_title_template="整理目标式",
-        box_templates=("{result}",),
         role_binder_id="expression_rewrite",
     ),
     visual=MethodVisualSpec(

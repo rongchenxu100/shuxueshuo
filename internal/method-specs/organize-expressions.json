@@ -75,23 +75,24 @@
   "postconditions": [
     "最终式与输入在原定义域上等价"
   ],
-  "explanation": {
+  "teaching_unit": {
+    "unit_key": "organize_expressions/rewrite",
+    "title_template": "整理目标式",
+    "nav_title_template": "整理目标式",
+    "goal_template": "整理目标表达式",
+    "derive_templates": [
+      ["推导", "{derive_items}"],
+      ["∴", "{result}"]
+    ],
+    "box_templates": [
+      "{result}"
+    ],
     "role_schema": {
       "source": "原式",
       "result": "整理结果",
       "derive_items": "已验证推导"
     },
-    "student_goal_template": "整理目标表达式",
-    "student_title_template": "整理目标式",
-    "student_title_templates_by_goal": {},
-    "derive_templates": [],
-    "box_templates": [
-      "{result}"
-    ],
-    "explanation_level": "template",
-    "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "expression_rewrite",
-    "student_nav_title_template": "整理目标式"
+    "role_binder_id": "expression_rewrite"
   },
   "visual": {
     "role_schema": {

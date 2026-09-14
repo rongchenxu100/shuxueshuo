@@ -162,18 +162,21 @@ def build_rewrite_lesson(
     binder = ExpressionRewriteRoleBinder()
     roles = binder.bind(
         method_id=method_spec.method_id,
-        explanation=method_spec.explanation,
+        explanation=method_spec.teaching_unit,
         traces=(trace,),
     )
     resolved_trace_id = trace_id or f"{source_step_id}:trace"
+    unit = method_spec.teaching_unit
+    if unit is None:
+        raise ValueError("organize_expressions requires teaching_unit")
     step = RewriteLessonStep(
         id="organize",
         scope_id=scope_id,
         source_step_ids=(source_step_id,),
         capability_ids=("organize_expressions",),
         trace_refs=(resolved_trace_id,),
-        title=method_spec.explanation.student_title_template,
-        goal=method_spec.explanation.student_goal_template,
+        title=unit.title_template,
+        goal=unit.goal_template,
         derive=tuple(("", line) for line in roles["derive_items"]),
         box=(roles["result"],),
     )
