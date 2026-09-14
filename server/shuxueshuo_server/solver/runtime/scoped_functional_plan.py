@@ -168,6 +168,7 @@ def scoped_functional_plan_schema() -> dict[str, Any]:
                 "additionalProperties": {"enum": list(_RESULT_FORMS)},
             },
             "intent": nonempty,
+            "parameters": {"type": "object"},
         },
         "additionalProperties": False,
     }
@@ -445,6 +446,7 @@ class ScopedFunctionalStep:
     output_targets: Mapping[str, str]
     return_expectations: Mapping[str, FunctionalResultForm]
     intent: str | None = None
+    parameters: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         object.__setattr__(
@@ -491,6 +493,8 @@ class ScopedFunctionalStep:
             )
         if self.intent:
             payload["intent"] = self.intent
+        if self.parameters:
+            payload["parameters"] = dict(self.parameters)
         return payload
 
 
@@ -1811,6 +1815,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 strategy=intent,
                 reason=intent,
                 return_expectations=dict(step.return_expectations),
+                parameters=dict(step.parameters),
             )
             binding_payload = {
                 "step_id": step.step_id,
@@ -2222,6 +2227,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                 strategy=intent,
                 reason=intent,
                 return_expectations=dict(step.return_expectations),
+                parameters=dict(step.parameters),
             )
             binding_payload = {
                 "step_id": step.step_id,
@@ -2343,6 +2349,7 @@ def _parse_step(value: object) -> ScopedFunctionalStep:
             for key, form in value.get("return_expectations", {}).items()
         },
         intent=str(value["intent"]) if "intent" in value else None,
+        parameters=dict(value.get("parameters", {})),
     )
 
 
@@ -4786,6 +4793,7 @@ def _argument_accepts_return_type(argument: Any, runtime_type: str) -> bool:
         "coefficients_by_symbol": "Coefficients",
         "point_list": "PointList",
         "symbol_list": "SymbolList",
+        "condition_list": "ConditionList",
     }.get(argument.aggregation)
 
 

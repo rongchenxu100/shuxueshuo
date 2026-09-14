@@ -8,6 +8,7 @@ request reaches this boundary.
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
+from copy import deepcopy
 from typing import Any
 
 from shuxueshuo_server.solver.contracts import MethodInputBindingSpec
@@ -153,6 +154,9 @@ class FunctionalDirectCompiler:
             plan=replace(
                 compiled.plan,
                 scope=request.execution_scope_id,
+                invocations=[replace(invocation, parameters=deepcopy(request.prepared_call.reconciliation.parameters))
+                    if request.prepared_call.reconciliation.parameters and invocation.method_id == getattr(request.capability.source, "method_id", None)
+                    else invocation for invocation in compiled.plan.invocations],
             ),
         )
 

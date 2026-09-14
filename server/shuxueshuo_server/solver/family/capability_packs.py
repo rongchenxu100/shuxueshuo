@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from .expression_rewrite import ORGANIZE_EXPRESSIONS_CONTRACT, ORGANIZE_EXPRESSIONS_BINDING
+
 from shuxueshuo_server.solver.contracts import (
     ScalarResultFormSpec,
 )
@@ -1123,6 +1125,12 @@ COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM = StepRecipeSpec(
 
 
 DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
+    CapabilityPackSpec(
+        pack_id="rational_expression_rewrite", kind="base",
+        method_ids=("organize_expressions",),
+        contracts=(ORGANIZE_EXPRESSIONS_CONTRACT,),
+        method_binding_rules=(ORGANIZE_EXPRESSIONS_BINDING,),
+    ),
     CapabilityPackSpec(
         pack_id="quadratic_core",
         kind="base",

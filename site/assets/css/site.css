@@ -1311,6 +1311,7 @@ input[type="range"] {
 
 .home-v2-nav-links {
   display: flex;
+  flex-wrap: wrap;
   gap: 56px;
   justify-self: center;
   color: #1f2f33;

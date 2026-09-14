@@ -16,6 +16,7 @@ method，再把 method output 写回 RuntimeContext。
 from __future__ import annotations
 
 from dataclasses import replace
+from .method_parameters import validate_parameters
 
 import sympy as sp
 
@@ -253,6 +254,7 @@ class PlanValidator:
         """
         spec = self.specs.require(invocation.method_id)
         produced_types = produced_types or {}
+        validate_parameters(spec.parameters_schema, invocation.parameters)
         context.get_scope(invocation.scope)
         unknown_inputs = set(invocation.inputs) - set(spec.inputs)
         if unknown_inputs:
@@ -484,6 +486,14 @@ class InvocationExecutor:
                 repair_action="repair_input_binding",
             )
         try:
+            parameters = validate_parameters(spec.parameters_schema, invocation.parameters)
+            if spec.parameters_schema is not None:
+                inputs["__parameters__"] = parameters
+                sources = invocation.inputs.get("conditions", ())
+                inputs["__condition_sources__"] = list(sources) if isinstance(sources, tuple) else [sources]
+                authorities = invocation.input_read_authorities.get("conditions", ())
+                if authorities:
+                    inputs["__condition_sources__"] = [authority.authority_payload() for authority in authorities]
             result = method.run(inputs, self.kernel)
         except StatelessMethodError as exc:
             input_authorities = {
@@ -879,6 +889,7 @@ def _materialize_symbolic_method_input_views(
 
 def _aggregate_item_type(runtime_type: str) -> str | None:
     return {
+        "ConditionList": "Condition",
         "Coefficients": "ParameterValue",
         "PointList": "Point",
         "SymbolList": "Symbol",

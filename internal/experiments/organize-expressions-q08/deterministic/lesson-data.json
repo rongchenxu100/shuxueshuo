@@ -1,0 +1,676 @@
+{
+  "meta": {
+    "id": "inequality-basic-q08-rewrite-preview",
+    "pageTitle": "q08 · 整理式子实验（仅演示整理步骤）",
+    "outputPath": "site/previews/inequality-basic-q08-organize.html"
+  },
+  "problem": {
+    "lines": [
+      "仅演示整理步骤，不是完整求最小值的解答。",
+      "条件：\\(a > 0\\)，\\(b > 0\\)，\\(a b = 1\\)",
+      "原目标：\\(\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}+\\frac{8}{a+b}\\)"
+    ]
+  },
+  "steps": [
+    {
+      "id": "organize",
+      "section": "整理式子",
+      "title": "整理目标式：通分显条件",
+      "t": 0,
+      "showDiagram": false,
+      "derive": [
+        [
+          "",
+          "通分 \\(\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}=\\frac{a+b}{2\\cdot a\\cdot b}\\)"
+        ],
+        [
+          "",
+          "由 \\(a b = 1\\) \\(\\frac{a+b}{2\\cdot a\\cdot b}=\\frac{a+b}{2}\\)"
+        ],
+        [
+          "",
+          "∴ 原式 \\(\\frac{a+b}{2}+\\frac{8}{a+b}\\)"
+        ]
+      ],
+      "box": [
+        "\\(\\frac{a+b}{2}+\\frac{8}{a+b}\\)"
+      ],
+      "visual": {
+        "kind": "expression-rewrite",
+        "title": "整理目标式：通分显条件",
+        "source": {
+          "latex": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}+\\frac{8}{a+b}",
+          "tree": {
+            "id": "n",
+            "op": "add",
+            "children": [
+              {
+                "id": "n.0",
+                "op": "add",
+                "children": [
+                  {
+                    "id": "n.0.0",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.0.0.0",
+                        "op": "integer",
+                        "text": "1"
+                      },
+                      {
+                        "id": "n.0.0.1",
+                        "op": "mul",
+                        "children": [
+                          {
+                            "id": "n.0.0.1.0",
+                            "op": "integer",
+                            "text": "2"
+                          },
+                          {
+                            "id": "n.0.0.1.1",
+                            "op": "symbol",
+                            "text": "a"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.0.1",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.0.1.0",
+                        "op": "integer",
+                        "text": "1"
+                      },
+                      {
+                        "id": "n.0.1.1",
+                        "op": "mul",
+                        "children": [
+                          {
+                            "id": "n.0.1.1.0",
+                            "op": "integer",
+                            "text": "2"
+                          },
+                          {
+                            "id": "n.0.1.1.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "n.1",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.1.0",
+                    "op": "integer",
+                    "text": "8"
+                  },
+                  {
+                    "id": "n.1.1",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.1.1.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.1.1.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "result": {
+          "latex": "\\frac{a+b}{2}+\\frac{8}{a+b}",
+          "tree": {
+            "id": "n",
+            "op": "add",
+            "children": [
+              {
+                "id": "n.0",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.0.0",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.0.0.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.0.0.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.0.1",
+                    "op": "integer",
+                    "text": "2"
+                  }
+                ]
+              },
+              {
+                "id": "n.1",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.1.0",
+                    "op": "integer",
+                    "text": "8"
+                  },
+                  {
+                    "id": "n.1.1",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.1.1.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.1.1.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "conditionCards": [
+          {
+            "id": "c0",
+            "latex": "a > 0"
+          },
+          {
+            "id": "c1",
+            "latex": "b > 0"
+          },
+          {
+            "id": "c2",
+            "latex": "a b = 1"
+          }
+        ],
+        "transitions": [
+          {
+            "operation": "combine_fractions",
+            "before": {
+              "latex": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}+\\frac{8}{a+b}",
+              "tree": {
+                "id": "n",
+                "op": "add",
+                "children": [
+                  {
+                    "id": "n.0",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.0.0",
+                        "op": "div",
+                        "children": [
+                          {
+                            "id": "n.0.0.0",
+                            "op": "integer",
+                            "text": "1"
+                          },
+                          {
+                            "id": "n.0.0.1",
+                            "op": "mul",
+                            "children": [
+                              {
+                                "id": "n.0.0.1.0",
+                                "op": "integer",
+                                "text": "2"
+                              },
+                              {
+                                "id": "n.0.0.1.1",
+                                "op": "symbol",
+                                "text": "a"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "id": "n.0.1",
+                        "op": "div",
+                        "children": [
+                          {
+                            "id": "n.0.1.0",
+                            "op": "integer",
+                            "text": "1"
+                          },
+                          {
+                            "id": "n.0.1.1",
+                            "op": "mul",
+                            "children": [
+                              {
+                                "id": "n.0.1.1.0",
+                                "op": "integer",
+                                "text": "2"
+                              },
+                              {
+                                "id": "n.0.1.1.1",
+                                "op": "symbol",
+                                "text": "b"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.1",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.1.0",
+                        "op": "integer",
+                        "text": "8"
+                      },
+                      {
+                        "id": "n.1.1",
+                        "op": "add",
+                        "children": [
+                          {
+                            "id": "n.1.1.0",
+                            "op": "symbol",
+                            "text": "a"
+                          },
+                          {
+                            "id": "n.1.1.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "after": {
+              "latex": "\\frac{a+b}{2\\cdot a\\cdot b}+\\frac{8}{a+b}",
+              "tree": {
+                "id": "n",
+                "op": "add",
+                "children": [
+                  {
+                    "id": "n.0",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.0.0",
+                        "op": "add",
+                        "children": [
+                          {
+                            "id": "n.0.0.0",
+                            "op": "symbol",
+                            "text": "a"
+                          },
+                          {
+                            "id": "n.0.0.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "n.0.1",
+                        "op": "mul",
+                        "children": [
+                          {
+                            "id": "n.0.1.0",
+                            "op": "mul",
+                            "children": [
+                              {
+                                "id": "n.0.1.0.0",
+                                "op": "integer",
+                                "text": "2"
+                              },
+                              {
+                                "id": "n.0.1.0.1",
+                                "op": "symbol",
+                                "text": "a"
+                              }
+                            ]
+                          },
+                          {
+                            "id": "n.0.1.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.1",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.1.0",
+                        "op": "integer",
+                        "text": "8"
+                      },
+                      {
+                        "id": "n.1.1",
+                        "op": "add",
+                        "children": [
+                          {
+                            "id": "n.1.1.0",
+                            "op": "symbol",
+                            "text": "a"
+                          },
+                          {
+                            "id": "n.1.1.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "localBefore": {
+              "latex": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}",
+              "nodeIds": [
+                "n.0.0",
+                "n.0.1"
+              ]
+            },
+            "localAfter": {
+              "latex": "\\frac{a+b}{2\\cdot a\\cdot b}",
+              "nodeIds": [
+                "n.0"
+              ]
+            },
+            "unchanged": [
+              {
+                "latex": "\\frac{8}{a+b}",
+                "beforeNodeId": "n.1",
+                "afterNodeId": "n.1"
+              }
+            ],
+            "highlights": [
+              {
+                "role": "denominator_0",
+                "side": "before",
+                "nodeId": "n.0.0.1",
+                "latex": "2\\cdot a"
+              },
+              {
+                "role": "denominator_1",
+                "side": "before",
+                "nodeId": "n.0.1.1",
+                "latex": "2\\cdot b"
+              },
+              {
+                "role": "condition_block",
+                "side": "after",
+                "nodeId": "n.0.1",
+                "latex": "a b",
+                "factor": "a*b"
+              }
+            ],
+            "conditionCardIds": [
+              "c2"
+            ],
+            "evidence": {
+              "kind": "structural_common_denominator",
+              "mergedFractionCount": 2,
+              "commonDenominator": "2 a b",
+              "multipliers": [
+                "b",
+                "a"
+              ],
+              "localEquivalenceVerified": true,
+              "wholeEquivalenceVerified": true
+            },
+            "revealedConditionIds": [
+              "c2"
+            ],
+            "id": "t0",
+            "effect": "reveal_condition",
+            "label": "通分"
+          },
+          {
+            "operation": "substitute_condition",
+            "before": {
+              "latex": "\\frac{a+b}{2\\cdot a\\cdot b}+\\frac{8}{a+b}",
+              "tree": {
+                "id": "n",
+                "op": "add",
+                "children": [
+                  {
+                    "id": "n.0",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.0.0",
+                        "op": "add",
+                        "children": [
+                          {
+                            "id": "n.0.0.0",
+                            "op": "symbol",
+                            "text": "a"
+                          },
+                          {
+                            "id": "n.0.0.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "n.0.1",
+                        "op": "mul",
+                        "children": [
+                          {
+                            "id": "n.0.1.0",
+                            "op": "mul",
+                            "children": [
+                              {
+                                "id": "n.0.1.0.0",
+                                "op": "integer",
+                                "text": "2"
+                              },
+                              {
+                                "id": "n.0.1.0.1",
+                                "op": "symbol",
+                                "text": "a"
+                              }
+                            ]
+                          },
+                          {
+                            "id": "n.0.1.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.1",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.1.0",
+                        "op": "integer",
+                        "text": "8"
+                      },
+                      {
+                        "id": "n.1.1",
+                        "op": "add",
+                        "children": [
+                          {
+                            "id": "n.1.1.0",
+                            "op": "symbol",
+                            "text": "a"
+                          },
+                          {
+                            "id": "n.1.1.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "after": {
+              "latex": "\\frac{a+b}{2}+\\frac{8}{a+b}",
+              "tree": {
+                "id": "n",
+                "op": "add",
+                "children": [
+                  {
+                    "id": "n.0",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.0.0",
+                        "op": "add",
+                        "children": [
+                          {
+                            "id": "n.0.0.0",
+                            "op": "symbol",
+                            "text": "a"
+                          },
+                          {
+                            "id": "n.0.0.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "n.0.1",
+                        "op": "integer",
+                        "text": "2"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.1",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.1.0",
+                        "op": "integer",
+                        "text": "8"
+                      },
+                      {
+                        "id": "n.1.1",
+                        "op": "add",
+                        "children": [
+                          {
+                            "id": "n.1.1.0",
+                            "op": "symbol",
+                            "text": "a"
+                          },
+                          {
+                            "id": "n.1.1.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "localBefore": {
+              "latex": "\\frac{a+b}{2\\cdot a\\cdot b}",
+              "nodeIds": [
+                "n.0"
+              ]
+            },
+            "localAfter": {
+              "latex": "\\frac{a+b}{2}",
+              "nodeIds": [
+                "n.0"
+              ]
+            },
+            "unchanged": [
+              {
+                "latex": "\\frac{8}{a+b}",
+                "beforeNodeId": "n.1",
+                "afterNodeId": "n.1"
+              }
+            ],
+            "highlights": [],
+            "conditionCardIds": [
+              "c2"
+            ],
+            "evidence": {
+              "kind": "bound_equality_substitution",
+              "wholeEquivalenceVerified": true
+            },
+            "replacements": [
+              {
+                "conditionCardId": "c2",
+                "block": {
+                  "latex": "a b"
+                },
+                "value": {
+                  "latex": "1"
+                }
+              }
+            ],
+            "id": "t1",
+            "label": "代入条件"
+          }
+        ],
+        "beats": [
+          {
+            "kind": "focus",
+            "transitionId": "t0",
+            "title": "观察目标式"
+          },
+          {
+            "kind": "transform",
+            "transitionId": "t0",
+            "title": "通分"
+          },
+          {
+            "kind": "transform",
+            "transitionId": "t1",
+            "title": "代入条件"
+          },
+          {
+            "kind": "result",
+            "title": "整理结果"
+          }
+        ]
+      }
+    }
+  ]
+}

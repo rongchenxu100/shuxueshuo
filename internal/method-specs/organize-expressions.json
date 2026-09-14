@@ -1,0 +1,114 @@
+{
+  "method_id": "organize_expressions",
+  "title": "整理式子",
+  "description": "整理式子：验证 LLM 推导，保留原结构，返回同对象的一个最终状态。",
+  "summary": "按 parameters.steps 验证完整有理式推导链；只返回最终表达式，不求极值。",
+  "solves": [
+    "organize_expressions"
+  ],
+  "inputs": {
+    "expression": {
+      "required": true,
+      "domain_type": "Expression",
+      "runtime_type": "Expression",
+      "view": {
+        "mode": "latest_state",
+        "domain_type": "Expression",
+        "state_kind": "expression"
+      }
+    },
+    "conditions": {
+      "required": false,
+      "domain_type": "ConditionList",
+      "runtime_type": "ConditionList",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "ConditionList"
+      }
+    }
+  },
+  "outputs": {
+    "organized_expression": "Expression"
+  },
+  "is_pure": true,
+  "parameters_schema": {
+    "type": "object",
+    "required": [
+      "steps"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "steps": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 12,
+        "items": {
+          "type": "object",
+          "required": [
+            "math"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "math": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "using": {
+              "type": "array",
+              "maxItems": 8,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "preconditions": [
+    "所有变量和使用的条件已有绑定"
+  ],
+  "postconditions": [
+    "最终式与输入在原定义域上等价"
+  ],
+  "teaching_unit": {
+    "unit_key": "organize_expressions/rewrite",
+    "title_template": "整理目标式",
+    "nav_title_template": "整理目标式",
+    "goal_template": "整理目标表达式",
+    "derive_templates": [
+      ["推导", "{derive_items}"],
+      ["∴", "{result}"]
+    ],
+    "box_templates": [
+      "{result}"
+    ],
+    "role_schema": {
+      "source": "原式",
+      "result": "整理结果",
+      "derive_items": "已验证推导"
+    },
+    "role_binder_id": "expression_rewrite"
+  },
+  "visual": {
+    "role_schema": {
+      "rewrite": "已验证推导记录"
+    },
+    "scene_templates": [
+      {
+        "kind": "expression_rewrite"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [
+      {
+        "kind": "expression_rewrite_beats"
+      }
+    ],
+    "role_binder_id": "expression_rewrite"
+  }
+}

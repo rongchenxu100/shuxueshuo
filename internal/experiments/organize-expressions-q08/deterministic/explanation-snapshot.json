@@ -1,0 +1,681 @@
+{
+  "problem_id": "inequality-basic-q08-rewrite-preview",
+  "family_id": "rewrite_prefix_experiment",
+  "problem": {
+    "conditions": {
+      "positive_a": "a>0",
+      "positive_b": "b>0",
+      "product_condition": "a*b=1"
+    },
+    "expression": "1/(2*a)+1/(2*b)+8/(a+b)"
+  },
+  "effective_steps": [
+    {
+      "step_id": "rewrite_1",
+      "scope_id": "problem",
+      "goal_type": "organize_expressions"
+    }
+  ],
+  "teaching_trace": [
+    {
+      "trace_id": "rewrite_1:trace",
+      "source_step_id": "rewrite_1",
+      "scope_id": "problem",
+      "capability_id": "organize_expressions",
+      "method_id": "organize_expressions",
+      "input_slots": [],
+      "output_slots": [],
+      "checks": [],
+      "trace_fragments": [
+        {
+          "source": {
+            "latex": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}+\\frac{8}{a+b}",
+            "tree": {
+              "id": "n",
+              "op": "add",
+              "children": [
+                {
+                  "id": "n.0",
+                  "op": "add",
+                  "children": [
+                    {
+                      "id": "n.0.0",
+                      "op": "div",
+                      "children": [
+                        {
+                          "id": "n.0.0.0",
+                          "op": "integer",
+                          "text": "1"
+                        },
+                        {
+                          "id": "n.0.0.1",
+                          "op": "mul",
+                          "children": [
+                            {
+                              "id": "n.0.0.1.0",
+                              "op": "integer",
+                              "text": "2"
+                            },
+                            {
+                              "id": "n.0.0.1.1",
+                              "op": "symbol",
+                              "text": "a"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "n.0.1",
+                      "op": "div",
+                      "children": [
+                        {
+                          "id": "n.0.1.0",
+                          "op": "integer",
+                          "text": "1"
+                        },
+                        {
+                          "id": "n.0.1.1",
+                          "op": "mul",
+                          "children": [
+                            {
+                              "id": "n.0.1.1.0",
+                              "op": "integer",
+                              "text": "2"
+                            },
+                            {
+                              "id": "n.0.1.1.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "id": "n.1",
+                  "op": "div",
+                  "children": [
+                    {
+                      "id": "n.1.0",
+                      "op": "integer",
+                      "text": "8"
+                    },
+                    {
+                      "id": "n.1.1",
+                      "op": "add",
+                      "children": [
+                        {
+                          "id": "n.1.1.0",
+                          "op": "symbol",
+                          "text": "a"
+                        },
+                        {
+                          "id": "n.1.1.1",
+                          "op": "symbol",
+                          "text": "b"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "result": {
+            "latex": "\\frac{a+b}{2}+\\frac{8}{a+b}",
+            "tree": {
+              "id": "n",
+              "op": "add",
+              "children": [
+                {
+                  "id": "n.0",
+                  "op": "div",
+                  "children": [
+                    {
+                      "id": "n.0.0",
+                      "op": "add",
+                      "children": [
+                        {
+                          "id": "n.0.0.0",
+                          "op": "symbol",
+                          "text": "a"
+                        },
+                        {
+                          "id": "n.0.0.1",
+                          "op": "symbol",
+                          "text": "b"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "n.0.1",
+                      "op": "integer",
+                      "text": "2"
+                    }
+                  ]
+                },
+                {
+                  "id": "n.1",
+                  "op": "div",
+                  "children": [
+                    {
+                      "id": "n.1.0",
+                      "op": "integer",
+                      "text": "8"
+                    },
+                    {
+                      "id": "n.1.1",
+                      "op": "add",
+                      "children": [
+                        {
+                          "id": "n.1.1.0",
+                          "op": "symbol",
+                          "text": "a"
+                        },
+                        {
+                          "id": "n.1.1.1",
+                          "op": "symbol",
+                          "text": "b"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "transitions": [
+            {
+              "operation": "combine_fractions",
+              "before": {
+                "latex": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}+\\frac{8}{a+b}",
+                "tree": {
+                  "id": "n",
+                  "op": "add",
+                  "children": [
+                    {
+                      "id": "n.0",
+                      "op": "add",
+                      "children": [
+                        {
+                          "id": "n.0.0",
+                          "op": "div",
+                          "children": [
+                            {
+                              "id": "n.0.0.0",
+                              "op": "integer",
+                              "text": "1"
+                            },
+                            {
+                              "id": "n.0.0.1",
+                              "op": "mul",
+                              "children": [
+                                {
+                                  "id": "n.0.0.1.0",
+                                  "op": "integer",
+                                  "text": "2"
+                                },
+                                {
+                                  "id": "n.0.0.1.1",
+                                  "op": "symbol",
+                                  "text": "a"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "id": "n.0.1",
+                          "op": "div",
+                          "children": [
+                            {
+                              "id": "n.0.1.0",
+                              "op": "integer",
+                              "text": "1"
+                            },
+                            {
+                              "id": "n.0.1.1",
+                              "op": "mul",
+                              "children": [
+                                {
+                                  "id": "n.0.1.1.0",
+                                  "op": "integer",
+                                  "text": "2"
+                                },
+                                {
+                                  "id": "n.0.1.1.1",
+                                  "op": "symbol",
+                                  "text": "b"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "n.1",
+                      "op": "div",
+                      "children": [
+                        {
+                          "id": "n.1.0",
+                          "op": "integer",
+                          "text": "8"
+                        },
+                        {
+                          "id": "n.1.1",
+                          "op": "add",
+                          "children": [
+                            {
+                              "id": "n.1.1.0",
+                              "op": "symbol",
+                              "text": "a"
+                            },
+                            {
+                              "id": "n.1.1.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "after": {
+                "latex": "\\frac{a+b}{2\\cdot a\\cdot b}+\\frac{8}{a+b}",
+                "tree": {
+                  "id": "n",
+                  "op": "add",
+                  "children": [
+                    {
+                      "id": "n.0",
+                      "op": "div",
+                      "children": [
+                        {
+                          "id": "n.0.0",
+                          "op": "add",
+                          "children": [
+                            {
+                              "id": "n.0.0.0",
+                              "op": "symbol",
+                              "text": "a"
+                            },
+                            {
+                              "id": "n.0.0.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "n.0.1",
+                          "op": "mul",
+                          "children": [
+                            {
+                              "id": "n.0.1.0",
+                              "op": "mul",
+                              "children": [
+                                {
+                                  "id": "n.0.1.0.0",
+                                  "op": "integer",
+                                  "text": "2"
+                                },
+                                {
+                                  "id": "n.0.1.0.1",
+                                  "op": "symbol",
+                                  "text": "a"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "n.0.1.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "n.1",
+                      "op": "div",
+                      "children": [
+                        {
+                          "id": "n.1.0",
+                          "op": "integer",
+                          "text": "8"
+                        },
+                        {
+                          "id": "n.1.1",
+                          "op": "add",
+                          "children": [
+                            {
+                              "id": "n.1.1.0",
+                              "op": "symbol",
+                              "text": "a"
+                            },
+                            {
+                              "id": "n.1.1.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "localBefore": {
+                "latex": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}",
+                "nodeIds": [
+                  "n.0.0",
+                  "n.0.1"
+                ]
+              },
+              "localAfter": {
+                "latex": "\\frac{a+b}{2\\cdot a\\cdot b}",
+                "nodeIds": [
+                  "n.0"
+                ]
+              },
+              "unchanged": [
+                {
+                  "latex": "\\frac{8}{a+b}",
+                  "beforeNodeId": "n.1",
+                  "afterNodeId": "n.1"
+                }
+              ],
+              "highlights": [
+                {
+                  "role": "denominator_0",
+                  "side": "before",
+                  "nodeId": "n.0.0.1",
+                  "latex": "2\\cdot a"
+                },
+                {
+                  "role": "denominator_1",
+                  "side": "before",
+                  "nodeId": "n.0.1.1",
+                  "latex": "2\\cdot b"
+                },
+                {
+                  "role": "condition_block",
+                  "side": "after",
+                  "nodeId": "n.0.1",
+                  "latex": "a b",
+                  "factor": "a*b"
+                }
+              ],
+              "conditionCardIds": [
+                "c2"
+              ],
+              "evidence": {
+                "kind": "structural_common_denominator",
+                "mergedFractionCount": 2,
+                "commonDenominator": "2 a b",
+                "multipliers": [
+                  "b",
+                  "a"
+                ],
+                "localEquivalenceVerified": true,
+                "wholeEquivalenceVerified": true
+              },
+              "revealedConditionIds": [
+                "c2"
+              ],
+              "id": "t0",
+              "effect": "reveal_condition"
+            },
+            {
+              "operation": "substitute_condition",
+              "before": {
+                "latex": "\\frac{a+b}{2\\cdot a\\cdot b}+\\frac{8}{a+b}",
+                "tree": {
+                  "id": "n",
+                  "op": "add",
+                  "children": [
+                    {
+                      "id": "n.0",
+                      "op": "div",
+                      "children": [
+                        {
+                          "id": "n.0.0",
+                          "op": "add",
+                          "children": [
+                            {
+                              "id": "n.0.0.0",
+                              "op": "symbol",
+                              "text": "a"
+                            },
+                            {
+                              "id": "n.0.0.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "n.0.1",
+                          "op": "mul",
+                          "children": [
+                            {
+                              "id": "n.0.1.0",
+                              "op": "mul",
+                              "children": [
+                                {
+                                  "id": "n.0.1.0.0",
+                                  "op": "integer",
+                                  "text": "2"
+                                },
+                                {
+                                  "id": "n.0.1.0.1",
+                                  "op": "symbol",
+                                  "text": "a"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "n.0.1.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "id": "n.1",
+                      "op": "div",
+                      "children": [
+                        {
+                          "id": "n.1.0",
+                          "op": "integer",
+                          "text": "8"
+                        },
+                        {
+                          "id": "n.1.1",
+                          "op": "add",
+                          "children": [
+                            {
+                              "id": "n.1.1.0",
+                              "op": "symbol",
+                              "text": "a"
+                            },
+                            {
+                              "id": "n.1.1.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "after": {
+                "latex": "\\frac{a+b}{2}+\\frac{8}{a+b}",
+                "tree": {
+                  "id": "n",
+                  "op": "add",
+                  "children": [
+                    {
+                      "id": "n.0",
+                      "op": "div",
+                      "children": [
+                        {
+                          "id": "n.0.0",
+                          "op": "add",
+                          "children": [
+                            {
+                              "id": "n.0.0.0",
+                              "op": "symbol",
+                              "text": "a"
+                            },
+                            {
+                              "id": "n.0.0.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "n.0.1",
+                          "op": "integer",
+                          "text": "2"
+                        }
+                      ]
+                    },
+                    {
+                      "id": "n.1",
+                      "op": "div",
+                      "children": [
+                        {
+                          "id": "n.1.0",
+                          "op": "integer",
+                          "text": "8"
+                        },
+                        {
+                          "id": "n.1.1",
+                          "op": "add",
+                          "children": [
+                            {
+                              "id": "n.1.1.0",
+                              "op": "symbol",
+                              "text": "a"
+                            },
+                            {
+                              "id": "n.1.1.1",
+                              "op": "symbol",
+                              "text": "b"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "localBefore": {
+                "latex": "\\frac{a+b}{2\\cdot a\\cdot b}",
+                "nodeIds": [
+                  "n.0"
+                ]
+              },
+              "localAfter": {
+                "latex": "\\frac{a+b}{2}",
+                "nodeIds": [
+                  "n.0"
+                ]
+              },
+              "unchanged": [
+                {
+                  "latex": "\\frac{8}{a+b}",
+                  "beforeNodeId": "n.1",
+                  "afterNodeId": "n.1"
+                }
+              ],
+              "highlights": [],
+              "conditionCardIds": [
+                "c2"
+              ],
+              "evidence": {
+                "kind": "bound_equality_substitution",
+                "wholeEquivalenceVerified": true
+              },
+              "replacements": [
+                {
+                  "conditionCardId": "c2",
+                  "block": {
+                    "latex": "a b"
+                  },
+                  "value": {
+                    "latex": "1"
+                  }
+                }
+              ],
+              "id": "t1"
+            }
+          ],
+          "conditionCards": [
+            {
+              "id": "c0",
+              "latex": "a > 0",
+              "boundIndex": 0
+            },
+            {
+              "id": "c1",
+              "latex": "b > 0",
+              "boundIndex": 1
+            },
+            {
+              "id": "c2",
+              "latex": "a b = 1",
+              "boundIndex": 2
+            }
+          ],
+          "teachingEffect": "combine_fractions_revealing_condition",
+          "kind": "verified_expression_rewrite",
+          "method_id": "organize_expressions",
+          "title": "整理目标式",
+          "goal": "整理目标表达式",
+          "reason": "逐步等价变形",
+          "calculation": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}+\\frac{8}{a+b}=\\frac{a+b}{2}+\\frac{8}{a+b}",
+          "conclusion": "\\frac{a+b}{2}+\\frac{8}{a+b}"
+        }
+      ],
+      "hidden_reason": null
+    }
+  ],
+  "fact_index": {},
+  "student_step_placements": [],
+  "student_scope_references": [],
+  "planner_insights": [],
+  "answers": {},
+  "checks": [
+    {
+      "name": "rewrite_input_bound",
+      "ok": true
+    },
+    {
+      "name": "rewrite_domain_verified",
+      "ok": true
+    },
+    {
+      "name": "rewrite_equivalence_verified",
+      "ok": true
+    },
+    {
+      "name": "rewrite_conditions_bound",
+      "ok": true
+    }
+  ],
+  "symbolic_closures": [],
+  "macro_evidence": []
+}

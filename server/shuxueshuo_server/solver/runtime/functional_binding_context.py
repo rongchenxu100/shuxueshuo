@@ -7,7 +7,7 @@ and how that argument is projected to Function/Macro runtime inputs.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import hashlib
 import json
 from typing import Any, Literal, Mapping, cast
@@ -608,13 +608,18 @@ class FunctionalBindingContextBuilder:
                         prefer_call_result=force_exact_source_versions,
                     )
                     if strict_binding is not None and not macro_role_hint:
+                        # A condition collection has one independent Fact
+                        # authority per item, not several competing proofs of
+                        # one scalar Condition input.
+                        binding_call = (replace(call, resolved_args={**call.resolved_args, arg_name:(value,)})
+                            if spec.aggregation == "condition_list" else call)
                         typed_source = _typed_input_selected_source(
                             arg_name=arg_name,
                             binding=strict_binding,
                             runtime_input=runtime_input,
                             required=True,
                             capability=capability,
-                            call=call,
+                            call=binding_call,
                             calls_by_id=calls_by_id,
                             object_registry=object_registry,
                             handle_registry=handle_registry,

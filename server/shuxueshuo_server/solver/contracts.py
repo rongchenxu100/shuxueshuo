@@ -1203,6 +1203,7 @@ class MethodSpec:
     # Missing/legacy specs are conservative. Code-owned stateless methods
     # declare purity explicitly through MethodSpecSource.
     is_pure: bool = False
+    parameters_schema: dict[str, Any] | None = None
 
 
 @dataclass

@@ -1,0 +1,26 @@
+{
+  "problem_id": "inequality-basic-q08-rewrite-preview",
+  "symbols": ["a", "b"],
+  "expression": "1/(2*a)+1/(2*b)+8/(a+b)",
+  "conditions": {
+    "positive_a": "a>0",
+    "positive_b": "b>0",
+    "product_condition": "a*b=1"
+  },
+  "objective": "min",
+  "call": {
+    "step_id": "rewrite_1",
+    "capability_id": "organize_expressions",
+    "args": {
+      "expression": "target_expression",
+      "conditions": ["positive_a", "positive_b", "product_condition"]
+    },
+    "parameters": {
+      "steps": [
+        {"math": "1/(2*a)+1/(2*b)+8/(a+b)"},
+        {"math": "(a+b)/(2*a*b)+8/(a+b)"},
+        {"math": "(a+b)/2+8/(a+b)", "using": ["a*b=1"]}
+      ]
+    }
+  }
+}

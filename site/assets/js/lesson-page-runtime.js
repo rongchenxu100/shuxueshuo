@@ -657,6 +657,7 @@
     function renderStepVisual(step) {
       const visual = step && step.visual;
       if (!visual || !visual.kind) return "";
+      if (visual.kind === "expression-rewrite") return window.ExpressionRewrite.render(visual, renderFormulaText);
       const ariaLabel = esc(visual.ariaLabel || "解题示意图");
 
       if (visual.kind === "symmetric-reduction-flow") {

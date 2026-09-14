@@ -318,6 +318,7 @@ class FunctionSpec:
     ] = ()
     identity_constraints: tuple[StateIdentityConstraintSpec, ...] = ()
     symbolic_closure: SymbolicClosureSpec | None = None
+    parameters_schema: dict[str, Any] | None = None
 
     def to_payload(self, *, include_adapter: bool = True) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -355,6 +356,8 @@ class FunctionSpec:
                 else None
             ),
         }
+        if self.parameters_schema is not None:
+            payload["parameters_schema"] = self.parameters_schema
         if include_adapter and self.adapter is not None:
             payload["adapter"] = self.adapter.to_payload()
         return payload
@@ -364,6 +367,7 @@ class FunctionSpec:
         return {
             "function_id": self.function_id,
             "goal_types": list(self.goal_types),
+            **({"parameters_schema": self.parameters_schema} if self.parameters_schema is not None else {}),
             "args": [
                 _arg_prompt_payload(item)
                 for item in self.args
@@ -772,6 +776,7 @@ def function_spec_from_method(
             )
         )
     return FunctionSpec(
+        parameters_schema=method_spec.parameters_schema,
         function_id=method_spec.method_id,
         method_id=method_spec.method_id,
         goal_types=method_spec.solves,
@@ -1248,7 +1253,7 @@ def _arg_kind(runtime_types: tuple[str, ...]) -> FunctionArgKind:
         return "symbol"
     if "PointRef" in runtime_types:
         return "point_ref"
-    if "Condition" in runtime_types or "Constraint" in runtime_types:
+    if "Condition" in runtime_types or "Constraint" in runtime_types or "ConditionList" in runtime_types:
         return "condition_read"
     return "slot_read"
 
