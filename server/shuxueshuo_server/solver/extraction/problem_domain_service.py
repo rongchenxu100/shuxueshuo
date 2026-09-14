@@ -66,7 +66,7 @@ from shuxueshuo_server.solver.extraction.source_identity import (
 )
 
 
-from .problem_source_review import SourceReviewer, review_issues
+from .problem_source_review import SOURCE_REVIEW_BLOCKING_CODES, SourceReviewer, review_issues
 
 PROBLEM_DOMAIN_PRIMARY_IMAGE_MAX_EDGE = 1600
 
@@ -246,8 +246,9 @@ class ProblemDomainExtractionService:
                     solver_projection=result.projection,
                 )
 
-            if any(i.code == "extraction.problem_source_uncertain" for i in result.report.issues):
-                blocked_reason = "extraction.problem_source_uncertain"
+            source_failure = next((i.code for i in result.report.issues if i.code in SOURCE_REVIEW_BLOCKING_CODES), None)
+            if source_failure:
+                blocked_reason = source_failure
                 break
 
             prompt_issues = _merge_issues(

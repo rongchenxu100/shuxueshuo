@@ -46,6 +46,11 @@
   }
 
   async function loadCatalog() {
+    // The page already loads this catalog as a script (also usable via file://).
+    // Reuse it before fetching JSON so a duplicate request cannot delay rendering.
+    if (window.__SENIOR_HIGH_CATALOG__) {
+      return window.__SENIOR_HIGH_CATALOG__;
+    }
     try {
       const response = await fetch("../data/senior-high-catalog.json?v=24");
       if (!response.ok) {

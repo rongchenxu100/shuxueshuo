@@ -8,6 +8,14 @@
 
 更细的 CentOS 7、故障排查与接口说明见：[server/README.md](../server/README.md)。
 
+主站静态文件压缩在 `deploy/nginx/shuxueshuo.conf` 的两个静态 `location /` 中配置：HTML、JS、CSS、JSON 等超过 1 KiB 时按客户端协商使用 gzip，保留原生 ETag / Last-Modified 协商缓存。高中题库优先使用页面已加载的目录脚本，避免再下载一份完整 JSON。发布需同步 `site/` 并安装此主站 Nginx 配置，执行 `sudo nginx -t && sudo systemctl reload nginx`；无需重建产品 Docker 镜像。用真实 GET 检查压缩（HEAD 不触发响应体压缩）：
+
+```bash
+curl -sS --compressed -D - -o /dev/null 'https://shuxueshuo.com/assets/js/senior-high-catalog-data.js?v=29'
+```
+
+应看到 `Content-Encoding: gzip`、`Vary: Accept-Encoding` 和 `ETag`；浏览器高中题库正常首屏不再请求 `senior-high-catalog.json`。
+
 - 产品库与 Compose：`services-*` → [product/README.md](product/README.md)
 - Studio 创作工作台 Docker → [frontend-studio-workbench.md](frontend-studio-workbench.md)
 - OCR → [ocr/README.md](ocr/README.md)

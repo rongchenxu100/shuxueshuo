@@ -34,6 +34,7 @@ export function ProductWorkspace() {
   const [progressWidth, setProgressWidth] = useState(300);
   const [resizing, setResizing] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [mobilePane, setMobilePane] = useState<'list' | 'detail'>('list');
   const pendingRef = useRef<PendingUpload | null>(null);
   const inFlight = useRef(false);
   const navigation = useRef(0);
@@ -88,6 +89,7 @@ export function ProductWorkspace() {
   const showProblem = useCallback((problem: WorkspaceProblem | null) => {
     navigation.current++;
     setSelected(problem); setError('');
+    if (problem) setMobilePane('detail');
     const url = new URL(window.location.href);
     if (problem) url.searchParams.set('problem', problem.id); else url.searchParams.delete('problem');
     window.history.replaceState(null, '', url);
@@ -103,8 +105,8 @@ export function ProductWorkspace() {
     inFlight.current = true; setBusy(true); setError(''); setNeedsFile(false);
     try {
       const result = await continueUpload(state, file, savePending);
-      if (result.kind === 'needs_file') { setNeedsFile(true); return; }
-      if (result.kind === 'ambiguous') { setCandidates(result); return; }
+      if (result.kind === 'needs_file') { setNeedsFile(true); setMobilePane('detail'); return; }
+      if (result.kind === 'ambiguous') { setCandidates(result); setMobilePane('detail'); return; }
       localStorage.removeItem(pendingUploadKey); pendingRef.current = null; setPending(null); setCandidates(null);
       showProblem(result.problem);
       setNotice(result.reused
@@ -131,7 +133,7 @@ export function ProductWorkspace() {
         if (id) {
           if (!ProblemSchema.shape.id.safeParse(id).success) throw new Error('题目链接无效。');
           const problem = ProblemSchema.parse(await api(`/problems/${id}`));
-          if (active && navigation.current === turn) setSelected(problem);
+          if (active && navigation.current === turn) { setSelected(problem); setMobilePane('detail'); }
         }
       } catch (e) { if (active) setError(message(e)); }
     }
@@ -198,11 +200,11 @@ export function ProductWorkspace() {
     {candidates && <div className={`${styles.card} mb-4 space-y-3`}><p>这张图片对应多个已有题目，请选择要查看的题目：</p>{candidates.candidates.map(id => <button className={`${styles.button} mr-2`} disabled={busy} key={id} onClick={() => void resolve(id)}>{problems.find(p => p.id === id)?.title || `题目 ${id.slice(0, 8)}`}</button>)}</div>}
   </>;
 
-  return <main className={styles.workspace} style={{ '--sidebar-width': collapsed ? '56px' : `${sidebarWidth}px`, '--progress-width': `${progressWidth}px` } as CSSProperties}>
+  return <main className={styles.workspace} data-pane={mobilePane} style={{ '--sidebar-width': collapsed ? '56px' : `${sidebarWidth}px`, '--progress-width': `${progressWidth}px` } as CSSProperties}>
     {resizing && <div className="fixed inset-0 z-50 cursor-col-resize" />}
     <aside className={styles.sidebar} aria-label="题目列表">
-      <header className={styles.header}>{!collapsed && <span>数学说 · 工作台</span>}<button aria-label={collapsed ? '展开题目列表' : '收起题目列表'} onClick={() => setCollapsed(v => !v)} className="cursor-pointer text-zinc-500">{collapsed ? '›' : '‹'}</button></header>
-      {!collapsed && <><div className="p-4"><button disabled={busy} className={`${styles.button} ${styles.primary} w-full`} onClick={() => { showProblem(null); setNotice(''); }}>＋ 上传新题目</button></div>
+      <header className={styles.header}>{!collapsed && <span>数学说 · 工作台</span>}<button aria-label={collapsed ? '展开题目列表' : '收起题目列表'} onClick={() => setCollapsed(v => !v)} className={`${styles.collapse} cursor-pointer text-zinc-500`}>{collapsed ? '›' : '‹'}</button></header>
+      {!collapsed && <><div className="p-4"><button disabled={busy} className={`${styles.button} ${styles.primary} w-full`} onClick={() => { showProblem(null); setMobilePane('detail'); setNotice(''); }}>＋ 上传新题目</button></div>
         <div className={styles.scroll} style={{ padding: '0 12px 16px' }}>
           <p className="px-3 py-2 text-xs text-zinc-500">我的题目</p>
           {listError && <p role="alert" className={styles.error}>{listError}<button className="ml-2 underline" onClick={() => void loadList()}>重新加载</button></p>}
@@ -224,8 +226,12 @@ export function ProductWorkspace() {
         <ResizeHandle label="调整题目列表宽度" value={sidebarWidth} min={190} max={340} onChange={setSidebarWidth} onResizing={setResizing} /></>}
     </aside>
     {activeProblem?.latest_build_id ? <RunWorkspace key={`${activeProblem.id}:${activeProblem.latest_build_id}`} problem={activeProblem} onComplete={loadList}
-      notices={uploadPanel} width={progressWidth} onWidth={setProgressWidth} onResizing={setResizing} /> : <>
-      <section className={styles.middle} aria-label="上传与生成进度"><header className={styles.header}>{selected ? problemTitle(selected) : '新题目'}</header><div className={styles.scroll}>
+      notices={uploadPanel} width={progressWidth} onWidth={setProgressWidth} onResizing={setResizing}
+      onBack={() => setMobilePane('list')} /> : <>
+      <section className={styles.middle} aria-label="上传与生成进度"><header className={styles.header}>
+        <button type="button" className={styles.back} onClick={() => setMobilePane('list')}>← 题目列表</button>
+        <span className="min-w-0 truncate">{selected ? problemTitle(selected) : '新题目'}</span>
+      </header><div className={styles.scroll}>
         {uploadPanel}
         {selected ? <UnbuiltProblem problem={selected} onCreated={showProblem} /> : <UploadForm key={pending?.key ?? 'new'} disabled={busy || !!candidates} onUpload={upload} filename={needsFile ? pending?.filename : undefined} />}
       </div></section>
@@ -272,9 +278,9 @@ function UnbuiltProblem({ problem, onCreated }: { problem: WorkspaceProblem; onC
   return <div className={`${styles.card} space-y-4`}><p>图片已保存，尚未提交生成。</p>{error && <p role="alert" className={styles.error}>{error}</p>}<button disabled={busy} className={`${styles.button} ${styles.primary}`} onClick={() => void generate()}>{busy ? '正在提交…' : '生成解析'}</button></div>;
 }
 
-function RunWorkspace({ problem, onComplete, notices, width, onWidth, onResizing }: {
+function RunWorkspace({ problem, onComplete, notices, width, onWidth, onResizing, onBack }: {
   problem: WorkspaceProblem; onComplete: () => Promise<void>; notices: ReactNode; width: number;
-  onWidth: (value: number) => void; onResizing: (value: boolean) => void;
+  onWidth: (value: number) => void; onResizing: (value: boolean) => void; onBack: () => void;
 }) {
   const [build, setBuild] = useState<ProductBuild | null>(null);
   const [error, setError] = useState('');
@@ -332,7 +338,11 @@ function RunWorkspace({ problem, onComplete, notices, width, onWidth, onResizing
   const normalized = build?.artifacts.find(a => a.stage_key === 'source' && a.name === '规范化图片');
   return <>
     <PagePreview build={build} />
-    <section className={styles.middle} aria-label="生成进度"><header className={styles.header}><span>生成进度</span><span className="shrink-0 text-xs font-normal text-zinc-500">{connected ? '实时更新' : '正在同步'}</span></header>
+    <section className={styles.middle} aria-label="生成进度"><header className={styles.header}>
+      <button type="button" className={styles.back} onClick={onBack}>← 题目列表</button>
+      <span>生成进度</span>
+      <span className="shrink-0 text-xs font-normal text-zinc-500">{connected ? '实时更新' : '正在同步'}</span>
+    </header>
       <div className={styles.scroll}>{notices}{error && <p role="alert" className={`${styles.error} mb-4`}>{error}</p>}
         <div className={`${styles.card} space-y-4`}>
           <h1 className="text-xl font-semibold">{build ? label(build.status) === '已完成' ? '解析已生成' : label(build.status) : '正在读取生成进度…'}</h1>

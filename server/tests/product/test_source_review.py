@@ -193,7 +193,8 @@ def test_three_drafts_plus_three_reviews_share_six_call_limit(run_context):
     app.service.cancel(app.ctx, x.build['id'])
 
 
-def test_recorded_image_extraction_through_nine_stages_and_checkpoint_restore(setup, settings, tmp_path, monkeypatch):
+@pytest.mark.parametrize('review_case', ['valid', 'string_null', 'invalid', 'timeout', 'uncertain'])
+def test_recorded_image_extraction_through_nine_stages_and_checkpoint_restore(setup, settings, tmp_path, monkeypatch, review_case):
     import shutil
     from pathlib import Path
     from uuid import UUID
@@ -212,7 +213,13 @@ def test_recorded_image_extraction_through_nine_stages_and_checkpoint_restore(se
     from test_problem_source_review import recorded_input, corrected_payload, review_response, FIXTURE
     from test_problem_domain_retry import _SequenceProvider
     initial, observation, store, _ = recorded_input(tmp_path / 'recorded')
-    client = _SequenceProvider([json.dumps(corrected_payload()), review_response])
+    def review(request):
+        if review_case == 'timeout': raise TimeoutError('recorded review timeout')
+        value = json.loads(review_response(request, 'uncertain' if review_case == 'uncertain' else 'confirmed'))
+        if review_case == 'string_null': value['findings'][0]['regions'][0]['region_id'] = 'null'
+        if review_case == 'invalid': value['findings'][0]['regions'][0]['region_id'] = 'unknown-region'
+        return json.dumps(value, ensure_ascii=False)
+    client = _SequenceProvider([json.dumps(corrected_payload()), review])
     monkeypatch.setattr('shuxueshuo_server.solver.extraction.multimodal_provider.DoubaoMultimodalExtractionProvider', lambda **_: client)
     def discover(*args):
         found = offline_discover(*args)
@@ -252,6 +259,22 @@ def test_recorded_image_extraction_through_nine_stages_and_checkpoint_restore(se
         x.add('LessonIR（实际采用）', built.lesson)
         return 'validated lesson fallback'
     runner.adapters.update(source=source, observation=observe, solver=solve, lesson=lesson)
+    if review_case in ('invalid', 'timeout', 'uncertain'):
+        expected = {'invalid': 'extraction.problem_source_review_invalid',
+                    'timeout': 'extraction.problem_source_review_failed',
+                    'uncertain': 'extraction.problem_source_uncertain'}[review_case]
+        with pytest.raises(ProductError, match=expected):
+            runner.run()
+        app.service.finish_failure(*x.args, expected)
+        dto = app.build(x.build['id'])
+        assert dto['status'] == 'failed'
+        assert dto['error_code'] == expected
+        audit = x.read('extraction', 'attempt 1 原图复核报告')
+        assert not audit['adopted']
+        assert audit['review']['status'] == ('uncertain' if review_case == 'uncertain' else 'failed')
+        assert len(client.requests) == 2
+        assert not any(a['name'] == 'VerifiedProblem' for a in dto['artifacts'])
+        return
     runner.run()
     dto = app.build(x.build['id'])
     assert dto['status'] == 'succeeded' and len(dto['stages']) == 9
@@ -262,6 +285,10 @@ def test_recorded_image_extraction_through_nine_stages_and_checkpoint_restore(se
         assert row(c, m.artifacts, id=UUID(report_artifact['id']))['schema_version'] == 'problem-source-review-audit/v1'
     review_audit = x.read('extraction', 'attempt 1 原图复核报告')
     assert review_audit['adopted'] and review_audit['review']['status'] == 'confirmed'
+    if review_case == 'string_null':
+        assert review_audit['review']['model_status'] == 'confirmed'
+        assert review_audit['review']['normalizations'] == [{'path': '/findings/0/regions/0/region_id',
+            'rule': 'region_id_string_null', 'before': 'null', 'after': None}]
     assert x.build['effective_config']['extraction']['semantic_budget'] == 6
     with transaction(app.db) as c:
         stages = c.execute(select(m.build_stages).where(m.build_stages.c.build_id == x.build['id']).order_by(m.build_stages.c.ordinal)).mappings().all()

@@ -3,6 +3,7 @@ from copy import deepcopy
 from dataclasses import replace
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -16,7 +17,7 @@ from shuxueshuo_server.solver.extraction.observations import PaddleProviderRecor
 from shuxueshuo_server.solver.extraction.problem_domain import ProblemDraft
 from shuxueshuo_server.solver.extraction.problem_domain_service import ProblemDomainExtractionService
 from shuxueshuo_server.solver.extraction.problem_domain_validation import ProblemDomainValidator
-from shuxueshuo_server.solver.extraction.problem_source_review import CONTRACT, SourceReviewer, binding_for, source_differences, validate_review
+from shuxueshuo_server.solver.extraction.problem_source_review import CONTRACT, REVIEW_FAILED, REVIEW_INVALID, SourceReviewer, binding_for, normalize_review, review_issues, source_differences, validate_review
 from shuxueshuo_server.solver.extraction.source_identity import ExtractionDependencyManifest, ProblemSourceFingerprintService, SourceAssetInput, SourceSelection, SelectionRegion
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 
@@ -160,14 +161,101 @@ def test_review_binding_regions_and_budget_survive_recreation(tmp_path):
     assert refs and binding_for(draft, pack) == value['binding']
 
 
-@pytest.mark.parametrize('response', ['{}', lambda r: (_ for _ in ()).throw(TimeoutError())])
-def test_invalid_or_timed_out_review_blocks_and_is_not_retried(tmp_path, response):
+@pytest.mark.parametrize('response,code,reason', [
+    ('{}', REVIEW_INVALID, 'schema_violation'),
+    ('{"status":', REVIEW_INVALID, 'invalid_json'),
+    (lambda r: (_ for _ in ()).throw(TimeoutError('secret request data')), REVIEW_FAILED, None),
+])
+def test_invalid_or_timed_out_review_blocks_and_is_not_retried(tmp_path, response, code, reason):
     result, client, (_, context, store, pack) = execute(tmp_path, [json.dumps(corrected_payload()), response])
-    assert result.blocked_reason == 'extraction.problem_source_uncertain'
+    assert result.blocked_reason == code
+    assert len(result.attempts) == 1
     draft = result.attempts[-1].resulting_draft
     report, _ = SourceReviewer(store).review(context_id=context.manifest.context_id, draft=draft,
         pack=pack, reader=store, provider=client, differences=source_differences(draft, pack))
-    assert report['status'] == 'uncertain' and len(client.requests) == 2
+    assert report['status'] == 'failed' and report['error_code'] == code and len(client.requests) == 2
+    assert report['error_details'].get('reason') == reason
+    assert 'secret request data' not in json.dumps(report)
+
+
+def test_recorded_xiqing_string_null_is_normalized_without_changing_evidence(monkeypatch):
+    value = json.loads((FIXTURE.parent / 'xiqing-string-null/review.json').read_text())
+    original = deepcopy(value)
+    from shuxueshuo_server.solver.extraction import problem_source_review as module
+    monkeypatch.setattr(module, 'binding_for', lambda *_: 'a604a68dc835e7a451efb4e40759b95b0b1c72b2eaffa23a49836a63da9c1abc')
+    draft = SimpleNamespace(unit_registry={k: None for k in [
+        'scope:root', 'scope:root/q1', 'scope:root/q2', 'scope:root/q2/q2_1', 'scope:root/q2/q2_2']})
+    pack = SimpleNamespace(images=[SimpleNamespace(page_id='page-1')], region_by_id={
+        k: SimpleNamespace(page_id='page-1') for k in [
+            'observation:text:a8d832de408c7907c9b1097fe2da7cdea452db8cacb667bd8dc0a40be070435c',
+            'observation:layout:35bd8bf4df7cd6660edf2ed3450690ecc392672aea8d08cf061a9f9082c795e5',
+            'observation:layout:484d238863c80e8e7aaf4510c70d220aead6cf2ba4da8841c1bea3463ebf0c12',
+            'observation:layout:ff1e21b93336fef66ba19ef3d8d7652beb3762089c397eba6cdcd21200376a98']})
+    with pytest.raises(ValueError, match='region_identity_mismatch'):
+        validate_review(value, draft, pack)
+    normalized, changes = normalize_review(value)
+    assert validate_review(normalized, draft, pack)['status'] == 'confirmed'
+    assert changes == [{'path': '/findings/2/regions/0/region_id', 'rule': 'region_id_string_null',
+                        'before': 'null', 'after': None}]
+    expected = deepcopy(original)
+    expected['findings'][2]['regions'][0]['region_id'] = None
+    assert normalized == expected and value == original
+    assert normalize_review(normalized) == (normalized, [])
+
+
+@pytest.mark.parametrize('status', ['confirmed', 'correction_required', 'uncertain'])
+def test_null_compatibility_preserves_model_decision_and_raw_response(tmp_path, status):
+    def response(request):
+        value = json.loads(review_response(request, status))
+        value['findings'][0]['regions'][0]['region_id'] = 'null'
+        return json.dumps(value, ensure_ascii=False)
+    result, client, (_, _, store, _) = execute(tmp_path, [json.dumps(corrected_payload()), response], max_attempts=1)
+    audit = result.attempts[0].source_review
+    assert audit['status'] == status and audit['model_status'] == status
+    assert audit['normalizations'] == [{'path': '/findings/0/regions/0/region_id',
+        'rule': 'region_id_string_null', 'before': 'null', 'after': None}]
+    assert result.accepted == (status == 'confirmed')
+    assert len(client.requests) == 2
+    artifacts = result.final_context.state.artifacts
+    raw = next(a for a in artifacts if a.kind == 'problem_source_review_raw_response')
+    assert store.read_bytes(raw).decode() == response(client.requests[1])
+    parsed = next(a for a in artifacts if a.kind == 'problem_source_review_result')
+    assert json.loads(store.read_bytes(parsed))['findings'][0]['regions'][0]['region_id'] is None
+
+
+@pytest.mark.parametrize('field,value,reason,path', [
+    ('region_id', 'made-up', 'region_identity_mismatch', '/findings/0/regions/0/region_id'),
+    ('region_id', '', 'region_identity_mismatch', '/findings/0/regions/0/region_id'),
+    ('region_id', 'None', 'region_identity_mismatch', '/findings/0/regions/0/region_id'),
+    ('region_id', 'NULL', 'region_identity_mismatch', '/findings/0/regions/0/region_id'),
+    ('region_id', ' null ', 'region_identity_mismatch', '/findings/0/regions/0/region_id'),
+    ('page_id', 'other-page', 'unknown_page', '/findings/0/regions/0/page_id'),
+    ('bbox', [.9, 0, .1, 1], 'invalid_bbox', '/findings/0/regions/0/bbox'),
+    ('bbox', [0, 0, 2, 1], 'schema_violation', '/findings/0/regions/0/bbox/2'),
+    ('binding', 'old-revision', 'binding_mismatch', '/binding'),
+    ('unit_ids', ['scope:unknown'], 'unknown_unit', '/findings/0/unit_ids'),
+])
+def test_normalization_cannot_bypass_other_contract_checks(tmp_path, field, value, reason, path):
+    def response(request):
+        payload = json.loads(review_response(request))
+        payload['findings'][0]['regions'][0]['region_id'] = 'null'
+        if field == 'binding': payload[field] = value
+        elif field == 'unit_ids': payload['findings'][0][field] = value
+        else: payload['findings'][0]['regions'][0][field] = value
+        return json.dumps(payload)
+    result, client, _ = execute(tmp_path, [json.dumps(corrected_payload()), response])
+    assert result.blocked_reason == REVIEW_INVALID and not result.accepted
+    assert len(client.requests) == 2 and len(result.attempts) == 1
+    audit = result.attempts[0].source_review
+    assert audit['status'] == 'failed' and audit['model_status'] == 'confirmed'
+    assert audit['error_details']['reason'] == reason
+    assert audit['error_details']['path'] == path
+
+
+def test_legacy_error_report_is_readable_but_not_a_semantic_uncertainty():
+    draft = ProblemDraft.create(corrected_payload())
+    issues = review_issues({'status': 'uncertain', 'error': 'source review failed: ValueError'}, draft)
+    assert len(issues) == 1 and issues[0].code == REVIEW_FAILED and not issues[0].retryable
 
 
 def test_clean_auxiliary_observations_need_no_review(tmp_path):
@@ -215,7 +303,7 @@ def test_review_budget_and_crash_reservation_are_durable(tmp_path):
         changed = ProblemDraft.from_graph(draft.graph, parent_revision_id=f'parent-{i}')
         value, _ = SourceReviewer(store).review(context_id=context.manifest.context_id,
             draft=changed, pack=pack, reader=store, provider=client, differences=source_differences(changed, pack))
-        assert value['status'] == ('confirmed' if i < 3 else 'uncertain')
+        assert value['status'] == ('confirmed' if i < 3 else 'failed')
     assert len(client.requests) == 3
     def crash(request): raise KeyboardInterrupt('simulate process loss')
     client = _SequenceProvider([crash])
@@ -223,7 +311,7 @@ def test_review_budget_and_crash_reservation_are_durable(tmp_path):
                 provider=client, differences=source_differences(draft, pack))
     with pytest.raises(KeyboardInterrupt): SourceReviewer(store).review(**args)
     value, _ = SourceReviewer(store).review(**args)
-    assert value['status'] == 'uncertain' and 'unknown' in value['error']
+    assert value['status'] == 'failed' and value['error_code'] == REVIEW_FAILED and 'unknown' in value['error']
     assert len(client.requests) == 1
 
 

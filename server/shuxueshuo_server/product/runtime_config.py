@@ -30,6 +30,7 @@ class RuntimeConfig:
                 'BROKER_COOKIE': secrets.token_hex(24),
                 'API_PORT': os.environ.get('PRODUCT_API_PORT', '8000'),
                 'FRONTEND_PORT': os.environ.get('PRODUCT_FRONTEND_PORT', '3000'),
+                'WORKER_CONCURRENCY': os.environ.get('PRODUCT_WORKER_CONCURRENCY', '1'),
                 'OCR_PYTHON': os.environ.get(
                     'REVIEW_OCR_PYTHON',
                     '/app/bin/ocr-python' if settings.mode == 'server'
@@ -46,12 +47,22 @@ class RuntimeConfig:
         values = dict(dotenv_values(path))
         values.setdefault('BROKER_HOST', '127.0.0.1')
         values.setdefault('RABBITMQ_BIN', '')
+        values.setdefault('WORKER_CONCURRENCY', '1')
+        # Validate overrides before any worker starts or private defaults are used.
+        concurrency = os.environ.get('PRODUCT_WORKER_CONCURRENCY', values['WORKER_CONCURRENCY'])
+        if not isinstance(concurrency, str) or not concurrency.isascii() or not concurrency.isdecimal() or not 1 <= int(concurrency) <= 16:
+            raise ProductError('runtime.worker_concurrency')
+        values['WORKER_CONCURRENCY'] = str(int(concurrency))
         for key in ('BROKER_PORT', 'API_PORT', 'FRONTEND_PORT'):
             if not 1024 <= int(values[key]) <= (45000 if key == 'BROKER_PORT' else 65535):
                 raise ProductError('runtime.port')
         if settings.mode == 'local' and not Path(values['RABBITMQ_BIN']).is_dir():
             raise ProductError('runtime.rabbitmq_bin_missing')
         return cls(settings, values)
+
+    @property
+    def worker_concurrency(self):
+        return int(self.values.get('WORKER_CONCURRENCY', '1'))
 
     @property
     def broker_host(self):
@@ -88,6 +99,7 @@ class RuntimeConfig:
             'PRODUCT_INSTANCE': self.settings.instance,
             'PRODUCT_API_PORT': self.values['API_PORT'],
             'PRODUCT_FRONTEND_PORT': self.values['FRONTEND_PORT'],
+            'PRODUCT_WORKER_CONCURRENCY': str(self.worker_concurrency),
             'PYTHONPATH': str(REPO / 'server'),
             'PYTHONUNBUFFERED': '1',
             'REVIEW_BACKEND': 'product',

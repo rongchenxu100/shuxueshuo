@@ -34,4 +34,63 @@
 .dot[data-status=running] { background: #0f766e; color: white; }
 .dot[data-status=failed], .dot[data-status=blocked] { background: #ffe4e6; color: #be123c; }
 @media (max-width: 1050px) { .workspace { grid-template-columns: min(160px, var(--sidebar-width, 250px)) minmax(0, 1fr); } .workspace:has(> .preview) { grid-template-columns: min(160px, var(--sidebar-width, 250px)) minmax(0, 1fr) 240px; } .resize { display: none; } .workspace:has(> .preview) > .middle .card { padding: 16px; } .workspace:has(> .preview) > .middle > .scroll { padding: 12px; } }
-@media (max-width: 800px) { .workspace { overflow: auto; grid-template-columns: 1fr; height: 100%; display: block; } .sidebar { max-height: 220px; } .middle { min-height: 320px; } .preview { height: 80vh; min-height: 440px; } .scroll { flex: auto; } .sidebar .scroll { max-height: 150px; } }
+
+/* Phone: one pane at a time. Nested 150px list scroll was unusable. */
+.back { display: none; }
+@media (max-width: 800px) {
+  .workspace {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+  .workspace[data-pane='list'] > :not(.sidebar) { display: none !important; }
+  .workspace[data-pane='detail'] > .sidebar { display: none; }
+  .workspace[data-pane='list'] > .sidebar {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    border-right: 0;
+  }
+  .workspace[data-pane='list'] .sidebar .scroll {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .workspace[data-pane='detail'] {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .workspace[data-pane='detail'] > .middle {
+    flex: 0 0 auto;
+    min-height: 0;
+    border-left: 0;
+  }
+  .workspace[data-pane='detail'] > .middle > .scroll {
+    overflow: visible;
+    flex: none;
+    padding: 16px;
+  }
+  .workspace[data-pane='detail'] > .preview {
+    flex: 1 0 auto;
+    height: auto;
+    min-height: 70vh;
+  }
+  .workspace[data-pane='detail'] .frame { min-height: 70vh; }
+  .collapse { display: none; }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: #0f766e;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}

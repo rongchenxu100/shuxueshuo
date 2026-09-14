@@ -96,3 +96,17 @@ PRODUCT_TEST_DATA_DIR=/private/tmp/shuxueshuo-source-review-20260913 PRODUCT_TES
 此前真实模型验收记录属于上一轮，本轮修复以故障注入和录制九阶段回归验证，未重新执行付费模型测试。
 
 本轮修复后已排空并重启本地受管理服务，API、Publisher、Worker、Frontend 版本均为 `3f0d2f5afb9b56810214daabb21520af59b84121bd8f52dcd96796ed1c272a1e`。健康检查 `ok=true`，积压消息和过期租约均为 0；结果保存在 `/private/tmp/source-review-findings-services-doctor.json`。
+
+## 西青线上复核格式兼容修复
+
+线上复核返回 `confirmed`，但其中一个区域的 `region_id` 为字符串 `"null"`。旧实现将其视为未知区域 ID，再把校验异常统一标成 `uncertain`，错误提示用户检查题图清晰度。
+
+- 只将 `findings[*].regions[*].region_id` 中精确匹配的字符串 `"null"` 规范化为 JSON `null`。空字符串、`None`、`NULL`、带空格的字符串及未知 ID 均不能走此兼容规则。规范化后继续完整校验 binding、单元、区域 ID、页码和 bbox。
+- 模型原文与 provider payload 不变；复核审计新增 `normalizations`，记录字段路径、规则与前后值，`model_status` 保留模型原始结论。规范化后的结果仍是独立产物。
+- 外部模型契约仍只有 `confirmed`、`correction_required`、`uncertain`。内部处理失败的审计状态为 `failed`，并携带 `error_code` 和不包含任意 provider 异常原文的 `error_details`。格式、绑定和引用错误使用 `extraction.problem_source_review_invalid`；请求或处理失败使用 `extraction.problem_source_review_failed`；仅模型明确不确定才使用 `extraction.problem_source_uncertain`。产品错误码和前端提示同步区分三者。
+- 这些处理错误直接阻断，不再消耗草稿修复次数；复核调用上限、持久化恢复与去重保持不变。旧带 `error` 的 uncertain 审计仍可读取，映射为处理失败，不回写历史产物。
+- 西青线上 JSON 夹具位于 `server/tests/solver/fixtures/source_review/xiqing-string-null`，用于契约回归。产品测试向已有和平匹配图像／观察的生产校验链注入相同格式问题，验证九阶段、审计、调用数量及 checkpoint 恢复；另覆盖格式非法、超时、语义不确定的阻断路径。
+
+本次在独立 PostgreSQL 实例 `source-review-findings-test` 完成产品与抽取回归：**448 passed、3 skipped、1 deselected**，日志 `/private/tmp/source-review-null-full-20260913.log`。跳过的三个专用 RabbitMQ 测试和未选中的真实模型九阶段测试均未计入通过数。前端 **127 passed**，TypeScript 类型检查通过。
+
+本次修复未重新调用付费模型，也未部署线上服务；真实模型验收仍以之前明确标注的批次为准。部署后需从题意抽取阶段提交新构建验证，历史失败记录不改写。

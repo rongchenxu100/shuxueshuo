@@ -32,7 +32,7 @@ def digest(value):
     return sha256(json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 
-def inventory(root=REPO):
+def inventory_paths(root=REPO):
     paths = set()
     for directory, suffixes in (
         ('server/shuxueshuo_server', None), ('tools', {'.mjs', '.js'}),
@@ -52,7 +52,11 @@ def inventory(root=REPO):
     for name in ('server/pyproject.toml', 'server/uv.lock', 'frontend/package-lock.json'):
         if (root / name).is_file():
             paths.add(root / name)
-    return {str(path.relative_to(root)): sha256(path.read_bytes()).hexdigest() for path in sorted(paths)}
+    return sorted(paths)
+
+
+def inventory(root=REPO):
+    return {str(path.relative_to(root)): sha256(path.read_bytes()).hexdigest() for path in inventory_paths(root)}
 
 
 def resource_owner(path):

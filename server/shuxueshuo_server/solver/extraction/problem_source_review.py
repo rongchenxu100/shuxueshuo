@@ -1,6 +1,7 @@
 """Image-led source review. OCR discrepancies request review, never rewrite facts."""
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import replace
 import fcntl
 import json
@@ -11,7 +12,7 @@ from pathlib import Path
 from tempfile import NamedTemporaryFile
 from time import monotonic
 
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, ValidationError
 
 from .context import ExtractionArtifactRef
 from .multimodal_provider import MultimodalExtractionPrompt, build_multimodal_provider_request
@@ -20,6 +21,11 @@ from .problem_domain_validation import _normalize_text, _question_header_is_cove
 from .source_identity import stable_hash
 
 CONTRACT = "problem-source-review/v1"
+REVIEW_INVALID = "extraction.problem_source_review_invalid"
+REVIEW_FAILED = "extraction.problem_source_review_failed"
+SOURCE_REVIEW_BLOCKING_CODES = frozenset({
+    "extraction.problem_source_uncertain", REVIEW_INVALID, REVIEW_FAILED,
+})
 
 
 def _object(properties):
@@ -117,32 +123,69 @@ def build_review_request(draft, pack, reader, differences, response_format_mode)
                    "禁止解题或修改草稿。findings只记录本次结论依据，correction_required时仅列需要修复的差异，"
                    "unit_ids使用提供的单元（缺少内容时引用其所属scope），source_text忠实转录原图。"
                    "每项必须定位原图区域：bbox为归一化[x0,y0,x1,y1]，已有区域用region_id，否则null。"
-                   "unit_ids和page_id只能逐字复制输入中已有的ID；region_id不确定时用null和有效bbox，禁止编造ID。"
+                   "unit_ids和page_id只能逐字复制输入中已有的ID；region_id不确定时用JSON null（不是字符串\"null\"）和有效bbox，禁止编造ID。"
                    "逐字复制binding，只输出符合schema的JSON。",
             user_prefix="请独立阅读完整原图，再与候选比较。以下差异未预判哪一方正确。",
             user_suffix=json.dumps(data, ensure_ascii=False), includes_images=True))
 
 
+class ReviewValidationError(ValueError):
+    """Safe diagnostics without echoing arbitrary provider content."""
+
+    def __init__(self, reason, path):
+        super().__init__(reason)
+        self.reason = reason
+        self.path = path
+
+
+def normalize_review(value):
+    """One wire-format compatibility rule; never infer or repair evidence IDs."""
+    normalized = deepcopy(value)
+    changes = []
+    findings = normalized.get("findings") if isinstance(normalized, dict) else None
+    for i, finding in enumerate(findings if isinstance(findings, list) else []):
+        regions = finding.get("regions") if isinstance(finding, dict) else None
+        for j, region in enumerate(regions if isinstance(regions, list) else []):
+            if isinstance(region, dict) and region.get("region_id") == "null":
+                region["region_id"] = None
+                changes.append({"path": f"/findings/{i}/regions/{j}/region_id",
+                                "rule": "region_id_string_null", "before": "null", "after": None})
+    return normalized, changes
+
+
 def validate_review(value, draft, pack):
     Draft202012Validator(SCHEMA).validate(value)
     if value["binding"] != binding_for(draft, pack):
-        raise ValueError("source review binding does not match image and revision")
+        raise ReviewValidationError("binding_mismatch", "/binding")
     pages = {i.page_id for i in pack.images}
-    for finding in value["findings"]:
+    for i, finding in enumerate(value["findings"]):
         if not set(finding["unit_ids"]) <= set(draft.unit_registry):
-            raise ValueError("source review refers to an unknown unit")
-        for r in finding["regions"]:
+            raise ReviewValidationError("unknown_unit", f"/findings/{i}/unit_ids")
+        for j, r in enumerate(finding["regions"]):
+            path = f"/findings/{i}/regions/{j}"
             x0, y0, x1, y1 = r["bbox"]
-            if r["page_id"] not in pages or x0 >= x1 or y0 >= y1:
-                raise ValueError("invalid source review region")
+            if r["page_id"] not in pages:
+                raise ReviewValidationError("unknown_page", path + "/page_id")
+            if x0 >= x1 or y0 >= y1:
+                raise ReviewValidationError("invalid_bbox", path + "/bbox")
             if r["region_id"] is not None:
                 known = pack.region_by_id.get(r["region_id"])
                 if known is None or known.page_id != r["page_id"]:
-                    raise ValueError("source review region identity mismatch")
+                    raise ReviewValidationError("region_identity_mismatch", path + "/region_id")
     return value
 
 
 def review_issues(review, draft):
+    # Old reports used uncertain for every exception. They remain readable, but
+    # an operational failure must never be described as the model's judgement.
+    if review.get("error") or review.get("status") == "failed":
+        return (ProblemValidationIssue(
+            code=review.get("error_code", REVIEW_FAILED),
+            unit_ids=(draft.graph.root_scope.unit_id,), dependency_unit_ids=(),
+            message=review.get("error", "source review processing failed"),
+            repair_action="inspect source review diagnostics and submit a new build",
+            region_refs=(), retryable=False,
+        ),)
     if review["status"] == "confirmed":
         return ()
     correction = review["status"] == "correction_required"
@@ -184,14 +227,19 @@ class SourceReviewer:
                     ref = ExtractionArtifactRef.from_payload(state[key]["artifact"])
                     return json.loads(self.store.read_bytes(ref)), (ref,)
                 if not callable(getattr(provider, "restore_source_review", None)):
-                    return {"schema_version": CONTRACT, "status": "uncertain", "binding": key, "error": "previous review outcome is unknown"}, ()
+                    return {"schema_version": CONTRACT, "status": "failed", "binding": key,
+                            "error_code": REVIEW_FAILED, "error": "previous review outcome is unknown"}, ()
             if not recovering and len(state) >= 3:
-                return {"schema_version": CONTRACT, "status": "uncertain", "binding": key, "error": "source review budget exhausted"}, ()
+                return {"schema_version": CONTRACT, "status": "failed", "binding": key,
+                        "error_code": REVIEW_FAILED, "error": "source review budget exhausted"}, ()
             if not recovering:
                 state[key] = {"status": "started"}
                 self._save(path, state)
             started = monotonic()
-            review = {"schema_version": CONTRACT, "status": "uncertain", "binding": key}
+            # Audit status may be failed; the model contract still has exactly
+            # three semantic outcomes. model_status preserves its raw decision.
+            review = {"schema_version": CONTRACT, "status": "failed", "binding": key}
+            phase = "request"
             try:
                 if not provider.supports_images:
                     raise ValueError("source review requires an image-capable provider")
@@ -205,15 +253,36 @@ class SourceReviewer:
                 artifacts.append(self.store.put_json(kind="problem_source_review_provider_response", payload=dict(response.raw_payload)))
                 artifacts.append(self.store.put_bytes(kind="problem_source_review_raw_response", content=response.text.encode(), media_type="text/plain", suffix=".txt"))
                 review["usage"] = response.metadata_payload()
+                phase = "validation"
                 if response.finish_reason == "length":
-                    raise ValueError("source review response truncated")
-                parsed = validate_review(json.loads(response.text), draft, pack)
+                    raise ReviewValidationError("response_truncated", "")
+                value = json.loads(response.text)
+                if isinstance(value, dict) and value.get("status") in ("confirmed", "correction_required", "uncertain"):
+                    review["model_status"] = value["status"]
+                normalized, changes = normalize_review(value)
+                review["normalizations"] = changes
+                parsed = validate_review(normalized, draft, pack)
+                phase = "persist_result"
                 artifacts.append(self.store.put_json(kind="problem_source_review_result", payload=parsed))
                 review.update(parsed)
             except Exception as exc:
                 # SDK exception strings can contain sensitive request data.
                 review["error"] = "source review failed: " + type(exc).__name__
-                review["status"] = "uncertain"
+                review["status"] = "failed"
+                invalid = phase == "validation" and isinstance(exc, (json.JSONDecodeError, ValidationError, ReviewValidationError))
+                review["error_code"] = REVIEW_INVALID if invalid else REVIEW_FAILED
+                details = {"phase": phase, "exception_type": type(exc).__name__}
+                if isinstance(exc, ReviewValidationError):
+                    details.update(reason=exc.reason, path=exc.path)
+                elif isinstance(exc, json.JSONDecodeError):
+                    details.update(reason="invalid_json", line=exc.lineno, column=exc.colno)
+                elif isinstance(exc, ValidationError):
+                    # Paths may contain arbitrary extra keys supplied by the
+                    # model. Only expose schema-defined fields and array indexes.
+                    fields = {"schema_version", "binding", "status", "findings", "unit_ids", "source_text", "message", "regions", "region_id", "page_id", "bbox"}
+                    details.update(reason="schema_violation", validator=exc.validator,
+                        path="/" + "/".join(str(p) if isinstance(p, int) or p in fields else "?" for p in exc.absolute_path))
+                review["error_details"] = details
             review["duration_ms"] = round((monotonic() - started) * 1000)
             review["differences"] = differences
             ref = self.store.put_json(kind="problem_source_review", payload=review)

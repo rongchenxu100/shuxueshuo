@@ -131,6 +131,34 @@ curl -sS http://127.0.0.1:8000/api/product/v1/health
 curl -sSI https://studio.shuxueshuo.com/ | head
 ```
 
+## 解析网页的压缩与缓存
+
+生成页经 `/api/product/v1/pages/` 直接由产品 API 提供。Studio Nginx 模板为此路径单独开启
+gzip（level 6、最小 1024 字节）与响应缓冲，保留 `proxy_cache off`；其余 API／WebSocket 路径不变。
+HTML 默认在 gzip 类型范围内，同时包含 CSS、JavaScript、JSON 和 SVG。
+
+后端以产物 SHA-256 生成弱 ETag，适用于原始／gzip 两种传输表示。返回
+`Cache-Control: private, no-cache` 和 `Vary: Accept-Encoding`，浏览器可存储页面但每次复用需重新验证。
+匹配 `If-None-Match` 后返回无正文的 304；返回 304 前仍检查工作空间、题目权限及产物完整性。
+不启用公共代理缓存，不需要重新生成已有课程页。
+
+上线需同时更新产品 API 镜像和宿主机 Nginx 配置，执行 `nginx -t` 后 reload。
+仅重启前端 Docker 不会启用这两项改动。部署后用 GET 验证：
+
+```bash
+PAGE_URL='https://studio.shuxueshuo.com/api/product/v1/pages/<page-id>/index.html'
+curl -sS --compressed -D /tmp/lesson-headers.txt -o /dev/null "$PAGE_URL"
+# 首次响应应为 200，包含 Content-Encoding: gzip、ETag 和 private, no-cache。
+# 将首次响应的 ETag 完整复制到下一条命令（包括 W/ 和引号）。
+curl -sS -D - -o /dev/null -H 'If-None-Match: W/"<sha256>"' "$PAGE_URL"
+# 应为 304，无页面正文。权限不足或产物不可用时不得返回 304。
+```
+
+隔离测试：在 server 目录，设置独立 `PRODUCT_TEST_DATA_DIR`／`PRODUCT_TEST_INSTANCE` 后运行
+`uv run pytest -q tests/product/test_page_cache.py`。Nginx 实测需已有 `nginx:1.28-alpine` 镜像和 Docker：
+`RUN_NGINX_INTEGRATION=1 uv run pytest -q tests/test_studio_nginx.py`，测试会创建并清理自己的容器。
+该测试验证实际模板的页面 location、gzip 内容一致性和条件请求转发；服务器实际版本仍需部署时 `nginx -t`。
+
 ## 排错
 
 - 仍是旧页面：未替换 `shuxueshuo-studio` 镜像，或容器带了 `WORKSPACE_MODE=mock`

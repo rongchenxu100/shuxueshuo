@@ -44,7 +44,7 @@ def celery_app(runtime, version):
         task_queues=(Queue(queue, Exchange('product', durable=True), routing_key=queue, durable=True,
                           queue_arguments={'x-queue-type': 'classic'}),),
         task_default_queue=queue, task_default_exchange='product', task_default_routing_key=queue,
-        worker_pool='threads', worker_concurrency=1, worker_hijack_root_logger=False,
+        worker_pool='threads', worker_concurrency=runtime.worker_concurrency, worker_hijack_root_logger=False,
         worker_enable_remote_control=False)
     @app.task(name='product.execute')
     def execute(message): return supervise(runtime, version, message)
@@ -179,7 +179,7 @@ def main():
         heartbeat_sent.connect(worker_pulse, weak=False)
         worker_ready.connect(worker_pulse, weak=False)
         a.close()
-        client.worker_main(['worker', '--pool=threads', '--concurrency=1', '--loglevel=WARNING', '--without-gossip', '--without-mingle', '-n', f'product-{runtime.settings.instance}@%h'])
+        client.worker_main(['worker', '--pool=threads', f'--concurrency={runtime.worker_concurrency}', '--loglevel=WARNING', '--without-gossip', '--without-mingle', '-n', f'product-{runtime.settings.instance}@%h'])
         return
     stop = False
     def terminate(*_):

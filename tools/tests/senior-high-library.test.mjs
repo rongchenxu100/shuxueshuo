@@ -34,6 +34,43 @@ function loadModel() {
   return sandbox.SeniorHighLibraryModel;
 }
 
+function loadCatalogLoader(window, fetch) {
+  const runtime = fs.readFileSync(path.join(repoRoot, "site/assets/js/senior-high-library.js"), "utf8");
+  // Exercise the production loader without starting the unrelated DOM renderer.
+  const source = runtime.slice(runtime.indexOf("  async function loadCatalog()"), runtime.indexOf("  function getChapter("));
+  return vm.runInNewContext(`${source}\nloadCatalog`, { window, fetch });
+}
+
+test("preloaded catalog renders without a duplicate JSON request, including offline", async () => {
+  const window = {};
+  vm.runInNewContext(fs.readFileSync(path.join(repoRoot, "site/assets/js/senior-high-catalog-data.js"), "utf8"), { window });
+  let requests = 0;
+  const load = loadCatalogLoader(window, () => { requests += 1; throw new Error("offline"); });
+  assert.equal(await load(), window.__SENIOR_HIGH_CATALOG__);
+  assert.equal(requests, 0);
+});
+
+test("missing catalog script falls back to JSON", async () => {
+  const catalog = { chapters: [{ id: "sets" }], problems: [] };
+  const requests = [];
+  const load = loadCatalogLoader({}, async (url) => {
+    requests.push(url);
+    return { ok: true, json: async () => catalog };
+  });
+  assert.equal(await load(), catalog);
+  assert.deepEqual(requests, ["../data/senior-high-catalog.json?v=24"]);
+});
+
+test("unavailable JSON with no preloaded catalog retains the empty-state fallback", async () => {
+  for (const fetch of [
+    async () => { throw new Error("offline"); },
+    async () => ({ ok: false }),
+    async () => ({ ok: true, json: async () => { throw new Error("invalid JSON"); } }),
+  ]) {
+    assert.equal(JSON.stringify(await loadCatalogLoader({}, fetch)()), JSON.stringify({ chapters: [], problems: [] }));
+  }
+});
+
 test("validates the real senior-high catalog and its published assets", () => {
   const catalog = validateCatalog(chapterSource, problemSource, repoRoot);
   assert.equal(catalog.problems.length, 2);

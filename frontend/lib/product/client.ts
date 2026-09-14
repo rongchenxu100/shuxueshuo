@@ -41,6 +41,8 @@ export function stageElapsedMs(build: ProductBuild, stageId: string, now = Date.
 
 export const failureMessage = (code: string) => ({
   'extraction.problem_source_uncertain': '原图题面仍待确认，本次生成已停止。请在高级审查中查看无法辨认或来源不明的区域，并确认图片是否完整、清晰。',
+  'extraction.problem_source_review_invalid': '复核返回格式不合法，本次生成已停止。请在高级审查中查看复核报告，可从题意抽取阶段提交新构建重试。',
+  'extraction.problem_source_review_failed': '复核请求未完成或处理失败，本次生成已停止。请在高级审查中查看调用记录和复核报告，可从题意抽取阶段提交新构建重试。',
   'extraction.rebuild_required': '题意识别策略已更新，本次任务使用旧配置。请重新预览并提交新构建。',
   'execution.incompatible_environment': '本次任务所属的运行版本已更新，请重新预览并提交新构建。',
   'extraction.blocked': '题意识别未通过校验，本次生成已停止。请在高级审查中查看缺失或冲突的内容。',

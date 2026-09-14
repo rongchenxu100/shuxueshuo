@@ -139,6 +139,7 @@ class StageRunner:
         x = self.x
         from shuxueshuo_server.solver.extraction.context import ExtractionAttemptLedger, SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND
         from shuxueshuo_server.solver.extraction.problem_domain_service import ProblemDomainExtractionService
+        from shuxueshuo_server.solver.extraction.problem_source_review import SOURCE_REVIEW_BLOCKING_CODES
         from shuxueshuo_server.solver.extraction.multimodal_provider import DoubaoMultimodalExtractionProvider
         from shuxueshuo_server.review.replay import archive_bytes, ARCHIVE, extraction_store
         initial, observation, _ = x.contexts()
@@ -178,7 +179,7 @@ class StageRunner:
                         role='validation', kind='problem_source_review', schema='problem-source-review-audit/v1')
             if not result.accepted:
                 x.add(ARCHIVE, archive_bytes(x.work / 'extraction-artifacts'), mime='application/zip')
-                raise ProductError(result.blocked_reason if result.blocked_reason == 'extraction.problem_source_uncertain' else 'extraction.blocked')
+                raise ProductError(result.blocked_reason if result.blocked_reason in SOURCE_REVIEW_BLOCKING_CODES else 'extraction.blocked')
             final, verified = result.final_context, result.verified_problem
             # Revision binding and accepting the extraction checkpoint commit together.
             x.pending_revision = verified.to_payload()['graph']

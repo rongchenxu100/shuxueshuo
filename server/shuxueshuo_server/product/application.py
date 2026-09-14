@@ -40,8 +40,8 @@ def statement_text(domain):
 
 def dependencies(source, revision_id, snapshot):
     """Public allowlisted effective settings; source discovery never reads business history."""
-    from shuxueshuo_server.review.dependencies import probe
-    discovered = probe()
+    from .dependency_cache import release_dependencies
+    discovered = release_dependencies()
     config = {k: dict(v['config']) for k, v in discovered['stages'].items()}
     # Interpreter paths are local routing configuration, not public content.
     ocr_url = (os.environ.get('PRODUCT_OCR_URL') or '').rstrip('/')

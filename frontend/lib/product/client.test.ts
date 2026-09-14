@@ -11,4 +11,14 @@ describe('extraction failure explanations', () => {
     expect(failureMessage('extraction.rebuild_required')).toContain('提交新构建');
     expect(failureMessage('execution.incompatible_environment')).toContain('提交新构建');
   });
+
+  it.each([
+    ['extraction.problem_source_review_invalid', '复核返回格式不合法'],
+    ['extraction.problem_source_review_failed', '复核请求未完成或处理失败'],
+  ])('explains %s without blaming image clarity', (code, explanation) => {
+    expect(failureMessage(code)).toContain(explanation);
+    expect(failureMessage(code)).toContain('提交新构建');
+    expect(failureMessage(code)).not.toContain('原图题面仍待确认');
+    expect(failureMessage(code)).not.toBe(failureMessage('extraction.blocked'));
+  });
 });

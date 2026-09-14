@@ -73,3 +73,29 @@ def test_local_runtime_requires_rabbitmq_bin(tmp_path, monkeypatch):
     settings = _settings(tmp_path, 'local')
     with pytest.raises(Exception):
         RuntimeConfig.load(settings, initialize=True)
+
+
+def test_worker_concurrency_defaults_file_override_and_environment(tmp_path, monkeypatch):
+    monkeypatch.delenv('PRODUCT_WORKER_CONCURRENCY', raising=False)
+    settings = _settings(tmp_path, 'server')
+    runtime = RuntimeConfig.load(settings, initialize=True)
+    assert runtime.worker_concurrency == 1
+    values = {k: v for k, v in runtime.values.items() if k != 'WORKER_CONCURRENCY'}
+    (settings.root / 'config/runtime.env').unlink()
+    write_private(settings.root / 'config/runtime.env', values)
+    assert RuntimeConfig.load(settings).worker_concurrency == 1  # existing installations
+    (settings.root / 'config/runtime.env').unlink()
+    write_private(settings.root / 'config/runtime.env', {**values, 'WORKER_CONCURRENCY': '2'})
+    assert RuntimeConfig.load(settings).environment()['PRODUCT_WORKER_CONCURRENCY'] == '2'
+    monkeypatch.setenv('PRODUCT_WORKER_CONCURRENCY', '3')
+    assert RuntimeConfig.load(settings).worker_concurrency == 3
+
+
+@pytest.mark.parametrize('value', ['0', '-1', '17', '2.5', '', 'many', '２'])
+def test_worker_concurrency_rejects_invalid_configuration(tmp_path, monkeypatch, value):
+    from shuxueshuo_server.product.errors import ProductError
+    settings = _settings(tmp_path, 'server')
+    RuntimeConfig.load(settings, initialize=True)
+    monkeypatch.setenv('PRODUCT_WORKER_CONCURRENCY', value)
+    with pytest.raises(ProductError, match='runtime.worker_concurrency'):
+        RuntimeConfig.load(settings)

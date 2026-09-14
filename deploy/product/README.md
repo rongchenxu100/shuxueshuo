@@ -74,6 +74,32 @@ P1 `install` 只启动 PostgreSQL。包含 `PRODUCT_RABBITMQ_IMAGE` 与 `PRODUCT
 
 `services-stop` 停止 api/worker/publisher/ocr/rabbitmq，PostgreSQL 保持运行。服务器暂不在 Compose 内启 Next；Studio 前端仍按 [frontend-studio-workbench.md](../frontend-studio-workbench.md) 单独部署到 `127.0.0.1:3000`，由 `studio.shuxueshuo.com` Nginx 反代。产品 API 默认 `127.0.0.1:8000`（`runtime.env` 的 `API_PORT`）。
 
+### 构建性能：发布指纹与 Worker 并发
+
+服务器容器同时设置 `PRODUCT_MODE=server`、`PRODUCT_IN_CONTAINER=1` 和非空
+`PRODUCT_RELEASE_ID` 时，每个进程复用自己的依赖探测快照。每次使用仍检查依赖文件清单及
+inode、大小、mtime/ctime，并检查 `server/.env` 内容和进程环境；变化后重新完整探测。
+探测期间发生变化或探测失败时阻断，不回退旧快照。实例重启／执行恢复后的新进程重新探测，
+不信任磁盘缓存。OCR manifest、数据库执行权、取消、租约及构建配置匹配仍实时检查。
+本地开发及没有发布标识的环境继续每次完整探测。
+
+实例的 `config/runtime.env` 支持 `WORKER_CONCURRENCY='2'`（允许 1–16，缺省为 1，兼容旧配置）。
+进程环境 `PRODUCT_WORKER_CONCURRENCY` 可覆盖该值；使用 Compose 部署时，直接修改挂载的数据目录中
+`config/runtime.env` 即可，无需修改 Compose。宿主 shell 的任意环境变量不会自动传入容器。
+该设置只影响任务并发，不改变模型预算、题意复核、求解策略或历史构建的有效配置。
+
+建议先在资源足够的测试实例设置为 2。更新后先停止接收新任务并排空现有任务，再使用管理脚本
+`services-stop` / `services-start` 重启受管理服务；仅编辑配置不会改变已运行的 Worker。
+仍采用 threads 池、每个构建独立子进程、prefetch=1 与数据库执行权去重。
+OCR sidecar 仍串行处理，增加并发主要让其他题在某题等待模型期间继续推进，不能保证单题速度翻倍。
+
+实现验证：独立 PostgreSQL 的产品、依赖及重建回归 **151 passed、3 skipped、1 deselected**；
+三个跳过项为专用 RabbitMQ 测试，未选中的是付费模型测试。并发测试实际运行 Celery threads 池
+（使用内存 transport），另通过真实 PostgreSQL 验证并发执行、重复投递和取消隔离。
+本机 Mac 对真实依赖探测的测量：首次 0.926 秒，10 次缓存命中中位数 0.0108 秒，快照完全一致。
+此数据不代表服务器整题耗时；线上仍需部署后实测。日志与计时分别为
+`/private/tmp/product-release-cache-regression.log` 和 `/private/tmp/product-release-cache-benchmark.json`。
+
 ### OCR：本地 Mac vs 服务器
 
 | 环境 | 方式 |

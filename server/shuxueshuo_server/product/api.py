@@ -277,12 +277,21 @@ def artifact(build_id: UUID, artifact_id: UUID, request: Request):
 @router.get('/pages/{page_id}/{path:path}')
 def page(page_id: UUID, request: Request, path: str = 'index.html'):
     a = app_for(request)
+    # Authorize and verify the artifact before honoring a conditional request.
+    # Weak validators identify the same content across identity/gzip encodings.
     ref = a.service.page_resource(a.ctx, page_id, path)
+    etag = f'W/"{ref["sha256"]}"'
+    headers = {'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, no-cache',
+        'ETag': etag, 'Vary': 'Accept-Encoding',
+        'Content-Security-Policy': "sandbox allow-scripts; default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'"}
+    condition = ','.join(request.headers.getlist('if-none-match')).strip()
+    if condition == '*' or any(tag.strip() in (etag, etag[2:]) for tag in condition.split(',')):
+        return Response(status_code=304, headers=headers)
     def chunks():
         with a.service.storage.open(ref['storage_key']) as f:
             while chunk := f.read(65536): yield chunk
-    return StreamingResponse(chunks(), media_type=ref['content_type'], headers={'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, no-cache',
-        'Content-Security-Policy': "sandbox allow-scripts; default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'"})
+    return StreamingResponse(chunks(), media_type=ref['content_type'],
+        headers={**headers, 'Content-Length': str(ref['size_bytes'])})
 
 
 @router.post('/pages/{page_id}/reviews')
