@@ -238,18 +238,23 @@ class ArgVersionBinding:
 class ComputationKey:
     capability_id: str
     arg_bindings: tuple[ArgVersionBinding, ...] = ()
+    parameters_hash: str = ""
 
     def to_payload(self) -> dict[str, Any]:
-        return {
+        payload = {
             "capability_id": self.capability_id,
             "arg_bindings": [
                 item.to_payload() for item in self.arg_bindings
             ],
         }
+        if self.parameters_hash:
+            payload["parameters_hash"] = self.parameters_hash
+        return payload
 
     @classmethod
     def from_payload(cls, payload: Mapping[str, Any]) -> "ComputationKey":
         return cls(
+            parameters_hash=str(payload.get("parameters_hash", "")),
             capability_id=str(payload["capability_id"]),
             arg_bindings=tuple(
                 ArgVersionBinding(

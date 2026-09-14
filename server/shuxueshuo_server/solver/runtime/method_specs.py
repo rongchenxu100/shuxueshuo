@@ -200,6 +200,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         raw.get("plan_transformer_scope", "single_invocation")
     )
     return MethodSpec(
+        parameters_schema=raw.get("parameters_schema"),
         method_id=str(raw["method_id"]),
         title=str(raw["title"]),
         solves=tuple(str(item) for item in raw["solves"]),
@@ -1121,6 +1122,7 @@ def _resolve_spec_dir(path: str | Path | None) -> Path:
 
 
 _KNOWN_TYPES = {
+    "ConditionList",
     "AngleEquality",
     "Condition",
     "Constraint",

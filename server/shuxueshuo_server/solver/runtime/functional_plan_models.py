@@ -68,6 +68,7 @@ FunctionalAggregation = Literal[
     "coefficients_by_symbol",
     "point_list",
     "symbol_list",
+    "condition_list",
 ]
 FunctionalCallStatus = Literal["valid", "invalid", "blocked_by_dependency"]
 FunctionalResultFormEventStatus = Literal[
@@ -101,6 +102,7 @@ class FunctionalCall:
     strategy: str
     reason: str
     return_expectations: dict[str, FunctionalResultForm] = field(default_factory=dict)
+    parameters: dict[str, Any] = field(default_factory=dict)
 
     def to_payload(self) -> dict[str, Any]:
         args: dict[str, Any] = {}
@@ -120,6 +122,8 @@ class FunctionalCall:
         }
         if self.return_expectations:
             payload["return_expectations"] = dict(self.return_expectations)
+        if self.parameters:
+            payload["parameters"] = self.parameters
         return payload
 
 
@@ -506,6 +510,8 @@ class FunctionalCapability:
         }
         if self.do_not_use_when:
             payload["do_not_use_when"] = list(self.do_not_use_when)
+        if getattr(self.source, "parameters_schema", None) is not None:
+            payload["parameters_schema"] = self.source.parameters_schema
         requirements = [
             item.to_prompt_payload()
             for item in self.input_closure_requirements
@@ -595,7 +601,7 @@ def _planner_safe_payload(value: Any) -> Any:
 
 
 def _is_aggregate_return_type(runtime_type: str) -> bool:
-    return runtime_type in {"Coefficients", "PointList", "SymbolList"}
+    return runtime_type in {"Coefficients", "PointList", "SymbolList", "ConditionList"}
 
 
 def _aggregate_return_binding_description(
@@ -856,6 +862,7 @@ class FunctionalCallReconciliation:
     reads_closed: bool = False
     authored_macro_roles: tuple[tuple[str, str], ...] = ()
     relation_bindings: tuple[FunctionalMethodRelationBinding, ...] = ()
+    parameters: dict[str, Any] = field(default_factory=dict)
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -868,6 +875,7 @@ class FunctionalCallReconciliation:
             },
             "returns": [item.to_payload() for item in self.returns],
             "reads_closed": self.reads_closed,
+            **({"parameters": self.parameters} if self.parameters else {}),
             "authored_macro_roles": {
                 role: object_ref
                 for role, object_ref in self.authored_macro_roles
@@ -1157,6 +1165,17 @@ class CanonicalStateHandleFactory:
         if return_spec.identity_policy == "preserve_input_object":
             values = resolved_args.get(return_spec.identity_arg or "", ())
             if values:
+                # Generic expressions have no globally inferred object kind.
+                # A declared same-state rewrite may preserve the owner of an
+                # exact, already-bound Expression version; never infer it from
+                # symbols or objects merely mentioned in the expression.
+                version = values[0].state_version_id
+                if (return_spec.runtime_type == "Expression"
+                    and values[0].runtime_type == "Expression"
+                    and version is not None
+                    and version.slot_id.logical_key.runtime_type == "Expression"
+                    and version.slot_id.logical_key.state_kind == return_spec.state_kind):
+                    return version.slot_id.logical_key.object_id.value
                 object_ref = values[0].object_ref or _entity_handle_or_none(
                     values[0].handle
                 )

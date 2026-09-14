@@ -248,7 +248,8 @@ def functional_computation_key(
                     ),
                 )
             )
-    return ComputationKey(call.capability_id, tuple(bindings))
+    from shuxueshuo_server.solver.extraction.source_identity import stable_hash
+    return ComputationKey(call.capability_id, tuple(bindings), stable_hash(call.parameters) if call.parameters else "")
 
 
 def functional_source_version_ids(

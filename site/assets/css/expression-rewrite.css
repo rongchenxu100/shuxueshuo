@@ -1,0 +1,27 @@
+.expression-rewrite { background:linear-gradient(135deg,#f0faf9,#fff9ed); border:1px solid #b8d7d5; border-radius:18px; padding:24px; color:#123e43; }
+.expression-rewrite header { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; }
+.expression-rewrite header>span { color:#6a7f82; font-size:12px; }
+.er-conditions { display:flex; flex-wrap:wrap; gap:8px; margin:16px 0; }
+.er-condition { display:inline-block; background:#e4f1ef; padding:6px 12px; border-radius:20px; margin:3px; }
+.er-frame { background:#ffffffc7; border:1px solid #d8e5e4; padding:20px; border-radius:12px; }
+.er-frame[hidden] { display:none; }
+.er-frame+.er-frame { margin-top:14px; }
+.er-frame h4 { margin:0 0 16px; color:#956019; }
+.er-formula { font-family:Georgia,'Times New Roman',serif; font-size:21px; padding:12px 3px; overflow-x:auto; white-space:nowrap; line-height:1.9; }
+.er-node { display:inline-block; vertical-align:middle; }
+.er-fraction { display:inline-flex; flex-direction:column; text-align:center; vertical-align:middle; line-height:1.4; margin:0 .12em; }
+.er-fraction>span:first-child { border-bottom:1.5px solid currentColor; padding:0 .18em .12em; }
+.er-fraction>span:last-child { padding:.12em .18em 0; }
+.er-op { margin:0 .25em; }.er-mul { margin:0 .08em; }
+.er-highlight { outline:2px solid #08a8c4; border-radius:5px; padding:1px 4px; margin:2px; }
+.er-denominator_1 { outline-color:#ed8900; border-radius:14px; }
+.er-condition_block { outline-color:#007f79; background:#e5f5f0; }
+.er-arrow { color:#db6a35; margin:0 20px; }.er-equals { margin-right:12px; color:#007f79; }
+.er-unchanged { color:#75888b; font-size:14px; }
+.er-node.er-unchanged { outline:none; padding:0; margin:0; font-size:inherit; opacity:.55; }
+.er-chain { border-top:1px dashed #b6d1ce; margin-top:20px; padding-top:14px; }
+.er-chain small { color:#75888b; }.er-chain .er-formula { font-size:17px; padding:7px 3px; }
+.expression-rewrite nav { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:9px; padding-top:18px; }
+.expression-rewrite button { border:1px solid #b5d4cf; border-radius:8px; padding:8px 12px; background:white; color:#006f69; cursor:pointer; font:inherit; }
+.expression-rewrite button:disabled { opacity:.4; cursor:default; }.er-progress { font-size:13px; }
+@media(max-width:600px){.expression-rewrite{padding:12px}.er-frame{padding:12px}.er-formula{font-size:18px}.er-arrow{margin:0 10px}.expression-rewrite nav{gap:6px}}

@@ -1271,6 +1271,39 @@ test("learning page keeps compact exercise anchors and the shared back-to-top co
   assert.match(page, /assets\/js\/home\.js/);
 });
 
+test("mistake book is a top-level destination focused on this week's set study", () => {
+  const seniorPage = fs.readFileSync(
+    path.join(repoRoot, "site/senior-high/index.html"),
+    "utf8",
+  );
+  const mistakePage = fs.readFileSync(
+    path.join(repoRoot, "site/mistake-book/index.html"),
+    "utf8",
+  );
+
+  assert.match(seniorPage, /href="\.\.\/mistake-book\/index\.html">错题本<\/a>/);
+  assert.match(mistakePage, /aria-current="page">错题本<\/a>/);
+  assert.doesNotMatch(mistakePage, /这一周，我们在集合里错了什么/);
+  assert.match(mistakePage, /senior-high\/index\.html\?chapter=sets/);
+  assert.match(mistakePage, /class="mistake-book-subsection-head"/);
+  assert.match(mistakePage, /<span>特训一<\/span>/);
+  assert.match(mistakePage, /mistake-subsection-title">集合的概念<\/h3>/);
+  assert.match(mistakePage, /kx<sup>2<\/sup>\+4x\+4=0/);
+  assert.match(mistakePage, /原解题步骤和答案/);
+  assert.match(mistakePage, /正确解题步骤和答案/);
+  assert.match(mistakePage, /错误总结/);
+  assert.match(mistakePage, /先判断方程次数/);
+  assert.match(mistakePage, /对含参数的一元二次方程，求解前一定先讨论二次项系数是否为 0/);
+  assert.doesNotMatch(mistakePage, /class="mistake-diagnosis"/);
+  assert.doesNotMatch(mistakePage, /可迁移的结论/);
+  assert.doesNotMatch(mistakePage, /七天复测/);
+  assert.doesNotMatch(mistakePage, /class="mistake-book-method"/);
+  assert.doesNotMatch(mistakePage, /往期周次会按时间倒序/);
+  assert.doesNotMatch(mistakePage, /先独立判断，再看原解/);
+  assert.doesNotMatch(mistakePage, /原样保留，不在这里提前订正/);
+  assert.doesNotMatch(mistakePage, /等待第一道真实错题/);
+});
+
 test("sorts and filters future catalog entries without changing classification", () => {
   const model = loadModel();
   const base = validateCatalog(chapterSource, problemSource, repoRoot);

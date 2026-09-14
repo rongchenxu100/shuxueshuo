@@ -1,0 +1,1906 @@
+{
+  "call": {
+    "step_id": "rewrite_1",
+    "capability_id": "organize_expressions",
+    "args": {
+      "expression": "target_expression",
+      "conditions": [
+        "positive_a",
+        "positive_b",
+        "product_condition"
+      ]
+    },
+    "parameters": {
+      "steps": [
+        {
+          "math": "1/(2*a)+1/(2*b)+8/(a+b)"
+        },
+        {
+          "math": "(a+b)/(2*a*b)+8/(a+b)"
+        },
+        {
+          "math": "(a+b)/2+8/(a+b)",
+          "using": [
+            "a*b=1"
+          ]
+        }
+      ]
+    }
+  },
+  "output": "((a + b)**2/2 + 8)/(a + b)",
+  "checks": [
+    {
+      "name": "rewrite_input_bound",
+      "ok": true
+    },
+    {
+      "name": "rewrite_domain_verified",
+      "ok": true
+    },
+    {
+      "name": "rewrite_equivalence_verified",
+      "ok": true
+    },
+    {
+      "name": "rewrite_conditions_bound",
+      "ok": true
+    }
+  ],
+  "trace": {
+    "source": {
+      "latex": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}+\\frac{8}{a+b}",
+      "tree": {
+        "id": "n",
+        "op": "add",
+        "children": [
+          {
+            "id": "n.0",
+            "op": "add",
+            "children": [
+              {
+                "id": "n.0.0",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.0.0.0",
+                    "op": "integer",
+                    "text": "1"
+                  },
+                  {
+                    "id": "n.0.0.1",
+                    "op": "mul",
+                    "children": [
+                      {
+                        "id": "n.0.0.1.0",
+                        "op": "integer",
+                        "text": "2"
+                      },
+                      {
+                        "id": "n.0.0.1.1",
+                        "op": "symbol",
+                        "text": "a"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "n.0.1",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.0.1.0",
+                    "op": "integer",
+                    "text": "1"
+                  },
+                  {
+                    "id": "n.0.1.1",
+                    "op": "mul",
+                    "children": [
+                      {
+                        "id": "n.0.1.1.0",
+                        "op": "integer",
+                        "text": "2"
+                      },
+                      {
+                        "id": "n.0.1.1.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "n.1",
+            "op": "div",
+            "children": [
+              {
+                "id": "n.1.0",
+                "op": "integer",
+                "text": "8"
+              },
+              {
+                "id": "n.1.1",
+                "op": "add",
+                "children": [
+                  {
+                    "id": "n.1.1.0",
+                    "op": "symbol",
+                    "text": "a"
+                  },
+                  {
+                    "id": "n.1.1.1",
+                    "op": "symbol",
+                    "text": "b"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "result": {
+      "latex": "\\frac{a+b}{2}+\\frac{8}{a+b}",
+      "tree": {
+        "id": "n",
+        "op": "add",
+        "children": [
+          {
+            "id": "n.0",
+            "op": "div",
+            "children": [
+              {
+                "id": "n.0.0",
+                "op": "add",
+                "children": [
+                  {
+                    "id": "n.0.0.0",
+                    "op": "symbol",
+                    "text": "a"
+                  },
+                  {
+                    "id": "n.0.0.1",
+                    "op": "symbol",
+                    "text": "b"
+                  }
+                ]
+              },
+              {
+                "id": "n.0.1",
+                "op": "integer",
+                "text": "2"
+              }
+            ]
+          },
+          {
+            "id": "n.1",
+            "op": "div",
+            "children": [
+              {
+                "id": "n.1.0",
+                "op": "integer",
+                "text": "8"
+              },
+              {
+                "id": "n.1.1",
+                "op": "add",
+                "children": [
+                  {
+                    "id": "n.1.1.0",
+                    "op": "symbol",
+                    "text": "a"
+                  },
+                  {
+                    "id": "n.1.1.1",
+                    "op": "symbol",
+                    "text": "b"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "transitions": [
+      {
+        "operation": "combine_fractions",
+        "before": {
+          "latex": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}+\\frac{8}{a+b}",
+          "tree": {
+            "id": "n",
+            "op": "add",
+            "children": [
+              {
+                "id": "n.0",
+                "op": "add",
+                "children": [
+                  {
+                    "id": "n.0.0",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.0.0.0",
+                        "op": "integer",
+                        "text": "1"
+                      },
+                      {
+                        "id": "n.0.0.1",
+                        "op": "mul",
+                        "children": [
+                          {
+                            "id": "n.0.0.1.0",
+                            "op": "integer",
+                            "text": "2"
+                          },
+                          {
+                            "id": "n.0.0.1.1",
+                            "op": "symbol",
+                            "text": "a"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.0.1",
+                    "op": "div",
+                    "children": [
+                      {
+                        "id": "n.0.1.0",
+                        "op": "integer",
+                        "text": "1"
+                      },
+                      {
+                        "id": "n.0.1.1",
+                        "op": "mul",
+                        "children": [
+                          {
+                            "id": "n.0.1.1.0",
+                            "op": "integer",
+                            "text": "2"
+                          },
+                          {
+                            "id": "n.0.1.1.1",
+                            "op": "symbol",
+                            "text": "b"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "n.1",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.1.0",
+                    "op": "integer",
+                    "text": "8"
+                  },
+                  {
+                    "id": "n.1.1",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.1.1.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.1.1.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "after": {
+          "latex": "\\frac{a+b}{2\\cdot a\\cdot b}+\\frac{8}{a+b}",
+          "tree": {
+            "id": "n",
+            "op": "add",
+            "children": [
+              {
+                "id": "n.0",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.0.0",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.0.0.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.0.0.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.0.1",
+                    "op": "mul",
+                    "children": [
+                      {
+                        "id": "n.0.1.0",
+                        "op": "mul",
+                        "children": [
+                          {
+                            "id": "n.0.1.0.0",
+                            "op": "integer",
+                            "text": "2"
+                          },
+                          {
+                            "id": "n.0.1.0.1",
+                            "op": "symbol",
+                            "text": "a"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "n.0.1.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "n.1",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.1.0",
+                    "op": "integer",
+                    "text": "8"
+                  },
+                  {
+                    "id": "n.1.1",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.1.1.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.1.1.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "localBefore": {
+          "latex": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}",
+          "nodeIds": [
+            "n.0.0",
+            "n.0.1"
+          ]
+        },
+        "localAfter": {
+          "latex": "\\frac{a+b}{2\\cdot a\\cdot b}",
+          "nodeIds": [
+            "n.0"
+          ]
+        },
+        "unchanged": [
+          {
+            "latex": "\\frac{8}{a+b}",
+            "beforeNodeId": "n.1",
+            "afterNodeId": "n.1"
+          }
+        ],
+        "highlights": [
+          {
+            "role": "denominator_0",
+            "side": "before",
+            "nodeId": "n.0.0.1",
+            "latex": "2\\cdot a"
+          },
+          {
+            "role": "denominator_1",
+            "side": "before",
+            "nodeId": "n.0.1.1",
+            "latex": "2\\cdot b"
+          },
+          {
+            "role": "condition_block",
+            "side": "after",
+            "nodeId": "n.0.1",
+            "latex": "a b",
+            "factor": "a*b"
+          }
+        ],
+        "conditionCardIds": [
+          "c2"
+        ],
+        "evidence": {
+          "kind": "structural_common_denominator",
+          "mergedFractionCount": 2,
+          "commonDenominator": "2 a b",
+          "multipliers": [
+            "b",
+            "a"
+          ],
+          "localEquivalenceVerified": true,
+          "wholeEquivalenceVerified": true
+        },
+        "revealedConditionIds": [
+          "c2"
+        ],
+        "id": "t0",
+        "effect": "reveal_condition"
+      },
+      {
+        "operation": "substitute_condition",
+        "before": {
+          "latex": "\\frac{a+b}{2\\cdot a\\cdot b}+\\frac{8}{a+b}",
+          "tree": {
+            "id": "n",
+            "op": "add",
+            "children": [
+              {
+                "id": "n.0",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.0.0",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.0.0.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.0.0.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.0.1",
+                    "op": "mul",
+                    "children": [
+                      {
+                        "id": "n.0.1.0",
+                        "op": "mul",
+                        "children": [
+                          {
+                            "id": "n.0.1.0.0",
+                            "op": "integer",
+                            "text": "2"
+                          },
+                          {
+                            "id": "n.0.1.0.1",
+                            "op": "symbol",
+                            "text": "a"
+                          }
+                        ]
+                      },
+                      {
+                        "id": "n.0.1.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "n.1",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.1.0",
+                    "op": "integer",
+                    "text": "8"
+                  },
+                  {
+                    "id": "n.1.1",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.1.1.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.1.1.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "after": {
+          "latex": "\\frac{a+b}{2}+\\frac{8}{a+b}",
+          "tree": {
+            "id": "n",
+            "op": "add",
+            "children": [
+              {
+                "id": "n.0",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.0.0",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.0.0.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.0.0.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "n.0.1",
+                    "op": "integer",
+                    "text": "2"
+                  }
+                ]
+              },
+              {
+                "id": "n.1",
+                "op": "div",
+                "children": [
+                  {
+                    "id": "n.1.0",
+                    "op": "integer",
+                    "text": "8"
+                  },
+                  {
+                    "id": "n.1.1",
+                    "op": "add",
+                    "children": [
+                      {
+                        "id": "n.1.1.0",
+                        "op": "symbol",
+                        "text": "a"
+                      },
+                      {
+                        "id": "n.1.1.1",
+                        "op": "symbol",
+                        "text": "b"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "localBefore": {
+          "latex": "\\frac{a+b}{2\\cdot a\\cdot b}",
+          "nodeIds": [
+            "n.0"
+          ]
+        },
+        "localAfter": {
+          "latex": "\\frac{a+b}{2}",
+          "nodeIds": [
+            "n.0"
+          ]
+        },
+        "unchanged": [
+          {
+            "latex": "\\frac{8}{a+b}",
+            "beforeNodeId": "n.1",
+            "afterNodeId": "n.1"
+          }
+        ],
+        "highlights": [],
+        "conditionCardIds": [
+          "c2"
+        ],
+        "evidence": {
+          "kind": "bound_equality_substitution",
+          "wholeEquivalenceVerified": true
+        },
+        "replacements": [
+          {
+            "conditionCardId": "c2",
+            "block": {
+              "latex": "a b"
+            },
+            "value": {
+              "latex": "1"
+            }
+          }
+        ],
+        "id": "t1"
+      }
+    ],
+    "conditionCards": [
+      {
+        "id": "c0",
+        "latex": "a > 0",
+        "boundIndex": 0,
+        "source": {
+          "schema_version": "method-input-read-authority/v1",
+          "method_id": "organize_expressions",
+          "invocation_id": "rewrite_1.organize_expressions",
+          "input_name": "conditions",
+          "item_index": 0,
+          "view_mode": "immutable_value",
+          "domain_type": "ConditionList",
+          "runtime_type": "Condition",
+          "scope_id": "rewrite_1",
+          "source": {
+            "kind": "condition",
+            "condition_id": "fact:problem:positive_a",
+            "runtime_path": "$problem.conditions.positive_a"
+          },
+          "authority_signature": "47b1c43c38320f936ec56b7f579ea302ee918e0b83cb4c615fce4b5c3c237fe6"
+        }
+      },
+      {
+        "id": "c1",
+        "latex": "b > 0",
+        "boundIndex": 1,
+        "source": {
+          "schema_version": "method-input-read-authority/v1",
+          "method_id": "organize_expressions",
+          "invocation_id": "rewrite_1.organize_expressions",
+          "input_name": "conditions",
+          "item_index": 1,
+          "view_mode": "immutable_value",
+          "domain_type": "ConditionList",
+          "runtime_type": "Condition",
+          "scope_id": "rewrite_1",
+          "source": {
+            "kind": "condition",
+            "condition_id": "fact:problem:positive_b",
+            "runtime_path": "$problem.conditions.positive_b"
+          },
+          "authority_signature": "bc3b1443419716675842833c9a1e2406e6c4813d6864bb5ad7789825dedd3d86"
+        }
+      },
+      {
+        "id": "c2",
+        "latex": "a b = 1",
+        "boundIndex": 2,
+        "source": {
+          "schema_version": "method-input-read-authority/v1",
+          "method_id": "organize_expressions",
+          "invocation_id": "rewrite_1.organize_expressions",
+          "input_name": "conditions",
+          "item_index": 2,
+          "view_mode": "immutable_value",
+          "domain_type": "ConditionList",
+          "runtime_type": "Condition",
+          "scope_id": "rewrite_1",
+          "source": {
+            "kind": "condition",
+            "condition_id": "fact:problem:product_condition",
+            "runtime_path": "$problem.conditions.product_condition"
+          },
+          "authority_signature": "ce4445cbf7e64dadaff49262b4da7d96c683dc1ca34f2fc54fced7878e7a60e1"
+        }
+      }
+    ],
+    "teachingEffect": "combine_fractions_revealing_condition",
+    "kind": "verified_expression_rewrite",
+    "method_id": "organize_expressions",
+    "title": "整理目标式",
+    "goal": "整理目标表达式",
+    "reason": "逐步等价变形",
+    "calculation": "\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}+\\frac{8}{a+b}=\\frac{a+b}{2}+\\frac{8}{a+b}",
+    "conclusion": "\\frac{a+b}{2}+\\frac{8}{a+b}"
+  },
+  "committedVersion": {
+    "version_id": {
+      "slot_id": {
+        "logical_key": {
+          "object_id": {
+            "value": "function:problem:T",
+            "kind": "function",
+            "origin_scope_id": "problem"
+          },
+          "state_kind": "expression",
+          "runtime_type": "Expression"
+        },
+        "storage_scope_id": "problem"
+      },
+      "ordinal": 1
+    },
+    "valid_scope_id": "problem",
+    "producer_call_id": "rewrite_1",
+    "produced_handle": "fact:problem:rewrite_1_organized_expression",
+    "computation_key": {
+      "capability_id": "organize_expressions",
+      "arg_bindings": [
+        {
+          "arg_name": "conditions",
+          "item_index": 0,
+          "version_id": null,
+          "condition_id": "fact:problem:positive_a",
+          "object_id": null,
+          "call_result_id": null
+        },
+        {
+          "arg_name": "conditions",
+          "item_index": 1,
+          "version_id": null,
+          "condition_id": "fact:problem:positive_b",
+          "object_id": null,
+          "call_result_id": null
+        },
+        {
+          "arg_name": "conditions",
+          "item_index": 2,
+          "version_id": null,
+          "condition_id": "fact:problem:product_condition",
+          "object_id": null,
+          "call_result_id": null
+        },
+        {
+          "arg_name": "expression",
+          "item_index": 0,
+          "version_id": {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "function:problem:T",
+                  "kind": "function",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "expression",
+                "runtime_type": "Expression"
+              },
+              "storage_scope_id": "problem"
+            },
+            "ordinal": 0
+          },
+          "condition_id": null,
+          "object_id": null,
+          "call_result_id": null
+        }
+      ],
+      "parameters_hash": "79b27da7f6b568800ed1661d2a8df7bb5eb255e5821044b69b1ed9bb23bb9db0"
+    },
+    "state_effect_key": null,
+    "free_symbol_refs": [
+      "a",
+      "b"
+    ],
+    "free_symbol_ids": [
+      {
+        "value": "symbol:problem:a",
+        "kind": "symbol",
+        "origin_scope_id": "problem"
+      },
+      {
+        "value": "symbol:problem:b",
+        "kind": "symbol",
+        "origin_scope_id": "problem"
+      }
+    ],
+    "previous_version_id": {
+      "slot_id": {
+        "logical_key": {
+          "object_id": {
+            "value": "function:problem:T",
+            "kind": "function",
+            "origin_scope_id": "problem"
+          },
+          "state_kind": "expression",
+          "runtime_type": "Expression"
+        },
+        "storage_scope_id": "problem"
+      },
+      "ordinal": 0
+    },
+    "source_version_ids": [
+      {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "function:problem:T",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            },
+            "state_kind": "expression",
+            "runtime_type": "Expression"
+          },
+          "storage_scope_id": "problem"
+        },
+        "ordinal": 0
+      }
+    ],
+    "runtime_destination": {
+      "object_id": {
+        "value": "function:problem:T",
+        "kind": "function",
+        "origin_scope_id": "problem"
+      },
+      "state_kind": "expression",
+      "runtime_type": "Expression",
+      "runtime_path": "$problem.outputs.rewrite_1_organized_expression"
+    },
+    "result_form": "open_state"
+  },
+  "allocation": {
+    "step_id": "rewrite_1",
+    "scope_id": "problem",
+    "capability_id": "organize_expressions",
+    "produced_handle": "fact:problem:rewrite_1_organized_expression",
+    "output_key": "organized_expression",
+    "runtime_type": "Expression",
+    "identity_policy": "preserve_input_object",
+    "identity_role": "organized_expression",
+    "evidence_roles": [],
+    "object_ref": "function:problem:T",
+    "source_handles": [
+      "function:problem:T",
+      "fact:problem:positive_a",
+      "fact:problem:positive_b",
+      "fact:problem:product_condition"
+    ],
+    "source_step_id": null,
+    "state_slot_id": "function:problem:T.expression@problem:Expression",
+    "write_mode": "create",
+    "previous_write_step_id": null,
+    "free_symbol_names": [
+      "a",
+      "b"
+    ],
+    "free_symbol_ids": [
+      {
+        "value": "symbol:problem:a",
+        "kind": "symbol",
+        "origin_scope_id": "problem"
+      },
+      {
+        "value": "symbol:problem:b",
+        "kind": "symbol",
+        "origin_scope_id": "problem"
+      }
+    ],
+    "closure_ignored_symbol_names": [],
+    "transition_kind": "direct",
+    "dependency_object_refs": [
+      "function:problem:T"
+    ],
+    "source_state_slot_ids": [
+      "target_expression",
+      "function:problem:T.expression@problem:Expression"
+    ],
+    "lineage": {
+      "semantic_roles": [
+        "organized_expression"
+      ],
+      "evidence_tags": [],
+      "object_roles": [],
+      "symbol_closures": [],
+      "source_state_slot_ids": [
+        "function:problem:T.expression@problem:Expression"
+      ],
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:T",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression"
+            },
+            "storage_scope_id": "problem"
+          },
+          "ordinal": 0
+        }
+      ],
+      "source_call_result_ids": [],
+      "source_call_ids": [
+        "rewrite_1"
+      ]
+    },
+    "math_object_id": {
+      "value": "function:problem:T",
+      "kind": "function",
+      "origin_scope_id": "problem"
+    },
+    "logical_state_key": {
+      "object_id": {
+        "value": "function:problem:T",
+        "kind": "function",
+        "origin_scope_id": "problem"
+      },
+      "state_kind": "expression",
+      "runtime_type": "Expression"
+    },
+    "typed_slot_id": {
+      "logical_key": {
+        "object_id": {
+          "value": "function:problem:T",
+          "kind": "function",
+          "origin_scope_id": "problem"
+        },
+        "state_kind": "expression",
+        "runtime_type": "Expression"
+      },
+      "storage_scope_id": "problem"
+    },
+    "selected_version_id": {
+      "slot_id": {
+        "logical_key": {
+          "object_id": {
+            "value": "function:problem:T",
+            "kind": "function",
+            "origin_scope_id": "problem"
+          },
+          "state_kind": "expression",
+          "runtime_type": "Expression"
+        },
+        "storage_scope_id": "problem"
+      },
+      "ordinal": 1
+    },
+    "previous_version_id": {
+      "slot_id": {
+        "logical_key": {
+          "object_id": {
+            "value": "function:problem:T",
+            "kind": "function",
+            "origin_scope_id": "problem"
+          },
+          "state_kind": "expression",
+          "runtime_type": "Expression"
+        },
+        "storage_scope_id": "problem"
+      },
+      "ordinal": 0
+    },
+    "computation_key": {
+      "capability_id": "organize_expressions",
+      "arg_bindings": [
+        {
+          "arg_name": "conditions",
+          "item_index": 0,
+          "version_id": null,
+          "condition_id": "fact:problem:positive_a",
+          "object_id": null,
+          "call_result_id": null
+        },
+        {
+          "arg_name": "conditions",
+          "item_index": 1,
+          "version_id": null,
+          "condition_id": "fact:problem:positive_b",
+          "object_id": null,
+          "call_result_id": null
+        },
+        {
+          "arg_name": "conditions",
+          "item_index": 2,
+          "version_id": null,
+          "condition_id": "fact:problem:product_condition",
+          "object_id": null,
+          "call_result_id": null
+        },
+        {
+          "arg_name": "expression",
+          "item_index": 0,
+          "version_id": {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "function:problem:T",
+                  "kind": "function",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "expression",
+                "runtime_type": "Expression"
+              },
+              "storage_scope_id": "problem"
+            },
+            "ordinal": 0
+          },
+          "condition_id": null,
+          "object_id": null,
+          "call_result_id": null
+        }
+      ],
+      "parameters_hash": "79b27da7f6b568800ed1661d2a8df7bb5eb255e5821044b69b1ed9bb23bb9db0"
+    },
+    "source_version_ids": [
+      {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "function:problem:T",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            },
+            "state_kind": "expression",
+            "runtime_type": "Expression"
+          },
+          "storage_scope_id": "problem"
+        },
+        "ordinal": 0
+      }
+    ],
+    "allocation_action": "transition",
+    "return_name": "organized_expression",
+    "runtime_destination_key": {
+      "object_id": {
+        "value": "function:problem:T",
+        "kind": "function",
+        "origin_scope_id": "problem"
+      },
+      "state_kind": "expression",
+      "runtime_type": "Expression",
+      "runtime_path": "$problem.outputs.rewrite_1_organized_expression"
+    },
+    "state_effect_key": null,
+    "canonical_producer_call_id": "rewrite_1",
+    "valid_scope_id": "problem",
+    "result_form": "open_state",
+    "symbolic_closure_provenance": null,
+    "problem_source_provenance": null
+  },
+  "goalSolved": false,
+  "executionMode": "functional_transactional_interpreter",
+  "transaction": {
+    "ok": true,
+    "graph": {
+      "calls": [
+        {
+          "call_id": "rewrite_1",
+          "capability_id": "organize_expressions",
+          "canonical_call_id": "rewrite_1",
+          "declared_scope_id": "problem",
+          "execution_scope_id": "problem",
+          "dependency_call_ids": [],
+          "consumer_call_ids": [],
+          "identity_key": {
+            "computation_key": {
+              "capability_id": "organize_expressions",
+              "arg_bindings": [
+                {
+                  "arg_name": "conditions",
+                  "item_index": 0,
+                  "version_id": null,
+                  "condition_id": "fact:problem:positive_a",
+                  "object_id": null,
+                  "call_result_id": null
+                },
+                {
+                  "arg_name": "conditions",
+                  "item_index": 1,
+                  "version_id": null,
+                  "condition_id": "fact:problem:positive_b",
+                  "object_id": null,
+                  "call_result_id": null
+                },
+                {
+                  "arg_name": "conditions",
+                  "item_index": 2,
+                  "version_id": null,
+                  "condition_id": "fact:problem:product_condition",
+                  "object_id": null,
+                  "call_result_id": null
+                },
+                {
+                  "arg_name": "expression",
+                  "item_index": 0,
+                  "version_id": {
+                    "slot_id": {
+                      "logical_key": {
+                        "object_id": {
+                          "value": "function:problem:T",
+                          "kind": "function",
+                          "origin_scope_id": "problem"
+                        },
+                        "state_kind": "expression",
+                        "runtime_type": "Expression"
+                      },
+                      "storage_scope_id": "problem"
+                    },
+                    "ordinal": 0
+                  },
+                  "condition_id": null,
+                  "object_id": null,
+                  "call_result_id": null
+                }
+              ],
+              "parameters_hash": "79b27da7f6b568800ed1661d2a8df7bb5eb255e5821044b69b1ed9bb23bb9db0"
+            },
+            "state_effect_key": {
+              "returns": [
+                {
+                  "return_name": "organized_expression",
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:T",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "identity_policy": "preserve_input_object",
+                  "write_mode": "transition"
+                }
+              ]
+            }
+          },
+          "answer_handles": []
+        }
+      ],
+      "dependencies": [],
+      "answer_bindings": [],
+      "canonical_order": [
+        "rewrite_1"
+      ],
+      "alias_call_ids": [],
+      "eliminated_call_ids": []
+    },
+    "call_states": [
+      {
+        "call_id": "rewrite_1",
+        "status": "verified",
+        "dependency_call_ids": [],
+        "return_version_ids": [
+          {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "function:problem:T",
+                  "kind": "function",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "expression",
+                "runtime_type": "Expression"
+              },
+              "storage_scope_id": "problem"
+            },
+            "ordinal": 1
+          }
+        ],
+        "root_issue_codes": []
+      }
+    ],
+    "events": [
+      {
+        "sequence": 0,
+        "call_id": "rewrite_1",
+        "event": "became_ready"
+      },
+      {
+        "sequence": 1,
+        "call_id": "rewrite_1",
+        "event": "running"
+      },
+      {
+        "sequence": 2,
+        "call_id": "rewrite_1",
+        "event": "verified"
+      },
+      {
+        "sequence": 3,
+        "call_id": "rewrite_1",
+        "event": "state_version_committed",
+        "version_id": {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:T",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression"
+            },
+            "storage_scope_id": "problem"
+          },
+          "ordinal": 1
+        }
+      }
+    ],
+    "committed_versions": [
+      {
+        "version_id": {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:T",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression"
+            },
+            "storage_scope_id": "problem"
+          },
+          "ordinal": 1
+        },
+        "valid_scope_id": "problem",
+        "producer_call_id": "rewrite_1",
+        "produced_handle": "fact:problem:rewrite_1_organized_expression",
+        "computation_key": {
+          "capability_id": "organize_expressions",
+          "arg_bindings": [
+            {
+              "arg_name": "conditions",
+              "item_index": 0,
+              "version_id": null,
+              "condition_id": "fact:problem:positive_a",
+              "object_id": null,
+              "call_result_id": null
+            },
+            {
+              "arg_name": "conditions",
+              "item_index": 1,
+              "version_id": null,
+              "condition_id": "fact:problem:positive_b",
+              "object_id": null,
+              "call_result_id": null
+            },
+            {
+              "arg_name": "conditions",
+              "item_index": 2,
+              "version_id": null,
+              "condition_id": "fact:problem:product_condition",
+              "object_id": null,
+              "call_result_id": null
+            },
+            {
+              "arg_name": "expression",
+              "item_index": 0,
+              "version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:T",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              },
+              "condition_id": null,
+              "object_id": null,
+              "call_result_id": null
+            }
+          ],
+          "parameters_hash": "79b27da7f6b568800ed1661d2a8df7bb5eb255e5821044b69b1ed9bb23bb9db0"
+        },
+        "state_effect_key": null,
+        "free_symbol_refs": [
+          "a",
+          "b"
+        ],
+        "free_symbol_ids": [
+          {
+            "value": "symbol:problem:a",
+            "kind": "symbol",
+            "origin_scope_id": "problem"
+          },
+          {
+            "value": "symbol:problem:b",
+            "kind": "symbol",
+            "origin_scope_id": "problem"
+          }
+        ],
+        "previous_version_id": {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:T",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression"
+            },
+            "storage_scope_id": "problem"
+          },
+          "ordinal": 0
+        },
+        "source_version_ids": [
+          {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "function:problem:T",
+                  "kind": "function",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "expression",
+                "runtime_type": "Expression"
+              },
+              "storage_scope_id": "problem"
+            },
+            "ordinal": 0
+          }
+        ],
+        "runtime_destination": {
+          "object_id": {
+            "value": "function:problem:T",
+            "kind": "function",
+            "origin_scope_id": "problem"
+          },
+          "state_kind": "expression",
+          "runtime_type": "Expression",
+          "runtime_path": "$problem.outputs.rewrite_1_organized_expression"
+        },
+        "result_form": "open_state"
+      }
+    ],
+    "call_results": [
+      {
+        "call_id": "rewrite_1",
+        "status": "verified",
+        "runtime_results": [
+          {
+            "step_id": "rewrite_1",
+            "scope_id": "problem",
+            "capability_id": "organize_expressions",
+            "produced_handle": "fact:problem:rewrite_1_organized_expression",
+            "output_key": "organized_expression",
+            "runtime_type": "Expression",
+            "value": "((a + b)**2/2 + 8)/(a + b)"
+          }
+        ],
+        "state_writes": [
+          {
+            "step_id": "rewrite_1",
+            "scope_id": "problem",
+            "capability_id": "organize_expressions",
+            "produced_handle": "fact:problem:rewrite_1_organized_expression",
+            "output_key": "organized_expression",
+            "runtime_type": "Expression",
+            "identity_policy": "preserve_input_object",
+            "identity_role": "organized_expression",
+            "evidence_roles": [],
+            "object_ref": "function:problem:T",
+            "source_handles": [
+              "function:problem:T",
+              "fact:problem:positive_a",
+              "fact:problem:positive_b",
+              "fact:problem:product_condition"
+            ],
+            "source_step_id": null,
+            "state_slot_id": "function:problem:T.expression@problem:Expression",
+            "write_mode": "create",
+            "previous_write_step_id": null,
+            "free_symbol_names": [
+              "a",
+              "b"
+            ],
+            "free_symbol_ids": [
+              {
+                "value": "symbol:problem:a",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              },
+              {
+                "value": "symbol:problem:b",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            ],
+            "closure_ignored_symbol_names": [],
+            "transition_kind": "direct",
+            "dependency_object_refs": [
+              "function:problem:T"
+            ],
+            "source_state_slot_ids": [
+              "target_expression",
+              "function:problem:T.expression@problem:Expression"
+            ],
+            "lineage": {
+              "semantic_roles": [
+                "organized_expression"
+              ],
+              "evidence_tags": [],
+              "object_roles": [],
+              "symbol_closures": [],
+              "source_state_slot_ids": [
+                "function:problem:T.expression@problem:Expression"
+              ],
+              "source_version_ids": [
+                {
+                  "slot_id": {
+                    "logical_key": {
+                      "object_id": {
+                        "value": "function:problem:T",
+                        "kind": "function",
+                        "origin_scope_id": "problem"
+                      },
+                      "state_kind": "expression",
+                      "runtime_type": "Expression"
+                    },
+                    "storage_scope_id": "problem"
+                  },
+                  "ordinal": 0
+                }
+              ],
+              "source_call_result_ids": [],
+              "source_call_ids": [
+                "rewrite_1"
+              ]
+            },
+            "math_object_id": {
+              "value": "function:problem:T",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            },
+            "logical_state_key": {
+              "object_id": {
+                "value": "function:problem:T",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression"
+            },
+            "typed_slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "function:problem:T",
+                  "kind": "function",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "expression",
+                "runtime_type": "Expression"
+              },
+              "storage_scope_id": "problem"
+            },
+            "selected_version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:T",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Expression"
+                },
+                "storage_scope_id": "problem"
+              },
+              "ordinal": 1
+            },
+            "previous_version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:T",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Expression"
+                },
+                "storage_scope_id": "problem"
+              },
+              "ordinal": 0
+            },
+            "computation_key": {
+              "capability_id": "organize_expressions",
+              "arg_bindings": [
+                {
+                  "arg_name": "conditions",
+                  "item_index": 0,
+                  "version_id": null,
+                  "condition_id": "fact:problem:positive_a",
+                  "object_id": null,
+                  "call_result_id": null
+                },
+                {
+                  "arg_name": "conditions",
+                  "item_index": 1,
+                  "version_id": null,
+                  "condition_id": "fact:problem:positive_b",
+                  "object_id": null,
+                  "call_result_id": null
+                },
+                {
+                  "arg_name": "conditions",
+                  "item_index": 2,
+                  "version_id": null,
+                  "condition_id": "fact:problem:product_condition",
+                  "object_id": null,
+                  "call_result_id": null
+                },
+                {
+                  "arg_name": "expression",
+                  "item_index": 0,
+                  "version_id": {
+                    "slot_id": {
+                      "logical_key": {
+                        "object_id": {
+                          "value": "function:problem:T",
+                          "kind": "function",
+                          "origin_scope_id": "problem"
+                        },
+                        "state_kind": "expression",
+                        "runtime_type": "Expression"
+                      },
+                      "storage_scope_id": "problem"
+                    },
+                    "ordinal": 0
+                  },
+                  "condition_id": null,
+                  "object_id": null,
+                  "call_result_id": null
+                }
+              ],
+              "parameters_hash": "79b27da7f6b568800ed1661d2a8df7bb5eb255e5821044b69b1ed9bb23bb9db0"
+            },
+            "source_version_ids": [
+              {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:T",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            ],
+            "allocation_action": "transition",
+            "return_name": "organized_expression",
+            "runtime_destination_key": {
+              "object_id": {
+                "value": "function:problem:T",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression",
+              "runtime_path": "$problem.outputs.rewrite_1_organized_expression"
+            },
+            "state_effect_key": null,
+            "canonical_producer_call_id": "rewrite_1",
+            "valid_scope_id": "problem",
+            "result_form": "open_state",
+            "symbolic_closure_provenance": null,
+            "problem_source_provenance": null
+          }
+        ],
+        "committed_versions": [
+          {
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:T",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Expression"
+                },
+                "storage_scope_id": "problem"
+              },
+              "ordinal": 1
+            },
+            "valid_scope_id": "problem",
+            "producer_call_id": "rewrite_1",
+            "produced_handle": "fact:problem:rewrite_1_organized_expression",
+            "computation_key": {
+              "capability_id": "organize_expressions",
+              "arg_bindings": [
+                {
+                  "arg_name": "conditions",
+                  "item_index": 0,
+                  "version_id": null,
+                  "condition_id": "fact:problem:positive_a",
+                  "object_id": null,
+                  "call_result_id": null
+                },
+                {
+                  "arg_name": "conditions",
+                  "item_index": 1,
+                  "version_id": null,
+                  "condition_id": "fact:problem:positive_b",
+                  "object_id": null,
+                  "call_result_id": null
+                },
+                {
+                  "arg_name": "conditions",
+                  "item_index": 2,
+                  "version_id": null,
+                  "condition_id": "fact:problem:product_condition",
+                  "object_id": null,
+                  "call_result_id": null
+                },
+                {
+                  "arg_name": "expression",
+                  "item_index": 0,
+                  "version_id": {
+                    "slot_id": {
+                      "logical_key": {
+                        "object_id": {
+                          "value": "function:problem:T",
+                          "kind": "function",
+                          "origin_scope_id": "problem"
+                        },
+                        "state_kind": "expression",
+                        "runtime_type": "Expression"
+                      },
+                      "storage_scope_id": "problem"
+                    },
+                    "ordinal": 0
+                  },
+                  "condition_id": null,
+                  "object_id": null,
+                  "call_result_id": null
+                }
+              ],
+              "parameters_hash": "79b27da7f6b568800ed1661d2a8df7bb5eb255e5821044b69b1ed9bb23bb9db0"
+            },
+            "state_effect_key": null,
+            "free_symbol_refs": [
+              "a",
+              "b"
+            ],
+            "free_symbol_ids": [
+              {
+                "value": "symbol:problem:a",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              },
+              {
+                "value": "symbol:problem:b",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            ],
+            "previous_version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:T",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Expression"
+                },
+                "storage_scope_id": "problem"
+              },
+              "ordinal": 0
+            },
+            "source_version_ids": [
+              {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:T",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            ],
+            "runtime_destination": {
+              "object_id": {
+                "value": "function:problem:T",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression",
+              "runtime_path": "$problem.outputs.rewrite_1_organized_expression"
+            },
+            "result_form": "open_state"
+          }
+        ],
+        "checks": [
+          {
+            "name": "rewrite_input_bound",
+            "status": "passed",
+            "detail": "输入与链首一致",
+            "code": null,
+            "retryability": "planner_repairable",
+            "expected": {},
+            "observed": {},
+            "subjects": [],
+            "repair_action": "repair_failed_step",
+            "method_id": "organize_expressions"
+          },
+          {
+            "name": "rewrite_domain_verified",
+            "status": "passed",
+            "detail": "所有分母非零",
+            "code": null,
+            "retryability": "planner_repairable",
+            "expected": {},
+            "observed": {},
+            "subjects": [],
+            "repair_action": "repair_failed_step",
+            "method_id": "organize_expressions"
+          },
+          {
+            "name": "rewrite_equivalence_verified",
+            "status": "passed",
+            "detail": "逐步等价验证通过",
+            "code": null,
+            "retryability": "planner_repairable",
+            "expected": {},
+            "observed": {},
+            "subjects": [],
+            "repair_action": "repair_failed_step",
+            "method_id": "organize_expressions"
+          },
+          {
+            "name": "rewrite_conditions_bound",
+            "status": "passed",
+            "detail": "条件引用已绑定",
+            "code": null,
+            "retryability": "planner_repairable",
+            "expected": {},
+            "observed": {},
+            "subjects": [],
+            "repair_action": "repair_failed_step",
+            "method_id": "organize_expressions"
+          }
+        ],
+        "root_issues": [],
+        "symbolic_closure": null,
+        "macro_search_report": null,
+        "macro_preparation_authority": null,
+        "path_minimum_witness": null
+      }
+    ],
+    "goal_verification": null,
+    "compatibility_mismatches": [],
+    "binding_consumption_decisions": [
+      {
+        "call_id": "rewrite_1",
+        "arg_name": "conditions",
+        "item_index": 0,
+        "semantic_role": "conditions",
+        "binding_authority": "wire",
+        "consumption_mode": "typed_binding",
+        "runtime_input_required": true,
+        "runtime_target": "conditions",
+        "expected_runtime_path": null,
+        "actual_runtime_paths": [
+          "$problem.conditions.positive_a",
+          "$problem.conditions.positive_b",
+          "$problem.conditions.product_condition"
+        ],
+        "invocation_ids": [
+          "rewrite_1.organize_expressions"
+        ],
+        "deterministic_arg_repair": null,
+        "matches": true,
+        "details": []
+      },
+      {
+        "call_id": "rewrite_1",
+        "arg_name": "conditions",
+        "item_index": 1,
+        "semantic_role": "conditions",
+        "binding_authority": "wire",
+        "consumption_mode": "typed_binding",
+        "runtime_input_required": true,
+        "runtime_target": "conditions",
+        "expected_runtime_path": null,
+        "actual_runtime_paths": [
+          "$problem.conditions.positive_a",
+          "$problem.conditions.positive_b",
+          "$problem.conditions.product_condition"
+        ],
+        "invocation_ids": [
+          "rewrite_1.organize_expressions"
+        ],
+        "deterministic_arg_repair": null,
+        "matches": true,
+        "details": []
+      },
+      {
+        "call_id": "rewrite_1",
+        "arg_name": "conditions",
+        "item_index": 2,
+        "semantic_role": "conditions",
+        "binding_authority": "wire",
+        "consumption_mode": "typed_binding",
+        "runtime_input_required": true,
+        "runtime_target": "conditions",
+        "expected_runtime_path": null,
+        "actual_runtime_paths": [
+          "$problem.conditions.positive_a",
+          "$problem.conditions.positive_b",
+          "$problem.conditions.product_condition"
+        ],
+        "invocation_ids": [
+          "rewrite_1.organize_expressions"
+        ],
+        "deterministic_arg_repair": null,
+        "matches": true,
+        "details": []
+      },
+      {
+        "call_id": "rewrite_1",
+        "arg_name": "expression",
+        "item_index": 0,
+        "semantic_role": "expression",
+        "binding_authority": "wire",
+        "consumption_mode": "typed_binding",
+        "runtime_input_required": true,
+        "runtime_target": "expression",
+        "expected_runtime_path": null,
+        "actual_runtime_paths": [
+          "$problem.facts.__functional_transaction_rewrite_1_0"
+        ],
+        "invocation_ids": [
+          "rewrite_1.organize_expressions"
+        ],
+        "deterministic_arg_repair": null,
+        "matches": true,
+        "details": []
+      }
+    ],
+    "functional_compile_count": 1,
+    "functional_compile_drift_count": 0,
+    "restored_call_ids": [],
+    "restored_call_count": 0,
+    "executed_call_ids": [
+      "rewrite_1"
+    ],
+    "executed_call_count": 1,
+    "symbolic_closure_execution_count": 0,
+    "symbolic_closure_drift_count": 0,
+    "symbolic_closure_execution_by_capability": {},
+    "symbolic_closure_drift_by_capability": {},
+    "runtime_equivalent_aliases": [],
+    "runtime_state_equivalence_probe_results": [],
+    "functional_problem_binding_ledger": null,
+    "runtime_version_aliases": []
+  }
+}

@@ -623,6 +623,7 @@ def capability_bound_step_schema(
                         "type": "object",
                         "properties": {
                             "capability_id": {"const": capability_id},
+                            "parameters": getattr(capability.source, "parameters_schema", None) or {"type": "object", "additionalProperties": False},
                             "args": args_schema,
                             "output_targets": (
                                 {
@@ -684,6 +685,7 @@ def _argument_accepts_return_type(argument: Any, runtime_type: str) -> bool:
         "coefficients_by_symbol": "Coefficients",
         "point_list": "PointList",
         "symbol_list": "SymbolList",
+        "condition_list": "ConditionList",
     }.get(argument.aggregation)
 
 

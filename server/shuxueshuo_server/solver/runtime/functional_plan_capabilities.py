@@ -1428,7 +1428,7 @@ def _planner_arg_domain_type(
 
 
 _SUPPORTED_AGGREGATIONS: frozenset[FunctionalAggregation] = frozenset(
-    {"none", "coefficients_by_symbol", "point_list", "symbol_list"}
+    {"none", "coefficients_by_symbol", "point_list", "symbol_list", "condition_list"}
 )
 
 
@@ -1440,6 +1440,7 @@ def _lower_runtime_container(
         "Coefficients": (("ParameterValue",), "coefficients_by_symbol"),
         "PointList": (("Point",), "point_list"),
         "SymbolList": (("Symbol",), "symbol_list"),
+        "ConditionList": (("Condition", "Constraint", "Equation"), "condition_list"),
     }.get(runtime_type)
     if container is not None:
         item_types, aggregation = container

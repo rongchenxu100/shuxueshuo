@@ -110,6 +110,9 @@
         "intent": {
           "type": "string",
           "minLength": 1
+        },
+        "parameters": {
+          "type": "object"
         }
       },
       "additionalProperties": false

@@ -31,6 +31,7 @@
 - `basic-inequality-minimal-learning-space.md`：基本不等式最小学习空间（Hasse 前提、向下闭包、差分补齐）与对称结构用 \(s,p\) 替换的实质。
 - `frontend-parallel-development-with-mock-api-plan.md`：创作后台和 API 契约。
 - `student-tutor-chat-system-design.md`：学生驱动的可验证解题循环、教学反馈、掌握证据与个性化解题页设计。
+- `translations/educational-knowledge-graph-reading-list.md`：教育知识图谱外文阅读清单与中文全文译文入口（ACE / 学习空间 / GbKT / LLM 建图等）。
 
 ## 文档维护规则
 

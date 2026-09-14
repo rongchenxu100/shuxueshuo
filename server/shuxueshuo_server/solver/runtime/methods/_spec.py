@@ -115,6 +115,7 @@ class MethodSpecSource:
     # This source type is reserved for runtime/stateless methods. Stateful
     # implementations must opt out so liveness analysis cannot delete them.
     is_pure: bool = True
+    parameters_schema: dict[str, Any] | None = None
 
     @property
     def method_id(self) -> str:
@@ -133,6 +134,8 @@ class MethodSpecSource:
             "outputs": self.outputs,
             "is_pure": self.is_pure,
         }
+        if self.parameters_schema is not None:
+            payload["parameters_schema"] = self.parameters_schema
         if self.companion_outputs:
             _validate_companion_outputs(
                 self.companion_outputs,

@@ -182,6 +182,8 @@ function hrefForOutput(root, outputPath, targetPath) {
   return normalized.startsWith(".") ? normalized : `./${normalized}`;
 }
 
+import { validateExpressionRewrite } from "./lib/expression-rewrite-spec.mjs";
+
 export function validateTextLesson(lesson, inputDir = "") {
   const meta = lesson?.meta;
   const problem = lesson?.problem;
@@ -218,6 +220,7 @@ export function validateTextLesson(lesson, inputDir = "") {
   }
   const ids = new Set();
   for (const step of lesson.steps) {
+    if (step.visual?.kind === "expression-rewrite") validateExpressionRewrite(step.visual);
     if (!step.id || ids.has(step.id)) throw new Error(`${meta.id} 的 step.id 缺失或重复`);
     ids.add(step.id);
     if (!Array.isArray(step.derive) || step.derive.length === 0) {
@@ -1259,6 +1262,10 @@ export function buildTextPage(inputDir, root = repoRoot) {
   );
   const libraryHref = `${libraryBase}${meta.breadcrumbSearch ?? ""}`;
   const textRendererScript = [
+    ...(lesson.steps.some(step => step.visual?.kind === "expression-rewrite") ? [
+      `<link rel="stylesheet" href="${assetPrefix}/css/expression-rewrite.css">`,
+      `<script src="${assetPrefix}/js/expression-rewrite.js"></script>`,
+    ] : []),
     "<script>",
     "  function diagramMarkupFor() { return ''; }",
     "  function diagramMarkupForFrame() { return ''; }",
@@ -1282,7 +1289,8 @@ export function buildTextPage(inputDir, root = repoRoot) {
       answerTextForSchema(answerSchemaForLesson(root, meta.id)),
     ),
     "{{PROBLEM_KEY_POINTS_HTML}}": buildKeyPointsHtml(lesson.problem.keyPoints),
-    "{{STEPS_JSON}}": JSON.stringify(lesson.steps),
+    "{{STEPS_JSON}}": lesson.steps.some(step => step.visual?.kind === "expression-rewrite")
+      ? JSON.stringify(lesson.steps).replace(/</g, "\\u003c") : JSON.stringify(lesson.steps),
     "{{POLICIES_JSON}}": JSON.stringify(lesson.policies ?? {}),
     "{{STEP_LABELS_JSON}}": JSON.stringify(lesson.stepLabels ?? {}),
     "{{GEOMETRY_SCRIPT}}": textRendererScript,

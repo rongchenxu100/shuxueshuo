@@ -1541,6 +1541,16 @@ class _RecipePlanCompiler:
                         candidate=item,
                         reason="typed_runtime_input_target_unknown",
                     )
+                if input_spec.type == "ConditionList":
+                    collection = [candidate for candidate in self.projected_function_arg_bindings
+                        if candidate.step_id == step.step_id and candidate.consumption_mode == "typed_binding"
+                        and input_name in (candidate.runtime_input_targets or (candidate.arg_name,))]
+                    paths = self._projected_aggregate_input(step, input_name=input_name,
+                        expected_type=input_spec.type, items=collection)
+                    if paths is None:
+                        raise StrategyDraftValidationError("typed_condition_collection_unresolvable")
+                    result[input_name] = paths
+                    continue
                 derivation = item.input_binding.derivation
                 if isinstance(derivation, OrdinalZeroTemplateDerivationSpec):
                     # The transaction stamp pins the exact ordinal-0 version.
@@ -1947,6 +1957,7 @@ class _RecipePlanCompiler:
         item_type = {
             "Coefficients": "ParameterValue",
             "SymbolList": "Symbol",
+            "ConditionList": "Condition",
             "PointList": "Point",
         }.get(expected_type)
         if item_type is None or not items:

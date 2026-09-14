@@ -1,0 +1,8 @@
+{
+  "status": "blocked_configuration",
+  "requestedSamples": 5,
+  "executedRequests": 0,
+  "samples": [],
+  "error": "DEEPSEEK_API_KEY missing; client creation failed before any model request",
+  "note": "Recorded after initial runner exited at configuration preflight. Original prompt retained."
+}

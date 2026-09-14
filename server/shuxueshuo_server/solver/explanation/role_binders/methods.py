@@ -395,8 +395,10 @@ class PointCandidatesFromCurveConditionRoleBinder(RoleNameRegistryMethodRoleBind
 
 
 def method_role_binders() -> dict[str, MethodRoleBinder]:
+    from ..expression_rewrite import ExpressionRewriteRoleBinder
     role_name = RoleNameRegistryMethodRoleBinder()
     return {
+        "expression_rewrite": ExpressionRewriteRoleBinder(),
         "generic_trace": GenericTraceMethodRoleBinder(),
         "role_name_registry": role_name,
         "quadratic_vertex_point": QuadraticVertexPointRoleBinder(),

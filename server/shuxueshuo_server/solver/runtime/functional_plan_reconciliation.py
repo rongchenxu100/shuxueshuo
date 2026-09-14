@@ -862,6 +862,7 @@ def _pinned_call_reconciliation_issue(
     if (
         pinned.call_id == call.call_id
         and pinned.capability_id == call.capability_id
+        and pinned.parameters == call.parameters
     ):
         return None
     return _issue(
@@ -1129,6 +1130,17 @@ class FunctionalPlanReconciler:
                         ),
                     )
                 )
+                continue
+            from .method_parameters import validate_parameters
+            from jsonschema import ValidationError
+            try:
+                validate_parameters(getattr(capability.source, "parameters_schema", None), call.parameters)
+            except ValidationError as exc:
+                issues.append(_issue("functional_reconciliation", "functional.parameters_invalid", exc.message,
+                    call_id=call.call_id, scope_id=scope.scope_id))
+                invalid_call_ids.add(call.call_id)
+                call_reports.append(FunctionalCallReport(call.call_id, scope.scope_id,
+                    call.capability_id, "invalid", issue_codes=("functional.parameters_invalid",)))
                 continue
             pinned_call = pinned_call_reconciliations.get(call.call_id)
             if pinned_call is not None:
@@ -1672,6 +1684,7 @@ class FunctionalPlanReconciler:
             processed_call_ids.add(call.call_id)
             reconciled.append(
                 FunctionalCallReconciliation(
+                    parameters=dict(call.parameters),
                     call_id=call.call_id,
                     scope_id=scope.scope_id,
                     capability_id=call.capability_id,
@@ -5704,6 +5717,7 @@ def _aggregated_call_result_is_compatible(
         "coefficients_by_symbol": "Coefficients",
         "point_list": "PointList",
         "symbol_list": "SymbolList",
+        "condition_list": "ConditionList",
     }.get(aggregation)
 
 

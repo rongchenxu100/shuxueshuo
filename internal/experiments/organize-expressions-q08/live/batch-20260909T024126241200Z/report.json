@@ -1,0 +1,7 @@
+{
+  "status": "blocked_configuration",
+  "requestedSamples": 5,
+  "executedRequests": 0,
+  "samples": [],
+  "error": "--planner strategy --llm-provider deepseek requires DEEPSEEK_API_KEY"
+}

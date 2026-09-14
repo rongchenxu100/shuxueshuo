@@ -1,0 +1,49 @@
+{
+  "problem_id": "inequality-basic-q08-rewrite-preview",
+  "family_id": "rewrite_prefix_experiment",
+  "sections": [
+    {
+      "scope_id": "problem",
+      "title": "整理式子",
+      "steps": [
+        "organize"
+      ]
+    }
+  ],
+  "steps": [
+    {
+      "id": "organize",
+      "scope_id": "problem",
+      "source_step_ids": [
+        "rewrite_1"
+      ],
+      "capability_ids": [
+        "organize_expressions"
+      ],
+      "trace_refs": [
+        "rewrite_1:trace"
+      ],
+      "title": "整理目标式",
+      "goal": "整理目标表达式",
+      "derive": [
+        [
+          "",
+          "通分 \\(\\frac{1}{2\\cdot a}+\\frac{1}{2\\cdot b}=\\frac{a+b}{2\\cdot a\\cdot b}\\)"
+        ],
+        [
+          "",
+          "由 \\(a b = 1\\) \\(\\frac{a+b}{2\\cdot a\\cdot b}=\\frac{a+b}{2}\\)"
+        ],
+        [
+          "",
+          "∴ 原式 \\(\\frac{a+b}{2}+\\frac{8}{a+b}\\)"
+        ]
+      ],
+      "box": [
+        "\\(\\frac{a+b}{2}+\\frac{8}{a+b}\\)"
+      ],
+      "gaps": [],
+      "teaching_substep_ids": []
+    }
+  ]
+}

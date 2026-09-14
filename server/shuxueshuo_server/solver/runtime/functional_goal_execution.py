@@ -3270,6 +3270,7 @@ def _compiled_restore_authority_payload(compiled: Any) -> dict[str, Any]:
             {
                 "invocation_id": invocation.invocation_id,
                 "method_id": invocation.method_id,
+                **({"parameters": invocation.parameters} if invocation.parameters else {}),
                 "scope_id": invocation.scope,
                 "inputs": {
                     name: [

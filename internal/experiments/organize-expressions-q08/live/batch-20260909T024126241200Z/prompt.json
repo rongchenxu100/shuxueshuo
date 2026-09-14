@@ -1,0 +1,81 @@
+{
+  "instruction": "调用 organize_expressions，为后续应用二元基本不等式整理目标表达式。\n只输出提供的调用 JSON 协议。args 引用目录中已有的表达式和条件。\nparameters.steps 每行 math 写完整表达式，从当前目标开始，保留关键中间式；\n使用已知条件到达本行时填写 using（条件的数学式）。每行一次主要变形。\n使用显式乘号 *、除号 /、括号和整数幂 ^；不写自然语言、操作标签或答案。\n不能引入新变量，不能应用不等式。",
+  "problem": {
+    "conditions": {
+      "positive_a": "a>0",
+      "positive_b": "b>0",
+      "product_condition": "a*b=1"
+    },
+    "expression": "1/(2*a)+1/(2*b)+8/(a+b)",
+    "objective": "求最小值；本次仅整理，不应用不等式"
+  },
+  "bindingCatalog": {
+    "target_expression": {
+      "type": "Expression",
+      "math": "1/(2*a)+1/(2*b)+8/(a+b)"
+    },
+    "positive_a": {
+      "type": "Condition",
+      "math": "a>0"
+    },
+    "positive_b": {
+      "type": "Condition",
+      "math": "b>0"
+    },
+    "product_condition": {
+      "type": "Condition",
+      "math": "a*b=1"
+    }
+  },
+  "responseShape": {
+    "step_id": "rewrite_1",
+    "capability_id": "organize_expressions",
+    "args": {
+      "expression": "target_expression",
+      "conditions": [
+        "positive_a",
+        "positive_b",
+        "product_condition"
+      ]
+    },
+    "parameters": "必须满足 parametersSchema 的对象"
+  },
+  "parametersSchema": {
+    "type": "object",
+    "required": [
+      "steps"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "steps": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 12,
+        "items": {
+          "type": "object",
+          "required": [
+            "math"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "math": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "using": {
+              "type": "array",
+              "maxItems": 8,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

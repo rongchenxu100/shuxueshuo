@@ -3924,6 +3924,7 @@ def _aggregate_method_input_item_type(runtime_type: str) -> str:
         "Coefficients": "ParameterValue",
         "PointList": "Point",
         "SymbolList": "Symbol",
+        "ConditionList": "Condition",
     }.get(runtime_type)
     if aggregate is not None:
         return aggregate
@@ -4296,6 +4297,7 @@ def _compiled_call_signature(
                         invocation.method_id,
                         tuple(sorted(invocation.inputs.items())),
                         tuple(sorted(invocation.outputs.items())),
+                        *((stable_hash(invocation.parameters),) if invocation.parameters else ()),
                         tuple(
                             sorted(
                                 (

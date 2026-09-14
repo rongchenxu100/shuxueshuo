@@ -359,6 +359,7 @@ FUNCTIONAL_PLAN_JSON_SCHEMA: dict[str, Any] = {
                                         ],
                                     },
                                 },
+                                "parameters": {"type": "object"},
                                 "strategy": {
                                     "type": "string",
                                     "minLength": 1,
@@ -440,7 +441,7 @@ def _parse_call(
     }
     _check_fields(
         value,
-        {*required, "return_expectations"},
+        {*required, "return_expectations", "parameters"},
         required,
         issues,
         f"call[{call_index}]",
@@ -621,6 +622,7 @@ def _parse_call(
         strategy,
         reason,
         expectations,
+        dict(value.get("parameters", {})),
     )
 
 

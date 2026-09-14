@@ -1396,7 +1396,7 @@ class CanonicalRuntimeBindingIndex:
         scope = self.context.get_scope(scope_id)
         canonical_condition = scope.container("conditions").get(name)
         if (
-            self.problem_binding_authority
+            (self.problem_binding_authority or fact_type in {"Condition", "Constraint", "Equation"})
             and canonical_condition is not None
             and name != fact_type
         ):
