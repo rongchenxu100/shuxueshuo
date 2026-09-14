@@ -1,0 +1,120 @@
+{
+  "schema_version": "functional-scope-repair/v1",
+  "scope_replacements": {
+    "ii": {
+      "scope_steps": [],
+      "goals": {
+        "ii.E": {
+          "steps": [
+            {
+              "step_id": "ii_establish_parabola",
+              "capability_id": "quadratic_from_constraints",
+              "args": {
+                "curve_point": "A",
+                "free_parameters": ["c"],
+                "target_parameter": "b"
+              },
+              "output_targets": {
+                "parabola": "parabola"
+              },
+              "intent": "利用 A(-c,0) 在抛物线上，把 b 用 c 表示，得到含单参数 c 的开放抛物线。"
+            },
+            {
+              "step_id": "ii_param_E",
+              "capability_id": "quadratic_axis_parameterized_point",
+              "args": {
+                "parabola": "parabola"
+              },
+              "output_targets": {
+                "point": "E"
+              },
+              "intent": "将 E 参数化为对称轴上的点，保留纵坐标自由参数。"
+            },
+            {
+              "step_id": "ii_derive_G",
+              "capability_id": "square_adjacent_vertex_from_side",
+              "args": {
+                "side_start": "A",
+                "side_end": "E",
+                "square": "square_ae_a_e_k_g"
+              },
+              "output_targets": {
+                "adjacent_vertex": "G"
+              },
+              "intent": "由正方形边 AE 求顶点 G，得到 G 随 E 参数变化的坐标。"
+            },
+            {
+              "step_id": "ii_derive_F",
+              "capability_id": "midpoint_point",
+              "args": {
+                "midpoint_definition": "midpoint_definition_a_e_f"
+              },
+              "output_targets": {
+                "midpoint": "F"
+              },
+              "intent": "由 F 是 AE 的中点，确定 F 随 E 参数变化的坐标。"
+            },
+            {
+              "step_id": "ii_path_min",
+              "capability_id": "quadratic_square_path_minimum",
+              "args": {
+                "parabola": "parabola",
+                "path_minimum_target": "path_minimum_target_h_f_m_g",
+                "square": "square_ae_a_e_k_g"
+              },
+              "intent": "利用正方形对角线的中点、中心和旋转关系，将 HF+FM+MG 用二次参数 c 表达并求出取最小值时的位置点。"
+            },
+            {
+              "step_id": "ii_solve_c",
+              "capability_id": "parameter_from_expression_value",
+              "args": {
+                "expression": {
+                  "step_id": "ii_path_min",
+                  "return": "minimum_expression"
+                },
+                "minimum_value": "minimum_value",
+                "parameter": "c"
+              },
+              "output_targets": {
+                "parameter_value": "c"
+              },
+              "intent": "由最小值为 3√5 反求参数 c。"
+            },
+            {
+              "step_id": "ii_eval_attain",
+              "capability_id": "evaluate_point_at_parameter",
+              "args": {
+                "point": {
+                  "step_id": "ii_path_min",
+                  "return": "attainment_point"
+                },
+                "parameter_value": "c"
+              },
+              "intent": "把已求出的 c 代入最小值取等点，得到确定的最值路径关键点。"
+            },
+            {
+              "step_id": "ii_recover_E",
+              "capability_id": "square_adjacent_vertex_from_side",
+              "args": {
+                "side_start": "A",
+                "side_end": {
+                  "step_id": "ii_eval_attain",
+                  "return": "evaluated_point"
+                },
+                "square": "square_ae_a_e_k_g"
+              },
+              "output_targets": {
+                "adjacent_vertex": "E"
+              },
+              "intent": "由取等位置的几何关键点和正方形关系恢复点 E 的最终坐标。"
+            }
+          ],
+          "answer_from": {
+            "step_id": "ii_recover_E",
+            "return": "adjacent_vertex"
+          }
+        }
+      }
+    }
+  }
+}

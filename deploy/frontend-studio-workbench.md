@@ -1,280 +1,167 @@
 # Studio 创作工作台部署与维护
 
-本文档用于维护 `frontend/` 下的 Next.js Studio 创作工作台。当前实现仍使用 mock API 与内存状态，适合产品评审和并行开发验证；后续接入真实后台 API 后，域名和容器维护方式可以继续沿用。
+本文档维护 `frontend/` 下的 Next.js Studio 工作台，域名 **https://studio.shuxueshuo.com**。
+默认页面为新产品工作台（`ProductWorkspace`）；仅当显式设置 `WORKSPACE_MODE=mock` 时才走旧 mock 界面。
+
+产品 API 由服务器 P2 Compose 提供（`127.0.0.1:8000`）。Nginx 将 `/api/product/`（含 WebSocket）直反代到该端口；页面其余路径反代到本机 Next（`127.0.0.1:3000`）。
 
 ## 服务器约定
-
-示例路径：
-
-```bash
-/home/ronghao/code/shuxueshuo/frontend
-```
-
-示例容器名与镜像名：
 
 ```bash
 CONTAINER_NAME=shuxueshuo-studio
 IMAGE_NAME=shuxueshuo-studio:latest
-APP_PORT=3000
+APP_PORT=3000   # 仅绑 127.0.0.1，由 Nginx 对外
 ```
 
-如果服务器上已有其他服务占用 3000，可把宿主机端口换成其他端口，例如 `-p 3001:3000`。
+产品 API 与主站微信 `/api/` 共用 P2 `api` 容器的 `127.0.0.1:8000`。勿再启用旧的 `shuxueshuo-api` systemd。
 
-## 推荐部署方式：本地构建后上传服务器
+## 推荐部署：本机构建 amd64 → 上传 → docker load
 
-CentOS 服务器访问 Docker Hub 可能超时。当前推荐在 Mac 本地构建 `linux/amd64` 镜像，再上传到服务器 `docker load`。
+CentOS 服务器访问 Docker Hub 常超时，在 Mac 上构建后上传。
 
-### 1. Mac 本地构建 amd64 镜像
+### 1. Mac 本地构建
 
-进入本地前端目录：
-
-```bash
-cd /Users/haorong/projects/code/shuxueshuo-worktrees/worktree-dev/frontend
-```
-
-Apple Silicon Mac 默认会构建 arm64 镜像，而服务器通常是 x86_64 / amd64，因此需要指定平台：
+使用仓库 **main** 上的 `frontend/`（不要再用过期 worktree）。上传前在本机设置 `export DEPLOY_SSH='<user>@<ecs-host>'`（勿把真实 IP 写入仓库）。
 
 ```bash
+cd /path/to/shuxueshuo/frontend
+
+# WS 地址在构建期内联；生产必须指向 studio 域名
 docker buildx build \
   --platform linux/amd64 \
+  --build-arg NEXT_PUBLIC_PRODUCT_WS_ORIGIN=wss://studio.shuxueshuo.com \
   -t shuxueshuo-studio:latest \
   --load \
   .
-```
 
-Intel Mac 也可以使用同一条命令；它会构建服务器可运行的 amd64 镜像。
-
-导出镜像：
-
-```bash
 docker save shuxueshuo-studio:latest | gzip > /tmp/shuxueshuo-studio.tar.gz
-```
-
-上传服务器：
-
-```bash
-scp /tmp/shuxueshuo-studio.tar.gz ronghao@服务器IP:/home/ronghao/
+scp /tmp/shuxueshuo-studio.tar.gz "${DEPLOY_SSH:?请先 export DEPLOY_SSH=user@ecs-host}:shuxueshuo-studio.tar.gz"
 ```
 
 ### 2. 服务器加载并启动
 
-服务器上执行：
-
 ```bash
-sudo docker load < /home/ronghao/shuxueshuo-studio.tar.gz
+docker load < "$HOME/shuxueshuo-studio.tar.gz"
+docker rm -f shuxueshuo-studio 2>/dev/null || true
 
-sudo docker rm -f shuxueshuo-studio 2>/dev/null || true
-
-sudo docker run -d \
+# 不要设置 WORKSPACE_MODE=mock
+docker run -d \
   --name shuxueshuo-studio \
   --restart unless-stopped \
-  -p 3000:3000 \
+  -p 127.0.0.1:3000:3000 \
   shuxueshuo-studio:latest
+
+curl -sSI http://127.0.0.1:3000 | head
 ```
 
-本机验证：
+正式访问：https://studio.shuxueshuo.com
 
-```bash
-curl -I http://127.0.0.1:3000
-```
+## 切流检查清单（首次接产品 API）
 
-浏览器访问：
-
-```text
-http://服务器IP:3000
-```
-
-正式访问建议使用：
-
-```text
-https://studio.shuxueshuo.com
-```
+1. 停止并禁用旧 uvicorn：`sudo systemctl stop shuxueshuo-api && sudo systemctl disable shuxueshuo-api`
+2. 产品 `API_PORT='8000'`，`services-start` / `services-doctor` 通过
+3. 部署本页所述新 studio 镜像
+4. 安装更新后的 Nginx 模板并 reload（见下）
+5. 浏览器确认新产品工作台；上传/构建可用
 
 ## 日常更新
 
-日常更新默认沿用“本地构建 -> 上传 -> 服务器加载 -> 替换容器”的流程。
-
-Mac 本地：
-
 ```bash
-cd /Users/haorong/projects/code/shuxueshuo-worktrees/worktree-dev/frontend
-
-docker buildx build \
-  --platform linux/amd64 \
-  -t shuxueshuo-studio:latest \
-  --load \
-  .
-
+# Mac
+cd /path/to/shuxueshuo/frontend
+docker buildx build --platform linux/amd64 \
+  --build-arg NEXT_PUBLIC_PRODUCT_WS_ORIGIN=wss://studio.shuxueshuo.com \
+  -t shuxueshuo-studio:latest --load .
 docker save shuxueshuo-studio:latest | gzip > /tmp/shuxueshuo-studio.tar.gz
-scp /tmp/shuxueshuo-studio.tar.gz ronghao@服务器IP:/home/ronghao/
+scp /tmp/shuxueshuo-studio.tar.gz "${DEPLOY_SSH:?请先 export DEPLOY_SSH=user@ecs-host}:shuxueshuo-studio.tar.gz"
+
+# 服务器
+docker load < "$HOME/shuxueshuo-studio.tar.gz"
+docker rm -f shuxueshuo-studio
+docker run -d --name shuxueshuo-studio --restart unless-stopped \
+  -p 127.0.0.1:3000:3000 shuxueshuo-studio:latest
+docker logs --tail=50 shuxueshuo-studio
 ```
 
-服务器：
-
-```bash
-sudo docker load < /home/ronghao/shuxueshuo-studio.tar.gz
-sudo docker rm -f shuxueshuo-studio 2>/dev/null || true
-
-sudo docker run -d \
-  --name shuxueshuo-studio \
-  --restart unless-stopped \
-  -p 3000:3000 \
-  shuxueshuo-studio:latest
-```
-
-更新后验证：
-
-```bash
-sudo docker ps --filter name=shuxueshuo-studio
-sudo docker logs --tail=100 shuxueshuo-studio
-curl -I http://127.0.0.1:3000
-```
-
-如果希望保留旧镜像作为回滚点，可以在本地导出前先打版本 tag：
+可选回滚 tag：
 
 ```bash
 docker tag shuxueshuo-studio:latest shuxueshuo-studio:$(date +%Y%m%d-%H%M)
 ```
 
-## 可选：服务器直接构建
+## Nginx
 
-仅当服务器可以稳定访问 Docker Hub / npm registry 时使用此方式。
+模板：[nginx/studio.shuxueshuo.com.conf](nginx/studio.shuxueshuo.com.conf)
 
-进入前端目录：
-
-```bash
-cd /home/ronghao/code/shuxueshuo/frontend
-```
-
-构建镜像：
+- `location /api/product/` → `http://127.0.0.1:8000`（`Host 127.0.0.1`，支持 WebSocket）
+- `location /` → `http://127.0.0.1:3000`
 
 ```bash
-docker build -t shuxueshuo-studio:latest .
+sudo cp "$HOME/code/shuxueshuo/deploy/nginx/studio.shuxueshuo.com.conf" \
+  /etc/nginx/conf.d/studio.shuxueshuo.com.conf
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
-启动或替换容器：
+证书路径与仓库内 Nginx 模板保持一致（按服务器实际部署用户调整；勿把私钥提交进 Git）：
 
-```bash
-docker rm -f shuxueshuo-studio 2>/dev/null || true
-
-docker run -d \
-  --name shuxueshuo-studio \
-  --restart unless-stopped \
-  -p 3000:3000 \
-  shuxueshuo-studio:latest
+```text
+$HOME/cert/studio-shuxueshuo/studio.shuxueshuo.com.pem
+$HOME/cert/studio-shuxueshuo/studio.shuxueshuo.com.key
 ```
 
-如果服务器访问 Docker Hub 超时，优先使用上面的“本地构建后上传服务器”流程。
+仅对公网开放 80/443；**不要**长期对公网暴露 3000/8000。
 
-服务器直接构建常见错误：
+## 环境与安全边界
 
-```bash
-failed to resolve source metadata for docker.io/library/node:20-bookworm-slim
-```
+| 项 | 说明 |
+|---|---|
+| `NEXT_PUBLIC_PRODUCT_WS_ORIGIN` | 构建参数，生产为 `wss://studio.shuxueshuo.com` |
+| `WORKSPACE_MODE` | 勿设为 `mock`，否则仍是旧 Authoring 页 |
+| `PRODUCT_PUBLIC_ORIGINS` | 产品 API 容器环境变量，默认允许 `https://studio.shuxueshuo.com` |
+| Next `/pages/api/product` 代理 | 仍仅本机开发用；域名流量由 Nginx 直反代 API |
 
-这表示服务器拉不到 Docker Hub 的 Node 基础镜像。
-
-## 常用维护命令
-
-查看容器状态：
+## 常用命令
 
 ```bash
 docker ps --filter name=shuxueshuo-studio
-```
-
-查看日志：
-
-```bash
 docker logs -f shuxueshuo-studio
-```
-
-重启：
-
-```bash
 docker restart shuxueshuo-studio
+ss -lntp | grep -E ':3000|:8000'
+curl -sS http://127.0.0.1:8000/api/product/v1/health
+curl -sSI https://studio.shuxueshuo.com/ | head
 ```
 
-停止：
+## 解析网页的压缩与缓存
+
+生成页经 `/api/product/v1/pages/` 直接由产品 API 提供。Studio Nginx 模板为此路径单独开启
+gzip（level 6、最小 1024 字节）与响应缓冲，保留 `proxy_cache off`；其余 API／WebSocket 路径不变。
+HTML 默认在 gzip 类型范围内，同时包含 CSS、JavaScript、JSON 和 SVG。
+
+后端以产物 SHA-256 生成弱 ETag，适用于原始／gzip 两种传输表示。返回
+`Cache-Control: private, no-cache` 和 `Vary: Accept-Encoding`，浏览器可存储页面但每次复用需重新验证。
+匹配 `If-None-Match` 后返回无正文的 304；返回 304 前仍检查工作空间、题目权限及产物完整性。
+不启用公共代理缓存，不需要重新生成已有课程页。
+
+上线需同时更新产品 API 镜像和宿主机 Nginx 配置，执行 `nginx -t` 后 reload。
+仅重启前端 Docker 不会启用这两项改动。部署后用 GET 验证：
 
 ```bash
-docker stop shuxueshuo-studio
+PAGE_URL='https://studio.shuxueshuo.com/api/product/v1/pages/<page-id>/index.html'
+curl -sS --compressed -D /tmp/lesson-headers.txt -o /dev/null "$PAGE_URL"
+# 首次响应应为 200，包含 Content-Encoding: gzip、ETag 和 private, no-cache。
+# 将首次响应的 ETag 完整复制到下一条命令（包括 W/ 和引号）。
+curl -sS -D - -o /dev/null -H 'If-None-Match: W/"<sha256>"' "$PAGE_URL"
+# 应为 304，无页面正文。权限不足或产物不可用时不得返回 304。
 ```
 
-删除容器：
-
-```bash
-docker rm -f shuxueshuo-studio
-```
-
-清理悬空镜像：
-
-```bash
-docker image prune
-```
-
-## Nginx 反代
-
-如果需要通过域名访问，例如 `studio.shuxueshuo.com`，建议只让 Nginx 暴露 80/443，容器端口只监听本机或内网。
-
-仓库内已提供模板：[nginx/studio.shuxueshuo.com.conf](nginx/studio.shuxueshuo.com.conf)。
-
-应用模板：
-
-```bash
-sudo cp /home/ronghao/code/shuxueshuo/deploy/nginx/studio.shuxueshuo.com.conf /etc/nginx/conf.d/studio.shuxueshuo.com.conf
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-证书路径按模板约定为：
-
-```text
-/home/ronghao/cert/studio-shuxueshuo/studio.shuxueshuo.com.pem
-/home/ronghao/cert/studio-shuxueshuo/studio.shuxueshuo.com.key
-```
-
-## 防火墙
-
-如果临时直连 `服务器IP:3000`，需要开放端口：
-
-```bash
-sudo firewall-cmd --permanent --add-port=3000/tcp
-sudo firewall-cmd --reload
-```
-
-如果已经用 Nginx 反代，通常只需要对公网开放 80/443，不建议长期暴露 3000。
-
-## 当前实现限制
-
-- `frontend/fixtures` 会被打进镜像，当前 mock API 运行时读取这些 fixture。
-- 新建题目、注释、tutor session 等状态主要是 mock 内存状态；容器重启后会清空。
-- 当前 mock mutation 不写回 `fixtures`，刷新页面会回到初始 fixture 数据。
-- 接入真实后台 API 后，应保留 `studio.shuxueshuo.com` 作为创作后台入口，替换 API 实现而不是更换域名。
+隔离测试：在 server 目录，设置独立 `PRODUCT_TEST_DATA_DIR`／`PRODUCT_TEST_INSTANCE` 后运行
+`uv run pytest -q tests/product/test_page_cache.py`。Nginx 实测需已有 `nginx:1.28-alpine` 镜像和 Docker：
+`RUN_NGINX_INTEGRATION=1 uv run pytest -q tests/test_studio_nginx.py`，测试会创建并清理自己的容器。
+该测试验证实际模板的页面 location、gzip 内容一致性和条件请求转发；服务器实际版本仍需部署时 `nginx -t`。
 
 ## 排错
 
-构建失败时先确认 Docker 版本与网络：
-
-```bash
-docker version
-docker buildx version
-```
-
-容器启动后访问失败：
-
-```bash
-docker logs --tail=200 shuxueshuo-studio
-docker exec -it shuxueshuo-studio sh
-```
-
-容器内检查 Node：
-
-```bash
-node -v
-```
-
-宿主机检查端口：
-
-```bash
-ss -lntp | grep 3000
-```
+- 仍是旧页面：未替换 `shuxueshuo-studio` 镜像，或容器带了 `WORKSPACE_MODE=mock`
+- API 403 `access.origin_rejected`：确认 API 镜像/compose 含 `PRODUCT_PUBLIC_ORIGINS`，且 Nginx 转发了 `Origin`
+- API 403 `access.loopback_only`：确认 Nginx `proxy_set_header Host 127.0.0.1`
+- WS 连到 `127.0.0.1:8000`：镜像构建时未传入 `NEXT_PUBLIC_PRODUCT_WS_ORIGIN`，需重建前端镜像

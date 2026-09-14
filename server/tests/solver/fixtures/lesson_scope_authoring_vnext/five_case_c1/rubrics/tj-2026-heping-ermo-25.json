@@ -1,0 +1,49 @@
+{
+  "schema_version": "lesson-teaching-rubric/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "points": [
+    {
+      "point_id": "path_reduction_equivalence",
+      "description": "说明正方形关系把原路径严格化为单动点路径。",
+      "source_step_id": "derive_path_minimum_ii",
+      "required_pattern_groups": [
+        ["HF+FM+MG=AG+MG"]
+      ]
+    },
+    {
+      "point_id": "moving_point_locus",
+      "description": "说明动点 G 的轨迹是确定的水平直线。",
+      "source_step_id": "derive_path_minimum_ii",
+      "required_pattern_groups": [
+        ["轨迹", "直线"],
+        ["y=-(c+1)/2", "y=-c/2-1/2"]
+      ]
+    },
+    {
+      "point_id": "reflection_construction",
+      "description": "构造 A 关于 G 的轨迹的对称点 A′。",
+      "source_step_id": "derive_path_minimum_ii",
+      "required_pattern_groups": [
+        ["A′", "A'"],
+        ["对称", "反射"]
+      ]
+    },
+    {
+      "point_id": "reflection_segment_equality",
+      "description": "写出反射产生的线段等长关系 AG=A′G。",
+      "source_step_id": "derive_path_minimum_ii",
+      "required_pattern_groups": [
+        ["AG=A′G", "AG=A'G"]
+      ]
+    },
+    {
+      "point_id": "minimum_and_parameterized_attainment",
+      "description": "同时给出最小值表达式和参数化取等点 G。",
+      "source_step_id": "derive_path_minimum_ii",
+      "required_pattern_groups": [
+        ["√5|c+1|/2", "sqrt(5)*Abs(c+1)/2"],
+        ["G(1/4-3c/4,-c/2-1/2)", "G((1-3c)/4,-(c+1)/2)"]
+      ]
+    }
+  ]
+}

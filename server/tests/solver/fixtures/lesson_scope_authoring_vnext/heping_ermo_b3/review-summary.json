@@ -1,0 +1,48 @@
+{
+  "schema_version": "lesson-scope-human-review/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "review_status": "approved",
+  "reviewed_at": "2026-09-07",
+  "source": {
+    "batch_id": "f5-f5b3-heping-cognitive-boundary-thinking-disabled-live-1x3-r12",
+    "sample_id": "sample-02",
+    "mode": "live",
+    "thinking_effort": "disabled",
+    "prompt_hash": "a4826d362374ffacf405a4188c7a63b4d516a5bd67bba8c61272390b027fa257"
+  },
+  "validation": {
+    "direct_acceptance": true,
+    "contract_pass": true,
+    "authority_pass": true,
+    "fallback_used": false,
+    "syntax_repaired": false,
+    "source_step_completion_repaired": false,
+    "independent_material_merge_repaired": false,
+    "rubric_coverage": "5/5"
+  },
+  "content": {
+    "scope_count": 4,
+    "lesson_step_count": 12,
+    "merged_source_steps": [
+      {
+        "container_ref": "scope:i",
+        "source_steps": [
+          "s1",
+          "s2"
+        ]
+      }
+    ]
+  },
+  "fixture_policy": {
+    "regression_only": true,
+    "generator_input_allowed": false,
+    "few_shot_allowed": false
+  },
+  "review_notes": [
+    "基于学生认知边界的 r12 Prompt 与三份 thinking-disabled live 输出均已完成人工审阅；三份均直接通过。",
+    "批准样本把 scope i 中连续的求解析式与求左交点材料合并为一个教学步骤；所有独立视觉材料仍保持独立。",
+    "第二问由参数反求到坐标回代的三份材料未合并，人工确认该差异可接受：合并是教学优化项，不是正确性门禁。",
+    "生产默认保持 thinking disabled；thinking-low 运行只用于比较，不作为回归正文来源。",
+    "该 fixture 只用于 B4 及后续回归，不得进入 Lesson LLM Prompt 或 few-shot。"
+  ]
+}

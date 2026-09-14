@@ -1,0 +1,60 @@
+{
+  "schema_version": "lesson-teaching-rubric/v1",
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "points": [
+    {
+      "point_id": "construct_and_select_N",
+      "description": "先用轴投影和全等三角形分别构造两个旋转候选，再由象限条件确定唯一点 N。",
+      "source_step_id": "ii_construct_N",
+      "required_pattern_groups": [
+        ["N₁(2,1-m)"],
+        ["N₂(0,m-1)"],
+        ["MU⊥x轴", "MU⊥x 轴"],
+        ["N₁V⊥x轴", "N₁V⊥x 轴"],
+        ["N₂W⊥x轴", "N₂W⊥x 轴"],
+        ["Rt△DUM≌Rt△N₁VD≌Rt△N₂WD", "DUM≌N₁VD≌N₂WD"],
+        ["第四象限", "N在第四象限"]
+      ]
+    },
+    {
+      "point_id": "parameterized_parabola",
+      "description": "根据 M、N 在抛物线上得到关于 m 的解析式。",
+      "source_step_id": "ii_derive_parabola",
+      "required_pattern_groups": [
+        ["a=1/(m-2)"],
+        ["y=(1/(m-2))x²-2/(m-2)x+1-m", "y=x²/(m-2)-2x/(m-2)+1-m"]
+      ]
+    },
+    {
+      "point_id": "coupled_path_reflection",
+      "description": "用垂足、矩形和垂直平分线证明端点替换，再用轨迹反射拉直路径。",
+      "source_step_id": "ii_path_minimum",
+      "required_pattern_groups": [
+        ["GH⊥DN"],
+        ["GK⊥DM"],
+        ["四边形DKGH是矩形"],
+        ["GK垂直平分DE"],
+        ["EG=DG"],
+        ["EG+FG=DG+FG"],
+        ["D′", "D'"],
+        ["√(5m²-10m+10)/2"]
+      ]
+    },
+    {
+      "point_id": "part_ii_1_parameter",
+      "description": "由 MN 的长度条件求得第一小问参数 m。",
+      "source_step_id": "ii_1_solve_m",
+      "required_pattern_groups": [
+        ["m=3"]
+      ]
+    },
+    {
+      "point_id": "part_ii_2_parameter",
+      "description": "由路径最小值求得第二小问参数 m。",
+      "source_step_id": "ii_2_solve_m",
+      "required_pattern_groups": [
+        ["m=8"]
+      ]
+    }
+  ]
+}

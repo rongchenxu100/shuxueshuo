@@ -1,0 +1,44 @@
+{
+  "schema_version": "lesson-b4-human-review/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "review_status": "approved",
+  "reviewed_at": "2026-09-07",
+  "source_batches": {
+    "lesson_ir": "f5-f5b4-heping-visual-spec-generic-r13",
+    "visual": "f5-f5c0-heping-b4-golden-refresh",
+    "capability_review": "f5-f5c0-public-capability-review"
+  },
+  "counts": {
+    "scope_count": 5,
+    "goal_count": 4,
+    "approved_lesson_step_count": 12,
+    "approved_visual_step_count": 12,
+    "approved_visual_frame_count": 12,
+    "deterministic_lesson_step_count": 13,
+    "deterministic_visual_step_count": 13
+  },
+  "checks": {
+    "recursive_topology": true,
+    "materials_consumed_once": true,
+    "rubric_5_of_5": true,
+    "geometry_validator": true,
+    "page_compiler": true,
+    "private_identity_audit": true,
+    "human_page_review": true
+  },
+  "fixture_policy": {
+    "regression_only": true,
+    "generator_input_allowed": false,
+    "few_shot_allowed": false,
+    "generated_html_checked_in": false
+  },
+  "review_notes": [
+    "Approved LessonIR uses the human-approved B3 thinking-disabled sample-02 body.",
+    "Scope i merges the curve and left-intercept materials into one cognitive step; grouping remains optional rather than a correctness gate.",
+    "The two quadratic-square path Macro teaching units remain separate LessonSteps and separate visual stages.",
+    "Recursive visual state, semantic geometry identity, moving-point controls, viewport focus, and final compiled page were reviewed and approved.",
+    "Visual context is now selected by Method/Macro VisualSpec and bound through exact public object identity; square selection, candidate context, parameter lineage, and line-parabola roles no longer depend on first-match, point-letter, internal-id, or capability-branch heuristics.",
+    "F5-F5C0 public-capability review confirmed the generalized TeachingSpec and VisualSpec rendering across all 29 Planner-public Function/Macro capabilities.",
+    "Generated HTML remains rebuildable output and is intentionally not stored as a fixture."
+  ]
+}

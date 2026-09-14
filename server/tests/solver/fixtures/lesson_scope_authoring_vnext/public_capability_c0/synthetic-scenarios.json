@@ -1,0 +1,75 @@
+{
+  "schema_version": "lesson-capability-synthetic-scenarios/v1",
+  "registry_fingerprint": "855559dc97c8a75db7d8d1aad3096d85e480c6dc400d0170e225c92f41fff215",
+  "scenarios": {
+    "distance_between_points": {
+      "schema_version": "lesson-capability-synthetic-scenario/v1",
+      "problem_id": "synthetic-distance_between_points",
+      "source_step_id": "synthetic_distance_between_points",
+      "execution": "real_stateless_method",
+      "input_runtime_types": {
+        "p1": [
+          "Point"
+        ],
+        "p2": [
+          "Point"
+        ]
+      },
+      "output_runtime_types": {
+        "distance": "MinimumExpression"
+      },
+      "checks_passed": true
+    },
+    "equal_length_ray_point": {
+      "schema_version": "lesson-capability-synthetic-scenario/v1",
+      "problem_id": "synthetic-equal_length_ray_point",
+      "source_step_id": "synthetic_equal_length_ray_point",
+      "execution": "real_stateless_method",
+      "input_runtime_types": {
+        "anchor": [
+          "Point"
+        ],
+        "reference_point": [
+          "Point"
+        ],
+        "ray_point": [
+          "Point"
+        ],
+        "target": [
+          "PointRef"
+        ]
+      },
+      "output_runtime_types": {
+        "point": "Point"
+      },
+      "checks_passed": true
+    },
+    "line_intersection_point": {
+      "schema_version": "lesson-capability-synthetic-scenario/v1",
+      "problem_id": "synthetic-line_intersection_point",
+      "source_step_id": "synthetic_line_intersection_point",
+      "execution": "real_stateless_method",
+      "input_runtime_types": {
+        "line1_p1": [
+          "Point"
+        ],
+        "line1_p2": [
+          "Point"
+        ],
+        "line2_p1": [
+          "Point"
+        ],
+        "line2_p2": [
+          "Point"
+        ],
+        "target": [
+          "PointRef"
+        ]
+      },
+      "output_runtime_types": {
+        "intersection": "Point"
+      },
+      "checks_passed": true
+    }
+  }
+}

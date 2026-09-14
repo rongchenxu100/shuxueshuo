@@ -5,7 +5,10 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodVisualSpec,
+    TeachingUnitSpec,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
@@ -103,7 +106,7 @@ class SquareAdjacentVertexFromSideMethod:
                     self.method_id,
                     "由正方形边求相邻顶点",
                     f"表示 {target.name} 的坐标",
-                    "正方形相邻边由已知边向量旋转 90° 得到，再按题设方向选择对应顶点。",
+                    "利用正方形相邻边垂直且等长，再按顶点顺序和题设方位确定相邻顶点。",
                     f"{target.name}=({_fmt_point(point, kernel)})",
                     f"{target.name}({_fmt_point(point, kernel)})",
                 )
@@ -431,35 +434,36 @@ SPEC = MethodSpecSource(
         "输出对象就是公开返回角色 adjacent_vertex 绑定的正方形顶点",
         "输出顶点与给定边构成垂直等长的正方形相邻边",
     ),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "target_label": "学生可见的目标顶点点名。",
-            "projection_construction": "为目标顶点作坐标辅助线的构造说明。",
-            "square_name": "学生可见的正方形名称。",
-            "side_equal_statement": "正方形相邻边相等的结论。",
-            "square_right_angle_statement": "正方形公共顶点处的直角结论。",
-            "projection_right_angles": "坐标辅助线形成的直角关系。",
-            "matching_angle_statement": "对应的非直角锐角关系。",
-            "triangle_congruence": "学生可见的全等直角三角形。",
-            "length_correspondence": "全等后对应的坐标长度关系。",
-            "target_position_condition": "用于选择目标点的方位条件。",
-            "target_point": "学生可见的目标顶点坐标。",
-        },
-        student_goal_template="利用正方形相邻边垂直且等长，求相邻顶点坐标。",
-        student_title_template="由正方形求相邻顶点{target_label}",
-        student_nav_title_template="正方形求顶点{target_label}",
+    teaching_unit=TeachingUnitSpec(
+        unit_key="square_adjacent_vertex_from_side/derive_adjacent_vertex",
+        title_template="由正方形求相邻顶点{target_label}",
+        nav_title_template="正方形求顶点{target_label}",
+        goal_template="利用正方形相邻边垂直且等长，求相邻顶点坐标。",
         derive_templates=(
-            "作{projection_construction}",
-            "∵四边形 {square_name} 是正方形",
-            "∴{side_equal_statement}，{square_right_angle_statement}",
-            "∵{projection_right_angles}",
-            "∴{matching_angle_statement}",
-            "∴{triangle_congruence}",
-            "∴{length_correspondence}",
-            "∵{target_position_condition}",
-            "∴{target_point}",
+            ("作", "{projection_construction}"),
+            ("∵", "四边形 {square_name} 是正方形"),
+            ("∴", "{side_equal_statement}，{square_right_angle_statement}"),
+            ("∵", "{projection_right_angles}"),
+            ("∴", "{matching_angle_statement}"),
+            ("∴", "{triangle_congruence}"),
+            ("∴", "{length_correspondence}"),
+            ("∵", "{target_position_condition}"),
+            ("∴", "{target_point}"),
         ),
         box_templates=("{target_point}",),
+        role_schema={
+            "target_label": "学生可见的目标顶点点名。",
+            "projection_construction": "由实际坐标关系确定的垂足构造。",
+            "square_name": "学生可见的正方形名称。",
+            "side_equal_statement": "正方形相邻边相等。",
+            "square_right_angle_statement": "正方形公共顶点处为直角。",
+            "projection_right_angles": "坐标辅助线形成的直角关系。",
+            "matching_angle_statement": "对应的锐角关系。",
+            "triangle_congruence": "由动态绑定点名组成的全等直角三角形。",
+            "length_correspondence": "全等后对应的坐标长度关系。",
+            "target_position_condition": "筛选目标点的方位条件。",
+            "target_point": "目标顶点坐标。",
+        },
         role_binder_id="square_adjacent_vertex_from_side",
     ),
     visual=MethodVisualSpec(
@@ -467,12 +471,21 @@ SPEC = MethodSpecSource(
             "square_vertices": "正方形条件给出的有序顶点。",
             "known_side": "该方法使用的已知边。",
             "target_vertex": "该方法求出的相邻正方形顶点。",
-            "coordinate_triangles": "展示旋转后坐标差关系的直角三角形辅助图形。",
+            "coordinate_triangles": "展示垂足和全等直角三角形关系的辅助图形。",
         },
         role_binder_id="square_adjacent_vertex_from_side",
         scene_templates=(
             {
                 "component": "SquareAdjacentVertexMarker",
+                "context_roles": [
+                    "input_curve",
+                    "curve_axis",
+                    "prior_curve_vertex",
+                ],
+                "suppress_point_definitions_when_exact": [
+                    "axis_x_intercept",
+                ],
+                "requires_independent_lesson_step": True,
                 "persistence": "carry_forward",
                 "fill": "rgba(14, 165, 233, 0.12)",
                 "color": "#0284c7",

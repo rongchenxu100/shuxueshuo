@@ -7,7 +7,7 @@ Planner-facing Method without crossing the tested internal boundary.
 from __future__ import annotations
 
 from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
-    WeightedTriangleGeometryUnsupportedError,
+    WeightedTriangleGeometryDomainError,
     weighted_triangle_geometry_for_weight,
 )
 
@@ -17,16 +17,9 @@ from ..._common import *
 class WeightedAxisPathTriangleTransformMethod:
     """用直角三角形把加权 x 轴动点路径转化为普通折线路径。
 
-    method 支持两类中考常见权重：
-
-    - ``sqrt(2)``：等腰直角三角形，``AN = sqrt(2)*QN``；
-    - ``2``：30°/60° 直角三角形，``AN = 2*QN``。
-
-    对一般权重 ``w>1``，辅助点坐标公式可以统一写成固定端点到动点偏移的
-    ``(w^2-1)/w^2`` 与 ``sqrt(w^2-1)/w^2`` 分解。但后续折线路径最值还依赖
-    辅助点运动方向和三角形几何解释，所以本 method 不把任意 ``w>1`` 自动视为
-    已支持能力；只有在共享 geometry profile registry 中登记并补过验算的权重
-    才会开放。当前只登记 ``sqrt(2)`` 与 ``2``。
+    对任意常数权重 ``w>1``，辅助点坐标统一由固定端点到动点偏移的
+    ``(w²-1)/w²`` 与 ``sqrt(w²-1)/w²`` 分解得到。runtime 只验证直角、
+    边长倍率和射线方向；等腰直角或 30°/60° 等学生叙事由教学层选择。
     """
 
     method_id = "weighted_axis_path_triangle_transform"
@@ -75,14 +68,14 @@ class WeightedAxisPathTriangleTransformMethod:
         weight = path_info["weight"]
         try:
             geometry = weighted_triangle_geometry_for_weight(weight)
-        except WeightedTriangleGeometryUnsupportedError as exc:
+        except WeightedTriangleGeometryDomainError as exc:
             raise method_precondition_failed(
-                "weighted path uses an unsupported triangle geometry weight",
+                "weighted path requires a constant real weight greater than one",
                 arg_name="condition",
                 role="path_weight",
-                expected={"supported_weights": list(exc.supported)},
+                expected={"domain": "constant real weight > 1"},
                 observed={"weight": str(exc.weight)},
-                repair_action="choose_supported_weighted_path_capability",
+                repair_action="choose_valid_weighted_path_capability",
             ) from exc
 
         fixed_name = str(path_info["fixed_name"])
@@ -98,15 +91,14 @@ class WeightedAxisPathTriangleTransformMethod:
         # 辅助点坐标统一为：
         #   x = ax + L * (w^2 - 1) / w^2
         #   y =      L * sqrt(w^2 - 1) / w^2
-        # 坐标公式对已登记的 weight 复用；direction 不从公式自动推导，而是
-        # 来自共享 geometry profile，避免未验算 geometry 进入
-        # 后续 linked broken path method。
+        # 坐标与射线方向都由同一组通用结构系数导出；materialized
+        # transformation 会在下游再次逐字段校验，避免漂移的 geometry 进入
+        # linked broken path method。
         ax = fixed_point[0]
         n = dynamic_parameter
         offset = sp.simplify(n - ax)
-        weight_sq = sp.simplify(weight**2)
-        leg_factor = sp.simplify((weight_sq - 1) / weight_sq)
-        height_factor = sp.simplify(sp.sqrt(weight_sq - 1) / weight_sq)
+        leg_factor = geometry.leg_factor
+        height_factor = geometry.height_factor
         auxiliary_point = (
             sp.simplify(ax + offset * leg_factor),
             sp.simplify(orientation_sign * offset * height_factor),
@@ -133,15 +125,14 @@ class WeightedAxisPathTriangleTransformMethod:
             "equation": _locus_equation_text(ax, direction, kernel),
             "reason": (
                 f"{auxiliary_name} 随 {moving_name} 在由 {fixed_name} 引出的"
-                f" {geometry.angle_label} 射线上运动。"
+                "固定射线上运动。"
             ),
         }
         transformation = {
             "type": "weighted_axis_triangle_transform",
             "original_path": str(condition["path"]),
             "weight": weight,
-            "geometry_profile_id": geometry.profile_id,
-            "construction": geometry.construction,
+            "construction": "weighted_right_triangle",
             "fixed_point_name": fixed_name,
             "moving_point_name": moving_name,
             "curve_point_name": curve_name,
@@ -150,12 +141,14 @@ class WeightedAxisPathTriangleTransformMethod:
             "transformed_path": transformed_path,
             "inner_path": inner_path,
             "scale": weight,
-            "geometry": geometry.geometry,
+            "geometry": geometry.to_payload(),
+            "path_equivalence": {
+                "weighted_segment": ["curve_point", "moving_point"],
+                "unit_segment": ["fixed_point", "moving_point"],
+                "auxiliary_segment": ["auxiliary_point", "moving_point"],
+                "scale": kernel.sstr(weight),
+            },
             "orientation_sign": orientation_sign,
-            "reason": (
-                f"构造{geometry.title} {fixed_name}{auxiliary_name}{moving_name}，"
-                f"使 {fixed_name}{moving_name}={kernel.sstr(weight)}*{auxiliary_segment}。"
-            ),
         }
         if moving_point_ref is not None:
             transformation["moving_point_ref"] = _canonical_point_ref(
@@ -204,7 +197,7 @@ class WeightedAxisPathTriangleTransformMethod:
                 _check(
                     "auxiliary_point_on_fixed_ray",
                     locus_cross == 0,
-                    f"{auxiliary_name} 在由 {fixed_name} 引出的 {geometry.angle_label} 射线上",
+                    f"{auxiliary_name} 在由 {fixed_name} 引出的固定射线上",
                 ),
             ],
             trace_fragments=[
@@ -213,7 +206,7 @@ class WeightedAxisPathTriangleTransformMethod:
                     "构造辅助三角形转化加权路径",
                     f"将 {condition['path']} 转化为 {transformed_path}",
                     (
-                        f"构造{geometry.title} {fixed_name}{auxiliary_name}{moving_name}，"
+                        f"构造直角三角形 {fixed_name}{auxiliary_name}{moving_name}，"
                         f"把加权项 {fixed_name}{moving_name} 改写成同倍率下的"
                         f" {auxiliary_segment}，从而把加权路径转成普通折线路径。"
                     ),

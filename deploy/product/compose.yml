@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: ${PRODUCT_POSTGRES_IMAGE:?fixed PostgreSQL image required}
+    environment:
+      POSTGRES_USER: product_bootstrap
+      POSTGRES_PASSWORD: ${PRODUCT_BOOTSTRAP_PASSWORD:?bootstrap password required}
+      POSTGRES_INITDB_ARGS: --encoding=UTF8 --locale=C --auth-host=scram-sha-256 --auth-local=scram-sha-256
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${PRODUCT_DB_PORT:-5432}:5432"
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U product_bootstrap -d postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+  admin:
+    image: ${PRODUCT_ADMIN_IMAGE:?fixed admin image required}
+    profiles: [admin]
+    user: "${PRODUCT_UID:-1000}:${PRODUCT_GID:-1000}"
+    environment:
+      PRODUCT_IN_CONTAINER: "1"
+      PRODUCT_DATA_DIR: /var/lib/shuxueshuo
+      PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      PRODUCT_PG_BIN_DIR: /usr/lib/postgresql/17/bin
+    volumes:
+      - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
+    working_dir: /app/server
+    entrypoint: [/opt/product/bin/python, -m, shuxueshuo_server.product.admin.cli]
+volumes:
+  postgres_data:
+    name: shuxueshuo-product-${PRODUCT_INSTANCE:-server}_postgres_data
+    labels:
+      product.data-root: ${PRODUCT_DATA_DIR}
+      product.instance: ${PRODUCT_INSTANCE:-server}

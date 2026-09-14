@@ -1,0 +1,180 @@
+# P2 application-side services. PostgreSQL remains in compose.yml.
+services:
+  rabbitmq:
+    image: ${PRODUCT_RABBITMQ_IMAGE:?fixed RabbitMQ image required}
+    environment:
+      RABBITMQ_DEFAULT_USER: ${PRODUCT_BROKER_USER:?broker user required}
+      RABBITMQ_DEFAULT_PASS: ${PRODUCT_BROKER_PASSWORD:?broker password required}
+      RABBITMQ_DEFAULT_VHOST: ${PRODUCT_BROKER_VHOST:?broker vhost required}
+      RABBITMQ_ERLANG_COOKIE: ${PRODUCT_BROKER_COOKIE:?broker cookie required}
+    ports:
+      - "127.0.0.1:${PRODUCT_BROKER_PORT:-5672}:5672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  ocr:
+    image: ${PRODUCT_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}
+    user: "${PRODUCT_UID:-1000}:${PRODUCT_GID:-1000}"
+    environment:
+      HOME: /tmp
+      PADDLE_PDX_MODEL_SOURCE: bos
+      PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK: "True"
+      OMP_NUM_THREADS: "1"
+      FLAGS_use_mkldnn: "0"
+      PYTHONPATH: /opt/shuxueshuo/server
+      PRODUCT_OCR_BIND: 0.0.0.0
+      PRODUCT_OCR_PORT: "8080"
+    volumes:
+      - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
+      - ${PRODUCT_REPO_HOST:?host repo path required}:/opt/shuxueshuo:ro
+      - ${PRODUCT_HOST_HOME:?host home path required}/.paddlex:/tmp/.paddlex
+    working_dir: /opt/shuxueshuo/server
+    command: ["python", "/opt/shuxueshuo/deploy/ocr/sidecar_server.py"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=3)",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+      start_period: 120s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  api:
+    image: ${PRODUCT_APP_IMAGE:?fixed app image required}
+    user: "${PRODUCT_UID:-1000}:${PRODUCT_GID:-1000}"
+    environment:
+      PRODUCT_IN_CONTAINER: "1"
+      PRODUCT_MODE: server
+      PRODUCT_DATA_DIR: /var/lib/shuxueshuo
+      PRODUCT_INSTANCE: ${PRODUCT_INSTANCE:-server}
+      PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      PRODUCT_API_PORT: ${PRODUCT_API_PORT:-8000}
+      PRODUCT_FRONTEND_PORT: ${PRODUCT_FRONTEND_PORT:-3000}
+      PRODUCT_PUBLIC_ORIGINS: ${PRODUCT_PUBLIC_ORIGINS:-https://studio.shuxueshuo.com}
+      PRODUCT_OCR_URL: http://ocr:8080
+      REVIEW_BACKEND: product
+    ports:
+      - "127.0.0.1:${PRODUCT_API_PORT:-8000}:8000"
+    volumes:
+      - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
+      - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
+    working_dir: /app/server
+    command: ["uvicorn", "shuxueshuo_server.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ocr:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/product/v1/health', timeout=3)",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  worker:
+    image: ${PRODUCT_APP_IMAGE:?fixed app image required}
+    user: "${PRODUCT_UID:-1000}:${PRODUCT_GID:-1000}"
+    environment:
+      PRODUCT_IN_CONTAINER: "1"
+      PRODUCT_MODE: server
+      PRODUCT_DATA_DIR: /var/lib/shuxueshuo
+      PRODUCT_INSTANCE: ${PRODUCT_INSTANCE:-server}
+      PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      PRODUCT_API_PORT: ${PRODUCT_API_PORT:-8000}
+      PRODUCT_FRONTEND_PORT: ${PRODUCT_FRONTEND_PORT:-3000}
+      PRODUCT_OCR_URL: http://ocr:8080
+      REVIEW_BACKEND: product
+    volumes:
+      - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
+      - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
+    working_dir: /app/server
+    command: ["python", "-m", "shuxueshuo_server.product.transport", "worker"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ocr:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+  publisher:
+    image: ${PRODUCT_APP_IMAGE:?fixed app image required}
+    user: "${PRODUCT_UID:-1000}:${PRODUCT_GID:-1000}"
+    environment:
+      PRODUCT_IN_CONTAINER: "1"
+      PRODUCT_MODE: server
+      PRODUCT_DATA_DIR: /var/lib/shuxueshuo
+      PRODUCT_INSTANCE: ${PRODUCT_INSTANCE:-server}
+      PRODUCT_RELEASE_ID: ${PRODUCT_RELEASE_ID:?release required}
+      PRODUCT_API_PORT: ${PRODUCT_API_PORT:-8000}
+      PRODUCT_FRONTEND_PORT: ${PRODUCT_FRONTEND_PORT:-3000}
+      PRODUCT_OCR_URL: http://ocr:8080
+      REVIEW_BACKEND: product
+    volumes:
+      - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
+      - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
+    working_dir: /app/server
+    command: ["python", "-m", "shuxueshuo_server.product.transport", "publisher"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      ocr:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+
+volumes:
+  rabbitmq_data:
+    name: shuxueshuo-product-${PRODUCT_INSTANCE:-server}_rabbitmq_data
+    labels:
+      product.data-root: ${PRODUCT_DATA_DIR}
+      product.instance: ${PRODUCT_INSTANCE:-server}

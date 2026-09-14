@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shuxueshuo.local/schemas/lesson-ir.schema.json",
+  "title": "Recursive LessonIR v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "problem_id",
+    "problem_revision",
+    "source_snapshot_hash",
+    "root_scope"
+  ],
+  "properties": {
+    "schema_version": {"const": "lesson-ir/v2"},
+    "problem_id": {"type": "string", "minLength": 1},
+    "problem_revision": {"type": "string", "minLength": 1},
+    "source_snapshot_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "root_scope": {"$ref": "#/$defs/scope"}
+  },
+  "$defs": {
+    "derive_line": {
+      "type": "array",
+      "prefixItems": [
+        {"type": "string", "minLength": 1},
+        {"type": "string", "minLength": 1}
+      ],
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "lesson_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lesson_step_id",
+        "source_step_ids",
+        "capability_ids",
+        "teaching_unit_keys",
+        "title",
+        "nav_title",
+        "goal",
+        "derive",
+        "box"
+      ],
+      "properties": {
+        "lesson_step_id": {"type": "string", "minLength": 1},
+        "source_step_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "capability_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "teaching_unit_keys": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "title": {"type": "string", "minLength": 1},
+        "nav_title": {"type": "string", "minLength": 1},
+        "goal": {"type": "string", "minLength": 1},
+        "derive": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/derive_line"}
+        },
+        "box": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "goal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["steps"],
+      "properties": {
+        "steps": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/lesson_step"}
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_ref", "steps", "goals", "children"],
+      "properties": {
+        "scope_ref": {"type": "string", "minLength": 1},
+        "steps": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/lesson_step"}
+        },
+        "goals": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/goal"}
+        },
+        "children": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/scope"}
+        }
+      }
+    }
+  }
+}

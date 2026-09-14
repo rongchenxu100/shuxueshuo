@@ -76,6 +76,7 @@ class ProblemDomainSmokeSampleResult:
     usage: Mapping[str, float]
     failures: tuple[str, ...]
     sample_dir: str
+    source_reviews: tuple[Mapping[str, Any], ...] = ()
 
     @property
     def ok(self) -> bool:
@@ -88,6 +89,8 @@ class ProblemDomainSmokeSampleResult:
             "ok": self.ok,
             "accepted": self.accepted,
             "attempt_count": self.attempt_count,
+            "source_reviews": list(self.source_reviews),
+            "semantic_call_count": self.attempt_count + len(self.source_reviews),
             "final_issue_code": self.final_issue_code,
             "provider": self.provider,
             "source_input_complete": self.source_input_complete,
@@ -339,6 +342,7 @@ def _run_sample(
         usage=_usage(run),
         failures=tuple(failures),
         sample_dir=str(sample_dir),
+        source_reviews=tuple(dict(a.source_review) for a in run.attempts if a.source_review),
     )
     _write_json(sample_dir / "sample-result.json", item.to_payload())
     return item
@@ -411,6 +415,10 @@ def _usage(run: ProblemDomainExtractionRunResult) -> dict[str, float]:
         if response is None or response.usage is None:
             continue
         for key, value in response.usage.items():
+            if isinstance(value, (int, float)):
+                totals[key] = totals.get(key, 0) + value
+    for attempt in run.attempts:
+        for key, value in ((attempt.source_review or {}).get("usage", {}).get("usage") or {}).items():
             if isinstance(value, (int, float)):
                 totals[key] = totals.get(key, 0) + value
     return totals

@@ -991,3 +991,41 @@ def test_required_empty_args_is_not_removed_by_content_normalization(
     assert result.content.to_payload()["scope_steps"][_scope_ref][0][
         "args"
     ] == {}
+
+
+def test_false_output_targets_are_omitted_with_audit_record(tmp_path):
+    fixture, frame, content, _ = _content_fixture(tmp_path)
+    payload = deepcopy(content.to_payload())
+    scope_ref, steps = next(iter(payload['scope_steps'].items()))
+    steps[0]['output_targets'] = False
+    result = FunctionalPlanContentCompiler().compile_payload(
+        payload, frame=frame, capability_catalog=fixture.capability_catalog,
+    )
+    assert result.report.ok
+    assert 'output_targets' not in result.content.scope_steps[scope_ref][0]
+    assert payload['scope_steps'][scope_ref][0]['output_targets'] is False
+    assert any(record.code == 'functional.false_output_targets_omitted'
+               and record.path == f'$.scope_steps.{scope_ref}[0].output_targets'
+               for record in result.normalizations)
+    for malformed in [True, 0, 'false', [], None]:
+        steps[0]['output_targets'] = malformed
+        rejected = FunctionalPlanContentCompiler().compile_payload(
+            payload, frame=frame, capability_catalog=fixture.capability_catalog,
+        )
+        assert not rejected.report.ok, malformed
+
+
+def test_normalized_payload_is_saved_even_when_structural_draft_is_unavailable(tmp_path):
+    fixture, frame, content, _ = _content_fixture(tmp_path)
+    raw = content.to_payload()
+    raw['goal_plans']['i_1.parabola'].pop('answer_from')
+    first = next(iter(raw['scope_steps'].values()))[0]
+    first['return_expectations'] = {}
+    compilation = FunctionalPlanContentCompiler().compile_payload(
+        raw, frame=frame, capability_catalog=fixture.capability_catalog)
+    assert not compilation.report.ok
+    assert compilation.content is None
+    assert compilation.normalized_payload is not None
+    assert 'return_expectations' in first
+    assert 'return_expectations' not in next(iter(compilation.normalized_payload['scope_steps'].values()))[0]
+    assert compilation.normalizations

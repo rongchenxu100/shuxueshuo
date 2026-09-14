@@ -6,14 +6,15 @@
 # - 使用 Next.js standalone 输出，避免在运行镜像里携带完整源码与 node_modules。
 # - 显式复制 fixtures，因为当前临时 mock API 会在运行时读取 frontend/fixtures。
 #
-# 构建命令：
-#   docker build -t shuxueshuo-studio:latest .
-#
-# Mac 本地构建并上传 CentOS 服务器时，建议显式构建 amd64：
-#   docker buildx build --platform linux/amd64 -t shuxueshuo-studio:latest --load .
+# 构建命令（生产 WS 地址须在构建期注入）：
+#   docker buildx build --platform linux/amd64 \
+#     --build-arg NEXT_PUBLIC_PRODUCT_WS_ORIGIN=wss://studio.shuxueshuo.com \
+#     -t shuxueshuo-studio:latest --load .
 #
 # 运行命令：
-#   docker run -d --name shuxueshuo-studio --restart unless-stopped -p 3000:3000 shuxueshuo-studio:latest
+#   docker run -d --name shuxueshuo-studio --restart unless-stopped \
+#     -p 127.0.0.1:3000:3000 shuxueshuo-studio:latest
+# 不要设置 WORKSPACE_MODE=mock（默认即新产品工作台）。
 
 # deps 阶段只安装依赖。
 # 单独拆出这一层后，只要 package.json / package-lock.json 不变，
@@ -39,6 +40,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # 复用 deps 阶段安装好的依赖，再复制完整 frontend 源码。
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# NEXT_PUBLIC_* 在 build 时内联到客户端包。
+ARG NEXT_PUBLIC_PRODUCT_WS_ORIGIN=wss://studio.shuxueshuo.com
+ENV NEXT_PUBLIC_PRODUCT_WS_ORIGIN=$NEXT_PUBLIC_PRODUCT_WS_ORIGIN
 
 # next.config.ts 中设置了 output: "standalone"。
 # 构建完成后会生成 .next/standalone，其中包含生产 server.js 和必要依赖。

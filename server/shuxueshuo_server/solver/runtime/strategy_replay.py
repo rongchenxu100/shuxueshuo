@@ -536,16 +536,23 @@ class PlannerRetryReplayService:
 
         reconciliation = reconcile_candidate(plan)
         if preserve_scoped_step_identity:
-            effective_plan, pruned_call_ids = _prune_scoped_dead_pure_calls(
-                plan,
-                reconciliation=reconciliation,
-                catalog=functional_catalog,
-            )
-            if pruned_call_ids:
+            all_pruned_call_ids: set[str] = set()
+            while True:
+                effective_plan, pruned_call_ids = _prune_scoped_dead_pure_calls(
+                    plan, reconciliation=reconciliation, catalog=functional_catalog,
+                )
+                if not pruned_call_ids:
+                    break
+                if len(effective_plan.calls) >= len(plan.calls):
+                    raise StrategyDraftValidationError(
+                        "planner_configuration_error: liveness did not shrink the graph"
+                    )
+                all_pruned_call_ids.update(pruned_call_ids)
                 plan = effective_plan
                 reconciliation = reconcile_candidate(plan)
+            if all_pruned_call_ids:
                 elaboration = dict(reconciliation.elaboration or {})
-                elaboration["scoped_pruned_step_ids"] = list(pruned_call_ids)
+                elaboration["scoped_pruned_step_ids"] = sorted(all_pruned_call_ids)
                 reconciliation = replace(
                     reconciliation,
                     elaboration=elaboration,

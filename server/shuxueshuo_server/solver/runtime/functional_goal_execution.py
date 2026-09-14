@@ -8,6 +8,7 @@ from types import MappingProxyType
 from typing import Any, Literal, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
+import sympy as sp
 
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     FunctionalProblemBindingContext,
@@ -34,6 +35,7 @@ from shuxueshuo_server.solver.runtime.functional_execution_authority import (
     MacroSearchExecutionEvidence,
     PathMinimumPromptWitnessProjector,
     PathMinimumWitness,
+    SymbolicClosureExecutionEvidence,
     VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT,
     functional_execution_evidence_from_payload,
     functional_execution_evidence_schema,
@@ -141,6 +143,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                         "arg": nonempty,
                         "index": {"type": "integer", "minimum": 0},
                         "source": {"$ref": "#/$defs/functional_ref"},
+                        "resolved_ref": {"$ref": "#/$defs/step_result_ref"},
                         "resolution": {
                             "enum": [
                                 "source_snapshot",
@@ -1216,6 +1219,8 @@ def verified_functional_plan_execution_schema() -> dict[str, Any]:
             "problem_revision_id",
             "problem_semantic_hash",
             "checkpoint_id",
+            "dependency_graph",
+            "public_result_dependencies",
             "root_scope",
             "execution_signature",
             "execution_id",
@@ -1230,6 +1235,32 @@ def verified_functional_plan_execution_schema() -> dict[str, Any]:
             "problem_revision_id": nonempty,
             "problem_semantic_hash": nonempty,
             "checkpoint_id": nonempty,
+            "dependency_graph": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                    "type": "array",
+                    "items": nonempty,
+                    "uniqueItems": True,
+                },
+            },
+            "public_result_dependencies": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": ["step_id", "return"],
+                        "properties": {
+                            "step_id": nonempty,
+                            "return": nonempty,
+                        },
+                        "additionalProperties": False,
+                    },
+                    "uniqueItems": True,
+                },
+            },
             "root_scope": {"$ref": "#/$defs/execution_scope_0"},
             "execution_signature": nonempty,
             "execution_id": nonempty,
@@ -1252,6 +1283,10 @@ class VerifiedFunctionalPlanExecution:
     problem_revision_id: str
     problem_semantic_hash: str
     checkpoint_id: str
+    dependency_graph: Mapping[str, tuple[str, ...]]
+    public_result_dependencies: Mapping[
+        str, tuple[tuple[str, str], ...]
+    ]
     root_scope: FunctionalGoalExecutionScope
     schema_version: str = VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT
     execution_signature: str = field(init=False)
@@ -1294,6 +1329,96 @@ class VerifiedFunctionalPlanExecution:
             raise ValueError(
                 "Verified execution tree and canonical Plan contain different steps"
             )
+        dependency_graph = _normalized_execution_dependency_graph(
+            self.dependency_graph
+        )
+        graph_ids = set(dependency_graph)
+        unknown_graph_steps = sorted(graph_ids - authored_ids)
+        if unknown_graph_steps:
+            raise ValueError(
+                "Verified execution dependency graph contains unknown steps: "
+                f"{unknown_graph_steps}"
+            )
+        execution_steps = {
+            step.step_id: step
+            for scope in _iter_execution_scopes(self.root_scope)
+            for step in (
+                *scope.scope_steps,
+                *(step for goal in scope.goals for step in goal.steps),
+            )
+        }
+        missing_verified_steps = sorted(
+            step_id
+            for step_id, step in execution_steps.items()
+            if step.status == "runtime_verified" and step_id not in graph_ids
+        )
+        if missing_verified_steps:
+            raise ValueError(
+                "Verified execution dependency graph omits runtime-verified "
+                f"steps: {missing_verified_steps}"
+            )
+        unknown_dependencies = sorted(
+            {
+                dependency_id
+                for dependencies in dependency_graph.values()
+                for dependency_id in dependencies
+                if dependency_id not in graph_ids
+            }
+        )
+        if unknown_dependencies:
+            raise ValueError(
+                "Verified execution dependency graph contains unknown steps: "
+                f"{unknown_dependencies}"
+            )
+        cyclic_self_edges = sorted(
+            step_id
+            for step_id, dependencies in dependency_graph.items()
+            if step_id in dependencies
+        )
+        if cyclic_self_edges:
+            raise ValueError(
+                "Verified execution dependency graph contains self edges: "
+                f"{cyclic_self_edges}"
+            )
+        object.__setattr__(
+            self,
+            "dependency_graph",
+            MappingProxyType(dependency_graph),
+        )
+        public_result_dependencies = (
+            _normalized_public_result_dependencies(
+                self.public_result_dependencies
+            )
+        )
+        if set(public_result_dependencies) != graph_ids:
+            raise ValueError(
+                "Verified public-result dependencies must contain every "
+                "execution graph step exactly once"
+            )
+        actual_returns = {
+            step_id: {
+                str(output.get("return") or "")
+                for output in step.actual_outputs
+            }
+            for step_id, step in execution_steps.items()
+        }
+        for target_id, references in public_result_dependencies.items():
+            for source_id, return_name in references:
+                if source_id not in dependency_graph[target_id]:
+                    raise ValueError(
+                        "Verified public-result dependency is absent from the "
+                        f"execution graph: {source_id} -> {target_id}"
+                    )
+                if return_name not in actual_returns.get(source_id, set()):
+                    raise ValueError(
+                        "Verified public-result dependency names an unknown "
+                        f"runtime result: {source_id}.{return_name}"
+                    )
+        object.__setattr__(
+            self,
+            "public_result_dependencies",
+            MappingProxyType(public_result_dependencies),
+        )
         signature = stable_hash(self._payload(include_identity=False))
         object.__setattr__(self, "execution_signature", signature)
         object.__setattr__(self, "execution_id", f"execution:{signature}")
@@ -1307,6 +1432,19 @@ class VerifiedFunctionalPlanExecution:
             "problem_revision_id": self.problem_revision_id,
             "problem_semantic_hash": self.problem_semantic_hash,
             "checkpoint_id": self.checkpoint_id,
+            "dependency_graph": {
+                step_id: list(dependencies)
+                for step_id, dependencies in self.dependency_graph.items()
+            },
+            "public_result_dependencies": {
+                target_id: [
+                    {"step_id": source_id, "return": return_name}
+                    for source_id, return_name in references
+                ]
+                for target_id, references in (
+                    self.public_result_dependencies.items()
+                )
+            },
             "root_scope": self.root_scope.authority_payload(),
         }
         if include_identity:
@@ -1326,6 +1464,7 @@ class VerifiedFunctionalPlanExecution:
         *,
         canonical_plan: ScopedFunctionalPlan,
         checkpoint: FunctionalGoalExecutionCheckpoint,
+        reconciliation: Any,
     ) -> "VerifiedFunctionalPlanExecution":
         if (
             not checkpoint.transaction_attempted
@@ -1336,6 +1475,21 @@ class VerifiedFunctionalPlanExecution:
             raise ValueError(
                 "cannot verify FunctionalPlan execution from an incomplete checkpoint"
             )
+        if reconciliation is None:
+            raise ValueError(
+                "cannot verify FunctionalPlan execution without reconciliation "
+                "authority"
+            )
+        normalized_graph = _normalized_execution_dependency_graph(
+            reconciliation.dependency_graph
+        )
+        if _execution_graph_signature(normalized_graph) != (
+            checkpoint.execution_graph_signature
+        ):
+            raise ValueError(
+                "cannot verify FunctionalPlan execution from a dependency graph "
+                "whose authority signature does not match the checkpoint"
+            )
         return cls(
             canonical_plan=canonical_plan,
             plan_id=checkpoint.plan_id,
@@ -1343,6 +1497,12 @@ class VerifiedFunctionalPlanExecution:
             problem_revision_id=checkpoint.problem_revision_id,
             problem_semantic_hash=checkpoint.problem_semantic_hash,
             checkpoint_id=checkpoint.checkpoint_id,
+            dependency_graph=normalized_graph,
+            public_result_dependencies=(
+                _public_result_dependencies_from_reconciliation(
+                    reconciliation
+                )
+            ),
             root_scope=checkpoint.root_scope,
         )
 
@@ -1381,6 +1541,24 @@ class VerifiedFunctionalPlanExecution:
             problem_revision_id=str(candidate["problem_revision_id"]),
             problem_semantic_hash=str(candidate["problem_semantic_hash"]),
             checkpoint_id=str(candidate["checkpoint_id"]),
+            dependency_graph={
+                str(step_id): tuple(str(item) for item in dependencies)
+                for step_id, dependencies in _mapping(
+                    candidate["dependency_graph"]
+                ).items()
+            },
+            public_result_dependencies={
+                str(target_id): tuple(
+                    (
+                        str(_mapping(item)["step_id"]),
+                        str(_mapping(item)["return"]),
+                    )
+                    for item in _sequence(references)
+                )
+                for target_id, references in _mapping(
+                    candidate["public_result_dependencies"]
+                ).items()
+            },
             root_scope=_scope_from_payload(_mapping(candidate["root_scope"])),
         )
         if candidate.get("execution_signature") != execution.execution_signature:
@@ -1648,6 +1826,67 @@ def _execution_graph_signature(
             for step_id, dependencies in sorted(dependency_graph.items())
         }
     )
+
+
+def _normalized_execution_dependency_graph(
+    dependency_graph: Mapping[str, Sequence[str]],
+) -> dict[str, tuple[str, ...]]:
+    return {
+        str(step_id): tuple(
+            sorted({str(dependency_id) for dependency_id in dependencies})
+        )
+        for step_id, dependencies in sorted(dependency_graph.items())
+    }
+
+
+def _normalized_public_result_dependencies(
+    dependencies: Mapping[str, Sequence[tuple[str, str]]],
+) -> dict[str, tuple[tuple[str, str], ...]]:
+    return {
+        str(target_id): tuple(
+            sorted(
+                {
+                    (str(source_id), str(return_name))
+                    for source_id, return_name in references
+                }
+            )
+        )
+        for target_id, references in sorted(dependencies.items())
+    }
+
+
+def _public_result_dependencies_from_reconciliation(
+    reconciliation: Any,
+) -> dict[str, tuple[tuple[str, str], ...]]:
+    dependency_graph = reconciliation.dependency_graph
+    result: dict[str, list[tuple[str, str]]] = {
+        str(step_id): [] for step_id in dependency_graph
+    }
+    for dependency in reconciliation.state_dependencies:
+        source_id = getattr(dependency, "source_step_id", None)
+        return_name = getattr(dependency, "source_return_name", None)
+        target_id = str(getattr(dependency, "step_id", ""))
+        if source_id and return_name and target_id in result:
+            result[target_id].append((str(source_id), str(return_name)))
+    binding_context = reconciliation.functional_problem_binding_context
+    for binding in (
+        binding_context.input_bindings
+        if binding_context is not None
+        else ()
+    ):
+        source = binding.typed_source
+        if (
+            source is None
+            or source.kind != "call_result"
+            or source.source_call_id is None
+            or source.source_return_name is None
+            or binding.call_id not in result
+        ):
+            continue
+        result[binding.call_id].append(
+            (source.source_call_id, source.source_return_name)
+        )
+    return _normalized_public_result_dependencies(result)
 
 
 def _scope_from_payload(
@@ -2234,6 +2473,11 @@ class ScopedFunctionalGoalExecutionService:
             VerifiedFunctionalPlanExecution.from_checkpoint(
                 canonical_plan=canonical_plan,
                 checkpoint=checkpoint,
+                reconciliation=(
+                    replay.functional_reconciliation
+                    if replay is not None
+                    else None
+                ),
             )
             if checkpoint.transaction_attempted
             and checkpoint.transaction_ok
@@ -2666,24 +2910,76 @@ def _transaction_call_result_prompt_refs(
 def _transaction_execution_evidence(
     transaction: Any | None,
 ) -> dict[str, tuple[FunctionalExecutionEvidence, ...]]:
-    """Collect generic Macro evidence from the exact transactional attempt."""
+    """Collect public evidence from the exact transactional attempt."""
 
     if transaction is None:
         return {}
+    call_results = {
+        item.call_id: item
+        for item in transaction.execution_report.call_results
+    }
     evidence: dict[str, tuple[FunctionalExecutionEvidence, ...]] = {}
     for compiled in transaction.execution_report.compiled_calls:
+        items: list[FunctionalExecutionEvidence] = []
         if compiled.path_minimum_witness is not None:
-            evidence[compiled.call_id] = (compiled.path_minimum_witness,)
-            continue
-        report = compiled.macro_search_report
-        if report is None:
-            continue
-        evidence[compiled.call_id] = (
-            MacroSearchExecutionEvidence(
-                step_id=compiled.call_id,
-                report=report,
-            ),
-        )
+            items.append(compiled.path_minimum_witness)
+        elif compiled.macro_search_report is not None:
+            items.append(
+                MacroSearchExecutionEvidence(
+                    step_id=compiled.call_id,
+                    report=compiled.macro_search_report,
+                )
+            )
+        result = call_results.get(compiled.call_id)
+        if (
+            result is not None
+            and result.status == "verified"
+            and compiled.direct_macro_teaching_evidence is not None
+        ):
+            items.append(compiled.direct_macro_teaching_evidence)
+        closure = result.symbolic_closure if result is not None else None
+        if (
+            result is not None
+            and result.status == "verified"
+            and closure is not None
+            and closure.status == "unique"
+            and closure.target is not None
+            and closure.target_value is not None
+            and closure.validation_build is not None
+        ):
+            items.append(
+                SymbolicClosureExecutionEvidence(
+                    step_id=compiled.call_id,
+                    target=sp.sstr(closure.target),
+                    target_value=sp.sstr(closure.target_value),
+                    equations=tuple(
+                        sp.sstr(item)
+                        for item in closure.validation_build.equations
+                    ),
+                    equation_sources=tuple(
+                        closure.provenance.equation_sources
+                        if closure.provenance is not None
+                        else ()
+                    ),
+                    substitutions=tuple(
+                        (sp.sstr(symbol), sp.sstr(value))
+                        for symbol, value in closure.substitutions
+                    ),
+                    branch_count=closure.branch_count,
+                    residual_symbols=tuple(
+                        sp.sstr(symbol) for symbol in closure.residual_symbols
+                    ),
+                    affected_returns=tuple(closure.affected_returns),
+                    constraint_summary=(
+                        "题设约束已用于筛选唯一合法分支"
+                        if closure.provenance is not None
+                        and closure.provenance.constraint_filter is not None
+                        else None
+                    ),
+                )
+            )
+        if items:
+            evidence[compiled.call_id] = tuple(items)
     return evidence
 
 
@@ -2704,6 +3000,14 @@ def _build_checkpoint(
 ) -> FunctionalGoalExecutionCheckpoint:
     invalid_issues = dict(step_issues)
     transaction = replay.transactional_attempt_result if replay is not None else None
+    reconciliation = (
+        replay.functional_reconciliation if replay is not None else None
+    )
+    binding_context = (
+        reconciliation.functional_problem_binding_context
+        if reconciliation is not None
+        else None
+    )
     execution_evidence = _transaction_execution_evidence(transaction)
     exact_result_refs = _transaction_call_result_prompt_refs(transaction)
     call_states = {
@@ -2831,6 +3135,8 @@ def _build_checkpoint(
                 binding_catalog=binding_catalog,
                 scope_id=step_scopes[step.step_id],
                 call_results=call_results,
+                binding_context=binding_context,
+                transaction=transaction,
                 forbidden_values=forbidden_prompt_values,
             ),
             actual_outputs=outputs,
@@ -2869,15 +3175,7 @@ def _build_checkpoint(
         )
 
     root_scope = scope_item(canonical_plan.root_scope)
-    sidecar = (
-        replay.functional_reconciliation.functional_problem_binding_context
-        if replay is not None
-        and replay.functional_reconciliation is not None
-        else None
-    )
-    reconciliation = (
-        replay.functional_reconciliation if replay is not None else None
-    )
+    sidecar = binding_context
     step_signatures = {
         step_id: item.binding_signature
         for step_id, item in (
@@ -2972,6 +3270,8 @@ def _prompt_safe_inputs(
     binding_catalog: ProblemPlanningBindingCatalog,
     scope_id: str,
     call_results: Mapping[str, Any],
+    binding_context: FunctionalProblemBindingContext | None,
+    transaction: Any | None,
     forbidden_values: frozenset[str],
 ) -> tuple[Mapping[str, Any], ...]:
     result: list[Mapping[str, Any]] = []
@@ -3018,6 +3318,20 @@ def _prompt_safe_inputs(
                             runtime_result.value_omitted_reason
                         )
             else:
+                functional_binding = (
+                    binding_context.input_binding_for(
+                        step.step_id,
+                        arg_name,
+                        index,
+                    )
+                    if binding_context is not None
+                    else None
+                )
+                typed_source = (
+                    functional_binding.typed_source
+                    if functional_binding is not None
+                    else None
+                )
                 try:
                     binding = binding_catalog.resolve_input_binding(
                         scope_id=scope_id,
@@ -3025,9 +3339,57 @@ def _prompt_safe_inputs(
                     )
                 except ProblemPlanningBindingError:
                     binding = None
-                item["resolution"] = (
-                    "source_snapshot" if binding is not None else "unresolved"
-                )
+                item["resolution"] = "source_snapshot"
+                resolved_value = None
+                if typed_source is not None and typed_source.kind == "call_result":
+                    producer = call_results.get(typed_source.source_call_id or "")
+                    runtime_result = _runtime_result_for_return(
+                        producer,
+                        typed_source.source_return_name or "",
+                    )
+                    if runtime_result is not None:
+                        item["resolution"] = "step_result"
+                        item["resolved_ref"] = {
+                            "step_id": typed_source.source_call_id,
+                            "return": typed_source.source_return_name,
+                        }
+                        resolved_value = runtime_result
+                elif (
+                    typed_source is not None
+                    and typed_source.kind == "state_version"
+                    and typed_source.state_version_id is not None
+                    and transaction is not None
+                ):
+                    report = transaction.execution_report
+                    resolved_version = report.resolve_runtime_version_id(
+                        typed_source.state_version_id
+                    )
+                    resolved_value = report.runtime_version_values.get(
+                        resolved_version
+                    )
+                    resolved_ref = _public_return_ref_for_state_version(
+                        report,
+                        resolved_version,
+                    )
+                    if resolved_ref is not None:
+                        item["resolved_ref"] = resolved_ref
+                if resolved_value is not None:
+                    runtime_type = str(
+                        getattr(
+                            resolved_value,
+                            "runtime_type",
+                            getattr(resolved_value, "type", ""),
+                        )
+                        or ""
+                    )
+                    if runtime_type:
+                        item["runtime_type"] = runtime_type
+                    raw_value = getattr(resolved_value, "value", None)
+                    if raw_value is not None:
+                        item["value"] = _prompt_safe_value(
+                            raw_value,
+                            forbidden_values=forbidden_values,
+                        )
                 runtime_types = tuple(
                     sorted(
                         {
@@ -3041,9 +3403,10 @@ def _prompt_safe_inputs(
                         }
                     )
                 )
-                if len(runtime_types) == 1:
+                if len(runtime_types) == 1 and "runtime_type" not in item:
                     item["runtime_type"] = runtime_types[0]
-                if binding is None:
+                if binding is None and functional_binding is None:
+                    item["resolution"] = "unresolved"
                     item["value_omitted_reason"] = (
                         "source_authority_not_resolved"
                     )
@@ -3051,6 +3414,29 @@ def _prompt_safe_inputs(
                 item
             )
     return tuple(result)
+
+
+def _public_return_ref_for_state_version(
+    report: Any,
+    version_id: Any,
+) -> dict[str, str] | None:
+    matches: list[tuple[str, str]] = []
+    for compiled in report.compiled_calls:
+        for public_return in compiled.public_returns:
+            selected = public_return.allocation.selected_version_id
+            if selected is None:
+                continue
+            if report.resolve_runtime_version_id(selected) == version_id:
+                matches.append((compiled.call_id, public_return.return_name))
+    unique = tuple(dict.fromkeys(matches))
+    if len(unique) > 1:
+        raise FunctionalGoalExecutionCheckpointError(
+            "functional.retry_input_public_producer_ambiguous: "
+            f"version={version_id}"
+        )
+    if not unique:
+        return None
+    return {"step_id": unique[0][0], "return": unique[0][1]}
 
 
 def _public_runtime_output_name(output_key: str) -> str:

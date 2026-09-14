@@ -64,6 +64,7 @@ def infer_future_return_object_hints(
     *,
     catalog: object,
     semantic_index: object,
+    binding_origins: dict | None = None,
 ) -> dict[tuple[str, str], tuple[str, ...]]:
     """Solve uniquely determined return identities across the call graph.
 
@@ -226,6 +227,29 @@ def infer_future_return_object_hints(
             graph.union((previous, node))
 
     result: dict[tuple[str, str], tuple[str, ...]] = {}
+    if binding_origins is not None:
+        # Reuse precisely the same identity equivalence graph for diagnostics.
+        # This is internal provenance, never extra prompt/catalog material.
+        origins: dict[_Node, list[dict]] = defaultdict(list)
+        for call in plan.calls:
+            for name, binding in call.return_bindings.items():
+                constants = _semantic_constants(
+                    binding, field="object_ref", scope_id=call_scope[call.call_id],
+                    semantic_index=semantic_index,
+                )
+                origins[graph.find(_return_node(call.call_id, name, "object_ref"))].append({
+                    "step_id": call.call_id, "return": name,
+                    "scope_ref": call_scope[call.call_id],
+                    "kind": binding.kind, "ref": binding.ref,
+                    "object_refs": list(constants),
+                })
+        for call in plan.calls:
+            capability = catalog.get(call.capability_id)
+            if capability is not None:
+                for returned in capability.returns:
+                    binding_origins[(call.call_id, returned.name)] = origins.get(
+                        graph.find(_return_node(call.call_id, returned.name, "object_ref")), []
+                    )
     for call_id, call in calls.items():
         capability = catalog.get(call.capability_id)
         if capability is None:

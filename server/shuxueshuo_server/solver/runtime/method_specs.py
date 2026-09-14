@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any, Literal, Mapping, cast
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     MethodInputRelationSpec,
     MethodInputSpec,
     MethodInputBindingSpec,
@@ -28,6 +27,7 @@ from shuxueshuo_server.solver.contracts import (
     PlanTransformerScope,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
+    TeachingUnitSpec,
     TrialErrorHintSpec,
 )
 from shuxueshuo_server.solver.runtime.runtime_type_declarations import (
@@ -199,6 +199,18 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
     plan_transformer_scope = _parse_plan_transformer_scope(
         raw.get("plan_transformer_scope", "single_invocation")
     )
+    if raw.get("teaching_unit") is not None and raw.get(
+        "generic_teaching_reason"
+    ) is not None:
+        raise ValueError(
+            "MethodSpec teaching declaration must choose explicit or generic"
+        )
+    if raw.get("visual") is not None and raw.get(
+        "no_new_visual_reason"
+    ) is not None:
+        raise ValueError(
+            "MethodSpec visual declaration must choose visual or no-new-visual"
+        )
     return MethodSpec(
         parameters_schema=raw.get("parameters_schema"),
         method_id=str(raw["method_id"]),
@@ -228,8 +240,16 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         geometry_profiles=_parse_geometry_profiles(
             raw.get("geometry_profiles", [])
         ),
-        explanation=_parse_explanation(raw.get("explanation")),
+        teaching_unit=_parse_teaching_unit(raw.get("teaching_unit")),
+        generic_teaching_reason=_parse_optional_nonempty_string(
+            raw.get("generic_teaching_reason"),
+            field_name="MethodSpec.generic_teaching_reason",
+        ),
         visual=_parse_visual(raw.get("visual")),
+        no_new_visual_reason=_parse_optional_nonempty_string(
+            raw.get("no_new_visual_reason"),
+            field_name="MethodSpec.no_new_visual_reason",
+        ),
         constraint_analyzer=(
             str(raw["constraint_analyzer"])
             if raw.get("constraint_analyzer") is not None
@@ -260,6 +280,18 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
         ),
         is_pure=is_pure,
     )
+
+
+def _parse_optional_nonempty_string(
+    raw: object,
+    *,
+    field_name: str,
+) -> str | None:
+    if raw is None:
+        return None
+    if not isinstance(raw, str) or not raw.strip():
+        raise ValueError(f"{field_name} must be a non-empty string")
+    return raw.strip()
 
 
 def _parse_companion_outputs(
@@ -1055,31 +1087,45 @@ def _parse_geometry_profiles(
     return tuple(profiles)
 
 
-def _parse_explanation(raw: object) -> MethodExplanationSpec | None:
+def _parse_teaching_unit(raw: object) -> TeachingUnitSpec | None:
     if raw in (None, ()):
         return None
     if not isinstance(raw, dict):
-        raise ValueError("MethodSpec.explanation must be an object")
-    role_schema = raw.get("role_schema", {})
+        raise ValueError("MethodSpec.teaching_unit must be an object")
+    expected = {
+        "unit_key",
+        "title_template",
+        "nav_title_template",
+        "goal_template",
+        "derive_templates",
+        "box_templates",
+        "role_schema",
+        "role_binder_id",
+    }
+    if set(raw) != expected:
+        raise ValueError("MethodSpec.teaching_unit fields do not match contract")
+    derive = raw.get("derive_templates")
+    if not isinstance(derive, list | tuple):
+        raise ValueError("MethodSpec.teaching_unit.derive_templates must be a list")
+    pairs: list[tuple[str, str]] = []
+    for item in derive:
+        if not isinstance(item, list | tuple) or len(item) != 2:
+            raise ValueError(
+                "MethodSpec.teaching_unit derive items must be marker/template pairs"
+            )
+        pairs.append((str(item[0]), str(item[1])))
+    role_schema = raw.get("role_schema")
     if not isinstance(role_schema, dict):
-        raise ValueError("MethodSpec.explanation.role_schema must be an object")
-    title_by_goal = raw.get("student_title_templates_by_goal", {})
-    if not isinstance(title_by_goal, dict):
-        raise ValueError("MethodSpec.explanation.student_title_templates_by_goal must be an object")
-    return MethodExplanationSpec(
-        role_schema={str(key): str(value) for key, value in role_schema.items()},
-        student_goal_template=str(raw.get("student_goal_template", "")),
-        student_title_template=str(raw.get("student_title_template", "")),
-        student_nav_title_template=str(raw.get("student_nav_title_template", "")),
-        student_title_templates_by_goal={
-            str(key): str(value)
-            for key, value in title_by_goal.items()
-        },
-        derive_templates=tuple(str(item) for item in raw.get("derive_templates", ())),
+        raise ValueError("MethodSpec.teaching_unit.role_schema must be an object")
+    return TeachingUnitSpec(
+        unit_key=str(raw.get("unit_key") or ""),
+        title_template=str(raw.get("title_template") or ""),
+        nav_title_template=str(raw.get("nav_title_template") or ""),
+        goal_template=str(raw.get("goal_template") or ""),
+        derive_templates=tuple(pairs),
         box_templates=tuple(str(item) for item in raw.get("box_templates", ())),
-        explanation_level=str(raw.get("explanation_level", "template")),
-        role_binding_strategy=str(raw.get("role_binding_strategy", "role_name_registry")),
-        role_binder_id=str(raw.get("role_binder_id", "generic_trace")),
+        role_schema={str(key): str(value) for key, value in role_schema.items()},
+        role_binder_id=str(raw.get("role_binder_id") or ""),
     )
 
 
@@ -1106,6 +1152,7 @@ def _parse_visual(raw: object) -> MethodVisualSpec | None:
         annotation_templates=tuple(dict(item) for item in annotation_templates if isinstance(item, dict)),
         timeline_templates=tuple(dict(item) for item in timeline_templates if isinstance(item, dict)),
         role_binder_id=str(raw.get("role_binder_id", "generic_visual")),
+        continuation_policy=str(raw.get("continuation_policy") or ""),
     )
 
 

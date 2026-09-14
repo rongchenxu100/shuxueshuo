@@ -325,6 +325,7 @@ class StrategyPayloadBuilder:
             "output_json_schema": functional_plan_content_schema(
                 frame,
                 capability_catalog=schema_catalog,
+                for_prompt=True,
             ),
         }
         if previous_invalid_content is not None:
@@ -365,6 +366,11 @@ class StrategyPayloadBuilder:
             ),
             "output_json_schema": functional_scope_repair_schema_for_authority(
                 retry_authority,
+                capability_catalog=_prompt_capability_catalog(inputs, base),
+                authority_frame=FunctionalPlanAuthorityFrame.from_planning_context(
+                    problem_planning_context
+                ),
+                for_prompt=True,
             ),
         }
 
@@ -1229,26 +1235,6 @@ def write_strategy_debug_artifacts(
     )
     context_payload = _planner_state_context_payload(planner_state_context)
     functional_reconciliation_payload = _to_jsonable(functional_reconciliation)
-    context_state = (
-        context_payload.get("state")
-        if isinstance(context_payload, dict)
-        else None
-    )
-    if isinstance(functional_reconciliation_payload, dict) and isinstance(
-        context_state,
-        dict,
-    ):
-        functional_reconciliation_payload = {
-            **functional_reconciliation_payload,
-            "student_step_placements": context_state.get(
-                "student_step_placements",
-                [],
-            ),
-            "student_scope_references": context_state.get(
-                "student_scope_references",
-                [],
-            ),
-        }
     _write_json(
         target / "functional-reconciliation-report.json",
         functional_reconciliation_payload,

@@ -31,8 +31,8 @@ class LiveStateVersionRebase:
     call_id: str
     return_name: str
     removed_previous_version_id: StateVersionId
-    selected_previous_version_id: StateVersionId
-    selected_previous_call_id: str
+    selected_previous_version_id: StateVersionId | None
+    selected_previous_call_id: str | None
 
 
 def project_sibling_symbol_dependencies(
@@ -118,6 +118,8 @@ def project_sibling_symbol_dependencies(
 
 def rebase_live_state_versions(
     calls: tuple[FunctionalCallReconciliation, ...],
+    *,
+    base_identity_index: StateIdentityIndex | None = None,
 ) -> tuple[
     tuple[FunctionalCallReconciliation, ...],
     tuple[LiveStateVersionRebase, ...],
@@ -141,11 +143,11 @@ def rebase_live_state_versions(
         for allocation in live_allocations
         if allocation.selected_version_id is not None
     }
-    order_by_call = {
-        call.call_id: index for index, call in enumerate(calls)
-    }
     rebases: list[LiveStateVersionRebase] = []
     updated_calls: list[FunctionalCallReconciliation] = []
+    # A later write cannot supply or veto the current write's predecessor.
+    # Keep the same execution-order horizon for candidates and state presence.
+    earlier_allocations: list[FunctionalReturnAllocation] = []
     for call in calls:
         updated_returns: list[FunctionalReturnAllocation] = []
         for allocation in call.returns:
@@ -156,19 +158,89 @@ def rebase_live_state_versions(
                 or previous_id is None
                 or selected_id is None
                 or previous_id in live_by_version
+                or (
+                    base_identity_index is not None
+                    and base_identity_index.version(previous_id) is not None
+                )
             ):
+                updated_returns.append(allocation)
+                continue
+            # Exact reads are semantic dependencies, not provisional ordering.
+            # Never silently substitute a different version for those reads.
+            reads_previous = (
+                previous_id in allocation.source_version_ids
+                or previous_id in allocation.lineage.source_version_ids
+            ) or any(
+                binding.version_id == previous_id
+                for binding in (allocation.computation_key.arg_bindings if allocation.computation_key else ())
+            ) or any(
+                value.state_version_id == previous_id
+                or (
+                    allocation.previous_write_step_id is not None
+                    and value.source_call_id == allocation.previous_write_step_id
+                )
+                or previous_id in value.source_version_ids
+                or previous_id in value.lineage.source_version_ids
+                for values in call.resolved_args.values() for value in values
+            )
+            if reads_previous:
                 updated_returns.append(allocation)
                 continue
             candidates = [
                 item
-                for item in live_allocations
+                for item in earlier_allocations
                 if item.selected_version_id is not None
                 and item.typed_slot_id == allocation.typed_slot_id
                 and item.selected_version_id.ordinal < selected_id.ordinal
-                and order_by_call.get(item.call_id, -1)
-                < order_by_call[call.call_id]
             ]
             if not candidates:
+                visible_base = (
+                    base_identity_index.latest_visible(
+                        allocation.logical_state_key,
+                        consumer_scope_id=allocation.valid_scope,
+                    )
+                    if base_identity_index is not None and allocation.logical_state_key is not None
+                    else None
+                )
+                earlier_visible_state = any(
+                    item.logical_state_key == allocation.logical_state_key
+                    and (
+                        base_identity_index.visibility.is_visible(
+                            item.valid_scope, consumer_scope_id=allocation.valid_scope,
+                        ) if base_identity_index is not None else item.valid_scope == allocation.valid_scope
+                    )
+                    for item in earlier_allocations
+                )
+                if visible_base is not None and not earlier_visible_state:
+                    updated_returns.append(replace(
+                        allocation, previous_version_id=visible_base.version_id,
+                        previous_write_step_id=visible_base.producer_call_id,
+                    ))
+                    rebases.append(LiveStateVersionRebase(
+                        call.call_id, allocation.return_name, previous_id,
+                        visible_base.version_id, visible_base.producer_call_id,
+                    ))
+                    continue
+                if (
+                    base_identity_index is not None
+                    and visible_base is None and not earlier_visible_state
+                    and allocation.identity_policy in {"target_object", "preserve_input_object"}
+                    and allocation.transition_kind == "direct"
+                ):
+                    # No surviving prior state and no read of the removed one:
+                    # this is the first materialization, not a transition.
+                    # Keep selected_version_id stable so downstream exact reads,
+                    # computation keys and provenance need no renumbering.
+                    updated_returns.append(replace(
+                        allocation, write_mode="create", allocation_action="create",
+                        previous_version_id=None, previous_write_step_id=None,
+                        transition_kind=None,
+                        allocation_reason_code="first_materialized_state_after_liveness",
+                    ))
+                    rebases.append(LiveStateVersionRebase(
+                        call.call_id, allocation.return_name, previous_id, None, None,
+                    ))
+                    continue
                 updated_returns.append(allocation)
                 continue
             previous = max(
@@ -212,6 +284,9 @@ def rebase_live_state_versions(
             )
         updated_calls.append(
             replace(call, returns=tuple(updated_returns))
+        )
+        earlier_allocations.extend(
+            item for item in updated_returns if item.selected_version_id is not None
         )
     return tuple(updated_calls), tuple(rebases)
 

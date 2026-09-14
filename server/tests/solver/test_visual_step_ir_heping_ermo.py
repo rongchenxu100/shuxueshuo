@@ -2,52 +2,52 @@ from __future__ import annotations
 
 import copy
 import json
-import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from functools import cache
 from pathlib import Path
-import shutil
+import re
 import subprocess
 from typing import Any
 
 import pytest
+import sympy as sp
 
 from _problem_planning_support import cached_planning_binding_fixture
 
-from shuxueshuo_server.solver import load_expected_answers, load_problem_ir
+from shuxueshuo_server.solver import load_expected_answers
 from shuxueshuo_server.solver.explanation import (
-    ExplanationBuilder,
     ExplanationSnapshotBuilder,
-    LLMLessonPlanner,
-    LessonIRValidator,
-    builder as explanation_builder,
-    lesson_ir_from_payload,
-    write_explanation_debug_artifacts,
+    LessonIR,
+    RecursiveLessonIRAssembler,
 )
-from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot, LessonIR
+from shuxueshuo_server.solver.explanation.annotated_teaching import (
+    AnnotatedTeachingPlanProjector,
+)
+from shuxueshuo_server.solver.explanation.models import (
+    ExplanationSnapshot,
+    explanation_snapshot_from_payload,
+)
+from shuxueshuo_server.solver.explanation.scope_lesson import LessonScopeContentValidator
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
 from shuxueshuo_server.solver.visual import (
-    LLMVisualStepOptimizer,
+    VisualFrame,
+    VisualObject,
+    VisualStep,
     VisualStepBuilder,
     VisualStepIRValidator,
     forward_compile,
 )
+from shuxueshuo_server.solver.visual import builder as visual_builder
+from shuxueshuo_server.solver.visual.viewport import SemanticViewportResolver
 
 
 ROOT = Path(__file__).resolve().parents[3]
-HEPING_ERMO_FIXTURE = "../internal/solver-fixtures/tj-2026-heping-ermo-25.json"
 HEPING_ERMO_EXPECTED = "tests/solver/expected/tj-2026-heping-ermo-25.expected.json"
-HEPING_ERMO_RECORDED_LESSON_IR = (
-    ROOT / "internal/solver-fixtures/tj-2026-heping-ermo-25.lesson-ir.json"
-)
-DEBUG_DIR = ROOT / "internal/solver-runs/visual-builder-deepseek-heping-ermo"
-RECORDED_LESSON_DEBUG_DIR = (
-    ROOT / "internal/solver-runs/visual-builder-deepseek-heping-ermo-recorded-lesson"
-)
-RUN_DEEPSEEK_HEPING_ERMO_VISUAL = (
-    os.getenv("RUN_LLM_INTEGRATION") == "1"
-    and os.getenv("RUN_DEEPSEEK_VISUAL_BUILDER") == "1"
-    and os.getenv("RUN_DEEPSEEK_HEPING_ERMO_VISUAL") == "1"
+HEPING_ERMO_APPROVED_SCOPE_CONTENT = (
+    ROOT
+    / "server/tests/solver/fixtures/lesson_scope_authoring_vnext/"
+    "heping_ermo_b3/scope-content.json"
 )
 
 
@@ -62,12 +62,9 @@ class HepingErmoPage:
 @pytest.fixture(scope="module")
 def heping_ermo_page() -> HepingErmoPage:
     snapshot = _solve_heping_ermo_snapshot()
-    lesson = ExplanationBuilder().build_lesson(snapshot)
-
-    LessonIRValidator().validate(lesson, snapshot)
+    lesson = _build_approved_heping_ermo_lesson(snapshot)
     visual_ir = VisualStepBuilder().build(snapshot=snapshot, lesson=lesson)
-    VisualStepIRValidator().validate(visual_ir)
-
+    VisualStepIRValidator().validate(visual_ir, lesson=lesson)
     return HepingErmoPage(
         snapshot=snapshot,
         lesson=lesson,
@@ -76,247 +73,685 @@ def heping_ermo_page() -> HepingErmoPage:
     )
 
 
-def test_vs1_recorded_heping_ermo_builds_valid_generated_page(heping_ermo_page: HepingErmoPage) -> None:
+def test_b4v_heping_ermo_is_recursive_and_has_expected_frame_count(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
     page = heping_ermo_page
+    traversal = page.visual_ir.traversal
 
-    assert page.visual_ir.metadata["base_source"] == "generated"
-    assert len(page.visual_ir.steps) == len(page.lesson.steps)
-    assert len(page.lesson.steps) >= 8
+    assert page.visual_ir.schema_version == "visual-step-ir/v2"
+    assert page.visual_ir.metadata["scene_model"] == "recursive_complete_frames"
+    assert len(traversal.scope_by_ref) == 5
+    assert len(traversal.goal_by_ref) == 4
+    assert len(page.lesson.steps) == 12
+    assert len(page.visual_ir.steps) == 12
+    assert sum(len(step.frames) for step in page.visual_ir.steps) == 12
     assert page.snapshot.answers == load_expected_answers(HEPING_ERMO_EXPECTED)
-    assert len(page.compiled.lesson_data["steps"]) == len(page.lesson.steps)
+    assert [step.lesson_step_id for step in page.visual_ir.steps] == [
+        step.id for step in page.lesson.steps
+    ]
 
 
-def test_vs1_heping_ermo_lesson_steps_are_grouped_by_reusable_capabilities(
+def test_b4v_visual_generation_is_snapshot_round_trip_stable(
     heping_ermo_page: HepingErmoPage,
 ) -> None:
-    lesson = heping_ermo_page.lesson
+    """Serialized v3 is the complete visual authority, not an in-memory sidecar."""
 
-    first_step = lesson.steps[0]
-    assert first_step.source_step_ids == (
-        "derive_parabola_i",
+    hydrated = explanation_snapshot_from_payload(
+        heping_ermo_page.snapshot.to_payload()
+    )
+    rebuilt = VisualStepBuilder().build(
+        snapshot=hydrated,
+        lesson=heping_ermo_page.lesson,
+    )
+
+    assert rebuilt.to_payload() == heping_ermo_page.visual_ir.to_payload()
+
+
+def test_b4v_merged_curve_and_intercept_materials_share_one_complete_frame(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    curve_frame = _frame_for_source(heping_ermo_page, "derive_parabola_i")
+    intercept_frame = _frame_for_source(
+        heping_ermo_page,
         "derive_x_intercept_A_i",
-        "derive_vertex_P_i",
     )
-    assert first_step.capability_ids == (
-        "quadratic_from_constraints",
-        "quadratic_x_axis_intercept_point",
-        "quadratic_vertex_point",
-    )
-    assert first_step.title == "代入已知条件，求解析式、顶点和 x 轴交点"
-    assert first_step.nav_title == "求解析式、顶点和交点"
-    assert first_step.box == ("y＝－x²－2x＋3", "P(-1,4)", "A(-3,0)")
+    curve_refs = _geometry_refs(curve_frame)
+    intercept_refs = _geometry_refs(intercept_frame)
 
-    axis_square_step = _lesson_step(
-        lesson,
-        "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+    assert curve_frame.frame_id == intercept_frame.frame_id
+    assert curve_refs == intercept_refs
+    assert {"curve_i_parabola", "point_A_i", "point_B_i"} <= curve_refs
+    assert not intercept_refs.intersection(
+        {
+            "M_axis_i",
+            "K_axis_i_2",
+            "point_P_problem",
+            "E_axis_i_2",
+            "G_axis_i_2",
+        }
     )
-    assert axis_square_step.capability_ids == (
-        "quadratic_axis_parameterized_point",
-        "square_adjacent_vertex_from_side",
-    )
-    assert axis_square_step.title == "由正方形求相邻顶点G"
-    assert axis_square_step.nav_title == "正方形求顶点G"
-    assert axis_square_step.box == ("E(－1,t)", "G(t－3,－2)")
-    assert any(text == "G(t－3,－2)" for _, text in axis_square_step.derive)
-
-    candidate_step = _lesson_step(lesson, "explain_solve_axis_point_candidates_i")
-    assert candidate_step.title == "代入抛物线求点E候选"
-    assert candidate_step.nav_title == "求点E候选"
-    assert candidate_step.box == ("E(－1,2＋√6) 或 E(－1,2－√6)",)
-
-    simplify_step = _lesson_step(lesson, "explain_derive_parametric_parabola_ii")
-    assert simplify_step.capability_ids == ("quadratic_from_constraints",)
-    assert simplify_step.title == "化简函数解析式"
-    assert simplify_step.box == ("y＝－x²＋(1－c)x＋c",)
-
-    minimum_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
-    assert minimum_step.capability_ids == ("quadratic_square_path_minimum",)
-    assert minimum_step.title == "正方形关系降维，再用将军饮马求最短路径"
-    assert minimum_step.nav_title == "正方形路径最值"
-    assert minimum_step.box == (
-        "最小值＝√5|c+1|/2",
-        "G(1/4-3c/4,-c/2-1/2)",
-    )
-
-    parameter_step = _lesson_step(
-        lesson,
-        "explain_solve_parameter_c_ii_evaluate_point_A_ii",
-    )
-    assert parameter_step.capability_ids == (
-        "parameter_from_expression_value",
-        "evaluate_point_at_parameter",
-    )
-    assert parameter_step.title == "由表达式取值反求参数，并求A坐标"
-    assert parameter_step.nav_title == "反求参数求A"
-    assert parameter_step.box == ("c＝5", "A(－5,0)")
+    assert _states_for_ref(curve_frame, "curve_i_parabola") == {"focus"}
+    assert _states_for_ref(intercept_frame, "point_A_i") == {"focus"}
+    assert _states_for_ref(intercept_frame, "point_B_i") == {"context"}
 
 
-def test_vs1_heping_ermo_geometry_shell_has_scope_safe_points_and_answers(
+def test_b4v_s2_uses_branch_correct_axis_foot_and_never_shows_k(
     heping_ermo_page: HepingErmoPage,
 ) -> None:
-    page = heping_ermo_page
-    geometry = page.compiled.geometry_spec
-    lesson_data = page.compiled.lesson_data
+    frame = _frame_for_source(heping_ermo_page, "derive_vertex_P_i")
+    refs = _geometry_refs(frame)
+    geometry = heping_ermo_page.visual_ir.geometry_registry
 
-    group_titles = lesson_data["ui"]["groupTitles"]
-    assert group_titles["i_1"] == "第（Ⅰ）①问：求点 P 和点 A 的坐标"
-    assert group_titles["i_2"] == "第（Ⅰ）②问：求点 E 的坐标"
-    assert group_titles["ii"] == "第（Ⅱ）问：求点 E 的坐标"
-    assert lesson_data["steps"][0]["section"] == group_titles["i_1"]
-    assert lesson_data["steps"][1]["section"] == group_titles["i_2"]
-
-    assert geometry["id"] == page.snapshot.problem_id
-    assert geometry["domain"]["maxX"] > 1
-    assert geometry["fixedPoints"]["A1"] == ["-3", "0"]
-    assert geometry["fixedPoints"]["P"] == ["-1", "4"]
-    assert geometry["fixedPoints"]["E_axis_i_2_candidate_1"] == ["-1", "2+sqrt(6)"]
-    assert geometry["fixedPoints"]["E_axis_i_2_candidate_2"] == ["-1", "2-sqrt(6)"]
-    assert "A" not in geometry["fixedPoints"]
-    assert geometry["movingPoints"]["A"] == ["-c", "0"]
-    assert geometry["movingPoints"]["G"] == ["1/4-3*c/4", "-c/2-1/2"]
+    assert {
+        "curve_i_parabola",
+        "point_A_i",
+        "point_B_i",
+        "point_P_problem",
+        "M_axis_i",
+    } <= refs
+    assert not refs.intersection({"M_axis_ii", "K_axis_i_2", "K_axis_ii", "E_axis_i_2"})
+    assert geometry["fixedPoints"]["M_axis_i"] == ["-1", "0"]
     assert geometry["movingPoints"]["M_axis_ii"] == ["1/2-c/2", "0"]
-    assert geometry["movingPoints"]["A_prime"] == ["-c", "-c - 1"]
-    assert geometry["pointMeta"]["A_prime"]["label"] == "A′"
+    assert geometry["pointMeta"]["M_axis_i"]["scopeId"] == "i"
+    assert geometry["pointMeta"]["M_axis_ii"]["scopeId"] == "ii"
+    assert "A1" not in geometry["fixedPoints"]
+    assert "A1" not in geometry["movingPoints"]
 
-    problem_lines = lesson_data["problem"]["lines"]
-    assert "answerId" not in problem_lines[0]
-    assert problem_lines[1]["answer"] == "P(－1, 4)，A(－3, 0)"
-    assert problem_lines[2]["answer"] == "E(－1, 2＋√6) 或 E(－1, 2－√6)"
-    assert problem_lines[3]["answer"] == "E(－2, 3/2)"
-    assert "internal/lesson-specs" not in json.dumps(
+
+def test_b4v_quadratic_square_macro_selects_square_by_witness_roles(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    snapshot = heping_ermo_page.snapshot
+    witness = next(
+        item
+        for item in snapshot.macro_evidence
+        if item.get("macro_id") == "quadratic_square_path_minimum"
+    )
+    role_values = {
+        str(item.get("role") or ""): str(item.get("chosen_ref") or "")
+        for item in witness.get("role_resolutions") or ()
+        if isinstance(item, dict)
+    }
+    expected = next(
+        fact
+        for fact in snapshot.problem["facts"]
+        if fact.get("type") == "square"
+    )
+    problem = copy.deepcopy(snapshot.problem)
+    problem["facts"].insert(
+        0,
         {
-            "geometry": geometry,
-            "lesson": lesson_data,
-            "decorations": page.compiled.step_decorations,
+            "type": "square",
+            "handle": "fact:problem:decoy_square",
+            "scope_id": "problem",
+            "vertices": [
+                "point:problem:A",
+                "point:problem:B",
+                "point:problem:C",
+                "point:problem:P",
+            ],
         },
+    )
+
+    selected = visual_builder._square_fact_for_witness_roles(
+        replace(snapshot, problem=problem),
+        role_values=role_values,
+        scope_id="ii",
+    )
+
+    assert selected is not None
+    assert selected["handle"] == expected["handle"]
+
+
+def test_b4v_parameter_frames_use_local_time_correct_controls(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    s3 = _frame_for_source(heping_ermo_page, "parameterize_axis_point_E_i")
+    s6 = _frame_for_source(heping_ermo_page, "derive_parametric_parabola_ii")
+    s8 = _frame_for_source(heping_ermo_page, "solve_parameter_c_ii")
+    s9 = _frame_for_source(heping_ermo_page, "evaluate_point_A_ii")
+
+    t_contract = _parameter(s3, "t")
+    assert t_contract["mathematical_domain"]["kind"] == "real"
+    assert len(t_contract["controls"]) == 1
+    assert "E_axis_i_2" in t_contract["parameterized_points"]
+
+    c_symbolic = _parameter(s6, "c")
+    assert c_symbolic["mathematical_domain"] == {
+        "kind": "inequality",
+        "expression": "c>1",
+    }
+    assert c_symbolic["controls"] == []
+    assert c_symbolic["default_value"] != 5
+    geometry = heping_ermo_page.visual_ir.geometry_registry
+    assert geometry["movingPoints"]["point_A_ii"] == ["-c", "0"]
+    assert geometry["movingPoints"]["point_G_ii"] == [
+        "1/4-3*c/4",
+        "-c/2-1/2",
+    ]
+    assert "point_A_ii" not in geometry["fixedPoints"]
+    assert "point_G_ii" not in geometry["fixedPoints"]
+
+    s6_visual = _visual_step_for_source(
+        heping_ermo_page,
+        "derive_parametric_parabola_ii",
+    )
+    s6_lesson = next(
+        item
+        for item in heping_ermo_page.compiled.lesson_data["steps"]
+        if item["id"] == s6_visual.lesson_step_id
+    )
+    assert "localControls" not in s6_lesson
+
+    for frame in (s8, s9):
+        c_exact = _parameter(frame, "c")
+        assert c_exact["mathematical_domain"] == {"kind": "exact", "value": "5"}
+        assert c_exact["controls"] == []
+        assert c_exact["default_value"] == 5.0
+
+
+def test_b4v_context_distance_markers_hide_prior_relation_labels(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    frame = _frame_for_source(heping_ermo_page, "solve_parameter_c_ii")
+    context_labels = {
+        str(item.component_payload.get("label"))
+        for item in frame.objects
+        if item.component == "DistanceMarker"
+        and item.state == "context"
+        and item.component_payload.get("label")
+    }
+    visual_step = _visual_step_for_source(heping_ermo_page, "solve_parameter_c_ii")
+    compiled_frame = heping_ermo_page.compiled.step_decorations["steps"][
+        visual_step.lesson_step_id
+    ]["visualFrames"][0]
+    compiled_labels = {
+        str(item.get("label"))
+        for item in compiled_frame["add"]
+        if item.get("label")
+    }
+
+    assert context_labels
+    assert context_labels.isdisjoint(compiled_labels)
+
+
+def test_b4v_imports_only_the_prior_verified_curve_vertex_across_siblings(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    s3 = _frame_for_source(heping_ermo_page, "parameterize_axis_point_E_i")
+    s6 = _frame_for_source(heping_ermo_page, "derive_parametric_parabola_ii")
+    refs_s3 = _geometry_refs(s3)
+    refs_s6 = _geometry_refs(s6)
+
+    assert "point_P_problem" in refs_s3
+    vertex_context = next(
+        item
+        for item in s3.objects
+        if item.role == "curve_vertex"
+        and item.geometry_refs == ("point_P_problem",)
+    )
+    assert vertex_context.source_refs == (
+        {"kind": "functional_step", "step_id": "derive_vertex_P_i"},
+    )
+    assert not any(ref.endswith("_ii") for ref in refs_s3)
+    assert refs_s6 == {"curve_ii_parabola", "point_A_ii"}
+    assert not refs_s6.intersection(
+        {
+            "curve_i_parabola",
+            "point_A_i",
+            "point_B_i",
+            "point_P_problem",
+            "E_axis_i_2",
+            "G_axis_i_2",
+            "K_axis_i_2",
+            "M_axis_i",
+        }
+    )
+
+
+def test_b4v_goal_increment_retains_scope_and_symbolic_square_scene(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    s4 = _frame_for_source(heping_ermo_page, "derive_square_vertex_G_i")
+    s5 = _frame_for_source(heping_ermo_page, "solve_axis_point_candidates_i")
+    refs_s4 = _geometry_refs(s4)
+    refs_s5 = _geometry_refs(s5)
+
+    assert {
+        "point_A_i",
+        "E_axis_i_2",
+        "G_axis_i_2",
+        "K_axis_i_2",
+        "M_axis_i",
+        "point_P_problem",
+    } <= refs_s4
+    assert "point_B_i" in refs_s4
+    assert any(
+        item.component == "Point"
+        and item.geometry_refs == ("M_axis_i",)
+        and item.state == "context"
+        for item in s4.objects
+    )
+    assert any(
+        item.component == "AxisOfSymmetry"
+        and item.geometry_refs == ("curve_i_parabola",)
+        and item.state == "context"
+        for item in s4.objects
+    )
+    assert {
+        "E_axis_i_2_candidate_1",
+        "E_axis_i_2_candidate_2",
+        "E_axis_i_2",
+        "G_axis_i_2",
+        "K_axis_i_2",
+        "curve_i_parabola",
+        "point_A_i",
+        "point_B_i",
+        "M_axis_i",
+    } <= refs_s5
+    s5_by_id = {item.visual_object_id: item for item in s5.objects}
+    square_refs = {
+        "point_A_i",
+        "E_axis_i_2",
+        "G_axis_i_2",
+        "K_axis_i_2",
+    }
+    persistent_s4 = {
+        item.visual_object_id
+        for item in s4.objects
+        if item.geometry_refs
+        and set(item.geometry_refs) <= square_refs
+        and item.component in {"Point", "ColoredLine", "OutlineRegion"}
+    }
+    assert persistent_s4 <= set(s5_by_id)
+    assert all(
+        s5_by_id[object_id].state == "context"
+        for object_id in persistent_s4
+    )
+    assert _states_for_ref(s5, "E_axis_i_2_candidate_1") == {"focus"}
+    assert _states_for_ref(s5, "E_axis_i_2_candidate_2") == {"focus"}
+
+
+def test_b4v_candidate_outputs_drive_reachable_landmarks_and_focus_viewport(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    frame = _frame_for_source(heping_ermo_page, "solve_axis_point_candidates_i")
+    parameter = _parameter(frame, "t")
+    landmarks = parameter["landmarks"]
+    expected = sorted([float(2 - sp.sqrt(6)), float(2 + sp.sqrt(6))])
+
+    assert sorted(item["value"] for item in landmarks) == pytest.approx(expected)
+    assert parameter["display_window"]["min"] < expected[0]
+    assert parameter["display_window"]["max"] > expected[1]
+    assert {item["display"] for item in landmarks} == {"2-√6", "2+√6"}
+    assert all(
+        {"E_axis_i_2", "G_axis_i_2", "K_axis_i_2"}
+        <= set(item["highlight_geometry_refs"])
+        for item in landmarks
+    )
+    _assert_visible_points_inside_viewport(frame, heping_ermo_page.visual_ir.geometry_registry)
+
+    visual_step = _visual_step_for_source(
+        heping_ermo_page,
+        "solve_axis_point_candidates_i",
+    )
+    compiled_frame = heping_ermo_page.compiled.step_decorations["steps"][
+        visual_step.lesson_step_id
+    ]["visualFrames"][0]
+    assert len(compiled_frame["parameterLandmarks"]) == 2
+    lesson_step = next(
+        item
+        for item in heping_ermo_page.compiled.lesson_data["steps"]
+        if item["id"] == visual_step.lesson_step_id
+    )
+    assert len(lesson_step["localControls"]["controls"][0]["landmarks"]) == 2
+
+
+def test_semantic_viewport_ignores_unbounded_geometry_extent() -> None:
+    source = ({"kind": "functional_step", "step_id": "s"},)
+    focus = VisualObject(
+        visual_object_id="focus",
+        component="Segment",
+        role="focus:segment",
+        source_refs=source,
+        geometry_refs=("P", "Q"),
+        state="focus",
+        component_payload={"from": "P", "to": "Q"},
+    )
+    curve = VisualObject(
+        visual_object_id="curve",
+        component="Parabola",
+        role="curve",
+        source_refs=source,
+        geometry_refs=("curve",),
+        state="context",
+        component_payload={"curveId": "curve"},
+    )
+    locus = VisualObject(
+        visual_object_id="locus",
+        component="LocusLine",
+        role="locus:line",
+        source_refs=source,
+        geometry_refs=("L1", "L2"),
+        state="context",
+        component_payload={"from": "L1", "to": "L2"},
+    )
+    geometry = {
+        "fixedPoints": {
+            "P": [0, 0],
+            "Q": [2, 1],
+            "L1": [-1000, -1000],
+            "L2": [1000, 1000],
+        },
+        "movingPoints": {},
+        "curves": [{"id": "curve", "a": 1000, "b": 0, "c": 1000}],
+    }
+    resolver = SemanticViewportResolver()
+    baseline = resolver.resolve(
+        objects=(focus,),
+        geometry_spec=geometry,
+        local_parameters=(),
+        parameter_values={},
+    )
+    assert resolver.resolve(
+        objects=(focus, curve, locus),
+        geometry_spec=geometry,
+        local_parameters=(),
+        parameter_values={},
+    ) == baseline
+
+
+def test_semantic_viewport_fits_focused_parabola_landmarks() -> None:
+    source = ({"kind": "functional_step", "step_id": "s"},)
+    curve = VisualObject(
+        visual_object_id="curve",
+        component="Parabola",
+        role="curve:parabola",
+        source_refs=source,
+        geometry_refs=("curve",),
+        state="focus",
+        component_payload={"curveId": "curve"},
+    )
+    point = VisualObject(
+        visual_object_id="point",
+        component="Point",
+        role="point:A",
+        source_refs=source,
+        geometry_refs=("A",),
+        state="context",
+        component_payload={"at": "A"},
+    )
+    viewport = SemanticViewportResolver().resolve(
+        objects=(curve, point),
+        geometry_spec={
+            "fixedPoints": {"A": [-1, 0]},
+            "movingPoints": {},
+            "curves": [
+                {"id": "curve", "type": "parabola", "a": -1, "b": 4, "c": 5}
+            ],
+        },
+        local_parameters=(),
+        parameter_values={},
+    )
+
+    for x, y in ((-1, 0), (0, 5), (2, 9), (5, 0)):
+        assert viewport["minX"] <= x <= viewport["maxX"]
+        assert viewport["minY"] <= y <= viewport["maxY"]
+
+
+def test_semantic_viewport_uses_curve_through_focused_point_not_unrelated_context() -> None:
+    source = ({"kind": "functional_step", "step_id": "s"},)
+    objects = (
+        VisualObject(
+            visual_object_id="curve",
+            component="Parabola",
+            role="curve:parabola",
+            source_refs=source,
+            geometry_refs=("curve",),
+            state="context",
+            component_payload={"curveId": "curve"},
+        ),
+        VisualObject(
+            visual_object_id="intercept",
+            component="Point",
+            role="point:B",
+            source_refs=source,
+            geometry_refs=("B",),
+            state="focus",
+            component_payload={"at": "B"},
+        ),
+        VisualObject(
+            visual_object_id="unrelated",
+            component="Point",
+            role="point:D",
+            source_refs=source,
+            geometry_refs=("D",),
+            state="context",
+            component_payload={"at": "D"},
+        ),
+    )
+    viewport = SemanticViewportResolver().resolve(
+        objects=objects,
+        geometry_spec={
+            "fixedPoints": {"B": [3, 0], "D": [4, -20]},
+            "movingPoints": {},
+            "curves": [
+                {"id": "curve", "type": "parabola", "a": -1, "b": 2, "c": 3}
+            ],
+        },
+        local_parameters=(),
+        parameter_values={},
+    )
+
+    assert viewport["minX"] <= -1 <= viewport["maxX"]
+    assert viewport["minY"] <= 4 <= viewport["maxY"]
+    assert viewport["minY"] > -20
+
+
+def test_b4v_macro_units_are_two_lesson_steps_with_one_complete_frame_each(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    steps = _visual_steps_for_source(
+        heping_ermo_page,
+        "derive_path_minimum_ii",
+    )
+    assert len(steps) == 2
+    assert [len(step.frames) for step in steps] == [1, 1]
+    reduction, reflection = (step.frames[0] for step in steps)
+
+    assert reduction.caption == "化简路径"
+    assert reflection.caption == "轨迹与反射"
+    assert reduction.teaching_unit_keys == (
+        "quadratic_square_path_minimum/path_reduction",
+    )
+    assert reflection.teaching_unit_keys == (
+        "quadratic_square_path_minimum/reflection_minimum",
+    )
+    reduction_refs = _geometry_refs(reduction)
+    reflection_refs = _geometry_refs(reflection)
+    registry = heping_ermo_page.visual_ir.to_payload()["geometry_registry"]
+    assert not any(
+        meta.get("definition") == "anonymous_step_result"
+        and meta.get("sourceStepId") == "derive_path_minimum_ii"
+        for meta in registry["pointMeta"].values()
+    ), "verified named attainment must not acquire a second visual identity"
+    assert {
+        "point_A_ii",
+        "E_axis_ii",
+        "K_axis_ii",
+        "point_G_ii",
+        "point_F_ii",
+        "point_H_ii",
+        "M_axis_ii",
+    } <= reduction_refs
+    assert {
+        "G_locus_ii_start",
+        "G_locus_ii_end",
+        "point_A_prime_ii",
+        "point_G_ii",
+        "M_axis_ii",
+    } <= reflection_refs
+    assert not reflection_refs.intersection(
+        {"E_axis_ii", "K_axis_ii", "point_F_ii", "point_H_ii"}
+    )
+    assert any(
+        item.component == "Point" and item.geometry_refs == ("M_axis_ii",)
+        for item in reduction.objects
+    )
+    assert any(
+        item.component == "AxisOfSymmetry"
+        and item.geometry_refs == ("curve_ii_parabola",)
+        for item in reduction.objects
+    )
+    assert any(
+        item.component == "Point" and item.geometry_refs == ("M_axis_ii",)
+        for item in reflection.objects
+    )
+    assert any(
+        item.component == "AxisOfSymmetry"
+        and item.geometry_refs == ("curve_ii_parabola",)
+        for item in reflection.objects
+    )
+    assert "constraint_carriers" not in json.dumps(
+        heping_ermo_page.visual_ir.to_payload(),
         ensure_ascii=False,
     )
+    assert _parameter(reduction, "c")["default_value"] == _parameter(
+        reflection, "c"
+    )["default_value"]
+
+    reduction_motion = next(
+        item for item in reduction.local_parameters if item.get("controls")
+    )
+    reflection_motion = next(
+        item for item in reflection.local_parameters if item.get("controls")
+    )
+    assert reduction_motion["name"] == reflection_motion["name"] == "u"
+    assert reduction_motion["mathematical_domain"] == {"kind": "real"}
+    assert reflection_motion["mathematical_domain"] == {"kind": "real"}
+    assert "动点 G" in reduction_motion["controls"][0]["label"]
+    assert {
+        "E_axis_ii",
+        "K_axis_ii",
+        "point_G_ii",
+        "point_F_ii",
+        "point_H_ii",
+    } <= set(reduction_motion["parameterized_points"])
+    assert "point_G_ii" in reflection_motion["parameterized_points"]
+
+    expressions = reduction_motion["parameterized_points"]
+    geometry = heping_ermo_page.visual_ir.geometry_registry
+    a_pair = tuple(sp.sympify(item) for item in geometry["movingPoints"]["point_A_ii"])
+    e_pair = tuple(
+        sp.sympify(item)
+        for item in expressions["E_axis_ii"]["expression"]
+    )
+    g_pair = tuple(
+        sp.sympify(item)
+        for item in expressions["point_G_ii"]["expression"]
+    )
+    ae = tuple(sp.simplify(e - a) for a, e in zip(a_pair, e_pair, strict=True))
+    ag = tuple(sp.simplify(g - a) for a, g in zip(a_pair, g_pair, strict=True))
+    assert sp.simplify(ae[0] * ag[0] + ae[1] * ag[1]) == 0
+    assert sp.simplify(ae[0] ** 2 + ae[1] ** 2 - ag[0] ** 2 - ag[1] ** 2) == 0
+
+    compiled_by_id = {
+        item["id"]: item for item in heping_ermo_page.compiled.lesson_data["steps"]
+    }
+    for visual_step in steps:
+        controls = compiled_by_id[visual_step.lesson_step_id]["localControls"]
+        assert controls["controls"][0]["var"] == "u"
 
 
-def test_vs1_heping_ermo_square_candidate_and_path_decorations_are_bound(
+def test_b4v_exact_result_frames_focus_updates_and_retain_goal_context(
     heping_ermo_page: HepingErmoPage,
 ) -> None:
-    page = heping_ermo_page
-    lesson = page.lesson
+    s9 = _frame_for_source(heping_ermo_page, "evaluate_point_A_ii")
+    s10 = _frame_for_source(heping_ermo_page, "evaluate_minimum_point_G_ii")
+    s11 = _frame_for_source(heping_ermo_page, "recover_target_point_E_ii")
 
-    axis_square_step = _lesson_step(
-        lesson,
-        "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
-    )
-    square_decorations = _step_decorations(page, axis_square_step.id)
-    assert {"type": "point", "at": "E_axis_i_2", "labelText": "E", "color": "#dc2626", "dx": 14, "dy": -18} in square_decorations
-    assert {"type": "coordinateLabel", "at": "G_axis_i_2", "text": "G(t-3,-2)", "dx": 14, "dy": 34} in square_decorations
+    reflection_refs = {
+        "curve_ii_parabola",
+        "G_locus_ii_start",
+        "G_locus_ii_end",
+        "M_axis_ii",
+        "point_A_ii",
+        "point_A_prime_ii",
+        "point_G_ii",
+    }
+    assert reflection_refs <= _geometry_refs(s9)
+    assert reflection_refs <= _geometry_refs(s10)
+    assert reflection_refs <= _geometry_refs(s11)
     assert any(
-        item.get("type") == "outlineRegion"
-        and item.get("vertices") == ["A1", "E_axis_i_2", "K", "G_axis_i_2"]
-        for item in square_decorations
+        item.component == "Point"
+        and item.geometry_refs == ("point_A_ii",)
+        and item.state == "focus"
+        for item in s9.objects
     )
-    assert any(item.get("type") == "rightAngle" for item in square_decorations)
-
-    candidate_step = _lesson_step(lesson, "explain_solve_axis_point_candidates_i")
-    candidate_decorations = _step_decorations(page, candidate_step.id)
-    assert not any(
-        item.get("type") == "outlineRegion"
-        and item.get("vertices") == ["A1", "E_axis_i_2", "K_axis_i_2", "G_axis_i_2"]
-        for item in candidate_decorations
-    )
-    assert not any(item.get("type") == "outlineRegion" for item in candidate_decorations)
-    assert {
-        "type": "coordinateLabel",
-        "at": "E_axis_i_2_candidate_1",
-        "text": "E(-1,2+√6)",
-        "dx": 14,
-        "dy": 34,
-    } in candidate_decorations
-
-    reduce_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
-    reduce_decorations = _step_decorations(page, reduce_step.id)
+    assert _states_for_ref(s9, "point_G_ii") == {"context"}
     assert any(
-        item.get("type") == "outlineRegion"
-        and item.get("vertices") == ["A", "E", "K", "G"]
-        and str(item.get("fill") or "").startswith("rgba(15, 118, 110")
-        for item in reduce_decorations
+        item.component == "Point"
+        and item.geometry_refs == ("point_G_ii",)
+        and item.state == "focus"
+        for item in s10.objects
     )
-    assert {"type": "coloredLine", "from": "H", "to": "F", "color": "#7c3aed", "width": 2.0} in reduce_decorations
-    assert {"type": "coloredLine", "from": "A", "to": "G", "color": "#b45309", "width": 2.4} in reduce_decorations
+    assert {"point_E_ii", "K_axis_ii"} <= _geometry_refs(s11)
     assert any(
-        item.get("type") == "segment"
-        and item.get("from") == "A_prime"
-        and item.get("to") == "M_axis_ii"
-        for item in reduce_decorations
-    )
-    assert not any(
-        item.get("type") == "segment"
-        and str(item.get("label") or "") in {"HF=AG/2", "FM=AE/2"}
-        for item in reduce_decorations
+        item.component == "Point"
+        and item.geometry_refs == ("point_E_ii",)
+        and item.state == "focus"
+        for item in s11.objects
     )
 
 
-def test_vs1_heping_ermo_locus_minimum_and_parameter_interactions_are_bound(
+def test_b4v_frames_have_unique_lines_public_labels_and_visible_points(
     heping_ermo_page: HepingErmoPage,
 ) -> None:
-    page = heping_ermo_page
-    lesson = page.lesson
-
-    axis_square_ii_step = _lesson_step(lesson, "explain_derive_path_minimum_ii")
-    axis_square_ii_decorations = _step_decorations(page, axis_square_ii_step.id)
-    assert not any(
-        item.get("from") == "G_locus_ii_start"
-        or item.get("to") == "G_locus_ii_end"
-        for item in axis_square_ii_decorations
-    )
-    assert any(
-        item.get("type") == "coloredLine"
-        and item.get("from") == "M_axis_ii"
-        and item.get("to") == "G"
-        for item in axis_square_ii_decorations
-    )
-    minimum_step = axis_square_ii_step
-    minimum_decorations = _step_decorations(page, minimum_step.id)
-    assert {
-        "type": "coordinateLabel",
-        "at": "A_prime",
-        "text": "A′(-c,-c-1)",
-        "dx": 14,
-        "dy": 34,
-    } in minimum_decorations
-    assert {
-        "type": "segment",
-        "from": "A_prime",
-        "to": "M_axis_ii",
-        "label": "A′M",
-        "color": "#b45309",
-        "width": 2.8,
-        "offsetPx": 16,
-    } in minimum_decorations
-    parameter_step = _lesson_step(
-        lesson,
-        "explain_evaluate_minimum_point_G_ii",
-    )
-    parameter_decorations = _step_decorations(page, parameter_step.id)
-    assert {"type": "coordinateLabel", "at": "G", "text": "G(－7/2,－3)", "dx": 14, "dy": -28} in parameter_decorations
-    assert not any(
-        item.get("type") == "point"
-        and item.get("at") == "G_axis_ii"
-        and item.get("color") == "#b45309"
-        for item in parameter_decorations
-    )
+    geometry = heping_ermo_page.visual_ir.geometry_registry
+    for step in heping_ermo_page.visual_ir.steps:
+        for frame in step.frames:
+            line_keys: list[tuple[str, str, str]] = []
+            for item in frame.objects:
+                payload = item.component_payload
+                if item.component in {"ColoredLine", "DashedLine", "Segment"}:
+                    endpoints = sorted((str(payload.get("from")), str(payload.get("to"))))
+                    line_keys.append((endpoints[0], endpoints[1], str(payload.get("label") or "")))
+                for key in ("labelText", "text", "label"):
+                    value = payload.get(key)
+                    if isinstance(value, str):
+                        assert not re.search(r"(?:point_|_axis_|_problem|_i_2|_ii)", value)
+            assert len(line_keys) == len(set(line_keys)), frame.frame_id
+            _assert_visible_points_inside_viewport(frame, geometry)
 
 
-def test_vs1_heping_ermo_compiled_artifacts_validate(
+def test_b4v_compiler_emits_only_complete_visual_frames(
     heping_ermo_page: HepingErmoPage,
     tmp_path: Path,
 ) -> None:
-    lesson_data = copy.deepcopy(heping_ermo_page.compiled.lesson_data)
-    html_path = tmp_path / "heping-ermo-vs1.html"
+    page = heping_ermo_page
+    decorations = page.compiled.step_decorations
+    assert "layers" not in decorations
+    assert set(decorations) == {"steps"}
+    for lesson_step_id, step in decorations["steps"].items():
+        assert set(step) == {"visualMode", "visualFrames"}
+        assert step["visualFrames"]
+        for frame in step["visualFrames"]:
+            assert frame["add"][0] == {"type": "grid"}
+            assert "inherits_from" not in frame
+            assert "hideLayers" not in frame
+        source = next(item for item in page.visual_ir.steps if item.lesson_step_id == lesson_step_id)
+        assert len(step["visualFrames"]) == len(source.frames)
+
+    lesson_data = copy.deepcopy(page.compiled.lesson_data)
+    html_path = tmp_path / "heping-ermo-b4v.html"
     lesson_data["meta"]["outputPath"] = str(html_path)
     _write_compiled_artifacts(
         tmp_path,
-        geometry_spec=heping_ermo_page.compiled.geometry_spec,
-        step_decorations=heping_ermo_page.compiled.step_decorations,
+        geometry_spec=page.compiled.geometry_spec,
+        step_decorations=decorations,
         lesson_data=lesson_data,
     )
-
     subprocess.run(
         ["node", str(ROOT / "tools/validate-geometry-spec.mjs"), str(tmp_path)],
         cwd=ROOT,
@@ -327,127 +762,151 @@ def test_vs1_heping_ermo_compiled_artifacts_validate(
         cwd=ROOT,
         check=True,
     )
-
     html = html_path.read_text(encoding="utf-8")
-    assert "STEPS" in html
-    assert "第（Ⅰ）①问" in html
-    assert "第（Ⅰ）②问" in html
-    assert "第（Ⅱ）问" in html
-    assert "E(－2, 3/2)" in html or "E(-2,3/2)" in html
+    assert "化简路径" in html
+    assert "轨迹与反射" in html
+    assert "visualFrames" in html
+    assert '<figcaption class="lesson-visual-frame-caption">' not in html
 
 
-def _lesson_step(lesson: LessonIR, step_id: str):
-    return next(step for step in lesson.steps if step.id == step_id)
+def test_b4v_compiler_visually_distinguishes_focus_and_context(
+    heping_ermo_page: HepingErmoPage,
+) -> None:
+    page = heping_ermo_page
+    source_step = _visual_step_for_source(page, "derive_x_intercept_A_i")
+    compiled_frame = page.compiled.step_decorations["steps"][
+        source_step.lesson_step_id
+    ]["visualFrames"][0]
+
+    point_a = next(
+        item
+        for item in compiled_frame["add"]
+        if item.get("type") == "point" and item.get("at") == "point_A_i"
+    )
+    point_b = next(
+        item
+        for item in compiled_frame["add"]
+        if item.get("type") == "point" and item.get("at") == "point_B_i"
+    )
+
+    assert "opacity" not in point_a
+    assert point_a["showLabel"] is False
+    assert point_b["color"] == "#64748b"
+    assert point_b["opacity"] == pytest.approx(0.58)
+    assert "showLabel" not in point_b
+    assert not any(
+        item.get("type") == "coordinateLabel"
+        and item.get("at") == "point_B_i"
+        for item in compiled_frame["add"]
+    )
 
 
-def _step_decorations(page: HepingErmoPage, step_id: str) -> list[dict[str, Any]]:
-    return page.compiled.step_decorations["steps"][step_id]["add"]
+def _visual_step_for_source(page: HepingErmoPage, source_step_id: str) -> VisualStep:
+    rows = _visual_steps_for_source(page, source_step_id)
+    assert len(rows) == 1
+    return rows[0]
 
 
-def _lesson_data_step(page: HepingErmoPage, step_id: str) -> dict[str, Any]:
-    return next(step for step in page.compiled.lesson_data["steps"] if step["id"] == step_id)
-
-
-def test_lesson_draft_final_step_does_not_collect_prior_answers_with_display_variants() -> None:
-    snapshot = _solve_heping_ermo_snapshot()
-    groups = tuple(explanation_builder._build_lesson_groups(snapshot))
-    raw_steps = []
-    for index, group in enumerate(groups, start=1):
-        answer_boxes = explanation_builder._answer_boxes_for_step(group.step, snapshot.answers)
-        raw_steps.append(
-            {
-                "id": f"draft_step_{index}",
-                "candidate_group_ids": [group.candidate_group_id],
-                "title": group.teaching_substep_title or f"第{index}步：讲解 {group.candidate_group_id}",
-                "nav_title": group.teaching_substep_nav_title or f"讲解 {index}",
-                "goal": "按已验证结果整理讲解",
-                "derive": [["∵", "使用已验证的解题步骤"], ["∴", "得到当前步骤结论"]],
-                "box": [_fullwidth_answer_variant(item) for item in answer_boxes],
-            }
-        )
-
-    result = explanation_builder.validate_lesson_draft({"steps": raw_steps}, groups, snapshot)
-
-    assert result.lesson is not None, result.diagnostic.to_payload()
-    final_step = next(
+def _visual_steps_for_source(
+    page: HepingErmoPage,
+    source_step_id: str,
+) -> list[VisualStep]:
+    lesson_step_ids = [
+        step.id
+        for step in page.lesson.steps
+        if source_step_id in step.source_step_ids
+    ]
+    return [
         step
-        for step in result.lesson.steps
-        if "recover_target_point_E_ii" in step.source_step_ids
+        for lesson_step_id in lesson_step_ids
+        for step in page.visual_ir.steps
+        if step.lesson_step_id == lesson_step_id
+    ]
+
+
+def _frame_for_source(page: HepingErmoPage, source_step_id: str) -> VisualFrame:
+    step = _visual_step_for_source(page, source_step_id)
+    assert len(step.frames) == 1
+    return step.frames[0]
+
+
+def _geometry_refs(frame: VisualFrame) -> set[str]:
+    return {
+        geometry_ref
+        for item in frame.objects
+        for geometry_ref in item.geometry_refs
+    }
+
+
+def _states_for_ref(frame: VisualFrame, geometry_ref: str) -> set[str]:
+    return {
+        item.state
+        for item in frame.objects
+        if geometry_ref in item.geometry_refs
+    }
+
+
+def _parameter(frame: VisualFrame, name: str) -> dict[str, Any]:
+    return next(item for item in frame.local_parameters if item.get("name") == name)
+
+
+def _assert_visible_points_inside_viewport(
+    frame: VisualFrame,
+    geometry: dict[str, Any],
+) -> None:
+    base_environment = {
+        str(item["name"]): float(item["default_value"])
+        for item in frame.local_parameters
+    }
+    environments = [base_environment]
+    for parameter in frame.local_parameters:
+        if not parameter.get("controls"):
+            continue
+        name = str(parameter["name"])
+        window = parameter["display_window"]
+        environments.extend(
+            {
+                **base_environment,
+                name: float(value),
+            }
+            for value in (window["min"], window["max"])
+        )
+    viewport = frame.viewport
+    eligible_refs = SemanticViewportResolver().attention_geometry_refs(
+        objects=frame.objects,
+        geometry_spec=geometry,
+        local_parameters=frame.local_parameters,
     )
-    final_box = json.dumps(final_step.box, ensure_ascii=False).replace(" ", "")
-    assert "E(－2,3/2)" in final_box or "E(-2,3/2)" in final_box
-    assert "P(" not in final_box
-    assert "A(-3,0)" not in final_box
-    assert "A(－3,0)" not in final_box
-    assert "2+√6" not in final_box
-    assert "2＋√6" not in final_box
+    for geometry_ref in eligible_refs:
+        pair = (geometry.get("fixedPoints") or {}).get(geometry_ref)
+        if pair is None:
+            pair = (geometry.get("movingPoints") or {}).get(geometry_ref)
+        if not isinstance(pair, list) or len(pair) != 2:
+            continue
+        for environment in environments:
+            try:
+                substitutions = {
+                    sp.Symbol(name): value for name, value in environment.items()
+                }
+                x = float(sp.N(sp.sympify(str(pair[0])).subs(substitutions)))
+                y = float(sp.N(sp.sympify(str(pair[1])).subs(substitutions)))
+            except Exception:
+                continue
+            assert viewport["minX"] <= x <= viewport["maxX"], (
+                frame.frame_id,
+                geometry_ref,
+                environment,
+                x,
+            )
+            assert viewport["minY"] <= y <= viewport["maxY"], (
+                frame.frame_id,
+                geometry_ref,
+                environment,
+                y,
+            )
 
 
-@pytest.mark.live_llm
-@pytest.mark.skipif(
-    not RUN_DEEPSEEK_HEPING_ERMO_VISUAL,
-    reason="DeepSeek Heping ermo visual optimizer integration is opt-in",
-)
-def test_deepseek_explanation_and_visual_optimizer_heping_ermo_loop() -> None:
-    """产品级链路：DeepSeek 先优化和平二模 LessonIR，再优化 VisualStepIR。"""
-    _reset_debug_dir(DEBUG_DIR)
-    snapshot = _solve_heping_ermo_snapshot()
-    lesson = _build_heping_ermo_lesson_with_deepseek(snapshot, DEBUG_DIR)
-
-    assert lesson.steps
-    assert len(lesson.steps) <= 20
-
-    _optimize_and_write_visual_page(
-        snapshot=snapshot,
-        lesson=lesson,
-        debug_dir=DEBUG_DIR,
-        html_name="heping-ermo-visual-optimized.html",
-    )
-
-    assert (DEBUG_DIR / "explanation" / "payload.explanation.json").exists()
-    assert (DEBUG_DIR / "payload.visual.json").exists()
-    assert (DEBUG_DIR / "lesson-ir.json").exists()
-    assert (DEBUG_DIR / "visual-step-ir.before-optimization.json").exists()
-    assert (DEBUG_DIR / "visual-step-ir.after-optimization.json").exists()
-    assert (DEBUG_DIR / "heping-ermo-visual-optimized.html").exists()
-    _assert_debug_page_group_titles_have_targets(
-        DEBUG_DIR,
-        html_name="heping-ermo-visual-optimized.html",
-    )
-    _assert_debug_page_final_e_box_is_scoped(DEBUG_DIR)
-
-
-@pytest.mark.live_llm
-@pytest.mark.skipif(
-    not RUN_DEEPSEEK_HEPING_ERMO_VISUAL,
-    reason="DeepSeek Heping ermo visual optimizer integration is opt-in",
-)
-def test_deepseek_visual_optimizer_with_heping_ermo_recorded_lesson_ir_fixture() -> None:
-    """Visual-only 链路：读取和平二模 recorded LessonIR fixture，只调用视觉 DeepSeek。"""
-    _reset_debug_dir(RECORDED_LESSON_DEBUG_DIR)
-    snapshot = _solve_heping_ermo_snapshot()
-    lesson = _load_recorded_heping_ermo_lesson_ir()
-
-    LessonIRValidator().validate(lesson, snapshot)
-    assert lesson.steps
-
-    _optimize_and_write_visual_page(
-        snapshot=snapshot,
-        lesson=lesson,
-        debug_dir=RECORDED_LESSON_DEBUG_DIR,
-        html_name="heping-ermo-visual-recorded-lesson.html",
-    )
-
-    assert not (RECORDED_LESSON_DEBUG_DIR / "explanation").exists()
-    assert (RECORDED_LESSON_DEBUG_DIR / "lesson-ir.json").exists()
-    assert (RECORDED_LESSON_DEBUG_DIR / "payload.visual.json").exists()
-    assert (RECORDED_LESSON_DEBUG_DIR / "heping-ermo-visual-recorded-lesson.html").exists()
-    _assert_debug_page_group_titles_have_targets(
-        RECORDED_LESSON_DEBUG_DIR,
-        html_name="heping-ermo-visual-recorded-lesson.html",
-    )
-
-
+@cache
 def _solve_heping_ermo_snapshot() -> ExplanationSnapshot:
     config = SolverRuntimeConfig(planner_mode="strategy", llm_provider="recorded")
     orchestrator = RuntimeOrchestrator(
@@ -455,168 +914,44 @@ def _solve_heping_ermo_snapshot() -> ExplanationSnapshot:
         default_planner_provider=config.build_default_planner_provider(),
         max_attempts=config.max_llm_attempts,
     )
-    bundle, *_ = cached_planning_binding_fixture(
-        "tj-2026-heping-ermo-25"
-    )
+    bundle, *_ = cached_planning_binding_fixture("tj-2026-heping-ermo-25")
     result = orchestrator.solve_verified(bundle)
     assert result.status == "ok", result.errors
     assert result.answers == load_expected_answers(HEPING_ERMO_EXPECTED)
     return ExplanationSnapshotBuilder().build(orchestrator.last_success_artifacts)
 
 
-def _build_heping_ermo_lesson_with_deepseek(
-    snapshot: ExplanationSnapshot,
-    debug_dir: Path,
-) -> LessonIR:
-    config = SolverRuntimeConfig.from_sources(
-        planner_mode="strategy",
-        llm_provider="deepseek",
+def _build_approved_heping_ermo_lesson(snapshot: ExplanationSnapshot) -> LessonIR:
+    projection = AnnotatedTeachingPlanProjector().project(snapshot)
+    validation = LessonScopeContentValidator(
+        plan=projection.plan,
+        authority=projection.authority,
+    ).validate_payload(
+        json.loads(HEPING_ERMO_APPROVED_SCOPE_CONTENT.read_text(encoding="utf-8"))
     )
-    explanation_debug_dir = debug_dir / "explanation"
-    planner = LLMLessonPlanner(
-        client=config.build_llm_client(),
-        debug_dir=explanation_debug_dir,
-        allow_same_problem_few_shot=False,
-    )
-    lesson = ExplanationBuilder(lesson_planner=planner).build_lesson(snapshot)
-    assert planner.last_prompt is not None
-    write_explanation_debug_artifacts(
-        explanation_debug_dir,
-        payload=planner.last_payload or {},
-        prompt=planner.last_prompt,
-        raw_response=planner.last_raw_response or "",
-        parsed=planner.last_parsed,
-        lesson=lesson,
-    )
-    _write_json(debug_dir / "lesson-ir.json", lesson.to_payload())
-    return lesson
-
-
-def _load_recorded_heping_ermo_lesson_ir() -> LessonIR:
-    payload = json.loads(HEPING_ERMO_RECORDED_LESSON_IR.read_text(encoding="utf-8"))
-    return lesson_ir_from_payload(payload)
-
-
-def _optimize_and_write_visual_page(
-    *,
-    snapshot: ExplanationSnapshot,
-    lesson: LessonIR,
-    debug_dir: Path,
-    html_name: str,
-) -> None:
-    visual_ir = VisualStepBuilder().build(snapshot=snapshot, lesson=lesson)
-    _write_json(debug_dir / "lesson-ir.json", lesson.to_payload())
-    _write_json(debug_dir / "visual-step-ir.before-optimization.json", visual_ir.to_payload())
-    config = SolverRuntimeConfig.from_sources(
-        planner_mode="strategy",
-        llm_provider="deepseek",
-    )
-    optimizer = LLMVisualStepOptimizer(
-        client=config.build_llm_client(),
-        debug_dir=debug_dir,
-    )
-    optimized = optimizer.optimize(snapshot=snapshot, lesson=lesson, visual_ir=visual_ir)
-    VisualStepIRValidator().validate(optimized)
-    _write_json(debug_dir / "visual-step-ir.after-optimization.json", optimized.to_payload())
-    compiled = forward_compile(optimized)
-    lesson_data = copy.deepcopy(compiled.lesson_data)
-    lesson_data["meta"]["outputPath"] = str(debug_dir / html_name)
-    _write_compiled_artifacts(
-        debug_dir,
-        geometry_spec=compiled.geometry_spec,
-        step_decorations=compiled.step_decorations,
-        lesson_data=lesson_data,
-    )
-    subprocess.run(
-        ["node", str(ROOT / "tools/validate-geometry-spec.mjs"), str(debug_dir)],
-        cwd=ROOT,
-        check=True,
-    )
-    subprocess.run(
-        ["node", str(ROOT / "tools/build-lesson-page.mjs"), str(debug_dir)],
-        cwd=ROOT,
-        check=True,
-    )
-
-
-def _write_json(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    assert validation.direct_acceptance, validation.to_payload()
+    assert not validation.independent_material_merge_repaired
+    return RecursiveLessonIRAssembler().assemble(
+        snapshot,
+        projection,
+        validation,
+    ).lesson
 
 
 def _write_compiled_artifacts(
     path: Path,
     *,
-    geometry_spec: dict,
-    step_decorations: dict,
-    lesson_data: dict,
+    geometry_spec: dict[str, Any],
+    step_decorations: dict[str, Any],
+    lesson_data: dict[str, Any],
 ) -> None:
     path.mkdir(parents=True, exist_ok=True)
-    (path / "geometry-spec.json").write_text(
-        json.dumps(geometry_spec, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    (path / "step-decorations.json").write_text(
-        json.dumps(step_decorations, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    (path / "lesson-data.json").write_text(
-        json.dumps(lesson_data, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-
-
-def _assert_debug_page_group_titles_have_targets(debug_dir: Path, *, html_name: str) -> None:
-    lesson_data = json.loads((debug_dir / "lesson-data.json").read_text(encoding="utf-8"))
-    group_titles = lesson_data["ui"]["groupTitles"]
-    expected = {
-        "i_1": "第（Ⅰ）①问：求点 P 和点 A 的坐标",
-        "i_2": "第（Ⅰ）②问：求点 E 的坐标",
-        "ii": "第（Ⅱ）问：求点 E 的坐标",
-    }
-    for key, value in expected.items():
-        assert group_titles[key] == value
-        assert any(step.get("section") == value for step in lesson_data["steps"])
-    html = (debug_dir / html_name).read_text(encoding="utf-8")
-    for value in expected.values():
-        assert value in html
-
-
-def _assert_debug_page_final_e_box_is_scoped(debug_dir: Path) -> None:
-    lesson_data = json.loads((debug_dir / "lesson-data.json").read_text(encoding="utf-8"))
-    matching_steps = [
-        step
-        for step in lesson_data["steps"]
-        if "E(－2,3/2)" in json.dumps(step.get("box", ()), ensure_ascii=False).replace(" ", "")
-        or "E(-2,3/2)" in json.dumps(step.get("box", ()), ensure_ascii=False).replace(" ", "")
-    ]
-    assert matching_steps
-    final_box = json.dumps(matching_steps[-1].get("box", ()), ensure_ascii=False).replace(" ", "")
-    assert "P(" not in final_box
-    assert "A(-3,0)" not in final_box
-    assert "A(－3,0)" not in final_box
-    assert "2+√6" not in final_box
-    assert "2＋√6" not in final_box
-
-
-def _fullwidth_answer_variant(text: str) -> str:
-    return (
-        str(text)
-        .replace("-", "－")
-        .replace("+", "＋")
-        .replace("=", "＝")
-        .replace("或", " 或 ")
-    )
-
-
-def _reset_debug_dir(path: Path) -> None:
-    if path.exists():
-        for child in path.iterdir():
-            if child.is_dir():
-                shutil.rmtree(child)
-            else:
-                child.unlink()
-    path.mkdir(parents=True, exist_ok=True)
+    for name, payload in (
+        ("geometry-spec.json", geometry_spec),
+        ("step-decorations.json", step_decorations),
+        ("lesson-data.json", lesson_data),
+    ):
+        (path / name).write_text(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
+
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
 
@@ -44,17 +46,18 @@ class RightAngleEqualLengthCandidatesMethod:
         for index, candidate in enumerate(candidates, start=1):
             dist_derived = kernel.distance_squared(anchor, candidate)
             dot = dot_from_origin(anchor, reference, candidate)
+            candidate_display = f"{target.name}({_fmt_point(candidate, kernel)})"
             checks.extend(
                 [
                     CheckResult(
                         name=f"candidate_{index}_right_equal_length",
                         status="passed" if sp.simplify(dist_known - dist_derived) == 0 else "failed",
-                        detail=f"{target.name} 候选 {index} 与已知直角边等长",
+                        detail=f"候选位置 {candidate_display} 与已知直角边等长",
                     ),
                     CheckResult(
                         name=f"candidate_{index}_right_angle",
                         status="passed" if sp.simplify(dot) == 0 else "failed",
-                        detail=f"{target.name} 候选 {index} 与已知直角边垂直",
+                        detail=f"候选位置 {candidate_display} 与已知直角边垂直",
                     ),
                 ]
             )
@@ -76,7 +79,24 @@ class RightAngleEqualLengthCandidatesMethod:
                     candidates,
                     locked=False,
                     source=self.method_id,
-                )
+                ),
+                "construction_evidence": TypedValue(
+                    "Condition",
+                    {
+                        "kind": "right_angle_equal_length_rotation",
+                        "target": target.name,
+                        "anchor": tuple(kernel.sstr(item) for item in anchor),
+                        "reference": tuple(
+                            kernel.sstr(item) for item in reference
+                        ),
+                        "candidates": tuple(
+                            tuple(kernel.sstr(item) for item in candidate)
+                            for candidate in candidates
+                        ),
+                    },
+                    locked=True,
+                    source=self.method_id,
+                ),
             },
             checks=checks,
             trace_fragments=trace,
@@ -93,19 +113,19 @@ SPEC = MethodSpecSource(
         "type": "Point",
         "role": "anchor",
         "required": True,
-        "description": "直角顶点，例如南开题中的 D。"
+        "description": "直角顶点。"
     },
     "reference": {
         "type": "Point",
         "role": "reference",
         "required": True,
-        "description": "已知直角边的另一个端点，例如南开题中的 M。"
+        "description": "已知直角边的另一个端点。"
     },
     "target": {
         "type": "PointRef",
         "role": "target",
         "required": True,
-        "description": "待求坐标的点引用，例如南开题中的 N。"
+        "description": "待求坐标的点引用。"
     }
 },
     input_views=declare_input_views(
@@ -113,9 +133,50 @@ SPEC = MethodSpecSource(
         latest_state=("anchor", "reference"),
     ),
     outputs={
-    "candidates": "PointList"
+    "candidates": "PointList",
+    "construction_evidence": "Condition"
 },
+    internal_outputs=("construction_evidence",),
     preconditions=('anchor.coordinate is known, can be symbolic', 'reference.coordinate is known, can be symbolic', 'target is an unresolved point reference'),
     postconditions=('每个候选点都满足 distance(anchor, candidate) == distance(anchor, reference)', '每个候选点都满足 dot(anchor->reference, anchor->candidate) == 0'),
     trace_template=('由直角等腰条件，将 {reference} 绕 {anchor} 顺/逆时针旋转 90°，得到 {target} 的两个候选点。',),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="right_angle_equal_length_candidates/construct_candidates",
+        title_template="{construction_title}",
+        nav_title_template="{construction_nav_title}",
+        goal_template="{construction_goal}",
+        derive_templates=(
+            ("∵", "以 {anchor} 为直角顶点，已知边端点为 {reference}"),
+            ("作", "将已知边顺、逆时针旋转 90°"),
+            ("∴", "得到候选点 {candidates}"),
+        ),
+        box_templates=("{construction_result}",),
+        role_schema={
+            "anchor": "直角顶点。",
+            "reference": "已知直角边的另一个端点。",
+            "candidates": "顺、逆时针旋转所得候选点。",
+            "construction_title": "当前数据适用的学生构造标题。",
+            "construction_nav_title": "当前数据适用的学生导航标题。",
+            "construction_goal": "当前数据适用的几何构造目标。",
+            "construction_result": "顺、逆时针旋转所得的两个候选位置。",
+        },
+        role_binder_id="right_angle_equal_length_candidates",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "anchor": "直角顶点。",
+            "reference": "已知边端点。",
+            "candidates": "两个旋转候选点。",
+        },
+        scene_templates=(
+            {
+                "component": "RightAngleEqualLengthCandidatesMarker",
+                "input_roles": ["anchor", "reference"],
+                "output_role": "candidates",
+                "requires_independent_lesson_step": True,
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
+    ),
 )

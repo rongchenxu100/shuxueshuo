@@ -240,6 +240,11 @@ def build_equal_length_ray_path_witness(
         f"{role_labels['fixed_point']}{segment_label}+"
         f"{segment_label}{auxiliary_label}"
     )
+    minimum_segment = f"{role_labels['fixed_point']}{auxiliary_label}"
+    minimum_components = (
+        sp.simplify(auxiliary_point[0] - fixed[0]),
+        sp.simplify(auxiliary_point[1] - fixed[1]),
+    )
     equivalence_proof = (
         (
             f"{_length_label(equal_payload.get('left'))}="
@@ -249,13 +254,23 @@ def build_equal_length_ray_path_witness(
             f"{role_labels['anchor']}{role_labels['reference_point']}="
             f"{role_labels['anchor']}{auxiliary_label}"
         ),
-        "the included angles are formed by the same segment and ray lines",
         (
-            f"SAS proves the corresponding triangles congruent, so "
+            f"{segment_label}在线段"
+            f"{role_labels['anchor']}{role_labels['reference_point']}上，"
+            f"{ray_moving_label}、{auxiliary_label}在射线"
+            f"{role_labels['anchor']}{role_labels['ray_point']}上，故"
+            f"∠{role_labels['reference_point']}{role_labels['anchor']}"
+            f"{ray_moving_label}=∠{auxiliary_label}"
+            f"{role_labels['anchor']}{segment_label}"
+        ),
+        (
+            f"△{role_labels['reference_point']}{role_labels['anchor']}"
+            f"{ray_moving_label}≌△{auxiliary_label}"
+            f"{role_labels['anchor']}{segment_label}（边角边），故"
             f"{role_labels['reference_point']}{ray_moving_label}="
             f"{segment_label}{auxiliary_label}"
         ),
-        f"therefore {original_objective}={reduced_objective}",
+        f"{original_objective}={reduced_objective}",
     )
     constructions = (
         {
@@ -265,6 +280,12 @@ def build_equal_length_ray_path_witness(
             "reference_point": role_labels["reference_point"],
             "ray_direction_point": role_labels["ray_point"],
             "coordinate": _point_payload(auxiliary_point),
+            "fixed_point": role_labels["fixed_point"],
+            "fixed_point_coordinate": _point_payload(fixed),
+            "minimum_segment": minimum_segment,
+            "minimum_distance_components": [
+                _expression_text(item) for item in minimum_components
+            ],
         },
     )
     checks = tuple(
@@ -286,9 +307,9 @@ def build_equal_length_ray_path_witness(
         constructions=constructions,
         equivalence_proof=equivalence_proof,
         legal_domain=(
-            f"{segment_label} lies on the closed segment through "
-            f"{role_labels['anchor']} and {role_labels['reference_point']}",
-            f"{ray_moving_label} lies on the positive ray from {role_labels['anchor']}",
+            f"{segment_label}在线段"
+            f"{role_labels['anchor']}{role_labels['reference_point']}上",
+            f"{ray_moving_label}在以{role_labels['anchor']}为端点的正向射线上",
         ),
         minimum_strategy=search.winner.strategy,
         minimum_expression=_expression_text(search.winner.expression),

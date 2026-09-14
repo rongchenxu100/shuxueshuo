@@ -8,13 +8,17 @@
   "use strict";
 
   /** 解析交叉点与裁剪重叠区域（spec 格式见 geometry-spec.json）。 */
-  function resolveClipOverlap(spec, t) {
+  function resolveClipOverlap(spec, t, localVars) {
     var GE = global.GeometryEngine;
     if (!GE) throw new Error("GeometryEngine is required");
     var paramName = spec.movingParam || "t";
     var tv = Number(t);
     var env = { S3: GE.SQRT3, t: tv };
     env[paramName] = tv;
+    Object.keys(localVars || {}).forEach(function (name) {
+      var value = Number(localVars[name]);
+      if (Number.isFinite(value)) env[name] = value;
+    });
     var pts = {};
 
     (spec.expressionEnv || []).forEach(function (item) {
@@ -160,6 +164,26 @@
     var layers = decoData.layers || {};
     var stepDecos = decoData.steps || {};
 
+    function localValuesForStep(step) {
+      if (!step || !step.id) return {};
+      var frames = stepDecos[step.id] && stepDecos[step.id].visualFrames;
+      if (!Array.isArray(frames) || !frames.length) return {};
+      return Object.assign({}, frames[0].localValues || {});
+    }
+
+    function allFrameLocalDefaults() {
+      var values = {};
+      Object.keys(stepDecos).forEach(function (stepId) {
+        var frames = stepDecos[stepId] && stepDecos[stepId].visualFrames;
+        (Array.isArray(frames) ? frames : []).forEach(function (frame) {
+          Object.keys(frame.localValues || {}).forEach(function (name) {
+            if (!(name in values)) values[name] = frame.localValues[name];
+          });
+        });
+      });
+      return values;
+    }
+
     var _layout = null; // 当前 label layout（每次 render 开始时创建，结束时清空）
     var _coordinateLabelPoints = null; // 当前步骤中已显示坐标标签的点，避免重复点名
     var _pointLabelKeys = null; // 当前步骤中已显示的点名，避免层叠时重复点名
@@ -282,13 +306,16 @@
           lockLabel: aopts.lockLabel
         });
       }
-      return out;
+      return withOpacity(out, aopts.opacity);
     }
 
     function rightAngleSvg(vertex, rayA, rayB, ropts) {
       ropts = ropts || {};
       if (!GLL || !_layout) return "";
-      return GLL.rightAngleSvg(_layout, toScreen, vertex, rayA, rayB, { size: ropts.size || 12, color: ropts.color || "#0f766e" });
+      return withOpacity(
+        GLL.rightAngleSvg(_layout, toScreen, vertex, rayA, rayB, { size: ropts.size || 12, color: ropts.color || "#0f766e" }),
+        ropts.opacity
+      );
     }
 
     function gridSvg(gopts) {
@@ -422,15 +449,15 @@
           if (!state.base.length) return "";
           // 支持 elem.style === "outline" 时去掉填充（只保留描边）；用于"重点是折痕、不是面积"的题
           var bpFill = elem.style === "outline" ? "none" : "var(--paper)";
-          return '<path d="' + pathD(state.base) + '" fill="' + bpFill + '" stroke="var(--paper-stroke)" stroke-width="3" />';
+          return '<path d="' + pathD(state.base) + '" fill="' + bpFill + '" stroke="var(--paper-stroke)" stroke-width="3"' + opacityAttr(elem.opacity) + ' />';
         }
         case "movingPoly":
           return state.moving.length
-            ? '<path d="' + pathD(state.moving) + '" fill="var(--fold)" stroke="var(--fold-stroke)" stroke-width="3" />'
+            ? '<path d="' + pathD(state.moving) + '" fill="var(--fold)" stroke="var(--fold-stroke)" stroke-width="3"' + opacityAttr(elem.opacity) + ' />'
             : "";
         case "overlap":
           return state.overlap.length
-            ? '<path d="' + pathD(state.overlap) + '" fill="var(--overlap)" stroke="var(--overlap-stroke)" stroke-width="3" />'
+            ? '<path d="' + pathD(state.overlap) + '" fill="var(--overlap)" stroke="var(--overlap-stroke)" stroke-width="3"' + opacityAttr(elem.opacity) + ' />'
             : "";
         case "point": {
           var at = pts[elem.at];
@@ -489,7 +516,7 @@
         case "rightAngle": {
           v = pts[elem.vertex]; a = pts[elem.rayA]; b = pts[elem.rayB];
           if (!v || !a || !b) return "";
-          return rightAngleSvg(v, a, b, { size: elem.size, color: elem.color });
+          return rightAngleSvg(v, a, b, { size: elem.size, color: elem.color, opacity: elem.opacity });
         }
         case "circle": {
           var circleCenter = pts[elem.center];
@@ -501,7 +528,7 @@
           var circleR = screenRadiusFromMath(circleCenter, circleRadius);
           return '<circle cx="' + circleScreen.x + '" cy="' + circleScreen.y + '" r="' + circleR +
             '" fill="' + (elem.fill || "none") + '" stroke="' + (elem.color || "#94a3b8") +
-            '" stroke-width="' + (elem.width || 2) + '"' + (elem.dash ? ' stroke-dasharray="' + elem.dash + '"' : "") + ' />';
+            '" stroke-width="' + (elem.width || 2) + '"' + (elem.dash ? ' stroke-dasharray="' + elem.dash + '"' : "") + opacityAttr(elem.opacity) + ' />';
         }
         case "circleArc": {
           var center = pts[elem.center];
@@ -519,7 +546,7 @@
           }
           var dArcPath = GE.svgOpenPathFromMathPoints(arcPts, toScreen);
           return '<path d="' + dArcPath + '" fill="none" stroke="' + (elem.color || "#94a3b8") +
-            '" stroke-width="' + (elem.width || 2) + '"' + (elem.dash ? ' stroke-dasharray="' + elem.dash + '"' : "") + ' />';
+            '" stroke-width="' + (elem.width || 2) + '"' + (elem.dash ? ' stroke-dasharray="' + elem.dash + '"' : "") + opacityAttr(elem.opacity) + ' />';
         }
         case "angleArc": {
           v = pts[elem.vertex]; a = pts[elem.rayA]; b = pts[elem.rayB];
@@ -535,7 +562,7 @@
           var region = (elem.region === "moving") ? state.moving : state.overlap;
           if (!region || !region.length) return "";
           var cen = GE.centroid(region);
-          return textAtSvg(cen, elem.text || "S", elem.color || "#dc2626", elem.dx || -5, elem.dy || 5, elem.size || 16);
+          return textAtSvg(cen, elem.text || "S", elem.color || "#dc2626", elem.dx || -5, elem.dy || 5, elem.size || 16, elem);
         }
         case "cutRegion": {
           var verts = (elem.vertices || []).map(function (n) { return pts[n]; }).filter(Boolean);
@@ -547,7 +574,7 @@
             var cs = toScreen(cen2);
             out2 += '<text x="' + cs.x + '" y="' + cs.y + '" dx="-5" dy="5" font-size="16" font-weight="900" fill="#b45309">' + GE.svgEsc(elem.centroidLabel) + '</text>';
           }
-          return out2;
+          return withOpacity(out2, elem.opacity);
         }
         case "outlineRegion": {
           var verts2 = (elem.vertices || []).map(function (n) { return pts[n]; }).filter(Boolean);
@@ -563,14 +590,14 @@
           var pos = elem.pos;
           if (!pos) return "";
           var sp = toScreen({ x: pos[0], y: pos[1] });
-          return GE.svgAreaFormulaCard(sp.x, sp.y, elem.terms || []);
+          return withOpacity(GE.svgAreaFormulaCard(sp.x, sp.y, elem.terms || []), elem.opacity);
         }
         case "coincidentLabel": {
           var eps = elem.eps || 0.04;
           if (Math.abs(state.t - (elem.when || 0)) >= eps) return "";
           var anchor = pts[elem.anchor];
           if (!anchor) return "";
-          return textAtSvg(anchor, elem.text || "", elem.color || "#dc2626", elem.dx || 10, elem.dy || -18, elem.size || 14);
+          return textAtSvg(anchor, elem.text || "", elem.color || "#dc2626", elem.dx || 10, elem.dy || -18, elem.size || 14, elem);
         }
         case "parabola": {
           var cid = elem.curveId || elem.curve;
@@ -591,17 +618,23 @@
             (elem.color || "#2563eb") +
             '" stroke-width="' +
             (elem.width != null ? elem.width : 2.8) +
-            '" />'
+            '"' + opacityAttr(elem.opacity) + ' />'
           );
         }
         case "axisOfSymmetry": {
           var cidAx = elem.curveId || elem.curve;
           var cvAx = state.curves && cidAx ? state.curves[cidAx] : null;
-          if (!cvAx || cvAx.type !== "parabola" || Math.abs(cvAx.a) < 1e-12) return "";
-          var xSym = -cvAx.b / (2 * cvAx.a);
+          var xSym;
+          if (elem.xExpr != null) {
+            xSym = GE.evalExpr(String(elem.xExpr), state.env || {});
+            if (!Number.isFinite(xSym)) return "";
+          } else {
+            if (!cvAx || cvAx.type !== "parabola" || Math.abs(cvAx.a) < 1e-12) return "";
+            xSym = -cvAx.b / (2 * cvAx.a);
+          }
           var pLo = { x: xSym, y: domain.minY };
           var pHi = { x: xSym, y: domain.maxY };
-          return lineSvg(pLo, pHi, elem.color || "#64748b", elem.width != null ? elem.width : 1.6, elem.dash || "10 7");
+          return lineSvg(pLo, pHi, elem.color || "#64748b", elem.width != null ? elem.width : 1.6, elem.dash || "10 7", { opacity: elem.opacity });
         }
         case "vertex": {
           var cidV = elem.curveId || elem.curve;
@@ -613,7 +646,8 @@
           var vLbl = elem.showLabel === false ? null : (elem.labelText != null ? elem.labelText : elem.label || "顶点");
           return pointSvg(vPt, vLbl, elem.color || "#7c3aed", elem.dx || 10, elem.dy || -12, {
             r: elem.r || 5.5,
-            fontSize: elem.fontSize
+            fontSize: elem.fontSize,
+            opacity: elem.opacity
           });
         }
         case "curvePoint": {
@@ -627,7 +661,8 @@
           var cLbl = elem.showLabel === false ? null : (elem.labelText != null ? elem.labelText : elem.label || "");
           return pointSvg(cPt, cLbl || null, elem.color || "#0f766e", elem.dx || 8, elem.dy || 8, {
             r: elem.r || 5.2,
-            fontSize: elem.fontSize
+            fontSize: elem.fontSize,
+            opacity: elem.opacity
           });
         }
         default:
@@ -818,14 +853,85 @@
       return deco;
     }
 
+    function geometryRefsForElement(elem) {
+      if (!elem || typeof elem !== "object") return [];
+      var scalarKeys = [
+        "at", "from", "to", "vertex", "rayA", "rayB", "anchor", "center",
+        "curveId", "curve"
+      ];
+      var arrayKeys = ["vertices", "points"];
+      var refs = [];
+      scalarKeys.forEach(function (key) {
+        if (typeof elem[key] === "string" && elem[key]) refs.push(elem[key]);
+      });
+      arrayKeys.forEach(function (key) {
+        if (!Array.isArray(elem[key])) return;
+        elem[key].forEach(function (value) {
+          if (typeof value === "string" && value) refs.push(value);
+        });
+      });
+      return refs;
+    }
+
+    function activeLandmarkGeometryRefs(deco, evaluationVars) {
+      var active = {};
+      (deco.parameterLandmarks || []).forEach(function (landmark) {
+        var observed = Number(evaluationVars[landmark.parameter]);
+        var expected = Number(landmark.value);
+        var epsilon = Number(landmark.epsilon || 0.000001);
+        if (!Number.isFinite(observed) || !Number.isFinite(expected)) return;
+        if (Math.abs(observed - expected) > epsilon) return;
+        (landmark.highlightGeometryRefs || []).forEach(function (ref) {
+          active[String(ref)] = true;
+        });
+      });
+      return active;
+    }
+
+    function elementAtActiveLandmark(elem, activeRefs) {
+      if (!elem || elem.type === "grid") return elem;
+      var matches = geometryRefsForElement(elem).some(function (ref) {
+        return activeRefs[ref] === true;
+      });
+      if (!matches) return elem;
+      var highlighted = Object.assign({}, elem, {
+        color: "#dc2626",
+        opacity: 1
+      });
+      if (elem.type === "point" || elem.type === "derivedPoint") {
+        highlighted.r = Math.max(Number(elem.r || 0), 7);
+      }
+      if (
+        elem.type === "segment" || elem.type === "coloredLine" ||
+        elem.type === "dashedLine" || elem.type === "dottedLine" ||
+        elem.type === "outlineRegion" || elem.type === "cutRegion"
+      ) {
+        highlighted.width = Math.max(Number(elem.width || 0), 3.2);
+      }
+      if (elem.type === "outlineRegion" || elem.type === "cutRegion") {
+        highlighted.fill = "rgba(220,38,38,.14)";
+      }
+      return highlighted;
+    }
+
     function diagramMarkupWithDeco(index, overrideT, localVars, decoOverride) {
       var step = STEPS[index];
       var policy = POLICIES[step.id];
       var rng = policy.range || [0, 10];
       var localT = Math.max(rng[0], Math.min(rng[1], overrideT != null ? overrideT : step.t));
       var deco = decoOverride || stepDecos[step.id] || {};
+      // The geometry registry contains definitions from every recursive branch.
+      // Give hidden definitions harmless frame defaults so they remain
+      // evaluable, then let the active frame override only its own parameters.
+      // Visibility is still determined exclusively by deco.add.
+      var evaluationVars = Object.assign({}, allFrameLocalDefaults(), localVars || {});
+      var activeLandmarkRefs = activeLandmarkGeometryRefs(deco, evaluationVars);
       setRenderDomain(deco.domain);
-      var state = applyPointOverrides(resolveClipOverlap(spec, localT), deco.pointOverrides, localVars);
+      var state = applyPointOverrides(
+        resolveClipOverlap(spec, localT, evaluationVars),
+        deco.pointOverrides,
+        evaluationVars
+      );
       var pts = state.points;
 
       if (GLL) {
@@ -837,7 +943,9 @@
 
       var out = renderLayers(step.id, step.section, pts, state);
 
-      (deco.add || []).forEach(function (elem) { out += renderElem(elem, pts, state); });
+      (deco.add || []).forEach(function (elem) {
+        out += renderElem(elementAtActiveLandmark(elem, activeLandmarkRefs), pts, state);
+      });
 
       var liveBox = policy.movable
         ? (step.box || []).concat(["示例 t=" + Number(localT).toFixed(3).replace(/\.?0+$/, "")])
@@ -852,7 +960,45 @@
     }
 
     function diagramMarkupFor(index, overrideT, localVars) {
+      var frames = visualFramesFor(index);
+      if (frames.length) {
+        return diagramMarkupForVisualFrame(index, 0, overrideT, localVars);
+      }
       return diagramMarkupWithDeco(index, overrideT, localVars, null);
+    }
+
+    function visualFramesFor(index) {
+      var step = STEPS[index];
+      if (!step) return [];
+      var deco = stepDecos[step.id] || {};
+      return Array.isArray(deco.visualFrames) ? deco.visualFrames : [];
+    }
+
+    function decoForVisualFrame(stepId, frame) {
+      var frameData = frame || {};
+      return {
+        add: Array.isArray(frameData.add) ? frameData.add.slice() : [],
+        domain: frameData.domain || defaultDomain,
+        pointOverrides: Object.assign({}, frameData.pointOverrides || {}),
+        curveOverrides: Object.assign({}, frameData.curveOverrides || {}),
+        parameterLandmarks: Array.isArray(frameData.parameterLandmarks)
+          ? frameData.parameterLandmarks.slice()
+          : []
+      };
+    }
+
+    function diagramMarkupForVisualFrame(index, frameIndex, overrideT, localVars) {
+      var step = STEPS[index];
+      var frames = visualFramesFor(index);
+      var frame = frames[frameIndex];
+      if (!step || !frame) return diagramMarkupFor(index, overrideT, localVars);
+      var frameVars = Object.assign({}, frame.localValues || {}, localVars || {});
+      return diagramMarkupWithDeco(
+        index,
+        overrideT,
+        frameVars,
+        decoForVisualFrame(step.id, frame)
+      );
     }
 
     function diagramMarkupForFrame(index, frame, overrideT, localVars) {
@@ -865,8 +1011,9 @@
 
     // ── 缩略图 SVG ───────────────────────────────────────────────────────
 
-    function drawMini(t, miniItem, step) {
-      var s = resolveClipOverlap(spec, t);
+    function drawMini(t, miniItem, step, localVars) {
+      var miniVars = Object.assign({}, localValuesForStep(step), localVars || {});
+      var s = resolveClipOverlap(spec, t, miniVars);
       var curveKeys = Object.keys(s.curves || {});
       if (!curveKeys.length) {
         return GE.svgMini(s.base, s.moving, s.overlap, domain);
@@ -935,7 +1082,10 @@
       var FIG_PAD = { left: 92, right: 78, top: 48, bottom: 66 };
       var FIG_W = W, FIG_H = H;
       // 使用同一 toScreen（原题图和步骤图共用同一画布尺寸）
-      var state = resolveClipOverlap(spec, t);
+      // Original figures explicitly choose what to draw.  Hidden frame-local
+      // registry entries still need a numeric evaluation environment, but their
+      // defaults do not make them visible in the original figure.
+      var state = resolveClipOverlap(spec, t, allFrameLocalDefaults());
       var pts = state.points;
 
       if (GLL) {
@@ -1040,6 +1190,8 @@
     return {
       diagramMarkupFor: diagramMarkupFor,
       diagramMarkupForFrame: diagramMarkupForFrame,
+      diagramMarkupForVisualFrame: diagramMarkupForVisualFrame,
+      visualFramesFor: visualFramesFor,
       drawMini: drawMini,
       renderOriginalFigures: renderOriginalFigures
     };

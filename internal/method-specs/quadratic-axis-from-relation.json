@@ -57,5 +57,53 @@
   "preconditions": [
     "coefficient_relation 必须包含二次项系数 a 和一次项系数 b",
     "coefficient_relation 解出 b 后，-b/(2a) 不能再依赖 a 或 b；也就是关系必须能确定 b/a 的比值"
-  ]
+  ],
+  "teaching_unit": {
+    "unit_key": "quadratic_axis_from_relation/derive_axis",
+    "title_template": "由系数关系求对称轴",
+    "nav_title_template": "求对称轴",
+    "goal_template": "利用二次函数对称轴公式和系数关系确定对称轴位置。",
+    "derive_templates": [
+      [
+        "∵",
+        "二次函数的对称轴为 x＝-b/(2a)"
+      ],
+      [
+        "计算",
+        "把 {coefficient_relation} 代入对称轴公式"
+      ],
+      [
+        "∴",
+        "对称轴与 x 轴交于 {axis_point}"
+      ]
+    ],
+    "box_templates": [
+      "{axis_point}"
+    ],
+    "role_schema": {
+      "coefficient_relation": "题设给出的二次项、一次项系数关系。",
+      "axis_point": "对称轴与 x 轴的交点。"
+    },
+    "role_binder_id": "quadratic_axis_from_relation"
+  },
+  "visual": {
+    "role_schema": {
+      "axis_point": "对称轴与 x 轴交点。",
+      "curve": "当前二次函数图象（若已存在）。"
+    },
+    "scene_templates": [
+      {
+        "component": "QuadraticAxisRelationMarker",
+        "output_role": "axis_point",
+        "context_roles": [
+          "input_curve",
+          "curve_axis"
+        ],
+        "persistence": "carry_forward"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "generic_visual"
+  }
 }

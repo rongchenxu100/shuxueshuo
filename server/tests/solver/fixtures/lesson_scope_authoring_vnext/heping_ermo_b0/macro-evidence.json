@@ -1,0 +1,111 @@
+[
+  {
+    "schema_version": "path-minimum-prompt-witness/v1",
+    "step_id": "derive_path_minimum_ii",
+    "macro_id": "quadratic_square_path_minimum",
+    "original_objective": "HF+FM+MG",
+    "reduced_objective": "AG+MG",
+    "role_resolutions": [
+      {
+        "authored_ref": null,
+        "chosen_ref": "midpoint_definition_a_e_f",
+        "corrected": false,
+        "role": "midpoint_definition"
+      },
+      {
+        "authored_ref": null,
+        "chosen_ref": "square_center_h_square_ae_a_e_k_g",
+        "corrected": false,
+        "role": "square_center"
+      },
+      {
+        "authored_ref": null,
+        "chosen_ref": "axis_membership_parabola_e",
+        "corrected": false,
+        "role": "axis_membership"
+      },
+      {
+        "authored_ref": null,
+        "chosen_ref": "A",
+        "corrected": false,
+        "role": "side_start"
+      },
+      {
+        "authored_ref": null,
+        "chosen_ref": "E",
+        "corrected": false,
+        "role": "axis_point"
+      },
+      {
+        "authored_ref": null,
+        "chosen_ref": "G",
+        "corrected": false,
+        "role": "moving_point"
+      },
+      {
+        "authored_ref": null,
+        "chosen_ref": "M",
+        "corrected": false,
+        "role": "fixed_endpoint"
+      }
+    ],
+    "constructions": [
+      {
+        "kind": "square_midpoint_center_reduction",
+        "moving_locus": "y=-c/2 - 1/2"
+      },
+      {
+        "kind": "line_reflection",
+        "minimum_segment": "A_primeM",
+        "moving_point": "G",
+        "other_fixed_point": "M",
+        "reflect_source": "A",
+        "reflected_point": [
+          "-c",
+          "-c - 1"
+        ],
+        "reflected_point_name": "A_prime",
+        "segment_equality": "AG=A_primeG",
+        "straightened_path": "A_primeG+MG",
+        "transformed_path": "AG+MG"
+      }
+    ],
+    "equivalence_proof": [
+      "FM=AE/2",
+      "HF=AG/2",
+      "AE=AG",
+      "HF+FM=AG",
+      "HF+FM+MG=AG+MG"
+    ],
+    "legal_domain": [
+      "the selected quadratic state and connected square facts are visible in the call scope",
+      "the source path is reduced by exact square midpoint/center equalities"
+    ],
+    "minimum_strategy": "reflection",
+    "minimum_expression": "sqrt(5)*Abs(c + 1)/2",
+    "minimizing_points": {
+      "G": [
+        "1/4 - 3*c/4",
+        "-c/2 - 1/2"
+      ]
+    },
+    "attainment_checks": [
+      {
+        "checks": [
+          {
+            "check": "point_on_moving_locus",
+            "passed": true
+          },
+          {
+            "check": "point_on_minimum_segment",
+            "passed": true
+          }
+        ],
+        "expression": "sqrt(5)*Abs(c + 1)/2",
+        "feasible": true,
+        "strategy": "reflection"
+      }
+    ],
+    "repair_action": "reuse_verified_path_witness"
+  }
+]

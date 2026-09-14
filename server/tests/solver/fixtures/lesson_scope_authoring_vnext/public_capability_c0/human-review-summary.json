@@ -1,0 +1,39 @@
+{
+  "schema_version": "lesson-capability-human-review/v1",
+  "review_status": "approved",
+  "reviewed_at": "2026-09-07",
+  "source_batch": "f5-f5c0-public-capability-review",
+  "counts": {
+    "public_function_count": 23,
+    "public_macro_count": 6,
+    "recorded_coverage_count": 26,
+    "synthetic_coverage_count": 3,
+    "complete_coverage_count": 29
+  },
+  "checks": {
+    "all_29_capability_cards_reviewed": true,
+    "teaching_dispositions_complete": true,
+    "visual_dispositions_complete": true,
+    "two_new_macros_are_atomic": true,
+    "macro_units_match_visual_units": true,
+    "five_recorded_pages_compile": true,
+    "three_typed_synthetic_pages_compile": true,
+    "private_identity_audit": true,
+    "no_problem_specific_visual_patch": true,
+    "human_page_review": true
+  },
+  "fixture_policy": {
+    "regression_only": true,
+    "generator_input_allowed": false,
+    "few_shot_allowed": false,
+    "generated_html_checked_in": false
+  },
+  "review_notes": [
+    "The Planner-public set is derived from all expanded Family catalogs and contains 23 Function capabilities plus 6 Macro capabilities.",
+    "Five recorded cases cover 26 capabilities; distance_between_points, equal_length_ray_point and line_intersection_point are covered by normal typed synthetic executions.",
+    "Every public Function has exactly one teaching disposition and one visual disposition; all public Macros have RecipeSpec, MacroTeachingSpec and unit-aligned VisualSpec coverage.",
+    "The two previously misclassified public Macros now remain one atomic FunctionalPlan Step and project two ordered teaching and visual units each.",
+    "All reviewed teaching and visual bindings are driven by generic specs, typed public runtime values and exact semantic references rather than problem IDs, fixed point names or answer values.",
+    "Generated HTML remains rebuildable output and is intentionally not stored as a fixture."
+  ]
+}

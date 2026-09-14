@@ -22,7 +22,7 @@ from shuxueshuo_server.solver.runtime.path_term_parsing import (
     parse_path_terms,
 )
 from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
-    WeightedTriangleGeometryUnsupportedError,
+    WeightedTriangleGeometryDomainError,
     weighted_triangle_geometry_for_weight,
 )
 
@@ -38,7 +38,6 @@ class WeightedAxisPathRoles:
     parameter_constraint: str
     dynamic_constraint: str
     weight_expression: str
-    geometry_profile_id: str
 
     @property
     def candidate_id(self) -> str:
@@ -60,7 +59,6 @@ class WeightedAxisPathRoles:
             "path_minimum_target": self.path_minimum_target,
             **self.role_payload(),
             "weight_expression": self.weight_expression,
-            "geometry_profile_id": self.geometry_profile_id,
         }
 
 
@@ -177,16 +175,13 @@ def build_weighted_axis_path_role_candidates(
             "the second weighted path term must have unit scale",
         )
     try:
-        geometry = weighted_triangle_geometry_for_weight(
-            parsed_scales[weighted_index]
-        )
-    except WeightedTriangleGeometryUnsupportedError as exc:
+        weighted_triangle_geometry_for_weight(parsed_scales[weighted_index])
+    except WeightedTriangleGeometryDomainError as exc:
         raise WeightedAxisPathRoleError(
-            "weight_unsupported",
+            "weight_domain_invalid",
             str(exc),
             details={
                 "weight": str(exc.weight),
-                "supported_weights": list(exc.supported),
             },
         ) from exc
 
@@ -275,7 +270,6 @@ def build_weighted_axis_path_role_candidates(
             parameter_constraint=parameter_constraint,
             dynamic_constraint=dynamic_constraint,
             weight_expression=sp.sstr(parsed_scales[weighted_index]),
-            geometry_profile_id=geometry.profile_id,
         ),
     )
 

@@ -1,12 +1,17 @@
 # 文档索引
 
-`docs/` 只保存当前有效的架构、接口和实施计划。已完成迁移的逐轮记录、旧协议说明、batch 流水和 source fingerprint 由 Git 历史保存，不继续维护独立文档。
+`docs/` 保存当前架构、接口、实施计划和必要验收摘要；目标设计必须标明待实施。过期中间过程从计划移除，代码演变由 Git 追溯，原始调用与 fingerprint 证据留在运行产物。
 
 ## 当前路线
 
-- `functional-planner-next-stage-roadmap.md`：唯一总路线图，当前顺序为 F5-F4.3 → F5-F5/G → E。
+- [系统路线图](functional-planner-next-stage-roadmap.md)：拍照解析 → 官方题库 → 题目对话 → 逐次交互更新的个人知识掌握图谱与题目/专项练习推荐；当前聚焦一期。
+- [在线服务开发计划](online-service-development-plan.md)：一期拍照解析服务的 P1–P5 技术实施顺序和验收标准。
+- [产品服务架构](product-service-architecture.md)：PostgreSQL/Alembic、RabbitMQ/Celery、HTTP/WebSocket、存储、页面与学生空间的统一设计入口；待实施。
+- [产品数据库设计](product-database-design.md)：用户/工作空间、题目与修订、构建/产物、空库初始化及目录设计；P1 已实现，本地验收通过，服务器完整验收待完成。
+- [P1 安装与管理](../deploy/product/README.md)、[服务器发布手册](../deploy/release.md)、[内部接口](product-p1-interfaces.md)、[验收记录](product-p1-acceptance.md)：原生 PostgreSQL 本地安装、服务器发布包、备份恢复和 P2 接入边界。
+- [本机 Review 手册](review-runs-local.md)：迁移前现有服务的启动、操作与恢复。
+- [Review 修订与重建](review-rebuild-g3-b.md)：已实现能力与有效验收摘要。
 - `problem-extraction-context-design.md`：当前图片提取、验证、投影与 Solver 接线边界。
-- `online-service-development-plan.md`：在线服务和对象图边界。
 
 ## Solver 与 LLM
 
@@ -25,12 +30,15 @@
 
 ## 课程页与交互
 
+- [工作台首版设计](workspace-product-design.md)：最新收敛范围，上传单题图片、中栏生成进度、右栏解析网页；批量、框选与其他功能后续重新讨论。
+- `teaching-scope-student-visual-animation-design.md`：F5-F5 Canonical Scope 教学投影、学生步骤、VisualStepIR 与动画 timeline 的统一规范。
+- `lesson-scope-llm-authoring-vnext-design.md`：F5-F5B 一次 Scope Lesson LLM、完整计算输入、recursive LessonIR、组件选择，以及和平二模纵向冒烟的分阶段实现计划。
 - `explanation-builder-design.md`：verified solver artifact 到 LessonIR。
 - `visual-step-ir-design.md`：LessonIR 到声明式视觉状态。
 - `inequality-visual-component-refactor-design.md`：不等式 KnowledgePoint、Family、Problem 知识图谱以及 Method/Recipe 与共享视觉组件的确定性绑定协议。
 - `basic-inequality-minimal-learning-space.md`：基本不等式最小学习空间（Hasse 前提、向下闭包、差分补齐）与对称结构用 \(s,p\) 替换的实质。
-- `frontend-parallel-development-with-mock-api-plan.md`：创作后台和 API 契约。
-- `student-tutor-chat-system-design.md`：学生驱动的可验证解题循环、教学反馈、掌握证据与个性化解题页设计。
+- `frontend-parallel-development-with-mock-api-plan.md`：工作台真实接入与 API/事件测试合同，Mock 仅用于测试和显式开发。
+- `student-tutor-chat-system-design.md`：受控教学状态图、学习证据和学生长期知识图谱设计；后续学生端阶段实施。
 - `translations/educational-knowledge-graph-reading-list.md`：教育知识图谱外文阅读清单与中文全文译文入口（ACE / 学习空间 / GbKT / LLM 建图等）。
 
 ## 文档维护规则

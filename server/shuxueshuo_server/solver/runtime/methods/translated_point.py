@@ -6,7 +6,10 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodVisualSpec,
+    TeachingUnitSpec,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
@@ -98,14 +101,22 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("target.definition 包含 vector 或 dx/dy 平移信息",),
     postconditions=("输出点等于 source 加平移向量",),
-    explanation=MethodExplanationSpec(
+    teaching_unit=TeachingUnitSpec(
+        unit_key="translated_point/apply_translation",
+        title_template="由平移关系求点坐标",
+        nav_title_template="平移求点",
+        goal_template="根据题设平移关系，由源点坐标求目标点坐标。",
+        derive_templates=(
+            ("∵", "{source_point} 按向量 {vector} 平移"),
+            ("∴", "{target_point}"),
+        ),
+        box_templates=("{target_point}",),
         role_schema={
             "source_point": "被平移的源点。",
-            "target_point": "平移后得到的目标点。",
-            "vector": "平移向量。",
+            "vector": "由输入与输出坐标验证的平移向量。",
+            "target_point": "平移后的目标点。",
         },
-        student_goal_template="根据题设平移关系，由源点坐标求目标点坐标。",
-        student_title_template="由平移关系求点坐标",
+        role_binder_id="translated_point",
     ),
     visual=MethodVisualSpec(
         role_schema={

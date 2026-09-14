@@ -1,0 +1,2485 @@
+{
+  "schema_version": "lesson-teaching-spec-review/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "snapshot_schema_version": "explanation-snapshot/v3",
+  "canonical_plan_hash": "9160942486db66fe06b1c29baa129047690fa8a0495e2da72b32dcbaec7add97",
+  "baseline_snapshot_path": "server/tests/solver/fixtures/lesson_scope_authoring_vnext/heping_ermo_b0/snapshot.json",
+  "summary": {
+    "scope_count": 5,
+    "step_card_count": 12,
+    "teaching_material_count": 13,
+    "function_card_count": 11,
+    "macro_card_count": 1,
+    "unique_capability_count": 9,
+    "rubric_coverage": {
+      "schema_version": "lesson-teaching-evaluation/v1",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "covered": [
+        "path_reduction_equivalence",
+        "moving_point_locus",
+        "reflection_construction",
+        "reflection_segment_equality",
+        "minimum_and_parameterized_attainment"
+      ],
+      "missing": [],
+      "evidence_by_point": {
+        "path_reduction_equivalence": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "review-derive_path_minimum_ii-1",
+            "review-derive_path_minimum_ii-2"
+          ],
+          "matched_patterns": [
+            "HF+FM+MG=AG+MG"
+          ]
+        },
+        "moving_point_locus": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "review-derive_path_minimum_ii-1",
+            "review-derive_path_minimum_ii-2"
+          ],
+          "matched_patterns": [
+            "轨迹",
+            "y=-c/2-1/2"
+          ]
+        },
+        "reflection_construction": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "review-derive_path_minimum_ii-1",
+            "review-derive_path_minimum_ii-2"
+          ],
+          "matched_patterns": [
+            "A′",
+            "对称"
+          ]
+        },
+        "reflection_segment_equality": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "review-derive_path_minimum_ii-1",
+            "review-derive_path_minimum_ii-2"
+          ],
+          "matched_patterns": [
+            "AG=A′G"
+          ]
+        },
+        "minimum_and_parameterized_attainment": {
+          "source_step_id": "derive_path_minimum_ii",
+          "lesson_step_ids": [
+            "review-derive_path_minimum_ii-1",
+            "review-derive_path_minimum_ii-2"
+          ],
+          "matched_patterns": [
+            "√5|c+1|/2",
+            "G(1/4-3c/4,-c/2-1/2)"
+          ]
+        }
+      },
+      "coverage_rate": 1.0
+    },
+    "review_status": "awaiting_human_review"
+  },
+  "scope_tree": {
+    "scope_ref": "problem",
+    "scope_step_ids": [],
+    "goals": {},
+    "children": [
+      {
+        "scope_ref": "i",
+        "scope_step_ids": [
+          "derive_parabola_i",
+          "derive_x_intercept_A_i"
+        ],
+        "goals": {},
+        "children": [
+          {
+            "scope_ref": "i_1",
+            "scope_step_ids": [],
+            "goals": {
+              "i_1.A": [],
+              "i_1.P": [
+                "derive_vertex_P_i"
+              ]
+            },
+            "children": []
+          },
+          {
+            "scope_ref": "i_2",
+            "scope_step_ids": [],
+            "goals": {
+              "i_2.E": [
+                "parameterize_axis_point_E_i",
+                "derive_square_vertex_G_i",
+                "solve_axis_point_candidates_i"
+              ]
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "scope_ref": "ii",
+        "scope_step_ids": [],
+        "goals": {
+          "ii.E": [
+            "derive_parametric_parabola_ii",
+            "derive_path_minimum_ii",
+            "solve_parameter_c_ii",
+            "evaluate_point_A_ii",
+            "evaluate_minimum_point_G_ii",
+            "recover_target_point_E_ii"
+          ]
+        },
+        "children": []
+      }
+    ]
+  },
+  "cards": [
+    {
+      "anchor": "step-derive_parabola_i",
+      "step_id": "derive_parabola_i",
+      "owner": {
+        "scope_ref": "i",
+        "goal_ref": null
+      },
+      "capability_id": "quadratic_from_constraints",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "derive_parabola_i",
+        "derive_parametric_parabola_ii"
+      ],
+      "previous_plan_step": {
+        "step_id": "derive_parabola_i",
+        "capability_id": "quadratic_from_constraints",
+        "intent": "代入本问给定系数得到完整抛物线。",
+        "args": {
+          "known_coefficients": [
+            "symbol_value_b",
+            "symbol_value_c"
+          ]
+        },
+        "output_targets": {},
+        "return_contract": {
+          "coefficients": "Coefficients",
+          "parabola": "Parabola"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "derive_parabola_i",
+        "capability_id": "quadratic_from_constraints",
+        "intent": "代入本问给定系数得到完整抛物线。",
+        "inputs": {
+          "known_coefficients": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "symbol_value_b"
+              },
+              "runtime_type": "ParameterValue",
+              "value": "-2",
+              "display": "-2"
+            },
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "symbol_value_c"
+              },
+              "runtime_type": "ParameterValue",
+              "value": "3",
+              "display": "3"
+            }
+          ]
+        },
+        "output_targets": {},
+        "outputs": {
+          "coefficients": {
+            "runtime_type": "Coefficients",
+            "value": {
+              "b": "-2",
+              "c": "3"
+            },
+            "display": "{\"b\": \"-2\", \"c\": \"3\"}"
+          },
+          "parabola": {
+            "runtime_type": "Parabola",
+            "value": "-x**2 - 2*x + 3",
+            "display": "-x²-2x+3"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "known_coefficients_preserved",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "已知系数被保留"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "quadratic_from_constraints/derive_function",
+          "title_template": "{parabola_title_action}函数解析式",
+          "nav_title_template": "{parabola_title_action}解析式",
+          "goal_template": "代入当前问给出的约束，确定二次函数解析式。",
+          "derive_templates": [
+            [
+              "∵",
+              "{constraint_origin}"
+            ],
+            [
+              "∴",
+              "{constraint_derivation}"
+            ],
+            [
+              "∴",
+              "y＝{result_parabola}{completed_square_suffix}"
+            ]
+          ],
+          "box_templates": [
+            "y＝{result_parabola}"
+          ],
+          "role_schema": {
+            "constraints": "用于确定当前问二次函数的系数约束。",
+            "constraint_origin": "约束来源；若输入含曲线点，则说明该已验证点位于哪条当前函数上。",
+            "constraint_derivation": "由已验证坐标代入得到的方程与系数关系；没有曲线点时为已知系数条件。",
+            "derive_items": "若存在曲线点条件，由已验证点坐标与当前函数式逐行生成“点在曲线上、代入坐标、化简系数关系、写出解析式”的数学推导；不保存具体点名、坐标或答案。",
+            "result_parabola": "由约束得到的当前问抛物线解析式。",
+            "parabola_title_action": "完全确定时为求，含参数时为化简。",
+            "completed_square_suffix": "可选的配方形式说明。"
+          },
+          "role_binder_id": "quadratic_from_constraints"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "求解析式",
+          "title": "求函数解析式",
+          "goal": "代入当前问给出的约束，确定二次函数解析式。",
+          "derive": [
+            [
+              "∵",
+              "已知系数条件为 b＝－2，c＝3"
+            ],
+            [
+              "计算",
+              "代入 y＝－x²＋bx＋c，得 y＝－x²－2x＋3"
+            ],
+            [
+              "∴",
+              "y＝－x²－2x＋3＝－(x＋1)²＋4"
+            ]
+          ],
+          "box": [
+            "y＝－x²－2x＋3"
+          ],
+          "unit_key": "quadratic_from_constraints/derive_function"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-derive_x_intercept_A_i",
+      "step_id": "derive_x_intercept_A_i",
+      "owner": {
+        "scope_ref": "i",
+        "goal_ref": null
+      },
+      "capability_id": "quadratic_x_axis_intercept_point",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "derive_x_intercept_A_i"
+      ],
+      "previous_plan_step": {
+        "step_id": "derive_x_intercept_A_i",
+        "capability_id": "quadratic_x_axis_intercept_point",
+        "intent": "求横轴左侧交点。",
+        "args": {
+          "parabola": "parabola"
+        },
+        "output_targets": {},
+        "return_contract": {
+          "point": "Point"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "derive_x_intercept_A_i",
+        "capability_id": "quadratic_x_axis_intercept_point",
+        "intent": "求横轴左侧交点。",
+        "inputs": {
+          "parabola": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "parabola"
+              },
+              "runtime_type": "Parabola",
+              "value": "-x**2 - 2*x + 3",
+              "display": "-x²-2x+3",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "derive_parabola_i",
+                "return": "parabola"
+              }
+            }
+          ]
+        },
+        "output_targets": {},
+        "outputs": {
+          "point": {
+            "runtime_type": "Point",
+            "value": [
+              "-3",
+              "0"
+            ],
+            "display": "A(-3,0)"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "x_axis_y_is_zero",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "x 轴交点的纵坐标为 0"
+          },
+          {
+            "check_id": "point_on_parabola",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "点坐标满足抛物线解析式"
+          },
+          {
+            "check_id": "left_x_axis_intercept",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "目标点声明为左侧 x 轴交点"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "quadratic_x_axis_intercept_point/solve_intercept",
+          "title_template": "求抛物线与 x 轴交点",
+          "nav_title_template": "求 x 轴交点",
+          "goal_template": "令 y＝0，求出指定的 x 轴交点。",
+          "derive_templates": [
+            [
+              "∵",
+              "x 轴交点满足 y＝0，即 {intercept_equation}"
+            ],
+            [
+              "计算",
+              "{root_candidates}"
+            ],
+            [
+              "∵",
+              "{selection_reason}"
+            ],
+            [
+              "∴",
+              "{target_point}"
+            ]
+          ],
+          "box_templates": [
+            "{target_point}"
+          ],
+          "role_schema": {
+            "parabola": "当前抛物线解析式。",
+            "intercept_equation": "令 y＝0 后得到的一元二次方程。",
+            "root_candidates": "方程求出的全部 x 轴交点横坐标。",
+            "selection_reason": "由目标点定义选择指定交点的依据。",
+            "target_point": "需要求出的指定 x 轴交点。",
+            "known_point": "可选的已知 x 轴交点。"
+          },
+          "role_binder_id": "quadratic_x_axis_intercept_point"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "求 x 轴交点",
+          "title": "求抛物线与 x 轴交点",
+          "goal": "令 y＝0，求出指定的 x 轴交点。",
+          "derive": [
+            [
+              "∵",
+              "x 轴交点满足 y＝0，即 －x²－2x＋3＝0"
+            ],
+            [
+              "计算",
+              "x＝－3 或 x＝1"
+            ],
+            [
+              "∵",
+              "A 定义为左侧交点，取较小根 x＝－3"
+            ],
+            [
+              "∴",
+              "A(－3,0)"
+            ]
+          ],
+          "box": [
+            "A(－3,0)"
+          ],
+          "unit_key": "quadratic_x_axis_intercept_point/solve_intercept"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-derive_vertex_P_i",
+      "step_id": "derive_vertex_P_i",
+      "owner": {
+        "scope_ref": "i_1",
+        "goal_ref": "i_1.P"
+      },
+      "capability_id": "quadratic_vertex_point",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "derive_vertex_P_i"
+      ],
+      "previous_plan_step": {
+        "step_id": "derive_vertex_P_i",
+        "capability_id": "quadratic_vertex_point",
+        "intent": "由抛物线解析式求顶点。",
+        "args": {
+          "parabola": "parabola"
+        },
+        "output_targets": {},
+        "return_contract": {
+          "point": "Point"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "derive_vertex_P_i",
+        "capability_id": "quadratic_vertex_point",
+        "intent": "由抛物线解析式求顶点。",
+        "inputs": {
+          "parabola": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "parabola"
+              },
+              "runtime_type": "Parabola",
+              "value": "-x**2 - 2*x + 3",
+              "display": "-x²-2x+3",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "derive_parabola_i",
+                "return": "parabola"
+              }
+            }
+          ]
+        },
+        "output_targets": {},
+        "outputs": {
+          "point": {
+            "runtime_type": "Point",
+            "value": [
+              "-1",
+              "4"
+            ],
+            "display": "P(-1,4)"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "vertex_x_derivative_zero",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "顶点横坐标使一阶导数为 0"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "quadratic_vertex_point/read_vertex",
+          "title_template": "求二次函数顶点",
+          "nav_title_template": "求顶点",
+          "goal_template": "把二次函数整理成顶点式，读出顶点坐标。",
+          "derive_templates": [
+            [
+              "∵",
+              "{parabola_vertex_form}"
+            ],
+            [
+              "∴",
+              "{vertex_point}"
+            ]
+          ],
+          "box_templates": [
+            "{vertex_point}"
+          ],
+          "role_schema": {
+            "parabola_vertex_form": "抛物线配方后的顶点式。",
+            "vertex_point": "由顶点式读出的顶点坐标。"
+          },
+          "role_binder_id": "quadratic_vertex_point"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "求顶点",
+          "title": "求二次函数顶点",
+          "goal": "把二次函数整理成顶点式，读出顶点坐标。",
+          "derive": [
+            [
+              "∵",
+              "抛物线为 y＝－x²－2x＋3"
+            ],
+            [
+              "计算",
+              "配方，得 y＝－(x＋1)²＋4"
+            ],
+            [
+              "∴",
+              "顶点为 P(－1,4)"
+            ]
+          ],
+          "box": [
+            "P(－1,4)"
+          ],
+          "unit_key": "quadratic_vertex_point/read_vertex"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-parameterize_axis_point_E_i",
+      "step_id": "parameterize_axis_point_E_i",
+      "owner": {
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      },
+      "capability_id": "quadratic_axis_parameterized_point",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "parameterize_axis_point_E_i"
+      ],
+      "previous_plan_step": {
+        "step_id": "parameterize_axis_point_E_i",
+        "capability_id": "quadratic_axis_parameterized_point",
+        "intent": "把对称轴上的目标点表示为单参数点。",
+        "args": {
+          "parabola": "parabola"
+        },
+        "output_targets": {
+          "point": "E"
+        },
+        "return_contract": {
+          "point": "Point",
+          "parameter": "Symbol"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "parameterize_axis_point_E_i",
+        "capability_id": "quadratic_axis_parameterized_point",
+        "intent": "把对称轴上的目标点表示为单参数点。",
+        "inputs": {
+          "parabola": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "parabola"
+              },
+              "runtime_type": "Parabola",
+              "value": "-x**2 - 2*x + 3",
+              "display": "-x²-2x+3",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "derive_parabola_i",
+                "return": "parabola"
+              }
+            }
+          ]
+        },
+        "output_targets": {
+          "point": "E"
+        },
+        "outputs": {
+          "point": {
+            "runtime_type": "Point",
+            "value": [
+              "-1",
+              "t"
+            ],
+            "display": "E(-1,t)"
+          },
+          "parameter": {
+            "runtime_type": "Symbol",
+            "value": "t",
+            "display": "t"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "axis_x_derivative_zero",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "参数化点横坐标位于抛物线对称轴上"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "quadratic_axis_parameterized_point/parameterize_axis_point",
+          "title_template": "设对称轴上的参数点",
+          "nav_title_template": "设参数点",
+          "goal_template": "由对称轴方程，用一个参数表示轴上的目标点。",
+          "derive_templates": [
+            [
+              "∵",
+              "{target} 在对称轴 {axis_equation} 上"
+            ],
+            [
+              "设",
+              "{parameterized_point}"
+            ]
+          ],
+          "box_templates": [
+            "{parameterized_point}"
+          ],
+          "role_schema": {
+            "target": "对称轴上的目标点。",
+            "axis_equation": "当前抛物线的对称轴方程。",
+            "parameterized_point": "目标点的参数化坐标。"
+          },
+          "role_binder_id": "quadratic_axis_parameterized_point"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "设参数点",
+          "title": "设对称轴上的参数点",
+          "goal": "由对称轴方程，用一个参数表示轴上的目标点。",
+          "derive": [
+            [
+              "∵",
+              "E 在对称轴 x＝－1 上"
+            ],
+            [
+              "设",
+              "E(－1,t)"
+            ]
+          ],
+          "box": [
+            "E(－1,t)"
+          ],
+          "unit_key": "quadratic_axis_parameterized_point/parameterize_axis_point"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-derive_square_vertex_G_i",
+      "step_id": "derive_square_vertex_G_i",
+      "owner": {
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      },
+      "capability_id": "square_adjacent_vertex_from_side",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "derive_square_vertex_G_i",
+        "recover_target_point_E_ii"
+      ],
+      "previous_plan_step": {
+        "step_id": "derive_square_vertex_G_i",
+        "capability_id": "square_adjacent_vertex_from_side",
+        "intent": "将正方形已知边旋转得到相邻顶点。",
+        "args": {
+          "side_end": "E",
+          "side_start": "A",
+          "square": "square_ae_a_e_k_g"
+        },
+        "output_targets": {
+          "adjacent_vertex": "G"
+        },
+        "return_contract": {
+          "adjacent_vertex": "Point"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "derive_square_vertex_G_i",
+        "capability_id": "square_adjacent_vertex_from_side",
+        "intent": "将正方形已知边旋转得到相邻顶点。",
+        "inputs": {
+          "side_end": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "E"
+              },
+              "runtime_type": "Point",
+              "value": [
+                "-1",
+                "t"
+              ],
+              "display": "E(-1,t)",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "parameterize_axis_point_E_i",
+                "return": "point"
+              }
+            }
+          ],
+          "side_start": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "A"
+              },
+              "runtime_type": "Point",
+              "value": [
+                "-3",
+                "0"
+              ],
+              "display": "A(-3,0)",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "derive_x_intercept_A_i",
+                "return": "point"
+              }
+            }
+          ],
+          "square": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "square_ae_a_e_k_g"
+              },
+              "runtime_type": "square",
+              "value": {
+                "description": "square",
+                "orientation": "below_x_axis",
+                "side": "AE",
+                "type": "square",
+                "vertices": [
+                  "A",
+                  "E",
+                  "K",
+                  "G"
+                ]
+              },
+              "display": "正方形 AEKG"
+            }
+          ]
+        },
+        "output_targets": {
+          "adjacent_vertex": "G"
+        },
+        "outputs": {
+          "adjacent_vertex": {
+            "runtime_type": "Point",
+            "value": [
+              "t - 3",
+              "-2"
+            ],
+            "display": "G(t-3,-2)"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "square_adjacent_side_perpendicular",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "正方形相邻边互相垂直"
+          },
+          {
+            "check_id": "square_adjacent_side_equal_length",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "正方形相邻边长度相等"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "square_adjacent_vertex_from_side/derive_adjacent_vertex",
+          "title_template": "由正方形求相邻顶点{target_label}",
+          "nav_title_template": "正方形求顶点{target_label}",
+          "goal_template": "利用正方形相邻边垂直且等长，求相邻顶点坐标。",
+          "derive_templates": [
+            [
+              "作",
+              "{projection_construction}"
+            ],
+            [
+              "∵",
+              "四边形 {square_name} 是正方形"
+            ],
+            [
+              "∴",
+              "{side_equal_statement}，{square_right_angle_statement}"
+            ],
+            [
+              "∵",
+              "{projection_right_angles}"
+            ],
+            [
+              "∴",
+              "{matching_angle_statement}"
+            ],
+            [
+              "∴",
+              "{triangle_congruence}"
+            ],
+            [
+              "∴",
+              "{length_correspondence}"
+            ],
+            [
+              "∵",
+              "{target_position_condition}"
+            ],
+            [
+              "∴",
+              "{target_point}"
+            ]
+          ],
+          "box_templates": [
+            "{target_point}"
+          ],
+          "role_schema": {
+            "target_label": "学生可见的目标顶点点名。",
+            "projection_construction": "由实际坐标关系确定的垂足构造。",
+            "square_name": "学生可见的正方形名称。",
+            "side_equal_statement": "正方形相邻边相等。",
+            "square_right_angle_statement": "正方形公共顶点处为直角。",
+            "projection_right_angles": "坐标辅助线形成的直角关系。",
+            "matching_angle_statement": "对应的锐角关系。",
+            "triangle_congruence": "由动态绑定点名组成的全等直角三角形。",
+            "length_correspondence": "全等后对应的坐标长度关系。",
+            "target_position_condition": "筛选目标点的方位条件。",
+            "target_point": "目标顶点坐标。"
+          },
+          "role_binder_id": "square_adjacent_vertex_from_side"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "正方形求顶点G",
+          "title": "由正方形求相邻顶点G",
+          "goal": "利用正方形相邻边垂直且等长，求相邻顶点坐标。",
+          "derive": [
+            [
+              "作",
+              "GQ⊥x轴于 Q"
+            ],
+            [
+              "∵",
+              "四边形 AEKG 是正方形"
+            ],
+            [
+              "∴",
+              "AE＝AG，∠EAG＝90°"
+            ],
+            [
+              "∵",
+              "∠EMA＝∠GQA＝90°"
+            ],
+            [
+              "∴",
+              "∠EAM＝∠AGQ"
+            ],
+            [
+              "∴",
+              "Rt△AEM≌Rt△GAQ"
+            ],
+            [
+              "∴",
+              "AQ＝ME＝t，GQ＝AM＝2"
+            ],
+            [
+              "∵",
+              "G 在 x 轴下方"
+            ],
+            [
+              "∴",
+              "G(t－3,－2)"
+            ]
+          ],
+          "box": [
+            "G(t－3,－2)"
+          ],
+          "unit_key": "square_adjacent_vertex_from_side/derive_adjacent_vertex"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-solve_axis_point_candidates_i",
+      "step_id": "solve_axis_point_candidates_i",
+      "owner": {
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      },
+      "capability_id": "point_candidates_from_curve_point_condition",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "solve_axis_point_candidates_i"
+      ],
+      "previous_plan_step": {
+        "step_id": "solve_axis_point_candidates_i",
+        "capability_id": "point_candidates_from_curve_point_condition",
+        "intent": "把参数化顶点代入抛物线并回代目标轴上点。",
+        "args": {
+          "curve_point": "G",
+          "parabola": "parabola",
+          "parameter": {
+            "step_id": "parameterize_axis_point_E_i",
+            "return": "parameter"
+          },
+          "target_point": "E"
+        },
+        "output_targets": {},
+        "return_contract": {
+          "candidates": "PointList"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "solve_axis_point_candidates_i",
+        "capability_id": "point_candidates_from_curve_point_condition",
+        "intent": "把参数化顶点代入抛物线并回代目标轴上点。",
+        "inputs": {
+          "curve_point": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "G"
+              },
+              "runtime_type": "Point",
+              "value": [
+                "t - 3",
+                "-2"
+              ],
+              "display": "G(t-3,-2)",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "derive_square_vertex_G_i",
+                "return": "adjacent_vertex"
+              }
+            }
+          ],
+          "parabola": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "parabola"
+              },
+              "runtime_type": "Parabola",
+              "value": "-x**2 - 2*x + 3",
+              "display": "-x²-2x+3",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "derive_parabola_i",
+                "return": "parabola"
+              }
+            }
+          ],
+          "parameter": [
+            {
+              "ref": {
+                "kind": "step_result",
+                "step_id": "parameterize_axis_point_E_i",
+                "return": "parameter"
+              },
+              "runtime_type": "Symbol",
+              "value": "t",
+              "display": "t"
+            }
+          ],
+          "target_point": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "E"
+              },
+              "runtime_type": "Point",
+              "value": [
+                "-1",
+                "t"
+              ],
+              "display": "E(-1,t)",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "parameterize_axis_point_E_i",
+                "return": "point"
+              }
+            }
+          ]
+        },
+        "output_targets": {},
+        "outputs": {
+          "candidates": {
+            "runtime_type": "PointList",
+            "value": [
+              [
+                "-1",
+                "2 + sqrt(6)"
+              ],
+              [
+                "-1",
+                "2 - sqrt(6)"
+              ]
+            ],
+            "display": "(-1,2+√6)，(-1,2-√6)"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "candidate_count_positive",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "至少得到一个目标点候选"
+          },
+          {
+            "check_id": "curve_point_1_on_curve",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "同参数曲线点在抛物线上"
+          },
+          {
+            "check_id": "curve_point_2_on_curve",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "同参数曲线点在抛物线上"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "point_candidates_from_curve_point_condition/solve_candidates",
+          "title_template": "代入{curve_kind}求点{target_label}候选",
+          "nav_title_template": "求点{target_label}候选",
+          "goal_template": "把同参数曲线点代入已知曲线，解参数并回代目标点。",
+          "derive_templates": [
+            [
+              "∵",
+              "{curve_point} 在 {curve_equation} 上"
+            ],
+            [
+              "∴",
+              "{substitution_equation}"
+            ],
+            [
+              "计算",
+              "{parameter_equation}"
+            ],
+            [
+              "∴",
+              "{parameter_solutions}"
+            ],
+            [
+              "∴",
+              "{target_candidates}"
+            ]
+          ],
+          "box_templates": [
+            "{target_candidates}"
+          ],
+          "role_schema": {
+            "target_label": "目标点点名。",
+            "curve_kind": "曲线类型的学生化名称。",
+            "curve_point": "带参数的曲线点。",
+            "curve_equation": "已确定的曲线方程。",
+            "substitution_equation": "曲线点代入后的方程。",
+            "parameter_equation": "整理后的参数方程。",
+            "parameter_solutions": "原参数的解。",
+            "target_candidates": "目标点候选列表。"
+          },
+          "role_binder_id": "point_candidates_from_curve_point_condition"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "求点E候选",
+          "title": "代入抛物线求点E候选",
+          "goal": "把同参数曲线点代入已知曲线，解参数并回代目标点。",
+          "derive": [
+            [
+              "∵",
+              "E(－1,t) 与 G(t－3,－2) 都由同一参数 t 表示"
+            ],
+            [
+              "∵",
+              "G(t－3,－2) 在 y＝－x²－2x＋3 上"
+            ],
+            [
+              "∴",
+              "代入曲线点坐标，得 －2＝－(t－3)²－2(t－3)＋3"
+            ],
+            [
+              "计算",
+              "整理为 (t－3)²＋2(t－3)－5＝0"
+            ],
+            [
+              "计算",
+              "解得 t＝2±√6"
+            ],
+            [
+              "∴",
+              "把参数值代回 E(－1,t)，得 E(－1,2＋√6) 或 E(－1,2－√6)"
+            ]
+          ],
+          "box": [
+            "E(－1,2＋√6) 或 E(－1,2－√6)"
+          ],
+          "unit_key": "point_candidates_from_curve_point_condition/solve_candidates"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-derive_parametric_parabola_ii",
+      "step_id": "derive_parametric_parabola_ii",
+      "owner": {
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      "capability_id": "quadratic_from_constraints",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "derive_parabola_i",
+        "derive_parametric_parabola_ii"
+      ],
+      "previous_plan_step": {
+        "step_id": "derive_parametric_parabola_ii",
+        "capability_id": "quadratic_from_constraints",
+        "intent": "代入横轴交点条件，把函数化成只含主参数的形式。",
+        "args": {
+          "curve_point": "A",
+          "free_parameters": "c"
+        },
+        "output_targets": {},
+        "return_contract": {
+          "coefficients": "Coefficients",
+          "parabola": "Parabola"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "derive_parametric_parabola_ii",
+        "capability_id": "quadratic_from_constraints",
+        "intent": "代入横轴交点条件，把函数化成只含主参数的形式。",
+        "inputs": {
+          "curve_point": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "A"
+              },
+              "runtime_type": "Point",
+              "value": [
+                "-c",
+                "0"
+              ],
+              "display": "A(-c,0)"
+            }
+          ],
+          "free_parameters": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "c"
+              },
+              "runtime_type": "ParameterValue",
+              "value": "c",
+              "display": "c"
+            }
+          ]
+        },
+        "output_targets": {},
+        "outputs": {
+          "coefficients": {
+            "runtime_type": "Coefficients",
+            "value": {
+              "b": "1 - c"
+            },
+            "display": "{\"b\": \"1 - c\"}"
+          },
+          "parabola": {
+            "runtime_type": "Parabola",
+            "value": "-c*x + c - x**2 + x",
+            "display": "-cx+c-x²+x"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "known_coefficients_preserved",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "已知系数被保留"
+          },
+          {
+            "check_id": "curve_point_0_on_parabola",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "曲线点满足求得的抛物线"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "quadratic_from_constraints/derive_function",
+          "title_template": "{parabola_title_action}函数解析式",
+          "nav_title_template": "{parabola_title_action}解析式",
+          "goal_template": "代入当前问给出的约束，确定二次函数解析式。",
+          "derive_templates": [
+            [
+              "∵",
+              "{constraint_origin}"
+            ],
+            [
+              "∴",
+              "{constraint_derivation}"
+            ],
+            [
+              "∴",
+              "y＝{result_parabola}{completed_square_suffix}"
+            ]
+          ],
+          "box_templates": [
+            "y＝{result_parabola}"
+          ],
+          "role_schema": {
+            "constraints": "用于确定当前问二次函数的系数约束。",
+            "constraint_origin": "约束来源；若输入含曲线点，则说明该已验证点位于哪条当前函数上。",
+            "constraint_derivation": "由已验证坐标代入得到的方程与系数关系；没有曲线点时为已知系数条件。",
+            "derive_items": "若存在曲线点条件，由已验证点坐标与当前函数式逐行生成“点在曲线上、代入坐标、化简系数关系、写出解析式”的数学推导；不保存具体点名、坐标或答案。",
+            "result_parabola": "由约束得到的当前问抛物线解析式。",
+            "parabola_title_action": "完全确定时为求，含参数时为化简。",
+            "completed_square_suffix": "可选的配方形式说明。"
+          },
+          "role_binder_id": "quadratic_from_constraints"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "化简解析式",
+          "title": "化简函数解析式",
+          "goal": "代入当前问给出的约束，确定二次函数解析式。",
+          "derive": [
+            [
+              "∵",
+              "A(－c,0) 在 y＝－x²＋bx＋c 上"
+            ],
+            [
+              "∴",
+              "代入 A 点坐标，得 0＝－c²－bc＋c＝－c(b＋c－1)"
+            ],
+            [
+              "∵",
+              "c＞1"
+            ],
+            [
+              "计算",
+              "化简上述方程，得 b＝1－c"
+            ],
+            [
+              "∴",
+              "y＝－x²＋(1－c)x＋c"
+            ]
+          ],
+          "box": [
+            "y＝－x²＋(1－c)x＋c"
+          ],
+          "unit_key": "quadratic_from_constraints/derive_function"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-derive_path_minimum_ii",
+      "step_id": "derive_path_minimum_ii",
+      "owner": {
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      "capability_id": "quadratic_square_path_minimum",
+      "kind": "macro",
+      "same_capability_occurrences": [
+        "derive_path_minimum_ii"
+      ],
+      "previous_plan_step": {
+        "step_id": "derive_path_minimum_ii",
+        "capability_id": "quadratic_square_path_minimum",
+        "intent": "原子完成正方形路径降维、轨迹、拉直和达到性；达到点的正方形动点身份由代码绑定。",
+        "args": {
+          "parabola": "parabola",
+          "path_minimum_target": "path_minimum_target_h_f_m_g",
+          "square": "square_ae_a_e_k_g"
+        },
+        "output_targets": {},
+        "return_contract": {
+          "minimum_expression": "MinimumExpression",
+          "attainment_point": "Point"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "derive_path_minimum_ii",
+        "capability_id": "quadratic_square_path_minimum",
+        "intent": "原子完成正方形路径降维、轨迹、拉直和达到性；达到点的正方形动点身份由代码绑定。",
+        "inputs": {
+          "parabola": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "parabola"
+              },
+              "runtime_type": "Parabola",
+              "value": "-c*x + c - x**2 + x",
+              "display": "-cx+c-x²+x",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "derive_parametric_parabola_ii",
+                "return": "parabola"
+              }
+            }
+          ],
+          "path_minimum_target": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "path_minimum_target_h_f_m_g"
+              },
+              "runtime_type": "path_minimum_target",
+              "value": {
+                "description": "minimum target",
+                "path": "HF+FM+MG",
+                "terms": [
+                  [
+                    "H",
+                    "F"
+                  ],
+                  [
+                    "F",
+                    "M"
+                  ],
+                  [
+                    "M",
+                    "G"
+                  ]
+                ],
+                "type": "path_minimum_target"
+              },
+              "display": "HF+FM+MG"
+            }
+          ],
+          "square": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "square_ae_a_e_k_g"
+              },
+              "runtime_type": "square",
+              "value": {
+                "description": "square",
+                "orientation": "below_x_axis",
+                "side": "AE",
+                "type": "square",
+                "vertices": [
+                  "A",
+                  "E",
+                  "K",
+                  "G"
+                ]
+              },
+              "display": "正方形 AEKG"
+            }
+          ]
+        },
+        "output_targets": {},
+        "outputs": {
+          "minimum_expression": {
+            "runtime_type": "MinimumExpression",
+            "value": "sqrt(5)*Abs(c + 1)/2",
+            "display": "√5|c+1|/2"
+          },
+          "attainment_point": {
+            "runtime_type": "Point",
+            "value": [
+              "1/4 - 3*c/4",
+              "-c/2 - 1/2"
+            ],
+            "display": "(1/4-3c/4,-c/2-1/2)"
+          }
+        },
+        "calculations": [
+          {
+            "calculation_id": "path_equivalence",
+            "kind": "equivalence_chain",
+            "statements": [
+              "FM=AE/2",
+              "HF=AG/2",
+              "AE=AG",
+              "HF+FM=AG",
+              "HF+FM+MG=AG+MG"
+            ],
+            "result": "HF+FM+MG=AG+MG"
+          },
+          {
+            "calculation_id": "path_construction_1",
+            "kind": "square_midpoint_center_reduction",
+            "facts": {
+              "kind": "square_midpoint_center_reduction",
+              "moving_locus": "y=-c/2 - 1/2"
+            }
+          },
+          {
+            "calculation_id": "path_construction_2",
+            "kind": "line_reflection",
+            "facts": {
+              "kind": "line_reflection",
+              "minimum_segment": "A_primeM",
+              "moving_point": "G",
+              "other_fixed_point": "M",
+              "reflect_source": "A",
+              "reflected_point": [
+                "-c",
+                "-c - 1"
+              ],
+              "reflected_point_name": "A_prime",
+              "segment_equality": "AG=A_primeG",
+              "straightened_path": "A_primeG+MG",
+              "transformed_path": "AG+MG"
+            }
+          },
+          {
+            "calculation_id": "path_minimum",
+            "kind": "minimum",
+            "strategy": "reflection",
+            "expression": "sqrt(5)*Abs(c + 1)/2"
+          },
+          {
+            "calculation_id": "path_attainment",
+            "kind": "attainment",
+            "points": {
+              "G": [
+                "1/4 - 3*c/4",
+                "-c/2 - 1/2"
+              ]
+            }
+          }
+        ],
+        "checks": [
+          {
+            "check_id": "path_attainment_1_1",
+            "kind": "point_on_moving_locus",
+            "passed": true
+          },
+          {
+            "check_id": "path_attainment_1_2",
+            "kind": "point_on_minimum_segment",
+            "passed": true
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "macro",
+        "declared": true,
+        "macro_teaching": {
+          "teaching_units": [
+            {
+              "unit_key": "quadratic_square_path_minimum/path_reduction",
+              "title_template": "利用正方形关系化简路径",
+              "nav_title_template": "化简路径",
+              "goal_template": "用中点、中心和正方形等长关系，把原路径化为单动点路径。",
+              "derive_templates": [
+                [
+                  "∵",
+                  "{square_equalities}"
+                ],
+                [
+                  "∴",
+                  "{path_reduction_equality}"
+                ],
+                [
+                  "∴",
+                  "{original_objective}＝{reduced_objective}"
+                ]
+              ],
+              "box_templates": [
+                "{original_objective}＝{reduced_objective}"
+              ],
+              "role_schema": {
+                "square_equalities": "路径化简所用的中点、中心与正方形等长事实。",
+                "path_reduction_equality": "由这些等长事实直接得到的局部路径等式。",
+                "original_objective": "题设要求最小化的原路径。",
+                "reduced_objective": "化简后的单动点路径。"
+              },
+              "role_binder_id": "quadratic_square_path_minimum"
+            },
+            {
+              "unit_key": "quadratic_square_path_minimum/reflection_minimum",
+              "title_template": "确定{moving_point}的轨迹并用反射求最短路径",
+              "nav_title_template": "轨迹与反射",
+              "goal_template": "确定动点轨迹，构造对称点拉直折线，并给出最小值与取等位置。",
+              "derive_templates": [
+                [
+                  "∵",
+                  "{moving_point} 的轨迹为 {moving_locus}"
+                ],
+                [
+                  "作",
+                  "关于该轨迹构造 {reflected_point}"
+                ],
+                [
+                  "∵",
+                  "{segment_equality}"
+                ],
+                [
+                  "∴",
+                  "{straightened_path}"
+                ],
+                [
+                  "∴",
+                  "最小值为 {minimum_expression}"
+                ],
+                [
+                  "∴",
+                  "在 {attainment_point} 处取得"
+                ]
+              ],
+              "box_templates": [
+                "最小值为 {minimum_expression}",
+                "取等点为 {attainment_point}"
+              ],
+              "role_schema": {
+                "moving_point": "化简后路径中唯一的动点。",
+                "moving_locus": "由二次函数与正方形关系确定的动点轨迹。",
+                "reflected_point": "为拉直折线构造的对称点及其坐标。",
+                "segment_equality": "反射给出的对应线段等长关系。",
+                "straightened_path": "反射后拉直的路径关系。",
+                "minimum_expression": "路径最小值表达式。",
+                "attainment_point": "使路径取得最小值的动点位置。"
+              },
+              "role_binder_id": "quadratic_square_path_minimum"
+            }
+          ],
+          "teaching_variants": []
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "化简路径",
+          "title": "利用正方形关系化简路径",
+          "goal": "用中点、中心和正方形等长关系，把原路径化为单动点路径。",
+          "derive": [
+            [
+              "∵",
+              "FM=AE/2，HF=AG/2，AE=AG"
+            ],
+            [
+              "∴",
+              "HF+FM=AG"
+            ],
+            [
+              "∴",
+              "HF+FM+MG＝AG+MG"
+            ]
+          ],
+          "box": [
+            "HF+FM+MG＝AG+MG"
+          ],
+          "unit_key": "quadratic_square_path_minimum/path_reduction"
+        },
+        {
+          "nav_title": "轨迹与反射",
+          "title": "确定G的轨迹并用反射求最短路径",
+          "goal": "确定动点轨迹，构造对称点拉直折线，并给出最小值与取等位置。",
+          "derive": [
+            [
+              "∵",
+              "G 的轨迹为 y=-c/2-1/2"
+            ],
+            [
+              "作",
+              "关于该轨迹构造 A′(-c,-c-1)"
+            ],
+            [
+              "∵",
+              "AG=A′G"
+            ],
+            [
+              "∴",
+              "AG+MG＝A′G+MG≥A′M"
+            ],
+            [
+              "∴",
+              "最小值为 √5|c+1|/2"
+            ],
+            [
+              "∴",
+              "在 G(1/4-3c/4,-c/2-1/2) 处取得"
+            ]
+          ],
+          "box": [
+            "最小值为 √5|c+1|/2",
+            "取等点为 G(1/4-3c/4,-c/2-1/2)"
+          ],
+          "unit_key": "quadratic_square_path_minimum/reflection_minimum"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-solve_parameter_c_ii",
+      "step_id": "solve_parameter_c_ii",
+      "owner": {
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      "capability_id": "parameter_from_expression_value",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "solve_parameter_c_ii"
+      ],
+      "previous_plan_step": {
+        "step_id": "solve_parameter_c_ii",
+        "capability_id": "parameter_from_expression_value",
+        "intent": "令最小值表达式等于题设值并按参数范围取解。",
+        "args": {
+          "expression": {
+            "step_id": "derive_path_minimum_ii",
+            "return": "minimum_expression"
+          },
+          "minimum_value": "minimum_value",
+          "parameter": "c"
+        },
+        "output_targets": {
+          "parameter_value": "c"
+        },
+        "return_contract": {
+          "parameter_value": "ParameterValue"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "solve_parameter_c_ii",
+        "capability_id": "parameter_from_expression_value",
+        "intent": "令最小值表达式等于题设值并按参数范围取解。",
+        "inputs": {
+          "expression": [
+            {
+              "ref": {
+                "kind": "step_result",
+                "step_id": "derive_path_minimum_ii",
+                "return": "minimum_expression"
+              },
+              "runtime_type": "MinimumExpression",
+              "value": "sqrt(5)*Abs(c + 1)/2",
+              "display": "√5|c+1|/2"
+            }
+          ],
+          "minimum_value": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "minimum_value"
+              },
+              "runtime_type": "minimum_value",
+              "value": {
+                "description": "minimum value given",
+                "path": "HF+FM+MG",
+                "type": "minimum_value",
+                "value": "3*sqrt(5)"
+              },
+              "display": "HF+FM+MG=3√5"
+            }
+          ],
+          "parameter": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "c"
+              },
+              "runtime_type": "ParameterValue",
+              "value": "c",
+              "display": "c"
+            }
+          ]
+        },
+        "output_targets": {
+          "parameter_value": "c"
+        },
+        "outputs": {
+          "parameter_value": {
+            "runtime_type": "ParameterValue",
+            "value": "5",
+            "display": "5"
+          }
+        },
+        "calculations": [
+          {
+            "calculation_id": "symbolic_equations",
+            "kind": "equation_system",
+            "equations": [
+              "Eq(sqrt(5)*Abs(c + 1)/2, 3*sqrt(5))"
+            ],
+            "sources": [
+              "expression",
+              "condition"
+            ]
+          },
+          {
+            "calculation_id": "symbolic_substitutions",
+            "kind": "substitution",
+            "values": [
+              {
+                "symbol": "c",
+                "value": "5"
+              }
+            ]
+          },
+          {
+            "calculation_id": "symbolic_solution",
+            "kind": "solution",
+            "target": "c",
+            "value": "5"
+          }
+        ],
+        "checks": [
+          {
+            "check_id": "parameter_domain",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "参数满足定义域"
+          },
+          {
+            "check_id": "expression_value_matches",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "表达式取值匹配题设"
+          },
+          {
+            "check_id": "closure_parameter_value_matches",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "参数值输出与 symbolic closure 一致"
+          },
+          {
+            "check_id": "closure_equation_0_satisfied",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "参数值满足 symbolic closure 方程"
+          },
+          {
+            "check_id": "symbolic_unique_branch",
+            "kind": "unique_solution_branch",
+            "passed": true,
+            "branch_count": 1,
+            "residual_symbols": []
+          },
+          {
+            "check_id": "symbolic_constraint_filter",
+            "kind": "constraint_filter",
+            "passed": true,
+            "summary": "题设约束已用于筛选唯一合法分支"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "parameter_from_expression_value/solve_parameter",
+          "title_template": "由表达式取值反求参数",
+          "nav_title_template": "反求参数",
+          "goal_template": "把题设给定值代入已得到的表达式，解出参数并筛选合法分支。",
+          "derive_templates": [
+            [
+              "∵",
+              "{expression}＝{target_value}"
+            ],
+            [
+              "计算",
+              "解关于 {parameter} 的方程并按题设条件筛选"
+            ],
+            [
+              "∴",
+              "{parameter}＝{parameter_value}"
+            ]
+          ],
+          "box_templates": [
+            "{parameter}＝{parameter_value}"
+          ],
+          "role_schema": {
+            "expression": "前序步骤得到的含参表达式。",
+            "target_value": "题设给出的表达式取值。",
+            "parameter": "需要反求的参数。",
+            "parameter_value": "筛选后的参数值。"
+          },
+          "role_binder_id": "parameter_from_expression_value"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "反求参数",
+          "title": "由表达式取值反求参数",
+          "goal": "把题设给定值代入已得到的表达式，解出参数并筛选合法分支。",
+          "derive": [
+            [
+              "∵",
+              "题设要求 √5|c＋1|/2＝3√5"
+            ],
+            [
+              "计算",
+              "解方程，得 c＝－7 或 c＝5"
+            ],
+            [
+              "∵",
+              "根据 c＞1，保留 c＝5"
+            ],
+            [
+              "∴",
+              "c＝5"
+            ]
+          ],
+          "box": [
+            "c＝5"
+          ],
+          "unit_key": "parameter_from_expression_value/solve_parameter"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-evaluate_point_A_ii",
+      "step_id": "evaluate_point_A_ii",
+      "owner": {
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      "capability_id": "evaluate_point_at_parameter",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "evaluate_point_A_ii",
+        "evaluate_minimum_point_G_ii"
+      ],
+      "previous_plan_step": {
+        "step_id": "evaluate_point_A_ii",
+        "capability_id": "evaluate_point_at_parameter",
+        "intent": "把主参数代入横轴交点坐标。",
+        "args": {
+          "parameter_value": "c",
+          "point": "A"
+        },
+        "output_targets": {
+          "evaluated_point": "A"
+        },
+        "return_contract": {
+          "evaluated_point": "Point"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "evaluate_point_A_ii",
+        "capability_id": "evaluate_point_at_parameter",
+        "intent": "把主参数代入横轴交点坐标。",
+        "inputs": {
+          "parameter_value": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "c"
+              },
+              "runtime_type": "ParameterValue",
+              "value": "5",
+              "display": "5",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "solve_parameter_c_ii",
+                "return": "parameter_value"
+              }
+            }
+          ],
+          "point": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "A"
+              },
+              "runtime_type": "Point",
+              "value": [
+                "-c",
+                "0"
+              ],
+              "display": "A(-c,0)"
+            }
+          ]
+        },
+        "output_targets": {
+          "evaluated_point": "A"
+        },
+        "outputs": {
+          "evaluated_point": {
+            "runtime_type": "Point",
+            "value": [
+              "-5",
+              "0"
+            ],
+            "display": "A(-5,0)"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "point_parameter_substituted",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "参数已代入点坐标"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "evaluate_point_at_parameter/substitute_point_parameter",
+          "title_template": "代入参数求点坐标",
+          "nav_title_template": "代入求点",
+          "goal_template": "把已求出的参数值代入含参点坐标，得到具体点。",
+          "derive_templates": [
+            [
+              "∵",
+              "{source_point}，{parameter}＝{parameter_value}"
+            ],
+            [
+              "∴",
+              "{evaluated_point}"
+            ]
+          ],
+          "box_templates": [
+            "{evaluated_point}"
+          ],
+          "role_schema": {
+            "source_point": "代入前的含参点坐标。",
+            "parameter": "已求出的参数名。",
+            "parameter_value": "已求出的参数值。",
+            "evaluated_point": "代入参数后的点坐标。"
+          },
+          "role_binder_id": "evaluate_point_at_parameter"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "代入求点",
+          "title": "代入参数求点坐标",
+          "goal": "把已求出的参数值代入含参点坐标，得到具体点。",
+          "derive": [
+            [
+              "∵",
+              "A(-c,0)，c＝5"
+            ],
+            [
+              "计算",
+              "将 c＝5 代入：x_A＝－c＝－5，y_A＝0＝0"
+            ],
+            [
+              "∴",
+              "A(-5,0)"
+            ]
+          ],
+          "box": [
+            "A(-5,0)"
+          ],
+          "unit_key": "evaluate_point_at_parameter/substitute_point_parameter"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-evaluate_minimum_point_G_ii",
+      "step_id": "evaluate_minimum_point_G_ii",
+      "owner": {
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      "capability_id": "evaluate_point_at_parameter",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "evaluate_point_A_ii",
+        "evaluate_minimum_point_G_ii"
+      ],
+      "previous_plan_step": {
+        "step_id": "evaluate_minimum_point_G_ii",
+        "capability_id": "evaluate_point_at_parameter",
+        "intent": "把已求出的二次函数参数代入 Macro 返回的取等号点 G。",
+        "args": {
+          "parameter_value": "c",
+          "point": {
+            "step_id": "derive_path_minimum_ii",
+            "return": "attainment_point"
+          }
+        },
+        "output_targets": {
+          "evaluated_point": "G"
+        },
+        "return_contract": {
+          "evaluated_point": "Point"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "evaluate_minimum_point_G_ii",
+        "capability_id": "evaluate_point_at_parameter",
+        "intent": "把已求出的二次函数参数代入 Macro 返回的取等号点 G。",
+        "inputs": {
+          "parameter_value": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "c"
+              },
+              "runtime_type": "ParameterValue",
+              "value": "5",
+              "display": "5",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "solve_parameter_c_ii",
+                "return": "parameter_value"
+              }
+            }
+          ],
+          "point": [
+            {
+              "ref": {
+                "kind": "step_result",
+                "step_id": "derive_path_minimum_ii",
+                "return": "attainment_point"
+              },
+              "runtime_type": "Point",
+              "value": [
+                "1/4 - 3*c/4",
+                "-c/2 - 1/2"
+              ],
+              "display": "(1/4-3c/4,-c/2-1/2)"
+            }
+          ]
+        },
+        "output_targets": {
+          "evaluated_point": "G"
+        },
+        "outputs": {
+          "evaluated_point": {
+            "runtime_type": "Point",
+            "value": [
+              "-7/2",
+              "-3"
+            ],
+            "display": "G(-7/2,-3)"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "point_parameter_substituted",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "参数已代入点坐标"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "evaluate_point_at_parameter/substitute_point_parameter",
+          "title_template": "代入参数求点坐标",
+          "nav_title_template": "代入求点",
+          "goal_template": "把已求出的参数值代入含参点坐标，得到具体点。",
+          "derive_templates": [
+            [
+              "∵",
+              "{source_point}，{parameter}＝{parameter_value}"
+            ],
+            [
+              "∴",
+              "{evaluated_point}"
+            ]
+          ],
+          "box_templates": [
+            "{evaluated_point}"
+          ],
+          "role_schema": {
+            "source_point": "代入前的含参点坐标。",
+            "parameter": "已求出的参数名。",
+            "parameter_value": "已求出的参数值。",
+            "evaluated_point": "代入参数后的点坐标。"
+          },
+          "role_binder_id": "evaluate_point_at_parameter"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "代入求点",
+          "title": "代入参数求点坐标",
+          "goal": "把已求出的参数值代入含参点坐标，得到具体点。",
+          "derive": [
+            [
+              "∵",
+              "G(1/4-3c/4,-c/2-1/2)，c＝5"
+            ],
+            [
+              "计算",
+              "将 c＝5 代入：x_G＝1/4－3c/4＝－7/2，y_G＝－c/2－1/2＝－3"
+            ],
+            [
+              "∴",
+              "G(-7/2,-3)"
+            ]
+          ],
+          "box": [
+            "G(-7/2,-3)"
+          ],
+          "unit_key": "evaluate_point_at_parameter/substitute_point_parameter"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    },
+    {
+      "anchor": "step-recover_target_point_E_ii",
+      "step_id": "recover_target_point_E_ii",
+      "owner": {
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      "capability_id": "square_adjacent_vertex_from_side",
+      "kind": "function",
+      "same_capability_occurrences": [
+        "derive_square_vertex_G_i",
+        "recover_target_point_E_ii"
+      ],
+      "previous_plan_step": {
+        "step_id": "recover_target_point_E_ii",
+        "capability_id": "square_adjacent_vertex_from_side",
+        "intent": "由定值相邻顶点和正方形方向恢复目标点。",
+        "args": {
+          "parameter_value": "c",
+          "side_end": "G",
+          "side_start": "A",
+          "square": "square_ae_a_e_k_g"
+        },
+        "output_targets": {},
+        "return_contract": {
+          "adjacent_vertex": "Point"
+        }
+      },
+      "verified_runtime": {
+        "step_id": "recover_target_point_E_ii",
+        "capability_id": "square_adjacent_vertex_from_side",
+        "intent": "由定值相邻顶点和正方形方向恢复目标点。",
+        "inputs": {
+          "parameter_value": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "c"
+              },
+              "runtime_type": "ParameterValue",
+              "value": "5",
+              "display": "5",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "solve_parameter_c_ii",
+                "return": "parameter_value"
+              }
+            }
+          ],
+          "side_end": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "G"
+              },
+              "runtime_type": "Point",
+              "value": [
+                "-7/2",
+                "-3"
+              ],
+              "display": "G(-7/2,-3)",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "evaluate_minimum_point_G_ii",
+                "return": "evaluated_point"
+              }
+            }
+          ],
+          "side_start": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "A"
+              },
+              "runtime_type": "Point",
+              "value": [
+                "-5",
+                "0"
+              ],
+              "display": "A(-5,0)",
+              "resolved_from": {
+                "kind": "step_result",
+                "step_id": "evaluate_point_A_ii",
+                "return": "evaluated_point"
+              }
+            }
+          ],
+          "square": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "square_ae_a_e_k_g"
+              },
+              "runtime_type": "square",
+              "value": {
+                "description": "square",
+                "orientation": "below_x_axis",
+                "side": "AE",
+                "type": "square",
+                "vertices": [
+                  "A",
+                  "E",
+                  "K",
+                  "G"
+                ]
+              },
+              "display": "正方形 AEKG"
+            }
+          ]
+        },
+        "output_targets": {},
+        "outputs": {
+          "adjacent_vertex": {
+            "runtime_type": "Point",
+            "value": [
+              "-2",
+              "3/2"
+            ],
+            "display": "E(-2,3/2)"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "square_adjacent_side_perpendicular",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "正方形相邻边互相垂直"
+          },
+          {
+            "check_id": "square_adjacent_side_equal_length",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "正方形相邻边长度相等"
+          }
+        ]
+      },
+      "generic_spec": {
+        "kind": "function",
+        "declared": true,
+        "teaching_unit": {
+          "unit_key": "square_adjacent_vertex_from_side/derive_adjacent_vertex",
+          "title_template": "由正方形求相邻顶点{target_label}",
+          "nav_title_template": "正方形求顶点{target_label}",
+          "goal_template": "利用正方形相邻边垂直且等长，求相邻顶点坐标。",
+          "derive_templates": [
+            [
+              "作",
+              "{projection_construction}"
+            ],
+            [
+              "∵",
+              "四边形 {square_name} 是正方形"
+            ],
+            [
+              "∴",
+              "{side_equal_statement}，{square_right_angle_statement}"
+            ],
+            [
+              "∵",
+              "{projection_right_angles}"
+            ],
+            [
+              "∴",
+              "{matching_angle_statement}"
+            ],
+            [
+              "∴",
+              "{triangle_congruence}"
+            ],
+            [
+              "∴",
+              "{length_correspondence}"
+            ],
+            [
+              "∵",
+              "{target_position_condition}"
+            ],
+            [
+              "∴",
+              "{target_point}"
+            ]
+          ],
+          "box_templates": [
+            "{target_point}"
+          ],
+          "role_schema": {
+            "target_label": "学生可见的目标顶点点名。",
+            "projection_construction": "由实际坐标关系确定的垂足构造。",
+            "square_name": "学生可见的正方形名称。",
+            "side_equal_statement": "正方形相邻边相等。",
+            "square_right_angle_statement": "正方形公共顶点处为直角。",
+            "projection_right_angles": "坐标辅助线形成的直角关系。",
+            "matching_angle_statement": "对应的锐角关系。",
+            "triangle_congruence": "由动态绑定点名组成的全等直角三角形。",
+            "length_correspondence": "全等后对应的坐标长度关系。",
+            "target_position_condition": "筛选目标点的方位条件。",
+            "target_point": "目标顶点坐标。"
+          },
+          "role_binder_id": "square_adjacent_vertex_from_side"
+        }
+      },
+      "bound_suggestions": [
+        {
+          "nav_title": "正方形求顶点E",
+          "title": "由正方形求相邻顶点E",
+          "goal": "利用正方形相邻边垂直且等长，求相邻顶点坐标。",
+          "derive": [
+            [
+              "作",
+              "GQ⊥x轴于 Q"
+            ],
+            [
+              "∵",
+              "四边形 AEKG 是正方形"
+            ],
+            [
+              "∴",
+              "AG＝AE，∠GAE＝90°"
+            ],
+            [
+              "∵",
+              "∠GQA＝∠EMA＝90°"
+            ],
+            [
+              "∴",
+              "∠GAQ＝∠AEM"
+            ],
+            [
+              "∴",
+              "Rt△AGQ≌Rt△EAM"
+            ],
+            [
+              "∴",
+              "AM＝QG＝3，EM＝AQ＝3/2"
+            ],
+            [
+              "∵",
+              "按正方形顶点顺序选取 E"
+            ],
+            [
+              "∴",
+              "E(－2,3/2)"
+            ]
+          ],
+          "box": [
+            "E(－2,3/2)"
+          ],
+          "unit_key": "square_adjacent_vertex_from_side/derive_adjacent_vertex"
+        }
+      ],
+      "validation": {
+        "status": "ready_for_review",
+        "issues": [],
+        "unresolved_placeholders": [],
+        "problem_specific_generic_text": false,
+        "private_identity_leak": false
+      }
+    }
+  ]
+}

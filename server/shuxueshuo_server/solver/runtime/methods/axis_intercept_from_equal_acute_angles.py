@@ -6,7 +6,10 @@
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, MethodVisualSpec
+from shuxueshuo_server.solver.contracts import (
+    MethodVisualSpec,
+    TeachingUnitSpec,
+)
 
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
@@ -172,14 +175,22 @@ SPEC = MethodSpecSource(
         "y_axis_point 在以 origin 为原点的竖直轴上",
     ),
     postconditions=("输出点在 y 轴上，且满足 OF/OB=AO/CO",),
-    explanation=MethodExplanationSpec(
+    teaching_unit=TeachingUnitSpec(
+        unit_key="axis_intercept_from_equal_acute_angles/solve_intercept",
+        title_template="由等角关系求辅助点坐标",
+        nav_title_template="等角求截点",
+        goal_template="由等锐角得到正切比相等，求目标直线在坐标轴上的截点。",
+        derive_templates=(
+            ("∵", "{angle_equality}"),
+            ("计算", "在两个直角三角形中利用正切比相等"),
+            ("∴", "{point}"),
+        ),
+        box_templates=("{point}",),
         role_schema={
-            "angle_equality": "已推出的等锐角关系。",
-            "reference_right_triangle": "参考直角三角形。",
-            "target_intercept": "目标直线与坐标轴的交点。",
+            "angle_equality": "已验证的等锐角关系。",
+            "point": "求得的目标轴截点。",
         },
-        student_goal_template="由等锐角得到正切比相等，求出目标直线在坐标轴上的截点。",
-        student_title_template="由等角关系求辅助点坐标",
+        role_binder_id="axis_intercept_from_equal_acute_angles",
     ),
     visual=MethodVisualSpec(
         role_schema={

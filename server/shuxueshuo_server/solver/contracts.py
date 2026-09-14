@@ -1087,47 +1087,47 @@ def default_result_form_spec(runtime_type: str) -> ScalarResultFormSpec | None:
 
 
 @dataclass(frozen=True)
-class TeachingSubstepSpec:
-    """一个 executable capability 在 LessonIR 中建议拆出的认知子步骤。"""
+class TeachingUnitSpec:
+    """One reusable, role-based student teaching unit for a capability."""
 
-    substep_id: str
-    title: str
-    focus: str
-    nav_title: str | None = None
-    title_required_terms: tuple[str, ...] = ()
-    nav_title_required_terms: tuple[str, ...] = ()
-    preferred_method_ids: tuple[str, ...] = ()
-    forbid_merge_with_sibling_substeps: bool = True
+    unit_key: str
+    title_template: str
+    nav_title_template: str
+    goal_template: str
+    derive_templates: tuple[tuple[str, str], ...] = ()
+    box_templates: tuple[str, ...] = ()
+    role_schema: dict[str, str] = field(default_factory=dict)
+    role_binder_id: str = "generic_trace"
+
+    def __post_init__(self) -> None:
+        for field_name in (
+            "unit_key",
+            "title_template",
+            "nav_title_template",
+            "goal_template",
+            "role_binder_id",
+        ):
+            if not str(getattr(self, field_name)).strip():
+                raise ValueError(f"TeachingUnitSpec.{field_name} must be non-empty")
+        if not self.derive_templates:
+            raise ValueError("TeachingUnitSpec requires derive_templates")
+        for marker, template in self.derive_templates:
+            if not str(marker).strip() or not str(template).strip():
+                raise ValueError(
+                    "TeachingUnitSpec derive marker/template must be non-empty"
+                )
 
     def to_payload(self) -> dict[str, Any]:
-        payload = {
-            "substep_id": self.substep_id,
-            "title": self.title,
-            "focus": self.focus,
-            "title_required_terms": list(self.title_required_terms),
-            "nav_title_required_terms": list(self.nav_title_required_terms),
-            "preferred_method_ids": list(self.preferred_method_ids),
-            "forbid_merge_with_sibling_substeps": self.forbid_merge_with_sibling_substeps,
+        return {
+            "unit_key": self.unit_key,
+            "title_template": self.title_template,
+            "nav_title_template": self.nav_title_template,
+            "goal_template": self.goal_template,
+            "derive_templates": [list(item) for item in self.derive_templates],
+            "box_templates": list(self.box_templates),
+            "role_schema": dict(self.role_schema),
+            "role_binder_id": self.role_binder_id,
         }
-        if self.nav_title:
-            payload["nav_title"] = self.nav_title
-        return payload
-
-
-@dataclass(frozen=True)
-class MethodExplanationSpec:
-    """Method 面向讲解层的角色化模板。"""
-
-    role_schema: dict[str, str]
-    student_goal_template: str
-    student_title_template: str = ""
-    student_nav_title_template: str = ""
-    student_title_templates_by_goal: dict[str, str] = field(default_factory=dict)
-    derive_templates: tuple[str, ...] = ()
-    box_templates: tuple[str, ...] = ()
-    explanation_level: str = "template"
-    role_binding_strategy: str = "role_name_registry"
-    role_binder_id: str = "generic_trace"
 
 
 @dataclass(frozen=True)
@@ -1139,6 +1139,17 @@ class MethodVisualSpec:
     annotation_templates: tuple[dict[str, Any], ...] = ()
     timeline_templates: tuple[dict[str, Any], ...] = ()
     role_binder_id: str = "generic_visual"
+    continuation_policy: str = ""
+
+    def __post_init__(self) -> None:
+        if self.continuation_policy not in {
+            "",
+            "preserve_prior_path_scene",
+        }:
+            raise ValueError(
+                "MethodVisualSpec continuation_policy is unsupported: "
+                f"{self.continuation_policy}"
+            )
 
 
 @dataclass(frozen=True)
@@ -1171,8 +1182,17 @@ class MethodSpec:
     trial_error_hints: tuple[TrialErrorHintSpec, ...] = ()
     repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
-    explanation: MethodExplanationSpec | None = None
+    teaching_unit: TeachingUnitSpec | None = None
+    # An explicit code-owned approval for the deterministic verified-input /
+    # output teaching draft.  ``None`` is intentionally different from an
+    # empty string: public-capability coverage treats an omitted declaration
+    # as an unaudited teaching gap.
+    generic_teaching_reason: str | None = None
     visual: MethodVisualSpec | None = None
+    # A public Function that intentionally creates no new visual state must
+    # say why.  This keeps ``visual is None`` from silently meaning either
+    # "not implemented" or "not useful".
+    no_new_visual_reason: str | None = None
     constraint_analyzer: str | None = None
     plan_transformer: str | None = None
     plan_transformer_scope: PlanTransformerScope = "single_invocation"

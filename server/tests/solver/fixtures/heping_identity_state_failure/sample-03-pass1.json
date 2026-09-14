@@ -1,0 +1,186 @@
+{
+  "format": "functional-plan-content/v2",
+  "scope_steps": {
+    "i": [
+      {
+        "step_id": "i_establish_parabola",
+        "capability_id": "quadratic_from_constraints",
+        "args": {
+          "known_coefficients": ["symbol_value_b", "symbol_value_c"]
+        },
+        "output_targets": {
+          "parabola": "parabola"
+        },
+        "return_expectations": {
+          "parabola": "closed_state"
+        },
+        "intent": "代入系数 b=-2, c=3 确定抛物线。"
+      },
+      {
+        "step_id": "i_derive_A",
+        "capability_id": "quadratic_x_axis_intercept_point",
+        "args": {
+          "parabola": "parabola"
+        },
+        "output_targets": {
+          "point": "A"
+        },
+        "return_expectations": {
+          "point": "closed_state"
+        },
+        "intent": "求与 x 轴左侧交点 A。"
+      }
+    ]
+  },
+  "goal_plans": {
+    "i_1.A": {
+      "answer_from": {
+        "step_id": "i_derive_A",
+        "return": "point"
+      }
+    },
+    "i_1.P": {
+      "steps": [
+        {
+          "step_id": "i1_derive_P",
+          "capability_id": "quadratic_vertex_point",
+          "args": {
+            "parabola": "parabola"
+          },
+          "output_targets": {
+            "point": "P"
+          },
+          "return_expectations": {
+            "point": "closed_state"
+          },
+          "intent": "求抛物线顶点 P。"
+        }
+      ],
+      "answer_from": {
+        "step_id": "i1_derive_P",
+        "return": "point"
+      }
+    },
+    "i_2.E": {
+      "steps": [
+        {
+          "step_id": "i2_param_E",
+          "capability_id": "quadratic_axis_parameterized_point",
+          "args": {
+            "parabola": "parabola"
+          },
+          "output_targets": {
+            "point": "E"
+          },
+          "return_expectations": {
+            "point": "open_state"
+          },
+          "intent": "在对称轴上参数化点 E。"
+        },
+        {
+          "step_id": "i2_derive_G",
+          "capability_id": "square_adjacent_vertex_from_side",
+          "args": {
+            "side_start": "A",
+            "side_end": "E",
+            "square": "square_ae_a_e_k_g"
+          },
+          "output_targets": {
+            "adjacent_vertex": "G"
+          },
+          "return_expectations": {
+            "adjacent_vertex": "open_state"
+          },
+          "intent": "由正方形边 AE 求顶点 G。"
+        },
+        {
+          "step_id": "i2_solve_E",
+          "capability_id": "point_candidates_from_curve_point_condition",
+          "args": {
+            "target_point": "E",
+            "curve_point": "G",
+            "parabola": "parabola",
+            "parameter": {
+              "step_id": "i2_param_E",
+              "return": "parameter"
+            }
+          },
+          "intent": "由 G 在抛物线上限定 E 的候选。"
+        }
+      ],
+      "answer_from": {
+        "step_id": "i2_solve_E",
+        "return": "candidates"
+      }
+    },
+    "ii.E": {
+      "steps": [
+        {
+          "step_id": "ii_setup_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "curve_point": "A",
+            "free_parameters": ["c"],
+            "target_parameter": "b"
+          },
+          "output_targets": {
+            "parabola": "parabola"
+          },
+          "return_expectations": {
+            "parabola": "open_state"
+          },
+          "intent": "用 A 在抛物线上建立 b 与 c 的关系，保留 c 自由。"
+        },
+        {
+          "step_id": "ii_path_min",
+          "capability_id": "quadratic_square_path_minimum",
+          "args": {
+            "parabola": "parabola",
+            "path_minimum_target": "path_minimum_target_h_f_m_g",
+            "square": "square_ae_a_e_k_g"
+          },
+          "return_expectations": {
+            "minimum_expression": "open_expression",
+            "attainment_point": "open_state"
+          },
+          "intent": "求二次函数正方形路径最值。"
+        },
+        {
+          "step_id": "ii_solve_parameter",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "step_id": "ii_path_min",
+              "return": "minimum_expression"
+            },
+            "minimum_value": "minimum_value",
+            "parameter": "c"
+          },
+          "intent": "由最小值反求参数 c。"
+        },
+        {
+          "step_id": "ii_final_point",
+          "capability_id": "evaluate_point_at_parameter",
+          "args": {
+            "point": {
+              "step_id": "ii_path_min",
+              "return": "attainment_point"
+            },
+            "parameter_value": {
+              "step_id": "ii_solve_parameter",
+              "return": "parameter_value"
+            }
+          },
+          "return_expectations": {
+            "evaluated_point": "closed_state"
+          },
+          "intent": "代入参数 c 求点 E 的坐标。"
+        }
+      ],
+      "answer_from": {
+        "step_id": "ii_final_point",
+        "return": "evaluated_point"
+      }
+    }
+  }
+}

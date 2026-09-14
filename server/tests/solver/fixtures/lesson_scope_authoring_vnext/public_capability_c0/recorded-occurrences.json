@@ -1,0 +1,385 @@
+{
+  "schema_version": "lesson-capability-occurrences/v1",
+  "registry_fingerprint": "855559dc97c8a75db7d8d1aad3096d85e480c6dc400d0170e225c92f41fff215",
+  "capabilities": {
+    "angle_sum_equal_angle_candidates": [
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "derive_equal_angle_i",
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      }
+    ],
+    "axis_intercept_from_equal_acute_angles": [
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "derive_axis_intercept_F_i",
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      }
+    ],
+    "coupled_segment_endpoint_replacement_path_minimum": [
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_path_minimum",
+        "scope_ref": "ii",
+        "goal_ref": null
+      }
+    ],
+    "curve_candidate_parameter_solve": [
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "select_curve_candidate_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.D"
+      }
+    ],
+    "distance_between_points": [],
+    "equal_length_ray_path_reduction": [
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "reduce_equal_length_ray_path_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.a"
+      }
+    ],
+    "equal_length_ray_point": [],
+    "evaluate_expression_at_parameter": [
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_1_evaluate_minimum",
+        "scope_ref": "ii_1",
+        "goal_ref": "ii_1.min_value"
+      },
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_1_specialize_parabola",
+        "scope_ref": "ii_1",
+        "goal_ref": "ii_1.parabola"
+      },
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_2_specialize_parabola",
+        "scope_ref": "ii_2",
+        "goal_ref": "ii_2.parabola"
+      }
+    ],
+    "evaluate_point_at_parameter": [
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "evaluate_minimum_point_G_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "evaluate_point_A_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_2_evaluate_G",
+        "scope_ref": "ii_2",
+        "goal_ref": "ii_2.G"
+      }
+    ],
+    "line_intersection_point": [],
+    "line_parabola_second_intersection_point": [
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "derive_curve_intersection_E_i",
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      }
+    ],
+    "midpoint_point": [
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_compute_F",
+        "scope_ref": "ii",
+        "goal_ref": null
+      }
+    ],
+    "parameter_from_expression_value": [
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "solve_parameter_c_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "solve_parameter_from_minimum_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.a"
+      },
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "solve_parameter_iii",
+        "scope_ref": "iii",
+        "goal_ref": "iii.b"
+      },
+      {
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "step_id": "solve_parameter_from_minimum_ii",
+        "scope_ref": "ii_2",
+        "goal_ref": "ii_2.b"
+      }
+    ],
+    "parameter_from_minimum_value": [
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_2_solve_m",
+        "scope_ref": "ii_2",
+        "goal_ref": null
+      }
+    ],
+    "parameter_from_segment_length": [
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_1_solve_m",
+        "scope_ref": "ii_1",
+        "goal_ref": null
+      },
+      {
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "step_id": "solve_parameter_from_segment_relation_ii",
+        "scope_ref": "ii_1",
+        "goal_ref": "ii_1.b"
+      }
+    ],
+    "point_candidates_from_curve_point_condition": [
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "solve_axis_point_candidates_i",
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      }
+    ],
+    "point_on_parabola_at_x": [
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "derive_curve_point_iii",
+        "scope_ref": "iii",
+        "goal_ref": "iii.b"
+      },
+      {
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "step_id": "derive_curve_point_D_ii",
+        "scope_ref": "ii",
+        "goal_ref": null
+      }
+    ],
+    "quadratic_axis_from_relation": [
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "i_derive_D",
+        "scope_ref": "problem",
+        "goal_ref": null
+      }
+    ],
+    "quadratic_axis_parameterized_point": [
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "parameterize_axis_point_E_i",
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      }
+    ],
+    "quadratic_from_constraints": [
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "derive_parabola_i",
+        "scope_ref": "i",
+        "goal_ref": null
+      },
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "derive_parametric_parabola_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      },
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "derive_parabola_i",
+        "scope_ref": "i",
+        "goal_ref": null
+      },
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "derive_parametric_parabola_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.a"
+      },
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "derive_parabola_i",
+        "scope_ref": "i",
+        "goal_ref": "i.P"
+      },
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "derive_parametric_parabola_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.D"
+      },
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "derive_parametric_parabola_iii",
+        "scope_ref": "iii",
+        "goal_ref": "iii.b"
+      },
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "i_derive_parabola",
+        "scope_ref": "i",
+        "goal_ref": "i.parabola"
+      },
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_derive_parabola",
+        "scope_ref": "ii",
+        "goal_ref": null
+      },
+      {
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "step_id": "derive_parabola_i",
+        "scope_ref": "i",
+        "goal_ref": "i.vertex"
+      },
+      {
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "step_id": "derive_parametric_parabola_ii",
+        "scope_ref": "ii",
+        "goal_ref": null
+      }
+    ],
+    "quadratic_square_path_minimum": [
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "derive_path_minimum_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      }
+    ],
+    "quadratic_vertex_point": [
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "derive_vertex_P_i",
+        "scope_ref": "i_1",
+        "goal_ref": "i_1.P"
+      },
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "derive_vertex_i",
+        "scope_ref": "i",
+        "goal_ref": "i.P"
+      },
+      {
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "step_id": "derive_vertex_i",
+        "scope_ref": "i",
+        "goal_ref": "i.vertex"
+      }
+    ],
+    "quadratic_x_axis_intercept_point": [
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "derive_x_intercept_A_i",
+        "scope_ref": "i",
+        "goal_ref": null
+      },
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "derive_x_intercept_B_i",
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      },
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "derive_x_intercept_B_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.a"
+      },
+      {
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "step_id": "derive_x_intercept_B_ii",
+        "scope_ref": "ii",
+        "goal_ref": null
+      }
+    ],
+    "quadratic_y_axis_intercept_point": [
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "derive_y_intercept_C_i",
+        "scope_ref": "problem",
+        "goal_ref": null
+      },
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "derive_y_intercept_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.D"
+      },
+      {
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "step_id": "derive_y_intercept_C_ii",
+        "scope_ref": "ii",
+        "goal_ref": null
+      }
+    ],
+    "right_angle_equal_length_candidates": [
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "derive_right_angle_candidates_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.D"
+      }
+    ],
+    "right_angle_equal_length_construct_and_select": [
+      {
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "step_id": "ii_construct_N",
+        "scope_ref": "ii",
+        "goal_ref": null
+      }
+    ],
+    "square_adjacent_vertex_from_side": [
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "derive_square_vertex_G_i",
+        "scope_ref": "i_2",
+        "goal_ref": "i_2.E"
+      },
+      {
+        "problem_id": "tj-2026-heping-ermo-25",
+        "step_id": "recover_target_point_E_ii",
+        "scope_ref": "ii",
+        "goal_ref": "ii.E"
+      }
+    ],
+    "translated_point": [
+      {
+        "problem_id": "tj-2026-heping-yimo-25",
+        "step_id": "derive_translated_D_i",
+        "scope_ref": "problem",
+        "goal_ref": null
+      }
+    ],
+    "weighted_axis_path_minimum": [
+      {
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "step_id": "derive_weighted_minimum_iii",
+        "scope_ref": "iii",
+        "goal_ref": "iii.b"
+      },
+      {
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "step_id": "derive_weighted_minimum_ii",
+        "scope_ref": "ii_2",
+        "goal_ref": "ii_2.b"
+      }
+    ]
+  }
+}

@@ -80,7 +80,9 @@ def test_real_llm_provider_complete_smoke(provider: str) -> None:
     """真实 provider 应能完成一次 Chat Completions 调用并返回 JSON。"""
     config = _provider_config(provider)
     model = _configured_model(config, provider)
-    client = config.build_llm_client()
+    client = config.build_llm_client(
+        thinking_effort="low" if provider == "deepseek" else None,
+    )
 
     raw = client.complete(_smoke_payload(provider, model))
     parsed = _parse_provider_response(raw)

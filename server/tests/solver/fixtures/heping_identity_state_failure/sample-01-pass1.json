@@ -1,0 +1,183 @@
+{
+  "format": "functional-plan-content/v2",
+  "scope_steps": {
+    "i": [
+      {
+        "step_id": "derive_parabola_i",
+        "capability_id": "quadratic_from_constraints",
+        "args": {
+          "known_coefficients": ["symbol_value_b", "symbol_value_c"]
+        },
+        "output_targets": {
+          "parabola": "parabola"
+        },
+        "return_expectations": {
+          "parabola": "closed_state"
+        },
+        "intent": "代入已知 b=-2, c=3 确定抛物线"
+      },
+      {
+        "step_id": "derive_a_i",
+        "capability_id": "quadratic_x_axis_intercept_point",
+        "args": {
+          "parabola": "parabola"
+        },
+        "output_targets": {
+          "point": "A"
+        },
+        "return_expectations": {
+          "point": "closed_state"
+        },
+        "intent": "求 x 轴左交点 A"
+      },
+      {
+        "step_id": "derive_p_i",
+        "capability_id": "quadratic_vertex_point",
+        "args": {
+          "parabola": "parabola"
+        },
+        "output_targets": {
+          "point": "P"
+        },
+        "return_expectations": {
+          "point": "closed_state"
+        },
+        "intent": "求顶点 P"
+      }
+    ],
+    "i_2": [
+      {
+        "step_id": "param_e_i2",
+        "capability_id": "quadratic_axis_parameterized_point",
+        "args": {
+          "parabola": "parabola"
+        },
+        "output_targets": {
+          "point": "E"
+        },
+        "return_expectations": {
+          "point": "open_state"
+        },
+        "intent": "参数化轴上点 E"
+      },
+      {
+        "step_id": "g_from_e_i2",
+        "capability_id": "square_adjacent_vertex_from_side",
+        "args": {
+          "side_start": "A",
+          "side_end": "E",
+          "square": "square_ae_a_e_k_g"
+        },
+        "output_targets": {
+          "adjacent_vertex": "G"
+        },
+        "return_expectations": {
+          "adjacent_vertex": "open_state"
+        },
+        "intent": "由正方形边 AE 构造顶点 G"
+      },
+      {
+        "step_id": "solve_e_i2",
+        "capability_id": "point_candidates_from_curve_point_condition",
+        "args": {
+          "target_point": "E",
+          "curve_point": "G",
+          "parabola": "parabola",
+          "parameter": "x"
+        },
+        "intent": "利用 G 在抛物线上求解 E 的候选"
+      }
+    ],
+    "ii": [
+      {
+        "step_id": "parabola_ii",
+        "capability_id": "quadratic_from_constraints",
+        "args": {
+          "curve_point": "A",
+          "free_parameters": ["c"]
+        },
+        "output_targets": {
+          "parabola": "parabola"
+        },
+        "return_expectations": {
+          "parabola": "open_state"
+        },
+        "intent": "利用 A(-c,0) 约束抛物线，保留自由参数 c"
+      },
+      {
+        "step_id": "path_min_ii",
+        "capability_id": "quadratic_square_path_minimum",
+        "args": {
+          "parabola": "parabola",
+          "path_minimum_target": "path_minimum_target_h_f_m_g",
+          "square": "square_ae_a_e_k_g"
+        },
+        "return_expectations": {
+          "minimum_expression": "open_expression",
+          "attainment_point": "open_state"
+        },
+        "intent": "求最短路径对应的最小表达式及取等点"
+      },
+      {
+        "step_id": "c_from_min_ii",
+        "capability_id": "parameter_from_expression_value",
+        "args": {
+          "expression": {
+            "step_id": "path_min_ii",
+            "return": "minimum_expression"
+          },
+          "minimum_value": "minimum_value",
+          "parameter": "c"
+        },
+        "intent": "由最小值为 3√5 反求 c"
+      },
+      {
+        "step_id": "eval_e_ii",
+        "capability_id": "evaluate_point_at_parameter",
+        "args": {
+          "point": {
+            "step_id": "path_min_ii",
+            "return": "attainment_point"
+          },
+          "parameter_value": {
+            "step_id": "c_from_min_ii",
+            "return": "parameter_value"
+          }
+        },
+        "output_targets": {
+          "evaluated_point": "E"
+        },
+        "return_expectations": {
+          "evaluated_point": "closed_state"
+        },
+        "intent": "代入 c 的取值，得到 E 的坐标"
+      }
+    ]
+  },
+  "goal_plans": {
+    "i_1.A": {
+      "answer_from": {
+        "step_id": "derive_a_i",
+        "return": "point"
+      }
+    },
+    "i_1.P": {
+      "answer_from": {
+        "step_id": "derive_p_i",
+        "return": "point"
+      }
+    },
+    "i_2.E": {
+      "answer_from": {
+        "step_id": "solve_e_i2",
+        "return": "candidates"
+      }
+    },
+    "ii.E": {
+      "answer_from": {
+        "step_id": "eval_e_ii",
+        "return": "evaluated_point"
+      }
+    }
+  }
+}

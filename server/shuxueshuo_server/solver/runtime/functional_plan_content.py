@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import json
 from types import MappingProxyType
 from typing import Any, Mapping, Sequence
 
 from jsonschema import Draft202012Validator
+
+from .functional_diagnostics import schema_validation_diagnostics
 
 from shuxueshuo_server.solver.contracts import (
     CanonicalSymbolDerivationSpec,
@@ -428,6 +430,7 @@ class FunctionalPlanContentCompilation:
     answer_bindings: tuple[FunctionalGoalAnswerBinding, ...] = ()
     answer_binding_error: FunctionalGoalAnswerBindingError | None = None
     draft_only: bool = False
+    normalized_payload: Any = None
 
 
 @dataclass(frozen=True)
@@ -468,6 +471,8 @@ def capability_bound_step_schema(
     source_ref_schema: Mapping[str, Any],
     step_result_ref_schema: Mapping[str, Any],
     authority_frame: FunctionalPlanAuthorityFrame | None = None,
+    include_distinct_constraints: bool = True,
+    include_return_expectations: bool = True,
 ) -> dict[str, Any]:
     """Bind every public argument to its declared Method input view.
 
@@ -540,7 +545,7 @@ def capability_bound_step_schema(
         }
         if required_args:
             args_schema["required"] = required_args
-        if authority_frame is not None and capability.distinct_arg_groups:
+        if include_distinct_constraints and authority_frame is not None and capability.distinct_arg_groups:
             distinct_constraints: list[dict[str, Any]] = []
             source_refs = tuple(
                 sorted(
@@ -658,6 +663,8 @@ def capability_bound_step_schema(
                 ]
             }
         )
+        if not include_return_expectations:
+            variants[-1]["allOf"][1]["properties"].pop("return_expectations")
     if not variants:
         raise ValueError(
             "planner_configuration_error: response schema capability catalog "
@@ -710,8 +717,13 @@ def functional_plan_content_schema(
     frame: FunctionalPlanAuthorityFrame,
     *,
     capability_catalog: FunctionalCapabilityCatalog | None = None,
+    for_prompt: bool = False,
 ) -> dict[str, Any]:
-    """Return a strict schema bound to one exact Scope/Goal authority frame."""
+    """Bind one Scope/Goal frame; prompts omit enumerated cross-arg constraints.
+
+    Catalog input_requirements already describe distinct roles. Runtime retains
+    the complete constraints; the prompt keeps the same wire types and owners.
+    """
 
     all_plan_defs = scoped_functional_plan_schema()["$defs"]
     plan_defs = {
@@ -763,6 +775,7 @@ def functional_plan_content_schema(
             source_ref_schema={"$ref": "#/$defs/source_ref"},
             step_result_ref_schema={"$ref": "#/$defs/step_result_ref"},
             authority_frame=frame,
+            include_distinct_constraints=not for_prompt,
         )
     goal_plan_properties: dict[str, Any] = {}
     for goal_ref in frame.goal_refs:
@@ -777,7 +790,7 @@ def functional_plan_content_schema(
             f"public return type must be {requirement.answer_type!r}."
         )
         goal_plan_properties[goal_ref] = bound_goal_plan
-    return {
+    schema = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "$id": "functional-plan-content.schema.json",
         "title": "Code-owned FunctionalPlan content v2",
@@ -820,6 +833,11 @@ def functional_plan_content_schema(
         "$defs": plan_defs,
         "additionalProperties": False,
     }
+    if for_prompt:
+        from .functional_prompt_schema import compact_prompt_schema
+
+        return compact_prompt_schema(schema)
+    return schema
 
 
 def decode_single_json_object(
@@ -894,6 +912,18 @@ class FunctionalPlanContentCompiler:
             capability_catalog=capability_catalog,
         )
         normalizations = (*normalizations, *wire_normalizations)
+        result = self._compile_normalized_payload(
+            payload, frame=frame, capability_catalog=capability_catalog,
+            normalizations=normalizations, wire_issues=wire_issues,
+        )
+        return replace(result, normalized_payload=deepcopy(payload))
+
+    def _compile_normalized_payload(
+        self, payload: object, *, frame: FunctionalPlanAuthorityFrame,
+        capability_catalog: FunctionalCapabilityCatalog,
+        normalizations: tuple[FunctionalPlanContentNormalization, ...],
+        wire_issues: tuple[ScopedFunctionalPlanIssue, ...],
+    ) -> FunctionalPlanContentCompilation:
         if wire_issues:
             draft = _structural_content_draft(payload, frame=frame)
             if draft is not None:
@@ -917,19 +947,11 @@ class FunctionalPlanContentCompiler:
         if errors:
             issues = (
                 *wire_issues,
-                *tuple(
-                ScopedFunctionalPlanIssue(
-                    "functional.plan_content_schema_invalid",
-                    _json_path(error.absolute_path),
-                    error.message,
-                    {
-                        "validator": str(error.validator),
-                        "validator_value": error.validator_value,
-                        "repair_action": "repair_capability_arguments",
-                    },
-                )
-                for error in errors
-                ),
+                *(ScopedFunctionalPlanIssue(**item) for item in schema_validation_diagnostics(
+                    errors, payload=payload,
+                    code="functional.plan_content_schema_invalid",
+                    goal_owners=frame.goal_owners,
+                )),
             )
             draft = _structural_content_draft(
                 payload,
@@ -1375,14 +1397,26 @@ def normalize_empty_optional_step_maps(
         )
         if is_step:
             for field_name in ("output_targets", "return_expectations"):
-                if value.get(field_name) != {}:
+                false_target = (
+                    field_name == "output_targets"
+                    and value.get(field_name) is False
+                )
+                if value.get(field_name) != {} and not false_target:
                     continue
                 value.pop(field_name)
                 records.append(
                     FunctionalPlanContentNormalization(
-                        code="functional.empty_optional_step_map_omitted",
+                        code=(
+                            "functional.false_output_targets_omitted"
+                            if false_target
+                            else "functional.empty_optional_step_map_omitted"
+                        ),
                         path=_json_path((*path, field_name)),
-                        message=f"omitted empty optional {field_name}",
+                        message=(
+                            "omitted output_targets: false (no target bindings)"
+                            if false_target
+                            else f"omitted empty optional {field_name}"
+                        ),
                     )
                 )
         for key, item in tuple(value.items()):

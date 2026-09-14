@@ -25,7 +25,6 @@ from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
 from shuxueshuo_server.solver.runtime.weighted_axis_path_roles import (
-    WeightedAxisPathRoleError,
     build_weighted_axis_path_role_candidates,
 )
 
@@ -69,7 +68,6 @@ def test_weighted_macro_public_contract_is_one_input_one_output(case) -> None:
                 "parameter": "symbol:problem:b",
                 "dynamic_parameter": "symbol:iii:n",
                 "weight_expression": "sqrt(2)",
-                "geometry_profile_id": "sqrt2_right_isosceles",
             },
         ),
         (
@@ -82,7 +80,6 @@ def test_weighted_macro_public_contract_is_one_input_one_output(case) -> None:
                 "parameter": "symbol:problem:b",
                 "dynamic_parameter": "symbol:ii_2:m",
                 "weight_expression": "2",
-                "geometry_profile_id": "weight2_30_60",
             },
         ),
     ),
@@ -120,14 +117,14 @@ def test_weighted_roles_come_from_typed_path_structure(
             "derive_weighted_minimum_iii",
             (
                 "Piecewise((3*b/2 + 9/4, b > 1/2), "
-                "(sqrt(40*b**2 + 56*b + 26)/4 + 1, True))"
+                "(nan, True))"
             ),
             "point:iii:N",
         ),
         (
             XIQING,
             "derive_weighted_minimum_ii",
-            "b + sqrt(3)*b + 3 + 3*sqrt(3)",
+            "b + sqrt(3)*(b + 3) + 3",
             "point:ii_2:M",
         ),
     ),
@@ -165,6 +162,16 @@ def test_weighted_macro_executes_as_one_public_kernel(
     witness = witnesses[0]
     assert witness.macro_id == MACRO_ID
     assert tuple(witness.minimizing_points) == (moving_point,)
+    construction = witness.constructions[0]
+    assert construction["triangle_geometry"]["kind"] == (
+        "weighted_right_triangle"
+    )
+    assert dict(construction["path_equivalence"]) == {
+        "weighted_segment": ("curve_point", "moving_point"),
+        "unit_segment": ("fixed_point", "moving_point"),
+        "auxiliary_segment": ("auxiliary_point", "moving_point"),
+        "scale": construction["weight"],
+    }
 
     report = result.replay.transactional_attempt_result.execution_report
     call_result = next(
@@ -189,7 +196,7 @@ def test_weighted_macro_executes_as_one_public_kernel(
     assert "PathTransformation" not in public_projection
 
 
-def test_unregistered_weight_fails_during_structural_role_resolution() -> None:
+def test_new_legal_weight_survives_structural_role_resolution() -> None:
     fixture = cached_planning_binding_fixture(XIQING)
     registry = fixture[5]
     path_target = next(
@@ -202,16 +209,17 @@ def test_unregistered_weight_fails_during_structural_role_resolution() -> None:
     target_payload = deepcopy(fact_payloads[path_target])
     target_payload["terms"][0]["scale"] = "3"
     fact_payloads[path_target] = target_payload
-    unsupported = replace(registry, fact_payloads=fact_payloads)
+    extended = replace(registry, fact_payloads=fact_payloads)
 
-    with pytest.raises(WeightedAxisPathRoleError) as error:
-        build_weighted_axis_path_role_candidates(
-            path_minimum_target=path_target,
-            scope_id="ii_2",
-            registry=unsupported,
-        )
+    candidates = build_weighted_axis_path_role_candidates(
+        path_minimum_target=path_target,
+        scope_id="ii_2",
+        registry=extended,
+    )
 
-    assert error.value.code == "weight_unsupported"
+    assert len(candidates) == 1
+    assert candidates[0].weight_expression == "3"
+    assert "geometry_profile_id" not in candidates[0].to_payload()
 
 
 def test_missing_curve_endpoint_state_is_one_macro_diagnostic(tmp_path) -> None:
@@ -299,15 +307,9 @@ def test_weighted_symbolic_proof_unknown_fails_loud(monkeypatch) -> None:
         weighted_axis_path_minimum_module._minimum_with_dynamic_domain(
             interior_minimum=parameter + 1,
             dynamic_expression=parameter / 2 - sp.Rational(1, 4),
-            curve_point=(parameter, sp.Integer(1)),
-            fixed_point=(sp.Integer(0), sp.Integer(0)),
-            moving_point=(dynamic_parameter, sp.Integer(0)),
-            dynamic_parameter=dynamic_parameter,
             target_constraint={"operator": ">", "value": sp.Integer(0)},
             parameter=parameter,
             parameter_constraint={"operator": ">", "value": sp.Integer(0)},
-            weight=sp.sqrt(2),
-            kernel=SympyKernel(),
         )
 
     assert error.value.authority.code == (
@@ -315,3 +317,30 @@ def test_weighted_symbolic_proof_unknown_fails_loud(monkeypatch) -> None:
     )
     assert error.value.authority.retryability == "configuration"
     assert error.value.authority.observed["operation"] == "domain_implication"
+
+
+def test_strict_moving_domain_does_not_promote_endpoint_infimum_to_minimum() -> None:
+    parameter = sp.Symbol("b", real=True)
+
+    minimum, attainment, boundary = (
+        weighted_axis_path_minimum_module._minimum_with_dynamic_domain(
+            interior_minimum=3 * parameter / 2 + sp.Rational(9, 4),
+            dynamic_expression=parameter / 2 - sp.Rational(1, 4),
+            target_constraint={"operator": ">", "value": sp.Integer(0)},
+            parameter=parameter,
+            parameter_constraint={"operator": ">", "value": sp.Integer(0)},
+        )
+    )
+
+    assert minimum == sp.Piecewise(
+        (
+            3 * parameter / 2 + sp.Rational(9, 4),
+            parameter > sp.Rational(1, 2),
+        )
+    )
+    assert sp.solve_univariate_inequality(
+        attainment,
+        parameter,
+        relational=False,
+    ) == sp.Interval.open(sp.Rational(1, 2), sp.oo)
+    assert boundary is None

@@ -1,0 +1,47 @@
+{
+  "schema_version": "lesson-annotated-teaching-audit/v1",
+  "status": "ready_for_human_review",
+  "counts": {
+    "scope_count": 5,
+    "goal_count": 4,
+    "step_count": 12,
+    "teaching_material_count": 13,
+    "independent_teaching_material_count": 6,
+    "verified_answer_count": 4
+  },
+  "hashes": {
+    "annotated_plan": "af480eb61e22d46cfe0a19c49fefeab42ea738cd59652482aa40ca7e70c1ea71",
+    "output_schema": "c3af6c55f1278763863261a498f2c35e468535df26dd1f0db3168f0cd286f499",
+    "prompt": "a4826d362374ffacf405a4188c7a63b4d516a5bd67bba8c61272390b027fa257"
+  },
+  "prompt_chars": {
+    "system": 1533,
+    "user": 12421,
+    "total": 13954,
+    "b0_total": 54707,
+    "smaller_than_b0": true
+  },
+  "forbidden_hits": {
+    "annotated_plan": [],
+    "prompt": []
+  },
+  "projection_diagnostics": [],
+  "independent_step_refs": {
+    "goal:i_2.E": [
+      "s1",
+      "s2",
+      "s3"
+    ],
+    "goal:ii.E": [
+      "s2",
+      "s3",
+      "s7"
+    ]
+  },
+  "shared_few_shot": {
+    "count": 1,
+    "same_problem": false,
+    "mechanism": "student_cognitive_action_boundary"
+  },
+  "llm_invoked": false
+}

@@ -14,7 +14,6 @@ import inspect
 from shuxueshuo_server.solver.contracts import (
     CanonicalSymbolDerivationSpec,
     MethodInputBindingSpec,
-    MethodExplanationSpec,
     MethodInputRelationSpec,
     MethodInputViewMode,
     MethodCompanionOutputSpec,
@@ -23,6 +22,7 @@ from shuxueshuo_server.solver.contracts import (
     PlanTransformerScope,
     ScalarResultFormSpec,
     SymbolicClosureSpec,
+    TeachingUnitSpec,
     TrialErrorHintSpec,
 )
 from shuxueshuo_server.solver.runtime.method_input_contracts import (
@@ -100,8 +100,10 @@ class MethodSpecSource:
     trial_error_hints: tuple[TrialErrorHintSpec, ...] = ()
     repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
-    explanation: MethodExplanationSpec | None = None
+    teaching_unit: TeachingUnitSpec | None = None
+    generic_teaching_reason: str | None = None
     visual: MethodVisualSpec | None = None
+    no_new_visual_reason: str | None = None
     description: str = ""
     summary: str = ""
     do_not_use_when: tuple[str, ...] = ()
@@ -116,6 +118,16 @@ class MethodSpecSource:
     # implementations must opt out so liveness analysis cannot delete them.
     is_pure: bool = True
     parameters_schema: dict[str, Any] | None = None
+
+    def __post_init__(self) -> None:
+        if self.teaching_unit is not None and self.generic_teaching_reason is not None:
+            raise MethodSpecContractError(
+                "MethodSpec teaching declaration must choose explicit or generic"
+            )
+        if self.visual is not None and self.no_new_visual_reason is not None:
+            raise MethodSpecContractError(
+                "MethodSpec visual declaration must choose visual or no-new-visual"
+            )
 
     @property
     def method_id(self) -> str:
@@ -189,10 +201,24 @@ class MethodSpecSource:
             payload["geometry_profiles"] = [
                 _json_ready_hint(item) for item in self.geometry_profiles
             ]
-        if self.explanation is not None:
-            payload["explanation"] = _json_ready_explanation(self.explanation)
+        if self.teaching_unit is not None:
+            payload["teaching_unit"] = self.teaching_unit.to_payload()
+        if self.generic_teaching_reason is not None:
+            reason = self.generic_teaching_reason.strip()
+            if not reason:
+                raise MethodSpecContractError(
+                    "MethodSpec.generic_teaching_reason must be non-empty"
+                )
+            payload["generic_teaching_reason"] = reason
         if self.visual is not None:
             payload["visual"] = _json_ready_visual(self.visual)
+        if self.no_new_visual_reason is not None:
+            reason = self.no_new_visual_reason.strip()
+            if not reason:
+                raise MethodSpecContractError(
+                    "MethodSpec.no_new_visual_reason must be non-empty"
+                )
+            payload["no_new_visual_reason"] = reason
         if self.constraint_analyzer is not None:
             payload["constraint_analyzer"] = self.constraint_analyzer
         if self.plan_transformer is not None:
@@ -423,28 +449,14 @@ def _json_ready_hint(raw: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _json_ready_explanation(explanation: MethodExplanationSpec) -> dict[str, Any]:
-    payload = {
-        "role_schema": dict(explanation.role_schema),
-        "student_goal_template": explanation.student_goal_template,
-        "student_title_template": explanation.student_title_template,
-        "student_title_templates_by_goal": dict(explanation.student_title_templates_by_goal),
-        "derive_templates": list(explanation.derive_templates),
-        "box_templates": list(explanation.box_templates),
-        "explanation_level": explanation.explanation_level,
-        "role_binding_strategy": explanation.role_binding_strategy,
-        "role_binder_id": explanation.role_binder_id,
-    }
-    if explanation.student_nav_title_template:
-        payload["student_nav_title_template"] = explanation.student_nav_title_template
-    return payload
-
-
 def _json_ready_visual(visual: MethodVisualSpec) -> dict[str, Any]:
-    return {
+    payload = {
         "role_schema": dict(visual.role_schema),
         "scene_templates": [dict(item) for item in visual.scene_templates],
         "annotation_templates": [dict(item) for item in visual.annotation_templates],
         "timeline_templates": [dict(item) for item in visual.timeline_templates],
         "role_binder_id": visual.role_binder_id,
     }
+    if visual.continuation_policy:
+        payload["continuation_policy"] = visual.continuation_policy
+    return payload

@@ -6,8 +6,8 @@
 from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     MethodVisualSpec,
+    TeachingUnitSpec,
 )
 
 from ._common import *
@@ -105,21 +105,22 @@ SPEC = MethodSpecSource(
     reconciliation_validators=("companion_symbol_coverage",),
     preconditions=("point 坐标可以包含 parameter",),
     postconditions=("输出点坐标不再含本次代入的 parameter；其他自由符号可以保留",),
-    explanation=MethodExplanationSpec(
+    teaching_unit=TeachingUnitSpec(
+        unit_key="evaluate_point_at_parameter/substitute_point_parameter",
+        title_template="代入参数求点坐标",
+        nav_title_template="代入求点",
+        goal_template="把已求出的参数值代入含参点坐标，得到具体点。",
+        derive_templates=(
+            ("∵", "{source_point}，{parameter}＝{parameter_value}"),
+            ("∴", "{evaluated_point}"),
+        ),
+        box_templates=("{evaluated_point}",),
         role_schema={
             "source_point": "代入前的含参点坐标。",
             "parameter": "已求出的参数名。",
             "parameter_value": "已求出的参数值。",
             "evaluated_point": "代入参数后的点坐标。",
         },
-        student_goal_template="把已求出的参数代入含参点坐标，得到定点坐标。",
-        student_title_template="代入参数求点坐标",
-        student_nav_title_template="代入参数求点坐标",
-        derive_templates=(
-            "∵{source_point}，{parameter}＝{parameter_value}",
-            "∴{evaluated_point}",
-        ),
-        box_templates=("{evaluated_point}",),
         role_binder_id="evaluate_point_at_parameter",
     ),
     visual=MethodVisualSpec(
@@ -130,12 +131,17 @@ SPEC = MethodSpecSource(
         scene_templates=(
             {
                 "component": "EvaluatedPointMarker",
+                "context_roles": [
+                    "connected_dependency_geometry",
+                ],
+                "include_exact_dependencies": False,
                 "point_role": "evaluated_point",
                 "point_color": "#b45309",
                 "persistence": "carry_forward",
             },
         ),
         role_binder_id="evaluate_point_at_parameter",
+        continuation_policy="preserve_prior_path_scene",
     ),
     repair_hints=(
         {

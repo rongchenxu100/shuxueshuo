@@ -106,6 +106,38 @@ def test_affected_ownership_maps_private_path_helpers_to_atomic_macro_tests() ->
     assert "tests/solver/test_weighted_axis_path_macro.py" in selected
 
 
+def test_affected_ownership_maps_b2_projection_and_review_to_b2_gates() -> None:
+    selected, unmapped = _tests_for_changed_paths(
+        (
+            "server/shuxueshuo_server/solver/explanation/"
+            "annotated_teaching.py",
+            "server/shuxueshuo_server/solver/"
+            "lesson_annotated_teaching_review.py",
+            "internal/schemas/functional-annotated-teaching-plan.schema.json",
+        )
+    )
+
+    assert not unmapped
+    assert "tests/solver/test_annotated_teaching_plan.py" in selected
+    assert "tests/solver/test_lesson_scope_authoring_b2.py" in selected
+    assert "tests/solver/test_teaching_unit_specs.py" in selected
+
+
+def test_affected_ownership_maps_b3_service_and_harness_to_b3_gates() -> None:
+    selected, unmapped = _tests_for_changed_paths(
+        (
+            "server/shuxueshuo_server/solver/explanation/scope_lesson.py",
+            "server/shuxueshuo_server/solver/lesson_scope_content_smoke.py",
+            "server/shuxueshuo_server/solver/runtime/llm_clients.py",
+        )
+    )
+
+    assert not unmapped
+    assert "tests/solver/test_lesson_scope_content.py" in selected
+    assert "tests/solver/test_lesson_scope_authoring_b3.py" in selected
+    assert "tests/solver/test_llm_clients.py" in selected
+
+
 def test_affected_ownership_ignores_docs_only_changes() -> None:
     selected, unmapped = _tests_for_changed_paths(
         ("docs/solver-test-strategy.md",)

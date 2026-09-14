@@ -146,6 +146,13 @@
     },
     "message": {
       "type": "string"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "details": {
+      "type": "object"
     }
   },
   "additionalProperties": false

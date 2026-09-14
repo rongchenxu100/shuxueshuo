@@ -1,0 +1,3324 @@
+{
+  "schema_version": "visual-state-authority/v1",
+  "source_snapshot_hash": "b8222c8263523b25070879462ae5e4a860f34aa35d2bd605490c6f8617a2f6e4",
+  "containers": {
+    "goal:i_1.A": {
+      "available_before": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "available_after": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "goal:i_1.P": {
+      "available_before": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "available_after": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37",
+        "visual:point:fef6497f273d0196"
+      ],
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "scope:i_1": {
+      "available_before": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "available_after_scope_steps": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "branch_entry": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "goal:i_2.E": {
+      "available_before": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "available_after": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coloredline:0d9e4b3871b2bf85",
+        "visual:coloredline:178124b52d2be55d",
+        "visual:coloredline:611f97ee549eeb7b",
+        "visual:coloredline:903a25cd30ee9605",
+        "visual:coordinatelabel:23aa33d032ff28a9",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:coordinatelabel:706a81a10fb6e790",
+        "visual:coordinatelabel:b6b9b4e7cbb4239b",
+        "visual:coordinatelabel:ef2375cc876ef288",
+        "visual:outlineregion:3a6d9277c75d252d",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:233a35efe772e523",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:95a713eccb072daa",
+        "visual:point:98039193da992b37",
+        "visual:point:aa15fda4f66d4a61",
+        "visual:point:bccdd520fa858b14",
+        "visual:point:d2cdae3e494e5039",
+        "visual:point:f5c529690f8e7671",
+        "visual:point:fef6497f273d0196"
+      ],
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "scope:i_2": {
+      "available_before": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "available_after_scope_steps": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "branch_entry": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "scope:i": {
+      "available_before": [],
+      "available_after_scope_steps": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "branch_entry": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "parameter_values": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "goal:ii.E": {
+      "available_before": [],
+      "available_after": [
+        "visual:axisofsymmetry:0dd720106694c5ba",
+        "visual:coloredline:2c0f0aefd0b081dd",
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:481879a34d886715",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:coloredline:e348ace1722f0f9e",
+        "visual:coordinatelabel:718347500a4031a9",
+        "visual:coordinatelabel:756bb0e7383c2b35",
+        "visual:coordinatelabel:fad3477b175e5cd0",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:outlineregion:e4c259dfb05663ed",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:4ddd2f2411e251dd",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:ca81c03f1965a0c7",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "parameter_values": {
+        "c": "5"
+      }
+    },
+    "scope:ii": {
+      "available_before": [],
+      "available_after_scope_steps": [],
+      "branch_entry": [],
+      "parameter_values": {}
+    },
+    "scope:problem": {
+      "available_before": [],
+      "available_after_scope_steps": [],
+      "branch_entry": [],
+      "parameter_values": {}
+    }
+  },
+  "steps": {
+    "teach:group:bf93f6b6502f4e43": {
+      "container_ref": "scope:i",
+      "available_before": [],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:b572fc18d01339ff",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            }
+          ],
+          "geometry_refs": [
+            "curve_i_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:98039193da992b37",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            },
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:59d08c90d727c6ad",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:4f40a1617d26bf77",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_B_i"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "retained": [],
+      "removed": [],
+      "available_after": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "parameter_values_before": {},
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "teach:derive_vertex_P_i": {
+      "container_ref": "goal:i_1.P",
+      "available_before": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:b572fc18d01339ff",
+          "state": "context",
+          "reason": "direct_scope_entry_frame",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            }
+          ],
+          "geometry_refs": [
+            "curve_i_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:98039193da992b37",
+          "state": "context",
+          "reason": "direct_scope_entry_frame",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            },
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:59d08c90d727c6ad",
+          "state": "context",
+          "reason": "direct_scope_entry_frame",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:4f40a1617d26bf77",
+          "state": "context",
+          "reason": "direct_scope_entry_frame",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_B_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:fef6497f273d0196",
+          "state": "context",
+          "reason": "current_component_input",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_vertex_P_i"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_vertex_P_i"
+            }
+          ],
+          "geometry_refs": [
+            "curve_i_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:0d4088d17b1a1e2d",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_vertex_P_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_P_problem"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:f8af3fdcf9ad547f",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_vertex_P_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_P_problem"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:point:fef6497f273d0196"
+      ],
+      "retained": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37",
+        "visual:point:fef6497f273d0196"
+      ],
+      "parameter_values_before": {
+        "b": "-2",
+        "c": "3"
+      },
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "teach:parameterize_axis_point_E_i": {
+      "container_ref": "goal:i_2.E",
+      "available_before": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:b572fc18d01339ff",
+          "state": "context",
+          "reason": "direct_scope_entry_frame",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            }
+          ],
+          "geometry_refs": [
+            "curve_i_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:98039193da992b37",
+          "state": "context",
+          "reason": "direct_scope_entry_frame",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            },
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:59d08c90d727c6ad",
+          "state": "context",
+          "reason": "direct_scope_entry_frame",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:4f40a1617d26bf77",
+          "state": "context",
+          "reason": "direct_scope_entry_frame",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_B_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:fef6497f273d0196",
+          "state": "context",
+          "reason": "current_component_input",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:f5c529690f8e7671",
+          "state": "context",
+          "reason": "prior_verified_curve_vertex_context",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_vertex_P_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_P_problem"
+          ]
+        },
+        {
+          "visual_object_id": "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "curve_i_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:bccdd520fa858b14",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:23aa33d032ff28a9",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coordinatelabel:23aa33d032ff28a9",
+        "visual:point:bccdd520fa858b14",
+        "visual:point:f5c529690f8e7671",
+        "visual:point:fef6497f273d0196"
+      ],
+      "retained": [
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coordinatelabel:23aa33d032ff28a9",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37",
+        "visual:point:bccdd520fa858b14",
+        "visual:point:f5c529690f8e7671",
+        "visual:point:fef6497f273d0196"
+      ],
+      "parameter_values_before": {
+        "b": "-2",
+        "c": "3"
+      },
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "teach:derive_square_vertex_G_i": {
+      "container_ref": "goal:i_2.E",
+      "available_before": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coordinatelabel:23aa33d032ff28a9",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37",
+        "visual:point:bccdd520fa858b14",
+        "visual:point:f5c529690f8e7671",
+        "visual:point:fef6497f273d0196"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:b572fc18d01339ff",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            }
+          ],
+          "geometry_refs": [
+            "curve_i_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:98039193da992b37",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            },
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:59d08c90d727c6ad",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:4f40a1617d26bf77",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_B_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:fef6497f273d0196",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:f5c529690f8e7671",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_vertex_P_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_P_problem"
+          ]
+        },
+        {
+          "visual_object_id": "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "curve_i_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:bccdd520fa858b14",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:23aa33d032ff28a9",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:9452e030407e7a49",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i",
+            "E_axis_i_2",
+            "M_axis_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:dashedline:f957c863b7dec850",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_i",
+            "E_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:rightangle:9e5674efcccdbe9b",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_i",
+            "point_A_i",
+            "E_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:cc402745bed0dd0e",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i",
+            "G_axis_i_2",
+            "AG_proj_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:dashedline:2e152f5cb93c9f42",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "AG_proj_i_2",
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:d70cee7d680ee7e6",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "AG_proj_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:rightangle:7da60c114920f63f",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "AG_proj_i_2",
+            "point_A_i",
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:3a6d9277c75d252d",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i",
+            "E_axis_i_2",
+            "K_axis_i_2",
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:611f97ee549eeb7b",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i",
+            "E_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:0d9e4b3871b2bf85",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2",
+            "K_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:178124b52d2be55d",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "K_axis_i_2",
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:903a25cd30ee9605",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "G_axis_i_2",
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:d2cdae3e494e5039",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "K_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:aa15fda4f66d4a61",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:b6b9b4e7cbb4239b",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:rightangle:31bd07d0a18c57f1",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i",
+            "E_axis_i_2",
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:rightangle:d0ec8777bd45245f",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2",
+            "point_A_i",
+            "K_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:c945a8527ae46da5",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_i",
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:8845e7bff7c6501f",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "AG_proj_i_2",
+            "point_A_i"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:coloredline:0d9e4b3871b2bf85",
+        "visual:coloredline:178124b52d2be55d",
+        "visual:coloredline:611f97ee549eeb7b",
+        "visual:coloredline:903a25cd30ee9605",
+        "visual:coordinatelabel:b6b9b4e7cbb4239b",
+        "visual:outlineregion:3a6d9277c75d252d",
+        "visual:point:aa15fda4f66d4a61",
+        "visual:point:d2cdae3e494e5039"
+      ],
+      "retained": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coordinatelabel:23aa33d032ff28a9",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37",
+        "visual:point:bccdd520fa858b14",
+        "visual:point:f5c529690f8e7671",
+        "visual:point:fef6497f273d0196"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coloredline:0d9e4b3871b2bf85",
+        "visual:coloredline:178124b52d2be55d",
+        "visual:coloredline:611f97ee549eeb7b",
+        "visual:coloredline:903a25cd30ee9605",
+        "visual:coordinatelabel:23aa33d032ff28a9",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:coordinatelabel:b6b9b4e7cbb4239b",
+        "visual:outlineregion:3a6d9277c75d252d",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37",
+        "visual:point:aa15fda4f66d4a61",
+        "visual:point:bccdd520fa858b14",
+        "visual:point:d2cdae3e494e5039",
+        "visual:point:f5c529690f8e7671",
+        "visual:point:fef6497f273d0196"
+      ],
+      "parameter_values_before": {
+        "b": "-2",
+        "c": "3"
+      },
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "teach:solve_axis_point_candidates_i": {
+      "container_ref": "goal:i_2.E",
+      "available_before": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coloredline:0d9e4b3871b2bf85",
+        "visual:coloredline:178124b52d2be55d",
+        "visual:coloredline:611f97ee549eeb7b",
+        "visual:coloredline:903a25cd30ee9605",
+        "visual:coordinatelabel:23aa33d032ff28a9",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:coordinatelabel:b6b9b4e7cbb4239b",
+        "visual:outlineregion:3a6d9277c75d252d",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37",
+        "visual:point:aa15fda4f66d4a61",
+        "visual:point:bccdd520fa858b14",
+        "visual:point:d2cdae3e494e5039",
+        "visual:point:f5c529690f8e7671",
+        "visual:point:fef6497f273d0196"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:b572fc18d01339ff",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            }
+          ],
+          "geometry_refs": [
+            "curve_i_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:98039193da992b37",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parabola_i"
+            },
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:59d08c90d727c6ad",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:4f40a1617d26bf77",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_x_intercept_A_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_B_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:fef6497f273d0196",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:f5c529690f8e7671",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_vertex_P_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_P_problem"
+          ]
+        },
+        {
+          "visual_object_id": "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "curve_i_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:bccdd520fa858b14",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:23aa33d032ff28a9",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "parameterize_axis_point_E_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:3a6d9277c75d252d",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i",
+            "E_axis_i_2",
+            "K_axis_i_2",
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:611f97ee549eeb7b",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_i",
+            "E_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:0d9e4b3871b2bf85",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2",
+            "K_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:178124b52d2be55d",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "K_axis_i_2",
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:903a25cd30ee9605",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "G_axis_i_2",
+            "point_A_i"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:d2cdae3e494e5039",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "K_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:aa15fda4f66d4a61",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:b6b9b4e7cbb4239b",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_square_vertex_G_i"
+            }
+          ],
+          "geometry_refs": [
+            "G_axis_i_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:233a35efe772e523",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "solve_axis_point_candidates_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2_candidate_1"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:706a81a10fb6e790",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "solve_axis_point_candidates_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2_candidate_1"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:95a713eccb072daa",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "solve_axis_point_candidates_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2_candidate_2"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:ef2375cc876ef288",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "solve_axis_point_candidates_i"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_i_2_candidate_2"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:coordinatelabel:706a81a10fb6e790",
+        "visual:coordinatelabel:ef2375cc876ef288",
+        "visual:point:233a35efe772e523",
+        "visual:point:95a713eccb072daa"
+      ],
+      "retained": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coloredline:0d9e4b3871b2bf85",
+        "visual:coloredline:178124b52d2be55d",
+        "visual:coloredline:611f97ee549eeb7b",
+        "visual:coloredline:903a25cd30ee9605",
+        "visual:coordinatelabel:23aa33d032ff28a9",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:coordinatelabel:b6b9b4e7cbb4239b",
+        "visual:outlineregion:3a6d9277c75d252d",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:98039193da992b37",
+        "visual:point:aa15fda4f66d4a61",
+        "visual:point:bccdd520fa858b14",
+        "visual:point:d2cdae3e494e5039",
+        "visual:point:f5c529690f8e7671",
+        "visual:point:fef6497f273d0196"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+        "visual:coloredline:0d9e4b3871b2bf85",
+        "visual:coloredline:178124b52d2be55d",
+        "visual:coloredline:611f97ee549eeb7b",
+        "visual:coloredline:903a25cd30ee9605",
+        "visual:coordinatelabel:23aa33d032ff28a9",
+        "visual:coordinatelabel:59d08c90d727c6ad",
+        "visual:coordinatelabel:706a81a10fb6e790",
+        "visual:coordinatelabel:b6b9b4e7cbb4239b",
+        "visual:coordinatelabel:ef2375cc876ef288",
+        "visual:outlineregion:3a6d9277c75d252d",
+        "visual:parabola:b572fc18d01339ff",
+        "visual:point:233a35efe772e523",
+        "visual:point:4f40a1617d26bf77",
+        "visual:point:95a713eccb072daa",
+        "visual:point:98039193da992b37",
+        "visual:point:aa15fda4f66d4a61",
+        "visual:point:bccdd520fa858b14",
+        "visual:point:d2cdae3e494e5039",
+        "visual:point:f5c529690f8e7671",
+        "visual:point:fef6497f273d0196"
+      ],
+      "parameter_values_before": {
+        "b": "-2",
+        "c": "3"
+      },
+      "parameter_values_after": {
+        "b": "-2",
+        "c": "3"
+      }
+    },
+    "teach:derive_parametric_parabola_ii": {
+      "container_ref": "goal:ii.E",
+      "available_before": [],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:8627109999c2e8de",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parametric_parabola_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:df5b759f9b3fbd6b",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parametric_parabola_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "retained": [],
+      "removed": [],
+      "available_after": [
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "parameter_values_before": {},
+      "parameter_values_after": {}
+    },
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/path_reduction": {
+      "container_ref": "goal:ii.E",
+      "available_before": [
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:8627109999c2e8de",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parametric_parabola_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:df5b759f9b3fbd6b",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:193dfaa31654f9a6",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "E_axis_ii",
+            "K_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:ab89305966598375",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "M_axis_ii",
+            "E_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:13c45a4cc8a98dd3",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "E_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:144e2c68e86fbc40",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_H_ii",
+            "point_F_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:2ca72e20b85ac53e",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_F_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:2e28b7da0178223c",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:becec7d74d6fc696",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:rightangle:77431fb1714c580e",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "point_A_ii",
+            "E_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:8b6c53828d03c232",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_F_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:a37ad0da5aefcd6c",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_H_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:2846a237f006997a",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "E_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:4ddd2f2411e251dd",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "K_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:5cc9748a8eb2f1c0",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:a5ee650ba7c2097d",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:6354e62abc32a937",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:22d56f861d0086a9",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "E_axis_ii"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:point:5cc9748a8eb2f1c0"
+      ],
+      "retained": [
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "parameter_values_before": {},
+      "parameter_values_after": {}
+    },
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/reflection_minimum": {
+      "container_ref": "goal:ii.E",
+      "available_before": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:8627109999c2e8de",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parametric_parabola_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:df5b759f9b3fbd6b",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:2e28b7da0178223c",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:becec7d74d6fc696",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:5cc9748a8eb2f1c0",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:locusline:d38a64a1e0eb81e3",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "G_locus_ii_start",
+            "G_locus_ii_end"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:a080b47dce42531f",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:dashedline:6807d8cf3099adb8",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:6cfe0715a0ef35f7",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:712fe9afa1e6e34a",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:8ce935507e5d5cdc",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:666c8358ace7b232",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:a5ee650ba7c2097d",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d"
+      ],
+      "retained": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "parameter_values_before": {},
+      "parameter_values_after": {}
+    },
+    "teach:solve_parameter_c_ii": {
+      "container_ref": "goal:ii.E",
+      "available_before": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:8627109999c2e8de",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parametric_parabola_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:df5b759f9b3fbd6b",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:2e28b7da0178223c",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:becec7d74d6fc696",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:5cc9748a8eb2f1c0",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:locusline:d38a64a1e0eb81e3",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "G_locus_ii_start",
+            "G_locus_ii_end"
+          ]
+        },
+        {
+          "visual_object_id": "visual:dashedline:6807d8cf3099adb8",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:6cfe0715a0ef35f7",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:712fe9afa1e6e34a",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:8ce935507e5d5cdc",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:666c8358ace7b232",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:a5ee650ba7c2097d",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii"
+          ]
+        }
+      ],
+      "introduced": [],
+      "retained": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "parameter_values_before": {},
+      "parameter_values_after": {
+        "c": "5"
+      }
+    },
+    "teach:evaluate_point_A_ii": {
+      "container_ref": "goal:ii.E",
+      "available_before": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:8627109999c2e8de",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parametric_parabola_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:df5b759f9b3fbd6b",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_point_A_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:2e28b7da0178223c",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:becec7d74d6fc696",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:5cc9748a8eb2f1c0",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:locusline:d38a64a1e0eb81e3",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "G_locus_ii_start",
+            "G_locus_ii_end"
+          ]
+        },
+        {
+          "visual_object_id": "visual:dashedline:6807d8cf3099adb8",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:6cfe0715a0ef35f7",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:712fe9afa1e6e34a",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:8ce935507e5d5cdc",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:666c8358ace7b232",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:a5ee650ba7c2097d",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:756bb0e7383c2b35",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_point_A_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:coordinatelabel:756bb0e7383c2b35"
+      ],
+      "retained": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:coordinatelabel:756bb0e7383c2b35",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "parameter_values_before": {
+        "c": "5"
+      },
+      "parameter_values_after": {
+        "c": "5"
+      }
+    },
+    "teach:evaluate_minimum_point_G_ii": {
+      "container_ref": "goal:ii.E",
+      "available_before": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:coordinatelabel:756bb0e7383c2b35",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:8627109999c2e8de",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parametric_parabola_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:df5b759f9b3fbd6b",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_point_A_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:2e28b7da0178223c",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:becec7d74d6fc696",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:5cc9748a8eb2f1c0",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_minimum_point_G_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:locusline:d38a64a1e0eb81e3",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "G_locus_ii_start",
+            "G_locus_ii_end"
+          ]
+        },
+        {
+          "visual_object_id": "visual:dashedline:6807d8cf3099adb8",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:6cfe0715a0ef35f7",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:712fe9afa1e6e34a",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:8ce935507e5d5cdc",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:666c8358ace7b232",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:a5ee650ba7c2097d",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:756bb0e7383c2b35",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_point_A_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:fad3477b175e5cd0",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_minimum_point_G_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_G_ii"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:coordinatelabel:fad3477b175e5cd0"
+      ],
+      "retained": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:coordinatelabel:756bb0e7383c2b35",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:coordinatelabel:756bb0e7383c2b35",
+        "visual:coordinatelabel:fad3477b175e5cd0",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "parameter_values_before": {
+        "c": "5"
+      },
+      "parameter_values_after": {
+        "c": "5"
+      }
+    },
+    "teach:recover_target_point_E_ii": {
+      "container_ref": "goal:ii.E",
+      "available_before": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:coordinatelabel:756bb0e7383c2b35",
+        "visual:coordinatelabel:fad3477b175e5cd0",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "visible": [
+        {
+          "visual_object_id": "visual:parabola:8627109999c2e8de",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_parametric_parabola_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:df5b759f9b3fbd6b",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_point_A_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:2e28b7da0178223c",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:becec7d74d6fc696",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_G_ii",
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:5cc9748a8eb2f1c0",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_minimum_point_G_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:locusline:d38a64a1e0eb81e3",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "G_locus_ii_start",
+            "G_locus_ii_end"
+          ]
+        },
+        {
+          "visual_object_id": "visual:dashedline:6807d8cf3099adb8",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:6cfe0715a0ef35f7",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:712fe9afa1e6e34a",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:distancemarker:8ce935507e5d5cdc",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii",
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:666c8358ace7b232",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_prime_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:a5ee650ba7c2097d",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "derive_path_minimum_ii"
+            }
+          ],
+          "geometry_refs": [
+            "M_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:756bb0e7383c2b35",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_point_A_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:fad3477b175e5cd0",
+          "state": "context",
+          "reason": "previous_step_in_same_goal",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "evaluate_minimum_point_G_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:axisofsymmetry:0dd720106694c5ba",
+          "state": "context",
+          "reason": "current_component_input",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "curve_ii_parabola"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:1879b5f28c5a09e1",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "point_G_ii",
+            "AG_proj_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:dashedline:26adf7bc80c8dd37",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "AG_proj_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:5b1b528d60f88fe6",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "AG_proj_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:rightangle:921ce2ca322eb247",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "AG_proj_ii",
+            "point_A_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:outlineregion:e4c259dfb05663ed",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "point_E_ii",
+            "K_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:e348ace1722f0f9e",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "point_E_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:481879a34d886715",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_E_ii",
+            "K_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:2c0f0aefd0b081dd",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "K_axis_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:ca81c03f1965a0c7",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_E_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coordinatelabel:718347500a4031a9",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_E_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:point:4ddd2f2411e251dd",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "K_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:rightangle:e98a81485dffecf1",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_A_ii",
+            "point_E_ii",
+            "point_G_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:rightangle:a32b4d1acb1c5e10",
+          "state": "focus",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "point_E_ii",
+            "point_A_ii",
+            "K_axis_ii"
+          ]
+        },
+        {
+          "visual_object_id": "visual:coloredline:ff13e834e90e7d4a",
+          "state": "context",
+          "reason": "current_visual_spec_result_or_requirement",
+          "source_refs": [
+            {
+              "kind": "functional_step",
+              "step_id": "recover_target_point_E_ii"
+            }
+          ],
+          "geometry_refs": [
+            "AG_proj_ii",
+            "point_A_ii"
+          ]
+        }
+      ],
+      "introduced": [
+        "visual:axisofsymmetry:0dd720106694c5ba",
+        "visual:coloredline:2c0f0aefd0b081dd",
+        "visual:coloredline:481879a34d886715",
+        "visual:coloredline:e348ace1722f0f9e",
+        "visual:coordinatelabel:718347500a4031a9",
+        "visual:outlineregion:e4c259dfb05663ed",
+        "visual:point:4ddd2f2411e251dd",
+        "visual:point:ca81c03f1965a0c7"
+      ],
+      "retained": [
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:coordinatelabel:756bb0e7383c2b35",
+        "visual:coordinatelabel:fad3477b175e5cd0",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "removed": [],
+      "available_after": [
+        "visual:axisofsymmetry:0dd720106694c5ba",
+        "visual:coloredline:2c0f0aefd0b081dd",
+        "visual:coloredline:2e28b7da0178223c",
+        "visual:coloredline:481879a34d886715",
+        "visual:coloredline:712fe9afa1e6e34a",
+        "visual:coloredline:becec7d74d6fc696",
+        "visual:coloredline:e348ace1722f0f9e",
+        "visual:coordinatelabel:718347500a4031a9",
+        "visual:coordinatelabel:756bb0e7383c2b35",
+        "visual:coordinatelabel:fad3477b175e5cd0",
+        "visual:dashedline:6807d8cf3099adb8",
+        "visual:distancemarker:6cfe0715a0ef35f7",
+        "visual:distancemarker:8ce935507e5d5cdc",
+        "visual:locusline:d38a64a1e0eb81e3",
+        "visual:outlineregion:e4c259dfb05663ed",
+        "visual:parabola:8627109999c2e8de",
+        "visual:point:4ddd2f2411e251dd",
+        "visual:point:5cc9748a8eb2f1c0",
+        "visual:point:666c8358ace7b232",
+        "visual:point:a5ee650ba7c2097d",
+        "visual:point:ca81c03f1965a0c7",
+        "visual:point:df5b759f9b3fbd6b"
+      ],
+      "parameter_values_before": {
+        "c": "5"
+      },
+      "parameter_values_after": {
+        "c": "5"
+      }
+    }
+  }
+}

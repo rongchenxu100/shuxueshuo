@@ -48,6 +48,11 @@ function toBrowserPath(p) {
   return p.split(path.sep).join("/");
 }
 
+// Source text and generated formulas must never terminate an inline script.
+function scriptJson(value) {
+  return JSON.stringify(value).replaceAll("<", "\\u003c");
+}
+
 function assetPrefixForOutput(outPath) {
   const rel = path.relative(path.dirname(outPath), path.join(repoRoot, "site", "assets"));
   const normalized = toBrowserPath(rel || ".");
@@ -145,12 +150,12 @@ const problemFullHtml = problem.fullHtml ?? buildProblemHtml(problem.lines);
 const legendHtmlStr   = ui.legendHtml    ?? buildLegendHtml(ui.legend ?? []);
 
 // 将 JSON 数据转为模板所需 JS 常量
-const stepsJson = JSON.stringify(lessonData.steps ?? []);
-const policiesJson = JSON.stringify(lessonData.policies ?? {});
-const stepLabelsJson = JSON.stringify(lessonData.stepLabels ?? {});
+const stepsJson = scriptJson(lessonData.steps ?? []);
+const policiesJson = scriptJson(lessonData.policies ?? {});
+const stepLabelsJson = scriptJson(lessonData.stepLabels ?? {});
 
 // 将 geometry-spec 放入 application/json，decorations 直接内联为 JS 常量（避免双层 JSON.parse 丢失精度/转义）。
-const geometrySpecTag = `<script type="application/json" id="geometrySpec">${JSON.stringify(
+const geometrySpecTag = `<script type="application/json" id="geometrySpec">${scriptJson(
   geometrySpec
 )}</script>`;
 
@@ -169,16 +174,18 @@ const geometryScript = [
   "",
   "<script>",
   "  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);",
-  "  const __STEP_DECORATIONS__ = " + JSON.stringify(stepDecorations) + ";",
+  "  const __STEP_DECORATIONS__ = " + scriptJson(stepDecorations) + ";",
   "  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);",
   "  function groupTitle(section) {",
-  "    const map = " + JSON.stringify(ui.groupTitles ?? {}) + ";",
+  "    const map = " + scriptJson(ui.groupTitles ?? {}) + ";",
   "    return map[section] || section;",
   "  }",
   "  var diagramMarkupFor = renderer.diagramMarkupFor;",
   "  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;",
+  "  var diagramMarkupForVisualFrame = renderer.diagramMarkupForVisualFrame;",
+  "  var visualFramesFor = renderer.visualFramesFor;",
   "  var drawMini = renderer.drawMini;",
-  "  var __LESSON_LEGEND_HTML__ = " + JSON.stringify(legendHtmlStr) + ";",
+  "  var __LESSON_LEGEND_HTML__ = " + scriptJson(legendHtmlStr) + ";",
   "  // 原题图形渲染：由 renderer 负责（可选）",
   "  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;",
   "</script>"
@@ -186,13 +193,13 @@ const geometryScript = [
 
 // 注意：模板自己已加载 geometry-label-layout/interactive-lesson-ui/lesson-page-runtime
 // 我们只把几何相关脚本和 renderer glue 注入 {{GEOMETRY_SCRIPT}}。
-const html = replaceAll(template, {
-  "{{PAGE_TITLE}}": meta.pageTitle,
-  "{{PAGE_DESCRIPTION}}": meta.pageDescription ?? "",
-  "{{BREADCRUMB_TITLE}}": meta.breadcrumbTitle ?? meta.pageTitle,
+let html = replaceAll(template, {
+  "{{PAGE_TITLE}}": esc(meta.pageTitle),
+  "{{PAGE_DESCRIPTION}}": esc(meta.pageDescription ?? ""),
+  "{{BREADCRUMB_TITLE}}": esc(meta.breadcrumbTitle ?? meta.pageTitle),
   "{{HOME_HREF}}": homeHref,
   "{{LIBRARY_HREF}}": libraryHref,
-  "{{LIBRARY_LABEL}}": meta.breadcrumbLabel ?? "题库导航",
+  "{{LIBRARY_LABEL}}": esc(meta.breadcrumbLabel ?? "题库导航"),
   "{{ASSET_PREFIX}}": assetPrefix,
   "{{PROBLEM_SUMMARY}}": renderInlineMathText(problem.summary ?? ""),
   "{{PROBLEM_FULL_HTML}}": problemFullHtml,
@@ -202,10 +209,31 @@ const html = replaceAll(template, {
   "{{STEP_LABELS_JSON}}": stepLabelsJson,
   "{{GEOMETRY_SCRIPT}}": geometryScript,
   // slider/label 等 UI 字段来自 lesson-data.ui（覆盖模板默认值）
-  'sliderLabel: "P 点 · t＝OP"':       `sliderLabel: ${JSON.stringify(ui.sliderLabel ?? "P 点 · t＝OP")}`,
-  'paramLabelPrefix: "t="':            `paramLabelPrefix: ${JSON.stringify(ui.paramLabelPrefix ?? "t=")}`,
-  'goToProblemMode: "doubleScroll"':   `goToProblemMode: ${JSON.stringify(ui.goToProblemMode ?? "doubleScroll")}`,
+  'sliderLabel: "P 点 · t＝OP"':       `sliderLabel: ${scriptJson(ui.sliderLabel ?? "P 点 · t＝OP")}`,
+  'paramLabelPrefix: "t="':            `paramLabelPrefix: ${scriptJson(ui.paramLabelPrefix ?? "t=")}`,
+  'goToProblemMode: "doubleScroll"':   `goToProblemMode: ${scriptJson(ui.goToProblemMode ?? "doubleScroll")}`,
 });
+
+// Portable, isolated HTTP preview. Embed only our compiler-owned local assets;
+// never fetch URLs or rewrite a generated page outside the compiler.
+if (process.argv.includes("--standalone")) {
+  if (process.argv.includes("--product-preview")) {
+    html = html.replace(/\s*<meta property="og:image"[^>]*\/>/, '');
+    html = html.replace(/<header class="lesson-topbar"[^>]*>[\s\S]*?<\/header>/,
+      '<header class="lesson-topbar"><span class="lesson-title">题目解析</span></header>');
+  }
+  const readAsset = (url) => {
+    const asset = path.resolve(path.dirname(outPath), url.split("?")[0]);
+    const root = path.join(repoRoot, "site/assets") + path.sep;
+    if (!asset.startsWith(root)) die("非授权页面资源: " + url);
+    return fs.readFileSync(asset, "utf8");
+  };
+  html = html.replace(/<link rel="stylesheet" href="([^"]+)"\s*\/>/g,
+    (_match, url) => `<style>${readAsset(url).replace(/<\/style/gi, "<\\/style")}</style>`);
+  html = html.replace(/<script src="([^"]+)"><\/script>/g,
+    (_match, url) => url.includes("/baidu-stats.js") ? "" :
+      `<script>${readAsset(url).replace(/<\/script/gi, "<\\/script")}</script>`);
+}
 
 ensureDirForFile(outPath);
 fs.writeFileSync(outPath, html, "utf8");

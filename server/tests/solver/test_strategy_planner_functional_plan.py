@@ -16,15 +16,9 @@ from shuxueshuo_server.solver.contracts import (
     PreviousOutputIdentityDerivationSpec,
     TypedValue,
 )
-from shuxueshuo_server.solver.explanation.builder import ExplanationBuilder
 from shuxueshuo_server.solver.family.models import (
     RecipeExecutionSpec,
     StateIdentityConstraintSpec,
-)
-from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot
-from shuxueshuo_server.solver.explanation.presentation import (
-    StudentNarrativePlacementProjector,
-    transactional_functional_steps,
 )
 from shuxueshuo_server.solver.runtime import strategy_replay as strategy_replay_module
 from shuxueshuo_server.solver.runtime import strategy_payload as strategy_payload_module
@@ -3579,14 +3573,14 @@ def test_liveness_rebases_transition_to_latest_surviving_version() -> None:
         selected_version_id=version_3,
         previous_version_id=removed_version_2,
         previous_write_step_id="removed_refinement",
-        source_version_ids=(removed_version_2,),
+        source_version_ids=(version_1,),
         computation_key=ComputationKey(
             "evaluate_point_at_parameter",
             (
                 ArgVersionBinding(
                     arg_name="point",
                     item_index=0,
-                    version_id=removed_version_2,
+                    version_id=version_1,
                 ),
             ),
         ),
@@ -6560,56 +6554,6 @@ def test_validator_allows_parent_scope_calls_without_direct_answer_binding() -> 
     assert plan is not None
 
 
-def test_root_execution_scope_keeps_answer_in_student_question() -> None:
-    inputs = _inputs_for_goal(0)
-    payload = _axis_plan_payload()
-    payload["scopes"][0]["scope_id"] = "problem"
-
-    plan, report = _validate(payload, inputs)
-
-    assert report.ok and plan is not None
-    result = FunctionalPlanReconciler().reconcile(
-        plan,
-        planner_state_context=_context(inputs),
-        family_spec=inputs.family_spec,
-        method_specs=inputs.method_specs,
-        handle_registry=_registry(),
-        question_goals=inputs.question_goals,
-    )
-    assert result.ok
-    entry = result.execution_entries[0]
-    assert entry.execution_scope_id == "problem"
-    call = result.calls[0]
-    produced = [
-        {
-            "handle": allocation.handle,
-            "valid_scope": allocation.valid_scope,
-            "output_type": allocation.runtime_type,
-        }
-        for allocation in call.returns
-    ]
-
-    narrative = StudentNarrativePlacementProjector().project(
-        effective_steps=(
-            {
-                "step_id": entry.call_id,
-                "scope_id": entry.execution_scope_id,
-                "reads": [],
-                "creates": [],
-                "produces": produced,
-            },
-        ),
-        problem=_problem_payload(),
-        functional_reconciliation=result,
-        raw_functional_plan=plan,
-    )
-    assert narrative.placements[0].execution_scope_id == "problem"
-    assert narrative.placements[0].presentation_scope_id == "i"
-    assert narrative.placements[0].placement_reason == "answer_scope_anchor"
-
-
-
-
 def test_projector_promotes_shared_call_execution_to_consumer_lca() -> None:
     inputs = replace(_base_inputs(), question_goals=[])
     payload = {
@@ -7455,26 +7399,6 @@ def test_single_dynamic_known_coefficient_lowers_to_parameter_pair() -> None:
     assert selected == {"parameter_value": item}
 
 
-def test_student_narrative_keeps_compiled_step_scope_scope_identity() -> None:
-    narrative = StudentNarrativePlacementProjector().project(
-        effective_steps=(
-            {
-                "step_id": "legacy_step",
-                "scope_id": "ii_1",
-                "reads": [],
-                "creates": [],
-                "produces": [],
-            },
-        ),
-        problem=_problem_payload(),
-    )
-
-    assert narrative.references == ()
-    assert narrative.placements[0].execution_scope_id == "ii_1"
-    assert narrative.placements[0].presentation_scope_id == "ii_1"
-    assert narrative.placements[0].placement_reason == "compiled_step_scope"
-
-
 def test_nankai_dead_redundant_object_writes_use_liveness_not_aliases() -> None:
     inputs = _base_inputs()
     payload = json.loads(NANKAI_FUNCTIONAL_PLAN.read_text(encoding="utf-8"))
@@ -7614,12 +7538,15 @@ def test_midpoint_condition_reconciles_target_identity_before_runtime() -> None:
         (item.code, item.details) for item in mismatched.issues
     ]
     mismatch = identity_issues[0]
-    assert mismatch.details == {
+    assert {key: mismatch.details[key] for key in ("return", "bound_ref", "inferred_ref", "semantic_role")} == {
         "return": "midpoint",
         "bound_ref": "D",
         "inferred_ref": "F",
         "semantic_role": "midpoint",
     }
+    assert mismatch.details["expected"] == {"object": "F"}
+    assert mismatch.details["observed"] == {"object": "D"}
+    assert mismatch.details["path"] == "steps[derive_midpoint].output_targets.midpoint"
 
 
 def test_intersection_state_validation_precedes_unrelated_output_evidence() -> None:
@@ -14945,12 +14872,10 @@ def test_functional_debug_artifacts_omit_retired_step_intents(tmp_path: Path) ->
         reconciliation["state_placement_decisions"]
     )
     assert context_payload["state"]["placement_mismatches"] == []
-    assert reconciliation["student_step_placements"] == context_payload["state"][
-        "student_step_placements"
-    ]
-    assert reconciliation["student_scope_references"] == context_payload["state"][
-        "student_scope_references"
-    ]
+    assert "student_step_placements" not in reconciliation
+    assert "student_scope_references" not in reconciliation
+    assert "student_step_placements" not in context_payload["state"]
+    assert "student_scope_references" not in context_payload["state"]
     assert not (tmp_path / "effective-step-intents.json").exists()
     selection = json.loads(
         (tmp_path / "payload.functional_few_shot_selection.json").read_text()

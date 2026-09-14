@@ -12,7 +12,6 @@ from enum import Enum
 from typing import Any
 
 from shuxueshuo_server.solver.contracts import (
-    MethodExplanationSpec,
     PointRef,
     ScalarResultFormSpec,
 )
@@ -164,19 +163,31 @@ class WeightedAxisPathMinimumMethod:
             "path_transformation"
         ].value
         locus = winner.transform.outputs["auxiliary_locus"].value
+        axis_projection_geometry = _axis_projection_geometry_witness(
+            weight=sp.sympify(transformation["scale"]),
+            fixed_point=fixed_point,
+            curve_point=curve_point,
+            moving_point=moving_point,
+            interior_moving_point=winner.dynamic_point_expression,
+            dynamic_parameter=dynamic_parameter,
+            dynamic_constraint=dynamic_constraint,
+            parameter=parameter,
+            parameter_constraint=parameter_constraint,
+            attainment_condition=winner.attainment_condition,
+            interior_minimum=winner.interior_minimum_expression,
+            boundary_minimum=winner.boundary_minimum_expression,
+            locus_start=tuple(sp.sympify(item) for item in locus["start_point"]),
+            locus_direction=tuple(
+                sp.sympify(item) for item in locus["direction"]
+            ),
+            kernel=kernel,
+        )
         evidence = {
             "original_objective": str(path_condition.get("path", "weighted path")),
-            "reduced_objective": str(transformation["transformed_path"]),
             "weight": kernel.sstr(sp.sympify(transformation["scale"])),
-            "geometry_profile_id": str(transformation["geometry_profile_id"]),
             "orientation_sign": winner.orientation_sign,
-            "equivalence_proof": (
-                str(transformation["reason"]),
-                (
-                    f"{transformation['original_path']}="
-                    f"{transformation['transformed_path']}"
-                ),
-            ),
+            "triangle_geometry": dict(transformation["geometry"]),
+            "path_equivalence": dict(transformation["path_equivalence"]),
             "auxiliary_point_formula": tuple(
                 kernel.sstr(item)
                 for item in winner.transform.outputs["auxiliary_point"].value
@@ -207,6 +218,7 @@ class WeightedAxisPathMinimumMethod:
             "path_segment_parameter": kernel.sstr(
                 winner.path_segment_parameter
             ),
+            "axis_projection_geometry": axis_projection_geometry,
             "orientation_candidates": tuple(
                 {
                     "orientation_sign": item.orientation_sign,
@@ -257,7 +269,7 @@ class WeightedAxisPathMinimumMethod:
                         parameter=parameter,
                         parameter_constraint=parameter_constraint,
                     ),
-                    "取等域已由完整表达式或分段边界显式表示",
+                    "只在取等点属于动点定义域时发布最小值",
                 ),
                 _check(
                     "straightening_equality_is_reachable",
@@ -273,11 +285,10 @@ class WeightedAxisPathMinimumMethod:
                 _step(
                     self.method_id,
                     "加权轴上路径最值",
-                    "求完整最小值表达式",
-                    "在内部构造与权重匹配的辅助三角形，拉直路径并验证取等状态覆盖声明定义域。",
+                    "求可取得的最小值表达式",
+                    "在内部构造与权重匹配的辅助三角形，拉直路径并验证取等点属于动点定义域。",
                     (
-                        f"权重={evidence['weight']}，"
-                        f"构造={evidence['geometry_profile_id']}"
+                        f"权重={evidence['weight']}，构造关系已验证"
                     ),
                     f"最小值表达式为 {kernel.sstr(winner.minimum_expression)}",
                 )
@@ -399,17 +410,9 @@ def _evaluate_orientation(
     ) = _minimum_with_dynamic_domain(
         interior_minimum=interior_minimum,
         dynamic_expression=dynamic_expression,
-        curve_point=curve_point,
-        fixed_point=fixed_point,
-        moving_point=moving_point,
-        dynamic_parameter=dynamic_parameter,
         target_constraint=dynamic_constraint,
         parameter=parameter,
         parameter_constraint=parameter_constraint,
-        weight=sp.sympify(
-            transform.outputs["path_transformation"].value["weight"]
-        ),
-        kernel=kernel,
     )
     return _WeightedOrientationCandidate(
         orientation_sign=orientation_sign,
@@ -424,7 +427,254 @@ def _evaluate_orientation(
         auxiliary_attainment_point=auxiliary_point,
         ray_parameter=ray_parameter,
         path_segment_parameter=path_segment_parameter,
+        )
+
+
+def _axis_projection_geometry_witness(
+    *,
+    weight: sp.Expr,
+    fixed_point: Point,
+    curve_point: Point,
+    moving_point: Point,
+    interior_moving_point: Point,
+    dynamic_parameter: sp.Symbol,
+    dynamic_constraint: dict[str, sp.Expr | str],
+    parameter: sp.Symbol,
+    parameter_constraint: dict[str, sp.Expr | str],
+    attainment_condition: sp.Expr,
+    interior_minimum: sp.Expr,
+    boundary_minimum: sp.Expr | None,
+    locus_start: Point,
+    locus_direction: Point,
+    kernel: SympyKernel,
+) -> dict[str, Any]:
+    """Publish a reusable axis-projection proof, not problem-specific prose.
+
+    Every successful ``weighted_axis_path_minimum`` invocation already proves
+    that the moving point lies on the x-axis and that the straightened path is
+    attainable.  This certificate exposes the corresponding right-triangle
+    lengths so the teaching layer can explain the minimum geometrically for
+    every legal constant weight, with or without a familiar teaching profile.
+    """
+
+    zero = sp.Integer(0)
+    if (
+        sp.simplify(fixed_point[1]) != zero
+        or sp.simplify(moving_point[1]) != zero
+        or sp.simplify(interior_moving_point[1]) != zero
+    ):
+        raise StatelessMethodError(
+            "planner.method_contract_invalid",
+            "weighted-axis geometry witness requires x-axis endpoints",
+            category="configuration",
+            retryability="configuration",
+            role="axis_projection_geometry",
+            repair_action="fix_runtime_contract",
+        )
+
+    projection_point = (sp.simplify(curve_point[0]), zero)
+    vertical_length = _oriented_length_on_parameter_domain(
+        sp.simplify(curve_point[1]),
+        parameter=parameter,
+        constraint=parameter_constraint,
     )
+    horizontal_length = _oriented_length_on_parameter_domain(
+        sp.simplify(curve_point[0] - interior_moving_point[0]),
+        parameter=parameter,
+        constraint=parameter_constraint,
+    )
+    fixed_to_moving = _oriented_length_on_parameter_domain(
+        sp.simplify(interior_moving_point[0] - fixed_point[0]),
+        parameter=parameter,
+        constraint=parameter_constraint,
+    )
+    fixed_to_projection = _oriented_length_on_parameter_domain(
+        sp.simplify(projection_point[0] - fixed_point[0]),
+        parameter=parameter,
+        constraint=parameter_constraint,
+    )
+    auxiliary_to_moving = sp.simplify(fixed_to_moving / weight)
+
+    curve_to_moving_squared = sp.factor(
+        vertical_length**2 + horizontal_length**2
+    )
+    if sp.simplify(vertical_length - horizontal_length) == 0:
+        curve_to_moving = sp.simplify(sp.sqrt(2) * vertical_length)
+        projection_triangle_relation: dict[str, Any] = {
+            "kind": "equal_legs",
+        }
+    elif sp.simplify(vertical_length**2 - 3 * horizontal_length**2) == 0:
+        curve_to_moving = sp.simplify(2 * horizontal_length)
+        projection_triangle_relation = {
+            "kind": "vertical_squared_multiple_of_horizontal",
+            "multiplier": "3",
+        }
+    elif sp.simplify(horizontal_length**2 - 3 * vertical_length**2) == 0:
+        curve_to_moving = sp.simplify(2 * vertical_length)
+        projection_triangle_relation = {
+            "kind": "horizontal_squared_multiple_of_vertical",
+            "multiplier": "3",
+        }
+    else:
+        implied_length = sp.simplify(
+            interior_minimum / weight - auxiliary_to_moving
+        )
+        if (
+            sp.simplify(implied_length**2 - curve_to_moving_squared) == 0
+            and _prove_nonnegative_on_parameter_domain(
+                implied_length,
+                parameter=parameter,
+                constraint=parameter_constraint,
+            )
+        ):
+            curve_to_moving = implied_length
+        else:
+            curve_to_moving = sp.sqrt(curve_to_moving_squared)
+        projection_triangle_relation = {"kind": "pythagorean"}
+
+    straightened_length = sp.simplify(curve_to_moving + auxiliary_to_moving)
+
+    lower = dynamic_constraint.get("value")
+    if not isinstance(lower, sp.Basic):
+        raise StatelessMethodError(
+            "planner.method_contract_invalid",
+            "weighted-axis geometry witness requires a canonical domain endpoint",
+            category="configuration",
+            retryability="configuration",
+            role="axis_projection_geometry",
+            repair_action="fix_runtime_contract",
+        )
+    boundary_point = tuple(
+        sp.simplify(sp.sympify(item).subs(dynamic_parameter, lower))
+        for item in moving_point
+    )
+    boundary_curve_distance_squared = sp.factor(
+        kernel.distance_squared(curve_point, boundary_point)
+    )
+    boundary_fixed_length = _oriented_length_on_parameter_domain(
+        sp.simplify(boundary_point[0] - fixed_point[0]),
+        parameter=parameter,
+        constraint=parameter_constraint,
+    )
+    direction_coordinate = next(
+        (
+            index
+            for index, value in enumerate(locus_direction)
+            if sp.simplify(value) != 0
+        ),
+        None,
+    )
+    if direction_coordinate is None:
+        raise StatelessMethodError(
+            "planner.method_contract_invalid",
+            "weighted-axis teaching locus has no direction",
+            category="configuration",
+            retryability="configuration",
+            role="axis_projection_geometry",
+            repair_action="fix_runtime_contract",
+        )
+    direction_scale = sp.simplify(
+        1 / locus_direction[direction_coordinate]
+    )
+    locus_reference_point = tuple(
+        sp.simplify(
+            locus_start[index]
+            + direction_scale * locus_direction[index]
+        )
+        for index in range(2)
+    )
+    if sp.simplify(
+        fixed_to_projection - horizontal_length - fixed_to_moving
+    ) == 0:
+        fixed_moving_decomposition = "projection_minus_horizontal"
+    elif sp.simplify(
+        fixed_to_projection + horizontal_length - fixed_to_moving
+    ) == 0:
+        fixed_moving_decomposition = "projection_plus_horizontal"
+    elif sp.simplify(
+        horizontal_length - fixed_to_projection - fixed_to_moving
+    ) == 0:
+        fixed_moving_decomposition = "horizontal_minus_projection"
+    else:
+        fixed_moving_decomposition = "coordinate_distance"
+
+    def point_payload(point: Point) -> list[str]:
+        return [kernel.sstr(sp.factor(item)) for item in point]
+
+    return {
+        "kind": "axis_projection_geometric_minimum",
+        "projection_triangle_relation": projection_triangle_relation,
+        "fixed_point": point_payload(fixed_point),
+        "curve_point": point_payload(curve_point),
+        "moving_point_formula": point_payload(moving_point),
+        "interior_moving_point": point_payload(interior_moving_point),
+        "projection_point": point_payload(projection_point),
+        "boundary_point": point_payload(boundary_point),
+        "locus_start_point": point_payload(locus_start),
+        "locus_direction": point_payload(locus_direction),
+        "locus_reference_point": point_payload(locus_reference_point),
+        "parameter": str(parameter),
+        "parameter_constraint": {
+            "operator": str(parameter_constraint.get("operator") or ""),
+            "value": kernel.sstr(sp.sympify(parameter_constraint["value"])),
+        },
+        "dynamic_parameter": str(dynamic_parameter),
+        "dynamic_constraint": {
+            "operator": str(dynamic_constraint.get("operator") or ""),
+            "value": kernel.sstr(lower),
+        },
+        "vertical_leg_length": kernel.sstr(sp.factor(vertical_length)),
+        "horizontal_leg_length": kernel.sstr(sp.factor(horizontal_length)),
+        "curve_to_moving_length_squared": kernel.sstr(
+            curve_to_moving_squared
+        ),
+        "curve_to_moving_length": kernel.sstr(sp.factor(curve_to_moving)),
+        "fixed_to_projection_length": kernel.sstr(
+            sp.factor(fixed_to_projection)
+        ),
+        "fixed_moving_decomposition": fixed_moving_decomposition,
+        "fixed_to_moving_length": kernel.sstr(sp.factor(fixed_to_moving)),
+        "auxiliary_to_moving_length": kernel.sstr(
+            sp.factor(auxiliary_to_moving)
+        ),
+        "straightened_length": kernel.sstr(sp.factor(straightened_length)),
+        "scaled_interior_minimum": kernel.sstr(
+            sp.together(sp.expand(interior_minimum))
+        ),
+        "attainment_condition": kernel.sstr(attainment_condition),
+        "boundary_curve_distance_squared": kernel.sstr(
+            boundary_curve_distance_squared
+        ),
+        "boundary_fixed_length": kernel.sstr(
+            sp.factor(boundary_fixed_length)
+        ),
+        "boundary_minimum_expression": (
+            kernel.sstr(boundary_minimum)
+            if boundary_minimum is not None
+            else None
+        ),
+    }
+
+
+def _oriented_length_on_parameter_domain(
+    expression: sp.Expr,
+    *,
+    parameter: sp.Symbol,
+    constraint: dict[str, sp.Expr | str],
+) -> sp.Expr:
+    """Choose the nonnegative orientation of one collinear segment length."""
+
+    simplified = sp.simplify(expression)
+    for candidate in (simplified, sp.simplify(-simplified)):
+        if _prove_nonnegative_on_parameter_domain(
+            candidate,
+            parameter=parameter,
+            constraint=constraint,
+        ):
+            return candidate
+    # The squared form remains a correct student-visible length even when the
+    # symbolic sign prover cannot orient a future parameterization.
+    return sp.sqrt(sp.factor(simplified**2))
 
 
 def _affine_parameter(
@@ -567,23 +817,17 @@ def _minimum_with_dynamic_domain(
     *,
     interior_minimum: sp.Expr,
     dynamic_expression: sp.Expr,
-    curve_point: Point,
-    fixed_point: Point,
-    moving_point: Point,
-    dynamic_parameter: sp.Symbol,
     target_constraint: dict[str, sp.Expr | str],
     parameter: sp.Symbol,
     parameter_constraint: dict[str, sp.Expr | str],
-    weight: sp.Expr,
-    kernel: SympyKernel,
 ) -> tuple[sp.Expr, sp.Expr, sp.Expr | None]:
-    """Represent an interior foot and a possible axis-boundary branch.
+    """Represent only minimum values that are attained in the moving domain.
 
-    The old public two-step chain always returned the distance to the auxiliary
-    *line*.  For the Hexi profile that foot corresponds to ``n=b/2-1/4`` and
-    is on the positive-axis ray only when ``b>1/2``.  The atomic Macro must not
-    publish that conditional expression as a global minimum, so it closes the
-    one-dimensional convex objective with the declared lower endpoint.
+    A line-distance calculation is valid only while its perpendicular foot
+    belongs to the declared moving-point ray.  For a strict lower-bound domain,
+    the excluded endpoint may determine an infimum but can never determine a
+    minimum.  Keep the interior branch guarded by its attainment condition and
+    do not publish the endpoint value as a minimum branch.
     """
 
     if str(target_constraint.get("operator", "")) != ">":
@@ -647,21 +891,12 @@ def _minimum_with_dynamic_domain(
             },
             repair_action="choose_applicable_weighted_path_capability",
         )
-    boundary_point = tuple(
-        sp.simplify(sp.sympify(item).subs(dynamic_parameter, lower))
-        for item in moving_point
-    )
-    boundary_minimum = sp.simplify(
-        weight * kernel.distance(curve_point, boundary_point)
-        + kernel.distance(fixed_point, boundary_point)
-    )
     return (
         sp.Piecewise(
             (sp.simplify(interior_minimum), attainment_condition),
-            (boundary_minimum, True),
         ),
         attainment_condition,
-        boundary_minimum,
+        None,
     )
 
 
@@ -726,11 +961,18 @@ def _constraint_branch_is_represented(
     parameter: sp.Symbol,
     parameter_constraint: dict[str, sp.Expr | str],
 ) -> bool:
-    del target_constraint, parameter, parameter_constraint
+    del parameter, parameter_constraint
     if candidate.attainment_condition is sp.S.true:
         return (
             candidate.boundary_minimum_expression is None
             and not isinstance(candidate.minimum_expression, sp.Piecewise)
+        )
+    if str(target_constraint.get("operator", "")) == ">":
+        return (
+            candidate.boundary_minimum_expression is None
+            and candidate.attainment_condition is not sp.S.false
+            and isinstance(candidate.minimum_expression, sp.Piecewise)
+            and len(candidate.minimum_expression.args) == 1
         )
     return (
         candidate.boundary_minimum_expression is not None
@@ -745,8 +987,9 @@ SPEC = MethodSpecSource(
     summary=(
         "Given a two-term weighted path with one shared axis moving point, "
         "resolve the registered auxiliary-triangle geometry internally, prove "
-        "that the straightening equality state is reachable in the declared "
-        "domains, and return only the minimum expression."
+        "where the straightening equality state is reachable in the declared "
+        "moving domain, and return the minimum expression only on those "
+        "attained parameter branches."
     ),
     solves=("derive_weighted_axis_path_minimum",),
     inputs={
@@ -791,25 +1034,8 @@ SPEC = MethodSpecSource(
         "the primary and dynamic parameter domains are explicit",
     ),
     postconditions=(
-        "minimum_expression equals the source weighted path minimum",
-        "the selected auxiliary-ray foot and original moving point make equality reachable",
-    ),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "original_path": "题设加权路径。",
-            "weighted_triangle": "把普通轴上线段换成同倍率辅助线段的直角三角形。",
-            "auxiliary_locus": "辅助点的合法射线轨迹。",
-            "minimum_expression": "在合法取等状态下得到的路径最小值表达式。",
-        },
-        student_goal_template="用辅助三角形把加权路径化为可拉直折线并求最小值。",
-        student_title_template="辅助三角形转化加权路径",
-        derive_templates=(
-            "构造 {weighted_triangle}，把 {original_path} 化为同倍率普通折线。",
-            "沿 {auxiliary_locus} 拉直折线并验证取等状态合法。",
-            "得到最小值表达式 {minimum_expression}。",
-        ),
-        box_templates=("{minimum_expression}",),
-        role_binder_id="weighted_axis_path_minimum",
+        "minimum_expression contains only parameter branches where the source weighted path minimum is attained",
+        "every published branch has a selected auxiliary-ray foot and original moving point that make equality reachable",
     ),
 )
 

@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
+
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
 
@@ -117,5 +119,43 @@ SPEC = MethodSpecSource(
     interchangeable_arg_groups=(
         ("line1_p1", "line1_p2"),
         ("line2_p1", "line2_p2"),
+    ),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="line_intersection_point/solve_intersection",
+        title_template="求两直线交点",
+        nav_title_template="求交点",
+        goal_template="分别建立两条直线的方程并联立，求出公共交点。",
+        derive_templates=(
+            ("∵", "第一条直线经过 {line1_p1}、{line1_p2}"),
+            ("∵", "第二条直线经过 {line2_p1}、{line2_p2}"),
+            ("计算", "联立两条直线方程"),
+            ("∴", "交点为 {intersection}"),
+        ),
+        box_templates=("{intersection}",),
+        role_schema={
+            "line1_p1": "第一条直线端点一。",
+            "line1_p2": "第一条直线端点二。",
+            "line2_p1": "第二条直线端点一。",
+            "line2_p2": "第二条直线端点二。",
+            "intersection": "两直线交点。",
+        },
+        role_binder_id="line_intersection_point",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "line1": "第一条直线。",
+            "line2": "第二条直线。",
+            "intersection": "两直线交点。",
+        },
+        scene_templates=(
+            {
+                "component": "LineIntersectionMarker",
+                "line1_roles": ["line1_p1", "line1_p2"],
+                "line2_roles": ["line2_p1", "line2_p2"],
+                "output_role": "intersection",
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
     ),
 )

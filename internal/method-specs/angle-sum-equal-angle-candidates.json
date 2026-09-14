@@ -107,20 +107,29 @@
       ]
     }
   ],
-  "explanation": {
+  "teaching_unit": {
+    "unit_key": "angle_sum_equal_angle_candidates/derive_equal_angle",
+    "title_template": "由角和条件推出等角关系",
+    "nav_title_template": "推出等角关系",
+    "goal_template": "利用角和条件与坐标轴中的 45° 参考角，推出可用的等角关系。",
+    "derive_templates": [
+      [
+        "∵",
+        "{condition}"
+      ],
+      [
+        "∴",
+        "{angle_equality}"
+      ]
+    ],
+    "box_templates": [
+      "{angle_equality}"
+    ],
     "role_schema": {
-      "angle_sum_condition": "题设给出的角和条件。",
-      "reference_angle": "可验证出的 45° 参考角。",
-      "angle_equality": "消去公共角后得到的等角关系。"
+      "condition": "题设给出的角和条件。",
+      "angle_equality": "运行时验证得到的等角关系。"
     },
-    "student_goal_template": "利用角和条件和 45° 参考角，推出后续可用的等角关系。",
-    "student_title_template": "由角和条件推出等角关系",
-    "student_title_templates_by_goal": {},
-    "derive_templates": [],
-    "box_templates": [],
-    "explanation_level": "template",
-    "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "generic_trace"
+    "role_binder_id": "angle_sum_equal_angle_candidates"
   },
   "visual": {
     "role_schema": {

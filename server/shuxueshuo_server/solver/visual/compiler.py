@@ -1,4 +1,4 @@
-"""VS0 reverse/forward compiler for existing authored lesson JSON."""
+"""Forward compiler for recursive complete-frame VisualStepIR v2."""
 
 from __future__ import annotations
 
@@ -6,10 +6,13 @@ from dataclasses import dataclass
 from typing import Any
 import copy
 
-from .models import JsonObject, VisualStep, VisualStepIR
-from .registry import LayerRegistry, default_layer_registry, low_level_for_visual_type, visual_type_for_low_level
-from .geometry_naming import scope_root
-from .scene_accumulator import resolved_steps_with_carry_forward
+from .models import JsonObject, VisualFrame, VisualObject, VisualStep, VisualStepIR
+from .palette import COLOR_MUTED
+from .registry import low_level_for_visual_type
+
+
+_CONTEXT_OPACITY = 0.58
+_CONTEXT_REGION_FILL = "rgba(100, 116, 139, 0.08)"
 
 
 @dataclass(frozen=True)
@@ -23,63 +26,17 @@ def reverse_compile(
     geometry_spec: JsonObject,
     step_decorations: JsonObject,
     lesson_data: JsonObject,
-    *,
-    layer_registry: LayerRegistry | None = None,
 ) -> VisualStepIR:
-    """Build a VisualStepIR from existing authored lesson artifacts."""
+    """The retired flat page artifacts are not a v2 authority."""
 
-    registry = layer_registry or default_layer_registry()
-    semantic_layers = _reverse_layers(step_decorations, registry)
-    semantic_to_layer = dict(registry.semantic_to_layer)
-    for semantic_ref in semantic_layers:
-        if semantic_ref.startswith("layer:") and semantic_ref not in semantic_to_layer:
-            semantic_to_layer[semantic_ref] = semantic_ref.removeprefix("layer:")
-    lesson_steps = lesson_data.get("steps") or []
-    lesson_order = [str(item["id"]) for item in lesson_steps if isinstance(item, dict) and item.get("id")]
-    deco_steps = step_decorations.get("steps") or {}
-    ordered_step_ids = [step_id for step_id in lesson_order if step_id in deco_steps]
-    ordered_step_ids.extend(step_id for step_id in deco_steps if step_id not in ordered_step_ids)
-
-    steps = tuple(
-        _reverse_step(
-            step_id,
-            deco_steps.get(step_id) or {},
-            geometry_spec,
-            lesson_data,
-            step_decorations,
-            registry,
-        )
-        for step_id in ordered_step_ids
-    )
-    return VisualStepIR(
-        version=1,
-        problem_id=str((lesson_data.get("meta") or {}).get("id") or geometry_spec.get("id") or ""),
-        geometry_spec=copy.deepcopy(geometry_spec),
-        lesson_data=copy.deepcopy(lesson_data),
-        layers=semantic_layers,
-        layer_registry=semantic_to_layer,
-        steps=steps,
-        metadata={
-            "source": "reverse_compile",
-            "step_decorations_comment": step_decorations.get("_comment"),
-        },
-    )
+    raise ValueError("visual_step_ir_v1_reverse_compile_retired")
 
 
 def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
-    """Compile VS0 VisualStepIR back to authored lesson JSON artifacts."""
+    """Compile complete frames; no prior scene or DOM state is consulted."""
 
-    layer_registry = LayerRegistry(visual_ir.layer_registry or default_layer_registry().semantic_to_layer)
-    layers: dict[str, Any] = {}
-    for semantic_ref, layer in visual_ir.layers.items():
-        layer_key = layer_registry.require_layer_key(semantic_ref)
-        layers[layer_key] = copy.deepcopy(layer)
-
-    visual_steps = visual_ir.steps
-    use_scene_accumulator = visual_ir.metadata.get("scene_model") == "section_accumulator"
-    if use_scene_accumulator:
-        visual_steps = resolved_steps_with_carry_forward(visual_steps)
-
+    if visual_ir.schema_version != "visual-step-ir/v2":
+        raise ValueError("visual_step_ir_legacy_contract_rejected")
     lesson_data = copy.deepcopy(visual_ir.lesson_data)
     lesson_steps_by_id = {
         str(item.get("id")): item
@@ -88,51 +45,24 @@ def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
     }
     policies = lesson_data.setdefault("policies", {})
     steps: dict[str, Any] = {}
-    carried_overrides_by_scope: dict[str, JsonObject] = {}
-    carried_values_by_scope: dict[str, JsonObject] = {}
-    for visual_step in visual_steps:
-        scene = visual_step.scene or {}
+    for visual_step in visual_ir.steps:
         raw_step: dict[str, Any] = copy.deepcopy(visual_step.metadata.get("step_extra") or {})
-        add = [
-            compiled
-            for item in scene.get("add") or ()
-            for compiled in _compile_scene_items(item)
+        raw_step["visualMode"] = visual_step.visual_mode
+        compiled_frames = [
+            _compile_complete_frame(frame)
+            for frame in visual_step.frames
         ]
-        if add:
-            raw_step["add"] = add
-        hide = scene.get("hide") or ()
-        if hide:
-            raw_step["hideLayers"] = list(hide)
-        _compile_interactions(
+        raw_step["visualFrames"] = compiled_frames
+        _compile_frame_local_parameters(
             visual_step,
-            raw_step=raw_step,
             lesson_step=lesson_steps_by_id.get(visual_step.lesson_step_id),
             policies=policies,
         )
-        _compile_timeline(
-            visual_step,
-            lesson_step=lesson_steps_by_id.get(visual_step.lesson_step_id),
-        )
-        if use_scene_accumulator:
-            scope_key = scope_root(visual_step.scope_id)
-            _inherit_local_point_overrides_if_needed(
-                visual_step,
-                raw_step=raw_step,
-                lesson_step=lesson_steps_by_id.get(visual_step.lesson_step_id),
-                carried_overrides=carried_overrides_by_scope.get(scope_key, {}),
-                carried_values=carried_values_by_scope.get(scope_key, {}),
-            )
-            if raw_step.get("pointOverrides"):
-                carried_overrides_by_scope[scope_key] = copy.deepcopy(raw_step["pointOverrides"])
-                local_controls = (lesson_steps_by_id.get(visual_step.lesson_step_id) or {}).get("localControls")
-                if isinstance(local_controls, dict) and isinstance(local_controls.get("values"), dict):
-                    carried_values_by_scope[scope_key] = copy.deepcopy(local_controls["values"])
         steps[visual_step.lesson_step_id] = raw_step
 
     step_decorations: dict[str, Any] = {}
     if visual_ir.metadata.get("step_decorations_comment") is not None:
         step_decorations["_comment"] = visual_ir.metadata.get("step_decorations_comment")
-    step_decorations["layers"] = layers
     step_decorations["steps"] = steps
 
     return CompiledVisualArtifacts(
@@ -142,67 +72,153 @@ def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
     )
 
 
-def _compile_interactions(
+def _compile_complete_frame(frame: VisualFrame) -> JsonObject:
+    coordinate_labeled_points = frozenset(
+        visual_object.geometry_refs[0]
+        for visual_object in frame.objects
+        if visual_object.component == "CoordinateLabel"
+        and len(visual_object.geometry_refs) == 1
+    )
+    add = [{"type": "grid"}]
+    add.extend(
+        [
+        compiled
+        for visual_object in frame.objects
+        for compiled in _compile_visual_object(
+            visual_object,
+            coordinate_labeled_points=coordinate_labeled_points,
+        )
+        ]
+    )
+    result: JsonObject = {
+        "id": frame.frame_id,
+        "caption": frame.caption or "",
+        "teachingUnitKeys": list(frame.teaching_unit_keys),
+        "domain": copy.deepcopy(frame.viewport),
+        "add": _dedupe_compiled_items(add),
+        "localValues": {
+            str(parameter.get("name")): parameter.get("default_value")
+            for parameter in frame.local_parameters
+            if str(parameter.get("name") or "")
+        },
+        "pointOverrides": {},
+        "curveOverrides": {},
+    }
+    parameter_landmarks: list[JsonObject] = []
+    for parameter in frame.local_parameters:
+        parameter_name = str(parameter.get("name") or "")
+        parameter_landmarks.extend(
+            {
+                "parameter": parameter_name,
+                "value": landmark["value"],
+                "exactValue": landmark["exact_value"],
+                "display": landmark["display"],
+                "epsilon": landmark["epsilon"],
+                "candidateGeometryRefs": copy.deepcopy(
+                    landmark["candidate_geometry_refs"]
+                ),
+                "highlightGeometryRefs": copy.deepcopy(
+                    landmark["highlight_geometry_refs"]
+                ),
+            }
+            for landmark in parameter.get("landmarks") or ()
+        )
+        for point_id, payload in (parameter.get("parameterized_points") or {}).items():
+            expression = payload.get("expression") if isinstance(payload, dict) else None
+            if isinstance(expression, list) and len(expression) == 2:
+                result["pointOverrides"][str(point_id)] = [str(expression[0]), str(expression[1])]
+        name = str(parameter.get("name") or "")
+        if not name:
+            continue
+        for visual_object in frame.objects:
+            for curve_id in visual_object.geometry_refs:
+                if not curve_id.startswith("curve_"):
+                    continue
+                result["curveOverrides"].setdefault(curve_id, {})["parameter"] = name
+    if not result["pointOverrides"]:
+        result.pop("pointOverrides")
+    if not result["curveOverrides"]:
+        result.pop("curveOverrides")
+    if not result["localValues"]:
+        result.pop("localValues")
+    if parameter_landmarks:
+        result["parameterLandmarks"] = parameter_landmarks
+    if frame.timeline is not None:
+        result["animation"] = _compiled_timeline(frame.timeline)
+    return result
+
+
+def _compile_visual_object(
+    visual_object: VisualObject,
+    *,
+    coordinate_labeled_points: frozenset[str],
+) -> list[JsonObject]:
+    """Compile one object using resolved geometry identity, never label text.
+
+    A point marker and a coordinate annotation are complementary renderings of
+    the same mathematical point.  When the Frame contains both components for
+    the exact same geometry ref, the marker remains visible but yields its
+    short name to the more informative coordinate annotation.
+    """
+
+    scene_item = visual_object.to_scene_item()
+    if (
+        visual_object.component
+        in {"Point", "DerivedPoint", "MovingPoint", "Vertex", "CurvePoint"}
+        and len(visual_object.geometry_refs) == 1
+        and visual_object.geometry_refs[0] in coordinate_labeled_points
+    ):
+        scene_item["showLabel"] = False
+    return _compile_scene_items(scene_item)
+
+
+def _compile_frame_local_parameters(
     visual_step: VisualStep,
     *,
-    raw_step: JsonObject,
     lesson_step: JsonObject | None,
     policies: JsonObject,
 ) -> None:
-    for interaction in visual_step.interactions or ():
-        if not isinstance(interaction, dict):
-            continue
-        component = str(interaction.get("component") or "")
-        if component in {"LocalSlider", "LinkedControls"}:
-            _compile_local_slider_interaction(
-                visual_step,
-                interaction,
-                raw_step=raw_step,
-                lesson_step=lesson_step,
-                policies=policies,
-            )
-        elif component == "MainSlider":
-            raw_policy = interaction.get("raw_policy")
-            if isinstance(raw_policy, dict):
-                policies[visual_step.lesson_step_id] = copy.deepcopy(raw_policy)
-
-
-def _compile_local_slider_interaction(
-    visual_step: VisualStep,
-    interaction: JsonObject,
-    *,
-    raw_step: JsonObject,
-    lesson_step: JsonObject | None,
-    policies: JsonObject,
-) -> None:
-    point_overrides = raw_step.setdefault("pointOverrides", {})
-    for point_id, payload in (interaction.get("parameterized_points") or {}).items():
-        if not isinstance(payload, dict):
-            continue
-        expression = payload.get("expression")
-        if isinstance(expression, list) and len(expression) >= 2:
-            point_overrides[str(point_id)] = [str(expression[0]), str(expression[1])]
-
     if lesson_step is None:
         return
-    raw_local = interaction.get("raw_local_controls")
-    if isinstance(raw_local, dict):
-        lesson_step["localControls"] = copy.deepcopy(raw_local)
+    by_name: dict[str, JsonObject] = {}
+    for frame in visual_step.frames:
+        for parameter in frame.local_parameters:
+            name = str(parameter.get("name") or "")
+            if name and parameter.get("controls") and name not in by_name:
+                by_name[name] = parameter
+    if not by_name:
+        lesson_step.pop("localControls", None)
         return
-    parameter = str(interaction.get("parameter") or "")
-    domain = interaction.get("domain") if isinstance(interaction.get("domain"), dict) else {}
-    default_value = domain.get("default", 0.5)
-    controls = [
-        copy.deepcopy(control)
-        for control in interaction.get("controls") or ()
-        if isinstance(control, dict)
+    values = {
+        name: parameter.get("default_value")
+        for name, parameter in by_name.items()
+    }
+    controls: list[JsonObject] = []
+    for parameter in by_name.values():
+        landmarks = [
+            {
+                "value": landmark["value"],
+                "display": landmark["display"],
+                "epsilon": landmark["epsilon"],
+            }
+            for landmark in parameter.get("landmarks") or ()
+        ]
+        for control in parameter.get("controls") or ():
+            if not isinstance(control, dict):
+                continue
+            compiled_control = copy.deepcopy(control)
+            if landmarks:
+                compiled_control["landmarks"] = copy.deepcopy(landmarks)
+            controls.append(compiled_control)
+    notes = [
+        str(parameter.get("note") or "")
+        for parameter in by_name.values()
+        if str(parameter.get("note") or "")
     ]
-    if not parameter or not controls:
-        return
     lesson_step["localControls"] = {
-        "values": {parameter: default_value},
-        "note": str(interaction.get("note") or ""),
+        "values": values,
         "controls": controls,
+        "note": " ".join(dict.fromkeys(notes)),
     }
     policies[visual_step.lesson_step_id] = {
         "movable": False,
@@ -210,17 +226,7 @@ def _compile_local_slider_interaction(
     }
 
 
-def _compile_timeline(
-    visual_step: VisualStep,
-    *,
-    lesson_step: JsonObject | None,
-) -> None:
-    if lesson_step is None:
-        return
-    timeline = visual_step.timeline
-    if not isinstance(timeline, dict) or timeline.get("mode", "none") == "none":
-        lesson_step.pop("animation", None)
-        return
+def _compiled_timeline(timeline: JsonObject) -> JsonObject:
     compiled = copy.deepcopy(timeline)
     beats: list[JsonObject] = []
     for beat in compiled.get("beats") or ():
@@ -229,126 +235,34 @@ def _compile_timeline(
         patch = beat.get("scene_patch")
         if isinstance(patch, dict):
             patch["add"] = [
-                raw_item
+                raw
                 for item in patch.get("add") or ()
                 if isinstance(item, dict)
-                for raw_item in _compile_scene_items(item)
+                for raw in _compile_scene_items(item)
             ]
-            if "hide" in patch:
-                patch["hide"] = [str(item) for item in patch.get("hide") or ()]
-            if "state_overrides" in patch:
-                patch["state_overrides"] = [
-                    copy.deepcopy(item)
-                    for item in patch.get("state_overrides") or ()
-                    if isinstance(item, dict)
-                ]
         beats.append(beat)
     compiled.pop("frames", None)
     compiled["beats"] = beats
-    lesson_step["animation"] = compiled
+    return compiled
 
 
-def _inherit_local_point_overrides_if_needed(
-    visual_step: VisualStep,
-    *,
-    raw_step: JsonObject,
-    lesson_step: JsonObject | None,
-    carried_overrides: JsonObject,
-    carried_values: JsonObject,
-) -> None:
-    if raw_step.get("pointOverrides") or not carried_overrides:
-        return
-    refs = _geometry_refs_from_step(raw_step)
-    if not refs.intersection(carried_overrides):
-        return
-    raw_step["pointOverrides"] = copy.deepcopy(carried_overrides)
-    if lesson_step is not None and carried_values and "localControls" not in lesson_step:
-        lesson_step["localControls"] = {
-            "values": copy.deepcopy(carried_values),
-            "controls": [],
-        }
-
-
-def _geometry_refs_from_step(raw_step: JsonObject) -> set[str]:
-    refs: set[str] = set()
-    for item in raw_step.get("add") or ():
-        if isinstance(item, dict):
-            refs.update(_geometry_refs_from_item(item))
-    return refs
-
-
-def _geometry_refs_from_item(item: JsonObject) -> set[str]:
-    refs: set[str] = set()
-    for key in ("at", "from", "to", "vertex", "rayA", "rayB", "anchor"):
-        value = item.get(key)
-        if isinstance(value, str):
-            refs.add(value)
-    if isinstance(item.get("vertices"), list):
-        refs.update(str(value) for value in item["vertices"] if isinstance(value, str))
-    for key in ("angles", "guide_arms", "lines", "right_angles", "segments", "triangles"):
-        for nested in item.get(key) or ():
-            if isinstance(nested, dict):
-                refs.update(_geometry_refs_from_item(nested))
-    return refs
-
-
-def _reverse_layers(step_decorations: JsonObject, registry: LayerRegistry) -> dict[str, JsonObject]:
-    out: dict[str, JsonObject] = {}
-    for layer_key, layer in (step_decorations.get("layers") or {}).items():
-        semantic_ref = registry.semantic_for_layer_key(str(layer_key))
-        out[semantic_ref] = copy.deepcopy(layer)
-    return out
-
-
-def _reverse_step(
-    step_id: str,
-    step_deco: JsonObject,
-    geometry_spec: JsonObject,
-    lesson_data: JsonObject,
-    step_decorations: JsonObject,
-    registry: LayerRegistry,
-) -> VisualStep:
-    lesson_step = _lesson_step(lesson_data, step_id)
-    inherits_from = _semantic_layer_for_step(step_id, step_decorations, registry)
-    add = [_reverse_element(item) for item in step_deco.get("add") or ()]
-    hide = list(step_deco.get("hideLayers") or ())
-    scene = {
-        "inherits_from": inherits_from,
-        "add": add,
-        "state_overrides": [],
-        "hide": hide,
-        "focus": {"primary": [], "dim": []},
-        "annotations": [],
-    }
-    geometry_context = {
-        "coordinate_system": "cartesian_2d",
-        "domain": copy.deepcopy(geometry_spec.get("domain") or {}),
-        "domain_override": copy.deepcopy(lesson_step.get("domain")) if isinstance(lesson_step, dict) else None,
-        "moving_param": geometry_spec.get("movingParam"),
-        "expression_env_handles": _expression_env_handles(geometry_spec.get("expressionEnv")),
-        "panels": [],
-    }
-    interactions = tuple(_reverse_interactions(step_id, lesson_step, lesson_data))
-    step_extra = {key: copy.deepcopy(value) for key, value in step_deco.items() if key not in {"add", "hideLayers"}}
-    return VisualStep(
-        visual_step_id=f"visual:{step_id}",
-        lesson_step_id=step_id,
-        scope_id=_scope_for_step(step_id, step_decorations, registry),
-        geometry_context=geometry_context,
-        scene=scene,
-        interactions=interactions,
-        timeline={"mode": "none"},
-        metadata={"step_extra": step_extra},
-    )
-
-
-def _reverse_element(item: JsonObject) -> JsonObject:
-    out = copy.deepcopy(item)
-    low_level_type = str(out.pop("type", ""))
-    out["component"] = visual_type_for_low_level(low_level_type)
-    out.setdefault("metadata", {})
-    out["metadata"]["low_level_type"] = low_level_type
-    return out
+def _dedupe_compiled_items(items: list[JsonObject]) -> list[JsonObject]:
+    seen: set[str] = set()
+    result: list[JsonObject] = []
+    for item in items:
+        semantic = copy.deepcopy(item)
+        if semantic.get("type") in {"coloredLine", "dashedLine", "segment"}:
+            endpoints = sorted(
+                [str(semantic.get("from") or ""), str(semantic.get("to") or "")]
+            )
+            key = f"line:{endpoints[0]}:{endpoints[1]}:{semantic.get('label') or ''}"
+        else:
+            key = repr(sorted(semantic.items()))
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(item)
+    return result
 
 
 def _compile_scene_items(item: JsonObject) -> list[JsonObject]:
@@ -358,13 +272,12 @@ def _compile_scene_items(item: JsonObject) -> list[JsonObject]:
     # Handles are VisualStepIR reconciliation keys. Existing step-decorations
     # low-level schema does not accept them, so they are consumed before emit.
     raw.pop("handle", None)
-    raw.pop("state", None)
+    visual_state = str(raw.pop("state", "focus"))
     raw.pop("persistence", None)
     raw.pop("decay_state", None)
     raw.pop("guide_only_refs", None)
     raw.pop("show_endpoint_refs", None)
-    if component == "VisualGap":
-        return []
+    raw.pop("role", None)
     compiled: list[JsonObject]
     if component == "DistanceMarker":
         compiled = [_compile_distance_marker(raw)]
@@ -384,6 +297,46 @@ def _compile_scene_items(item: JsonObject) -> list[JsonObject]:
             raise ValueError(f"cannot compile component without low-level type: {component}")
         raw["type"] = low_level_type
         compiled = [raw]
+    # A context distance marker keeps only its geometric support line.  It no
+    # longer claims that the segment is being measured, so its relation label
+    # is removed and the low-level type is downgraded from ``segment`` (whose
+    # contract requires a label) to an ordinary line.  This transition is
+    # driven by the typed component/state rather than by inspecting label text.
+    # Endpoint-based compiled-item dedupe can then collapse it with an existing
+    # support line when the current frame already renders one.
+    if component == "DistanceMarker" and visual_state == "context":
+        for item in compiled:
+            item["type"] = "coloredLine"
+            item.pop("label", None)
+    return _apply_visual_state(compiled, visual_state)
+
+
+def _apply_visual_state(
+    compiled: list[JsonObject],
+    visual_state: str,
+) -> list[JsonObject]:
+    """Translate the v2 semantic state into deterministic page styling.
+
+    ``focus`` keeps the component's authored palette. ``context`` remains
+    visible but is deliberately muted. Visibility itself is still determined
+    exclusively by membership in the complete Frame object list.
+    """
+
+    if visual_state == "focus":
+        return compiled
+    if visual_state != "context":
+        raise ValueError(f"visual_object_state_invalid: {visual_state}")
+
+    for item in compiled:
+        item_type = str(item.get("type") or "")
+        if item_type == "grid":
+            continue
+        item["opacity"] = min(float(item.get("opacity", 1.0)), _CONTEXT_OPACITY)
+        item["color"] = COLOR_MUTED
+        if item_type in {"outlineRegion", "cutRegion"}:
+            item["fill"] = _CONTEXT_REGION_FILL
+        if "originColor" in item:
+            item["originColor"] = COLOR_MUTED
     return compiled
 
 
@@ -455,7 +408,6 @@ def _compile_angle_equality_marker(raw: JsonObject) -> list[JsonObject]:
             }
         )
     return out
-
 
 def _compile_equal_acute_angle_intercept_marker(raw: JsonObject) -> list[JsonObject]:
     label = raw.get("label") or "α"
@@ -571,70 +523,3 @@ def _compile_equivalent_segment_marker(raw: JsonObject) -> list[JsonObject]:
             }
         )
     return out
-
-
-def _reverse_interactions(step_id: str, lesson_step: JsonObject, lesson_data: JsonObject) -> list[JsonObject]:
-    interactions: list[JsonObject] = []
-    local_controls = lesson_step.get("localControls") if isinstance(lesson_step, dict) else None
-    if local_controls:
-        controls = local_controls.get("controls") or []
-        vars_ = {control.get("var") for control in controls if isinstance(control, dict)}
-        interactions.append(
-            {
-                "id": f"{step_id}:localControls",
-                "component": "LinkedControls" if len(vars_) == 1 and len(controls) > 1 else "LocalSlider",
-                "parameter": next(iter(vars_)) if len(vars_) == 1 else None,
-                "raw_local_controls": copy.deepcopy(local_controls),
-            }
-        )
-    policy = (lesson_data.get("policies") or {}).get(step_id)
-    if policy and policy.get("movable"):
-        interactions.append(
-            {
-                "id": f"{step_id}:mainSlider",
-                "component": "MainSlider",
-                "parameter": (lesson_data.get("ui") or {}).get("paramLabelPrefix") or "t",
-                "raw_policy": copy.deepcopy(policy),
-            }
-        )
-    return interactions
-
-
-def _lesson_step(lesson_data: JsonObject, step_id: str) -> JsonObject:
-    for item in lesson_data.get("steps") or ():
-        if isinstance(item, dict) and item.get("id") == step_id:
-            return item
-    return {}
-
-
-def _semantic_layer_for_step(step_id: str, step_decorations: JsonObject, registry: LayerRegistry) -> str:
-    for layer_key, layer in (step_decorations.get("layers") or {}).items():
-        step_ids = layer.get("stepIds") or ()
-        if any(step_id == str(candidate) for candidate in step_ids):
-            return registry.semantic_for_layer_key(str(layer_key))
-    for layer_key, layer in (step_decorations.get("layers") or {}).items():
-        prefixes = layer.get("stepStartsWith") or ()
-        if any(step_id.startswith(str(prefix)) for prefix in prefixes):
-            return registry.semantic_for_layer_key(str(layer_key))
-    return "global"
-
-
-def _scope_for_step(step_id: str, step_decorations: JsonObject, registry: LayerRegistry) -> str | None:
-    semantic = _semantic_layer_for_step(step_id, step_decorations, registry)
-    if semantic.startswith("section:"):
-        return semantic.removeprefix("section:")
-    return None
-
-
-def _expression_env_handles(expression_env: Any) -> tuple[str, ...]:
-    if isinstance(expression_env, dict):
-        return tuple(str(key) for key in expression_env)
-    if isinstance(expression_env, list):
-        out: list[str] = []
-        for item in expression_env:
-            if isinstance(item, dict) and item.get("name"):
-                out.append(str(item["name"]))
-            elif isinstance(item, str):
-                out.append(item)
-        return tuple(out)
-    return ()

@@ -1,16 +1,30 @@
 # 部署
 
-服务器上的仓库路径：**`/home/ronghao/code/shuxueshuo`**。站点根目录：**`/home/ronghao/code/shuxueshuo/site`**。API 工程目录：**`/home/ronghao/code/shuxueshuo/server`**（FastAPI + uv，提供微信 JS-SDK 签名等 **`/api/`**）。
+服务器上的仓库路径：**`/home/ronghao/code/shuxueshuo`**。站点根目录：**`/home/ronghao/code/shuxueshuo/site`**。
 
-当前约定：**域名 A 记录直连 ECS**，HTTPS 在 **本机 Nginx** 终结（不经 CLB）。**静态页面由 Nginx 直出**；**`/api/`** 反代到本机 **`127.0.0.1:8000`**（Uvicorn），**勿对公网放行 8000 端口**。
+**日常发布（产品镜像 / Studio / Nginx 怎么发）见：[release.md](release.md)。**
+
+当前约定：**域名 A 记录直连 ECS**，HTTPS 在 **本机 Nginx** 终结（不经 CLB）。**静态页面由 Nginx 直出**；主站 **`/api/`** 与 Studio **`/api/product/`** 均反代到本机 **`127.0.0.1:8000`**（产品 P2 API 容器），**勿对公网放行 8000 端口**。
 
 更细的 CentOS 7、故障排查与接口说明见：[server/README.md](../server/README.md)。
 
-Studio 创作工作台的 Docker 部署与维护见：[frontend-studio-workbench.md](frontend-studio-workbench.md)。
+主站静态文件压缩在 `deploy/nginx/shuxueshuo.conf` 的两个静态 `location /` 中配置：HTML、JS、CSS、JSON 等超过 1 KiB 时按客户端协商使用 gzip，保留原生 ETag / Last-Modified 协商缓存。高中题库优先使用页面已加载的目录脚本，避免再下载一份完整 JSON。发布需同步 `site/` 并安装此主站 Nginx 配置，执行 `sudo nginx -t && sudo systemctl reload nginx`；无需重建产品 Docker 镜像。用真实 GET 检查压缩（HEAD 不触发响应体压缩）：
+
+```bash
+curl -sS --compressed -D - -o /dev/null 'https://shuxueshuo.com/assets/js/senior-high-catalog-data.js?v=29'
+```
+
+应看到 `Content-Encoding: gzip`、`Vary: Accept-Encoding` 和 `ETag`；浏览器高中题库正常首屏不再请求 `senior-high-catalog.json`。
+
+- 产品库与 Compose：`services-*` → [product/README.md](product/README.md)
+- Studio 创作工作台 Docker → [frontend-studio-workbench.md](frontend-studio-workbench.md)
+- OCR → [ocr/README.md](ocr/README.md)
 
 ---
 
 ## 一次开通：安装 uv 与 Python 3.11（业务用户 `ronghao`，首次部署执行）
+
+> 说明：主站/产品 API 已改为 Compose 镜像后，**日常发布不再依赖** 宿主机 `uv run uvicorn`。下列步骤仅在需要本机调试或遗留工具时使用；生产请按 [release.md](release.md) 操作。
 
 若服务器尚未安装 **uv**（CentOS 7 等）：
 

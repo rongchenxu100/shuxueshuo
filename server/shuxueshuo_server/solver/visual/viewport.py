@@ -1,0 +1,431 @@
+"""Semantic, focus-driven viewport selection for complete visual frames.
+
+Unbounded geometry is rendered *inside* the chosen viewport; it never grows
+the viewport merely because a curve, axis, ray, or locus is present.  Finite
+focus geometry and the structural context connected to it are the framing
+authority.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Mapping
+import math
+
+import sympy as sp
+
+from .models import JsonObject, VisualObject
+
+
+_UNBOUNDED_COMPONENTS = frozenset(
+    {
+        "AxisOfSymmetry",
+        "LocusLine",
+        "Parabola",
+        "Ray",
+    }
+)
+
+
+@dataclass(frozen=True)
+class SemanticViewportResolver:
+    """Fit a viewport around finite teaching focus, not registry extent."""
+
+    minimum_span_x: float = 4.0
+    minimum_span_y: float = 6.0
+    padding_ratio: float = 0.18
+
+    def resolve(
+        self,
+        *,
+        objects: tuple[VisualObject, ...],
+        geometry_spec: JsonObject,
+        local_parameters: tuple[JsonObject, ...],
+        parameter_values: Mapping[str, str],
+    ) -> JsonObject:
+        point_pairs = _point_pairs(geometry_spec)
+        environments = _evaluation_environments(local_parameters, parameter_values)
+        curve_ids = _attention_curve_ids(
+            objects,
+            geometry_spec=geometry_spec,
+            environments=environments,
+        )
+        curve_samples = _evaluate_curve_features(
+            curve_ids,
+            geometry_spec=geometry_spec,
+            environments=environments,
+        )
+        attention_refs = self.attention_geometry_refs(
+            objects=objects,
+            geometry_spec=geometry_spec,
+            local_parameters=local_parameters,
+            include_context_fallback=not curve_samples,
+            # Curve landmarks and linked parameter endpoints are independent
+            # framing authorities.  A visible curve must not suppress the
+            # endpoint samples needed to keep slider-linked points on screen.
+            include_parameterized_context=True,
+        )
+        samples = _evaluate_refs(attention_refs, point_pairs, environments)
+        samples.extend(curve_samples)
+
+        if not samples:
+            fallback = geometry_spec.get("domain")
+            if isinstance(fallback, dict) and {
+                "minX",
+                "maxX",
+                "minY",
+                "maxY",
+            } <= set(fallback):
+                return dict(fallback)
+            return {"minX": -2.0, "maxX": 2.0, "minY": -2.0, "maxY": 2.0}
+
+        return self._fit(samples)
+
+    def attention_geometry_refs(
+        self,
+        *,
+        objects: tuple[VisualObject, ...],
+        geometry_spec: JsonObject,
+        local_parameters: tuple[JsonObject, ...],
+        include_context_fallback: bool = True,
+        include_parameterized_context: bool = True,
+    ) -> set[str]:
+        """Return finite geometry that is authoritative for scene framing."""
+
+        point_pairs = _point_pairs(geometry_spec)
+        visible_refs = {
+            ref
+            for item in objects
+            for ref in item.geometry_refs
+            if ref in point_pairs
+        }
+        finite_objects = tuple(
+            item for item in objects if not _is_unbounded_visual(item)
+        )
+        focus_refs = {
+            ref
+            for item in finite_objects
+            if item.state == "focus"
+            for ref in item.geometry_refs
+            if ref in point_pairs
+        }
+        parameterized_refs = (
+            {
+                str(ref)
+                for contract in local_parameters
+                # Endpoint framing is an interaction guarantee: only a
+                # parameter that is actually exposed through a control needs
+                # every display-window endpoint kept on screen.  Symbolic
+                # parameters without controls should not inflate a static
+                # frame around all of their hypothetical values.
+                if contract.get("controls")
+                for ref in (contract.get("parameterized_points") or {})
+                if str(ref) in point_pairs and str(ref) in visible_refs
+            }
+            if include_parameterized_context
+            else set()
+        )
+        attention_refs = set(focus_refs | parameterized_refs)
+
+        # Bring in the rest of a finite construction (for example the fixed
+        # vertex of a square) whenever one of its vertices is already part of
+        # the focus.  This is a geometry-reference closure, never a label or
+        # capability-name heuristic.
+        changed = True
+        while changed:
+            changed = False
+            for item in finite_objects:
+                refs = {ref for ref in item.geometry_refs if ref in point_pairs}
+                if not refs or not refs.intersection(attention_refs):
+                    continue
+                before = len(attention_refs)
+                attention_refs.update(refs)
+                changed = changed or len(attention_refs) != before
+
+        if include_context_fallback and len(attention_refs) < 2:
+            attention_refs.update(
+                ref
+                for item in finite_objects
+                if item.state == "context"
+                for ref in item.geometry_refs
+                if ref in point_pairs
+            )
+        return attention_refs
+
+    def _fit(self, samples: list[tuple[float, float]]) -> JsonObject:
+        min_x = min(point[0] for point in samples)
+        max_x = max(point[0] for point in samples)
+        min_y = min(point[1] for point in samples)
+        max_y = max(point[1] for point in samples)
+        span_x = max(self.minimum_span_x, max_x - min_x)
+        span_y = max(self.minimum_span_y, max_y - min_y)
+        center_x = (min_x + max_x) / 2
+        center_y = (min_y + max_y) / 2
+        half_x = span_x * (0.5 + self.padding_ratio)
+        half_y = span_y * (0.5 + self.padding_ratio)
+        return {
+            "minX": round(center_x - half_x, 4),
+            "maxX": round(center_x + half_x, 4),
+            "minY": round(center_y - half_y, 4),
+            "maxY": round(center_y + half_y, 4),
+        }
+
+
+def _is_unbounded_visual(item: VisualObject) -> bool:
+    return item.component in _UNBOUNDED_COMPONENTS or item.role.startswith("locus:")
+
+
+def _attention_curve_ids(
+    objects: tuple[VisualObject, ...],
+    *,
+    geometry_spec: JsonObject,
+    environments: list[dict[str, float]],
+) -> set[str]:
+    """Select curves whose finite landmarks are part of the current lesson.
+
+    Besides an explicitly focused curve or symmetry axis, a visible parabola
+    becomes framing authority when a focused point is verified to lie on it.
+    This covers intercept and point-on-curve steps without capability or label
+    special cases.
+    """
+
+    focused = {
+        ref
+        for item in objects
+        if item.component == "Parabola" and item.state == "focus"
+        for ref in item.geometry_refs
+    }
+    axes = {
+        str(item.component_payload.get("curveId") or ref)
+        for item in objects
+        if item.component == "AxisOfSymmetry"
+        for ref in item.geometry_refs
+    }
+    selected = {curve_id for curve_id in focused | axes if curve_id}
+    visible_curves = {
+        ref
+        for item in objects
+        if item.component == "Parabola"
+        for ref in item.geometry_refs
+        if ref
+    }
+    focused_points = {
+        ref
+        for item in objects
+        if item.component == "Point" and item.state == "focus"
+        for ref in item.geometry_refs
+        if ref
+    }
+    if not visible_curves or not focused_points:
+        return selected
+
+    point_pairs = _point_pairs(geometry_spec)
+    curves = {
+        str(curve.get("id") or ""): curve
+        for curve in geometry_spec.get("curves") or ()
+        if isinstance(curve, dict) and str(curve.get("id") or "")
+    }
+    for curve_id in visible_curves:
+        curve = curves.get(curve_id)
+        if curve is None:
+            continue
+        for environment in environments:
+            coefficients = _evaluate_curve_coefficients(curve, environment)
+            if coefficients is None:
+                continue
+            a, b, c = coefficients
+            for point_ref in focused_points:
+                pair = point_pairs.get(point_ref)
+                point = _evaluate_pair(pair, environment) if pair else None
+                if point is None:
+                    continue
+                x, y = point
+                expected_y = a * x * x + b * x + c
+                tolerance = 1e-7 * max(1.0, abs(y), abs(expected_y))
+                if abs(y - expected_y) <= tolerance:
+                    selected.add(curve_id)
+                    break
+            if curve_id in selected:
+                break
+    return selected
+
+
+def _point_pairs(geometry_spec: JsonObject) -> dict[str, tuple[str, str]]:
+    result: dict[str, tuple[str, str]] = {}
+    for collection in ("fixedPoints", "movingPoints"):
+        for ref, raw in (geometry_spec.get(collection) or {}).items():
+            if isinstance(raw, list) and len(raw) == 2:
+                result[str(ref)] = (str(raw[0]), str(raw[1]))
+    return result
+
+
+def _evaluation_environments(
+    local_parameters: tuple[JsonObject, ...],
+    parameter_values: Mapping[str, str],
+) -> list[dict[str, float]]:
+    base: dict[str, float] = {}
+    for name, value in parameter_values.items():
+        numeric = _numeric(value)
+        if numeric is not None:
+            base[str(name)] = numeric
+    for contract in local_parameters:
+        name = str(contract.get("name") or "")
+        numeric = _numeric(contract.get("default_value"))
+        if name and numeric is not None:
+            base[name] = numeric
+
+    result = [dict(base)]
+    for contract in local_parameters:
+        name = str(contract.get("name") or "")
+        if not name:
+            continue
+        landmarks = contract.get("landmarks") or ()
+        sample_values = [item.get("value") for item in landmarks if isinstance(item, dict)]
+        # An interactive moving-point construction must remain complete at
+        # both ends of the control.  Render-only symbolic parameters have no
+        # controls and are sampled only at their deterministic default.
+        controls = tuple(
+            item
+            for item in contract.get("controls") or ()
+            if isinstance(item, dict) and str(item.get("var") or "") == name
+        )
+        if controls:
+            for control in controls:
+                sample_values.extend((control.get("min"), control.get("max")))
+        elif contract.get("controls"):
+            # A malformed or legacy control should still receive a safe
+            # viewport fallback, but a broad render-only display window must
+            # not override a narrower verified slider interval.
+            window = contract.get("display_window") or {}
+            sample_values.extend((window.get("min"), window.get("max")))
+        for value in sample_values:
+            numeric = _numeric(value)
+            if numeric is not None:
+                result.append({**base, name: numeric})
+
+    unique: list[dict[str, float]] = []
+    seen: set[tuple[tuple[str, float], ...]] = set()
+    for environment in result:
+        key = tuple(sorted(environment.items()))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(environment)
+    return unique
+
+
+def _evaluate_refs(
+    refs: set[str],
+    point_pairs: Mapping[str, tuple[str, str]],
+    environments: list[dict[str, float]],
+) -> list[tuple[float, float]]:
+    result: list[tuple[float, float]] = []
+    for ref in refs:
+        pair = point_pairs.get(ref)
+        if pair is None:
+            continue
+        for environment in environments:
+            point = _evaluate_pair(pair, environment)
+            if point is not None:
+                result.append(point)
+    return result
+
+
+def _evaluate_curve_features(
+    curve_ids: set[str],
+    *,
+    geometry_spec: JsonObject,
+    environments: list[dict[str, float]],
+) -> list[tuple[float, float]]:
+    """Evaluate finite landmarks of the visible quadratic curves.
+
+    A parabola is unbounded, but its vertex and axis intercepts are finite
+    semantic landmarks.  Sampling them lets the viewport show the meaningful
+    shape even when the problem has no separately named vertex entity.
+    """
+
+    curves = {
+        str(curve.get("id") or ""): curve
+        for curve in geometry_spec.get("curves") or ()
+        if isinstance(curve, dict) and str(curve.get("id") or "")
+    }
+    samples: list[tuple[float, float]] = []
+    for curve_id in curve_ids:
+        curve = curves.get(curve_id)
+        if curve is None:
+            continue
+        for environment in environments:
+            coefficients = _evaluate_curve_coefficients(curve, environment)
+            if coefficients is None:
+                continue
+            a, b, c = coefficients
+            if abs(a) < 1e-9:
+                continue
+            vertex_x = -b / (2 * a)
+            _append_finite_sample(
+                samples,
+                (vertex_x, a * vertex_x * vertex_x + b * vertex_x + c),
+            )
+            _append_finite_sample(samples, (0.0, c))
+            discriminant = b * b - 4 * a * c
+            if discriminant < -1e-9:
+                continue
+            delta = math.sqrt(max(discriminant, 0.0))
+            _append_finite_sample(samples, ((-b - delta) / (2 * a), 0.0))
+            _append_finite_sample(samples, ((-b + delta) / (2 * a), 0.0))
+    return samples
+
+
+def _evaluate_curve_coefficients(
+    curve: Mapping[str, Any],
+    environment: Mapping[str, float],
+) -> tuple[float, float, float] | None:
+    try:
+        substitutions = {
+            sp.Symbol(name): value for name, value in environment.items()
+        }
+        values = tuple(
+            float(sp.N(sp.sympify(str(curve.get(key) or "0")).subs(substitutions)))
+            for key in ("a", "b", "c")
+        )
+    except Exception:
+        return None
+    if not all(math.isfinite(value) and abs(value) < 10_000 for value in values):
+        return None
+    return values
+
+
+def _append_finite_sample(
+    samples: list[tuple[float, float]],
+    point: tuple[float, float],
+) -> None:
+    if all(math.isfinite(value) and abs(value) < 10_000 for value in point):
+        samples.append(point)
+
+
+def _evaluate_pair(
+    pair: tuple[str, str],
+    environment: Mapping[str, float],
+) -> tuple[float, float] | None:
+    try:
+        substitutions = {sp.Symbol(name): value for name, value in environment.items()}
+        values = tuple(sp.sympify(value).subs(substitutions) for value in pair)
+        if any(value.free_symbols for value in values):
+            return None
+        numeric = tuple(float(sp.N(value)) for value in values)
+        if not all(math.isfinite(value) and abs(value) < 10_000 for value in numeric):
+            return None
+        return numeric[0], numeric[1]
+    except Exception:
+        return None
+
+
+def _numeric(value: Any) -> float | None:
+    try:
+        numeric = float(sp.N(sp.sympify(str(value))))
+        return numeric if math.isfinite(numeric) else None
+    except Exception:
+        return None
+
+
+__all__ = ["SemanticViewportResolver"]

@@ -60,11 +60,27 @@ def test_verified_execution_and_path_witness_round_trip(tmp_path) -> None:
     assert verified.root_scope is checkpoint.root_scope
     assert verified.plan_id == checkpoint.plan_id
     assert verified.checkpoint_id == checkpoint.checkpoint_id
+    reconciliation = result.replay.functional_reconciliation
+    assert reconciliation is not None
+    assert dict(verified.dependency_graph) == {
+        step_id: tuple(sorted(dependencies))
+        for step_id, dependencies in reconciliation.dependency_graph.items()
+    }
+    assert verified.public_result_dependencies[
+        "derive_equal_angle_i"
+    ] == (
+        ("derive_x_intercept_B_i", "point"),
+        ("derive_y_intercept_C_i", "point"),
+    )
+    assert verified.public_result_dependencies[
+        "solve_parameter_from_minimum_ii"
+    ] == (("reduce_equal_length_ray_path_ii", "minimum_expression"),)
     restored = VerifiedFunctionalPlanExecution.from_payload(
         verified.to_payload()
     )
     assert restored.execution_id == verified.execution_id
     assert restored.execution_signature == verified.execution_signature
+    assert restored.dependency_graph == verified.dependency_graph
 
     witnesses = tuple(
         item
@@ -83,6 +99,14 @@ def test_verified_execution_and_path_witness_round_trip(tmp_path) -> None:
     mutated["problem_semantic_hash"] = "drift"
     with pytest.raises(ValueError, match="hash drift"):
         VerifiedFunctionalPlanExecution.from_payload(mutated)
+
+    mutated_graph = verified.to_payload()
+    mutated_graph["dependency_graph"]["solve_parameter_from_minimum_ii"] = []
+    mutated_graph["public_result_dependencies"][
+        "solve_parameter_from_minimum_ii"
+    ] = []
+    with pytest.raises(ValueError, match="hash drift"):
+        VerifiedFunctionalPlanExecution.from_payload(mutated_graph)
 
 
 def test_non_path_macro_uses_same_verified_execution_envelope(tmp_path) -> None:
@@ -110,14 +134,65 @@ def test_incomplete_checkpoint_cannot_be_promoted(tmp_path) -> None:
         "tj-2026-heping-yimo-25",
         load_v2_fixture_payload("tj-2026-heping-yimo-25"),
     )
-    assert result.checkpoint is not None and result.canonical_plan is not None
+    assert (
+        result.checkpoint is not None
+        and result.canonical_plan is not None
+        and result.replay is not None
+        and result.replay.functional_reconciliation is not None
+    )
     incomplete = replace(result.checkpoint, transaction_ok=False)
 
     with pytest.raises(ValueError, match="incomplete checkpoint"):
         VerifiedFunctionalPlanExecution.from_checkpoint(
             canonical_plan=result.canonical_plan,
             checkpoint=incomplete,
+            reconciliation=result.replay.functional_reconciliation,
         )
+
+
+def test_verified_execution_rejects_dependency_graph_authority_drift(
+    tmp_path,
+) -> None:
+    result, _fixture = _execute(
+        tmp_path,
+        "tj-2026-heping-yimo-25",
+        load_v2_fixture_payload("tj-2026-heping-yimo-25"),
+    )
+    assert (
+        result.checkpoint is not None
+        and result.canonical_plan is not None
+        and result.replay is not None
+        and result.replay.functional_reconciliation is not None
+    )
+    reconciliation = result.replay.functional_reconciliation
+    drifted_graph = dict(reconciliation.dependency_graph)
+    drifted_graph["solve_parameter_from_minimum_ii"] = ()
+
+    with pytest.raises(ValueError, match="authority signature"):
+        VerifiedFunctionalPlanExecution.from_checkpoint(
+            canonical_plan=result.canonical_plan,
+            checkpoint=result.checkpoint,
+            reconciliation=replace(
+                reconciliation,
+                dependency_graph=drifted_graph,
+            ),
+        )
+
+
+def test_verified_execution_v1_is_rejected(tmp_path) -> None:
+    result, _fixture = _execute(
+        tmp_path,
+        "tj-2026-heping-yimo-25",
+        load_v2_fixture_payload("tj-2026-heping-yimo-25"),
+    )
+    assert result.verified_execution is not None
+    legacy = result.verified_execution.to_payload()
+    legacy["schema_version"] = "verified-functional-plan-execution/v1"
+    legacy.pop("dependency_graph")
+    legacy.pop("public_result_dependencies")
+
+    with pytest.raises(ValueError):
+        VerifiedFunctionalPlanExecution.from_payload(legacy)
 
 
 @pytest.mark.parametrize(

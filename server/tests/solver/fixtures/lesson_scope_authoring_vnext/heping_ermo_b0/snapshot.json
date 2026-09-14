@@ -1,0 +1,1004 @@
+{
+  "schema_version": "explanation-snapshot/v2",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+  "problem_revision": "problem-revision:9dfcc08df320f779fde2706c12f04dcdf64d3503879ef11d3f06d9de431e5698",
+  "problem_semantic_hash": "aa0f5282318c76fc4dd8b452e262ee259e86d8642859e5319a9d19ad28ee4a04",
+  "canonical_plan_hash": "9160942486db66fe06b1c29baa129047690fa8a0495e2da72b32dcbaec7add97",
+  "verified_execution_hash": "52f74f632e45fdfbb5452ff34da221d1c807158c42496c51c34f05407bef75af",
+  "problem": {
+    "problem_id": "tj-2026-heping-ermo-25",
+    "pattern": "path-minimum",
+    "problem_type": "quadratic_square_reflection_path_minimum",
+    "purpose": "llm_strategy_planner_prompt",
+    "title": "tj-2026-heping-ermo-25",
+    "display": {
+      "number": "25",
+      "score": "10"
+    },
+    "original_text": [
+      "已知抛物线 y=-x²+bx+c（b，c 为常数，c>1）的顶点为 P，与 x 轴相交于 A，B 两点（点 A 在点 B 的左侧），与 y 轴相交于点 C，对称轴与 x 轴相交于点 M。点 E 在对称轴上，以 AE 为边的正方形 AEKG 的顶点 G 在 x 轴下方。",
+      "（Ⅰ）若 b=-2，c=3。",
+      "① 求点 P 和点 A 的坐标；",
+      "② 当点 G 在抛物线上时，求点 E 的坐标；",
+      "（Ⅱ）若点 A 的坐标为（-c，0），点 F 是 AE 的中点，对角线 AK 和 EG 相交于点 H，当 HF+FM+MG 取得最小值为 3√5 时，求点 E 的坐标。"
+    ],
+    "scopes": [
+      {
+        "label": "整题",
+        "parent": null,
+        "scope_id": "problem"
+      },
+      {
+        "label": "第（Ⅰ）问",
+        "parent": "problem",
+        "scope_id": "i"
+      },
+      {
+        "asks": [
+          "P",
+          "A"
+        ],
+        "label": "第（Ⅰ）①问",
+        "parent": "i",
+        "scope_id": "i_1"
+      },
+      {
+        "asks": [
+          "E"
+        ],
+        "label": "第（Ⅰ）②问",
+        "parent": "i",
+        "scope_id": "i_2"
+      },
+      {
+        "asks": [
+          "E"
+        ],
+        "label": "第（Ⅱ）问",
+        "parent": "problem",
+        "scope_id": "ii"
+      }
+    ],
+    "entities": [
+      {
+        "description": "parabola",
+        "entity_type": "function",
+        "expression": "-x**2 + b*x + c",
+        "function_type": "quadratic",
+        "handle": "function:problem:parabola",
+        "name": "parabola",
+        "scope_id": "problem"
+      },
+      {
+        "description": "x",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:x",
+        "name": "x",
+        "role": "function_variable",
+        "scope_id": "problem"
+      },
+      {
+        "description": "b",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:b",
+        "name": "b",
+        "role": "quadratic_coefficient",
+        "scope_id": "problem"
+      },
+      {
+        "description": "c",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:c",
+        "name": "c",
+        "role": "quadratic_coefficient",
+        "scope_id": "problem"
+      },
+      {
+        "definition": "x_axis_intercept",
+        "description": "A",
+        "entity_type": "point",
+        "handle": "point:problem:A",
+        "name": "A",
+        "of": "function:problem:parabola",
+        "scope_id": "problem",
+        "side": "left"
+      },
+      {
+        "definition": "x_axis_intercept",
+        "description": "B",
+        "entity_type": "point",
+        "handle": "point:problem:B",
+        "name": "B",
+        "of": "function:problem:parabola",
+        "scope_id": "problem",
+        "side": "right"
+      },
+      {
+        "definition": "y_axis_intercept",
+        "description": "C",
+        "entity_type": "point",
+        "handle": "point:problem:C",
+        "name": "C",
+        "of": "function:problem:parabola",
+        "scope_id": "problem"
+      },
+      {
+        "definition": "axis_x_intercept",
+        "description": "M",
+        "entity_type": "point",
+        "handle": "point:problem:M",
+        "name": "M",
+        "of": "function:problem:parabola",
+        "scope_id": "problem"
+      },
+      {
+        "definition": "vertex",
+        "description": "P",
+        "entity_type": "point",
+        "handle": "point:problem:P",
+        "name": "P",
+        "of": "function:problem:parabola",
+        "scope_id": "problem"
+      },
+      {
+        "definition": "point_on_axis",
+        "description": "E",
+        "entity_type": "point",
+        "handle": "point:problem:E",
+        "name": "E",
+        "of": "function:problem:parabola",
+        "scope_id": "problem"
+      },
+      {
+        "definition": "square_adjacent_vertex",
+        "description": "G",
+        "entity_type": "point",
+        "handle": "point:problem:G",
+        "name": "G",
+        "orientation": {
+          "point": "G",
+          "relation": "below_x_axis"
+        },
+        "scope_id": "problem"
+      },
+      {
+        "description": "K",
+        "entity_type": "point",
+        "handle": "point:problem:K",
+        "name": "K",
+        "scope_id": "problem"
+      },
+      {
+        "description": "AEKG",
+        "entity_type": "polygon",
+        "handle": "polygon:problem:AEKG",
+        "name": "AEKG",
+        "scope_id": "problem",
+        "shape": "polygon",
+        "vertices": [
+          "point:problem:A",
+          "point:problem:E",
+          "point:problem:K",
+          "point:problem:G"
+        ]
+      },
+      {
+        "definition": "midpoint",
+        "description": "F",
+        "entity_type": "point",
+        "handle": "point:ii:F",
+        "name": "F",
+        "of": [
+          "point:problem:A",
+          "point:problem:E"
+        ],
+        "scope_id": "ii"
+      },
+      {
+        "definition": "point_on_segment",
+        "description": "H",
+        "entity_type": "point",
+        "handle": "point:ii:H",
+        "name": "H",
+        "scope_id": "ii"
+      },
+      {
+        "description": "线段 AE",
+        "endpoints": [
+          "point:problem:A",
+          "point:problem:E"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:problem:AE",
+        "name": "AE",
+        "scope_id": "problem"
+      },
+      {
+        "description": "线段 AK",
+        "endpoints": [
+          "point:problem:A",
+          "point:problem:K"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:ii:AK",
+        "name": "AK",
+        "scope_id": "ii"
+      },
+      {
+        "description": "线段 EG",
+        "endpoints": [
+          "point:problem:E",
+          "point:problem:G"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:ii:EG",
+        "name": "EG",
+        "scope_id": "ii"
+      }
+    ],
+    "facts": [
+      {
+        "description": "symbol constraint",
+        "handle": "fact:problem:symbol_constraint_6098472a86b7",
+        "operator": ">",
+        "scope_id": "problem",
+        "subject": "symbol:problem:c",
+        "type": "symbol_constraint",
+        "valid_scope": "problem",
+        "value": "1"
+      },
+      {
+        "axis_of": "function:problem:parabola",
+        "description": "point on axis",
+        "handle": "fact:problem:point_on_axis_d0299369f8ef",
+        "point": "point:problem:E",
+        "scope_id": "problem",
+        "type": "axis_membership",
+        "valid_scope": "problem"
+      },
+      {
+        "description": "square",
+        "handle": "fact:problem:square_b19d8510e827",
+        "orientation": "below_x_axis",
+        "scope_id": "problem",
+        "side": "segment:problem:AE",
+        "type": "square",
+        "valid_scope": "problem",
+        "vertices": [
+          "point:problem:A",
+          "point:problem:E",
+          "point:problem:K",
+          "point:problem:G"
+        ]
+      },
+      {
+        "description": "symbol value",
+        "handle": "fact:i:symbol_value_fd0fcf737dac",
+        "scope_id": "i",
+        "subject": "symbol:problem:b",
+        "type": "symbol_value",
+        "valid_scope": "i",
+        "value": "-2"
+      },
+      {
+        "description": "symbol value",
+        "handle": "fact:i:symbol_value_b02999dfbd40",
+        "scope_id": "i",
+        "subject": "symbol:problem:c",
+        "type": "symbol_value",
+        "valid_scope": "i",
+        "value": "3"
+      },
+      {
+        "curve": "function:problem:parabola",
+        "description": "point on curve",
+        "handle": "fact:i_2:point_on_curve_c4cfe95a98a5",
+        "point": "point:problem:G",
+        "scope_id": "i_2",
+        "type": "point_on_curve",
+        "valid_scope": "i_2"
+      },
+      {
+        "description": "point coordinate",
+        "handle": "fact:ii:point_coordinate_886b4436eeda",
+        "scope_id": "ii",
+        "subject": "point:problem:A",
+        "type": "point_coordinate",
+        "valid_scope": "ii",
+        "value": [
+          "-c",
+          "0"
+        ]
+      },
+      {
+        "description": "midpoint",
+        "handle": "fact:ii:midpoint_cedb805e7c47",
+        "of": [
+          "point:problem:A",
+          "point:problem:E"
+        ],
+        "point": "point:ii:F",
+        "scope_id": "ii",
+        "type": "midpoint_definition",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "point on segment",
+        "handle": "fact:ii:point_on_segment_1adb4349d2ca",
+        "point": "point:ii:H",
+        "scope_id": "ii",
+        "segment": "segment:ii:AK",
+        "type": "point_on_segment",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "point on segment",
+        "handle": "fact:ii:point_on_segment_28a6edf9ff58",
+        "point": "point:ii:H",
+        "scope_id": "ii",
+        "segment": "segment:ii:EG",
+        "type": "point_on_segment",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "square center",
+        "handle": "fact:ii:square_center_aafb6d47462b",
+        "point": "point:ii:H",
+        "scope_id": "ii",
+        "square": "fact:problem:square_b19d8510e827",
+        "type": "square_center",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "minimum target",
+        "handle": "fact:ii:minimum_target_5babd8366140",
+        "path": "HF+FM+MG",
+        "scope_id": "ii",
+        "terms": [
+          [
+            "point:ii:H",
+            "point:ii:F"
+          ],
+          [
+            "point:ii:F",
+            "point:problem:M"
+          ],
+          [
+            "point:problem:M",
+            "point:problem:G"
+          ]
+        ],
+        "type": "path_minimum_target",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "minimum value given",
+        "handle": "fact:ii:minimum_value_given_a9def99c2a2e",
+        "path": "HF+FM+MG",
+        "scope_id": "ii",
+        "type": "minimum_value",
+        "valid_scope": "ii",
+        "value": "3*sqrt(5)"
+      }
+    ],
+    "question_goals": [
+      {
+        "answer_key": "P",
+        "description": "第（Ⅰ）①问输出P",
+        "handle": "answer:i_1.P",
+        "required": true,
+        "scope_id": "i_1",
+        "target_handle": "point:problem:P",
+        "value_type": "Point"
+      },
+      {
+        "answer_key": "A",
+        "description": "第（Ⅰ）①问输出A",
+        "handle": "answer:i_1.A",
+        "required": true,
+        "scope_id": "i_1",
+        "target_handle": "point:problem:A",
+        "value_type": "Point"
+      },
+      {
+        "answer_key": "E",
+        "description": "第（Ⅰ）②问输出E",
+        "handle": "answer:i_2.E",
+        "required": true,
+        "scope_id": "i_2",
+        "target_handle": "point:problem:E",
+        "value_type": "PointList"
+      },
+      {
+        "answer_key": "E",
+        "description": "第（Ⅱ）问输出E",
+        "handle": "answer:ii.E",
+        "required": true,
+        "scope_id": "ii",
+        "target_handle": "point:problem:E",
+        "value_type": "Point"
+      }
+    ]
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "scope_steps": [],
+    "goals": {},
+    "children": [
+      {
+        "scope_ref": "i",
+        "scope_steps": [
+          {
+            "source_step_id": "derive_parabola_i",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "symbol_value_b",
+                "symbol_value_c"
+              ]
+            },
+            "output_targets": {},
+            "return_expectations": {},
+            "public_results": {
+              "coefficients": {
+                "runtime_type": "Coefficients",
+                "value": {
+                  "b": "-2",
+                  "c": "3"
+                }
+              },
+              "parabola": {
+                "runtime_type": "Parabola",
+                "value": "-x**2 - 2*x + 3"
+              }
+            },
+            "checks": [],
+            "evidence_refs": [],
+            "closure_refs": [],
+            "intent": "代入本问给定系数得到完整抛物线。"
+          },
+          {
+            "source_step_id": "derive_x_intercept_A_i",
+            "capability_id": "quadratic_x_axis_intercept_point",
+            "args": {
+              "parabola": "parabola"
+            },
+            "output_targets": {},
+            "return_expectations": {},
+            "public_results": {
+              "point": {
+                "runtime_type": "Point",
+                "value": [
+                  "-3",
+                  "0"
+                ]
+              }
+            },
+            "checks": [],
+            "evidence_refs": [],
+            "closure_refs": [],
+            "intent": "求横轴左侧交点。"
+          }
+        ],
+        "goals": {},
+        "children": [
+          {
+            "scope_ref": "i_1",
+            "scope_steps": [],
+            "goals": {
+              "i_1.A": {
+                "steps": [],
+                "answer_from": {
+                  "step_id": "derive_x_intercept_A_i",
+                  "return": "point"
+                }
+              },
+              "i_1.P": {
+                "steps": [
+                  {
+                    "source_step_id": "derive_vertex_P_i",
+                    "capability_id": "quadratic_vertex_point",
+                    "args": {
+                      "parabola": "parabola"
+                    },
+                    "output_targets": {},
+                    "return_expectations": {},
+                    "public_results": {
+                      "point": {
+                        "runtime_type": "Point",
+                        "value": [
+                          "-1",
+                          "4"
+                        ]
+                      }
+                    },
+                    "checks": [],
+                    "evidence_refs": [],
+                    "closure_refs": [],
+                    "intent": "由抛物线解析式求顶点。"
+                  }
+                ],
+                "answer_from": {
+                  "step_id": "derive_vertex_P_i",
+                  "return": "point"
+                }
+              }
+            },
+            "children": []
+          },
+          {
+            "scope_ref": "i_2",
+            "scope_steps": [],
+            "goals": {
+              "i_2.E": {
+                "steps": [
+                  {
+                    "source_step_id": "parameterize_axis_point_E_i",
+                    "capability_id": "quadratic_axis_parameterized_point",
+                    "args": {
+                      "parabola": "parabola"
+                    },
+                    "output_targets": {
+                      "point": "E"
+                    },
+                    "return_expectations": {},
+                    "public_results": {
+                      "point": {
+                        "runtime_type": "Point",
+                        "value": [
+                          "-1",
+                          "_axis_param_E"
+                        ]
+                      },
+                      "parameter": {
+                        "runtime_type": "Symbol",
+                        "value": "_axis_param_E"
+                      }
+                    },
+                    "checks": [],
+                    "evidence_refs": [],
+                    "closure_refs": [],
+                    "intent": "把对称轴上的目标点表示为单参数点。"
+                  },
+                  {
+                    "source_step_id": "derive_square_vertex_G_i",
+                    "capability_id": "square_adjacent_vertex_from_side",
+                    "args": {
+                      "side_end": "E",
+                      "side_start": "A",
+                      "square": "square_ae_a_e_k_g"
+                    },
+                    "output_targets": {
+                      "adjacent_vertex": "G"
+                    },
+                    "return_expectations": {},
+                    "public_results": {
+                      "adjacent_vertex": {
+                        "runtime_type": "Point",
+                        "value": [
+                          "_axis_param_E - 3",
+                          "-2"
+                        ]
+                      }
+                    },
+                    "checks": [],
+                    "evidence_refs": [],
+                    "closure_refs": [],
+                    "intent": "将正方形已知边旋转得到相邻顶点。"
+                  },
+                  {
+                    "source_step_id": "solve_axis_point_candidates_i",
+                    "capability_id": "point_candidates_from_curve_point_condition",
+                    "args": {
+                      "curve_point": "G",
+                      "parabola": "parabola",
+                      "parameter": {
+                        "step_id": "parameterize_axis_point_E_i",
+                        "return": "parameter"
+                      },
+                      "target_point": "E"
+                    },
+                    "output_targets": {},
+                    "return_expectations": {},
+                    "public_results": {
+                      "candidates": {
+                        "runtime_type": "PointList",
+                        "value": [
+                          [
+                            "-1",
+                            "2 + sqrt(6)"
+                          ],
+                          [
+                            "-1",
+                            "2 - sqrt(6)"
+                          ]
+                        ]
+                      }
+                    },
+                    "checks": [],
+                    "evidence_refs": [],
+                    "closure_refs": [],
+                    "intent": "把参数化顶点代入抛物线并回代目标轴上点。"
+                  }
+                ],
+                "answer_from": {
+                  "step_id": "solve_axis_point_candidates_i",
+                  "return": "candidates"
+                }
+              }
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "scope_ref": "ii",
+        "scope_steps": [],
+        "goals": {
+          "ii.E": {
+            "steps": [
+              {
+                "source_step_id": "derive_parametric_parabola_ii",
+                "capability_id": "quadratic_from_constraints",
+                "args": {
+                  "curve_point": "A",
+                  "free_parameters": "c"
+                },
+                "output_targets": {},
+                "return_expectations": {},
+                "public_results": {
+                  "coefficients": {
+                    "runtime_type": "Coefficients",
+                    "value": {
+                      "b": "1 - c"
+                    }
+                  },
+                  "parabola": {
+                    "runtime_type": "Parabola",
+                    "value": "-c*x + c - x**2 + x"
+                  }
+                },
+                "checks": [],
+                "evidence_refs": [],
+                "closure_refs": [],
+                "intent": "代入横轴交点条件，把函数化成只含主参数的形式。"
+              },
+              {
+                "source_step_id": "derive_path_minimum_ii",
+                "capability_id": "quadratic_square_path_minimum",
+                "args": {
+                  "parabola": "parabola",
+                  "path_minimum_target": "path_minimum_target_h_f_m_g",
+                  "square": "square_ae_a_e_k_g"
+                },
+                "output_targets": {},
+                "return_expectations": {},
+                "public_results": {
+                  "minimum_expression": {
+                    "runtime_type": "MinimumExpression",
+                    "value": "sqrt(5)*Abs(c + 1)/2"
+                  },
+                  "attainment_point": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "1/4 - 3*c/4",
+                      "-c/2 - 1/2"
+                    ]
+                  }
+                },
+                "checks": [
+                  {
+                    "name": "point_on_moving_locus",
+                    "status": "passed"
+                  },
+                  {
+                    "name": "point_on_minimum_segment",
+                    "status": "passed"
+                  }
+                ],
+                "evidence_refs": [
+                  "path-minimum:644da694928947b98dfe4b209448479a6b2d380e5683916692c11750c6bf1690"
+                ],
+                "closure_refs": [],
+                "intent": "原子完成正方形路径降维、轨迹、拉直和达到性；达到点的正方形动点身份由代码绑定。"
+              },
+              {
+                "source_step_id": "solve_parameter_c_ii",
+                "capability_id": "parameter_from_expression_value",
+                "args": {
+                  "expression": {
+                    "step_id": "derive_path_minimum_ii",
+                    "return": "minimum_expression"
+                  },
+                  "minimum_value": "minimum_value",
+                  "parameter": "c"
+                },
+                "output_targets": {
+                  "parameter_value": "c"
+                },
+                "return_expectations": {},
+                "public_results": {
+                  "parameter_value": {
+                    "runtime_type": "ParameterValue",
+                    "value": "5"
+                  }
+                },
+                "checks": [],
+                "evidence_refs": [],
+                "closure_refs": [],
+                "intent": "令最小值表达式等于题设值并按参数范围取解。"
+              },
+              {
+                "source_step_id": "evaluate_point_A_ii",
+                "capability_id": "evaluate_point_at_parameter",
+                "args": {
+                  "parameter_value": "c",
+                  "point": "A"
+                },
+                "output_targets": {
+                  "evaluated_point": "A"
+                },
+                "return_expectations": {},
+                "public_results": {
+                  "evaluated_point": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "-5",
+                      "0"
+                    ]
+                  }
+                },
+                "checks": [],
+                "evidence_refs": [],
+                "closure_refs": [],
+                "intent": "把主参数代入横轴交点坐标。"
+              },
+              {
+                "source_step_id": "evaluate_minimum_point_G_ii",
+                "capability_id": "evaluate_point_at_parameter",
+                "args": {
+                  "parameter_value": "c",
+                  "point": {
+                    "step_id": "derive_path_minimum_ii",
+                    "return": "attainment_point"
+                  }
+                },
+                "output_targets": {
+                  "evaluated_point": "G"
+                },
+                "return_expectations": {},
+                "public_results": {
+                  "evaluated_point": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "-7/2",
+                      "-3"
+                    ]
+                  }
+                },
+                "checks": [],
+                "evidence_refs": [],
+                "closure_refs": [],
+                "intent": "把已求出的二次函数参数代入 Macro 返回的取等号点 G。"
+              },
+              {
+                "source_step_id": "recover_target_point_E_ii",
+                "capability_id": "square_adjacent_vertex_from_side",
+                "args": {
+                  "parameter_value": "c",
+                  "side_end": "G",
+                  "side_start": "A",
+                  "square": "square_ae_a_e_k_g"
+                },
+                "output_targets": {},
+                "return_expectations": {},
+                "public_results": {
+                  "adjacent_vertex": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "-2",
+                      "3/2"
+                    ]
+                  }
+                },
+                "checks": [],
+                "evidence_refs": [],
+                "closure_refs": [],
+                "intent": "由定值相邻顶点和正方形方向恢复目标点。"
+              }
+            ],
+            "answer_from": {
+              "step_id": "recover_target_point_E_ii",
+              "return": "adjacent_vertex"
+            }
+          }
+        },
+        "children": []
+      }
+    ]
+  },
+  "cross_scope_references": [
+    {
+      "source_step_id": "derive_parabola_i",
+      "target_step_id": "derive_vertex_P_i",
+      "source_scope_ref": "i",
+      "target_scope_ref": "i_1",
+      "public_result_ref": {
+        "step_id": "derive_parabola_i",
+        "return": "parabola"
+      }
+    },
+    {
+      "source_step_id": "derive_parabola_i",
+      "target_step_id": "parameterize_axis_point_E_i",
+      "source_scope_ref": "i",
+      "target_scope_ref": "i_2",
+      "public_result_ref": {
+        "step_id": "derive_parabola_i",
+        "return": "parabola"
+      }
+    },
+    {
+      "source_step_id": "derive_x_intercept_A_i",
+      "target_step_id": "derive_square_vertex_G_i",
+      "source_scope_ref": "i",
+      "target_scope_ref": "i_2",
+      "public_result_ref": {
+        "step_id": "derive_x_intercept_A_i",
+        "return": "point"
+      }
+    },
+    {
+      "source_step_id": "derive_parabola_i",
+      "target_step_id": "solve_axis_point_candidates_i",
+      "source_scope_ref": "i",
+      "target_scope_ref": "i_2",
+      "public_result_ref": {
+        "step_id": "derive_parabola_i",
+        "return": "parabola"
+      }
+    }
+  ],
+  "evidence": {
+    "path-minimum:644da694928947b98dfe4b209448479a6b2d380e5683916692c11750c6bf1690": {
+      "schema_version": "path-minimum-prompt-witness/v1",
+      "step_id": "derive_path_minimum_ii",
+      "macro_id": "quadratic_square_path_minimum",
+      "original_objective": "HF+FM+MG",
+      "reduced_objective": "AG+MG",
+      "role_resolutions": [
+        {
+          "authored_ref": null,
+          "chosen_ref": "midpoint_definition_a_e_f",
+          "corrected": false,
+          "role": "midpoint_definition"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "square_center_h_square_ae_a_e_k_g",
+          "corrected": false,
+          "role": "square_center"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "axis_membership_parabola_e",
+          "corrected": false,
+          "role": "axis_membership"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "A",
+          "corrected": false,
+          "role": "side_start"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "E",
+          "corrected": false,
+          "role": "axis_point"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "G",
+          "corrected": false,
+          "role": "moving_point"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "M",
+          "corrected": false,
+          "role": "fixed_endpoint"
+        }
+      ],
+      "constructions": [
+        {
+          "kind": "square_midpoint_center_reduction",
+          "moving_locus": "y=-c/2 - 1/2"
+        },
+        {
+          "kind": "line_reflection",
+          "minimum_segment": "A_primeM",
+          "moving_point": "G",
+          "other_fixed_point": "M",
+          "reflect_source": "A",
+          "reflected_point": [
+            "-c",
+            "-c - 1"
+          ],
+          "reflected_point_name": "A_prime",
+          "segment_equality": "AG=A_primeG",
+          "straightened_path": "A_primeG+MG",
+          "transformed_path": "AG+MG"
+        }
+      ],
+      "equivalence_proof": [
+        "FM=AE/2",
+        "HF=AG/2",
+        "AE=AG",
+        "HF+FM=AG",
+        "HF+FM+MG=AG+MG"
+      ],
+      "legal_domain": [
+        "the selected quadratic state and connected square facts are visible in the call scope",
+        "the source path is reduced by exact square midpoint/center equalities"
+      ],
+      "minimum_strategy": "reflection",
+      "minimum_expression": "sqrt(5)*Abs(c + 1)/2",
+      "minimizing_points": {
+        "G": [
+          "1/4 - 3*c/4",
+          "-c/2 - 1/2"
+        ]
+      },
+      "attainment_checks": [
+        {
+          "checks": [
+            {
+              "check": "point_on_moving_locus",
+              "passed": true
+            },
+            {
+              "check": "point_on_minimum_segment",
+              "passed": true
+            }
+          ],
+          "expression": "sqrt(5)*Abs(c + 1)/2",
+          "feasible": true,
+          "strategy": "reflection"
+        }
+      ],
+      "repair_action": "reuse_verified_path_witness"
+    }
+  },
+  "answers": {
+    "i_1": {
+      "P": [
+        "-1",
+        "4"
+      ],
+      "A": [
+        "-3",
+        "0"
+      ]
+    },
+    "i_2": {
+      "E": [
+        [
+          "-1",
+          "2 - sqrt(6)"
+        ],
+        [
+          "-1",
+          "2 + sqrt(6)"
+        ]
+      ]
+    },
+    "ii": {
+      "E": [
+        "-2",
+        "3/2"
+      ]
+    }
+  }
+}

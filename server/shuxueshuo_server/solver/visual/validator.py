@@ -1,22 +1,29 @@
-"""Validation for VisualStepIR VS0 documents."""
+"""Validation for recursive ``visual-step-ir/v2`` documents."""
 
 from __future__ import annotations
 
-from typing import Any
+from hashlib import sha256
+import json
+import math
+from typing import TYPE_CHECKING, Any
 
-from .models import VisualStep, VisualStepIR
-from .registry import ComponentTypeSpecRegistry, LayerRegistry, default_component_registry, default_layer_registry
-from .scene_accumulator import VALID_PERSISTENCE
+from .models import VisualFrame, VisualStep, VisualStepIR
+from .recursive_state import geometry_refs_from_scene_item
+from .registry import ComponentTypeSpecRegistry, default_component_registry
+from .math_state import validate_frame_math_state
+
+if TYPE_CHECKING:
+    from shuxueshuo_server.solver.explanation.lesson_ir import LessonIR, LessonScope
 
 
 class VisualStepIRValidationError(ValueError):
     """VisualStepIR validation failed."""
 
 
-VALID_STATES = {
+VALID_TRANSIENT_STATES = {
     "constructed",
     "emphasized",
-    "gap",
+    "focus",
     "hidden",
     "highlight",
     "moving",
@@ -25,7 +32,6 @@ VALID_STATES = {
     "visible",
 }
 
-VALID_INTERACTION_COMPONENTS = {"LinkedControls", "LocalSlider", "MainSlider"}
 VALID_TIMELINE_MODES = {"manual_then_interactive", "none"}
 VALID_TRANSITION_TYPES = {"cut", "fade", "draw", "fade_draw", "tween"}
 VALID_TRANSITION_EASINGS = {"linear", "easeInOutCubic"}
@@ -36,52 +42,138 @@ class VisualStepIRValidator:
         self,
         *,
         component_registry: ComponentTypeSpecRegistry | None = None,
-        layer_registry: LayerRegistry | None = None,
     ) -> None:
         self.component_registry = component_registry or default_component_registry()
-        self.layer_registry = layer_registry or default_layer_registry()
 
-    def validate(self, visual_ir: VisualStepIR) -> None:
+    def validate(
+        self,
+        visual_ir: VisualStepIR,
+        *,
+        lesson: "LessonIR | None" = None,
+    ) -> None:
+        self._seen_visual_step_ids: set[str] = set()
+        self._seen_frame_ids: set[str] = set()
+        if lesson is not None:
+            self._validate_lesson_authority(visual_ir, lesson)
         lesson_steps = _lesson_steps_by_id(visual_ir.lesson_data)
-        layer_registry = self._layer_registry_for(visual_ir)
+        observed = {step.lesson_step_id for step in visual_ir.steps}
+        expected = set(lesson_steps)
+        if expected and observed != expected:
+            raise VisualStepIRValidationError(
+                "visual_lesson_step_topology_mismatch: "
+                f"missing={sorted(expected - observed)}, extra={sorted(observed - expected)}"
+            )
         for step in visual_ir.steps:
-            self._validate_step(step, lesson_steps, layer_registry)
+            self._validate_step(step, lesson_steps, visual_ir.geometry_registry)
+
+    def _validate_lesson_authority(
+        self,
+        visual_ir: VisualStepIR,
+        lesson: "LessonIR",
+    ) -> None:
+        if visual_ir.problem_id != lesson.problem_id:
+            raise VisualStepIRValidationError("visual_lesson_problem_identity_mismatch")
+        if visual_ir.source_snapshot_hash != lesson.source_snapshot_hash:
+            raise VisualStepIRValidationError("visual_lesson_snapshot_hash_mismatch")
+        expected_hash = sha256(
+            json.dumps(
+                lesson.to_payload(),
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        if visual_ir.source_lesson_hash != expected_hash:
+            raise VisualStepIRValidationError("visual_lesson_hash_mismatch")
+        _validate_recursive_topology(
+            lesson.root_scope,
+            visual_ir.root_scope,
+            label="root_scope",
+        )
 
     def _validate_step(
         self,
         step: VisualStep,
         lesson_steps: dict[str, dict[str, Any]],
-        layer_registry: LayerRegistry,
+        geometry_registry: dict[str, Any],
     ) -> None:
         label = f"visual_step:{step.visual_step_id}"
+        if step.visual_step_id in self._seen_visual_step_ids:
+            raise VisualStepIRValidationError(
+                f"{label}: visual_step_id duplicated"
+            )
+        self._seen_visual_step_ids.add(step.visual_step_id)
         if not step.lesson_step_id:
             raise VisualStepIRValidationError(f"{label}: missing lesson_step_id")
         if step.lesson_step_id not in lesson_steps:
             raise VisualStepIRValidationError(
                 f"{label}: unknown lesson_step_id: {step.lesson_step_id}"
             )
-        scene = step.scene or {}
-        inherits_from = scene.get("inherits_from", "global")
-        try:
-            layer_registry.require_layer_key(str(inherits_from))
-        except KeyError as exc:
-            raise VisualStepIRValidationError(f"{label}: {exc}") from exc
+        if step.visual_mode == "none":
+            return
+        for frame_index, frame in enumerate(step.frames):
+            if frame.frame_id in self._seen_frame_ids:
+                raise VisualStepIRValidationError(
+                    f"{label}: frame_id duplicated: {frame.frame_id}"
+                )
+            self._seen_frame_ids.add(frame.frame_id)
+            self._validate_frame(
+                frame,
+                f"{label}.frames[{frame_index}]",
+                geometry_registry=geometry_registry,
+            )
 
-        for index, item in enumerate(scene.get("add") or ()):
-            self._validate_scene_item(item, f"{label}.scene.add[{index}]")
-        for index, item in enumerate(scene.get("state_overrides") or ()):
-            self._validate_state_override(item, f"{label}.scene.state_overrides[{index}]")
-        for index, hidden in enumerate(scene.get("hide") or ()):
-            self._validate_hidden_ref(str(hidden), f"{label}.scene.hide[{index}]", layer_registry)
-        for index, item in enumerate(scene.get("annotations") or ()):
-            self._validate_annotation(item, lesson_steps[step.lesson_step_id], f"{label}.scene.annotations[{index}]")
-        for index, item in enumerate(step.interactions or ()):
-            self._validate_interaction(item, f"{label}.interactions[{index}]")
-        self._validate_timeline(
-            step.timeline,
-            f"{label}.timeline",
-            interaction_vars=_interaction_vars(step.interactions),
+    def _validate_frame(
+        self,
+        frame: VisualFrame,
+        label: str,
+        *,
+        geometry_registry: dict[str, Any],
+    ) -> None:
+        viewport = frame.viewport
+        if set(viewport) != {"minX", "maxX", "minY", "maxY"}:
+            raise VisualStepIRValidationError(f"{label}: viewport fields invalid")
+        if float(viewport["minX"]) >= float(viewport["maxX"]):
+            raise VisualStepIRValidationError(f"{label}: viewport x range invalid")
+        if float(viewport["minY"]) >= float(viewport["maxY"]):
+            raise VisualStepIRValidationError(f"{label}: viewport y range invalid")
+        known_geometry = set((geometry_registry.get("fixedPoints") or {}).keys())
+        known_geometry.update((geometry_registry.get("movingPoints") or {}).keys())
+        known_geometry.update(
+            str(item.get("id"))
+            for item in geometry_registry.get("curves") or ()
+            if isinstance(item, dict) and item.get("id")
         )
+        for index, visual_object in enumerate(frame.objects):
+            item_label = f"{label}.objects[{index}]"
+            self._validate_scene_item(visual_object.to_scene_item(), item_label)
+            unknown = sorted(set(visual_object.geometry_refs) - known_geometry)
+            if unknown:
+                raise VisualStepIRValidationError(
+                    f"{item_label}: unknown geometry refs: {unknown}"
+                )
+        frame_geometry_refs = {
+            ref for item in frame.objects for ref in item.geometry_refs
+        }
+        for index, item in enumerate(frame.local_parameters):
+            self._validate_local_parameter(
+                item,
+                f"{label}.local_parameters[{index}]",
+                known_geometry=known_geometry,
+                frame_geometry_refs=frame_geometry_refs,
+            )
+        self._validate_timeline(
+            frame.timeline,
+            f"{label}.timeline",
+            interaction_vars={
+                str(item.get("name") or "") for item in frame.local_parameters
+            },
+            frame_geometry_refs=frame_geometry_refs,
+        )
+        try:
+            validate_frame_math_state(frame, geometry_registry)
+        except ValueError as exc:
+            raise VisualStepIRValidationError(f"{label}: {exc}") from exc
 
     def _validate_scene_item(self, item: dict[str, Any], label: str) -> None:
         component = item.get("component")
@@ -90,99 +182,147 @@ class VisualStepIRValidator:
         spec = self.component_registry.get(str(component))
         if spec is None:
             raise VisualStepIRValidationError(f"{label}: unknown component: {component}")
-        state = item.get("state")
-        if state is not None and state not in VALID_STATES:
-            raise VisualStepIRValidationError(f"{label}: invalid state: {state}")
-        persistence = item.get("persistence", "step_only")
-        if persistence not in VALID_PERSISTENCE:
-            raise VisualStepIRValidationError(f"{label}: invalid persistence: {persistence}")
-        if persistence == "carry_forward" and not item.get("handle"):
-            raise VisualStepIRValidationError(f"{label}: carry_forward item requires handle")
-        decay_state = item.get("decay_state")
-        if decay_state is not None and decay_state not in VALID_STATES:
-            raise VisualStepIRValidationError(f"{label}: invalid decay_state: {decay_state}")
-        if component == "VisualGap":
-            self._validate_visual_gap(item, label)
         for role in spec.required_roles:
-            if role not in item:
+            if role not in item or item.get(role) in (None, "", []):
                 raise VisualStepIRValidationError(f"{label}: missing required role: {role}")
 
-    def _validate_visual_gap(self, item: dict[str, Any], label: str) -> None:
-        allowed = {"component", "expected_role", "reason", "state", "metadata"}
-        extra = sorted(set(item) - allowed)
-        if extra:
-            raise VisualStepIRValidationError(
-                f"{label}: VisualGap cannot carry geometry fields: {extra}"
+    def _validate_local_parameter(
+        self,
+        item: dict[str, Any],
+        label: str,
+        *,
+        known_geometry: set[str],
+        frame_geometry_refs: set[str],
+    ) -> None:
+        required = {
+            "name",
+            "mathematical_domain",
+            "display_window",
+            "default_value",
+            "source_refs",
+            "controls",
+            "parameterized_points",
+            "landmarks",
+            "note",
+        }
+        if set(item) != required:
+            raise VisualStepIRValidationError(f"{label}: fields invalid")
+        name = str(item.get("name") or "")
+        if not name:
+            raise VisualStepIRValidationError(f"{label}: name missing")
+        window = item.get("display_window")
+        if not isinstance(window, dict):
+            raise VisualStepIRValidationError(f"{label}: display_window missing")
+        mathematical_domain = item.get("mathematical_domain")
+        exact = (
+            isinstance(mathematical_domain, dict)
+            and mathematical_domain.get("kind") == "exact"
+        )
+        controls = item.get("controls")
+        self._validate_parameter_landmarks(
+            item.get("landmarks"),
+            f"{label}.landmarks",
+            known_geometry=known_geometry,
+            frame_geometry_refs=frame_geometry_refs,
+        )
+        if exact:
+            if controls != []:
+                raise VisualStepIRValidationError(
+                    f"{label}: exact parameter must not expose controls"
+                )
+            if window.get("min") != window.get("max"):
+                raise VisualStepIRValidationError(
+                    f"{label}: exact parameter window must be a point"
+                )
+            if item.get("default_value") != window.get("min"):
+                raise VisualStepIRValidationError(
+                    f"{label}: exact parameter value mismatch"
+                )
+            return
+        domain = {
+            "min": window.get("min"),
+            "max": window.get("max"),
+            "step": window.get("step"),
+            "default": item.get("default_value"),
+        }
+        self._validate_interaction_domain(domain, f"{label}.display_window")
+        if not isinstance(controls, list):
+            raise VisualStepIRValidationError(f"{label}: controls must be an array")
+        for index, control in enumerate(controls):
+            self._validate_interaction_control(
+                control,
+                name,
+                f"{label}.controls[{index}]",
             )
-        if not item.get("expected_role"):
-            raise VisualStepIRValidationError(f"{label}: VisualGap missing expected_role")
+        parameterized = item.get("parameterized_points")
+        if not isinstance(parameterized, dict):
+            raise VisualStepIRValidationError(f"{label}: parameterized_points invalid")
+        for point_id, payload in parameterized.items():
+            self._validate_parameterized_point(
+                payload,
+                f"{label}.parameterized_points[{point_id}]",
+            )
+
+    def _validate_parameter_landmarks(
+        self,
+        landmarks: Any,
+        label: str,
+        *,
+        known_geometry: set[str],
+        frame_geometry_refs: set[str],
+    ) -> None:
+        if not isinstance(landmarks, list):
+            raise VisualStepIRValidationError(f"{label}: must be an array")
+        required = {
+            "value",
+            "exact_value",
+            "display",
+            "epsilon",
+            "candidate_geometry_refs",
+            "highlight_geometry_refs",
+        }
+        for index, landmark in enumerate(landmarks):
+            item_label = f"{label}[{index}]"
+            if not isinstance(landmark, dict) or set(landmark) != required:
+                raise VisualStepIRValidationError(f"{item_label}: fields invalid")
+            try:
+                value = float(landmark["value"])
+                epsilon = float(landmark["epsilon"])
+            except Exception as exc:
+                raise VisualStepIRValidationError(
+                    f"{item_label}: value and epsilon must be numeric"
+                ) from exc
+            if not math.isfinite(value) or not math.isfinite(epsilon) or epsilon <= 0:
+                raise VisualStepIRValidationError(
+                    f"{item_label}: value/epsilon must be finite and epsilon positive"
+                )
+            if not str(landmark.get("exact_value") or "").strip():
+                raise VisualStepIRValidationError(f"{item_label}: exact_value missing")
+            if not str(landmark.get("display") or "").strip():
+                raise VisualStepIRValidationError(f"{item_label}: display missing")
+            for key in ("candidate_geometry_refs", "highlight_geometry_refs"):
+                refs = landmark.get(key)
+                if not isinstance(refs, list) or not all(
+                    isinstance(ref, str) and ref for ref in refs
+                ):
+                    raise VisualStepIRValidationError(f"{item_label}.{key}: invalid")
+                unknown = sorted(set(refs) - known_geometry)
+                invisible = sorted(set(refs) - frame_geometry_refs)
+                if unknown:
+                    raise VisualStepIRValidationError(
+                        f"{item_label}.{key}: unknown geometry refs: {unknown}"
+                    )
+                if invisible:
+                    raise VisualStepIRValidationError(
+                        f"{item_label}.{key}: refs outside frame: {invisible}"
+                    )
 
     def _validate_state_override(self, item: dict[str, Any], label: str) -> None:
         if not item.get("handle"):
             raise VisualStepIRValidationError(f"{label}: missing handle")
         state = item.get("state")
-        if state not in VALID_STATES:
+        if state not in VALID_TRANSIENT_STATES:
             raise VisualStepIRValidationError(f"{label}: invalid state: {state}")
-
-    def _validate_annotation(self, item: dict[str, Any], lesson_step: dict[str, Any], label: str) -> None:
-        if "text_source" not in item and "text" not in item:
-            raise VisualStepIRValidationError(f"{label}: annotation requires text_source or text")
-        if "text_source" not in item and not str(item.get("text") or "").strip():
-            raise VisualStepIRValidationError(f"{label}: annotation text cannot be empty")
-        if "text_source" not in item:
-            return
-        source = item["text_source"]
-        if source not in {"lesson_step.box", "lesson_step.derive"}:
-            raise VisualStepIRValidationError(f"{label}: unsupported text_source: {source}")
-        index = item.get("index", 0)
-        if not isinstance(index, int) or index < 0:
-            raise VisualStepIRValidationError(f"{label}: invalid text_source index: {index}")
-        source_text = _text_from_lesson_step(lesson_step, source, index, label)
-        explicit_text = item.get("text")
-        if explicit_text is not None and str(explicit_text) != source_text:
-            raise VisualStepIRValidationError(
-                f"{label}: annotation text conflicts with {source}"
-            )
-
-    def _validate_hidden_ref(self, hidden: str, label: str, layer_registry: LayerRegistry) -> None:
-        if hidden in layer_registry.semantic_to_layer:
-            return
-        if hidden in layer_registry.semantic_to_layer.values():
-            return
-        if ":" in hidden:
-            return
-        raise VisualStepIRValidationError(f"{label}: unknown hide target: {hidden}")
-
-    def _validate_interaction(self, item: dict[str, Any], label: str) -> None:
-        component = item.get("component")
-        if component not in VALID_INTERACTION_COMPONENTS:
-            raise VisualStepIRValidationError(f"{label}: unknown interaction component: {component}")
-        if component == "MainSlider":
-            return
-        if isinstance(item.get("raw_local_controls"), dict):
-            return
-        interaction_id = str(item.get("id") or "")
-        if not interaction_id:
-            raise VisualStepIRValidationError(f"{label}: missing interaction id")
-        parameter = str(item.get("parameter") or "")
-        if not parameter:
-            raise VisualStepIRValidationError(f"{label}: missing parameter")
-        domain = item.get("domain")
-        if not isinstance(domain, dict):
-            raise VisualStepIRValidationError(f"{label}: missing domain")
-        self._validate_interaction_domain(domain, f"{label}.domain")
-        controls = item.get("controls")
-        if not isinstance(controls, list) or not controls:
-            raise VisualStepIRValidationError(f"{label}: controls must be a non-empty list")
-        for index, control in enumerate(controls):
-            self._validate_interaction_control(control, parameter, f"{label}.controls[{index}]")
-        parameterized = item.get("parameterized_points")
-        if not isinstance(parameterized, dict) or not parameterized:
-            raise VisualStepIRValidationError(
-                f"{label}: parameterized_points must be a non-empty object"
-            )
-        for point_id, payload in parameterized.items():
-            self._validate_parameterized_point(payload, f"{label}.parameterized_points[{point_id}]")
 
     def _validate_interaction_domain(self, domain: dict[str, Any], label: str) -> None:
         for key in ("min", "max", "step", "default"):
@@ -235,6 +375,7 @@ class VisualStepIRValidator:
         label: str,
         *,
         interaction_vars: set[str],
+        frame_geometry_refs: set[str],
     ) -> None:
         if timeline is None:
             return
@@ -257,6 +398,7 @@ class VisualStepIRValidator:
                 f"{label}.beats[{index}]",
                 seen_beat_ids=seen_beat_ids,
                 interaction_vars=interaction_vars,
+                frame_geometry_refs=frame_geometry_refs,
             )
 
     def _validate_timeline_beat(
@@ -266,6 +408,7 @@ class VisualStepIRValidator:
         *,
         seen_beat_ids: set[str],
         interaction_vars: set[str],
+        frame_geometry_refs: set[str],
     ) -> None:
         if not isinstance(beat, dict):
             raise VisualStepIRValidationError(f"{label}: beat must be an object")
@@ -286,6 +429,14 @@ class VisualStepIRValidator:
             raise VisualStepIRValidationError(f"{label}: missing scene_patch")
         for index, item in enumerate(patch.get("add") or ()):
             self._validate_scene_item(item, f"{label}.scene_patch.add[{index}]")
+            undeclared = sorted(
+                set(geometry_refs_from_scene_item(item)) - frame_geometry_refs
+            )
+            if undeclared:
+                raise VisualStepIRValidationError(
+                    f"{label}.scene_patch.add[{index}]: timeline geometry "
+                    f"not declared by frame: {undeclared}"
+                )
         for index, item in enumerate(patch.get("state_overrides") or ()):
             self._validate_state_override(item, f"{label}.scene_patch.state_overrides[{index}]")
         self._validate_transition(beat.get("transition"), f"{label}.transition", interaction_vars)
@@ -351,14 +502,6 @@ class VisualStepIRValidator:
                 raise VisualStepIRValidationError(f"{label}[{index}]: keyframe at must be sorted")
             previous_at = at
 
-    def _layer_registry_for(self, visual_ir: VisualStepIR) -> LayerRegistry:
-        if not visual_ir.layer_registry:
-            return self.layer_registry
-        merged = dict(self.layer_registry.semantic_to_layer)
-        merged.update(visual_ir.layer_registry)
-        return LayerRegistry(merged)
-
-
 def _lesson_steps_by_id(lesson_data: dict[str, Any]) -> dict[str, dict[str, Any]]:
     out: dict[str, dict[str, Any]] = {}
     for item in lesson_data.get("steps") or ():
@@ -367,30 +510,52 @@ def _lesson_steps_by_id(lesson_data: dict[str, Any]) -> dict[str, dict[str, Any]
     return out
 
 
-def _interaction_vars(interactions: tuple[dict[str, Any], ...]) -> set[str]:
-    out: set[str] = set()
-    for item in interactions or ():
-        if not isinstance(item, dict):
-            continue
-        parameter = str(item.get("parameter") or "")
-        if parameter:
-            out.add(parameter)
-        for control in item.get("controls") or ():
-            if isinstance(control, dict) and control.get("var"):
-                out.add(str(control["var"]))
-    return out
-
-
-def _text_from_lesson_step(lesson_step: dict[str, Any], source: str, index: int, label: str) -> str:
-    if source == "lesson_step.box":
-        values = lesson_step.get("box") or []
-        if index >= len(values):
-            raise VisualStepIRValidationError(f"{label}: lesson_step.box index out of range: {index}")
-        return str(values[index])
-    values = lesson_step.get("derive") or []
-    if index >= len(values):
-        raise VisualStepIRValidationError(f"{label}: lesson_step.derive index out of range: {index}")
-    item = values[index]
-    if not isinstance(item, list) or len(item) < 2:
-        raise VisualStepIRValidationError(f"{label}: invalid lesson_step.derive item at index {index}")
-    return str(item[1])
+def _validate_recursive_topology(
+    lesson_scope: "LessonScope",
+    visual_scope: Any,
+    *,
+    label: str,
+) -> None:
+    if visual_scope.scope_ref != lesson_scope.scope_ref:
+        raise VisualStepIRValidationError(
+            f"visual_scope_topology_mismatch: {label}: "
+            f"{visual_scope.scope_ref} != {lesson_scope.scope_ref}"
+        )
+    lesson_scope_steps = [item.lesson_step_id for item in lesson_scope.steps]
+    visual_scope_steps = [item.lesson_step_id for item in visual_scope.steps]
+    if visual_scope_steps != lesson_scope_steps:
+        raise VisualStepIRValidationError(
+            f"visual_scope_step_order_mismatch: {label}: "
+            f"expected={lesson_scope_steps}, observed={visual_scope_steps}"
+        )
+    lesson_goals = [item.goal_ref for item in lesson_scope.goals]
+    visual_goals = [item.goal_ref for item in visual_scope.goals]
+    if visual_goals != lesson_goals:
+        raise VisualStepIRValidationError(
+            f"visual_goal_topology_mismatch: {label}: "
+            f"expected={lesson_goals}, observed={visual_goals}"
+        )
+    for lesson_goal, visual_goal in zip(
+        lesson_scope.goals,
+        visual_scope.goals,
+        strict=True,
+    ):
+        lesson_steps = [item.lesson_step_id for item in lesson_goal.steps]
+        visual_steps = [item.lesson_step_id for item in visual_goal.steps]
+        if visual_steps != lesson_steps:
+            raise VisualStepIRValidationError(
+                f"visual_goal_step_order_mismatch: goal:{lesson_goal.goal_ref}: "
+                f"expected={lesson_steps}, observed={visual_steps}"
+            )
+    if len(visual_scope.children) != len(lesson_scope.children):
+        raise VisualStepIRValidationError(
+            f"visual_child_scope_count_mismatch: {label}"
+        )
+    for index, (lesson_child, visual_child) in enumerate(
+        zip(lesson_scope.children, visual_scope.children, strict=True)
+    ):
+        _validate_recursive_topology(
+            lesson_child,
+            visual_child,
+            label=f"{label}.children[{index}]",
+        )

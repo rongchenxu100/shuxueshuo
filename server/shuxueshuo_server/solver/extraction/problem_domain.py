@@ -871,7 +871,15 @@ class ProblemRepairService:
                 "repair changed an untargeted unit; first drifted unit "
                 f"{unauthorized_implicit[0]!r}",
             )
-        if graph.semantic_hash == draft.graph.semantic_hash:
+        source_correction = any(
+            issue.code == "extraction.problem_source_correction_required"
+            for issue in draft.validation_report.issues
+        )
+        # A source review may remove an unsupported annotation that the solver's
+        # equivalence hash deliberately ignores. It is still a real draft edit,
+        # subject to the same repair cone, and must receive a fresh image review.
+        literal_progress = source_correction and graph.semantic_payload() != draft.graph.semantic_payload()
+        if graph.semantic_hash == draft.graph.semantic_hash and not literal_progress:
             raise ProblemDomainError(
                 "extraction.problem_retry_no_progress",
                 "$",

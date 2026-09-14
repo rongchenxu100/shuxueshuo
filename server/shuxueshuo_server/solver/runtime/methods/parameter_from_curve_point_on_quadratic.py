@@ -91,11 +91,21 @@ class ParameterFromCurvePointOnQuadraticMethod:
         parameter_value = outputs["parameter_value"].value
         resolved_point = outputs["point"].value
         parabola = sp.expand(outputs["parabola"].value)
+        parameter_equation = sp.Eq(
+            inputs["quadratic"].subs(x, inputs["point"][0]),
+            inputs["point"][1],
+            evaluate=False,
+        )
 
         return StatelessMethodResult(
             method_id=self.method_id,
             outputs=outputs,
             checks=[
+                _check(
+                    "parameter_equation_formed",
+                    True,
+                    kernel.sstr(parameter_equation),
+                ),
                 _check(
                     "parameter_constraint_satisfied",
                     value_satisfies_constraint(parameter_value, constraint),

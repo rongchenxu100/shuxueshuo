@@ -11,13 +11,15 @@
     "problem_revision_id",
     "problem_semantic_hash",
     "checkpoint_id",
+    "dependency_graph",
+    "public_result_dependencies",
     "root_scope",
     "execution_signature",
     "execution_id"
   ],
   "properties": {
     "schema_version": {
-      "const": "verified-functional-plan-execution/v1"
+      "const": "verified-functional-plan-execution/v2"
     },
     "canonical_plan": {
       "type": "object",
@@ -54,6 +56,44 @@
     "checkpoint_id": {
       "type": "string",
       "minLength": 1
+    },
+    "dependency_graph": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uniqueItems": true
+      }
+    },
+    "public_result_dependencies": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "step_id",
+            "return"
+          ],
+          "properties": {
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "return": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "uniqueItems": true
+      }
     },
     "root_scope": {
       "$ref": "#/$defs/execution_scope_0"
@@ -449,6 +489,9 @@
               },
               "source": {
                 "$ref": "#/$defs/functional_ref"
+              },
+              "resolved_ref": {
+                "$ref": "#/$defs/step_result_ref"
               },
               "resolution": {
                 "enum": [
@@ -910,6 +953,312 @@
               "additionalProperties": false
             },
             "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "SymbolicClosureExecutionEvidence",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "step_id",
+            "target",
+            "target_value",
+            "equations",
+            "equation_sources",
+            "substitutions",
+            "branch_count",
+            "residual_symbols",
+            "affected_returns",
+            "constraint_summary",
+            "evidence_id"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "symbolic-closure-execution-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target": {
+              "type": "string",
+              "minLength": 1
+            },
+            "target_value": {
+              "type": "string",
+              "minLength": 1
+            },
+            "equations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "equation_sources": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "substitutions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "symbol",
+                  "value"
+                ],
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "value": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "branch_count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "residual_symbols": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "affected_returns": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "constraint_summary": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "RightAngleConstructSelectExecutionEvidence",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "step_id",
+            "macro_id",
+            "candidates",
+            "selected_point",
+            "candidate_decisions",
+            "evidence_id",
+            "construction_checks",
+            "selection_condition"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "right-angle-construct-select-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "macro_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "candidates": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                ],
+                "items": false,
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "selected_point": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "string",
+                  "minLength": 1
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "candidate_decisions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "construction_checks": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "selection_condition": {
+              "type": "string",
+              "minLength": 1
+            },
+            "construction_geometry": {
+              "type": "object"
+            },
+            "selection_geometry": {
+              "type": "object"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "CurveCandidateParameterExecutionEvidence",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "step_id",
+            "macro_id",
+            "candidates",
+            "selected_point",
+            "candidate_decisions",
+            "evidence_id",
+            "candidate_equations",
+            "parameter_name",
+            "parameter_equation",
+            "parameter_value",
+            "solved_curve"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "curve-candidate-parameter-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "macro_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "candidates": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                ],
+                "items": false,
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "selected_point": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "minLength": 1
+                },
+                {
+                  "type": "string",
+                  "minLength": 1
+                }
+              ],
+              "items": false,
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "candidate_decisions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "candidate_equations": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "parameter_name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parameter_equation": {
+              "type": "string",
+              "minLength": 1
+            },
+            "parameter_value": {
+              "type": "string",
+              "minLength": 1
+            },
+            "solved_curve": {
               "type": "string",
               "minLength": 1
             }

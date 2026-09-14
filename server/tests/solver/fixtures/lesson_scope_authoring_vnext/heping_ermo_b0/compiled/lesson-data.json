@@ -1,0 +1,474 @@
+{
+  "meta": {
+    "id": "tj-2026-heping-ermo-25",
+    "outputPath": "internal/solver-runs/tj-2026-heping-ermo-25.html",
+    "pageTitle": "第 25 题（二次函数综合）",
+    "pageDescription": "第 25 题二次函数综合：角度条件与HF+FM 路径最值。",
+    "breadcrumbTitle": "第 25 题",
+    "defaultT": 5.0,
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": [
+        "evaluate_point_at_parameter",
+        "parameter_from_expression_value",
+        "point_candidates_from_curve_point_condition",
+        "quadratic_axis_parameterized_point",
+        "quadratic_from_constraints",
+        "quadratic_square_path_minimum",
+        "quadratic_vertex_point",
+        "quadratic_x_axis_intercept_point",
+        "square_adjacent_vertex_from_side"
+      ]
+    }
+  },
+  "problem": {
+    "summary": "第 25 题二次函数综合：角度条件与HF+FM 路径最值。",
+    "lines": [
+      {
+        "text": "（25）（本小题 10 分）已知抛物线 y=-x²+bx+c（b，c 为常数，c>1）的顶点为 P，与 x 轴相交于 A，B 两点（点 A 在点 B 的左侧），与 y 轴相交于点 C，对称轴与 x 轴相交于点 M。点 E 在对称轴上，以 AE 为边的正方形 AEKG 的顶点 G 在 x 轴下方。"
+      },
+      {
+        "text": "（Ⅰ）若 b=-2，c=3，① 求点 P 和点 A 的坐标；",
+        "answerId": "answer_i_1",
+        "answer": "P(－1, 4)，A(－3, 0)"
+      },
+      {
+        "text": "② 当点 G 在抛物线上时，求点 E 的坐标；",
+        "answerId": "answer_i_2_E",
+        "answer": "E(－1, 2＋√6) 或 E(－1, 2－√6)"
+      },
+      {
+        "text": "（Ⅱ）若点 A 的坐标为（-c，0），点 F 是 AE 的中点，对角线 AK 和 EG 相交于点 H，当 HF+FM+MG 取得最小值为 3√5 时，求点 E 的坐标。",
+        "answerId": "answer_ii_E",
+        "answer": "E(－2, 3/2)"
+      }
+    ]
+  },
+  "ui": {
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "c=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "i": "第（Ⅰ）问：求点 P 和点 A 的坐标",
+      "i_1": "第（Ⅰ）①问：求点 P 和点 A 的坐标",
+      "i_2": "第（Ⅰ）②问：求点 E 的坐标",
+      "ii": "第（Ⅱ）问：求点 E 的坐标",
+      "第（Ⅰ）问：求点 P 和点 A 的坐标": "第（Ⅰ）问：求点 P 和点 A 的坐标",
+      "第（Ⅰ）①问：求点 P 和点 A 的坐标": "第（Ⅰ）①问：求点 P 和点 A 的坐标",
+      "第（Ⅰ）②问：求点 E 的坐标": "第（Ⅰ）②问：求点 E 的坐标",
+      "第（Ⅱ）问：求点 E 的坐标": "第（Ⅱ）问：求点 E 的坐标"
+    },
+    "defaultT": 5.0
+  },
+  "steps": [
+    {
+      "id": "explain_derive_parabola_i",
+      "section": "第（Ⅰ）问：求点 P 和点 A 的坐标",
+      "title": "第1步：求函数解析式",
+      "t": 5.0,
+      "derive": [
+        [
+          "∵",
+          "b＝－2，c＝3"
+        ],
+        [
+          "∴",
+          "y＝－x²－2x＋3＝－(x＋1)²＋4"
+        ]
+      ],
+      "box": [
+        "y＝－x²－2x＋3"
+      ]
+    },
+    {
+      "id": "explain_derive_x_intercept_A_i",
+      "section": "第（Ⅰ）问：求点 P 和点 A 的坐标",
+      "title": "第2步：求抛物线与 x 轴交点",
+      "t": 5.0,
+      "derive": [
+        [
+          "∵",
+          "x 轴交点满足 y＝0，即 －x²－2x＋3＝0"
+        ],
+        [
+          "∴",
+          "A(－3,0)"
+        ]
+      ],
+      "box": [
+        "A(-3,0)"
+      ]
+    },
+    {
+      "id": "explain_derive_vertex_P_i",
+      "section": "第（Ⅰ）①问：求点 P 和点 A 的坐标",
+      "title": "第1步：求二次函数顶点",
+      "t": 5.0,
+      "derive": [
+        [
+          "由",
+          "第（Ⅰ）问已得相关结论，继续计算"
+        ],
+        [
+          "∵",
+          "y＝－(x＋1)²＋4"
+        ],
+        [
+          "∴",
+          "P(－1,4)"
+        ]
+      ],
+      "box": [
+        "P(-1,4)"
+      ]
+    },
+    {
+      "id": "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i",
+      "section": "第（Ⅰ）②问：求点 E 的坐标",
+      "title": "第1步：由正方形求相邻顶点G",
+      "t": 5.0,
+      "derive": [
+        [
+          "由",
+          "第（Ⅰ）问已得相关结论，继续计算"
+        ],
+        [
+          "由",
+          "第（Ⅰ）问已得点 A，继续计算"
+        ],
+        [
+          "∵",
+          "E 在对称轴 x＝－1 上"
+        ],
+        [
+          "∴",
+          "设 E(－1,t)"
+        ],
+        [
+          "作",
+          "GQ⊥x轴于 Q"
+        ],
+        [
+          "∵",
+          "四边形 AEKG 是正方形"
+        ],
+        [
+          "∴",
+          "AE＝AG，∠EAG＝90°"
+        ],
+        [
+          "∵",
+          "∠EMA＝∠GQA＝90°"
+        ],
+        [
+          "∴",
+          "∠EAM＝∠AGQ"
+        ],
+        [
+          "∴",
+          "Rt△AEM≌Rt△GAQ"
+        ],
+        [
+          "∴",
+          "AQ＝ME＝t，GQ＝AM＝2"
+        ],
+        [
+          "∵",
+          "G 在 x 轴下方"
+        ],
+        [
+          "∴",
+          "G(t－3,－2)"
+        ]
+      ],
+      "box": [
+        "E(－1,t)",
+        "G(t－3,－2)"
+      ]
+    },
+    {
+      "id": "explain_solve_axis_point_candidates_i",
+      "section": "第（Ⅰ）②问：求点 E 的坐标",
+      "title": "第2步：代入抛物线求点E候选",
+      "t": 5.0,
+      "derive": [
+        [
+          "由",
+          "第（Ⅰ）问已得相关结论，继续计算"
+        ],
+        [
+          "∵",
+          "G(t－3,－2) 在 y＝－x²－2x＋3 上"
+        ],
+        [
+          "∴",
+          "－2＝－(t－3)²－2(t－3)＋3"
+        ],
+        [
+          "∴",
+          "(t－3)²＋2(t－3)－5＝0"
+        ],
+        [
+          "设",
+          "u＝t－3"
+        ],
+        [
+          "∴",
+          "u²＋2u－5＝0"
+        ],
+        [
+          "∴",
+          "u＝－1±√6"
+        ],
+        [
+          "∴",
+          "t＝2±√6"
+        ],
+        [
+          "∴",
+          "E(－1,2＋√6) 或 E(－1,2－√6)"
+        ]
+      ],
+      "box": [
+        "E(－1,2＋√6) 或 E(－1,2－√6)"
+      ]
+    },
+    {
+      "id": "explain_derive_parametric_parabola_ii",
+      "section": "第（Ⅱ）问：求点 E 的坐标",
+      "title": "第1步：化简函数解析式",
+      "t": 5.0,
+      "derive": [
+        [
+          "∵",
+          "b＝1－c"
+        ],
+        [
+          "∴",
+          "y＝－x²＋(1－c)x＋c"
+        ]
+      ],
+      "box": [
+        "y＝－x²＋(1－c)x＋c"
+      ]
+    },
+    {
+      "id": "explain_derive_path_minimum_ii",
+      "section": "第（Ⅱ）问：求点 E 的坐标",
+      "title": "第2步：正方形关系降维，再用将军饮马求最短路径",
+      "t": 5.0,
+      "derive": [
+        [
+          "说明",
+          "FM=AE/2"
+        ],
+        [
+          "说明",
+          "HF=AG/2"
+        ],
+        [
+          "说明",
+          "AE=AG"
+        ],
+        [
+          "说明",
+          "HF+FM=AG"
+        ],
+        [
+          "说明",
+          "HF+FM+MG=AG+MG"
+        ],
+        [
+          "说明",
+          "经过验证的折线拉直策略为：reflection"
+        ],
+        [
+          "说明",
+          "因此最小值为 √5|c+1|/2，在 ['1/4 - 3*c/4', '-c/2 - 1/2'] 处取得"
+        ]
+      ],
+      "box": [
+        "最小值＝√5|c+1|/2",
+        "G(1/4-3c/4,-c/2-1/2)"
+      ]
+    },
+    {
+      "id": "explain_solve_parameter_c_ii_evaluate_point_A_ii",
+      "section": "第（Ⅱ）问：求点 E 的坐标",
+      "title": "第3步：由表达式取值反求参数，并求A坐标",
+      "t": 5.0,
+      "derive": [
+        [
+          "∵",
+          "√5|c＋1|/2＝3√5"
+        ],
+        [
+          "∴",
+          "c＝5"
+        ],
+        [
+          "∵",
+          "A(－5,0)，c＝5"
+        ],
+        [
+          "∴",
+          "A(－5,0)"
+        ]
+      ],
+      "box": [
+        "c＝5",
+        "A(－5,0)"
+      ]
+    },
+    {
+      "id": "explain_evaluate_minimum_point_G_ii",
+      "section": "第（Ⅱ）问：求点 E 的坐标",
+      "title": "第4步：代入参数求点坐标",
+      "t": 5.0,
+      "derive": [
+        [
+          "∵",
+          "G(－7/2,－3)，c＝5"
+        ],
+        [
+          "∴",
+          "G(－7/2,－3)"
+        ]
+      ],
+      "box": [
+        "G(－7/2,－3)"
+      ]
+    },
+    {
+      "id": "explain_recover_target_point_E_ii",
+      "section": "第（Ⅱ）问：求点 E 的坐标",
+      "title": "第5步：由正方形求相邻顶点E",
+      "t": 5.0,
+      "derive": [
+        [
+          "作",
+          "GQ⊥x轴于 Q，ER⊥x轴于 R"
+        ],
+        [
+          "∵",
+          "四边形 AEKG 是正方形"
+        ],
+        [
+          "∴",
+          "AG＝AE，∠GAE＝90°"
+        ],
+        [
+          "∵",
+          "∠GQA＝∠ERA＝90°"
+        ],
+        [
+          "∴",
+          "∠GAQ＝∠AER"
+        ],
+        [
+          "∴",
+          "Rt△AGQ≌Rt△EAR"
+        ],
+        [
+          "∴",
+          "AR＝QG＝3，ER＝AQ＝3/2"
+        ],
+        [
+          "∵",
+          "按正方形顶点顺序选取 E"
+        ],
+        [
+          "∴",
+          "E(－2,3/2)"
+        ]
+      ],
+      "box": [
+        "E(－2,3/2)"
+      ]
+    }
+  ],
+  "policies": {
+    "explain_derive_parabola_i": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    },
+    "explain_derive_x_intercept_A_i": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    },
+    "explain_derive_vertex_P_i": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    },
+    "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    },
+    "explain_solve_axis_point_candidates_i": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    },
+    "explain_derive_parametric_parabola_ii": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    },
+    "explain_derive_path_minimum_ii": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    },
+    "explain_solve_parameter_c_ii_evaluate_point_A_ii": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    },
+    "explain_evaluate_minimum_point_G_ii": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    },
+    "explain_recover_target_point_E_ii": {
+      "movable": false,
+      "range": [
+        5.0,
+        5.0
+      ]
+    }
+  },
+  "stepLabels": {
+    "explain_derive_parabola_i": "1 求解析式",
+    "explain_derive_x_intercept_A_i": "2 求抛物线与 x 轴交点",
+    "explain_derive_vertex_P_i": "1 求二次函数顶点",
+    "explain_parameterize_axis_point_E_i_derive_square_vertex_G_i": "1 正方形求顶点G",
+    "explain_solve_axis_point_candidates_i": "2 求点E候选",
+    "explain_derive_parametric_parabola_ii": "1 化简解析式",
+    "explain_derive_path_minimum_ii": "2 正方形路径最值",
+    "explain_solve_parameter_c_ii_evaluate_point_A_ii": "3 反求参数求A",
+    "explain_evaluate_minimum_point_G_ii": "4 代入参数求点坐标",
+    "explain_recover_target_point_E_ii": "5 正方形求顶点E"
+  }
+}

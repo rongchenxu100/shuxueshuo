@@ -13,6 +13,28 @@ def scope_root(scope_id: str | None) -> str:
     return text.split("_", 1)[0] or "problem"
 
 
+def scope_lineage(scope_id: str | None) -> tuple[str, ...]:
+    """Return exact scope followed by its structural ancestors."""
+
+    text = str(scope_id or "problem")
+    if text == "problem":
+        return ("problem",)
+    parts = text.split("_")
+    lineage = ["_".join(parts[:index]) for index in range(len(parts), 0, -1)]
+    lineage.append("problem")
+    return tuple(dict.fromkeys(lineage))
+
+
+def scoped_point_id(label: str, scope_id: str | None) -> str:
+    """Internal point id; student labels are carried separately in pointMeta."""
+
+    safe_label = "".join(char if char.isalnum() else "_" for char in str(label)).strip("_")
+    safe_scope = "".join(
+        char if char.isalnum() else "_" for char in str(scope_id or "problem")
+    ).strip("_")
+    return f"point_{safe_label or 'point'}_{safe_scope or 'problem'}"
+
+
 def axis_parameter_point_id(label: str, scope_id: str | None) -> str:
     """Stable visual-only id for a point with an unresolved axis parameter."""
     safe_scope = "".join(
@@ -62,14 +84,22 @@ class GeometryPointScopeNamer:
     label_roots: Mapping[str, frozenset[str]]
 
     def geometry_id(self, label: str, scope_id: str | None) -> str:
-        root = scope_root(scope_id)
-        if root == "i" and self._needs_first_part_suffix(label):
-            return f"{label}1"
-        return label
+        return scoped_point_id(label, scope_id)
 
     def candidate_ids(self, label: str, scope_id: str | None) -> tuple[str, ...]:
-        preferred = self.geometry_id(label, scope_id)
-        candidates = [preferred, label, f"{label}1"]
+        candidates: list[str] = []
+        for visible_scope in scope_lineage(scope_id):
+            candidates.extend(
+                (
+                    self.geometry_id(label, visible_scope),
+                    axis_parameter_point_id(label, visible_scope),
+                )
+            )
+        # A small number of canonical problem-wide objects (most notably the
+        # coordinate origin) keep their semantic label as geometry identity.
+        # They are an exact global identity, not a same-label branch fallback.
+        if label in self.problem_point_names:
+            candidates.append(label)
         out: list[str] = []
         for item in candidates:
             if item and item not in out:
@@ -83,12 +113,6 @@ class GeometryPointScopeNamer:
             "scopeId": str(scope_id or ""),
             "scopeRoot": root,
         }
-
-    def _needs_first_part_suffix(self, label: str) -> bool:
-        if label not in self.problem_point_names:
-            return True
-        roots = set(self.label_roots.get(label, frozenset()))
-        return bool({"ii", "iii"} & roots)
 
     @classmethod
     def from_geometry_spec(
@@ -129,6 +153,7 @@ def _handle_tail(handle: str) -> str:
 
 
 def _label_from_geometry_id(point_id: str) -> str:
-    if len(point_id) > 1 and point_id.endswith("1") and point_id[-2].isalpha():
-        return point_id[:-1]
+    if point_id.startswith("point_"):
+        body = point_id[len("point_") :]
+        return body.split("_", 1)[0]
     return point_id

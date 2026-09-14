@@ -207,6 +207,19 @@ function validatePointRefs(spec, deco) {
       ...Object.keys(step.pointOverrides ?? {}),
     ]);
     (step.add ?? []).forEach((item, i) => checkDecoration(item, "steps." + stepId + ".add[" + i + "]", localKnown));
+    for (const [frameIndex, frame] of (step.visualFrames ?? []).entries()) {
+      const frameKnown = new Set([
+        ...known,
+        ...Object.keys(frame.pointOverrides ?? {}),
+      ]);
+      (frame.add ?? []).forEach((item, i) =>
+        checkDecoration(
+          item,
+          "steps." + stepId + ".visualFrames[" + frameIndex + "].add[" + i + "]",
+          frameKnown,
+        )
+      );
+    }
   }
 }
 
@@ -231,7 +244,29 @@ function visitDecorations(deco, visitor) {
   }
   for (const [stepId, step] of Object.entries(deco.steps ?? {})) {
     (step.add ?? []).forEach((item, i) => visitor(item, "steps." + stepId + ".add[" + i + "]", { stepId }));
+    for (const [frameIndex, frame] of (step.visualFrames ?? []).entries()) {
+      (frame.add ?? []).forEach((item, i) =>
+        visitor(
+          item,
+          "steps." + stepId + ".visualFrames[" + frameIndex + "].add[" + i + "]",
+          { stepId, frameIndex },
+        )
+      );
+    }
   }
+}
+
+function collectFrameLocalDefaults(deco) {
+  const values = {};
+  for (const step of Object.values(deco?.steps ?? {})) {
+    for (const frame of step?.visualFrames ?? []) {
+      for (const [name, value] of Object.entries(frame?.localValues ?? {})) {
+        const numeric = Number(value);
+        if (name && Number.isFinite(numeric) && !(name in values)) values[name] = numeric;
+      }
+    }
+  }
+  return values;
 }
 
 function validateDecorationGeometryStyle(spec, deco) {
@@ -337,11 +372,12 @@ if (spec) {
   vm.runInNewContext(lesson, sandbox);
   const GE = sandbox.window.GeometryEngine;
   const GLS = sandbox.window.GeometryLessonFromSpec;
+  const frameLocalDefaults = collectFrameLocalDefaults(deco);
 
   function buildTrialEnv(specObj, tVal) {
     const paramName = specObj.movingParam || "t";
     const tv = Number(tVal);
-    const envTrial = { S3: Math.sqrt(3), t: tv };
+    const envTrial = { S3: Math.sqrt(3), t: tv, ...frameLocalDefaults };
     envTrial[paramName] = tv;
     for (const item of specObj.expressionEnv ?? []) {
       if (!item?.name) continue;
@@ -402,7 +438,11 @@ if (spec) {
       }
     }
     try {
-      const st = GLS.resolveClipOverlap(spec, trialValue);
+      // The registry may contain geometry whose symbols are intentionally local
+      // to a visual frame.  Validation still evaluates every registered object,
+      // but it must do so with the checked-in frame defaults rather than treating
+      // those local symbols as missing global parameters.
+      const st = GLS.resolveClipOverlap(spec, trialValue, frameLocalDefaults);
       need(st.overlap.length >= 0, "overlap 计算异常");
       need(Number.isFinite(st.area), "area 应为有限数");
       validateDerivedIntersectionsFinite(spec, st, trialValue);
@@ -447,10 +487,18 @@ if (spec) {
 
     try {
       const renderer = GLS.createSpecRenderer(spec, deco, lessonData.steps, lessonData.policies);
-      const svg0 = renderer.diagramMarkupFor(0);
+      const firstFrames = renderer.visualFramesFor(0);
+      const svg0 = firstFrames.length
+        ? renderer.diagramMarkupForVisualFrame(0, 0)
+        : renderer.diagramMarkupFor(0, undefined, frameLocalDefaults);
       need(typeof svg0 === "string" && svg0.includes("<"), "diagramMarkupFor(0) 应输出 SVG 字符串");
       const firstStep = lessonData.steps?.[0];
-      const mini = renderer.drawMini(firstStep?.t ?? trialValues[0] ?? 2, null, firstStep);
+      const mini = renderer.drawMini(
+        firstStep?.t ?? trialValues[0] ?? 2,
+        null,
+        firstStep,
+        frameLocalDefaults,
+      );
       need(typeof mini === "string" && mini.includes("<svg"), "drawMini(t) 应输出 <svg>");
     } catch (e) {
       errors.push("createSpecRenderer/diagramMarkupFor: " + e.message);

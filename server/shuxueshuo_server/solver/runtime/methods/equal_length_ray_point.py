@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
+
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
 
@@ -116,4 +118,42 @@ SPEC = MethodSpecSource(
     outputs={"point": "Point"},
     preconditions=("anchor 与 ray_point 必须确定一条非零射线方向",),
     postconditions=("输出点在指定射线所在直线上，且到 anchor 的距离等于 anchor-reference",),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="equal_length_ray_point/construct_point",
+        title_template="在射线上作等长点",
+        nav_title_template="作等长点",
+        goal_template="沿指定射线构造一点，使所得线段与参考线段等长。",
+        derive_templates=(
+            ("∵", "射线由 {anchor}、{ray_point} 确定，参考端点为 {reference_point}"),
+            ("作", "沿该射线截取与参考线段相等的长度"),
+            ("∴", "构造点为 {point}"),
+        ),
+        box_templates=("{point}",),
+        role_schema={
+            "anchor": "射线端点和两条等长线段的公共端点。",
+            "ray_point": "确定射线方向的点。",
+            "reference_point": "参考线段的另一个端点。",
+            "point": "构造所得点。",
+        },
+        role_binder_id="equal_length_ray_point",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "anchor": "射线端点。",
+            "ray_point": "射线方向点。",
+            "reference_point": "参考线段端点。",
+            "point": "等长构造点。",
+        },
+        scene_templates=(
+            {
+                "component": "EqualLengthRayPointMarker",
+                "anchor_role": "anchor",
+                "ray_role": "ray_point",
+                "reference_role": "reference_point",
+                "output_role": "point",
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
+    ),
 )

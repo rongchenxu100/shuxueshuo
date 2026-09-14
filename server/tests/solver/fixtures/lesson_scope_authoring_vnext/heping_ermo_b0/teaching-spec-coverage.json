@@ -1,0 +1,347 @@
+{
+  "schema_version": "lesson-teaching-spec-coverage/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "canonical_plan_hash": "9160942486db66fe06b1c29baa129047690fa8a0495e2da72b32dcbaec7add97",
+  "source_step_occurrence_count": 12,
+  "unique_capability_count": 9,
+  "function_capability_count": 8,
+  "macro_capability_count": 1,
+  "capabilities": [
+    {
+      "capability_id": "quadratic_from_constraints",
+      "kind": "function",
+      "occurrences": [
+        {
+          "step_id": "derive_parabola_i",
+          "owner_scope_ref": "i",
+          "owner_goal_ref": null,
+          "public_returns": [
+            "coefficients",
+            "parabola"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        },
+        {
+          "step_id": "derive_parametric_parabola_ii",
+          "owner_scope_ref": "ii",
+          "owner_goal_ref": "ii.E",
+          "public_returns": [
+            "coefficients",
+            "parabola"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        }
+      ],
+      "current": {
+        "legacy_explanation_source": "explicit",
+        "legacy_visual_source": "missing",
+        "evidence_projection": "projector_not_required_for_current_execution",
+        "evidence_schemas": []
+      },
+      "vnext_b1": {
+        "teaching_unit_contract": "not_implemented_in_b0",
+        "recommended_unit_source": "default_unit_candidate",
+        "suggested_unit_count": 1,
+        "actions": [
+          "default_unit_candidate"
+        ],
+        "gaps": [],
+        "observed_teaching_point_gaps": []
+      }
+    },
+    {
+      "capability_id": "quadratic_x_axis_intercept_point",
+      "kind": "function",
+      "occurrences": [
+        {
+          "step_id": "derive_x_intercept_A_i",
+          "owner_scope_ref": "i",
+          "owner_goal_ref": null,
+          "public_returns": [
+            "point"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        }
+      ],
+      "current": {
+        "legacy_explanation_source": "explicit",
+        "legacy_visual_source": "explicit",
+        "evidence_projection": "projector_not_required_for_current_execution",
+        "evidence_schemas": []
+      },
+      "vnext_b1": {
+        "teaching_unit_contract": "not_implemented_in_b0",
+        "recommended_unit_source": "default_unit_candidate",
+        "suggested_unit_count": 1,
+        "actions": [
+          "default_unit_candidate"
+        ],
+        "gaps": [],
+        "observed_teaching_point_gaps": []
+      }
+    },
+    {
+      "capability_id": "quadratic_vertex_point",
+      "kind": "function",
+      "occurrences": [
+        {
+          "step_id": "derive_vertex_P_i",
+          "owner_scope_ref": "i_1",
+          "owner_goal_ref": "i_1.P",
+          "public_returns": [
+            "point"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        }
+      ],
+      "current": {
+        "legacy_explanation_source": "explicit",
+        "legacy_visual_source": "explicit",
+        "evidence_projection": "projector_not_required_for_current_execution",
+        "evidence_schemas": []
+      },
+      "vnext_b1": {
+        "teaching_unit_contract": "not_implemented_in_b0",
+        "recommended_unit_source": "default_unit_candidate",
+        "suggested_unit_count": 1,
+        "actions": [
+          "default_unit_candidate"
+        ],
+        "gaps": [],
+        "observed_teaching_point_gaps": []
+      }
+    },
+    {
+      "capability_id": "quadratic_axis_parameterized_point",
+      "kind": "function",
+      "occurrences": [
+        {
+          "step_id": "parameterize_axis_point_E_i",
+          "owner_scope_ref": "i_2",
+          "owner_goal_ref": "i_2.E",
+          "public_returns": [
+            "point",
+            "parameter"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        }
+      ],
+      "current": {
+        "legacy_explanation_source": "explicit",
+        "legacy_visual_source": "explicit",
+        "evidence_projection": "projector_not_required_for_current_execution",
+        "evidence_schemas": []
+      },
+      "vnext_b1": {
+        "teaching_unit_contract": "not_implemented_in_b0",
+        "recommended_unit_source": "default_unit_candidate",
+        "suggested_unit_count": 1,
+        "actions": [
+          "default_unit_candidate"
+        ],
+        "gaps": [],
+        "observed_teaching_point_gaps": []
+      }
+    },
+    {
+      "capability_id": "square_adjacent_vertex_from_side",
+      "kind": "function",
+      "occurrences": [
+        {
+          "step_id": "derive_square_vertex_G_i",
+          "owner_scope_ref": "i_2",
+          "owner_goal_ref": "i_2.E",
+          "public_returns": [
+            "adjacent_vertex"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        },
+        {
+          "step_id": "recover_target_point_E_ii",
+          "owner_scope_ref": "ii",
+          "owner_goal_ref": "ii.E",
+          "public_returns": [
+            "adjacent_vertex"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        }
+      ],
+      "current": {
+        "legacy_explanation_source": "explicit",
+        "legacy_visual_source": "explicit",
+        "evidence_projection": "projector_not_required_for_current_execution",
+        "evidence_schemas": []
+      },
+      "vnext_b1": {
+        "teaching_unit_contract": "not_implemented_in_b0",
+        "recommended_unit_source": "default_unit_candidate",
+        "suggested_unit_count": 1,
+        "actions": [
+          "default_unit_candidate"
+        ],
+        "gaps": [],
+        "observed_teaching_point_gaps": []
+      }
+    },
+    {
+      "capability_id": "point_candidates_from_curve_point_condition",
+      "kind": "function",
+      "occurrences": [
+        {
+          "step_id": "solve_axis_point_candidates_i",
+          "owner_scope_ref": "i_2",
+          "owner_goal_ref": "i_2.E",
+          "public_returns": [
+            "candidates"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        }
+      ],
+      "current": {
+        "legacy_explanation_source": "explicit",
+        "legacy_visual_source": "explicit",
+        "evidence_projection": "projector_not_required_for_current_execution",
+        "evidence_schemas": []
+      },
+      "vnext_b1": {
+        "teaching_unit_contract": "not_implemented_in_b0",
+        "recommended_unit_source": "default_unit_candidate",
+        "suggested_unit_count": 1,
+        "actions": [
+          "default_unit_candidate"
+        ],
+        "gaps": [],
+        "observed_teaching_point_gaps": []
+      }
+    },
+    {
+      "capability_id": "quadratic_square_path_minimum",
+      "kind": "macro",
+      "occurrences": [
+        {
+          "step_id": "derive_path_minimum_ii",
+          "owner_scope_ref": "ii",
+          "owner_goal_ref": "ii.E",
+          "public_returns": [
+            "minimum_expression",
+            "attainment_point"
+          ],
+          "evidence_refs": [
+            "path-minimum:644da694928947b98dfe4b209448479a6b2d380e5683916692c11750c6bf1690"
+          ],
+          "evidence_schemas": [
+            "path-minimum-prompt-witness/v1"
+          ]
+        }
+      ],
+      "current": {
+        "legacy_explanation_source": "explicit",
+        "legacy_visual_source": "explicit",
+        "evidence_projection": "path_minimum_hardcoded_projector",
+        "evidence_schemas": [
+          "path-minimum-prompt-witness/v1"
+        ]
+      },
+      "vnext_b1": {
+        "teaching_unit_contract": "not_implemented_in_b0",
+        "recommended_unit_source": "explicit_units_required",
+        "suggested_unit_count": 2,
+        "actions": [
+          "explicit_units_required",
+          "evidence_projector_registry_required"
+        ],
+        "gaps": [
+          "explicit_teaching_units_missing",
+          "evidence_projector_registry_missing"
+        ],
+        "observed_teaching_point_gaps": [
+          "moving_point_locus",
+          "reflection_construction",
+          "reflection_segment_equality"
+        ]
+      }
+    },
+    {
+      "capability_id": "parameter_from_expression_value",
+      "kind": "function",
+      "occurrences": [
+        {
+          "step_id": "solve_parameter_c_ii",
+          "owner_scope_ref": "ii",
+          "owner_goal_ref": "ii.E",
+          "public_returns": [
+            "parameter_value"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        }
+      ],
+      "current": {
+        "legacy_explanation_source": "explicit",
+        "legacy_visual_source": "missing",
+        "evidence_projection": "projector_not_required_for_current_execution",
+        "evidence_schemas": []
+      },
+      "vnext_b1": {
+        "teaching_unit_contract": "not_implemented_in_b0",
+        "recommended_unit_source": "default_unit_candidate",
+        "suggested_unit_count": 1,
+        "actions": [
+          "default_unit_candidate"
+        ],
+        "gaps": [],
+        "observed_teaching_point_gaps": []
+      }
+    },
+    {
+      "capability_id": "evaluate_point_at_parameter",
+      "kind": "function",
+      "occurrences": [
+        {
+          "step_id": "evaluate_point_A_ii",
+          "owner_scope_ref": "ii",
+          "owner_goal_ref": "ii.E",
+          "public_returns": [
+            "evaluated_point"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        },
+        {
+          "step_id": "evaluate_minimum_point_G_ii",
+          "owner_scope_ref": "ii",
+          "owner_goal_ref": "ii.E",
+          "public_returns": [
+            "evaluated_point"
+          ],
+          "evidence_refs": [],
+          "evidence_schemas": []
+        }
+      ],
+      "current": {
+        "legacy_explanation_source": "explicit",
+        "legacy_visual_source": "explicit",
+        "evidence_projection": "projector_not_required_for_current_execution",
+        "evidence_schemas": []
+      },
+      "vnext_b1": {
+        "teaching_unit_contract": "not_implemented_in_b0",
+        "recommended_unit_source": "default_unit_candidate",
+        "suggested_unit_count": 1,
+        "actions": [
+          "default_unit_candidate"
+        ],
+        "gaps": [],
+        "observed_teaching_point_gaps": []
+      }
+    }
+  ]
+}

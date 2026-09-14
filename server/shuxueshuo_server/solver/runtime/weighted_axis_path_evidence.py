@@ -65,17 +65,34 @@ def build_weighted_axis_path_execution_witness(
         )
     )
     boundary_expression = evidence.get("boundary_minimum_expression")
+    weight = str(evidence["weight"])
+    triangle_geometry = evidence.get("triangle_geometry")
+    path_equivalence = evidence.get("path_equivalence")
+    if not isinstance(triangle_geometry, Mapping) or not isinstance(
+        path_equivalence,
+        Mapping,
+    ):
+        raise ValueError(
+            "planner.macro_contract_invalid: weighted-axis kernel omitted "
+            "its structural triangle or path-equivalence facts"
+        )
+    legal_domain = [
+        "题设路径含一个带权项和一个单位权重项，且共享同一个轴上动点",
+        f"取等条件：{evidence['attainment_condition']}",
+    ]
+    if boundary_expression is not None:
+        legal_domain.append(f"边界分支：{boundary_expression}")
+
     return PathMinimumWitness(
         step_id=compiled.call_id,
         macro_id="weighted_axis_path_minimum",
         original_objective=str(evidence["original_objective"]),
-        reduced_objective=str(evidence["reduced_objective"]),
+        reduced_objective=f"{weight}×（两段普通线段之和）",
         role_resolutions=report.role_resolutions,
         constructions=(
             {
                 "kind": "weighted_right_triangle",
-                "weight": str(evidence["weight"]),
-                "geometry_profile_id": str(evidence["geometry_profile_id"]),
+                "weight": weight,
                 "orientation_sign": int(evidence["orientation_sign"]),
                 "auxiliary_point_formula": list(
                     evidence["auxiliary_point_formula"]
@@ -84,24 +101,18 @@ def build_weighted_axis_path_execution_witness(
                 "auxiliary_locus_kind": str(
                     evidence["auxiliary_locus_kind"]
                 ),
+                "axis_projection_geometry": dict(
+                    evidence["axis_projection_geometry"]
+                ),
+                "triangle_geometry": dict(triangle_geometry),
+                "path_equivalence": dict(path_equivalence),
             },
         ),
-        equivalence_proof=tuple(
-            str(item) for item in evidence["equivalence_proof"]
+        equivalence_proof=(
+            "已验证的辅助直角三角形给出斜边与辅助直角边的倍率关系",
+            "按同一倍率把原目标化为两段普通线段之和",
         ),
-        legal_domain=(
-            "the typed path target has one supported weighted term and one unit term sharing one axis moving point",
-            (
-                "attainment condition: "
-                f"{evidence['attainment_condition']}"
-            ),
-            (
-                "boundary branch: "
-                f"{boundary_expression}"
-                if boundary_expression is not None
-                else "the interior equality state is valid throughout the parameter domain"
-            ),
-        ),
+        legal_domain=tuple(legal_domain),
         minimum_strategy=str(evidence["minimum_strategy"]),
         minimum_expression=str(evidence["minimum_expression"]),
         minimizing_points={

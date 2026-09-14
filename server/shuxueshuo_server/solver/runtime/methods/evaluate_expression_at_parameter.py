@@ -8,7 +8,9 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
     MethodOutputActivationSpec,
+    MethodVisualSpec,
     ScalarResultFormSpec,
+    TeachingUnitSpec,
 )
 
 from ._common import *
@@ -196,4 +198,38 @@ SPEC = MethodSpecSource(
     },
     preconditions=("expression 可以包含 parameter",),
     postconditions=("输出表达式不再含 parameter，且保持输入表达式的 runtime 语义类型",),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="evaluate_expression_at_parameter/substitute_parameter",
+        title_template="代入参数化简表达式",
+        nav_title_template="代入求值",
+        goal_template="将已求得的参数值代入当前表达式并化简。",
+        derive_templates=(
+            ("∵", "{parameter}＝{parameter_value}"),
+            ("计算", "代入 {expression}，化简得 {evaluated_result}"),
+            ("∴", "{evaluated_result}"),
+        ),
+        box_templates=("{evaluated_result}",),
+        role_schema={
+            "expression": "待代入的已验证表达式。",
+            "parameter": "待代入参数。",
+            "parameter_value": "参数的已验证取值。",
+            "evaluated_result": "代入并化简后的结果。",
+        },
+        role_binder_id="evaluate_expression_at_parameter",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "evaluated_parabola": "代入参数后得到的抛物线状态。",
+        },
+        scene_templates=(
+            {
+                "component": "EvaluatedParabolaMarker",
+                "when": {"output_present": "evaluated_parabola"},
+                "output_role": "evaluated_parabola",
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
+        continuation_policy="preserve_prior_path_scene",
+    ),
 )

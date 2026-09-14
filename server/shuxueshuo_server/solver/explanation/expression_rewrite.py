@@ -1,6 +1,10 @@
 """Student content and semantic visual spec from a verified Method trace only."""
 
+from __future__ import annotations
+
 from copy import deepcopy
+from dataclasses import dataclass
+from typing import Any
 
 LABELS = {
     "combine_fractions": "通分",
@@ -68,59 +72,114 @@ def build_rewrite_presentation(trace: dict) -> dict:
 
 
 class ExpressionRewriteRoleBinder:
-    def bind(self, *, method_id, explanation, group, snapshot):
-        traces = [
-            f
-            for t in group.traces
-            for f in t.trace_fragments
-            if f.get("kind") == "verified_expression_rewrite"
+    """Bind a verified rewrite trace into student-facing role slots."""
+
+    def bind(self, *, method_id, explanation, traces, snapshot=None):
+        del method_id, explanation, snapshot
+        rewrite_traces = [
+            fragment
+            for fragment in traces
+            if fragment.get("kind") == "verified_expression_rewrite"
         ]
-        if len(traces) != 1:
+        if len(rewrite_traces) != 1:
             raise ValueError("rewrite group must contain exactly one verified call")
-        trace = traces[0]
-        presentation = build_rewrite_presentation(trace)
+        presentation = build_rewrite_presentation(rewrite_traces[0])
         return {
-            "source": "\\(" + trace["source"]["latex"] + "\\)",
-            "result": "\\(" + trace["result"]["latex"] + "\\)",
+            "source": "\\(" + rewrite_traces[0]["source"]["latex"] + "\\)",
+            "result": "\\(" + rewrite_traces[0]["result"]["latex"] + "\\)",
             "derive_items": [" ".join(line) for line in presentation["derive"]],
         }
 
 
-def build_rewrite_lesson(snapshot, method_spec):
-    """Deterministic Method explanation through the existing role registry."""
-    from .models import LessonCandidateGroup, LessonIR, LessonSection, LessonStep
-    from .role_binders import RoleBinderRegistry
+@dataclass(frozen=True)
+class RewriteLessonStep:
+    id: str
+    scope_id: str
+    source_step_ids: tuple[str, ...]
+    capability_ids: tuple[str, ...]
+    trace_refs: tuple[str, ...]
+    title: str
+    goal: str
+    derive: tuple[tuple[str, str], ...]
+    box: tuple[str, ...]
 
-    if not snapshot.checks or not all(c.get("ok") for c in snapshot.checks):
-        raise ValueError("successful execution checks required")
-    if len(snapshot.teaching_trace) != 1 or len(snapshot.effective_steps) != 1:
-        raise ValueError("rewrite prefix expects one committed Method call")
-    entry = snapshot.teaching_trace[0]
-    group = LessonCandidateGroup(snapshot.effective_steps[0], (entry,))
-    roles = (
-        RoleBinderRegistry.default()
-        .require_method(method_spec.explanation.role_binder_id)
-        .bind(
-            method_id=method_spec.method_id,
-            explanation=method_spec.explanation,
-            group=group,
-            snapshot=snapshot,
-        )
+
+@dataclass(frozen=True)
+class RewriteLessonSection:
+    scope_id: str
+    title: str
+    step_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class RewriteLessonIR:
+    problem_id: str
+    family_id: str
+    sections: tuple[RewriteLessonSection, ...]
+    steps: tuple[RewriteLessonStep, ...]
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "problem_id": self.problem_id,
+            "family_id": self.family_id,
+            "sections": [
+                {
+                    "scope_id": section.scope_id,
+                    "title": section.title,
+                    "step_ids": list(section.step_ids),
+                }
+                for section in self.sections
+            ],
+            "steps": [
+                {
+                    "id": step.id,
+                    "scope_id": step.scope_id,
+                    "source_step_ids": list(step.source_step_ids),
+                    "capability_ids": list(step.capability_ids),
+                    "trace_refs": list(step.trace_refs),
+                    "title": step.title,
+                    "goal": step.goal,
+                    "derive": [list(line) for line in step.derive],
+                    "box": list(step.box),
+                }
+                for step in self.steps
+            ],
+        }
+
+
+def build_rewrite_lesson(
+    *,
+    problem_id: str,
+    family_id: str,
+    method_spec,
+    trace: dict,
+    source_step_id: str,
+    scope_id: str = "problem",
+    trace_id: str | None = None,
+) -> RewriteLessonIR:
+    """Deterministic rewrite explanation from a verified Method trace."""
+
+    binder = ExpressionRewriteRoleBinder()
+    roles = binder.bind(
+        method_id=method_spec.method_id,
+        explanation=method_spec.explanation,
+        traces=(trace,),
     )
-    step = LessonStep(
+    resolved_trace_id = trace_id or f"{source_step_id}:trace"
+    step = RewriteLessonStep(
         id="organize",
-        scope_id=entry.scope_id,
-        source_step_ids=(entry.source_step_id,),
-        capability_ids=(entry.capability_id,),
-        trace_refs=(entry.trace_id,),
+        scope_id=scope_id,
+        source_step_ids=(source_step_id,),
+        capability_ids=("organize_expressions",),
+        trace_refs=(resolved_trace_id,),
         title=method_spec.explanation.student_title_template,
         goal=method_spec.explanation.student_goal_template,
         derive=tuple(("", line) for line in roles["derive_items"]),
         box=(roles["result"],),
     )
-    return LessonIR(
-        snapshot.problem_id,
-        snapshot.family_id,
-        (LessonSection(entry.scope_id, "整理式子", (step.id,)),),
+    return RewriteLessonIR(
+        problem_id,
+        family_id,
+        (RewriteLessonSection(scope_id, "整理式子", (step.id,)),),
         (step,),
     )

@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-from ._spec import RecipeExplanationSpec, RecipeSpecSource, RecipeVisualSpec
+from shuxueshuo_server.solver.contracts import TeachingUnitSpec
+
+from ._spec import (
+    MacroTeachingSpec,
+    RecipeSpecSource,
+    RecipeVisualSpec,
+)
 
 
 SPEC = RecipeSpecSource(
@@ -21,35 +27,63 @@ SPEC = RecipeSpecSource(
         "minimum_expression": "MinimumExpression",
         "attainment_point": "Point",
     },
-    explanation=RecipeExplanationSpec(
-        role_schema={
-            "original_objective": "题设要求最小化的两动点路径。",
-            "reduced_objective": "用题设线段关系替换端点后的单动点路径。",
-            "moving_point": "端点替换后保留下来的原题动点。",
-            "attainment_point": "原路径取得最小值时该动点的位置。",
-            "minimum_strategy": "经过验证的折线拉直策略。",
-            "minimum_expression": "原路径的最小值表达式。",
-        },
-        student_title_template="先用线段关系替换端点，再求最短路径",
-        student_nav_title_template="耦合路径最值",
-        student_intent_template=(
-            "利用题设线段关系把两动点路径等价化为单动点路径，"
-            "再拉直折线，得到最小值和原题动点的取等位置。"
-        ),
-        proof_outline_templates=(
-            "由题设线段关系，把 {original_objective} 等价化为 {reduced_objective}。",
-            "确定 {moving_point} 的合法轨迹，并使用 {minimum_strategy} 拉直折线。",
-            "因此最小值为 {minimum_expression}，在 {attainment_point} 处取得。",
-        ),
-        recommended_lesson_splits=(
-            "证明原路径与单动点路径等价。",
-            "拉直路径并恢复原题动点的取等状态。",
-        ),
-        allowed_llm_completion=(
-            "可以把 verified evidence 中的等价关系改写为学生易读语言。",
-            "不得自造辅助点、路径等价关系、最小值或取等点。",
-        ),
-        role_binder_id="coupled_segment_path_minimum",
+    teaching=MacroTeachingSpec(
+        teaching_units=(
+            TeachingUnitSpec(
+                unit_key=(
+                    "coupled_segment_endpoint_replacement_path_minimum/"
+                    "endpoint_replacement"
+                ),
+                title_template="利用线段关系替换耦合端点",
+                nav_title_template="端点替换",
+                goal_template=(
+                    "由运行时验证的几何关系作垂足，证明垂直平分线，"
+                    "再把两动点路径等价化为单动点路径。"
+                ),
+                derive_templates=(
+                    ("∵", "{replacement_equality}"),
+                    ("∴", "{original_objective}＝{reduced_objective}"),
+                ),
+                box_templates=("{original_objective}＝{reduced_objective}",),
+                role_schema={
+                    "replacement_equality": (
+                        "由结构化几何证书证明的已有端点替换。"
+                    ),
+                    "original_objective": "题设两动点路径。",
+                    "reduced_objective": "替换后的单动点路径。",
+                },
+                role_binder_id="coupled_segment_path_minimum",
+            ),
+            TeachingUnitSpec(
+                unit_key=(
+                    "coupled_segment_endpoint_replacement_path_minimum/"
+                    "reflection_minimum"
+                ),
+                title_template="确定{moving_point}的轨迹并拉直折线",
+                nav_title_template="轨迹与最短路径",
+                goal_template="在保留动点的合法轨迹上拉直折线，求最小值和取等位置。",
+                derive_templates=(
+                    ("∵", "{moving_point} 的轨迹为 {moving_locus}"),
+                    ("作", "{reflection_construction}"),
+                    ("∴", "{straightened_path}"),
+                    ("∴", "最小值为 {minimum_expression}"),
+                    ("∴", "在 {attainment_point} 处取得"),
+                ),
+                box_templates=(
+                    "最小值为 {minimum_expression}",
+                    "取等点为 {attainment_point}",
+                ),
+                role_schema={
+                    "moving_point": "端点替换后保留下来的动点。",
+                    "moving_locus": "该动点的合法线段轨迹。",
+                    "reflection_construction": "verified evidence 中的反射构造。",
+                    "straightened_path": "反射后拉直的路径关系。",
+                    "minimum_expression": "路径最小值表达式。",
+                    "attainment_point": "原题动点的取等位置。",
+                },
+                role_binder_id="coupled_segment_path_minimum",
+            ),
+        )
     ),
     visual=RecipeVisualSpec(
         role_schema={
@@ -59,9 +93,25 @@ SPEC = RecipeSpecSource(
             "attainment_point": "最短状态下原题动点的位置。",
         },
         teaching_substep_templates={
-            "path_minimum": (
-                {"component": "EquivalentSegmentMarker"},
-                {"component": "AtomicPathMinimumMarker"},
+            "endpoint_replacement": (
+                {
+                    "component": "EquivalentSegmentMarker",
+                    "context_roles": ["input_curve"],
+                    "local_interaction": {
+                        "kind": "coupled_segment_motion",
+                    },
+                    "requires_independent_lesson_step": True,
+                },
+            ),
+            "reflection_minimum": (
+                {
+                    "component": "AtomicPathMinimumMarker",
+                    "context_roles": ["input_curve"],
+                    "local_interaction": {
+                        "kind": "coupled_segment_motion",
+                    },
+                    "requires_independent_lesson_step": True,
+                },
             ),
         },
         role_binder_id="generic_visual",

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from .functional_diagnostics import reference_visibility_details
+
 from collections import Counter
 from dataclasses import dataclass, field, replace
 import json
@@ -1539,6 +1541,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                             ref=value,
                             published_answer_sources=published_answer_sources,
                             scope_parents=scope_parents,
+                            path=f"{_arg_path(location, arg_name)}[{item_index}]",
                         )
                         _audit_return_role(
                             producer.step,
@@ -2008,6 +2011,7 @@ class ScopedFunctionalPlanAuthorityAdapter:
                             ref=value,
                             published_answer_sources=published_answer_sources,
                             scope_parents=scope_parents,
+                            path=f"{_arg_path(location, arg_name)}[{item_index}]",
                         )
                         dependencies[location.step.step_id].add(value.step_id)
                     else:
@@ -5663,29 +5667,35 @@ def _collect_independent_authority_issues(
                             if len(named_targets) == 1
                             else None
                         )
+                        named_state_visible = _scope_visible(producer.scope_id, location.scope_id, scope_parents) and (
+                            producer.goal_ref is None or producer.goal_ref == location.goal_ref
+                        )
+                        ownership = _reference_owner_details(producer, location)
                         add(
                             2,
                             location.scope_id,
                             location.step.step_id,
-                            "functional.named_entity_requires_source_ref",
+                            "functional.named_entity_requires_source_ref" if named_state_visible else "functional.step_scope_visibility_drift",
                             path,
                             (
                                 f"return {value.return_name!r} updates named "
                                 f"Entity {sorted(named_targets)!r}; use that "
                                 "Entity ref and let the Method view select "
                                 "its state"
-                            ),
+                            ) if named_state_visible else "Named producer state is not visible to this consumer. Changing reference syntax cannot repair its ownership.",
                             {
                                 "named_entity_refs": sorted(named_targets),
                                 "arg_name": arg_name,
                                 "expected_ref": expected_ref,
                                 "expected_object_ref": expected_ref,
-                                "producer": {
-                                    "step_id": value.step_id,
-                                    "return": value.return_name,
-                                },
+                                **ownership,
+                                "producer": {**ownership["producer"], "return": value.return_name},
+                                "expected": {"reference_form": "SourceRef", "producer_visibility": "visible"},
+                                "observed": {"reference_form": "StepResultRef", "producer_visibility": "visible" if named_state_visible else "not_visible"},
+
                                 "target": expected_ref,
-                                "repair_action": "use_named_entity_source_ref",
+                                "allowed_actions": ["use_named_entity_source_ref"] if named_state_visible else ownership["allowed_actions"],
+                                "repair_action": "use_named_entity_source_ref" if named_state_visible else "repair_input_binding",
                             },
                         )
                     argument = declared_args.get(arg_name)
@@ -5833,6 +5843,7 @@ def _collect_independent_authority_issues(
                                 "a cross-Goal StepResultRef must be the exact "
                                 "producer Goal answer_from and visible from the "
                                 "consumer Scope",
+                                _reference_owner_details(producer, location),
                             )
                     elif producer.goal_ref is None and not _scope_visible(
                         producer.scope_id,
@@ -5846,6 +5857,7 @@ def _collect_independent_authority_issues(
                             "functional.step_scope_visibility_drift",
                             path,
                             "step result crosses sibling or descendant scope authority",
+                            _reference_owner_details(producer, location),
                         )
                     continue
                 try:
@@ -5892,6 +5904,13 @@ def _collect_independent_authority_issues(
                             == "functional.step_scope_visibility_drift"
                             else f"unknown input SemanticRef {value!r}"
                         ),
+                        reference_visibility_details(
+                            producer={"ref": value, "kind": "source",
+                                      "owner_scope_refs": list(_input_ref_owner_scopes(binding_catalog, local_ref=value))},
+                            consumer={"step_id": location.step.step_id, "scope_ref": location.scope_id,
+                                      "goal_ref": location.goal_ref,
+                                      "kind": "scope_steps" if location.goal_ref is None else "goal_steps"},
+                        ) if code == "functional.step_scope_visibility_drift" else None,
                     )
                 elif answer_goal_ids:
                     capability = capability_catalog.get(
@@ -6126,7 +6145,9 @@ def _audit_explicit_dependency(
     ref: ScopedStepResultRef,
     published_answer_sources: Mapping[str, tuple[str, str]],
     scope_parents: Mapping[str, str | None],
+    path: str | None = None,
 ) -> None:
+    path = path or f"$.steps[{consumer.step.step_id!r}]"
     if producer.goal_ref is not None and producer.goal_ref != consumer.goal_ref:
         if not _goal_answer_dependency_valid(
             ref,
@@ -6137,9 +6158,10 @@ def _audit_explicit_dependency(
         ):
             raise _error(
                 "functional.step_scope_visibility_drift",
-                f"$.steps[{consumer.step.step_id!r}]",
+                path,
                 "a cross-Goal StepResultRef must be the exact producer Goal "
                 "answer_from and visible from the consumer Scope",
+                details=_reference_owner_details(producer, consumer),
             )
     if producer.goal_ref is None and not _scope_visible(
         producer.scope_id,
@@ -6148,9 +6170,19 @@ def _audit_explicit_dependency(
     ):
         raise _error(
             "functional.step_scope_visibility_drift",
-            f"$.steps[{consumer.step.step_id!r}]",
+            path,
             "step result crosses sibling or descendant scope authority",
+            details=_reference_owner_details(producer, consumer),
         )
+
+
+def _reference_owner_details(producer: _StepLocation, consumer: _StepLocation) -> dict[str, Any]:
+    def owner(item):
+        return {"step_id": item.step.step_id, "scope_ref": item.scope_id,
+                "goal_ref": item.goal_ref,
+                "kind": "scope_steps" if item.goal_ref is None else "goal_steps"}
+    return {"capability_id": consumer.step.capability_id,
+            **reference_visibility_details(producer=owner(producer), consumer=owner(consumer))}
 
 
 def _audit_answer_producer_visibility(
@@ -6160,11 +6192,18 @@ def _audit_answer_producer_visibility(
     goal_ref: str,
     scope_parents: Mapping[str, str | None],
 ) -> None:
+    details = reference_visibility_details(
+        producer={"step_id": producer.step.step_id, "scope_ref": producer.scope_id,
+                  "goal_ref": producer.goal_ref,
+                  "kind": "scope_steps" if producer.goal_ref is None else "goal_steps"},
+        consumer={"scope_ref": goal_scope_id, "goal_ref": goal_ref, "kind": "answer_from"},
+    )
     if producer.goal_ref is not None and producer.goal_ref != goal_ref:
         raise _error(
             "functional.answer_producer_invalid",
             f"$.goals[{goal_ref!r}].answer_from",
             "Goal cannot use another Goal's private step as answer producer",
+            details=details,
         )
     if producer.goal_ref is None and not _scope_visible(
         producer.scope_id,
@@ -6175,6 +6214,7 @@ def _audit_answer_producer_visibility(
             "functional.answer_producer_invalid",
             f"$.goals[{goal_ref!r}].answer_from",
             "answer producer is outside the Goal's visible scope path",
+            details=details,
         )
 
 
@@ -6229,6 +6269,11 @@ def _input_binding(
                 if exists_elsewhere
                 else f"unknown input SemanticRef {semantic_ref!r}"
             ),
+            details=reference_visibility_details(
+                producer={"ref": semantic_ref, "kind": "source",
+                          "owner_scope_refs": list(_input_ref_owner_scopes(catalog, local_ref=semantic_ref))},
+                consumer={"scope_ref": scope_id},
+            ) if exists_elsewhere else None,
         )
     return binding
 

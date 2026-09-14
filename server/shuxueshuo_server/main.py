@@ -1,4 +1,4 @@
-"""FastAPI：微信 JS-SDK 签名接口。"""
+"""FastAPI：微信 JS-SDK 签名与独立本机 Review 接口。"""
 
 from __future__ import annotations
 
@@ -25,7 +25,13 @@ def _require_env(name: str) -> str:
     return v
 
 
-app = FastAPI(title="数学说 API", version="0.1.0")
+if os.environ.get('REVIEW_BACKEND', 'product') == 'legacy':
+    from shuxueshuo_server.review.api import router as review_router
+    app = FastAPI(title="数学说 API（legacy Review）", version="0.1.0")
+    app.include_router(review_router)
+else:
+    from shuxueshuo_server.product.api import create_app
+    app = create_app()
 
 _signer: WeChatJsSdkSigner | None = None
 

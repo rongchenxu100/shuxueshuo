@@ -1,43 +1,57 @@
-"""VisualStepIR VS0/VS1 compilation helpers."""
+"""Recursive VisualStepIR v2 authoring and compilation helpers."""
 
-from .builder import BaseSceneBuilder, GeneratedVisualBase, GeometrySpecBuilder, VisualAuthoringBase, VisualStepBuilder
 from .animation import AnimationTimelineBuilder
-from .compiler import CompiledVisualArtifacts, forward_compile, reverse_compile
-from .llm import LLMVisualStepOptimizer, write_visual_optimization_debug_artifacts
-from .models import JsonObject, VisualStep, VisualStepIR
+from .builder import GeneratedVisualBase, GeometrySpecBuilder, VisualStepBuilder
+from .compiler import CompiledVisualArtifacts, forward_compile
+from .models import (
+    JsonObject,
+    VisualFrame,
+    VisualGoal,
+    VisualObject,
+    VisualScope,
+    VisualStep,
+    VisualStepIR,
+    VisualTraversalIndex,
+    visual_step_ir_from_payload,
+)
 from .parametric import ParametricExpressionResolver
+from .recursive_state import (
+    BranchVisualState,
+    RecursiveVisualStateResolver,
+    RecursiveVisualStateResult,
+    VisualStepResolution,
+)
 from .registry import (
     ComponentTypeSpec,
     ComponentTypeSpecRegistry,
-    LayerRegistry,
     default_component_registry,
-    default_layer_registry,
 )
-from .scene_accumulator import resolved_steps_with_carry_forward
 from .validator import VisualStepIRValidationError, VisualStepIRValidator
 
 __all__ = [
     "CompiledVisualArtifacts",
     "ComponentTypeSpec",
     "ComponentTypeSpecRegistry",
-    "BaseSceneBuilder",
     "AnimationTimelineBuilder",
+    "BranchVisualState",
     "GeneratedVisualBase",
     "GeometrySpecBuilder",
     "JsonObject",
-    "LayerRegistry",
-    "LLMVisualStepOptimizer",
     "ParametricExpressionResolver",
-    "VisualAuthoringBase",
+    "RecursiveVisualStateResolver",
+    "RecursiveVisualStateResult",
+    "VisualFrame",
+    "VisualGoal",
+    "VisualObject",
+    "VisualScope",
     "VisualStep",
     "VisualStepBuilder",
     "VisualStepIR",
     "VisualStepIRValidationError",
     "VisualStepIRValidator",
+    "VisualStepResolution",
+    "VisualTraversalIndex",
     "default_component_registry",
-    "default_layer_registry",
     "forward_compile",
-    "reverse_compile",
-    "resolved_steps_with_carry_forward",
-    "write_visual_optimization_debug_artifacts",
+    "visual_step_ir_from_payload",
 ]

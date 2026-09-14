@@ -3,7 +3,7 @@
   "$id": "https://shuxueshuo.local/schemas/step-decorations.schema.json",
   "title": "StepDecorations",
   "type": "object",
-  "required": ["layers", "steps"],
+  "required": ["steps"],
   "properties": {
     "$schema": { "type": "string" },
     "_comment": { "type": "string" },
@@ -42,6 +42,14 @@
     "stepDecoration": {
       "type": "object",
       "properties": {
+        "visualMode": {
+          "type": "string",
+          "enum": ["scene", "retain", "none"]
+        },
+        "visualFrames": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/visualFrame" }
+        },
         "domain": { "$ref": "#/$defs/domain" },
         "pointOverrides": {
           "type": "object",
@@ -50,6 +58,13 @@
             "minItems": 2,
             "maxItems": 2,
             "items": { "$ref": "#/$defs/stringOrNumber" }
+          }
+        },
+        "curveOverrides": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": true
           }
         },
         "hideLayers": {
@@ -69,6 +84,80 @@
         "add": {
           "type": "array",
           "items": { "$ref": "#/$defs/decoration" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "visualFrame": {
+      "type": "object",
+      "required": ["id", "caption", "teachingUnitKeys", "domain", "add"],
+      "properties": {
+        "id": { "type": "string" },
+        "caption": { "type": "string" },
+        "teachingUnitKeys": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "domain": { "$ref": "#/$defs/domain" },
+        "localValues": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/stringOrNumber" }
+        },
+        "add": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/decoration" }
+        },
+        "pointOverrides": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": { "$ref": "#/$defs/stringOrNumber" }
+          }
+        },
+        "curveOverrides": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "parameterLandmarks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/parameterLandmark" }
+        },
+        "animation": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": false
+    },
+    "parameterLandmark": {
+      "type": "object",
+      "required": [
+        "parameter",
+        "value",
+        "exactValue",
+        "display",
+        "epsilon",
+        "candidateGeometryRefs",
+        "highlightGeometryRefs"
+      ],
+      "properties": {
+        "parameter": { "type": "string" },
+        "value": { "type": "number" },
+        "exactValue": { "type": "string" },
+        "display": { "type": "string" },
+        "epsilon": { "type": "number", "exclusiveMinimum": 0 },
+        "candidateGeometryRefs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "highlightGeometryRefs": {
+          "type": "array",
+          "items": { "type": "string" }
         }
       },
       "additionalProperties": false
@@ -182,6 +271,7 @@
         "text": { "type": "string" },
         "color": { "type": "string" },
         "fill": { "type": "string" },
+        "opacity": { "$ref": "#/$defs/number" },
         "originColor": { "type": "string" },
         "style": { "type": "string" },
         "kind": { "type": "string" },

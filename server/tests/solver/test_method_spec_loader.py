@@ -269,8 +269,8 @@ def test_loads_atomic_weighted_path_kernel_spec() -> None:
     assert "parameter_value" not in minimum.outputs
     assert parameter.inputs["expression"].type == "MinimumExpression"
     assert parameter.outputs["parameter_value"] == "ParameterValue"
-    assert parameter.explanation is not None
-    assert parameter.explanation.student_title_template == "由表达式取值反求参数"
+    assert parameter.teaching_unit is not None
+    assert parameter.teaching_unit.title_template == "由表达式取值反求参数"
 
 
 def test_method_spec_internal_outputs_must_reference_declared_outputs() -> None:
@@ -413,18 +413,34 @@ def test_generated_json_specs_match_code_source() -> None:
     assert actual == expected
 
 
-def test_weighted_geometry_profiles_are_code_owned_by_atomic_kernel() -> None:
+def test_familiar_weighted_geometry_profiles_are_teaching_only() -> None:
+    from shuxueshuo_server.solver.explanation.weighted_axis_teaching_profiles import (
+        WEIGHTED_AXIS_TEACHING_PROFILES,
+        select_weighted_axis_teaching_profile,
+    )
     from shuxueshuo_server.solver.runtime.weighted_triangle_geometry import (
-        WEIGHTED_TRIANGLE_GEOMETRY_PROFILES,
+        weighted_triangle_geometry_for_weight,
     )
 
     assert {
         profile.profile_id
-        for profile in WEIGHTED_TRIANGLE_GEOMETRY_PROFILES
+        for profile in WEIGHTED_AXIS_TEACHING_PROFILES
     } == {
-        "sqrt2_right_isosceles",
-        "weight2_30_60",
+        "right_isosceles_45",
+        "right_triangle_30_60",
     }
+    assert weighted_triangle_geometry_for_weight(3).weight == 3
+    assert (
+        select_weighted_axis_teaching_profile(
+            weight=weighted_triangle_geometry_for_weight(3).weight,
+            geometry={
+                "projection_triangle_relation": {
+                    "kind": "pythagorean"
+                }
+            },
+        )
+        is None
+    )
 
 
 def test_evaluate_point_has_no_retired_path_trial_hint() -> None:
@@ -455,19 +471,19 @@ def test_trial_error_hint_rejects_non_boolean_predicate() -> None:
         parse_method_spec(malformed)
 
 
-def test_method_explanation_placeholders_are_declared_roles() -> None:
+def test_method_teaching_placeholders_are_declared_roles() -> None:
     registry = MethodSpecRegistry.load_from_code()
 
     for spec in registry.specs.values():
-        explanation = spec.explanation
-        if explanation is None:
+        teaching = spec.teaching_unit
+        if teaching is None:
             continue
         templates = (
-            explanation.student_goal_template,
-            explanation.student_title_template,
-            explanation.student_nav_title_template,
-            *explanation.derive_templates,
-            *explanation.box_templates,
+            teaching.goal_template,
+            teaching.title_template,
+            teaching.nav_title_template,
+            *(template for _, template in teaching.derive_templates),
+            *teaching.box_templates,
         )
         placeholders = {
             match
@@ -475,12 +491,12 @@ def test_method_explanation_placeholders_are_declared_roles() -> None:
             for match in PLACEHOLDER_RE.findall(template)
         }
 
-        assert placeholders <= set(explanation.role_schema), spec.method_id
+        assert placeholders <= set(teaching.role_schema), spec.method_id
 
 
 def test_method_role_schema_descriptions_are_student_facing_chinese() -> None:
     for payload in method_spec_payloads():
-        for section in ("explanation", "visual"):
+        for section in ("teaching_unit", "visual"):
             role_schema = (payload.get(section) or {}).get("role_schema") or {}
             for role_id, description in role_schema.items():
                 assert ENGLISH_WORD_RE.search(str(description)) is None, (
@@ -504,7 +520,7 @@ def test_curve_point_candidate_visual_spec_is_not_square_bound() -> None:
     ]
 
 
-def test_empty_student_nav_title_template_is_omitted_from_generated_json() -> None:
+def test_teaching_nav_title_template_is_nonempty_in_generated_json() -> None:
     generated = {
         payload["method_id"]: payload
         for payload in method_spec_payloads()
@@ -518,26 +534,44 @@ def test_empty_student_nav_title_template_is_omitted_from_generated_json() -> No
     }
 
     for method_id, payload in generated.items():
-        explanation = payload.get("explanation")
-        if not isinstance(explanation, dict):
+        teaching = payload.get("teaching_unit")
+        if not isinstance(teaching, dict):
             continue
-        assert explanation.get("student_nav_title_template") != "", method_id
-        assert raw_specs[method_id].get("explanation", {}).get("student_nav_title_template") != "", method_id
+        assert teaching.get("nav_title_template") != "", method_id
+        assert raw_specs[method_id].get("teaching_unit", {}).get(
+            "nav_title_template"
+        ) != "", method_id
 
 
-def test_recipe_proof_outline_placeholders_are_declared_roles() -> None:
+def test_recipe_teaching_placeholders_are_declared_roles() -> None:
     registry = RecipeSpecRegistry.load_from_code()
 
     for spec in registry.specs.values():
-        explanation = spec.explanation
-        if explanation is None:
+        teaching = spec.teaching
+        if teaching is None:
             continue
-        placeholders = {
-            match
-            for template in explanation.proof_outline_templates
-            for match in PLACEHOLDER_RE.findall(template)
-        }
-        assert placeholders <= set(explanation.role_schema), spec.recipe_id
+        units = teaching.teaching_units or tuple(
+            unit
+            for variant in teaching.teaching_variants
+            for unit in variant.teaching_units
+        )
+        for unit in units:
+            templates = (
+                unit.goal_template,
+                unit.title_template,
+                unit.nav_title_template,
+                *(template for _, template in unit.derive_templates),
+                *unit.box_templates,
+            )
+            placeholders = {
+                match
+                for template in templates
+                for match in PLACEHOLDER_RE.findall(template)
+            }
+            assert placeholders <= set(unit.role_schema), (
+                spec.recipe_id,
+                unit.unit_key,
+            )
 
 
 def test_rejects_missing_required_field() -> None:

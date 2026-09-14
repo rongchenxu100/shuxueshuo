@@ -73,18 +73,52 @@
   "postconditions": [
     "输出点横坐标为 0 且在曲线上；若输入含参数，输出坐标保留参数表达式"
   ],
-  "explanation": {
+  "teaching_unit": {
+    "unit_key": "quadratic_y_axis_intercept_point/solve_intercept",
+    "title_template": "求抛物线与 y 轴交点",
+    "nav_title_template": "求 y 轴交点",
+    "goal_template": "令 x＝0，求抛物线与 y 轴的交点。",
+    "derive_templates": [
+      [
+        "∵",
+        "y 轴上的点满足 x＝0"
+      ],
+      [
+        "计算",
+        "把 x＝0 代入 {quadratic}"
+      ],
+      [
+        "∴",
+        "{point}"
+      ]
+    ],
+    "box_templates": [
+      "{point}"
+    ],
     "role_schema": {
-      "parabola": "当前抛物线解析式。",
-      "target_point": "抛物线与 y 轴的交点。"
+      "quadratic": "当前二次函数表达式。",
+      "point": "求得的 y 轴交点。"
     },
-    "student_goal_template": "令 x=0，求抛物线与 y 轴的交点。",
-    "student_title_template": "求抛物线与 y 轴交点",
-    "student_title_templates_by_goal": {},
-    "derive_templates": [],
-    "box_templates": [],
-    "explanation_level": "template",
-    "role_binding_strategy": "role_name_registry",
-    "role_binder_id": "generic_trace"
+    "role_binder_id": "quadratic_y_axis_intercept_point"
+  },
+  "visual": {
+    "role_schema": {
+      "quadratic": "当前抛物线。",
+      "point": "与 y 轴的交点。"
+    },
+    "scene_templates": [
+      {
+        "component": "QuadraticYAxisInterceptMarker",
+        "input_curve_role": "quadratic",
+        "output_role": "point",
+        "context_roles": [
+          "input_curve"
+        ],
+        "persistence": "carry_forward"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "generic_visual"
   }
 }

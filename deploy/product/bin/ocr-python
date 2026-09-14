@@ -1,0 +1,27 @@
+#!/bin/bash
+# DEPRECATED for product server: use compose service `ocr` + PRODUCT_OCR_URL instead.
+# Kept for emergency host smoke that still wants one-shot nested docker runs.
+# In-container OCR entrypoint. Docker daemon interprets -v paths on the host.
+# Must mount the product data root so observation can read/write work/*/.
+# Run as the product UID so nested writes match worker-owned directories.
+set -euo pipefail
+REPO="${SHUXUESHUO_REPO:?SHUXUESHUO_REPO (host repo path) required}"
+HOST_HOME="${SHUXUESHUO_HOST_HOME:?SHUXUESHUO_HOST_HOME required}"
+DATA_DIR="${SHUXUESHUO_HOST_DATA_DIR:-/srv/shuxueshuo}"
+IMAGE="${SHUXUESHUO_OCR_IMAGE:-shuxueshuo-ocr:3.3.0}"
+OCR_UID="${SHUXUESHUO_OCR_UID:-1000}"
+OCR_GID="${SHUXUESHUO_OCR_GID:-1000}"
+mkdir -p "${HOST_HOME}/.paddlex" 2>/dev/null || true
+exec docker run --rm \
+  --user "${OCR_UID}:${OCR_GID}" \
+  -v "${REPO}:/opt/shuxueshuo:ro" \
+  -v "${HOST_HOME}/.paddlex:/tmp/.paddlex" \
+  -v "${DATA_DIR}:/var/lib/shuxueshuo" \
+  -w /opt/shuxueshuo/server \
+  -e HOME=/tmp \
+  -e PADDLE_PDX_MODEL_SOURCE=bos \
+  -e PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True \
+  -e OMP_NUM_THREADS=1 \
+  -e PYTHONPATH=/opt/shuxueshuo/server \
+  "${IMAGE}" \
+  python "$@"

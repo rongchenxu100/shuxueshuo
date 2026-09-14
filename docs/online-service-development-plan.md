@@ -1,162 +1,136 @@
 # 在线服务开发计划
 
-## 1. 目标
+更新：2026-09-11。当前目标：**一期选图上传单题，中栏突出解析网页，右栏展示真实生成进度；无网页时隐藏中栏**。
+最新首版范围见[工作台首版设计](workspace-product-design.md)：批量管理、修订、审阅、网站、专题和发布入口暂不纳入工作台交付；下文相关扩展保留供后续讨论。
+本文只维护待实施工作、顺序与验收；稳定设计统一见
+[产品服务架构](product-service-architecture.md)，总体状态见[路线图](functional-planner-next-stage-roadmap.md)。
 
-在线服务围绕可版本化的数学教学对象图构建：
+## 1. 当前基线
 
-```text
-题目来源
-→ ExtractionContext / ProblemIR
-→ Solver / PlannerStateContext
-→ ExplanationContext / LessonIR
-→ Diagram / Voiceover / Animation Context
-→ LessonPageContext
-→ 作者与学生交互
-```
+- Solver、教学证据、学生讲解、确定性视觉和页面编译已有真实执行链。
+- G3-A/B 已在 Review 完成真实上传、阶段重跑、题意 JSON 修订、依赖失效判断与版本一致重建。
+- 旧 Review 的 SQLite 与本机产物保留原处；当前 Review 已连接产品任务服务，历史文件不迁移。
+- 工作台默认已连接真实产品上传、构建快照和事件接口；Mock 仅在显式开发模式启用。
+- PostgreSQL/SQLAlchemy/Alembic 与 P1 存储、事务及管理工具已实现并独立完成本地验收；服务器 Docker 完整验收尚待完成。
+- RabbitMQ、Celery、产品 WebSocket 及 Review/API/Worker 持久化接线已在本地运行；完整验收状态见 [P2 验收记录](product-p2-acceptance.md)。
+- 现有能力与验收证据见[Review 重建说明](review-rebuild-g3-b.md)；历史通过不替代新架构验收。
 
-网页不是事实源；它由结构化 Context 和 artifacts 编译而来。
+## 2. 本轮范围
 
-F/G 首先实现并验证完整冷路径；最终课程页缓存、分层复用和并发构建去重在端到端事实链稳定后由 Track E实现。
+- 用户拍照或选择完整单题图片上传，查看生成进度并打开解析网页；一期以这条真实链路为产品交付目标。
+- 产品共用任务、题目修订、产物与事件服务，Review 和工作台均通过 API 使用。
+- PostgreSQL + SQLAlchemy/Alembic、RabbitMQ + Celery、HTTP + WebSocket。
+- 多张完整单题截图批量上传、状态列表、失败题单独重试、页面审阅与人工通过记录。
+- DeepSeek 多模态提取适配与对照验证；提取、求解、讲解分别配置模型。
+- 有界 Plan 多候选作为可选模式，不阻塞工作台开始真实生产。
+- 首版固定工作空间，无用户登录；部署于本机或受限内部环境。
 
-## 2. 责任边界
+## 3. 本轮不包含
 
-LLM 负责：
+官方题库与发布授权、知识图谱建设、题目对话、学生掌握模型和个性化推荐均为后续产品阶段。
+向量搜索暂不实现：不安装 pgvector、不生成 embedding、不建向量索引或检索服务；一期重复题匹配仅使用文件 SHA256。
+本轮还不包含整卷 PDF 自动切题、学生账户与完整 Tutor、公开发布流程、跨题缓存、新动画、配音。
+G1 LLM 视觉选择保持可选；C1 teaching-only 5×3 是独立质量专项，不作为接线前置条件。
+不新建 Review 专属队列，不自行实现数据库消息队列，不默认每题运行三个 Plan。
 
--题目语义抽取与歧义标注；
-- FunctionalPlan 能力选择；
--讲解、视觉和交互意图；
--作者 patch 和学生回答的结构化候选。
+## 4. 生成与重建边界
 
-代码负责：
+复用 source → observation → extraction → projection → solver → evidence → lesson → visual → page
+九阶段链作为当前首个流水线定义，首版一项 Celery 任务执行一个构建。每次构建冻结 pipeline key/version、
+阶段/合同/依赖及完成规则；阶段输入、manifest 和恢复校验继续由领域代码负责。
+增删或修改阶段产生新定义，旧构建按自己的快照展示和判断完成；不将数据库字段约束为固定九阶段。
+首版按阶段整块重建，保留现有 Scope retry 的保守整块替换，不拼接零散失效步骤。
+重建按依赖计算失效范围，顺序后缀可以保守扩大；被删除的起点必须重新预览，不能按序号映射。
+旧构建只由兼容 Worker 按旧定义恢复；新定义使用独立子构建，跨版本复用须验证阶段合同、指纹及恢复证据。
 
-- identity、scope、version 和 dependency；
-- method 执行与验算；
-- Context、artifact 和发布版本；
-- schema validation、局部编译和失效传播；
--权限、任务、日志和可观测性。
+保存题意修订不启动模型；用户预览影响并提交有效计划后才执行。旧运行及产物保持不可变。
+相关依赖变化、缺少恢复证据、旧任务晚完成与页面有效性规则，迁移时全部保留。
+生产任务固定部署版本和有效配置；本地修改代码的依赖探测仍服务于 Review 开发流程。
 
-## 3. 核心对象
+## 5. 空库初始化与结构升级
 
-- `ProblemSource / ExtractionContext`：原始文本、图片、evidence 和抽取状态；
-- `ProblemIR`：canonical 数学题意；
-- `PlannerStateContext`：verified calls、versions、checkpoint 和 retry；
-- `ExplanationContext / LessonIR`：教学结构；
-- `DiagramContext / VisualStepIR`：视觉场景；
-- `VoiceoverContext / AnimationContext`：音频与时间线；
-- `LessonPageContext`：发布资产聚合；
-- `ArtifactPatch`：作者持久修改；
-- `TutorContext`：学生会话的受限 projection；
-- `GapRecord`：当前能力无法处理的结构化缺口。
+建立全新的产品数据库，不迁移现有 SQLite 记录或旧产物。首次只初始化一个默认用户 `internal`、
+一个默认工作空间 `default` 和一条 owner 成员关系，其余业务表为空；所有使用者首版共用该固定上下文。
+种子初始化可重复执行，保留已有 ID、配置和新业务数据，不把重复安装当作清空数据库。
+Alembic 继续负责建表及未来结构升级，种子由独立管理命令创建；不实现历史导入器。
+P2 切换统一入口后只接受新请求，旧 worker 完成停用交接，旧库和文件保留原处，不建立双写权威。
+详细字段与种子规则见[产品数据库设计](product-database-design.md)，存储职责见[产品服务架构](product-service-architecture.md)。
 
-## 4. 服务模块
+## 6. 队列与恢复
 
-```text
-Source service
-Extraction worker
-Solver worker
-Lesson compiler
-Artifact store
-Version/publish service
-Tutor service
-Job/event service
-Observability and gap queue
-```
+复用 RabbitMQ 的持久化、确认与重投递，Celery 的 Worker 和任务执行机制。
+业务层保留事务发件箱、请求幂等、执行权与旧执行隔离、阶段恢复及最终页面指针事务。
+传输重试、模型语义修复、任务重投递分别计数与限制；取消与永久失败有终态，不无限重排。
+任务、阶段事件先持久化，再通知页面；WebSocket 断开不取消后台构建。
 
-耗时工作统一使用异步 Job；前端通过 SSE/event stream 获取阶段进度。
+## 7. 工作台闭环
 
-## 5. 构建与可观测性
+首版：选择完整单题图片 → 上传并生成 → 查看阶段状态 → 中栏查看真实解析网页、右栏保留进度，无需发布。左栏保留真实题目列表，重复图片引用已有题目。详见[工作台首版设计](workspace-product-design.md)。
 
-F/G 阶段的构建每次从 source运行到最终页面：
+以下批量、修订和审查交互留待后续讨论，不作为当前首版退出条件：
+单题与批量共用同一服务，批量入口不替代单题拍照上传体验的验收。
+失败可定位到阶段，并只重试所选失败题；一题失败不阻塞整批。
+题意修改使用已有正式校验与 promotion，重建先展示影响；教学/视觉/CSS 继续在仓库修改。
+人工通过绑定修订与构建版本；新构建不会继承旧版本的通过状态。保留带版本标签的历史预览。
 
-```text
-source
-  -> extraction
-  -> solver
-  -> lesson Contexts
-  -> render
-  -> complete quality gate
-```
+## 8. 模型接入与预算
 
-- 每阶段记录 latency、token、外部模型调用次数、retry、artifact大小和失败authority。
-- Context和artifact记录source、contract version与dependency hash，但本阶段不据此跳过任何阶段。
-- 只有通过extraction、answer、runtime、provenance、explanation、visual、animation和页面门禁的artifact可以成为E的缓存候选。
-- 冷路径稳定和指标完整是启动缓存与Best-of-N的前置条件。
+解除提取器对豆包单一型号的硬绑定，增加可配置 DeepSeek 多模态 provider；保留 OCR、
+现有 Schema、数学合同、Bundle loader 和审计。用相同五题原图与豆包基线对照，通过后切默认。
+截至 2026-09-10 官方推荐 deepseek-flash（V4.1-Flash）；实施时核对实际 endpoint 的模型映射。
+模型别名不是固定版本证据；记录请求型号、实际返回型号、provider 版本信息（如提供）及配置版本。
+若供应商不提供固定版本，明确可追溯性限制，不补造版本号。详见架构文档的官方来源。
 
-Track E再实现最终`LessonArtifactBundle`缓存、相同key并发build去重、分层缓存与DAG最小失效。缓存命中直接返回页面；冷启动单候选失败或证据不足时才触发Best-of-N。
+Plan Pass 1 和语义重试继续 low thinking，学生讲解继续 disabled；提取 thinking 单独验证和配置。
+图片只进入提取边界，不因此扩大 Plan 上下文；不无条件提高 token 限额。
+提供批次、任务和 provider 的调用预算、并发限制、耗时与 token 记录；未来实时问答单独分配资源。
 
-## 6. 版本与依赖
+## 9. 可选 Plan 多候选
 
-- Context 和 artifact 均不可原地修改；
--新版本引用 parent 和 dependency hashes；
--上游变化只失效受影响的下游资产；
--发布版本固定引用完整 dependency closure；
--作者 patch 经过 validator 后生成新版本；
--学生临时互动不修改发布事实。
+默认 N=1；新增有界 N=2/3 的质量对照或失败救援模式。候选拥有独立 Plan、执行证据和检查点，
+完整校验后只选择一个进入教学及下游。不合并候选状态，不互塞完整候选上下文。
+先按数学正确性、authority 和目标完成度筛选，再依据可解释的教学结构指标排序。
+明确“首个通过即停”与“验证全部后选优”的不同语义；限制总尝试和总成本，不将 N 与 retry 无界相乘。
+无通过候选时失败，有答案冲突时保留诊断；不按答案投票。比较 N=1 与 N=3 的实际收益后再决定默认策略。
 
-## 7. 作者工作流
+## 10. 后续扩展边界
 
-```text
-上传题目
-→ 抽取/确认 ProblemIR
-→ 求解与讲解生成
-→ 页面预览
-→ 提交结构化 patch
-→ 局部重建
-→ 发布
-```
+产品顺序固定为：一期拍照解析 → 二期官方题库 → 三期题目对话 → 四期个人知识掌握图谱与推荐闭环，见[系统路线图](functional-planner-next-stage-roadmap.md)。
+官方题库和知识图谱采用已讨论的[后续架构方向](product-service-architecture.md#61-后续产品版本的职责)，不要求一期创建相关业务表。
+四期基于学生围绕自己上传题目和官方题目的对话交互建立个人知识掌握图谱，每次交互后评估并更新，
+再基于该图谱推荐题目和专项练习；两类题目的证据汇入同一学生的图谱，不只面向官方题库或仅在会话结束时更新。
 
-作者可修改题意识别、对象、讲解粒度、视觉和文案；不能直接编辑 runtime identity、裸答案或任意 HTML/JS。
-
-## 8. 学生工作流
-
-```text
-打开发布 Lesson
-→ 浏览步骤和交互
-→ TutorContext 回答当前问题
-→ 临时高亮/动画/提示
-```
-
-学生对话只读取发布 facts 和当前 UI state，不产生持久数学事实。
-
-## 9. Gap 流程
-
-无法处理的样本生成 GapRecord：
-
--失败 authority stage；
--最小输入与 evidence；
--缺失 capability/schema/visual action；
--相关 Context/artifact ids；
--是否可重试；
--匿名化回归 fixture。
-
-Gap 应进入离线能力建设，而不是在线注入单题代码。
-
-## 10. API 与前端
-
-API 至少覆盖 source、problem、lesson、scene、timeline、tutor session 和 job。具体 contract 见：
-
-- `docs/frontend-parallel-development-with-mock-api-plan.md`
-- `docs/student-tutor-chat-system-design.md`
+学生个人空间以数据库归属、课程授权和独立学习记录实现；共享课程页不按学生复制。
+私有上传和个性化版本按权限隔离，不能因内容相同自动公开。当前只预留归属与可见性，不实现登录。
+公开发布、对象存储/CDN、多节点高可用、跨题缓存按实际部署和生产数据另行安排。
 
 ## 11. 实施顺序
 
-当前顺序：
+P1–P5 是一期生成服务的技术工作项编号，不是产品版本号。可选多候选不阻塞一期拍照解析交付。
 
-1. F5-F4.3：完成原子路径 Macro 与旧 Path 能力清理。
-2. F5-F5 / Track G：统一 teaching scope、Context orchestration 和 artifact dependency。
-3. 完成图片到网页与动画的完整冷路径门禁。
-4. Track E：最终 artifact cache、并发去重、分层复用和条件式 Best-of-N。
-5. 完成作者生成/修改闭环。
-6. 完成学生 TutorContext 与临时交互。
+2026-09-11 排期调整：先完成本地系统，再部署服务器。P1 本地验收及正式本地实例初始化已通过，可以进入 P2；服务器 Docker 的安装、部署和恢复验收保留为上线前必做项，不阻塞本地 P2/P3 开发，也不提前记为通过。
 
-## 12. 验收
+| 阶段 | 状态 | 交付与退出条件 |
+| --- | --- | --- |
+| P1 数据与存储 | 代码已实现；服务器验收待完成 | 27 张表、事务/存储及安装管理工具；本地原生 PostgreSQL 的空库、并发、权限和备份恢复通过；Linux Docker 完整验收后关闭 P1，见[验收记录](product-p1-acceptance.md) |
+| P2 产品任务服务 | 已实现并在本地运行，完整验收以记录为准 | 共用应用服务、事务发件箱、RabbitMQ/Celery、HTTP/WebSocket；Review 接同一任务系统；断线、重投递、进程退出与旧执行覆盖测试，见 [P2 验收记录](product-p2-acceptance.md) |
+| P3 工作台简化接线 | 首版已接入，验收边界见工作台设计 | 单张图片上传、真实进度、当前解析网页和题目列表；重复上传与刷新恢复。批量、修订、审阅等后续再议；本次不追加付费模型验收 |
+| P4 多模态切换 | 待实施，适配/对照可与 P1–P3 同期进行 | DeepSeek 五题原图提取对照合格；默认切换后在产品 worker 上重新验收全链，留存请求及实际型号 |
+| P5 Plan 多候选 | 待实施，不阻塞 P3/P4 | 独立候选验证与选择、预算、N=1/N=3 对照；只有选中候选进入下游，保留选择依据 |
 
--任意发布页面可追溯到 source、ProblemIR、verified solution 和 Lesson artifacts；
--局部 patch 只重建必要资产；
--失败有稳定 stage/code，configuration 与模型错误分离；
--Mock/real API contract 一致；
--学生对话不泄露隐藏答案或修改课程事实；
--Gap 可转为离线 fixture 和门禁。
--完整冷路径各阶段成本与失败可观测；
-- dependency manifest足以支持Track E的缓存键与最小失效；
-- Track E完成后，最终lesson cache命中时外部LLM调用数为零，重复请求只产生一个build job。
+G3-C 的当前版本五题上传与课程页审阅并入 P3/P4，不再维护另一套前置排期。
+C1 teaching-only 5×3 保持独立。缓存与复杂发布流程不作为 P1–P4 的前置条件。
+
+## 12. 验收与文档同步
+
+- 后端相关全量测试、真实 PostgreSQL/RabbitMQ 集成测试、前端测试/lint/类型检查/build、页面工具门禁。
+- 同一请求重复提交、发件箱发布前后退出、Worker 丢失、消息重复、取消、永久失败及重试预算。
+- WebSocket 重连补读、状态快照恢复、批次多任务订阅；重启后不丢已接受任务。
+- 旧执行晚返回、新修订、构建中相关依赖变化、新构建失败；不能覆盖当前版本或混装产物。
+- 流水线 v1/v2 并存、阶段新增/删除/改名及合同变化；按各自快照展示与判定完成，旧构建恢复和跨版本复用遵守兼容检查。
+- 题意、教学、VisualSpec、CSS 重建矩阵；复用哈希不变，应跳过的模型实际调用为零。
+- 页面内部预览、历史版本、资源完整性与人工审查状态；审计产物不进入课程页面资源包。
+- 五题真实上传和人工课程页审阅；记录实际模型、配置、耗时、用量、失败与调用次数。
+- 验证手机拍照/选择图片后的单题上传到解析网页闭环，以及刷新后恢复状态、失败后重试。
+- 分开报告离线测试、基础设施集成、真实模型和人工审查；未运行不记通过。
+- 完成后只更新本计划状态、路线图与有效运行手册；过程日志留在审查产物/Git，不再追加中间时间线。

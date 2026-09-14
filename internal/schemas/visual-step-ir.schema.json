@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shuxueshuo.local/schemas/visual-step-ir.schema.json",
+  "title": "Recursive VisualStepIR v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "problem_id",
+    "source_snapshot_hash",
+    "source_lesson_hash",
+    "geometry_registry",
+    "root_scope",
+    "metadata"
+  ],
+  "properties": {
+    "schema_version": {"const": "visual-step-ir/v2"},
+    "problem_id": {"type": "string", "minLength": 1},
+    "source_snapshot_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_lesson_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "geometry_registry": {"type": "object"},
+    "root_scope": {"$ref": "#/$defs/scope"},
+    "metadata": {"type": "object"}
+  },
+  "$defs": {
+    "source_ref": {
+      "type": "object",
+      "minProperties": 1
+    },
+    "local_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "mathematical_domain",
+        "display_window",
+        "default_value",
+        "source_refs",
+        "controls",
+        "parameterized_points",
+        "landmarks",
+        "note"
+      ],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "mathematical_domain": {"type": "object"},
+        "display_window": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["min", "max", "step"],
+          "properties": {
+            "min": {"type": "number"},
+            "max": {"type": "number"},
+            "step": {"type": "number"}
+          }
+        },
+        "default_value": {"type": "number"},
+        "source_refs": {"type": "array", "items": {"$ref": "#/$defs/source_ref"}},
+        "controls": {"type": "array", "items": {"type": "object"}},
+        "parameterized_points": {"type": "object"},
+        "landmarks": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/parameter_landmark"}
+        },
+        "note": {"type": "string"}
+      }
+    },
+    "parameter_landmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "exact_value",
+        "display",
+        "epsilon",
+        "candidate_geometry_refs",
+        "highlight_geometry_refs"
+      ],
+      "properties": {
+        "value": {"type": "number"},
+        "exact_value": {"type": "string", "minLength": 1},
+        "display": {"type": "string", "minLength": 1},
+        "epsilon": {"type": "number", "exclusiveMinimum": 0},
+        "candidate_geometry_refs": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "highlight_geometry_refs": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "visual_object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "visual_object_id",
+        "component",
+        "role",
+        "source_refs",
+        "geometry_refs",
+        "state",
+        "component_payload"
+      ],
+      "properties": {
+        "visual_object_id": {"type": "string", "minLength": 1},
+        "component": {"type": "string", "minLength": 1},
+        "role": {"type": "string", "minLength": 1},
+        "source_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/source_ref"}
+        },
+        "geometry_refs": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        },
+        "display_label": {"type": "string", "minLength": 1},
+        "state": {"enum": ["focus", "context"]},
+        "component_payload": {"type": "object"}
+      }
+    },
+    "frame": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "frame_id",
+        "teaching_unit_keys",
+        "viewport",
+        "objects",
+        "local_parameters"
+      ],
+      "properties": {
+        "frame_id": {"type": "string", "minLength": 1},
+        "caption": {"type": "string", "minLength": 1},
+        "teaching_unit_keys": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "viewport": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["minX", "maxX", "minY", "maxY"],
+          "properties": {
+            "minX": {"type": "number"},
+            "maxX": {"type": "number"},
+            "minY": {"type": "number"},
+            "maxY": {"type": "number"}
+          }
+        },
+        "objects": {"type": "array", "items": {"$ref": "#/$defs/visual_object"}},
+        "local_parameters": {"type": "array", "items": {"$ref": "#/$defs/local_parameter"}},
+        "timeline": {"type": "object"}
+      }
+    },
+    "visual_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["visual_step_id", "lesson_step_id", "visual_mode", "frames"],
+      "properties": {
+        "visual_step_id": {"type": "string", "minLength": 1},
+        "lesson_step_id": {"type": "string", "minLength": 1},
+        "visual_mode": {"enum": ["scene", "retain", "none"]},
+        "frames": {"type": "array", "items": {"$ref": "#/$defs/frame"}}
+      }
+    },
+    "goal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["steps"],
+      "properties": {
+        "steps": {"type": "array", "items": {"$ref": "#/$defs/visual_step"}}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope_ref", "steps", "goals", "children"],
+      "properties": {
+        "scope_ref": {"type": "string", "minLength": 1},
+        "steps": {"type": "array", "items": {"$ref": "#/$defs/visual_step"}},
+        "goals": {"type": "object", "additionalProperties": {"$ref": "#/$defs/goal"}},
+        "children": {"type": "array", "items": {"$ref": "#/$defs/scope"}}
+      }
+    }
+  }
+}

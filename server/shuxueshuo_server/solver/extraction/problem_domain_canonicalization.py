@@ -483,6 +483,25 @@ def _materialize_equivalent_primitive_facts(
             )
         )
 
+    # Both diagonal memberships are another spelling of the same square center.
+    # Require local facts for both: never combine assumptions from sibling scopes.
+    memberships: dict[str, set[frozenset[str]]] = {}
+    for fact in facts:
+        if fact.get("kind") == "point_on_segment" and isinstance(fact.get("point"), str):
+            segment = fact.get("segment", {})
+            if isinstance(segment, Mapping) and all(isinstance(segment.get(k), str) for k in ("start", "end")):
+                memberships.setdefault(fact["point"], set()).add(frozenset((segment["start"], segment["end"])))
+    for square in sorted(squares):
+        vertices = polygons.get(square, ())
+        if len(vertices) != 4 or len(set(vertices)) != 4:
+            continue
+        diagonals = {frozenset((vertices[0], vertices[2])), frozenset((vertices[1], vertices[3]))}
+        for point, segments in memberships.items():
+            if diagonals <= segments:
+                append_if_missing({"kind": "square_center", "point": point, "square": square},
+                    action_code="materialize_square_diagonal_center", source_name=f"diagonal_membership:{point}",
+                    target_name=f"square_center:{point}")
+
     for expression in _shared_child_minimum_target_expressions(scope):
         append_if_missing(
             {

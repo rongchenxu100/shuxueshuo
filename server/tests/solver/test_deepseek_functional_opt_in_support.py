@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from shuxueshuo_server.solver.runtime.scoped_functional_few_shots import (
+    default_scoped_functional_few_shot_dir, _plan_capability_ids,
+)
 
 from _functional_opt_in_support import (
     FUNCTIONAL_OPT_IN_CASES,
@@ -53,12 +57,18 @@ def test_semantic_answer_comparison_rejects_key_or_value_drift() -> None:
 def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
     tmp_path: Path,
 ) -> None:
+    asset_path = next(default_scoped_functional_few_shot_dir().glob("*.functional-few-shot.json"))
+    asset = json.loads(asset_path.read_text())
     selection = {
-        "example_id": "quadratic_constraints_vertex",
-        "mode": "strict_test",
-        "source_problem_id": "synthetic-quadratic-core-reference",
+        "example_id": asset["example_id"],
+        "mode": "v2_capability_subset",
+        "asset_sha256": sha256(asset_path.read_bytes()).hexdigest(),
     }
-    few_shot = [{"format": "functional-plan-content/v2", "root_scope": {}}]
+    few_shot = [{key: value for key, value in asset.items() if key != "example_id"}]
+    catalog = {"capabilities": [
+        {"capability_id": key} for key in _plan_capability_ids(asset["plan"])
+    ]}
+    (tmp_path / "attempt-1.payload.functional_capability_catalog.json").write_text(json.dumps(catalog))
     context = {
         "schema_version": "planner-problem-view/v2",
         "root_scope": {"id": "problem", "text": ["x"]},
@@ -133,8 +143,8 @@ def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
     assert _attempt_llm_usage_is_recorded(tmp_path)
 
     # A response that fails before a Canonical Plan exists remains Pass 1,
-    # but must carry the prior invalid content instead of pretending to be a
-    # Scope Repair attempt.
+    # but must carry validation feedback. Typed prior content is only available
+    # if parsing reached that boundary.
     (tmp_path / "attempt-2.llm-metadata.json").write_text(
         json.dumps(
             {
@@ -162,7 +172,16 @@ def test_attempt_protocol_requires_functional_format_and_locked_few_shot(
         encoding="utf-8",
     )
     (tmp_path / "attempt-2.payload.annotated_previous_plan.json").unlink()
+    (tmp_path / "attempt-2.payload.functional_capability_catalog.json").write_text(json.dumps(catalog))
+    feedback_path = tmp_path / "attempt-2.payload.authoring_feedback.json"
+    feedback_path.write_text(json.dumps([{"code": "functional.plan_content_schema_invalid"}]))
     _assert_attempt_protocol(tmp_path)
+    (tmp_path / "attempt-2.payload.previous_invalid_content.json").unlink()
+    _assert_attempt_protocol(tmp_path)
+    feedback_path.write_text("[]")
+    with pytest.raises(AssertionError, match="must explain"):
+        _assert_attempt_protocol(tmp_path)
+    feedback_path.write_text(json.dumps([{"code": "functional.plan_content_schema_invalid"}]))
 
     (tmp_path / "attempt-2.llm-metadata.json").write_text(
         json.dumps(

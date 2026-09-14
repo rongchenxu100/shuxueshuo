@@ -57,15 +57,6 @@ def focus_handles(scene_add: list[JsonObject]) -> list[str]:
     return [f"point:{ref}" for ref in refs[:4]]
 
 
-def visual_gap(expected_role: str, reason: str) -> JsonObject:
-    return {
-        "component": "VisualGap",
-        "expected_role": expected_role,
-        "reason": reason,
-        "state": "gap",
-    }
-
-
 def dedupe_scene_items(items: list[JsonObject]) -> list[JsonObject]:
     seen: set[str] = set()
     out: list[JsonObject] = []

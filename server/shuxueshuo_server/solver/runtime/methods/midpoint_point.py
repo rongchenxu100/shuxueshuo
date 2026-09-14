@@ -6,6 +6,8 @@
 
 from __future__ import annotations
 
+from shuxueshuo_server.solver.contracts import MethodVisualSpec, TeachingUnitSpec
+
 from ._common import *
 from ._spec import MethodSpecSource, declare_input_views
 
@@ -73,4 +75,38 @@ SPEC = MethodSpecSource(
     postconditions=(),
     trace_template=(),
     interchangeable_arg_groups=(("p1", "p2"),),
+    teaching_unit=TeachingUnitSpec(
+        unit_key="midpoint_point/compute_midpoint",
+        title_template="求线段中点",
+        nav_title_template="求中点",
+        goal_template="分别取两端点横、纵坐标的平均值，求出中点坐标。",
+        derive_templates=(
+            ("∵", "线段两端点为 {p1}、{p2}"),
+            ("计算", "中点横、纵坐标分别取平均"),
+            ("∴", "中点为 {midpoint}"),
+        ),
+        box_templates=("{midpoint}",),
+        role_schema={
+            "p1": "线段第一个端点。",
+            "p2": "线段第二个端点。",
+            "midpoint": "计算所得中点。",
+        },
+        role_binder_id="midpoint_point",
+    ),
+    visual=MethodVisualSpec(
+        role_schema={
+            "p1": "线段第一个端点。",
+            "p2": "线段第二个端点。",
+            "midpoint": "中点。",
+        },
+        scene_templates=(
+            {
+                "component": "MidpointMarker",
+                "endpoint_roles": ["p1", "p2"],
+                "output_role": "midpoint",
+                "persistence": "carry_forward",
+            },
+        ),
+        role_binder_id="generic_visual",
+    ),
 )

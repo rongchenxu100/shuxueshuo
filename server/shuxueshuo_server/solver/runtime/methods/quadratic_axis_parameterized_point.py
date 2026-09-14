@@ -7,9 +7,9 @@ from __future__ import annotations
 
 from shuxueshuo_server.solver.contracts import (
     MethodCompanionOutputSpec,
-    MethodExplanationSpec,
     MethodVisualSpec,
     ScalarResultFormSpec,
+    TeachingUnitSpec,
 )
 from shuxueshuo_server.solver.math_ops import vertex_of_quadratic
 
@@ -109,19 +109,21 @@ SPEC = MethodSpecSource(
         "只有某个抛物线系数或其他 Symbol 的值，却没有条件证明它就是目标点的"
         "坐标参数；不同 Symbol identity 的参数值不能互相代入。",
     ),
-    explanation=MethodExplanationSpec(
+    teaching_unit=TeachingUnitSpec(
+        unit_key="quadratic_axis_parameterized_point/parameterize_axis_point",
+        title_template="设对称轴上的参数点",
+        nav_title_template="设参数点",
+        goal_template="由对称轴方程，用一个参数表示轴上的目标点。",
+        derive_templates=(
+            ("∵", "{target} 在对称轴 {axis_equation} 上"),
+            ("设", "{parameterized_point}"),
+        ),
+        box_templates=("{parameterized_point}",),
         role_schema={
             "target": "对称轴上的目标点。",
             "axis_equation": "当前抛物线的对称轴方程。",
             "parameterized_point": "目标点的参数化坐标。",
         },
-        student_goal_template="把对称轴上的点设成一个参数点。",
-        student_title_template="设对称轴上的参数点",
-        derive_templates=(
-            "∵{target} 在对称轴 {axis_equation} 上",
-            "∴设 {parameterized_point}",
-        ),
-        box_templates=("{parameterized_point}",),
         role_binder_id="quadratic_axis_parameterized_point",
     ),
     visual=MethodVisualSpec(
@@ -132,6 +134,17 @@ SPEC = MethodSpecSource(
         scene_templates=(
             {
                 "component": "AxisParameterizedPointMarker",
+                "context_roles": [
+                    "input_curve",
+                    {
+                        "kind": "square_predecessor",
+                        "target_output": "point",
+                    },
+                    "curve_axis",
+                    "prior_curve_vertex",
+                ],
+                "dependency_components": ["Parabola"],
+                "requires_independent_lesson_step": True,
                 "axis_color": "#64748b",
                 "point_color": "#dc2626",
                 "persistence": "carry_forward",

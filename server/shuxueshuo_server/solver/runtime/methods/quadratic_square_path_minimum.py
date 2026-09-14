@@ -9,7 +9,7 @@ this boundary.
 
 from __future__ import annotations
 
-from shuxueshuo_server.solver.contracts import MethodExplanationSpec, PointRef
+from shuxueshuo_server.solver.contracts import PointRef
 
 from ._common import *
 from ._internal.path.broken_path_straightening_candidates import (
@@ -323,24 +323,6 @@ SPEC = MethodSpecSource(
     postconditions=(
         "minimum_expression equals the original path minimum",
         "attainment_point lies on the moving locus and the straightened minimum segment",
-    ),
-    explanation=MethodExplanationSpec(
-        role_schema={
-            "original_path": "题设三段路径。",
-            "reduced_path": "由正方形关系得到的单动点折线路径。",
-            "moving_locus": "正方形动点的轨迹直线。",
-            "minimum_expression": "拉直后得到的最小值表达式。",
-            "attainment_point": "路径取最小值时的原题动点。",
-        },
-        student_goal_template="利用二次函数与正方形关系求路径最小值。",
-        student_title_template="正方形关系下的路径最值",
-        derive_templates=(
-            "把 {original_path} 化为 {reduced_path}。",
-            "求出动点轨迹 {moving_locus}。",
-            "拉直路径得到 {minimum_expression}，并确定 {attainment_point}。",
-        ),
-        box_templates=("{minimum_expression}", "{attainment_point}"),
-        role_binder_id="quadratic_square_path_minimum",
     ),
 )
 

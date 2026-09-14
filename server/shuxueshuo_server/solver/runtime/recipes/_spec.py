@@ -9,44 +9,60 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from shuxueshuo_server.solver.contracts import TeachingSubstepSpec
+from shuxueshuo_server.solver.contracts import TeachingUnitSpec
 
 
 @dataclass(frozen=True)
-class RecipeExplanationSpec:
-    """recipe 面向讲解层的角色化模板。
+class TeachingVariantSpec:
+    """A verified-evidence-selected teaching path for one Macro."""
 
-    静态模板只能描述数学结构和角色，不写具体题目的点名、题号、路径名或答案。
-    当前题的角色由 ExplanationRoleBinder 在 runtime 成功产物中绑定。
-    """
+    variant_key: str
+    evidence_match: dict[str, Any]
+    teaching_units: tuple[TeachingUnitSpec, ...]
 
-    role_schema: dict[str, str]
-    student_intent_template: str
-    student_title_template: str = ""
-    student_nav_title_template: str = ""
-    student_title_templates_by_goal: dict[str, str] | None = None
-    proof_outline_templates: tuple[str, ...] = ()
-    recommended_lesson_splits: tuple[str, ...] = ()
-    teaching_substep_specs: tuple[TeachingSubstepSpec, ...] = ()
-    allowed_llm_completion: tuple[str, ...] = ()
-    method_trace_usage: str = "method trace 只用于计算细节和验算，不用于猜证明。"
-    role_binder_id: str = "generic_recipe"
+    def __post_init__(self) -> None:
+        if not self.variant_key or not self.evidence_match or not self.teaching_units:
+            raise ValueError("TeachingVariantSpec fields must be non-empty")
 
     def to_payload(self) -> dict[str, Any]:
         return {
-            "role_schema": dict(self.role_schema),
-            "student_intent_template": self.student_intent_template,
-            "student_title_template": self.student_title_template,
-            "student_nav_title_template": self.student_nav_title_template,
-            "student_title_templates_by_goal": dict(self.student_title_templates_by_goal or {}),
-            "proof_outline_templates": list(self.proof_outline_templates),
-            "recommended_lesson_splits": list(self.recommended_lesson_splits),
-            "teaching_substep_specs": [
-                item.to_payload() for item in self.teaching_substep_specs
+            "variant_key": self.variant_key,
+            "evidence_match": dict(self.evidence_match),
+            "teaching_units": [item.to_payload() for item in self.teaching_units],
+        }
+
+
+@dataclass(frozen=True)
+class MacroTeachingSpec:
+    """One fixed unit path or a set of evidence-selected paths, never both."""
+
+    teaching_units: tuple[TeachingUnitSpec, ...] = ()
+    teaching_variants: tuple[TeachingVariantSpec, ...] = ()
+
+    def __post_init__(self) -> None:
+        if bool(self.teaching_units) == bool(self.teaching_variants):
+            raise ValueError(
+                "MacroTeachingSpec requires exactly one of teaching_units or "
+                "teaching_variants"
+            )
+        keys = tuple(
+            item.unit_key
+            for item in self.teaching_units
+            or tuple(
+                unit
+                for variant in self.teaching_variants
+                for unit in variant.teaching_units
+            )
+        )
+        if len(keys) != len(set(keys)):
+            raise ValueError("MacroTeachingSpec unit keys must be unique")
+
+    def to_payload(self) -> dict[str, Any]:
+        return {
+            "teaching_units": [item.to_payload() for item in self.teaching_units],
+            "teaching_variants": [
+                item.to_payload() for item in self.teaching_variants
             ],
-            "allowed_llm_completion": list(self.allowed_llm_completion),
-            "method_trace_usage": self.method_trace_usage,
-            "role_binder_id": self.role_binder_id,
         }
 
 
@@ -86,7 +102,7 @@ class RecipeSpecSource:
     method_sequence: tuple[str, ...]
     execution_strategy: str
     outputs: dict[str, str]
-    explanation: RecipeExplanationSpec | None = None
+    teaching: MacroTeachingSpec | None = None
     visual: RecipeVisualSpec | None = None
     repair_hints: tuple[dict[str, Any], ...] = ()
     repair_feedback_provider_id: str | None = None
@@ -100,8 +116,8 @@ class RecipeSpecSource:
             "execution_strategy": self.execution_strategy,
             "outputs": self.outputs,
         }
-        if self.explanation is not None:
-            payload["explanation"] = self.explanation.to_payload()
+        if self.teaching is not None:
+            payload["teaching"] = self.teaching.to_payload()
         if self.visual is not None:
             payload["visual"] = self.visual.to_payload()
         if self.repair_hints:
@@ -125,7 +141,7 @@ class RecipeSpec:
     method_sequence: tuple[str, ...]
     execution_strategy: str
     outputs: dict[str, str]
-    explanation: RecipeExplanationSpec | None = None
+    teaching: MacroTeachingSpec | None = None
     visual: RecipeVisualSpec | None = None
     repair_hints: tuple[dict[str, Any], ...] = ()
     repair_feedback_provider_id: str | None = None
@@ -139,7 +155,7 @@ def recipe_spec_from_source(source: RecipeSpecSource) -> RecipeSpec:
         method_sequence=source.method_sequence,
         execution_strategy=source.execution_strategy,
         outputs=dict(source.outputs),
-        explanation=source.explanation,
+        teaching=source.teaching,
         visual=source.visual,
         repair_hints=source.repair_hints,
         repair_feedback_provider_id=source.repair_feedback_provider_id,

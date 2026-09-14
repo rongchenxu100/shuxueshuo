@@ -10,7 +10,7 @@
     "anchor": {
       "role": "anchor",
       "required": true,
-      "description": "直角顶点，例如南开题中的 D。",
+      "description": "直角顶点。",
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {
@@ -23,7 +23,7 @@
     "reference": {
       "role": "reference",
       "required": true,
-      "description": "已知直角边的另一个端点，例如南开题中的 M。",
+      "description": "已知直角边的另一个端点。",
       "domain_type": "Point",
       "runtime_type": "Point",
       "view": {
@@ -36,7 +36,7 @@
     "target": {
       "role": "target",
       "required": true,
-      "description": "待求坐标的点引用，例如南开题中的 N。",
+      "description": "待求坐标的点引用。",
       "domain_type": "Point",
       "runtime_type": "PointRef",
       "view": {
@@ -48,9 +48,13 @@
     }
   },
   "outputs": {
-    "candidates": "PointList"
+    "candidates": "PointList",
+    "construction_evidence": "Condition"
   },
   "is_pure": true,
+  "internal_outputs": [
+    "construction_evidence"
+  ],
   "preconditions": [
     "anchor.coordinate is known, can be symbolic",
     "reference.coordinate is known, can be symbolic",
@@ -62,5 +66,60 @@
   ],
   "trace_template": [
     "由直角等腰条件，将 {reference} 绕 {anchor} 顺/逆时针旋转 90°，得到 {target} 的两个候选点。"
-  ]
+  ],
+  "teaching_unit": {
+    "unit_key": "right_angle_equal_length_candidates/construct_candidates",
+    "title_template": "{construction_title}",
+    "nav_title_template": "{construction_nav_title}",
+    "goal_template": "{construction_goal}",
+    "derive_templates": [
+      [
+        "∵",
+        "以 {anchor} 为直角顶点，已知边端点为 {reference}"
+      ],
+      [
+        "作",
+        "将已知边顺、逆时针旋转 90°"
+      ],
+      [
+        "∴",
+        "得到候选点 {candidates}"
+      ]
+    ],
+    "box_templates": [
+      "{construction_result}"
+    ],
+    "role_schema": {
+      "anchor": "直角顶点。",
+      "reference": "已知直角边的另一个端点。",
+      "candidates": "顺、逆时针旋转所得候选点。",
+      "construction_title": "当前数据适用的学生构造标题。",
+      "construction_nav_title": "当前数据适用的学生导航标题。",
+      "construction_goal": "当前数据适用的几何构造目标。",
+      "construction_result": "顺、逆时针旋转所得的两个候选位置。"
+    },
+    "role_binder_id": "right_angle_equal_length_candidates"
+  },
+  "visual": {
+    "role_schema": {
+      "anchor": "直角顶点。",
+      "reference": "已知边端点。",
+      "candidates": "两个旋转候选点。"
+    },
+    "scene_templates": [
+      {
+        "component": "RightAngleEqualLengthCandidatesMarker",
+        "input_roles": [
+          "anchor",
+          "reference"
+        ],
+        "output_role": "candidates",
+        "requires_independent_lesson_step": true,
+        "persistence": "carry_forward"
+      }
+    ],
+    "annotation_templates": [],
+    "timeline_templates": [],
+    "role_binder_id": "generic_visual"
+  }
 }

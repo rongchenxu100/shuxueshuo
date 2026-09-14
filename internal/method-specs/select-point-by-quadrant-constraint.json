@@ -68,9 +68,13 @@
     }
   },
   "outputs": {
-    "selected_point": "Point"
+    "selected_point": "Point",
+    "selection_evidence": "Condition"
   },
   "is_pure": true,
+  "internal_outputs": [
+    "selection_evidence"
+  ],
   "preconditions": [
     "candidates 至少包含一个点",
     "quadrant 必须给出明确象限",

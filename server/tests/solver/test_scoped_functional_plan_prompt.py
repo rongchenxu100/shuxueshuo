@@ -94,6 +94,7 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
     assert payload["output_json_schema"] == functional_plan_content_schema(
         frame,
         capability_catalog=prompt_catalog,
+        for_prompt=True,
     )
     assert "previous_attempt_state" not in payload
     assert payload["authoring_feedback"] == []
@@ -113,15 +114,15 @@ def test_v2_payload_and_prompt_use_scope_native_authority_only(tmp_path) -> None
     assert "planner-problem-view/v2" in prompt.user
     assert "输出不得包含`root_scope`" in prompt.system
     assert "重复的`goal_ref`" in prompt.system
-    assert "`goal_ref`不是step输入" in prompt.system
+    assert "把goal_ref当作输入" in prompt.system
     assert "每个Goal必须输出`answer_from={step_id, return}`" in prompt.system
     assert "public return `type`必须与该Goal的`answer_type`逐字一致" in prompt.system
     assert "合法指针用于消歧" in prompt.system
     assert "共享题面数学实体不等于共享当前数学状态" in prompt.system
-    assert "兄弟scope使用不同局部条件" in prompt.system
+    assert "兄弟scope若使用不同局部条件" in prompt.system
     assert "互斥的step所有权容器" in prompt.system
     assert "每个step完整对象只能出现一次" in prompt.system
-    assert "只为该Goal答案服务的局部推导" in prompt.system
+    assert "只为单个Goal答案服务的步骤放该Goal" in prompt.system
     assert "Entity默认使用字符串SourceRef" in prompt.system
     assert "exact-result即使携带" in prompt.system
     assert "只有return明确展示`possible_forms`时" in prompt.system

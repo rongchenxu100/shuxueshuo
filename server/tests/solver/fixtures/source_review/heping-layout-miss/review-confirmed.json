@@ -1,0 +1,82 @@
+{
+  "schema_version": "problem-source-review/v1",
+  "status": "confirmed",
+  "findings": [
+    {
+      "unit_ids": [
+        "scope:root"
+      ],
+      "source_text": "已知抛物线 y=ax²+bx−3（a，b 是常数，a>0）与 x 轴相交于点 A(−1,0) 和点 B，与 y 轴相交于点 C，将点 C 水平向右平移 2 个单位长度得到点 D，连接 BC。",
+      "message": "题干条件与原图一致，抛物线表达式、点的位置关系和平移关系均正确。",
+      "regions": [
+        {
+          "region_id": null,
+          "page_id": "page-1",
+          "bbox": [
+            0.02,
+            0.05,
+            0.99,
+            0.32
+          ]
+        }
+      ]
+    },
+    {
+      "unit_ids": [
+        "scope:root/part1/part1_1"
+      ],
+      "source_text": "（Ⅰ）当点 D 落在该抛物线上时，①求抛物线的解析式；",
+      "message": "第(Ⅰ)问①的条件和目标与原图一致。",
+      "regions": [
+        {
+          "region_id": null,
+          "page_id": "page-1",
+          "bbox": [
+            0.028,
+            0.41,
+            0.345,
+            0.51
+          ]
+        }
+      ]
+    },
+    {
+      "unit_ids": [
+        "scope:root/part1/part1_2"
+      ],
+      "source_text": "② 抛物线上的点 E 的横坐标为 m，且 −1<m<0，若 ∠CBE+∠ACO=45°，求点 E 的坐标；",
+      "message": "第(Ⅰ)问②的条件和目标与原图一致，点E的横坐标范围、角度和条件均正确。",
+      "regions": [
+        {
+          "region_id": null,
+          "page_id": "page-1",
+          "bbox": [
+            0.02,
+            0.62,
+            0.56,
+            0.71
+          ]
+        }
+      ]
+    },
+    {
+      "unit_ids": [
+        "scope:root/part2"
+      ],
+      "source_text": "（Ⅱ）点 M 是线段 BC 上一动点，连接 OM。点 N 是射线 CD 上一动点，且满足 CN=CM，连接 BN。当 OM+BN 的最小值为 √34 时，求 a 的值。",
+      "message": "第(Ⅱ)问的条件和目标与原图一致，动点位置、等长条件和最值条件均正确。",
+      "regions": [
+        {
+          "region_id": null,
+          "page_id": "page-1",
+          "bbox": [
+            0.028,
+            0.82,
+            0.89,
+            0.92
+          ]
+        }
+      ]
+    }
+  ]
+}

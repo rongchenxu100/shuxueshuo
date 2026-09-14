@@ -17,7 +17,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from .explanation.expression_rewrite import build_rewrite_lesson
-from .explanation.models import ExplanationSnapshot, TeachingTraceEntry
 from .family.expression_rewrite import ORGANIZE_EXPRESSIONS_CONTRACT
 from .math_kernel import SympyKernel
 from .math_kernel.expression_rewrite import parse_expression, parse_relation
@@ -257,39 +256,39 @@ def generate_preview(record, fixture, directory, output_path):
     for card in trace["conditionCards"]:
         card.pop("source", None)
     call_id = record["call"]["step_id"]
-    snapshot = ExplanationSnapshot(
+    trace_id = call_id + ":trace"
+    method_spec = MethodSpecRegistry.load_from_code().require("organize_expressions")
+    ir = build_rewrite_lesson(
         problem_id=fixture["problem_id"],
         family_id="rewrite_prefix_experiment",
-        problem={
+        method_spec=method_spec,
+        trace=trace,
+        source_step_id=call_id,
+        scope_id="problem",
+        trace_id=trace_id,
+    )
+    step = ir.steps[0]
+    visual = build_text_method_visual(method_spec=method_spec, trace=trace)
+    snapshot = {
+        "problem_id": fixture["problem_id"],
+        "family_id": "rewrite_prefix_experiment",
+        "problem": {
             "conditions": fixture["conditions"],
             "expression": fixture["expression"],
         },
-        effective_steps=(
+        "answers": {},
+        "teaching_trace": [
             {
-                "step_id": call_id,
+                "trace_id": trace_id,
+                "source_step_id": call_id,
                 "scope_id": "problem",
-                "goal_type": "organize_expressions",
-            },
-        ),
-        teaching_trace=(
-            TeachingTraceEntry(
-                trace_id=call_id + ":trace",
-                source_step_id=call_id,
-                scope_id="problem",
-                capability_id="organize_expressions",
-                method_id="organize_expressions",
-                trace_fragments=(trace,),
-            ),
-        ),
-        fact_index={},
-        checks=tuple(record["checks"]),
-    )
-    method_spec = MethodSpecRegistry.load_from_code().require("organize_expressions")
-    ir = build_rewrite_lesson(snapshot, method_spec)
-    step = ir.steps[0]
-    visual = build_text_method_visual(
-        snapshot=snapshot, lesson_step=step, method_spec=method_spec
-    )
+                "capability_id": "organize_expressions",
+                "method_id": "organize_expressions",
+                "trace_fragments": [trace],
+            }
+        ],
+        "checks": list(record["checks"]),
+    }
     student = {
         "id": step.id,
         "section": "整理式子",
@@ -320,7 +319,7 @@ def generate_preview(record, fixture, directory, output_path):
         "steps": [student],
     }
     save_json(directory / "execution.json", record)
-    save_json(directory / "explanation-snapshot.json", snapshot.to_payload())
+    save_json(directory / "explanation-snapshot.json", snapshot)
     save_json(directory / "lesson-ir.json", ir.to_payload())
     save_json(directory / "student-steps.json", [student])
     save_json(directory / "visual-spec.json", student["visual"])

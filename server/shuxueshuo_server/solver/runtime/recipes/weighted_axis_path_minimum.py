@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-from ._spec import RecipeExplanationSpec, RecipeSpecSource, RecipeVisualSpec
+from shuxueshuo_server.solver.contracts import TeachingUnitSpec
+
+from ._spec import (
+    MacroTeachingSpec,
+    RecipeSpecSource,
+    RecipeVisualSpec,
+)
 
 
 SPEC = RecipeSpecSource(
@@ -10,43 +16,57 @@ SPEC = RecipeSpecSource(
     title="加权轴上路径最值",
     summary=(
         "Resolve a typed two-term weighted path, build the registered internal "
-        "right triangle, straighten the linked path, and return its complete "
-        "minimum expression with domain-boundary branches represented inside "
-        "the expression."
+        "right triangle, straighten the linked path, and return only minimum "
+        "branches whose equality state is attained in the moving domain."
     ),
     method_sequence=("weighted_axis_path_minimum_kernel",),
     execution_strategy="weighted_axis_path_minimum",
     outputs={"minimum_expression": "MinimumExpression"},
-    explanation=RecipeExplanationSpec(
-        role_schema={
-            "original_objective": "题设给出的加权距离和。",
-            "weighted_triangle": "把权重线段换成同倍率普通线段的辅助直角三角形。",
-            "auxiliary_locus": "辅助点随原轴上动点形成的合法射线。",
-            "attainment_condition": "直线垂足对应原动点仍在定义域内的条件。",
-            "boundary_minimum_expression": "垂足越界时由动点定义域边界给出的分支。",
-            "minimum_expression": "覆盖合法域的完整最小值表达式。",
-        },
-        student_title_template="构造辅助三角形，化加权路径为最短折线",
-        student_nav_title_template="加权路径最值",
-        student_intent_template=(
-            "用辅助直角三角形消去路径中的权重，再拉直折线，并检查"
-            "垂足是否对应合法动点；必要时保留定义域边界分支。"
-        ),
-        proof_outline_templates=(
-            "构造 {weighted_triangle}，把 {original_objective} 化为同倍率普通折线。",
-            "辅助点沿 {auxiliary_locus} 运动，拉直后得到内部最短距离。",
-            "检查 {attainment_condition}；越界时使用 {boundary_minimum_expression}。",
-            "因此完整最小值表达式为 {minimum_expression}。",
-        ),
-        recommended_lesson_splits=(
-            "构造辅助三角形并证明路径等价。",
-            "拉直路径并验证取等点与定义域。",
-        ),
-        allowed_llm_completion=(
-            "可以把 verified evidence 改写为学生易读的几何证明。",
-            "不得自造辅助点身份、路径权重、定义域分支或最小值。",
-        ),
-        role_binder_id="weighted_axis_path_minimum",
+    teaching=MacroTeachingSpec(
+        teaching_units=(
+            TeachingUnitSpec(
+                unit_key="weighted_axis_path_minimum/weighted_reduction",
+                title_template="构造辅助直角三角形消去路径权重",
+                nav_title_template="消去路径权重",
+                goal_template="把加权线段转化为同倍率普通线段，得到等价折线路径。",
+                derive_templates=(
+                    ("作", "{weighted_construction}"),
+                    ("∵", "{weighted_equivalence_reason}"),
+                    ("∴", "{original_objective}＝{reduced_objective}"),
+                ),
+                box_templates=("{original_objective}＝{reduced_objective}",),
+                role_schema={
+                    "weighted_construction": "由权重 profile 确定的辅助直角三角形构造。",
+                    "weighted_equivalence_reason": "辅助边与原加权线段的等长或倍率关系。",
+                    "original_objective": "题设加权路径。",
+                    "reduced_objective": "消去权重后的普通折线路径。",
+                },
+                role_binder_id="weighted_axis_path_minimum",
+            ),
+            TeachingUnitSpec(
+                unit_key="weighted_axis_path_minimum/domain_minimum",
+                title_template="拉直折线求路径最小值",
+                nav_title_template="几何求最值",
+                goal_template="把普通折线拉直，由图中的最短路径直接得到最小值，并说明取等条件。",
+                derive_templates=(
+                    ("∵", "辅助点的轨迹为 {auxiliary_locus}"),
+                    ("∴", "{minimum_reason}"),
+                    ("∵", "{domain_condition}"),
+                    ("∴", "完整最小值为 {minimum_expression}"),
+                ),
+                box_templates=("{attained_minimum_conclusion}",),
+                role_schema={
+                    "auxiliary_locus": "辅助点的 verified 合法轨迹。",
+                    "minimum_reason": "拉直折线得到的内部最短距离。",
+                    "domain_condition": "取等点与边界分支的 verified 定义域说明。",
+                    "minimum_expression": "仅包含能够实际取到的最小值分支。",
+                    "attainment_condition": "最短路径取等时参数必须满足的条件。",
+                    "attained_minimum_expression": "合法取等分支上的最小值表达式。",
+                    "attained_minimum_conclusion": "按取等条件整理后的学生结论。",
+                },
+                role_binder_id="weighted_axis_path_minimum",
+            ),
+        )
     ),
     visual=RecipeVisualSpec(
         role_schema={
@@ -55,8 +75,25 @@ SPEC = RecipeSpecSource(
             "straightened_path": "拉直后的最短路径。",
         },
         teaching_substep_templates={
-            "path_minimum": (
-                {"component": "AtomicPathMinimumMarker"},
+            "weighted_reduction": (
+                {
+                    "component": "AtomicPathMinimumMarker",
+                    "context_roles": ["input_curve"],
+                    "local_interaction": {
+                        "kind": "weighted_axis_motion",
+                    },
+                    "requires_independent_lesson_step": True,
+                },
+            ),
+            "domain_minimum": (
+                {
+                    "component": "AtomicPathMinimumMarker",
+                    "context_roles": ["input_curve"],
+                    "local_interaction": {
+                        "kind": "weighted_axis_motion",
+                    },
+                    "requires_independent_lesson_step": True,
+                },
             ),
         },
         role_binder_id="generic_visual",

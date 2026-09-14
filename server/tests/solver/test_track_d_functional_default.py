@@ -102,10 +102,7 @@ def test_functional_runtime_diagnostic_types_do_not_use_retired_names() -> None:
 
 
 def test_maintenance_tools_do_not_depend_on_retired_step_intent_assets() -> None:
-    for relative_path in (
-        "tools/sync_strategy_few_shots.py",
-        "tools/sync_explanation_few_shots.py",
-    ):
+    for relative_path in ("tools/sync_strategy_few_shots.py",):
         source = (_REPO_ROOT / relative_path).read_text(encoding="utf-8")
         assert "runtime.strategy_few_shots" not in source
         assert "executable-step-intents" not in source
