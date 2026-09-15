@@ -14,6 +14,7 @@ internal/solver-runs/strategy-planner-deepseek-*/
 internal/solver-runs/explanation-builder-deepseek-*/
 internal/solver-runs/visual-builder-deepseek-*/
 internal/solver-runs/problem-extraction/
+internal/solver-runs/understanding-holdout-*/
 internal/review-runs/
 internal/review-analysis/
 

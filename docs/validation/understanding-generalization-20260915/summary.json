@@ -1,0 +1,219 @@
+{
+  "schema_version": "understanding-generalization-audit/v1",
+  "batches": {
+    "five-01": {
+      "batch_id": "deepseek-generalized-20260915-01",
+      "passed": 1,
+      "accepted": 5,
+      "projection_passed": 4,
+      "cases": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "ok": false,
+          "accepted": true,
+          "failures": [
+            "domain_semantic_diff"
+          ],
+          "domain_semantic_diff_ok": false,
+          "solver_projection_diff_ok": true,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        },
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "ok": false,
+          "accepted": true,
+          "failures": [
+            "domain_semantic_diff"
+          ],
+          "domain_semantic_diff_ok": false,
+          "solver_projection_diff_ok": true,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        },
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "ok": true,
+          "accepted": true,
+          "failures": [],
+          "domain_semantic_diff_ok": true,
+          "solver_projection_diff_ok": true,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        },
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "ok": false,
+          "accepted": true,
+          "failures": [
+            "domain_semantic_diff",
+            "solver_projection_diff"
+          ],
+          "domain_semantic_diff_ok": false,
+          "solver_projection_diff_ok": false,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "ok": false,
+          "accepted": true,
+          "failures": [
+            "domain_semantic_diff"
+          ],
+          "domain_semantic_diff_ok": false,
+          "solver_projection_diff_ok": true,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        }
+      ]
+    },
+    "five-02": {
+      "batch_id": "deepseek-generalized-20260915-02",
+      "passed": 5,
+      "accepted": 5,
+      "projection_passed": 5,
+      "cases": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "ok": true,
+          "accepted": true,
+          "failures": [],
+          "domain_semantic_diff_ok": true,
+          "solver_projection_diff_ok": true,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        },
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "ok": true,
+          "accepted": true,
+          "failures": [],
+          "domain_semantic_diff_ok": true,
+          "solver_projection_diff_ok": true,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        },
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "ok": true,
+          "accepted": true,
+          "failures": [],
+          "domain_semantic_diff_ok": true,
+          "solver_projection_diff_ok": true,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        },
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "ok": true,
+          "accepted": true,
+          "failures": [],
+          "domain_semantic_diff_ok": true,
+          "solver_projection_diff_ok": true,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "ok": true,
+          "accepted": true,
+          "failures": [],
+          "domain_semantic_diff_ok": true,
+          "solver_projection_diff_ok": true,
+          "attempt_count": 1,
+          "network_attempt_count": 2
+        }
+      ]
+    },
+    "holdout-01": {
+      "cases": [
+        {
+          "case": "open-boundary",
+          "accepted": true,
+          "domain_ok": false,
+          "projection_diff": {
+            "ok": true,
+            "first_mismatch": null,
+            "differences": []
+          },
+          "attempts": 1,
+          "network_attempts": 2
+        },
+        {
+          "case": "closed-boundary",
+          "accepted": true,
+          "domain_ok": true,
+          "projection_diff": {
+            "ok": true,
+            "first_mismatch": null,
+            "differences": []
+          },
+          "attempts": 1,
+          "network_attempts": 2
+        },
+        {
+          "case": "sibling-local",
+          "accepted": true,
+          "domain_ok": true,
+          "projection_diff": {
+            "ok": true,
+            "first_mismatch": null,
+            "differences": []
+          },
+          "attempts": 1,
+          "network_attempts": 2
+        }
+      ],
+      "passed": 2
+    },
+    "holdout-02": {
+      "cases": [
+        {
+          "case": "open-boundary",
+          "accepted": true,
+          "domain_ok": true,
+          "projection_diff": {
+            "ok": true,
+            "first_mismatch": null,
+            "differences": []
+          },
+          "attempts": 1,
+          "network_attempts": 2
+        },
+        {
+          "case": "closed-boundary",
+          "accepted": true,
+          "domain_ok": true,
+          "projection_diff": {
+            "ok": true,
+            "first_mismatch": null,
+            "differences": []
+          },
+          "attempts": 1,
+          "network_attempts": 2
+        },
+        {
+          "case": "sibling-local",
+          "accepted": true,
+          "domain_ok": true,
+          "projection_diff": {
+            "ok": true,
+            "first_mismatch": null,
+            "differences": []
+          },
+          "attempts": 1,
+          "network_attempts": 2
+        }
+      ],
+      "passed": 3
+    }
+  },
+  "archive_sha256": "ee6cf86632a1b8c4545e689c41d090db0c9eb1b016092043b1e25dd5856f6495",
+  "notes": [
+    "First five-case candidate compressed generic instructions too aggressively; final candidate restores full contract detail without sample-specific examples.",
+    "Holdout 01 is first exposure. Holdout 02 repeats exposed questions with the final policy; not an independent first-exposure score.",
+    "Independent fixtures use synthesized matching OCR, not a live OCR service. All model calls are real DeepSeek vision enabled/low.",
+    "Domain and projection gates remain separate. Unmatched/generic geometry and production deployment are not implemented here."
+  ]
+}

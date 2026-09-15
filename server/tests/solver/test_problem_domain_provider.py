@@ -63,12 +63,12 @@ def test_pass1_uses_strict_domain_schema_and_no_runtime_authoring_vocabulary(tmp
     assert request.redacted_payload()["stream_options"] == {"include_usage": True}
     assert '"schema_version":"problem-domain/v1"' in request.prompt.system
     prompt = request.prompt.user_debug
-    assert "仅当题面文字、Fact 或 Goal 实际引用坐标原点 O" in prompt
+    from shuxueshuo_server.solver.extraction.problem_domain_prompt_rules import DOMAIN_RULES
+    assert DOMAIN_RULES in prompt
     assert "不得仅因出现坐标系或抛物线而补 O" in prompt
     assert "关闭顶层 root 对象后立即结束输出" in request.prompt.system
-    assert "父 scope 已有相同 kind+label" in prompt
-    assert "不同的取值或约束只写在本 scope 的 Fact" in prompt
-    assert "不跨 sibling 合并" in prompt
+    assert "兄弟作用域的局部对象仍独立" in prompt
+    assert "局部给定数值和约束仍限于原作用域" in prompt
     for retired in (
         "runtime_preflights",
         "canonical handle",

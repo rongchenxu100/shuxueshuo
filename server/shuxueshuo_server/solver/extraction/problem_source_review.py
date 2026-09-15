@@ -1,6 +1,8 @@
 """Image-led source review. OCR discrepancies request review, never rewrite facts."""
 from __future__ import annotations
 
+from .problem_domain_prompt_rules import REPRESENTATION_RULES
+
 from copy import deepcopy
 from dataclasses import replace
 import fcntl
@@ -102,23 +104,7 @@ def build_review_request(draft, pack, reader, differences, response_format_mode)
                       for k, v in draft.unit_registry.items()},
             "auxiliary_differences": differences,
             "observations": pack.prompt_payload(), "schema": SCHEMA,
-            "representation_rules": "当前候选已经经过代码规范化；复核对象是数学题意，非生成格式或冗余表达。"
-                "symbol.role是内部用途标签：quadratic_coefficient、primary_parameter、parameter均表示函数系数或参数，"
-                "quadratic_coefficient在本系统不专指x²项；实际函数系数以function_expression为准。"
-                "minimum_value_given和minimum_target同时出现合法：代码从前者自动物化后者，禁止把它当成题意错误。"
-                "代码也会为多个子问共享的最值表达式在共同父scope物化minimum_target，这不扩大局部条件作用域。"
-                "minimum_target声明待求的表达式，并非题面给定的数值条件；共享表达式可位于父scope，"
-                "各子问的minimum_value_given与其他局部数值仍只在子scope生效。"
-                "同样，根据原文已给出的x_range展开符号范围、规范化坐标原点，以及由square_center展开对角线成员关系，"
-                "属于表示等价展开，不应仅因原图没有逐字写出这些内部primitive而要求删除。"
-                "对于题面M(f(t), y_M)在曲线上，若y_M只是未再使用的纵坐标占位记号，curve_at_x已完整表达其题意，"
-                "不应要求增加y_M Symbol或重复point_coordinate；source_text仍保留原文记号。"
-                "这与题面另行给定具体纵坐标数值或含其他变量的限制不同：后者必须保留，不能以占位符为由省略。"
-                "point_coordinate只给坐标，不声明曲线归属；题面另说该点在曲线上时须保留point_on_curve或其自身的曲线构造。"
-                "另一个交点的exclude_point引用不替被排除点声明曲线归属。公共题干按左右次序定义两个交点时，"
-                "分别用side=left/right；不能用相互循环exclude_point代替左右次序。"
-                "候选不得把自行计算或手写演算的坐标当成原题条件。比如只说与y轴交于C时，"
-                "y_axis_intercept足够，不应额外写从函数计算的C(0,c)；除非印刷原文明确给出了该坐标。"}
+            "representation_rules": REPRESENTATION_RULES}
     return replace(request, contract_version=CONTRACT, contract_schema=SCHEMA,
         response_format=schema_format if response_format_mode == "json_schema" else {"type": "json_object"},
         prompt=MultimodalExtractionPrompt(

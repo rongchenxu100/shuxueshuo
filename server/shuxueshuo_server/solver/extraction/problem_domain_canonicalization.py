@@ -119,6 +119,7 @@ class ProblemDomainCanonicalizer:
             root,
             path=(),
             visible_minimum_targets=frozenset(),
+            visible_expression_names=frozenset(),
             represented_minimum_targets=_represented_minimum_targets(root),
             visible_polygons={},
             visible_squares=frozenset(),
@@ -391,6 +392,7 @@ def _materialize_equivalent_primitive_facts(
     *,
     path: tuple[str, ...],
     visible_minimum_targets: frozenset[str],
+    visible_expression_names: frozenset[str],
     represented_minimum_targets: frozenset[str],
     visible_polygons: Mapping[str, tuple[str, ...]],
     visible_squares: frozenset[str],
@@ -400,6 +402,10 @@ def _materialize_equivalent_primitive_facts(
 
     scope_path_tuple = (*path, str(scope["id"]))
     scope_path = "/".join(scope_path_tuple)
+    expression_names = visible_expression_names | frozenset(
+        str(entity[key]) for entity in scope.get("entities", ())
+        for key in ("id", "label")
+    )
     facts: list[Mapping[str, Any]] = []
     for source_fact in scope.get("facts", ()):
         fact = deepcopy(source_fact)
@@ -502,7 +508,7 @@ def _materialize_equivalent_primitive_facts(
                     action_code="materialize_square_diagonal_center", source_name=f"diagonal_membership:{point}",
                     target_name=f"square_center:{point}")
 
-    for expression in _shared_child_minimum_target_expressions(scope):
+    for expression in _shared_child_minimum_target_expressions(scope, expression_names):
         append_if_missing(
             {
                 "kind": "minimum_target",
@@ -606,6 +612,7 @@ def _materialize_equivalent_primitive_facts(
             child,
             path=scope_path_tuple,
             visible_minimum_targets=frozenset(minimum_targets),
+            visible_expression_names=expression_names,
             represented_minimum_targets=represented_minimum_targets,
             visible_polygons=polygons,
             visible_squares=frozenset(squares),
@@ -720,6 +727,7 @@ def _represented_minimum_targets(root: Mapping[str, Any]) -> frozenset[str]:
 
 def _shared_child_minimum_target_expressions(
     scope: Mapping[str, Any],
+    visible_names: frozenset[str],
 ) -> tuple[Mapping[str, Any], ...]:
     """Return minimum expressions required by two immediate child branches."""
 
@@ -746,6 +754,15 @@ def _shared_child_minimum_target_expressions(
             )
             for expression in values:
                 if not isinstance(expression, Mapping):
+                    continue
+                # Identical local spelling does not imply a shared identity.
+                # Hoist only when every endpoint and weight symbol is visible here.
+                terms = expression.get("terms", ())
+                required = set()
+                for term in terms:
+                    required.update(str(v) for v in term.get("segment", {}).values())
+                    required.update(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", str(term.get("scale", "1"))))
+                if not required <= visible_names | {"sqrt"}:
                     continue
                 signature = _stable_payload({"expression": expression})
                 existing = by_signature.get(signature)

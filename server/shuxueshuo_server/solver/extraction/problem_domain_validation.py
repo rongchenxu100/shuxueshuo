@@ -41,6 +41,7 @@ _VALIDATOR_IDS = (
     "scope/v1",
     "lexical-reference/v1",
     "expression/v1",
+    "expression-spelling/v1",
     "entity-use/v1",
     "source-literal/v2",
     "source-kind/v1",

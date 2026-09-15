@@ -1,0 +1,57 @@
+F..                                                                      [100%]
+=================================== FAILURES ===================================
+___________________ test_live_frozen_holdout[open-boundary] ____________________
+
+tmp_path = PosixPath('/private/var/folders/wl/4_4jw_wx531_248clmdd8njm0000gn/T/pytest-of-haorong/pytest-2204/test_live_frozen_holdout_open_0')
+case = 'open-boundary'
+
+    @pytest.mark.live_llm
+    @pytest.mark.parametrize('case',CASES)
+    def test_live_frozen_holdout(tmp_path,case):
+        from test_deepseek_vision import live_config
+        config=live_config()
+        frozen=json.loads((FIXTURES/'frozen-protocol.json').read_text())
+        repo=Path(__file__).resolve().parents[3]
+        for name,digest in frozen['files'].items():
+            assert sha256((repo/name).read_bytes()).hexdigest()==digest, f'Frozen protocol changed: {name}'
+        output=Path(os.environ.get('UNDERSTANDING_HOLDOUT_OUTPUT',str(tmp_path)))/case
+        output.mkdir(parents=True,exist_ok=False)
+>       run_case(output,case,create_vision_provider(config))
+
+tests/solver/test_understanding_holdout.py:151:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+output = PosixPath('/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/understanding-holdout-20260915-01/open-boundary')
+case = 'open-boundary'
+client = DeepSeekMultimodalExtractionProvider(api_key='<redacted-api-key>', base_url='https://api.deepseek.com...che_hit_tokens': 256, 'prompt_cache_miss_tokens': 2981}, last_response_model='deepseek-flash', max_output_tokens=16384)
+
+    def run_case(output, case, client):
+        initial,context,store,pack=holdout_input(output,case)
+        run=ProblemDomainExtractionService(input_artifact_reader=store,output_artifact_store=store,provider=client).run(
+            context,attempt_ledger=ExtractionAttemptLedger.for_context(context),ancestor_contexts=(initial,),max_attempts=3)
+        ProblemDomainDebugWriter().write(run,output)
+        expected=ProblemDomainValidator().validate(ProblemDraft.create(gold(case)))
+        actual=run.verified_problem.graph if run.verified_problem else None
+        diff=compare_solver_projection_semantics(expected.projection.canonical_input,run.solver_projection.canonical_input) if run.solver_projection else None
+        reviews=[a.source_review for a in run.attempts if a.source_review]
+        networks=sum(len(a.provider_response.provider_attempts) if a.provider_response else
+                     len(a.attempt_record.usage.get('provider_attempts',[])) for a in run.attempts)
+        networks+=sum(len(r.get('usage',{}).get('provider_attempts',[])) for r in reviews)
+        assert len(run.attempts)<=3 and len(reviews)<=3 and len(run.attempts)+len(reviews)<=6 and networks<=12
+        for attempt in run.attempts:
+            assert attempt.request.images and attempt.request.thinking_mode=='enabled' and attempt.request.reasoning_effort=='low'
+            assert all(sha256(i.content).hexdigest()==i.artifact.sha256 for i in attempt.request.images)
+        for review in reviews:
+            assert review['usage']['thinking_mode']=='enabled' and review['usage']['reasoning_effort']=='low'
+        summary={'reviews':reviews,'network_attempts':networks,'case':case,'accepted':run.accepted,'domain_ok':bool(actual and actual.semantic_hash==expected.draft.semantic_hash),
+            'projection_diff':diff.to_payload() if diff else None,'attempts':len(run.attempts)}
+        (output/'holdout-result.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2))
+>       assert run.accepted and summary['domain_ok'] and diff.ok, summary
+E       AssertionError: {'accepted': True, 'attempts': 1, 'case': 'open-boundary', 'domain_ok': False, ...}
+E       assert (True and False)
+E        +  where True = ProblemDomainExtractionRunResult(base_context=ProblemExtractionContext(manifest=ExtractionContextManifest(context_id='...tity:root:t',), 'symbol:problem:x': ('entity:root:x',)}), value_object_sources=mappingproxy({}))), blocked_reason=None).accepted
+
+tests/solver/test_understanding_holdout.py:95: AssertionError
+=========================== short test summary info ============================
+FAILED tests/solver/test_understanding_holdout.py::test_live_frozen_holdout[open-boundary]
+1 failed, 2 passed, 8 deselected in 134.98s (0:02:14)

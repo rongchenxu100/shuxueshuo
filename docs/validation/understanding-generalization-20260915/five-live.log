@@ -1,0 +1,31 @@
+tj-2026-heping-ermo-25/sample-01: ok=False attempts=1
+tj-2026-xiqing-yimo-25/sample-01: ok=False attempts=1
+tj-2026-hexi-yimo-25/sample-01: ok=True attempts=1
+tj-2026-nankai-yimo-25/sample-01: ok=False attempts=1
+tj-2026-heping-yimo-25/sample-01: ok=False attempts=1
+{
+  "accepted_count": 5,
+  "batch_id": "deepseek-generalized-20260915-01",
+  "configuration_error_count": 0,
+  "domain_semantic_diff_zero_count": 1,
+  "family_match_count": 5,
+  "full_question_image_input_rate": 1.0,
+  "ok": false,
+  "passed_count": 1,
+  "planner_call_count": 0,
+  "review_index": "review.html",
+  "sample_count": 5,
+  "schema_version": "problem-domain-smoke-summary/v1",
+  "semantic_retry_patch_output_rate": 1.0,
+  "solver_call_count": 0,
+  "solver_projection_diff_zero_count": 4,
+  "source_input_complete_rate": 1.0,
+  "unclassified_error_count": 0,
+  "usage": {
+    "completion_tokens": 97640,
+    "prompt_cache_hit_tokens": 33024,
+    "prompt_cache_miss_tokens": 98604,
+    "prompt_tokens": 131628,
+    "total_tokens": 229268
+  }
+}

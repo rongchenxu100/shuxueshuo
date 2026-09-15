@@ -1,0 +1,30 @@
+{
+  "version": "understanding-holdout/v1",
+  "provenance": "New authored synthetic questions; not transformations of the five acceptance fixtures. OCR records are synthetic transcripts, not real OCR output. Gold and prompts frozen before first live call.",
+  "cases": [
+    {
+      "id": "open-boundary",
+      "files": {
+        "source.png": "46dfe75121fe22b80b0dc8955140a40ff592f122c9e72bb27bfffbe0da60d6e6",
+        "gold.json": "01f11c5e58332f7c39d37991a7fcb07b578a3b4794f55344bfc48243441bdeb5",
+        "observation.json": "15efc473562ca03f66edc3450d185866e199930d37d738c03e2ef0fb3c9c25ce"
+      }
+    },
+    {
+      "id": "closed-boundary",
+      "files": {
+        "source.png": "04c9a7edc835373569e4b67e1613fd7c69ef37ea8cdcf6fe86ea8ef10239362b",
+        "gold.json": "2ae2cf600c078686e07ed937ff55b6ab6938de2780a40ffc13b75f25b144a181",
+        "observation.json": "7b127efcc00b8be7474fb581beea9d1dd6bd62619430a7233e8f2dfe70674c2e"
+      }
+    },
+    {
+      "id": "sibling-local",
+      "files": {
+        "source.png": "e6cee235d66b56813f8339718bfe1a07bccfa3e0ddc169ec1086bb45e854c83c",
+        "gold.json": "103254e11f5210f4412042f7e22eb167d946e96f3a6f3f81ec2c35b59bf845a1",
+        "observation.json": "572ec74bf06bda1a3f198471ccd790348a80562ad32f39dacafa6413f8d3b5a8"
+      }
+    }
+  ]
+}
