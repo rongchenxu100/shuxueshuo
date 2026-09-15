@@ -18,6 +18,9 @@ internal/solver-runs/understanding-holdout-*/
 internal/review-runs/
 internal/review-analysis/
 
+# Large acceptance evidence archives (keep locally / out of band; not for Git)
+docs/validation/**/evidence.tar.gz
+
 # Local Manim video experiments and rendered deliverables
 videos/basic-inequality-proof/
 site/assets/xiaohongshu/basic-inequality-why-carousel/basic-inequality-proof.mp4

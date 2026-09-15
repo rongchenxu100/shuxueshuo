@@ -17,8 +17,8 @@
 ## 记录与核验
 
 - [summary.json](summary.json)：五题结果、具体语义哈希、图片哈希、调用数、复核触发原因和实现文件哈希。
-- [evidence.tar.gz](evidence.tar.gz)：原始模型返回、实际请求的脱敏表示、完整图片字节、复核请求和结果、差异报告、领域草稿、Solver 投影及图像依赖 smoke。约 7 MiB。
-- [verify.py](verify.py)：无需模型、OCR 或数据库，核验归档与图片字节、领域金标哈希、预算和当前源码版本。
+- `evidence.tar.gz`（**不入库**，本地或带外保存）：原始模型返回、实际请求的脱敏表示、完整图片字节、复核请求和结果、差异报告、领域草稿、Solver 投影及图像依赖 smoke。约 7 MiB。Git 忽略 `docs/validation/**/evidence.tar.gz`。
+- [verify.py](verify.py)：无需模型、OCR 或数据库；**需本地已有** `evidence.tar.gz` 时核验归档与图片字节、领域金标哈希、预算和当前源码版本。
 
 归档保留模型响应原文；只将顶层报告中的本机目录替换成 `<batch>` / `<repo>`。包含本机 locator 的 checkpoint 不作为公开验收记录收录；内容寻址产物不重写。重复图片按 SHA-256 收录一次，`manifest.json.image_files` 给出图片位置。归档用于审计，不作为产品恢复 checkpoint。
 

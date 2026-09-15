@@ -67,7 +67,9 @@ RUN_LLM_INTEGRATION=1 UNDERSTANDING_HOLDOUT_OUTPUT=/absolute/new-output \
 
 ## 归档核验
 
-`evidence.tar.gz` 包含两轮五题与两轮新题的请求、原始响应、复核产物、草稿、投影和差异报告；图片按 SHA-256 去重。`summary.json` 汇总各批次成绩。图片和 JSON 产物不改写，内容寻址引用保持原始审计含义；本归档不作为可恢复的业务 checkpoint。
+`evidence.tar.gz`（**不入库**，本地或带外保存；Git 忽略 `docs/validation/**/evidence.tar.gz`）包含两轮五题与两轮新题的请求、原始响应、复核产物、草稿、投影和差异报告；图片按 SHA-256 去重。`summary.json` 汇总各批次成绩并可入库。图片和 JSON 产物不改写，内容寻址引用保持原始审计含义；本归档不作为可恢复的业务 checkpoint。
+
+本地已有归档时：
 
 ```bash
 python3 docs/validation/understanding-generalization-20260915/verify.py
