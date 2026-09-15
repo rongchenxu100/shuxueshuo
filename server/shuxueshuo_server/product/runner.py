@@ -140,7 +140,7 @@ class StageRunner:
         from shuxueshuo_server.solver.extraction.context import ExtractionAttemptLedger, SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND
         from shuxueshuo_server.solver.extraction.problem_domain_service import ProblemDomainExtractionService
         from shuxueshuo_server.solver.extraction.problem_source_review import SOURCE_REVIEW_BLOCKING_CODES
-        from shuxueshuo_server.solver.extraction.multimodal_provider import DoubaoMultimodalExtractionProvider
+        from shuxueshuo_server.solver.extraction.multimodal_provider import create_vision_provider
         from shuxueshuo_server.review.replay import archive_bytes, ARCHIVE, extraction_store
         initial, observation, _ = x.contexts()
         store = extraction_store(x.work / 'extraction-artifacts')
@@ -165,9 +165,8 @@ class StageRunner:
             x.service.bind_requested_revision(*x.args)
         else:
             require_source_review_config(x.build)
-            if not x.config.doubao_api_key: raise ProductError('configuration.extraction_key_missing')
-            provider = AuditedClient(DoubaoMultimodalExtractionProvider(api_key=x.config.doubao_api_key,
-                base_url=x.config.doubao_base_url, model=x.config.doubao_model, request_timeout=180), x)
+            if not x.config.deepseek_api_key: raise ProductError('configuration.extraction_key_missing')
+            provider = AuditedClient(create_vision_provider(x.config, frozen_config=x.build['effective_config']['extraction']), x)
             result = ProblemDomainExtractionService(input_artifact_reader=store, output_artifact_store=store, provider=provider).run(
                 observation, attempt_ledger=ExtractionAttemptLedger.for_context(observation), ancestor_contexts=(initial,), max_attempts=3)
             for attempt in result.attempts:

@@ -110,7 +110,15 @@ def build_review_request(draft, pack, reader, differences, response_format_mode)
                 "minimum_target声明待求的表达式，并非题面给定的数值条件；共享表达式可位于父scope，"
                 "各子问的minimum_value_given与其他局部数值仍只在子scope生效。"
                 "同样，根据原文已给出的x_range展开符号范围、规范化坐标原点，以及由square_center展开对角线成员关系，"
-                "属于表示等价展开，不应仅因原图没有逐字写出这些内部primitive而要求删除。"}
+                "属于表示等价展开，不应仅因原图没有逐字写出这些内部primitive而要求删除。"
+                "对于题面M(f(t), y_M)在曲线上，若y_M只是未再使用的纵坐标占位记号，curve_at_x已完整表达其题意，"
+                "不应要求增加y_M Symbol或重复point_coordinate；source_text仍保留原文记号。"
+                "这与题面另行给定具体纵坐标数值或含其他变量的限制不同：后者必须保留，不能以占位符为由省略。"
+                "point_coordinate只给坐标，不声明曲线归属；题面另说该点在曲线上时须保留point_on_curve或其自身的曲线构造。"
+                "另一个交点的exclude_point引用不替被排除点声明曲线归属。公共题干按左右次序定义两个交点时，"
+                "分别用side=left/right；不能用相互循环exclude_point代替左右次序。"
+                "候选不得把自行计算或手写演算的坐标当成原题条件。比如只说与y轴交于C时，"
+                "y_axis_intercept足够，不应额外写从函数计算的C(0,c)；除非印刷原文明确给出了该坐标。"}
     return replace(request, contract_version=CONTRACT, contract_schema=SCHEMA,
         response_format=schema_format if response_format_mode == "json_schema" else {"type": "json_object"},
         prompt=MultimodalExtractionPrompt(
@@ -240,13 +248,17 @@ class SourceReviewer:
             # three semantic outcomes. model_status preserves its raw decision.
             review = {"schema_version": CONTRACT, "status": "failed", "binding": key}
             phase = "request"
+            invoked = False
             try:
                 if not provider.supports_images:
                     raise ValueError("source review requires an image-capable provider")
                 request = build_review_request(draft, pack, reader, differences, provider.response_format_mode)
+                from .multimodal_provider import prepare_provider_request
+                request = prepare_provider_request(provider, request)
                 artifacts.append(self.store.put_json(kind="problem_source_review_request", payload=request.redacted_payload()))
                 # The product journal may have completed before this file was
                 # committed. Recovery is read-only; never reissue a paid call.
+                invoked = True
                 response = provider.restore_source_review(request) if recovering else provider.complete(request)
                 if response is None:
                     raise ValueError("previous review outcome is unknown")
@@ -266,6 +278,13 @@ class SourceReviewer:
                 artifacts.append(self.store.put_json(kind="problem_source_review_result", payload=parsed))
                 review.update(parsed)
             except Exception as exc:
+                if invoked and phase == "request":
+                    review["usage"] = {"provider": getattr(provider, "provider_name", None),
+                        "request_model": getattr(provider, "model", None),
+                        "response_model": getattr(provider, "last_response_model", None),
+                        "provider_attempts": list(getattr(provider, "last_provider_attempts", ())),
+                        "usage": getattr(provider, "last_usage", None),
+                        "thinking_mode": request.thinking_mode, "reasoning_effort": request.reasoning_effort}
                 # SDK exception strings can contain sensitive request data.
                 review["error"] = "source review failed: " + type(exc).__name__
                 review["status"] = "failed"

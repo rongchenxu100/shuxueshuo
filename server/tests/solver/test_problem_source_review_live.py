@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 from shuxueshuo_server.solver.extraction.context import ExtractionAttemptLedger
-from shuxueshuo_server.solver.extraction.multimodal_provider import DoubaoMultimodalExtractionProvider
+from shuxueshuo_server.solver.extraction.multimodal_provider import create_vision_provider
 from shuxueshuo_server.solver.extraction.problem_domain import ProblemDraft
 from shuxueshuo_server.solver.extraction.problem_domain_debug import ProblemDomainDebugWriter
 from shuxueshuo_server.solver.extraction.problem_domain_service import ProblemDomainExtractionService
@@ -22,11 +22,10 @@ def test_heping_layout_miss_real_multimodal_extraction(tmp_path, sample):
     if os.environ.get('RUN_LLM_INTEGRATION') != '1':
         pytest.skip('requires explicit RUN_LLM_INTEGRATION=1')
     config = SolverRuntimeConfig.from_sources()
-    assert config.doubao_api_key, 'live extraction requires configured Doubao credentials'
+    assert config.deepseek_api_key, 'live extraction requires configured DeepSeek credentials'
     output = Path(os.environ.get('SOURCE_REVIEW_LIVE_OUTPUT', str(tmp_path))) / f'sample-{sample}'
     initial, context, store, _ = recorded_input(output)
-    provider = DoubaoMultimodalExtractionProvider(api_key=config.doubao_api_key,
-        base_url=config.doubao_base_url, model=config.doubao_model, request_timeout=180)
+    provider = create_vision_provider(config)
     result = ProblemDomainExtractionService(input_artifact_reader=store, output_artifact_store=store, provider=provider).run(
         context, attempt_ledger=ExtractionAttemptLedger.for_context(context), ancestor_contexts=(initial,))
     ProblemDomainDebugWriter().write(result, output / 'debug')

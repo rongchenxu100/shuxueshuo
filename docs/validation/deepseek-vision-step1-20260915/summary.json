@@ -1,0 +1,381 @@
+{
+  "accepted_count": 5,
+  "batch_id": "deepseek-vision-20260915-05",
+  "cases": [
+    {
+      "acceptance_evidence": {
+        "domain_semantic_hash": "aa0f5282318c76fc4dd8b452e262ee259e86d8642859e5319a9d19ad28ee4a04",
+        "gold_domain_semantic_hash": "aa0f5282318c76fc4dd8b452e262ee259e86d8642859e5319a9d19ad28ee4a04",
+        "image_inputs": [
+          {
+            "artifact_id": "artifact:selection_crop:c70ad3fd8640ac6c1948e2717878255d17e57bac096f937768ca237f77e74284",
+            "byte_size": 919226,
+            "height": 1700,
+            "image_id": "primary:page_1:c70ad3fd8640ac6c1948e2717878255d17e57bac096f937768ca237f77e74284",
+            "media_type": "image/png",
+            "page_id": "page_1",
+            "role": "primary",
+            "sha256": "c70ad3fd8640ac6c1948e2717878255d17e57bac096f937768ca237f77e74284",
+            "width": 1530
+          }
+        ],
+        "projection_diff": {
+          "differences": [],
+          "first_mismatch": null,
+          "ok": true
+        }
+      },
+      "accepted": true,
+      "attempt_count": 1,
+      "domain_semantic_diff_ok": true,
+      "failures": [],
+      "family_ok": true,
+      "final_issue_code": null,
+      "full_question_image_input": true,
+      "network_attempt_count": 2,
+      "ok": true,
+      "problem_id": "tj-2026-heping-ermo-25",
+      "provider": "deepseek",
+      "retry_patch_only": true,
+      "reviews": [
+        {
+          "latency_ms": 37511,
+          "reasoning_effort": "low",
+          "status": "confirmed",
+          "thinking_mode": "enabled",
+          "trigger_codes": [
+            "extraction.formula_observation_unresolved",
+            "extraction.observation_confidence_low",
+            "extraction.observation_origin_unresolved",
+            "ocr_transcription_difference"
+          ]
+        }
+      ],
+      "sample_index": 1,
+      "semantic_call_count": 2,
+      "solver_projection_diff_ok": true,
+      "source_input_complete": true
+    },
+    {
+      "acceptance_evidence": {
+        "domain_semantic_hash": "19a88ed167c0f1da990efa0a2f50b4aab63d527233e8b19cc74900f8f08c4af9",
+        "gold_domain_semantic_hash": "19a88ed167c0f1da990efa0a2f50b4aab63d527233e8b19cc74900f8f08c4af9",
+        "image_inputs": [
+          {
+            "artifact_id": "artifact:selection_crop:5dc83adde99e9eabd8aaf4b76ea8b714cf776b5b0962c52507d666a568945fd5",
+            "byte_size": 1533040,
+            "height": 2032,
+            "image_id": "primary:page_1:5dc83adde99e9eabd8aaf4b76ea8b714cf776b5b0962c52507d666a568945fd5",
+            "media_type": "image/png",
+            "page_id": "page_1",
+            "role": "primary",
+            "sha256": "5dc83adde99e9eabd8aaf4b76ea8b714cf776b5b0962c52507d666a568945fd5",
+            "width": 1458
+          }
+        ],
+        "projection_diff": {
+          "differences": [],
+          "first_mismatch": null,
+          "ok": true
+        }
+      },
+      "accepted": true,
+      "attempt_count": 2,
+      "domain_semantic_diff_ok": true,
+      "failures": [],
+      "family_ok": true,
+      "final_issue_code": null,
+      "full_question_image_input": true,
+      "network_attempt_count": 3,
+      "ok": true,
+      "problem_id": "tj-2026-heping-yimo-25",
+      "provider": "deepseek",
+      "retry_patch_only": true,
+      "reviews": [
+        {
+          "latency_ms": 44361,
+          "reasoning_effort": "low",
+          "status": "confirmed",
+          "thinking_mode": "enabled",
+          "trigger_codes": [
+            "extraction.formula_observation_unresolved",
+            "extraction.observation_confidence_low",
+            "extraction.observation_origin_unresolved",
+            "extraction.printed_content_unrecoverable",
+            "extraction.source_occluded",
+            "ocr_transcription_difference"
+          ]
+        }
+      ],
+      "sample_index": 1,
+      "semantic_call_count": 3,
+      "solver_projection_diff_ok": true,
+      "source_input_complete": true
+    },
+    {
+      "acceptance_evidence": {
+        "domain_semantic_hash": "7e554c69826ffec347153ac3f81988f4803eeda04a30ddb2141989f6b08a2f77",
+        "gold_domain_semantic_hash": "7e554c69826ffec347153ac3f81988f4803eeda04a30ddb2141989f6b08a2f77",
+        "image_inputs": [
+          {
+            "artifact_id": "artifact:selection_crop:819dae2c6dc8a5991135fb64546203d5302c05acf8dd582c071e379d8ba85235",
+            "byte_size": 382179,
+            "height": 1634,
+            "image_id": "primary:page_1:819dae2c6dc8a5991135fb64546203d5302c05acf8dd582c071e379d8ba85235",
+            "media_type": "image/png",
+            "page_id": "page_1",
+            "role": "primary",
+            "sha256": "819dae2c6dc8a5991135fb64546203d5302c05acf8dd582c071e379d8ba85235",
+            "width": 1752
+          }
+        ],
+        "projection_diff": {
+          "differences": [],
+          "first_mismatch": null,
+          "ok": true
+        }
+      },
+      "accepted": true,
+      "attempt_count": 1,
+      "domain_semantic_diff_ok": true,
+      "failures": [],
+      "family_ok": true,
+      "final_issue_code": null,
+      "full_question_image_input": true,
+      "network_attempt_count": 2,
+      "ok": true,
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "provider": "deepseek",
+      "retry_patch_only": true,
+      "reviews": [
+        {
+          "latency_ms": 67073,
+          "reasoning_effort": "low",
+          "status": "confirmed",
+          "thinking_mode": "enabled",
+          "trigger_codes": [
+            "extraction.formula_observation_unresolved",
+            "extraction.observation_confidence_low",
+            "extraction.observation_origin_unresolved",
+            "ocr_transcription_difference"
+          ]
+        }
+      ],
+      "sample_index": 1,
+      "semantic_call_count": 2,
+      "solver_projection_diff_ok": true,
+      "source_input_complete": true
+    },
+    {
+      "acceptance_evidence": {
+        "domain_semantic_hash": "99970b19089e3506eb71d34190b80c9e4057db1b74afeec36c9d2d8b0decfe9b",
+        "gold_domain_semantic_hash": "99970b19089e3506eb71d34190b80c9e4057db1b74afeec36c9d2d8b0decfe9b",
+        "image_inputs": [
+          {
+            "artifact_id": "artifact:selection_crop:531c5f67a6dc69bce47a84065c37d2583ccb15cf496b408f3ff1070a21f911d2",
+            "byte_size": 1059857,
+            "height": 2652,
+            "image_id": "primary:page_1:531c5f67a6dc69bce47a84065c37d2583ccb15cf496b408f3ff1070a21f911d2",
+            "media_type": "image/png",
+            "page_id": "page_1",
+            "role": "primary",
+            "sha256": "531c5f67a6dc69bce47a84065c37d2583ccb15cf496b408f3ff1070a21f911d2",
+            "width": 1200
+          }
+        ],
+        "projection_diff": {
+          "differences": [],
+          "first_mismatch": null,
+          "ok": true
+        }
+      },
+      "accepted": true,
+      "attempt_count": 1,
+      "domain_semantic_diff_ok": true,
+      "failures": [],
+      "family_ok": true,
+      "final_issue_code": null,
+      "full_question_image_input": true,
+      "network_attempt_count": 2,
+      "ok": true,
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "provider": "deepseek",
+      "retry_patch_only": true,
+      "reviews": [
+        {
+          "latency_ms": 51795,
+          "reasoning_effort": "low",
+          "status": "confirmed",
+          "thinking_mode": "enabled",
+          "trigger_codes": [
+            "extraction.formula_observation_unresolved",
+            "extraction.observation_confidence_low",
+            "extraction.observation_origin_unresolved",
+            "ocr_transcription_difference"
+          ]
+        }
+      ],
+      "sample_index": 1,
+      "semantic_call_count": 2,
+      "solver_projection_diff_ok": true,
+      "source_input_complete": true
+    },
+    {
+      "acceptance_evidence": {
+        "domain_semantic_hash": "580d67f75ca4e5e0198c7ad4f6e50e7c0effee6177ae04d6c0c38fdbfe59633a",
+        "gold_domain_semantic_hash": "580d67f75ca4e5e0198c7ad4f6e50e7c0effee6177ae04d6c0c38fdbfe59633a",
+        "image_inputs": [
+          {
+            "artifact_id": "artifact:selection_crop:bc588c2004f68a87c88092ac60e7df1cc4b70a4809c97e626e1d7fde3ce92bc4",
+            "byte_size": 2288734,
+            "height": 2294,
+            "image_id": "primary:page_1:bc588c2004f68a87c88092ac60e7df1cc4b70a4809c97e626e1d7fde3ce92bc4",
+            "media_type": "image/png",
+            "page_id": "page_1",
+            "role": "primary",
+            "sha256": "bc588c2004f68a87c88092ac60e7df1cc4b70a4809c97e626e1d7fde3ce92bc4",
+            "width": 1604
+          }
+        ],
+        "projection_diff": {
+          "differences": [],
+          "first_mismatch": null,
+          "ok": true
+        }
+      },
+      "accepted": true,
+      "attempt_count": 1,
+      "domain_semantic_diff_ok": true,
+      "failures": [],
+      "family_ok": true,
+      "final_issue_code": null,
+      "full_question_image_input": true,
+      "network_attempt_count": 2,
+      "ok": true,
+      "problem_id": "tj-2026-xiqing-yimo-25",
+      "provider": "deepseek",
+      "retry_patch_only": true,
+      "reviews": [
+        {
+          "latency_ms": 61678,
+          "reasoning_effort": "low",
+          "status": "confirmed",
+          "thinking_mode": "enabled",
+          "trigger_codes": [
+            "extraction.formula_observation_unresolved",
+            "extraction.observation_confidence_low",
+            "extraction.observation_origin_unresolved",
+            "extraction.printed_content_unrecoverable",
+            "extraction.source_occluded"
+          ]
+        }
+      ],
+      "sample_index": 1,
+      "semantic_call_count": 2,
+      "solver_projection_diff_ok": true,
+      "source_input_complete": true
+    }
+  ],
+  "configuration_error_count": 0,
+  "domain_semantic_diff_zero_count": 5,
+  "evidence_archive_sha256": "c0879d90cae2972e841df3b47f0e77cea72ea4a24c44b0e735fcdd0ba8240f9d",
+  "family_match_count": 5,
+  "full_question_image_input_rate": 1.0,
+  "implementation_sha256": {
+    "server/shuxueshuo_server/solver/extraction/__init__.py": "b3988e02c49b2f974dee4861999e9693b99105b406228e07de03fd50580f2019",
+    "server/shuxueshuo_server/solver/extraction/artifacts.py": "794d43cb09a0d8d83ad3be28265cd96a8505a8290aee3478283885f1ca3b2c9a",
+    "server/shuxueshuo_server/solver/extraction/attempt_ledger_store.py": "f9437c7606e0ed60f206edd485fa84bf87318aa1c7c37294da5333f82801e203",
+    "server/shuxueshuo_server/solver/extraction/context.py": "bad95e68fa9f741da11f65a8efe526a379ea69d2b4f4ffdcc3822643d7e81b9f",
+    "server/shuxueshuo_server/solver/extraction/f0_adapter.py": "e09469676840bcba5dfeb774ce41f6e9ab42844185a77791282cf007e6064c14",
+    "server/shuxueshuo_server/solver/extraction/f2_smoke.py": "7ce77bdbd7804e0a4f9d47d165f3123d3cd4983f1c72a62ac1a93f514e621faa",
+    "server/shuxueshuo_server/solver/extraction/gold_corpus.py": "69d75211b5cb956a70e3ce7aacac64523a1031c5302bb5146d6dfec6a3aaf0f3",
+    "server/shuxueshuo_server/solver/extraction/handwriting.py": "03d16a7bd4425d908a7aaf2e2c222fca715a587e566cf0033ee90a8478b7f3da",
+    "server/shuxueshuo_server/solver/extraction/multimodal_evidence.py": "f82e610bfb3ebf00a7d7f74777237b6b3ef7920a8abbc2f508b3c600cc657d49",
+    "server/shuxueshuo_server/solver/extraction/multimodal_provider.py": "da223e269e5889ce166351d80e95b6d0e5d5c5ba350d493a573daff98b919c0f",
+    "server/shuxueshuo_server/solver/extraction/observation_context.py": "fcbb697c8b5cfa0745c09587a638afac7aa95bb69acf20ea356aae8081fe55aa",
+    "server/shuxueshuo_server/solver/extraction/observation_pipeline.py": "c3460ca78bed59a8c0a023b0d905b29fa8161d51926cde71273dbc69250bd20e",
+    "server/shuxueshuo_server/solver/extraction/observations.py": "9aea8f1511d378f4ee05433726d7d37e9307daa55e8515de9ec446c86f20bc3f",
+    "server/shuxueshuo_server/solver/extraction/paddle_worker.py": "7c08d2726c49e130ff8a4a811209170f2d3a4191eb9f1e5e4b4d2aa03f13cd22",
+    "server/shuxueshuo_server/solver/extraction/pdf_ingestion.py": "b9c9c684de498620b95b47b54a7b8eae4c4438488e9c8f9a8ce62e0c3cff24b0",
+    "server/shuxueshuo_server/solver/extraction/problem_cold_path.py": "769750e943630abf7bd3436885d13341b8f17f3ce654e0a654e52be944609a72",
+    "server/shuxueshuo_server/solver/extraction/problem_cold_path_smoke.py": "1468cf392526366af0377844240a9b842345e8760c43d32b2e4276394a7f1be7",
+    "server/shuxueshuo_server/solver/extraction/problem_domain.py": "66559677074fdfda313f75a28b92e8d7f372cfc8f632ecab13fe4d51ed4e51cb",
+    "server/shuxueshuo_server/solver/extraction/problem_domain_canonicalization.py": "19b7af360efd8b786a1ef4152be8e6ef5680a5f18f8ce2b7ffa274542ce8fe41",
+    "server/shuxueshuo_server/solver/extraction/problem_domain_context.py": "fed86a51d54009b98fb7dd0901bfb11b75e886e28ada83a90095ce505fed6f1a",
+    "server/shuxueshuo_server/solver/extraction/problem_domain_debug.py": "6e27e748b7b828ae898073983456019e9e9c67ea24eaaf2f3f78d73be7376bf0",
+    "server/shuxueshuo_server/solver/extraction/problem_domain_projection.py": "7167fc5ffda4b81d41106ae3c9e280c5b4bda49581b45a568796320965165b8a",
+    "server/shuxueshuo_server/solver/extraction/problem_domain_service.py": "c8cb6a98073ccb3b281ac4020083036f96ee6fe7cb6e98bc5846c79980c690a8",
+    "server/shuxueshuo_server/solver/extraction/problem_domain_smoke.py": "c357683ed8bbea7c40be5ab7abc46bc04b4e722477c48cb31251b9b23a75c779",
+    "server/shuxueshuo_server/solver/extraction/problem_domain_validation.py": "6225136855114442085059a8e23262373d131c9e7097ce5ef83672c80c5f3d18",
+    "server/shuxueshuo_server/solver/extraction/problem_ir_runtime_preflight.py": "e7f0d5affb05150b87898a0a6f23746a247f2a0d25b988033d9b08258d067d84",
+    "server/shuxueshuo_server/solver/extraction/problem_planner_authority.py": "0e28b4a804455a07ffe070d5b3a095e38c148a162ccafb2af74f3149843b0d94",
+    "server/shuxueshuo_server/solver/extraction/problem_planning_binding.py": "f38b9c07b4a3695a274542c058e4859317b3b7f384641ebfbfb9ba161c4f5a97",
+    "server/shuxueshuo_server/solver/extraction/problem_planning_context.py": "1954f2107eab008c3c068b0b35f8b6d8a55e464855c66b1768172b3b3adbb421",
+    "server/shuxueshuo_server/solver/extraction/problem_planning_retry.py": "3c9052bb72116e56ae4c231c93e5b54c919c9f9515ddc2773f378eb88ef34e10",
+    "server/shuxueshuo_server/solver/extraction/problem_solver_bundle.py": "735847e757a504ea82e0ceba0425770bc534c65f51e925875ece20b36954e2ea",
+    "server/shuxueshuo_server/solver/extraction/problem_source_review.py": "06520213437e99328bf09831d64b99596d8c339b8ad896dbc161a8b49ac18a39",
+    "server/shuxueshuo_server/solver/extraction/recorded_inputs.py": "938d8dfc1025bfc82f0ced7410b59d5b8f6e7265ac9e09077c1c86cb14271310",
+    "server/shuxueshuo_server/solver/extraction/review.py": "cbc5971f14aef086e9da2947e5a6fe83c1533d366a86f7db7e71009b94568182",
+    "server/shuxueshuo_server/solver/extraction/semantic_diff.py": "bf673a3dacefc4d2da17f7e72b8decb5541ef88dabe69e14af1b11b8f2b80b29",
+    "server/shuxueshuo_server/solver/extraction/source_identity.py": "dfae63c07eb480b91086e2b8b50fdf52f6bdedbd2c480dd924618ed29fbbd146",
+    "server/shuxueshuo_server/solver/runtime/config.py": "44a298b41f409b0921f62c4b914a557dbf8e707981fb2aee033fe295701ea050"
+  },
+  "ok": true,
+  "passed_count": 5,
+  "planner_call_count": 0,
+  "prior_batches": [
+    {
+      "batch_id": "deepseek-vision-20260915-01",
+      "passed_count": 0,
+      "sample_count": 5
+    },
+    {
+      "batch_id": "deepseek-vision-20260915-02",
+      "passed_count": 3,
+      "sample_count": 5
+    },
+    {
+      "batch_id": "deepseek-vision-20260915-03",
+      "passed_count": 4,
+      "sample_count": 5
+    },
+    {
+      "batch_id": "deepseek-vision-20260915-04",
+      "passed_count": 3,
+      "sample_count": 5
+    }
+  ],
+  "probe": [
+    {
+      "actual": {
+        "value": 37
+      },
+      "reasoning_effort": "low",
+      "sha256": "5c2e16de90ff227705ce4e5f7effd80a6c446f48470373253313ad9889d5d823",
+      "thinking_mode": "enabled"
+    },
+    {
+      "actual": {
+        "value": 82
+      },
+      "reasoning_effort": "low",
+      "sha256": "09a74b83d5619d6dcdfcebebebbdf2beba0a6063db891e2e92da16811991b010",
+      "thinking_mode": "enabled"
+    }
+  ],
+  "review_index": "review.html",
+  "sample_count": 5,
+  "schema_version": "problem-domain-smoke-summary/v1",
+  "semantic_retry_patch_output_rate": 1.0,
+  "solver_call_count": 0,
+  "solver_projection_diff_zero_count": 5,
+  "source_input_complete_rate": 1.0,
+  "unclassified_error_count": 0,
+  "usage": {
+    "completion_tokens": 115053,
+    "prompt_cache_hit_tokens": 51200,
+    "prompt_cache_miss_tokens": 100193,
+    "prompt_tokens": 151393,
+    "total_tokens": 266446
+  }
+}

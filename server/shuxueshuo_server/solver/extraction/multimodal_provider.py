@@ -1,11 +1,11 @@
-"""Doubao multimodal provider contract for F3 problem extraction."""
+"""Image extraction transports, request policies, and auditable provider outcomes."""
 
 from __future__ import annotations
 
 import base64
 import json
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from time import perf_counter
 from typing import Any, Callable, ClassVar, Literal, Mapping, Protocol, Sequence
 
@@ -67,11 +67,16 @@ DOMAIN_RULES = """领域约束：
 9. 每个表达式自由符号都必须有可见 Symbol；结构字段优先引用 local id，表达式直接使用题面符号标签。
 10. 父 scope 已有相同 kind+label 的实体时，子 scope 必须复用祖先 local id；各子问不同的取值或约束只写在本 scope 的 Fact 中，不复制 Entity。此规则不跨 sibling 合并局部对象。
 11. 每个 Entity 必须被另一个 Entity、Fact、Goal 或表达式引用。OM、BN、BC 这类仅作为长度或成员关系出现的线段直接写 SegmentTerm，不声明 named_line；named_line 只用于题面明确称为“直线”的独立对象。
-12. Symbol role：自变量用 function_variable；抛物线系数通常用 quadratic_coefficient；动点坐标参数用 dynamic_parameter；明确作为本题主反求参数时可用 primary_parameter；不要把普通系数泛写成 parameter，也不要为函数等号左侧的 y 单独建 Symbol。
+12. Symbol role：自变量用 function_variable；抛物线公式中的系数必须用 quadratic_coefficient（即使原文称其为“常数”，也不能用 constant）；动点坐标参数用 dynamic_parameter；明确作为本题主反求参数时可用 primary_parameter；不要把普通系数泛写成 parameter，也不要为函数等号左侧的 y 单独建 Symbol。
 13. sibling 各自重新给出同名点（例如两问分别写 A(-1,0)）时，在每个 sibling 分别声明 A；只有题面在共同父级先引入对象时才由 children 共享。
 14. 题面写 M(f(t),y_M) 且只说明 M 在曲线上时，用 curve_at_x 表达；若 y_M 后续未参与任何关系，不为这个占位纵坐标创建 Symbol。题面写 N(n,0) 是 x 轴或其正半轴上的点时，写 point_coordinate、point_on_axis 和有限端 symbol_constraint；除非题面明确另说 N 在曲线上，否则不得写 point_on_curve_with_x。
 15. named_ray 只用于题面明确出现“射线”，named_line 只用于题面明确出现“直线”。普通 DM、MN、BC 一律使用 SegmentTerm。正方形方位使用结构化 orientation，例如 {"point":"G","relation":"below_x_axis"}；不要再重复写 quadrant_membership。square_center 已完整表达中心位于两条对角线，代码会物化对应 point_on_segment，不要重复输出。
-16. polygon 必须按题面顺序填写 vertices，例如正方形 AEKG 写 ["A","E","K","G"]；不得只输出 id、kind 和 label。"""
+16. polygon 必须按题面顺序填写 vertices，例如正方形 AEKG 写 ["A","E","K","G"]；不得只输出 id、kind 和 label。
+17. source_text 必须按 scope 分配：每句只出现一次。根只放公共题干，不能把整道题（含各小问）再次放到根；非叶子小问只放其公共引导条件，子小问各自保存其条件和所求原文，父级不重复。题号、分值只写 source.question_number/source.score，不混入 source_text；包括“本题共…分”“…分”等标题。逐字保留原文，不用近义词改写，例如不要把“该”改成“这条”。
+18. 数学根式用精确表达 sqrt(...)，不用小数幂近似（例如 sqrt(2) 不写 2**0.5）。表达式采用通常的最少必要括号：乘积除以单项时写 a*b/c，不写 (a*b)/c；仅当改变运算优先级时保留括号，如 (a+b)/c。function_expression 的 variable 必须先有 function_variable Symbol；即使未在题干用文字介绍自变量，也必须声明公式实际出现的 x。
+19. 抛物线与x轴交于两个不同点：若其中一个点在当前scope已有明确坐标，另一个点的 x_axis_intercept 填写 exclude_point 引用该已知点；已知坐标的点仍须单独写 point_on_curve，不能只有 point_coordinate。exclude_point只选择不同根，不替被排除点声明曲线归属。若公共题干只用左右次序定义两个交点，则分别用 x_axis_intercept 的 side=left/right，禁止相互循环 exclude_point；子问才给定的坐标不能反向改变根scope的交点定义。
+20. 坐标和曲线归属是不同事实：题面印刷文字明确给点的坐标且说明它在曲线上时，保留 point_coordinate + point_on_curve。合法JSON字段格式示例为 {"kind":"point_on_curve","point":"point_q","curve":"curve_f"}，示例ID仅演示格式，实际必须引用当前题图实体。仅真正的 vertex/intercept/curve_at_x 构造已内含其自身的曲线归属，不重复该关系。
+21. 禁止在抽取阶段计算或推导新坐标。题干只说“与y轴交于C”时写 y_axis_intercept，不再由函数常数项补写 C(0,c)；题干只说顶点、对称轴交点或横坐标给定的曲线点时，保留对应构造，不展开顶点公式、对称轴公式或代入函数求纵坐标。只有原题印刷条件显式给出的坐标才写 point_coordinate。手写计算即使数学上正确也不是题目条件。"""
 
 
 def problem_domain_family_catalog() -> tuple[dict[str, object], ...]:
@@ -168,6 +173,11 @@ class MultimodalProviderRequest:
         MULTIMODAL_PASS1_THINKING_MODE
     )
     reasoning_effort: Literal["low"] | None = None
+    stream: bool = True
+    max_tokens: int = MULTIMODAL_MAX_OUTPUT_TOKENS
+    timeout: float | None = None
+    image_detail: str | None = None
+    model: str | None = None
 
     def thinking_payload(self) -> dict[str, Any]:
         return {"thinking": {"type": self.thinking_mode}}
@@ -184,7 +194,8 @@ class MultimodalProviderRequest:
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": f"artifact://{item.artifact.artifact_id}"
+                                    "url": f"artifact://{item.artifact.artifact_id}",
+                                    **({"detail": self.image_detail} if self.image_detail else {})
                                 },
                                 "image": item.redacted_payload(),
                             }
@@ -198,11 +209,18 @@ class MultimodalProviderRequest:
             "response_format": dict(self.response_format),
             "contract_schema": dict(self.contract_schema),
             **self.thinking_payload(),
-            "stream": True,
-            "stream_options": {"include_usage": True},
+            "stream": self.stream,
             "tools": [],
-            "max_tokens": MULTIMODAL_MAX_OUTPUT_TOKENS,
+            "max_tokens": self.max_tokens,
         }
+        if self.model is not None:
+            payload["model"] = self.model
+        if self.stream:
+            payload["stream_options"] = {"include_usage": True}
+        if self.timeout is not None:
+            payload["timeout"] = self.timeout
+        if self.thinking_mode == "enabled" and not self.stream:
+            payload.pop("temperature", None)
         if self.reasoning_effort is not None:
             payload["reasoning_effort"] = self.reasoning_effort
         return payload
@@ -225,6 +243,7 @@ class MultimodalProviderRequest:
                     "type": "image_url",
                     "image_url": {
                         "url": f"data:{media_type};base64,{encoded}",
+                        **({"detail": self.image_detail} if self.image_detail else {}),
                     },
                 }
             )
@@ -252,6 +271,7 @@ class ProviderSubAttempt:
     latency_ms: int
     error_code: str | None = None
     error_message: str | None = None
+    raw_payload: Mapping[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -264,6 +284,7 @@ class ProviderSubAttempt:
             "latency_ms": self.latency_ms,
             "error_code": self.error_code,
             "error_message": self.error_message,
+            **({"raw_payload": dict(self.raw_payload)} if self.raw_payload is not None else {}),
         }
 
 
@@ -281,6 +302,7 @@ class MultimodalProviderResponse:
     reasoning_effort: Literal["low"] | None
     contract_version: str = PROBLEM_DOMAIN_CONTRACT
     provider_name: str = MULTIMODAL_PROVIDER_NAME
+    transport: Mapping[str, Any] = field(default_factory=dict)
 
     def metadata_payload(self) -> dict[str, Any]:
         stream_terminated_at_json = bool(
@@ -291,7 +313,7 @@ class MultimodalProviderResponse:
             "request_model": self.request_model,
             "response_model": self.response_model,
             "usage": dict(self.usage) if self.usage is not None else None,
-            "usage_complete": self.usage is not None,
+            "usage_complete": self.usage is not None and all(a.usage is not None for a in self.provider_attempts),
             "finish_reason": self.finish_reason,
             "stream_terminated_at_json": stream_terminated_at_json,
             "received_output_characters": len(self.text),
@@ -300,6 +322,7 @@ class MultimodalProviderResponse:
             "response_format": self.contract_version,
             "temperature": 0,
             "max_output_tokens": MULTIMODAL_MAX_OUTPUT_TOKENS,
+            **dict(self.transport),
             "provider_attempts": [
                 item.to_payload() for item in self.provider_attempts
             ],
@@ -679,8 +702,8 @@ class DoubaoMultimodalExtractionProvider:
 
 
 @dataclass
-class DeepSeekTextProblemDomainProvider:
-    """Text-only comparison provider using trusted F2 OCR and JSON Output."""
+class _DeepSeekChatProvider:
+    """Shared non-streaming transport; subclasses own the input contract."""
 
     provider_name: ClassVar[str] = DEEPSEEK_TEXT_PROVIDER_NAME
     supports_images: ClassVar[bool] = False
@@ -717,12 +740,7 @@ class DeepSeekTextProblemDomainProvider:
         self,
         request: MultimodalProviderRequest,
     ) -> MultimodalProviderResponse:
-        if request.images:
-            raise MultimodalProviderError(
-                "extraction.multimodal_provider_contract_unsupported",
-                "DeepSeek text baseline must not receive image inputs",
-                result="failed",
-            )
+        request = self.prepare_request(request)
         attempts: list[ProviderSubAttempt] = []
         started = perf_counter()
         for provider_attempt in range(1, 3):
@@ -733,7 +751,7 @@ class DeepSeekTextProblemDomainProvider:
                     "messages": request.provider_messages(),
                     "response_format": {"type": "json_object"},
                     "extra_body": request.thinking_payload(),
-                    "max_tokens": MULTIMODAL_MAX_OUTPUT_TOKENS,
+                    "max_tokens": request.max_tokens,
                     "stream": False,
                     "timeout": self.request_timeout,
                 }
@@ -768,8 +786,8 @@ class DeepSeekTextProblemDomainProvider:
                     provider_attempts=attempts,
                 ) from exc
             raw_payload = _provider_payload(response)
-            choice = response.choices[0]
-            content = choice.message.content
+            choice = response.choices[0] if response.choices else None
+            content = choice.message.content if choice is not None else None
             text = "" if content is None else str(content)
             usage = _usage_payload(getattr(response, "usage", None))
             response_model = _optional_string(getattr(response, "model", None))
@@ -781,6 +799,7 @@ class DeepSeekTextProblemDomainProvider:
                     response_model=response_model,
                     usage=usage,
                     finish_reason=finish_reason,
+                    raw_payload=raw_payload,
                     visible_content=bool(text.strip()),
                     latency_ms=_elapsed_ms(attempt_started),
                 )
@@ -809,6 +828,9 @@ class DeepSeekTextProblemDomainProvider:
                 reasoning_effort=request.reasoning_effort,
                 contract_version=request.contract_version,
                 provider_name=self.provider_name,
+                transport={"max_output_tokens": request.max_tokens, "timeout": self.request_timeout,
+                           "stream": False, "temperature": None if request.thinking_mode == "enabled" else 0,
+                           "transport_response_format": "json_object", "image_detail": request.image_detail},
             )
         raise AssertionError("provider retry loop exhausted")
 
@@ -823,6 +845,109 @@ class DeepSeekTextProblemDomainProvider:
             ),
             None,
         )
+
+
+@dataclass
+class DeepSeekTextProblemDomainProvider(_DeepSeekChatProvider):
+    """Explicit text-only comparison baseline; never selected by the vision factory."""
+
+    def prepare_request(self, request):
+        if request.images:
+            raise MultimodalProviderError(
+                "extraction.multimodal_provider_contract_unsupported",
+                "DeepSeek text baseline must not receive image inputs", result="failed")
+        return replace(request, stream=False, timeout=self.request_timeout)
+
+
+@dataclass
+class DeepSeekMultimodalExtractionProvider(_DeepSeekChatProvider):
+    """DeepSeek vision, with identical policy for draft, patch and source review."""
+
+    supports_images: ClassVar[bool] = True
+    preserve_original_images: ClassVar[bool] = True
+    model: str = "deepseek-flash"
+    max_output_tokens: int = 16_384
+
+    def __post_init__(self):
+        if self.model != "deepseek-flash" or self.request_timeout <= 0 or self.max_output_tokens < 1:
+            raise MultimodalProviderError("extraction.multimodal_provider_config_invalid",
+                "vision requires deepseek-flash and positive timeout/token limits", result="failed")
+        super().__post_init__()
+
+    def prepare_request(self, request):
+        from hashlib import sha256
+        from io import BytesIO
+        from PIL import Image
+
+        def reject(reason):
+            raise MultimodalProviderError("extraction.multimodal_image_invalid", reason, result="failed")
+
+        if not request.images or not any(i.role == "primary" for i in request.images):
+            reject("vision requires the complete question image")
+        expected = [(i.page_id, i.artifact.sha256) for i in request.evidence_pack.images]
+        actual = [(i.page_id, i.artifact.sha256) for i in request.images if i.role == "primary"]
+        if actual != expected:
+            reject("complete primary images must match evidence hashes and page order")
+        if len(request.images) > 600:
+            reject("too many images")
+        for item in request.images:
+            if not item.content or len(item.content) > 32 * 1024**2:
+                reject("empty image or inline image exceeds 32 MiB")
+            if sha256(item.content).hexdigest() != item.artifact.sha256:
+                reject("image artifact hash mismatch")
+            try:
+                with Image.open(BytesIO(item.content)) as decoded:
+                    width, height = decoded.size
+                    mime = Image.MIME.get(decoded.format)
+                    decoded.verify()
+            except Exception:
+                reject("image cannot be decoded")
+            if mime != item.artifact.media_type or mime not in {"image/png", "image/jpeg", "image/webp"}:
+                reject("unsupported or mismatched image media type")
+            if (width, height) != (item.width, item.height):
+                reject("image dimensions do not match artifact metadata")
+            if max(width, height) > (4096 if len(request.images) >= 15 else 8192):
+                reject("image dimensions exceed vision limit")
+            try:
+                with Image.open(BytesIO(item.content)) as decoded:
+                    decoded.load()
+            except Exception:
+                reject("image pixel data cannot be decoded")
+        prepared = replace(request, thinking_mode="enabled", reasoning_effort="low",
+            response_format={"type": "json_object"}, stream=False, max_tokens=self.max_output_tokens,
+            timeout=self.request_timeout, image_detail="high", model=self.model)
+        # Check the encoded request, not only the compressed source file size.
+        if len(json.dumps(prepared.provider_messages(), ensure_ascii=False).encode()) > 48 * 1024**2 - 1024:
+            reject("encoded request exceeds 48 MiB")
+        return prepared
+
+
+def vision_effective_config(config):
+    """Non-secret frozen transport policy, also used in dependency fingerprints."""
+    if config.problem_vision_provider != "deepseek":
+        raise ValueError("PROBLEM_VISION_PROVIDER must be deepseek; no automatic fallback")
+    return {"provider": "deepseek", "model": config.deepseek_vision_model,
+        "base_url": config.deepseek_vision_base_url, "thinking": {"type": "enabled"},
+        "reasoning_effort": "low", "response_format": {"type": "json_object"},
+        "stream": False, "max_tokens": config.deepseek_vision_max_tokens,
+        "timeout": config.deepseek_vision_timeout, "image_detail": "high", "sdk_retries": 0}
+
+
+def create_vision_provider(config, *, frozen_config=None, **kwargs):
+    policy = frozen_config if frozen_config is not None else vision_effective_config(config)
+    if (policy.get("provider") != "deepseek" or policy.get("thinking") != {"type": "enabled"}
+        or policy.get("reasoning_effort") != "low" or policy.get("stream") is not False
+        or policy.get("response_format") != {"type": "json_object"}
+        or policy.get("sdk_retries") != 0 or policy.get("image_detail") != "high"):
+        raise ValueError("extraction.rebuild_required: invalid frozen vision policy")
+    return DeepSeekMultimodalExtractionProvider(api_key=config.deepseek_api_key or "",
+        base_url=policy["base_url"], model=policy["model"], request_timeout=policy["timeout"],
+        max_output_tokens=policy["max_tokens"], **kwargs)
+
+
+def prepare_provider_request(provider, request):
+    prepare = getattr(provider, "prepare_request", None)
+    return prepare(request) if prepare is not None else request
 
 
 def _consume_first_json_object(stream: Any, *, deadline: float) -> _StreamCompletion:
@@ -946,9 +1071,9 @@ def _provider_payload(response: Any) -> Mapping[str, Any]:
         "choices": [
             {
                 "finish_reason": _optional_string(
-                    getattr(response.choices[0], "finish_reason", None)
+                    getattr(response.choices[0], "finish_reason", None) if response.choices else None
                 ),
-                "content": _optional_string(response.choices[0].message.content),
+                "content": _optional_string(response.choices[0].message.content) if response.choices else None,
             }
         ],
         "usage": _usage_payload(getattr(response, "usage", None)),

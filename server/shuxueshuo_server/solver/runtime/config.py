@@ -63,6 +63,11 @@ class SolverRuntimeConfig:
     doubao_api_key: str | None = None
     doubao_base_url: str = DEFAULT_DOUBAO_BASE_URL
     doubao_model: str = DEFAULT_DOUBAO_MODEL
+    problem_vision_provider: str = "deepseek"
+    deepseek_vision_model: str = "deepseek-flash"
+    deepseek_vision_base_url: str = DEFAULT_DEEPSEEK_BASE_URL
+    deepseek_vision_timeout: int = 300
+    deepseek_vision_max_tokens: int = 16_384
     max_llm_attempts: int = 3
     llm_debug_dir: str | None = None
     allow_same_problem_few_shot: bool = True
@@ -164,6 +169,11 @@ class SolverRuntimeConfig:
             doubao_base_url=_clean(values.get("DOUBAO_BASE_URL"))
             or DEFAULT_DOUBAO_BASE_URL,
             doubao_model=_clean(values.get("DOUBAO_MODEL")) or DEFAULT_DOUBAO_MODEL,
+            problem_vision_provider=_clean(values.get("PROBLEM_VISION_PROVIDER")) or "deepseek",
+            deepseek_vision_model=_clean(values.get("DEEPSEEK_VISION_MODEL")) or "deepseek-flash",
+            deepseek_vision_base_url=_clean(values.get("DEEPSEEK_VISION_BASE_URL")) or DEFAULT_DEEPSEEK_BASE_URL,
+            deepseek_vision_timeout=_resolve_positive_int(cli_value=None, env_value=values.get("DEEPSEEK_VISION_TIMEOUT"), default=300, name="vision-timeout"),
+            deepseek_vision_max_tokens=_resolve_positive_int(cli_value=None, env_value=values.get("DEEPSEEK_VISION_MAX_TOKENS"), default=16384, name="vision-max-tokens"),
             max_llm_attempts=_resolve_positive_int(
                 cli_value=max_llm_attempts,
                 env_value=values.get("SOLVER_LLM_MAX_ATTEMPTS"),

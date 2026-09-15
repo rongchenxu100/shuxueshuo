@@ -150,7 +150,8 @@ def collect(root=REPO, config=None):
         raise ValueError('build.source_changed: 依赖探测期间文件变化')
     settings = {key: {} for key in KEYS}
     settings['observation'] = {'python': os.environ.get('REVIEW_OCR_PYTHON', str(root / 'server/.venv-ocr/bin/python'))}
-    settings['extraction'] = {'model': config.doubao_model, 'endpoint_hash': digest(config.doubao_base_url), 'attempts': 3}
+    from shuxueshuo_server.solver.extraction.multimodal_provider import vision_effective_config
+    settings['extraction'] = {**vision_effective_config(config), 'attempts': 3}
     model = config.llm_model or config.deepseek_model
     settings['solver'] = {'model': model, 'endpoint_hash': digest(config.deepseek_base_url), 'thinking': 'low', 'max_attempts': config.max_llm_attempts, 'few_shot_mode': config.functional_few_shot_mode}
     settings['lesson'] = {'model': model, 'endpoint_hash': digest(config.deepseek_base_url), 'thinking': 'disabled'}

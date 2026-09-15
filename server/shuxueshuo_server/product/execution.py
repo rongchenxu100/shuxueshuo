@@ -310,7 +310,8 @@ class AuditedClient:
             request_model=meta['request_model'], response_model=meta['response_model'], usage={},
             finish_reason=meta['finish_reason'], provider_attempts=(), latency_ms=0,
             thinking_mode=meta['thinking_mode'], reasoning_effort=meta['reasoning_effort'],
-            contract_version='problem-source-review/v1', provider_name=meta['provider'])
+            contract_version='problem-source-review/v1', provider_name=meta['provider'],
+            transport={key: meta[key] for key in ('max_output_tokens', 'timeout', 'stream', 'temperature', 'transport_response_format', 'image_detail') if key in meta})
 
     def restore_source_review(self, request):
         """Only restore an existing audited response; never reserve or call."""

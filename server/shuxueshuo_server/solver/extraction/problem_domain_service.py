@@ -328,7 +328,10 @@ class ProblemDomainExtractionService:
                 include_images=self.provider.supports_images,
                 response_format_mode=self.provider.response_format_mode,  # type: ignore[arg-type]
             )
-            request = self._prepare_transport_images(request)
+            if not getattr(self.provider, "preserve_original_images", False):
+                request = self._prepare_transport_images(request)
+            from .multimodal_provider import prepare_provider_request
+            request = prepare_provider_request(self.provider, request)
             input_artifacts = self._store_inputs(context, request)
             response: MultimodalProviderResponse | None = None
             patch: ProblemRepairPatch | None = None

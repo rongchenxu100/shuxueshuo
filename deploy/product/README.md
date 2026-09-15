@@ -184,3 +184,18 @@ PRODUCT_TEST_DATA_DIR='/absolute/path/p1-test' PRODUCT_TEST_INSTANCE=p1-test uv 
 Git 只允许提交无真实凭据的 `.env.example` 或 `*.env.example` 模板；密码、API key、cookie 等字段留空。不要使用 `git add -f` 绕过环境文件忽略规则。普通不含秘密的代码配置和发布清单可以提交。
 
 Review 文档可以记录环境变量名、公开模型 endpoint、本地端口和不可用于认证的运行 ID；不得记录真实凭据、认证请求头、带凭据的连接串或未脱敏的私有配置输出。
+
+### 题意抽取的独立视觉配置
+
+在宿主机 `server/.env` 配置以下变量；API、Worker、Publisher 的 Compose 服务均只读挂载该文件，本地服务也读取同一文件。无需额外传入容器环境白名单，无需豆包密钥。修改后排空任务并统一重启受管理服务；本次代码变更不自动部署。
+
+```dotenv
+PROBLEM_VISION_PROVIDER=deepseek
+DEEPSEEK_VISION_MODEL=deepseek-flash
+DEEPSEEK_VISION_BASE_URL=https://api.deepseek.com
+DEEPSEEK_VISION_TIMEOUT=300
+DEEPSEEK_VISION_MAX_TOKENS=16384
+DEEPSEEK_API_KEY=
+```
+
+首轮、修复与独立视觉复核固定为 thinking enabled / reasoning_effort low、非流式 JSON object。视觉配置进入构建有效配置与依赖指纹，恢复读取冻结配置；SDK 重试为零，预算仍为 3 次草稿、3 次复核、6 次语义调用、12 次网络尝试。`DEEPSEEK_MODEL` / `DEEPSEEK_BASE_URL` 继续只控制下游 Solver 等文本路径。其他视觉供应商不自动回退。

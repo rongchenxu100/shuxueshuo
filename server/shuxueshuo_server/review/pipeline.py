@@ -151,7 +151,7 @@ def generate(store, run_id):
     from shuxueshuo_server.solver.extraction.artifacts import ExtractionArtifactStore
     from shuxueshuo_server.solver.extraction.context import ProblemExtractionContext, ExtractionAttemptLedger
     from shuxueshuo_server.solver.extraction.problem_domain_service import ProblemDomainExtractionService
-    from shuxueshuo_server.solver.extraction.multimodal_provider import DoubaoMultimodalExtractionProvider
+    from shuxueshuo_server.solver.extraction.multimodal_provider import create_vision_provider
     from shuxueshuo_server.solver.extraction.problem_solver_bundle import VerifiedSolverProblemBundleLoader
     from shuxueshuo_server.solver.extraction.problem_planner_authority import VerifiedPlannerProblemAuthority
     from shuxueshuo_server.solver.explanation.snapshot import ExplanationSnapshotBuilder
@@ -193,14 +193,14 @@ def generate(store, run_id):
     store.secrets = tuple(s for s in (config.deepseek_api_key, config.doubao_api_key) if s)
     if (runs("solver") or runs("lesson")) and not config.deepseek_api_key:
         raise ValueError("configuration.missing: 需要 DEEPSEEK_API_KEY；不会切换 Mock")
-    if runs("extraction") and not manual and not config.doubao_api_key:
-        raise ValueError("configuration.missing: 需要 DOUBAO_API_KEY；不会切换 Mock")
+    if runs("extraction") and not manual and not config.deepseek_api_key:
+        raise ValueError("configuration.missing: 需要 DEEPSEEK_API_KEY；不会切换 Mock")
     ocr_python = Path(os.environ.get("REVIEW_OCR_PYTHON", REPO / "server/.venv-ocr/bin/python"))
     if runs("observation") and not ocr_python.is_file():
         raise ValueError("configuration.ocr_missing: 未找到独立 OCR Python")
     revision = source_version()
     add(from_stage, "input", "运行配置 / 代码与 Spec 版本", {
-        "source_version": revision, "extraction_model": config.doubao_model,
+        "source_version": revision, "extraction_model": config.deepseek_vision_model,
         "planner_model": config.llm_model or config.deepseek_model,
         "lesson_model": config.llm_model or config.deepseek_model,
         "planner_attempt_budget": config.max_llm_attempts, "extraction_attempt_budget": 3,
@@ -235,8 +235,7 @@ def generate(store, run_id):
     elif runs("extraction"):
         start("extraction", "真实多模态题意抽取与数学合同校验")
         add("extraction", "input", "输入 Observation Context", context)
-        provider = AuditedClient(DoubaoMultimodalExtractionProvider(api_key=config.doubao_api_key,
-            base_url=config.doubao_base_url, model=config.doubao_model, request_timeout=180), store, run_id, "extraction")
+        provider = AuditedClient(create_vision_provider(config), store, run_id, "extraction")
         service = ProblemDomainExtractionService(input_artifact_reader=extraction_store,
             output_artifact_store=extraction_store, provider=provider)
         extraction = service.run(context, attempt_ledger=ExtractionAttemptLedger.for_context(context),

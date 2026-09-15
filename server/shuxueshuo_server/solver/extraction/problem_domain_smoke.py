@@ -29,7 +29,8 @@ from shuxueshuo_server.solver.extraction.multimodal_provider import (
     MULTIMODAL_RETRY_THINKING_MODE,
     PASS1_SYSTEM_PROMPT,
     REPAIR_SYSTEM_PROMPT,
-    DeepSeekTextProblemDomainProvider,
+    create_vision_provider,
+    vision_effective_config,
     DoubaoMultimodalExtractionProvider,
     problem_domain_family_catalog,
 )
@@ -56,7 +57,7 @@ from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
 
 
-DEFAULT_F2_INPUT = "internal/solver-runs/problem-extraction/f2-problem-domain-input"
+DEFAULT_F2_INPUT = "recorded-gold"
 
 
 @dataclass(frozen=True)
@@ -77,6 +78,8 @@ class ProblemDomainSmokeSampleResult:
     failures: tuple[str, ...]
     sample_dir: str
     source_reviews: tuple[Mapping[str, Any], ...] = ()
+    network_attempt_count: int = 0
+    acceptance_evidence: Mapping[str, Any] | None = None
 
     @property
     def ok(self) -> bool:
@@ -89,6 +92,8 @@ class ProblemDomainSmokeSampleResult:
             "ok": self.ok,
             "accepted": self.accepted,
             "attempt_count": self.attempt_count,
+            "network_attempt_count": self.network_attempt_count,
+            "acceptance_evidence": self.acceptance_evidence,
             "source_reviews": list(self.source_reviews),
             "semantic_call_count": self.attempt_count + len(self.source_reviews),
             "final_issue_code": self.final_issue_code,
@@ -111,8 +116,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--samples-per-case", type=int, default=1)
     parser.add_argument("--max-attempts", type=int, default=3)
     parser.add_argument("--concurrency", type=int, default=5)
-    parser.add_argument("--provider", choices=("doubao", "deepseek"), default="doubao")
-    parser.add_argument("--request-timeout-seconds", type=float, default=300.0)
+    parser.add_argument("--provider", choices=("doubao", "deepseek"), default="deepseek")
+    parser.add_argument("--request-timeout-seconds", type=float, default=None)
     parser.add_argument("--batch-id", required=True)
     parser.add_argument("--f2-input-dir", default=DEFAULT_F2_INPUT)
     parser.add_argument(
@@ -124,20 +129,26 @@ def main(argv: Sequence[str] | None = None) -> int:
         args.samples_per_case,
         args.max_attempts,
         args.concurrency,
-        args.request_timeout_seconds,
+        args.request_timeout_seconds if args.request_timeout_seconds is not None else 300,
     ) < 1:
         parser.error("sample, attempt, and concurrency values must be positive")
+    if args.max_attempts > 3:
+        parser.error("content call budget cannot exceed 3")
     if os.environ.get("RUN_LLM_INTEGRATION") != "1":
         parser.error("live Problem domain smoke requires RUN_LLM_INTEGRATION=1")
 
     repo_root = _repo_root()
-    f2_root = _resolve_repo_path(repo_root, args.f2_input_dir)
+    f2_root = None if args.f2_input_dir == DEFAULT_F2_INPUT else _resolve_repo_path(repo_root, args.f2_input_dir)
     output_root = _resolve_repo_path(repo_root, args.output_root)
     batch_dir = output_root / args.batch_id
-    batch_dir.mkdir(parents=True, exist_ok=True)
+    if batch_dir.exists():
+        parser.error("batch-id already exists; independent acceptance requires a new batch")
+    batch_dir.mkdir(parents=True)
     config = SolverRuntimeConfig.from_sources(env_file=repo_root / "server/.env")
+    if args.request_timeout_seconds is None:
+        args.request_timeout_seconds = config.deepseek_vision_timeout
     provider_model = (
-        config.doubao_model if args.provider == "doubao" else config.deepseek_model
+        config.doubao_model if args.provider == "doubao" else config.deepseek_vision_model
     )
     cases = _selected_cases(load_gold_corpus().cases, args.case, parser)
     batch_config = {
@@ -150,11 +161,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         "provider": args.provider,
         "model": provider_model,
         "source_input_mode": (
-            "full_question_image" if args.provider == "doubao" else "trusted_ocr_text"
+            "full_question_image"
         ),
         "request_timeout_seconds": args.request_timeout_seconds,
         "thinking_policy": {
-            "pass1": {"type": MULTIMODAL_PASS1_THINKING_MODE},
+            "pass1": ({"type": "enabled", "reasoning_effort": "low"} if args.provider == "deepseek" else {"type": MULTIMODAL_PASS1_THINKING_MODE}),
             "semantic_retry": {
                 "type": MULTIMODAL_RETRY_THINKING_MODE,
                 "reasoning_effort": MULTIMODAL_RETRY_REASONING_EFFORT,
@@ -164,8 +175,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         "transport_response_format": (
             "json_schema" if args.provider == "doubao" else "json_object"
         ),
-        "temperature": 0,
-        "max_output_tokens": MULTIMODAL_MAX_OUTPUT_TOKENS,
+        "temperature": None if args.provider == "deepseek" else 0,
+        "max_output_tokens": config.deepseek_vision_max_tokens if args.provider == "deepseek" else MULTIMODAL_MAX_OUTPUT_TOKENS,
+        "vision_config": {**vision_effective_config(config), "timeout": args.request_timeout_seconds} if args.provider == "deepseek" else None,
+        "budgets": {"draft": 3, "review": 3, "semantic": 6, "network": 12},
         "prompt_hash": stable_hash(
             {
                 "pass1_system": PASS1_SYSTEM_PROMPT,
@@ -176,6 +189,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             }
         ),
         "f2_input_dir": str(f2_root),
+        "implementation_sha256": _implementation_hashes(repo_root),
         "planner_call_count": 0,
         "solver_call_count": 0,
     }
@@ -236,7 +250,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     summary = _batch_summary(batch_config, results)
     _write_json(batch_dir / "batch-summary.json", summary)
     _write_index(batch_dir, results)
-    print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
+    print(json.dumps({k: v for k, v in summary.items() if k != "cases"}, ensure_ascii=False, indent=2, sort_keys=True))
     return 0 if summary["ok"] else 1
 
 
@@ -245,16 +259,20 @@ def _run_sample(
     sample_index: int,
     *,
     batch_dir: Path,
-    f2_root: Path,
+    f2_root: Path | None,
     config: SolverRuntimeConfig,
     max_attempts: int,
     provider_name: str,
     request_timeout: float,
 ) -> ProblemDomainSmokeSampleResult:
     sample_dir = batch_dir / case.problem_id / f"sample-{sample_index:02d}"
-    sample_dir.mkdir(parents=True, exist_ok=True)
-    parent, context = _load_f2_context(case, f2_root)
-    input_store = ExtractionArtifactStore(f2_root / "artifacts")
+    sample_dir.mkdir(parents=True, exist_ok=False)
+    if f2_root is None:
+        from .recorded_inputs import recorded_gold_input
+        parent, context, input_store, _ = recorded_gold_input(sample_dir / "input", case.problem_id)
+    else:
+        parent, context = _load_f2_context(case, f2_root)
+        input_store = ExtractionArtifactStore(f2_root / "artifacts")
     output_store = ExtractionArtifactStore(sample_dir / "artifacts")
     provider = (
         DoubaoMultimodalExtractionProvider(
@@ -264,12 +282,7 @@ def _run_sample(
             request_timeout=request_timeout,
         )
         if provider_name == "doubao"
-        else DeepSeekTextProblemDomainProvider(
-            api_key=config.deepseek_api_key or "",
-            base_url=config.deepseek_base_url,
-            model=config.deepseek_model,
-            request_timeout=request_timeout,
-        )
+        else create_vision_provider(config, frozen_config={**vision_effective_config(config), "timeout": request_timeout})
     )
     run = ProblemDomainExtractionService(
         input_artifact_reader=input_store,
@@ -307,13 +320,29 @@ def _run_sample(
         any(image.role == "primary" for image in attempt.request.images)
         for attempt in run.attempts
     )
-    text_only = bool(run.attempts) and all(
-        not attempt.request.images for attempt in run.attempts
-    )
-    source_input_complete = full_image if provider_name == "doubao" else text_only
+    from hashlib import sha256
+    source_input_complete = full_image and all(
+        sha256(image.content).hexdigest() == image.artifact.sha256
+        for attempt in run.attempts for image in attempt.request.images)
+    reviews = [a.source_review for a in run.attempts if a.source_review]
+    networks = sum(len(a.provider_response.provider_attempts) if a.provider_response else
+                   len(a.attempt_record.usage.get("provider_attempts", [])) for a in run.attempts)
+    networks += sum(len(r.get("usage", {}).get("provider_attempts", [])) for r in reviews)
     retry_patch_only = _uses_patch_after_first_draft(run.attempts)
     final_issue = _final_issue(run)
     failures: list[str] = []
+    if len(run.attempts) > 3 or len(reviews) > 3 or len(run.attempts) + len(reviews) > 6 or networks > 12:
+        failures.append("call_budget_exceeded")
+    if provider_name == "deepseek":
+        for a in run.attempts:
+            req = a.request
+            if (req.thinking_mode != "enabled" or req.reasoning_effort != "low" or req.stream
+                or req.image_detail != "high" or req.response_format != {"type": "json_object"}):
+                failures.append("vision_request_policy_mismatch")
+        for review in reviews:
+            meta = review.get("usage", {})
+            if meta.get("thinking_mode") != "enabled" or meta.get("reasoning_effort") != "low":
+                failures.append("review_policy_mismatch")
     if not run.accepted:
         failures.append(final_issue or "not_accepted")
     if not source_input_complete:
@@ -343,6 +372,14 @@ def _run_sample(
         failures=tuple(failures),
         sample_dir=str(sample_dir),
         source_reviews=tuple(dict(a.source_review) for a in run.attempts if a.source_review),
+        network_attempt_count=networks,
+        acceptance_evidence={
+            "domain_semantic_hash": actual_graph.semantic_hash if actual_graph else None,
+            "gold_domain_semantic_hash": expected_draft.graph.semantic_hash,
+            "image_inputs": [image.redacted_payload() for image in run.attempts[0].request.images] if run.attempts else [],
+            "projection_diff": compare_solver_projection_semantics(expected_projection.canonical_input,
+                run.solver_projection.canonical_input).to_payload() if expected_projection and run.solver_projection else None,
+        },
     )
     _write_json(sample_dir / "sample-result.json", item.to_payload())
     return item
@@ -367,7 +404,7 @@ def _uses_patch_after_first_draft(
 
 def _load_f2_context(
     case: GoldCorpusCase,
-    f2_root: Path,
+    f2_root: Path | None,
 ) -> tuple[ProblemExtractionContext, ProblemExtractionContext]:
     path = f2_root / case.problem_id / "problem-extraction-context.json"
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -533,6 +570,15 @@ def _write_json(path: Path, payload: Any) -> None:
         json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+
+
+def _implementation_hashes(repo_root):
+    from hashlib import sha256
+    paths = sorted((repo_root / "server/shuxueshuo_server/solver/extraction").glob("*.py"))
+    paths += [repo_root / "server/shuxueshuo_server/solver/runtime/config.py"]
+    return {str(p.relative_to(repo_root)): sha256(p.read_bytes()).hexdigest() for p in paths}
 
 
 if __name__ == "__main__":

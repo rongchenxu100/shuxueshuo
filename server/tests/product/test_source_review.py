@@ -96,11 +96,20 @@ def test_audited_success_recovers_when_source_reviewer_file_is_still_started(run
     app, x, acquire, configure = prepare(run_context)
     _, context, store, pack = recorded_input(tmp_path)
     draft = ProblemDraft.create(corrected_payload())
-    class ImageProvider(Provider):
-        supports_images = True
-        response_format_mode = 'json_object'
-        def complete(self, request):
-            return replace(super().complete(request), text=review_response(request))
+    from shuxueshuo_server.solver.extraction.multimodal_provider import DeepSeekMultimodalExtractionProvider
+    class ImageProvider(DeepSeekMultimodalExtractionProvider):
+        def __init__(self):
+            self.calls = 0
+            def create(**options):
+                self.calls += 1
+                assert options['extra_body'] == {'thinking': {'type': 'enabled'}}
+                assert options['reasoning_effort'] == 'low' and options['stream'] is False
+                data = json.loads(options['messages'][1]['content'][-1]['text'])
+                req = SimpleNamespace(prompt=SimpleNamespace(user_suffix=json.dumps(data)))
+                return SimpleNamespace(model='deepseek-flash', usage={'prompt_tokens': 10, 'completion_tokens': 5},
+                    choices=[SimpleNamespace(message=SimpleNamespace(content=review_response(req)), finish_reason='stop')])
+            super().__init__(api_key='recorded', base_url='https://api.deepseek.com',
+                client_factory=lambda **_: SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))))
     first_provider = ImageProvider()
     args = dict(context_id=context.manifest.context_id, draft=draft, pack=pack,
         reader=store, differences=review_module.source_differences(draft, pack))
@@ -219,11 +228,28 @@ def test_recorded_image_extraction_through_nine_stages_and_checkpoint_restore(se
         if review_case == 'string_null': value['findings'][0]['regions'][0]['region_id'] = 'null'
         if review_case == 'invalid': value['findings'][0]['regions'][0]['region_id'] = 'unknown-region'
         return json.dumps(value, ensure_ascii=False)
-    client = _SequenceProvider([json.dumps(corrected_payload()), review])
-    monkeypatch.setattr('shuxueshuo_server.solver.extraction.multimodal_provider.DoubaoMultimodalExtractionProvider', lambda **_: client)
+    from shuxueshuo_server.solver.extraction.multimodal_provider import create_vision_provider, vision_effective_config
+    requests = []
+    def create(**options):
+        assert options['extra_body'] == {'thinking': {'type': 'enabled'}}
+        assert options['reasoning_effort'] == 'low' and options['stream'] is False
+        req = requests[-1]
+        text = review(req) if req.contract_version == 'problem-source-review/v1' else json.dumps(corrected_payload())
+        return SimpleNamespace(model='deepseek-flash', usage={'prompt_tokens': 10, 'completion_tokens': 5},
+            choices=[SimpleNamespace(message=SimpleNamespace(content=text), finish_reason='stop')])
+    client = create_vision_provider(SolverRuntimeConfig(deepseek_api_key='recorded'),
+        client_factory=lambda **_: SimpleNamespace(chat=SimpleNamespace(completions=SimpleNamespace(create=create))),
+        sleeper=lambda _: None)
+    complete = client.complete
+    def capture(request):
+        requests.append(request)
+        return complete(request)
+    client.complete = capture
+    client.requests = requests
+    monkeypatch.setattr('shuxueshuo_server.solver.extraction.multimodal_provider.create_vision_provider', lambda *_, **__: client)
     def discover(*args):
         found = offline_discover(*args)
-        found['config'] = {'extraction': {'draft_budget': 3, 'review_budget': 3, 'semantic_budget': 6, 'network_budget': 12}}
+        found['config'] = {'extraction': {**vision_effective_config(SolverRuntimeConfig()), 'draft_budget': 3, 'review_budget': 3, 'semantic_budget': 6, 'network_budget': 12}}
         return found
     monkeypatch.setattr('shuxueshuo_server.product.execution.dependencies', discover)
     service, ctx, _ = setup
@@ -233,7 +259,7 @@ def test_recorded_image_extraction_through_nine_stages_and_checkpoint_restore(se
     submitted = app.submit(UUID(item['problem_id']), UUID(item['source_id']), UUID(item['id']), 'recorded-build')
     execution = service.acquire_execution(ctx, UUID(submitted['job_id']), 'recorded', deployment_version='offline-runner-v1', lease_seconds=3600)
     x = ExecutionContext(app, ctx, UUID(submitted['build_id']), execution['id'], execution['epoch'])
-    x.config = SolverRuntimeConfig(planner_mode='strategy', llm_provider='recorded', doubao_api_key='recorded-no-network')
+    x.config = SolverRuntimeConfig(planner_mode='strategy', llm_provider='recorded', deepseek_api_key='recorded-no-network')
     shutil.copytree(store.root, x.work / 'extraction-artifacts', dirs_exist_ok=True)
     runner = StageRunner(x)
     def source():
@@ -295,6 +321,7 @@ def test_recorded_image_extraction_through_nine_stages_and_checkpoint_restore(se
         attempts = [row(c, m.stage_attempts, id=s['accepted_attempt_id']) for s in stages]
         calls = c.execute(select(m.model_calls).where(m.model_calls.c.origin_attempt_id == stages[2]['accepted_attempt_id'])).mappings().all()
     assert len(calls) == 2 and all(c['status'] == 'succeeded' for c in calls)
+    assert all(c['provider'] == 'deepseek' and c['request_model'] == 'deepseek-flash' for c in calls)
     x.work = tmp_path / 'fresh-checkpoint-restore'
     x.work.mkdir()
     x.refs = {}
