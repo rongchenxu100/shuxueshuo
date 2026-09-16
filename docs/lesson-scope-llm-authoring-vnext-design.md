@@ -4,7 +4,7 @@
 `F5-F5B2 COMPLETE`；`F5-F5B3 COMPLETE`；`F5-F5B4 / F5-F5B4V COMPLETE`；
 `F5-F5C0 COMPLETE`；`F5-F5C1 PENDING ACCEPTANCE`；`G3-A/B COMPLETE (Review)`；`G1 OPTIONAL / NOT SCHEDULED`。
 
-更新：2026-09-10。
+更新：2026-09-15（新增 Family rule 与 Lesson LLM 协作设计；既有实现阶段状态不变）。
 
 当前执行顺序见[产品服务与工作台计划](online-service-development-plan.md#11-实施顺序)。
 G1 的 LLM 视觉选择不列为必做阶段；本文所有 `available_visuals/visuals` wire、组件选择流程
@@ -40,6 +40,35 @@ F5-F5C0 已进一步从五个 Family Catalog 动态推导全部 Planner 公开�
 `23 Function + 6 Macro` 的 TeachingSpec/VisualSpec 覆盖；五题 recorded 覆盖 26 项，三个
 typed synthetic execution 补齐剩余 3 项。C1 跨题润色与合并质量验收仍保留，不替代上传链验收。
 
+## 0. 2026-09-15 补充：Family rule 先组织并锁定，Lesson LLM 编排开放材料
+
+本节是新增设计共识，尚未实现，不改变上述 B0–C1 已有阶段验收事实。详细约定见
+[基本不等式设计 §1](basic-inequality-method-discussion.md#family-rules)。
+
+- 基本不等式保留一个 Family，内部提供多种求解策略，并通过注册 rule ID 声明讲解代码
+  使用的适用性判断与组织逻辑。Method 提供有验证依据的片段及依赖，rule 决定学生步骤的
+  拆分、合并与前置概览；Family 标识和 LLM 策略标签本身不是数学依据。
+- 在现有成功执行 → Snapshot/公共教学材料 → Lesson LLM 流程中，增加投影前的 rule
+  匹配与锁定阶段。rule 只使用允许公开的教学内容，不暴露私有 Macro 链，不改变 Scope/Goal
+  owner、Canonical 依赖或求解 runtime 合同。
+- rule 接管的步骤完整锁定：边界、片段归属与顺序、所在位置、标题/正文、数学内容及已绑定
+  视觉由代码保留并最终注入。LLM 能看到完整学生可读内容，但只保留固定步骤引用，不回写、
+  拆并、移动或删改这些步骤，也不能把相邻开放材料并入。目前不默认开放固定步骤的文案润色。
+- rule 未覆盖的材料仍由同一次 Lesson LLM 组织，在同 Scope/Goal、同一连续开放区间内
+  合并相邻材料并编写 `title/nav_title/goal/derive`。无规则匹配时沿用原路径；全部锁定时
+  可跳过 Lesson LLM，直接组装确定性 Lesson。
+- 现有 `source_steps` 的局部编号、内部 authority、覆盖与顺序机制继续复用；动态 schema
+  需增加固定引用项与开放编排项的边界约束，确切字段另行设计。注册 rule ID、证据 key、
+  稳定片段 key 仍留在内部，不恢复 opaque ID registry 或 locked math spans。
+- validator 需增加固定组身份/位置不变、禁止跨锁定边界合并与片段覆盖不重叠检查。
+  概览只读引用后续证据，不重复占用详细教学片段的覆盖，也不伪装成 runtime Step。
+  非法输出沿用既有确定性 fallback；fallback 必须保留 rule 锁定结果，不新增 Lesson 语义 retry。
+  这些结构检查不证明开放文案的逐句数学语义，也不保证识别全部语义重复。
+
+下文关于“LLM 自行合并 canonical-contiguous materials”及“代码不校验 unit 是否独立成步”
+描述既有基线。新增规则路径实现后，这些自由度仅适用于未被 rule 锁定的连续区间；已有
+完成记录不得解释为锁定能力也已上线。文字与视觉继续使用同一组片段来源，G1 仍为可选未来设计。
+
 ## 1. 结论
 
 F5-F5B vNext 采用以下边界：
@@ -58,7 +87,7 @@ F5-F5B vNext 采用以下边界：
    unit ID 或视觉字段。
 4. LLM 根据绑定完成的建议草稿和当前题真实输入、输出、中间计算结果，直接输出学生化
    `title/nav_title/goal/derive`，并自行决定同一 Scope/Goal 中 canonical-contiguous
-   teaching materials 的合并；verified conclusions/box 由代码注入，不回显
+   teaching materials 的合并（新增 rule 路径仅开放未锁定区间，见 §0）；verified conclusions/box 由代码注入，不回显
    `fact_ids/uses`，也不使用 locked math spans。
 5. LLM 在代码固定的 Scope/Goal 容器中填写完整 Lesson body；不输出 owner，不移动步骤。
 6. 原子 Macro 在 FunctionalPlan 中始终是一个 Step；教学层只展开 verified public
@@ -1140,7 +1169,7 @@ flowchart TB
 - 每个 Scope/Goal body 的编号拼接必须精确等于其 Canonical `s1...sN`；
 - 代码要求每组从当前容器的下一项开始，因此不能跳项、逆序或选择不连续步骤；
 - Scope/Goal body 分开计算，天然不能跨 Scope、Goal 合并；
-- Macro 声明的材料不得遗漏；代码不校验它应独立成步还是与相邻材料合并。
+- Macro 声明的材料不得遗漏；既有基线不校验它应独立成步还是与相邻材料合并。§0 的新增 rule 路径需校验已锁定的拆分/合并边界，尚未实现。
 
 ### 10.3 visual selection
 

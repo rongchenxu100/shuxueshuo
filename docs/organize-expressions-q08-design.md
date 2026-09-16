@@ -107,7 +107,9 @@ checks 覆盖输入绑定、定义域、逐步等价、条件来源。trace_frag
 
 ## 5. 学生步骤和前端 spec
 
-本节描述已实现的 q08 独立整理前缀，不是所有 Method 必须对应一个学生步骤的限制。2026-09-10 已确认的后续设计是：Method 声明多个讲解片段及各自组件，代码同步组合学生步骤与前端展示；q08 可将 M11 的结构识别片段并入“观察结构”，q03 则将“观察次数”和“配齐次式”拆为两个学生步骤。跨 Method 组合、次数观察和 q03 新整理模式尚未由本轮实现验证，详见 [逐题讨论表](basic-inequality-method-discussion.md#6-q02q03-已确认的详细设计)。
+本节描述已实现的 q08 独立整理前缀，不是所有 Method 必须对应一个学生步骤的限制。2026-09-10 已确认的后续设计是：Method 声明多个讲解片段及各自组件，代码同步组合学生步骤与前端展示；q08 可将 M11 的结构识别片段并入“观察结构”，q03 则将“观察次数”和“配齐次式”拆为两个学生步骤。跨 Method 组合、次数观察和 q03 新整理模式尚未由本轮实现验证，详见 [基本不等式讲解规则](basic-inequality-method-discussion.md#lesson-layouts)。
+
+2026-09-15 补充共识：Method 提供片段与依赖，学生步骤的拆分/合并由单一基本不等式 Family 所引用的注册讲解 rule 决定。rule 组织的步骤先完整锁定，Lesson LLM 只编排剩余开放材料，代码校验边界并注入固定步骤；这不同于本首轮实验中只负责提交整理式链的求解 LLM。该协作设计及锁定协议均尚未实现，详见 [Family 与 rule](basic-inequality-method-discussion.md#family-rules) 和 [Lesson LLM 协调](basic-inequality-method-discussion.md#lesson-llm)。
 
 一个教学步骤“整理目标式：通分显条件”，内部四拍：
 

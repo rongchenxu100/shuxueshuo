@@ -1,0 +1,112 @@
+{
+  "postType": "解题方法型",
+  "audience": "高一第一周",
+  "scope": "8个错误类型，每类一道题；封面+8页。排除cases、duplicates。",
+  "dimensions": [
+    1080,
+    1440
+  ],
+  "slides": [
+    {
+      "png": "01-cover.png",
+      "mode": "svg",
+      "source": "01-cover.svg",
+      "category": "cover",
+      "problem": "",
+      "distribution": [
+        {
+          "title": "检查二次项系数是否为0",
+          "count": 2
+        },
+        {
+          "title": "描述法表示集合先看集合元素是什么",
+          "count": 2
+        },
+        {
+          "title": "边界值一定要代入原集合验证关系",
+          "count": 3
+        },
+        {
+          "title": "集合关系要画维恩图",
+          "count": 2
+        },
+        {
+          "title": "“任意”指所有对象都要满足条件",
+          "count": 1
+        },
+        {
+          "title": "讨论集合包含关系不能忘记空集",
+          "count": 1
+        },
+        {
+          "title": "充分、必要条件要转成集合包含关系",
+          "count": 3
+        },
+        {
+          "title": "先理解条件的含义，再明确题目要求的推导方向",
+          "count": 3
+        }
+      ],
+      "distributionScope": "本次选中的8类在原错题本中共17题；每类分享1题。"
+    },
+    {
+      "png": "02-degree.png",
+      "mode": "svg",
+      "source": "02-degree.svg",
+      "category": "degree",
+      "problem": "特训一 · 第9题"
+    },
+    {
+      "png": "03-elements.png",
+      "mode": "svg",
+      "source": "03-elements.svg",
+      "category": "elements",
+      "problem": "特训二 · 第7题"
+    },
+    {
+      "png": "04-boundary.png",
+      "mode": "svg",
+      "source": "04-boundary.svg",
+      "category": "boundary",
+      "problem": "特训三 · 第14题第2问"
+    },
+    {
+      "png": "05-venn.png",
+      "mode": "svg",
+      "source": "05-venn.svg",
+      "category": "venn",
+      "problem": "特训四 · 第7题（多选）"
+    },
+    {
+      "png": "06-universal.png",
+      "mode": "svg",
+      "source": "06-universal.svg",
+      "category": "universal",
+      "problem": "特训一 · 第15题第1问"
+    },
+    {
+      "png": "07-empty.png",
+      "mode": "svg",
+      "source": "07-empty.svg",
+      "category": "empty",
+      "problem": "特训二 · 第5题"
+    },
+    {
+      "png": "08-conditions.png",
+      "mode": "svg",
+      "source": "08-conditions.svg",
+      "category": "conditions",
+      "problem": "特训五 · 第9题"
+    },
+    {
+      "png": "09-understanding-self-test.png",
+      "mode": "svg",
+      "source": "09-understanding-self-test.svg",
+      "category": "understanding",
+      "problem": "特训五 · 第11题 · 最后一题自己判断"
+    }
+  ],
+  "withheldAnswerSlides": [
+    "09-understanding-self-test.png"
+  ]
+}
