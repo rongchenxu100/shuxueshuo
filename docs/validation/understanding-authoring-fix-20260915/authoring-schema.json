@@ -1,0 +1,1920 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "problem-understanding/v1"
+    },
+    "transcription": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "problem-transcription/v1"
+        },
+        "problem_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "root": {
+          "$ref": "#/$defs/Part"
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Region"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "figures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Figure"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "source_gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceGap"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        }
+      },
+      "required": [
+        "schema_version",
+        "problem_id",
+        "source_sha256",
+        "root",
+        "regions",
+        "figures",
+        "source_gaps"
+      ],
+      "additionalProperties": false
+    },
+    "domain": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "problem-domain/v2"
+        },
+        "problem_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "transcription_revision": {
+          "const": "response.transcription"
+        },
+        "completeness": {
+          "enum": [
+            "complete",
+            "partial"
+          ]
+        },
+        "root": {
+          "$ref": "#/$defs/Scope"
+        },
+        "definitions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Definition"
+          },
+          "minItems": 0,
+          "maxItems": 8
+        },
+        "coverage": {
+          "const": "from_source_unit_ids"
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DomainGap"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        }
+      },
+      "required": [
+        "schema_version",
+        "problem_id",
+        "source_sha256",
+        "transcription_revision",
+        "completeness",
+        "root",
+        "definitions",
+        "coverage",
+        "gaps"
+      ],
+      "additionalProperties": false
+    },
+    "match": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "schema_version": {
+              "const": "problem-solver-match/v1"
+            },
+            "transcription_revision": {
+              "const": "response.transcription"
+            },
+            "domain_revision": {
+              "const": "response.domain"
+            },
+            "registry_snapshot": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "status": {
+              "const": "matched"
+            },
+            "family_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "coverage": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/MatchCoverage"
+              },
+              "minItems": 1,
+              "maxItems": 256
+            },
+            "uncovered_requirements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Uncovered"
+              },
+              "minItems": 0,
+              "maxItems": 0
+            }
+          },
+          "required": [
+            "schema_version",
+            "transcription_revision",
+            "domain_revision",
+            "registry_snapshot",
+            "reason",
+            "status",
+            "family_id",
+            "coverage",
+            "uncovered_requirements"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "schema_version": {
+              "const": "problem-solver-match/v1"
+            },
+            "transcription_revision": {
+              "const": "response.transcription"
+            },
+            "domain_revision": {
+              "const": "response.domain"
+            },
+            "registry_snapshot": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "status": {
+              "const": "unmatched"
+            },
+            "family_id": {
+              "type": "null"
+            },
+            "coverage": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/MatchCoverage"
+              },
+              "minItems": 0,
+              "maxItems": 256
+            },
+            "uncovered_requirements": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Uncovered"
+              },
+              "minItems": 1,
+              "maxItems": 256
+            }
+          },
+          "required": [
+            "schema_version",
+            "transcription_revision",
+            "domain_revision",
+            "registry_snapshot",
+            "reason",
+            "status",
+            "family_id",
+            "coverage",
+            "uncovered_requirements"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "transcription",
+    "domain",
+    "match"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Region": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bbox": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "minItems": 4,
+          "maxItems": 4
+        }
+      },
+      "required": [
+        "id",
+        "page",
+        "bbox"
+      ],
+      "additionalProperties": false
+    },
+    "SourceUnit": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "kind": {
+          "enum": [
+            "text",
+            "condition",
+            "requirement",
+            "definition"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "region_refs": {
+          "$ref": "#/$defs/shared3"
+        },
+        "origin": {
+          "enum": [
+            "printed",
+            "unknown",
+            "mixed",
+            "handwritten"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "text",
+        "region_refs",
+        "origin"
+      ],
+      "additionalProperties": false
+    },
+    "Part": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "units": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SourceUnit"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Part"
+          },
+          "minItems": 0,
+          "maxItems": 16
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "units",
+        "children"
+      ],
+      "additionalProperties": false
+    },
+    "SourceGap": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "reason": {
+          "enum": [
+            "missing_figure",
+            "unreadable",
+            "ambiguous_symbol",
+            "occluded"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "part_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "source_unit_refs": {
+          "$ref": "#/$defs/shared3"
+        },
+        "region_refs": {
+          "$ref": "#/$defs/shared3"
+        }
+      },
+      "required": [
+        "id",
+        "reason",
+        "description",
+        "part_ref",
+        "source_unit_refs",
+        "region_refs"
+      ],
+      "additionalProperties": false
+    },
+    "Figure": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "part_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "available": {
+          "type": "boolean"
+        },
+        "region_refs": {
+          "$ref": "#/$defs/shared3"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "part_ref",
+        "available",
+        "region_refs"
+      ],
+      "additionalProperties": false
+    },
+    "QuantityTerm": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "number"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "scalar"
+            },
+            "symbol_ref": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            }
+          },
+          "required": [
+            "kind",
+            "symbol_ref"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "scalar_algebra"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "refs": {
+              "$ref": "#/$defs/shared3"
+            }
+          },
+          "required": [
+            "kind",
+            "expression",
+            "refs"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "segment_length"
+            },
+            "segment": {
+              "$ref": "#/$defs/shared1"
+            }
+          },
+          "required": [
+            "kind",
+            "segment"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "angle_measure"
+            },
+            "angle": {
+              "$ref": "#/$defs/shared2"
+            },
+            "unit": {
+              "const": "degree"
+            }
+          },
+          "required": [
+            "kind",
+            "angle",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "angle_constant"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "unit": {
+              "const": "degree"
+            }
+          },
+          "required": [
+            "kind",
+            "value",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "triangle_area"
+            },
+            "vertices": {
+              "$ref": "#/$defs/shared2"
+            },
+            "convention": {
+              "const": "unsigned"
+            }
+          },
+          "required": [
+            "kind",
+            "vertices",
+            "convention"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "add"
+            },
+            "terms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/QuantityTerm"
+              },
+              "minItems": 2,
+              "maxItems": 256
+            }
+          },
+          "required": [
+            "kind",
+            "terms"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "multiply"
+            },
+            "terms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/QuantityTerm"
+              },
+              "minItems": 2,
+              "maxItems": 256
+            }
+          },
+          "required": [
+            "kind",
+            "terms"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "divide"
+            },
+            "numerator": {
+              "$ref": "#/$defs/QuantityTerm"
+            },
+            "denominator": {
+              "$ref": "#/$defs/QuantityTerm"
+            }
+          },
+          "required": [
+            "kind",
+            "numerator",
+            "denominator"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "tan"
+            },
+            "angle": {
+              "$ref": "#/$defs/QuantityTerm"
+            }
+          },
+          "required": [
+            "kind",
+            "angle"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "measured_constant"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "unit": {
+              "enum": [
+                "length",
+                "area"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "value",
+            "unit"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "coordinate_component"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "axis": {
+              "enum": [
+                "x",
+                "y"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "axis"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Entity": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "kind": {
+              "enum": [
+                "point"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "role": {
+              "enum": [
+                "given",
+                "fixed",
+                "moving",
+                "constructed"
+              ]
+            },
+            "source_unit_ids": {
+              "$ref": "#/$defs/shared4"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "role",
+            "source_unit_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "kind": {
+              "enum": [
+                "scalar",
+                "curve"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "source_unit_ids": {
+              "$ref": "#/$defs/shared4"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "source_unit_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "kind": {
+              "enum": [
+                "polygon"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "vertices": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/shared5"
+              },
+              "minItems": 3,
+              "maxItems": 8
+            },
+            "source_unit_ids": {
+              "$ref": "#/$defs/shared4"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "vertices",
+            "source_unit_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "kind": {
+              "enum": [
+                "ray",
+                "line",
+                "segment"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "endpoints": {
+              "$ref": "#/$defs/shared1"
+            },
+            "source_unit_ids": {
+              "$ref": "#/$defs/shared4"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "label",
+            "endpoints",
+            "source_unit_ids"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Relation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "quantity_relation"
+            },
+            "operator": {
+              "enum": [
+                "=",
+                "!=",
+                ">",
+                ">=",
+                "<",
+                "<="
+              ]
+            },
+            "left": {
+              "$ref": "#/$defs/QuantityTerm"
+            },
+            "right": {
+              "$ref": "#/$defs/QuantityTerm"
+            }
+          },
+          "required": [
+            "kind",
+            "operator",
+            "left",
+            "right"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "all"
+            },
+            "terms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Relation"
+              },
+              "minItems": 1,
+              "maxItems": 256
+            }
+          },
+          "required": [
+            "kind",
+            "terms"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "any"
+            },
+            "terms": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Relation"
+              },
+              "minItems": 2,
+              "maxItems": 256
+            }
+          },
+          "required": [
+            "kind",
+            "terms"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "midpoint"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "segment": {
+              "$ref": "#/$defs/shared1"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "segment"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "intersection"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "first": {
+              "$ref": "#/$defs/shared1"
+            },
+            "second": {
+              "$ref": "#/$defs/shared1"
+            },
+            "interior": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "first",
+            "second",
+            "interior"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "diagonal"
+            },
+            "polygon": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "endpoints": {
+              "$ref": "#/$defs/shared1"
+            }
+          },
+          "required": [
+            "kind",
+            "polygon",
+            "endpoints"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "parallel"
+            },
+            "first": {
+              "$ref": "#/$defs/shared1"
+            },
+            "second": {
+              "$ref": "#/$defs/shared1"
+            }
+          },
+          "required": [
+            "kind",
+            "first",
+            "second"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "perpendicular"
+            },
+            "first": {
+              "$ref": "#/$defs/shared1"
+            },
+            "second": {
+              "$ref": "#/$defs/shared1"
+            }
+          },
+          "required": [
+            "kind",
+            "first",
+            "second"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "point_on_ray"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "ray": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "ray"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "point_on_segment"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "segment": {
+              "$ref": "#/$defs/shared1"
+            },
+            "interior": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "segment",
+            "interior"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "parallelogram"
+            },
+            "polygon": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            }
+          },
+          "required": [
+            "kind",
+            "polygon"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "square"
+            },
+            "polygon": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            }
+          },
+          "required": [
+            "kind",
+            "polygon"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "diagonal_bisects"
+            },
+            "polygon": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "bisector": {
+              "$ref": "#/$defs/shared1"
+            },
+            "bisected": {
+              "$ref": "#/$defs/shared1"
+            }
+          },
+          "required": [
+            "kind",
+            "polygon",
+            "bisector",
+            "bisected"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "coordinates"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "x": {
+              "$ref": "#/$defs/QuantityTerm"
+            },
+            "y": {
+              "$ref": "#/$defs/QuantityTerm"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "x",
+            "y"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "curve_equation"
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "expression": {
+              "$ref": "#/$defs/QuantityTerm"
+            },
+            "independent": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "dependent": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            }
+          },
+          "required": [
+            "kind",
+            "curve",
+            "expression",
+            "independent",
+            "dependent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "point_on_curve"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "curve"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "definition_use"
+            },
+            "definition_ref": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "arguments": {
+              "type": "object",
+              "additionalProperties": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+                  },
+                  {
+                    "$ref": "#/$defs/QuantityTerm"
+                  }
+                ]
+              },
+              "maxProperties": 16
+            }
+          },
+          "required": [
+            "kind",
+            "definition_ref",
+            "arguments"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "origin"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            }
+          },
+          "required": [
+            "kind",
+            "point"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "translation"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "original": {
+              "$ref": "#/$defs/shared5"
+            },
+            "vector": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/QuantityTerm"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "original",
+            "vector"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "curve_landmark"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "landmark": {
+              "enum": [
+                "vertex",
+                "x_axis_intercept",
+                "y_axis_intercept",
+                "axis_x_intercept"
+              ]
+            },
+            "side": {
+              "enum": [
+                null,
+                "left",
+                "right"
+              ]
+            },
+            "exclude_point": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/shared5"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "curve",
+            "landmark",
+            "side",
+            "exclude_point"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "curve_at_x"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "x": {
+              "$ref": "#/$defs/QuantityTerm"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "curve",
+            "x"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "point_on_axis"
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "axis": {
+              "enum": [
+                "x",
+                "y",
+                "symmetry"
+              ]
+            },
+            "curve": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "axis",
+            "curve"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "extremum_constraint"
+            },
+            "direction": {
+              "enum": [
+                "minimum",
+                "maximum"
+              ]
+            },
+            "expression": {
+              "$ref": "#/$defs/QuantityTerm"
+            },
+            "variables": {
+              "$ref": "#/$defs/shared4"
+            },
+            "value": {
+              "oneOf": [
+                {
+                  "$ref": "#/$defs/QuantityTerm"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "direction",
+            "expression",
+            "variables",
+            "value"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Fact": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "relation": {
+          "$ref": "#/$defs/Relation"
+        },
+        "source_unit_ids": {
+          "$ref": "#/$defs/shared4"
+        }
+      },
+      "required": [
+        "id",
+        "relation",
+        "source_unit_ids"
+      ],
+      "additionalProperties": false
+    },
+    "AnswerForm": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "exact_value"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "expression_in"
+            },
+            "parameters": {
+              "$ref": "#/$defs/shared4"
+            }
+          },
+          "required": [
+            "kind",
+            "parameters"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Goal": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "kind": {
+              "enum": [
+                "quantity_goal"
+              ]
+            },
+            "expression": {
+              "$ref": "#/$defs/QuantityTerm"
+            },
+            "answer_form": {
+              "$ref": "#/$defs/AnswerForm"
+            },
+            "source_unit_ids": {
+              "$ref": "#/$defs/shared4"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "expression",
+            "answer_form",
+            "source_unit_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "kind": {
+              "enum": [
+                "coordinates_goal"
+              ]
+            },
+            "point": {
+              "$ref": "#/$defs/shared5"
+            },
+            "source_unit_ids": {
+              "$ref": "#/$defs/shared4"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "point",
+            "source_unit_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "kind": {
+              "enum": [
+                "equation_goal"
+              ]
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "source_unit_ids": {
+              "$ref": "#/$defs/shared4"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "curve",
+            "source_unit_ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            "kind": {
+              "enum": [
+                "extremum_goal"
+              ]
+            },
+            "expression": {
+              "$ref": "#/$defs/QuantityTerm"
+            },
+            "direction": {
+              "enum": [
+                "minimum",
+                "maximum"
+              ]
+            },
+            "variables": {
+              "$ref": "#/$defs/shared4"
+            },
+            "constraints": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Relation"
+              },
+              "minItems": 0,
+              "maxItems": 256
+            },
+            "answer_form": {
+              "$ref": "#/$defs/AnswerForm"
+            },
+            "source_unit_ids": {
+              "$ref": "#/$defs/shared4"
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "expression",
+            "direction",
+            "variables",
+            "constraints",
+            "answer_form",
+            "source_unit_ids"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Scope": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "part_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Entity"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Fact"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Goal"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Scope"
+          },
+          "minItems": 0,
+          "maxItems": 16
+        }
+      },
+      "required": [
+        "id",
+        "part_ref",
+        "entities",
+        "facts",
+        "goals",
+        "children"
+      ],
+      "additionalProperties": false
+    },
+    "Formal": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "kind": {
+          "enum": [
+            "polygon",
+            "scalar"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "Definition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Formal"
+          },
+          "minItems": 1,
+          "maxItems": 16
+        },
+        "local_witnesses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+              },
+              "kind": {
+                "enum": [
+                  "point"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "kind"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 16
+        },
+        "body": {
+          "$ref": "#/$defs/Relation"
+        },
+        "source_unit_ids": {
+          "$ref": "#/$defs/shared4"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "parameters",
+        "local_witnesses",
+        "body",
+        "source_unit_ids"
+      ],
+      "additionalProperties": false
+    },
+    "Coverage": {
+      "type": "object",
+      "properties": {
+        "source_unit_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "domain_unit_ids": {
+          "$ref": "#/$defs/shared3"
+        },
+        "gap_id": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "source_unit_id",
+        "domain_unit_ids",
+        "gap_id"
+      ],
+      "additionalProperties": false
+    },
+    "DomainGap": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "source_unit_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "id",
+        "source_unit_id",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "Uncovered": {
+      "type": "object",
+      "properties": {
+        "source_unit_refs": {
+          "$ref": "#/$defs/shared4"
+        },
+        "domain_unit_refs": {
+          "$ref": "#/$defs/shared4"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "source_unit_refs",
+        "domain_unit_refs",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "MatchCoverage": {
+      "type": "object",
+      "properties": {
+        "requirement_ref": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "domain_unit_refs": {
+          "$ref": "#/$defs/shared4"
+        }
+      },
+      "required": [
+        "requirement_ref",
+        "domain_unit_refs"
+      ],
+      "additionalProperties": false
+    },
+    "shared0": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "polygon_vertex"
+        },
+        "polygon": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        }
+      },
+      "required": [
+        "kind",
+        "polygon",
+        "index"
+      ],
+      "additionalProperties": false
+    },
+    "shared1": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/shared5"
+      },
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "shared2": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/shared5"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "shared3": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+      },
+      "minItems": 0,
+      "maxItems": 256
+    },
+    "shared4": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+      },
+      "minItems": 1,
+      "maxItems": 256
+    },
+    "shared5": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,127}$"
+        },
+        {
+          "$ref": "#/$defs/shared0"
+        }
+      ]
+    }
+  }
+}

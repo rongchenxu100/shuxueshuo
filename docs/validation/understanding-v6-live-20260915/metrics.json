@@ -1,0 +1,28 @@
+{
+  "finish_reason": "stop",
+  "elapsed_seconds": 71.779,
+  "prompt_tokens": 8338,
+  "completion_tokens": 14977,
+  "reasoning_tokens": 12737,
+  "non_reasoning_completion_tokens_by_subtraction": 2240,
+  "output_characters": 7496,
+  "definition_branch_counts": [
+    4,
+    2,
+    2,
+    2
+  ],
+  "goal_counts": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "missing_figures": 4,
+  "literal_interior_fields": false,
+  "diff_count": 292,
+  "mapping_budget_exhausted": false,
+  "source_hash_matches": true,
+  "gold_matches_frozen": true,
+  "implementation_matches_frozen": true
+}

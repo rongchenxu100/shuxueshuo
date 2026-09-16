@@ -1,0 +1,11 @@
+{
+  "passed": false,
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "semantic_calls": 1,
+  "network_attempts": 1,
+  "error": "truncated/invalid finish reason or network budget",
+  "contract_valid": false,
+  "elapsed_seconds": 75.477
+}

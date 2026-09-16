@@ -1,0 +1,43 @@
+{
+  "passed": false,
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "semantic_calls": 1,
+  "network_attempts": 1,
+  "error": "truncated/invalid finish reason or network budget",
+  "contract_valid": false,
+  "elapsed_seconds": 61.95,
+  "usage": {
+    "completion_tokens": 16383,
+    "prompt_tokens": 13779,
+    "total_tokens": 30162,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 13882,
+      "rejected_prediction_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 13779
+  },
+  "input_tokens_before": 25844,
+  "input_reduction_percent": 46.7,
+  "visible_characters": 6897,
+  "reasoning_characters": 35511,
+  "finish_reason": "length",
+  "artifact_hashes": {
+    "request.json": "54d144d6db5acbd87931c092714794d88b8ab5b081eaa8800bb78655e6a649ee",
+    "summary.json": "de2009bda2def83d360f779565aee13b280657be889a9594e8ca5d404716796c",
+    "diff.json": "8e2e5dcae0e87e34036c27f667076c72e5c63f1c051080f84d773dae779131fd",
+    "parsed.json": "5f1f90e4f83ff37909fa48ca3ae9e85197cf070b00a47ab9fb97cf57fc7175d9",
+    "provider-response.json": "2daae04dcbba15cd13fd54578db5e15df0e27b8d37b0169ac6f69a06c77e5507",
+    "frozen.json": "dc3c70627e9858fab85a4e0df65f40e9af0c479da054caeb6398aeca35782ac0",
+    "call.json": "77c82a07e62569d2eab1238702f40534e19167c1f3d69e675c7f5335822b115a",
+    "semantic-call-reserved.json": "6b0c951b6fca1486ece6e144d638760c708d6ba32b335ad4872c2b24c6d34d85"
+  }
+}

@@ -1,9 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Iterable
-
 
 PROFILE_MARKERS = {
     "fast": "not solver_contract and not solver_full and not live_llm",
@@ -67,6 +66,31 @@ class OwnershipRule:
 
 
 OWNERSHIP_RULES = (
+    OwnershipRule(
+        (
+            "server/shuxueshuo_server/problem_understanding/*.py",
+            "internal/llm-prompts/problem-math-notation-*",
+            "internal/schemas/problem-math-notation-*.schema.json",
+            "server/tests/solver/fixtures/math-notation-v1/*.json",
+            "server/tests/solver/fixtures/math-notation-v1/*/*",
+            "server/tests/solver/_math_notation_test_support.py",
+            "tools/prepare_understanding_test_images.py",
+        ),
+        (
+            "tests/solver/test_math_notation.py",
+            "tests/solver/test_math_notation_normalization.py",
+            "tests/solver/test_math_notation_recorded.py",
+            "tests/solver/test_math_notation_extraction_rules.py",
+            "tests/solver/test_math_notation_redundancy.py",
+            "tests/solver/test_math_notation_geometry_proofs.py",
+            "tests/solver/test_math_notation_intersection_definition.py",
+            "tests/solver/test_math_notation_angle_catalog.py",
+            "tests/solver/test_math_notation_seven.py",
+            "tests/solver/test_math_notation_providers.py",
+            "tests/solver/test_math_notation_candidate.py",
+            "tests/solver/test_math_notation_cleanup.py",
+        ),
+    ),
     OwnershipRule(
         (
             "server/tools/run_solver_tests.py",
@@ -186,9 +210,7 @@ OWNERSHIP_RULES = (
         ),
     ),
     OwnershipRule(
-        (
-            "server/shuxueshuo_server/solver/lesson_annotated_teaching_review.py",
-        ),
+        ("server/shuxueshuo_server/solver/lesson_annotated_teaching_review.py",),
         (
             "tests/solver/test_annotated_teaching_plan.py",
             "tests/solver/test_lesson_scope_authoring_b2.py",
@@ -287,10 +309,7 @@ OWNERSHIP_RULES = (
         ),
     ),
     OwnershipRule(
-        (
-            "server/tests/solver/fixtures/"
-            "lesson_scope_authoring_vnext/**/*",
-        ),
+        ("server/tests/solver/fixtures/lesson_scope_authoring_vnext/**/*",),
         (
             "tests/solver/test_lesson_scope_authoring_b2.py",
             "tests/solver/test_lesson_scope_authoring_b3.py",
@@ -311,6 +330,9 @@ def is_solver_source(path: str | Path) -> bool:
     return normalized.startswith(
         (
             "server/shuxueshuo_server/solver/",
+            "server/shuxueshuo_server/problem_understanding/",
+            "internal/llm-prompts/problem-math-notation-",
+            "internal/schemas/problem-math-notation-",
             "internal/llm-prompts/strategy-functional",
             "internal/schemas/functional-",
         )

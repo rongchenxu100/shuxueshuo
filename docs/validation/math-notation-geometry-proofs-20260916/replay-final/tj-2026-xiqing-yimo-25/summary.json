@@ -1,0 +1,29 @@
+{
+  "offline_replay_only": true,
+  "live_passed": true,
+  "replay_passed": true,
+  "json_schema_valid": true,
+  "match_correct": true,
+  "original_parse_issues": 0,
+  "replay_parse_issues": 0,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "elapsed_seconds": 30.507,
+  "usage": {
+    "completion_tokens": 6737,
+    "prompt_tokens": 9494,
+    "total_tokens": 16231,
+    "prompt_cache_hit_tokens": 8960,
+    "prompt_cache_miss_tokens": 534
+  },
+  "finish_reason": "stop",
+  "raw_response_sha256": "a91c609a8329aad72241d46499a0d52c2c2564754806dba2f62e13a405b3eb75",
+  "frozen_request_sha256": "6d2bf99f8fd4e628266ef923f90b91820509ddcf5919f3d2a2b12974caaa8a1b",
+  "request_contract": "problem-math-notation/v1"
+}

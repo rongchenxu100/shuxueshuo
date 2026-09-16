@@ -1,0 +1,3121 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "k-quad",
+    "source_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "definitions": [
+          "若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为k（k≥1），则称该四边形为“k倍四边形”。"
+        ],
+        "children": [
+          {
+            "label": "(1)",
+            "children": [
+              {
+                "label": "①",
+                "facts": [
+                  "parallelogram(A,B,C,D)",
+                  "segment(A,C) ∩ segment(B,D) = {O}",
+                  "E = midpoint(O,B)",
+                  "k ≥ 1",
+                  "(bisects(ED, AC) ∧ (cut_ratio(AC, ED) = k ∨ cut_ratio(AC, ED) = 1/k)) ∨ (bisects(AC, ED) ∧ (cut_ratio(ED, AC) = k ∨ cut_ratio(ED, AC) = 1/k))"
+                ],
+                "goals": [
+                  {
+                    "kind": "find_value",
+                    "expression": "k"
+                  }
+                ],
+                "uncertainties": [
+                  {
+                    "kind": "missing_figure",
+                    "text": "题面引用图1，但输入图片未提供该图。"
+                  }
+                ],
+                "definitions": [],
+                "children": []
+              },
+              {
+                "label": "②",
+                "facts": [
+                  "k ≥ 1",
+                  "bisects(BD, AC) ∧ (cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k)"
+                ],
+                "goals": [
+                  {
+                    "kind": "find_value",
+                    "expression": "area(△ACD)/area(△ACB)",
+                    "in_terms_of": [
+                      "k"
+                    ]
+                  }
+                ],
+                "uncertainties": [
+                  {
+                    "kind": "missing_figure",
+                    "text": "题面引用图2，但输入图片未提供该图。"
+                  }
+                ],
+                "definitions": [],
+                "children": []
+              }
+            ],
+            "definitions": [],
+            "facts": [],
+            "goals": [],
+            "uncertainties": []
+          },
+          {
+            "label": "(2)",
+            "facts": [
+              "quadrilateral(A,B,C,D)",
+              "k ≥ 1",
+              "bisects(BD, AC) ∧ (cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k)",
+              "angle(BDC) = 2*angle(ABD)",
+              "BD = 4*CD"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "k"
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "missing_figure",
+                "text": "题面引用图3，但输入图片未提供该图。"
+              }
+            ],
+            "definitions": [],
+            "children": []
+          },
+          {
+            "label": "(3)",
+            "facts": [
+              "A、B为定点",
+              "C ∈ ray(B,M)",
+              "D为平面内一点",
+              "quadrilateral(A,B,C,D)",
+              "line(A,B) ⟂ line(B,M)",
+              "bisects(BD, AC)",
+              "angle(BAC) = angle(DAC)",
+              "bisects(BD, AC) ∧ (cut_ratio(BD, AC) = 2 ∨ cut_ratio(BD, AC) = 1/2)"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "tan(∠ACD)"
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "missing_figure",
+                "text": "题面引用图4，但输入图片未提供该图。"
+              }
+            ],
+            "definitions": [],
+            "children": []
+          }
+        ],
+        "label": "题目",
+        "facts": [],
+        "goals": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": null,
+      "match_status": "unmatched",
+      "match_reason": "题目为k倍四边形定义与几何综合题，不属于注册的二次函数路径最值题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r.c0.c0:scalar:k",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c0.c1:scalar:k",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c1:scalar:k",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r.c0.c0:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c0.c0:point:B",
+          "name": "B",
+          "kind": "point",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c0.c0:point:C",
+          "name": "C",
+          "kind": "point",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c0.c0:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c0.c0:point:O",
+          "name": "O",
+          "kind": "point",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c0.c0:point:E",
+          "name": "E",
+          "kind": "point",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c0.c0:scalar:k",
+          "name": "k",
+          "kind": "scalar",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c0.c1:point:B",
+          "name": "B",
+          "kind": "point",
+          "scope": "r.c0.c1"
+        },
+        {
+          "ref": "r.c0.c1:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r.c0.c1"
+        },
+        {
+          "ref": "r.c0.c1:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r.c0.c1"
+        },
+        {
+          "ref": "r.c0.c1:point:C",
+          "name": "C",
+          "kind": "point",
+          "scope": "r.c0.c1"
+        },
+        {
+          "ref": "r.c0.c1:scalar:k",
+          "name": "k",
+          "kind": "scalar",
+          "scope": "r.c0.c1"
+        },
+        {
+          "ref": "r.c1:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:B",
+          "name": "B",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:C",
+          "name": "C",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:scalar:k",
+          "name": "k",
+          "kind": "scalar",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c2:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:B",
+          "name": "B",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:C",
+          "name": "C",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:M",
+          "name": "M",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r.c2"
+        }
+      ],
+      "well_definedness_obligations": [
+        {
+          "scope": "r.c0.c0",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c0",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c0",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c0",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c0",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c0",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c0",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c0",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c0",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c0",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c1",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c1",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c1",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c1",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c0.c1",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c1",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c1",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c1",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c1",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c1",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c2",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c2",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c2",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c2",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c2",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "scope": "r.c2",
+          "code": "nonzero_cut_denominator",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "code": "algebra_domain",
+          "condition": [
+            "nonzero_denominator",
+            "Symbol('n_68853f33190e4c33f8f76bb8dccf2a54bd853361b7a668143b986cb2361007a0', real=True)"
+          ]
+        },
+        {
+          "code": "algebra_domain",
+          "condition": [
+            "nonzero_denominator",
+            "Symbol('n_cb417049f3de93ad7dce18252f0ecf40bfe8dcd6e519be374615401438f52c0b', real=True)"
+          ]
+        },
+        {
+          "code": "algebra_domain",
+          "condition": [
+            "nonzero_denominator",
+            "Symbol('n_e8044be4c12937419610480790d068cdddfdafd29b93276388c7da46a1014b60', real=True)"
+          ]
+        },
+        {
+          "code": "algebra_domain",
+          "condition": [
+            "nonzero_denominator",
+            "Symbol('n_f30596bd06be8c4d7917d30b3ec5430397c8fc58a5b85839e5ed80d4cdc6803e', real=True)"
+          ]
+        }
+      ],
+      "coordinate_bindings": [],
+      "normalization_proofs": [
+        {
+          "rule": "nondegenerate_parallelogram_diagonals",
+          "scope": "r.c0.c0",
+          "before": [
+            "=",
+            [
+              "∩",
+              [
+                "call",
+                "segment",
+                [
+                  "ref",
+                  "r.c0.c0:point:A",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:C",
+                  "point"
+                ]
+              ],
+              [
+                "call",
+                "segment",
+                [
+                  "ref",
+                  "r.c0.c0:point:B",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:D",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "set",
+              [
+                "ref",
+                "r.c0.c0:point:O",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "∈",
+            [
+              "ref",
+              "r.c0.c0:point:O",
+              "point"
+            ],
+            [
+              "∩",
+              [
+                "call",
+                "line",
+                [
+                  "ref",
+                  "r.c0.c0:point:A",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:C",
+                  "point"
+                ]
+              ],
+              [
+                "call",
+                "line",
+                [
+                  "ref",
+                  "r.c0.c0:point:B",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:D",
+                  "point"
+                ]
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "parallelogram",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "bisector_unit_ratio",
+          "scope": "r.c0.c0",
+          "before": [
+            "call",
+            "bisects",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "=",
+            [
+              "certified_cut_ratio",
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c0.c0:point:A",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:C",
+                  "point"
+                ]
+              ],
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c0.c0:point:E",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:D",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "parallelogram",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "∈",
+              [
+                "ref",
+                "r.c0.c0:point:O",
+                "point"
+              ],
+              [
+                "∩",
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:A",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:C",
+                    "point"
+                  ]
+                ],
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:B",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:D",
+                    "point"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "call",
+                "midpoint",
+                [
+                  "ref",
+                  "r.c0.c0:point:O",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:B",
+                  "point"
+                ]
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "positive_cut_ratio",
+          "scope": "r.c0.c0",
+          "before": [
+            "call",
+            "cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "certified_cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "parallelogram",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "∈",
+              [
+                "ref",
+                "r.c0.c0:point:O",
+                "point"
+              ],
+              [
+                "∩",
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:A",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:C",
+                    "point"
+                  ]
+                ],
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:B",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:D",
+                    "point"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "call",
+                "midpoint",
+                [
+                  "ref",
+                  "r.c0.c0:point:O",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:B",
+                  "point"
+                ]
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "positive_cut_ratio",
+          "scope": "r.c0.c0",
+          "before": [
+            "call",
+            "cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "certified_cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "parallelogram",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "∈",
+              [
+                "ref",
+                "r.c0.c0:point:O",
+                "point"
+              ],
+              [
+                "∩",
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:A",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:C",
+                    "point"
+                  ]
+                ],
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:B",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:D",
+                    "point"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "call",
+                "midpoint",
+                [
+                  "ref",
+                  "r.c0.c0:point:O",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:B",
+                  "point"
+                ]
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "bisector_unit_ratio",
+          "scope": "r.c0.c0",
+          "before": [
+            "call",
+            "bisects",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "=",
+            [
+              "certified_cut_ratio",
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c0.c0:point:E",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:D",
+                  "point"
+                ]
+              ],
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c0.c0:point:A",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:C",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "parallelogram",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "∈",
+              [
+                "ref",
+                "r.c0.c0:point:O",
+                "point"
+              ],
+              [
+                "∩",
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:A",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:C",
+                    "point"
+                  ]
+                ],
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:B",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:D",
+                    "point"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "call",
+                "midpoint",
+                [
+                  "ref",
+                  "r.c0.c0:point:O",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:B",
+                  "point"
+                ]
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "positive_cut_ratio",
+          "scope": "r.c0.c0",
+          "before": [
+            "call",
+            "cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "certified_cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "parallelogram",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "∈",
+              [
+                "ref",
+                "r.c0.c0:point:O",
+                "point"
+              ],
+              [
+                "∩",
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:A",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:C",
+                    "point"
+                  ]
+                ],
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:B",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:D",
+                    "point"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "call",
+                "midpoint",
+                [
+                  "ref",
+                  "r.c0.c0:point:O",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:B",
+                  "point"
+                ]
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "positive_cut_ratio",
+          "scope": "r.c0.c0",
+          "before": [
+            "call",
+            "cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "certified_cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "parallelogram",
+              [
+                "ref",
+                "r.c0.c0:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c0.c0:point:D",
+                "point"
+              ]
+            ],
+            [
+              "∈",
+              [
+                "ref",
+                "r.c0.c0:point:O",
+                "point"
+              ],
+              [
+                "∩",
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:A",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:C",
+                    "point"
+                  ]
+                ],
+                [
+                  "call",
+                  "line",
+                  [
+                    "ref",
+                    "r.c0.c0:point:B",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c0.c0:point:D",
+                    "point"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "ref",
+                "r.c0.c0:point:E",
+                "point"
+              ],
+              [
+                "call",
+                "midpoint",
+                [
+                  "ref",
+                  "r.c0.c0:point:O",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c0.c0:point:B",
+                  "point"
+                ]
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "bisector_unit_ratio",
+          "scope": "r.c1",
+          "before": [
+            "call",
+            "bisects",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "=",
+            [
+              "certified_cut_ratio",
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c1:point:A",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c1:point:C",
+                  "point"
+                ]
+              ],
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c1:point:B",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c1:point:D",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "quadrilateral",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "positive_cut_ratio",
+          "scope": "r.c1",
+          "before": [
+            "call",
+            "cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "certified_cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "quadrilateral",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "positive_cut_ratio",
+          "scope": "r.c1",
+          "before": [
+            "call",
+            "cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "certified_cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "quadrilateral",
+              [
+                "ref",
+                "r.c1:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "bisector_unit_ratio",
+          "scope": "r.c2",
+          "before": [
+            "call",
+            "bisects",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "=",
+            [
+              "certified_cut_ratio",
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c2:point:A",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c2:point:C",
+                  "point"
+                ]
+              ],
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c2:point:B",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c2:point:D",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "quadrilateral",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "bisector_unit_ratio",
+          "scope": "r.c2",
+          "before": [
+            "call",
+            "bisects",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "=",
+            [
+              "certified_cut_ratio",
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c2:point:A",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c2:point:C",
+                  "point"
+                ]
+              ],
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c2:point:B",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c2:point:D",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "quadrilateral",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "positive_cut_ratio",
+          "scope": "r.c2",
+          "before": [
+            "call",
+            "cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "certified_cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "quadrilateral",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "positive_cut_ratio",
+          "scope": "r.c2",
+          "before": [
+            "call",
+            "cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "certified_cut_ratio",
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "call",
+              "quadrilateral",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "duplicate_relation",
+          "scope": "r.c2",
+          "before": [
+            "=",
+            [
+              "certified_cut_ratio",
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c2:point:A",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c2:point:C",
+                  "point"
+                ]
+              ],
+              [
+                "endpoints",
+                [
+                  "ref",
+                  "r.c2:point:B",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c2:point:D",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "number",
+              "1"
+            ]
+          ],
+          "after": [
+            "and"
+          ],
+          "premises": [
+            [
+              "=",
+              [
+                "certified_cut_ratio",
+                [
+                  "endpoints",
+                  [
+                    "ref",
+                    "r.c2:point:A",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c2:point:C",
+                    "point"
+                  ]
+                ],
+                [
+                  "endpoints",
+                  [
+                    "ref",
+                    "r.c2:point:B",
+                    "point"
+                  ],
+                  [
+                    "ref",
+                    "r.c2:point:D",
+                    "point"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:743971129831f900dfada96fdc17faff26699b9aec8ad55f45a6332212d975d9",
+      "kind": "notation_raw",
+      "sha256": "743971129831f900dfada96fdc17faff26699b9aec8ad55f45a6332212d975d9",
+      "media_type": "text/plain",
+      "byte_size": 3118,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/k-quad/artifacts/74/743971129831f900dfada96fdc17faff26699b9aec8ad55f45a6332212d975d9.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:74da1a20dc5962282e41273b024fbce90871a83ff9e9775fb59857f21773bab2",
+      "kind": "notation_candidate",
+      "sha256": "74da1a20dc5962282e41273b024fbce90871a83ff9e9775fb59857f21773bab2",
+      "media_type": "application/json",
+      "byte_size": 1900,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/k-quad/artifacts/74/74da1a20dc5962282e41273b024fbce90871a83ff9e9775fb59857f21773bab2.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:11bca10ccd9b42998435fdc517ead360b535c0d8210070855bf8bf76d919a4a8",
+      "kind": "notation_canonical",
+      "sha256": "11bca10ccd9b42998435fdc517ead360b535c0d8210070855bf8bf76d919a4a8",
+      "media_type": "application/json",
+      "byte_size": 11185,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/k-quad/artifacts/11/11bca10ccd9b42998435fdc517ead360b535c0d8210070855bf8bf76d919a4a8.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:707c6f58d602b29cf62a469fa35371432c799f16a0b207adb112dda559a59e9c",
+      "kind": "notation_normalized",
+      "sha256": "707c6f58d602b29cf62a469fa35371432c799f16a0b207adb112dda559a59e9c",
+      "media_type": "application/json",
+      "byte_size": 2140,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/k-quad/artifacts/70/707c6f58d602b29cf62a469fa35371432c799f16a0b207adb112dda559a59e9c.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:e5ca39a6d9b260303b7f436a1cd65708f785afd919e1135b7897edc4a6745114",
+      "kind": "notation_compiled",
+      "sha256": "e5ca39a6d9b260303b7f436a1cd65708f785afd919e1135b7897edc4a6745114",
+      "media_type": "application/json",
+      "byte_size": 35045,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/k-quad/artifacts/e5/e5ca39a6d9b260303b7f436a1cd65708f785afd919e1135b7897edc4a6745114.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:8368454d6a126112ba8676476cad5a12c6dcc496e96548e079b3d838ff120d3d",
+      "kind": "notation_continuation",
+      "sha256": "8368454d6a126112ba8676476cad5a12c6dcc496e96548e079b3d838ff120d3d",
+      "media_type": "application/json",
+      "byte_size": 708,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/k-quad/artifacts/83/8368454d6a126112ba8676476cad5a12c6dcc496e96548e079b3d838ff120d3d.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:953ba6d7e4fad771b72cd0b59b94b3fc459849c83e550ad96cbbc5303b1fa7ac",
+      "kind": "notation_ir",
+      "sha256": "953ba6d7e4fad771b72cd0b59b94b3fc459849c83e550ad96cbbc5303b1fa7ac",
+      "media_type": "application/json",
+      "byte_size": 1978,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/k-quad/artifacts/95/953ba6d7e4fad771b72cd0b59b94b3fc459849c83e550ad96cbbc5303b1fa7ac.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:e85df08c4b9c5be5df82182b2ebd65bdf95abe257ea7dd2ea5b3058bd290d44b",
+      "kind": "notation_validation",
+      "sha256": "e85df08c4b9c5be5df82182b2ebd65bdf95abe257ea7dd2ea5b3058bd290d44b",
+      "media_type": "application/json",
+      "byte_size": 19309,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/k-quad/artifacts/e8/e85df08c4b9c5be5df82182b2ebd65bdf95abe257ea7dd2ea5b3058bd290d44b.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "needs_confirmation",
+    "blocked": true,
+    "error_code": "extraction.missing_figure",
+    "user_action": "supplement_image",
+    "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+    "missing_figures": [
+      {
+        "scope": "r.c0.c0",
+        "label": "①",
+        "text": "题面引用图1，但输入图片未提供该图。"
+      },
+      {
+        "scope": "r.c0.c1",
+        "label": "②",
+        "text": "题面引用图2，但输入图片未提供该图。"
+      },
+      {
+        "scope": "r.c1",
+        "label": "(2)",
+        "text": "题面引用图3，但输入图片未提供该图。"
+      },
+      {
+        "scope": "r.c2",
+        "label": "(3)",
+        "text": "题面引用图4，但输入图片未提供该图。"
+      }
+    ]
+  },
+  "revision": "74da1a20dc5962282e41273b024fbce90871a83ff9e9775fb59857f21773bab2",
+  "semantic_revision": "11bca10ccd9b42998435fdc517ead360b535c0d8210070855bf8bf76d919a4a8",
+  "units": {
+    "r.definitions[0]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 0
+    },
+    "r.c0.c0.facts[0]": {
+      "scope": "r.c0.c0",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c0.c0.facts[1]": {
+      "scope": "r.c0.c0",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c0.c0.facts[2]": {
+      "scope": "r.c0.c0",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.c0.c0.facts[3]": {
+      "scope": "r.c0.c0",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.c0.c0.facts[4]": {
+      "scope": "r.c0.c0",
+      "collection": "facts",
+      "index": 4
+    },
+    "r.c0.c1.facts[0]": {
+      "scope": "r.c0.c1",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c0.c1.facts[1]": {
+      "scope": "r.c0.c1",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c1.facts[0]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c1.facts[1]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c1.facts[2]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.c1.facts[3]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.c1.facts[4]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 4
+    },
+    "r.c2.facts[0]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c2.facts[1]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c2.facts[2]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.c2.facts[3]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.c2.facts[4]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 4
+    },
+    "r.c2.facts[5]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 5
+    },
+    "r.c2.facts[6]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 6
+    },
+    "r.c2.facts[7]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 7
+    }
+  }
+}

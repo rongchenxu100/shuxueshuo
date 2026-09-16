@@ -1,0 +1,374 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "root",
+    "match_status",
+    "family_id",
+    "match_reason"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "root": {
+      "$ref": "#/$defs/Scope",
+      "description": "整题根节点；共同条件放根节点，各小問按原层级放children。"
+    },
+    "match_status": {
+      "enum": [
+        "matched",
+        "unmatched"
+      ],
+      "description": "matched：题目符合本次registered_families中一个已注册题型，family_id填该条目的准确标识；unmatched：无适用注册题型，family_id必须为null。匹配与完整提取独立。"
+    },
+    "family_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "matched时只允许取本次请求registered_families中的family_id，不得自造、简称或根据示例照抄；unmatched时填null。注册表随请求提供，因此这里不硬编码静态题型枚举。"
+    },
+    "match_reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "description": "简短说明匹配或未匹配的题面依据，不提供求解过程、答案或编造的能力。"
+    }
+  },
+  "$defs": {
+    "Scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "整题及分问树。父条件向下继承，兄弟局部条件不互通；空数组可以省略，无需标识对象ID。",
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "description": "题面分问或图景标签，如（1）、②；可省略。不作为对象ID，也不替代数学条件。"
+        },
+        "definitions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "固定放置规则：仅曲线定义（Γ: y=x^2+u*x+v）、函数定义（f(t)=t^2）及题内新概念定义原文放这里。点坐标、中点、平移等其余题设关系均放facts，不因它们引入对象而改放此处。曲线/函数定义用稳定符号及受控数学式，不拼接中文说明。新概念原文作为解释材料，使用处仍须展开关系。数学式偶尔放错数组不单独判错，代码从表达式识别对象类型。"
+          },
+          "maxItems": 128,
+          "description": "可省略。仅曲线/函数定义及题内新概念原文优先放此处；其他题设关系优先放facts。"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "使用同次请求math_expression_catalog列出的数学记法，按各条目的语法、参数顺序及边界组成一条数学字符串。目录同样适用于definitions和目标中的数学式。不要输出目录条目、专用fact对象或运算树；不要补写默认实数域或隐含非零条件。"
+          },
+          "maxItems": 128,
+          "description": "除曲线/函数定义及新概念原文之外的题设关系均放这里，包括P=(1,2)、W=midpoint(U,V)、R=P+(3,0)、点在线上、参数范围及函数取值条件。各项同时成立；每项一条受控数学关系，引用稳定符号，不夹带解释句、不重复definitions、不输出求解结果。受控短声明如“A、B为定点；C为动点；D为平面内一点。”也放这里；无需额外补动点标签。"
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "expression"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_value",
+                    "description": "求值"
+                  },
+                  "expression": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "所求数学表达式，如UV+VW；不写“求…的值”等自然语言或答案。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "题面明确要求保留的一个参数符号。"
+                    },
+                    "maxItems": 128,
+                    "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "仅在该目标有题面明确的“取得最值时/此时”限定时填写数学关系，如UV+VW=min(UV+VW)。不自行增加最优状态；“最小值为7”应作为facts中的min(UV+VW)=7，不能仅改成此处的UV+VW=7。 按原句确定修饰范围：此时修饰多个并列目标时，每个目标都保留同一at，包括曲线方程；只修饰一个目标时只填该目标。不要求分析目标与动点的依赖。"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "求参数或表达式的值。用expression标明所求，不输出算出的数值。"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "object"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_coordinates",
+                    "description": "求坐标"
+                  },
+                  "object": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "所求点的符号，如P；不填Γ、坐标答案、“点P”或其他自然语言。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "仅在该目标有题面明确的“取得最值时/此时”限定时填写数学关系，如UV+VW=min(UV+VW)。不自行增加最优状态；“最小值为7”应作为facts中的min(UV+VW)=7，不能仅改成此处的UV+VW=7。 按原句确定修饰范围：此时修饰多个并列目标时，每个目标都保留同一at，包括曲线方程；只修饰一个目标时只填该目标。不要求分析目标与动点的依赖。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "题面明确要求保留的一个参数符号。"
+                    },
+                    "maxItems": 128,
+                    "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "求点的坐标。object必须引用点，不是曲线或整条定义。"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "object"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_equation",
+                    "description": "求方程"
+                  },
+                  "object": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "所求曲线或函数的符号，如Γ、f；不填点名、整条定义或“该抛物线”。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "仅在该目标有题面明确的“取得最值时/此时”限定时填写数学关系，如UV+VW=min(UV+VW)。不自行增加最优状态；“最小值为7”应作为facts中的min(UV+VW)=7，不能仅改成此处的UV+VW=7。 按原句确定修饰范围：此时修饰多个并列目标时，每个目标都保留同一at，包括曲线方程；只修饰一个目标时只填该目标。不要求分析目标与动点的依赖。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "题面明确要求保留的一个参数符号。"
+                    },
+                    "maxItems": 128,
+                    "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "求曲线或函数的解析式/方程。object引用已定义的曲线或函数。"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "expression"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_minimum",
+                    "description": "求最小值"
+                  },
+                  "expression": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "所求数学表达式，如UV+VW；不写“求…的值”等自然语言或答案。"
+                  },
+                  "variables": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "一个可见的点名或参数名，如P或t，不是表达式或中文说明。"
+                    },
+                    "maxItems": 128,
+                    "description": "可选的优化变量提示，只填写题面明确的点名或参数名，如[P,Q]。即使题面明确也可以省略；不分析依赖、不列固定参数、不把所有字母都当优化变量。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "题面明确要求保留的一个参数符号。"
+                    },
+                    "maxItems": 128,
+                    "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "仅在该目标有题面明确的“取得最值时/此时”限定时填写数学关系，如UV+VW=min(UV+VW)。不自行增加最优状态；“最小值为7”应作为facts中的min(UV+VW)=7，不能仅改成此处的UV+VW=7。 按原句确定修饰范围：此时修饰多个并列目标时，每个目标都保留同一at，包括曲线方程；只修饰一个目标时只填该目标。不要求分析目标与动点的依赖。"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "求表达式的最小值。expression填写原表达式，不再套min；variables可省略。"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "expression"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_maximum",
+                    "description": "求最大值"
+                  },
+                  "expression": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "所求数学表达式，如UV+VW；不写“求…的值”等自然语言或答案。"
+                  },
+                  "variables": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "一个可见的点名或参数名，如P或t，不是表达式或中文说明。"
+                    },
+                    "maxItems": 128,
+                    "description": "可选的优化变量提示，只填写题面明确的点名或参数名，如[P,Q]。即使题面明确也可以省略；不分析依赖、不列固定参数、不把所有字母都当优化变量。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "题面明确要求保留的一个参数符号。"
+                    },
+                    "maxItems": 128,
+                    "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "仅在该目标有题面明确的“取得最值时/此时”限定时填写数学关系，如UV+VW=min(UV+VW)。不自行增加最优状态；“最小值为7”应作为facts中的min(UV+VW)=7，不能仅改成此处的UV+VW=7。 按原句确定修饰范围：此时修饰多个并列目标时，每个目标都保留同一at，包括曲线方程；只修饰一个目标时只填该目标。不要求分析目标与动点的依赖。"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "求表达式的最大值。expression填写原表达式，不再套max；variables可省略。"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "symbol"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_range",
+                    "description": "求范围"
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "所求范围的参数符号，如t；不写中文名称或答案。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "题面明确要求保留的一个参数符号。"
+                    },
+                    "maxItems": 128,
+                    "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "仅在该目标有题面明确的“取得最值时/此时”限定时填写数学关系，如UV+VW=min(UV+VW)。不自行增加最优状态；“最小值为7”应作为facts中的min(UV+VW)=7，不能仅改成此处的UV+VW=7。 按原句确定修饰范围：此时修饰多个并列目标时，每个目标都保留同一at，包括曲线方程；只修饰一个目标时只填该目标。不要求分析目标与动点的依赖。"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "求一个参数的取值范围。symbol填写参数名，不输出解出的区间。"
+              }
+            ]
+          },
+          "maxItems": 128,
+          "description": "所求列表，可省略。kind只能从下方六类选择，每类的必填目标字段由required规定；不返回答案。"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Scope"
+          },
+          "maxItems": 128,
+          "description": "按原题分问组织；同问独立图景再分层。例如(1)含①图甲、②图乙时，保留(1)父节点，即使它没有独立条件；①、②放在它的children中，不平铺到root。仅引用一幅图的分问无需额外图景层。"
+        },
+        "uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "text"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "missing_figure",
+                  "ambiguous_symbol",
+                  "unreadable",
+                  "occluded",
+                  "unstructured",
+                  "ambiguous_reuse"
+                ],
+                "description": "missing_figure：检查本次全部输入图片，题面引用的对应图形未提供；不同图分别判断，一图已提供不代表其他图也提供，文字完整或可凭文字解答仍须报告缺图，在受影响的子问节点标记；ambiguous_symbol：符号指代或字符识别不确定；unreadable：文字或公式无法辨认；occluded：关键内容被遮挡；unstructured：能读到内容但当前受控记法无法可靠表达；ambiguous_reuse：同名对象在不同图景/分问中的复用归属不明确。只选实际存在的问题，不因题型unmatched就添加不确定性。"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096,
+                "description": "说明对应位置、缺失内容或具体歧义；保留可读原文线索，不猜测未知条件或补写答案。"
+              }
+            }
+          },
+          "maxItems": 128,
+          "description": "可省略；没有不确定性时为空。问题放在对应作用域，整题共用的问题放root。missing_figure会阻断后续处理；不猜图，也不把定义/题型不熟悉误报为缺图。 核对所有输入图片；提到图不代表图已提供，即使文字足以推理也须报告被引用但未提供的图。图已提供不能误报；模糊或遮挡使用相应类型。"
+        }
+      }
+    }
+  },
+  "description": "从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。"
+}

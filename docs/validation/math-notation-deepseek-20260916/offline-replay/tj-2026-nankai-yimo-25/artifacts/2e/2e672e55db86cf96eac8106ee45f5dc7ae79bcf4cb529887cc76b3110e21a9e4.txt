@@ -1,0 +1,83 @@
+{
+  "root": {
+    "label": "(25) 本题共10分",
+    "definitions": [
+      "Γ: y = a*x^2 + b*x + c（a,b,c为常数，a>0）",
+      "C为Γ与y轴的交点",
+      "D为Γ的对称轴与x轴的交点"
+    ],
+    "facts": [
+      "2a + b = 0"
+    ],
+    "children": [
+      {
+        "label": "(I)",
+        "facts": [
+          "a = 2",
+          "c = -5"
+        ],
+        "goals": [
+          {
+            "kind": "find_coordinates",
+            "object": "D"
+          },
+          {
+            "kind": "find_equation",
+            "object": "Γ: y = a*x^2 + b*x + c"
+          }
+        ]
+      },
+      {
+        "label": "(II)",
+        "facts": [
+          "M(m, 1) ∈ Γ",
+          "N ∈ Γ",
+          "m > 2",
+          "N 在第四象限",
+          "∠MDN = 90°",
+          "DM = DN",
+          "E ∈ segment(D,M)",
+          "G ∈ segment(M,N)",
+          "F = midpoint(D,N)",
+          "DE = sqrt(2) * NG"
+        ],
+        "children": [
+          {
+            "label": "①",
+            "facts": [
+              "MN = sqrt(10)"
+            ],
+            "goals": [
+              {
+                "kind": "find_equation",
+                "object": "Γ: y = a*x^2 + b*x + c"
+              },
+              {
+                "kind": "find_minimum",
+                "expression": "EG + FG"
+              }
+            ]
+          },
+          {
+            "label": "②",
+            "goals": [
+              {
+                "kind": "find_equation",
+                "object": "Γ: y = a*x^2 + b*x + c",
+                "at": "EG + FG = 5*sqrt(10)/2"
+              },
+              {
+                "kind": "find_coordinates",
+                "object": "G",
+                "at": "EG + FG = 5*sqrt(10)/2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticPathMinimumSolver",
+  "match_reason": "题面以二次函数为背景，核心目标为普通路径 EG+FG 的最小值；虽有等长 DE=sqrt(2)*NG 和中点、直角条件，但路径本身不含非1权重，也不依赖射线或正方形反射，故匹配 QuadraticPathMinimumSolver。"
+}

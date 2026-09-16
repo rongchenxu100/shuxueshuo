@@ -1,0 +1,38 @@
+{
+  "schema_version": "authored-observation-fixture/v1",
+  "evidence_origin": "human_transcription_not_ocr",
+  "pages": [
+    {
+      "page_id": "page-1",
+      "width": 1164,
+      "height": 230
+    }
+  ],
+  "text_spans": [
+    {
+      "observation_id": "line-0",
+      "page_id": "page-1",
+      "reading_order": 0,
+      "origin": "unknown",
+      "text": "设函数 f(x)=x²+bx+c，g(x)=2x−1。"
+    },
+    {
+      "observation_id": "line-1",
+      "page_id": "page-1",
+      "reading_order": 1,
+      "origin": "unknown",
+      "text": "(1) 若对任意 x∈R，都有 f(x)≥g(x)，求 b²+c² 的最小值；"
+    },
+    {
+      "observation_id": "line-2",
+      "page_id": "page-1",
+      "reading_order": 2,
+      "origin": "unknown",
+      "text": "(2) 若存在 x₀∈[1,3]，使得 f(x₀)≤g(x₀)，求实数 b 的取值范围（用 c 表示）。"
+    }
+  ],
+  "formulas": [],
+  "ink_origins": [],
+  "occlusions": [],
+  "observation_hash": "a3f1e9a1d1a9000f3e419ce8b019562f0a44a26d5dca942b1b2a23da3f40ce7f"
+}

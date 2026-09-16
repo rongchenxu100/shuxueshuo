@@ -1,0 +1,113 @@
+{
+  "ok": false,
+  "strict": {
+    "ok": false,
+    "classification": "invalid_notation",
+    "expected_issues": [],
+    "actual_issues": [
+      {
+        "path": "r.c0.c0.facts[0]",
+        "source": "quadrilateral(A,B,C,D) 为平行四边形（□ABCD）",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 22:  为平行四边形(□ABC"
+      },
+      {
+        "path": "r.c0.c0.facts[3]",
+        "source": "四边形 AECD 为 k 倍四边形",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 0: 四边形 AECD 为 k"
+      },
+      {
+        "path": "r.c0.c0.facts[1]",
+        "source": "AC ∩ BD = {O}",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:A"
+      },
+      {
+        "path": "r.c0.c0.facts[2]",
+        "source": "E = midpoint(O,B)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c0.c1.facts[0]",
+        "source": "quadrilateral(A,B,C,D) 为 k 倍四边形",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 22:  为 k 倍四边形"
+      },
+      {
+        "path": "r.c0.c1.facts[1]",
+        "source": "bisects(BD, AC)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c0.c1.goals[0]",
+        "source": {
+          "kind": "find_value",
+          "expression": "area(△ACD)/area(△ACB)",
+          "in_terms_of": [
+            "k"
+          ]
+        },
+        "code": "notation.goal",
+        "message": "binding.unknown_or_invisible:A"
+      },
+      {
+        "path": "r.c1.facts[0]",
+        "source": "quadrilateral(A,B,C,D) 为 k 倍四边形",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 22:  为 k 倍四边形"
+      },
+      {
+        "path": "r.c1.facts[1]",
+        "source": "bisects(BD, AC)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c1.facts[2]",
+        "source": "∠BDC = 2∠ABD",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c1.facts[3]",
+        "source": "BD = 4*CD",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c2.facts[0]",
+        "source": "A, B 为定点",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 4:  为定点"
+      },
+      {
+        "path": "r.c2.facts[3]",
+        "source": "D 为平面内一点",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 1:  为平面内一点"
+      },
+      {
+        "path": "r.c2.facts[7]",
+        "source": "quadrilateral(A,B,C,D) 为 2 倍四边形",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 22:  为 2 倍四边形"
+      },
+      {
+        "path": "r.c2.facts[1]",
+        "source": "AB ⊥ BM",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:M"
+      },
+      {
+        "path": "r.c2.facts[2]",
+        "source": "C ∈ ray(B,M)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:M"
+      }
+    ]
+  },
+  "accepted_omissions": []
+}

@@ -1,0 +1,1236 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>题意候选</title>
+<style>body{max-width:960px;margin:32px auto;font:16px/1.7 system-ui;padding:16px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f5f7;padding:16px}section{border-top:1px solid #ddd}aside{background:#fff5d6;padding:16px}</style>
+<h1>已提取题意 · 候选</h1><aside>表达校验与 Solver 匹配独立；本页不表示原图已复核或允许求解。</aside>
+<section><h2>定义与问题</h2>
+<p><b>definition</b> 若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为k（k≥1），则称该四边形为“k倍四边形”。 <small>(definition.text)</small></p>
+</section>
+<section><h3>（1）</h3>
+</section>
+<section><h4>（1）图 1</h4>
+<p><b>condition</b> 如图1，在□ABCD中，对角线AC与BD交于点O，点E为OB中点。 <small>(q1.fig1.given)</small></p>
+<p><b>text</b> □ABCD 的符号形状无法可靠确定。 <small>(q1.fig1.symbol)</small></p>
+<p><b>condition</b> 四边形AECD为k倍四边形。 <small>(q1.fig1.instance)</small></p>
+<p><b>requirement</b> 求k的值。 <small>(q1.fig1.goal)</small></p>
+</section>
+<section><h4>（1）图 2</h4>
+<p><b>condition</b> 如图2，在k倍四边形ABCD中，对角线AC被BD平分。 <small>(q1.fig2.given)</small></p>
+<p><b>requirement</b> 求S△ACD/S△ACB，用含k的代数式表示。 <small>(q1.fig2.goal)</small></p>
+</section>
+<section><h3>（2）图 3</h3>
+<p><b>condition</b> 如图3，四边形ABCD为k倍四边形，其对角线BD平分对角线AC。 <small>(q2.given)</small></p>
+<p><b>condition</b> ∠BDC=2∠ABD。 <small>(q2.angle)</small></p>
+<p><b>condition</b> BD=4CD。 <small>(q2.length)</small></p>
+<p><b>requirement</b> 求k的值。 <small>(q2.goal)</small></p>
+</section>
+<section><h3>（3）图 4</h3>
+<p><b>condition</b> 如图4，已知定点A、B，点D为平面内一点，连接A、B、C、D构成四边形ABCD。 <small>(q3.points)</small></p>
+<p><b>condition</b> AB⊥BM。 <small>(q3.perpendicular)</small></p>
+<p><b>condition</b> 点C为射线BM上一动点。 <small>(q3.ray)</small></p>
+<p><b>condition</b> BD平分AC。 <small>(q3.bisect)</small></p>
+<p><b>condition</b> ∠BAC=∠DAC。 <small>(q3.angle)</small></p>
+<p><b>condition</b> 四边形ABCD为2倍四边形。 <small>(q3.instance)</small></p>
+<p><b>requirement</b> 求tan∠ACD的值。 <small>(q3.goal)</small></p>
+</section>
+<h2>来源缺口</h2><pre>[
+  {
+    &quot;id&quot;: &quot;missing.figure1&quot;,
+    &quot;reason&quot;: &quot;missing_figure&quot;,
+    &quot;description&quot;: &quot;题目文字引用图1，上传图片中未包含图示。&quot;,
+    &quot;part_ref&quot;: &quot;q1.fig1&quot;,
+    &quot;source_unit_refs&quot;: [],
+    &quot;region_refs&quot;: []
+  },
+  {
+    &quot;id&quot;: &quot;missing.figure2&quot;,
+    &quot;reason&quot;: &quot;missing_figure&quot;,
+    &quot;description&quot;: &quot;题目文字引用图2，上传图片中未包含图示。&quot;,
+    &quot;part_ref&quot;: &quot;q1.fig2&quot;,
+    &quot;source_unit_refs&quot;: [],
+    &quot;region_refs&quot;: []
+  },
+  {
+    &quot;id&quot;: &quot;missing.figure3&quot;,
+    &quot;reason&quot;: &quot;missing_figure&quot;,
+    &quot;description&quot;: &quot;题目文字引用图3，上传图片中未包含图示。&quot;,
+    &quot;part_ref&quot;: &quot;q2&quot;,
+    &quot;source_unit_refs&quot;: [],
+    &quot;region_refs&quot;: []
+  },
+  {
+    &quot;id&quot;: &quot;missing.figure4&quot;,
+    &quot;reason&quot;: &quot;missing_figure&quot;,
+    &quot;description&quot;: &quot;题目文字引用图4，上传图片中未包含图示。&quot;,
+    &quot;part_ref&quot;: &quot;q3&quot;,
+    &quot;source_unit_refs&quot;: [],
+    &quot;region_refs&quot;: []
+  },
+  {
+    &quot;id&quot;: &quot;ambiguous.symbol&quot;,
+    &quot;reason&quot;: &quot;ambiguous_symbol&quot;,
+    &quot;description&quot;: &quot;□ABCD 的符号不能确认为平行四边形或正方形，保留原符号。&quot;,
+    &quot;part_ref&quot;: &quot;q1.fig1&quot;,
+    &quot;source_unit_refs&quot;: [
+      &quot;q1.fig1.symbol&quot;
+    ],
+    &quot;region_refs&quot;: [
+      &quot;page&quot;
+    ]
+  }
+]</pre>
+<h2>定义及完整分支</h2><pre>[
+  {
+    &quot;id&quot;: &quot;KQuad&quot;,
+    &quot;label&quot;: &quot;k 倍四边形&quot;,
+    &quot;parameters&quot;: [
+      {
+        &quot;id&quot;: &quot;P&quot;,
+        &quot;kind&quot;: &quot;polygon&quot;
+      },
+      {
+        &quot;id&quot;: &quot;r&quot;,
+        &quot;kind&quot;: &quot;scalar&quot;
+      }
+    ],
+    &quot;local_witnesses&quot;: [
+      {
+        &quot;id&quot;: &quot;X&quot;,
+        &quot;kind&quot;: &quot;point&quot;
+      }
+    ],
+    &quot;body&quot;: {
+      &quot;kind&quot;: &quot;all&quot;,
+      &quot;terms&quot;: [
+        {
+          &quot;kind&quot;: &quot;quantity_relation&quot;,
+          &quot;operator&quot;: &quot;&gt;=&quot;,
+          &quot;left&quot;: {
+            &quot;kind&quot;: &quot;scalar&quot;,
+            &quot;symbol_ref&quot;: &quot;r&quot;
+          },
+          &quot;right&quot;: {
+            &quot;kind&quot;: &quot;number&quot;,
+            &quot;value&quot;: &quot;1&quot;
+          }
+        },
+        {
+          &quot;kind&quot;: &quot;intersection&quot;,
+          &quot;point&quot;: &quot;X&quot;,
+          &quot;first&quot;: [
+            {
+              &quot;kind&quot;: &quot;polygon_vertex&quot;,
+              &quot;polygon&quot;: &quot;P&quot;,
+              &quot;index&quot;: 0
+            },
+            {
+              &quot;kind&quot;: &quot;polygon_vertex&quot;,
+              &quot;polygon&quot;: &quot;P&quot;,
+              &quot;index&quot;: 2
+            }
+          ],
+          &quot;second&quot;: [
+            {
+              &quot;kind&quot;: &quot;polygon_vertex&quot;,
+              &quot;polygon&quot;: &quot;P&quot;,
+              &quot;index&quot;: 1
+            },
+            {
+              &quot;kind&quot;: &quot;polygon_vertex&quot;,
+              &quot;polygon&quot;: &quot;P&quot;,
+              &quot;index&quot;: 3
+            }
+          ],
+          &quot;interior&quot;: true
+        },
+        {
+          &quot;kind&quot;: &quot;any&quot;,
+          &quot;terms&quot;: [
+            {
+              &quot;kind&quot;: &quot;all&quot;,
+              &quot;terms&quot;: [
+                {
+                  &quot;kind&quot;: &quot;midpoint&quot;,
+                  &quot;point&quot;: &quot;X&quot;,
+                  &quot;segment&quot;: [
+                    {
+                      &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                      &quot;polygon&quot;: &quot;P&quot;,
+                      &quot;index&quot;: 0
+                    },
+                    {
+                      &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                      &quot;polygon&quot;: &quot;P&quot;,
+                      &quot;index&quot;: 2
+                    }
+                  ]
+                },
+                {
+                  &quot;kind&quot;: &quot;any&quot;,
+                  &quot;terms&quot;: [
+                    {
+                      &quot;kind&quot;: &quot;quantity_relation&quot;,
+                      &quot;operator&quot;: &quot;=&quot;,
+                      &quot;left&quot;: {
+                        &quot;kind&quot;: &quot;segment_length&quot;,
+                        &quot;segment&quot;: [
+                          {
+                            &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                            &quot;polygon&quot;: &quot;P&quot;,
+                            &quot;index&quot;: 1
+                          },
+                          &quot;X&quot;
+                        ]
+                      },
+                      &quot;right&quot;: {
+                        &quot;kind&quot;: &quot;multiply&quot;,
+                        &quot;terms&quot;: [
+                          {
+                            &quot;kind&quot;: &quot;scalar&quot;,
+                            &quot;symbol_ref&quot;: &quot;r&quot;
+                          },
+                          {
+                            &quot;kind&quot;: &quot;segment_length&quot;,
+                            &quot;segment&quot;: [
+                              &quot;X&quot;,
+                              {
+                                &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                                &quot;polygon&quot;: &quot;P&quot;,
+                                &quot;index&quot;: 3
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      &quot;kind&quot;: &quot;quantity_relation&quot;,
+                      &quot;operator&quot;: &quot;=&quot;,
+                      &quot;left&quot;: {
+                        &quot;kind&quot;: &quot;segment_length&quot;,
+                        &quot;segment&quot;: [
+                          &quot;X&quot;,
+                          {
+                            &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                            &quot;polygon&quot;: &quot;P&quot;,
+                            &quot;index&quot;: 3
+                          }
+                        ]
+                      },
+                      &quot;right&quot;: {
+                        &quot;kind&quot;: &quot;multiply&quot;,
+                        &quot;terms&quot;: [
+                          {
+                            &quot;kind&quot;: &quot;scalar&quot;,
+                            &quot;symbol_ref&quot;: &quot;r&quot;
+                          },
+                          {
+                            &quot;kind&quot;: &quot;segment_length&quot;,
+                            &quot;segment&quot;: [
+                              {
+                                &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                                &quot;polygon&quot;: &quot;P&quot;,
+                                &quot;index&quot;: 1
+                              },
+                              &quot;X&quot;
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              &quot;kind&quot;: &quot;all&quot;,
+              &quot;terms&quot;: [
+                {
+                  &quot;kind&quot;: &quot;midpoint&quot;,
+                  &quot;point&quot;: &quot;X&quot;,
+                  &quot;segment&quot;: [
+                    {
+                      &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                      &quot;polygon&quot;: &quot;P&quot;,
+                      &quot;index&quot;: 1
+                    },
+                    {
+                      &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                      &quot;polygon&quot;: &quot;P&quot;,
+                      &quot;index&quot;: 3
+                    }
+                  ]
+                },
+                {
+                  &quot;kind&quot;: &quot;any&quot;,
+                  &quot;terms&quot;: [
+                    {
+                      &quot;kind&quot;: &quot;quantity_relation&quot;,
+                      &quot;operator&quot;: &quot;=&quot;,
+                      &quot;left&quot;: {
+                        &quot;kind&quot;: &quot;segment_length&quot;,
+                        &quot;segment&quot;: [
+                          {
+                            &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                            &quot;polygon&quot;: &quot;P&quot;,
+                            &quot;index&quot;: 0
+                          },
+                          &quot;X&quot;
+                        ]
+                      },
+                      &quot;right&quot;: {
+                        &quot;kind&quot;: &quot;multiply&quot;,
+                        &quot;terms&quot;: [
+                          {
+                            &quot;kind&quot;: &quot;scalar&quot;,
+                            &quot;symbol_ref&quot;: &quot;r&quot;
+                          },
+                          {
+                            &quot;kind&quot;: &quot;segment_length&quot;,
+                            &quot;segment&quot;: [
+                              &quot;X&quot;,
+                              {
+                                &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                                &quot;polygon&quot;: &quot;P&quot;,
+                                &quot;index&quot;: 2
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      &quot;kind&quot;: &quot;quantity_relation&quot;,
+                      &quot;operator&quot;: &quot;=&quot;,
+                      &quot;left&quot;: {
+                        &quot;kind&quot;: &quot;segment_length&quot;,
+                        &quot;segment&quot;: [
+                          &quot;X&quot;,
+                          {
+                            &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                            &quot;polygon&quot;: &quot;P&quot;,
+                            &quot;index&quot;: 2
+                          }
+                        ]
+                      },
+                      &quot;right&quot;: {
+                        &quot;kind&quot;: &quot;multiply&quot;,
+                        &quot;terms&quot;: [
+                          {
+                            &quot;kind&quot;: &quot;scalar&quot;,
+                            &quot;symbol_ref&quot;: &quot;r&quot;
+                          },
+                          {
+                            &quot;kind&quot;: &quot;segment_length&quot;,
+                            &quot;segment&quot;: [
+                              {
+                                &quot;kind&quot;: &quot;polygon_vertex&quot;,
+                                &quot;polygon&quot;: &quot;P&quot;,
+                                &quot;index&quot;: 0
+                              },
+                              &quot;X&quot;
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    &quot;source_unit_ids&quot;: [
+      &quot;definition.text&quot;
+    ]
+  }
+]</pre>
+<h2>条件和所求</h2><pre>{
+  &quot;id&quot;: &quot;root.scope&quot;,
+  &quot;part_ref&quot;: &quot;root&quot;,
+  &quot;entities&quot;: [],
+  &quot;facts&quot;: [],
+  &quot;goals&quot;: [],
+  &quot;children&quot;: [
+    {
+      &quot;id&quot;: &quot;q1.scope&quot;,
+      &quot;part_ref&quot;: &quot;q1&quot;,
+      &quot;entities&quot;: [],
+      &quot;facts&quot;: [],
+      &quot;goals&quot;: [],
+      &quot;children&quot;: [
+        {
+          &quot;id&quot;: &quot;q1.fig1.scope&quot;,
+          &quot;part_ref&quot;: &quot;q1.fig1&quot;,
+          &quot;entities&quot;: [
+            {
+              &quot;id&quot;: &quot;q1.fig1.A&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;A&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.B&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;B&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.C&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;C&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.D&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;D&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.O&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;O&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.E&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;E&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.k&quot;,
+              &quot;kind&quot;: &quot;scalar&quot;,
+              &quot;label&quot;: &quot;k&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.ABCD&quot;,
+              &quot;kind&quot;: &quot;polygon&quot;,
+              &quot;label&quot;: &quot;ABCD&quot;,
+              &quot;vertices&quot;: [
+                &quot;q1.fig1.A&quot;,
+                &quot;q1.fig1.B&quot;,
+                &quot;q1.fig1.C&quot;,
+                &quot;q1.fig1.D&quot;
+              ],
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.AECD&quot;,
+              &quot;kind&quot;: &quot;polygon&quot;,
+              &quot;label&quot;: &quot;AECD&quot;,
+              &quot;vertices&quot;: [
+                &quot;q1.fig1.A&quot;,
+                &quot;q1.fig1.E&quot;,
+                &quot;q1.fig1.C&quot;,
+                &quot;q1.fig1.D&quot;
+              ],
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.instance&quot;
+              ]
+            }
+          ],
+          &quot;facts&quot;: [
+            {
+              &quot;id&quot;: &quot;q1.fig1.intersection&quot;,
+              &quot;relation&quot;: {
+                &quot;kind&quot;: &quot;intersection&quot;,
+                &quot;point&quot;: &quot;q1.fig1.O&quot;,
+                &quot;first&quot;: [
+                  &quot;q1.fig1.A&quot;,
+                  &quot;q1.fig1.C&quot;
+                ],
+                &quot;second&quot;: [
+                  &quot;q1.fig1.B&quot;,
+                  &quot;q1.fig1.D&quot;
+                ],
+                &quot;interior&quot;: true
+              },
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.midpoint&quot;,
+              &quot;relation&quot;: {
+                &quot;kind&quot;: &quot;midpoint&quot;,
+                &quot;point&quot;: &quot;q1.fig1.E&quot;,
+                &quot;segment&quot;: [
+                  &quot;q1.fig1.O&quot;,
+                  &quot;q1.fig1.B&quot;
+                ]
+              },
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig1.use&quot;,
+              &quot;relation&quot;: {
+                &quot;kind&quot;: &quot;definition_use&quot;,
+                &quot;definition_ref&quot;: &quot;KQuad&quot;,
+                &quot;arguments&quot;: {
+                  &quot;P&quot;: &quot;q1.fig1.AECD&quot;,
+                  &quot;r&quot;: {
+                    &quot;kind&quot;: &quot;scalar&quot;,
+                    &quot;symbol_ref&quot;: &quot;q1.fig1.k&quot;
+                  }
+                }
+              },
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.instance&quot;
+              ]
+            }
+          ],
+          &quot;goals&quot;: [
+            {
+              &quot;id&quot;: &quot;q1.fig1.answer&quot;,
+              &quot;kind&quot;: &quot;quantity_goal&quot;,
+              &quot;expression&quot;: {
+                &quot;kind&quot;: &quot;scalar&quot;,
+                &quot;symbol_ref&quot;: &quot;q1.fig1.k&quot;
+              },
+              &quot;answer_form&quot;: {
+                &quot;kind&quot;: &quot;exact_value&quot;
+              },
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig1.goal&quot;
+              ]
+            }
+          ],
+          &quot;children&quot;: []
+        },
+        {
+          &quot;id&quot;: &quot;q1.fig2.scope&quot;,
+          &quot;part_ref&quot;: &quot;q1.fig2&quot;,
+          &quot;entities&quot;: [
+            {
+              &quot;id&quot;: &quot;q1.fig2.A&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;A&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig2.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig2.B&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;B&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig2.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig2.C&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;C&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig2.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig2.D&quot;,
+              &quot;kind&quot;: &quot;point&quot;,
+              &quot;label&quot;: &quot;D&quot;,
+              &quot;role&quot;: &quot;given&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig2.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig2.k&quot;,
+              &quot;kind&quot;: &quot;scalar&quot;,
+              &quot;label&quot;: &quot;k&quot;,
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig2.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig2.ABCD&quot;,
+              &quot;kind&quot;: &quot;polygon&quot;,
+              &quot;label&quot;: &quot;ABCD&quot;,
+              &quot;vertices&quot;: [
+                &quot;q1.fig2.A&quot;,
+                &quot;q1.fig2.B&quot;,
+                &quot;q1.fig2.C&quot;,
+                &quot;q1.fig2.D&quot;
+              ],
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig2.given&quot;
+              ]
+            }
+          ],
+          &quot;facts&quot;: [
+            {
+              &quot;id&quot;: &quot;q1.fig2.bisects&quot;,
+              &quot;relation&quot;: {
+                &quot;kind&quot;: &quot;diagonal_bisects&quot;,
+                &quot;polygon&quot;: &quot;q1.fig2.ABCD&quot;,
+                &quot;bisector&quot;: [
+                  &quot;q1.fig2.B&quot;,
+                  &quot;q1.fig2.D&quot;
+                ],
+                &quot;bisected&quot;: [
+                  &quot;q1.fig2.A&quot;,
+                  &quot;q1.fig2.C&quot;
+                ]
+              },
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig2.given&quot;
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;q1.fig2.use&quot;,
+              &quot;relation&quot;: {
+                &quot;kind&quot;: &quot;definition_use&quot;,
+                &quot;definition_ref&quot;: &quot;KQuad&quot;,
+                &quot;arguments&quot;: {
+                  &quot;P&quot;: &quot;q1.fig2.ABCD&quot;,
+                  &quot;r&quot;: {
+                    &quot;kind&quot;: &quot;scalar&quot;,
+                    &quot;symbol_ref&quot;: &quot;q1.fig2.k&quot;
+                  }
+                }
+              },
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig2.given&quot;
+              ]
+            }
+          ],
+          &quot;goals&quot;: [
+            {
+              &quot;id&quot;: &quot;q1.fig2.answer&quot;,
+              &quot;kind&quot;: &quot;quantity_goal&quot;,
+              &quot;expression&quot;: {
+                &quot;kind&quot;: &quot;divide&quot;,
+                &quot;numerator&quot;: {
+                  &quot;kind&quot;: &quot;triangle_area&quot;,
+                  &quot;vertices&quot;: [
+                    &quot;q1.fig2.A&quot;,
+                    &quot;q1.fig2.C&quot;,
+                    &quot;q1.fig2.D&quot;
+                  ],
+                  &quot;convention&quot;: &quot;unsigned&quot;
+                },
+                &quot;denominator&quot;: {
+                  &quot;kind&quot;: &quot;triangle_area&quot;,
+                  &quot;vertices&quot;: [
+                    &quot;q1.fig2.A&quot;,
+                    &quot;q1.fig2.C&quot;,
+                    &quot;q1.fig2.B&quot;
+                  ],
+                  &quot;convention&quot;: &quot;unsigned&quot;
+                }
+              },
+              &quot;answer_form&quot;: {
+                &quot;kind&quot;: &quot;expression_in&quot;,
+                &quot;parameters&quot;: [
+                  &quot;q1.fig2.k&quot;
+                ]
+              },
+              &quot;source_unit_ids&quot;: [
+                &quot;q1.fig2.goal&quot;
+              ]
+            }
+          ],
+          &quot;children&quot;: []
+        }
+      ]
+    },
+    {
+      &quot;id&quot;: &quot;q2.scope&quot;,
+      &quot;part_ref&quot;: &quot;q2&quot;,
+      &quot;entities&quot;: [
+        {
+          &quot;id&quot;: &quot;q2.A&quot;,
+          &quot;kind&quot;: &quot;point&quot;,
+          &quot;label&quot;: &quot;A&quot;,
+          &quot;role&quot;: &quot;given&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.given&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q2.B&quot;,
+          &quot;kind&quot;: &quot;point&quot;,
+          &quot;label&quot;: &quot;B&quot;,
+          &quot;role&quot;: &quot;given&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.given&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q2.C&quot;,
+          &quot;kind&quot;: &quot;point&quot;,
+          &quot;label&quot;: &quot;C&quot;,
+          &quot;role&quot;: &quot;given&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.given&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q2.D&quot;,
+          &quot;kind&quot;: &quot;point&quot;,
+          &quot;label&quot;: &quot;D&quot;,
+          &quot;role&quot;: &quot;given&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.given&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q2.k&quot;,
+          &quot;kind&quot;: &quot;scalar&quot;,
+          &quot;label&quot;: &quot;k&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.given&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q2.ABCD&quot;,
+          &quot;kind&quot;: &quot;polygon&quot;,
+          &quot;label&quot;: &quot;ABCD&quot;,
+          &quot;vertices&quot;: [
+            &quot;q2.A&quot;,
+            &quot;q2.B&quot;,
+            &quot;q2.C&quot;,
+            &quot;q2.D&quot;
+          ],
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.given&quot;
+          ]
+        }
+      ],
+      &quot;facts&quot;: [
+        {
+          &quot;id&quot;: &quot;q2.bisects&quot;,
+          &quot;relation&quot;: {
+            &quot;kind&quot;: &quot;diagonal_bisects&quot;,
+            &quot;polygon&quot;: &quot;q2.ABCD&quot;,
+            &quot;bisector&quot;: [
+              &quot;q2.B&quot;,
+              &quot;q2.D&quot;
+            ],
+            &quot;bisected&quot;: [
+              &quot;q2.A&quot;,
+              &quot;q2.C&quot;
+            ]
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.given&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q2.use&quot;,
+          &quot;relation&quot;: {
+            &quot;kind&quot;: &quot;definition_use&quot;,
+            &quot;definition_ref&quot;: &quot;KQuad&quot;,
+            &quot;arguments&quot;: {
+              &quot;P&quot;: &quot;q2.ABCD&quot;,
+              &quot;r&quot;: {
+                &quot;kind&quot;: &quot;scalar&quot;,
+                &quot;symbol_ref&quot;: &quot;q2.k&quot;
+              }
+            }
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.given&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q2.angle.fact&quot;,
+          &quot;relation&quot;: {
+            &quot;kind&quot;: &quot;quantity_relation&quot;,
+            &quot;operator&quot;: &quot;=&quot;,
+            &quot;left&quot;: {
+              &quot;kind&quot;: &quot;angle_measure&quot;,
+              &quot;angle&quot;: [
+                &quot;q2.B&quot;,
+                &quot;q2.D&quot;,
+                &quot;q2.C&quot;
+              ],
+              &quot;unit&quot;: &quot;degree&quot;
+            },
+            &quot;right&quot;: {
+              &quot;kind&quot;: &quot;multiply&quot;,
+              &quot;terms&quot;: [
+                {
+                  &quot;kind&quot;: &quot;number&quot;,
+                  &quot;value&quot;: &quot;2&quot;
+                },
+                {
+                  &quot;kind&quot;: &quot;angle_measure&quot;,
+                  &quot;angle&quot;: [
+                    &quot;q2.A&quot;,
+                    &quot;q2.B&quot;,
+                    &quot;q2.D&quot;
+                  ],
+                  &quot;unit&quot;: &quot;degree&quot;
+                }
+              ]
+            }
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.angle&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q2.length.fact&quot;,
+          &quot;relation&quot;: {
+            &quot;kind&quot;: &quot;quantity_relation&quot;,
+            &quot;operator&quot;: &quot;=&quot;,
+            &quot;left&quot;: {
+              &quot;kind&quot;: &quot;segment_length&quot;,
+              &quot;segment&quot;: [
+                &quot;q2.B&quot;,
+                &quot;q2.D&quot;
+              ]
+            },
+            &quot;right&quot;: {
+              &quot;kind&quot;: &quot;multiply&quot;,
+              &quot;terms&quot;: [
+                {
+                  &quot;kind&quot;: &quot;number&quot;,
+                  &quot;value&quot;: &quot;4&quot;
+                },
+                {
+                  &quot;kind&quot;: &quot;segment_length&quot;,
+                  &quot;segment&quot;: [
+                    &quot;q2.C&quot;,
+                    &quot;q2.D&quot;
+                  ]
+                }
+              ]
+            }
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.length&quot;
+          ]
+        }
+      ],
+      &quot;goals&quot;: [
+        {
+          &quot;id&quot;: &quot;q2.answer&quot;,
+          &quot;kind&quot;: &quot;quantity_goal&quot;,
+          &quot;expression&quot;: {
+            &quot;kind&quot;: &quot;scalar&quot;,
+            &quot;symbol_ref&quot;: &quot;q2.k&quot;
+          },
+          &quot;answer_form&quot;: {
+            &quot;kind&quot;: &quot;exact_value&quot;
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q2.goal&quot;
+          ]
+        }
+      ],
+      &quot;children&quot;: []
+    },
+    {
+      &quot;id&quot;: &quot;q3.scope&quot;,
+      &quot;part_ref&quot;: &quot;q3&quot;,
+      &quot;entities&quot;: [
+        {
+          &quot;id&quot;: &quot;q3.A&quot;,
+          &quot;kind&quot;: &quot;point&quot;,
+          &quot;label&quot;: &quot;A&quot;,
+          &quot;role&quot;: &quot;fixed&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.points&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.B&quot;,
+          &quot;kind&quot;: &quot;point&quot;,
+          &quot;label&quot;: &quot;B&quot;,
+          &quot;role&quot;: &quot;fixed&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.points&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.C&quot;,
+          &quot;kind&quot;: &quot;point&quot;,
+          &quot;label&quot;: &quot;C&quot;,
+          &quot;role&quot;: &quot;moving&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.points&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.D&quot;,
+          &quot;kind&quot;: &quot;point&quot;,
+          &quot;label&quot;: &quot;D&quot;,
+          &quot;role&quot;: &quot;given&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.points&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.M&quot;,
+          &quot;kind&quot;: &quot;point&quot;,
+          &quot;label&quot;: &quot;M&quot;,
+          &quot;role&quot;: &quot;given&quot;,
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.points&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.ABCD&quot;,
+          &quot;kind&quot;: &quot;polygon&quot;,
+          &quot;label&quot;: &quot;ABCD&quot;,
+          &quot;vertices&quot;: [
+            &quot;q3.A&quot;,
+            &quot;q3.B&quot;,
+            &quot;q3.C&quot;,
+            &quot;q3.D&quot;
+          ],
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.points&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.BM&quot;,
+          &quot;kind&quot;: &quot;ray&quot;,
+          &quot;label&quot;: &quot;BM&quot;,
+          &quot;endpoints&quot;: [
+            &quot;q3.B&quot;,
+            &quot;q3.M&quot;
+          ],
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.ray&quot;
+          ]
+        }
+      ],
+      &quot;facts&quot;: [
+        {
+          &quot;id&quot;: &quot;q3.bisects&quot;,
+          &quot;relation&quot;: {
+            &quot;kind&quot;: &quot;diagonal_bisects&quot;,
+            &quot;polygon&quot;: &quot;q3.ABCD&quot;,
+            &quot;bisector&quot;: [
+              &quot;q3.B&quot;,
+              &quot;q3.D&quot;
+            ],
+            &quot;bisected&quot;: [
+              &quot;q3.A&quot;,
+              &quot;q3.C&quot;
+            ]
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.bisect&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.use&quot;,
+          &quot;relation&quot;: {
+            &quot;kind&quot;: &quot;definition_use&quot;,
+            &quot;definition_ref&quot;: &quot;KQuad&quot;,
+            &quot;arguments&quot;: {
+              &quot;P&quot;: &quot;q3.ABCD&quot;,
+              &quot;r&quot;: {
+                &quot;kind&quot;: &quot;number&quot;,
+                &quot;value&quot;: &quot;2&quot;
+              }
+            }
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.instance&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.perp.fact&quot;,
+          &quot;relation&quot;: {
+            &quot;kind&quot;: &quot;perpendicular&quot;,
+            &quot;first&quot;: [
+              &quot;q3.A&quot;,
+              &quot;q3.B&quot;
+            ],
+            &quot;second&quot;: [
+              &quot;q3.B&quot;,
+              &quot;q3.M&quot;
+            ]
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.perpendicular&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.ray.fact&quot;,
+          &quot;relation&quot;: {
+            &quot;kind&quot;: &quot;point_on_ray&quot;,
+            &quot;point&quot;: &quot;q3.C&quot;,
+            &quot;ray&quot;: &quot;q3.BM&quot;
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.ray&quot;
+          ]
+        },
+        {
+          &quot;id&quot;: &quot;q3.angle.fact&quot;,
+          &quot;relation&quot;: {
+            &quot;kind&quot;: &quot;quantity_relation&quot;,
+            &quot;operator&quot;: &quot;=&quot;,
+            &quot;left&quot;: {
+              &quot;kind&quot;: &quot;angle_measure&quot;,
+              &quot;angle&quot;: [
+                &quot;q3.B&quot;,
+                &quot;q3.A&quot;,
+                &quot;q3.C&quot;
+              ],
+              &quot;unit&quot;: &quot;degree&quot;
+            },
+            &quot;right&quot;: {
+              &quot;kind&quot;: &quot;angle_measure&quot;,
+              &quot;angle&quot;: [
+                &quot;q3.D&quot;,
+                &quot;q3.A&quot;,
+                &quot;q3.C&quot;
+              ],
+              &quot;unit&quot;: &quot;degree&quot;
+            }
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.angle&quot;
+          ]
+        }
+      ],
+      &quot;goals&quot;: [
+        {
+          &quot;id&quot;: &quot;q3.answer&quot;,
+          &quot;kind&quot;: &quot;quantity_goal&quot;,
+          &quot;expression&quot;: {
+            &quot;kind&quot;: &quot;tan&quot;,
+            &quot;angle&quot;: {
+              &quot;kind&quot;: &quot;angle_measure&quot;,
+              &quot;angle&quot;: [
+                &quot;q3.A&quot;,
+                &quot;q3.C&quot;,
+                &quot;q3.D&quot;
+              ],
+              &quot;unit&quot;: &quot;degree&quot;
+            }
+          },
+          &quot;answer_form&quot;: {
+            &quot;kind&quot;: &quot;exact_value&quot;
+          },
+          &quot;source_unit_ids&quot;: [
+            &quot;q3.goal&quot;
+          ]
+        }
+      ],
+      &quot;children&quot;: []
+    }
+  ]
+}</pre>
+<h2>未编码原文</h2><pre>[]</pre>
+<h2>待证明义务（不是题设）</h2><pre>[
+  {
+    &quot;code&quot;: &quot;simple_nondegenerate_polygon&quot;,
+    &quot;unit&quot;: &quot;q1.fig1.ABCD&quot;,
+    &quot;expression&quot;: [
+      &quot;q1.fig1.A&quot;,
+      &quot;q1.fig1.B&quot;,
+      &quot;q1.fig1.C&quot;,
+      &quot;q1.fig1.D&quot;
+    ],
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;simple_nondegenerate_polygon&quot;,
+    &quot;unit&quot;: &quot;q1.fig1.AECD&quot;,
+    &quot;expression&quot;: [
+      &quot;q1.fig1.A&quot;,
+      &quot;q1.fig1.E&quot;,
+      &quot;q1.fig1.C&quot;,
+      &quot;q1.fig1.D&quot;
+    ],
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;simple_nondegenerate_polygon&quot;,
+    &quot;unit&quot;: &quot;q1.fig2.ABCD&quot;,
+    &quot;expression&quot;: [
+      &quot;q1.fig2.A&quot;,
+      &quot;q1.fig2.B&quot;,
+      &quot;q1.fig2.C&quot;,
+      &quot;q1.fig2.D&quot;
+    ],
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;nondegenerate_triangle_area&quot;,
+    &quot;unit&quot;: &quot;q1.fig2.answer&quot;,
+    &quot;expression&quot;: {
+      &quot;kind&quot;: &quot;triangle_area&quot;,
+      &quot;vertices&quot;: [
+        &quot;q1.fig2.A&quot;,
+        &quot;q1.fig2.C&quot;,
+        &quot;q1.fig2.D&quot;
+      ],
+      &quot;convention&quot;: &quot;unsigned&quot;
+    },
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;nondegenerate_triangle_area&quot;,
+    &quot;unit&quot;: &quot;q1.fig2.answer&quot;,
+    &quot;expression&quot;: {
+      &quot;kind&quot;: &quot;triangle_area&quot;,
+      &quot;vertices&quot;: [
+        &quot;q1.fig2.A&quot;,
+        &quot;q1.fig2.C&quot;,
+        &quot;q1.fig2.B&quot;
+      ],
+      &quot;convention&quot;: &quot;unsigned&quot;
+    },
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;nonzero_denominator&quot;,
+    &quot;unit&quot;: &quot;q1.fig2.answer&quot;,
+    &quot;expression&quot;: {
+      &quot;kind&quot;: &quot;triangle_area&quot;,
+      &quot;vertices&quot;: [
+        &quot;q1.fig2.A&quot;,
+        &quot;q1.fig2.C&quot;,
+        &quot;q1.fig2.B&quot;
+      ],
+      &quot;convention&quot;: &quot;unsigned&quot;
+    },
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;simple_nondegenerate_polygon&quot;,
+    &quot;unit&quot;: &quot;q2.ABCD&quot;,
+    &quot;expression&quot;: [
+      &quot;q2.A&quot;,
+      &quot;q2.B&quot;,
+      &quot;q2.C&quot;,
+      &quot;q2.D&quot;
+    ],
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;nondegenerate_angle_measure&quot;,
+    &quot;unit&quot;: &quot;q2.angle.fact&quot;,
+    &quot;expression&quot;: {
+      &quot;kind&quot;: &quot;angle_measure&quot;,
+      &quot;angle&quot;: [
+        &quot;q2.B&quot;,
+        &quot;q2.D&quot;,
+        &quot;q2.C&quot;
+      ],
+      &quot;unit&quot;: &quot;degree&quot;
+    },
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;nondegenerate_angle_measure&quot;,
+    &quot;unit&quot;: &quot;q2.angle.fact&quot;,
+    &quot;expression&quot;: {
+      &quot;kind&quot;: &quot;angle_measure&quot;,
+      &quot;angle&quot;: [
+        &quot;q2.A&quot;,
+        &quot;q2.B&quot;,
+        &quot;q2.D&quot;
+      ],
+      &quot;unit&quot;: &quot;degree&quot;
+    },
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;simple_nondegenerate_polygon&quot;,
+    &quot;unit&quot;: &quot;q3.ABCD&quot;,
+    &quot;expression&quot;: [
+      &quot;q3.A&quot;,
+      &quot;q3.B&quot;,
+      &quot;q3.C&quot;,
+      &quot;q3.D&quot;
+    ],
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;nondegenerate_angle_measure&quot;,
+    &quot;unit&quot;: &quot;q3.angle.fact&quot;,
+    &quot;expression&quot;: {
+      &quot;kind&quot;: &quot;angle_measure&quot;,
+      &quot;angle&quot;: [
+        &quot;q3.B&quot;,
+        &quot;q3.A&quot;,
+        &quot;q3.C&quot;
+      ],
+      &quot;unit&quot;: &quot;degree&quot;
+    },
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;nondegenerate_angle_measure&quot;,
+    &quot;unit&quot;: &quot;q3.angle.fact&quot;,
+    &quot;expression&quot;: {
+      &quot;kind&quot;: &quot;angle_measure&quot;,
+      &quot;angle&quot;: [
+        &quot;q3.D&quot;,
+        &quot;q3.A&quot;,
+        &quot;q3.C&quot;
+      ],
+      &quot;unit&quot;: &quot;degree&quot;
+    },
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;nondegenerate_angle_measure&quot;,
+    &quot;unit&quot;: &quot;q3.answer&quot;,
+    &quot;expression&quot;: {
+      &quot;kind&quot;: &quot;angle_measure&quot;,
+      &quot;angle&quot;: [
+        &quot;q3.A&quot;,
+        &quot;q3.C&quot;,
+        &quot;q3.D&quot;
+      ],
+      &quot;unit&quot;: &quot;degree&quot;
+    },
+    &quot;status&quot;: &quot;unproved&quot;
+  },
+  {
+    &quot;code&quot;: &quot;tangent_defined&quot;,
+    &quot;unit&quot;: &quot;q3.answer&quot;,
+    &quot;expression&quot;: {
+      &quot;kind&quot;: &quot;angle_measure&quot;,
+      &quot;angle&quot;: [
+        &quot;q3.A&quot;,
+        &quot;q3.C&quot;,
+        &quot;q3.D&quot;
+      ],
+      &quot;unit&quot;: &quot;degree&quot;
+    },
+    &quot;status&quot;: &quot;unproved&quot;
+  }
+]</pre>
+</html>

@@ -1,0 +1,152 @@
+{
+  "schema_version": "understanding-test-images/v1",
+  "date": "2026-09-16",
+  "processing": "deterministic_pixel_crop_or_byte_copy_no_redraw",
+  "auxiliary_text": "image_only_no_ocr",
+  "cases": {
+    "tj-2026-heping-yimo-25": {
+      "file": "tj-2026-heping-yimo-25.png",
+      "sha256": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+      "size": [
+        1458,
+        650
+      ],
+      "source": "internal/source-images/tj-2026-heping-yimo-25/source-page-01.png",
+      "source_sha256": "1a66c15c8ec66d962a886a5f552f0b2c7860042db5a516f065d8614c7fa898c9",
+      "source_size": [
+        1458,
+        2032
+      ],
+      "crop_box": [
+        0,
+        0,
+        1458,
+        650
+      ],
+      "purpose": "crop_question_25",
+      "expected_missing_figures": []
+    },
+    "tj-2026-heping-ermo-25": {
+      "file": "tj-2026-heping-ermo-25.png",
+      "sha256": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "size": [
+        1180,
+        615
+      ],
+      "source": "internal/source-images/tj-2026-heping-ermo-25/source-page-01.png",
+      "source_sha256": "2fe298108f300ee09b681063cdc7c027dd9dba9f21402e88ec5fffcf2563948d",
+      "source_size": [
+        1530,
+        1700
+      ],
+      "crop_box": [
+        0,
+        1065,
+        1180,
+        1680
+      ],
+      "purpose": "crop_question_25",
+      "expected_missing_figures": []
+    },
+    "tj-2026-hexi-yimo-25": {
+      "file": "tj-2026-hexi-yimo-25.png",
+      "sha256": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "size": [
+        1752,
+        345
+      ],
+      "source": "internal/source-images/tj-2026-hexi-yimo-25/source-page-01.png",
+      "source_sha256": "7d2f643027612d5901105ca508b49c2359280cd521badc5207a1d789eaadf119",
+      "source_size": [
+        1752,
+        1634
+      ],
+      "crop_box": [
+        0,
+        1235,
+        1752,
+        1580
+      ],
+      "purpose": "crop_question_25",
+      "expected_missing_figures": []
+    },
+    "tj-2026-nankai-yimo-25": {
+      "file": "tj-2026-nankai-yimo-25.png",
+      "sha256": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "size": [
+        1180,
+        640
+      ],
+      "source": "internal/source-images/tj-2026-nankai-yimo-25/source-page-01.jpg",
+      "source_sha256": "2d90f961ece1d0d784b5541c3ea14ed49960adf5695d5a8aa588d8bc14e90e6e",
+      "source_size": [
+        1200,
+        2652
+      ],
+      "crop_box": [
+        0,
+        1700,
+        1180,
+        2340
+      ],
+      "purpose": "crop_question_25",
+      "expected_missing_figures": []
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "file": "tj-2026-xiqing-yimo-25.png",
+      "sha256": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+      "size": [
+        1418,
+        360
+      ],
+      "source": "internal/source-images/tj-2026-xiqing-yimo-25/source-user-clean-20260916.png",
+      "source_sha256": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+      "source_size": [
+        1418,
+        360
+      ],
+      "crop_box": null,
+      "purpose": "user_clean_replacement",
+      "expected_missing_figures": []
+    },
+    "k-quad": {
+      "file": "k-quad.png",
+      "sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+      "size": [
+        1308,
+        675
+      ],
+      "source": "server/tests/solver/fixtures/understanding-v2/k-quad/source.png",
+      "source_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+      "source_size": [
+        1308,
+        675
+      ],
+      "crop_box": null,
+      "purpose": "intentional_missing_figures_1_to_4",
+      "expected_missing_figures": [
+        "图1",
+        "图2",
+        "图3",
+        "图4"
+      ]
+    },
+    "function-quantifiers": {
+      "file": "function-quantifiers.png",
+      "sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138",
+      "size": [
+        1164,
+        230
+      ],
+      "source": "server/tests/solver/fixtures/understanding-v2/function-quantifiers/source.png",
+      "source_sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138",
+      "source_size": [
+        1164,
+        230
+      ],
+      "crop_box": null,
+      "purpose": "unchanged",
+      "expected_missing_figures": []
+    }
+  }
+}

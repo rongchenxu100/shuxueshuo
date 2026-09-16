@@ -1,0 +1,216 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "function-quantifiers",
+    "source_sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "definitions": [
+          "f(x) = x^2+b*x+c",
+          "g(x) = 2*x-1"
+        ],
+        "children": [
+          {
+            "label": "(1)",
+            "facts": [
+              "∀x∈ℝ: f(x) ≥ g(x)"
+            ],
+            "goals": [
+              {
+                "kind": "find_minimum",
+                "expression": "b^2+c^2"
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          },
+          {
+            "label": "(2)",
+            "facts": [
+              "∃x_0∈[1,3]: f(x_0) ≤ g(x_0)"
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "symbol": "b",
+                "in_terms_of": [
+                  "c"
+                ]
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          }
+        ],
+        "label": "题目",
+        "facts": [],
+        "goals": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": null,
+      "match_status": "unmatched",
+      "match_reason": "题目为二次函数与一次函数的不等式恒成立与存在性问题，目标为参数最值和范围，不涉及路径最值或几何反射/射线构造，不符合任何已注册题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:c",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:function:g",
+          "name": "g",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:c",
+          "name": "c",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "normalization_proofs": []
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:42bf91543d8a3f1f4c9973121fdd9ff75efc806a3a83e9fdefce73df8497a7b0",
+      "kind": "notation_raw",
+      "sha256": "42bf91543d8a3f1f4c9973121fdd9ff75efc806a3a83e9fdefce73df8497a7b0",
+      "media_type": "text/plain",
+      "byte_size": 569,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-redundancy-20260916/replay/function-quantifiers/artifacts/42/42bf91543d8a3f1f4c9973121fdd9ff75efc806a3a83e9fdefce73df8497a7b0.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:80d0d371c8dae2fe88a517035bf843464e6049d313745a11a8fe7cab127dc1c7",
+      "kind": "notation_candidate",
+      "sha256": "80d0d371c8dae2fe88a517035bf843464e6049d313745a11a8fe7cab127dc1c7",
+      "media_type": "application/json",
+      "byte_size": 569,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-redundancy-20260916/replay/function-quantifiers/artifacts/80/80d0d371c8dae2fe88a517035bf843464e6049d313745a11a8fe7cab127dc1c7.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334",
+      "kind": "notation_canonical",
+      "sha256": "6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334",
+      "media_type": "application/json",
+      "byte_size": 2455,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-redundancy-20260916/replay/function-quantifiers/artifacts/6e/6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:5edaae0b9e9f32993f74d086d24c26a3ba36fc4147a8abb1cfca7bc9a0654945",
+      "kind": "notation_normalized",
+      "sha256": "5edaae0b9e9f32993f74d086d24c26a3ba36fc4147a8abb1cfca7bc9a0654945",
+      "media_type": "application/json",
+      "byte_size": 727,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-redundancy-20260916/replay/function-quantifiers/artifacts/5e/5edaae0b9e9f32993f74d086d24c26a3ba36fc4147a8abb1cfca7bc9a0654945.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:9937740409537ceb5746262ad29f9a4808db318ab5e18e92c20609d2c719c203",
+      "kind": "notation_compiled",
+      "sha256": "9937740409537ceb5746262ad29f9a4808db318ab5e18e92c20609d2c719c203",
+      "media_type": "application/json",
+      "byte_size": 3383,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-redundancy-20260916/replay/function-quantifiers/artifacts/99/9937740409537ceb5746262ad29f9a4808db318ab5e18e92c20609d2c719c203.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-redundancy-20260916/replay/function-quantifiers/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:ccdecbbfeb5d2a5a931611a803b3b90425cff0082829478d0a570294df46170e",
+      "kind": "notation_ir",
+      "sha256": "ccdecbbfeb5d2a5a931611a803b3b90425cff0082829478d0a570294df46170e",
+      "media_type": "application/json",
+      "byte_size": 469,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-redundancy-20260916/replay/function-quantifiers/artifacts/cc/ccdecbbfeb5d2a5a931611a803b3b90425cff0082829478d0a570294df46170e.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:168b7065be6794077d9feee35c8ebe35daece8b59e48a663f367701e8448ded1",
+      "kind": "notation_validation",
+      "sha256": "168b7065be6794077d9feee35c8ebe35daece8b59e48a663f367701e8448ded1",
+      "media_type": "application/json",
+      "byte_size": 542,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-redundancy-20260916/replay/function-quantifiers/artifacts/16/168b7065be6794077d9feee35c8ebe35daece8b59e48a663f367701e8448ded1.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "80d0d371c8dae2fe88a517035bf843464e6049d313745a11a8fe7cab127dc1c7",
+  "semantic_revision": "6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334",
+  "units": {
+    "r.definitions[0]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 0
+    },
+    "r.definitions[1]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 1
+    },
+    "r.c0.facts[0]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c1.facts[0]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 0
+    }
+  }
+}

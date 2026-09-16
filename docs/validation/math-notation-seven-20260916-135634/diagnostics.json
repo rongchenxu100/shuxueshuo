@@ -1,0 +1,40 @@
+{
+  "tj-2026-heping-yimo-25": {
+    "diagnostic_copy_only": true,
+    "live_result_unchanged": true,
+    "edits": [
+      {
+        "path": "root",
+        "removed_for_diagnosis": "segment(B,C)"
+      },
+      {
+        "path": "root/children/1",
+        "removed_for_diagnosis": "segment(O,M)"
+      },
+      {
+        "path": "root/children/1",
+        "removed_for_diagnosis": "segment(B,N)"
+      }
+    ],
+    "comparison_after_diagnostic_edit": {
+      "ok": true,
+      "classification": "equivalent",
+      "differences": []
+    }
+  },
+  "tj-2026-hexi-yimo-25": {
+    "diagnostic_copy_only": true,
+    "live_result_unchanged": true,
+    "edits": [
+      {
+        "path": "root/children/2",
+        "removed_for_diagnosis": "N ∈ x_axis"
+      }
+    ],
+    "comparison_after_diagnostic_edit": {
+      "ok": true,
+      "classification": "equivalent",
+      "differences": []
+    }
+  }
+}

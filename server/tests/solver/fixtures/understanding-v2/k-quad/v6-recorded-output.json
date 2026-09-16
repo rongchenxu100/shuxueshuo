@@ -1,0 +1,198 @@
+{
+  "schema_version": "problem-domain/v2",
+  "family_id": null,
+  "match_status": "unmatched",
+  "match_reason": "题面涉及自定义的k倍四边形定义，以及平行四边形、中点、角度比、面积比和动点射线等几何关系，需要通用的几何推理求解，未匹配到已注册的Solver能力。",
+  "root": {
+    "label": "整题",
+    "source_text": [
+      "定义:若四边形的一条对角线被另一条对角线平分,且另一条对角线被交点分成的两条线段长度之比为k(k≥1),则称该四边形为“k倍四边形”。",
+      "问题:"
+    ],
+    "entities": [],
+    "facts": [],
+    "goals": [],
+    "children": [
+      {
+        "label": "（1）",
+        "source_text": [],
+        "entities": [],
+        "facts": [],
+        "goals": [],
+        "children": [
+          {
+            "label": "图1",
+            "source_text": [
+              "如图1,在□ABCD 中,对角线AC与BD交于点 O,点E为 OB 中点。若四边形AECD 为k倍四边形,则k的值为_____;"
+            ],
+            "entities": [
+              {"kind": "point", "label": "A"},
+              {"kind": "point", "label": "B"},
+              {"kind": "point", "label": "C"},
+              {"kind": "point", "label": "D"},
+              {"kind": "point", "label": "O"},
+              {"kind": "point", "label": "E"},
+              {"kind": "point", "label": "P"},
+              {"kind": "scalar", "label": "k"}
+            ],
+            "facts": [
+              {"kind": "parallelogram", "polygon": "ABCD"},
+              {"kind": "intersection", "point": "O", "segments": ["AC", "BD"]},
+              {"kind": "midpoint", "point": "E", "segment": "OB"},
+              {"kind": "intersection", "point": "P", "segments": ["AC", "ED"]},
+              {
+                "kind": "any_of",
+                "branches": [
+                  [
+                    {"kind": "diagonal_bisects", "polygon": "AECD", "bisector": "ED", "bisected": "AC"},
+                    {"kind": "length_ratio", "segments": ["EP", "PD"], "ratio": ["k", "1"]}
+                  ],
+                  [
+                    {"kind": "diagonal_bisects", "polygon": "AECD", "bisector": "ED", "bisected": "AC"},
+                    {"kind": "length_ratio", "segments": ["PD", "EP"], "ratio": ["k", "1"]}
+                  ],
+                  [
+                    {"kind": "diagonal_bisects", "polygon": "AECD", "bisector": "AC", "bisected": "ED"},
+                    {"kind": "length_ratio", "segments": ["AP", "PC"], "ratio": ["k", "1"]}
+                  ],
+                  [
+                    {"kind": "diagonal_bisects", "polygon": "AECD", "bisector": "AC", "bisected": "ED"},
+                    {"kind": "length_ratio", "segments": ["PC", "AP"], "ratio": ["k", "1"]}
+                  ]
+                ]
+              },
+              {"kind": "scalar_constraint", "symbol": "k", "operator": ">=", "value": "1"}
+            ],
+            "goals": [
+              {"kind": "find_value", "target": "k"}
+            ],
+            "children": [],
+            "uncertainties": [
+              {"kind": "missing_figure", "text": "缺少图1"}
+            ]
+          },
+          {
+            "label": "图2",
+            "source_text": [
+              "如图2,在k倍四边形 ABCD中,若对角线 AC被 BD平分,则 S△ACD/S△ACB=_____ (用含k的代数式表示)。"
+            ],
+            "entities": [
+              {"kind": "point", "label": "A"},
+              {"kind": "point", "label": "B"},
+              {"kind": "point", "label": "C"},
+              {"kind": "point", "label": "D"},
+              {"kind": "point", "label": "O"},
+              {"kind": "scalar", "label": "k"}
+            ],
+            "facts": [
+              {"kind": "intersection", "point": "O", "segments": ["AC", "BD"]},
+              {"kind": "diagonal_bisects", "polygon": "ABCD", "bisector": "BD", "bisected": "AC"},
+              {
+                "kind": "any_of",
+                "branches": [
+                  [
+                    {"kind": "length_ratio", "segments": ["BO", "OD"], "ratio": ["k", "1"]}
+                  ],
+                  [
+                    {"kind": "length_ratio", "segments": ["OD", "BO"], "ratio": ["k", "1"]}
+                  ]
+                ]
+              },
+              {"kind": "scalar_constraint", "symbol": "k", "operator": ">=", "value": "1"}
+            ],
+            "goals": [
+              {"kind": "find_area_ratio", "triangles": ["ACD", "ACB"], "in_terms_of": ["k"]}
+            ],
+            "children": [],
+            "uncertainties": [
+              {"kind": "missing_figure", "text": "缺少图2"}
+            ]
+          }
+        ],
+        "uncertainties": []
+      },
+      {
+        "label": "（2）",
+        "source_text": [
+          "(2) 如图3,四边形 ABCD 为 k 倍四边形,其对角线 BD 平分对角线 AC,且满足 ∠BDC =2∠ABD,BD=4CD,求k的值。"
+        ],
+        "entities": [
+          {"kind": "point", "label": "A"},
+          {"kind": "point", "label": "B"},
+          {"kind": "point", "label": "C"},
+          {"kind": "point", "label": "D"},
+          {"kind": "point", "label": "O"},
+          {"kind": "scalar", "label": "k"}
+        ],
+        "facts": [
+          {"kind": "intersection", "point": "O", "segments": ["AC", "BD"]},
+          {"kind": "diagonal_bisects", "polygon": "ABCD", "bisector": "BD", "bisected": "AC"},
+          {
+            "kind": "any_of",
+            "branches": [
+              [
+                {"kind": "length_ratio", "segments": ["BO", "OD"], "ratio": ["k", "1"]}
+              ],
+              [
+                {"kind": "length_ratio", "segments": ["OD", "BO"], "ratio": ["k", "1"]}
+              ]
+            ]
+          },
+          {"kind": "angle_ratio", "angles": ["BDC", "ABD"], "ratio": ["2", "1"]},
+          {"kind": "length_ratio", "segments": ["BD", "CD"], "ratio": ["4", "1"]},
+          {"kind": "scalar_constraint", "symbol": "k", "operator": ">=", "value": "1"}
+        ],
+        "goals": [
+          {"kind": "find_value", "target": "k"}
+        ],
+        "children": [],
+        "uncertainties": [
+          {"kind": "missing_figure", "text": "缺少图3"}
+        ]
+      },
+      {
+        "label": "（3）",
+        "source_text": [
+          "(3) 如图4,已知定点 A、B,且 AB⊥BM,点 C为射线 BM 上一动点,点 D 为平面内一点,连接 A、B、C、D构成四边形ABCD。若BD平分AC,∠BAC=∠DAC,四边形ABCD为2倍四边形,求tan∠ACD的值。"
+        ],
+        "entities": [
+          {"kind": "point", "label": "A", "role": "fixed"},
+          {"kind": "point", "label": "B", "role": "fixed"},
+          {"kind": "point", "label": "C", "role": "moving"},
+          {"kind": "point", "label": "D"},
+          {"kind": "point", "label": "M"},
+          {"kind": "point", "label": "O"},
+          {"kind": "scalar", "label": "k"}
+        ],
+        "facts": [
+          {"kind": "perpendicular", "segments": ["AB", "BM"]},
+          {"kind": "point_on_ray", "point": "C", "ray": "BM"},
+          {"kind": "intersection", "point": "O", "segments": ["AC", "BD"]},
+          {"kind": "diagonal_bisects", "polygon": "ABCD", "bisector": "BD", "bisected": "AC"},
+          {
+            "kind": "any_of",
+            "branches": [
+              [
+                {"kind": "length_ratio", "segments": ["BO", "OD"], "ratio": ["2", "1"]}
+              ],
+              [
+                {"kind": "length_ratio", "segments": ["OD", "BO"], "ratio": ["2", "1"]}
+              ]
+            ]
+          },
+          {"kind": "angle_equal", "angles": ["BAC", "DAC"]},
+          {"kind": "scalar_constraint", "symbol": "k", "operator": "=", "value": "2"},
+          {"kind": "scalar_constraint", "symbol": "k", "operator": ">=", "value": "1"}
+        ],
+        "goals": [
+          {"kind": "find_tan", "angle": "ACD"}
+        ],
+        "children": [],
+        "uncertainties": [
+          {"kind": "missing_figure", "text": "缺少图4"}
+        ]
+      }
+    ],
+    "uncertainties": []
+  }
+}

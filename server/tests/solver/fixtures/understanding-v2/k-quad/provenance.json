@@ -1,0 +1,96 @@
+{
+  "source_build": "6de57b87-fcd6-4977-8e99-2d3c4d7db01b",
+  "image_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+  "files": [
+    {
+      "file": "source.png",
+      "export_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+      "fixture_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+      "role": "source_evidence"
+    },
+    {
+      "file": "layout.json",
+      "export_sha256": "d8d8a8daa976a98efbb990afecc78e8b8cb57b30dea7adac5fa0921d7120d22b",
+      "fixture_sha256": "f33826125083be2bbbd0258f0db8e62e66111f3b89716b2c72d86a67da1524bf",
+      "role": "source_evidence"
+    },
+    {
+      "file": "text.json",
+      "export_sha256": "3c2520408755630653cccebdfc3dab8b2d21630bd571ad17b5f56a952eecfe9a",
+      "fixture_sha256": "201a3d8d826b366b2c9824a7846a5f3662893b4e862d3c42b2992fbea93bcae4",
+      "role": "source_evidence"
+    },
+    {
+      "file": "formula.json",
+      "export_sha256": "fe501b79802ec9313d934c21c07e1aad965b32e4a86e9245fe6da4b6f4a3d2f9",
+      "fixture_sha256": "1753eb685d8e487f805c43c1d8e472ddc87e69bb36311a0603223b19442612d8",
+      "role": "source_evidence"
+    },
+    {
+      "file": "observation.json",
+      "export_sha256": "f996322a268fa6dbda1ae39f9d13b1dd72f4bd594fe5a2a1dfa3f50d98b94cf3",
+      "fixture_sha256": "cb70cbcc7685dbf952ae914740fd1bac82a766d1d4d2862191abff2ca1635773",
+      "role": "source_evidence"
+    },
+    {
+      "file": "context.json",
+      "export_sha256": "6e99bae9dc49ab47013404102f8c57a9d443ea4ef2cf98b699a6c38a1c1ba0d5",
+      "fixture_sha256": "c7d8bf2d885742460d69e1386b04b8b12ec4bb676c75fe34fe45bcff6053af14",
+      "role": "source_evidence"
+    },
+    {
+      "file": "legacy-response-1.json",
+      "export_sha256": "b969350fdee760acbad0ab89c5d427b634caa746efbba5755b20467185f7cc2c",
+      "fixture_sha256": "48fc74e5a31e6f296610275cf63ae635e1d37371d9527fadb13044ac3efc4494",
+      "role": "failed_model_diagnostic_not_ground_truth"
+    },
+    {
+      "file": "legacy-provider-1.json",
+      "export_sha256": "be123f9dfdbc24ad7f4677d0ffe37c57f1689a7f42bcaf082f0f4306d7d3f66b",
+      "fixture_sha256": "141ecefc58ee6046ba004a2205b9b65e2ac0695759706b27b0f37a91afa6b904",
+      "role": "failed_model_diagnostic_not_ground_truth"
+    },
+    {
+      "file": "legacy-response-2.json",
+      "export_sha256": "d699fce915ba0487b6e08877cef53fd021602347fd1fcb4c02ff1345536c57b1",
+      "fixture_sha256": "5a70c10923237a53bf27c216c37285678f8828d2c1bbe408d5d5390d51abad3e",
+      "role": "failed_model_diagnostic_not_ground_truth"
+    },
+    {
+      "file": "legacy-provider-2.json",
+      "export_sha256": "a68f4ff322e3dc65e2b34e88393a7a2f3ec16118ea7149bce3b6d4976ae80010",
+      "fixture_sha256": "f86fc1fbf7b26ba6d14ebcbf4c28d1177b28a3984be6ab9729c88343ef2df872",
+      "role": "failed_model_diagnostic_not_ground_truth"
+    },
+    {
+      "file": "legacy-response-3.json",
+      "export_sha256": "31ca1e399d764ce944bf0e92ae3a7e809e159a1b6b1abc63cb60699526d48526",
+      "fixture_sha256": "da9d5e1038efd29b1773b01ff6d6244f77f8af14f4b6bd014282d6f23fca1914",
+      "role": "failed_model_diagnostic_not_ground_truth"
+    },
+    {
+      "file": "legacy-provider-3.json",
+      "export_sha256": "4cf8257689004bc3b12b4aea428e1d35610fcfefbbb6e292885777c46c148efa",
+      "fixture_sha256": "2375c809bc3991a5c46e097925d5a3d9a275edb526d869c6f80069bd6134dddf",
+      "role": "failed_model_diagnostic_not_ground_truth"
+    },
+    {
+      "file": "legacy-validation-1.json",
+      "export_sha256": "57ee48f328dfcc7f961f976870ef94c85ca16e228137418dea34aa8d61793496",
+      "fixture_sha256": "dce2518024acb5d91f02e6511f8b909542d46be874b6c2f870f82d9be70c1616",
+      "role": "failed_model_diagnostic_not_ground_truth"
+    },
+    {
+      "file": "legacy-validation-2.json",
+      "export_sha256": "874d97fe5b4090eeedbc314b2db39fcf9623a424526c94985273c5789dbce822",
+      "fixture_sha256": "7d4f28f24bb850c9fb515778a60b26c65234ae8abe167f5ee796567662b295ef",
+      "role": "failed_model_diagnostic_not_ground_truth"
+    },
+    {
+      "file": "legacy-validation-3.json",
+      "export_sha256": "20da32555d0cee15c41ac537f507bbb9f92fc40b10c934cb9defe612384f6cd0",
+      "fixture_sha256": "138ffa50b69e1a47fa874ccc24812e0229fd4cfbac76b355044119d6fb2ba2f5",
+      "role": "failed_model_diagnostic_not_ground_truth"
+    }
+  ]
+}

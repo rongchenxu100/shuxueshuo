@@ -1,0 +1,124 @@
+{
+  "schema_version": "problem-understanding/v1",
+  "transcription": {
+    "schema_version": "problem-transcription/v1",
+    "problem_id": "example",
+    "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "root": {
+      "id": "root",
+      "title": "例题",
+      "units": [
+        {
+          "id": "given",
+          "kind": "condition",
+          "text": "已知点 U、V。",
+          "region_refs": [],
+          "origin": "printed"
+        },
+        {
+          "id": "asked",
+          "kind": "requirement",
+          "text": "求线段 UV 的长度。",
+          "region_refs": [],
+          "origin": "printed"
+        }
+      ],
+      "children": []
+    },
+    "regions": [],
+    "figures": [],
+    "source_gaps": []
+  },
+  "domain": {
+    "schema_version": "problem-domain/v2",
+    "problem_id": "example",
+    "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "transcription_revision": "response.transcription",
+    "completeness": "complete",
+    "root": {
+      "id": "scope",
+      "part_ref": "root",
+      "entities": [
+        {
+          "id": "U",
+          "kind": "point",
+          "label": "U",
+          "role": "given",
+          "source_unit_ids": [
+            "given"
+          ]
+        },
+        {
+          "id": "V",
+          "kind": "point",
+          "label": "V",
+          "role": "given",
+          "source_unit_ids": [
+            "given"
+          ]
+        }
+      ],
+      "facts": [],
+      "goals": [
+        {
+          "id": "length",
+          "kind": "quantity_goal",
+          "expression": {
+            "kind": "segment_length",
+            "segment": [
+              "U",
+              "V"
+            ]
+          },
+          "answer_form": {
+            "kind": "exact_value"
+          },
+          "source_unit_ids": [
+            "asked"
+          ]
+        }
+      ],
+      "children": []
+    },
+    "definitions": [],
+    "coverage": [
+      {
+        "source_unit_id": "given",
+        "domain_unit_ids": [
+          "U",
+          "V"
+        ],
+        "gap_id": null
+      },
+      {
+        "source_unit_id": "asked",
+        "domain_unit_ids": [
+          "length"
+        ],
+        "gap_id": null
+      }
+    ],
+    "gaps": []
+  },
+  "match": {
+    "schema_version": "problem-solver-match/v1",
+    "transcription_revision": "response.transcription",
+    "domain_revision": "response.domain",
+    "registry_snapshot": "0000000000000000000000000000000000000000000000000000000000000000",
+    "status": "unmatched",
+    "family_id": null,
+    "reason": "示例 registry 为空，没有覆盖此要求的 family。",
+    "coverage": [],
+    "uncovered_requirements": [
+      {
+        "source_unit_refs": [
+          "asked"
+        ],
+        "domain_unit_refs": [
+          "length"
+        ],
+        "reason": "示例没有注册长度求值能力。"
+      }
+    ]
+  }
+}

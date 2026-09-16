@@ -1,0 +1,212 @@
+{
+  "implementation_unchanged_since_live": {
+    "__init__.py": true,
+    "algebra.py": true,
+    "authoring.py": true,
+    "comparison.py": true,
+    "contracts.py": true,
+    "identity.py": true,
+    "measure.py": true,
+    "prompt.py": true,
+    "service.py": true,
+    "smoke.py": true,
+    "validation.py": true
+  },
+  "evidence": [
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/gold.json",
+      "verified": true,
+      "location": "archived prior gold"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/formula.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/provenance.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/observation.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-provider-3.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-response-2.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-validation-3.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-validation-2.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-response-3.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-provider-2.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-provider-1.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-validation-1.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/layout.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/context.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-response-1.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/source.png",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "server/tests/solver/fixtures/understanding-v2/k-quad/text.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-single-20260915/request.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-single-20260915/failed-attempts.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-single-20260915/summary.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-single-20260915/frozen.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-single-20260915/.gitignore",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-single-20260915/semantic-call-reserved.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-single-20260915/artifacts/79/7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038.png",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/request.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/summary.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/diff.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/raw-response.txt",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/parsed.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/provider-response.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/frozen.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/call.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/.gitignore",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/semantic-call-reserved.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/a3/a3ea644667a282dd065cb0a7d07d60d1443825290ebb444a52ec707e9ae29fcf.txt",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/e3/e30d063966de2e7382415edc95a9a859d071dbb69e213b6d9657c3730737de65.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/4e/4ee0919030e8a0043a1743f3b732802d6ad7f0189b2538325ee7cb4c736f89b2.json",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/79/7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038.png",
+      "verified": true,
+      "location": "current"
+    },
+    {
+      "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/7a/7a35cb55eb9ea1517ab6df77149384f7cb06924305dcb5c69ff570c46a3bef78.json",
+      "verified": true,
+      "location": "current"
+    }
+  ]
+}

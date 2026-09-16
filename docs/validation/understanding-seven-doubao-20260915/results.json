@@ -1,0 +1,554 @@
+{
+  "provider": "doubao",
+  "model": "doubao-seed-2-1-turbo-260628",
+  "case_count": 7,
+  "passed": 1,
+  "strict_semantics_passed": 1,
+  "family_matches_gold": 7,
+  "semantic_calls": 7,
+  "network_attempts": 7,
+  "total_tokens": 117177,
+  "all_json_complete": true,
+  "same_inputs_and_gold_as_deepseek": true,
+  "rows": [
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "passed": false,
+      "strict_semantics_passed": false,
+      "seconds": 116.14,
+      "deepseek_seconds": 76.76,
+      "deepseek_passed": false,
+      "network_attempts": 1,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": {
+        "completion_tokens": 6597,
+        "prompt_tokens": 10919,
+        "total_tokens": 17516
+      },
+      "same_input_as_deepseek": true,
+      "implementation_unchanged": true,
+      "actual_match": {
+        "match_status": "matched",
+        "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+        "match_reason": "题面第(II)问明确给出射线CD、射线上的动点N，以及等长条件CN=CM，该等长条件用于OM+BN路径和的等价替换，同时题面包含二次函数抛物线，符合二次函数等长射线路径最值的求解要求。"
+      },
+      "family_matches_gold": true,
+      "reports": {
+        "ir": {
+          "ok": false,
+          "issues": [
+            {
+              "unit": "r.facts0",
+              "code": "reference.unresolved_or_wrong_kind:x"
+            },
+            {
+              "unit": "r.c0.c1.facts1",
+              "code": "dimension.relation_mismatch"
+            },
+            {
+              "unit": "r.c0.c1.facts4",
+              "code": "reference.unresolved_or_wrong_kind:O"
+            },
+            {
+              "unit": "r.c1.facts4",
+              "code": "dimension.extremum_mismatch"
+            }
+          ],
+          "well_definedness_obligations": [],
+          "constructed_objects": []
+        },
+        "match": {
+          "ok": true,
+          "issues": []
+        }
+      },
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      }
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "passed": false,
+      "strict_semantics_passed": false,
+      "seconds": 142.487,
+      "deepseek_seconds": 72.438,
+      "deepseek_passed": false,
+      "network_attempts": 1,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": {
+        "completion_tokens": 8173,
+        "prompt_tokens": 9725,
+        "total_tokens": 17898
+      },
+      "same_input_as_deepseek": true,
+      "implementation_unchanged": true,
+      "actual_match": {
+        "match_status": "matched",
+        "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+        "match_reason": "第(25)题第(Ⅱ)问明确给出二次函数抛物线、正方形AEKG和路径HF+FM+MG的最小值目标，正方形的对角线交点（中心）H、边中点F参与路径构造，正方形的性质可用于路径等价降维变换，符合二次函数正方形路径最值求解器的适用条件。"
+      },
+      "family_matches_gold": true,
+      "reports": {
+        "ir": {
+          "ok": false,
+          "issues": [
+            {
+              "path": "root/children/0/children/1/entities/1/label",
+              "code": "schema.invalid",
+              "message": "\"O'\" does not match '^[A-Za-z\\\\u4e00-\\\\u9fff][A-Za-z0-9_\\\\u4e00-\\\\u9fff]{0,63}$'"
+            },
+            {
+              "path": "root/children/0/children/1/facts/1",
+              "code": "schema.invalid",
+              "message": "{'kind': 'parallel', 'segments': ['l', 'BC']} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/children/0/entities/1/label",
+              "code": "schema.invalid",
+              "message": "\"A'\" does not match '^[A-Za-z\\\\u4e00-\\\\u9fff][A-Za-z0-9_\\\\u4e00-\\\\u9fff]{0,63}$'"
+            },
+            {
+              "path": "root/children/0/children/1/children/0/facts/0",
+              "code": "schema.invalid",
+              "message": "{'kind': 'intersection', 'point': 'Q', 'segments': ['l', 'AB']} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/children/0/facts/1",
+              "code": "schema.invalid",
+              "message": "{'kind': 'intersection', 'point': 'E', 'segments': [\"O'P\", 'BC']} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/children/0/goals/1",
+              "code": "schema.invalid",
+              "message": "{'kind': 'find_range', 'symbol': 't', 'in_terms_of': []} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/children/1/goals/0",
+              "code": "schema.invalid",
+              "message": "{'kind': 'find_range', 'symbol': 'S', 'in_terms_of': []} is not valid under any of the given schemas"
+            }
+          ],
+          "well_definedness_obligations": [],
+          "constructed_objects": []
+        },
+        "match": {
+          "ok": true,
+          "issues": []
+        }
+      },
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      }
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "passed": false,
+      "strict_semantics_passed": false,
+      "seconds": 169.896,
+      "deepseek_seconds": 74.62,
+      "deepseek_passed": false,
+      "network_attempts": 1,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": {
+        "completion_tokens": 12237,
+        "prompt_tokens": 9738,
+        "total_tokens": 21975
+      },
+      "same_input_as_deepseek": true,
+      "implementation_unchanged": true,
+      "actual_match": {
+        "match_status": "matched",
+        "family_id": "QuadraticWeightedPathMinimumSolver",
+        "match_reason": "题中第25题第(III)问明确给出二次函数（抛物线，a=1），目标为带权重√2的路径√2·MN + AN的最小值，且给出该最小值为21/4，符合二次函数加权路径最值求解器的使用条件；其余题目与小问无对应注册求解器。"
+      },
+      "family_matches_gold": true,
+      "reports": {
+        "ir": {
+          "ok": false,
+          "issues": [
+            {
+              "path": "root/children/0/children/1/entities/0/label",
+              "code": "schema.invalid",
+              "message": "\"C'\" does not match '^[A-Za-z\\\\u4e00-\\\\u9fff][A-Za-z0-9_\\\\u4e00-\\\\u9fff]{0,63}$'"
+            },
+            {
+              "path": "root/children/0/children/1/entities/1/label",
+              "code": "schema.invalid",
+              "message": "\"O'\" does not match '^[A-Za-z\\\\u4e00-\\\\u9fff][A-Za-z0-9_\\\\u4e00-\\\\u9fff]{0,63}$'"
+            },
+            {
+              "path": "root/children/0/children/1/entities/2/label",
+              "code": "schema.invalid",
+              "message": "\"D'\" does not match '^[A-Za-z\\\\u4e00-\\\\u9fff][A-Za-z0-9_\\\\u4e00-\\\\u9fff]{0,63}$'"
+            },
+            {
+              "path": "root/children/0/children/1/facts/0",
+              "code": "schema.invalid",
+              "message": "{'kind': 'translation', 'point': \"C'\", 'original': 'C', 'vector': ['t', '0']} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/facts/1",
+              "code": "schema.invalid",
+              "message": "{'kind': 'translation', 'point': \"O'\", 'original': 'O', 'vector': ['t', '0']} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/facts/2",
+              "code": "schema.invalid",
+              "message": "{'kind': 'translation', 'point': \"D'\", 'original': 'D', 'vector': ['t', '0']} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/facts/3",
+              "code": "schema.invalid",
+              "message": "{'kind': 'length_value', 'segment': \"OO'\", 'value': 't'} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/facts/4",
+              "code": "schema.invalid",
+              "message": "{'kind': 'polygon', 'vertices': \"C'O'D'\"} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/children/0/facts/0",
+              "code": "schema.invalid",
+              "message": "{'kind': 'intersection', 'point': 'E', 'segments': [\"C'D'\", 'AB']} is not valid under any of the given schemas"
+            },
+            {
+              "path": "root/children/0/children/1/children/0/facts/1",
+              "code": "schema.invalid",
+              "message": "{'kind': 'intersection', 'point': 'F', 'segments': [\"O'D'\", 'AB']} is not valid under any of the given schemas"
+            }
+          ],
+          "well_definedness_obligations": [],
+          "constructed_objects": []
+        },
+        "match": {
+          "ok": true,
+          "issues": []
+        }
+      },
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      }
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "passed": false,
+      "strict_semantics_passed": false,
+      "seconds": 71.946,
+      "deepseek_seconds": 66.733,
+      "deepseek_passed": false,
+      "network_attempts": 1,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": {
+        "completion_tokens": 4450,
+        "prompt_tokens": 9749,
+        "total_tokens": 14199
+      },
+      "same_input_as_deepseek": true,
+      "implementation_unchanged": true,
+      "actual_match": {
+        "match_status": "matched",
+        "family_id": "QuadraticPathMinimumSolver",
+        "match_reason": "题面明确给出二次函数（抛物线y=ax²+bx+c），且存在路径最值目标（EG+FG的最小值），路径为无权距离和，仅含辅助性的直角、等长、中点及线段比例关系，不涉及非1权重路径、射线等长替换或正方形反射机制，符合普通二次函数路径最值求解器的适用条件。"
+      },
+      "family_matches_gold": true,
+      "reports": {
+        "ir": {
+          "ok": false,
+          "issues": [
+            {
+              "unit": "r.facts0",
+              "code": "reference.unresolved_or_wrong_kind:x"
+            },
+            {
+              "unit": "r.c1.c1.facts0",
+              "code": "dimension.extremum_mismatch"
+            }
+          ],
+          "well_definedness_obligations": [],
+          "constructed_objects": []
+        },
+        "match": {
+          "ok": true,
+          "issues": []
+        }
+      },
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      }
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "passed": false,
+      "strict_semantics_passed": false,
+      "seconds": 107.877,
+      "deepseek_seconds": 163.683,
+      "deepseek_passed": false,
+      "network_attempts": 1,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": {
+        "completion_tokens": 4263,
+        "prompt_tokens": 11426,
+        "total_tokens": 15689
+      },
+      "same_input_as_deepseek": true,
+      "implementation_unchanged": true,
+      "actual_match": {
+        "match_status": "matched",
+        "family_id": "QuadraticWeightedPathMinimumSolver",
+        "match_reason": "第(25)题第(II)问第②小问明确给出二次函数抛物线，目标路径为带权重的2DM+AM（权重系数2≠1），且明确给出该路径的最小值为5+5√3，符合二次函数加权路径最值求解器的适用条件。"
+      },
+      "family_matches_gold": true,
+      "reports": {
+        "ir": {
+          "ok": false,
+          "issues": [
+            {
+              "unit": "r.facts0",
+              "code": "reference.unresolved_or_wrong_kind:x"
+            },
+            {
+              "unit": "r.c1.c1.facts0",
+              "code": "reference.unresolved_or_wrong_kind:m"
+            },
+            {
+              "unit": "r.c1.c1.facts2",
+              "code": "reference.unresolved_or_wrong_kind:m"
+            },
+            {
+              "unit": "r.c1.c1.facts3",
+              "code": "dimension.extremum_mismatch"
+            },
+            {
+              "scope": "r.c1.c1",
+              "code": "reference.unresolved_or_wrong_kind:m"
+            }
+          ],
+          "well_definedness_obligations": [],
+          "constructed_objects": []
+        },
+        "match": {
+          "ok": true,
+          "issues": []
+        }
+      },
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      }
+    },
+    {
+      "case": "k-quad",
+      "passed": true,
+      "strict_semantics_passed": true,
+      "seconds": 137.412,
+      "deepseek_seconds": 66.831,
+      "deepseek_passed": false,
+      "network_attempts": 1,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": {
+        "completion_tokens": 8303,
+        "prompt_tokens": 9962,
+        "total_tokens": 18265
+      },
+      "same_input_as_deepseek": true,
+      "implementation_unchanged": true,
+      "actual_match": {
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "本题为自定义“k倍四边形”的几何综合题，涉及平行四边形性质、对角线比例关系、三角形面积比、角度倍数关系、三角函数值求解等内容，未出现二次函数、路径最值相关结构，与注册的4个二次函数路径最值求解家族均不匹配。"
+      },
+      "family_matches_gold": true,
+      "reports": {
+        "ir": {
+          "ok": true,
+          "issues": [],
+          "well_definedness_obligations": [
+            {
+              "scope": "r.c0.c1",
+              "code": "nonzero_denominator",
+              "expression": "area_r_c0_c1_e0_r_c0_c1_e1_r_c0_c1_e2"
+            },
+            {
+              "scope": "r.c2",
+              "code": "cos_angle_nonzero",
+              "expression": "angle_r_c2_e0_r_c2_e3_r_c2_e4"
+            }
+          ],
+          "constructed_objects": [
+            {
+              "scope": "r.c0.c0",
+              "point": "O",
+              "lines": [
+                [
+                  "E",
+                  "D"
+                ],
+                [
+                  "A",
+                  "C"
+                ]
+              ],
+              "origin": "source_reference",
+              "existence": "given_by_relation_not_independently_proved"
+            },
+            {
+              "scope": "r.c0.c1",
+              "point": "AutoIntersection1",
+              "lines": [
+                [
+                  "B",
+                  "D"
+                ],
+                [
+                  "A",
+                  "C"
+                ]
+              ],
+              "origin": "code_constructed",
+              "existence": "given_by_relation_not_independently_proved"
+            },
+            {
+              "scope": "r.c1",
+              "point": "AutoIntersection1",
+              "lines": [
+                [
+                  "B",
+                  "D"
+                ],
+                [
+                  "A",
+                  "C"
+                ]
+              ],
+              "origin": "code_constructed",
+              "existence": "given_by_relation_not_independently_proved"
+            },
+            {
+              "scope": "r.c2",
+              "point": "AutoIntersection1",
+              "lines": [
+                [
+                  "B",
+                  "D"
+                ],
+                [
+                  "A",
+                  "C"
+                ]
+              ],
+              "origin": "code_constructed",
+              "existence": "given_by_relation_not_independently_proved"
+            }
+          ]
+        },
+        "match": {
+          "ok": true,
+          "issues": []
+        }
+      },
+      "continuation": {
+        "status": "needs_confirmation",
+        "blocked": true,
+        "error_code": "extraction.missing_figure",
+        "user_action": "supplement_image",
+        "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+        "missing_figures": [
+          {
+            "scope": "r.c0.c0",
+            "label": "(1) 图1",
+            "text": "未提供图1，无法确认四边形顶点顺序、交点位置等图形信息。"
+          },
+          {
+            "scope": "r.c0.c1",
+            "label": "(1) 图2",
+            "text": "未提供图2，无法确认四边形顶点顺序、对角线交点位置及比例对应端点。"
+          },
+          {
+            "scope": "r.c1",
+            "label": "(2)",
+            "text": "未提供图3，无法确认四边形顶点顺序、对角线交点位置及角度位置关系。"
+          },
+          {
+            "scope": "r.c2",
+            "label": "(3)",
+            "text": "未提供图4，无法确认点M的方向、点D的位置及四边形顶点顺序等图形信息。"
+          }
+        ]
+      }
+    },
+    {
+      "case": "function-quantifiers",
+      "passed": false,
+      "strict_semantics_passed": false,
+      "seconds": 38.973,
+      "deepseek_seconds": 29.636,
+      "deepseek_passed": false,
+      "network_attempts": 1,
+      "finish_reasons": [
+        "stop"
+      ],
+      "usage": {
+        "completion_tokens": 2033,
+        "prompt_tokens": 9602,
+        "total_tokens": 11635
+      },
+      "same_input_as_deepseek": true,
+      "implementation_unchanged": true,
+      "actual_match": {
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "本题为二次函数与一次函数的恒成立、存在性不等式问题，目标是求参数表达式的最小值与参数取值范围，不涉及射线路径、折线路径、正方形反射或加权路径最值，与注册表中所有二次函数路径最值类求解器的适用场景均不匹配。"
+      },
+      "family_matches_gold": true,
+      "reports": {
+        "ir": {
+          "ok": false,
+          "issues": [
+            {
+              "unit": "r.facts0",
+              "code": "reference.unresolved_or_wrong_kind:x"
+            },
+            {
+              "unit": "r.facts1",
+              "code": "reference.unresolved_or_wrong_kind:x"
+            },
+            {
+              "unit": "r.c0.facts0",
+              "code": "expression.forbidden_node"
+            },
+            {
+              "unit": "r.c1.facts0",
+              "code": "expression.forbidden_node"
+            }
+          ],
+          "well_definedness_obligations": [],
+          "constructed_objects": []
+        },
+        "match": {
+          "ok": true,
+          "issues": []
+        }
+      },
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      }
+    }
+  ]
+}

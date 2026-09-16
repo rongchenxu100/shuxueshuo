@@ -1,0 +1,79 @@
+{
+  "root": {
+    "definitions": [
+      "若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为 k（k ≥ 1），则称该四边形为“k 倍四边形”。"
+    ],
+    "children": [
+      {
+        "label": "(1)图1",
+        "facts": [
+          "parallelogram(A,B,C,D)",
+          "segment(A,C) ∩ segment(B,D) = {O}",
+          "E = midpoint(O,B)",
+          "k ≥ 1",
+          "(cut_ratio(AC,ED) = 1 ∧ (cut_ratio(ED,AC) = k ∨ cut_ratio(ED,AC) = 1/k)) ∨ (cut_ratio(ED,AC) = 1 ∧ (cut_ratio(AC,ED) = k ∨ cut_ratio(AC,ED) = 1/k))"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "k"
+          }
+        ]
+      },
+      {
+        "label": "(1)图2",
+        "facts": [
+          "quadrilateral(A,B,C,D)",
+          "k ≥ 1",
+          "(cut_ratio(AC,BD) = 1 ∧ (cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k)) ∨ (cut_ratio(BD,AC) = 1 ∧ (cut_ratio(AC,BD) = k ∨ cut_ratio(AC,BD) = 1/k))",
+          "cut_ratio(AC,BD) = 1"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "area(△ACD)/area(△ACB)",
+            "in_terms_of": ["k"]
+          }
+        ]
+      },
+      {
+        "label": "(2)",
+        "facts": [
+          "quadrilateral(A,B,C,D)",
+          "k ≥ 1",
+          "(cut_ratio(AC,BD) = 1 ∧ (cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k)) ∨ (cut_ratio(BD,AC) = 1 ∧ (cut_ratio(AC,BD) = k ∨ cut_ratio(AC,BD) = 1/k))",
+          "cut_ratio(AC,BD) = 1",
+          "∠BDC = 2*∠ABD",
+          "BD = 4*CD"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "k"
+          }
+        ]
+      },
+      {
+        "label": "(3)",
+        "facts": [
+          "A、B为定点；C为动点；D为平面内一点。",
+          "line(A,B) ⟂ line(B,M)",
+          "C ∈ ray(B,M)",
+          "quadrilateral(A,B,C,D)",
+          "cut_ratio(AC,BD) = 1",
+          "∠BAC = ∠DAC",
+          "(cut_ratio(AC,BD) = 1 ∧ (cut_ratio(BD,AC) = 2 ∨ cut_ratio(BD,AC) = 1/2)) ∨ (cut_ratio(BD,AC) = 1 ∧ (cut_ratio(AC,BD) = 2 ∨ cut_ratio(AC,BD) = 1/2))"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "tan(∠ACD)"
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "unmatched",
+  "family_id": null,
+  "match_reason": "题目为四边形新定义与几何计算，未涉及二次函数或路径最值等注册题型特征。"
+}

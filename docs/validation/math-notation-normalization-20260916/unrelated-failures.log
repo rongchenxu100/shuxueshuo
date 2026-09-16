@@ -1,0 +1,58 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+__________ test_annotated_plan_schema_snapshot_matches_runtime_schema __________
+
+    def test_annotated_plan_schema_snapshot_matches_runtime_schema() -> None:
+        checked_in = json.loads(
+            (ROOT / "internal/schemas/functional-annotated-plan.schema.json").read_text()
+        )
+>       assert checked_in == functional_annotated_plan_schema()
+E       AssertionError: assert {'$defs': {'a...': False, ...} == {'$defs': {'a...': False, ...}
+E         
+E         Omitting 7 identical items, use -vv to show
+E         Differing items:
+E         {'$defs': {'annotated_goal': {'additionalProperties': False, 'properties': {'answer_from': {'$ref': '#/$defs/answer_fr...}, 'step_id': {'pattern': '^[A-Za-z][A-Za-z0-9_]*$', 'type': 'string'}}, 'required': ['step_id', 'return'], ...}, ...}} != {'$defs': {'annotated_goal': {'additionalProperties': False, 'properties': {'answer_from': {'$ref': '#/$defs/answer_fr...}, 'step_id': {'pattern': '^[A-Za-z][A-Za-z0-9_]*$', 'type': 'string'}}, 'required': ['step_id', 'return'], ...}, ...}}
+E         Use -v to get more diff
+
+tests/solver/test_functional_scope_retry.py:217: AssertionError
+___________ test_scope_repair_schema_snapshot_matches_runtime_schema ___________
+
+    def test_scope_repair_schema_snapshot_matches_runtime_schema() -> None:
+        checked_in = json.loads(
+            (ROOT / "internal/schemas/functional-scope-repair.schema.json").read_text()
+        )
+>       assert checked_in == functional_scope_repair_schema()
+E       AssertionError: assert {'$defs': {'a...': False, ...} == {'$defs': {'a...': False, ...}
+E         
+E         Omitting 7 identical items, use -vv to show
+E         Differing items:
+E         {'$defs': {'answer_from': {'additionalProperties': False, 'description': 'The single step return that produces this Go...'minProperties': 1, 'type': 'object'}, ...}, 'required': ['step_id', 'capability_id', 'args'], 'type': 'object'}, ...}} != {'$defs': {'answer_from': {'additionalProperties': False, 'description': 'The single step return that produces this Go...'minProperties': 1, 'type': 'object'}, ...}, 'required': ['step_id', 'capability_id', 'args'], 'type': 'object'}, ...}}
+E         Use -v to get more diff
+
+tests/solver/test_functional_scope_retry.py:224: AssertionError
+_____ test_direct_problem_ir_prompt_is_compact_and_omits_student_work_text _____
+
+tmp_path = PosixPath('/private/var/folders/wl/4_4jw_wx531_248clmdd8njm0000gn/T/pytest-of-haorong/pytest-2271/test_direct_problem_ir_prompt_0')
+
+    def test_direct_problem_ir_prompt_is_compact_and_omits_student_work_text(tmp_path) -> None:
+        _, result, _, _, pack = make_f3_fixture(tmp_path, colored_ink=True)
+        prompt = build_multimodal_prompt(pack, expected_problem_id="synthetic-f2")
+        handwritten_text = {
+            item.text
+            for item in result.observation.text_spans
+            if item.origin == "handwritten" and item.text
+        }
+    
+>       assert len(prompt.user_debug.encode("utf-8")) <= 12_500
+E       assert 13351 <= 12500
+E        +  where 13351 = len(b'\xe8\xaf\xb7\xe6\x8c\x89 page order \xe9\x98\x85\xe8\xaf\xbb\xe4\xb8\x8b\xe9\x9d\xa2\xe7\x9a\x84\xe5\xae\x8c\xe6\x95...e8\xa1\x8c\xe8\xae\xa1\xe7\xae\x97\xe6\x96\xb0\xe7\x9a\x84\xe9\xa2\x98\xe7\x9b\xae\xe6\x9d\xa1\xe4\xbb\xb6\xe3\x80\x82')
+E        +    where b'\xe8\xaf\xb7\xe6\x8c\x89 page order \xe9\x98\x85\xe8\xaf\xbb\xe4\xb8\x8b\xe9\x9d\xa2\xe7\x9a\x84\xe5\xae\x8c\xe6\x95...e8\xa1\x8c\xe8\xae\xa1\xe7\xae\x97\xe6\x96\xb0\xe7\x9a\x84\xe9\xa2\x98\xe7\x9b\xae\xe6\x9d\xa1\xe4\xbb\xb6\xe3\x80\x82' = <built-in method encode of str object at 0x967674000>('utf-8')
+E        +      where <built-in method encode of str object at 0x967674000> = '请按 page order 阅读下面的完整题目图片。图片覆盖全部题干和小问；辅助OCR可能有误，冲突时以图片为准。\n\n[完整题目图片按 page order 插入此处]\n\n辅助观察：\n{"origin_summary":[{...仍独立。\n- 冗余括号和幂记号的等价写法由代码比较处理，不构成题意差异。分母、根号、正负号、严格不等号及作用域变化不是格式差异。\n- 以上规则不允许补入计算所得坐标、答案或手写演算。原图只给构造时保留构造，不能自行计算新的题目条件。'.encode
+E        +        where '请按 page order 阅读下面的完整题目图片。图片覆盖全部题干和小问；辅助OCR可能有误，冲突时以图片为准。\n\n[完整题目图片按 page order 插入此处]\n\n辅助观察：\n{"origin_summary":[{...仍独立。\n- 冗余括号和幂记号的等价写法由代码比较处理，不构成题意差异。分母、根号、正负号、严格不等号及作用域变化不是格式差异。\n- 以上规则不允许补入计算所得坐标、答案或手写演算。原图只给构造时保留构造，不能自行计算新的题目条件。' = MultimodalExtractionPrompt(system='你是数学题图片到 Problem 领域图的多模态提取器。\n完整题目图片是语义权威，OCR仅作辅助；忽略学生答案、演算、批注和辅助线。\n只输出严格匹配 respon...码比较处理，不构成题意差异。分母、根号、正负号、严格不等号及作用域变化不是格式差异。\n- 以上规则不允许补入计算所得坐标、答案或手写演算。原图只给构造时保留构造，不能自行计算新的题目条件。', includes_images=True).user_debug
+
+tests/solver/test_problem_extraction_evidence_pack.py:103: AssertionError
+=========================== short test summary info ============================
+FAILED tests/solver/test_functional_scope_retry.py::test_annotated_plan_schema_snapshot_matches_runtime_schema
+FAILED tests/solver/test_functional_scope_retry.py::test_scope_repair_schema_snapshot_matches_runtime_schema
+FAILED tests/solver/test_problem_extraction_evidence_pack.py::test_direct_problem_ir_prompt_is_compact_and_omits_student_work_text
+3 failed in 1.11s

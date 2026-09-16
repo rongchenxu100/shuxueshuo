@@ -1,0 +1,292 @@
+{
+  "attempt_number": 2,
+  "attempt_id": "attempt-problem-domain:4ab796cab889097c67c01dc6bf167f718bdc1a98c92825109199409043d0ae79",
+  "contract_version": "problem-domain/v1",
+  "result": "failed",
+  "patch_id": null,
+  "resulting_revision_id": "problem-revision:78449f6adb9e06b79272733ca5a0fb30de7a96dffb1e696cc5c7ea96be0d264d",
+  "validation": {
+    "ok": false,
+    "validator_ids": [
+      "scope/v1",
+      "lexical-reference/v1",
+      "expression/v1",
+      "entity-use/v1",
+      "source-literal/v2",
+      "source-kind/v1",
+      "fact-redundancy/v1",
+      "curve-ordinate/v1",
+      "definition-conflict/v1",
+      "goal/v1",
+      "source-review/v1",
+      "family-contract/v2",
+      "runtime-projection/v1",
+      "method-readiness/v1",
+      "context-build/v1"
+    ],
+    "issue_signature": "1f283b46cd41c6f03bc87418740c010ea4c84c39b5b401c42da6a8e2aa46042b",
+    "issues": [
+      {
+        "code": "extraction.problem_entity_unreferenced",
+        "unit_ids": [
+          "entity:root/q1:AECD"
+        ],
+        "dependency_unit_ids": [],
+        "message": "entity 'AECD' is not used by any Entity, Fact, Goal, or expression",
+        "repair_action": "remove the decorative entity, or reference it from the source-visible mathematical relation that gives it identity",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_entity_unreferenced",
+        "unit_ids": [
+          "entity:root:ABCD"
+        ],
+        "dependency_unit_ids": [],
+        "message": "entity 'ABCD' is not used by any Entity, Fact, Goal, or expression",
+        "repair_action": "remove the decorative entity, or reference it from the source-visible mathematical relation that gives it identity",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_family_contract_mismatch",
+        "unit_ids": [
+          "family"
+        ],
+        "dependency_unit_ids": [],
+        "message": "equal-length-ray family requires a named ray, ray membership, and equal length",
+        "repair_action": "remove source-ungrounded mechanism units, or replace only family_id when every retained mechanism is explicitly printed",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_family_contract_mismatch",
+        "unit_ids": [
+          "family"
+        ],
+        "dependency_unit_ids": [
+          "scope:root",
+          "scope:root/q1",
+          "scope:root/q2",
+          "scope:root/q3"
+        ],
+        "message": "selected family QuadraticEqualLengthRayPathMinimumSolver is missing required source primitives: [\"fact_type ['equal_length_condition']: 题面必须明确给出参与路径替换的等长条件。\"]",
+        "repair_action": "repair the missing source fact/entity or select the family actually described by the image",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_unresolved",
+        "unit_ids": [
+          "fact:root/q2:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "entity:root/q1:O"
+        ],
+        "dependency_unit_ids": [
+          "scope:root"
+        ],
+        "message": "point references 'O', which is not visible from 'root/q2'; sibling access is forbidden; matching source identity exists outside lexical scope at 'root/q1'",
+        "repair_action": "move the matching declaration to the nearest common ancestor, declare the entity in a visible scope, or correct the local reference",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_unresolved",
+        "unit_ids": [
+          "fact:root/q2:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "entity:root/q1:O"
+        ],
+        "dependency_unit_ids": [
+          "scope:root"
+        ],
+        "message": "point references 'O', which is not visible from 'root/q2'; sibling access is forbidden; matching source identity exists outside lexical scope at 'root/q1'",
+        "repair_action": "move the matching declaration to the nearest common ancestor, declare the entity in a visible scope, or correct the local reference",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_unresolved",
+        "unit_ids": [
+          "fact:root/q2:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836",
+          "entity:root/q1:O"
+        ],
+        "dependency_unit_ids": [
+          "scope:root"
+        ],
+        "message": "point references 'O', which is not visible from 'root/q2'; sibling access is forbidden; matching source identity exists outside lexical scope at 'root/q1'",
+        "repair_action": "move the matching declaration to the nearest common ancestor, declare the entity in a visible scope, or correct the local reference",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_unresolved",
+        "unit_ids": [
+          "fact:root/q3:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "entity:root/q1:O"
+        ],
+        "dependency_unit_ids": [
+          "scope:root"
+        ],
+        "message": "point references 'O', which is not visible from 'root/q3'; sibling access is forbidden; matching source identity exists outside lexical scope at 'root/q1'",
+        "repair_action": "move the matching declaration to the nearest common ancestor, declare the entity in a visible scope, or correct the local reference",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_unresolved",
+        "unit_ids": [
+          "fact:root/q3:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "entity:root/q1:O"
+        ],
+        "dependency_unit_ids": [
+          "scope:root"
+        ],
+        "message": "point references 'O', which is not visible from 'root/q3'; sibling access is forbidden; matching source identity exists outside lexical scope at 'root/q1'",
+        "repair_action": "move the matching declaration to the nearest common ancestor, declare the entity in a visible scope, or correct the local reference",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_unresolved",
+        "unit_ids": [
+          "fact:root/q3:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836",
+          "entity:root/q1:O"
+        ],
+        "dependency_unit_ids": [
+          "scope:root"
+        ],
+        "message": "point references 'O', which is not visible from 'root/q3'; sibling access is forbidden; matching source identity exists outside lexical scope at 'root/q1'",
+        "repair_action": "move the matching declaration to the nearest common ancestor, declare the entity in a visible scope, or correct the local reference",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_unresolved",
+        "unit_ids": [
+          "goal:root/q1:5d826aa42381293da063f9b129f92221fbaa593ce2961c08ff7828496dbea351"
+        ],
+        "dependency_unit_ids": [],
+        "message": "target references 'area_ratio', which is not visible from 'root/q1'; sibling access is forbidden",
+        "repair_action": "move the matching declaration to the nearest common ancestor, declare the entity in a visible scope, or correct the local reference",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_unresolved",
+        "unit_ids": [
+          "goal:root/q3:499266aaf7594e50a7fb9b4d34323e1d41075b101fdf917a2881fdabd0ae9b27"
+        ],
+        "dependency_unit_ids": [],
+        "message": "target references 'tan_ACD', which is not visible from 'root/q3'; sibling access is forbidden",
+        "repair_action": "move the matching declaration to the nearest common ancestor, declare the entity in a visible scope, or correct the local reference",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_runtime_projection_failed",
+        "unit_ids": [
+          "scope:root"
+        ],
+        "dependency_unit_ids": [],
+        "message": "entity reference 'O' is not visible from 'root/q2'",
+        "repair_action": "repair the referenced domain units; code will not synthesize missing semantics",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_source_literal_unresolved",
+        "unit_ids": [
+          "entity:root:A",
+          "fact:root/q1:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "fact:root/q1:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836",
+          "fact:root/q2:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "fact:root/q2:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836",
+          "fact:root/q3:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "fact:root/q3:87dd215939380047e0d3c1b56a20d6bc645fdfe6c0eac1219de3f594490d1893",
+          "fact:root/q3:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836"
+        ],
+        "dependency_unit_ids": [],
+        "message": "entity source label 'A' is not visible in scope source text",
+        "repair_action": "replace the label with the printed source name or remove the invented entity",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_source_literal_unresolved",
+        "unit_ids": [
+          "entity:root:ABCD"
+        ],
+        "dependency_unit_ids": [],
+        "message": "entity source label 'ABCD' is not visible in scope source text",
+        "repair_action": "replace the label with the printed source name or remove the invented entity",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_source_literal_unresolved",
+        "unit_ids": [
+          "entity:root:B",
+          "fact:root/q1:0cc7b1a86e613030ebf773dd20a72f89f4fd3d1145fc86ddac41e4ccda406022",
+          "fact:root/q1:0d12f23abc54212fd02394f7e8aa1edf292bb5ecc151ccbbd8ca08ea02676f60",
+          "fact:root/q1:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "fact:root/q1:71e9b4571f82121fb53f83e6f1482a5812b6c4847f0110501ecbd92686dff46f",
+          "fact:root/q2:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "fact:root/q2:322af7a5c4c4655c671b471eefc64b80d48fe4a6f66ef75ae7fa08a127f9a5d8",
+          "fact:root/q3:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "fact:root/q3:87dd215939380047e0d3c1b56a20d6bc645fdfe6c0eac1219de3f594490d1893"
+        ],
+        "dependency_unit_ids": [],
+        "message": "entity source label 'B' is not visible in scope source text",
+        "repair_action": "replace the label with the printed source name or remove the invented entity",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_source_literal_unresolved",
+        "unit_ids": [
+          "entity:root:C",
+          "fact:root/q1:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "fact:root/q1:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836",
+          "fact:root/q2:322af7a5c4c4655c671b471eefc64b80d48fe4a6f66ef75ae7fa08a127f9a5d8",
+          "fact:root/q2:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "fact:root/q2:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836",
+          "fact:root/q3:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "fact:root/q3:7d1924d4418a1b1b98cf636633e02c444f5e02f9cadd54e5618e795d7069fe11",
+          "fact:root/q3:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836"
+        ],
+        "dependency_unit_ids": [],
+        "message": "entity source label 'C' is not visible in scope source text",
+        "repair_action": "replace the label with the printed source name or remove the invented entity",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_source_literal_unresolved",
+        "unit_ids": [
+          "entity:root:D",
+          "fact:root/q1:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "fact:root/q1:71e9b4571f82121fb53f83e6f1482a5812b6c4847f0110501ecbd92686dff46f",
+          "fact:root/q2:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "fact:root/q2:322af7a5c4c4655c671b471eefc64b80d48fe4a6f66ef75ae7fa08a127f9a5d8",
+          "fact:root/q3:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a"
+        ],
+        "dependency_unit_ids": [],
+        "message": "entity source label 'D' is not visible in scope source text",
+        "repair_action": "replace the label with the printed source name or remove the invented entity",
+        "region_refs": [],
+        "retryable": true
+      }
+    ]
+  },
+  "source_review": null,
+  "structured_error": {
+    "code": "extraction.problem_entity_unreferenced",
+    "unit_ids": [
+      "entity:root/q1:AECD"
+    ],
+    "dependency_unit_ids": [],
+    "message": "entity 'AECD' is not used by any Entity, Fact, Goal, or expression",
+    "repair_action": "remove the decorative entity, or reference it from the source-visible mathematical relation that gives it identity",
+    "region_refs": [],
+    "retryable": true
+  }
+}

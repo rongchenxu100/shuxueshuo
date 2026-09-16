@@ -1,0 +1,67 @@
+{
+  "root": {
+    "definitions": [
+      "Γ: y = a*x^2+b*x-3"
+    ],
+    "facts": [
+      "a > 0",
+      "A = (-1,0)",
+      "Γ ∩ x_axis = {A,B}",
+      "Γ ∩ y_axis = {C}",
+      "D = C+(2,0)",
+      "O = (0,0)"
+    ],
+    "children": [
+      {
+        "label": "（I）",
+        "facts": [
+          "D ∈ Γ"
+        ],
+        "children": [
+          {
+            "label": "①",
+            "goals": [
+              {
+                "kind": "find_equation",
+                "object": "Γ"
+              }
+            ]
+          },
+          {
+            "label": "②",
+            "facts": [
+              "E ∈ Γ",
+              "x(E) = m",
+              "m > -1 ∧ m < 0",
+              "∠CBE + ∠ACO = 45°"
+            ],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "E"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "（II）",
+        "facts": [
+          "M ∈ segment(B,C)",
+          "N ∈ ray(C,D)",
+          "CN = CM",
+          "min(OM+BN) = sqrt(34)"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "a"
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+  "match_reason": "题面包含抛物线 Γ、射线CD、射线上的动点 N 以及等长条件 CN=CM，用于路径 OM+BN 的最小值，符合该题型。"
+}

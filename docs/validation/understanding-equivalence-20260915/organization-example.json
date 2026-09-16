@@ -1,0 +1,121 @@
+{
+  "input_text": "（1）图甲：定点A、B，AC与BD交于一点，AB=k。图乙：动点A在线段BC上，AB=k。",
+  "output": {
+    "schema_version": "problem-domain/v2",
+    "family_id": null,
+    "match_status": "unmatched",
+    "match_reason": "示例注册表为空，没有对应的求解器。",
+    "root": {
+      "label": "整题",
+      "source_text": [],
+      "entities": [],
+      "facts": [],
+      "goals": [],
+      "children": [
+        {
+          "label": "（1）",
+          "source_text": [],
+          "entities": [],
+          "facts": [],
+          "goals": [],
+          "children": [
+            {
+              "label": "图甲",
+              "source_text": [
+                "定点A、B，AC与BD交于一点，AB=k。"
+              ],
+              "entities": [
+                {
+                  "kind": "point",
+                  "label": "A",
+                  "role": "fixed"
+                },
+                {
+                  "kind": "point",
+                  "label": "B",
+                  "role": "fixed"
+                },
+                {
+                  "kind": "point",
+                  "label": "C"
+                },
+                {
+                  "kind": "point",
+                  "label": "D"
+                },
+                {
+                  "kind": "point",
+                  "label": "X"
+                },
+                {
+                  "kind": "scalar",
+                  "label": "k"
+                }
+              ],
+              "facts": [
+                {
+                  "kind": "intersection",
+                  "point": "X",
+                  "segments": [
+                    "AC",
+                    "BD"
+                  ]
+                },
+                {
+                  "kind": "length_value",
+                  "segment": "AB",
+                  "value": "k"
+                }
+              ],
+              "goals": [],
+              "children": [],
+              "uncertainties": []
+            },
+            {
+              "label": "图乙",
+              "source_text": [
+                "动点A在线段BC上，AB=k。"
+              ],
+              "entities": [
+                {
+                  "kind": "point",
+                  "label": "A",
+                  "role": "moving"
+                },
+                {
+                  "kind": "point",
+                  "label": "B"
+                },
+                {
+                  "kind": "point",
+                  "label": "C"
+                },
+                {
+                  "kind": "scalar",
+                  "label": "k"
+                }
+              ],
+              "facts": [
+                {
+                  "kind": "point_on_segment",
+                  "point": "A",
+                  "segment": "BC"
+                },
+                {
+                  "kind": "length_value",
+                  "segment": "AB",
+                  "value": "k"
+                }
+              ],
+              "goals": [],
+              "children": [],
+              "uncertainties": []
+            }
+          ],
+          "uncertainties": []
+        }
+      ],
+      "uncertainties": []
+    }
+  }
+}

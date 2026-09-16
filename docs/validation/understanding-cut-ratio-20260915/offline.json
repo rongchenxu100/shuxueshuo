@@ -1,0 +1,25 @@
+{
+  "passed": 207,
+  "skipped_live_disabled": 6,
+  "new_cut_ratio_tests": 19,
+  "legacy_five_case_gold_unchanged": true,
+  "ruff": "passed",
+  "diff_check": "passed",
+  "command": ".venv/bin/pytest -q tests/solver/test_understanding_cut_ratio.py tests/solver/test_understanding_equivalence.py tests/solver/test_understanding_v2.py tests/solver/test_understanding_authoring.py tests/solver/test_problem_domain_recorded.py tests/solver/test_problem_source_review.py tests/solver/test_deepseek_vision.py --tb=short",
+  "implementation_files": {
+    "__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+    "algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+    "authoring.py": "614ad316f5a594dc78b5ad89b76132a2f0301d15675e8fb13252e85c233d3e54",
+    "comparison.py": "810533225c514427673471e8995432a2ab9962169b060696eebe57cf29ca635e",
+    "contracts.py": "f8caa085cbbe934d26e01220a1d62c21c35ed52776ed33138926c12227a5bfb6",
+    "equivalence.py": "5da9410a55b7b85acf23fffa5cb8db3916766acf4abaad45a9f1932e7d8d3a11",
+    "identity.py": "928775ee9a74fd4113141f4f606a6f9b740be39d62d77b26e43b91159ab06ed8",
+    "intersections.py": "77cf88ca0c36f7f729af3eebfef99c2705e667cb7478e99406c1d99f4d79d0eb",
+    "measure.py": "b22acc559c8a9c7cb2f034321b07c79a571b5c90fe700a313bb01a778d5a0aa3",
+    "normalization.py": "e24f157ce67b7c65510b3ac4e08c4936e6fa1ae49d22acab7dfdcc733c38ffa4",
+    "prompt.py": "e9f8fc72b6ea9b5b06620807cd6360f099920c2f1b6b535422454dc866954965",
+    "service.py": "71a58ff4896850870e85ba5ffbf454f6850629729d3ab22c5ca6c25e032bab38",
+    "smoke.py": "f3ec81e04d458a6240e82e374cd8b441ec7888a99da55822693bf51eaa26fa84",
+    "validation.py": "30983273d599b3b5b5768186f30a9a72e7550502e588a521e9342fec624406ec"
+  }
+}

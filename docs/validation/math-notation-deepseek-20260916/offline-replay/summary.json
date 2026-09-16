@@ -1,0 +1,225 @@
+{
+  "offline_replay_only": true,
+  "network_calls": 0,
+  "source_batch": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/math-notation-deepseek-20260916",
+  "live_passed": 1,
+  "replay_passed": 1,
+  "implementation_files": {
+    "__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+    "acceptance.py": "e2e285f1a66367c33b9daef40d694651826c236efe6f096a9daa13b63905bb75",
+    "algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+    "authoring.py": "bb5981090d28218fa982e89d99deb92430505ace1f71e0858173ab41a3837118",
+    "batch_smoke.py": "969ca5766349a675fe48f0885f29c593b767ddbd6edc1a093931b90c02acd16d",
+    "comparison.py": "810533225c514427673471e8995432a2ab9962169b060696eebe57cf29ca635e",
+    "comparison_provider.py": "24b12606f368f460a9b82b46327d5abc4052548779bff27ddc1f48cbf21cd688",
+    "contracts.py": "cb45ad8b122498ec8aa4ff9a95db5ec1f80a99c2ff3370ca06bcb3dce675d0c7",
+    "equivalence.py": "5da9410a55b7b85acf23fffa5cb8db3916766acf4abaad45a9f1932e7d8d3a11",
+    "geometry_consistency.py": "32b45934d947782fbef6284fce8d36e0322693187e3cb5cb520d2207c64fd88b",
+    "identity.py": "928775ee9a74fd4113141f4f606a6f9b740be39d62d77b26e43b91159ab06ed8",
+    "intersections.py": "77cf88ca0c36f7f729af3eebfef99c2705e667cb7478e99406c1d99f4d79d0eb",
+    "measure.py": "ee594ab69b48fe81e063dcb60d1185848b45c52c7f11e4278049316e001a812b",
+    "normalization.py": "e24f157ce67b7c65510b3ac4e08c4936e6fa1ae49d22acab7dfdcc733c38ffa4",
+    "notation_compile.py": "7b6cfaf877e773291f1f8bde41e26d5265750383ac418731c2bd2d62847eb886",
+    "notation_contract.py": "33a323ff1acd2fea2d397b88fb2a8dd9d0fd41ba10d9b72afdc188656797c746",
+    "notation_parser.py": "324b9bb05f3eff6c68bd1daeb15fa7f82a1ad5bec744b64e2204fb6c3e0ff2ed",
+    "notation_replay.py": "6af46530671d72cef9f6945fa0893fc2d8f097d8009b206eb4d8739dc5311193",
+    "notation_semantics.py": "6c395eb3b8b73b86c07c2ed1f3cd3d059573c2deb842559a957ea79e381062dc",
+    "notation_service.py": "df440327a058c25d4f6d15970d0dac60ad595ced41c53981482c3beb99cc9e9a",
+    "prompt.py": "92d3bcc01b4014299a55afff50f1b5b01131d3ce8d31cbe3fcb5a9a48980d627",
+    "service.py": "f9e3a2a6b426493756e0882ed9fa3f91ab068c0e6a33b60a904aa98451822e5c",
+    "smoke.py": "f627d858783c88712915e4b8e5a831d65eafe78d3b7d2816b56bedfd21c9de34",
+    "validation.py": "88eac906b043f4a1c7646a02aefa89584b94e5c69fee64fd0707af4f0cd6c46a",
+    "wire.py": "31317a6be6b6dcb8aadeba4a95cb737ff34b2423163aabc5d8f2e70ad0f8291c"
+  },
+  "results": {
+    "tj-2026-heping-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 22,
+      "replay_parse_issues": 22,
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      },
+      "elapsed_seconds": 51.677,
+      "usage": {
+        "completion_tokens": 10673,
+        "prompt_tokens": 3847,
+        "total_tokens": 14520,
+        "prompt_cache_hit_tokens": 3072,
+        "prompt_cache_miss_tokens": 775
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "3aeaff814ca4268fbc05539353f4246f731eef082434ba95ef1ce4b19e447f98",
+      "frozen_request_sha256": "9d5a01b42e19e38d1716d052a254a8cb54b811e00842ea4609ee4828134d0647",
+      "request_contract": null
+    },
+    "tj-2026-heping-ermo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 13,
+      "replay_parse_issues": 13,
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      },
+      "elapsed_seconds": 37.776,
+      "usage": {
+        "completion_tokens": 7889,
+        "prompt_tokens": 3721,
+        "total_tokens": 11610,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 3721
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "591f50c9f2b966a4c67571288e15711b309db9be0ddf23673ceed58f85ff1576",
+      "frozen_request_sha256": "935f6bc482fea82fe7c32cd5373622322d1d65f1b83fb7b3c80d825c848c31e5",
+      "request_contract": null
+    },
+    "tj-2026-hexi-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 12,
+      "replay_parse_issues": 12,
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      },
+      "elapsed_seconds": 43.361,
+      "usage": {
+        "completion_tokens": 8690,
+        "prompt_tokens": 3658,
+        "total_tokens": 12348,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 3658
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "1508f1d11cfb50fab048546d4ea1fe502537a74dcb670c14a971e18f6f23b998",
+      "frozen_request_sha256": "84df30f1f404578b2578a77061bc63267698bbaf310459dea9cb586f18be3c61",
+      "request_contract": null
+    },
+    "tj-2026-nankai-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 18,
+      "replay_parse_issues": 17,
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      },
+      "elapsed_seconds": 40.023,
+      "usage": {
+        "completion_tokens": 9120,
+        "prompt_tokens": 3751,
+        "total_tokens": 12871,
+        "prompt_cache_hit_tokens": 3072,
+        "prompt_cache_miss_tokens": 679
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "2e672e55db86cf96eac8106ee45f5dc7ae79bcf4cb529887cc76b3110e21a9e4",
+      "frozen_request_sha256": "ec0e6214426f360658ec36fb1f3bd435f4cf96bdd3632f4b4a77e7a0e068f959",
+      "request_contract": null
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 9,
+      "replay_parse_issues": 9,
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      },
+      "elapsed_seconds": 44.629,
+      "usage": {
+        "completion_tokens": 9110,
+        "prompt_tokens": 3586,
+        "total_tokens": 12696,
+        "prompt_cache_hit_tokens": 3072,
+        "prompt_cache_miss_tokens": 514
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "83261502a34d9218a4aa63040d058eee6e46b6a474d343029001bf123baf40c7",
+      "frozen_request_sha256": "eaf8064e62544c580debf1c698c6b17be71d8634cd20de0c2d53c0ce27a6c536",
+      "request_contract": null
+    },
+    "k-quad": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 17,
+      "replay_parse_issues": 16,
+      "continuation": {
+        "status": "needs_confirmation",
+        "blocked": true,
+        "error_code": "extraction.missing_figure",
+        "user_action": "supplement_image",
+        "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+        "missing_figures": [
+          {
+            "scope": "r",
+            "label": "题目",
+            "text": "题面引用的图1、图2、图3、图4未在提供的图片中显示。"
+          }
+        ]
+      },
+      "elapsed_seconds": 35.394,
+      "usage": {
+        "completion_tokens": 8283,
+        "prompt_tokens": 3832,
+        "total_tokens": 12115,
+        "prompt_cache_hit_tokens": 3072,
+        "prompt_cache_miss_tokens": 760
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "dbe8b03fc34d7c3f89c518af340d95fb170783d0ced04aad6b57cee036e4fe98",
+      "frozen_request_sha256": "b007cdf6001053034f2b9a7317b47fc18b91b129cd31eaf59eb9427544382fea",
+      "request_contract": null
+    },
+    "function-quantifiers": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 19.262,
+      "usage": {
+        "completion_tokens": 3775,
+        "prompt_tokens": 3457,
+        "total_tokens": 7232,
+        "prompt_cache_hit_tokens": 3072,
+        "prompt_cache_miss_tokens": 385
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "e6f793ea0e7df2615a8c3a65b283f25432af9df6d3fd956de245204c66ba33b6",
+      "frozen_request_sha256": "b05e59343409301cd6dfb4636cdc2be16bc49c5056231e4e1289a2977bb93b8c",
+      "request_contract": null
+    }
+  }
+}

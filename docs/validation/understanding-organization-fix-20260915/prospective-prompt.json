@@ -1,0 +1,1734 @@
+{
+  "system": "从完整原图理解题目，OCR仅作辅助；忽略学生答案、演算和批注，不把它们加入题设；不求解、不输出答案。输出一份整题problem-domain/v2 JSON，包含root、family_id、match_status、match_reason。\n按题面编号组织children。同一编号内有独立图景时，在该编号下继续分children，不提升为根层同级节点。\n每段原文只放直接所属节点的source_text；父节点不复写子节点原文，没有独立文字填[]。\n对象用原名A、B、k，在所属图景声明；仅题面明确共用的同一对象或参数放父层。题内定义使用同一个参数字母，不代表各独立图景共享该参数；各图景分别声明。不加前缀或ID。本层未声明的名字由代码向父层查找，不访问兄弟节点；跨问沿用不明确则记ambiguous_reuse。\n为表达条件必需的未命名交点，允许取本图景内未占用的局部名字，声明point并填写intersection；不同图景可以重复使用该名字。已有明确指代的点用原名。身份和等价判断交给代码。\nrole仅在原文明确“定点”或“动点”时填写fixed或moving，其余省略；不判断given/constructed。\n完整保留可读条件和所求；缺图、模糊或不能表达的内容写在对应层uncertainties，不猜条件、不默认交点在内部。\n题目可能临时定义概念或运算。以本题定义为准，不按名称套用含义。将定义应用到各小问具体对象，直接输出通用基础fact，保留定义原文。不新造题内术语类型，不输出模板/形参/实例。未确定的选择和比例方向用any_of保留；只展开定义，不推导答案。\n匹配不到已注册Solver能力时match_status=unmatched、family_id=null，match_reason说明具体缺口；仍完整输出IR。matched必须填写提供的family_id。合法IR并不表示Solver能够求解。\n常见关系用扁平fact。几何简写AB、ABC仅用于单个大写字母点名，否则用点名数组。比例[u,v]按对象顺序表示第一个:第二个=u:v，不能颠倒。角为非定向内角/度，面积无向。复杂表达式可用精确数字、参数、+-*/^、sqrt、length(A,B)、angle(A,B,C)、area(A,B,C)、x(P)、y(P)、degrees(90)、length_units(2)、area_units(3)、tan(angle(A,B,C))，不输出运算树；量纲必须一致。实体kind为point/scalar/curve。\n只返回完整JSON，不输出Markdown。没有的数组填[]，不要输出运行时产物、哈希、来源ID或采用状态。",
+  "user": {
+    "registered_families": [
+      {
+        "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+        "title": "二次函数等长射线路径最值",
+        "use_when": "题面同时明确给出射线、射线上的动点和与该动点相关的等长条件，且这些结构直接承担路径和的等价替换。",
+        "required_source_primitives": [
+          {
+            "primitive_kind": "entity_type",
+            "primitive_types": [
+              "ray"
+            ],
+            "min_count": 1,
+            "description": "题面必须明确声明一条射线，而不是普通线段或直线。"
+          },
+          {
+            "primitive_kind": "fact_type",
+            "primitive_types": [
+              "point_on_ray"
+            ],
+            "min_count": 1,
+            "description": "题面必须明确声明动点位于该射线上。"
+          },
+          {
+            "primitive_kind": "fact_type",
+            "primitive_types": [
+              "equal_length_condition"
+            ],
+            "min_count": 1,
+            "description": "题面必须明确给出参与路径替换的等长条件。"
+          }
+        ],
+        "do_not_use_when": [
+          "只有直角、等腰或两条普通线段等长，但题面没有射线或射线上动点。",
+          "只是普通两动点距离和，可直接降维和折线拉直。",
+          "核心机制是非1权重路径或正方形反射。"
+        ],
+        "conditional_source_requirements": []
+      },
+      {
+        "family_id": "QuadraticPathMinimumSolver",
+        "title": "普通二次函数路径最值",
+        "use_when": "题面要求普通距离和或折线路径的最小值，允许出现辅助性的直角、等长或中点关系，但路径机制本身不依赖非1权重、射线等长构造或正方形反射。",
+        "required_source_primitives": [
+          {
+            "primitive_kind": "entity_type",
+            "primitive_types": [
+              "function"
+            ],
+            "min_count": 1,
+            "description": "题面必须声明至少一个二次函数对象。"
+          },
+          {
+            "primitive_kind": "fact_type",
+            "primitive_types": [
+              "path_minimum_target",
+              "minimum_value"
+            ],
+            "min_count": 1,
+            "description": "题面必须显式给出路径/距离最值目标或最小值条件。"
+          }
+        ],
+        "do_not_use_when": [
+          "目标路径含明确的非1权重系数，并以加权几何变换为核心。",
+          "题面明确声明射线、射线上动点和等长条件，并用它们替换路径。",
+          "题面以正方形顶点、中点、中心或对角线关系完成路径降维或反射。"
+        ],
+        "conditional_source_requirements": []
+      },
+      {
+        "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+        "title": "二次函数正方形路径最值",
+        "use_when": "题面明确给出二次函数、正方形和路径最值目标，且正方形的中点、中心或邻接关系决定路径等价变换。",
+        "required_source_primitives": [
+          {
+            "primitive_kind": "entity_type",
+            "primitive_types": [
+              "function"
+            ],
+            "min_count": 1,
+            "description": "题面必须声明至少一个二次函数对象。"
+          },
+          {
+            "primitive_kind": "fact_type",
+            "primitive_types": [
+              "square"
+            ],
+            "min_count": 1,
+            "description": "题面必须明确给出正方形事实。"
+          }
+        ],
+        "do_not_use_when": [
+          "题面没有二次函数或明确正方形。",
+          "正方形不参与目标路径的等价变换。",
+          "路径仍含两个独立动点、非直线轨迹或非单位权重。"
+        ],
+        "conditional_source_requirements": []
+      },
+      {
+        "family_id": "QuadraticWeightedPathMinimumSolver",
+        "title": "二次函数加权路径最值",
+        "use_when": "题面目标明确形如 k*PA+PB，且 k 不等于1；该权重是最值目标的一部分，需要加权几何变换后才能使用最短路径。",
+        "required_source_primitives": [
+          {
+            "primitive_kind": "entity_type",
+            "primitive_types": [
+              "function"
+            ],
+            "min_count": 1,
+            "description": "题面必须声明至少一个二次函数对象。"
+          },
+          {
+            "primitive_kind": "fact_type",
+            "primitive_types": [
+              "path_minimum_target"
+            ],
+            "min_count": 1,
+            "description": "必须用 path_minimum_target 声明完整带权路径；sibling 比例事实不可替代。"
+          },
+          {
+            "primitive_kind": "fact_type",
+            "primitive_types": [
+              "minimum_value"
+            ],
+            "min_count": 1,
+            "description": "题面必须直接提出或给出路径最小值。"
+          }
+        ],
+        "do_not_use_when": [
+          "系数只出现在函数、方程或普通线段比例中，而不是路径目标的权重。",
+          "目标只是两个无权距离之和，即使题面另有直角或等长关系。",
+          "核心机制是射线等长替换或正方形反射。"
+        ],
+        "conditional_source_requirements": []
+      }
+    ],
+    "ocr_hints": {
+      "pages": [
+        {
+          "page": 1,
+          "lines": [
+            {
+              "text": "定义:若四边形的一条对角线被另一条对角线平分,且另一条对角线被交点分成的两条线段长度之比为k("
+            },
+            {
+              "text": "k≥1),则称该四边形为“k倍四边形”12。"
+            },
+            {
+              "text": "问题:"
+            },
+            {
+              "text": "(1)如图1,在□ABCD 中,对角线AC与BD交于点 O,点E为 OB 中点。若四边形AECD 为k"
+            },
+            {
+              "text": "倍四边形,则k的值为"
+            },
+            {
+              "text": "_____;如图2,在k倍四边形 ABCD中,若对角线 AC被 BD平分,则"
+            },
+            {
+              "text": "S△ACD"
+            },
+            {
+              "text": "S△ACB"
+            },
+            {
+              "text": "(用含k的代数式表示)12。"
+            },
+            {
+              "text": "(2) 如图3,四边形 ABCD 为 k 倍四边形,其对角线 BD 平分对角线 AC,且满足 ∠BDC ="
+            },
+            {
+              "text": "2∠ABD,BD=4CD,求k的值12。"
+            },
+            {
+              "text": "(3) 如图4,已知定点 A、B,且 AB⊥BM,点 C为射线 BM 上一动点,点 D 为平面内一点,连接"
+            },
+            {
+              "text": "A、B、C、D构成四边形ABCD。若BD平分AC,∠BAC=∠DAC,四边形ABCD为2倍"
+            },
+            {
+              "text": "四边形,求tan∠ACD的值12。"
+            }
+          ],
+          "formula_candidates": [
+            {
+              "text": "k\\geq1",
+              "note": "公式候选，以原图为准"
+            },
+            {
+              "text": "2\\angle ABD,BD=4C,",
+              "note": "公式候选，以原图为准"
+            },
+            {
+              "text": "BD=4CD",
+              "note": "公式候选，以原图为准"
+            },
+            {
+              "text": "\\bar{x}\\tan\\angle ACD",
+              "note": "公式候选，以原图为准"
+            },
+            {
+              "text": "\\angle BDC=",
+              "note": "公式候选，以原图为准"
+            },
+            {
+              "text": "\\angle BDC=",
+              "note": "公式候选，以原图为准"
+            },
+            {
+              "text": "\\angle C,\\angle BAC=\\angle DAC,",
+              "note": "公式候选，以原图为准"
+            }
+          ],
+          "notes": []
+        }
+      ]
+    },
+    "response_schema": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "problem-domain/v2"
+        },
+        "root": {
+          "$ref": "#/$defs/Scope"
+        },
+        "family_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "match_status": {
+          "enum": [
+            "matched",
+            "unmatched"
+          ]
+        },
+        "match_reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        }
+      },
+      "required": [
+        "schema_version",
+        "root",
+        "family_id",
+        "match_status",
+        "match_reason"
+      ],
+      "additionalProperties": false,
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$defs": {
+        "Scope": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 8192
+            },
+            "source_text": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8192
+              },
+              "minItems": 0,
+              "maxItems": 64
+            },
+            "entities": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "point",
+                      "scalar",
+                      "curve"
+                    ]
+                  },
+                  "label": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "role": {
+                    "enum": [
+                      "fixed",
+                      "moving"
+                    ]
+                  }
+                },
+                "required": [
+                  "kind",
+                  "label"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 0,
+              "maxItems": 128
+            },
+            "facts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Fact"
+              },
+              "minItems": 0,
+              "maxItems": 128
+            },
+            "goals": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Goal"
+              },
+              "minItems": 0,
+              "maxItems": 64
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Scope"
+              },
+              "minItems": 0,
+              "maxItems": 16
+            },
+            "uncertainties": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "missing_figure",
+                      "ambiguous_symbol",
+                      "unreadable",
+                      "occluded",
+                      "unstructured",
+                      "ambiguous_reuse"
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 8192
+                  }
+                },
+                "required": [
+                  "kind",
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              "minItems": 0,
+              "maxItems": 32
+            }
+          },
+          "required": [
+            "label",
+            "source_text",
+            "entities",
+            "facts",
+            "goals",
+            "children",
+            "uncertainties"
+          ],
+          "additionalProperties": false
+        },
+        "Fact": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "polygon"
+                },
+                "vertices": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[A-Z]{3,8}$"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                      },
+                      "minItems": 3,
+                      "maxItems": 8
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "kind",
+                "vertices"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "angle_equal"
+                },
+                "angles": {
+                  "$ref": "#/$defs/shared1"
+                }
+              },
+              "required": [
+                "kind",
+                "angles"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "angle_ratio"
+                },
+                "angles": {
+                  "$ref": "#/$defs/shared1"
+                },
+                "ratio": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "angles",
+                "ratio"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "angle_value"
+                },
+                "angle": {
+                  "$ref": "#/$defs/shared7"
+                },
+                "degrees": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "kind",
+                "angle",
+                "degrees"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "right_angle"
+                },
+                "angle": {
+                  "$ref": "#/$defs/shared7"
+                }
+              },
+              "required": [
+                "kind",
+                "angle"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "angle_sum"
+                },
+                "angles": {
+                  "$ref": "#/$defs/shared1"
+                },
+                "degrees": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "kind",
+                "angles",
+                "degrees"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "equal_length"
+                },
+                "segments": {
+                  "$ref": "#/$defs/shared0"
+                }
+              },
+              "required": [
+                "kind",
+                "segments"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "length_ratio"
+                },
+                "segments": {
+                  "$ref": "#/$defs/shared0"
+                },
+                "ratio": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "segments",
+                "ratio"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "length_value"
+                },
+                "segment": {
+                  "$ref": "#/$defs/shared6"
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "kind",
+                "segment",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "squared_length_value"
+                },
+                "segment": {
+                  "$ref": "#/$defs/shared6"
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "kind",
+                "segment",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "area_equal"
+                },
+                "triangles": {
+                  "$ref": "#/$defs/shared1"
+                }
+              },
+              "required": [
+                "kind",
+                "triangles"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "area_ratio"
+                },
+                "triangles": {
+                  "$ref": "#/$defs/shared1"
+                },
+                "ratio": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "triangles",
+                "ratio"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "area_value"
+                },
+                "triangle": {
+                  "$ref": "#/$defs/shared7"
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "kind",
+                "triangle",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "midpoint"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "segment": {
+                  "$ref": "#/$defs/shared6"
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "segment"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "intersection"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "segments": {
+                  "$ref": "#/$defs/shared0"
+                },
+                "interior": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "segments"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "diagonal"
+                },
+                "polygon": {
+                  "$ref": "#/$defs/shared8"
+                },
+                "segment": {
+                  "$ref": "#/$defs/shared6"
+                }
+              },
+              "required": [
+                "kind",
+                "polygon",
+                "segment"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "diagonal_bisects"
+                },
+                "polygon": {
+                  "$ref": "#/$defs/shared8"
+                },
+                "bisector": {
+                  "$ref": "#/$defs/shared6"
+                },
+                "bisected": {
+                  "$ref": "#/$defs/shared6"
+                }
+              },
+              "required": [
+                "kind",
+                "polygon",
+                "bisector",
+                "bisected"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "parallel"
+                },
+                "segments": {
+                  "$ref": "#/$defs/shared0"
+                }
+              },
+              "required": [
+                "kind",
+                "segments"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "perpendicular"
+                },
+                "segments": {
+                  "$ref": "#/$defs/shared0"
+                }
+              },
+              "required": [
+                "kind",
+                "segments"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "point_on_ray"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "ray": {
+                  "$ref": "#/$defs/shared6"
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "ray"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "point_on_segment"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "segment": {
+                  "$ref": "#/$defs/shared6"
+                },
+                "interior": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "segment"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "square"
+                },
+                "polygon": {
+                  "$ref": "#/$defs/shared8"
+                }
+              },
+              "required": [
+                "kind",
+                "polygon"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "parallelogram"
+                },
+                "polygon": {
+                  "$ref": "#/$defs/shared8"
+                }
+              },
+              "required": [
+                "kind",
+                "polygon"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "coordinates"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "coordinates": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "coordinates"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "origin"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                }
+              },
+              "required": [
+                "kind",
+                "point"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "translation"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "original": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "vector": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1024
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "original",
+                "vector"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "curve_equation"
+                },
+                "curve": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "expression": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "independent": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "dependent": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                }
+              },
+              "required": [
+                "kind",
+                "curve",
+                "expression",
+                "independent",
+                "dependent"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "curve_at_x"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "curve": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "x": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "curve",
+                "x"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "curve_landmark"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "curve": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "landmark": {
+                  "enum": [
+                    "vertex",
+                    "x_axis_intercept",
+                    "y_axis_intercept",
+                    "axis_x_intercept"
+                  ]
+                },
+                "side": {
+                  "enum": [
+                    "left",
+                    "right"
+                  ]
+                },
+                "exclude_point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "curve",
+                "landmark"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "point_on_curve"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "curve": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "curve"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "point_on_axis"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "axis": {
+                  "enum": [
+                    "x",
+                    "y",
+                    "symmetry"
+                  ]
+                },
+                "curve": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                }
+              },
+              "required": [
+                "kind",
+                "point",
+                "axis"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "scalar_constraint"
+                },
+                "symbol": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                },
+                "operator": {
+                  "enum": [
+                    "=",
+                    "!=",
+                    ">",
+                    ">=",
+                    "<",
+                    "<="
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "kind",
+                "symbol",
+                "operator",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "quantity_relation"
+                },
+                "expression": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "operator": {
+                  "enum": [
+                    "=",
+                    "!=",
+                    ">",
+                    ">=",
+                    "<",
+                    "<="
+                  ]
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "kind",
+                "expression",
+                "operator",
+                "value"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "extremum_constraint"
+                },
+                "expression": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "direction": {
+                  "enum": [
+                    "minimum",
+                    "maximum"
+                  ]
+                },
+                "variables": {
+                  "$ref": "#/$defs/shared2"
+                },
+                "value": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                }
+              },
+              "required": [
+                "kind",
+                "expression",
+                "direction",
+                "variables"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "any_of": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/Fact"
+                    },
+                    "minItems": 1,
+                    "maxItems": 128
+                  },
+                  "minItems": 2,
+                  "maxItems": 16
+                }
+              },
+              "required": [
+                "any_of"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "Goal": {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_value"
+                },
+                "target": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "in_terms_of": {
+                  "$ref": "#/$defs/shared2"
+                }
+              },
+              "required": [
+                "kind",
+                "target"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_length"
+                },
+                "segment": {
+                  "$ref": "#/$defs/shared6"
+                },
+                "in_terms_of": {
+                  "$ref": "#/$defs/shared2"
+                }
+              },
+              "required": [
+                "kind",
+                "segment"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_angle"
+                },
+                "angle": {
+                  "$ref": "#/$defs/shared7"
+                },
+                "in_terms_of": {
+                  "$ref": "#/$defs/shared2"
+                }
+              },
+              "required": [
+                "kind",
+                "angle"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_area"
+                },
+                "triangle": {
+                  "$ref": "#/$defs/shared7"
+                },
+                "in_terms_of": {
+                  "$ref": "#/$defs/shared2"
+                }
+              },
+              "required": [
+                "kind",
+                "triangle"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_area_ratio"
+                },
+                "triangles": {
+                  "$ref": "#/$defs/shared1"
+                },
+                "in_terms_of": {
+                  "$ref": "#/$defs/shared2"
+                }
+              },
+              "required": [
+                "kind",
+                "triangles"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_length_ratio"
+                },
+                "segments": {
+                  "$ref": "#/$defs/shared0"
+                },
+                "in_terms_of": {
+                  "$ref": "#/$defs/shared2"
+                }
+              },
+              "required": [
+                "kind",
+                "segments"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_tan"
+                },
+                "angle": {
+                  "$ref": "#/$defs/shared7"
+                },
+                "in_terms_of": {
+                  "$ref": "#/$defs/shared2"
+                }
+              },
+              "required": [
+                "kind",
+                "angle"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_coordinates"
+                },
+                "point": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                }
+              },
+              "required": [
+                "kind",
+                "point"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_equation"
+                },
+                "curve": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                }
+              },
+              "required": [
+                "kind",
+                "curve"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_minimum"
+                },
+                "expression": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "variables": {
+                  "$ref": "#/$defs/shared2"
+                },
+                "in_terms_of": {
+                  "$ref": "#/$defs/shared2"
+                }
+              },
+              "required": [
+                "kind",
+                "expression",
+                "variables"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "find_maximum"
+                },
+                "expression": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "variables": {
+                  "$ref": "#/$defs/shared2"
+                },
+                "in_terms_of": {
+                  "$ref": "#/$defs/shared2"
+                }
+              },
+              "required": [
+                "kind",
+                "expression",
+                "variables"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        },
+        "shared0": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/shared6"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "shared1": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/shared7"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "shared2": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+          },
+          "minItems": 1,
+          "maxItems": 16
+        },
+        "shared3": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "shared4": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "shared5": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+          },
+          "minItems": 4,
+          "maxItems": 4
+        },
+        "shared6": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            },
+            {
+              "$ref": "#/$defs/shared3"
+            }
+          ]
+        },
+        "shared7": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$"
+            },
+            {
+              "$ref": "#/$defs/shared4"
+            }
+          ]
+        },
+        "shared8": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z]{4}$"
+            },
+            {
+              "$ref": "#/$defs/shared5"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "match_status": {
+                "const": "unmatched"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "family_id": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "family_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "example_with_empty_registry": {
+      "schema_version": "problem-domain/v2",
+      "family_id": null,
+      "match_status": "unmatched",
+      "match_reason": "示例注册表为空，没有三角形关系求解器。",
+      "root": {
+        "label": "等邻三角形示例",
+        "source_text": [
+          "若三角形某顶点相邻两边相等，则称它为该顶点的“等邻三角形”。已知ABC为A点的等邻三角形，DEF为E点的等邻三角形。"
+        ],
+        "entities": [
+          {
+            "kind": "point",
+            "label": "A"
+          },
+          {
+            "kind": "point",
+            "label": "B"
+          },
+          {
+            "kind": "point",
+            "label": "C"
+          },
+          {
+            "kind": "point",
+            "label": "D"
+          },
+          {
+            "kind": "point",
+            "label": "E"
+          },
+          {
+            "kind": "point",
+            "label": "F"
+          }
+        ],
+        "facts": [
+          {
+            "kind": "equal_length",
+            "segments": [
+              "AB",
+              "AC"
+            ]
+          },
+          {
+            "kind": "equal_length",
+            "segments": [
+              "ED",
+              "EF"
+            ]
+          }
+        ],
+        "goals": [],
+        "children": [],
+        "uncertainties": []
+      }
+    },
+    "organization_example_with_empty_registry": {
+      "input_text": "（1）图甲：定点A、B，AC与BD交于一点，AB=k。图乙：动点A在线段BC上，AB=k。",
+      "output": {
+        "schema_version": "problem-domain/v2",
+        "family_id": null,
+        "match_status": "unmatched",
+        "match_reason": "示例注册表为空，没有对应的求解器。",
+        "root": {
+          "label": "整题",
+          "source_text": [],
+          "entities": [],
+          "facts": [],
+          "goals": [],
+          "children": [
+            {
+              "label": "（1）",
+              "source_text": [],
+              "entities": [],
+              "facts": [],
+              "goals": [],
+              "children": [
+                {
+                  "label": "图甲",
+                  "source_text": [
+                    "定点A、B，AC与BD交于一点，AB=k。"
+                  ],
+                  "entities": [
+                    {
+                      "kind": "point",
+                      "label": "A",
+                      "role": "fixed"
+                    },
+                    {
+                      "kind": "point",
+                      "label": "B",
+                      "role": "fixed"
+                    },
+                    {
+                      "kind": "point",
+                      "label": "C"
+                    },
+                    {
+                      "kind": "point",
+                      "label": "D"
+                    },
+                    {
+                      "kind": "point",
+                      "label": "X"
+                    },
+                    {
+                      "kind": "scalar",
+                      "label": "k"
+                    }
+                  ],
+                  "facts": [
+                    {
+                      "kind": "intersection",
+                      "point": "X",
+                      "segments": [
+                        "AC",
+                        "BD"
+                      ]
+                    },
+                    {
+                      "kind": "length_value",
+                      "segment": "AB",
+                      "value": "k"
+                    }
+                  ],
+                  "goals": [],
+                  "children": [],
+                  "uncertainties": []
+                },
+                {
+                  "label": "图乙",
+                  "source_text": [
+                    "动点A在线段BC上，AB=k。"
+                  ],
+                  "entities": [
+                    {
+                      "kind": "point",
+                      "label": "A",
+                      "role": "moving"
+                    },
+                    {
+                      "kind": "point",
+                      "label": "B"
+                    },
+                    {
+                      "kind": "point",
+                      "label": "C"
+                    },
+                    {
+                      "kind": "scalar",
+                      "label": "k"
+                    }
+                  ],
+                  "facts": [
+                    {
+                      "kind": "point_on_segment",
+                      "point": "A",
+                      "segment": "BC"
+                    },
+                    {
+                      "kind": "length_value",
+                      "segment": "AB",
+                      "value": "k"
+                    }
+                  ],
+                  "goals": [],
+                  "children": [],
+                  "uncertainties": []
+                }
+              ],
+              "uncertainties": []
+            }
+          ],
+          "uncertainties": []
+        }
+      }
+    }
+  },
+  "user_suffix": "请从完整图片输出题意 JSON。",
+  "live_call_executed": false
+}

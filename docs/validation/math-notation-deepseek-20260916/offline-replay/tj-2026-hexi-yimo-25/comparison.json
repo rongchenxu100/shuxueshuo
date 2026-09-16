@@ -1,0 +1,86 @@
+{
+  "ok": false,
+  "strict": {
+    "ok": false,
+    "classification": "invalid_notation",
+    "expected_issues": [],
+    "actual_issues": [
+      {
+        "path": "r.definitions[0]",
+        "source": "抛物线 Γ: y = a*x^2 - b*x + c，其中a, b, c为常数，b > 0",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.c0.definitions[3]",
+        "source": "P为抛物线Γ的顶点",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.c0.goals[0]",
+        "source": {
+          "kind": "find_coordinates",
+          "object": "P"
+        },
+        "code": "notation.goal",
+        "message": "binding.unknown_or_invisible:P"
+      },
+      {
+        "path": "r.c1.definitions[2]",
+        "source": "A ∈ Γ",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:Γ"
+      },
+      {
+        "path": "r.c1.definitions[3]",
+        "source": "D ∈ Γ",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:Γ"
+      },
+      {
+        "path": "r.c1.definitions[4]",
+        "source": "C = Γ ∩ y_axis",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:C"
+      },
+      {
+        "path": "r.c1.facts[0]",
+        "source": "∠CAD = 90°",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:C"
+      },
+      {
+        "path": "r.c1.facts[1]",
+        "source": "AC = AD",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:C"
+      },
+      {
+        "path": "r.c2.definitions[4]",
+        "source": "N = (n,0)，N是x轴正半轴上的动点",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.c2.definitions[2]",
+        "source": "A ∈ Γ",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:Γ"
+      },
+      {
+        "path": "r.c2.definitions[3]",
+        "source": "M = (b + 1/2, y_M)，M ∈ Γ",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:Γ"
+      },
+      {
+        "path": "r.c2.facts[0]",
+        "source": "min_N(√2*MN + AN) = 21/4",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:N"
+      }
+    ]
+  },
+  "accepted_omissions": []
+}

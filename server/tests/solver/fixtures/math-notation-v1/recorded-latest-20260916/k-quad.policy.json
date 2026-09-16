@@ -1,0 +1,29 @@
+{
+  "schema_version": "extraction-acceptance/v1",
+  "expected_revision": "3ec8f8d7ebf9119e681a99266bf7217cac7c311974a27474cb1a4efaf8af705b",
+  "allowed_omissions": [
+    {
+      "scope": [
+        0,
+        0
+      ],
+      "fact": "k ≥ 1",
+      "reason": "用户明确接受本题此局部参数下界遗漏；保留严格语义差异，不宣称等价。"
+    },
+    {
+      "scope": [
+        0,
+        1
+      ],
+      "fact": "k ≥ 1",
+      "reason": "用户明确接受本题此局部参数下界遗漏；保留严格语义差异，不宣称等价。"
+    },
+    {
+      "scope": [
+        1
+      ],
+      "fact": "k ≥ 1",
+      "reason": "用户明确接受本题此局部参数下界遗漏；保留严格语义差异，不宣称等价。"
+    }
+  ]
+}

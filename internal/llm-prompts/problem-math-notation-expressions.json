@@ -1,0 +1,173 @@
+{
+  "purpose": "definitions/facts及目标字段共用的数学表达记法目录。只从这些基础记法组合表达题意，不自造操作名。",
+  "output_rule": "目录中的id、syntax、meaning等字段仅供阅读，不是输出格式。模型的definitions/facts仍输出数学字符串数组，不输出表达对象、目录条目或运算树。优先按Schema中的字段放置规则组织。",
+  "expressions": [
+    {
+      "id": "curve_definition",
+      "syntax": "Γ: y = 表达式",
+      "meaning": "为曲线引入稳定符号；x、y是坐标变量。优先放definitions。",
+      "examples": ["Γ: y = a*x^2+b*x+c"]
+    },
+    {
+      "id": "function_definition_and_reference",
+      "syntax": "f(t) = 表达式；f(t)",
+      "meaning": "定义一元函数后可直接引用，不要求模型代入展开。函数定义优先放definitions，已有函数的取值条件放facts。",
+      "examples": ["f(t) = t^2+1", "f(2) = 5", "f(x) ≥ g(x)"]
+    },
+    {
+      "id": "point_coordinates",
+      "syntax": "P = (横坐标,纵坐标)",
+      "meaning": "题面给定的点坐标，优先放facts；不要在同一字符串后拼接中文说明。",
+      "examples": ["P = (-2,0)", "Q = (t,1)"]
+    },
+    {
+      "id": "length",
+      "syntax": "AB；length(A1,B1)",
+      "meaning": "无向长度。AB只适用于单字母点名；复杂点名使用length。AB不能在直线关系中代替line(A,B)。",
+      "examples": ["AB = 3*CD", "length(A1,B1) = 2"]
+    },
+    {
+      "id": "angle",
+      "syntax": "∠BAC；angle(B,A,C)；45°",
+      "meaning": "非定向内角，三点记法的中间点A是顶点；°表示角度。",
+      "examples": ["∠BAC = 2*∠DAC", "angle(B,A,C) = 45°"]
+    },
+    {
+      "id": "area",
+      "syntax": "area(△ABC)",
+      "meaning": "三角形的无向面积；面积比必须保留分子、分母顺序。",
+      "examples": ["area(△ACD)/area(△ACB) = r"]
+    },
+    {
+      "id": "tangent",
+      "syntax": "tan(∠ABC)",
+      "meaning": "角B的正切。",
+      "examples": ["tan(∠ABC)"]
+    },
+    {
+      "id": "coordinate_access",
+      "syntax": "x(P)；y(P)",
+      "meaning": "分别取点P的横坐标、纵坐标。",
+      "examples": ["x(P) < x(Q)", "y(P) < 0"]
+    },
+    {
+      "id": "axes_and_vertex",
+      "syntax": "x_axis；y_axis；axis(Γ)；vertex(Γ)",
+      "meaning": "依次表示x轴、y轴、曲线Γ的对称轴、顶点。不要另造symmetry_axis等操作名。",
+      "examples": ["P ∈ x_axis", "Q ∈ y_axis", "D ∈ axis(Γ)", "V = vertex(Γ)"]
+    },
+    {
+      "id": "segment_line_ray",
+      "syntax": "segment(A,B)；line(A,B)；ray(A,B)",
+      "meaning": "依次表示含端点的线段AB、经过A和B的直线、以A为端点经过B的射线。射线参数顺序不能交换；三者范围不能混淆。",
+      "examples": ["P ∈ segment(A,B)", "Q ∈ line(A,B)", "R ∈ ray(A,B)"]
+    },
+    {
+      "id": "line_relations",
+      "syntax": "line(A,B) ⟂ line(C,D)；line(A,B) ∥ line(C,D)",
+      "meaning": "两条直线垂直或平行；操作数写直线，不写长度AB。",
+      "examples": ["line(A,B) ⟂ line(C,D)", "line(A,B) ∥ line(C,D)"]
+    },
+    {
+      "id": "membership_intersection_and_point_set",
+      "syntax": "∈；∩；{A,B}",
+      "meaning": "成员关系、交集和点集。交点已有名称时沿用，不另起辅助点名。",
+      "examples": ["P ∈ Γ", "Γ ∩ x_axis = {A,B}", "P ∈ line(A,B) ∩ line(C,D)"]
+    },
+    {
+      "id": "midpoint",
+      "syntax": "F = midpoint(D,N)",
+      "meaning": "F是线段DN的中点；参数为两个端点。优先放facts。",
+      "examples": ["F = midpoint(D,N)"]
+    },
+    {
+      "id": "translation",
+      "syntax": "D = C+(横向位移,纵向位移)",
+      "meaning": "将点C按给定向量平移得到D。优先放facts。",
+      "examples": ["D = C+(2,0)"]
+    },
+    {
+      "id": "polygon",
+      "syntax": "square(A,B,C,D)；parallelogram(A,B,C,D)；quadrilateral(A,B,C,D)",
+      "meaning": "依次表示正方形、平行四边形、一般四边形，均按所列顶点顺序构图。不要额外写出推导性质。",
+      "examples": ["square(A,B,C,D)", "parallelogram(A,B,C,D)", "quadrilateral(A,B,C,D)"]
+    },
+    {
+      "id": "bisects",
+      "syntax": "bisects(BD,AC)",
+      "meaning": "第一参数BD所在直线经过第二参数AC的中点，不额外要求交点位于BD内部。两个参数的职责不同，不能交换。 参数中的端点由代码按点类型绑定，无需另列点或类型声明；不因此省略题面明确的四边形等构型条件。",
+      "examples": ["bisects(BD,AC)"]
+    },
+    {
+      "id": "cut_ratio",
+      "syntax": "cut_ratio(BD,AC)",
+      "meaning": "设两直线交点为X，表示无向长度比BX/XD。第一参数端点顺序决定分子分母；第二参数表示截线。X只用于说明，输出无需为其起名。不默认交点在线段内部。交点已有名称O时可直接写BO/OD。 参数中的端点由代码按点类型绑定，无需另列点或类型声明；不因此省略题面明确的四边形等构型条件。",
+      "examples": ["cut_ratio(BD,AC) = r", "BO/OD = r"],
+      "few_shots": [
+        {
+          "input": "直线UV经过线段PQ的中点；该交点将UV截成的两段长度比为r，未指定比例方向。",
+          "output": {"facts": ["bisects(UV,PQ)", "cut_ratio(UV,PQ)=r ∨ cut_ratio(UV,PQ)=1/r"]},
+          "explanation": "输出为节点片段。bisects第一参数UV是平分另一线段的直线，第二参数PQ是被平分的线段；cut_ratio第一参数UV是要取两段长度比的对象，第二参数PQ是截线。此处两式参数顺序相同。cut_ratio(PQ,UV)取的是PQ两段的比，不能代替UV的比。"
+        },
+        {
+          "input": "直线PQ经过线段UV的中点；该交点将PQ截成的两段长度比为r，未指定比例方向。",
+          "output": {"facts": ["bisects(PQ,UV)", "cut_ratio(PQ,UV)=r ∨ cut_ratio(PQ,UV)=1/r"]},
+          "explanation": "与前例相比，题面交换了两条线的职责，因此两式同时交换参数。不能只交换其中一个操作的参数。"
+        },
+        {
+          "input": "直线UV与PQ相交于已命名点T，UT/TV=r。",
+          "output": {"facts": ["T ∈ line(U,V) ∩ line(P,Q)", "UT/TV=r"]},
+          "explanation": "已有交点名时沿用。UT/TV与cut_ratio(UV,PQ)方向相同，TV/UT与cut_ratio(VU,PQ)方向相同；交换第一参数端点会取倒数，交换两条线则改变被取比的对象。题面没有平分条件，不添加bisects。"
+        }
+      ]
+    },
+    {
+      "id": "logic",
+      "syntax": "∧；∨；括号",
+      "meaning": "∧表示同时成立，∨表示至少一项成立。括号限定逻辑范围。定义未指定比例长短方向时保留两个分支，不通过解题排除分支。 仅按题面代入对象或具体参数值，即使其他条件可排除一支也保留完整定义分支。",
+      "examples": ["a > 0 ∧ b < 1", "cut_ratio(UV,PQ)=r ∨ cut_ratio(UV,PQ)=1/r"]
+    },
+    {
+      "id": "quantifier",
+      "syntax": "∀变量∈定义域: 关系；∃变量∈定义域: 关系",
+      "meaning": "分别表示对全部取值成立和存在取值成立；保留量词、定义域及冒号后的作用范围。量词变量仅在内部绑定，无需另作全局声明。",
+      "examples": ["∀x∈ℝ: f(x) ≥ g(x)", "∃t∈[0,2]: f(t) ≤ 1"]
+    },
+    {
+      "id": "domain_and_interval",
+      "syntax": "ℝ；[a,b]；(a,b)；[a,b)；(a,b]",
+      "meaning": "ℝ为实数域；方括号包含该端点，圆括号不包含该端点。区间在成员关系或量词定义域中使用，勿与点坐标混淆。不要补写题面未给出的默认实数域。",
+      "examples": ["t ∈ [0,2]", "t ∈ (0,2)", "t ∈ [0,2)", "t ∈ (0,2]", "t ∈ ℝ"]
+    },
+    {
+      "id": "extremum",
+      "syntax": "min(表达式)；min_{P,Q}(表达式)；max同理",
+      "meaning": "最值下标是可选提示；题面明确时可以填写，也可省略，不推断动点依赖或列固定参数。“最小值为7”必须保留min，不能改成普通值等于7。",
+      "examples": ["min(AP+PQ) = 7", "min_{P,Q}(AP+PQ) = 7", "max(a+b) = 3"]
+    },
+    {
+      "id": "goal_at",
+      "syntax": "表达式 = min(表达式)",
+      "meaning": "用于goals.at，表达题面明确的“取得最值时/此时”。不能自行增加最优状态，也不推导最优条件。 按句子修饰范围填写：此时修饰多个并列目标时，各目标均保留同一at，包括曲线方程；不分析动点依赖。",
+      "examples": ["AP+PQ = min(AP+PQ)"]
+    },
+    {
+      "id": "arithmetic",
+      "syntax": "整数、有限小数、分数、参数、括号、+ - * / ^、sqrt(表达式)",
+      "meaning": "乘号首选*，根号首选sqrt(2)或sqrt(t+1)；也兼容√2和√(t+1)，不要猜根号覆盖范围。不补隐含非零条件。",
+      "examples": ["2*a+b", "3/4", "0.5", "a^2+b^2", "sqrt(t+1)", "√2", "√(t+1)"]
+    },
+    {
+      "id": "comparison",
+      "syntax": "=；≠；<；≤；>；≥",
+      "meaning": "等于、不等于、小于、不大于、大于、不小于。严格与非严格关系不能互换。",
+      "examples": ["a = b", "a ≠ b", "a < b", "a ≤ b", "a > b", "a ≥ b"]
+    },
+    {
+      "id": "point_role_declaration",
+      "syntax": "A、B为定点；C为动点；D为平面内一点。",
+      "meaning": "仅这类受控短声明可用中文表达点的角色，优先放facts。不要求额外补动点标签；点的取值范围及关联条件仍用数学式保留。",
+      "examples": ["A、B为定点；C为动点；D为平面内一点。"]
+    }
+  ]
+}

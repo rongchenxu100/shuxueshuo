@@ -1,0 +1,86 @@
+{
+  "evaluation_type": "offline_reassessment_of_recorded_live_response",
+  "new_model_calls": 0,
+  "original_run": "understanding-v6-single-20260915",
+  "original_model_authoring_policy": "problem-ir-authoring/v6",
+  "current_authoring_policy": "problem-ir-authoring/v7",
+  "user_confirmed_gold_change": "This case only: □ABCD denotes parallelogram; missing figures remain.",
+  "raw_response_sha256": "c5b72ec484d0dd904f39cba417fe71fbe7145f5a9539038a38633195ceec3f34",
+  "current_gold_sha256": "d5fa378752e6da3a2eb63b44a2833aae00df408008eb6712d38750d6e7f59ad1",
+  "comparison": {
+    "ok": true,
+    "classification": "equivalent",
+    "normalization": {
+      "expected": [],
+      "actual": [
+        {
+          "scope": "r.c0.c0",
+          "rule": "diagonal_bisects_to_midpoint"
+        },
+        {
+          "scope": "r.c0.c0",
+          "rule": "diagonal_bisects_to_midpoint"
+        },
+        {
+          "scope": "r.c0.c0",
+          "rule": "diagonal_bisects_to_midpoint"
+        },
+        {
+          "scope": "r.c0.c0",
+          "rule": "diagonal_bisects_to_midpoint"
+        },
+        {
+          "scope": "r.c0.c1",
+          "rule": "diagonal_bisects_to_midpoint"
+        },
+        {
+          "scope": "r.c1",
+          "rule": "diagonal_bisects_to_midpoint"
+        },
+        {
+          "scope": "r.c2",
+          "rule": "unused_constant_parameter",
+          "label": "k"
+        },
+        {
+          "scope": "r.c2",
+          "rule": "diagonal_bisects_to_midpoint"
+        }
+      ]
+    },
+    "expected_hash": "6c16ec54b7ccf1f8ef21c4299f54781379fc908f8bb05290a2f24003c54301b2",
+    "actual_hash": "72bfbbebf1cb3f4a018aac65db5691d2d866eb9f09733e9bd8fd91a533d2c2a6",
+    "differences": [],
+    "mapping_budget_exhausted": false
+  },
+  "continuation": {
+    "status": "needs_confirmation",
+    "blocked": true,
+    "error_code": "extraction.missing_figure",
+    "user_action": "supplement_image",
+    "message": "题目缺少引用的图形，已保留提取的题意并停止后续处理。请补充包含对应图形的完整题目图片。",
+    "missing_figures": [
+      {
+        "scope": "r.c0.c0",
+        "label": "图1",
+        "text": "缺少图1"
+      },
+      {
+        "scope": "r.c0.c1",
+        "label": "图2",
+        "text": "缺少图2"
+      },
+      {
+        "scope": "r.c1",
+        "label": "（2）",
+        "text": "缺少图3"
+      },
+      {
+        "scope": "r.c2",
+        "label": "（3）",
+        "text": "缺少图4"
+      }
+    ]
+  },
+  "solver_ready": false
+}

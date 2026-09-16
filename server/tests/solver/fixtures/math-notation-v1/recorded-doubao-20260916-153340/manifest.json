@@ -1,0 +1,71 @@
+{
+  "source_batch": "internal/solver-runs/math-notation-provider-comparison-20260916-153340/doubao",
+  "live_passed": 4,
+  "expected_offline_passed": 6,
+  "cases": [
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-heping-yimo-25.txt": "41fb769a5221e52a04a0489ae4920c802778ab2627f37b0b27de2e6394fb907f",
+        "tj-2026-heping-yimo-25.gold.json": "5205e27496e8169ee280ebf2afaf0126c5c03248df87869e543e3779550ab7c0"
+      }
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "live_passed": false,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-heping-ermo-25.txt": "f2b04e06373141ec3e581ba29da376d04acb1e526c32ecd23a153b9748c68185",
+        "tj-2026-heping-ermo-25.gold.json": "02558e40fb2a25a23d252b7307f852b1f00e09b4e24e5f0a0db5409263d24b3b"
+      }
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-hexi-yimo-25.txt": "9efea6bd82d9a9052aa346eacb273cf5e5b477bf6169cf29c9573b89eff7db43",
+        "tj-2026-hexi-yimo-25.gold.json": "af68c5c8929471bb291fc0ee92584114dc2c8cc9b9ef55930e6cfb0dde2b2038"
+      }
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "live_passed": false,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-nankai-yimo-25.txt": "04f854a12f160b5c762b9a99aeb7ea776a66402f78d3b5450ae101ca3457bfc5",
+        "tj-2026-nankai-yimo-25.gold.json": "4bb26045c984a7bebbbfaa18fe740a6e758ef1deac24a690d4fe823b7d1ba4f1"
+      }
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-xiqing-yimo-25.txt": "c78f1ca266e17b17b1d0066f48877ca52f2098e21b58ed3bccf9ca081d8a303e",
+        "tj-2026-xiqing-yimo-25.gold.json": "56448536f0cb317318597d41df2d191df4e65da6f7cccbf982469f85cb1809f2"
+      }
+    },
+    {
+      "case": "k-quad",
+      "live_passed": false,
+      "expected_offline_passed": false,
+      "files": {
+        "k-quad.txt": "e7699fbfa4130e1c939ab767601e3ecadaf80a036cd220c440976d516457b7ff",
+        "k-quad.gold.json": "d5cec68a04883a5f6a31d28d2020360d0e9ce8a46f45156c11e9cdf42249a76e",
+        "k-quad.policy.json": "11a03d5d554f30de43f974781c6fe9ff7bb6a44a535f30ec2567d70991c69fb0"
+      }
+    },
+    {
+      "case": "function-quantifiers",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "function-quantifiers.txt": "2375b3af0d112aab405cdebdcb58cf7d62c93cf757d10dd344e047ca8512c3da",
+        "function-quantifiers.gold.json": "f6faab076a0287b3d8d5e437dfe8318a29e453e8add9d66ca3657e4dc6d50749"
+      }
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "offline_replay_only": true,
+  "network_calls": 0,
+  "new_prompt_live_validated": false,
+  "gold_revision": "20260916-goal-at-scope",
+  "original_live_passed": 2,
+  "original_gold_offline_passed": 5,
+  "revised_gold_offline_passed": 6,
+  "total": 7,
+  "results": {
+    "tj-2026-heping-yimo-25": {
+      "original_live_passed": true,
+      "original_gold_offline_passed": true,
+      "revised_gold_offline_passed": true,
+      "original_parse_issues": 0,
+      "current_parse_issues": [],
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "raw_sha256": "f29c9ca2d2e5533afd46a05dcafb3164299e53e5b448eb2ec110c5eeca76a6d1",
+      "previous_gold_sha256": "5205e27496e8169ee280ebf2afaf0126c5c03248df87869e543e3779550ab7c0",
+      "current_gold_sha256": "5205e27496e8169ee280ebf2afaf0126c5c03248df87869e543e3779550ab7c0"
+    },
+    "tj-2026-heping-ermo-25": {
+      "original_live_passed": false,
+      "original_gold_offline_passed": true,
+      "revised_gold_offline_passed": true,
+      "original_parse_issues": 0,
+      "current_parse_issues": [],
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "raw_sha256": "52dc2ef05adae379e236124aa5f2855b2f624fa76add92d0f02d015cba92ada6",
+      "previous_gold_sha256": "02558e40fb2a25a23d252b7307f852b1f00e09b4e24e5f0a0db5409263d24b3b",
+      "current_gold_sha256": "02558e40fb2a25a23d252b7307f852b1f00e09b4e24e5f0a0db5409263d24b3b"
+    },
+    "tj-2026-hexi-yimo-25": {
+      "original_live_passed": false,
+      "original_gold_offline_passed": true,
+      "revised_gold_offline_passed": true,
+      "original_parse_issues": 0,
+      "current_parse_issues": [],
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "raw_sha256": "8acc708862c2720899af002c0f396861e659b95926b975fcd4a2e153fdf4959e",
+      "previous_gold_sha256": "af68c5c8929471bb291fc0ee92584114dc2c8cc9b9ef55930e6cfb0dde2b2038",
+      "current_gold_sha256": "af68c5c8929471bb291fc0ee92584114dc2c8cc9b9ef55930e6cfb0dde2b2038"
+    },
+    "tj-2026-nankai-yimo-25": {
+      "original_live_passed": false,
+      "original_gold_offline_passed": false,
+      "revised_gold_offline_passed": true,
+      "original_parse_issues": 0,
+      "current_parse_issues": [],
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "raw_sha256": "38cf98c5f6045a1d975c0f918ee689304b9c4f950185fcdb684dd1292204e371",
+      "previous_gold_sha256": "6f7cd929a1994559800d8e195d607a8ff87beb570cbd70b05f462bbcb4310a55",
+      "current_gold_sha256": "4bb26045c984a7bebbbfaa18fe740a6e758ef1deac24a690d4fe823b7d1ba4f1"
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "original_live_passed": false,
+      "original_gold_offline_passed": true,
+      "revised_gold_offline_passed": true,
+      "original_parse_issues": 0,
+      "current_parse_issues": [],
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "raw_sha256": "59652596e11d71fb12241b353aa85aa89147dacad6f1c4369a27408fed7e4a31",
+      "previous_gold_sha256": "56448536f0cb317318597d41df2d191df4e65da6f7cccbf982469f85cb1809f2",
+      "current_gold_sha256": "56448536f0cb317318597d41df2d191df4e65da6f7cccbf982469f85cb1809f2"
+    },
+    "k-quad": {
+      "original_live_passed": false,
+      "original_gold_offline_passed": false,
+      "revised_gold_offline_passed": false,
+      "original_parse_issues": 8,
+      "current_parse_issues": [
+        {
+          "path": "r.c0.c0.facts[1]",
+          "source": "AC ∩ BD = {O}",
+          "code": "notation.bind",
+          "message": "type.intersection"
+        }
+      ],
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      },
+      "raw_sha256": "fc97329cc21410b4e333ef28dbdba8777ae378a6feefdf5435e9da243f217860",
+      "previous_gold_sha256": "d5cec68a04883a5f6a31d28d2020360d0e9ce8a46f45156c11e9cdf42249a76e",
+      "current_gold_sha256": "d5cec68a04883a5f6a31d28d2020360d0e9ce8a46f45156c11e9cdf42249a76e"
+    },
+    "function-quantifiers": {
+      "original_live_passed": true,
+      "original_gold_offline_passed": true,
+      "revised_gold_offline_passed": true,
+      "original_parse_issues": 0,
+      "current_parse_issues": [],
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "raw_sha256": "23992ef6804d503a7f18be3fd88ce9ca4c7cc154bb83dc6979ae0db4a26a3cc7",
+      "previous_gold_sha256": "f6faab076a0287b3d8d5e437dfe8318a29e453e8add9d66ca3657e4dc6d50749",
+      "current_gold_sha256": "f6faab076a0287b3d8d5e437dfe8318a29e453e8add9d66ca3657e4dc6d50749"
+    }
+  },
+  "template_files": {
+    "internal/llm-prompts/problem-math-notation-system.md": "691093fe668dad7d6f4ca80da44c1f387784ee080b1b105e5dc7a5f024622fd6",
+    "internal/llm-prompts/problem-math-notation-user.md": "e4065b81b1bdd3bccf2f7f6fc6cfd3d4179d3dac84dd58dd9824a3e7266f8e67",
+    "internal/schemas/problem-math-notation-v1.schema.json": "9b90b09f8826d5fbed3f6e1ff8985ccd0a45379bc9935ab2614dd651810a1720",
+    "internal/llm-prompts/problem-math-notation-expressions.json": "783bfa901670cc9f8da6da2788525834550386c8c7f9fa12cc9e0846e2743b4e"
+  },
+  "implementation_files": {
+    "__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+    "acceptance.py": "e2e285f1a66367c33b9daef40d694651826c236efe6f096a9daa13b63905bb75",
+    "algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+    "authoring.py": "bb5981090d28218fa982e89d99deb92430505ace1f71e0858173ab41a3837118",
+    "batch_smoke.py": "e2bd017d4a6cd7807ecd80a240224ec8367d4fa8d38d396c7c84069b18fc3026",
+    "comparison.py": "810533225c514427673471e8995432a2ab9962169b060696eebe57cf29ca635e",
+    "comparison_provider.py": "24b12606f368f460a9b82b46327d5abc4052548779bff27ddc1f48cbf21cd688",
+    "contracts.py": "cb45ad8b122498ec8aa4ff9a95db5ec1f80a99c2ff3370ca06bcb3dce675d0c7",
+    "equivalence.py": "5da9410a55b7b85acf23fffa5cb8db3916766acf4abaad45a9f1932e7d8d3a11",
+    "geometry_consistency.py": "32b45934d947782fbef6284fce8d36e0322693187e3cb5cb520d2207c64fd88b",
+    "identity.py": "928775ee9a74fd4113141f4f606a6f9b740be39d62d77b26e43b91159ab06ed8",
+    "intersections.py": "77cf88ca0c36f7f729af3eebfef99c2705e667cb7478e99406c1d99f4d79d0eb",
+    "measure.py": "ee594ab69b48fe81e063dcb60d1185848b45c52c7f11e4278049316e001a812b",
+    "normalization.py": "e24f157ce67b7c65510b3ac4e08c4936e6fa1ae49d22acab7dfdcc733c38ffa4",
+    "notation_compile.py": "a9f253ca6a2b4403179c38383b5ba7f20d9ce8a53282ddd104c0b596c49f4b05",
+    "notation_contract.py": "603b64b2efe22aa515339837d5c3cbf3a6f8a2a97b21da892e6095d2beef639b",
+    "notation_normalization.py": "6e9da7ac7ffdb6d865369f88f611d9029b85834ff6209418f05f66b489255a9c",
+    "notation_parser.py": "c1469725dd46f3088753ed3378e46914ac0879088bfcdc24c743e3f2b2407ce8",
+    "notation_replay.py": "bd89229b912769b474ecf8b209b7e6b8f499502f34bd323f4367bbf8d6f8e502",
+    "notation_semantics.py": "92645a3bb9acc19d4d72a0a71ae6e8b80904c7ce5da5b5be27fc2fd44248af68",
+    "notation_service.py": "642696ceb0504ffe8d8c66b2688976641a9f8481402f071da4199bad0c78385f",
+    "prompt.py": "92d3bcc01b4014299a55afff50f1b5b01131d3ce8d31cbe3fcb5a9a48980d627",
+    "service.py": "f9e3a2a6b426493756e0882ed9fa3f91ab068c0e6a33b60a904aa98451822e5c",
+    "smoke.py": "8a72d86360411b8ec74636081cdc26a3d58cc785cbf33b0654328c007883f210",
+    "validation.py": "88eac906b043f4a1c7646a02aefa89584b94e5c69fee64fd0707af4f0cd6c46a",
+    "wire.py": "31317a6be6b6dcb8aadeba4a95cb737ff34b2423163aabc5d8f2e70ad0f8291c"
+  }
+}

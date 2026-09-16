@@ -1,0 +1,23 @@
+{
+  "ok": false,
+  "strict": {
+    "ok": false,
+    "classification": "invalid_notation",
+    "expected_issues": [],
+    "actual_issues": [
+      {
+        "path": "r.c1.facts[3]",
+        "source": "angle(BDC) = 2*angle(ABD)",
+        "code": "notation.bind",
+        "message": "binding.call_arity:angle"
+      },
+      {
+        "path": "r.c2.facts[6]",
+        "source": "angle(BAC) = angle(DAC)",
+        "code": "notation.bind",
+        "message": "binding.call_arity:angle"
+      }
+    ]
+  },
+  "accepted_omissions": []
+}

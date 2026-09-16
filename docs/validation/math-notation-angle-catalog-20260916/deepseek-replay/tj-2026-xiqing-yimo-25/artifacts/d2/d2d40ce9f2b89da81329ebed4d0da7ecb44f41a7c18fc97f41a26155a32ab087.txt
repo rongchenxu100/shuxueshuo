@@ -1,0 +1,32 @@
+{
+  "root": {
+    "definitions": ["Γ: y = -x^2+b*x+c"],
+    "facts": ["A = (-1,0)", "b > 0", "A ∈ Γ", "Γ ∩ x_axis = {A,B}", "Γ ∩ y_axis = {C}"],
+    "children": [
+      {
+        "label": "(1)",
+        "facts": ["b = 4"],
+        "goals": [{"kind": "find_coordinates", "object": "vertex(Γ)"}]
+      },
+      {
+        "label": "(2)",
+        "facts": ["D = (b+2,y(D))", "D ∈ Γ"],
+        "children": [
+          {
+            "label": "①",
+            "facts": ["AD = 2*BC"],
+            "goals": [{"kind": "find_value", "expression": "b"}]
+          },
+          {
+            "label": "②",
+            "facts": ["M = (m,0)", "M ∈ x_axis ∧ x(M) > 0", "min(2*DM+AM) = 5+5*sqrt(3)"],
+            "goals": [{"kind": "find_value", "expression": "b"}]
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "match_reason": "题面给出二次函数（抛物线）及带权路径目标 2DM+AM，并明确其最小值为 5+5√3，权重不为1，符合 QuadraticWeightedPathMinimumSolver 的构造。"
+}

@@ -1,0 +1,39 @@
+{
+  "passed": false,
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "semantic_calls": 1,
+  "network_attempts": 1,
+  "continuation": {
+    "status": "needs_confirmation",
+    "blocked": true,
+    "error_code": "extraction.missing_figure",
+    "user_action": "supplement_image",
+    "message": "题目缺少引用的图形，已保留提取的题意并停止后续处理。请补充包含对应图形的完整题目图片。",
+    "missing_figures": [
+      {
+        "scope": "r.c0.c0",
+        "label": "图1",
+        "text": "缺少图1"
+      },
+      {
+        "scope": "r.c0.c1",
+        "label": "图2",
+        "text": "缺少图2"
+      },
+      {
+        "scope": "r.c1",
+        "label": "（2）",
+        "text": "缺少图3"
+      },
+      {
+        "scope": "r.c2",
+        "label": "（3）",
+        "text": "缺少图4"
+      }
+    ]
+  },
+  "contract_valid": true,
+  "elapsed_seconds": 71.779
+}

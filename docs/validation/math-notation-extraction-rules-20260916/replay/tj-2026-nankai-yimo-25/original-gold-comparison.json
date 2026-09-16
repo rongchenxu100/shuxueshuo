@@ -1,0 +1,76 @@
+{
+  "ok": false,
+  "strict": {
+    "ok": false,
+    "classification": "not_proven_equivalent",
+    "differences": [
+      {
+        "path": "/root/children/1/children/1/goals",
+        "expected": [
+          {
+            "kind": "find_coordinates",
+            "target": [
+              "ref",
+              "r.c1:point:G",
+              "point"
+            ],
+            "at": [
+              [
+                [
+                  "relation",
+                  "=",
+                  "Add(Mul(Integer(-1), Symbol('n_748ef839c13a7706e39645965b297da9f3c22750037831cb3417f574b63fc2a7', real=True)), Mul(Integer(-1), Symbol('n_eb53acc97e234671d48a0fcae9b3e050df83d7bbc42f38330a0b8abed0e1b697', real=True)), Symbol('n_f9d92d864ece1dda65e1458d4ab57a6fae6dcfb65c44628384b9d1ff99095587', real=True))"
+                ]
+              ]
+            ]
+          },
+          {
+            "kind": "find_equation",
+            "target": [
+              "ref",
+              "r:curve:Γ",
+              "curve"
+            ]
+          }
+        ],
+        "actual": [
+          {
+            "kind": "find_coordinates",
+            "target": [
+              "ref",
+              "r.c1:point:G",
+              "point"
+            ],
+            "at": [
+              [
+                [
+                  "relation",
+                  "=",
+                  "Add(Mul(Integer(-1), Symbol('n_748ef839c13a7706e39645965b297da9f3c22750037831cb3417f574b63fc2a7', real=True)), Mul(Integer(-1), Symbol('n_eb53acc97e234671d48a0fcae9b3e050df83d7bbc42f38330a0b8abed0e1b697', real=True)), Symbol('n_f9d92d864ece1dda65e1458d4ab57a6fae6dcfb65c44628384b9d1ff99095587', real=True))"
+                ]
+              ]
+            ]
+          },
+          {
+            "kind": "find_equation",
+            "target": [
+              "ref",
+              "r:curve:Γ",
+              "curve"
+            ],
+            "at": [
+              [
+                [
+                  "relation",
+                  "=",
+                  "Add(Mul(Integer(-1), Symbol('n_748ef839c13a7706e39645965b297da9f3c22750037831cb3417f574b63fc2a7', real=True)), Mul(Integer(-1), Symbol('n_eb53acc97e234671d48a0fcae9b3e050df83d7bbc42f38330a0b8abed0e1b697', real=True)), Symbol('n_f9d92d864ece1dda65e1458d4ab57a6fae6dcfb65c44628384b9d1ff99095587', real=True))"
+                ]
+              ]
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "accepted_omissions": []
+}

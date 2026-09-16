@@ -1,0 +1,66 @@
+{
+  "offline_replay_only": true,
+  "network_calls": 0,
+  "source_batch": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/math-notation-heping-yimo-20260916-120146",
+  "live_passed": 1,
+  "replay_passed": 1,
+  "implementation_files": {
+    "__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+    "acceptance.py": "e2e285f1a66367c33b9daef40d694651826c236efe6f096a9daa13b63905bb75",
+    "algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+    "authoring.py": "bb5981090d28218fa982e89d99deb92430505ace1f71e0858173ab41a3837118",
+    "batch_smoke.py": "969ca5766349a675fe48f0885f29c593b767ddbd6edc1a093931b90c02acd16d",
+    "comparison.py": "810533225c514427673471e8995432a2ab9962169b060696eebe57cf29ca635e",
+    "comparison_provider.py": "24b12606f368f460a9b82b46327d5abc4052548779bff27ddc1f48cbf21cd688",
+    "contracts.py": "cb45ad8b122498ec8aa4ff9a95db5ec1f80a99c2ff3370ca06bcb3dce675d0c7",
+    "equivalence.py": "5da9410a55b7b85acf23fffa5cb8db3916766acf4abaad45a9f1932e7d8d3a11",
+    "geometry_consistency.py": "32b45934d947782fbef6284fce8d36e0322693187e3cb5cb520d2207c64fd88b",
+    "identity.py": "928775ee9a74fd4113141f4f606a6f9b740be39d62d77b26e43b91159ab06ed8",
+    "intersections.py": "77cf88ca0c36f7f729af3eebfef99c2705e667cb7478e99406c1d99f4d79d0eb",
+    "measure.py": "ee594ab69b48fe81e063dcb60d1185848b45c52c7f11e4278049316e001a812b",
+    "normalization.py": "e24f157ce67b7c65510b3ac4e08c4936e6fa1ae49d22acab7dfdcc733c38ffa4",
+    "notation_compile.py": "057d81abcd13fd7d380de5106867fb33c03f18a3ad1b968102bf3dedf5a5e1f1",
+    "notation_contract.py": "603b64b2efe22aa515339837d5c3cbf3a6f8a2a97b21da892e6095d2beef639b",
+    "notation_normalization.py": "6925de5873844f4e6409aa58fa7af4ac5ec24078801632716d5681d0d05e6a7f",
+    "notation_parser.py": "c1469725dd46f3088753ed3378e46914ac0879088bfcdc24c743e3f2b2407ce8",
+    "notation_replay.py": "bd89229b912769b474ecf8b209b7e6b8f499502f34bd323f4367bbf8d6f8e502",
+    "notation_semantics.py": "92645a3bb9acc19d4d72a0a71ae6e8b80904c7ce5da5b5be27fc2fd44248af68",
+    "notation_service.py": "642696ceb0504ffe8d8c66b2688976641a9f8481402f071da4199bad0c78385f",
+    "prompt.py": "92d3bcc01b4014299a55afff50f1b5b01131d3ce8d31cbe3fcb5a9a48980d627",
+    "service.py": "f9e3a2a6b426493756e0882ed9fa3f91ab068c0e6a33b60a904aa98451822e5c",
+    "smoke.py": "8a72d86360411b8ec74636081cdc26a3d58cc785cbf33b0654328c007883f210",
+    "validation.py": "88eac906b043f4a1c7646a02aefa89584b94e5c69fee64fd0707af4f0cd6c46a",
+    "wire.py": "31317a6be6b6dcb8aadeba4a95cb737ff34b2423163aabc5d8f2e70ad0f8291c"
+  },
+  "results": {
+    "tj-2026-heping-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 35.952,
+      "usage": {
+        "completion_tokens": 7393,
+        "prompt_tokens": 8511,
+        "total_tokens": 15904,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8511
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "f29c9ca2d2e5533afd46a05dcafb3164299e53e5b448eb2ec110c5eeca76a6d1",
+      "frozen_request_sha256": "06793e037cfa46bbf0fd5d2556ad377521df0ba05b2fd67535188b90fd27dc7e",
+      "request_contract": "problem-math-notation/v1"
+    }
+  }
+}

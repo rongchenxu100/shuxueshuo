@@ -1,0 +1,158 @@
+[
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/gold.json",
+    "sha256": "532b9829efd5884172d8209642dd4fc530ed669559204ce806ce91f8aebc0f79"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/formula.json",
+    "sha256": "1753eb685d8e487f805c43c1d8e472ddc87e69bb36311a0603223b19442612d8"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/provenance.json",
+    "sha256": "5834fe68bd84b2dd52adc4600b5f8f02ff097150f5f44d97f1d02651189ef2d0"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/observation.json",
+    "sha256": "cb70cbcc7685dbf952ae914740fd1bac82a766d1d4d2862191abff2ca1635773"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-provider-3.json",
+    "sha256": "2375c809bc3991a5c46e097925d5a3d9a275edb526d869c6f80069bd6134dddf"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-response-2.json",
+    "sha256": "5a70c10923237a53bf27c216c37285678f8828d2c1bbe408d5d5390d51abad3e"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-validation-3.json",
+    "sha256": "138ffa50b69e1a47fa874ccc24812e0229fd4cfbac76b355044119d6fb2ba2f5"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-validation-2.json",
+    "sha256": "7d4f28f24bb850c9fb515778a60b26c65234ae8abe167f5ee796567662b295ef"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-response-3.json",
+    "sha256": "da9d5e1038efd29b1773b01ff6d6244f77f8af14f4b6bd014282d6f23fca1914"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-provider-2.json",
+    "sha256": "f86fc1fbf7b26ba6d14ebcbf4c28d1177b28a3984be6ab9729c88343ef2df872"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-provider-1.json",
+    "sha256": "141ecefc58ee6046ba004a2205b9b65e2ac0695759706b27b0f37a91afa6b904"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-validation-1.json",
+    "sha256": "dce2518024acb5d91f02e6511f8b909542d46be874b6c2f870f82d9be70c1616"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/layout.json",
+    "sha256": "f33826125083be2bbbd0258f0db8e62e66111f3b89716b2c72d86a67da1524bf"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/context.json",
+    "sha256": "c7d8bf2d885742460d69e1386b04b8b12ec4bb676c75fe34fe45bcff6053af14"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/legacy-response-1.json",
+    "sha256": "48fc74e5a31e6f296610275cf63ae635e1d37371d9527fadb13044ac3efc4494"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/source.png",
+    "sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038"
+  },
+  {
+    "file": "server/tests/solver/fixtures/understanding-v2/k-quad/text.json",
+    "sha256": "201a3d8d826b366b2c9824a7846a5f3662893b4e862d3c42b2992fbea93bcae4"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-single-20260915/request.json",
+    "sha256": "05a1319659de231d94ef8d0540a730def3afa8726d72482beb2a5aabb1daffe6"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-single-20260915/failed-attempts.json",
+    "sha256": "7e12177f1c3184a781b01d27f0d87707bce9574d7f3f88b2e2e6aaa5d9392f4e"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-single-20260915/summary.json",
+    "sha256": "6ab96cde735ca5d80edbb45760e8248b3530d82f4979c38b94f7669ef590cab7"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-single-20260915/frozen.json",
+    "sha256": "7854bf5cae1ef8b9c01834e05b1f95c6a625d85d27d828db19082b02e72b931d"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-single-20260915/.gitignore",
+    "sha256": "ad177bc90209b7a436c932ca1c141155c6826d8f971115f259b0fd39db536fa9"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-single-20260915/semantic-call-reserved.json",
+    "sha256": "3b9be17f927b43cb160acf15a69a9fd68bdfddde2e2167eba0bc4e6b6561b7a9"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-single-20260915/artifacts/79/7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038.png",
+    "sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/request.json",
+    "sha256": "54d144d6db5acbd87931c092714794d88b8ab5b081eaa8800bb78655e6a649ee"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/summary.json",
+    "sha256": "de2009bda2def83d360f779565aee13b280657be889a9594e8ca5d404716796c"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/diff.json",
+    "sha256": "8e2e5dcae0e87e34036c27f667076c72e5c63f1c051080f84d773dae779131fd"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/raw-response.txt",
+    "sha256": "a3ea644667a282dd065cb0a7d07d60d1443825290ebb444a52ec707e9ae29fcf"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/parsed.json",
+    "sha256": "5f1f90e4f83ff37909fa48ca3ae9e85197cf070b00a47ab9fb97cf57fc7175d9"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/provider-response.json",
+    "sha256": "2daae04dcbba15cd13fd54578db5e15df0e27b8d37b0169ac6f69a06c77e5507"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/frozen.json",
+    "sha256": "dc3c70627e9858fab85a4e0df65f40e9af0c479da054caeb6398aeca35782ac0"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/call.json",
+    "sha256": "77c82a07e62569d2eab1238702f40534e19167c1f3d69e675c7f5335822b115a"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/.gitignore",
+    "sha256": "9aafb69d31d730cf1bc81967983af310debe15c4ea3bdf8175c86874d7959c5f"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/semantic-call-reserved.json",
+    "sha256": "6b0c951b6fca1486ece6e144d638760c708d6ba32b335ad4872c2b24c6d34d85"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/a3/a3ea644667a282dd065cb0a7d07d60d1443825290ebb444a52ec707e9ae29fcf.txt",
+    "sha256": "a3ea644667a282dd065cb0a7d07d60d1443825290ebb444a52ec707e9ae29fcf"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/e3/e30d063966de2e7382415edc95a9a859d071dbb69e213b6d9657c3730737de65.json",
+    "sha256": "e30d063966de2e7382415edc95a9a859d071dbb69e213b6d9657c3730737de65"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/4e/4ee0919030e8a0043a1743f3b732802d6ad7f0189b2538325ee7cb4c736f89b2.json",
+    "sha256": "4ee0919030e8a0043a1743f3b732802d6ad7f0189b2538325ee7cb4c736f89b2"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/79/7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038.png",
+    "sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038"
+  },
+  {
+    "file": "internal/solver-runs/understanding-v2-authoring-fix-20260915/artifacts/7a/7a35cb55eb9ea1517ab6df77149384f7cb06924305dcb5c69ff570c46a3bef78.json",
+    "sha256": "7a35cb55eb9ea1517ab6df77149384f7cb06924305dcb5c69ff570c46a3bef78"
+  }
+]

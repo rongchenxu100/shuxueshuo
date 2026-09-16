@@ -1,0 +1,1396 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>七题双模型真实测试对比</title><style>body{font:16px/1.65 system-ui;color:#182439;max-width:1500px;margin:36px auto;padding:0 24px}table{border-collapse:collapse;width:100%}td,th{padding:12px;border-bottom:1px solid #ddd;text-align:left}.pair{display:grid;grid-template-columns:1fr 1fr;gap:24px}article{min-width:0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f5f8;padding:18px;border-radius:8px;font:14px/1.6 ui-monospace,monospace}section{border-top:2px solid #ccd2db;margin-top:32px}.ok{color:#087b50}.bad{color:#b43e2c}summary{cursor:pointer}h1{margin-bottom:8px}@media(max-width:850px){.pair{grid-template-columns:1fr}table{font-size:13px}}</style><h1>七题双模型真实集成测试</h1><p>同一冻结输入，各运行一轮；每批并发 3。以下为模型原始返回，未自动修复。输出 token 包含思考 token；候选尚未接入 Solver。</p><table><tr><th>模型</th><th>通过率</th><th>整批耗时</th><th>输入 token</th><th>输出 token</th><th>总 token</th></tr><tr><td>deepseek-flash</td><td>6/7</td><td>93.62 秒</td><td>70,057</td><td>40,413</td><td>110,470</td></tr><tr><td>doubao-seed-2-1-turbo-260628</td><td>4/7</td><td>145.26 秒</td><td>77,946</td><td>19,976</td><td>97,922</td></tr></table><details><summary>失败原因与统计解读（不改变真实成绩）</summary><pre># 结果解读与失败原因
+
+本轮当前契约下，DeepSeek 严格通过 6/7（85.7%），Doubao 严格通过 4/7（57.1%）。DeepSeek 整批耗时少约 35.5%；Doubao 总 token 少约 11.4%。全部 14 次语义调用均一次网络尝试完成，以 stop 结束，用量完整，没有重试、追加调用或自动修复。
+
+## 失败原因
+
+| 模型 / 题目 | 本轮失败原因 | 独立离线诊断 |
+| --- | --- | --- |
+| DeepSeek / K 题 | `angle(BDC)`、`angle(ABD)` 等写法不符合当前三参数 angle 记法，产生两处参数数量错误 | 仅将四个角引用改为三参数形式后仍未通过：图1把 k 比例约束施加在被平分的对角线上；图2缺少 `quadrilateral(A,B,C,D)` 构型，其他条件尚不足以证明其冗余 |
+| Doubao / 和平二模 | `M = axis(Γ) ∩ x_axis` 未被当前编译器作为点定义接受，导致 M 绑定失败并连带影响最值和目标 | 诊断副本仅改为 `M ∈ axis(Γ) ∩ x_axis`，即可严格通过，属于交点记法兼容问题 |
+| Doubao / 南开一模 | `D = axis(Γ) ∩ x_axis` 同样导致 D 绑定失败 | 诊断副本仅改为 `D ∈ axis(Γ) ∩ x_axis`，即可严格通过，属于交点记法兼容问题 |
+| Doubao / K 题 | `O = segment(A,C) ∩ segment(B,D)` 把点与点集直接等同，当前类型校验拒绝 | 仅改为成员关系后仍未通过：图2、(2)、(3) 缺少四边形构型；图1末尾的 `∧ k≥1` 只约束 OR 的第二分支，未覆盖完整定义 |
+
+两家的 K 题本次均保留了 `(1)` 下两图的层次，并在四个子问准确报告图1～4缺失，触发 `extraction.missing_figure`。因此此前的层次与缺图问题在本次返回中已经改善；K 题整体失败来自上述数学表达问题。
+
+诊断副本仅用于定位，未修改原始响应、代码、金标或真实成绩，也未增加模型调用。尤其不能将 Doubao 的两题诊断通过计入本轮通过率。诊断替换及完整差异见 `diagnostic-normalization-only.json`。
+
+## Token 和时间口径
+
+| 模型 | 输入 token | 其中缓存命中 | 输出 token（含思考） | 其中思考 | 可见输出 token | 逐题耗时之和 | 整批墙钟 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| DeepSeek | 70,057 | 40,448 | 40,413 | 37,159 | 3,254 | 187.94 秒 | 93.62 秒 |
+| Doubao | 77,946 | 27,048 | 19,976 | 16,668 | 3,308 | 351.12 秒 | 145.26 秒 |
+
+两家可见输出长度接近，输出 token 的主要差别在思考部分。每题完整 token 与耗时见 README 和 metrics.json。
+
+两批使用相同冻结内容及并发上限，但 tokenizer、图像计量、缓存命中和运行时服务状态不同。token 数不能直接代表费用；速度及通过率仅描述这一轮七题、当前记法与解析器的结果，不应直接外推为模型的一般数学能力。未实施缓存清空或成本归一化。
+</pre></details><section><h2>和平一模</h2><div class=pair><article><h3>deepseek <span class=ok>通过</span></h3><p>33.15 秒 · 输入 10,162 · 输出 6,540 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-heping-yimo-25&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;matched&quot;,
+    &quot;family_id&quot;: &quot;QuadraticEqualLengthRayPathMinimumSolver&quot;,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 33.148
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: false,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2+b*x-3&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;a &gt; 0&quot;,
+      &quot;A = (-1,0)&quot;,
+      &quot;Γ ∩ x_axis = {A,B}&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;D = C+(2,0)&quot;,
+      &quot;O = (0,0)&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(Ⅰ)&quot;,
+        &quot;facts&quot;: [
+          &quot;D ∈ Γ&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;E ∈ Γ&quot;,
+              &quot;x(E) = m&quot;,
+              &quot;-1 &lt; m &lt; 0&quot;,
+              &quot;∠CBE + ∠ACO = 45°&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;E&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(Ⅱ)&quot;,
+        &quot;facts&quot;: [
+          &quot;M ∈ segment(B,C)&quot;,
+          &quot;N ∈ ray(C,D)&quot;,
+          &quot;CN = CM&quot;,
+          &quot;min(OM+BN) = sqrt(34)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;a&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticEqualLengthRayPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面(Ⅱ)包含二次函数、射线CD上的动点N、等长条件CN=CM，以及路径和OM+BN的最小值，符合二次函数等长射线路径最值题型。&quot;
+}</pre></article><article><h3>doubao <span class=ok>通过</span></h3><p>58.53 秒 · 输入 11,142 · 输出 3,366 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-heping-yimo-25&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;matched&quot;,
+    &quot;family_id&quot;: &quot;QuadraticEqualLengthRayPathMinimumSolver&quot;,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 58.53
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: false,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [&quot;Γ: y = a*x^2 + b*x - 3&quot;],
+    &quot;facts&quot;: [
+      &quot;a &gt; 0&quot;,
+      &quot;A = (-1, 0)&quot;,
+      &quot;A ∈ Γ&quot;,
+      &quot;Γ ∩ x_axis = {A, B}&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;D = C + (2, 0)&quot;,
+      &quot;O = (0, 0)&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(Ⅰ)&quot;,
+        &quot;facts&quot;: [&quot;D ∈ Γ&quot;],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_equation&quot;, &quot;object&quot;: &quot;Γ&quot;}]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;E ∈ Γ&quot;,
+              &quot;x(E) = m&quot;,
+              &quot;-1 &lt; m &lt; 0&quot;,
+              &quot;∠CBE + ∠ACO = 45°&quot;
+            ],
+            &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;E&quot;}]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(Ⅱ)&quot;,
+        &quot;facts&quot;: [
+          &quot;M ∈ segment(B, C)&quot;,
+          &quot;N ∈ ray(C, D)&quot;,
+          &quot;CN = CM&quot;,
+          &quot;min(OM + BN) = sqrt(34)&quot;
+        ],
+        &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_value&quot;, &quot;expression&quot;: &quot;a&quot;}]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticEqualLengthRayPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面给出二次函数抛物线，存在射线CD，动点N位于射线CD上，满足等长条件CN=CM，且给出OM+BN的最小值条件，符合二次函数等长射线路径最值题型的要求。&quot;
+}</pre></article></div></section><section><h2>和平二模</h2><div class=pair><article><h3>deepseek <span class=ok>通过</span></h3><p>26.86 秒 · 输入 10,036 · 输出 5,810 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-heping-ermo-25&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;matched&quot;,
+    &quot;family_id&quot;: &quot;QuadraticSquareReflectionPathMinimumSolver&quot;,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 26.856
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: false,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = -x^2 + b*x + c&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;c &gt; 1&quot;,
+      &quot;P = vertex(Γ)&quot;,
+      &quot;Γ ∩ x_axis = {A,B}&quot;,
+      &quot;x(A) &lt; x(B)&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;axis(Γ) ∩ x_axis = {M}&quot;,
+      &quot;E ∈ axis(Γ)&quot;,
+      &quot;square(A,E,K,G)&quot;,
+      &quot;y(G) &lt; 0&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;（Ⅰ）&quot;,
+        &quot;facts&quot;: [
+          &quot;b = -2&quot;,
+          &quot;c = 3&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;P&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;A&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;G ∈ Γ&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;E&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（Ⅱ）&quot;,
+        &quot;facts&quot;: [
+          &quot;A = (-c, 0)&quot;,
+          &quot;F = midpoint(A,E)&quot;,
+          &quot;segment(A,K) ∩ segment(E,G) = {H}&quot;,
+          &quot;min(HF+FM+MG) = 3*sqrt(5)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;E&quot;,
+            &quot;at&quot;: &quot;HF+FM+MG = min(HF+FM+MG)&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticSquareReflectionPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面包含二次函数、正方形AEKG，且路径HF+FM+MG的最小值依赖于正方形中点F和中心H等关系，符合正方形路径最值题型。&quot;
+}</pre></article><article><h3>doubao <span class=bad>未通过</span></h3><p>49.43 秒 · 输入 11,146 · 输出 2,887 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-heping-ermo-25&quot;,
+    &quot;passed&quot;: false,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;invalid_candidate&quot;,
+      &quot;blocked&quot;: true
+    },
+    &quot;contract_valid&quot;: false,
+    &quot;elapsed_seconds&quot;: 49.427
+  },
+  &quot;ir_issues&quot;: [
+    {
+      &quot;path&quot;: &quot;r.facts[4]&quot;,
+      &quot;source&quot;: &quot;M = axis(Γ) ∩ x_axis&quot;,
+      &quot;code&quot;: &quot;notation.bind&quot;,
+      &quot;message&quot;: &quot;binding.unknown_or_invisible:M&quot;
+    },
+    {
+      &quot;path&quot;: &quot;r.c1.facts[3]&quot;,
+      &quot;source&quot;: &quot;min(HF + FM + MG) = 3*sqrt(5)&quot;,
+      &quot;code&quot;: &quot;notation.bind&quot;,
+      &quot;message&quot;: &quot;binding.unknown_or_invisible:M&quot;
+    },
+    {
+      &quot;path&quot;: &quot;r.c1.goals[0]&quot;,
+      &quot;source&quot;: {
+        &quot;kind&quot;: &quot;find_coordinates&quot;,
+        &quot;object&quot;: &quot;E&quot;,
+        &quot;at&quot;: &quot;HF + FM + MG = min(HF + FM + MG)&quot;
+      },
+      &quot;code&quot;: &quot;notation.goal&quot;,
+      &quot;message&quot;: &quot;binding.unknown_or_invisible:M&quot;
+    }
+  ],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: false,
+    &quot;reason&quot;: &quot;invalid domain&quot;
+  },
+  &quot;acceptance&quot;: {}
+}</pre></details><pre>{&quot;root&quot;:{&quot;definitions&quot;:[&quot;Γ: y = -x^2 + b*x + c&quot;],&quot;facts&quot;:[&quot;c &gt; 1&quot;,&quot;P = vertex(Γ)&quot;,&quot;Γ ∩ x_axis = {A, B} ∧ x(A) &lt; x(B)&quot;,&quot;Γ ∩ y_axis = {C}&quot;,&quot;M = axis(Γ) ∩ x_axis&quot;,&quot;E ∈ axis(Γ)&quot;,&quot;square(A,E,K,G)&quot;,&quot;y(G) &lt; 0&quot;],&quot;children&quot;:[{&quot;label&quot;:&quot;（Ⅰ）&quot;,&quot;facts&quot;:[&quot;b = -2&quot;,&quot;c = 3&quot;],&quot;children&quot;:[{&quot;label&quot;:&quot;①&quot;,&quot;goals&quot;:[{&quot;kind&quot;:&quot;find_coordinates&quot;,&quot;object&quot;:&quot;P&quot;},{&quot;kind&quot;:&quot;find_coordinates&quot;,&quot;object&quot;:&quot;A&quot;}]},{&quot;label&quot;:&quot;②&quot;,&quot;facts&quot;:[&quot;G ∈ Γ&quot;],&quot;goals&quot;:[{&quot;kind&quot;:&quot;find_coordinates&quot;,&quot;object&quot;:&quot;E&quot;}]}]},{&quot;label&quot;:&quot;（Ⅱ）&quot;,&quot;facts&quot;:[&quot;A = (-c, 0)&quot;,&quot;F = midpoint(A,E)&quot;,&quot;line(A,K) ∩ line(E,G) = {H}&quot;,&quot;min(HF + FM + MG) = 3*sqrt(5)&quot;],&quot;goals&quot;:[{&quot;kind&quot;:&quot;find_coordinates&quot;,&quot;object&quot;:&quot;E&quot;,&quot;at&quot;:&quot;HF + FM + MG = min(HF + FM + MG)&quot;}]}]},&quot;match_status&quot;:&quot;matched&quot;,&quot;family_id&quot;:&quot;QuadraticSquareReflectionPathMinimumSolver&quot;,&quot;match_reason&quot;:&quot;题面给出二次函数抛物线、正方形AEKG及HF+FM+MG的路径最小值目标，路径相关的F、H、G点均由正方形的边、中点、对角线关系定义，正方形参与路径等价变换，符合该题型适用条件。&quot;}</pre></article></div></section><section><h2>河西一模</h2><div class=pair><article><h3>deepseek <span class=ok>通过</span></h3><p>27.53 秒 · 输入 9,973 · 输出 5,820 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-hexi-yimo-25&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;matched&quot;,
+    &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 27.531
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: false,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [&quot;Γ: y = a*x^2 - b*x + c&quot;],
+    &quot;facts&quot;: [&quot;b &gt; 0&quot;],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(I)&quot;,
+        &quot;facts&quot;: [&quot;a = 1&quot;, &quot;b = 2&quot;, &quot;c = 3&quot;, &quot;P = vertex(Γ)&quot;],
+        &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;P&quot;}]
+      },
+      {
+        &quot;label&quot;: &quot;(II)&quot;,
+        &quot;facts&quot;: [&quot;a = 2&quot;, &quot;A = (-1,0)&quot;, &quot;A ∈ Γ&quot;, &quot;D ∈ Γ&quot;, &quot;Γ ∩ y_axis = {C}&quot;, &quot;∠CAD = 90°&quot;, &quot;AC = AD&quot;],
+        &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;D&quot;}]
+      },
+      {
+        &quot;label&quot;: &quot;(III)&quot;,
+        &quot;facts&quot;: [&quot;a = 1&quot;, &quot;A = (-1,0)&quot;, &quot;A ∈ Γ&quot;, &quot;M = (b + 1/2, y_M)&quot;, &quot;M ∈ Γ&quot;, &quot;N = (n,0)&quot;, &quot;n &gt; 0&quot;, &quot;min(sqrt(2)*MN + AN) = 21/4&quot;],
+        &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_value&quot;, &quot;expression&quot;: &quot;b&quot;}]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;第(III)问的目标是√2·MN + AN的最小值，其中权重系数√2 ≠ 1，且题面明确给出最小值21/4，符合QuadraticWeightedPathMinimumSolver的use_when条件。&quot;
+}</pre></article><article><h3>doubao <span class=ok>通过</span></h3><p>31.91 秒 · 输入 11,142 · 输出 1,687 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-hexi-yimo-25&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;matched&quot;,
+    &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 31.913
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: false,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [&quot;Γ: y = a*x^2 - b*x + c&quot;],
+    &quot;facts&quot;: [&quot;b &gt; 0&quot;],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(I)&quot;,
+        &quot;facts&quot;: [&quot;a = 1&quot;, &quot;b = 2&quot;, &quot;c = 3&quot;, &quot;P = vertex(Γ)&quot;],
+        &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;P&quot;}]
+      },
+      {
+        &quot;label&quot;: &quot;(II)&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 2&quot;,
+          &quot;A = (-1, 0)&quot;,
+          &quot;A ∈ Γ&quot;,
+          &quot;D ∈ Γ&quot;,
+          &quot;Γ ∩ y_axis = {C}&quot;,
+          &quot;∠CAD = 90°&quot;,
+          &quot;AC = AD&quot;
+        ],
+        &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;D&quot;}]
+      },
+      {
+        &quot;label&quot;: &quot;(III)&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 1&quot;,
+          &quot;A = (-1, 0)&quot;,
+          &quot;A ∈ Γ&quot;,
+          &quot;M = (b + 1/2, y_M)&quot;,
+          &quot;M ∈ Γ&quot;,
+          &quot;N = (n, 0)&quot;,
+          &quot;n &gt; 0&quot;,
+          &quot;min(sqrt(2)*MN + AN) = 21/4&quot;
+        ],
+        &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_value&quot;, &quot;expression&quot;: &quot;b&quot;}]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面给出二次函数抛物线，第(III)问的目标路径为带非1权重√2的sqrt(2)*MN + AN，且明确给出该路径最小值为21/4，符合二次函数加权路径最值题型要求，不属于射线等长替换、正方形反射或普通无权路径情形。&quot;
+}</pre></article></div></section><section><h2>南开一模</h2><div class=pair><article><h3>deepseek <span class=ok>通过</span></h3><p>26.52 秒 · 输入 10,066 · 输出 5,984 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-nankai-yimo-25&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;matched&quot;,
+    &quot;family_id&quot;: &quot;QuadraticPathMinimumSolver&quot;,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 26.518
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: false,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2+b*x+c&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;a &gt; 0&quot;,
+      &quot;2*a + b = 0&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;axis(Γ) ∩ x_axis = {D}&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(I)&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 2&quot;,
+          &quot;c = -5&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;D&quot;
+          },
+          {
+            &quot;kind&quot;: &quot;find_equation&quot;,
+            &quot;object&quot;: &quot;Γ&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(II)&quot;,
+        &quot;facts&quot;: [
+          &quot;M = (m,1)&quot;,
+          &quot;m &gt; 2&quot;,
+          &quot;N ∈ Γ&quot;,
+          &quot;M ∈ Γ&quot;,
+          &quot;x(N) &gt; 0 ∧ y(N) &lt; 0&quot;,
+          &quot;∠MDN = 90°&quot;,
+          &quot;DM = DN&quot;,
+          &quot;E ∈ segment(D,M)&quot;,
+          &quot;G ∈ segment(M,N)&quot;,
+          &quot;F = midpoint(D,N)&quot;,
+          &quot;DE = sqrt(2)*NG&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;facts&quot;: [
+              &quot;MN = sqrt(10)&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_minimum&quot;,
+                &quot;expression&quot;: &quot;EG+FG&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;min(EG+FG) = 5*sqrt(10)/2&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;,
+                &quot;at&quot;: &quot;EG+FG = min(EG+FG)&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;G&quot;,
+                &quot;at&quot;: &quot;EG+FG = min(EG+FG)&quot;
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题目包含抛物线（二次函数）和路径EG+FG的最小值目标，无射线、正方形或加权系数，符合QuadraticPathMinimumSolver的适用条件。&quot;
+}</pre></article><article><h3>doubao <span class=bad>未通过</span></h3><p>56.30 秒 · 输入 11,120 · 输出 2,891 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-nankai-yimo-25&quot;,
+    &quot;passed&quot;: false,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;invalid_candidate&quot;,
+      &quot;blocked&quot;: true
+    },
+    &quot;contract_valid&quot;: false,
+    &quot;elapsed_seconds&quot;: 56.305
+  },
+  &quot;ir_issues&quot;: [
+    {
+      &quot;path&quot;: &quot;r.facts[3]&quot;,
+      &quot;source&quot;: &quot;D = axis(Γ) ∩ x_axis&quot;,
+      &quot;code&quot;: &quot;notation.bind&quot;,
+      &quot;message&quot;: &quot;binding.unknown_or_invisible:D&quot;
+    },
+    {
+      &quot;path&quot;: &quot;r.c0.goals[0]&quot;,
+      &quot;source&quot;: {
+        &quot;kind&quot;: &quot;find_coordinates&quot;,
+        &quot;object&quot;: &quot;D&quot;
+      },
+      &quot;code&quot;: &quot;notation.goal&quot;,
+      &quot;message&quot;: &quot;binding.unknown_or_invisible:D&quot;
+    }
+  ],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: false,
+    &quot;reason&quot;: &quot;invalid domain&quot;
+  },
+  &quot;acceptance&quot;: {}
+}</pre></details><pre>{&quot;root&quot;:{&quot;definitions&quot;:[&quot;Γ: y = a*x^2 + b*x + c&quot;],&quot;facts&quot;:[&quot;a &gt; 0&quot;,&quot;Γ ∩ y_axis = {C}&quot;,&quot;2*a + b = 0&quot;,&quot;D = axis(Γ) ∩ x_axis&quot;],&quot;children&quot;:[{&quot;label&quot;:&quot;(I)&quot;,&quot;facts&quot;:[&quot;a = 2&quot;,&quot;c = -5&quot;],&quot;goals&quot;:[{&quot;kind&quot;:&quot;find_coordinates&quot;,&quot;object&quot;:&quot;D&quot;},{&quot;kind&quot;:&quot;find_equation&quot;,&quot;object&quot;:&quot;Γ&quot;}]},{&quot;label&quot;:&quot;(II)&quot;,&quot;facts&quot;:[&quot;M = (m, 1)&quot;,&quot;M ∈ Γ&quot;,&quot;N ∈ Γ&quot;,&quot;m &gt; 2&quot;,&quot;x(N) &gt; 0 ∧ y(N) &lt; 0&quot;,&quot;∠MDN = 90°&quot;,&quot;DM = DN&quot;,&quot;E ∈ segment(D,M)&quot;,&quot;G ∈ segment(M,N)&quot;,&quot;F = midpoint(D,N)&quot;,&quot;DE = sqrt(2)*NG&quot;],&quot;children&quot;:[{&quot;label&quot;:&quot;①&quot;,&quot;facts&quot;:[&quot;MN = sqrt(10)&quot;],&quot;goals&quot;:[{&quot;kind&quot;:&quot;find_equation&quot;,&quot;object&quot;:&quot;Γ&quot;},{&quot;kind&quot;:&quot;find_minimum&quot;,&quot;expression&quot;:&quot;EG+FG&quot;}]},{&quot;label&quot;:&quot;②&quot;,&quot;facts&quot;:[&quot;min(EG+FG) = 5*sqrt(10)/2&quot;],&quot;goals&quot;:[{&quot;kind&quot;:&quot;find_equation&quot;,&quot;object&quot;:&quot;Γ&quot;,&quot;at&quot;:&quot;EG+FG = min(EG+FG)&quot;},{&quot;kind&quot;:&quot;find_coordinates&quot;,&quot;object&quot;:&quot;G&quot;,&quot;at&quot;:&quot;EG+FG = min(EG+FG)&quot;}]}]}]},&quot;match_status&quot;:&quot;matched&quot;,&quot;family_id&quot;:&quot;QuadraticPathMinimumSolver&quot;,&quot;match_reason&quot;:&quot;题面给出二次函数抛物线，且存在EG+FG的路径最小值目标与最小值条件，路径为无权距离和，不涉及非1权重、射线等长替换或正方形反射机制，符合普通二次函数路径最值题型。&quot;}</pre></article></div></section><section><h2>西青一模</h2><div class=pair><article><h3>deepseek <span class=ok>通过</span></h3><p>6.23 秒 · 输入 9,901 · 输出 1,323 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-xiqing-yimo-25&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;matched&quot;,
+    &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 6.226
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: false,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [&quot;Γ: y = -x^2+b*x+c&quot;],
+    &quot;facts&quot;: [&quot;A = (-1,0)&quot;, &quot;b &gt; 0&quot;, &quot;A ∈ Γ&quot;, &quot;Γ ∩ x_axis = {A,B}&quot;, &quot;Γ ∩ y_axis = {C}&quot;],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;facts&quot;: [&quot;b = 4&quot;],
+        &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;vertex(Γ)&quot;}]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [&quot;D = (b+2,y(D))&quot;, &quot;D ∈ Γ&quot;],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;facts&quot;: [&quot;AD = 2*BC&quot;],
+            &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_value&quot;, &quot;expression&quot;: &quot;b&quot;}]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [&quot;M = (m,0)&quot;, &quot;M ∈ x_axis ∧ x(M) &gt; 0&quot;, &quot;min(2*DM+AM) = 5+5*sqrt(3)&quot;],
+            &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_value&quot;, &quot;expression&quot;: &quot;b&quot;}]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面给出二次函数（抛物线）及带权路径目标 2DM+AM，并明确其最小值为 5+5√3，权重不为1，符合 QuadraticWeightedPathMinimumSolver 的构造。&quot;
+}</pre></article><article><h3>doubao <span class=ok>通过</span></h3><p>48.78 秒 · 输入 11,124 · 输出 2,984 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;tj-2026-xiqing-yimo-25&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;matched&quot;,
+    &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 48.785
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: false,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [&quot;Γ: y = -x^2 + b*x + c&quot;],
+    &quot;facts&quot;: [
+      &quot;b &gt; 0&quot;,
+      &quot;A = (-1, 0)&quot;,
+      &quot;A ∈ Γ&quot;,
+      &quot;Γ ∩ x_axis = {A, B}&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;facts&quot;: [&quot;b = 4&quot;],
+        &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;vertex(Γ)&quot;}]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [&quot;x(D) = b + 2&quot;, &quot;D ∈ Γ&quot;],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;facts&quot;: [&quot;AD = 2*BC&quot;],
+            &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_value&quot;, &quot;expression&quot;: &quot;b&quot;}]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;M = (m, 0)&quot;,
+              &quot;m &gt; 0&quot;,
+              &quot;min(2*DM + AM) = 5 + 5*sqrt(3)&quot;
+            ],
+            &quot;goals&quot;: [{&quot;kind&quot;: &quot;find_value&quot;, &quot;expression&quot;: &quot;b&quot;}]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面声明了二次函数抛物线Γ，存在带权距离和2DM+AM（权重为2，不等于1）的最值目标，且给出了该路径的最小值条件，符合二次函数加权路径最值题型的要求。&quot;
+}</pre></article></div></section><section><h2>K 倍四边形</h2><div class=pair><article><h3>deepseek <span class=bad>未通过</span></h3><p>60.14 秒 · 输入 10,147 · 输出 13,347 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;k-quad&quot;,
+    &quot;passed&quot;: false,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;needs_confirmation&quot;,
+      &quot;blocked&quot;: true,
+      &quot;error_code&quot;: &quot;extraction.missing_figure&quot;,
+      &quot;user_action&quot;: &quot;supplement_image&quot;,
+      &quot;message&quot;: &quot;题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。&quot;,
+      &quot;missing_figures&quot;: [
+        {
+          &quot;scope&quot;: &quot;r.c0.c0&quot;,
+          &quot;label&quot;: &quot;①&quot;,
+          &quot;text&quot;: &quot;题面引用图1，但输入图片未提供该图。&quot;
+        },
+        {
+          &quot;scope&quot;: &quot;r.c0.c1&quot;,
+          &quot;label&quot;: &quot;②&quot;,
+          &quot;text&quot;: &quot;题面引用图2，但输入图片未提供该图。&quot;
+        },
+        {
+          &quot;scope&quot;: &quot;r.c1&quot;,
+          &quot;label&quot;: &quot;(2)&quot;,
+          &quot;text&quot;: &quot;题面引用图3，但输入图片未提供该图。&quot;
+        },
+        {
+          &quot;scope&quot;: &quot;r.c2&quot;,
+          &quot;label&quot;: &quot;(3)&quot;,
+          &quot;text&quot;: &quot;题面引用图4，但输入图片未提供该图。&quot;
+        }
+      ]
+    },
+    &quot;contract_valid&quot;: false,
+    &quot;elapsed_seconds&quot;: 60.144
+  },
+  &quot;ir_issues&quot;: [
+    {
+      &quot;path&quot;: &quot;r.c1.facts[3]&quot;,
+      &quot;source&quot;: &quot;angle(BDC) = 2*angle(ABD)&quot;,
+      &quot;code&quot;: &quot;notation.bind&quot;,
+      &quot;message&quot;: &quot;binding.call_arity:angle&quot;
+    },
+    {
+      &quot;path&quot;: &quot;r.c2.facts[6]&quot;,
+      &quot;source&quot;: &quot;angle(BAC) = angle(DAC)&quot;,
+      &quot;code&quot;: &quot;notation.bind&quot;,
+      &quot;message&quot;: &quot;binding.call_arity:angle&quot;
+    }
+  ],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: false,
+    &quot;reason&quot;: &quot;invalid domain&quot;
+  },
+  &quot;acceptance&quot;: {}
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为k（k≥1），则称该四边形为“k倍四边形”。&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;facts&quot;: [
+              &quot;parallelogram(A,B,C,D)&quot;,
+              &quot;segment(A,C) ∩ segment(B,D) = {O}&quot;,
+              &quot;E = midpoint(O,B)&quot;,
+              &quot;k ≥ 1&quot;,
+              &quot;(bisects(ED, AC) ∧ (cut_ratio(AC, ED) = k ∨ cut_ratio(AC, ED) = 1/k)) ∨ (bisects(AC, ED) ∧ (cut_ratio(ED, AC) = k ∨ cut_ratio(ED, AC) = 1/k))&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;k&quot;
+              }
+            ],
+            &quot;uncertainties&quot;: [
+              {
+                &quot;kind&quot;: &quot;missing_figure&quot;,
+                &quot;text&quot;: &quot;题面引用图1，但输入图片未提供该图。&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;k ≥ 1&quot;,
+              &quot;bisects(BD, AC) ∧ (cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k)&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;area(△ACD)/area(△ACB)&quot;,
+                &quot;in_terms_of&quot;: [&quot;k&quot;]
+              }
+            ],
+            &quot;uncertainties&quot;: [
+              {
+                &quot;kind&quot;: &quot;missing_figure&quot;,
+                &quot;text&quot;: &quot;题面引用图2，但输入图片未提供该图。&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;quadrilateral(A,B,C,D)&quot;,
+          &quot;k ≥ 1&quot;,
+          &quot;bisects(BD, AC) ∧ (cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k)&quot;,
+          &quot;angle(BDC) = 2*angle(ABD)&quot;,
+          &quot;BD = 4*CD&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;k&quot;
+          }
+        ],
+        &quot;uncertainties&quot;: [
+          {
+            &quot;kind&quot;: &quot;missing_figure&quot;,
+            &quot;text&quot;: &quot;题面引用图3，但输入图片未提供该图。&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(3)&quot;,
+        &quot;facts&quot;: [
+          &quot;A、B为定点&quot;,
+          &quot;C ∈ ray(B,M)&quot;,
+          &quot;D为平面内一点&quot;,
+          &quot;quadrilateral(A,B,C,D)&quot;,
+          &quot;line(A,B) ⟂ line(B,M)&quot;,
+          &quot;bisects(BD, AC)&quot;,
+          &quot;angle(BAC) = angle(DAC)&quot;,
+          &quot;bisects(BD, AC) ∧ (cut_ratio(BD, AC) = 2 ∨ cut_ratio(BD, AC) = 1/2)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;tan(∠ACD)&quot;
+          }
+        ],
+        &quot;uncertainties&quot;: [
+          {
+            &quot;kind&quot;: &quot;missing_figure&quot;,
+            &quot;text&quot;: &quot;题面引用图4，但输入图片未提供该图。&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;unmatched&quot;,
+  &quot;family_id&quot;: null,
+  &quot;match_reason&quot;: &quot;题目为k倍四边形定义与几何综合题，不属于注册的二次函数路径最值题型。&quot;
+}</pre></article><article><h3>doubao <span class=bad>未通过</span></h3><p>86.20 秒 · 输入 11,146 · 输出 5,272 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;k-quad&quot;,
+    &quot;passed&quot;: false,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;needs_confirmation&quot;,
+      &quot;blocked&quot;: true,
+      &quot;error_code&quot;: &quot;extraction.missing_figure&quot;,
+      &quot;user_action&quot;: &quot;supplement_image&quot;,
+      &quot;message&quot;: &quot;题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。&quot;,
+      &quot;missing_figures&quot;: [
+        {
+          &quot;scope&quot;: &quot;r.c0.c0&quot;,
+          &quot;label&quot;: &quot;图1&quot;,
+          &quot;text&quot;: &quot;题面引用图1，本次输入未提供该几何示意图。&quot;
+        },
+        {
+          &quot;scope&quot;: &quot;r.c0.c1&quot;,
+          &quot;label&quot;: &quot;图2&quot;,
+          &quot;text&quot;: &quot;题面引用图2，本次输入未提供该几何示意图。&quot;
+        },
+        {
+          &quot;scope&quot;: &quot;r.c1&quot;,
+          &quot;label&quot;: &quot;(2)&quot;,
+          &quot;text&quot;: &quot;题面引用图3，本次输入未提供该几何示意图。&quot;
+        },
+        {
+          &quot;scope&quot;: &quot;r.c2&quot;,
+          &quot;label&quot;: &quot;(3)&quot;,
+          &quot;text&quot;: &quot;题面引用图4，本次输入未提供该几何示意图。&quot;
+        }
+      ]
+    },
+    &quot;contract_valid&quot;: false,
+    &quot;elapsed_seconds&quot;: 86.199
+  },
+  &quot;ir_issues&quot;: [
+    {
+      &quot;path&quot;: &quot;r.c0.c0.facts[1]&quot;,
+      &quot;source&quot;: &quot;O = segment(A,C) ∩ segment(B,D)&quot;,
+      &quot;code&quot;: &quot;notation.bind&quot;,
+      &quot;message&quot;: &quot;type.relation&quot;
+    }
+  ],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: false,
+    &quot;reason&quot;: &quot;invalid domain&quot;
+  },
+  &quot;acceptance&quot;: {}
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为 k（k ≥ 1），则称该四边形为“k 倍四边形”。&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;图1&quot;,
+            &quot;facts&quot;: [
+              &quot;parallelogram(A,B,C,D)&quot;,
+              &quot;O = segment(A,C) ∩ segment(B,D)&quot;,
+              &quot;E = midpoint(O,B)&quot;,
+              &quot;(bisects(ED, AC) ∧ (cut_ratio(ED, AC) = k ∨ cut_ratio(ED, AC) = 1/k)) ∨ (bisects(AC, ED) ∧ (cut_ratio(AC, ED) = k ∨ cut_ratio(AC, ED) = 1/k)) ∧ k ≥ 1&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;k&quot;
+              }
+            ],
+            &quot;uncertainties&quot;: [
+              {
+                &quot;kind&quot;: &quot;missing_figure&quot;,
+                &quot;text&quot;: &quot;题面引用图1，本次输入未提供该几何示意图。&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;图2&quot;,
+            &quot;facts&quot;: [
+              &quot;bisects(BD, AC)&quot;,
+              &quot;(cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k) ∧ k ≥ 1&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;area(△ACD)/area(△ACB)&quot;,
+                &quot;in_terms_of&quot;: [
+                  &quot;k&quot;
+                ]
+              }
+            ],
+            &quot;uncertainties&quot;: [
+              {
+                &quot;kind&quot;: &quot;missing_figure&quot;,
+                &quot;text&quot;: &quot;题面引用图2，本次输入未提供该几何示意图。&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;bisects(BD, AC)&quot;,
+          &quot;(cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k) ∧ k ≥ 1&quot;,
+          &quot;∠BDC = 2*∠ABD&quot;,
+          &quot;BD = 4*CD&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;k&quot;
+          }
+        ],
+        &quot;uncertainties&quot;: [
+          {
+            &quot;kind&quot;: &quot;missing_figure&quot;,
+            &quot;text&quot;: &quot;题面引用图3，本次输入未提供该几何示意图。&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(3)&quot;,
+        &quot;facts&quot;: [
+          &quot;A、B为定点；C为动点；D为平面内一点。&quot;,
+          &quot;line(A,B) ⟂ line(B,M)&quot;,
+          &quot;C ∈ ray(B,M)&quot;,
+          &quot;bisects(BD, AC)&quot;,
+          &quot;∠BAC = ∠DAC&quot;,
+          &quot;(cut_ratio(BD, AC) = 2 ∨ cut_ratio(BD, AC) = 1/2)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;tan(∠ACD)&quot;
+          }
+        ],
+        &quot;uncertainties&quot;: [
+          {
+            &quot;kind&quot;: &quot;missing_figure&quot;,
+            &quot;text&quot;: &quot;题面引用图4，本次输入未提供该几何示意图。&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;unmatched&quot;,
+  &quot;family_id&quot;: null,
+  &quot;match_reason&quot;: &quot;本题为k倍四边形新定义几何题，未出现二次函数对象及路径最值目标，不符合注册的四类二次函数路径最值题型的适用条件。&quot;
+}</pre></article></div></section><section><h2>函数量词</h2><div class=pair><article><h3>deepseek <span class=ok>通过</span></h3><p>7.52 秒 · 输入 9,772 · 输出 1,589 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;function-quantifiers&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;unmatched&quot;,
+    &quot;family_id&quot;: null,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 7.516
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: true,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;f(x) = x^2+b*x+c&quot;,
+      &quot;g(x) = 2*x-1&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;facts&quot;: [
+          &quot;∀x∈ℝ: f(x) ≥ g(x)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_minimum&quot;,
+            &quot;expression&quot;: &quot;b^2+c^2&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;∃x0∈[1,3]: f(x0) ≤ g(x0)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_range&quot;,
+            &quot;symbol&quot;: &quot;b&quot;,
+            &quot;in_terms_of&quot;: [&quot;c&quot;]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;unmatched&quot;,
+  &quot;family_id&quot;: null,
+  &quot;match_reason&quot;: &quot;题面为二次函数的恒成立与存在性求参数最值/范围，不涉及路径最值、射线等长、正方形反射或加权路径等注册题型特征。&quot;
+}</pre></article><article><h3>doubao <span class=ok>通过</span></h3><p>19.96 秒 · 输入 11,126 · 输出 889 token</p><details><summary>校验差异与阻断状态</summary><pre>{
+  &quot;summary&quot;: {
+    &quot;case_id&quot;: &quot;function-quantifiers&quot;,
+    &quot;passed&quot;: true,
+    &quot;candidate_only&quot;: true,
+    &quot;source_reviewed&quot;: false,
+    &quot;solver_ready&quot;: false,
+    &quot;semantic_calls&quot;: 1,
+    &quot;network_attempts&quot;: 1,
+    &quot;continuation&quot;: {
+      &quot;status&quot;: &quot;candidate_only&quot;,
+      &quot;blocked&quot;: false,
+      &quot;error_code&quot;: null,
+      &quot;user_action&quot;: null,
+      &quot;message&quot;: null,
+      &quot;missing_figures&quot;: []
+    },
+    &quot;match_status&quot;: &quot;unmatched&quot;,
+    &quot;family_id&quot;: null,
+    &quot;match_correct&quot;: true,
+    &quot;strict_semantics_passed&quot;: true,
+    &quot;accepted_omissions&quot;: [],
+    &quot;contract_valid&quot;: true,
+    &quot;elapsed_seconds&quot;: 19.964
+  },
+  &quot;ir_issues&quot;: [],
+  &quot;match&quot;: {
+    &quot;ok&quot;: true,
+    &quot;issues&quot;: []
+  },
+  &quot;comparison&quot;: {
+    &quot;ok&quot;: true,
+    &quot;classification&quot;: &quot;equivalent&quot;,
+    &quot;differences&quot;: [],
+    &quot;unmatched&quot;: true,
+    &quot;match_correct&quot;: true
+  },
+  &quot;acceptance&quot;: {
+    &quot;ok&quot;: true,
+    &quot;strict&quot;: {
+      &quot;ok&quot;: true,
+      &quot;classification&quot;: &quot;equivalent&quot;,
+      &quot;differences&quot;: []
+    },
+    &quot;accepted_omissions&quot;: []
+  }
+}</pre></details><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;f(x) = x^2 + b*x + c&quot;,
+      &quot;g(x) = 2*x - 1&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;facts&quot;: [
+          &quot;∀x∈ℝ: f(x) ≥ g(x)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_minimum&quot;,
+            &quot;expression&quot;: &quot;b^2 + c^2&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;∃x_0∈[1,3]: f(x_0) ≤ g(x_0)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_range&quot;,
+            &quot;symbol&quot;: &quot;b&quot;,
+            &quot;in_terms_of&quot;: [
+              &quot;c&quot;
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;unmatched&quot;,
+  &quot;family_id&quot;: null,
+  &quot;match_reason&quot;: &quot;题面给出二次函数与一次函数的恒成立、存在性不等式条件，分别求代数式最小值与参数取值范围，未涉及路径/距离最值、射线动点等长替换、正方形反射或加权路径目标，不符合本次注册的任何题型。&quot;
+}</pre></article></div></section></html>

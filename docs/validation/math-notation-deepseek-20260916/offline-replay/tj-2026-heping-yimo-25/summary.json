@@ -1,0 +1,25 @@
+{
+  "offline_replay_only": true,
+  "live_passed": false,
+  "replay_passed": false,
+  "json_schema_valid": true,
+  "match_correct": true,
+  "original_parse_issues": 22,
+  "replay_parse_issues": 22,
+  "continuation": {
+    "status": "invalid_candidate",
+    "blocked": true
+  },
+  "elapsed_seconds": 51.677,
+  "usage": {
+    "completion_tokens": 10673,
+    "prompt_tokens": 3847,
+    "total_tokens": 14520,
+    "prompt_cache_hit_tokens": 3072,
+    "prompt_cache_miss_tokens": 775
+  },
+  "finish_reason": "stop",
+  "raw_response_sha256": "3aeaff814ca4268fbc05539353f4246f731eef082434ba95ef1ce4b19e447f98",
+  "frozen_request_sha256": "9d5a01b42e19e38d1716d052a254a8cb54b811e00842ea4609ee4828134d0647",
+  "request_contract": null
+}

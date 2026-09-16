@@ -1,0 +1,114 @@
+{
+  "root": {
+    "label": "k倍四边形",
+    "definitions": [
+      "若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为k（k≥1），则称该四边形为k倍四边形。"
+    ],
+    "children": [
+      {
+        "label": "（1）",
+        "children": [
+          {
+            "label": "图1",
+            "facts": [
+              "parallelogram(A,B,C,D)",
+              "O ∈ segment(A,C) ∩ segment(B,D)",
+              "E = midpoint(O,B)",
+              "quadrilateral(A,E,C,D)",
+              "k ≥ 1",
+              "(bisects(ED,AC) ∧ (cut_ratio(ED,AC)=k ∨ cut_ratio(ED,AC)=1/k)) ∨ (bisects(AC,ED) ∧ (cut_ratio(AC,ED)=k ∨ cut_ratio(AC,ED)=1/k))"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "k"
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "missing_figure",
+                "text": "未提供图1。"
+              }
+            ]
+          },
+          {
+            "label": "图2",
+            "facts": [
+              "quadrilateral(A,B,C,D)",
+              "k ≥ 1",
+              "bisects(BD,AC)",
+              "cut_ratio(BD,AC)=k ∨ cut_ratio(BD,AC)=1/k"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "area(△ACD)/area(△ACB)",
+                "in_terms_of": [
+                  "k"
+                ]
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "missing_figure",
+                "text": "未提供图2，不能据图确定比例方向。"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "（2）图3",
+        "facts": [
+          "quadrilateral(A,B,C,D)",
+          "k ≥ 1",
+          "bisects(BD,AC)",
+          "cut_ratio(BD,AC)=k ∨ cut_ratio(BD,AC)=1/k",
+          "∠BDC = 2*∠ABD",
+          "BD = 4*CD"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "k"
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "missing_figure",
+            "text": "未提供图3。"
+          }
+        ]
+      },
+      {
+        "label": "（3）图4",
+        "definitions": [
+          "A、B为定点；C为动点；D为平面内一点。"
+        ],
+        "facts": [
+          "line(A,B) ⟂ line(B,M)",
+          "C ∈ ray(B,M)",
+          "quadrilateral(A,B,C,D)",
+          "bisects(BD,AC)",
+          "∠BAC = ∠DAC",
+          "cut_ratio(BD,AC)=2 ∨ cut_ratio(BD,AC)=1/2"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "tan(∠ACD)"
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "missing_figure",
+            "text": "未提供图4。"
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "unmatched",
+  "family_id": null,
+  "match_reason": "当前注册family未覆盖这组一般四边形定义、角倍数、面积比与正切求值；题面另有四幅缺图，需要用户处理。"
+}

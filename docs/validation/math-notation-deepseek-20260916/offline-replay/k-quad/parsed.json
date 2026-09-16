@@ -1,0 +1,294 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "k-quad",
+    "source_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "match": {
+      "family_id": null,
+      "match_status": "unmatched",
+      "match_reason": "题面为四边形新定义与几何求值问题，不涉及二次函数、路径最值或加权路径等注册题型特征。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": false,
+      "issues": [
+        {
+          "path": "r.c0.c0.facts[0]",
+          "source": "quadrilateral(A,B,C,D) 为平行四边形（□ABCD）",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 22:  为平行四边形(□ABC"
+        },
+        {
+          "path": "r.c0.c0.facts[3]",
+          "source": "四边形 AECD 为 k 倍四边形",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 0: 四边形 AECD 为 k"
+        },
+        {
+          "path": "r.c0.c0.facts[1]",
+          "source": "AC ∩ BD = {O}",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:A"
+        },
+        {
+          "path": "r.c0.c0.facts[2]",
+          "source": "E = midpoint(O,B)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:B"
+        },
+        {
+          "path": "r.c0.c1.facts[0]",
+          "source": "quadrilateral(A,B,C,D) 为 k 倍四边形",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 22:  为 k 倍四边形"
+        },
+        {
+          "path": "r.c0.c1.facts[1]",
+          "source": "bisects(BD, AC)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:B"
+        },
+        {
+          "path": "r.c0.c1.goals[0]",
+          "source": {
+            "kind": "find_value",
+            "expression": "area(△ACD)/area(△ACB)",
+            "in_terms_of": [
+              "k"
+            ]
+          },
+          "code": "notation.goal",
+          "message": "binding.unknown_or_invisible:A"
+        },
+        {
+          "path": "r.c1.facts[0]",
+          "source": "quadrilateral(A,B,C,D) 为 k 倍四边形",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 22:  为 k 倍四边形"
+        },
+        {
+          "path": "r.c1.facts[1]",
+          "source": "bisects(BD, AC)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:B"
+        },
+        {
+          "path": "r.c1.facts[2]",
+          "source": "∠BDC = 2∠ABD",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:B"
+        },
+        {
+          "path": "r.c1.facts[3]",
+          "source": "BD = 4*CD",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:B"
+        },
+        {
+          "path": "r.c2.facts[0]",
+          "source": "A, B 为定点",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 4:  为定点"
+        },
+        {
+          "path": "r.c2.facts[3]",
+          "source": "D 为平面内一点",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 1:  为平面内一点"
+        },
+        {
+          "path": "r.c2.facts[7]",
+          "source": "quadrilateral(A,B,C,D) 为 2 倍四边形",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 22:  为 2 倍四边形"
+        },
+        {
+          "path": "r.c2.facts[1]",
+          "source": "AB ⊥ BM",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:M"
+        },
+        {
+          "path": "r.c2.facts[2]",
+          "source": "C ∈ ray(B,M)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:M"
+        }
+      ],
+      "defaults": [
+        {
+          "ref": "r.c0.c0:scalar:k",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c1:scalar:k",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r.c0.c0:point:O",
+          "name": "O",
+          "kind": "point",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c0.c0:point:E",
+          "name": "E",
+          "kind": "point",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c0.c0:scalar:k",
+          "name": "k",
+          "kind": "scalar",
+          "scope": "r.c0.c0"
+        },
+        {
+          "ref": "r.c1:scalar:k",
+          "name": "k",
+          "kind": "scalar",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c2:point:C",
+          "name": "C",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:B",
+          "name": "B",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r.c2"
+        }
+      ],
+      "well_definedness_obligations": [
+        {
+          "scope": "r.c2",
+          "code": "unique_line_intersection",
+          "objects": [
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:B",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:D",
+                "point"
+              ]
+            ],
+            [
+              "endpoints",
+              [
+                "ref",
+                "r.c2:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c2:point:C",
+                "point"
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:dbe8b03fc34d7c3f89c518af340d95fb170783d0ced04aad6b57cee036e4fe98",
+      "kind": "notation_raw",
+      "sha256": "dbe8b03fc34d7c3f89c518af340d95fb170783d0ced04aad6b57cee036e4fe98",
+      "media_type": "text/plain",
+      "byte_size": 2588,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/k-quad/artifacts/db/dbe8b03fc34d7c3f89c518af340d95fb170783d0ced04aad6b57cee036e4fe98.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:7363a0bcbd996c0380ee6c40d8341ab54a33d8cf64900936aaf82ec53f052938",
+      "kind": "notation_candidate",
+      "sha256": "7363a0bcbd996c0380ee6c40d8341ab54a33d8cf64900936aaf82ec53f052938",
+      "media_type": "application/json",
+      "byte_size": 1587,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/k-quad/artifacts/73/7363a0bcbd996c0380ee6c40d8341ab54a33d8cf64900936aaf82ec53f052938.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:b2a259e58db32c674fe80f87d9b124f2b7488bd8f1742e9962e0e2e0f42cda7b",
+      "kind": "notation_normalized",
+      "sha256": "b2a259e58db32c674fe80f87d9b124f2b7488bd8f1742e9962e0e2e0f42cda7b",
+      "media_type": "application/json",
+      "byte_size": 1805,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/k-quad/artifacts/b2/b2a259e58db32c674fe80f87d9b124f2b7488bd8f1742e9962e0e2e0f42cda7b.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:717b26c2b29535353f897bb68fc3fe040bffb1716c4a6e5ee7ebf3e99feb5ce9",
+      "kind": "notation_compiled",
+      "sha256": "717b26c2b29535353f897bb68fc3fe040bffb1716c4a6e5ee7ebf3e99feb5ce9",
+      "media_type": "application/json",
+      "byte_size": 2691,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/k-quad/artifacts/71/717b26c2b29535353f897bb68fc3fe040bffb1716c4a6e5ee7ebf3e99feb5ce9.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c4d5d3ee69e89bb4213f4ca6daf10b2ff5b75421e1081cf12bb0bff1c8d142a",
+      "kind": "notation_continuation",
+      "sha256": "2c4d5d3ee69e89bb4213f4ca6daf10b2ff5b75421e1081cf12bb0bff1c8d142a",
+      "media_type": "application/json",
+      "byte_size": 444,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/k-quad/artifacts/2c/2c4d5d3ee69e89bb4213f4ca6daf10b2ff5b75421e1081cf12bb0bff1c8d142a.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:f8a2209fcb21fc798be05e15cf455dd2c69e7364fd2fd3a9ee0f4b6ef2d3688f",
+      "kind": "notation_validation",
+      "sha256": "f8a2209fcb21fc798be05e15cf455dd2c69e7364fd2fd3a9ee0f4b6ef2d3688f",
+      "media_type": "application/json",
+      "byte_size": 3274,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/k-quad/artifacts/f8/f8a2209fcb21fc798be05e15cf455dd2c69e7364fd2fd3a9ee0f4b6ef2d3688f.json"
+    }
+  },
+  "contract_valid": false,
+  "continuation": {
+    "status": "needs_confirmation",
+    "blocked": true,
+    "error_code": "extraction.missing_figure",
+    "user_action": "supplement_image",
+    "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+    "missing_figures": [
+      {
+        "scope": "r",
+        "label": "题目",
+        "text": "题面引用的图1、图2、图3、图4未在提供的图片中显示。"
+      }
+    ]
+  },
+  "revision": "7363a0bcbd996c0380ee6c40d8341ab54a33d8cf64900936aaf82ec53f052938"
+}

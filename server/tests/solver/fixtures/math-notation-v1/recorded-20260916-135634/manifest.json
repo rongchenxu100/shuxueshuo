@@ -1,0 +1,76 @@
+{
+  "network_calls": 0,
+  "cases": [
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "source": "internal/solver-runs/math-notation-seven-20260916-135634/tj-2026-heping-yimo-25",
+      "live_passed": false,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-heping-yimo-25.txt": "bc7bade54c235436c9bab25b73027926441f7679a521500d49cb17316d3fc6bf",
+        "tj-2026-heping-yimo-25.gold.json": "5205e27496e8169ee280ebf2afaf0126c5c03248df87869e543e3779550ab7c0"
+      }
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "source": "internal/solver-runs/math-notation-seven-20260916-135634/tj-2026-heping-ermo-25",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-heping-ermo-25.txt": "c0574ab6ee29e7141de5db50815c1eb1d6c943a22d45fc0311877ea115350119",
+        "tj-2026-heping-ermo-25.gold.json": "02558e40fb2a25a23d252b7307f852b1f00e09b4e24e5f0a0db5409263d24b3b"
+      }
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "source": "internal/solver-runs/math-notation-seven-20260916-135634/tj-2026-hexi-yimo-25",
+      "live_passed": false,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-hexi-yimo-25.txt": "c7d0a2fd855577bc5e0f3e2c4c511d3bcdf6c224e8b8cff2cb91bf113aee3b8c",
+        "tj-2026-hexi-yimo-25.gold.json": "af68c5c8929471bb291fc0ee92584114dc2c8cc9b9ef55930e6cfb0dde2b2038"
+      }
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "source": "internal/solver-runs/math-notation-seven-20260916-135634/tj-2026-nankai-yimo-25",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-nankai-yimo-25.txt": "f5d62ad527ebb7076249007a82936a932eccc514056c4f96860a42808f67842d",
+        "tj-2026-nankai-yimo-25.gold.json": "4bb26045c984a7bebbbfaa18fe740a6e758ef1deac24a690d4fe823b7d1ba4f1"
+      }
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "source": "internal/solver-runs/math-notation-seven-20260916-135634/tj-2026-xiqing-yimo-25",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-xiqing-yimo-25.txt": "a91c609a8329aad72241d46499a0d52c2c2564754806dba2f62e13a405b3eb75",
+        "tj-2026-xiqing-yimo-25.gold.json": "56448536f0cb317318597d41df2d191df4e65da6f7cccbf982469f85cb1809f2"
+      }
+    },
+    {
+      "case": "k-quad",
+      "source": "internal/solver-runs/math-notation-seven-20260916-135634/k-quad",
+      "live_passed": false,
+      "expected_offline_passed": false,
+      "files": {
+        "k-quad.txt": "e3ac12c384f8993c588d81fca54fcaefbf4517eb28e7a25f23b8cd03aa6ef10e",
+        "k-quad.gold.json": "d5cec68a04883a5f6a31d28d2020360d0e9ce8a46f45156c11e9cdf42249a76e",
+        "k-quad.policy.json": "11a03d5d554f30de43f974781c6fe9ff7bb6a44a535f30ec2567d70991c69fb0"
+      }
+    },
+    {
+      "case": "function-quantifiers",
+      "source": "internal/solver-runs/math-notation-seven-20260916-135634/function-quantifiers",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "function-quantifiers.txt": "42bf91543d8a3f1f4c9973121fdd9ff75efc806a3a83e9fdefce73df8497a7b0",
+        "function-quantifiers.gold.json": "f6faab076a0287b3d8d5e437dfe8318a29e453e8add9d66ca3657e4dc6d50749"
+      }
+    }
+  ]
+}

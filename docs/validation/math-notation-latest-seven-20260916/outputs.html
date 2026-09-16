@@ -1,0 +1,1594 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>Latest seven extraction responses</title><style>body{font:16px/1.7 system-ui;max-width:1000px;margin:40px auto;padding:0 22px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f6f8;padding:18px}section{border-top:2px solid #ddd;margin:28px 0}summary{cursor:pointer}</style><h1>DeepSeek: 2/7 passed</h1><p><a href="README.md">Report</a> | Heping yimo uses the previous single run. Remaining six are new live calls.</p><section><h2>tj-2026-heping-yimo-25 - PASS</h2><p>35.952 s | Input: 8511 | Output (including reasoning): 7393 | Total: 15904</p><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2+b*x-3&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;a &gt; 0&quot;,
+      &quot;A = (-1,0)&quot;,
+      &quot;Γ ∩ x_axis = {A,B}&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;D = C+(2,0)&quot;,
+      &quot;O = (0,0)&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;（I）&quot;,
+        &quot;facts&quot;: [
+          &quot;D ∈ Γ&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;E ∈ Γ&quot;,
+              &quot;x(E) = m&quot;,
+              &quot;m &gt; -1 ∧ m &lt; 0&quot;,
+              &quot;∠CBE + ∠ACO = 45°&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;E&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（II）&quot;,
+        &quot;facts&quot;: [
+          &quot;M ∈ segment(B,C)&quot;,
+          &quot;N ∈ ray(C,D)&quot;,
+          &quot;CN = CM&quot;,
+          &quot;min(OM+BN) = sqrt(34)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;a&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticEqualLengthRayPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面包含抛物线 Γ、射线CD、射线上的动点 N 以及等长条件 CN=CM，用于路径 OM+BN 的最小值，符合该题型。&quot;
+}</pre><details><summary>Validation differences</summary><pre>[]</pre></details></section><section><h2>tj-2026-heping-ermo-25 - FAIL</h2><p>31.567 s | Input: 8385 | Output (including reasoning): 6383 | Total: 14768</p><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [&quot;Γ: y = -x^2+b*x+c&quot;],
+    &quot;facts&quot;: [
+      &quot;c &gt; 1&quot;,
+      &quot;P = vertex(Γ)&quot;,
+      &quot;Γ ∩ x_axis = {A,B}&quot;,
+      &quot;x(A) &lt; x(B)&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;axis(Γ) ∩ x_axis = {M}&quot;,
+      &quot;E ∈ axis(Γ)&quot;,
+      &quot;square(A,E,K,G)&quot;,
+      &quot;y(G) &lt; 0&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;（I）&quot;,
+        &quot;facts&quot;: [&quot;b = -2&quot;, &quot;c = 3&quot;],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [
+              {&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;P&quot;},
+              {&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;A&quot;}
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [&quot;G ∈ Γ&quot;],
+            &quot;goals&quot;: [
+              {&quot;kind&quot;: &quot;find_coordinates&quot;, &quot;object&quot;: &quot;E&quot;}
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（II）&quot;,
+        &quot;facts&quot;: [
+          &quot;A = (-c,0)&quot;,
+          &quot;F = midpoint(A,E)&quot;,
+          &quot;line(A,K) ∩ line(E,G) = {H}&quot;,
+          &quot;min(HF+FM+MG) = 3*sqrt(5)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;E&quot;,
+            &quot;at&quot;: &quot;HF+FM+MG = min(HF+FM+MG)&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticSquareReflectionPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面包含二次函数、正方形AEKG及路径HF+FM+MG的最小值目标，正方形中点F和中心H参与路径等价变换，符合该题型。&quot;
+}</pre><details><summary>Validation differences</summary><pre>[
+  {
+    &quot;path&quot;: &quot;/root/children/1/facts&quot;,
+    &quot;expected&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;call&quot;,
+            &quot;midpoint&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:A&quot;,
+              &quot;point&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:point:E&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r.c1:point:F&quot;,
+            &quot;point&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Mul(Integer(-1), Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True))&quot;,
+            &quot;Integer(0)&quot;
+          ]
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_a1fd83567a42294a6909245c991c07eed42b332ca655e77e2fc7e2f4e7a28c39&#x27;, real=True)), Mul(Integer(3), Pow(Integer(5), Rational(1, 2))))&quot;
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c1:point:H&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;call&quot;,
+              &quot;segment&quot;,
+              [
+                &quot;ref&quot;,
+                &quot;r:point:A&quot;,
+                &quot;point&quot;
+              ],
+              [
+                &quot;ref&quot;,
+                &quot;r:point:K&quot;,
+                &quot;point&quot;
+              ]
+            ],
+            [
+              &quot;call&quot;,
+              &quot;segment&quot;,
+              [
+                &quot;ref&quot;,
+                &quot;r:point:E&quot;,
+                &quot;point&quot;
+              ],
+              [
+                &quot;ref&quot;,
+                &quot;r:point:G&quot;,
+                &quot;point&quot;
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    &quot;actual&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;call&quot;,
+            &quot;midpoint&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:A&quot;,
+              &quot;point&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:point:E&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r.c1:point:F&quot;,
+            &quot;point&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Mul(Integer(-1), Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True))&quot;,
+            &quot;Integer(0)&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r.c1:point:H&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;call&quot;,
+              &quot;line&quot;,
+              [
+                &quot;ref&quot;,
+                &quot;r:point:A&quot;,
+                &quot;point&quot;
+              ],
+              [
+                &quot;ref&quot;,
+                &quot;r:point:K&quot;,
+                &quot;point&quot;
+              ]
+            ],
+            [
+              &quot;call&quot;,
+              &quot;line&quot;,
+              [
+                &quot;ref&quot;,
+                &quot;r:point:E&quot;,
+                &quot;point&quot;
+              ],
+              [
+                &quot;ref&quot;,
+                &quot;r:point:G&quot;,
+                &quot;point&quot;
+              ]
+            ]
+          ]
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_a1fd83567a42294a6909245c991c07eed42b332ca655e77e2fc7e2f4e7a28c39&#x27;, real=True)), Mul(Integer(3), Pow(Integer(5), Rational(1, 2))))&quot;
+        ]
+      ]
+    ]
+  },
+  {
+    &quot;path&quot;: &quot;/root/facts&quot;,
+    &quot;expected&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;call&quot;,
+            &quot;vertex&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:point:P&quot;,
+            &quot;point&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:A&quot;,
+              &quot;point&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:point:B&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;x_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:C&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;y_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;call&quot;,
+          &quot;square&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:point:E&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:point:K&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:point:G&quot;,
+            &quot;point&quot;
+          ]
+        ],
+        [
+          &quot;curve_definition&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ],
+          &quot;Add(Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True), Mul(Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True), Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True)), Mul(Integer(-1), Pow(Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True), Integer(2))))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Add(Integer(1), Mul(Integer(-1), Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True)))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_9c710a8ac51332ab2f5c4ead3b3d8417674036cb2d79111c20876fe7f65b0951&#x27;, real=True)), Symbol(&#x27;n_bcfc31ab5ccbd538b0b6d483115c115e0d02e7a3f5217b4ab9dd6ca001a638e1&#x27;, real=True))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Symbol(&#x27;n_62ab4044396bb577349b463c322c466579577e4d746f3c192e06b64d77e51759&#x27;, real=True)&quot;
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:E&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;call&quot;,
+            &quot;axis&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:M&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;x_axis&quot;
+            ],
+            [
+              &quot;call&quot;,
+              &quot;axis&quot;,
+              [
+                &quot;ref&quot;,
+                &quot;r:curve:Γ&quot;,
+                &quot;curve&quot;
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    &quot;actual&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;call&quot;,
+            &quot;vertex&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:point:P&quot;,
+            &quot;point&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:A&quot;,
+              &quot;point&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:point:B&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;x_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:C&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;y_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:M&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;x_axis&quot;
+            ],
+            [
+              &quot;call&quot;,
+              &quot;axis&quot;,
+              [
+                &quot;ref&quot;,
+                &quot;r:curve:Γ&quot;,
+                &quot;curve&quot;
+              ]
+            ]
+          ]
+        ],
+        [
+          &quot;call&quot;,
+          &quot;square&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:point:E&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:point:K&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:point:G&quot;,
+            &quot;point&quot;
+          ]
+        ],
+        [
+          &quot;curve_definition&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ],
+          &quot;Add(Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True), Mul(Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True), Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True)), Mul(Integer(-1), Pow(Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True), Integer(2))))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Add(Integer(1), Mul(Integer(-1), Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True)))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_9c710a8ac51332ab2f5c4ead3b3d8417674036cb2d79111c20876fe7f65b0951&#x27;, real=True)), Symbol(&#x27;n_bcfc31ab5ccbd538b0b6d483115c115e0d02e7a3f5217b4ab9dd6ca001a638e1&#x27;, real=True))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Symbol(&#x27;n_62ab4044396bb577349b463c322c466579577e4d746f3c192e06b64d77e51759&#x27;, real=True)&quot;
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:E&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;call&quot;,
+            &quot;axis&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ]
+      ]
+    ]
+  }
+]</pre></details></section><section><h2>tj-2026-hexi-yimo-25 - FAIL</h2><p>29.364 s | Input: 8322 | Output (including reasoning): 5961 | Total: 14283</p><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2 - b*x + c&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;b &gt; 0&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;（I）&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 1&quot;,
+          &quot;b = 2&quot;,
+          &quot;c = 3&quot;,
+          &quot;P = vertex(Γ)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;P&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（II）&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 2&quot;,
+          &quot;A = (-1,0)&quot;,
+          &quot;A ∈ Γ&quot;,
+          &quot;D ∈ Γ&quot;,
+          &quot;Γ ∩ y_axis = {C}&quot;,
+          &quot;∠CAD = 90°&quot;,
+          &quot;AC = AD&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;D&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（III）&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 1&quot;,
+          &quot;A = (-1,0)&quot;,
+          &quot;A ∈ Γ&quot;,
+          &quot;M = (b+1/2, y_M)&quot;,
+          &quot;M ∈ Γ&quot;,
+          &quot;N = (n,0)&quot;,
+          &quot;n &gt; 0&quot;,
+          &quot;N为动点&quot;,
+          &quot;min(sqrt(2)*MN + AN) = 21/4&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;b&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;第(III)问要求含权路径 sqrt(2)*MN + AN 的最小值为定值，符合二次函数加权路径最值题型；题面含二次函数和路径最小值条件。&quot;
+}</pre><details><summary>Validation differences</summary><pre>[
+  {
+    &quot;path&quot;: &quot;/root/children/2/facts&quot;,
+    &quot;expected&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c2:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Integer(-1)&quot;,
+            &quot;Integer(0)&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c2:point:N&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Symbol(&#x27;n_445dcd5b44b915c83a177f52a35eb317bc2df2c8c386a1017cdedff60a24dd72&#x27;, real=True)&quot;,
+            &quot;Integer(0)&quot;
+          ]
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Mul(Integer(-1), Symbol(&#x27;n_445dcd5b44b915c83a177f52a35eb317bc2df2c8c386a1017cdedff60a24dd72&#x27;, real=True))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Integer(1), Mul(Integer(-1), Symbol(&#x27;n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9&#x27;, real=True)))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True)), Symbol(&#x27;n_df7e4ae09c1aa074cb3d5c4d8e3ad3ed16a34d3a833ae89b7db89eb85db75423&#x27;, real=True), Rational(-1, 2))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Rational(21, 4), Mul(Integer(-1), Symbol(&#x27;n_f37beae6bf37c73a97b17be70f1230be70017e06d3c4578094c0f8cdb228e55f&#x27;, real=True)))&quot;
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c2:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ]
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c2:point:M&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ]
+        ]
+      ]
+    ],
+    &quot;actual&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c2:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Integer(-1)&quot;,
+            &quot;Integer(0)&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c2:point:M&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Add(Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True), Rational(1, 2))&quot;,
+            &quot;Symbol(&#x27;n_b01dcb48a32fc0fd9082d3412548d0f531b2f087f6618ecfe5dfe58c7d042efc&#x27;, real=True)&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c2:point:N&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Symbol(&#x27;n_445dcd5b44b915c83a177f52a35eb317bc2df2c8c386a1017cdedff60a24dd72&#x27;, real=True)&quot;,
+            &quot;Integer(0)&quot;
+          ]
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Mul(Integer(-1), Symbol(&#x27;n_445dcd5b44b915c83a177f52a35eb317bc2df2c8c386a1017cdedff60a24dd72&#x27;, real=True))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Integer(1), Mul(Integer(-1), Symbol(&#x27;n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9&#x27;, real=True)))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Rational(21, 4), Mul(Integer(-1), Symbol(&#x27;n_f37beae6bf37c73a97b17be70f1230be70017e06d3c4578094c0f8cdb228e55f&#x27;, real=True)))&quot;
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c2:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ]
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c2:point:M&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ]
+        ]
+      ]
+    ]
+  }
+]</pre></details></section><section><h2>tj-2026-nankai-yimo-25 - FAIL</h2><p>37.685 s | Input: 8415 | Output (including reasoning): 7969 | Total: 16384</p><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2 + b*x + c&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;a &gt; 0&quot;,
+      &quot;2*a + b = 0&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;axis(Γ) ∩ x_axis = {D}&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;（I）&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 2&quot;,
+          &quot;c = -5&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;D&quot;
+          },
+          {
+            &quot;kind&quot;: &quot;find_equation&quot;,
+            &quot;object&quot;: &quot;Γ&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（II）&quot;,
+        &quot;facts&quot;: [
+          &quot;M = (m,1)&quot;,
+          &quot;M ∈ Γ&quot;,
+          &quot;N ∈ Γ&quot;,
+          &quot;m &gt; 2&quot;,
+          &quot;x(N) &gt; 0 ∧ y(N) &lt; 0&quot;,
+          &quot;∠MDN = 90°&quot;,
+          &quot;DM = DN&quot;,
+          &quot;E ∈ segment(D,M)&quot;,
+          &quot;G ∈ segment(M,N)&quot;,
+          &quot;F = midpoint(D,N)&quot;,
+          &quot;DE = sqrt(2)*NG&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;facts&quot;: [
+              &quot;MN = sqrt(10)&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_minimum&quot;,
+                &quot;expression&quot;: &quot;EG+FG&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;min(EG+FG) = 5*sqrt(10)/2&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;,
+                &quot;at&quot;: &quot;EG+FG = min(EG+FG)&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;G&quot;,
+                &quot;at&quot;: &quot;EG+FG = min(EG+FG)&quot;
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面给出二次函数抛物线并要求路径 EG+FG 的最小值，符合普通二次函数路径最值题型；无射线等长替换、正方形反射或非1权重路径。&quot;
+}</pre><details><summary>Validation differences</summary><pre>[
+  {
+    &quot;path&quot;: &quot;/root/children/1/children/1/goals&quot;,
+    &quot;expected&quot;: [
+      {
+        &quot;kind&quot;: &quot;find_coordinates&quot;,
+        &quot;target&quot;: [
+          &quot;ref&quot;,
+          &quot;r.c1:point:G&quot;,
+          &quot;point&quot;
+        ],
+        &quot;at&quot;: [
+          [
+            [
+              &quot;relation&quot;,
+              &quot;=&quot;,
+              &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_748ef839c13a7706e39645965b297da9f3c22750037831cb3417f574b63fc2a7&#x27;, real=True)), Mul(Integer(-1), Symbol(&#x27;n_eb53acc97e234671d48a0fcae9b3e050df83d7bbc42f38330a0b8abed0e1b697&#x27;, real=True)), Symbol(&#x27;n_f9d92d864ece1dda65e1458d4ab57a6fae6dcfb65c44628384b9d1ff99095587&#x27;, real=True))&quot;
+            ]
+          ]
+        ]
+      },
+      {
+        &quot;kind&quot;: &quot;find_equation&quot;,
+        &quot;target&quot;: [
+          &quot;ref&quot;,
+          &quot;r:curve:Γ&quot;,
+          &quot;curve&quot;
+        ]
+      }
+    ],
+    &quot;actual&quot;: [
+      {
+        &quot;kind&quot;: &quot;find_coordinates&quot;,
+        &quot;target&quot;: [
+          &quot;ref&quot;,
+          &quot;r.c1:point:G&quot;,
+          &quot;point&quot;
+        ],
+        &quot;at&quot;: [
+          [
+            [
+              &quot;relation&quot;,
+              &quot;=&quot;,
+              &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_748ef839c13a7706e39645965b297da9f3c22750037831cb3417f574b63fc2a7&#x27;, real=True)), Mul(Integer(-1), Symbol(&#x27;n_eb53acc97e234671d48a0fcae9b3e050df83d7bbc42f38330a0b8abed0e1b697&#x27;, real=True)), Symbol(&#x27;n_f9d92d864ece1dda65e1458d4ab57a6fae6dcfb65c44628384b9d1ff99095587&#x27;, real=True))&quot;
+            ]
+          ]
+        ]
+      },
+      {
+        &quot;kind&quot;: &quot;find_equation&quot;,
+        &quot;target&quot;: [
+          &quot;ref&quot;,
+          &quot;r:curve:Γ&quot;,
+          &quot;curve&quot;
+        ],
+        &quot;at&quot;: [
+          [
+            [
+              &quot;relation&quot;,
+              &quot;=&quot;,
+              &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_748ef839c13a7706e39645965b297da9f3c22750037831cb3417f574b63fc2a7&#x27;, real=True)), Mul(Integer(-1), Symbol(&#x27;n_eb53acc97e234671d48a0fcae9b3e050df83d7bbc42f38330a0b8abed0e1b697&#x27;, real=True)), Symbol(&#x27;n_f9d92d864ece1dda65e1458d4ab57a6fae6dcfb65c44628384b9d1ff99095587&#x27;, real=True))&quot;
+            ]
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    &quot;path&quot;: &quot;/root/facts&quot;,
+    &quot;expected&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:C&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;y_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;curve_definition&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ],
+          &quot;Add(Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True), Mul(Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True), Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True)), Mul(Symbol(&#x27;n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9&#x27;, real=True), Pow(Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True), Integer(2))))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Mul(Integer(-1), Symbol(&#x27;n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9&#x27;, real=True))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True)), Mul(Integer(-1), Integer(2), Symbol(&#x27;n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9&#x27;, real=True)))&quot;
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:D&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;x_axis&quot;
+            ],
+            [
+              &quot;call&quot;,
+              &quot;axis&quot;,
+              [
+                &quot;ref&quot;,
+                &quot;r:curve:Γ&quot;,
+                &quot;curve&quot;
+              ]
+            ]
+          ]
+        ]
+      ]
+    ],
+    &quot;actual&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:C&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;y_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:D&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;x_axis&quot;
+            ],
+            [
+              &quot;call&quot;,
+              &quot;axis&quot;,
+              [
+                &quot;ref&quot;,
+                &quot;r:curve:Γ&quot;,
+                &quot;curve&quot;
+              ]
+            ]
+          ]
+        ],
+        [
+          &quot;curve_definition&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ],
+          &quot;Add(Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True), Mul(Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True), Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True)), Mul(Symbol(&#x27;n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9&#x27;, real=True), Pow(Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True), Integer(2))))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Mul(Integer(-1), Symbol(&#x27;n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9&#x27;, real=True))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True)), Mul(Integer(-1), Integer(2), Symbol(&#x27;n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9&#x27;, real=True)))&quot;
+        ]
+      ]
+    ]
+  }
+]</pre></details></section><section><h2>tj-2026-xiqing-yimo-25 - FAIL</h2><p>20.883 s | Input: 8250 | Output (including reasoning): 4443 | Total: 12693</p><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = -x^2 + b*x + c&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;A = (-1,0)&quot;,
+      &quot;b &gt; 0&quot;,
+      &quot;A ∈ Γ&quot;,
+      &quot;Γ ∩ x_axis = {A,B}&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;facts&quot;: [
+          &quot;b = 4&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;vertex(Γ)&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;D = (b+2, y_D)&quot;,
+          &quot;D ∈ Γ&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;facts&quot;: [
+              &quot;AD = 2*BC&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;b&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;M = (m,0)&quot;,
+              &quot;m &gt; 0&quot;,
+              &quot;min(2*DM + AM) = 5+5*sqrt(3)&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;b&quot;
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面包含二次函数、加权路径目标 2DM+AM 及其最小值条件，符合 QuadraticWeightedPathMinimumSolver 的注册条件。&quot;
+}</pre><details><summary>Validation differences</summary><pre>[
+  {
+    &quot;path&quot;: &quot;/root/children/1/facts&quot;,
+    &quot;expected&quot;: [
+      [
+        [
+          &quot;relation&quot;,
+          &quot;=&quot;,
+          &quot;Add(Mul(Integer(-1), Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True)), Symbol(&#x27;n_6700952393682cdc7db98530d5be349f4e6bbcfd13a405404f13f8001e2bf53d&#x27;, real=True), Integer(-2))&quot;
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c1:point:D&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ]
+        ]
+      ]
+    ],
+    &quot;actual&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c1:point:D&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Add(Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True), Integer(2))&quot;,
+            &quot;Symbol(&#x27;n_b8ec61a5218d5037e52a01bf5256e812cdc06f5b92244233e24a435f310dd6ae&#x27;, real=True)&quot;
+          ]
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r.c1:point:D&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ]
+        ]
+      ]
+    ]
+  },
+  {
+    &quot;path&quot;: &quot;/root/facts&quot;,
+    &quot;expected&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Integer(-1)&quot;,
+            &quot;Integer(0)&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:A&quot;,
+              &quot;point&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:point:B&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;x_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:C&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;y_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;curve_definition&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ],
+          &quot;Add(Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True), Mul(Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True), Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True)), Mul(Integer(-1), Pow(Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True), Integer(2))))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Mul(Integer(-1), Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True))&quot;
+        ]
+      ]
+    ],
+    &quot;actual&quot;: [
+      [
+        [
+          &quot;=&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;tuple&quot;,
+            &quot;Integer(-1)&quot;,
+            &quot;Integer(0)&quot;
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:A&quot;,
+              &quot;point&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:point:B&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;x_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;=&quot;,
+          [
+            &quot;set&quot;,
+            [
+              &quot;ref&quot;,
+              &quot;r:point:C&quot;,
+              &quot;point&quot;
+            ]
+          ],
+          [
+            &quot;∩&quot;,
+            [
+              &quot;axis_constant&quot;,
+              &quot;y_axis&quot;
+            ],
+            [
+              &quot;ref&quot;,
+              &quot;r:curve:Γ&quot;,
+              &quot;curve&quot;
+            ]
+          ]
+        ],
+        [
+          &quot;curve_definition&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ],
+          &quot;Add(Symbol(&#x27;n_02fc8c8fd9d832be960bebb7fbe1c6ba458cac3cca2fa48d9f95cd805eb82543&#x27;, real=True), Mul(Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True), Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True)), Mul(Integer(-1), Pow(Symbol(&#x27;n_ca681e0845e05d52e8d80d8facb7bd0e4b79a5ebe554edf37ba7a11568fb91a8&#x27;, real=True), Integer(2))))&quot;
+        ],
+        [
+          &quot;relation&quot;,
+          &quot;&lt;&quot;,
+          &quot;Mul(Integer(-1), Symbol(&#x27;n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b&#x27;, real=True))&quot;
+        ],
+        [
+          &quot;∈&quot;,
+          [
+            &quot;ref&quot;,
+            &quot;r:point:A&quot;,
+            &quot;point&quot;
+          ],
+          [
+            &quot;ref&quot;,
+            &quot;r:curve:Γ&quot;,
+            &quot;curve&quot;
+          ]
+        ]
+      ]
+    ]
+  }
+]</pre></details></section><section><h2>k-quad - FAIL</h2><p>62.267 s | Input: 8496 | Output (including reasoning): 13879 | Total: 22375</p><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为 k（k ≥ 1），则称该四边形为“k 倍四边形”。&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;图1&quot;,
+            &quot;facts&quot;: [
+              &quot;parallelogram(A,B,C,D)&quot;,
+              &quot;AC ∩ BD = {O}&quot;,
+              &quot;O = midpoint(A,C)&quot;,
+              &quot;E = midpoint(O,B)&quot;,
+              &quot;O ∈ segment(E,D)&quot;,
+              &quot;EO/OD = k ∨ OD/EO = k&quot;,
+              &quot;k ≥ 1&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;k&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;图2&quot;,
+            &quot;facts&quot;: [
+              &quot;bisects(BD,AC)&quot;,
+              &quot;cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k&quot;,
+              &quot;k ≥ 1&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;area(△ACD)/area(△ACB)&quot;,
+                &quot;in_terms_of&quot;: [&quot;k&quot;]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;bisects(BD,AC)&quot;,
+          &quot;cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k&quot;,
+          &quot;k ≥ 1&quot;,
+          &quot;angle(B,D,C) = 2*angle(A,B,D)&quot;,
+          &quot;BD = 4*CD&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;k&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(3)&quot;,
+        &quot;facts&quot;: [
+          &quot;A、B为定点；C为动点；D为平面内一点。&quot;,
+          &quot;C ∈ ray(B,M)&quot;,
+          &quot;line(A,B) ⟂ line(B,M)&quot;,
+          &quot;quadrilateral(A,B,C,D)&quot;,
+          &quot;bisects(BD,AC)&quot;,
+          &quot;angle(B,A,C) = angle(D,A,C)&quot;,
+          &quot;cut_ratio(BD,AC) = 2 ∨ cut_ratio(BD,AC) = 1/2&quot;,
+          &quot;k = 2&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;tan(∠ACD)&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;unmatched&quot;,
+  &quot;family_id&quot;: null,
+  &quot;match_reason&quot;: &quot;题目为几何新定义四边形问题，无二次函数或路径最值目标，不符合任何注册题型。&quot;
+}</pre><details><summary>Validation differences</summary><pre>[
+  {
+    &quot;path&quot;: &quot;r.c0.c0.facts[1]&quot;,
+    &quot;source&quot;: &quot;AC ∩ BD = {O}&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;type.intersection&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;bisects(BD,AC)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.facts[1]&quot;,
+    &quot;source&quot;: &quot;cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_value&quot;,
+      &quot;expression&quot;: &quot;area(△ACD)/area(△ACB)&quot;,
+      &quot;in_terms_of&quot;: [
+        &quot;k&quot;
+      ]
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:A&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;bisects(BD,AC)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[1]&quot;,
+    &quot;source&quot;: &quot;cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[3]&quot;,
+    &quot;source&quot;: &quot;angle(B,D,C) = 2*angle(A,B,D)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[4]&quot;,
+    &quot;source&quot;: &quot;BD = 4*CD&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  }
+]</pre></details></section><section><h2>function-quantifiers - PASS</h2><p>2.591 s | Input: 8121 | Output (including reasoning): 414 | Total: 8535</p><pre>{&quot;root&quot;:{&quot;definitions&quot;:[&quot;f(x) = x^2+b*x+c&quot;,&quot;g(x) = 2*x-1&quot;],&quot;children&quot;:[{&quot;label&quot;:&quot;(1)&quot;,&quot;facts&quot;:[&quot;∀x∈ℝ: f(x) ≥ g(x)&quot;],&quot;goals&quot;:[{&quot;kind&quot;:&quot;find_minimum&quot;,&quot;expression&quot;:&quot;b^2+c^2&quot;}]},{&quot;label&quot;:&quot;(2)&quot;,&quot;facts&quot;:[&quot;∃x0∈[1,3]: f(x0) ≤ g(x0)&quot;],&quot;goals&quot;:[{&quot;kind&quot;:&quot;find_range&quot;,&quot;symbol&quot;:&quot;b&quot;,&quot;in_terms_of&quot;:[&quot;c&quot;]}]}]},&quot;match_status&quot;:&quot;unmatched&quot;,&quot;family_id&quot;:null,&quot;match_reason&quot;:&quot;题目为二次函数与一次函数的不等式恒成立及存在性问题，不含路径最值的几何构造，不符合注册表中的路径最值题型。&quot;}</pre><details><summary>Validation differences</summary><pre>[]</pre></details></section></html>

@@ -1,0 +1,159 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "tj-2026-xiqing-yimo-25",
+    "source_sha256": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "match": {
+      "family_id": "QuadraticWeightedPathMinimumSolver",
+      "match_status": "matched",
+      "match_reason": "题面包含二次函数 Γ: y=-x^2+bx+c，路径目标 2DM+AM 带有非1权重2，并直接给出最小值 5+5√3，符合 QuadraticWeightedPathMinimumSolver 的 use_when。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": false,
+      "issues": [
+        {
+          "path": "r.definitions[0]",
+          "source": "Γ: y = -x^2 + b*x + c，其中 b,c 为常数",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 15: 其中 b,c 为常数"
+        },
+        {
+          "path": "r.definitions[1]",
+          "source": "A = (-1,0)，且 A 在 Γ 上",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.definitions[2]",
+          "source": "B: Γ 与 x 轴的另一交点（不同于 A）",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.definitions[3]",
+          "source": "C: Γ 与 y 轴的交点，C = (0,c)",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c0.goals[0]",
+          "source": {
+            "kind": "find_coordinates",
+            "object": "vertex(Γ)"
+          },
+          "code": "notation.goal",
+          "message": "binding.unknown_or_invisible:Γ"
+        },
+        {
+          "path": "r.c1.definitions[0]",
+          "source": "D = (b+2, y_D)，且 D 在 Γ 上",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c1.c0.facts[0]",
+          "source": "AD = 2*BC",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:A"
+        },
+        {
+          "path": "r.c1.c1.definitions[0]",
+          "source": "M = (m,0)，m > 0，M 是 x 轴正半轴上的动点",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c1.c1.facts[0]",
+          "source": "min_{M}(2*DM + AM) = 5 + 5*sqrt(3)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:D"
+        }
+      ],
+      "defaults": [
+        {
+          "ref": "r:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": []
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:83261502a34d9218a4aa63040d058eee6e46b6a474d343029001bf123baf40c7",
+      "kind": "notation_raw",
+      "sha256": "83261502a34d9218a4aa63040d058eee6e46b6a474d343029001bf123baf40c7",
+      "media_type": "text/plain",
+      "byte_size": 957,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-xiqing-yimo-25/artifacts/83/83261502a34d9218a4aa63040d058eee6e46b6a474d343029001bf123baf40c7.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:a3ff136d25700e2cec6d7f8d9272971fe0c019086ccccf21a70a23b15e51d83d",
+      "kind": "notation_candidate",
+      "sha256": "a3ff136d25700e2cec6d7f8d9272971fe0c019086ccccf21a70a23b15e51d83d",
+      "media_type": "application/json",
+      "byte_size": 957,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-xiqing-yimo-25/artifacts/a3/a3ff136d25700e2cec6d7f8d9272971fe0c019086ccccf21a70a23b15e51d83d.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:6c9c535307d6f740b2e1eac2e1020c5175bfd7de170765765d0dc523e2232cde",
+      "kind": "notation_normalized",
+      "sha256": "6c9c535307d6f740b2e1eac2e1020c5175bfd7de170765765d0dc523e2232cde",
+      "media_type": "application/json",
+      "byte_size": 1161,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-xiqing-yimo-25/artifacts/6c/6c9c535307d6f740b2e1eac2e1020c5175bfd7de170765765d0dc523e2232cde.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:5a567664634ec5943e36bbce23c96a8434de49d068b2f467b75e90a44f02eae1",
+      "kind": "notation_compiled",
+      "sha256": "5a567664634ec5943e36bbce23c96a8434de49d068b2f467b75e90a44f02eae1",
+      "media_type": "application/json",
+      "byte_size": 828,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-xiqing-yimo-25/artifacts/5a/5a567664634ec5943e36bbce23c96a8434de49d068b2f467b75e90a44f02eae1.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f",
+      "kind": "notation_continuation",
+      "sha256": "167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f",
+      "media_type": "application/json",
+      "byte_size": 45,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-xiqing-yimo-25/artifacts/16/167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:a74ed326d2298e7b43ea133c8e2efef7e21525392e1c571900c9ab540c886675",
+      "kind": "notation_validation",
+      "sha256": "a74ed326d2298e7b43ea133c8e2efef7e21525392e1c571900c9ab540c886675",
+      "media_type": "application/json",
+      "byte_size": 1576,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-xiqing-yimo-25/artifacts/a7/a74ed326d2298e7b43ea133c8e2efef7e21525392e1c571900c9ab540c886675.json"
+    }
+  },
+  "contract_valid": false,
+  "continuation": {
+    "status": "invalid_candidate",
+    "blocked": true
+  },
+  "revision": "a3ff136d25700e2cec6d7f8d9272971fe0c019086ccccf21a70a23b15e51d83d"
+}

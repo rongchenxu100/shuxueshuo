@@ -1,0 +1,31 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "k-quad",
+    "source_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {},
+  "reports": {
+    "json": {
+      "ok": false,
+      "issues": [
+        "Unterminated string starting at: line 135 column 11 (char 5573)"
+      ]
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:understanding_raw:ac91ad7abadfd9a2b661e250a0d410bf6eb26a66bc8a31e74e5b4f0cc9431cfa",
+      "kind": "understanding_raw",
+      "sha256": "ac91ad7abadfd9a2b661e250a0d410bf6eb26a66bc8a31e74e5b4f0cc9431cfa",
+      "media_type": "text/plain",
+      "byte_size": 6816,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/understanding-simplified-single-20260915/artifacts/ac/ac91ad7abadfd9a2b661e250a0d410bf6eb26a66bc8a31e74e5b4f0cc9431cfa.txt"
+    }
+  },
+  "contract_valid": false
+}

@@ -1,0 +1,135 @@
+{
+  "attempt_number": 3,
+  "attempt_id": "attempt-problem-domain:2c70ff68b7cdd3c4689ec7039dfae1182332a51370f7e3f103f215bcb7b73461",
+  "contract_version": "problem-repair/v1",
+  "result": "failed",
+  "patch_id": "problem-patch:a752f6943a76d996f96a9b3868fc0d9bd905562b64484ddf9f46aa7968088bab",
+  "resulting_revision_id": "problem-revision:9ad686f3547c480df143bce08dc3b9b5eda072f459666544fce9d1670cccbea2",
+  "validation": {
+    "ok": false,
+    "validator_ids": [
+      "scope/v1",
+      "lexical-reference/v1",
+      "expression/v1",
+      "entity-use/v1",
+      "source-literal/v2",
+      "source-kind/v1",
+      "fact-redundancy/v1",
+      "curve-ordinate/v1",
+      "definition-conflict/v1",
+      "goal/v1",
+      "source-review/v1",
+      "family-contract/v2",
+      "runtime-projection/v1",
+      "method-readiness/v1",
+      "context-build/v1"
+    ],
+    "issue_signature": "b77c69d355072a9a130946fa8d8bef2969b90d05f6ea876bbac3891a989019a9",
+    "issues": [
+      {
+        "code": "extraction.problem_expression_symbol_unresolved",
+        "unit_ids": [
+          "entity:added:6d72f363a743ae6617335bc8c957fe0789a617b1baa0f7482653d0b7bcf433d7"
+        ],
+        "dependency_unit_ids": [],
+        "message": "$.expression uses symbol 'angle_ACD', which is not visible from 'root/q3'",
+        "repair_action": "declare the symbol in this scope or an ancestor, or correct the expression",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_expression_symbol_unresolved",
+        "unit_ids": [
+          "entity:added:c4565973328ae72b172a5284c38a77a2220f9465da69751f654bdf63faf2f1cf"
+        ],
+        "dependency_unit_ids": [],
+        "message": "$.expression uses symbol 'S_triangle_ACB', which is not visible from 'root/q1'",
+        "repair_action": "declare the symbol in this scope or an ancestor, or correct the expression",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_expression_symbol_unresolved",
+        "unit_ids": [
+          "entity:added:c4565973328ae72b172a5284c38a77a2220f9465da69751f654bdf63faf2f1cf"
+        ],
+        "dependency_unit_ids": [],
+        "message": "$.expression uses symbol 'S_triangle_ACD', which is not visible from 'root/q1'",
+        "repair_action": "declare the symbol in this scope or an ancestor, or correct the expression",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_type_mismatch",
+        "unit_ids": [
+          "goal:root/q1:5d826aa42381293da063f9b129f92221fbaa593ce2961c08ff7828496dbea351",
+          "entity:added:c4565973328ae72b172a5284c38a77a2220f9465da69751f654bdf63faf2f1cf"
+        ],
+        "dependency_unit_ids": [],
+        "message": "target requires ['symbol'], but 'area_ratio' is 'scalar_expression'",
+        "repair_action": "replace the reference with a visible entity of the required type",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_reference_type_mismatch",
+        "unit_ids": [
+          "goal:root/q3:499266aaf7594e50a7fb9b4d34323e1d41075b101fdf917a2881fdabd0ae9b27",
+          "entity:added:6d72f363a743ae6617335bc8c957fe0789a617b1baa0f7482653d0b7bcf433d7"
+        ],
+        "dependency_unit_ids": [],
+        "message": "target requires ['symbol'], but 'tan_ACD' is 'scalar_expression'",
+        "repair_action": "replace the reference with a visible entity of the required type",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_runtime_projection_failed",
+        "unit_ids": [
+          "scope:root"
+        ],
+        "dependency_unit_ids": [],
+        "message": "'area_ratio' is 'scalar_expression', expected ['symbol']",
+        "repair_action": "repair the referenced domain units; code will not synthesize missing semantics",
+        "region_refs": [],
+        "retryable": true
+      },
+      {
+        "code": "extraction.problem_source_literal_unresolved",
+        "unit_ids": [
+          "entity:added:4716c10aeb05f22c1be44119bd55680f1a8c06afa3dfdd4b90f042800ee62814",
+          "fact:added:3db7e54014c82939fe0c037d94b2fec69f81ac83277674909fa768339d1e8d39",
+          "fact:root/q1:0cc7b1a86e613030ebf773dd20a72f89f4fd3d1145fc86ddac41e4ccda406022",
+          "fact:root/q1:0d12f23abc54212fd02394f7e8aa1edf292bb5ecc151ccbbd8ca08ea02676f60",
+          "fact:root/q1:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "fact:root/q1:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "fact:root/q1:71e9b4571f82121fb53f83e6f1482a5812b6c4847f0110501ecbd92686dff46f",
+          "fact:root/q1:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836",
+          "fact:root/q2:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "fact:root/q2:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "fact:root/q2:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836",
+          "fact:root/q3:1e88050d66097d72d49508bd2816352a9e93fc0ac963b6e9aba73bec56a6fa6a",
+          "fact:root/q3:35059cc84a318989e29e93eaf2813379b53d9451ba56549b9e44861bf922c2df",
+          "fact:root/q3:be44a7a634e4dbd10090b2642d47ea2ce64f41d4062327cc20841746e99d2836"
+        ],
+        "dependency_unit_ids": [],
+        "message": "entity source label 'O' is not visible in scope source text",
+        "repair_action": "replace the label with the printed source name or remove the invented entity",
+        "region_refs": [],
+        "retryable": true
+      }
+    ]
+  },
+  "source_review": null,
+  "structured_error": {
+    "code": "extraction.problem_expression_symbol_unresolved",
+    "unit_ids": [
+      "entity:added:6d72f363a743ae6617335bc8c957fe0789a617b1baa0f7482653d0b7bcf433d7"
+    ],
+    "dependency_unit_ids": [],
+    "message": "$.expression uses symbol 'angle_ACD', which is not visible from 'root/q3'",
+    "repair_action": "declare the symbol in this scope or an ancestor, or correct the expression",
+    "region_refs": [],
+    "retryable": true
+  }
+}

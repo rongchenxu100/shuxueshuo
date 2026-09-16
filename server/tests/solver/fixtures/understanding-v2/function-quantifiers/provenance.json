@@ -1,0 +1,21 @@
+{
+  "case_id": "function-quantifiers",
+  "source": "user_attached_image",
+  "image_sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138",
+  "observation_origin": "human_transcription_not_ocr",
+  "gold_origin": "human_authored_from_image_not_model_response",
+  "files": [
+    {
+      "file": "source.png",
+      "fixture_sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138"
+    },
+    {
+      "file": "observation.json",
+      "fixture_sha256": "ea143346d53616a8d2762c7c0b790e88e81d65d22a9aeb5cc8f88d86b47bb884"
+    },
+    {
+      "file": "gold.json",
+      "fixture_sha256": "57856e8a73a6d8790f5a368238dbc821a0cb3699ba30af42d058d1efb989c326"
+    }
+  ]
+}

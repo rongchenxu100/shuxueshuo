@@ -1,0 +1,21 @@
+{
+  "original_live_passed": false,
+  "original_gold_offline_passed": false,
+  "revised_gold_offline_passed": false,
+  "original_parse_issues": 8,
+  "current_parse_issues": [
+    {
+      "path": "r.c0.c0.facts[1]",
+      "source": "AC ∩ BD = {O}",
+      "code": "notation.bind",
+      "message": "type.intersection"
+    }
+  ],
+  "continuation": {
+    "status": "invalid_candidate",
+    "blocked": true
+  },
+  "raw_sha256": "fc97329cc21410b4e333ef28dbdba8777ae378a6feefdf5435e9da243f217860",
+  "previous_gold_sha256": "d5cec68a04883a5f6a31d28d2020360d0e9ce8a46f45156c11e9cdf42249a76e",
+  "current_gold_sha256": "d5cec68a04883a5f6a31d28d2020360d0e9ce8a46f45156c11e9cdf42249a76e"
+}

@@ -1,0 +1,14 @@
+{
+  "model": "doubao-seed-2-1-turbo-260628",
+  "choices": [
+    {
+      "finish_reason": "json_complete",
+      "message": {
+        "content": "{\"schema_version\":\"problem-repair\\/v1\",\"base_revision_id\":\"problem-revision:78449f6adb9e06b79272733ca5a0fb30de7a96dffb1e696cc5c7ea96be0d264d\",\"replacements\":[],\"additions\":[{\"scope_path\":\"root\",\"collection\":\"entity\",\"value\":{\"id\":\"O\",\"kind\":\"point\",\"label\":\"O\",\"role\":\"对角线交点\"}},{\"scope_path\":\"root\\/q1\",\"collection\":\"entity\",\"value\":{\"id\":\"A\",\"kind\":\"point\",\"label\":\"A\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q1\",\"collection\":\"entity\",\"value\":{\"id\":\"B\",\"kind\":\"point\",\"label\":\"B\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q1\",\"collection\":\"entity\",\"value\":{\"id\":\"C\",\"kind\":\"point\",\"label\":\"C\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q1\",\"collection\":\"entity\",\"value\":{\"id\":\"D\",\"kind\":\"point\",\"label\":\"D\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q1\",\"collection\":\"entity\",\"value\":{\"id\":\"area_ratio\",\"kind\":\"scalar_expression\",\"label\":\"S△ACD \\/ S△ACB\",\"expression\":\"S_triangle_ACD \\/ S_triangle_ACB\"}},{\"scope_path\":\"root\\/q2\",\"collection\":\"entity\",\"value\":{\"id\":\"A\",\"kind\":\"point\",\"label\":\"A\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q2\",\"collection\":\"entity\",\"value\":{\"id\":\"B\",\"kind\":\"point\",\"label\":\"B\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q2\",\"collection\":\"entity\",\"value\":{\"id\":\"C\",\"kind\":\"point\",\"label\":\"C\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q2\",\"collection\":\"entity\",\"value\":{\"id\":\"D\",\"kind\":\"point\",\"label\":\"D\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q3\",\"collection\":\"entity\",\"value\":{\"id\":\"A\",\"kind\":\"point\",\"label\":\"A\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q3\",\"collection\":\"entity\",\"value\":{\"id\":\"B\",\"kind\":\"point\",\"label\":\"B\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q3\",\"collection\":\"entity\",\"value\":{\"id\":\"C\",\"kind\":\"point\",\"label\":\"C\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q3\",\"collection\":\"entity\",\"value\":{\"id\":\"D\",\"kind\":\"point\",\"label\":\"D\",\"role\":\"顶点\"}},{\"scope_path\":\"root\\/q3\",\"collection\":\"entity\",\"value\":{\"id\":\"tan_ACD\",\"kind\":\"scalar_expression\",\"label\":\"tan∠ACD\",\"expression\":\"tan(angle_ACD)\"}},{\"scope_path\":\"root\\/q3\",\"collection\":\"fact\",\"value\":{\"kind\":\"equal_length\",\"left\":{\"start\":\"A\",\"end\":\"O\"},\"right\":{\"start\":\"O\",\"end\":\"C\"}}}],\"removals\":[\"entity:root:A\",\"entity:root:B\",\"entity:root:C\",\"entity:root:D\",\"entity:root:ABCD\",\"entity:root\\/q1:AECD\",\"entity:root\\/q1:O\"]}"
+      }
+    }
+  ],
+  "usage": null,
+  "stream_terminated_at_json": true,
+  "discarded_trailing_characters": 0
+}

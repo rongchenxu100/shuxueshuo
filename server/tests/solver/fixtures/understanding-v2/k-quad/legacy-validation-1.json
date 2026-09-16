@@ -1,0 +1,36 @@
+{
+  "attempt_number": 1,
+  "attempt_id": "attempt-problem-domain:b4eafdff166f290cc5fc1975ba1c8d6a3db05cd3828be5ebdb609c36b69be477",
+  "contract_version": "problem-domain/v1",
+  "result": "failed",
+  "patch_id": null,
+  "resulting_revision_id": null,
+  "validation": {
+    "ok": false,
+    "validator_ids": [
+      "wire/v1"
+    ],
+    "issue_signature": "2d0342b01c7fd61e24fda41cab0e1c418e87b84ffa36a6bad25dad3ab8973718",
+    "issues": [
+      {
+        "code": "extraction.problem_domain_schema_invalid",
+        "unit_ids": [],
+        "dependency_unit_ids": [],
+        "message": "[{'start': 'D2', 'vertex': 'B2', 'end': 'A2'}] is too short",
+        "repair_action": "return one complete problem-domain/v1 object",
+        "region_refs": [],
+        "retryable": true
+      }
+    ]
+  },
+  "source_review": null,
+  "structured_error": {
+    "code": "extraction.problem_domain_schema_invalid",
+    "unit_ids": [],
+    "dependency_unit_ids": [],
+    "message": "[{'start': 'D2', 'vertex': 'B2', 'end': 'A2'}] is too short",
+    "repair_action": "return one complete problem-domain/v1 object",
+    "region_refs": [],
+    "retryable": true
+  }
+}

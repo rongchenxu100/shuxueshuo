@@ -1,0 +1,398 @@
+{
+  "schema_version": "problem-understanding/v1",
+  "transcription": {
+    "schema_version": "problem-transcription/v1",
+    "problem_id": "example",
+    "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "root": {
+      "id": "root",
+      "title": "独立示例",
+      "units": [
+        {
+          "id": "definition_text",
+          "kind": "definition",
+          "text": "称有序四边形的首条对角线中点到另两顶点等距，或两对角线垂直时为均衡形。",
+          "region_refs": [],
+          "origin": "printed"
+        }
+      ],
+      "children": [
+        {
+          "id": "p1",
+          "title": "独立图景 p1",
+          "units": [
+            {
+              "id": "p1_given",
+              "kind": "condition",
+              "text": "四边形UVWZ按U、V、W、Z顺序构成均衡形。",
+              "region_refs": [],
+              "origin": "printed"
+            },
+            {
+              "id": "p1_asked",
+              "kind": "requirement",
+              "text": "求UV长度。",
+              "region_refs": [],
+              "origin": "printed"
+            }
+          ],
+          "children": []
+        },
+        {
+          "id": "p2",
+          "title": "独立图景 p2",
+          "units": [
+            {
+              "id": "p2_given",
+              "kind": "condition",
+              "text": "四边形UVWZ按U、V、W、Z顺序构成均衡形。",
+              "region_refs": [],
+              "origin": "printed"
+            },
+            {
+              "id": "p2_asked",
+              "kind": "requirement",
+              "text": "求UV长度。",
+              "region_refs": [],
+              "origin": "printed"
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    "regions": [],
+    "figures": [],
+    "source_gaps": []
+  },
+  "domain": {
+    "schema_version": "problem-domain/v2",
+    "problem_id": "example",
+    "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "transcription_revision": "response.transcription",
+    "completeness": "complete",
+    "definitions": [
+      {
+        "id": "balanced",
+        "label": "例：均衡形",
+        "parameters": [
+          {
+            "id": "P",
+            "kind": "polygon"
+          }
+        ],
+        "local_witnesses": [
+          {
+            "id": "X",
+            "kind": "point"
+          }
+        ],
+        "body": {
+          "kind": "all",
+          "terms": [
+            {
+              "kind": "midpoint",
+              "point": "X",
+              "segment": [
+                {
+                  "kind": "polygon_vertex",
+                  "polygon": "P",
+                  "index": 0
+                },
+                {
+                  "kind": "polygon_vertex",
+                  "polygon": "P",
+                  "index": 2
+                }
+              ]
+            },
+            {
+              "kind": "any",
+              "terms": [
+                {
+                  "kind": "quantity_relation",
+                  "operator": "=",
+                  "left": {
+                    "kind": "segment_length",
+                    "segment": [
+                      "X",
+                      {
+                        "kind": "polygon_vertex",
+                        "polygon": "P",
+                        "index": 1
+                      }
+                    ]
+                  },
+                  "right": {
+                    "kind": "segment_length",
+                    "segment": [
+                      "X",
+                      {
+                        "kind": "polygon_vertex",
+                        "polygon": "P",
+                        "index": 3
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "perpendicular",
+                  "first": [
+                    {
+                      "kind": "polygon_vertex",
+                      "polygon": "P",
+                      "index": 0
+                    },
+                    {
+                      "kind": "polygon_vertex",
+                      "polygon": "P",
+                      "index": 2
+                    }
+                  ],
+                  "second": [
+                    {
+                      "kind": "polygon_vertex",
+                      "polygon": "P",
+                      "index": 1
+                    },
+                    {
+                      "kind": "polygon_vertex",
+                      "polygon": "P",
+                      "index": 3
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "source_unit_ids": [
+          "definition_text"
+        ]
+      }
+    ],
+    "root": {
+      "id": "root_scope",
+      "part_ref": "root",
+      "entities": [],
+      "facts": [],
+      "goals": [],
+      "children": [
+        {
+          "id": "p1_scope",
+          "part_ref": "p1",
+          "entities": [
+            {
+              "id": "p1_U",
+              "kind": "point",
+              "label": "U",
+              "role": "given",
+              "source_unit_ids": [
+                "p1_given"
+              ]
+            },
+            {
+              "id": "p1_V",
+              "kind": "point",
+              "label": "V",
+              "role": "given",
+              "source_unit_ids": [
+                "p1_given"
+              ]
+            },
+            {
+              "id": "p1_W",
+              "kind": "point",
+              "label": "W",
+              "role": "given",
+              "source_unit_ids": [
+                "p1_given"
+              ]
+            },
+            {
+              "id": "p1_Z",
+              "kind": "point",
+              "label": "Z",
+              "role": "given",
+              "source_unit_ids": [
+                "p1_given"
+              ]
+            },
+            {
+              "id": "p1_polygon",
+              "kind": "polygon",
+              "label": "UVWZ",
+              "vertices": [
+                "p1_U",
+                "p1_V",
+                "p1_W",
+                "p1_Z"
+              ],
+              "source_unit_ids": [
+                "p1_given"
+              ]
+            }
+          ],
+          "facts": [
+            {
+              "id": "p1_instance",
+              "source_unit_ids": [
+                "p1_given"
+              ],
+              "relation": {
+                "kind": "definition_use",
+                "definition_ref": "balanced",
+                "arguments": {
+                  "P": "p1_polygon"
+                }
+              }
+            }
+          ],
+          "goals": [
+            {
+              "id": "p1_goal",
+              "kind": "quantity_goal",
+              "expression": {
+                "kind": "segment_length",
+                "segment": [
+                  "p1_U",
+                  "p1_V"
+                ]
+              },
+              "answer_form": {
+                "kind": "exact_value"
+              },
+              "source_unit_ids": [
+                "p1_asked"
+              ]
+            }
+          ],
+          "children": []
+        },
+        {
+          "id": "p2_scope",
+          "part_ref": "p2",
+          "entities": [
+            {
+              "id": "p2_U",
+              "kind": "point",
+              "label": "U",
+              "role": "given",
+              "source_unit_ids": [
+                "p2_given"
+              ]
+            },
+            {
+              "id": "p2_V",
+              "kind": "point",
+              "label": "V",
+              "role": "given",
+              "source_unit_ids": [
+                "p2_given"
+              ]
+            },
+            {
+              "id": "p2_W",
+              "kind": "point",
+              "label": "W",
+              "role": "given",
+              "source_unit_ids": [
+                "p2_given"
+              ]
+            },
+            {
+              "id": "p2_Z",
+              "kind": "point",
+              "label": "Z",
+              "role": "given",
+              "source_unit_ids": [
+                "p2_given"
+              ]
+            },
+            {
+              "id": "p2_polygon",
+              "kind": "polygon",
+              "label": "UVWZ",
+              "vertices": [
+                "p2_U",
+                "p2_V",
+                "p2_W",
+                "p2_Z"
+              ],
+              "source_unit_ids": [
+                "p2_given"
+              ]
+            }
+          ],
+          "facts": [
+            {
+              "id": "p2_instance",
+              "source_unit_ids": [
+                "p2_given"
+              ],
+              "relation": {
+                "kind": "definition_use",
+                "definition_ref": "balanced",
+                "arguments": {
+                  "P": "p2_polygon"
+                }
+              }
+            }
+          ],
+          "goals": [
+            {
+              "id": "p2_goal",
+              "kind": "quantity_goal",
+              "expression": {
+                "kind": "segment_length",
+                "segment": [
+                  "p2_U",
+                  "p2_V"
+                ]
+              },
+              "answer_form": {
+                "kind": "exact_value"
+              },
+              "source_unit_ids": [
+                "p2_asked"
+              ]
+            }
+          ],
+          "children": []
+        }
+      ]
+    },
+    "coverage": "from_source_unit_ids",
+    "gaps": []
+  },
+  "match": {
+    "schema_version": "problem-solver-match/v1",
+    "transcription_revision": "response.transcription",
+    "domain_revision": "response.domain",
+    "registry_snapshot": "0000000000000000000000000000000000000000000000000000000000000000",
+    "status": "unmatched",
+    "family_id": null,
+    "reason": "示例registry为空，没有覆盖这些要求的family。",
+    "coverage": [],
+    "uncovered_requirements": [
+      {
+        "source_unit_refs": [
+          "p1_asked"
+        ],
+        "domain_unit_refs": [
+          "p1_goal"
+        ],
+        "reason": "示例没有注册此求值能力。"
+      },
+      {
+        "source_unit_refs": [
+          "p2_asked"
+        ],
+        "domain_unit_refs": [
+          "p2_goal"
+        ],
+        "reason": "示例没有注册此求值能力。"
+      }
+    ]
+  }
+}

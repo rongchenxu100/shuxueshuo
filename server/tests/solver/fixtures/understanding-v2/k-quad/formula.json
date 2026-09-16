@@ -1,0 +1,282 @@
+{
+  "provider": "paddle_local_cpu",
+  "duration_seconds": 22.428786754608154,
+  "usage": null,
+  "record": {
+    "schema_version": "paddle-provider-record/v1",
+    "component": "formula_ocr",
+    "provider": {
+      "provider_id": "provider:8f8b9a4495d11c2668c0b91cc4624e43990bffe3811d5583f71cc10caefd9cf4",
+      "provider": "paddle_local_cpu",
+      "component": "formula_ocr",
+      "model_name": "PP-FormulaNet_plus-M",
+      "model_revision": "sha256:3d1a3713f6d678ef4d2e60ae83983a4f1edd568a7fcaefa3ec6a2ae15625c797",
+      "software_versions": {
+        "paddleocr": "3.7.0",
+        "paddlepaddle": "3.3.0",
+        "paddlex": "3.7.2"
+      },
+      "config": {
+        "canonical_input": "exif_transposed_rgb",
+        "device": "cpu",
+        "formula_confidence": "provider_score_or_fixed_0.5",
+        "model_source": "bos"
+      }
+    },
+    "source_revision_hash": "190380b26f77806ebde8096c39551792efe92e9901e3e80f99a32a5f864ac954",
+    "page_id": "page-1",
+    "width": 1308,
+    "height": 675,
+    "items": [
+      {
+        "confidence": 0.5,
+        "crop_artifact_id": "artifact:formula_crop:50a9512e104ffb71ec75d350e2c1948a3f93b128d2a54ae75f47f918e0f91f0a",
+        "formula_request_id": "formula-request:97009b99036bdba750e9c98e3e6783dcd6872e69e6619815b67030a7b3285992",
+        "latex": "k\\geq1",
+        "polygon": [
+          [
+            22.00056,
+            67.5999
+          ],
+          [
+            22.00056,
+            102.4002
+          ],
+          [
+            94.56186,
+            102.4002
+          ],
+          [
+            94.56186,
+            67.5999
+          ]
+        ],
+        "source_observation_ids": [
+          "observation:text:c6cf522e370f0e79bc32f4192bb5516028d59b6a842f346a2e952443361b171e"
+        ],
+        "source_text_hint": "k≥1"
+      },
+      {
+        "confidence": 0.5,
+        "crop_artifact_id": "artifact:formula_crop:1feadb3502626e7f7c03edd0029bf9538bc9db326322f62805952e8951cb6fb9",
+        "formula_request_id": "formula-request:ba9a0fb8fc45b19acfd9000d37601e13b90db708a605a220a8532670acd18eae",
+        "latex": "2\\angle ABD,BD=4C,",
+        "polygon": [
+          [
+            22.999872,
+            452.59965
+          ],
+          [
+            22.999872,
+            487.400625
+          ],
+          [
+            307.901892,
+            487.400625
+          ],
+          [
+            307.901892,
+            452.59965
+          ]
+        ],
+        "source_observation_ids": [
+          "observation:text:b214f397465e1b374a8b4b7f7323324b95a9eb5f02d784a18b0cd4fbb7553b57"
+        ],
+        "source_text_hint": "2∠ABD,BD=4CD"
+      },
+      {
+        "confidence": 0.5,
+        "crop_artifact_id": "artifact:formula_crop:895b2034b49ec4cd7a5405fb4d301ff7d4747f7ed9af8ee13824d740aa294cc7",
+        "formula_request_id": "formula-request:d0e0498bb9f07b87d5e471f7dce12cb07e6534eed80f706c0a055933e7265691",
+        "latex": "BD=4CD",
+        "polygon": [
+          [
+            163.06836,
+            453.994875
+          ],
+          [
+            163.06836,
+            482.301675
+          ],
+          [
+            329.312544,
+            482.301675
+          ],
+          [
+            329.312544,
+            453.994875
+          ]
+        ],
+        "source_observation_ids": [
+          "observation:layout:c8891f5742b56a1845e28b6260bbc08cccb8f8e3f7cde8d4fc0aea7117b86c09"
+        ],
+        "source_text_hint": null
+      },
+      {
+        "confidence": 0.5,
+        "crop_artifact_id": "artifact:formula_crop:44590ddc5b1c89add7757637660571acc93bc03122bcf84fa0ec15afec134037",
+        "formula_request_id": "formula-request:056a55f43b15e9470a09b7b8b7e977730b433e406a2e6e332116b826c69ec24e",
+        "latex": "\\bar{x}\\tan\\angle ACD",
+        "polygon": [
+          [
+            145.113444,
+            616.4397
+          ],
+          [
+            145.113444,
+            653.559975
+          ],
+          [
+            311.950152,
+            653.559975
+          ],
+          [
+            311.950152,
+            616.4397
+          ]
+        ],
+        "source_observation_ids": [
+          "observation:text:1cfec73b8081553ea8a84c32069226076508489754c7764183d85a45b455e0aa"
+        ],
+        "source_text_hint": "tan∠ACD"
+      },
+      {
+        "confidence": 0.5,
+        "crop_artifact_id": "artifact:formula_crop:a731aceef717d6fdc10d3e70a217e88cf0f46d8ed36057ee4dab9336c7c1eca6",
+        "formula_request_id": "formula-request:69de971997e0d9e5c60287a80948d63520b1345812792e29e553a70d925bbd3b",
+        "latex": "\\angle BDC=",
+        "polygon": [
+          [
+            1032.832116,
+            405.51975
+          ],
+          [
+            1032.832116,
+            441.4797
+          ],
+          [
+            1157.999868,
+            441.4797
+          ],
+          [
+            1157.999868,
+            405.51975
+          ]
+        ],
+        "source_observation_ids": [
+          "observation:text:32a32bc455fe43cc84562c1d49f7cf276fd0ccee1fe0af63a32dd5eb9dba3650"
+        ],
+        "source_text_hint": "∠BDC ="
+      },
+      {
+        "confidence": 0.5,
+        "crop_artifact_id": "artifact:formula_crop:59516d9e4a017ab279688bdce56cca1175eb068248c6d5ef3cb00e50ae75970a",
+        "formula_request_id": "formula-request:58efd0a0d927c99d406290ae97fc10812cdfd7afff23852e2d3ae77ed9ae2cba",
+        "latex": "\\angle BDC=",
+        "polygon": [
+          [
+            1021.60032,
+            408.79485
+          ],
+          [
+            1021.60032,
+            435.416175
+          ],
+          [
+            1160.30718,
+            435.416175
+          ],
+          [
+            1160.30718,
+            408.79485
+          ]
+        ],
+        "source_observation_ids": [
+          "observation:layout:b8dc81bddf07bb7a76f926d8e409b88a5cf5f08088cf54ecd2a77c86f12f02de"
+        ],
+        "source_text_hint": null
+      },
+      {
+        "confidence": 0.5,
+        "crop_artifact_id": "artifact:formula_crop:0c7c54202cb6dd94009212ed5f0f05f54390cffbcd1221307c16922889908467",
+        "formula_request_id": "formula-request:280bafb044a884191956174f9c1f9a3152efad3c13713bbb4a9cbd0cb55a859e",
+        "latex": "\\angle C,\\angle BAC=\\angle DAC,",
+        "polygon": [
+          [
+            655.610148,
+            572.5998
+          ],
+          [
+            655.610148,
+            607.4001
+          ],
+          [
+            966.50082,
+            607.4001
+          ],
+          [
+            966.50082,
+            572.5998
+          ]
+        ],
+        "source_observation_ids": [
+          "observation:text:79068b7aeb25191b7115dbc92a041ff82e80a46dc52d8b7e5f5e0036db67dc09"
+        ],
+        "source_text_hint": "AC,∠BAC=∠DAC"
+      }
+    ],
+    "latency_ms": 22427,
+    "record_hash": "80c794b035d5a19dad2d0e932654ffa3a34fc6792960701cb544fc10614af018"
+  },
+  "raw_payloads": [
+    {
+      "res": {
+        "input_path": null,
+        "page_index": null,
+        "rec_formula": "k\\geq1"
+      }
+    },
+    {
+      "res": {
+        "input_path": null,
+        "page_index": null,
+        "rec_formula": "2\\angle ABD,BD=4C,"
+      }
+    },
+    {
+      "res": {
+        "input_path": null,
+        "page_index": null,
+        "rec_formula": "BD=4CD"
+      }
+    },
+    {
+      "res": {
+        "input_path": null,
+        "page_index": null,
+        "rec_formula": "\\bar{x}\\tan\\angle ACD"
+      }
+    },
+    {
+      "res": {
+        "input_path": null,
+        "page_index": null,
+        "rec_formula": "\\angle BDC="
+      }
+    },
+    {
+      "res": {
+        "input_path": null,
+        "page_index": null,
+        "rec_formula": "\\angle BDC="
+      }
+    },
+    {
+      "res": {
+        "input_path": null,
+        "page_index": null,
+        "rec_formula": "\\angle C,\\angle BAC=\\angle DAC,"
+      }
+    }
+  ]
+}

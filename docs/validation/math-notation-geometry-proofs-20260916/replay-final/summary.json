@@ -1,0 +1,242 @@
+{
+  "offline_replay_only": true,
+  "network_calls": 0,
+  "source_batch": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/math-notation-seven-20260916-135634",
+  "live_passed": 4,
+  "replay_passed": 6,
+  "implementation_files": {
+    "__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+    "acceptance.py": "e2e285f1a66367c33b9daef40d694651826c236efe6f096a9daa13b63905bb75",
+    "algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+    "authoring.py": "bb5981090d28218fa982e89d99deb92430505ace1f71e0858173ab41a3837118",
+    "batch_smoke.py": "e2bd017d4a6cd7807ecd80a240224ec8367d4fa8d38d396c7c84069b18fc3026",
+    "comparison.py": "810533225c514427673471e8995432a2ab9962169b060696eebe57cf29ca635e",
+    "comparison_provider.py": "24b12606f368f460a9b82b46327d5abc4052548779bff27ddc1f48cbf21cd688",
+    "contracts.py": "cb45ad8b122498ec8aa4ff9a95db5ec1f80a99c2ff3370ca06bcb3dce675d0c7",
+    "equivalence.py": "5da9410a55b7b85acf23fffa5cb8db3916766acf4abaad45a9f1932e7d8d3a11",
+    "geometry_consistency.py": "32b45934d947782fbef6284fce8d36e0322693187e3cb5cb520d2207c64fd88b",
+    "identity.py": "928775ee9a74fd4113141f4f606a6f9b740be39d62d77b26e43b91159ab06ed8",
+    "intersections.py": "77cf88ca0c36f7f729af3eebfef99c2705e667cb7478e99406c1d99f4d79d0eb",
+    "measure.py": "ee594ab69b48fe81e063dcb60d1185848b45c52c7f11e4278049316e001a812b",
+    "normalization.py": "e24f157ce67b7c65510b3ac4e08c4936e6fa1ae49d22acab7dfdcc733c38ffa4",
+    "notation_compile.py": "158d095963354679e93df00ea113d479b4c828207a628e88053b910a9b218b23",
+    "notation_contract.py": "603b64b2efe22aa515339837d5c3cbf3a6f8a2a97b21da892e6095d2beef639b",
+    "notation_geometry_proofs.py": "b373845d9c33de8ec1d36f45b8ae31c376d8389e4b67f9dd64e753fce7a6b24c",
+    "notation_implication.py": "20a298eb044e769a0573ba3939bb97589c6c950eaf5c3dac39e0f7d21a3288e3",
+    "notation_normalization.py": "7a5d0e2edd08f7e726c369722284b2401dce79b6a1886a5e0b104c749e22d45c",
+    "notation_parser.py": "c1469725dd46f3088753ed3378e46914ac0879088bfcdc24c743e3f2b2407ce8",
+    "notation_replay.py": "bd89229b912769b474ecf8b209b7e6b8f499502f34bd323f4367bbf8d6f8e502",
+    "notation_semantics.py": "927dc2ff50980c2877ad8a6c2c47ced4bd479a82b9700ac06be99a96a3ef57cc",
+    "notation_service.py": "642696ceb0504ffe8d8c66b2688976641a9f8481402f071da4199bad0c78385f",
+    "prompt.py": "92d3bcc01b4014299a55afff50f1b5b01131d3ce8d31cbe3fcb5a9a48980d627",
+    "service.py": "f9e3a2a6b426493756e0882ed9fa3f91ab068c0e6a33b60a904aa98451822e5c",
+    "smoke.py": "8a72d86360411b8ec74636081cdc26a3d58cc785cbf33b0654328c007883f210",
+    "validation.py": "88eac906b043f4a1c7646a02aefa89584b94e5c69fee64fd0707af4f0cd6c46a",
+    "wire.py": "31317a6be6b6dcb8aadeba4a95cb737ff34b2423163aabc5d8f2e70ad0f8291c"
+  },
+  "results": {
+    "tj-2026-heping-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 3,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 39.442,
+      "usage": {
+        "completion_tokens": 7860,
+        "prompt_tokens": 9755,
+        "total_tokens": 17615,
+        "prompt_cache_hit_tokens": 512,
+        "prompt_cache_miss_tokens": 9243
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "bc7bade54c235436c9bab25b73027926441f7679a521500d49cb17316d3fc6bf",
+      "frozen_request_sha256": "2daea38f67903a9937dbad46d51687fc4c8bd7d30a5fafb98d84a8c6b61c7cf0",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "tj-2026-heping-ermo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 32.494,
+      "usage": {
+        "completion_tokens": 6265,
+        "prompt_tokens": 9629,
+        "total_tokens": 15894,
+        "prompt_cache_hit_tokens": 512,
+        "prompt_cache_miss_tokens": 9117
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "c0574ab6ee29e7141de5db50815c1eb1d6c943a22d45fc0311877ea115350119",
+      "frozen_request_sha256": "c09253953d7385c86c545637af2a5c3f70c98f8b8442b4f9820828a65222d10d",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "tj-2026-hexi-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 35.98,
+      "usage": {
+        "completion_tokens": 7462,
+        "prompt_tokens": 9566,
+        "total_tokens": 17028,
+        "prompt_cache_hit_tokens": 512,
+        "prompt_cache_miss_tokens": 9054
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "c7d0a2fd855577bc5e0f3e2c4c511d3bcdf6c224e8b8cff2cb91bf113aee3b8c",
+      "frozen_request_sha256": "ff0942e87e19e8e333e0d9fe9452d7bcf5e6ca933a6ea79df1c37a7f56d138b5",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "tj-2026-nankai-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 41.835,
+      "usage": {
+        "completion_tokens": 9297,
+        "prompt_tokens": 9659,
+        "total_tokens": 18956,
+        "prompt_cache_hit_tokens": 8960,
+        "prompt_cache_miss_tokens": 699
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "f5d62ad527ebb7076249007a82936a932eccc514056c4f96860a42808f67842d",
+      "frozen_request_sha256": "d2affaa304a1027d173471b1bd5d8f38d6a1c73f2d3418ad8e75d5abc690b00b",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 30.507,
+      "usage": {
+        "completion_tokens": 6737,
+        "prompt_tokens": 9494,
+        "total_tokens": 16231,
+        "prompt_cache_hit_tokens": 8960,
+        "prompt_cache_miss_tokens": 534
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "a91c609a8329aad72241d46499a0d52c2c2564754806dba2f62e13a405b3eb75",
+      "frozen_request_sha256": "6d2bf99f8fd4e628266ef923f90b91820509ddcf5919f3d2a2b12974caaa8a1b",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "k-quad": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 50.363,
+      "usage": {
+        "completion_tokens": 11827,
+        "prompt_tokens": 9740,
+        "total_tokens": 21567,
+        "prompt_cache_hit_tokens": 8960,
+        "prompt_cache_miss_tokens": 780
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "e3ac12c384f8993c588d81fca54fcaefbf4517eb28e7a25f23b8cd03aa6ef10e",
+      "frozen_request_sha256": "ff5c405498af704c2e62428324a63262a6c7b24c2d989ff3ca0625add0e6049b",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "function-quantifiers": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 2.653,
+      "usage": {
+        "completion_tokens": 444,
+        "prompt_tokens": 9365,
+        "total_tokens": 9809,
+        "prompt_cache_hit_tokens": 8960,
+        "prompt_cache_miss_tokens": 405
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "42bf91543d8a3f1f4c9973121fdd9ff75efc806a3a83e9fdefce73df8497a7b0",
+      "frozen_request_sha256": "522fba903f14462859d12e5db5714f543e24b3784cd5ebda430a35ed6b1f7fee",
+      "request_contract": "problem-math-notation/v1"
+    }
+  }
+}

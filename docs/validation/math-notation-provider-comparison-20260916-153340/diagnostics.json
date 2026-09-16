@@ -1,0 +1,693 @@
+{
+  "deepseek": {
+    "tj-2026-heping-yimo-25": {
+      "summary": {
+        "case_id": "tj-2026-heping-yimo-25",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 33.148
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": false,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    },
+    "tj-2026-heping-ermo-25": {
+      "summary": {
+        "case_id": "tj-2026-heping-ermo-25",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 26.856
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": false,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    },
+    "tj-2026-hexi-yimo-25": {
+      "summary": {
+        "case_id": "tj-2026-hexi-yimo-25",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "QuadraticWeightedPathMinimumSolver",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 27.531
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": false,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    },
+    "tj-2026-nankai-yimo-25": {
+      "summary": {
+        "case_id": "tj-2026-nankai-yimo-25",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "QuadraticPathMinimumSolver",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 26.518
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": false,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "summary": {
+        "case_id": "tj-2026-xiqing-yimo-25",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "QuadraticWeightedPathMinimumSolver",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 6.226
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": false,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    },
+    "k-quad": {
+      "summary": {
+        "case_id": "k-quad",
+        "passed": false,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "needs_confirmation",
+          "blocked": true,
+          "error_code": "extraction.missing_figure",
+          "user_action": "supplement_image",
+          "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+          "missing_figures": [
+            {
+              "scope": "r.c0.c0",
+              "label": "①",
+              "text": "题面引用图1，但输入图片未提供该图。"
+            },
+            {
+              "scope": "r.c0.c1",
+              "label": "②",
+              "text": "题面引用图2，但输入图片未提供该图。"
+            },
+            {
+              "scope": "r.c1",
+              "label": "(2)",
+              "text": "题面引用图3，但输入图片未提供该图。"
+            },
+            {
+              "scope": "r.c2",
+              "label": "(3)",
+              "text": "题面引用图4，但输入图片未提供该图。"
+            }
+          ]
+        },
+        "contract_valid": false,
+        "elapsed_seconds": 60.144
+      },
+      "ir_issues": [
+        {
+          "path": "r.c1.facts[3]",
+          "source": "angle(BDC) = 2*angle(ABD)",
+          "code": "notation.bind",
+          "message": "binding.call_arity:angle"
+        },
+        {
+          "path": "r.c2.facts[6]",
+          "source": "angle(BAC) = angle(DAC)",
+          "code": "notation.bind",
+          "message": "binding.call_arity:angle"
+        }
+      ],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": false,
+        "reason": "invalid domain"
+      },
+      "acceptance": {}
+    },
+    "function-quantifiers": {
+      "summary": {
+        "case_id": "function-quantifiers",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 7.516
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": true,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    }
+  },
+  "doubao": {
+    "tj-2026-heping-yimo-25": {
+      "summary": {
+        "case_id": "tj-2026-heping-yimo-25",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 58.53
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": false,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    },
+    "tj-2026-heping-ermo-25": {
+      "summary": {
+        "case_id": "tj-2026-heping-ermo-25",
+        "passed": false,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "invalid_candidate",
+          "blocked": true
+        },
+        "contract_valid": false,
+        "elapsed_seconds": 49.427
+      },
+      "ir_issues": [
+        {
+          "path": "r.facts[4]",
+          "source": "M = axis(Γ) ∩ x_axis",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:M"
+        },
+        {
+          "path": "r.c1.facts[3]",
+          "source": "min(HF + FM + MG) = 3*sqrt(5)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:M"
+        },
+        {
+          "path": "r.c1.goals[0]",
+          "source": {
+            "kind": "find_coordinates",
+            "object": "E",
+            "at": "HF + FM + MG = min(HF + FM + MG)"
+          },
+          "code": "notation.goal",
+          "message": "binding.unknown_or_invisible:M"
+        }
+      ],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": false,
+        "reason": "invalid domain"
+      },
+      "acceptance": {}
+    },
+    "tj-2026-hexi-yimo-25": {
+      "summary": {
+        "case_id": "tj-2026-hexi-yimo-25",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "QuadraticWeightedPathMinimumSolver",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 31.913
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": false,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    },
+    "tj-2026-nankai-yimo-25": {
+      "summary": {
+        "case_id": "tj-2026-nankai-yimo-25",
+        "passed": false,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "invalid_candidate",
+          "blocked": true
+        },
+        "contract_valid": false,
+        "elapsed_seconds": 56.305
+      },
+      "ir_issues": [
+        {
+          "path": "r.facts[3]",
+          "source": "D = axis(Γ) ∩ x_axis",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:D"
+        },
+        {
+          "path": "r.c0.goals[0]",
+          "source": {
+            "kind": "find_coordinates",
+            "object": "D"
+          },
+          "code": "notation.goal",
+          "message": "binding.unknown_or_invisible:D"
+        }
+      ],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": false,
+        "reason": "invalid domain"
+      },
+      "acceptance": {}
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "summary": {
+        "case_id": "tj-2026-xiqing-yimo-25",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "QuadraticWeightedPathMinimumSolver",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 48.785
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": false,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    },
+    "k-quad": {
+      "summary": {
+        "case_id": "k-quad",
+        "passed": false,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "needs_confirmation",
+          "blocked": true,
+          "error_code": "extraction.missing_figure",
+          "user_action": "supplement_image",
+          "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+          "missing_figures": [
+            {
+              "scope": "r.c0.c0",
+              "label": "图1",
+              "text": "题面引用图1，本次输入未提供该几何示意图。"
+            },
+            {
+              "scope": "r.c0.c1",
+              "label": "图2",
+              "text": "题面引用图2，本次输入未提供该几何示意图。"
+            },
+            {
+              "scope": "r.c1",
+              "label": "(2)",
+              "text": "题面引用图3，本次输入未提供该几何示意图。"
+            },
+            {
+              "scope": "r.c2",
+              "label": "(3)",
+              "text": "题面引用图4，本次输入未提供该几何示意图。"
+            }
+          ]
+        },
+        "contract_valid": false,
+        "elapsed_seconds": 86.199
+      },
+      "ir_issues": [
+        {
+          "path": "r.c0.c0.facts[1]",
+          "source": "O = segment(A,C) ∩ segment(B,D)",
+          "code": "notation.bind",
+          "message": "type.relation"
+        }
+      ],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": false,
+        "reason": "invalid domain"
+      },
+      "acceptance": {}
+    },
+    "function-quantifiers": {
+      "summary": {
+        "case_id": "function-quantifiers",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 19.964
+      },
+      "ir_issues": [],
+      "match": {
+        "ok": true,
+        "issues": []
+      },
+      "comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": [],
+        "unmatched": true,
+        "match_correct": true
+      },
+      "acceptance": {
+        "ok": true,
+        "strict": {
+          "ok": true,
+          "classification": "equivalent",
+          "differences": []
+        },
+        "accepted_omissions": []
+      }
+    }
+  }
+}

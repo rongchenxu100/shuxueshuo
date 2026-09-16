@@ -1,0 +1,68 @@
+{
+  "root": {
+    "definitions": [
+      "Γ: y = a*x^2 - b*x + c"
+    ],
+    "facts": [
+      "b > 0"
+    ],
+    "children": [
+      {
+        "label": "（I）",
+        "facts": [
+          "a = 1",
+          "b = 2",
+          "c = 3",
+          "P = vertex(Γ)"
+        ],
+        "goals": [
+          {
+            "kind": "find_coordinates",
+            "object": "P"
+          }
+        ]
+      },
+      {
+        "label": "（II）",
+        "facts": [
+          "a = 2",
+          "A = (-1,0)",
+          "A ∈ Γ",
+          "D ∈ Γ",
+          "Γ ∩ y_axis = {C}",
+          "∠CAD = 90°",
+          "AC = AD"
+        ],
+        "goals": [
+          {
+            "kind": "find_coordinates",
+            "object": "D"
+          }
+        ]
+      },
+      {
+        "label": "（III）",
+        "facts": [
+          "a = 1",
+          "A = (-1,0)",
+          "A ∈ Γ",
+          "M = (b+1/2, y_M)",
+          "M ∈ Γ",
+          "N = (n,0)",
+          "n > 0",
+          "N为动点",
+          "min(sqrt(2)*MN + AN) = 21/4"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "b"
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "match_reason": "第(III)问要求含权路径 sqrt(2)*MN + AN 的最小值为定值，符合二次函数加权路径最值题型；题面含二次函数和路径最小值条件。"
+}

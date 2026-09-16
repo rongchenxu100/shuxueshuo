@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "root",
+    "match_status",
+    "family_id",
+    "match_reason"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "root": {
+      "$ref": "#/$defs/Scope"
+    },
+    "match_status": {
+      "enum": [
+        "matched",
+        "unmatched"
+      ]
+    },
+    "family_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "match_reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    }
+  },
+  "$defs": {
+    "Scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "整题及分问树。父条件向下继承，兄弟局部条件不互通；空数组可以省略，无需标识对象ID。",
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "definitions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "函数/曲线/对象定义；也可保留题内新概念原文，但每问仍展开为数学关系。可写‘A、B为定点；C为动点；D为平面内一点。’，无需额外补动点标签。"
+          },
+          "maxItems": 128,
+          "description": "定义列表，可省略。"
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "用数学字符串表达题设，不输出专用fact对象或运算树。\n曲线定义 Γ: y = a*x^2+b*x+c；函数 f(x) = x^2；点 A = (-2,0)。\nAB表示单字母点名的无向长度，复杂点名用length(A1,B1)；∠BAC表示顶点A处非定向内角，45°为角度；area(△ABC)表示无向面积。\nP ∈ Γ；Γ ∩ x_axis = {A,B}；x(P)、y(P)取坐标；x_axis/y_axis/axis(Γ)/vertex(Γ)分别表示坐标轴、对称轴、顶点。\nsegment(A,B)/line(A,B)/ray(A,B)分别是线段/直线/以A为端点经过B的射线，不能混淆范围。\nF = midpoint(D,N)：F是DN中点；D = C+(2,0)：平移。\nsquare(A,E,K,G)/parallelogram(A,B,C,D)/quadrilateral(A,B,C,D)：按所列顶点顺序构图。\nbisects(BD,AC)：BD所在直线经过AC中点，不额外要求交点在BD内部。\ncut_ratio(BD,AC)：设两直线交点为X，表示BX/XD；第一参数端点顺序决定分子分母。X仅为解释，不要求新起点名，不默认交点在线段内部。若交点已命名O可直接写BO/OD。\n∧为同时成立，∨为至少一项成立，括号保留逻辑范围。未指定长短方向时保留ratio=k ∨ ratio=1/k；不推导排除定义分支。\n∀x∈ℝ: f(x) ≥ g(x)；∃t∈[0,2]: f(t) ≤ 1。保留量词、开闭区间和绑定变量，无需代入展开函数。\nmin_{P,Q}(AP+PQ)或min(AP+PQ)：最值下标可选；题面明确时建议填写，也可省略，不推断依赖或列固定参数。max同理。\n只支持精确数、参数、+-*/^、sqrt等受控算式。不补写默认实数域或隐含非零约束。"
+          },
+          "maxItems": 128,
+          "description": "各项同时成立；不要写求解结果。"
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "expression"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_value"
+                  },
+                  "expression": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 128,
+                    "description": "可选提示；variables可省略，in_terms_of保留题面要求的表示参数。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "只表达题面明确的‘此时’状态，例如AP=min(AP)，不推断最优条件。"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "object"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_coordinates"
+                  },
+                  "object": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "只表达题面明确的‘此时’状态，例如AP=min(AP)，不推断最优条件。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 128,
+                    "description": "可选提示；variables可省略，in_terms_of保留题面要求的表示参数。"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "object"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_equation"
+                  },
+                  "object": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "只表达题面明确的‘此时’状态，例如AP=min(AP)，不推断最优条件。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 128,
+                    "description": "可选提示；variables可省略，in_terms_of保留题面要求的表示参数。"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "expression"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_minimum"
+                  },
+                  "expression": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "variables": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 128,
+                    "description": "可选提示；variables可省略，in_terms_of保留题面要求的表示参数。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 128,
+                    "description": "可选提示；variables可省略，in_terms_of保留题面要求的表示参数。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "只表达题面明确的‘此时’状态，例如AP=min(AP)，不推断最优条件。"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "expression"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_maximum"
+                  },
+                  "expression": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "variables": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 128,
+                    "description": "可选提示；variables可省略，in_terms_of保留题面要求的表示参数。"
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 128,
+                    "description": "可选提示；variables可省略，in_terms_of保留题面要求的表示参数。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "只表达题面明确的‘此时’状态，例如AP=min(AP)，不推断最优条件。"
+                  }
+                },
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "symbol"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_range"
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "in_terms_of": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "maxItems": 128,
+                    "description": "可选提示；variables可省略，in_terms_of保留题面要求的表示参数。"
+                  },
+                  "at": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "只表达题面明确的‘此时’状态，例如AP=min(AP)，不推断最优条件。"
+                  }
+                },
+                "additionalProperties": false
+              }
+            ]
+          },
+          "maxItems": 128,
+          "description": "保留所求类别；variables可省略，不返回答案。"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Scope"
+          },
+          "maxItems": 128,
+          "description": "按原题分问组织；同问独立图景再分层。"
+        },
+        "uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "kind",
+              "text"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "missing_figure",
+                  "ambiguous_symbol",
+                  "unreadable",
+                  "occluded",
+                  "unstructured",
+                  "ambiguous_reuse"
+                ]
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            }
+          },
+          "maxItems": 128,
+          "description": "题面引用的图形未提供时记录missing_figure；不猜图、不从无图推导图中条件。"
+        }
+      }
+    }
+  }
+}

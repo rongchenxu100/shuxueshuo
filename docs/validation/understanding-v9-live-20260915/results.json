@@ -1,0 +1,116 @@
+{
+  "summary": {
+    "passed": true,
+    "candidate_only": true,
+    "source_reviewed": false,
+    "solver_ready": false,
+    "semantic_calls": 1,
+    "network_attempts": 2,
+    "continuation": {
+      "status": "needs_confirmation",
+      "blocked": true,
+      "error_code": "extraction.missing_figure",
+      "user_action": "supplement_image",
+      "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+      "missing_figures": [
+        {
+          "scope": "r.c0.c0",
+          "label": "图1",
+          "text": "缺少图1，无法确认四边形AECD的具体图形和E、O的位置关系。"
+        },
+        {
+          "scope": "r.c0.c1",
+          "label": "图2",
+          "text": "缺少图2，无法确认四边形ABCD的图形和AC、BD的具体位置关系。"
+        },
+        {
+          "scope": "r.c1",
+          "label": "(2)",
+          "text": "缺少图3，无法确认四边形ABCD的图形和角度、线段的确切关系。"
+        },
+        {
+          "scope": "r.c2",
+          "label": "(3)",
+          "text": "缺少图4，无法确认点A、B、M、C、D的具体位置和四边形ABCD的图形。"
+        }
+      ]
+    },
+    "strict_semantics_passed": false,
+    "accepted_omissions": [
+      {
+        "scope": [
+          0,
+          0
+        ],
+        "fact": {
+          "kind": "scalar_constraint",
+          "symbol": "k",
+          "operator": ">=",
+          "value": "1"
+        },
+        "reason": "用户明确接受本题此局部参数下界遗漏；保留严格语义差异，不宣称等价。"
+      },
+      {
+        "scope": [
+          0,
+          1
+        ],
+        "fact": {
+          "kind": "scalar_constraint",
+          "symbol": "k",
+          "operator": ">=",
+          "value": "1"
+        },
+        "reason": "用户明确接受本题此局部参数下界遗漏；保留严格语义差异，不宣称等价。"
+      },
+      {
+        "scope": [
+          1
+        ],
+        "fact": {
+          "kind": "scalar_constraint",
+          "symbol": "k",
+          "operator": ">=",
+          "value": "1"
+        },
+        "reason": "用户明确接受本题此局部参数下界遗漏；保留严格语义差异，不宣称等价。"
+      }
+    ],
+    "contract_valid": true,
+    "elapsed_seconds": 145.262
+  },
+  "acceptance_classification": "accepted_with_omissions",
+  "aggregate_usage": {
+    "completion_tokens": 32219,
+    "prompt_tokens": 17640,
+    "total_tokens": 49859,
+    "prompt_cache_hit_tokens": 8960,
+    "prompt_cache_miss_tokens": 8680
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "finish_reason": "length",
+      "latency_ms": 75448,
+      "completion_tokens": 16384,
+      "reasoning_tokens": 16384,
+      "reasoning_characters": 35162,
+      "visible_characters": 0
+    },
+    {
+      "attempt": 2,
+      "finish_reason": "stop",
+      "latency_ms": 68939,
+      "completion_tokens": 15835,
+      "reasoning_tokens": 13856,
+      "reasoning_characters": 28763,
+      "visible_characters": 6464
+    }
+  ],
+  "frozen_implementation_matches": true,
+  "model": "deepseek-flash",
+  "thinking": "enabled",
+  "reasoning_effort": "low",
+  "new_semantic_calls": 1,
+  "new_network_attempts": 2
+}

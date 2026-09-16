@@ -1,0 +1,267 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "tj-2026-hexi-yimo-25",
+    "source_sha256": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "match": {
+      "family_id": "QuadraticWeightedPathMinimumSolver",
+      "match_status": "matched",
+      "match_reason": "第(III)问含带权路径 √2 MN + AN（k=√2≠1）的最小值为21/4，且路径由二次函数与动点N给出，符合加权路径最值题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": false,
+      "issues": [
+        {
+          "path": "r.definitions[0]",
+          "source": "抛物线 Γ: y = a*x^2 - b*x + c，其中a, b, c为常数，b > 0",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c0.definitions[3]",
+          "source": "P为抛物线Γ的顶点",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c0.goals[0]",
+          "source": {
+            "kind": "find_coordinates",
+            "object": "P"
+          },
+          "code": "notation.goal",
+          "message": "binding.unknown_or_invisible:P"
+        },
+        {
+          "path": "r.c1.definitions[2]",
+          "source": "A ∈ Γ",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:Γ"
+        },
+        {
+          "path": "r.c1.definitions[3]",
+          "source": "D ∈ Γ",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:Γ"
+        },
+        {
+          "path": "r.c1.definitions[4]",
+          "source": "C = Γ ∩ y_axis",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:C"
+        },
+        {
+          "path": "r.c1.facts[0]",
+          "source": "∠CAD = 90°",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:C"
+        },
+        {
+          "path": "r.c1.facts[1]",
+          "source": "AC = AD",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:C"
+        },
+        {
+          "path": "r.c2.definitions[4]",
+          "source": "N = (n,0)，N是x轴正半轴上的动点",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c2.definitions[2]",
+          "source": "A ∈ Γ",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:Γ"
+        },
+        {
+          "path": "r.c2.definitions[3]",
+          "source": "M = (b + 1/2, y_M)，M ∈ Γ",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:Γ"
+        },
+        {
+          "path": "r.c2.facts[0]",
+          "source": "min_N(√2*MN + AN) = 21/4",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:N"
+        }
+      ],
+      "defaults": [
+        {
+          "ref": "r.c0:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c0:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c0:scalar:c",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c1:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c2:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c2:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c2:scalar:y_M",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r.c0:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r.c0"
+        },
+        {
+          "ref": "r.c0:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r.c0"
+        },
+        {
+          "ref": "r.c0:scalar:c",
+          "name": "c",
+          "kind": "scalar",
+          "scope": "r.c0"
+        },
+        {
+          "ref": "r.c1:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c2:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:M",
+          "name": "M",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:scalar:y_M",
+          "name": "y_M",
+          "kind": "scalar",
+          "scope": "r.c2"
+        }
+      ],
+      "well_definedness_obligations": []
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:1508f1d11cfb50fab048546d4ea1fe502537a74dcb670c14a971e18f6f23b998",
+      "kind": "notation_raw",
+      "sha256": "1508f1d11cfb50fab048546d4ea1fe502537a74dcb670c14a971e18f6f23b998",
+      "media_type": "text/plain",
+      "byte_size": 1610,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-hexi-yimo-25/artifacts/15/1508f1d11cfb50fab048546d4ea1fe502537a74dcb670c14a971e18f6f23b998.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:4879ec65f902d6af5cd18cf7bd870fca84a0f8ff07c903af238770ddf22798a9",
+      "kind": "notation_candidate",
+      "sha256": "4879ec65f902d6af5cd18cf7bd870fca84a0f8ff07c903af238770ddf22798a9",
+      "media_type": "application/json",
+      "byte_size": 972,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-hexi-yimo-25/artifacts/48/4879ec65f902d6af5cd18cf7bd870fca84a0f8ff07c903af238770ddf22798a9.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:88c5a56781452617d3d762f9f7253af73227033622a1651717a817002c3120e3",
+      "kind": "notation_normalized",
+      "sha256": "88c5a56781452617d3d762f9f7253af73227033622a1651717a817002c3120e3",
+      "media_type": "application/json",
+      "byte_size": 1082,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-hexi-yimo-25/artifacts/88/88c5a56781452617d3d762f9f7253af73227033622a1651717a817002c3120e3.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:56780c5a857f80ece61cdc0199d7a1bb4c602d88232574f9d967d830db00bfbb",
+      "kind": "notation_compiled",
+      "sha256": "56780c5a857f80ece61cdc0199d7a1bb4c602d88232574f9d967d830db00bfbb",
+      "media_type": "application/json",
+      "byte_size": 2149,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-hexi-yimo-25/artifacts/56/56780c5a857f80ece61cdc0199d7a1bb4c602d88232574f9d967d830db00bfbb.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f",
+      "kind": "notation_continuation",
+      "sha256": "167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f",
+      "media_type": "application/json",
+      "byte_size": 45,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-hexi-yimo-25/artifacts/16/167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:2954576c08347d6babb7f451ca17d46928c02e808d206a069eb2757e3f2ad290",
+      "kind": "notation_validation",
+      "sha256": "2954576c08347d6babb7f451ca17d46928c02e808d206a069eb2757e3f2ad290",
+      "media_type": "application/json",
+      "byte_size": 2872,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-hexi-yimo-25/artifacts/29/2954576c08347d6babb7f451ca17d46928c02e808d206a069eb2757e3f2ad290.json"
+    }
+  },
+  "contract_valid": false,
+  "continuation": {
+    "status": "invalid_candidate",
+    "blocked": true
+  },
+  "revision": "4879ec65f902d6af5cd18cf7bd870fca84a0f8ff07c903af238770ddf22798a9"
+}

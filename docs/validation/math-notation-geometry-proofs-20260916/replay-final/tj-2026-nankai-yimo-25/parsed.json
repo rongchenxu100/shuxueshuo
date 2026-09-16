@@ -1,0 +1,679 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "tj-2026-nankai-yimo-25",
+    "source_sha256": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "definitions": [
+          "Γ: y = a*x^2+b*x+c"
+        ],
+        "facts": [
+          "a > 0",
+          "2*a+b = 0",
+          "Γ ∩ y_axis = {C}",
+          "axis(Γ) ∩ x_axis = {D}"
+        ],
+        "children": [
+          {
+            "label": "（I）",
+            "facts": [
+              "a = 2",
+              "c = -5"
+            ],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "D"
+              },
+              {
+                "kind": "find_equation",
+                "object": "Γ"
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          },
+          {
+            "label": "（II）",
+            "facts": [
+              "M = (m,1)",
+              "m > 2",
+              "M ∈ Γ",
+              "N ∈ Γ",
+              "x(N) > 0 ∧ y(N) < 0",
+              "∠MDN = 90°",
+              "DM = DN",
+              "E ∈ segment(D,M)",
+              "G ∈ segment(M,N)",
+              "F = midpoint(D,N)",
+              "DE = sqrt(2)*NG"
+            ],
+            "children": [
+              {
+                "label": "①",
+                "facts": [
+                  "MN = sqrt(10)"
+                ],
+                "goals": [
+                  {
+                    "kind": "find_equation",
+                    "object": "Γ"
+                  },
+                  {
+                    "kind": "find_minimum",
+                    "expression": "EG+FG"
+                  }
+                ],
+                "definitions": [],
+                "children": [],
+                "uncertainties": []
+              },
+              {
+                "label": "②",
+                "facts": [
+                  "min(EG+FG) = 5*sqrt(10)/2"
+                ],
+                "goals": [
+                  {
+                    "kind": "find_equation",
+                    "object": "Γ",
+                    "at": "EG+FG = min(EG+FG)"
+                  },
+                  {
+                    "kind": "find_coordinates",
+                    "object": "G",
+                    "at": "EG+FG = min(EG+FG)"
+                  }
+                ],
+                "definitions": [],
+                "children": [],
+                "uncertainties": []
+              }
+            ],
+            "definitions": [],
+            "goals": [],
+            "uncertainties": []
+          }
+        ],
+        "label": "题目",
+        "goals": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": "QuadraticPathMinimumSolver",
+      "match_status": "matched",
+      "match_reason": "题面包含二次函数、路径和的最小值目标，符合普通二次函数路径最值题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:c",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c1:scalar:m",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:curve:Γ",
+          "name": "Γ",
+          "kind": "curve",
+          "scope": "r"
+        },
+        {
+          "ref": "r:point:C",
+          "name": "C",
+          "kind": "point",
+          "scope": "r"
+        },
+        {
+          "ref": "r:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:c",
+          "name": "c",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r.c1:point:M",
+          "name": "M",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:N",
+          "name": "N",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:E",
+          "name": "E",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:G",
+          "name": "G",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:F",
+          "name": "F",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:scalar:m",
+          "name": "m",
+          "kind": "scalar",
+          "scope": "r.c1"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [
+        {
+          "scope": "r.c1",
+          "symbol_ref": "r.c1:scalar:m",
+          "coordinate": [
+            "call",
+            "x",
+            [
+              "ref",
+              "r.c1:point:M",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c1:point:M",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c1:scalar:m",
+              "scalar"
+            ]
+          ]
+        }
+      ],
+      "normalization_proofs": [
+        {
+          "rule": "quadratic_axis_unique",
+          "scope": "r",
+          "before": [
+            "=",
+            [
+              "∩",
+              [
+                "call",
+                "axis",
+                [
+                  "ref",
+                  "r:curve:Γ",
+                  "curve"
+                ]
+              ],
+              [
+                "axis_constant",
+                "x_axis"
+              ]
+            ],
+            [
+              "set",
+              [
+                "ref",
+                "r:point:D",
+                "point"
+              ]
+            ]
+          ],
+          "after": [
+            "∈",
+            [
+              "ref",
+              "r:point:D",
+              "point"
+            ],
+            [
+              "∩",
+              [
+                "call",
+                "axis",
+                [
+                  "ref",
+                  "r:curve:Γ",
+                  "curve"
+                ]
+              ],
+              [
+                "axis_constant",
+                "x_axis"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "curve_definition",
+              [
+                "ref",
+                "r:curve:Γ",
+                "curve"
+              ],
+              [
+                "+",
+                [
+                  "+",
+                  [
+                    "*",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ],
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "coordinate_x"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "*",
+                    [
+                      "ref",
+                      "r:scalar:b",
+                      "scalar"
+                    ],
+                    [
+                      "bound",
+                      "coordinate_x"
+                    ]
+                  ]
+                ],
+                [
+                  "ref",
+                  "r:scalar:c",
+                  "scalar"
+                ]
+              ]
+            ],
+            [
+              ">",
+              [
+                "ref",
+                "r:scalar:a",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "point_coordinate_components",
+          "scope": "r.c1",
+          "before": [
+            "=",
+            [
+              "ref",
+              "r.c1:point:M",
+              "point"
+            ],
+            [
+              "tuple",
+              [
+                "ref",
+                "r.c1:scalar:m",
+                "scalar"
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          ],
+          "after": [
+            "and",
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r.c1:point:M",
+                  "point"
+                ]
+              ],
+              [
+                "ref",
+                "r.c1:scalar:m",
+                "scalar"
+              ]
+            ],
+            [
+              "=",
+              [
+                "call",
+                "y",
+                [
+                  "ref",
+                  "r.c1:point:M",
+                  "point"
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          ],
+          "premises": []
+        },
+        {
+          "rule": "coordinate_symbol_binding",
+          "scope": "r.c1",
+          "before": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c1:point:M",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c1:scalar:m",
+              "scalar"
+            ]
+          ],
+          "after": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c1:point:M",
+                "point"
+              ]
+            ],
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c1:point:M",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r.c1:point:M",
+                  "point"
+                ]
+              ],
+              [
+                "ref",
+                "r.c1:scalar:m",
+                "scalar"
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:f5d62ad527ebb7076249007a82936a932eccc514056c4f96860a42808f67842d",
+      "kind": "notation_raw",
+      "sha256": "f5d62ad527ebb7076249007a82936a932eccc514056c4f96860a42808f67842d",
+      "media_type": "text/plain",
+      "byte_size": 1977,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-geometry-proofs-20260916/replay-final/tj-2026-nankai-yimo-25/artifacts/f5/f5d62ad527ebb7076249007a82936a932eccc514056c4f96860a42808f67842d.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:b72e1dbb2b49d16b49f1162fc71e8c0b5e506f95c875b4487460793556654932",
+      "kind": "notation_candidate",
+      "sha256": "b72e1dbb2b49d16b49f1162fc71e8c0b5e506f95c875b4487460793556654932",
+      "media_type": "application/json",
+      "byte_size": 1012,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-geometry-proofs-20260916/replay-final/tj-2026-nankai-yimo-25/artifacts/b7/b72e1dbb2b49d16b49f1162fc71e8c0b5e506f95c875b4487460793556654932.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:f959fe6cf3ea9f0e95683be3fb1677d854c69cb1e30f13ca5f52140feec01c16",
+      "kind": "notation_canonical",
+      "sha256": "f959fe6cf3ea9f0e95683be3fb1677d854c69cb1e30f13ca5f52140feec01c16",
+      "media_type": "application/json",
+      "byte_size": 4901,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-geometry-proofs-20260916/replay-final/tj-2026-nankai-yimo-25/artifacts/f9/f959fe6cf3ea9f0e95683be3fb1677d854c69cb1e30f13ca5f52140feec01c16.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:7bc427caaf435acde4fdb44f89538c3ff3a59e40858984b193124ff36bc3ac1a",
+      "kind": "notation_normalized",
+      "sha256": "7bc427caaf435acde4fdb44f89538c3ff3a59e40858984b193124ff36bc3ac1a",
+      "media_type": "application/json",
+      "byte_size": 1256,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-geometry-proofs-20260916/replay-final/tj-2026-nankai-yimo-25/artifacts/7b/7bc427caaf435acde4fdb44f89538c3ff3a59e40858984b193124ff36bc3ac1a.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:e37de232f90a6cd600c6afd659d02984491aaf84931a33990011cf3334a3311f",
+      "kind": "notation_compiled",
+      "sha256": "e37de232f90a6cd600c6afd659d02984491aaf84931a33990011cf3334a3311f",
+      "media_type": "application/json",
+      "byte_size": 11353,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-geometry-proofs-20260916/replay-final/tj-2026-nankai-yimo-25/artifacts/e3/e37de232f90a6cd600c6afd659d02984491aaf84931a33990011cf3334a3311f.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-geometry-proofs-20260916/replay-final/tj-2026-nankai-yimo-25/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:a1c325e142d343613dde04c5d2d3ab22fa86c41d860bd912414ec814c1670f05",
+      "kind": "notation_ir",
+      "sha256": "a1c325e142d343613dde04c5d2d3ab22fa86c41d860bd912414ec814c1670f05",
+      "media_type": "application/json",
+      "byte_size": 1070,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-geometry-proofs-20260916/replay-final/tj-2026-nankai-yimo-25/artifacts/a1/a1c325e142d343613dde04c5d2d3ab22fa86c41d860bd912414ec814c1670f05.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:8f159d1a749530e745aaeaa295c7bc219d69089e9b7540d4cd5a6efeb74fda76",
+      "kind": "notation_validation",
+      "sha256": "8f159d1a749530e745aaeaa295c7bc219d69089e9b7540d4cd5a6efeb74fda76",
+      "media_type": "application/json",
+      "byte_size": 2635,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-geometry-proofs-20260916/replay-final/tj-2026-nankai-yimo-25/artifacts/8f/8f159d1a749530e745aaeaa295c7bc219d69089e9b7540d4cd5a6efeb74fda76.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "b72e1dbb2b49d16b49f1162fc71e8c0b5e506f95c875b4487460793556654932",
+  "semantic_revision": "f959fe6cf3ea9f0e95683be3fb1677d854c69cb1e30f13ca5f52140feec01c16",
+  "units": {
+    "r.definitions[0]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 0
+    },
+    "r.facts[0]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.facts[1]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.facts[2]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.facts[3]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.c0.facts[0]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c0.facts[1]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c1.facts[0]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c1.facts[1]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c1.facts[2]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.c1.facts[3]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.c1.facts[4]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 4
+    },
+    "r.c1.facts[5]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 5
+    },
+    "r.c1.facts[6]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 6
+    },
+    "r.c1.facts[7]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 7
+    },
+    "r.c1.facts[8]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 8
+    },
+    "r.c1.facts[9]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 9
+    },
+    "r.c1.facts[10]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 10
+    },
+    "r.c1.c0.facts[0]": {
+      "scope": "r.c1.c0",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c1.c1.facts[0]": {
+      "scope": "r.c1.c1",
+      "collection": "facts",
+      "index": 0
+    }
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "ok": false,
+  "strict": {
+    "ok": false,
+    "classification": "invalid_notation",
+    "expected_issues": [],
+    "actual_issues": [
+      {
+        "path": "r.definitions[0]",
+        "source": "抛物线 y = a*x^2 + b*x - 3（a,b为常数，a>0）",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.definitions[1]",
+        "source": "A = (-1,0)，B 为抛物线与x轴的另一交点",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.definitions[2]",
+        "source": "C 为抛物线与y轴的交点",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.definitions[4]",
+        "source": "线段BC",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.facts[0]",
+        "source": "A ∈ 抛物线",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 3:  抛物线"
+      },
+      {
+        "path": "r.facts[1]",
+        "source": "B ∈ 抛物线 ∩ x_axis",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 3:  抛物线 ∩ x_axi"
+      },
+      {
+        "path": "r.facts[2]",
+        "source": "C ∈ 抛物线 ∩ y_axis",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 3:  抛物线 ∩ y_axi"
+      },
+      {
+        "path": "r.definitions[3]",
+        "source": "D = C + (2,0)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:C"
+      },
+      {
+        "path": "r.facts[3]",
+        "source": "D = C + (2,0)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:C"
+      },
+      {
+        "path": "r.c0.facts[0]",
+        "source": "D ∈ 抛物线",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 3:  抛物线"
+      },
+      {
+        "path": "r.c0.c0.goals[0]",
+        "source": {
+          "kind": "find_equation",
+          "object": "该抛物线"
+        },
+        "code": "notation.goal",
+        "message": "notation.unrecognized_token at 0: 该抛物线"
+      },
+      {
+        "path": "r.c0.c1.definitions[0]",
+        "source": "E 为抛物线上的点，横坐标为 m",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.c0.c1.facts[0]",
+        "source": "x(E) = m",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:E"
+      },
+      {
+        "path": "r.c0.c1.facts[2]",
+        "source": "∠CBE + ∠ACO = 45°",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:C"
+      },
+      {
+        "path": "r.c0.c1.goals[0]",
+        "source": {
+          "kind": "find_coordinates",
+          "object": "E"
+        },
+        "code": "notation.goal",
+        "message": "binding.unknown_or_invisible:E"
+      },
+      {
+        "path": "r.c1.definitions[0]",
+        "source": "M 为线段 BC 上一动点",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.c1.definitions[1]",
+        "source": "N 为射线 CD 上一动点",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.c1.facts[0]",
+        "source": "M ∈ segment(B,C)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c1.facts[1]",
+        "source": "N ∈ ray(C,D)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:C"
+      },
+      {
+        "path": "r.c1.facts[2]",
+        "source": "CN = CM",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:C"
+      },
+      {
+        "path": "r.c1.facts[3]",
+        "source": "min(OM + BN) = √34",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:O"
+      },
+      {
+        "path": "r.c1.goals[0]",
+        "source": {
+          "kind": "find_value",
+          "expression": "a",
+          "at": "OM+BN取得最小值 √34 时"
+        },
+        "code": "notation.goal",
+        "message": "notation.unrecognized_token at 5: 取得最小值 √34 时"
+      }
+    ]
+  },
+  "accepted_omissions": []
+}

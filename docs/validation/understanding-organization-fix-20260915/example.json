@@ -1,0 +1,57 @@
+{
+  "schema_version": "problem-domain/v2",
+  "family_id": null,
+  "match_status": "unmatched",
+  "match_reason": "示例注册表为空，没有三角形关系求解器。",
+  "root": {
+    "label": "等邻三角形示例",
+    "source_text": [
+      "若三角形某顶点相邻两边相等，则称它为该顶点的“等邻三角形”。已知ABC为A点的等邻三角形，DEF为E点的等邻三角形。"
+    ],
+    "entities": [
+      {
+        "kind": "point",
+        "label": "A"
+      },
+      {
+        "kind": "point",
+        "label": "B"
+      },
+      {
+        "kind": "point",
+        "label": "C"
+      },
+      {
+        "kind": "point",
+        "label": "D"
+      },
+      {
+        "kind": "point",
+        "label": "E"
+      },
+      {
+        "kind": "point",
+        "label": "F"
+      }
+    ],
+    "facts": [
+      {
+        "kind": "equal_length",
+        "segments": [
+          "AB",
+          "AC"
+        ]
+      },
+      {
+        "kind": "equal_length",
+        "segments": [
+          "ED",
+          "EF"
+        ]
+      }
+    ],
+    "goals": [],
+    "children": [],
+    "uncertainties": []
+  }
+}
