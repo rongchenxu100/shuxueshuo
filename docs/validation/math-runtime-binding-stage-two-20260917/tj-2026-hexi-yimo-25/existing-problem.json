@@ -1,0 +1,358 @@
+{
+  "schema_version": "planner-problem-view/v2",
+  "problem_id": "tj-2026-hexi-yimo-25",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "source": {
+    "question_number": "25",
+    "score": "10分"
+  },
+  "root_scope": {
+    "id": "problem",
+    "text": [
+      "已知抛物线 y=ax²-bx+c，（a，b，c 为常数，b＞0）。"
+    ],
+    "entities": [
+      {
+        "ref": "parabola",
+        "kind": "function",
+        "owner_scope": "problem",
+        "definition": {
+          "expression": "a*x**2 - b*x + c",
+          "variable": "x"
+        }
+      },
+      {
+        "ref": "a",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "ref": "b",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "ref": "c",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "ref": "x",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "function_variable"
+      }
+    ],
+    "facts": [
+      {
+        "ref": "symbol_constraint_b",
+        "kind": "symbol_constraint",
+        "owner_scope": "problem",
+        "operator": ">",
+        "symbol": "b",
+        "value": "0"
+      }
+    ],
+    "children": [
+      {
+        "id": "i",
+        "text": [
+          "（Ⅰ）当 a=1，b=2，c=3 时，求该抛物线顶点 P 的坐标；"
+        ],
+        "entities": [
+          {
+            "ref": "P",
+            "kind": "point",
+            "owner_scope": "i",
+            "definition": {
+              "construction": "vertex",
+              "owner": "parabola"
+            }
+          }
+        ],
+        "facts": [
+          {
+            "ref": "symbol_value_a",
+            "kind": "symbol_value",
+            "owner_scope": "i",
+            "symbol": "a",
+            "value": "1"
+          },
+          {
+            "ref": "symbol_value_b",
+            "kind": "symbol_value",
+            "owner_scope": "i",
+            "symbol": "b",
+            "value": "2"
+          },
+          {
+            "ref": "symbol_value_c",
+            "kind": "symbol_value",
+            "owner_scope": "i",
+            "symbol": "c",
+            "value": "3"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "point_coordinate",
+            "target_ref": "P",
+            "goal_ref": "i.P",
+            "answer_type": "Point"
+          }
+        ]
+      },
+      {
+        "id": "ii",
+        "text": [
+          "（Ⅱ）当 a=2 时，点 A(-1,0) 和点 D 在该抛物线上，点 C 为抛物线与 y 轴的交点，且 ∠CAD=90°，AC=AD，求点 D 的坐标；"
+        ],
+        "entities": [
+          {
+            "ref": "A",
+            "kind": "point",
+            "owner_scope": "ii"
+          },
+          {
+            "ref": "C",
+            "kind": "point",
+            "owner_scope": "ii",
+            "definition": {
+              "construction": "y_axis_intercept",
+              "owner": "parabola"
+            }
+          },
+          {
+            "ref": "D",
+            "kind": "point",
+            "owner_scope": "ii"
+          },
+          {
+            "ref": "AC",
+            "kind": "segment",
+            "owner_scope": "ii",
+            "start": "A",
+            "end": "C"
+          },
+          {
+            "ref": "AD",
+            "kind": "segment",
+            "owner_scope": "ii",
+            "start": "A",
+            "end": "D"
+          }
+        ],
+        "facts": [
+          {
+            "ref": "point_coordinate_a",
+            "kind": "point_coordinate",
+            "owner_scope": "ii",
+            "point": "A",
+            "value": [
+              "-1",
+              "0"
+            ]
+          },
+          {
+            "ref": "point_on_curve_parabola_a",
+            "kind": "point_on_curve",
+            "owner_scope": "ii",
+            "curve": "parabola",
+            "point": "A"
+          },
+          {
+            "ref": "point_on_curve_parabola_d",
+            "kind": "point_on_curve",
+            "owner_scope": "ii",
+            "curve": "parabola",
+            "point": "D"
+          },
+          {
+            "ref": "right_angle_equal_length_c_a_d_ac_ad",
+            "kind": "right_angle_equal_length",
+            "owner_scope": "ii",
+            "components": [
+              {
+                "kind": "equal_length",
+                "left": {
+                  "end": "C",
+                  "start": "A"
+                },
+                "right": {
+                  "end": "D",
+                  "start": "A"
+                }
+              },
+              {
+                "angle": {
+                  "end": "D",
+                  "start": "C",
+                  "vertex": "A"
+                },
+                "kind": "right_angle"
+              }
+            ]
+          },
+          {
+            "ref": "symbol_value_a",
+            "kind": "symbol_value",
+            "owner_scope": "ii",
+            "symbol": "a",
+            "value": "2"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "point_coordinate",
+            "target_ref": "D",
+            "goal_ref": "ii.D",
+            "answer_type": "Point"
+          }
+        ]
+      },
+      {
+        "id": "iii",
+        "text": [
+          "（Ⅲ）当 a=1 时，点 A(-1,0) 在该抛物线上，且有点 M(b+1/2,y_M) 在抛物线上，点 N(n,0) 是 x 轴正半轴上的动点，当 √2MN+AN 的最小值为 21/4 时，求 b 的值。"
+        ],
+        "entities": [
+          {
+            "ref": "A",
+            "kind": "point",
+            "owner_scope": "iii"
+          },
+          {
+            "ref": "M",
+            "kind": "point",
+            "owner_scope": "iii"
+          },
+          {
+            "ref": "N",
+            "kind": "point",
+            "owner_scope": "iii",
+            "definition": {
+              "axis": "x"
+            }
+          },
+          {
+            "ref": "n",
+            "kind": "symbol",
+            "owner_scope": "iii",
+            "role": "dynamic_parameter"
+          }
+        ],
+        "facts": [
+          {
+            "ref": "minimum_value",
+            "kind": "minimum_value",
+            "owner_scope": "iii",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "sqrt(2)",
+                  "segment": {
+                    "end": "N",
+                    "start": "M"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "N",
+                    "start": "A"
+                  }
+                }
+              ]
+            },
+            "value": "21/4"
+          },
+          {
+            "ref": "path_minimum_target_m_n_a",
+            "kind": "path_minimum_target",
+            "owner_scope": "iii",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "sqrt(2)",
+                  "segment": {
+                    "end": "N",
+                    "start": "M"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "N",
+                    "start": "A"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "ref": "point_coordinate_a",
+            "kind": "point_coordinate",
+            "owner_scope": "iii",
+            "point": "A",
+            "value": [
+              "-1",
+              "0"
+            ]
+          },
+          {
+            "ref": "point_coordinate_n",
+            "kind": "point_coordinate",
+            "owner_scope": "iii",
+            "point": "N",
+            "value": [
+              "n",
+              "0"
+            ]
+          },
+          {
+            "ref": "point_on_curve_parabola_a",
+            "kind": "point_on_curve",
+            "owner_scope": "iii",
+            "curve": "parabola",
+            "point": "A"
+          },
+          {
+            "ref": "point_on_curve_parabola_m",
+            "kind": "point_on_curve",
+            "owner_scope": "iii",
+            "construction": "curve_at_x",
+            "owner": "parabola",
+            "point": "M",
+            "x_expression": "b + 1/2"
+          },
+          {
+            "ref": "symbol_constraint_n",
+            "kind": "symbol_constraint",
+            "owner_scope": "iii",
+            "operator": ">",
+            "symbol": "n",
+            "value": "0"
+          },
+          {
+            "ref": "symbol_value_a",
+            "kind": "symbol_value",
+            "owner_scope": "iii",
+            "symbol": "a",
+            "value": "1"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "parameter_value",
+            "target_ref": "b",
+            "goal_ref": "iii.b",
+            "answer_type": "ParameterValue"
+          }
+        ]
+      }
+    ]
+  }
+}

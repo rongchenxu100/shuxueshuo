@@ -68,6 +68,21 @@ class OwnershipRule:
 OWNERSHIP_RULES = (
     OwnershipRule(
         (
+            "server/shuxueshuo_server/problem_understanding/runtime_binding.py",
+            "server/shuxueshuo_server/problem_understanding/runtime_lowering.py",
+            "server/shuxueshuo_server/problem_understanding/compact_planner_input.py",
+            "server/shuxueshuo_server/solver/runtime/capability_math_signatures.py",
+            "server/tests/solver/_math_runtime_binding_support.py",
+            "server/tests/solver/fixtures/math-runtime-binding-stage-two/*",
+            "server/tools/replay_math_runtime_binding.py",
+        ),
+        (
+            "tests/solver/test_math_runtime_binding.py",
+            "tests/solver/test_math_compact_planner_input.py",
+        ),
+    ),
+    OwnershipRule(
+        (
             "server/shuxueshuo_server/problem_understanding/*.py",
             "server/shuxueshuo_server/solver/extraction/deepseek_files.py",
             "server/shuxueshuo_server/solver/extraction/multimodal_provider.py",

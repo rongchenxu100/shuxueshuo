@@ -7,3 +7,9 @@ These are regression inputs, not authored correct plans. Sample-01 must remain r
 sample-03's repair should execute successfully after state/liveness correction.
 request-baselines.json records original system hashes and system+user character counts.
 Offline tests must not call a provider or replace erroneous model responses with expected answers.
+
+request-replay-baselines.json records the offline replay budget as of 2026-09-17.
+The system prompts, capability catalog and problem payload are unchanged from the
+recording. The existing optional Method `parameters` schema and typed identity-error
+fields account for the updated request sizes. The original recording metrics remain
+in request-baselines.json; no model was called to refresh the replay budget.

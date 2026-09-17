@@ -770,7 +770,14 @@ def _build_planner_authority(
     sample_dir: Path,
     f2_root: Path,
 ) -> _PlannerAuthorityFixture:
-    root_context, f2_context = _load_f2_context(case, f2_root)
+    if f2_root == _resolve_repo_path(_repo_root(), DEFAULT_F2_INPUT):
+        from shuxueshuo_server.solver.extraction.recorded_inputs import recorded_gold_input
+
+        root_context, f2_context, _, _ = recorded_gold_input(
+            sample_dir / "input", case.problem_id
+        )
+    else:
+        root_context, f2_context = _load_f2_context(case, f2_root)
     store = ExtractionArtifactStore(sample_dir / "bundle-artifacts")
     validation = ProblemDomainValidator().validate(
         ProblemDraft.create(_load_domain_gold(case.problem_id))

@@ -18,6 +18,13 @@ from .repositories import ArtifactRepository, UserContext, insert, row, member, 
 from .storage import parts
 
 
+# Separate pools keep code-only binding checks from consuming model-work slots.
+EXECUTION_POOLS = {
+    'problem_understanding': ('understanding.execution_slots', 3),
+    'problem_runtime_binding': ('runtime_binding.execution_slots', 3),
+}
+
+
 def clean_config(value):
     if isinstance(value, dict):
         public_fields = {'stage_key', 'pipeline_key', 'artifact_key', 'max_tokens', 'input_tokens', 'output_tokens',
@@ -315,12 +322,12 @@ class ProductService:
                 raise ProductError('job.invalid_budget')
             job = insert(c, m.jobs, workspace_id=ctx.workspace_id, build_id=build['id'], status='queued', retry_budget=budget)
             current_page_id = p['current_page_build_id']
-            if current_page_id and pipeline_key != 'problem_understanding':
+            if current_page_id and pipeline_key not in ('problem_understanding', 'problem_runtime_binding'):
                 page = row(c, m.page_builds, id=current_page_id)
                 page_build = row(c, m.builds, id=page['build_id'])
                 if page_build['target_fingerprint'] != build['target_fingerprint']:
                     current_page_id = None
-            if pipeline_key != 'problem_understanding':
+            if pipeline_key not in ('problem_understanding', 'problem_runtime_binding'):
                 update(c, m.problems, problem_id, latest_build_id=build['id'], current_page_build_id=current_page_id,
                        lock_version=p['lock_version'] + 1, updated_at=now(c))
             if batch_item_id:
@@ -339,7 +346,7 @@ class ProductService:
 
     def _guard(self, c, ctx, build_id, execution_id, epoch):
         build = scoped(c, m.builds, ctx, build_id)
-        problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] == 'problem_understanding')
+        problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
         job = c.execute(select(m.jobs).where(m.jobs.c.build_id == build_id).with_for_update()).mappings().one()
         if job['status'] != 'running' or job['cancel_requested_at'] or job['active_execution_id'] != execution_id or job['execution_epoch'] != epoch or not job['lease_expires_at'] or job['lease_expires_at'] <= now(c):
             raise Conflict('execution.fenced')
@@ -355,10 +362,11 @@ class ProductService:
         with transaction(self.db) as c:
             job = scoped(c, m.jobs, ctx, job_id)
             build = scoped(c, m.builds, ctx, job['build_id'])
-            if build['pipeline_key'] == 'problem_understanding':
+            pool = EXECUTION_POOLS.get(build['pipeline_key'])
+            if pool:
                 # Serialize this pipeline's slot reservation, without blocking lesson jobs.
-                lock(c, 'understanding.execution_slots')
-            problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] == 'problem_understanding')
+                lock(c, pool[0])
+            problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
             job = scoped(c, m.jobs, ctx, job_id, lock=True)
             if build['deployment_version'] != deployment_version or self.registry.get(build['pipeline_key'], build['pipeline_version']) != build['pipeline_snapshot']:
                 raise Conflict('execution.incompatible_environment')
@@ -367,11 +375,11 @@ class ProductService:
                 raise Conflict('job.terminal')
             if job['status'] == 'running' and job['lease_expires_at'] > timestamp:
                 raise Conflict('execution.already_owned')
-            if build['pipeline_key'] == 'problem_understanding':
+            if pool:
                 count = c.scalar(select(func.count()).select_from(m.jobs.join(m.builds, m.jobs.c.build_id == m.builds.c.id)).where(
-                    m.builds.c.pipeline_key == 'problem_understanding', m.jobs.c.id != job_id,
+                    m.builds.c.pipeline_key == build['pipeline_key'], m.jobs.c.id != job_id,
                     m.jobs.c.status == 'running', m.jobs.c.lease_expires_at > timestamp))
-                if count >= 3:
+                if count >= pool[1]:
                     raise Conflict('execution.capacity')
             if job['delivery_count'] >= job['retry_budget']['deliveries']:
                 if job['active_execution_id']:
@@ -382,6 +390,8 @@ class ProductService:
                 update(c, m.builds, build['id'], status='failed', finished_at=timestamp, error_code='job.budget_exhausted')
                 c.execute(m.extraction_runs.update().where(m.extraction_runs.c.build_id == build['id'],
                     m.extraction_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code='job.budget_exhausted', finished_at=timestamp))
+                c.execute(m.runtime_binding_runs.update().where(m.runtime_binding_runs.c.build_id == build['id'],
+                    m.runtime_binding_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code='job.budget_exhausted', finished_at=timestamp))
                 c.execute(m.build_stages.update().where(m.build_stages.c.build_id == build['id'],
                     m.build_stages.c.status != 'succeeded').values(status='failed'))
                 append_event(c, ctx.workspace_id, 'build', build['id'], 'build.failed', {'code': 'job.budget_exhausted'})
@@ -412,7 +422,7 @@ class ProductService:
     def cancel(self, ctx, build_id):
         with transaction(self.db) as c:
             build = scoped(c, m.builds, ctx, build_id)
-            problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] == 'problem_understanding')
+            problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
             job = c.execute(select(m.jobs).where(m.jobs.c.build_id == build_id).with_for_update()).mappings().one()
             if job['status'] in ('succeeded', 'failed', 'cancelled'):
                 return
@@ -421,6 +431,8 @@ class ProductService:
             update(c, m.builds, build_id, status='cancelled', finished_at=timestamp)
             c.execute(m.extraction_runs.update().where(m.extraction_runs.c.build_id == build_id,
                 m.extraction_runs.c.status.in_(['queued', 'running'])).values(status='cancelled', finished_at=timestamp))
+            c.execute(m.runtime_binding_runs.update().where(m.runtime_binding_runs.c.build_id == build_id,
+                m.runtime_binding_runs.c.status.in_(['queued', 'running'])).values(status='cancelled', finished_at=timestamp))
             if job['active_execution_id']:
                 update(c, m.job_executions, job['active_execution_id'], status='cancelled', finished_at=timestamp)
                 c.execute(m.stage_attempts.update().where(m.stage_attempts.c.execution_id == job['active_execution_id'],
@@ -438,6 +450,8 @@ class ProductService:
             if not interrupted:
                 c.execute(m.extraction_runs.update().where(m.extraction_runs.c.build_id == build_id,
                     m.extraction_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code=code, finished_at=now(c)))
+                c.execute(m.runtime_binding_runs.update().where(m.runtime_binding_runs.c.build_id == build_id,
+                    m.runtime_binding_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code=code, finished_at=now(c)))
             update(c, m.job_executions, execution_id, status=status, failure_code=code, finished_at=now(c))
             c.execute(m.stage_attempts.update().where(m.stage_attempts.c.execution_id == execution_id,
                 m.stage_attempts.c.status == 'running').values(status=status, finished_at=now(c)))
@@ -449,7 +463,7 @@ class ProductService:
         """Fail queued/running builds that a restarted deployment can no longer execute."""
         with transaction(self.db) as c:
             build = scoped(c, m.builds, ctx, build_id)
-            problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] == 'problem_understanding')
+            problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
             job = c.execute(select(m.jobs).where(m.jobs.c.build_id == build_id).with_for_update()).mappings().one()
             if job['status'] in ('succeeded', 'failed', 'cancelled'):
                 return dict(job)
@@ -462,6 +476,8 @@ class ProductService:
             update(c, m.builds, build_id, status='failed', error_code=code, finished_at=timestamp)
             c.execute(m.extraction_runs.update().where(m.extraction_runs.c.build_id == build_id,
                 m.extraction_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code=code, finished_at=timestamp))
+            c.execute(m.runtime_binding_runs.update().where(m.runtime_binding_runs.c.build_id == build_id,
+                m.runtime_binding_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code=code, finished_at=timestamp))
             c.execute(m.build_stages.update().where(m.build_stages.c.build_id == build_id,
                 m.build_stages.c.status != 'succeeded').values(status='failed'))
             append_event(c, ctx.workspace_id, 'build', build_id, 'build.failed', {'code': code})

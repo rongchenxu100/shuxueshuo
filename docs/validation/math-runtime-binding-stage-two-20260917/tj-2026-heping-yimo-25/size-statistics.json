@@ -1,0 +1,14 @@
+{
+  "case": "tj-2026-heping-yimo-25",
+  "problem": {
+    "old_characters": 4068,
+    "new_characters": 688
+  },
+  "methods": {
+    "old_characters": 18011,
+    "new_characters": 6758
+  },
+  "token_count": null,
+  "token_reason": "No matching DeepSeek tokenizer; no model call.",
+  "scope": "JSON problem and method sections measured separately; not a full request ratio."
+}

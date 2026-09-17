@@ -69,6 +69,18 @@ def _result(*, primary: bool) -> ScopedV2SmokeSampleResult:
     )
 
 
+def test_default_recorded_input_builds_authority_without_external_f2_directory(tmp_path):
+    from shuxueshuo_server.solver import scoped_functional_plan_smoke as smoke
+
+    case = smoke.load_gold_corpus().cases[0]
+    fixture = smoke._build_planner_authority(
+        case, tmp_path, smoke._resolve_repo_path(smoke._repo_root(), smoke.DEFAULT_F2_INPUT)
+    )
+    assert fixture.bundle.problem_id == case.problem_id
+    assert fixture.planning_context.goal_views
+    assert (tmp_path / "input" / "artifacts").is_dir()
+
+
 def test_summary_separates_primary_authority_from_runtime_diagnostics() -> None:
     result = _result(primary=True)
     result = ScopedV2SmokeSampleResult(

@@ -27,7 +27,7 @@ from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     ProblemPlanningBindingCatalog,
 )
 from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
-    VerifiedSolverProblemBundle,
+    SolverProblemBundle,
 )
 
 from shuxueshuo_server.solver.family import (
@@ -176,7 +176,7 @@ class RuntimeOrchestrator:
 
     def solve_verified(
         self,
-        bundle: VerifiedSolverProblemBundle,
+        bundle: SolverProblemBundle,
     ) -> SolverResult:
         """从authenticated Bundle运行唯一的Strategy cold path。"""
         authority = VerifiedPlannerProblemAuthority.from_bundle(bundle)
@@ -184,7 +184,7 @@ class RuntimeOrchestrator:
 
     def _solve_verified_scope_native(
         self,
-        bundle: VerifiedSolverProblemBundle,
+        bundle: SolverProblemBundle,
         *,
         authority: VerifiedPlannerProblemAuthority,
     ) -> SolverResult:
@@ -208,7 +208,7 @@ class RuntimeOrchestrator:
                     f"no solver for pattern={problem.pattern}, type={problem.problem_type}"
                 ],
             )
-        if family.family_id != bundle.verified_problem.family_id:
+        if family.family_id != bundle.family_id:
             from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
                 ProblemBundleAuthorityError,
             )
@@ -472,7 +472,7 @@ class RuntimeOrchestrator:
             )
         if (
             problem_authority is not None
-            and family.family_id != problem_authority.bundle.verified_problem.family_id
+            and family.family_id != problem_authority.bundle.family_id
         ):
             from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
                 ProblemBundleAuthorityError,

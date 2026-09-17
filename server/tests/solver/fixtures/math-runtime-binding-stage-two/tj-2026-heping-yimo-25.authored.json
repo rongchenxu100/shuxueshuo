@@ -1,0 +1,69 @@
+{
+  "root": {
+    "label": "第25题",
+    "definitions": [
+      "Γ: y = a*x^2+b*x-3",
+      "O = (0,0)"
+    ],
+    "facts": [
+      "a,b ∈ ℝ",
+      "a > 0",
+      "Γ ∩ x_axis = {A,B}",
+      "A = (-1,0)",
+      "Γ ∩ y_axis = {C}",
+      "D = C+(2,0)"
+    ],
+    "children": [
+      {
+        "label": "（I）",
+        "facts": [
+          "D ∈ Γ"
+        ],
+        "children": [
+          {
+            "label": "①",
+            "goals": [
+              {
+                "kind": "find_equation",
+                "object": "Γ"
+              }
+            ]
+          },
+          {
+            "label": "②",
+            "facts": [
+              "E ∈ Γ",
+              "x(E) = m",
+              "-1 < m < 0",
+              "∠CBE + ∠ACO = 45°"
+            ],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "E"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "（II）",
+        "facts": [
+          "M ∈ segment(B,C)",
+          "N ∈ ray(C,D)",
+          "CN = CM",
+          "min_{M,N}(OM+BN) = sqrt(34)"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "a"
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+  "match_reason": "抛物线条件、等长约束下的线段与射线动点，以及路径最小值反求参数。"
+}

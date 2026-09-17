@@ -1,0 +1,1008 @@
+{
+  "notation-unit:01b4555d3b0ebfc73178af5cb8486b823ff743497b6dc9c920b13e8a76e831d8": {
+    "path": "/root/facts/5",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:04d5eaa69faeb29e68173121749f7a71d86555b402741ea64cd5ad8fe7ceaa77": {
+    "path": "/root/children/0/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:0996d80db4d0ab5a271ac1aa909617368109bc752a7794106d30829297ecb619": {
+    "path": "/root/children/1/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:188c27d4e027d832016ba963a31cc6f77d734210c5227cc32621fa0126d499bd": {
+    "path": "/root/children/1/facts/2",
+    "premises": [],
+    "rule": "intersection_membership",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:19067968633bc287c13eb09481eead45034b189b17f5ff86cf38c490886e0940": {
+    "path": "/root/facts/2",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d": {
+    "path": "/root/children/0/children/0/goals/1",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c0",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:2294b43ae811e550d9458939d79f476b661323fe1aa2782e976e11b899d301bc": {
+    "path": "/root",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:24f1b9adc1076d96715c6dfc99b9a005ceee79f2bf86d3a55befdd93132431fa": {
+    "path": "/root/facts/5",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:277dd884a717190bd75b6ed2e02cf8e13cd908ce52a983b0b3dc7727dee5df9c": {
+    "path": "/root/facts/7",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:2c85881e94eb1c887d09f6413b42ff0895315454dda853fc627483dfbbf0dea2": {
+    "path": "/root/children/1/facts/2",
+    "premises": [
+      "/root/facts/7"
+    ],
+    "rule": "square_diagonals",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:3af19c5bf4e103394c583d27f9d5f7d90f981c2c84d811b2ea8ee33735c65093": {
+    "path": "/root/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:3cf525ec6ff32057cd70eb3b2e23019ec1407103cda9f56db36cc57cc4ad2dd5": {
+    "path": "/root/facts/6",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:44d3e38a53577e2604b492f61f08898105219e33074541d1dda844bc5f7760e0": {
+    "path": "/root/children/0",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:47bd97a74849af73dd2e90df5a76a2f38e6daa3a2945ca8f083ece97818de3a6": {
+    "path": "/root/facts/7",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c": {
+    "path": "/root/children/0/children/0/goals/0",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c0",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:50f54e7d5a83f96ff767d557def66753ea5a4e97a54489a6826c4929fdd1f2a6": {
+    "path": "/root/facts/7",
+    "premises": [],
+    "rule": "square_vertices",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:53cbfdf5f00736564249ddd4a3b39ad5877a37e8bb76b68245ed1cf7048ced17": {
+    "path": "/root/facts/7",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:5631f43c35e3dff1737ac13d0a55da6e8593406bb2fbdba9b577369f15feb098": {
+    "path": "/root/facts/7",
+    "premises": [
+      "/root/facts/8"
+    ],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:594623b1a993325533de9b70dd4ed5d36f5e0a9a71c29c52602780cee2da66d1": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:62defed74cf987a043646d94bb376ea7e9e72c52a689ae9c7aa37c3c025174a6": {
+    "path": "/root/facts/6",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:68db85d54e4c1e2d82915ccbf697152f67d36b112bab90e5641e58745536b0e5": {
+    "path": "/root/children/1/facts/1",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:6a64a2ae4ea90c4073c8c16f7b13c2d233bde097dc9f1b530bc50586a1abd5aa": {
+    "path": "/root/children/0/children/1",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c0",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:6a6782b9ac2d78df96b34d6734def4eaf231d77069ee420e2fcbb9c506b8bc35": {
+    "path": "/root/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:6a77df5e30050422c06c508da9c4e8c63b7d942c83a32cd40bf077c95e954601": {
+    "path": "/root/children/1/facts/4",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:6bdbfc2aa331350c13f0821a58b46342665dcdf7ea9802e913fa5e9f897b892f": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:6cbabb1bf5829a66aae23dc0027b56fa12590849b55dfc61a447768ff3231845": {
+    "path": "/root/children/0/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:715b95a77dd6b28b2c2802ddb6a1677be0b836018d456ce2cb9bf2f74f3212f7": {
+    "path": "/root/facts/2",
+    "premises": [],
+    "rule": "intersection_membership",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:72b68332b1379dd55521f270d5f3e205de27e962c5fe843fe9b8c32f106d6ef4": {
+    "path": "/root/facts/4",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:784a5b965b1326edc63c5085e0a19c96ec2ada371f3b96dcb605d3f845e2a432": {
+    "path": "/root/children/1/facts/2",
+    "premises": [],
+    "rule": "intersection_membership",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:7dbeddc70e132e82af941718cf5cc974fc02d063f9ecabb581c9bd4331070c45": {
+    "path": "/root/children/0/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:81c51fd9e9ce3fc2e40c49df7e9372414876c7ce46db1e9c89df9b3820ea83ce": {
+    "path": "/root/children/1/facts/3",
+    "premises": [
+      "/root/children/1/facts/4"
+    ],
+    "rule": "minimum_path",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:834ab01721af7dfe2ceab5282783dd28aabfa5a41be4f35d67b30a73238b4dd2": {
+    "path": "/root/children/1/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:89daea2619fa1f06692595ea18c320bb6053d739629a61ed2ad5bb07f2908c42": {
+    "path": "/root/facts/2",
+    "premises": [
+      "/root/facts/3"
+    ],
+    "rule": "ordered_axis_roots",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:9239eac014868bcf027070000a3f55d835414a8bac3bdc7562a038b1f30c23c7": {
+    "path": "/root/facts/2",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:92d724373f147e52a84f48f072f8612c4b7175bc8771fc719852579d12ee2dd5": {
+    "path": "/root/children/0/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:93a474f1253f6be53525e3118f4a2a398396f25e31b51517d6999584196bf2de": {
+    "path": "/root/children/1/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:9954de16b3d1914ed0018ca4213dc51a5a27fcd8edc4be57c722e70eb470bba9": {
+    "path": "/root/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "curve_coordinate_variable",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:a34631483bcd693bdd905667a29b923aa67f30304b651ede56ad40ac0d1c0b11": {
+    "path": "/root/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:a38fb99310f213534c95faa58e089e67e081ac71f18985b546a15d5669a1e2a8": {
+    "path": "/root/children/0/children/0",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c0",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:a949dfaedc2b04a9aba4ef8ce3917455dfb86340789a51dc6feffabaf6a5cbcc": {
+    "path": "/root/facts/6",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:b2e388207cd0f40c93d6eccf995838f61093004a850ebacfa257b9f94960113a": {
+    "path": "/root/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:ba4773b02924920206502f13267dd80e540b0ff388e35b774da8e248a6963f03": {
+    "path": "/root/children/0/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:c68fba31255992ab80a4a17be05a7350abe0cc21e74cbea13fdaf717412c8473": {
+    "path": "/root/facts/8",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:ca53a00929e33a9ef55acbe598ba6662e54657ab0d56497b7acb697b6f9f221c": {
+    "path": "/root/children/1/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:cbec108a48799e259ecf9eb2bb6c17bd512df4b4540c9b9c03b9c58d4a9fb2d3": {
+    "path": "/root/children/1/facts/2",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:ce299883e18d92c17c466f1ab3db10654ade8a34e41e1b470a464ab3ae8fc9c9": {
+    "path": "/root/children/1/facts/4",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:d1312cb9b72ed250ad0b580c8fa30f49d3fde5ea096007b4850363844f0b2dcb": {
+    "path": "/root/facts/2",
+    "premises": [
+      "/root/facts/3"
+    ],
+    "rule": "ordered_axis_roots",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:d1d0186976dfbe6d30ddc190c39853acfc5c8839ece48e61ad79e3c185189581": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:d727563a997c5a8f11669ca719b53aaa5fa603828e5bbf1e3dd269d1b672ae6a": {
+    "path": "/root/facts/4",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc": {
+    "path": "/root/children/1/goals/0",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:e84487bab1a9eb114bc62ea18490277e05449d09aa302ec6c8ae3d64ad7d65e9": {
+    "path": "/root/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:e8bf8da2e80210d3b4d3e3b5195d7ba2c05e4047a7b9cd4659a046d379e3d65f": {
+    "path": "/root/children/1",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:ea3acb664f8e8127c6600f78b1a18049e13a3eeaa86fe217655b9422f54100d7": {
+    "path": "/root/facts/2",
+    "premises": [],
+    "rule": "intersection_membership",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:ec45619221b21e03a42678bc28d3ffa274f7f8dcfdd311a6637d421a14383199": {
+    "path": "/root/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:f2d0f7a451a79b6df8ce245954261390ebac892e4742365227fd353225d710aa": {
+    "path": "/root/children/1/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:f3084c168899e17d4df3df4aee9d88157209261c13a45baa80852492527bf357": {
+    "path": "/root/facts/5",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:f7e0f503a3f70f84b79eaef8caf3bb76d06dbe6b870a27b3a239d6ad2dab8cbf": {
+    "path": "/root/children/0/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:fa058127afec0c45451f2987b27aa5f179da6809a21e20f7e8a2c2de4ae1217e": {
+    "path": "/root/facts/4",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:fdae8434f2ea29c645b8dfe5789bef333d04b8d6a9fb1ae453c075b780304b69": {
+    "path": "/root/facts/1",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d": {
+    "path": "/root/children/0/children/1/goals/0",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c0",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  },
+  "notation-unit:fe0125a06f6f381a3813f0c42cffb11495d73d52853eda419cf22a50cf89d742": {
+    "path": "/root/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "problem_id": "tj-2026-heping-ermo-25",
+      "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+    }
+  }
+}

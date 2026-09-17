@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it, vi } from 'vitest';
 import type { Run } from '@/lib/product/understanding';
-import { CandidateTree, Diff, OriginalProblemText, UnderstandingStatusNotice } from './understanding-workspace';
+import { BindingStatusNotice, CandidateTree, Diff, OriginalProblemText, UnderstandingStatusNotice } from './understanding-workspace';
 
 it.each([
   ['needs_confirmation', '题目仍待补充或确认'],
@@ -50,4 +50,18 @@ it('renders schema-valid mathematics even when compilation failed, including mis
 it('renders historical JSON differences without requiring a compiled IR', () => {
   const html = renderToStaticMarkup(<Diff before={{ root: { facts: ['x>0'] } }} after={{ root: { facts: ['x≥0'] } }} />);
   expect(html).toContain('/root/facts/0'); expect(html).toContain('x≥0');
+});
+
+it.each([
+  ['not_checked', '尚未检查求解条件'],
+  ['checking', '正在检查求解条件'],
+  ['ready', '求解条件已具备'],
+  ['blocked', '求解条件未满足'],
+  ['stale', '求解条件检查已过期'],
+  ['failed', '求解条件检查失败'],
+] as const)('renders current admission status %s independently of source review', (binding_status, label) => {
+  const html = renderToStaticMarkup(<BindingStatusNotice data={{ binding_status, blocking_reasons: [{ message: '当前来源已变化' }] }} />);
+  expect(html).toContain(label);
+  expect(html).toContain('当前来源已变化');
+  if (binding_status !== 'ready') expect(html).not.toContain('求解条件已具备');
 });

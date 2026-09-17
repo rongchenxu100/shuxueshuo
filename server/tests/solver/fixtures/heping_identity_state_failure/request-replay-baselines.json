@@ -1,0 +1,22 @@
+{
+  "01": {
+    "1": {
+      "system_sha256": "5a7e67cc7109b8e682d4d464f6bf541d293f5cf41a14329a0f658f8b1d24a57a",
+      "prompt_chars": 42517
+    },
+    "2": {
+      "system_sha256": "12953ccf7e32844417064b2ebe6bb96b13c867401663d8effb7bc38bba98f9f3",
+      "prompt_chars": 42656
+    }
+  },
+  "03": {
+    "1": {
+      "system_sha256": "5a7e67cc7109b8e682d4d464f6bf541d293f5cf41a14329a0f658f8b1d24a57a",
+      "prompt_chars": 42517
+    },
+    "2": {
+      "system_sha256": "12953ccf7e32844417064b2ebe6bb96b13c867401663d8effb7bc38bba98f9f3",
+      "prompt_chars": 42365
+    }
+  }
+}

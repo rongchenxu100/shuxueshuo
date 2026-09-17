@@ -950,7 +950,7 @@ def test_review_has_one_card_per_public_capability(c0_inputs) -> None:
             assert all(control["min"] > 0 for control in parameter["controls"])
 
 
-def test_human_approved_c0_fixtures_match_current_public_registry(c0_inputs) -> None:
+def test_c0_regression_fixtures_match_current_public_registry(c0_inputs) -> None:
     snapshots, scenarios = c0_inputs
     artifacts = build_capability_coverage_review(
         snapshots=snapshots,
@@ -963,6 +963,9 @@ def test_human_approved_c0_fixtures_match_current_public_registry(c0_inputs) -> 
             (FIXTURE_ROOT / filename).read_text(encoding="utf-8")
         ) == payload
 
+    # This is the historical human review, not an approval of a later machine
+    # replay. Runtime provenance hashes and internal registry entries can change
+    # while the reviewed public capability cards remain unchanged.
     review = json.loads(
         (FIXTURE_ROOT / "human-review-summary.json").read_text(
             encoding="utf-8"

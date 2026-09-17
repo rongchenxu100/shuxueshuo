@@ -97,7 +97,7 @@ class Application:
         self.db = self.service.db
         self.discover = discover
         with transaction(self.db) as c:
-            if c.scalar(text('SELECT version_num FROM alembic_version')) != '0003_problem_understanding':
+            if c.scalar(text('SELECT version_num FROM alembic_version')) != '0004_math_runtime_binding':
                 raise Conflict('migration.upgrade_required')
             if context is None:
                 user = row(c, m.users, key='internal')

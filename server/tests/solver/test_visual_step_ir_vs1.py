@@ -132,6 +132,8 @@ def test_visual_sympy_pair_uses_shared_axis_parameter_and_power_normalization() 
 
 
 def test_visual_specs_dispatch_only_through_component_registries() -> None:
+    from shuxueshuo_server.solver.visual.text_builder import TEXT_VISUAL_BINDERS
+
     methods = MethodSpecRegistry.load_from_code()
     recipes = RecipeSpecRegistry.load_from_code()
     method_components = {
@@ -139,6 +141,14 @@ def test_visual_specs_dispatch_only_through_component_registries() -> None:
         for spec in methods.specs.values()
         if spec.visual is not None
         for template in spec.visual.scene_templates
+        if "component" in template
+    }
+    text_components = {
+        (str(template.get("kind") or ""), spec.visual.role_binder_id)
+        for spec in methods.specs.values()
+        if spec.visual is not None
+        for template in spec.visual.scene_templates
+        if "component" not in template
     }
     recipe_components = {
         str(template.get("component") or "")
@@ -149,6 +159,7 @@ def test_visual_specs_dispatch_only_through_component_registries() -> None:
     }
 
     assert method_components <= set(visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS)
+    assert text_components <= {(kind, kind) for kind in TEXT_VISUAL_BINDERS}
     assert recipe_components <= set(visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS)
     assert "CurvePointCandidateMarker" in visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS
     assert "LineParabolaIntersectionMarker" in visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS

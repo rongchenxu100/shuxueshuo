@@ -8,7 +8,10 @@ export type Diagnostic = { path?: string; message?: string; code?: string; actio
 export type Validation = { contract_valid: boolean; reports?: { ir?: { issues?: Diagnostic[] }; match?: { issues?: unknown[] } } };
 export type Candidate = { id: string; candidate_json: MathCandidate; kind: string; created_at: string; source_version_id: string; validation_json: Validation; parent_candidate_json?: MathCandidate | null; source_version?: SourceVersion; origin_run_id: string | null; diagnostics?: Diagnostic[] };
 export type Run = { id: string; mode: string; status: string; created_at: string; build_id: string; error_code: string | null; result_json: { status?: string; source_status?: string; source_reviewed?: boolean; diagnostics?: Diagnostic[]; parsed?: Validation; continuation?: { reason: string; blocked: boolean }; events?: Json[] } | null; calls?: { number: number; stage: string; status: string; request_artifact_id: string; response_artifact_id: string | null; details: { elapsed_seconds?: number; usage?: { prompt_tokens?: number; completion_tokens?: number } } | null }[] };
-export type Understanding = { problem_id: string; source_version: SourceVersion | null; candidate: Candidate | null; latest_run: Run | null; parse_status: string; source_status: string; source_reviewed: boolean; review_stale_reason?: 'configuration_changed' | 'candidate_or_source_changed' | 'run_not_completed' | null; match_status: string | null; diagnostics: Diagnostic[]; primary_source_id: string; current_revision_id: string | null; current_page_build_id: string | null; formal_page: { id: string; build_id: string; revision_id: string } | null };
+export type BindingStatus = 'not_checked' | 'checking' | 'ready' | 'blocked' | 'stale' | 'failed';
+export type BindingRun = { id: string; created_at: string; status: string; build_id: string; candidate_id: string; result_json: { solver_ready: boolean; diagnostics: Diagnostic[] } | null; artifacts?: { id: string; artifact_type: string }[] };
+export const bindingLabel = (status: BindingStatus) => ({ not_checked: '尚未检查求解条件', checking: '正在检查求解条件', ready: '求解条件已具备', blocked: '求解条件未满足', stale: '求解条件检查已过期', failed: '求解条件检查失败' }[status]);
+export type Understanding = { binding_status?: BindingStatus; solver_ready?: boolean; blocking_reasons?: Diagnostic[]; latest_binding_run?: BindingRun | null; problem_id: string; source_version: SourceVersion | null; candidate: Candidate | null; latest_run: Run | null; parse_status: string; source_status: string; source_reviewed: boolean; review_stale_reason?: 'configuration_changed' | 'candidate_or_source_changed' | 'run_not_completed' | null; match_status: string | null; diagnostics: Diagnostic[]; primary_source_id: string; current_revision_id: string | null; current_page_build_id: string | null; formal_page: { id: string; build_id: string; revision_id: string } | null };
 
 export class UnderstandingError extends Error {
   constructor(public status: number, message: string, public diagnostics: Diagnostic[] = []) { super(message); }
@@ -18,6 +21,16 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const data = await response.json();
   if (!response.ok) throw new UnderstandingError(response.status, response.status === 409 ? '版本已变化，请刷新后检查差异，再提交修订。' : data.error?.message ?? '请求未完成', data.error?.details ?? []);
   return data;
+}
+export function activeUnderstandingBuilds(data: Pick<Understanding, 'latest_run' | 'latest_binding_run'> | null): string[] {
+  return [...new Set([data?.latest_run, data?.latest_binding_run]
+    .filter(run => run && ['queued', 'running'].includes(run.status)).map(run => run!.build_id))];
+}
+export async function cancelUnderstandingBuilds(buildIds: readonly string[]): Promise<void> {
+  // Always attempt both cancellations, including when one response is lost.
+  const results = await Promise.allSettled([...new Set(buildIds)].map(id => request(`/builds/${id}/cancel`, { method: 'POST' })));
+  const failed = results.find(result => result.status === 'rejected');
+  if (failed?.status === 'rejected') throw failed.reason;
 }
 export const PendingActionSchema = z.object({ key: z.string(), path: z.string(), body: z.unknown() });
 export type PendingAction = z.infer<typeof PendingActionSchema>;

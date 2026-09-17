@@ -1,0 +1,80 @@
+[
+  {
+    "kind": "curve",
+    "name": "Γ",
+    "ref": "r:curve:Γ",
+    "scope": "r"
+  },
+  {
+    "kind": "scalar",
+    "name": "a",
+    "ref": "r:scalar:a",
+    "scope": "r"
+  },
+  {
+    "kind": "scalar",
+    "name": "b",
+    "ref": "r:scalar:b",
+    "scope": "r"
+  },
+  {
+    "kind": "scalar",
+    "name": "c",
+    "ref": "r:scalar:c",
+    "scope": "r"
+  },
+  {
+    "kind": "point",
+    "name": "P",
+    "ref": "r.c0:point:P",
+    "scope": "r.c0"
+  },
+  {
+    "kind": "point",
+    "name": "A",
+    "ref": "r.c1:point:A",
+    "scope": "r.c1"
+  },
+  {
+    "kind": "point",
+    "name": "D",
+    "ref": "r.c1:point:D",
+    "scope": "r.c1"
+  },
+  {
+    "kind": "point",
+    "name": "C",
+    "ref": "r.c1:point:C",
+    "scope": "r.c1"
+  },
+  {
+    "kind": "point",
+    "name": "A",
+    "ref": "r.c2:point:A",
+    "scope": "r.c2"
+  },
+  {
+    "kind": "point",
+    "name": "M",
+    "ref": "r.c2:point:M",
+    "scope": "r.c2"
+  },
+  {
+    "kind": "point",
+    "name": "N",
+    "ref": "r.c2:point:N",
+    "scope": "r.c2"
+  },
+  {
+    "kind": "scalar",
+    "name": "y_M",
+    "ref": "r.c2:scalar:y_M",
+    "scope": "r.c2"
+  },
+  {
+    "kind": "scalar",
+    "name": "n",
+    "ref": "r.c2:scalar:n",
+    "scope": "r.c2"
+  }
+]

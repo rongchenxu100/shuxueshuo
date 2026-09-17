@@ -30,6 +30,9 @@ class StageRunner:
 
     def run(self):
         x = self.x
+        if x.build['pipeline_key'] == 'problem_runtime_binding':
+            from .runtime_binding import run_product
+            return run_product(x)
         if x.build['pipeline_key'] == 'problem_understanding':
             from .understanding_runtime import run_product
             return run_product(x)

@@ -1,0 +1,59 @@
+{
+  "problem_id": "tj-2026-xiqing-yimo-25",
+  "planning_scope": [
+    "（II）"
+  ],
+  "scope_policy": "ancestors_only",
+  "solution_policy": "all",
+  "known_results": [],
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "facts": [
+              "AD = 2*BC"
+            ],
+            "goals": [
+              {
+                "expression": "b",
+                "kind": "find_value"
+              }
+            ],
+            "label": "①"
+          },
+          {
+            "facts": [
+              "M = (m,0)",
+              "m > 0",
+              "min_{m}(2*DM+AM) = 5+5*sqrt(3)"
+            ],
+            "goals": [
+              {
+                "expression": "b",
+                "kind": "find_value"
+              }
+            ],
+            "label": "②"
+          }
+        ],
+        "facts": [
+          "D ∈ Γ",
+          "x(D) = b+2"
+        ],
+        "label": "（II）"
+      }
+    ],
+    "definitions": [
+      "Γ: y = -x^2+b*x+c"
+    ],
+    "facts": [
+      "b,c ∈ ℝ",
+      "b > 0",
+      "A = (-1,0)",
+      "Γ ∩ x_axis = {A,B}",
+      "Γ ∩ y_axis = {C}"
+    ],
+    "label": "第25题"
+  }
+}

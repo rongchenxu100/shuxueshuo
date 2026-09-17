@@ -1,0 +1,3679 @@
+{
+  "source_identity": {
+    "candidate_hash": "4ea2b8200a17a3ab1483827473aa50438475979eae15a3dae6b4a3fa6e1ef01f",
+    "candidate_id": "offline:4ea2b8200a17a3ab1483827473aa50438475979eae15a3dae6b4a3fa6e1ef01f",
+    "problem_id": "tj-2026-hexi-yimo-25",
+    "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+    "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+  },
+  "steps": [
+    {
+      "step_id": "derive_parabola_i",
+      "scope_id": "i",
+      "authored_step": {
+        "step_id": "derive_parabola_i",
+        "capability_id": "quadratic_from_constraints",
+        "args": {
+          "known_coefficients": [
+            "symbol_value_a",
+            "symbol_value_b",
+            "symbol_value_c"
+          ]
+        },
+        "intent": "代入本问给定的三个系数确定抛物线。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "known_coefficients",
+          "index": 0,
+          "source": "symbol_value_a",
+          "resolution": "source_snapshot",
+          "runtime_type": "ParameterValue",
+          "value": "1"
+        },
+        {
+          "arg": "known_coefficients",
+          "index": 1,
+          "source": "symbol_value_b",
+          "resolution": "source_snapshot",
+          "runtime_type": "ParameterValue",
+          "value": "2"
+        },
+        {
+          "arg": "known_coefficients",
+          "index": 2,
+          "source": "symbol_value_c",
+          "resolution": "source_snapshot",
+          "runtime_type": "ParameterValue",
+          "value": "3"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "coefficients",
+          "runtime_type": "Coefficients",
+          "value": {
+            "a": "1",
+            "b": "2",
+            "c": "3"
+          }
+        },
+        {
+          "return": "parabola",
+          "runtime_type": "Parabola",
+          "value": "x**2 - 2*x + 3"
+        }
+      ]
+    },
+    {
+      "step_id": "derive_vertex_i",
+      "scope_id": "i",
+      "authored_step": {
+        "step_id": "derive_vertex_i",
+        "capability_id": "quadratic_vertex_point",
+        "args": {
+          "parabola": "parabola"
+        },
+        "intent": "由抛物线解析式求顶点坐标。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "parabola",
+          "index": 0,
+          "source": "parabola",
+          "resolution": "source_snapshot",
+          "resolved_ref": {
+            "step_id": "derive_parabola_i",
+            "return": "parabola"
+          },
+          "runtime_type": "Parabola",
+          "value": "x**2 - 2*x + 3"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "point",
+          "runtime_type": "Point",
+          "value": [
+            "1",
+            "2"
+          ]
+        }
+      ]
+    },
+    {
+      "step_id": "derive_parametric_parabola_ii",
+      "scope_id": "ii",
+      "authored_step": {
+        "step_id": "derive_parametric_parabola_ii",
+        "capability_id": "quadratic_from_constraints",
+        "args": {
+          "curve_point": "A",
+          "free_parameters": "b",
+          "known_coefficients": "symbol_value_a"
+        },
+        "intent": "代入已知系数和曲线点，把抛物线化为单参数形式。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "curve_point",
+          "index": 0,
+          "source": "A",
+          "resolution": "source_snapshot",
+          "runtime_type": "Point",
+          "value": [
+            "-1",
+            "0"
+          ]
+        },
+        {
+          "arg": "free_parameters",
+          "index": 0,
+          "source": "b",
+          "resolution": "source_snapshot",
+          "runtime_type": "ParameterValue"
+        },
+        {
+          "arg": "known_coefficients",
+          "index": 0,
+          "source": "symbol_value_a",
+          "resolution": "source_snapshot",
+          "runtime_type": "ParameterValue",
+          "value": "2"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "coefficients",
+          "runtime_type": "Coefficients",
+          "value": {
+            "a": "2",
+            "c": "-b - 2"
+          }
+        },
+        {
+          "return": "parabola",
+          "runtime_type": "Parabola",
+          "value": "-b*x - b + 2*x**2 - 2"
+        }
+      ]
+    },
+    {
+      "step_id": "derive_y_intercept_ii",
+      "scope_id": "ii",
+      "authored_step": {
+        "step_id": "derive_y_intercept_ii",
+        "capability_id": "quadratic_y_axis_intercept_point",
+        "args": {
+          "quadratic": "parabola"
+        },
+        "output_targets": {
+          "point": "C"
+        },
+        "intent": "求当前抛物线与纵轴的交点。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "quadratic",
+          "index": 0,
+          "source": "parabola",
+          "resolution": "source_snapshot",
+          "resolved_ref": {
+            "step_id": "derive_parametric_parabola_ii",
+            "return": "parabola"
+          },
+          "runtime_type": "Parabola",
+          "value": "-b*x - b + 2*x**2 - 2"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "point",
+          "runtime_type": "Point",
+          "value": [
+            "0",
+            "-b - 2"
+          ]
+        }
+      ]
+    },
+    {
+      "step_id": "derive_right_angle_candidates_ii",
+      "scope_id": "ii",
+      "authored_step": {
+        "step_id": "derive_right_angle_candidates_ii",
+        "capability_id": "right_angle_equal_length_candidates",
+        "args": {
+          "right_angle_equal_length": "right_angle_equal_length_c_a_d_ac_ad",
+          "target": "D"
+        },
+        "intent": "围绕直角顶点旋转已知端点得到两个候选点。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "right_angle_equal_length",
+          "index": 0,
+          "source": "right_angle_equal_length_c_a_d_ac_ad",
+          "resolution": "source_snapshot",
+          "runtime_type": "right_angle_equal_length"
+        },
+        {
+          "arg": "target",
+          "index": 0,
+          "source": "D",
+          "resolution": "source_snapshot"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "candidates",
+          "runtime_type": "PointList",
+          "value": [
+            [
+              "-b - 3",
+              "-1"
+            ],
+            [
+              "b + 1",
+              "1"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "step_id": "select_curve_candidate_ii",
+      "scope_id": "ii",
+      "authored_step": {
+        "step_id": "select_curve_candidate_ii",
+        "capability_id": "curve_candidate_parameter_solve",
+        "args": {
+          "candidates": {
+            "step_id": "derive_right_angle_candidates_ii",
+            "return": "candidates"
+          },
+          "parabola": "parabola",
+          "point_on_curve": "point_on_curve_parabola_d",
+          "symbol_constraint": "symbol_constraint_b",
+          "target_point": "D"
+        },
+        "intent": "用曲线条件和参数范围筛选候选点并反求参数。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "candidates",
+          "index": 0,
+          "source": {
+            "step_id": "derive_right_angle_candidates_ii",
+            "return": "candidates"
+          },
+          "resolution": "step_result",
+          "runtime_type": "PointList",
+          "value": [
+            [
+              "-b - 3",
+              "-1"
+            ],
+            [
+              "b + 1",
+              "1"
+            ]
+          ]
+        },
+        {
+          "arg": "parabola",
+          "index": 0,
+          "source": "parabola",
+          "resolution": "step_result",
+          "resolved_ref": {
+            "step_id": "derive_parametric_parabola_ii",
+            "return": "parabola"
+          },
+          "runtime_type": "Parabola",
+          "value": "-b*x - b + 2*x**2 - 2"
+        },
+        {
+          "arg": "point_on_curve",
+          "index": 0,
+          "source": "point_on_curve_parabola_d",
+          "resolution": "source_snapshot",
+          "runtime_type": "point_on_curve"
+        },
+        {
+          "arg": "symbol_constraint",
+          "index": 0,
+          "source": "symbol_constraint_b",
+          "resolution": "source_snapshot",
+          "runtime_type": "symbol_constraint"
+        },
+        {
+          "arg": "target_point",
+          "index": 0,
+          "source": "D",
+          "resolution": "source_snapshot"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "selected_curve_point",
+          "runtime_type": "Point",
+          "value": [
+            "sqrt(2)",
+            "1"
+          ]
+        },
+        {
+          "return": "solved_parabola",
+          "runtime_type": "Parabola",
+          "value": "2*x**2 + x*(1 - sqrt(2)) - sqrt(2) - 1"
+        }
+      ]
+    },
+    {
+      "step_id": "derive_parametric_parabola_iii",
+      "scope_id": "iii",
+      "authored_step": {
+        "step_id": "derive_parametric_parabola_iii",
+        "capability_id": "quadratic_from_constraints",
+        "args": {
+          "curve_point": "A",
+          "free_parameters": "b",
+          "known_coefficients": "symbol_value_a"
+        },
+        "intent": "由已知系数和曲线点得到当前问含参抛物线。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "curve_point",
+          "index": 0,
+          "source": "A",
+          "resolution": "source_snapshot",
+          "runtime_type": "Point",
+          "value": [
+            "-1",
+            "0"
+          ]
+        },
+        {
+          "arg": "free_parameters",
+          "index": 0,
+          "source": "b",
+          "resolution": "source_snapshot",
+          "runtime_type": "ParameterValue"
+        },
+        {
+          "arg": "known_coefficients",
+          "index": 0,
+          "source": "symbol_value_a",
+          "resolution": "source_snapshot",
+          "runtime_type": "ParameterValue",
+          "value": "1"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "coefficients",
+          "runtime_type": "Coefficients",
+          "value": {
+            "a": "1",
+            "c": "-b - 1"
+          }
+        },
+        {
+          "return": "parabola",
+          "runtime_type": "Parabola",
+          "value": "-b*x - b + x**2 - 1"
+        }
+      ]
+    },
+    {
+      "step_id": "derive_curve_point_iii",
+      "scope_id": "iii",
+      "authored_step": {
+        "step_id": "derive_curve_point_iii",
+        "capability_id": "point_on_parabola_at_x",
+        "args": {
+          "parabola": "parabola"
+        },
+        "output_targets": {
+          "point": "M"
+        },
+        "intent": "将题面给定的横坐标代入当前抛物线。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "parabola",
+          "index": 0,
+          "source": "parabola",
+          "resolution": "source_snapshot",
+          "resolved_ref": {
+            "step_id": "derive_parametric_parabola_iii",
+            "return": "parabola"
+          },
+          "runtime_type": "Parabola",
+          "value": "-b*x - b + x**2 - 1"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "point",
+          "runtime_type": "Point",
+          "value": [
+            "b + 1/2",
+            "-b/2 - 3/4"
+          ]
+        }
+      ]
+    },
+    {
+      "step_id": "derive_weighted_minimum_iii",
+      "scope_id": "iii",
+      "authored_step": {
+        "step_id": "derive_weighted_minimum_iii",
+        "capability_id": "weighted_axis_path_minimum",
+        "args": {
+          "path_minimum_target": "path_minimum_target_m_n_a"
+        },
+        "intent": "原子完成加权三角形、折线拉直和定义域验证，得到完整最小值表达式。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "path_minimum_target",
+          "index": 0,
+          "source": "path_minimum_target_m_n_a",
+          "resolution": "source_snapshot",
+          "runtime_type": "path_minimum_target"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "minimum_expression",
+          "runtime_type": "MinimumExpression",
+          "value": "Piecewise((3*b/2 + 9/4, b > 1/2), (nan, True))"
+        }
+      ]
+    },
+    {
+      "step_id": "solve_parameter_iii",
+      "scope_id": "iii",
+      "authored_step": {
+        "step_id": "solve_parameter_iii",
+        "capability_id": "parameter_from_expression_value",
+        "args": {
+          "expression": {
+            "step_id": "derive_weighted_minimum_iii",
+            "return": "minimum_expression"
+          },
+          "minimum_value": "minimum_value",
+          "parameter": "b"
+        },
+        "intent": "令最小值表达式等于题设值并按参数范围取解。"
+      },
+      "resolved_inputs": [
+        {
+          "arg": "expression",
+          "index": 0,
+          "source": {
+            "step_id": "derive_weighted_minimum_iii",
+            "return": "minimum_expression"
+          },
+          "resolution": "step_result",
+          "runtime_type": "MinimumExpression",
+          "value": "Piecewise((3*b/2 + 9/4, b > 1/2), (nan, True))"
+        },
+        {
+          "arg": "minimum_value",
+          "index": 0,
+          "source": "minimum_value",
+          "resolution": "source_snapshot",
+          "runtime_type": "minimum_value"
+        },
+        {
+          "arg": "parameter",
+          "index": 0,
+          "source": "b",
+          "resolution": "source_snapshot",
+          "runtime_type": "ParameterValue"
+        }
+      ],
+      "actual_outputs": [
+        {
+          "return": "parameter_value",
+          "runtime_type": "ParameterValue",
+          "value": "2"
+        }
+      ]
+    }
+  ],
+  "committed_versions": [
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            },
+            "state_kind": "expression",
+            "runtime_type": "Parabola"
+          },
+          "storage_scope_id": "i"
+        },
+        "ordinal": 1
+      },
+      "valid_scope_id": "i",
+      "producer_call_id": "derive_parabola_i",
+      "produced_handle": "fact:i:parabola_expression",
+      "computation_key": {
+        "capability_id": "quadratic_from_constraints",
+        "arg_bindings": [
+          {
+            "arg_name": "known_coefficients",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "symbol:problem:a",
+                    "kind": "symbol",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "value",
+                  "runtime_type": "ParameterValue"
+                },
+                "storage_scope_id": "i"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "known_coefficients",
+            "item_index": 1,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "symbol:problem:b",
+                    "kind": "symbol",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "value",
+                  "runtime_type": "ParameterValue"
+                },
+                "storage_scope_id": "i"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "known_coefficients",
+            "item_index": 2,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "symbol:problem:c",
+                    "kind": "symbol",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "value",
+                  "runtime_type": "ParameterValue"
+                },
+                "storage_scope_id": "i"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "quadratic",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:parabola",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Expression"
+                },
+                "storage_scope_id": "problem"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [],
+      "free_symbol_ids": [],
+      "previous_version_id": null,
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "symbol:problem:a",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "value",
+              "runtime_type": "ParameterValue"
+            },
+            "storage_scope_id": "i"
+          },
+          "ordinal": 0
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "symbol:problem:b",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "value",
+              "runtime_type": "ParameterValue"
+            },
+            "storage_scope_id": "i"
+          },
+          "ordinal": 0
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "symbol:problem:c",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "value",
+              "runtime_type": "ParameterValue"
+            },
+            "storage_scope_id": "i"
+          },
+          "ordinal": 0
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:parabola",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression"
+            },
+            "storage_scope_id": "problem"
+          },
+          "ordinal": 0
+        }
+      ],
+      "runtime_destination": {
+        "object_id": {
+          "value": "function:problem:parabola",
+          "kind": "function",
+          "origin_scope_id": "problem"
+        },
+        "state_kind": "expression",
+        "runtime_type": "Parabola",
+        "runtime_path": "$question.i.outputs.parabola_expression"
+      },
+      "result_form": "closed_state"
+    },
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "point:i:P",
+              "kind": "point",
+              "origin_scope_id": "i"
+            },
+            "state_kind": "coordinate",
+            "runtime_type": "Point"
+          },
+          "storage_scope_id": "i"
+        },
+        "ordinal": 1
+      },
+      "valid_scope_id": "i",
+      "producer_call_id": "derive_vertex_i",
+      "produced_handle": "answer:i.P",
+      "computation_key": {
+        "capability_id": "quadratic_vertex_point",
+        "arg_bindings": [
+          {
+            "arg_name": "parabola",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:parabola",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Parabola"
+                },
+                "storage_scope_id": "i"
+              },
+              "ordinal": 1
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [],
+      "free_symbol_ids": [],
+      "previous_version_id": null,
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:parabola",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Parabola"
+            },
+            "storage_scope_id": "i"
+          },
+          "ordinal": 1
+        }
+      ],
+      "runtime_destination": {
+        "object_id": {
+          "value": "point:i:P",
+          "kind": "point",
+          "origin_scope_id": "i"
+        },
+        "state_kind": "coordinate",
+        "runtime_type": "Point",
+        "runtime_path": "$question.i.outputs.P"
+      },
+      "result_form": "closed_state"
+    },
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            },
+            "state_kind": "expression",
+            "runtime_type": "Parabola"
+          },
+          "storage_scope_id": "ii"
+        },
+        "ordinal": 1
+      },
+      "valid_scope_id": "ii",
+      "producer_call_id": "derive_parametric_parabola_ii",
+      "produced_handle": "fact:ii:parabola_expression",
+      "computation_key": {
+        "capability_id": "quadratic_from_constraints",
+        "arg_bindings": [
+          {
+            "arg_name": "curve_point",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "point:ii:A",
+                    "kind": "point",
+                    "origin_scope_id": "ii"
+                  },
+                  "state_kind": "coordinate",
+                  "runtime_type": "Point"
+                },
+                "storage_scope_id": "ii"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "free_parameters",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": null,
+            "object_id": {
+              "value": "symbol:problem:b",
+              "kind": "symbol",
+              "origin_scope_id": "problem"
+            },
+            "call_result_id": null
+          },
+          {
+            "arg_name": "known_coefficients",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "symbol:problem:a",
+                    "kind": "symbol",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "value",
+                  "runtime_type": "ParameterValue"
+                },
+                "storage_scope_id": "ii"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "quadratic",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:parabola",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Expression"
+                },
+                "storage_scope_id": "problem"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [
+        "b"
+      ],
+      "free_symbol_ids": [
+        {
+          "value": "symbol:problem:b",
+          "kind": "symbol",
+          "origin_scope_id": "problem"
+        }
+      ],
+      "previous_version_id": null,
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "symbol:problem:a",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "value",
+              "runtime_type": "ParameterValue"
+            },
+            "storage_scope_id": "ii"
+          },
+          "ordinal": 0
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "point:ii:A",
+                "kind": "point",
+                "origin_scope_id": "ii"
+              },
+              "state_kind": "coordinate",
+              "runtime_type": "Point"
+            },
+            "storage_scope_id": "ii"
+          },
+          "ordinal": 0
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:parabola",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression"
+            },
+            "storage_scope_id": "problem"
+          },
+          "ordinal": 0
+        }
+      ],
+      "runtime_destination": {
+        "object_id": {
+          "value": "function:problem:parabola",
+          "kind": "function",
+          "origin_scope_id": "problem"
+        },
+        "state_kind": "expression",
+        "runtime_type": "Parabola",
+        "runtime_path": "$question.ii.outputs.parabola_expression"
+      },
+      "result_form": "open_state"
+    },
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "point:ii:C",
+              "kind": "point",
+              "origin_scope_id": "ii"
+            },
+            "state_kind": "coordinate",
+            "runtime_type": "Point"
+          },
+          "storage_scope_id": "ii"
+        },
+        "ordinal": 1
+      },
+      "valid_scope_id": "ii",
+      "producer_call_id": "derive_y_intercept_ii",
+      "produced_handle": "fact:ii:C_coordinate",
+      "computation_key": {
+        "capability_id": "quadratic_y_axis_intercept_point",
+        "arg_bindings": [
+          {
+            "arg_name": "quadratic",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:parabola",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Parabola"
+                },
+                "storage_scope_id": "ii"
+              },
+              "ordinal": 1
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [
+        "b"
+      ],
+      "free_symbol_ids": [
+        {
+          "value": "symbol:problem:b",
+          "kind": "symbol",
+          "origin_scope_id": "problem"
+        }
+      ],
+      "previous_version_id": null,
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:parabola",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Parabola"
+            },
+            "storage_scope_id": "ii"
+          },
+          "ordinal": 1
+        }
+      ],
+      "runtime_destination": {
+        "object_id": {
+          "value": "point:ii:C",
+          "kind": "point",
+          "origin_scope_id": "ii"
+        },
+        "state_kind": "coordinate",
+        "runtime_type": "Point",
+        "runtime_path": "$question.ii.points.C"
+      },
+      "result_form": "open_state"
+    },
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "point:ii:D",
+              "kind": "point",
+              "origin_scope_id": "ii"
+            },
+            "state_kind": "candidate",
+            "runtime_type": "PointList"
+          },
+          "storage_scope_id": "ii"
+        },
+        "ordinal": 1
+      },
+      "valid_scope_id": "ii",
+      "producer_call_id": "derive_right_angle_candidates_ii",
+      "produced_handle": "fact:ii:derive_right_angle_candidates_ii_candidates",
+      "computation_key": {
+        "capability_id": "right_angle_equal_length_candidates",
+        "arg_bindings": [
+          {
+            "arg_name": "anchor",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "point:ii:A",
+                    "kind": "point",
+                    "origin_scope_id": "ii"
+                  },
+                  "state_kind": "coordinate",
+                  "runtime_type": "Point"
+                },
+                "storage_scope_id": "ii"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "reference",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "point:ii:C",
+                    "kind": "point",
+                    "origin_scope_id": "ii"
+                  },
+                  "state_kind": "coordinate",
+                  "runtime_type": "Point"
+                },
+                "storage_scope_id": "ii"
+              },
+              "ordinal": 1
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "right_angle_equal_length",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": "condition:right_angle_equal_length_0afd65e7d047@ii",
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "target",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": null,
+            "object_id": {
+              "value": "point:ii:D",
+              "kind": "point",
+              "origin_scope_id": "ii"
+            },
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [
+        "b"
+      ],
+      "free_symbol_ids": [
+        {
+          "value": "symbol:problem:b",
+          "kind": "symbol",
+          "origin_scope_id": "problem"
+        }
+      ],
+      "previous_version_id": null,
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "point:ii:A",
+                "kind": "point",
+                "origin_scope_id": "ii"
+              },
+              "state_kind": "coordinate",
+              "runtime_type": "Point"
+            },
+            "storage_scope_id": "ii"
+          },
+          "ordinal": 0
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "point:ii:C",
+                "kind": "point",
+                "origin_scope_id": "ii"
+              },
+              "state_kind": "coordinate",
+              "runtime_type": "Point"
+            },
+            "storage_scope_id": "ii"
+          },
+          "ordinal": 1
+        }
+      ],
+      "runtime_destination": {
+        "object_id": {
+          "value": "point:ii:D",
+          "kind": "point",
+          "origin_scope_id": "ii"
+        },
+        "state_kind": "candidate",
+        "runtime_type": "PointList",
+        "runtime_path": "$question.ii.outputs.derive_right_angle_candidates_ii_candidates"
+      },
+      "result_form": "open_state"
+    },
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "point:ii:D",
+              "kind": "point",
+              "origin_scope_id": "ii"
+            },
+            "state_kind": "coordinate",
+            "runtime_type": "Point"
+          },
+          "storage_scope_id": "ii"
+        },
+        "ordinal": 1
+      },
+      "valid_scope_id": "ii",
+      "producer_call_id": "select_curve_candidate_ii",
+      "produced_handle": "fact:ii:select_curve_candidate_ii_selected_curve_point",
+      "computation_key": {
+        "capability_id": "curve_candidate_parameter_solve",
+        "arg_bindings": [
+          {
+            "arg_name": "candidates",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "point:ii:D",
+                    "kind": "point",
+                    "origin_scope_id": "ii"
+                  },
+                  "state_kind": "candidate",
+                  "runtime_type": "PointList"
+                },
+                "storage_scope_id": "ii"
+              },
+              "ordinal": 1
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "parabola",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:parabola",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Parabola"
+                },
+                "storage_scope_id": "ii"
+              },
+              "ordinal": 1
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "point_on_curve",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": "condition:point_on_curve_e2363b3483c9@ii",
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "symbol_constraint",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": "condition:symbol_constraint_a9eb81f4f4c8@problem",
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "target_point",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": null,
+            "object_id": {
+              "value": "point:ii:D",
+              "kind": "point",
+              "origin_scope_id": "ii"
+            },
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [],
+      "free_symbol_ids": [],
+      "previous_version_id": null,
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "point:ii:D",
+                "kind": "point",
+                "origin_scope_id": "ii"
+              },
+              "state_kind": "candidate",
+              "runtime_type": "PointList"
+            },
+            "storage_scope_id": "ii"
+          },
+          "ordinal": 1
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:parabola",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Parabola"
+            },
+            "storage_scope_id": "ii"
+          },
+          "ordinal": 1
+        }
+      ],
+      "runtime_destination": {
+        "object_id": {
+          "value": "point:ii:D",
+          "kind": "point",
+          "origin_scope_id": "ii"
+        },
+        "state_kind": "coordinate",
+        "runtime_type": "Point",
+        "runtime_path": "$question.ii.points.D"
+      },
+      "result_form": "closed_state"
+    },
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            },
+            "state_kind": "expression",
+            "runtime_type": "Parabola"
+          },
+          "storage_scope_id": "ii"
+        },
+        "ordinal": 2
+      },
+      "valid_scope_id": "ii",
+      "producer_call_id": "select_curve_candidate_ii",
+      "produced_handle": "fact:ii:parabola_solved_parabola",
+      "computation_key": {
+        "capability_id": "curve_candidate_parameter_solve",
+        "arg_bindings": [
+          {
+            "arg_name": "candidates",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "point:ii:D",
+                    "kind": "point",
+                    "origin_scope_id": "ii"
+                  },
+                  "state_kind": "candidate",
+                  "runtime_type": "PointList"
+                },
+                "storage_scope_id": "ii"
+              },
+              "ordinal": 1
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "parabola",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:parabola",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Parabola"
+                },
+                "storage_scope_id": "ii"
+              },
+              "ordinal": 1
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "point_on_curve",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": "condition:point_on_curve_e2363b3483c9@ii",
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "symbol_constraint",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": "condition:symbol_constraint_a9eb81f4f4c8@problem",
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "target_point",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": null,
+            "object_id": {
+              "value": "point:ii:D",
+              "kind": "point",
+              "origin_scope_id": "ii"
+            },
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [],
+      "free_symbol_ids": [],
+      "previous_version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            },
+            "state_kind": "expression",
+            "runtime_type": "Parabola"
+          },
+          "storage_scope_id": "ii"
+        },
+        "ordinal": 1
+      },
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "point:ii:D",
+                "kind": "point",
+                "origin_scope_id": "ii"
+              },
+              "state_kind": "candidate",
+              "runtime_type": "PointList"
+            },
+            "storage_scope_id": "ii"
+          },
+          "ordinal": 1
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:parabola",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Parabola"
+            },
+            "storage_scope_id": "ii"
+          },
+          "ordinal": 1
+        }
+      ],
+      "runtime_destination": {
+        "object_id": {
+          "value": "function:problem:parabola",
+          "kind": "function",
+          "origin_scope_id": "problem"
+        },
+        "state_kind": "expression",
+        "runtime_type": "Parabola",
+        "runtime_path": "$question.ii.outputs.parabola"
+      },
+      "result_form": "closed_state"
+    },
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            },
+            "state_kind": "expression",
+            "runtime_type": "Parabola"
+          },
+          "storage_scope_id": "iii"
+        },
+        "ordinal": 1
+      },
+      "valid_scope_id": "iii",
+      "producer_call_id": "derive_parametric_parabola_iii",
+      "produced_handle": "fact:iii:parabola_expression",
+      "computation_key": {
+        "capability_id": "quadratic_from_constraints",
+        "arg_bindings": [
+          {
+            "arg_name": "curve_point",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "point:iii:A",
+                    "kind": "point",
+                    "origin_scope_id": "iii"
+                  },
+                  "state_kind": "coordinate",
+                  "runtime_type": "Point"
+                },
+                "storage_scope_id": "iii"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "free_parameters",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": null,
+            "object_id": {
+              "value": "symbol:problem:b",
+              "kind": "symbol",
+              "origin_scope_id": "problem"
+            },
+            "call_result_id": null
+          },
+          {
+            "arg_name": "known_coefficients",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "symbol:problem:a",
+                    "kind": "symbol",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "value",
+                  "runtime_type": "ParameterValue"
+                },
+                "storage_scope_id": "iii"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "quadratic",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:parabola",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Expression"
+                },
+                "storage_scope_id": "problem"
+              },
+              "ordinal": 0
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [
+        "b"
+      ],
+      "free_symbol_ids": [
+        {
+          "value": "symbol:problem:b",
+          "kind": "symbol",
+          "origin_scope_id": "problem"
+        }
+      ],
+      "previous_version_id": null,
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "symbol:problem:a",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "value",
+              "runtime_type": "ParameterValue"
+            },
+            "storage_scope_id": "iii"
+          },
+          "ordinal": 0
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "point:iii:A",
+                "kind": "point",
+                "origin_scope_id": "iii"
+              },
+              "state_kind": "coordinate",
+              "runtime_type": "Point"
+            },
+            "storage_scope_id": "iii"
+          },
+          "ordinal": 0
+        },
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:parabola",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Expression"
+            },
+            "storage_scope_id": "problem"
+          },
+          "ordinal": 0
+        }
+      ],
+      "runtime_destination": {
+        "object_id": {
+          "value": "function:problem:parabola",
+          "kind": "function",
+          "origin_scope_id": "problem"
+        },
+        "state_kind": "expression",
+        "runtime_type": "Parabola",
+        "runtime_path": "$question.iii.outputs.parabola_expression"
+      },
+      "result_form": "open_state"
+    },
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "point:iii:M",
+              "kind": "point",
+              "origin_scope_id": "iii"
+            },
+            "state_kind": "coordinate",
+            "runtime_type": "Point"
+          },
+          "storage_scope_id": "iii"
+        },
+        "ordinal": 1
+      },
+      "valid_scope_id": "iii",
+      "producer_call_id": "derive_curve_point_iii",
+      "produced_handle": "fact:iii:M_coordinate",
+      "computation_key": {
+        "capability_id": "point_on_parabola_at_x",
+        "arg_bindings": [
+          {
+            "arg_name": "parabola",
+            "item_index": 0,
+            "version_id": {
+              "slot_id": {
+                "logical_key": {
+                  "object_id": {
+                    "value": "function:problem:parabola",
+                    "kind": "function",
+                    "origin_scope_id": "problem"
+                  },
+                  "state_kind": "expression",
+                  "runtime_type": "Parabola"
+                },
+                "storage_scope_id": "iii"
+              },
+              "ordinal": 1
+            },
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [
+        "b"
+      ],
+      "free_symbol_ids": [
+        {
+          "value": "symbol:problem:b",
+          "kind": "symbol",
+          "origin_scope_id": "problem"
+        }
+      ],
+      "previous_version_id": null,
+      "source_version_ids": [
+        {
+          "slot_id": {
+            "logical_key": {
+              "object_id": {
+                "value": "function:problem:parabola",
+                "kind": "function",
+                "origin_scope_id": "problem"
+              },
+              "state_kind": "expression",
+              "runtime_type": "Parabola"
+            },
+            "storage_scope_id": "iii"
+          },
+          "ordinal": 1
+        }
+      ],
+      "runtime_destination": {
+        "object_id": {
+          "value": "point:iii:M",
+          "kind": "point",
+          "origin_scope_id": "iii"
+        },
+        "state_kind": "coordinate",
+        "runtime_type": "Point",
+        "runtime_path": "$question.iii.points.M"
+      },
+      "result_form": "open_state"
+    },
+    {
+      "version_id": {
+        "slot_id": {
+          "logical_key": {
+            "object_id": {
+              "value": "symbol:problem:b",
+              "kind": "symbol",
+              "origin_scope_id": "problem"
+            },
+            "state_kind": "value",
+            "runtime_type": "ParameterValue"
+          },
+          "storage_scope_id": "iii"
+        },
+        "ordinal": 1
+      },
+      "valid_scope_id": "iii",
+      "producer_call_id": "solve_parameter_iii",
+      "produced_handle": "answer:iii.b",
+      "computation_key": {
+        "capability_id": "parameter_from_expression_value",
+        "arg_bindings": [
+          {
+            "arg_name": "expression",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": null,
+            "object_id": null,
+            "call_result_id": "derive_weighted_minimum_iii.minimum_expression"
+          },
+          {
+            "arg_name": "minimum_value",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": "condition:minimum_value_given_c41a184aa053@iii",
+            "object_id": null,
+            "call_result_id": null
+          },
+          {
+            "arg_name": "parameter",
+            "item_index": 0,
+            "version_id": null,
+            "condition_id": null,
+            "object_id": {
+              "value": "symbol:problem:b",
+              "kind": "symbol",
+              "origin_scope_id": "problem"
+            },
+            "call_result_id": null
+          }
+        ]
+      },
+      "state_effect_key": null,
+      "free_symbol_refs": [],
+      "free_symbol_ids": [],
+      "previous_version_id": null,
+      "source_version_ids": [],
+      "runtime_destination": {
+        "object_id": {
+          "value": "symbol:problem:b",
+          "kind": "symbol",
+          "origin_scope_id": "problem"
+        },
+        "state_kind": "value",
+        "runtime_type": "ParameterValue",
+        "runtime_path": "$question.iii.outputs.b"
+      },
+      "result_form": "closed_state"
+    }
+  ],
+  "input_bindings": {
+    "schema_version": "functional-problem-binding-ledger/v1",
+    "draft_signature": "00f838374f6ec7e902314eb82e1633ddd4873da0bba53de2bbf531826d3505c4",
+    "ledger_signature": "bc93c08a9aac3c22c838366fc41c107208d35a1e71761154ffdc0af40caee05a",
+    "calls": {
+      "derive_curve_point_iii": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "derive_curve_point_iii",
+        "goal_unit_ids": [
+          "notation-unit:d4843a0d6b23e64a9a782d45d3314397e1abe0779f050208e7c3abb8ada53773"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "derive_curve_point_iii",
+            "arg_name": "parabola",
+            "item_index": 0,
+            "source_kind": "call_result",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Parabola"
+                  },
+                  "storage_scope_id": "iii"
+                },
+                "ordinal": 1
+              }
+            }
+          },
+          {
+            "call_id": "derive_curve_point_iii",
+            "arg_name": "target",
+            "item_index": 0,
+            "source_kind": "return_allocation",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "M",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:iii:M",
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "point:iii:M",
+                "kind": "point",
+                "origin_scope_id": "iii"
+              }
+            }
+          },
+          {
+            "call_id": "derive_curve_point_iii",
+            "arg_name": "x",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "x",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:x",
+            "source_unit_ids": [
+              "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:problem:x",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            }
+          }
+        ],
+        "relation_bindings": [],
+        "return_bindings": [
+          {
+            "call_id": "derive_curve_point_iii",
+            "return_name": "point",
+            "semantic_ref": {
+              "ref": "M",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:iii:M",
+            "source_unit_ids": [
+              "notation-unit:0b53057e6b552f5904c9f5a656b5f023b894c4b42d70cf28541d3be90c5d91dd",
+              "notation-unit:c20787782318db488cd3b92d4ca9f9f77387bbaeeda45142743a8145c4d3b7ed"
+            ],
+            "goal_unit_id": null,
+            "math_object_id": {
+              "value": "point:iii:M",
+              "kind": "point",
+              "origin_scope_id": "iii"
+            }
+          }
+        ],
+        "macro_preparation_signature": null,
+        "macro_search_signature": null,
+        "authored_roles": {},
+        "chosen_roles": {},
+        "binding_signature": "8b00abf509c54f9758715082bead231828f4180e49b4a50a2e9d1adb8c4c40a1"
+      },
+      "derive_parabola_i": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "derive_parabola_i",
+        "goal_unit_ids": [
+          "notation-unit:7510cfd8ec5a32dadbecb2dbb76884c6904ed20278a466f0ee2f3d6b3ac5cf08"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "derive_parabola_i",
+            "arg_name": "all_coefficients",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parabola_i",
+            "arg_name": "known_coefficients",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "symbol_value_a",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:i:symbol_value_b3188026a7e9",
+            "source_unit_ids": [
+              "notation-unit:8a0fd41d369dc5dad114a0cbc4853c73a0fd023a38c29117e9d99821c662cb05",
+              "notation-unit:b3188026a7e90a1c0e24faf6487e8b65d428b91148b5e89b816deccec23a168f"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "symbol:problem:a",
+                      "kind": "symbol",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "value",
+                    "runtime_type": "ParameterValue"
+                  },
+                  "storage_scope_id": "i"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parabola_i",
+            "arg_name": "known_coefficients",
+            "item_index": 1,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "symbol_value_b",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:i:symbol_value_54fb367bb8df",
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7",
+              "notation-unit:54fb367bb8dfd4fbf2733cd5b480b22ccb03e4b6b0a7d649cb20d24bf9f26da8"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "symbol:problem:b",
+                      "kind": "symbol",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "value",
+                    "runtime_type": "ParameterValue"
+                  },
+                  "storage_scope_id": "i"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parabola_i",
+            "arg_name": "known_coefficients",
+            "item_index": 2,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "symbol_value_c",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:i:symbol_value_fa068689685f",
+            "source_unit_ids": [
+              "notation-unit:594623b1a993325533de9b70dd4ed5d36f5e0a9a71c29c52602780cee2da66d1",
+              "notation-unit:fa068689685f30099eb9bcddd06dec32d493ec6272486c0d7d9f99fa87da16e6"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "symbol:problem:c",
+                      "kind": "symbol",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "value",
+                    "runtime_type": "ParameterValue"
+                  },
+                  "storage_scope_id": "i"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parabola_i",
+            "arg_name": "quadratic",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parabola_i",
+            "arg_name": "quadratic_template",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parabola_i",
+            "arg_name": "x",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "x",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:x",
+            "source_unit_ids": [
+              "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:problem:x",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            }
+          }
+        ],
+        "relation_bindings": [],
+        "return_bindings": [
+          {
+            "call_id": "derive_parabola_i",
+            "return_name": "parabola",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "goal_unit_id": null,
+            "math_object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            }
+          }
+        ],
+        "macro_preparation_signature": null,
+        "macro_search_signature": null,
+        "authored_roles": {},
+        "chosen_roles": {},
+        "binding_signature": "67ae29bc96f9994afdf99cae670beaccb533ffaf71ea1faed937c51dbf1e72c8"
+      },
+      "derive_parametric_parabola_ii": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "derive_parametric_parabola_ii",
+        "goal_unit_ids": [
+          "notation-unit:22ea880fc3a464b1faffca31f9dda4627e683d9aee36a9fb16ed177bd23b9fb5"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "derive_parametric_parabola_ii",
+            "arg_name": "all_coefficients",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_ii",
+            "arg_name": "curve_point",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:ii:A",
+            "source_unit_ids": [
+              "notation-unit:29b0ce81c9e03288cd5996fbf00e3a389470d9c9ed32a4df422ea641ccdd92c1",
+              "notation-unit:3637b0bb9d2c96772e64da868384979fe5ab117c627e6e4e0698eb7e89c64279"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "point:ii:A",
+                      "kind": "point",
+                      "origin_scope_id": "ii"
+                    },
+                    "state_kind": "coordinate",
+                    "runtime_type": "Point"
+                  },
+                  "storage_scope_id": "ii"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_ii",
+            "arg_name": "free_parameters",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "b",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:b",
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:problem:b",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_ii",
+            "arg_name": "known_coefficients",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "symbol_value_a",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:ii:symbol_value_3f44fe36dc85",
+            "source_unit_ids": [
+              "notation-unit:3f44fe36dc8561548c8a4a3531e9cc8d771a4edd074060de9e132b418b6574f0",
+              "notation-unit:8a0fd41d369dc5dad114a0cbc4853c73a0fd023a38c29117e9d99821c662cb05"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "symbol:problem:a",
+                      "kind": "symbol",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "value",
+                    "runtime_type": "ParameterValue"
+                  },
+                  "storage_scope_id": "ii"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_ii",
+            "arg_name": "quadratic",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_ii",
+            "arg_name": "quadratic_template",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_ii",
+            "arg_name": "x",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "x",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:x",
+            "source_unit_ids": [
+              "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:problem:x",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            }
+          }
+        ],
+        "relation_bindings": [
+          {
+            "call_id": "derive_parametric_parabola_ii",
+            "method_id": "quadratic_from_constraints",
+            "relation_kind": "point_on_curve",
+            "point_arg_name": "curve_point",
+            "point_item_index": 0,
+            "curve_arg_name": "quadratic",
+            "semantic_ref": {
+              "ref": "point_on_curve_parabola_a",
+              "kind": "fact",
+              "value_type": "point_on_curve"
+            },
+            "runtime_node_id": "fact:ii:point_on_curve_4a57721ebf44",
+            "source_unit_ids": [
+              "notation-unit:4a57721ebf447cbb9fd682ca7e7712aa6df3bbb2dd2d95b93b0e46d247356998"
+            ],
+            "condition_id": "condition:point_on_curve_4a57721ebf44@ii",
+            "owner_scope_id": "ii",
+            "point_math_object_id": {
+              "value": "point:ii:A",
+              "kind": "point",
+              "origin_scope_id": "ii"
+            },
+            "curve_math_object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            }
+          }
+        ],
+        "return_bindings": [
+          {
+            "call_id": "derive_parametric_parabola_ii",
+            "return_name": "parabola",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "goal_unit_id": null,
+            "math_object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            }
+          }
+        ],
+        "macro_preparation_signature": null,
+        "macro_search_signature": null,
+        "authored_roles": {},
+        "chosen_roles": {},
+        "binding_signature": "136db50034124ac5d31a6b956b4dfc345f92458aa587dbb5e3980ac176ad8f4c"
+      },
+      "derive_parametric_parabola_iii": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "derive_parametric_parabola_iii",
+        "goal_unit_ids": [
+          "notation-unit:d4843a0d6b23e64a9a782d45d3314397e1abe0779f050208e7c3abb8ada53773"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "derive_parametric_parabola_iii",
+            "arg_name": "all_coefficients",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_iii",
+            "arg_name": "curve_point",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:iii:A",
+            "source_unit_ids": [
+              "notation-unit:59323558b2033c6ee0a68ff071a72740934eadd2a5e1e22b4062cfd67ef2f32e",
+              "notation-unit:a31400e67a98599603f0fd43363a13d352c0c0be61f02027b7e08e4eda2d7ff1"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "point:iii:A",
+                      "kind": "point",
+                      "origin_scope_id": "iii"
+                    },
+                    "state_kind": "coordinate",
+                    "runtime_type": "Point"
+                  },
+                  "storage_scope_id": "iii"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_iii",
+            "arg_name": "free_parameters",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "b",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:b",
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:problem:b",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_iii",
+            "arg_name": "known_coefficients",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "symbol_value_a",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:iii:symbol_value_152cb8570887",
+            "source_unit_ids": [
+              "notation-unit:152cb8570887769b15060798f34bb1730a266f660208f0e3e5daae2a1f996083",
+              "notation-unit:8a0fd41d369dc5dad114a0cbc4853c73a0fd023a38c29117e9d99821c662cb05"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "symbol:problem:a",
+                      "kind": "symbol",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "value",
+                    "runtime_type": "ParameterValue"
+                  },
+                  "storage_scope_id": "iii"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_iii",
+            "arg_name": "quadratic",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_iii",
+            "arg_name": "quadratic_template",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Expression"
+                  },
+                  "storage_scope_id": "problem"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_parametric_parabola_iii",
+            "arg_name": "x",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "x",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:x",
+            "source_unit_ids": [
+              "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:problem:x",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            }
+          }
+        ],
+        "relation_bindings": [
+          {
+            "call_id": "derive_parametric_parabola_iii",
+            "method_id": "quadratic_from_constraints",
+            "relation_kind": "point_on_curve",
+            "point_arg_name": "curve_point",
+            "point_item_index": 0,
+            "curve_arg_name": "quadratic",
+            "semantic_ref": {
+              "ref": "point_on_curve_parabola_a",
+              "kind": "fact",
+              "value_type": "point_on_curve"
+            },
+            "runtime_node_id": "fact:iii:point_on_curve_427555236168",
+            "source_unit_ids": [
+              "notation-unit:427555236168809ac8f6c12256e194532366d6ac6650e083460713e6caa1821b"
+            ],
+            "condition_id": "condition:point_on_curve_427555236168@iii",
+            "owner_scope_id": "iii",
+            "point_math_object_id": {
+              "value": "point:iii:A",
+              "kind": "point",
+              "origin_scope_id": "iii"
+            },
+            "curve_math_object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            }
+          }
+        ],
+        "return_bindings": [
+          {
+            "call_id": "derive_parametric_parabola_iii",
+            "return_name": "parabola",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "goal_unit_id": null,
+            "math_object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            }
+          }
+        ],
+        "macro_preparation_signature": null,
+        "macro_search_signature": null,
+        "authored_roles": {},
+        "chosen_roles": {},
+        "binding_signature": "2ba91c51f0cdeebdb684a4f9d816178b400795d513f999d01754cd22d37b364e"
+      },
+      "derive_right_angle_candidates_ii": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "derive_right_angle_candidates_ii",
+        "goal_unit_ids": [
+          "notation-unit:22ea880fc3a464b1faffca31f9dda4627e683d9aee36a9fb16ed177bd23b9fb5"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "derive_right_angle_candidates_ii",
+            "arg_name": "anchor",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "point_coordinate_a",
+              "kind": "fact",
+              "value_type": "point_coordinate"
+            },
+            "runtime_node_id": "fact:ii:point_coordinate_29b0ce81c9e0",
+            "source_unit_ids": [
+              "notation-unit:29b0ce81c9e03288cd5996fbf00e3a389470d9c9ed32a4df422ea641ccdd92c1"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "point:ii:A",
+                      "kind": "point",
+                      "origin_scope_id": "ii"
+                    },
+                    "state_kind": "coordinate",
+                    "runtime_type": "Point"
+                  },
+                  "storage_scope_id": "ii"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_right_angle_candidates_ii",
+            "arg_name": "reference",
+            "item_index": 0,
+            "source_kind": "call_result",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "C",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:ii:C",
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "point:ii:C",
+                      "kind": "point",
+                      "origin_scope_id": "ii"
+                    },
+                    "state_kind": "coordinate",
+                    "runtime_type": "Point"
+                  },
+                  "storage_scope_id": "ii"
+                },
+                "ordinal": 1
+              }
+            }
+          },
+          {
+            "call_id": "derive_right_angle_candidates_ii",
+            "arg_name": "right_angle_equal_length",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "right_angle_equal_length_c_a_d_ac_ad",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:ii:right_angle_equal_length_0afd65e7d047",
+            "source_unit_ids": [
+              "notation-unit:7c447666876b9d9b08c4a3d2f7b9dd4e4ee73a78aee9724a7160153d80e99205",
+              "notation-unit:c6349138a40f5ea3d04c7a40efdc17e72114797665a5caecc113c47684a00260"
+            ],
+            "typed_source": {
+              "kind": "condition",
+              "condition_id": "condition:right_angle_equal_length_0afd65e7d047@ii"
+            }
+          },
+          {
+            "call_id": "derive_right_angle_candidates_ii",
+            "arg_name": "target",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "D",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:ii:D",
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "point:ii:D",
+                "kind": "point",
+                "origin_scope_id": "ii"
+              }
+            }
+          }
+        ],
+        "relation_bindings": [],
+        "return_bindings": [],
+        "macro_preparation_signature": null,
+        "macro_search_signature": null,
+        "authored_roles": {},
+        "chosen_roles": {},
+        "binding_signature": "d16f17b1ee37a33e54e2d168c1eae04deafd21fa3f71c364199abc06a335573e"
+      },
+      "derive_vertex_i": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "derive_vertex_i",
+        "goal_unit_ids": [
+          "notation-unit:7510cfd8ec5a32dadbecb2dbb76884c6904ed20278a466f0ee2f3d6b3ac5cf08"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "derive_vertex_i",
+            "arg_name": "parabola",
+            "item_index": 0,
+            "source_kind": "call_result",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Parabola"
+                  },
+                  "storage_scope_id": "i"
+                },
+                "ordinal": 1
+              }
+            }
+          },
+          {
+            "call_id": "derive_vertex_i",
+            "arg_name": "target",
+            "item_index": 0,
+            "source_kind": "return_allocation",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "i.P",
+              "kind": "answer",
+              "value_type": "Point"
+            },
+            "runtime_node_id": "point:i:P",
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "point:i:P",
+                "kind": "point",
+                "origin_scope_id": "i"
+              }
+            }
+          },
+          {
+            "call_id": "derive_vertex_i",
+            "arg_name": "x",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "x",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:x",
+            "source_unit_ids": [
+              "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:problem:x",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            }
+          }
+        ],
+        "relation_bindings": [],
+        "return_bindings": [
+          {
+            "call_id": "derive_vertex_i",
+            "return_name": "point",
+            "semantic_ref": {
+              "ref": "i.P",
+              "kind": "answer",
+              "value_type": "Point"
+            },
+            "runtime_node_id": "answer:i.P",
+            "source_unit_ids": [
+              "notation-unit:7510cfd8ec5a32dadbecb2dbb76884c6904ed20278a466f0ee2f3d6b3ac5cf08"
+            ],
+            "goal_unit_id": "notation-unit:7510cfd8ec5a32dadbecb2dbb76884c6904ed20278a466f0ee2f3d6b3ac5cf08",
+            "math_object_id": {
+              "value": "point:i:P",
+              "kind": "point",
+              "origin_scope_id": "i"
+            }
+          }
+        ],
+        "macro_preparation_signature": null,
+        "macro_search_signature": null,
+        "authored_roles": {},
+        "chosen_roles": {},
+        "binding_signature": "59a83e81fc27d690dbc867581260dc3f197947bd6df15bfcff1b3d53e27bffcd"
+      },
+      "derive_weighted_minimum_iii": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "derive_weighted_minimum_iii",
+        "goal_unit_ids": [
+          "notation-unit:d4843a0d6b23e64a9a782d45d3314397e1abe0779f050208e7c3abb8ada53773"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "derive_weighted_minimum_iii",
+            "arg_name": "curve_point",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "M",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:iii:M",
+            "source_unit_ids": [
+              "notation-unit:0b53057e6b552f5904c9f5a656b5f023b894c4b42d70cf28541d3be90c5d91dd",
+              "notation-unit:c20787782318db488cd3b92d4ca9f9f77387bbaeeda45142743a8145c4d3b7ed"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "point:iii:M",
+                "kind": "point",
+                "origin_scope_id": "iii"
+              }
+            }
+          },
+          {
+            "call_id": "derive_weighted_minimum_iii",
+            "arg_name": "dynamic_constraint",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "symbol_constraint_n",
+              "kind": "fact",
+              "value_type": "symbol_constraint"
+            },
+            "runtime_node_id": "fact:iii:symbol_constraint_4daf9fc476b5",
+            "source_unit_ids": [
+              "notation-unit:4daf9fc476b58878c017fe92ed2d2de5d1449eeacdbf2f4ddfdd1fbabe89f36c"
+            ],
+            "typed_source": {
+              "kind": "condition",
+              "condition_id": "condition:symbol_constraint_4daf9fc476b5@iii"
+            }
+          },
+          {
+            "call_id": "derive_weighted_minimum_iii",
+            "arg_name": "dynamic_parameter",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "n",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:iii:n",
+            "source_unit_ids": [
+              "notation-unit:93fc886b71a3525b8327b8554a001420c40a0eada7f0f442c39a60de5028aaf9"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:iii:n",
+                "kind": "symbol",
+                "origin_scope_id": "iii"
+              }
+            }
+          },
+          {
+            "call_id": "derive_weighted_minimum_iii",
+            "arg_name": "fixed_point",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "A",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:iii:A",
+            "source_unit_ids": [
+              "notation-unit:59323558b2033c6ee0a68ff071a72740934eadd2a5e1e22b4062cfd67ef2f32e",
+              "notation-unit:a31400e67a98599603f0fd43363a13d352c0c0be61f02027b7e08e4eda2d7ff1"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "point:iii:A",
+                      "kind": "point",
+                      "origin_scope_id": "iii"
+                    },
+                    "state_kind": "coordinate",
+                    "runtime_type": "Point"
+                  },
+                  "storage_scope_id": "iii"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_weighted_minimum_iii",
+            "arg_name": "moving_point",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "N",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:iii:N",
+            "source_unit_ids": [
+              "notation-unit:408668ba95cb12a0d0a67117bee08f27946a218ce1f6722063ed7a7d14ec77cc",
+              "notation-unit:770325063cf92675b99a6312e2de0b124bf05c24a10c257186ff6ca601b11382",
+              "notation-unit:775528d37d67d87c9062c0ffaf3127340ca719cac644a46a52b41eae26c0ff31"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "point:iii:N",
+                      "kind": "point",
+                      "origin_scope_id": "iii"
+                    },
+                    "state_kind": "coordinate",
+                    "runtime_type": "Point"
+                  },
+                  "storage_scope_id": "iii"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_weighted_minimum_iii",
+            "arg_name": "parameter",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "b",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:b",
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "symbol:problem:b",
+                      "kind": "symbol",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "value",
+                    "runtime_type": "ParameterValue"
+                  },
+                  "storage_scope_id": "i"
+                },
+                "ordinal": 0
+              }
+            }
+          },
+          {
+            "call_id": "derive_weighted_minimum_iii",
+            "arg_name": "parameter_constraint",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "symbol_constraint_b",
+              "kind": "fact",
+              "value_type": "symbol_constraint"
+            },
+            "runtime_node_id": "fact:problem:symbol_constraint_a9eb81f4f4c8",
+            "source_unit_ids": [
+              "notation-unit:a9eb81f4f4c8a1d94b368aaaca0aa504746b36d688c8dafc6dc644a4921c0a36"
+            ],
+            "typed_source": {
+              "kind": "condition",
+              "condition_id": "condition:symbol_constraint_a9eb81f4f4c8@problem"
+            }
+          },
+          {
+            "call_id": "derive_weighted_minimum_iii",
+            "arg_name": "path_minimum_target",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "path_minimum_target_m_n_a",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:iii:minimum_target_7f5bdbc7f207",
+            "source_unit_ids": [
+              "notation-unit:7f5bdbc7f2073006712d2f8477f5b1169827249ba9345680cc03d66962481a90"
+            ],
+            "typed_source": {
+              "kind": "condition",
+              "condition_id": "condition:minimum_target_7f5bdbc7f207@iii"
+            }
+          }
+        ],
+        "relation_bindings": [],
+        "return_bindings": [],
+        "macro_preparation_signature": "193f9c23a9c51318bec414bd5387a1b05416f9bdcc065d3f1a98fcabb1aba8d5",
+        "macro_search_signature": "2ed911a57dfe9745659efd46450ad65f4d0c902637d2717eac8a13d7124bbbd1",
+        "authored_roles": {},
+        "chosen_roles": {
+          "curve_point": "point:iii:M",
+          "dynamic_constraint": "fact:iii:symbol_constraint_4daf9fc476b5",
+          "dynamic_parameter": "symbol:iii:n",
+          "fixed_point": "point:iii:A",
+          "moving_point": "point:iii:N",
+          "parameter": "symbol:problem:b",
+          "parameter_constraint": "fact:problem:symbol_constraint_a9eb81f4f4c8"
+        },
+        "binding_signature": "98962ff6264145eb669c83d91149d2553973b9760993fab257a381e5d4410a0a"
+      },
+      "derive_y_intercept_ii": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "derive_y_intercept_ii",
+        "goal_unit_ids": [
+          "notation-unit:22ea880fc3a464b1faffca31f9dda4627e683d9aee36a9fb16ed177bd23b9fb5"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "derive_y_intercept_ii",
+            "arg_name": "quadratic",
+            "item_index": 0,
+            "source_kind": "call_result",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "state_version",
+              "state_version_id": {
+                "slot_id": {
+                  "logical_key": {
+                    "object_id": {
+                      "value": "function:problem:parabola",
+                      "kind": "function",
+                      "origin_scope_id": "problem"
+                    },
+                    "state_kind": "expression",
+                    "runtime_type": "Parabola"
+                  },
+                  "storage_scope_id": "ii"
+                },
+                "ordinal": 1
+              }
+            }
+          },
+          {
+            "call_id": "derive_y_intercept_ii",
+            "arg_name": "target",
+            "item_index": 0,
+            "source_kind": "return_allocation",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "C",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:ii:C",
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "point:ii:C",
+                "kind": "point",
+                "origin_scope_id": "ii"
+              }
+            }
+          },
+          {
+            "call_id": "derive_y_intercept_ii",
+            "arg_name": "x",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "x",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:x",
+            "source_unit_ids": [
+              "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:problem:x",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            }
+          }
+        ],
+        "relation_bindings": [],
+        "return_bindings": [
+          {
+            "call_id": "derive_y_intercept_ii",
+            "return_name": "point",
+            "semantic_ref": {
+              "ref": "C",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:ii:C",
+            "source_unit_ids": [
+              "notation-unit:3a1fdf3669f838addbd6ad91c3da22412e00a2126b0c41d2ad9623350e11a30b",
+              "notation-unit:efafd16f3dc587df9319fcea787a75f98fdb6b76575f9cea600288b10bce7f12"
+            ],
+            "goal_unit_id": null,
+            "math_object_id": {
+              "value": "point:ii:C",
+              "kind": "point",
+              "origin_scope_id": "ii"
+            }
+          }
+        ],
+        "macro_preparation_signature": null,
+        "macro_search_signature": null,
+        "authored_roles": {},
+        "chosen_roles": {},
+        "binding_signature": "cbed47f699f42f0e324bf69067e224c61b2969f422d5311227d0920409675dfb"
+      },
+      "select_curve_candidate_ii": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "select_curve_candidate_ii",
+        "goal_unit_ids": [
+          "notation-unit:22ea880fc3a464b1faffca31f9dda4627e683d9aee36a9fb16ed177bd23b9fb5"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "select_curve_candidate_ii",
+            "arg_name": "candidates",
+            "item_index": 0,
+            "source_kind": "call_result",
+            "selection_policy": "exact",
+            "semantic_ref": null,
+            "runtime_node_id": null,
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "call_result",
+              "source_call_id": "derive_right_angle_candidates_ii",
+              "source_return_name": "candidates"
+            }
+          },
+          {
+            "call_id": "select_curve_candidate_ii",
+            "arg_name": "parabola",
+            "item_index": 0,
+            "source_kind": "call_result",
+            "selection_policy": "latest",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "call_result",
+              "source_call_id": "derive_parametric_parabola_ii",
+              "source_return_name": "parabola"
+            }
+          },
+          {
+            "call_id": "select_curve_candidate_ii",
+            "arg_name": "point_on_curve",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "point_on_curve_parabola_d",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:ii:point_on_curve_e2363b3483c9",
+            "source_unit_ids": [
+              "notation-unit:e2363b3483c9271b5d24825eaf178384fdd093d065e8b5a384922e7fbe8a7750"
+            ],
+            "typed_source": {
+              "kind": "condition",
+              "condition_id": "condition:point_on_curve_e2363b3483c9@ii"
+            }
+          },
+          {
+            "call_id": "select_curve_candidate_ii",
+            "arg_name": "symbol_constraint",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "symbol_constraint_b",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:problem:symbol_constraint_a9eb81f4f4c8",
+            "source_unit_ids": [
+              "notation-unit:a9eb81f4f4c8a1d94b368aaaca0aa504746b36d688c8dafc6dc644a4921c0a36"
+            ],
+            "typed_source": {
+              "kind": "condition",
+              "condition_id": "condition:symbol_constraint_a9eb81f4f4c8@problem"
+            }
+          },
+          {
+            "call_id": "select_curve_candidate_ii",
+            "arg_name": "target_point",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "latest",
+            "semantic_ref": {
+              "ref": "D",
+              "kind": "point"
+            },
+            "runtime_node_id": "point:ii:D",
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "point:ii:D",
+                "kind": "point",
+                "origin_scope_id": "ii"
+              }
+            }
+          }
+        ],
+        "relation_bindings": [],
+        "return_bindings": [
+          {
+            "call_id": "select_curve_candidate_ii",
+            "return_name": "selected_curve_point",
+            "semantic_ref": {
+              "ref": "ii.D",
+              "kind": "answer",
+              "value_type": "Point"
+            },
+            "runtime_node_id": "answer:ii.D",
+            "source_unit_ids": [
+              "notation-unit:22ea880fc3a464b1faffca31f9dda4627e683d9aee36a9fb16ed177bd23b9fb5"
+            ],
+            "goal_unit_id": "notation-unit:22ea880fc3a464b1faffca31f9dda4627e683d9aee36a9fb16ed177bd23b9fb5",
+            "math_object_id": {
+              "value": "point:ii:D",
+              "kind": "point",
+              "origin_scope_id": "ii"
+            }
+          },
+          {
+            "call_id": "select_curve_candidate_ii",
+            "return_name": "solved_parabola",
+            "semantic_ref": {
+              "ref": "parabola",
+              "kind": "function"
+            },
+            "runtime_node_id": "function:problem:parabola",
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ],
+            "goal_unit_id": null,
+            "math_object_id": {
+              "value": "function:problem:parabola",
+              "kind": "function",
+              "origin_scope_id": "problem"
+            }
+          }
+        ],
+        "macro_preparation_signature": null,
+        "macro_search_signature": null,
+        "authored_roles": {},
+        "chosen_roles": {},
+        "binding_signature": "a27145f9de31d55e26859e4d9d08ed5b3331817622d70e99a6b0f61b38ee7504"
+      },
+      "solve_parameter_iii": {
+        "planning_context_id": "problem-planning-context:56b0a500422292c5153919dd80f7252a81d66c2e3de9f4305310709a6b07616e",
+        "problem_revision_id": "problem-revision:505197713212f9d6f28c5cae01d142a5cd81cf7691b226f25d5ee7da47b694b2",
+        "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+        "planner_state_context_id": "ctx_planner_tj-2026-hexi-yimo-25_attempt_0",
+        "call_id": "solve_parameter_iii",
+        "goal_unit_ids": [
+          "notation-unit:d4843a0d6b23e64a9a782d45d3314397e1abe0779f050208e7c3abb8ada53773"
+        ],
+        "status": "finalized",
+        "input_bindings": [
+          {
+            "call_id": "solve_parameter_iii",
+            "arg_name": "constraint",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "symbol_constraint_b",
+              "kind": "fact",
+              "value_type": "symbol_constraint"
+            },
+            "runtime_node_id": "fact:problem:symbol_constraint_a9eb81f4f4c8",
+            "source_unit_ids": [
+              "notation-unit:a9eb81f4f4c8a1d94b368aaaca0aa504746b36d688c8dafc6dc644a4921c0a36"
+            ],
+            "typed_source": {
+              "kind": "condition",
+              "condition_id": "condition:symbol_constraint_a9eb81f4f4c8@problem"
+            }
+          },
+          {
+            "call_id": "solve_parameter_iii",
+            "arg_name": "expression",
+            "item_index": 0,
+            "source_kind": "call_result",
+            "selection_policy": "exact",
+            "semantic_ref": null,
+            "runtime_node_id": null,
+            "source_unit_ids": [],
+            "typed_source": {
+              "kind": "call_result",
+              "source_call_id": "derive_weighted_minimum_iii",
+              "source_return_name": "minimum_expression"
+            }
+          },
+          {
+            "call_id": "solve_parameter_iii",
+            "arg_name": "minimum_value",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "exact",
+            "semantic_ref": {
+              "ref": "minimum_value",
+              "kind": "fact"
+            },
+            "runtime_node_id": "fact:iii:minimum_value_given_c41a184aa053",
+            "source_unit_ids": [
+              "notation-unit:c41a184aa05346cdee380f06fcb8c047b1ae362cb8cf6175a5eea003140ebfd5"
+            ],
+            "typed_source": {
+              "kind": "condition",
+              "condition_id": "condition:minimum_value_given_c41a184aa053@iii"
+            }
+          },
+          {
+            "call_id": "solve_parameter_iii",
+            "arg_name": "parameter",
+            "item_index": 0,
+            "source_kind": "problem_source",
+            "selection_policy": "identity_only",
+            "semantic_ref": {
+              "ref": "b",
+              "kind": "symbol"
+            },
+            "runtime_node_id": "symbol:problem:b",
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ],
+            "typed_source": {
+              "kind": "math_object",
+              "math_object_id": {
+                "value": "symbol:problem:b",
+                "kind": "symbol",
+                "origin_scope_id": "problem"
+              }
+            }
+          }
+        ],
+        "relation_bindings": [],
+        "return_bindings": [
+          {
+            "call_id": "solve_parameter_iii",
+            "return_name": "parameter_value",
+            "semantic_ref": {
+              "ref": "iii.b",
+              "kind": "answer",
+              "value_type": "ParameterValue"
+            },
+            "runtime_node_id": "answer:iii.b",
+            "source_unit_ids": [
+              "notation-unit:d4843a0d6b23e64a9a782d45d3314397e1abe0779f050208e7c3abb8ada53773"
+            ],
+            "goal_unit_id": "notation-unit:d4843a0d6b23e64a9a782d45d3314397e1abe0779f050208e7c3abb8ada53773",
+            "math_object_id": {
+              "value": "symbol:problem:b",
+              "kind": "symbol",
+              "origin_scope_id": "problem"
+            }
+          }
+        ],
+        "macro_preparation_signature": null,
+        "macro_search_signature": null,
+        "authored_roles": {},
+        "chosen_roles": {},
+        "binding_signature": "70aee0348e4f9b4a13d9e19cc04ebe92072b394ce1dfc88e8aba2eb744a26be1"
+      }
+    }
+  },
+  "goal_verification": {
+    "goals": [
+      {
+        "goal_handle": "answer:i.P",
+        "status": "passed",
+        "producer_step_id": "derive_vertex_i",
+        "issues": []
+      },
+      {
+        "goal_handle": "answer:ii.D",
+        "status": "passed",
+        "producer_step_id": "select_curve_candidate_ii",
+        "issues": []
+      },
+      {
+        "goal_handle": "answer:iii.b",
+        "status": "passed",
+        "producer_step_id": "solve_parameter_iii",
+        "issues": []
+      }
+    ]
+  },
+  "answers": {
+    "i": {
+      "P": [
+        "1",
+        "2"
+      ]
+    },
+    "ii": {
+      "D": [
+        "sqrt(2)",
+        "1"
+      ]
+    },
+    "iii": {
+      "b": "2"
+    }
+  }
+}

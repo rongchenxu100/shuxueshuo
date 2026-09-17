@@ -1,0 +1,68 @@
+{
+  "schema_version": "math-runtime-stage-two-acceptance/v1",
+  "date": "2026-09-17",
+  "solver": {
+    "passed": 3385,
+    "profile": "full",
+    "suite": "server/tests/solver",
+    "serial_tests": 0,
+    "excluded_live_llm": 26,
+    "live_models": false,
+    "seconds": 210.35
+  },
+  "product": {
+    "passed": 215,
+    "skipped": 4,
+    "skip_reason": "Explicit opt-in required for live model and dedicated broker scenarios.",
+    "suite": "server/tests/product",
+    "supported_cases_admitted": 5,
+    "review_evidence": "controlled replay of frozen responses, not new live source reviews"
+  },
+  "frontend": {
+    "passed": 156,
+    "typecheck": "passed",
+    "targeted_eslint": "passed",
+    "production_build": "passed",
+    "test_files": 22
+  },
+  "migration": {
+    "revision": "0004_math_runtime_binding",
+    "from_empty_database": true,
+    "postgresql": "17.10",
+    "instance": "stage-two-submit",
+    "port": 55439,
+    "data_dir": "/private/tmp/shuxueshuo-stage-two-submit-20260917",
+    "deployment": false
+  },
+  "review_regressions": [
+    "Both active extraction and binding builds are cancelled from one action, even if one response fails.",
+    "Duplicate source unit IDs are rejected before mapping conversion in bundle and Planner projection.",
+    "Binding resolves mathematical inputs without inferring a capability from square, ray, or weight markers; existing admission contracts remain enforced.",
+    "Binding has an independent three-slot execution pool; cancellation and lease expiry release capacity."
+  ],
+  "paid_model_calls": 0,
+  "production_planner_protocol_changed": false,
+  "freeze_note": "All 10 candidate fixture hashes match their original frozen inputs. Historical confirmed reviews are not current product admissions.",
+  "backend_non_solver": {
+    "passed": 295,
+    "skipped": 7,
+    "suite": "server/tests --ignore=server/tests/solver",
+    "seconds": 249.37,
+    "includes_product_tests": true,
+    "skip_reasons": {
+      "live_source_review": 1,
+      "dedicated_broker_opt_in": 3,
+      "docker_nginx": 3
+    }
+  },
+  "page_tools": {
+    "passed": 162,
+    "failed": 0,
+    "skipped": 0,
+    "command": "node --test tools/tests/*.test.mjs"
+  },
+  "total_passed": 3998,
+  "total_skipped": 7,
+  "full_suite_review": "full-suite-review.md",
+  "new_python_ruff": "passed"
+}

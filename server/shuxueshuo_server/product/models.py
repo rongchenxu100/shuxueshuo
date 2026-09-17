@@ -95,7 +95,7 @@ problems = table('problems', uid('owner_user_id'), uid('primary_source_id'), col
     col('visibility', default='private'), uid('current_revision_id', True), uid('latest_build_id', True),
     uid('current_page_build_id', True), num('lock_version', default='0'),
     uid('current_source_version_id', True), uid('current_candidate_id', True), uid('latest_extraction_run_id', True),
-    num('understanding_generation', default='0'), updated=True)
+    num('understanding_generation', default='0'), uid('latest_runtime_binding_run_id', True), updated=True)
 choices(problems, 'visibility', 'private workspace')
 problem_sources = table('problem_sources', uid('problem_id'), uid('source_id'), uid('matched_revision_id', True),
     col('match_method'), uid('match_evidence_artifact_id', True))
@@ -235,6 +235,23 @@ for column, target in {'run_id': 'extraction_runs', 'request_artifact_id': 'arti
 sa.Index('ix_extraction_one_active', extraction_runs.c.problem_id, unique=True,
          postgresql_where=extraction_runs.c.status.in_(['queued', 'running']))
 sa.Index('ix_candidates_history', problem_candidates.c.problem_id, problem_candidates.c.created_at.desc(), problem_candidates.c.id)
+
+# Pure-code binding runs have an independent lifecycle and never mutate review.
+runtime_binding_runs = table('runtime_binding_runs', uid('problem_id'), uid('build_id'),
+    uid('candidate_id'), uid('source_version_id'), uid('review_run_id', True),
+    obj('snapshot'), obj('frozen'), col('status'), obj('result_json', True),
+    stamp('finished_at'), col('error_code', nullable=True))
+choices(runtime_binding_runs, 'status', 'queued running completed failed superseded cancelled')
+unique(runtime_binding_runs, 'build_id')
+unique(runtime_binding_runs, 'workspace_id', 'problem_id', 'id')
+ref(runtime_binding_runs, 'problem_id', 'problems')
+for column, target in (('build_id','builds'), ('candidate_id','problem_candidates'),
+                       ('source_version_id','problem_source_versions'), ('review_run_id','extraction_runs')):
+    fk(runtime_binding_runs, ['workspace_id','problem_id',column], target, ['workspace_id','problem_id','id'])
+fk(problems, ['workspace_id','id','latest_runtime_binding_run_id'], 'runtime_binding_runs', ['workspace_id','problem_id','id'])
+sa.Index('ix_binding_one_active', runtime_binding_runs.c.problem_id, unique=True,
+         postgresql_where=runtime_binding_runs.c.status.in_(['queued','running']))
+sa.Index('ix_binding_history', runtime_binding_runs.c.problem_id, runtime_binding_runs.c.created_at.desc(), runtime_binding_runs.c.id)
 
 # All resource references carry workspace identity, including nullable references.
 references = {

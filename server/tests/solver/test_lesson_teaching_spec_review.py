@@ -177,6 +177,14 @@ def test_review_json_and_snapshot_v3_match_checked_in_goldens(
     expected_snapshot = _json(B1 / "snapshot.json")
     actual_snapshot["verified_execution_hash"] = "<run-local>"
     expected_snapshot["verified_execution_hash"] = "<run-local>"
+    # Witness IDs authenticate source/run provenance as well as mathematics.
+    # Keep every evidence payload and its kind in this teaching-content check,
+    # without requiring a replay to reuse the original authority identifier.
+    for payload in (actual_snapshot, expected_snapshot):
+        payload["evidence"] = sorted(
+            ((key.split(":", 1)[0], value) for key, value in payload["evidence"].items()),
+            key=lambda item: json.dumps(item, ensure_ascii=False, sort_keys=True),
+        )
     assert actual_snapshot == expected_snapshot
     assert review == _json(B1 / "teaching-spec-review.json")
 

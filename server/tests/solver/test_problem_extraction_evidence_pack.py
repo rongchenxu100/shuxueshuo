@@ -100,7 +100,8 @@ def test_direct_problem_ir_prompt_is_compact_and_omits_student_work_text(tmp_pat
         if item.origin == "handwritten" and item.text
     }
 
-    assert len(prompt.user_debug.encode("utf-8")) <= 12_500
+    # Includes the existing source-equivalence and state-fact extraction rules.
+    assert len(prompt.user_debug.encode("utf-8")) <= 13_500
     assert all(text not in prompt.user_debug for text in handwritten_text)
 
 

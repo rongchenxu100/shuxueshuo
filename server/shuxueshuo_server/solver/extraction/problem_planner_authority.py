@@ -11,7 +11,7 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
 )
 from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
     ProblemBundleAuthorityError,
-    VerifiedSolverProblemBundle,
+    SolverProblemBundle,
 )
 
 
@@ -19,23 +19,24 @@ from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
 class VerifiedPlannerProblemAuthority:
     """One immutable Bundle and its deterministic Planner-facing projection."""
 
-    bundle: VerifiedSolverProblemBundle
+    bundle: SolverProblemBundle
     planning_context: ProblemPlanningContext
 
     def __post_init__(self) -> None:
+        self.bundle.assert_solver_ready()
         if self.planning_context.bundle_authority_token != self.bundle.authority_token:
             raise ProblemBundleAuthorityError(
                 "planner.problem_revision_drift",
                 "$.planning_context.bundle_authority_token",
                 "Planner context was not derived from the supplied problem bundle",
             )
-        if self.planning_context.problem_id != self.bundle.verified_problem.graph.problem_id:
+        if self.planning_context.problem_id != self.bundle.problem_id:
             raise ProblemBundleAuthorityError(
                 "planner.problem_bundle_invalid",
                 "$.planning_context.problem_id",
                 "Planner context and problem bundle use different problem ids",
             )
-        if self.planning_context.family_id != self.bundle.verified_problem.family_id:
+        if self.planning_context.family_id != self.bundle.family_id:
             raise ProblemBundleAuthorityError(
                 "planner.problem_bundle_invalid",
                 "$.planning_context.family_id",
@@ -45,7 +46,7 @@ class VerifiedPlannerProblemAuthority:
     @classmethod
     def from_bundle(
         cls,
-        bundle: VerifiedSolverProblemBundle,
+        bundle: SolverProblemBundle,
     ) -> "VerifiedPlannerProblemAuthority":
         return cls(
             bundle=bundle,

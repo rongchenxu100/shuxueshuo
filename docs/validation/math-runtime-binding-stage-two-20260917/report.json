@@ -1,0 +1,274 @@
+{
+  "schema_version": "math-runtime-stage-two-report/v1",
+  "binding_configuration": {
+    "contract": "math-runtime-binding/v1",
+    "code_hash": "a0ba3eac1304106cfac85646eb52e9b3e011c1d611deccf545337b9c30b643d5"
+  },
+  "checks": [
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "origin": "recorded",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 6,
+      "source_identity": {
+        "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+        "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+        "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+      },
+      "trusted_plan_sha256": "fe025eaa33f07626440c25c5af2fd56edd6ff02fccd2c1253ba8795e1f837bb6",
+      "steps": 13,
+      "versions": 12,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "origin": "authored",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 6,
+      "source_identity": {
+        "candidate_hash": "4ab69663fe78519cebaa66087f380c22869ea07724fdfec75032e83c2c61f8fd",
+        "candidate_id": "offline:4ab69663fe78519cebaa66087f380c22869ea07724fdfec75032e83c2c61f8fd",
+        "problem_id": "tj-2026-nankai-yimo-25",
+        "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+        "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+      },
+      "trusted_plan_sha256": "fe025eaa33f07626440c25c5af2fd56edd6ff02fccd2c1253ba8795e1f837bb6",
+      "steps": 13,
+      "versions": 12,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "origin": "recorded",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 4,
+      "source_identity": {
+        "candidate_hash": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+        "candidate_id": "offline:782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+        "problem_id": "tj-2026-heping-ermo-25",
+        "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+        "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+      },
+      "trusted_plan_sha256": "a8d4f3094703e36894a28e4d3c275640910c22594a2cb750800e1fef1b51e6df",
+      "steps": 12,
+      "versions": 13,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "origin": "authored",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 4,
+      "source_identity": {
+        "candidate_hash": "d00ea6e757786000f833e7f07d02f911e439dac7df5a2dcd5771f07f35b92e76",
+        "candidate_id": "offline:d00ea6e757786000f833e7f07d02f911e439dac7df5a2dcd5771f07f35b92e76",
+        "problem_id": "tj-2026-heping-ermo-25",
+        "source_hash": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+        "source_version_id": "frozen:tj-2026-heping-ermo-25.png"
+      },
+      "trusted_plan_sha256": "a8d4f3094703e36894a28e4d3c275640910c22594a2cb750800e1fef1b51e6df",
+      "steps": 12,
+      "versions": 13,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "origin": "recorded",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 3,
+      "source_identity": {
+        "candidate_hash": "680cc4bcd9ea0c0bad275130188f53f332674dce9db585ebdb85596a02ec4820",
+        "candidate_id": "offline:680cc4bcd9ea0c0bad275130188f53f332674dce9db585ebdb85596a02ec4820",
+        "problem_id": "tj-2026-heping-yimo-25",
+        "source_hash": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+        "source_version_id": "frozen:tj-2026-heping-yimo-25.png"
+      },
+      "trusted_plan_sha256": "b5bd8a1849ffa82efd0ddaf1b94a0ca1ab87cce4354ed31b6c38a161846dad32",
+      "steps": 11,
+      "versions": 9,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "origin": "authored",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 3,
+      "source_identity": {
+        "candidate_hash": "cd272ff543ac9bd88ff2ae332e1c8e5e55f3c01c114130e30ebb46eda54b6c56",
+        "candidate_id": "offline:cd272ff543ac9bd88ff2ae332e1c8e5e55f3c01c114130e30ebb46eda54b6c56",
+        "problem_id": "tj-2026-heping-yimo-25",
+        "source_hash": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+        "source_version_id": "frozen:tj-2026-heping-yimo-25.png"
+      },
+      "trusted_plan_sha256": "b5bd8a1849ffa82efd0ddaf1b94a0ca1ab87cce4354ed31b6c38a161846dad32",
+      "steps": 11,
+      "versions": 9,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "origin": "recorded",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 3,
+      "source_identity": {
+        "candidate_hash": "4ea2b8200a17a3ab1483827473aa50438475979eae15a3dae6b4a3fa6e1ef01f",
+        "candidate_id": "offline:4ea2b8200a17a3ab1483827473aa50438475979eae15a3dae6b4a3fa6e1ef01f",
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+        "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+      },
+      "trusted_plan_sha256": "881a7c2c3d82054fae86e151412088001721b3f7e370d1fb4cb1697097d72b30",
+      "steps": 10,
+      "versions": 10,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "origin": "authored",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 3,
+      "source_identity": {
+        "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+        "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+        "problem_id": "tj-2026-hexi-yimo-25",
+        "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+        "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+      },
+      "trusted_plan_sha256": "881a7c2c3d82054fae86e151412088001721b3f7e370d1fb4cb1697097d72b30",
+      "steps": 10,
+      "versions": 10,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "origin": "recorded",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 3,
+      "source_identity": {
+        "candidate_hash": "c8fc44311550536371728bff412a74652861d17a414705e33e6acdce29f635c3",
+        "candidate_id": "offline:c8fc44311550536371728bff412a74652861d17a414705e33e6acdce29f635c3",
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "source_hash": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+        "source_version_id": "frozen:tj-2026-xiqing-yimo-25.png"
+      },
+      "trusted_plan_sha256": "70018d076bcf16611548b61425e5749e593457963c6ddc3479e440c5989e1075",
+      "steps": 9,
+      "versions": 8,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "origin": "authored",
+      "status": "accepted",
+      "answers_match": true,
+      "goals": 3,
+      "source_identity": {
+        "candidate_hash": "8507af7579cad0741ab165878a4ec867654e24726a274a2f2e0237a8ee6f56e3",
+        "candidate_id": "offline:8507af7579cad0741ab165878a4ec867654e24726a274a2f2e0237a8ee6f56e3",
+        "problem_id": "tj-2026-xiqing-yimo-25",
+        "source_hash": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+        "source_version_id": "frozen:tj-2026-xiqing-yimo-25.png"
+      },
+      "trusted_plan_sha256": "70018d076bcf16611548b61425e5749e593457963c6ddc3479e440c5989e1075",
+      "steps": 9,
+      "versions": 8,
+      "evidence_kind": "frozen_input_replay_with_synthetic_test_authority",
+      "current_product_admission": false
+    }
+  ],
+  "statistics": [
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "problem": {
+        "old_characters": 5189,
+        "new_characters": 902
+      },
+      "methods": {
+        "old_characters": 19691,
+        "new_characters": 7665
+      },
+      "token_count": null,
+      "token_reason": "No matching DeepSeek tokenizer; no model call.",
+      "scope": "JSON problem and method sections measured separately; not a full request ratio."
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "problem": {
+        "old_characters": 4413,
+        "new_characters": 795
+      },
+      "methods": {
+        "old_characters": 20082,
+        "new_characters": 7477
+      },
+      "token_count": null,
+      "token_reason": "No matching DeepSeek tokenizer; no model call.",
+      "scope": "JSON problem and method sections measured separately; not a full request ratio."
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "problem": {
+        "old_characters": 4068,
+        "new_characters": 688
+      },
+      "methods": {
+        "old_characters": 18011,
+        "new_characters": 6758
+      },
+      "token_count": null,
+      "token_reason": "No matching DeepSeek tokenizer; no model call.",
+      "scope": "JSON problem and method sections measured separately; not a full request ratio."
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "problem": {
+        "old_characters": 4271,
+        "new_characters": 675
+      },
+      "methods": {
+        "old_characters": 18966,
+        "new_characters": 7958
+      },
+      "token_count": null,
+      "token_reason": "No matching DeepSeek tokenizer; no model call.",
+      "scope": "JSON problem and method sections measured separately; not a full request ratio."
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "problem": {
+        "old_characters": 3542,
+        "new_characters": 647
+      },
+      "methods": {
+        "old_characters": 18820,
+        "new_characters": 7958
+      },
+      "token_count": null,
+      "token_reason": "No matching DeepSeek tokenizer; no model call.",
+      "scope": "JSON problem and method sections measured separately; not a full request ratio."
+    }
+  ],
+  "model_calls": 0,
+  "product_admissions": 0,
+  "note": "Historical confirmed reviews remain historical. Runtime readiness in the product requires a current persisted review and admission run."
+}

@@ -90,6 +90,22 @@ def test_affected_ownership_maps_goal_runtime_to_contract_tests() -> None:
     assert "tests/solver/test_functional_goal_checkpoint_v3.py" in selected
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "server/shuxueshuo_server/problem_understanding/runtime_binding.py",
+        "server/shuxueshuo_server/problem_understanding/compact_planner_input.py",
+        "server/shuxueshuo_server/solver/runtime/capability_math_signatures.py",
+        "server/tests/solver/fixtures/math-runtime-binding-stage-two/candidate.json",
+    ],
+)
+def test_affected_ownership_includes_notation_runtime_binding(path):
+    selected, unmapped = _tests_for_changed_paths((path,))
+    assert not unmapped
+    assert "tests/solver/test_math_runtime_binding.py" in selected
+    assert "tests/solver/test_math_compact_planner_input.py" in selected
+
+
 def test_affected_ownership_maps_private_path_helpers_to_atomic_macro_tests() -> None:
     selected, unmapped = _tests_for_changed_paths(
         (

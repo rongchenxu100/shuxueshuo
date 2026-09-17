@@ -1,6 +1,6 @@
 # 数学题意与 Planner 简化：整体三阶段实施计划
 
-日期：2026-09-17。阶段一已实现并完成独立 PostgreSQL/录制响应验收，见[实现说明](math-notation-stage-one-implementation.md)和[验收报告](validation/math-notation-product-stage-one-20260917/README.md)。日常/生产实例尚未迁移或部署；阶段二、三仍为后续计划。
+日期：2026-09-17。阶段一、二已实现并完成独立 PostgreSQL/录制响应验收。阶段一见[实现说明](math-notation-stage-one-implementation.md)；阶段二见[实现说明](math-notation-stage-two-implementation.md)和[十组回放与五题审阅报告](validation/math-runtime-binding-stage-two-20260917/README.md)。阶段三仍为后续工作；本次阶段二未部署或迁移日常/生产实例。
 
 ## 当前基础与总目标
 
@@ -8,7 +8,7 @@
 
 [最近一次 DeepSeek 七题真实闭环](validation/math-notation-state-facts-seven-20260917-094219/README.md)首轮及最终均为 6/7。六题严格通过且 review confirmed；K 题正确报告缺图并提前阻断，但仍有 k 作用域和四边形声明差异。该批次不能被写成 7/7。
 
-[新旧对象树复审](validation/math-object-tree-state-facts-20260917/README.md)已覆盖五题人工样例与五题真实候选。对象与作用域能够对齐，但新题意到生产运行时的状态和参数绑定尚未完成。新抽取产物已支持独立候选/来源/运行记录入库，旧完整生成继续使用原正式题意路径。
+[新旧对象树复审](validation/math-object-tree-state-facts-20260917/README.md)覆盖了五题人工样例与五题真实候选。阶段二现已补齐状态和参数绑定，并完成十组受信计划回放；新抽取产物、求解准入结果分别持久化，旧完整生成继续使用原正式题意路径。
 
 最终形成：图片入库 → 简洁题意抽取、review/repair → 候选持久化 → 运行时绑定与求解准入 → 简洁 Planner 输入输出 → 现有执行器 → 讲解与页面。
 
@@ -55,7 +55,7 @@
 
 目标：让新题意能够提供完整、可验证的运行时输入，并给 Planner 一份人和模型都能理解的数学视图。
 
-首批审阅材料：[五题简洁 Planner 题目输入示例与现有输入对照](planner-compact-input-five-case-review.md)。五份简洁输入统一使用 JSON，与现有题目 JSON、原 ProblemIR 逐题对照，并提供覆盖清单和紧凑 JSON 字符统计。已删除额外的 `optimizations` 字段，最值变量由相应方法根据题意绑定；另附河西Ⅲ的完整单目标步骤 JSON。运行时绑定和新输出协议尚未验收。
+首批审阅材料：[五题简洁 Planner 题目输入示例与现有输入对照](planner-compact-input-five-case-review.md)。现已交付[代码生成的五题对照和回放证据](validation/math-runtime-binding-stage-two-20260917/README.md)，包括方法签名、覆盖清单和紧凑 JSON 字符统计。保持删除 `optimizations`，最值变量由方法根据题意绑定；运行时绑定已验收，新输出协议及生产 Planner 切换留到阶段三。
 
 ### 实现内容
 

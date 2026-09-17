@@ -62,6 +62,12 @@ def test_ignore_outputs_and_config(tmp_path):
     assert [s for s in KEYS if before['stages'][s] != after['stages'][s]] == ['solver', 'lesson']
 
 
+def test_independent_understanding_workflow_has_its_own_dependency_owner(tmp_path):
+    before = collect(tmp_path, CONFIG)
+    put(tmp_path, 'server/shuxueshuo_server/problem_understanding/runtime_binding.py', 'pass')
+    assert collect(tmp_path, CONFIG) == before
+
+
 def test_input_edges_are_distinct_from_audit_edges(tmp_path):
     snapshot = collect(tmp_path, CONFIG)
     artifacts = [{'stage': s, 'name': n, 'sha256': 'hash', 'dependencies': ['unrelated']} for deps in INPUTS.values() for s, n in deps]

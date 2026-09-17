@@ -4,8 +4,8 @@ import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { fileFingerprint } from '@/lib/product/workspace';
 import { websocketUrl } from '@/lib/product/client';
-import { actionKey, artifactUrl, changes, formatted, PendingActionSchema, request, sendAction, stateLabel, understandingNotice, UnderstandingError,
-  type Candidate, type Diagnostic, type Json, type MathNode, type PendingAction, type Run, type SourceVersion, type Understanding } from '@/lib/product/understanding';
+import { actionKey, activeUnderstandingBuilds, artifactUrl, cancelUnderstandingBuilds, changes, formatted, PendingActionSchema, request, sendAction, stateLabel, understandingNotice, UnderstandingError, bindingLabel,
+  type BindingRun, type Candidate, type Diagnostic, type Json, type MathNode, type PendingAction, type Run, type SourceVersion, type Understanding } from '@/lib/product/understanding';
 
 const button = 'rounded-lg border border-zinc-300 px-3 py-2 text-sm hover:bg-zinc-50 disabled:opacity-40';
 const panel = 'rounded-xl border border-zinc-200 bg-white p-5';
@@ -16,6 +16,13 @@ type Supplement = { key: string; filename: string; sha256: string; source_id?: s
 export function UnderstandingStatusNotice({ data }: { data: Parameters<typeof understandingNotice>[0] }) {
   const text = understandingNotice(data);
   return text ? <p role="status" className="rounded-lg bg-amber-50 p-4 text-sm text-amber-900">{text}</p> : null;
+}
+
+export function BindingStatusNotice({ data }: { data: Pick<Understanding, 'binding_status' | 'blocking_reasons'> }) {
+  return <div role="status" className="space-y-1 rounded-lg bg-zinc-50 p-3 text-sm">
+    <p>{bindingLabel(data.binding_status ?? 'not_checked')}</p>
+    {data.blocking_reasons?.map((d, i) => <p key={i} className="text-amber-800">{d.message ?? d.code}</p>)}
+  </div>;
 }
 
 export function OriginalProblemText({ text }: { text?: string }) {
@@ -38,6 +45,7 @@ export function CandidateTree({ node, path = '/root', locate }: { node: MathNode
 export function UnderstandingWorkspace({ problemId }: { problemId: string }) {
   const prefix = `/problems/${problemId}`, supplementKey = `product.understanding.supplement.${problemId}`;
   const [data, setData] = useState<Understanding | null>(null), [history, setHistory] = useState<Candidate[]>([]), [cursor, setCursor] = useState<string | null>(null);
+  const [bindingRuns, setBindingRuns] = useState<BindingRun[]>([]), [bindingRun, setBindingRun] = useState<BindingRun | null>(null);
   const [runs, setRuns] = useState<Run[]>([]), [runCursor, setRunCursor] = useState<string | null>(null), [run, setRun] = useState<Run | null>(null);
   const [selected, setSelected] = useState<Candidate | null>(null), [selectedId, setSelectedId] = useState<string | null>(null);
   const [editor, setEditor] = useState(''), [editorBase, setEditorBase] = useState<{ id: string | null; source: string } | null>(null);
@@ -47,9 +55,13 @@ export function UnderstandingWorkspace({ problemId }: { problemId: string }) {
   const editorRef = useRef<HTMLTextAreaElement>(null), inFlight = useRef(false), runChoice = useRef<string | null>(null);
   const dirtyRef = useRef(false), selection = useRef<string | null>(null), loadedEditor = useRef<string | null>(null);
   const load = useCallback(async () => {
-    const [fresh, candidates, recent] = await Promise.all([
+    const [fresh, candidates, recent, checks] = await Promise.all([
       request<Understanding>(`${prefix}/understanding`), request<{ candidates: Candidate[]; next_cursor: string | null }>(`${prefix}/candidates`), request<{ runs: Run[]; next_cursor: string | null }>(`${prefix}/extraction-runs`),
+      request<{ runs: BindingRun[] }>(`${prefix}/runtime-binding-runs`),
     ]);
+    setBindingRuns(checks.runs);
+    if (fresh.latest_binding_run) setBindingRun(await request<BindingRun>(`/runtime-binding-runs/${fresh.latest_binding_run.id}`));
+    else setBindingRun(null);
     setData(fresh); setHistory(candidates.candidates); setCursor(candidates.next_cursor); setRuns(recent.runs); setRunCursor(recent.next_cursor);
     const id = selection.current ?? fresh.candidate?.id;
     if (id) {
@@ -80,16 +92,25 @@ export function UnderstandingWorkspace({ problemId }: { problemId: string }) {
     const focus = () => void load().catch(e => setError(message(e)));
     window.addEventListener('focus', focus); return () => { clearTimeout(timer); window.removeEventListener('focus', focus); };
   }, [load, problemId, supplementKey]);
-  const activeBuild = data?.latest_run && ['queued', 'running'].includes(data.latest_run.status) ? data.latest_run.build_id : null;
+  const activeBuildKey = activeUnderstandingBuilds(data).join(',');
   useEffect(() => {
-    if (!activeBuild) return;
+    if (!activeBuildKey) return;
     const refresh = () => void load().catch(e => setError(message(e)));
     const interval = setInterval(refresh, 2500);
     const socket = new WebSocket(websocketUrl());
-    socket.onopen = () => socket.send(JSON.stringify({ streams: [{ kind: 'build', id: activeBuild, after: 0 }] }));
+    socket.onopen = () => socket.send(JSON.stringify({ streams: activeBuildKey.split(',').map(id => ({ kind: 'build', id, after: 0 })) }));
     socket.onmessage = refresh;
     return () => { clearInterval(interval); socket.close(); };
-  }, [activeBuild, load]);
+  }, [activeBuildKey, load]);
+
+  async function cancelActiveBuilds() {
+    try { await cancelUnderstandingBuilds(activeBuildKey.split(',')); }
+    catch (error) {
+      // One cancellation may have succeeded; show the remaining active task.
+      await load();
+      throw error;
+    }
+  }
 
   async function operate(fn: () => Promise<unknown>) {
     if (inFlight.current) return;
@@ -180,16 +201,25 @@ export function UnderstandingWorkspace({ problemId }: { problemId: string }) {
       {data.latest_run && <span>· {stateLabel(data.latest_run.status)}</span>}
     </div>
     <UnderstandingStatusNotice data={data} />
+    <BindingStatusNotice data={data} />
     <div className="flex flex-wrap gap-2">
       <button className={`${button} bg-teal-700 text-white hover:bg-teal-800`} disabled={disabled} onClick={() => void operate(() => start('extract'))}>{data.source_version ? '重新提取整题' : '提取题意'}</button>
       <button className={button} disabled={disabled || !data.candidate} onClick={() => void operate(() => start('review'))}>复核当前版本（调用模型）</button>
       <button className={button} disabled={disabled || !data.candidate} onClick={() => void operate(() => start('validate'))}>仅代码校验</button>
-      {activeBuild && <button className={button} disabled={disabled} onClick={() => void operate(() => request(`/builds/${activeBuild}/cancel`, { method: 'POST' }))}>取消处理</button>}
+      <button className={button} disabled={disabled || !data.candidate || !data.source_version || data.binding_status === 'checking'} onClick={() => void operate(() => post(`${prefix}/runtime-binding-runs`, { candidate_id: data.candidate!.id, source_version_id: data.source_version!.id }))}>{data.latest_binding_run ? '重新检查求解条件' : '检查求解条件'}（不调用模型）</button>
+      {activeBuildKey && <button className={button} disabled={disabled} onClick={() => void operate(cancelActiveBuilds)}>取消全部处理</button>}
       <button className={button} disabled={busy} onClick={() => void load().catch(e => setError(message(e)))}>刷新</button>
     </div>
     {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-red-800">{error}</p>}
     {notice && <p role="status" className="rounded-lg bg-teal-50 p-3 text-teal-800">{notice}</p>}
     {pending && <div className={`${panel} space-y-2`}><p>有一项请求尚未确认结果。恢复时使用同一请求，不重复发起。</p><button className={button} disabled={busy} onClick={() => void operate(recoverAction)}>恢复上次请求</button></div>}
+    {!!bindingRuns.length && <details className={`${panel} space-y-3`}>
+      <summary className="cursor-pointer font-semibold">求解条件检查记录与 JSON 产物</summary>
+      <div className="flex flex-wrap gap-2">{bindingRuns.map(item => <button className={button} key={item.id} onClick={() => void request<BindingRun>(`/runtime-binding-runs/${item.id}`).then(setBindingRun).catch(e => setError(message(e)))}>{new Date(item.created_at).toLocaleString()} · {stateLabel(item.status)}</button>)}</div>
+      {bindingRun && <><p className="text-xs text-zinc-500">候选版本 {bindingRun.candidate_id}{bindingRun.id !== data.latest_binding_run?.id ? ' · 历史检查' : ''}</p>
+        <pre className="max-h-64 overflow-auto whitespace-pre-wrap text-xs">{dump(bindingRun.result_json)}</pre>
+        <div className="flex flex-wrap gap-3">{bindingRun.artifacts?.filter(a => a.artifact_type.startsWith('math_runtime:')).map(a => <a className="text-sm text-teal-700 underline" key={a.id} href={`/api/product/v1/builds/${bindingRun.build_id}/artifacts/${a.id}`} target="_blank" rel="noreferrer">{a.artifact_type.replace('math_runtime:', '')}</a>)}</div></>}
+    </details>}
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       <aside className="space-y-5"><section className={panel}><h2 className="mb-3 font-semibold">{historical ? '历史候选对应原图' : '当前原图'}</h2>
         {(shownSource?.images ?? [{ source_id: data.primary_source_id, filename: '原图', sha256: '' }]).map((item, index) => <figure className="mb-4" key={item.source_id}>

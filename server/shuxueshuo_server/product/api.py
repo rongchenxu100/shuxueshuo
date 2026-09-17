@@ -159,7 +159,7 @@ def health(request: Request):
 def request_status(operation: str, request_id: str, request: Request):
     a = app_for(request)
     if operation not in ('upload', 'batch.create', 'build.create', 'build.rebuild', 'revision.save', 'source.resolve', 'page.review',
-                         'understanding.upload', 'understanding.source_version', 'understanding.candidate', 'understanding.run'):
+                         'understanding.upload', 'understanding.source_version', 'understanding.candidate', 'understanding.run', 'runtime_binding.run'):
         raise ProductError('request.operation')
     with transaction(a.db) as c:
         record = row(c, m.idempotency_requests, workspace_id=a.ctx.workspace_id, user_id=a.ctx.user_id, operation=operation, request_id=request_id)
@@ -229,6 +229,29 @@ class ExtractionRunInput(Input):
 def understanding_for(request):
     from .understanding import Understanding
     return Understanding(app_for(request))
+
+
+class RuntimeBindingRunInput(Input):
+    candidate_id: UUID
+    source_version_id: UUID
+
+
+@router.post('/problems/{problem_id}/runtime-binding-runs', status_code=202)
+def runtime_binding_start(problem_id: UUID, body: RuntimeBindingRunInput, request: Request, idempotency_key: str = Header()):
+    from .runtime_binding import RuntimeBindings
+    return RuntimeBindings(app_for(request)).start(problem_id, body.candidate_id, body.source_version_id, idempotency_key)
+
+
+@router.get('/problems/{problem_id}/runtime-binding-runs')
+def runtime_binding_runs(problem_id: UUID, request: Request, limit: int = 20, before: UUID | None = None):
+    from .runtime_binding import RuntimeBindings
+    return RuntimeBindings(app_for(request)).runs(problem_id, limit, before)
+
+
+@router.get('/runtime-binding-runs/{run_id}')
+def runtime_binding_run(run_id: UUID, request: Request):
+    from .runtime_binding import RuntimeBindings
+    return RuntimeBindings(app_for(request)).run(run_id)
 
 
 @router.get('/problems/{problem_id}/understanding')

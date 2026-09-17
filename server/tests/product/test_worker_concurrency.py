@@ -93,7 +93,8 @@ def test_two_builds_execute_concurrently_but_duplicate_delivery_and_cancel_are_f
         for f in futures: f.result(timeout=10)
 
 
-def test_lesson_acquisition_does_not_wait_for_understanding_capacity_lock(setup):
+@pytest.mark.parametrize('pool_lock', ['understanding.execution_slots', 'runtime_binding.execution_slots'])
+def test_lesson_acquisition_does_not_wait_for_understanding_capacity_lock(setup, pool_lock):
     """Hold the actual PostgreSQL advisory lock on another connection, not a mock."""
     from test_postgres import submit, upload
     service, ctx, _ = setup
@@ -104,7 +105,7 @@ def test_lesson_acquisition_does_not_wait_for_understanding_capacity_lock(setup)
         return service.acquire_execution(ctx, build['job_id'], 'lesson-test', deployment_version='test-v1')
     try:
         with ThreadPoolExecutor(1) as pool, transaction(service.db) as c:
-            lock(c, 'understanding.execution_slots')
+            lock(c, pool_lock)
             future = pool.submit(acquire)
             assert started.wait(5)
             # This must finish while the understanding lock is still held.

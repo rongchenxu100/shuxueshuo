@@ -1330,7 +1330,7 @@ test("mistake book is a top-level destination focused on this week's set study",
   assert.match(mistakePage, /正确解题步骤和答案/);
   assert.match(mistakePage, /错误总结/);
   assert.match(mistakePage, /先判断方程次数/);
-  assert.match(mistakePage, /对含参数的一元二次方程，求解前一定先讨论二次项系数是否为 0/);
+  assert.match(mistakePage, /含参数的方程，先检查二次项系数是否为 0/);
   assert.doesNotMatch(mistakePage, /class="mistake-diagnosis"/);
   assert.doesNotMatch(mistakePage, /可迁移的结论/);
   assert.doesNotMatch(mistakePage, /七天复测/);

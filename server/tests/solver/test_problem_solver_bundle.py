@@ -99,6 +99,22 @@ def test_bundle_accepts_audited_child_with_nonterminal_acceptance_event(
     assert bundle.authority_token.extraction_context_id == audited.manifest.context_id
 
 
+def test_projection_audit_rejects_duplicate_source_unit_ids(tmp_path, monkeypatch):
+    _, _, _, _, verified, projection, _ = _accepted_fixture(tmp_path)
+    verified_type = type(verified)
+    original = verified_type.to_payload
+
+    def duplicated(value):
+        payload = original(value)
+        payload["unit_registry"].append(dict(payload["unit_registry"][0]))
+        return payload
+
+    monkeypatch.setattr(verified_type, "to_payload", duplicated)
+    with pytest.raises(ProblemBundleAuthorityError, match="duplicate ids") as error:
+        _audit_projection_manifest(verified, projection)
+    assert error.value.path == "$.verified_problem.unit_registry"
+
+
 def test_folded_function_and_point_facts_keep_runtime_provenance(tmp_path) -> None:
     root, parent, accepted, store, verified, _, _ = _accepted_fixture(
         tmp_path,

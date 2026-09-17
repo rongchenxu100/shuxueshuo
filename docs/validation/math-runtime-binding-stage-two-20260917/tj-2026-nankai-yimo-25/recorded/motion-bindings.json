@@ -1,0 +1,128 @@
+[
+  {
+    "expression": [
+      "+",
+      [
+        "call",
+        "length",
+        [
+          "ref",
+          "r.c1:point:E",
+          "point"
+        ],
+        [
+          "ref",
+          "r.c1:point:G",
+          "point"
+        ]
+      ],
+      [
+        "call",
+        "length",
+        [
+          "ref",
+          "r.c1:point:F",
+          "point"
+        ],
+        [
+          "ref",
+          "r.c1:point:G",
+          "point"
+        ]
+      ]
+    ],
+    "path": "/root/children/1/children/0/goals/1",
+    "premises": [
+      "/root/children/1/facts/7",
+      "/root/children/1/facts/8"
+    ],
+    "variables": [
+      "r.c1:point:E",
+      "r.c1:point:G"
+    ]
+  },
+  {
+    "expression": [
+      "+",
+      [
+        "call",
+        "length",
+        [
+          "ref",
+          "r.c1:point:E",
+          "point"
+        ],
+        [
+          "ref",
+          "r.c1:point:G",
+          "point"
+        ]
+      ],
+      [
+        "call",
+        "length",
+        [
+          "ref",
+          "r.c1:point:F",
+          "point"
+        ],
+        [
+          "ref",
+          "r.c1:point:G",
+          "point"
+        ]
+      ]
+    ],
+    "path": "/root/children/1/children/1/facts/0",
+    "premises": [
+      "/root/children/1/facts/7",
+      "/root/children/1/facts/8"
+    ],
+    "variables": [
+      "r.c1:point:E",
+      "r.c1:point:G"
+    ]
+  },
+  {
+    "expression": [
+      "+",
+      [
+        "call",
+        "length",
+        [
+          "ref",
+          "r.c1:point:E",
+          "point"
+        ],
+        [
+          "ref",
+          "r.c1:point:G",
+          "point"
+        ]
+      ],
+      [
+        "call",
+        "length",
+        [
+          "ref",
+          "r.c1:point:F",
+          "point"
+        ],
+        [
+          "ref",
+          "r.c1:point:G",
+          "point"
+        ]
+      ]
+    ],
+    "path": "/root/children/1/children/1/facts/1",
+    "premises": [
+      "/root/children/1/facts/7",
+      "/root/children/1/facts/8"
+    ],
+    "variables": [
+      "r.c1:point:E",
+      "r.c1:point:G"
+    ]
+  }
+]

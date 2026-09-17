@@ -1,0 +1,705 @@
+{
+  "entities": [
+    {
+      "description": "Γ",
+      "entity_type": "function",
+      "expression": "b*x + c - x**2",
+      "function_type": "quadratic",
+      "handle": "function:problem:parabola",
+      "name": "parabola",
+      "scope_id": "problem"
+    },
+    {
+      "description": "b",
+      "entity_type": "symbol",
+      "handle": "symbol:problem:b",
+      "name": "b",
+      "role": "quadratic_coefficient",
+      "scope_id": "problem"
+    },
+    {
+      "description": "c",
+      "entity_type": "symbol",
+      "handle": "symbol:problem:c",
+      "name": "c",
+      "role": "quadratic_coefficient",
+      "scope_id": "problem"
+    },
+    {
+      "definition": "vertex",
+      "description": "P",
+      "entity_type": "point",
+      "handle": "point:problem:P",
+      "name": "P",
+      "of": "function:problem:parabola",
+      "scope_id": "problem"
+    },
+    {
+      "definition": "x_axis_intercept",
+      "description": "A",
+      "entity_type": "point",
+      "handle": "point:problem:A",
+      "name": "A",
+      "of": "function:problem:parabola",
+      "scope_id": "problem",
+      "side": "left"
+    },
+    {
+      "definition": "x_axis_intercept",
+      "description": "B",
+      "entity_type": "point",
+      "handle": "point:problem:B",
+      "name": "B",
+      "of": "function:problem:parabola",
+      "scope_id": "problem",
+      "side": "right"
+    },
+    {
+      "definition": "y_axis_intercept",
+      "description": "C",
+      "entity_type": "point",
+      "handle": "point:problem:C",
+      "name": "C",
+      "of": "function:problem:parabola",
+      "scope_id": "problem"
+    },
+    {
+      "definition": "axis_x_intercept",
+      "description": "M",
+      "entity_type": "point",
+      "handle": "point:problem:M",
+      "name": "M",
+      "of": "function:problem:parabola",
+      "scope_id": "problem"
+    },
+    {
+      "definition": "point_on_axis",
+      "description": "E",
+      "entity_type": "point",
+      "handle": "point:problem:E",
+      "name": "E",
+      "of": "function:problem:parabola",
+      "scope_id": "problem"
+    },
+    {
+      "description": "K",
+      "entity_type": "point",
+      "handle": "point:problem:K",
+      "name": "K",
+      "scope_id": "problem"
+    },
+    {
+      "definition": "square_adjacent_vertex",
+      "description": "G",
+      "entity_type": "point",
+      "handle": "point:problem:G",
+      "name": "G",
+      "orientation": {
+        "point": "G",
+        "relation": "below_x_axis"
+      },
+      "scope_id": "problem"
+    },
+    {
+      "description": "x",
+      "entity_type": "symbol",
+      "handle": "symbol:problem:x",
+      "name": "x",
+      "role": "function_variable",
+      "scope_id": "problem"
+    },
+    {
+      "description": "AEKG",
+      "entity_type": "polygon",
+      "handle": "polygon:problem:AEKG",
+      "name": "AEKG",
+      "scope_id": "problem",
+      "shape": "polygon",
+      "vertices": [
+        "point:problem:A",
+        "point:problem:E",
+        "point:problem:K",
+        "point:problem:G"
+      ]
+    },
+    {
+      "definition": "midpoint",
+      "description": "F",
+      "entity_type": "point",
+      "handle": "point:ii:F",
+      "name": "F",
+      "of": [
+        "point:problem:A",
+        "point:problem:E"
+      ],
+      "scope_id": "ii"
+    },
+    {
+      "definition": "square_diagonal_intersection",
+      "description": "H",
+      "entity_type": "point",
+      "handle": "point:ii:H",
+      "name": "H",
+      "scope_id": "ii"
+    },
+    {
+      "description": "线段 AE",
+      "endpoints": [
+        "point:problem:A",
+        "point:problem:E"
+      ],
+      "entity_type": "segment",
+      "handle": "segment:problem:AE",
+      "name": "AE",
+      "scope_id": "problem"
+    },
+    {
+      "description": "线段 AK",
+      "endpoints": [
+        "point:problem:A",
+        "point:problem:K"
+      ],
+      "entity_type": "segment",
+      "handle": "segment:ii:AK",
+      "name": "AK",
+      "scope_id": "ii"
+    },
+    {
+      "description": "线段 EG",
+      "endpoints": [
+        "point:problem:E",
+        "point:problem:G"
+      ],
+      "entity_type": "segment",
+      "handle": "segment:ii:EG",
+      "name": "EG",
+      "scope_id": "ii"
+    }
+  ],
+  "facts": [
+    {
+      "description": "math assertion",
+      "expression": "Γ: y = -x^2+b*x+c",
+      "handle": "fact:problem:math_assertion_6bdbfc2aa331",
+      "scope_id": "problem",
+      "subjects": [
+        "symbol:problem:b",
+        "symbol:problem:c",
+        "function:problem:parabola"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "b,c ∈ ℝ",
+      "handle": "fact:problem:math_assertion_fe91e78342a2",
+      "scope_id": "problem",
+      "subjects": [
+        "symbol:problem:b"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "b,c ∈ ℝ",
+      "handle": "fact:problem:math_assertion_06389027083d",
+      "scope_id": "problem",
+      "subjects": [
+        "symbol:problem:c"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "c > 1",
+      "handle": "fact:problem:math_assertion_3bf556444c66",
+      "scope_id": "problem",
+      "subjects": [
+        "symbol:problem:c"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "P = vertex(Γ)",
+      "handle": "fact:problem:math_assertion_719bbfbaebf9",
+      "scope_id": "problem",
+      "subjects": [
+        "point:problem:P",
+        "function:problem:parabola"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "Γ ∩ x_axis = {A,B}",
+      "handle": "fact:problem:math_assertion_a78576b0a1fd",
+      "scope_id": "problem",
+      "subjects": [
+        "point:problem:A",
+        "point:problem:B",
+        "function:problem:parabola"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "x(A) < x(B)",
+      "handle": "fact:problem:math_assertion_40e83971f00d",
+      "scope_id": "problem",
+      "subjects": [
+        "point:problem:A",
+        "point:problem:B"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "Γ ∩ y_axis = {C}",
+      "handle": "fact:problem:math_assertion_803465c42b90",
+      "scope_id": "problem",
+      "subjects": [
+        "point:problem:C",
+        "function:problem:parabola"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "M ∈ axis(Γ) ∩ x_axis",
+      "handle": "fact:problem:math_assertion_61382f954a8b",
+      "scope_id": "problem",
+      "subjects": [
+        "point:problem:M",
+        "function:problem:parabola"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "E ∈ axis(Γ)",
+      "handle": "fact:problem:math_assertion_e02b5ff53fe0",
+      "scope_id": "problem",
+      "subjects": [
+        "point:problem:E",
+        "function:problem:parabola"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "square(A,E,K,G)",
+      "handle": "fact:problem:math_assertion_f101bdc02400",
+      "scope_id": "problem",
+      "subjects": [
+        "point:problem:A",
+        "point:problem:E",
+        "point:problem:G",
+        "point:problem:K"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "math assertion",
+      "expression": "y(G) < 0",
+      "handle": "fact:problem:math_assertion_ac1cdfcea1b8",
+      "scope_id": "problem",
+      "subjects": [
+        "point:problem:G"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "symbol constraint",
+      "handle": "fact:problem:symbol_constraint_514ad0cc9237",
+      "operator": ">",
+      "scope_id": "problem",
+      "subject": "symbol:problem:c",
+      "type": "symbol_constraint",
+      "valid_scope": "problem",
+      "value": "1"
+    },
+    {
+      "curve": "function:problem:parabola",
+      "description": "point on curve",
+      "handle": "fact:problem:point_on_curve_988ebc0aa6ed",
+      "point": "point:problem:A",
+      "scope_id": "problem",
+      "type": "point_on_curve",
+      "valid_scope": "problem"
+    },
+    {
+      "curve": "function:problem:parabola",
+      "description": "point on curve",
+      "handle": "fact:problem:point_on_curve_47f50b408512",
+      "point": "point:problem:B",
+      "scope_id": "problem",
+      "type": "point_on_curve",
+      "valid_scope": "problem"
+    },
+    {
+      "axis_of": "function:problem:parabola",
+      "description": "point on axis",
+      "handle": "fact:problem:point_on_axis_3a9bf8b9f706",
+      "point": "point:problem:E",
+      "scope_id": "problem",
+      "type": "axis_membership",
+      "valid_scope": "problem"
+    },
+    {
+      "description": "square",
+      "handle": "fact:problem:square_2962168965d7",
+      "orientation": "below_x_axis",
+      "scope_id": "problem",
+      "side": "segment:problem:AE",
+      "type": "square",
+      "valid_scope": "problem",
+      "vertices": [
+        "point:problem:A",
+        "point:problem:E",
+        "point:problem:K",
+        "point:problem:G"
+      ]
+    },
+    {
+      "description": "math assertion",
+      "expression": "b = -2",
+      "handle": "fact:i:math_assertion_04d5eaa69fae",
+      "scope_id": "i",
+      "subjects": [
+        "symbol:problem:b"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "i"
+    },
+    {
+      "description": "math assertion",
+      "expression": "c = 3",
+      "handle": "fact:i:math_assertion_92d724373f14",
+      "scope_id": "i",
+      "subjects": [
+        "symbol:problem:c"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "i"
+    },
+    {
+      "description": "symbol value",
+      "handle": "fact:i:symbol_value_ba4773b02924",
+      "scope_id": "i",
+      "subject": "symbol:problem:b",
+      "type": "symbol_value",
+      "valid_scope": "i",
+      "value": "-2"
+    },
+    {
+      "description": "symbol value",
+      "handle": "fact:i:symbol_value_7dbeddc70e13",
+      "scope_id": "i",
+      "subject": "symbol:problem:c",
+      "type": "symbol_value",
+      "valid_scope": "i",
+      "value": "3"
+    },
+    {
+      "description": "math assertion",
+      "expression": "G ∈ Γ",
+      "handle": "fact:i_2:math_assertion_6cbabb1bf582",
+      "scope_id": "i_2",
+      "subjects": [
+        "point:problem:G",
+        "function:problem:parabola"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "i_2"
+    },
+    {
+      "curve": "function:problem:parabola",
+      "description": "point on curve",
+      "handle": "fact:i_2:point_on_curve_f7e0f503a3f7",
+      "point": "point:problem:G",
+      "scope_id": "i_2",
+      "type": "point_on_curve",
+      "valid_scope": "i_2"
+    },
+    {
+      "description": "math assertion",
+      "expression": "A = (-c,0)",
+      "handle": "fact:ii:math_assertion_6a6782b9ac2d",
+      "scope_id": "ii",
+      "subjects": [
+        "point:problem:A",
+        "symbol:problem:c"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "math assertion",
+      "expression": "F = midpoint(A,E)",
+      "handle": "fact:ii:math_assertion_0996d80db4d0",
+      "scope_id": "ii",
+      "subjects": [
+        "point:problem:A",
+        "point:problem:E",
+        "point:ii:F"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "math assertion",
+      "expression": "H ∈ segment(A,K) ∩ segment(E,G)",
+      "handle": "fact:ii:math_assertion_5a468d30b7fa",
+      "scope_id": "ii",
+      "subjects": [
+        "point:problem:A",
+        "point:problem:E",
+        "point:problem:G",
+        "point:ii:H",
+        "point:problem:K"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "math assertion",
+      "expression": "min(HF+FM+MG) = 3*sqrt(5)",
+      "handle": "fact:ii:math_assertion_f2d0f7a451a7",
+      "scope_id": "ii",
+      "subjects": [
+        "point:ii:F",
+        "point:problem:G",
+        "point:ii:H",
+        "point:problem:M"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "math assertion",
+      "expression": "HF+FM+MG = min(HF+FM+MG)",
+      "handle": "fact:ii:math_assertion_6a77df5e3005",
+      "scope_id": "ii",
+      "subjects": [
+        "point:ii:F",
+        "point:problem:G",
+        "point:ii:H",
+        "point:problem:M"
+      ],
+      "type": "math_assertion",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "point coordinate",
+      "handle": "fact:ii:point_coordinate_ec45619221b2",
+      "scope_id": "ii",
+      "subject": "point:problem:A",
+      "type": "point_coordinate",
+      "valid_scope": "ii",
+      "value": [
+        "-c",
+        "0"
+      ]
+    },
+    {
+      "description": "midpoint",
+      "handle": "fact:ii:midpoint_834ab01721af",
+      "of": [
+        "point:problem:A",
+        "point:problem:E"
+      ],
+      "point": "point:ii:F",
+      "scope_id": "ii",
+      "type": "midpoint_definition",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "square center",
+      "handle": "fact:ii:square_center_2c85881e94eb",
+      "point": "point:ii:H",
+      "scope_id": "ii",
+      "square": "fact:problem:square_2962168965d7",
+      "type": "square_center",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "point on segment",
+      "handle": "fact:ii:point_on_segment_784a5b965b13",
+      "point": "point:ii:H",
+      "scope_id": "ii",
+      "segment": "segment:ii:AK",
+      "type": "point_on_segment",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "point on segment",
+      "handle": "fact:ii:point_on_segment_188c27d4e027",
+      "point": "point:ii:H",
+      "scope_id": "ii",
+      "segment": "segment:ii:EG",
+      "type": "point_on_segment",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "minimum target",
+      "handle": "fact:ii:minimum_target_81c51fd9e9ce",
+      "path": "HF+FM+MG",
+      "scope_id": "ii",
+      "terms": [
+        [
+          "point:ii:H",
+          "point:ii:F"
+        ],
+        [
+          "point:ii:F",
+          "point:problem:M"
+        ],
+        [
+          "point:problem:M",
+          "point:problem:G"
+        ]
+      ],
+      "type": "path_minimum_target",
+      "valid_scope": "ii"
+    },
+    {
+      "description": "minimum value given",
+      "handle": "fact:ii:minimum_value_given_ca53a00929e3",
+      "path": "HF+FM+MG",
+      "scope_id": "ii",
+      "type": "minimum_value",
+      "valid_scope": "ii",
+      "value": "3*sqrt(5)"
+    },
+    {
+      "description": "minimum attained",
+      "handle": "fact:ii:minimum_attained_ce299883e18d",
+      "path": "HF+FM+MG",
+      "scope_id": "ii",
+      "subjects": [
+        "point:ii:F",
+        "point:ii:H",
+        "point:problem:G",
+        "point:problem:M"
+      ],
+      "type": "minimum_attained",
+      "valid_scope": "ii"
+    }
+  ],
+  "original_text": {
+    "lines": [
+      "Γ: y = -x^2+b*x+c",
+      "b,c ∈ ℝ",
+      "c > 1",
+      "P = vertex(Γ)",
+      "Γ ∩ x_axis = {A,B}",
+      "x(A) < x(B)",
+      "Γ ∩ y_axis = {C}",
+      "M ∈ axis(Γ) ∩ x_axis",
+      "E ∈ axis(Γ)",
+      "square(A,E,K,G)",
+      "y(G) < 0",
+      "b = -2",
+      "c = 3",
+      "①",
+      "G ∈ Γ",
+      "A = (-c,0)",
+      "F = midpoint(A,E)",
+      "H ∈ segment(A,K) ∩ segment(E,G)",
+      "min(HF+FM+MG) = 3*sqrt(5)",
+      "HF+FM+MG = min(HF+FM+MG)"
+    ],
+    "number": ""
+  },
+  "pattern": "path-minimum",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "problem_type": "quadratic_square_reflection_path_minimum",
+  "question_goals": [
+    {
+      "answer_key": "P",
+      "description": "①输出P",
+      "handle": "answer:i_1.P",
+      "required": true,
+      "scope_id": "i_1",
+      "target_handle": "point:problem:P",
+      "value_type": "Point"
+    },
+    {
+      "answer_key": "A",
+      "description": "①输出A",
+      "handle": "answer:i_1.A",
+      "required": true,
+      "scope_id": "i_1",
+      "target_handle": "point:problem:A",
+      "value_type": "Point"
+    },
+    {
+      "answer_key": "E",
+      "description": "②输出E",
+      "handle": "answer:i_2.E",
+      "required": true,
+      "scope_id": "i_2",
+      "target_handle": "point:problem:E",
+      "value_type": "PointList"
+    },
+    {
+      "answer_key": "E",
+      "description": "（II）输出E",
+      "handle": "answer:ii.E",
+      "required": true,
+      "scope_id": "ii",
+      "target_handle": "point:problem:E",
+      "value_type": "Point"
+    }
+  ],
+  "scopes": [
+    {
+      "label": "第25题",
+      "parent": null,
+      "scope_id": "problem"
+    },
+    {
+      "label": "（I）",
+      "parent": "problem",
+      "scope_id": "i"
+    },
+    {
+      "asks": [
+        "P",
+        "A"
+      ],
+      "label": "①",
+      "parent": "i",
+      "scope_id": "i_1"
+    },
+    {
+      "asks": [
+        "E"
+      ],
+      "label": "②",
+      "parent": "i",
+      "scope_id": "i_2"
+    },
+    {
+      "asks": [
+        "E"
+      ],
+      "label": "（II）",
+      "parent": "problem",
+      "scope_id": "ii"
+    }
+  ]
+}

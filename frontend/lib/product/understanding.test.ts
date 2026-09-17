@@ -1,11 +1,42 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { actionKey, changes, formatted, PendingActionSchema, sendAction, UnderstandingError } from './understanding';
+import { actionKey, activeUnderstandingBuilds, cancelUnderstandingBuilds, changes, formatted, PendingActionSchema, sendAction, UnderstandingError, type Understanding } from './understanding';
 import { continueUpload } from './workspace';
 afterEach(() => vi.unstubAllGlobals());
 const reply = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status });
 const problemId = '11111111-1111-4111-8111-111111111111';
 const sourceId = '44444444-4444-4444-8444-444444444444';
 const key = '66666666-6666-4666-8666-666666666666';
+
+const activeRuns: Pick<Understanding, 'latest_run' | 'latest_binding_run'> = {
+  latest_run: { id: 'extract', mode: 'review', status: 'running', created_at: '', build_id: 'extract-build', error_code: null, result_json: null },
+  latest_binding_run: { id: 'binding', status: 'queued', created_at: '', build_id: 'binding-build', candidate_id: 'candidate', result_json: null },
+};
+
+it('tracks both active run types and retains binding after extraction finishes', () => {
+  expect(activeUnderstandingBuilds(activeRuns)).toEqual(['extract-build', 'binding-build']);
+  const afterExtraction = { ...activeRuns, latest_run: { ...activeRuns.latest_run!, status: 'completed' } };
+  expect(activeUnderstandingBuilds(afterExtraction)).toEqual(['binding-build']);
+  expect(activeUnderstandingBuilds({ ...afterExtraction, latest_binding_run: { ...activeRuns.latest_binding_run!, status: 'cancelled' } })).toEqual([]);
+  expect(activeUnderstandingBuilds(null)).toEqual([]);
+});
+
+it('cancels extraction and binding from the same action', async () => {
+  const fetcher = vi.fn().mockImplementation(() => Promise.resolve(reply({})));
+  vi.stubGlobal('fetch', fetcher);
+  await cancelUnderstandingBuilds(activeUnderstandingBuilds(activeRuns));
+  expect(fetcher.mock.calls.map(([url, options]) => [url, options.method])).toEqual([
+    ['/api/product/v1/builds/extract-build/cancel', 'POST'],
+    ['/api/product/v1/builds/binding-build/cancel', 'POST'],
+  ]);
+});
+
+it('still cancels binding if the extraction cancellation response fails', async () => {
+  const fetcher = vi.fn().mockRejectedValueOnce(new TypeError('lost cancellation')).mockResolvedValueOnce(reply({}));
+  vi.stubGlobal('fetch', fetcher);
+  await expect(cancelUnderstandingBuilds(activeUnderstandingBuilds(activeRuns))).rejects.toThrow('lost cancellation');
+  expect(fetcher).toHaveBeenCalledTimes(2);
+  expect(fetcher.mock.calls[1][0]).toBe('/api/product/v1/builds/binding-build/cancel');
+});
 
 it('uploads into the independent entry without creating a lesson build or an extraction call', async () => {
   const fetcher = vi.fn().mockResolvedValue(reply({ id: problemId, title: null, latest_build_id: null, current_page_build_id: null, updated_at: '' }));

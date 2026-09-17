@@ -1,0 +1,578 @@
+{
+  "capabilities": [
+    {
+      "method": "quadratic_from_constraints",
+      "args": [
+        {
+          "name": "known_coefficients",
+          "domain_type": "Fact",
+          "required": false,
+          "cardinality": "many"
+        },
+        {
+          "name": "coefficient_relation",
+          "domain_type": "Fact",
+          "required": false,
+          "cardinality": "one"
+        },
+        {
+          "name": "extra_equation",
+          "domain_type": "Fact",
+          "required": false,
+          "cardinality": "one"
+        },
+        {
+          "name": "curve_point",
+          "domain_type": "Point",
+          "required": false,
+          "cardinality": "one"
+        },
+        {
+          "name": "curve_points",
+          "domain_type": "Point",
+          "required": false,
+          "cardinality": "many"
+        },
+        {
+          "name": "free_parameters",
+          "domain_type": "Symbol",
+          "required": false,
+          "cardinality": "many"
+        },
+        {
+          "name": "parameter_value",
+          "domain_type": "Symbol",
+          "required": false,
+          "cardinality": "one"
+        },
+        {
+          "name": "target_parameter",
+          "domain_type": "Symbol",
+          "required": false,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "coefficients",
+          "type": "Coefficients"
+        },
+        {
+          "name": "parabola",
+          "type": "Parabola"
+        },
+        {
+          "name": "parameter_value",
+          "type": "ParameterValue",
+          "required": false
+        }
+      ],
+      "preconditions": [
+        "Γ: y=a*x^2+b*x+c",
+        "a != 0",
+        "known_coefficients ∪ coefficient_relation ∪ extra_equation ∪ {P ∈ Γ: P ∈ curve_points ∪ {curve_point}}",
+        "free_parameters = independent_basis(a,b,c | constraints)",
+        "target_parameter ∉ free_parameters"
+      ]
+    },
+    {
+      "method": "quadratic_vertex_point",
+      "args": [
+        {
+          "name": "parabola",
+          "domain_type": "QuadraticFunction",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "point",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "degree(parabola)=2"
+      ]
+    },
+    {
+      "method": "quadratic_x_axis_intercept_point",
+      "args": [
+        {
+          "name": "parabola",
+          "domain_type": "QuadraticFunction",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "known_point",
+          "domain_type": "Point",
+          "required": false,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "point",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "degree(parabola)=2",
+        "y(point)=0",
+        "known_point ∈ parabola ⇒ point != known_point"
+      ]
+    },
+    {
+      "method": "quadratic_y_axis_intercept_point",
+      "args": [
+        {
+          "name": "quadratic",
+          "domain_type": "QuadraticFunction",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "point",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "degree(quadratic)=2",
+        "x(point)=0"
+      ]
+    },
+    {
+      "method": "point_on_parabola_at_x",
+      "args": [
+        {
+          "name": "parabola",
+          "domain_type": "QuadraticFunction",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "point",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "degree(parabola)=2",
+        "x(point)=given_x"
+      ]
+    },
+    {
+      "method": "line_parabola_second_intersection_point",
+      "args": [
+        {
+          "name": "parabola",
+          "domain_type": "QuadraticFunction",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "line_p1",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "line_p2",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "known_point",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "point",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "line_p1 != line_p2",
+        "known_point ∈ line(line_p1,line_p2) ∩ parabola",
+        "point != known_point"
+      ]
+    },
+    {
+      "method": "parameter_from_expression_value",
+      "args": [
+        {
+          "name": "expression",
+          "domain_type": "Expression",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "minimum_value",
+          "domain_type": "Fact",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "parameter",
+          "domain_type": "Symbol",
+          "required": false,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "parameter_value",
+          "type": "ParameterValue"
+        }
+      ],
+      "preconditions": [
+        "expression(parameter)=minimum_value",
+        "parameter ∈ given_domain"
+      ]
+    },
+    {
+      "method": "evaluate_expression_at_parameter",
+      "args": [
+        {
+          "name": "expression",
+          "domain_type": "Expression",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "parameter",
+          "domain_type": "Symbol",
+          "required": false,
+          "cardinality": "one"
+        },
+        {
+          "name": "parameter_value",
+          "domain_type": "Symbol",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "evaluated_expression",
+          "type": "Expression",
+          "required": false
+        },
+        {
+          "name": "evaluated_minimum_expression",
+          "type": "MinimumExpression",
+          "required": false
+        },
+        {
+          "name": "evaluated_parabola",
+          "type": "Parabola",
+          "required": false
+        }
+      ],
+      "preconditions": [
+        "parameter=parameter_value"
+      ]
+    },
+    {
+      "method": "evaluate_point_at_parameter",
+      "args": [
+        {
+          "name": "point",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "parameter_value",
+          "domain_type": "Symbol",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "evaluated_point",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "parameter=parameter_value"
+      ]
+    },
+    {
+      "method": "distance_between_points",
+      "args": [
+        {
+          "name": "p1",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "p2",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "parameter_value",
+          "domain_type": "Symbol",
+          "required": false,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "distance",
+          "type": "MinimumExpression"
+        },
+        {
+          "name": "evaluated_distance",
+          "type": "MinimumExpression",
+          "required": false
+        }
+      ],
+      "preconditions": [
+        "p1,p2 ∈ ℝ^2"
+      ]
+    },
+    {
+      "method": "line_intersection_point",
+      "args": [
+        {
+          "name": "line1_p1",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "line1_p2",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "line2_p1",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "line2_p2",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "parameter_value",
+          "domain_type": "Symbol",
+          "required": false,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "intersection",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "line1_p1 != line1_p2",
+        "line2_p1 != line2_p2",
+        "det(line1_p2-line1_p1,line2_p2-line2_p1) != 0"
+      ]
+    },
+    {
+      "method": "translated_point",
+      "args": [
+        {
+          "name": "source",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "point",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "point=source+given_vector"
+      ]
+    },
+    {
+      "method": "midpoint_point",
+      "args": [
+        {
+          "name": "midpoint_definition",
+          "domain_type": "Fact",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "midpoint",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "M=midpoint(A,B)"
+      ]
+    },
+    {
+      "method": "quadratic_axis_parameterized_point",
+      "args": [
+        {
+          "name": "parabola",
+          "domain_type": "QuadraticFunction",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "point",
+          "type": "Point",
+          "required": false
+        },
+        {
+          "name": "parameter",
+          "type": "Symbol"
+        }
+      ],
+      "preconditions": [
+        "degree(parabola)=2",
+        "point ∈ axis(parabola)"
+      ]
+    },
+    {
+      "method": "square_adjacent_vertex_from_side",
+      "args": [
+        {
+          "name": "side_start",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "side_end",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "square",
+          "domain_type": "Fact",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "parameter_value",
+          "domain_type": "Symbol",
+          "required": false,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "adjacent_vertex",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "side_start != side_end",
+        "square(side_start,side_end,C,D)",
+        "D ∈ given_half_plane"
+      ]
+    },
+    {
+      "method": "point_candidates_from_curve_point_condition",
+      "args": [
+        {
+          "name": "target_point",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "curve_point",
+          "domain_type": "Point",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "parabola",
+          "domain_type": "QuadraticFunction",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "parameter",
+          "domain_type": "Symbol",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "candidates",
+          "type": "PointList"
+        }
+      ],
+      "preconditions": [
+        "curve_point ∈ parabola",
+        "parameter ∈ given_domain"
+      ]
+    },
+    {
+      "method": "quadratic_square_path_minimum",
+      "args": [
+        {
+          "name": "parabola",
+          "domain_type": "QuadraticFunction",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "path_minimum_target",
+          "domain_type": "Fact",
+          "required": true,
+          "cardinality": "one"
+        },
+        {
+          "name": "square",
+          "domain_type": "Fact",
+          "required": true,
+          "cardinality": "one"
+        }
+      ],
+      "returns": [
+        {
+          "name": "minimum_expression",
+          "type": "MinimumExpression"
+        },
+        {
+          "name": "attainment_point",
+          "type": "Point"
+        }
+      ],
+      "preconditions": [
+        "degree(parabola)=2",
+        "square(A,E,K,G)",
+        "E ∈ axis(parabola)",
+        "min(path_minimum_target) attained"
+      ]
+    }
+  ]
+}

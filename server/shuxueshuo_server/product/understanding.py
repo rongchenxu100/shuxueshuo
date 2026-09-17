@@ -279,6 +279,7 @@ class Understanding:
 
     def summary(self, problem_id):
         from .understanding_runtime import configuration
+        from .runtime_binding import binding_state
         with transaction(self.db) as c:
             p = problem(c, self.ctx, problem_id)
             source = row(c, m.problem_source_versions, id=p['current_source_version_id']) if p['current_source_version_id'] else None
@@ -286,7 +287,8 @@ class Understanding:
             run = row(c, m.extraction_runs, id=p['latest_extraction_run_id']) if p['latest_extraction_run_id'] else None
             state = candidate_state(p, candidate, run, configuration())
             page = row(c, m.page_builds, id=p['current_page_build_id']) if p['current_page_build_id'] else None
-            return public({'problem_id': problem_id, 'candidate_only': True, 'solver_ready': False,
+            admission = binding_state(c, p)
+            return public({'problem_id': problem_id, 'candidate_only': True, **admission,
                 'source_version': dict(source) if source else None, 'candidate': dict(candidate) if candidate else None,
                 'latest_run': self.run(run['id']) if run else None,
                 **state,

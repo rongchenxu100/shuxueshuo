@@ -1,0 +1,14 @@
+{
+  "case": "tj-2026-nankai-yimo-25",
+  "problem": {
+    "old_characters": 5189,
+    "new_characters": 902
+  },
+  "methods": {
+    "old_characters": 19691,
+    "new_characters": 7665
+  },
+  "token_count": null,
+  "token_reason": "No matching DeepSeek tokenizer; no model call.",
+  "scope": "JSON problem and method sections measured separately; not a full request ratio."
+}

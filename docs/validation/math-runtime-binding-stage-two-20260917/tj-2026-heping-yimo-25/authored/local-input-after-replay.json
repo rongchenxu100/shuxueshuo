@@ -1,0 +1,50 @@
+{
+  "problem_id": "tj-2026-heping-yimo-25",
+  "planning_scope": [
+    "（II）"
+  ],
+  "scope_policy": "ancestors_only",
+  "solution_policy": "all",
+  "known_results": [
+    {
+      "scope_path": [
+        "（II）"
+      ],
+      "facts": [
+        "a = 3/4"
+      ]
+    }
+  ],
+  "root": {
+    "children": [
+      {
+        "facts": [
+          "M ∈ segment(B,C)",
+          "N ∈ ray(C,D)",
+          "CN = CM",
+          "min_{M,N}(OM+BN) = sqrt(34)"
+        ],
+        "goals": [
+          {
+            "expression": "a",
+            "kind": "find_value"
+          }
+        ],
+        "label": "（II）"
+      }
+    ],
+    "definitions": [
+      "Γ: y = a*x^2+b*x-3",
+      "O = (0,0)"
+    ],
+    "facts": [
+      "a,b ∈ ℝ",
+      "a > 0",
+      "Γ ∩ x_axis = {A,B}",
+      "A = (-1,0)",
+      "Γ ∩ y_axis = {C}",
+      "D = C+(2,0)"
+    ],
+    "label": "第25题"
+  }
+}

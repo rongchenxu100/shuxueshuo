@@ -61,9 +61,9 @@ def inventory(root=REPO):
 
 def resource_owner(path):
     """Every resource has an explicit consumer or a conservative fallback."""
-    # Product persistence/admin is not consumed by the existing Review solver pipeline.
-    # P2's product pipeline freezes its own deployment and dependency definition.
-    if path.startswith('server/shuxueshuo_server/product/'):
+    # The existing Review pipeline does not consume the independent product
+    # understanding/binding workflow, which freezes its own code dependencies.
+    if path.startswith(('server/shuxueshuo_server/product/', 'server/shuxueshuo_server/problem_understanding/')):
         return None, False
     if path.startswith(('tools/', 'internal/templates/', 'internal/config/', 'site/assets/', 'frontend/')):
         return 'page', False

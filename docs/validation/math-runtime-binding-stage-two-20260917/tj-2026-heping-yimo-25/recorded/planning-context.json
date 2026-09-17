@@ -1,0 +1,2230 @@
+{
+  "schema_version": "problem-planning-context/v1",
+  "planning_context_id": "problem-planning-context:37d601ab8d07380a290d19b57e061e28a93fd244cd1da74a5b1f420da1d73c56",
+  "bundle_authority_token": {
+    "extraction_context_id": "notation-binding:1d48df15174c12527d1a8456447824294924068aa29250d8bbcc439b62ad4a77",
+    "dependency_hash": "1d48df15174c12527d1a8456447824294924068aa29250d8bbcc439b62ad4a77",
+    "problem_revision_id": "problem-revision:1d48df15174c12527d1a8456447824294924068aa29250d8bbcc439b62ad4a77",
+    "problem_semantic_hash": "ba028853cedf3e26f9160db96cc52971cdef61bdfd9dbf6d0c416b150d3629ad",
+    "bundle_id": "notation-bundle:ce212b9c90b2eb7ccab854c0a9ffaf11076002a6ec2d27d7a80d3e35cfd25dc6"
+  },
+  "problem_id": "tj-2026-heping-yimo-25",
+  "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+  "problem_revision_id": "problem-revision:1d48df15174c12527d1a8456447824294924068aa29250d8bbcc439b62ad4a77",
+  "problem_semantic_hash": "ba028853cedf3e26f9160db96cc52971cdef61bdfd9dbf6d0c416b150d3629ad",
+  "source": {
+    "question_number": "",
+    "score": null
+  },
+  "scopes": [
+    {
+      "source_scope_unit_id": "notation-unit:2294b43ae811e550d9458939d79f476b661323fe1aa2782e976e11b899d301bc",
+      "scope_id": "problem",
+      "parent_scope_id": null,
+      "label": "题目",
+      "source_text": [
+        "Γ: y = a*x^2+b*x-3",
+        "a > 0",
+        "A = (-1,0)",
+        "Γ ∩ x_axis = {A,B}",
+        "Γ ∩ y_axis = {C}",
+        "D = C+(2,0)",
+        "O = (0,0)"
+      ],
+      "entities": [
+        {
+          "source_unit_id": "notation-unit:9239eac014868bcf027070000a3f55d835414a8bac3bdc7562a038b1f30c23c7",
+          "payload": {
+            "id": "B",
+            "kind": "point",
+            "label": "B"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7",
+          "payload": {
+            "id": "b",
+            "kind": "symbol",
+            "label": "b",
+            "role": "quadratic_coefficient"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717",
+          "payload": {
+            "id": "x",
+            "kind": "symbol",
+            "label": "x",
+            "role": "function_variable"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:750d2659b3285ea9ddedf50b5ea709069e4668fa0dcd08099a1d5d18749c0e49",
+          "payload": {
+            "id": "O",
+            "kind": "point",
+            "label": "O"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+          "payload": {
+            "id": "parabola",
+            "kind": "quadratic_function",
+            "label": "Γ"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:8a0fd41d369dc5dad114a0cbc4853c73a0fd023a38c29117e9d99821c662cb05",
+          "payload": {
+            "id": "a",
+            "kind": "symbol",
+            "label": "a",
+            "role": "quadratic_coefficient"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:c3d683d6db93bfb9e9f6b6df9852dbcae88839f238ac9ba1425d6be892dee3e2",
+          "payload": {
+            "id": "A",
+            "kind": "point",
+            "label": "A"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:f35ae355470c95168340f6dd7d03b54fb3f9ed07dc76ed0cfdf2c3adb8e8e0b8",
+          "payload": {
+            "id": "C",
+            "kind": "point",
+            "label": "C"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:67e32cc0b6f90fbf74905c7ae61da97b6233cbed7103031a7a5e73a587dfa1e4",
+          "payload": {
+            "id": "D",
+            "kind": "point",
+            "label": "D"
+          }
+        }
+      ],
+      "facts": [
+        {
+          "source_unit_id": "notation-unit:c25fbf485e4dd16fed3ae9a2b003e208dccb721f1a5d2281fcc67c1de087c05d",
+          "payload": {
+            "construction": "origin",
+            "kind": "point_construction",
+            "point": "O"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:bfe82e2dbec43495240c80be381cdabbda280d8c11521cb017a5bdca8d95f3ca",
+          "payload": {
+            "expression": "O = (0,0)",
+            "kind": "math_assertion",
+            "subjects": [
+              "O"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:6b73ad7024346ef6ea7054e1a391c87a35cb2faa85a261fcdd796e0aefa5378f",
+          "payload": {
+            "construction": "translated_point",
+            "kind": "point_construction",
+            "owner": "C",
+            "point": "D",
+            "vector": [
+              "2",
+              "0"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:7b537bc816814bf5786651b6a3890403f682bc3791431b113d9d8cf40e28c368",
+          "payload": {
+            "expression": "a*x**2 + b*x - 3",
+            "function": "parabola",
+            "kind": "function_expression",
+            "variable": "x"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:04adf78c026d3608c0a8bb74076d636038a6227becb66bfc76774333aa687349",
+          "payload": {
+            "expression": "A = (-1,0)",
+            "kind": "math_assertion",
+            "subjects": [
+              "A"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:3407611d11e3d65ff6a42dcf462255dec6e1ca19afe0b33cde905ed109ebdefb",
+          "payload": {
+            "kind": "point_coordinate",
+            "point": "O",
+            "value": [
+              "0",
+              "0"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:ebec27139d8723cf190df1903d1acbdb5c629de04a1a30a56793d0884878b982",
+          "payload": {
+            "construction": "x_axis_intercept",
+            "exclude_point": "A",
+            "kind": "point_construction",
+            "owner": "parabola",
+            "point": "B"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:715b95a77dd6b28b2c2802ddb6a1677be0b836018d456ce2cb9bf2f74f3212f7",
+          "payload": {
+            "curve": "parabola",
+            "kind": "point_on_curve",
+            "point": "A"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:1c521a445476a61b81f18ee3bca57b1e0572a85d2e71386370b7c9797dd18449",
+          "payload": {
+            "kind": "symbol_constraint",
+            "operator": ">",
+            "symbol": "a",
+            "value": "0"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:72add27b64d9a043b969eb4c92ef6c8fe21432bdaca5562b0fb0786e691f852f",
+          "payload": {
+            "expression": "D = C+(2,0)",
+            "kind": "math_assertion",
+            "subjects": [
+              "C",
+              "D"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:074e2228c27c10d97d78c44d40e6fa75f46df101a9872eb26415fde72dfdfd13",
+          "payload": {
+            "construction": "y_axis_intercept",
+            "kind": "point_construction",
+            "owner": "parabola",
+            "point": "C"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:95a49a76d94b3c46be9406e84fa70b3333ef7ed2c2a9d877a9cc0feb0ae5713b",
+          "payload": {
+            "expression": "parabola ∩ y_axis = {C}",
+            "kind": "math_assertion",
+            "subjects": [
+              "C",
+              "parabola"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:ea3acb664f8e8127c6600f78b1a18049e13a3eeaa86fe217655b9422f54100d7",
+          "payload": {
+            "curve": "parabola",
+            "kind": "point_on_curve",
+            "point": "B"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:054248f8be13e1ca8dde6a868faa42127545a317ca76ed6512fc4979cff7311a",
+          "payload": {
+            "kind": "point_coordinate",
+            "point": "A",
+            "value": [
+              "-1",
+              "0"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:a37eeec1f8b2c01abd4eb1056e0207bea7d000802f1ac2e363a76a3e0f8665cf",
+          "payload": {
+            "expression": "a > 0",
+            "kind": "math_assertion",
+            "subjects": [
+              "a"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:b2e388207cd0f40c93d6eccf995838f61093004a850ebacfa257b9f94960113a",
+          "payload": {
+            "expression": "parabola ∩ x_axis = {A,B}",
+            "kind": "math_assertion",
+            "subjects": [
+              "A",
+              "B",
+              "parabola"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:a2e8688a21d14768fe1a0e929034fd7a1facc1a3fa4fd8670132c1fc28a6837d",
+          "payload": {
+            "expression": "parabola: y = a*x^2+b*x-3",
+            "kind": "math_assertion",
+            "subjects": [
+              "a",
+              "b",
+              "parabola"
+            ]
+          }
+        }
+      ],
+      "available_refs": [
+        {
+          "ref": "math_assertion_188d83ad6436",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_2b834cf2c22f",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_646123658c6d",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_8b689b9990cd",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_b63ee84f219f",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_c4d59a1ed2f9",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_c5880b3ca7c8",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "point_coordinate_a",
+          "kind": "fact",
+          "value_type": "point_coordinate"
+        },
+        {
+          "ref": "point_coordinate_o",
+          "kind": "fact",
+          "value_type": "point_coordinate"
+        },
+        {
+          "ref": "point_on_curve_parabola_a",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_curve_parabola_b",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "symbol_constraint_a",
+          "kind": "fact",
+          "value_type": "symbol_constraint"
+        },
+        {
+          "ref": "parabola",
+          "kind": "function"
+        },
+        {
+          "ref": "A",
+          "kind": "point"
+        },
+        {
+          "ref": "B",
+          "kind": "point"
+        },
+        {
+          "ref": "C",
+          "kind": "point"
+        },
+        {
+          "ref": "D",
+          "kind": "point"
+        },
+        {
+          "ref": "O",
+          "kind": "point"
+        },
+        {
+          "ref": "a",
+          "kind": "symbol"
+        },
+        {
+          "ref": "b",
+          "kind": "symbol"
+        },
+        {
+          "ref": "x",
+          "kind": "symbol"
+        }
+      ],
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ]
+    },
+    {
+      "source_scope_unit_id": "notation-unit:44d3e38a53577e2604b492f61f08898105219e33074541d1dda844bc5f7760e0",
+      "scope_id": "i",
+      "parent_scope_id": "problem",
+      "label": "（I）",
+      "source_text": [
+        "D ∈ Γ"
+      ],
+      "entities": [],
+      "facts": [
+        {
+          "source_unit_id": "notation-unit:ed9140bf9d42df30e82ecfb5472de3c0cb80fb5aae5545f5b4bfa469bd8e41b4",
+          "payload": {
+            "expression": "D ∈ parabola",
+            "kind": "math_assertion",
+            "subjects": [
+              "D",
+              "parabola"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:a111b9c5fcd791f6a17839a447282454a315f0a156eb80de16d1677a419fa59b",
+          "payload": {
+            "curve": "parabola",
+            "kind": "point_on_curve",
+            "point": "D"
+          }
+        }
+      ],
+      "available_refs": [
+        {
+          "ref": "math_assertion_cf9b3559f8ad",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "point_on_curve_parabola_d",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        }
+      ],
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ]
+    },
+    {
+      "source_scope_unit_id": "notation-unit:a38fb99310f213534c95faa58e089e67e081ac71f18985b546a15d5669a1e2a8",
+      "scope_id": "i_1",
+      "parent_scope_id": "i",
+      "label": "①",
+      "source_text": [
+        "①"
+      ],
+      "entities": [],
+      "facts": [],
+      "available_refs": [],
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994"
+      ]
+    },
+    {
+      "source_scope_unit_id": "notation-unit:6a64a2ae4ea90c4073c8c16f7b13c2d233bde097dc9f1b530bc50586a1abd5aa",
+      "scope_id": "i_2",
+      "parent_scope_id": "i",
+      "label": "②",
+      "source_text": [
+        "E ∈ Γ",
+        "x(E) = m",
+        "-1 < m ∧ m < 0",
+        "angle(C,B,E) + angle(A,C,O) = 45°"
+      ],
+      "entities": [
+        {
+          "source_unit_id": "notation-unit:c8eedb2e4338cbe4e55f228a0d0b4043e4237f4310c72bd4c37b1f93fdaa5194",
+          "payload": {
+            "id": "E",
+            "kind": "point",
+            "label": "E"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:2d66c7de3e697cca452bf84f57d040bc00abc4d70981d44bed2404a28e381e9a",
+          "payload": {
+            "id": "m",
+            "kind": "symbol",
+            "label": "m",
+            "role": "dynamic_parameter"
+          }
+        }
+      ],
+      "facts": [
+        {
+          "source_unit_id": "notation-unit:70733c49cde58bc53cdffe579e77532f6a534d46b45086bd3ad6d7e094636595",
+          "payload": {
+            "expression": "-1 < m ∧ m < 0",
+            "kind": "math_assertion",
+            "subjects": [
+              "m"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:b93a618f69d77bb7dff8fecc21169c19c2ec71769d0a3436fe2d3c1854700e2e",
+          "payload": {
+            "curve": "parabola",
+            "kind": "point_on_curve",
+            "point": "E"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:63ed3f247546221ddda709160e87846a63d5a58586dd14fca7e2d6a1b4b7adf3",
+          "payload": {
+            "construction": "curve_at_x",
+            "kind": "point_construction",
+            "owner": "parabola",
+            "point": "E",
+            "x_expression": "m"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:878ee00cdd460ea426febba9233e100cca8cc749b63509adde2e9c600d383408",
+          "payload": {
+            "kind": "symbol_constraint",
+            "operator": ">",
+            "symbol": "m",
+            "value": "-1"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:f0f447a330735a7e96eca8d6abf09d4d0ce16ca1b03d4f76afd58c4a1bf26e7e",
+          "payload": {
+            "expression": "E ∈ parabola",
+            "kind": "math_assertion",
+            "subjects": [
+              "E",
+              "parabola"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:3445e44008eab1496ae7a823956fbd813bab223e11e5fc19ace673ec073660d6",
+          "payload": {
+            "kind": "symbol_constraint",
+            "operator": "<",
+            "symbol": "m",
+            "value": "0"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:8ecbda2cd414f033d95a4c83d8f790b8139d04a1e9d39b493dde40deb54e3174",
+          "payload": {
+            "angles": [
+              {
+                "end": "E",
+                "start": "C",
+                "vertex": "B"
+              },
+              {
+                "end": "O",
+                "start": "A",
+                "vertex": "C"
+              }
+            ],
+            "kind": "angle_sum",
+            "value": "45"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:bdef1b0473c2631ec4e1390a50c3d3ddb5cd8eec0f1752f812ff72500e9f2dd7",
+          "payload": {
+            "expression": "angle(C,B,E) + angle(A,C,O) = 45°",
+            "kind": "math_assertion",
+            "subjects": [
+              "A",
+              "B",
+              "C",
+              "E",
+              "O"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:7b43ad85e8a70d735584fac2838f3e676849a4a5673b6222c19f17d59bd11999",
+          "payload": {
+            "expression": "x(E) = m",
+            "kind": "math_assertion",
+            "subjects": [
+              "E",
+              "m"
+            ]
+          }
+        }
+      ],
+      "available_refs": [
+        {
+          "ref": "angle_sum",
+          "kind": "fact",
+          "value_type": "angle_sum"
+        },
+        {
+          "ref": "math_assertion_04174e1c15a8",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_0758fa224926",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_5779594057e3",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_cc02a78853d1",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "point_on_curve_parabola_e",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_curve_with_x_coordinate_parabola_e_m",
+          "kind": "fact",
+          "value_type": "point_on_curve_with_x_coordinate"
+        },
+        {
+          "ref": "symbol_constraint_m_1",
+          "kind": "fact",
+          "value_type": "symbol_constraint"
+        },
+        {
+          "ref": "symbol_constraint_m_2",
+          "kind": "fact",
+          "value_type": "symbol_constraint"
+        },
+        {
+          "ref": "E",
+          "kind": "point"
+        },
+        {
+          "ref": "m",
+          "kind": "symbol"
+        }
+      ],
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ]
+    },
+    {
+      "source_scope_unit_id": "notation-unit:e8bf8da2e80210d3b4d3e3b5195d7ba2c05e4047a7b9cd4659a046d379e3d65f",
+      "scope_id": "ii",
+      "parent_scope_id": "problem",
+      "label": "（II）",
+      "source_text": [
+        "M ∈ segment(B,C)",
+        "N ∈ ray(C,D)",
+        "CN = CM",
+        "min(OM+BN) = √34"
+      ],
+      "entities": [
+        {
+          "source_unit_id": "notation-unit:5a86349b65dd6664953c5c7a1ad62efb2dd4a367b7e097342f5ac17b88850070",
+          "payload": {
+            "id": "M",
+            "kind": "point",
+            "label": "M"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:d9fbba1e0dc05efb6d3cb17b8a57b5d9997d3d78592ad5ac4233efba3dd2e59f",
+          "payload": {
+            "id": "N",
+            "kind": "point",
+            "label": "N"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:9ce8415e148745f09a8f5886e6da1fbc269972f9ee52f88607e685f0f9f83855",
+          "payload": {
+            "id": "CD",
+            "kind": "named_ray",
+            "label": "CD",
+            "origin": "C",
+            "through": "D"
+          }
+        }
+      ],
+      "facts": [
+        {
+          "source_unit_id": "notation-unit:9cb2f204af4757bbba1cff136efe04bfcb861cef22a85dbe977abcf340bd645f",
+          "payload": {
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "M",
+                    "start": "O"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "N",
+                    "start": "B"
+                  }
+                }
+              ]
+            },
+            "kind": "minimum_target"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:24230c82fdd4b6621fc0a926dd49d3dd4e6e93a2bf3c167917a82d13f1a2927f",
+          "payload": {
+            "expression": "N ∈ ray(C,D)",
+            "kind": "math_assertion",
+            "subjects": [
+              "C",
+              "D",
+              "N"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:9e4b283448194436ad5161b9b7983e329bf8e4451b2d17f79624c8aa25138d77",
+          "payload": {
+            "expression": "M ∈ segment(B,C)",
+            "kind": "math_assertion",
+            "subjects": [
+              "B",
+              "C",
+              "M"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:676c1bbcadb1ad179933f43f4f26709ba4df2c3cac368b43d59af57007b3929b",
+          "payload": {
+            "kind": "point_on_segment",
+            "point": "M",
+            "segment": {
+              "end": "C",
+              "start": "B"
+            }
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:c8dcc7fed373fca804f4f336171be237d69e2602be3352a0d181648ca9953d67",
+          "payload": {
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "M",
+                    "start": "O"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "N",
+                    "start": "B"
+                  }
+                }
+              ]
+            },
+            "kind": "minimum_value_given",
+            "value": "sqrt(34)"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:5cbe9595e7408b546c827d1e82e5ef4aef1eee2b763b73fa91b7e30d93b7ae24",
+          "payload": {
+            "kind": "equal_length",
+            "left": {
+              "end": "N",
+              "start": "C"
+            },
+            "right": {
+              "end": "M",
+              "start": "C"
+            }
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:9374d257be01be21e8994bd5058d1003b91519fd8518de97d757c61f42500896",
+          "payload": {
+            "expression": "min(OM+BN) = √34",
+            "kind": "math_assertion",
+            "subjects": [
+              "B",
+              "M",
+              "N",
+              "O"
+            ]
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:1ba42a44a663b7b2e198c9c98fc917317b5c0ba44cf4a6dc406d95528ee02b84",
+          "payload": {
+            "kind": "point_on_ray",
+            "point": "N",
+            "ray": "CD"
+          }
+        },
+        {
+          "source_unit_id": "notation-unit:7fd2318f31f7f952b435844f8b541861fef810b3158fab9d66960b9b57f94e06",
+          "payload": {
+            "expression": "CN = CM",
+            "kind": "math_assertion",
+            "subjects": [
+              "C",
+              "M",
+              "N"
+            ]
+          }
+        }
+      ],
+      "available_refs": [
+        {
+          "ref": "equal_length_condition",
+          "kind": "fact",
+          "value_type": "equal_length_condition"
+        },
+        {
+          "ref": "math_assertion_4ba76816bcfe",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_503c089fcf7b",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_6c1eb04eb7f4",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_f8800cabef0b",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "minimum_value",
+          "kind": "fact",
+          "value_type": "minimum_value"
+        },
+        {
+          "ref": "path_minimum_target_o_m_b_n",
+          "kind": "fact",
+          "value_type": "path_minimum_target"
+        },
+        {
+          "ref": "point_on_ray_n_cd",
+          "kind": "fact",
+          "value_type": "point_on_ray"
+        },
+        {
+          "ref": "point_on_segment_m_bc",
+          "kind": "fact",
+          "value_type": "point_on_segment"
+        },
+        {
+          "ref": "M",
+          "kind": "point"
+        },
+        {
+          "ref": "N",
+          "kind": "point"
+        },
+        {
+          "ref": "CD",
+          "kind": "ray"
+        },
+        {
+          "ref": "BC",
+          "kind": "segment"
+        }
+      ],
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ]
+    }
+  ],
+  "goal_views": [
+    {
+      "goal_unit_id": "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+      "goal_kind": "quadratic_equation",
+      "answer_key": "parabola",
+      "owner_scope_id": "i_1",
+      "scope_path": [
+        "problem",
+        "i",
+        "i_1"
+      ],
+      "visible_scope_ids": [
+        "problem",
+        "i",
+        "i_1"
+      ],
+      "answer_ref": {
+        "ref": "i_1.parabola",
+        "kind": "answer",
+        "value_type": "Parabola"
+      },
+      "semantic_reads": [
+        {
+          "ref": "math_assertion_188d83ad6436",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_2b834cf2c22f",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_646123658c6d",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_8b689b9990cd",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_b63ee84f219f",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_c4d59a1ed2f9",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_c5880b3ca7c8",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_cf9b3559f8ad",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "point_coordinate_a",
+          "kind": "fact",
+          "value_type": "point_coordinate"
+        },
+        {
+          "ref": "point_coordinate_o",
+          "kind": "fact",
+          "value_type": "point_coordinate"
+        },
+        {
+          "ref": "point_on_curve_parabola_a",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_curve_parabola_b",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_curve_parabola_d",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "symbol_constraint_a",
+          "kind": "fact",
+          "value_type": "symbol_constraint"
+        },
+        {
+          "ref": "parabola",
+          "kind": "function"
+        },
+        {
+          "ref": "A",
+          "kind": "point"
+        },
+        {
+          "ref": "B",
+          "kind": "point"
+        },
+        {
+          "ref": "C",
+          "kind": "point"
+        },
+        {
+          "ref": "D",
+          "kind": "point"
+        },
+        {
+          "ref": "O",
+          "kind": "point"
+        },
+        {
+          "ref": "a",
+          "kind": "symbol"
+        },
+        {
+          "ref": "b",
+          "kind": "symbol"
+        },
+        {
+          "ref": "x",
+          "kind": "symbol"
+        }
+      ],
+      "goal_payload": {
+        "answer_key": "parabola",
+        "kind": "quadratic_equation",
+        "target": "parabola"
+      }
+    },
+    {
+      "goal_unit_id": "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+      "goal_kind": "point_coordinate",
+      "answer_key": "E",
+      "owner_scope_id": "i_2",
+      "scope_path": [
+        "problem",
+        "i",
+        "i_2"
+      ],
+      "visible_scope_ids": [
+        "problem",
+        "i",
+        "i_2"
+      ],
+      "answer_ref": {
+        "ref": "i_2.E",
+        "kind": "answer",
+        "value_type": "Point"
+      },
+      "semantic_reads": [
+        {
+          "ref": "angle_sum",
+          "kind": "fact",
+          "value_type": "angle_sum"
+        },
+        {
+          "ref": "math_assertion_04174e1c15a8",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_0758fa224926",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_188d83ad6436",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_2b834cf2c22f",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_5779594057e3",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_646123658c6d",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_8b689b9990cd",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_b63ee84f219f",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_c4d59a1ed2f9",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_c5880b3ca7c8",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_cc02a78853d1",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_cf9b3559f8ad",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "point_coordinate_a",
+          "kind": "fact",
+          "value_type": "point_coordinate"
+        },
+        {
+          "ref": "point_coordinate_o",
+          "kind": "fact",
+          "value_type": "point_coordinate"
+        },
+        {
+          "ref": "point_on_curve_parabola_a",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_curve_parabola_b",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_curve_parabola_d",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_curve_parabola_e",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_curve_with_x_coordinate_parabola_e_m",
+          "kind": "fact",
+          "value_type": "point_on_curve_with_x_coordinate"
+        },
+        {
+          "ref": "symbol_constraint_a",
+          "kind": "fact",
+          "value_type": "symbol_constraint"
+        },
+        {
+          "ref": "symbol_constraint_m_1",
+          "kind": "fact",
+          "value_type": "symbol_constraint"
+        },
+        {
+          "ref": "symbol_constraint_m_2",
+          "kind": "fact",
+          "value_type": "symbol_constraint"
+        },
+        {
+          "ref": "parabola",
+          "kind": "function"
+        },
+        {
+          "ref": "A",
+          "kind": "point"
+        },
+        {
+          "ref": "B",
+          "kind": "point"
+        },
+        {
+          "ref": "C",
+          "kind": "point"
+        },
+        {
+          "ref": "D",
+          "kind": "point"
+        },
+        {
+          "ref": "E",
+          "kind": "point"
+        },
+        {
+          "ref": "O",
+          "kind": "point"
+        },
+        {
+          "ref": "a",
+          "kind": "symbol"
+        },
+        {
+          "ref": "b",
+          "kind": "symbol"
+        },
+        {
+          "ref": "m",
+          "kind": "symbol"
+        },
+        {
+          "ref": "x",
+          "kind": "symbol"
+        }
+      ],
+      "goal_payload": {
+        "answer_key": "E",
+        "kind": "point_coordinate",
+        "target": "E"
+      }
+    },
+    {
+      "goal_unit_id": "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17",
+      "goal_kind": "parameter_value",
+      "answer_key": "a",
+      "owner_scope_id": "ii",
+      "scope_path": [
+        "problem",
+        "ii"
+      ],
+      "visible_scope_ids": [
+        "problem",
+        "ii"
+      ],
+      "answer_ref": {
+        "ref": "ii.a",
+        "kind": "answer",
+        "value_type": "ParameterValue"
+      },
+      "semantic_reads": [
+        {
+          "ref": "equal_length_condition",
+          "kind": "fact",
+          "value_type": "equal_length_condition"
+        },
+        {
+          "ref": "math_assertion_188d83ad6436",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_2b834cf2c22f",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_4ba76816bcfe",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_503c089fcf7b",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_646123658c6d",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_6c1eb04eb7f4",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_8b689b9990cd",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_b63ee84f219f",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_c4d59a1ed2f9",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_c5880b3ca7c8",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "math_assertion_f8800cabef0b",
+          "kind": "fact",
+          "value_type": "math_assertion"
+        },
+        {
+          "ref": "minimum_value",
+          "kind": "fact",
+          "value_type": "minimum_value"
+        },
+        {
+          "ref": "path_minimum_target_o_m_b_n",
+          "kind": "fact",
+          "value_type": "path_minimum_target"
+        },
+        {
+          "ref": "point_coordinate_a",
+          "kind": "fact",
+          "value_type": "point_coordinate"
+        },
+        {
+          "ref": "point_coordinate_o",
+          "kind": "fact",
+          "value_type": "point_coordinate"
+        },
+        {
+          "ref": "point_on_curve_parabola_a",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_curve_parabola_b",
+          "kind": "fact",
+          "value_type": "point_on_curve"
+        },
+        {
+          "ref": "point_on_ray_n_cd",
+          "kind": "fact",
+          "value_type": "point_on_ray"
+        },
+        {
+          "ref": "point_on_segment_m_bc",
+          "kind": "fact",
+          "value_type": "point_on_segment"
+        },
+        {
+          "ref": "symbol_constraint_a",
+          "kind": "fact",
+          "value_type": "symbol_constraint"
+        },
+        {
+          "ref": "parabola",
+          "kind": "function"
+        },
+        {
+          "ref": "A",
+          "kind": "point"
+        },
+        {
+          "ref": "B",
+          "kind": "point"
+        },
+        {
+          "ref": "C",
+          "kind": "point"
+        },
+        {
+          "ref": "D",
+          "kind": "point"
+        },
+        {
+          "ref": "M",
+          "kind": "point"
+        },
+        {
+          "ref": "N",
+          "kind": "point"
+        },
+        {
+          "ref": "O",
+          "kind": "point"
+        },
+        {
+          "ref": "CD",
+          "kind": "ray"
+        },
+        {
+          "ref": "BC",
+          "kind": "segment"
+        },
+        {
+          "ref": "a",
+          "kind": "symbol"
+        },
+        {
+          "ref": "b",
+          "kind": "symbol"
+        },
+        {
+          "ref": "x",
+          "kind": "symbol"
+        }
+      ],
+      "goal_payload": {
+        "answer_key": "a",
+        "kind": "parameter_value",
+        "target": "a"
+      }
+    }
+  ],
+  "ref_authorities": [
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_cf9b3559f8ad",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:i:math_assertion_ed9140bf9d42",
+      "source_unit_ids": [
+        "notation-unit:ed9140bf9d42df30e82ecfb5472de3c0cb80fb5aae5545f5b4bfa469bd8e41b4"
+      ],
+      "owner_scope_id": "i",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_curve_parabola_d",
+        "kind": "fact",
+        "value_type": "point_on_curve"
+      },
+      "runtime_node_id": "fact:i:point_on_curve_a111b9c5fcd7",
+      "source_unit_ids": [
+        "notation-unit:a111b9c5fcd791f6a17839a447282454a315f0a156eb80de16d1677a419fa59b"
+      ],
+      "owner_scope_id": "i",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "i_1.parabola",
+        "kind": "answer",
+        "value_type": "Parabola"
+      },
+      "runtime_node_id": "answer:i_1.parabola",
+      "source_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994"
+      ],
+      "owner_scope_id": "i_1",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994"
+      ],
+      "usage": "answer"
+    },
+    {
+      "semantic_ref": {
+        "ref": "E",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:i_2:E",
+      "source_unit_ids": [
+        "notation-unit:63ed3f247546221ddda709160e87846a63d5a58586dd14fca7e2d6a1b4b7adf3",
+        "notation-unit:c8eedb2e4338cbe4e55f228a0d0b4043e4237f4310c72bd4c37b1f93fdaa5194"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "angle_sum",
+        "kind": "fact",
+        "value_type": "angle_sum"
+      },
+      "runtime_node_id": "fact:i_2:angle_sum_8ecbda2cd414",
+      "source_unit_ids": [
+        "notation-unit:8ecbda2cd414f033d95a4c83d8f790b8139d04a1e9d39b493dde40deb54e3174"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "i_2.E",
+        "kind": "answer",
+        "value_type": "Point"
+      },
+      "runtime_node_id": "answer:i_2.E",
+      "source_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "answer"
+    },
+    {
+      "semantic_ref": {
+        "ref": "m",
+        "kind": "symbol"
+      },
+      "runtime_node_id": "symbol:i_2:m",
+      "source_unit_ids": [
+        "notation-unit:2d66c7de3e697cca452bf84f57d040bc00abc4d70981d44bed2404a28e381e9a"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_04174e1c15a8",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:i_2:math_assertion_7b43ad85e8a7",
+      "source_unit_ids": [
+        "notation-unit:7b43ad85e8a70d735584fac2838f3e676849a4a5673b6222c19f17d59bd11999"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_0758fa224926",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:i_2:math_assertion_bdef1b0473c2",
+      "source_unit_ids": [
+        "notation-unit:bdef1b0473c2631ec4e1390a50c3d3ddb5cd8eec0f1752f812ff72500e9f2dd7"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_5779594057e3",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:i_2:math_assertion_f0f447a33073",
+      "source_unit_ids": [
+        "notation-unit:f0f447a330735a7e96eca8d6abf09d4d0ce16ca1b03d4f76afd58c4a1bf26e7e"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_cc02a78853d1",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:i_2:math_assertion_70733c49cde5",
+      "source_unit_ids": [
+        "notation-unit:70733c49cde58bc53cdffe579e77532f6a534d46b45086bd3ad6d7e094636595"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_curve_parabola_e",
+        "kind": "fact",
+        "value_type": "point_on_curve"
+      },
+      "runtime_node_id": "fact:i_2:point_on_curve_b93a618f69d7",
+      "source_unit_ids": [
+        "notation-unit:b93a618f69d77bb7dff8fecc21169c19c2ec71769d0a3436fe2d3c1854700e2e"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_curve_with_x_coordinate_parabola_e_m",
+        "kind": "fact",
+        "value_type": "point_on_curve_with_x_coordinate"
+      },
+      "runtime_node_id": "fact:i_2:point_construction_63ed3f247546",
+      "source_unit_ids": [
+        "notation-unit:63ed3f247546221ddda709160e87846a63d5a58586dd14fca7e2d6a1b4b7adf3"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "symbol_constraint_m_1",
+        "kind": "fact",
+        "value_type": "symbol_constraint"
+      },
+      "runtime_node_id": "fact:i_2:symbol_constraint_878ee00cdd46",
+      "source_unit_ids": [
+        "notation-unit:878ee00cdd460ea426febba9233e100cca8cc749b63509adde2e9c600d383408"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "symbol_constraint_m_2",
+        "kind": "fact",
+        "value_type": "symbol_constraint"
+      },
+      "runtime_node_id": "fact:i_2:symbol_constraint_3445e44008ea",
+      "source_unit_ids": [
+        "notation-unit:3445e44008eab1496ae7a823956fbd813bab223e11e5fc19ace673ec073660d6"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "BC",
+        "kind": "segment"
+      },
+      "runtime_node_id": "segment:ii:BC",
+      "source_unit_ids": [
+        "notation-unit:676c1bbcadb1ad179933f43f4f26709ba4df2c3cac368b43d59af57007b3929b"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "CD",
+        "kind": "ray"
+      },
+      "runtime_node_id": "ray:ii:CD",
+      "source_unit_ids": [
+        "notation-unit:9ce8415e148745f09a8f5886e6da1fbc269972f9ee52f88607e685f0f9f83855"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "M",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:ii:M",
+      "source_unit_ids": [
+        "notation-unit:5a86349b65dd6664953c5c7a1ad62efb2dd4a367b7e097342f5ac17b88850070",
+        "notation-unit:676c1bbcadb1ad179933f43f4f26709ba4df2c3cac368b43d59af57007b3929b"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "N",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:ii:N",
+      "source_unit_ids": [
+        "notation-unit:1ba42a44a663b7b2e198c9c98fc917317b5c0ba44cf4a6dc406d95528ee02b84",
+        "notation-unit:d9fbba1e0dc05efb6d3cb17b8a57b5d9997d3d78592ad5ac4233efba3dd2e59f"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "equal_length_condition",
+        "kind": "fact",
+        "value_type": "equal_length_condition"
+      },
+      "runtime_node_id": "fact:ii:equal_length_5cbe9595e740",
+      "source_unit_ids": [
+        "notation-unit:5cbe9595e7408b546c827d1e82e5ef4aef1eee2b763b73fa91b7e30d93b7ae24"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "ii.a",
+        "kind": "answer",
+        "value_type": "ParameterValue"
+      },
+      "runtime_node_id": "answer:ii.a",
+      "source_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "answer"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_4ba76816bcfe",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:ii:math_assertion_9e4b28344819",
+      "source_unit_ids": [
+        "notation-unit:9e4b283448194436ad5161b9b7983e329bf8e4451b2d17f79624c8aa25138d77"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_503c089fcf7b",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:ii:math_assertion_24230c82fdd4",
+      "source_unit_ids": [
+        "notation-unit:24230c82fdd4b6621fc0a926dd49d3dd4e6e93a2bf3c167917a82d13f1a2927f"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_6c1eb04eb7f4",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:ii:math_assertion_7fd2318f31f7",
+      "source_unit_ids": [
+        "notation-unit:7fd2318f31f7f952b435844f8b541861fef810b3158fab9d66960b9b57f94e06"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_f8800cabef0b",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:ii:math_assertion_9374d257be01",
+      "source_unit_ids": [
+        "notation-unit:9374d257be01be21e8994bd5058d1003b91519fd8518de97d757c61f42500896"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "minimum_value",
+        "kind": "fact",
+        "value_type": "minimum_value"
+      },
+      "runtime_node_id": "fact:ii:minimum_value_given_c8dcc7fed373",
+      "source_unit_ids": [
+        "notation-unit:c8dcc7fed373fca804f4f336171be237d69e2602be3352a0d181648ca9953d67"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "path_minimum_target_o_m_b_n",
+        "kind": "fact",
+        "value_type": "path_minimum_target"
+      },
+      "runtime_node_id": "fact:ii:minimum_target_9cb2f204af47",
+      "source_unit_ids": [
+        "notation-unit:9cb2f204af4757bbba1cff136efe04bfcb861cef22a85dbe977abcf340bd645f"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_ray_n_cd",
+        "kind": "fact",
+        "value_type": "point_on_ray"
+      },
+      "runtime_node_id": "fact:ii:point_on_ray_1ba42a44a663",
+      "source_unit_ids": [
+        "notation-unit:1ba42a44a663b7b2e198c9c98fc917317b5c0ba44cf4a6dc406d95528ee02b84"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_segment_m_bc",
+        "kind": "fact",
+        "value_type": "point_on_segment"
+      },
+      "runtime_node_id": "fact:ii:point_on_segment_676c1bbcadb1",
+      "source_unit_ids": [
+        "notation-unit:676c1bbcadb1ad179933f43f4f26709ba4df2c3cac368b43d59af57007b3929b"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "A",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:A",
+      "source_unit_ids": [
+        "notation-unit:054248f8be13e1ca8dde6a868faa42127545a317ca76ed6512fc4979cff7311a",
+        "notation-unit:c3d683d6db93bfb9e9f6b6df9852dbcae88839f238ac9ba1425d6be892dee3e2"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "B",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:B",
+      "source_unit_ids": [
+        "notation-unit:9239eac014868bcf027070000a3f55d835414a8bac3bdc7562a038b1f30c23c7",
+        "notation-unit:ebec27139d8723cf190df1903d1acbdb5c629de04a1a30a56793d0884878b982"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "C",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:C",
+      "source_unit_ids": [
+        "notation-unit:074e2228c27c10d97d78c44d40e6fa75f46df101a9872eb26415fde72dfdfd13",
+        "notation-unit:f35ae355470c95168340f6dd7d03b54fb3f9ed07dc76ed0cfdf2c3adb8e8e0b8"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "D",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:D",
+      "source_unit_ids": [
+        "notation-unit:67e32cc0b6f90fbf74905c7ae61da97b6233cbed7103031a7a5e73a587dfa1e4",
+        "notation-unit:6b73ad7024346ef6ea7054e1a391c87a35cb2faa85a261fcdd796e0aefa5378f"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "O",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:O",
+      "source_unit_ids": [
+        "notation-unit:3407611d11e3d65ff6a42dcf462255dec6e1ca19afe0b33cde905ed109ebdefb",
+        "notation-unit:750d2659b3285ea9ddedf50b5ea709069e4668fa0dcd08099a1d5d18749c0e49",
+        "notation-unit:c25fbf485e4dd16fed3ae9a2b003e208dccb721f1a5d2281fcc67c1de087c05d"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "a",
+        "kind": "symbol"
+      },
+      "runtime_node_id": "symbol:problem:a",
+      "source_unit_ids": [
+        "notation-unit:8a0fd41d369dc5dad114a0cbc4853c73a0fd023a38c29117e9d99821c662cb05"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "b",
+        "kind": "symbol"
+      },
+      "runtime_node_id": "symbol:problem:b",
+      "source_unit_ids": [
+        "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_188d83ad6436",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_04adf78c026d",
+      "source_unit_ids": [
+        "notation-unit:04adf78c026d3608c0a8bb74076d636038a6227becb66bfc76774333aa687349"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_2b834cf2c22f",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_b2e388207cd0",
+      "source_unit_ids": [
+        "notation-unit:b2e388207cd0f40c93d6eccf995838f61093004a850ebacfa257b9f94960113a"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_646123658c6d",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_a37eeec1f8b2",
+      "source_unit_ids": [
+        "notation-unit:a37eeec1f8b2c01abd4eb1056e0207bea7d000802f1ac2e363a76a3e0f8665cf"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_8b689b9990cd",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_a2e8688a21d1",
+      "source_unit_ids": [
+        "notation-unit:a2e8688a21d14768fe1a0e929034fd7a1facc1a3fa4fd8670132c1fc28a6837d"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_b63ee84f219f",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_bfe82e2dbec4",
+      "source_unit_ids": [
+        "notation-unit:bfe82e2dbec43495240c80be381cdabbda280d8c11521cb017a5bdca8d95f3ca"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_c4d59a1ed2f9",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_95a49a76d94b",
+      "source_unit_ids": [
+        "notation-unit:95a49a76d94b3c46be9406e84fa70b3333ef7ed2c2a9d877a9cc0feb0ae5713b"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_c5880b3ca7c8",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_72add27b64d9",
+      "source_unit_ids": [
+        "notation-unit:72add27b64d9a043b969eb4c92ef6c8fe21432bdaca5562b0fb0786e691f852f"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "parabola",
+        "kind": "function"
+      },
+      "runtime_node_id": "function:problem:parabola",
+      "source_unit_ids": [
+        "notation-unit:7b537bc816814bf5786651b6a3890403f682bc3791431b113d9d8cf40e28c368",
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_coordinate_a",
+        "kind": "fact",
+        "value_type": "point_coordinate"
+      },
+      "runtime_node_id": "fact:problem:point_coordinate_054248f8be13",
+      "source_unit_ids": [
+        "notation-unit:054248f8be13e1ca8dde6a868faa42127545a317ca76ed6512fc4979cff7311a"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_coordinate_o",
+        "kind": "fact",
+        "value_type": "point_coordinate"
+      },
+      "runtime_node_id": "fact:problem:point_coordinate_3407611d11e3",
+      "source_unit_ids": [
+        "notation-unit:3407611d11e3d65ff6a42dcf462255dec6e1ca19afe0b33cde905ed109ebdefb"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_curve_parabola_a",
+        "kind": "fact",
+        "value_type": "point_on_curve"
+      },
+      "runtime_node_id": "fact:problem:point_on_curve_715b95a77dd6",
+      "source_unit_ids": [
+        "notation-unit:715b95a77dd6b28b2c2802ddb6a1677be0b836018d456ce2cb9bf2f74f3212f7"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_curve_parabola_b",
+        "kind": "fact",
+        "value_type": "point_on_curve"
+      },
+      "runtime_node_id": "fact:problem:point_on_curve_ea3acb664f8e",
+      "source_unit_ids": [
+        "notation-unit:ea3acb664f8e8127c6600f78b1a18049e13a3eeaa86fe217655b9422f54100d7"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "symbol_constraint_a",
+        "kind": "fact",
+        "value_type": "symbol_constraint"
+      },
+      "runtime_node_id": "fact:problem:symbol_constraint_1c521a445476",
+      "source_unit_ids": [
+        "notation-unit:1c521a445476a61b81f18ee3bca57b1e0572a85d2e71386370b7c9797dd18449"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    },
+    {
+      "semantic_ref": {
+        "ref": "x",
+        "kind": "symbol"
+      },
+      "runtime_node_id": "symbol:problem:x",
+      "source_unit_ids": [
+        "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:8fd4f052c48c6c998bbef7b97feb4d722130bd6159b19bdf06c9013e043c3994",
+        "notation-unit:b10b58d5bd68d86cf581bd2f582068e73729c7c2f8f560e48d322907974b3e8e",
+        "notation-unit:e985c49e5efc3f11e640e144b4acbe40d213cf4bfe562fe92d6cc2eb8a79fc17"
+      ],
+      "usage": "input"
+    }
+  ]
+}

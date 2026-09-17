@@ -32,7 +32,7 @@ def frozen_files():
     """Bind file identities and bytes without binding the checkout location."""
     package = Path(__file__).resolve().parent
     implementation = [
-        *package.glob("*.py"),
+        *(p for p in package.glob("*.py") if p.name not in {"runtime_binding.py", "runtime_lowering.py", "compact_planner_input.py"}),
         package.parent / "solver/extraction/multimodal_provider.py",
         package.parent / "solver/extraction/deepseek_files.py",
     ]

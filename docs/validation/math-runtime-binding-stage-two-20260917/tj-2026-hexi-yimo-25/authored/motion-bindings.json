@@ -1,0 +1,53 @@
+[
+  {
+    "expression": [
+      "+",
+      [
+        "*",
+        [
+          "call",
+          "sqrt",
+          [
+            "number",
+            "2"
+          ]
+        ],
+        [
+          "call",
+          "length",
+          [
+            "ref",
+            "r.c2:point:M",
+            "point"
+          ],
+          [
+            "ref",
+            "r.c2:point:N",
+            "point"
+          ]
+        ]
+      ],
+      [
+        "call",
+        "length",
+        [
+          "ref",
+          "r.c2:point:A",
+          "point"
+        ],
+        [
+          "ref",
+          "r.c2:point:N",
+          "point"
+        ]
+      ]
+    ],
+    "path": "/root/children/2/facts/7",
+    "premises": [
+      "/root/children/2/facts/5"
+    ],
+    "variables": [
+      "r.c2:scalar:n"
+    ]
+  }
+]

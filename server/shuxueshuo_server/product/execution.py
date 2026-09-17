@@ -64,6 +64,11 @@ class ExecutionContext:
     def guard(self, *, code=True):
         with transaction(self.service.db) as c: self.service._guard(c, *self.args)
         if code:
+            if self.build['pipeline_key'] == 'problem_runtime_binding':
+                from .runtime_binding import configuration
+                if self.build['effective_config']['binding'] != configuration():
+                    raise Conflict('build.environment_changed')
+                return
             if self.build['pipeline_key'] == 'problem_understanding':
                 from .understanding_runtime import configuration, target_dependencies
                 with transaction(self.service.db) as c:

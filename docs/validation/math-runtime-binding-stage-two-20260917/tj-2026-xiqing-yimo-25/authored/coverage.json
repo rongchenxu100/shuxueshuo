@@ -1,0 +1,1918 @@
+{
+  "schema_version": "math-runtime-coverage/v1",
+  "candidate": {
+    "candidate_hash": "8507af7579cad0741ab165878a4ec867654e24726a274a2f2e0237a8ee6f56e3",
+    "candidate_id": "offline:8507af7579cad0741ab165878a4ec867654e24726a274a2f2e0237a8ee6f56e3",
+    "problem_id": "tj-2026-xiqing-yimo-25",
+    "source_hash": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+    "source_version_id": "frozen:tj-2026-xiqing-yimo-25.png"
+  },
+  "entries": [
+    {
+      "source_path": "/root/children/1/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1"
+      ],
+      "compiled": [
+        "∈",
+        [
+          "ref",
+          "r.c1:point:D",
+          "point"
+        ],
+        [
+          "ref",
+          "r:curve:Γ",
+          "curve"
+        ]
+      ],
+      "source_unit_id": "notation-unit:03deda54ed20dfecda62b4862d3b661cf7b20025bfef3e40a9edd3918a7853bb",
+      "runtime_nodes": [
+        "fact:ii:math_assertion_03deda54ed20"
+      ],
+      "compact_path": "/root/children/1/facts/0"
+    },
+    {
+      "source_path": "/root/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "and",
+        [
+          "default_domain",
+          [
+            "ref",
+            "r:scalar:b",
+            "scalar"
+          ],
+          "real"
+        ],
+        [
+          "default_domain",
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ],
+          "real"
+        ]
+      ],
+      "source_unit_id": "notation-unit:06389027083d30bd36bf4bb47744d4b266db0a6869b94ba6903a986214afa49c",
+      "runtime_nodes": [
+        "fact:problem:math_assertion_06389027083d"
+      ],
+      "compact_path": "/root/facts/0"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/1",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        ">",
+        [
+          "ref",
+          "r.c1.c1:scalar:m",
+          "scalar"
+        ],
+        [
+          "number",
+          "0"
+        ]
+      ],
+      "source_unit_id": "notation-unit:0a58d7ca984f20919fce8545bbbd97e8a79772eb296d0cf85cef2bc25ce5c552",
+      "runtime_nodes": [
+        "fact:ii_2:math_assertion_0a58d7ca984f"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/1"
+    },
+    {
+      "source_path": "/root/children/1/children/0/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c0"
+      ],
+      "compiled": [
+        "=",
+        [
+          "call",
+          "length",
+          [
+            "ref",
+            "r:point:A",
+            "point"
+          ],
+          [
+            "ref",
+            "r.c1:point:D",
+            "point"
+          ]
+        ],
+        [
+          "*",
+          [
+            "number",
+            "2"
+          ],
+          [
+            "call",
+            "length",
+            [
+              "ref",
+              "r:point:B",
+              "point"
+            ],
+            [
+              "ref",
+              "r:point:C",
+              "point"
+            ]
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:172466c87becedadd5fdea7b605167d0cf53e52fdeeb94ee3355cc9c1eb3c809",
+      "runtime_nodes": [
+        "fact:ii_1:length_relation_172466c87bec",
+        "segment:ii_1:AD",
+        "segment:ii_1:BC"
+      ],
+      "compact_path": "/root/children/1/children/0/facts/0"
+    },
+    {
+      "source_path": "/root/facts/2",
+      "rule": "object_declaration",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r:point:A",
+          "point"
+        ],
+        [
+          "tuple",
+          [
+            "neg",
+            [
+              "number",
+              "1"
+            ]
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:19067968633bc287c13eb09481eead45034b189b17f5ff86cf38c490886e0940",
+      "runtime_nodes": [
+        "point:problem:A"
+      ],
+      "compact_path": "/root/facts/2"
+    },
+    {
+      "source_path": "/root/children/0/goals/0",
+      "rule": "goal_vertex",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c0"
+      ],
+      "compiled": {
+        "kind": "find_coordinates",
+        "target": [
+          "call",
+          "vertex",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ]
+        ]
+      },
+      "source_unit_id": "notation-unit:1c81de0c2deddc2b83f5546d740ba0d6902bb3371c3e2d3d87b56b572e611375",
+      "runtime_nodes": [
+        "point:i:vertex"
+      ],
+      "compact_path": "/root/children/0/goals/0"
+    },
+    {
+      "source_path": "/root",
+      "rule": "scope",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": null,
+      "source_unit_id": "notation-unit:2294b43ae811e550d9458939d79f476b661323fe1aa2782e976e11b899d301bc",
+      "runtime_nodes": [
+        "scope:problem"
+      ],
+      "compact_path": "/root"
+    },
+    {
+      "source_path": "/root/children/0/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c0"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r:scalar:b",
+          "scalar"
+        ],
+        [
+          "number",
+          "4"
+        ]
+      ],
+      "source_unit_id": "notation-unit:26512d235eaa395352a5ba79321789b2e74cc436f482445e72dc477e0f8f5c11",
+      "runtime_nodes": [
+        "fact:i:math_assertion_26512d235eaa"
+      ],
+      "compact_path": "/root/children/0/facts/0"
+    },
+    {
+      "source_path": "/root/facts/1",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        ">",
+        [
+          "ref",
+          "r:scalar:b",
+          "scalar"
+        ],
+        [
+          "number",
+          "0"
+        ]
+      ],
+      "source_unit_id": "notation-unit:2d4c46b549ef720634672d08766a87c3454db03ec0b858434b5a52f7af24f778",
+      "runtime_nodes": [
+        "fact:problem:math_assertion_2d4c46b549ef"
+      ],
+      "compact_path": "/root/facts/1"
+    },
+    {
+      "source_path": "/root/definitions/0",
+      "rule": "object_declaration",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "curve_definition",
+        [
+          "ref",
+          "r:curve:Γ",
+          "curve"
+        ],
+        [
+          "+",
+          [
+            "+",
+            [
+              "neg",
+              [
+                "^",
+                [
+                  "bound",
+                  "coordinate_x"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ],
+            [
+              "*",
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ],
+              [
+                "bound",
+                "coordinate_x"
+              ]
+            ]
+          ],
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7",
+      "runtime_nodes": [
+        "symbol:problem:b"
+      ],
+      "compact_path": "/root/definitions/0"
+    },
+    {
+      "source_path": "/root/children/0",
+      "rule": "scope",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c0"
+      ],
+      "compiled": null,
+      "source_unit_id": "notation-unit:44d3e38a53577e2604b492f61f08898105219e33074541d1dda844bc5f7760e0",
+      "runtime_nodes": [
+        "scope:i"
+      ],
+      "compact_path": "/root/children/0"
+    },
+    {
+      "source_path": "/root/children/1/children/0/goals/0",
+      "rule": "goal",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c0"
+      ],
+      "compiled": {
+        "kind": "find_value",
+        "target": [
+          "ref",
+          "r:scalar:b",
+          "scalar"
+        ]
+      },
+      "source_unit_id": "notation-unit:44e2858fe732cd744c8b01947f923ba6ae32e53ed4d03ac1831470cbbd47bc89",
+      "runtime_nodes": [
+        "answer:ii_1.b"
+      ],
+      "compact_path": "/root/children/1/children/0/goals/0"
+    },
+    {
+      "source_path": "/root/facts/3",
+      "rule": "intersection_membership",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "∩",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ],
+          [
+            "axis_constant",
+            "x_axis"
+          ]
+        ],
+        [
+          "set",
+          [
+            "ref",
+            "r:point:A",
+            "point"
+          ],
+          [
+            "ref",
+            "r:point:B",
+            "point"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:47f50b408512aeb1793f704b30526cdd7c6945510e1144ff286459ca0b8c1e1b",
+      "runtime_nodes": [
+        "fact:problem:point_on_curve_47f50b408512"
+      ],
+      "compact_path": "/root/facts/3"
+    },
+    {
+      "source_path": "/root/children/1/children/0/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c0"
+      ],
+      "compiled": [
+        "=",
+        [
+          "call",
+          "length",
+          [
+            "ref",
+            "r:point:A",
+            "point"
+          ],
+          [
+            "ref",
+            "r.c1:point:D",
+            "point"
+          ]
+        ],
+        [
+          "*",
+          [
+            "number",
+            "2"
+          ],
+          [
+            "call",
+            "length",
+            [
+              "ref",
+              "r:point:B",
+              "point"
+            ],
+            [
+              "ref",
+              "r:point:C",
+              "point"
+            ]
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:483768395c5b8094252850ccf7c1563b95b3cdba99bacaafad15f2d6c13e478b",
+      "runtime_nodes": [
+        "fact:ii_1:math_assertion_483768395c5b"
+      ],
+      "compact_path": "/root/children/1/children/0/facts/0"
+    },
+    {
+      "source_path": "/root/children/1/facts/1",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "call",
+          "x",
+          [
+            "ref",
+            "r.c1:point:D",
+            "point"
+          ]
+        ],
+        [
+          "+",
+          [
+            "ref",
+            "r:scalar:b",
+            "scalar"
+          ],
+          [
+            "number",
+            "2"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:4893222e53dcd0f402183f4ac4059d6f156a32d932ebe1f9fc0649e464aa6487",
+      "runtime_nodes": [
+        "fact:ii:math_assertion_4893222e53dc"
+      ],
+      "compact_path": "/root/children/1/facts/1"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/0",
+      "rule": "zero_ordinate",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r.c1.c1:point:M",
+          "point"
+        ],
+        [
+          "tuple",
+          [
+            "ref",
+            "r.c1.c1:scalar:m",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:491db66de6c5e288459757bd2b4513ce16e2dddd43e6090ed634977cf0c92b72",
+      "runtime_nodes": [
+        "point:ii_2:M"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/0"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/1",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        ">",
+        [
+          "ref",
+          "r.c1.c1:scalar:m",
+          "scalar"
+        ],
+        [
+          "number",
+          "0"
+        ]
+      ],
+      "source_unit_id": "notation-unit:56840e10ba412266b0af4290b5c17105620221d49335029ff1bc300b906dc6b9",
+      "runtime_nodes": [
+        "fact:ii_2:symbol_constraint_56840e10ba41"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/1"
+    },
+    {
+      "source_path": "/root/definitions/0",
+      "rule": "object_declaration",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "curve_definition",
+        [
+          "ref",
+          "r:curve:Γ",
+          "curve"
+        ],
+        [
+          "+",
+          [
+            "+",
+            [
+              "neg",
+              [
+                "^",
+                [
+                  "bound",
+                  "coordinate_x"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ],
+            [
+              "*",
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ],
+              [
+                "bound",
+                "coordinate_x"
+              ]
+            ]
+          ],
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:594623b1a993325533de9b70dd4ed5d36f5e0a9a71c29c52602780cee2da66d1",
+      "runtime_nodes": [
+        "symbol:problem:c"
+      ],
+      "compact_path": "/root/definitions/0"
+    },
+    {
+      "source_path": "/root/children/1/children/1",
+      "rule": "scope",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": null,
+      "source_unit_id": "notation-unit:668d7ff1f3f9f8951540ac5ce236e3cd4f1e3cfdf472e38652eee5a4aff818fc",
+      "runtime_nodes": [
+        "scope:ii_2"
+      ],
+      "compact_path": "/root/children/1/children/1"
+    },
+    {
+      "source_path": "/root/definitions/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "curve_definition",
+        [
+          "ref",
+          "r:curve:Γ",
+          "curve"
+        ],
+        [
+          "+",
+          [
+            "+",
+            [
+              "neg",
+              [
+                "^",
+                [
+                  "bound",
+                  "coordinate_x"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ],
+            [
+              "*",
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ],
+              [
+                "bound",
+                "coordinate_x"
+              ]
+            ]
+          ],
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:6bdbfc2aa331350c13f0821a58b46342665dcdf7ea9802e913fa5e9f897b892f",
+      "runtime_nodes": [
+        "fact:problem:math_assertion_6bdbfc2aa331"
+      ],
+      "compact_path": "/root/definitions/0"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r.c1.c1:point:M",
+          "point"
+        ],
+        [
+          "tuple",
+          [
+            "ref",
+            "r.c1.c1:scalar:m",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:6c0461dedfef711c1caee0c5082896a43c18d5920a262b72741219af74c5c4ea",
+      "runtime_nodes": [
+        "fact:ii_2:math_assertion_6c0461dedfef"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/0"
+    },
+    {
+      "source_path": "/root/facts/4",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "∩",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ],
+          [
+            "axis_constant",
+            "y_axis"
+          ]
+        ],
+        [
+          "set",
+          [
+            "ref",
+            "r:point:C",
+            "point"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:72b68332b1379dd55521f270d5f3e205de27e962c5fe843fe9b8c32f106d6ef4",
+      "runtime_nodes": [
+        "point:problem:C"
+      ],
+      "compact_path": "/root/facts/4"
+    },
+    {
+      "source_path": "/root/facts/3",
+      "rule": "object_declaration",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "∩",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ],
+          [
+            "axis_constant",
+            "x_axis"
+          ]
+        ],
+        [
+          "set",
+          [
+            "ref",
+            "r:point:A",
+            "point"
+          ],
+          [
+            "ref",
+            "r:point:B",
+            "point"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:7851e842c3c56851285b63e1709f938044f081d93623cdf0e56088adb832ac13",
+      "runtime_nodes": [
+        "point:problem:B"
+      ],
+      "compact_path": "/root/facts/3"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r.c1.c1:point:M",
+          "point"
+        ],
+        [
+          "tuple",
+          [
+            "ref",
+            "r.c1.c1:scalar:m",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:838c5f46a5e9e59918c659ff208b1c8cdcaa3d00af6adcf9100bc712e5ae7fbb",
+      "runtime_nodes": [
+        "fact:ii_2:point_coordinate_838c5f46a5e9",
+        "point:ii_2:M"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/0"
+    },
+    {
+      "source_path": "/root/children/0/goals/0",
+      "rule": "goal_vertex",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c0"
+      ],
+      "compiled": {
+        "kind": "find_coordinates",
+        "target": [
+          "call",
+          "vertex",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ]
+        ]
+      },
+      "source_unit_id": "notation-unit:83e47415a2145e2fe35c4663ea7eeab7862d81a5567b92faa4192984f96f943c",
+      "runtime_nodes": [
+        "point:i:vertex"
+      ],
+      "compact_path": "/root/children/0/goals/0"
+    },
+    {
+      "source_path": "/root/children/0/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c0"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r:scalar:b",
+          "scalar"
+        ],
+        [
+          "number",
+          "4"
+        ]
+      ],
+      "source_unit_id": "notation-unit:87789746ab08c379e28f72b745f058bb63a6c6334fe475fdf0738ad5c4508b53",
+      "runtime_nodes": [
+        "fact:i:symbol_value_87789746ab08"
+      ],
+      "compact_path": "/root/children/0/facts/0"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/0",
+      "rule": "object_declaration",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r.c1.c1:point:M",
+          "point"
+        ],
+        [
+          "tuple",
+          [
+            "ref",
+            "r.c1.c1:scalar:m",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:8912091e8401752f71ff03af8eca6e1bbdcddaa212425c627fe71b9019a66ba6",
+      "runtime_nodes": [
+        "symbol:ii_2:m"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/0"
+    },
+    {
+      "source_path": "/root/facts/2",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r:point:A",
+          "point"
+        ],
+        [
+          "tuple",
+          [
+            "neg",
+            [
+              "number",
+              "1"
+            ]
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:8bee11e4f8dfbb24bec5a8352c3f577de5b912de8c89bd00a840e48747106882",
+      "runtime_nodes": [
+        "fact:problem:math_assertion_8bee11e4f8df"
+      ],
+      "compact_path": "/root/facts/2"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/2",
+      "rule": "minimum_path",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "extremum",
+          "min",
+          [
+            [
+              "ref",
+              "r.c1.c1:scalar:m",
+              "scalar"
+            ]
+          ],
+          [
+            "+",
+            [
+              "*",
+              [
+                "number",
+                "2"
+              ],
+              [
+                "call",
+                "length",
+                [
+                  "ref",
+                  "r.c1:point:D",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c1.c1:point:M",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "call",
+              "length",
+              [
+                "ref",
+                "r:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1.c1:point:M",
+                "point"
+              ]
+            ]
+          ]
+        ],
+        [
+          "+",
+          [
+            "number",
+            "5"
+          ],
+          [
+            "*",
+            [
+              "number",
+              "5"
+            ],
+            [
+              "call",
+              "sqrt",
+              [
+                "number",
+                "3"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:948c34e940c14285f3e8482a3f4b0e166fa45cbd7a1f6a565e8a2832ff34601e",
+      "runtime_nodes": [
+        "fact:ii_2:minimum_target_948c34e940c1"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/2"
+    },
+    {
+      "source_path": "/root/facts/3",
+      "rule": "intersection_membership",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "∩",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ],
+          [
+            "axis_constant",
+            "x_axis"
+          ]
+        ],
+        [
+          "set",
+          [
+            "ref",
+            "r:point:A",
+            "point"
+          ],
+          [
+            "ref",
+            "r:point:B",
+            "point"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:988ebc0aa6ed224a0ba4f644b186de8398884f1bd3b694e2ef0d42275fe1c0c3",
+      "runtime_nodes": [
+        "fact:problem:point_on_curve_988ebc0aa6ed"
+      ],
+      "compact_path": "/root/facts/3"
+    },
+    {
+      "source_path": "/root/facts/3",
+      "rule": "distinct_quadratic_roots",
+      "premises": [
+        "/root/definitions/0",
+        "/root/facts/1",
+        "/root/facts/2"
+      ],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "∩",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ],
+          [
+            "axis_constant",
+            "x_axis"
+          ]
+        ],
+        [
+          "set",
+          [
+            "ref",
+            "r:point:A",
+            "point"
+          ],
+          [
+            "ref",
+            "r:point:B",
+            "point"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:9b36ef2310c31f3439e5326fb65753a3909b02718470a0a61f02004af2e55acd",
+      "runtime_nodes": [
+        "point:problem:B"
+      ],
+      "compact_path": "/root/facts/3"
+    },
+    {
+      "source_path": "/root/definitions/0",
+      "rule": "curve_coordinate_variable",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "curve_definition",
+        [
+          "ref",
+          "r:curve:Γ",
+          "curve"
+        ],
+        [
+          "+",
+          [
+            "+",
+            [
+              "neg",
+              [
+                "^",
+                [
+                  "bound",
+                  "coordinate_x"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ],
+            [
+              "*",
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ],
+              [
+                "bound",
+                "coordinate_x"
+              ]
+            ]
+          ],
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717",
+      "runtime_nodes": [
+        "symbol:problem:x"
+      ],
+      "compact_path": "/root/definitions/0"
+    },
+    {
+      "source_path": "/root/facts/3",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "∩",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ],
+          [
+            "axis_constant",
+            "x_axis"
+          ]
+        ],
+        [
+          "set",
+          [
+            "ref",
+            "r:point:A",
+            "point"
+          ],
+          [
+            "ref",
+            "r:point:B",
+            "point"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:a78576b0a1fd466b53907daa7975022a9a0cd1eaa3195bd2c33c7d51bac3df40",
+      "runtime_nodes": [
+        "fact:problem:math_assertion_a78576b0a1fd"
+      ],
+      "compact_path": "/root/facts/3"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/2",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "extremum",
+          "min",
+          [
+            [
+              "ref",
+              "r.c1.c1:scalar:m",
+              "scalar"
+            ]
+          ],
+          [
+            "+",
+            [
+              "*",
+              [
+                "number",
+                "2"
+              ],
+              [
+                "call",
+                "length",
+                [
+                  "ref",
+                  "r.c1:point:D",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c1.c1:point:M",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "call",
+              "length",
+              [
+                "ref",
+                "r:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1.c1:point:M",
+                "point"
+              ]
+            ]
+          ]
+        ],
+        [
+          "+",
+          [
+            "number",
+            "5"
+          ],
+          [
+            "*",
+            [
+              "number",
+              "5"
+            ],
+            [
+              "call",
+              "sqrt",
+              [
+                "number",
+                "3"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:a9323bc452f1d0ac14d3d6ecd974caa37882fed72c223f323ef8564f8f76bc73",
+      "runtime_nodes": [
+        "fact:ii_2:minimum_value_given_a9323bc452f1"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/2"
+    },
+    {
+      "source_path": "/root/children/1/children/0",
+      "rule": "scope",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c0"
+      ],
+      "compiled": null,
+      "source_unit_id": "notation-unit:ae9d5196cb995bef12c235f99c5577f88e3059ebce5f1f55798a2ccc42ac3d11",
+      "runtime_nodes": [
+        "scope:ii_1"
+      ],
+      "compact_path": "/root/children/1/children/0"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/2",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "extremum",
+          "min",
+          [
+            [
+              "ref",
+              "r.c1.c1:scalar:m",
+              "scalar"
+            ]
+          ],
+          [
+            "+",
+            [
+              "*",
+              [
+                "number",
+                "2"
+              ],
+              [
+                "call",
+                "length",
+                [
+                  "ref",
+                  "r.c1:point:D",
+                  "point"
+                ],
+                [
+                  "ref",
+                  "r.c1.c1:point:M",
+                  "point"
+                ]
+              ]
+            ],
+            [
+              "call",
+              "length",
+              [
+                "ref",
+                "r:point:A",
+                "point"
+              ],
+              [
+                "ref",
+                "r.c1.c1:point:M",
+                "point"
+              ]
+            ]
+          ]
+        ],
+        [
+          "+",
+          [
+            "number",
+            "5"
+          ],
+          [
+            "*",
+            [
+              "number",
+              "5"
+            ],
+            [
+              "call",
+              "sqrt",
+              [
+                "number",
+                "3"
+              ]
+            ]
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:c1df50afd73015baebcb189264d9108dd6324c8d78650b70635d5e6f46293569",
+      "runtime_nodes": [
+        "fact:ii_2:math_assertion_c1df50afd730"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/2"
+    },
+    {
+      "source_path": "/root/children/1/children/1/facts/0",
+      "rule": "object_declaration",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r.c1.c1:point:M",
+          "point"
+        ],
+        [
+          "tuple",
+          [
+            "ref",
+            "r.c1.c1:scalar:m",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:c5ad392298a9413414e9f77851c51642ca1a9c30d21692e5c8c50a3f41062be9",
+      "runtime_nodes": [
+        "point:ii_2:M"
+      ],
+      "compact_path": "/root/children/1/children/1/facts/0"
+    },
+    {
+      "source_path": "/root/facts/2",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "ref",
+          "r:point:A",
+          "point"
+        ],
+        [
+          "tuple",
+          [
+            "neg",
+            [
+              "number",
+              "1"
+            ]
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:c6079bf4d95ee2ee1a53cd906d8fd8b16616c14c4b127ff9cdd145aee57e1b74",
+      "runtime_nodes": [
+        "fact:problem:point_coordinate_c6079bf4d95e",
+        "point:problem:A"
+      ],
+      "compact_path": "/root/facts/2"
+    },
+    {
+      "source_path": "/root/children/0/goals/0",
+      "rule": "goal",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c0"
+      ],
+      "compiled": {
+        "kind": "find_coordinates",
+        "target": [
+          "call",
+          "vertex",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ]
+        ]
+      },
+      "source_unit_id": "notation-unit:ca17f836c062409daf0d7be03aa8f00cef45fa549e2b99b3cb76bef39e982daf",
+      "runtime_nodes": [
+        "answer:i.vertex"
+      ],
+      "compact_path": "/root/children/0/goals/0"
+    },
+    {
+      "source_path": "/root/facts/1",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        ">",
+        [
+          "ref",
+          "r:scalar:b",
+          "scalar"
+        ],
+        [
+          "number",
+          "0"
+        ]
+      ],
+      "source_unit_id": "notation-unit:ccf0fc8f46d6450989c576ca7eebd1b10107ffe99bf1f9d794655e16c2041024",
+      "runtime_nodes": [
+        "fact:problem:symbol_constraint_ccf0fc8f46d6"
+      ],
+      "compact_path": "/root/facts/1"
+    },
+    {
+      "source_path": "/root/definitions/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "curve_definition",
+        [
+          "ref",
+          "r:curve:Γ",
+          "curve"
+        ],
+        [
+          "+",
+          [
+            "+",
+            [
+              "neg",
+              [
+                "^",
+                [
+                  "bound",
+                  "coordinate_x"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ],
+            [
+              "*",
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ],
+              [
+                "bound",
+                "coordinate_x"
+              ]
+            ]
+          ],
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:d1d0186976dfbe6d30ddc190c39853acfc5c8839ece48e61ad79e3c185189581",
+      "runtime_nodes": [
+        "function:problem:parabola"
+      ],
+      "compact_path": "/root/definitions/0"
+    },
+    {
+      "source_path": "/root/facts/4",
+      "rule": "object_declaration",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "∩",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ],
+          [
+            "axis_constant",
+            "y_axis"
+          ]
+        ],
+        [
+          "set",
+          [
+            "ref",
+            "r:point:C",
+            "point"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:d727563a997c5a8f11669ca719b53aaa5fa603828e5bbf1e3dd269d1b672ae6a",
+      "runtime_nodes": [
+        "point:problem:C"
+      ],
+      "compact_path": "/root/facts/4"
+    },
+    {
+      "source_path": "/root/definitions/0",
+      "rule": "object_declaration",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "curve_definition",
+        [
+          "ref",
+          "r:curve:Γ",
+          "curve"
+        ],
+        [
+          "+",
+          [
+            "+",
+            [
+              "neg",
+              [
+                "^",
+                [
+                  "bound",
+                  "coordinate_x"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ],
+            [
+              "*",
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ],
+              [
+                "bound",
+                "coordinate_x"
+              ]
+            ]
+          ],
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+      "runtime_nodes": [
+        "function:problem:parabola"
+      ],
+      "compact_path": "/root/definitions/0"
+    },
+    {
+      "source_path": "/root/children/1/facts/0",
+      "rule": "object_declaration",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1"
+      ],
+      "compiled": [
+        "∈",
+        [
+          "ref",
+          "r.c1:point:D",
+          "point"
+        ],
+        [
+          "ref",
+          "r:curve:Γ",
+          "curve"
+        ]
+      ],
+      "source_unit_id": "notation-unit:e084694f14771ab3708029267e1a6efdc604732846dd812a141624c4cdecdd7e",
+      "runtime_nodes": [
+        "point:ii:D"
+      ],
+      "compact_path": "/root/children/1/facts/0"
+    },
+    {
+      "source_path": "/root/children/1",
+      "rule": "scope",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1"
+      ],
+      "compiled": null,
+      "source_unit_id": "notation-unit:e8bf8da2e80210d3b4d3e3b5195d7ba2c05e4047a7b9cd4659a046d379e3d65f",
+      "runtime_nodes": [
+        "scope:ii"
+      ],
+      "compact_path": "/root/children/1"
+    },
+    {
+      "source_path": "/root/children/1/children/1/goals/0",
+      "rule": "goal",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1",
+        "c1"
+      ],
+      "compiled": {
+        "kind": "find_value",
+        "target": [
+          "ref",
+          "r:scalar:b",
+          "scalar"
+        ]
+      },
+      "source_unit_id": "notation-unit:eeaecc8a246dcf39c6c74caad14cc472e7cfbcf2e690439c72b1a6a95fff12bf",
+      "runtime_nodes": [
+        "answer:ii_2.b"
+      ],
+      "compact_path": "/root/children/1/children/1/goals/0"
+    },
+    {
+      "source_path": "/root/children/1/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem",
+        "c1"
+      ],
+      "compiled": [
+        "∈",
+        [
+          "ref",
+          "r.c1:point:D",
+          "point"
+        ],
+        [
+          "ref",
+          "r:curve:Γ",
+          "curve"
+        ]
+      ],
+      "source_unit_id": "notation-unit:ef951d8ef37b5b67d9d6e0db8963233c993901bb1c18b6de88e4ecc1255b87eb",
+      "runtime_nodes": [
+        "fact:ii:point_on_curve_ef951d8ef37b"
+      ],
+      "compact_path": "/root/children/1/facts/0"
+    },
+    {
+      "source_path": "/root/children/1/facts/1",
+      "rule": "coordinate_on_curve",
+      "premises": [
+        "/root/children/1/facts/0"
+      ],
+      "scope_path": [
+        "problem",
+        "c1"
+      ],
+      "compiled": [
+        "=",
+        [
+          "call",
+          "x",
+          [
+            "ref",
+            "r.c1:point:D",
+            "point"
+          ]
+        ],
+        [
+          "+",
+          [
+            "ref",
+            "r:scalar:b",
+            "scalar"
+          ],
+          [
+            "number",
+            "2"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:f07a3e7e0e8e19b12d9772e6246c387fc9ecfbcb6ea2d267988448b76fe17060",
+      "runtime_nodes": [
+        "fact:ii:point_construction_f07a3e7e0e8e",
+        "point:ii:D"
+      ],
+      "compact_path": "/root/children/1/facts/1"
+    },
+    {
+      "source_path": "/root/facts/4",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "=",
+        [
+          "∩",
+          [
+            "ref",
+            "r:curve:Γ",
+            "curve"
+          ],
+          [
+            "axis_constant",
+            "y_axis"
+          ]
+        ],
+        [
+          "set",
+          [
+            "ref",
+            "r:point:C",
+            "point"
+          ]
+        ]
+      ],
+      "source_unit_id": "notation-unit:fa058127afec0c45451f2987b27aa5f179da6809a21e20f7e8a2c2de4ae1217e",
+      "runtime_nodes": [
+        "fact:problem:math_assertion_fa058127afec"
+      ],
+      "compact_path": "/root/facts/4"
+    },
+    {
+      "source_path": "/root/facts/0",
+      "rule": "typed_relation",
+      "premises": [],
+      "scope_path": [
+        "problem"
+      ],
+      "compiled": [
+        "and",
+        [
+          "default_domain",
+          [
+            "ref",
+            "r:scalar:b",
+            "scalar"
+          ],
+          "real"
+        ],
+        [
+          "default_domain",
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ],
+          "real"
+        ]
+      ],
+      "source_unit_id": "notation-unit:fe91e78342a20ea40720b70249e28687e30b88fe12482a28ad10a9ae2cd1689a",
+      "runtime_nodes": [
+        "fact:problem:math_assertion_fe91e78342a2"
+      ],
+      "compact_path": "/root/facts/0"
+    }
+  ]
+}
