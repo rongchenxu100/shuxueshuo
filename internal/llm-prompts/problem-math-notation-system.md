@@ -22,6 +22,7 @@ definitions 只放以下三类：
 - 交点关系：`Γ ∩ y_axis = {Q}`。
 - 位置或大小：`x(P) < x(Q)`、`y(R) < 0`、`UV = 3*VW`。
 - 最值已知条件：`min(UV+VW) = 7`。
+- 题面明确的状态条件：`UV+VW = min(UV+VW)`。
 
 例如“W是UV的中点”固定写到 facts，无需因它引入W而改放 definitions。
 已经定义的函数，其取值条件如 `f(2) = 3` 放 facts；不要把它当成新的函数定义。
@@ -55,6 +56,7 @@ label、match_reason、uncertainties.text 可用简短自然语言；definitions
 ## 忠实保留题意与作用域
 
 root/children 按原题分问组织；父条件向下继承，兄弟小问的局部条件不能串用。
+facts 表达本节点及其子节点的条件，goals 只表达这些条件下求什么。若同一分问仅部分目标受一个局部条件限定，将条件与这些目标放到独立子节点，其余目标留在原节点；不虚构题目编号，也不将局部条件提升到父节点。
 同一编号分问含多个图景或子问时，保留该编号为父节点，再将各图景或子问放入它的 children；即使父节点没有独立条件，也保留这个容器。例如“(1)①如图甲……②如图乙……”组织为 root → (1) → ①、②，不将“(1)图甲”“(1)图乙”平铺为 root 的孩子。一个分问只引用一幅图时，无需额外增加图景层。
 保留严格或非严格不等式、线段或射线范围、比例方向、逻辑括号、量词及开闭区间。
 已定义函数可直接引用 `f(t)`，无需展开、转成判别式或推导答案。量词绑定变量无需另作全局声明。
@@ -63,8 +65,8 @@ root/children 按原题分问组织；父条件向下继承，兄弟小问的局
 
 最值下标和 variables 均可省略；不分析动点依赖，不列固定参数，也不把所有出现的字母都当成优化变量。
 “最小值为7”必须保留为 `min(表达式) = 7`，不能改成普通等式 `表达式 = 7`。
-at 只用于题面明确的“取得最值时/此时”目标，如 `UV+VW = min(UV+VW)`；不推导最优条件，也不把普通求参数目标擅自限定到最优状态。
-按题面语句确定at的修饰范围：“求此时的曲线方程和P的坐标”给两个并列目标都填写同一at；仅“求取得最值时P的坐标”则只给P的目标填写。无需判断曲线或参数是否依赖动点，也不能因为目标是曲线方程就去掉题面明确的at。
+“取得最值时/此时”也是条件，写入对应节点facts，如 `UV+VW = min(UV+VW)`。不推导最优条件，也不把普通求参数目标擅自限定到最优状态。
+按原句确定作用范围：“求此时的曲线方程和P的坐标”让两个并列目标共用节点中的状态条件；“求最小值，并求取得最小值时P的坐标”则在父节点求最小值，在子节点放状态条件及坐标目标。无需判断曲线或参数是否依赖动点。最值表达式对应原题可行范围，不能因为新增取得最值状态而缩小原始优化范围。
 
 无法确定的信息写入对应节点的 uncertainties；题面引用的图形确实未提供时标为 missing_figure，不猜图。
 逐一核对题面引用的图与本次所有输入图片：提到图不代表已提供图；即使凭文字可能解答，引用的图未提供仍报告missing_figure。图已提供时不因未标图号或题型不熟悉而误报缺图；图模糊、遮挡分别使用unreadable、occluded。只在相关作用域报告，不输出额外图形清单。
@@ -108,9 +110,12 @@ at 只用于题面明确的“取得最值时/此时”目标，如 `UV+VW = min
 {
   "root": {
     "facts": ["P = (0,0)", "Q = (4,0)", "S = (0,4)", "square(P,Q,R,S)", "W = midpoint(P,S)", "T ∈ segment(Q,R)"],
-    "goals": [
-      {"kind": "find_minimum", "expression": "PT+TW"},
-      {"kind": "find_coordinates", "object": "T", "at": "PT+TW = min(PT+TW)"}
+    "goals": [{"kind": "find_minimum", "expression": "PT+TW"}],
+    "children": [
+      {
+        "facts": ["PT+TW = min(PT+TW)"],
+        "goals": [{"kind": "find_coordinates", "object": "T"}]
+      }
     ]
   },
   "match_status": "unmatched",
@@ -148,10 +153,10 @@ at 只用于题面明确的“取得最值时/此时”目标，如 `UV+VW = min
 {
   "root": {
     "definitions": ["Γ: y = x^2+u"],
-    "facts": ["R = vertex(Γ)", "P = (-2,0)", "Q = (3,0)", "T ∈ segment(P,Q)", "min(PT+TR) = 8"],
+    "facts": ["R = vertex(Γ)", "P = (-2,0)", "Q = (3,0)", "T ∈ segment(P,Q)", "min(PT+TR) = 8", "PT+TR = min(PT+TR)"],
     "goals": [
-      {"kind":"find_equation","object":"Γ","at":"PT+TR = min(PT+TR)"},
-      {"kind":"find_coordinates","object":"T","at":"PT+TR = min(PT+TR)"}
+      {"kind":"find_equation","object":"Γ"},
+      {"kind":"find_coordinates","object":"T"}
     ]
   },
   "match_status": "unmatched",

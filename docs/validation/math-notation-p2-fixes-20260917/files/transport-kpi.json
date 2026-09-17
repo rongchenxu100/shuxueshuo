@@ -1,0 +1,23 @@
+{
+  "files": {
+    "cases": [
+      "function-quantifiers",
+      "k-quad",
+      "tj-2026-heping-ermo-25",
+      "tj-2026-heping-yimo-25",
+      "tj-2026-hexi-yimo-25",
+      "tj-2026-nankai-yimo-25",
+      "tj-2026-xiqing-yimo-25"
+    ],
+    "completed": 7,
+    "passed": 6,
+    "first_passed": 6,
+    "elapsed_seconds": 308.109,
+    "semantic_calls": 13,
+    "network_attempts": 13,
+    "file_api_calls": 3,
+    "input_tokens": 114391,
+    "output_tokens": 66593,
+    "reasoning_tokens": 63469
+  }
+}

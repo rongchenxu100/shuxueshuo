@@ -69,18 +69,17 @@
           {
             "label": "②",
             "facts": [
-              "min_{E,G}(EG+FG) = 5*sqrt(10)/2"
+              "min_{E,G}(EG+FG) = 5*sqrt(10)/2",
+              "EG+FG = min_{E,G}(EG+FG)"
             ],
             "goals": [
               {
                 "kind": "find_equation",
-                "object": "Γ",
-                "at": "EG+FG = min_{E,G}(EG+FG)"
+                "object": "Γ"
               },
               {
                 "kind": "find_coordinates",
-                "object": "G",
-                "at": "EG+FG = min_{E,G}(EG+FG)"
+                "object": "G"
               }
             ]
           }

@@ -171,7 +171,8 @@ def test_implication_preserves_inequalities_branches_domains_and_goals():
         "ok"
     ]  # Domain obligations cannot disappear.
     changed = deepcopy(base)
-    changed["root"]["goals"] = [{"kind": "find_value", "expression": "k", "at": "k=1"}]
+    changed["root"]["facts"].append("k=1")
+    changed["root"]["goals"] = [{"kind": "find_value", "expression": "k"}]
     assert not compare(base, changed)["ok"]
 
 

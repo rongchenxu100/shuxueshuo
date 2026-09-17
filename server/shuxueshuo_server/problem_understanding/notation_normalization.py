@@ -12,6 +12,7 @@ import sympy as sp
 
 from .notation_geometry_proofs import AffineCertificates, intersection
 from .notation_parser import NotationError
+from .notation_state_proofs import parameter_state_witness
 from .proof_budget import ProofBudget
 
 
@@ -170,7 +171,7 @@ class Geometry:
 def normalize_bound(root, objects, *, source_locations=None):
     source_locations = source_locations or {}
     budget = ProofBudget()
-    proofs, bindings = [], []
+    proofs, bindings, object_bindings = [], [], []
     declaration_refs = set()
     owners = {obj["ref"]: obj["scope"] for obj in objects}
 
@@ -249,6 +250,36 @@ def normalize_bound(root, objects, *, source_locations=None):
             else:
                 relations.append(fact)
         facts = list(conjuncts([coordinates(f, path) for f in relations]))
+        facts = [replace(f, aliases) for f in facts]
+        # A current-scope name explicitly assigned to a point-valued vertex
+        # expression is an alias, not an extra geometric requirement. Use the
+        # expression everywhere, including descendants/goals; retain any
+        # other constraints on that point. Never promote a definition from an
+        # OR branch, quantifier, sibling, or a child to its parent.
+        point_aliases = []
+        for fact in facts:
+            match = pair_equality(fact, "call", "ref")
+            if (
+                match
+                and match[0][1] == "vertex"
+                and match[1][2] == "point"
+                and owners.get(match[1][1]) == path
+            ):
+                point_aliases.append((match[1][1], match[0], fact))
+        for identity, value, fact in sorted(
+            point_aliases, key=lambda row: (row[0], key(row[1]))
+        ):
+            if identity not in aliases:
+                aliases[identity] = value
+                object_bindings.append(
+                    {
+                        "scope": path,
+                        "symbol_ref": identity,
+                        "object": value,
+                        "definition": fact,
+                    }
+                )
+                record("named_vertex_binding", path, fact, ["=", value, value], [fact])
         facts = [replace(f, aliases) for f in facts]
         # Deterministic alias selection; only current-scope scalar definitions
         # can be eliminated here. All their uses, including goals, are retained.
@@ -411,11 +442,41 @@ def normalize_bound(root, objects, *, source_locations=None):
             for field, value in goal.items():
                 if isinstance(value, list):
                     value = replace(value, aliases)
-                    if field == "at":
-                        value = intersections(value)
                     value = axis_memberships(certified_ratios(value), path)
                 normalized_goal[field] = value
             goals.append(normalized_goal)
+        # A state condition is shared by every goal and descendant. Answer-set
+        # projection is safe only in a leaf where *all* goals have a certificate.
+        # Keep the source candidate and raw IR; this is comparison-only evidence.
+        if goals and not source["children"]:
+            for condition in list(kept):
+                remaining = [fact for fact in kept if fact is not condition]
+                certificates = [
+                    parameter_state_witness(
+                        goal,
+                        condition,
+                        remaining,
+                        inherited_facts,
+                        owners,
+                        path,
+                        budget,
+                    )
+                    for goal in goals
+                ]
+                if all(certificates):
+                    kept = remaining
+                    for goal, certificate in zip(goals, certificates, strict=True):
+                        record(
+                            "parameter_state_extremum_witness",
+                            path,
+                            condition,
+                            ["and"],
+                            certificate["premises"],
+                        )
+                        proofs[-1].update(
+                            {k: v for k, v in certificate.items() if k != "premises"}
+                        )
+                        proofs[-1]["goal"] = goal
         return {
             **deepcopy(source),
             "facts": kept,
@@ -426,7 +487,7 @@ def normalize_bound(root, objects, *, source_locations=None):
         }
 
     result = visit(root)
-    eliminated = {binding["symbol_ref"] for binding in bindings}
+    eliminated = {binding["symbol_ref"] for binding in [*bindings, *object_bindings]}
     # Endpoint objects used only by removed mentions have no comparison role.
     # Keep them in the original IR, but do not obstruct consistent renaming.
     eliminated.update(declaration_refs - references(result))
@@ -435,5 +496,6 @@ def normalize_bound(root, objects, *, source_locations=None):
         "root": result,
         "objects": [deepcopy(obj) for obj in objects if obj["ref"] not in eliminated],
         "coordinate_bindings": bindings,
+        "object_bindings": object_bindings,
         "proofs": proofs,
     }

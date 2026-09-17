@@ -277,8 +277,6 @@ class Canonical:
                 goal["in_terms_of"] = sorted(
                     [self.tree(x) for x in g["in_terms_of"]], key=key
                 )
-            if "at" in g:
-                goal["at"] = self.logic([g["at"]])
             goals.append(goal)
         # Wording is not semantic, but uncertainty type and scope must survive.
         result = {
@@ -340,6 +338,14 @@ def compare(expected, actual):
             "expected_issues": left.issues,
             "actual_issues": right.issues,
         }
+    # Expose target-projection certificates in acceptance reports as well as
+    # compiled artifacts; raw candidates and source-review pointers stay intact.
+    state_proofs = [
+        {"side": side, **proof}
+        for side, report in (("expected", left), ("actual", right))
+        for proof in report.semantic_normalization.get("proofs", [])
+        if proof["rule"] == "parameter_state_extremum_witness"
+    ]
     try:
         left_compiler, right_compiler = Canonical(), Canonical()
         a, b = (
@@ -347,7 +353,12 @@ def compare(expected, actual):
             canonical(right, compiler=right_compiler),
         )
         if a == b:
-            return {"ok": True, "classification": "equivalent", "differences": []}
+            return {
+                "ok": True,
+                "classification": "equivalent",
+                "differences": [],
+                **({"proofs": state_proofs} if state_proofs else {}),
+            }
         budget = ProofBudget()
         proofs = prove_equivalent(
             a, b, {**left_compiler.algebra, **right_compiler.algebra}, budget
@@ -357,7 +368,7 @@ def compare(expected, actual):
                 "ok": True,
                 "classification": "equivalent",
                 "differences": [],
-                "proofs": proofs,
+                "proofs": [*state_proofs, *proofs],
             }
         for aliases in alias_candidates(left, right):
             compiler = Canonical(aliases)
@@ -375,7 +386,7 @@ def compare(expected, actual):
                     "classification": "equivalent",
                     "differences": [],
                     "aliases": aliases,
-                    "proofs": proofs,
+                    "proofs": [*state_proofs, *proofs],
                 }
         differences, partial_proofs = [], []
         common_domain = a["well_definedness"] == b["well_definedness"]
@@ -413,7 +424,7 @@ def compare(expected, actual):
             "ok": False,
             "classification": "not_proven_equivalent",
             "differences": differences,
-            "proofs": partial_proofs,
+            "proofs": [*state_proofs, *partial_proofs],
         }
     except (NotationError, ValueError, TypeError, RecursionError) as exc:
         return {

@@ -2,6 +2,7 @@
 
 import json
 import os
+from dataclasses import replace
 from hashlib import sha256
 from pathlib import Path
 from time import perf_counter
@@ -149,8 +150,17 @@ def run(fixture, output, provider, registry):
             for p in getattr(wire_prompt, "TEMPLATE_FILES", ())
         },
         "implementation_files": {
-            p.name: sha256(p.read_bytes()).hexdigest()
-            for p in sorted(Path(__file__).parent.glob("*.py"))
+            str(p.relative_to(Path(__file__).parents[1])): sha256(
+                p.read_bytes()
+            ).hexdigest()
+            for p in sorted(
+                [
+                    *Path(__file__).parent.glob("*.py"),
+                    Path(__file__).parents[1]
+                    / "solver/extraction/multimodal_provider.py",
+                    Path(__file__).parents[1] / "solver/extraction/deepseek_files.py",
+                ]
+            )
         },
         "extraction_policy": CONTRACT,
         "authoring_schema_hash": revision(request.contract_schema),
@@ -158,6 +168,7 @@ def run(fixture, output, provider, registry):
         "contracts": {request.contract_version: revision(request.contract_schema)},
         "output_contract": request.contract_version,
         "request_hash": revision(request.redacted_payload()),
+        "image_transport": request.image_transport,
         "gold_sha256": sha256((fixture / "gold.json").read_bytes()).hexdigest(),
         "image_sha256": request.images[0].artifact.sha256,
         "semantic_budget": 1,
@@ -186,6 +197,7 @@ def run(fixture, output, provider, registry):
     started = perf_counter()
     summary = {
         "case_id": case_id,
+        "image_transport": request.image_transport,
         "passed": False,
         "candidate_only": True,
         "source_reviewed": False,
@@ -194,11 +206,17 @@ def run(fixture, output, provider, registry):
         "network_attempts": 0,
     }
     try:
-        response = provider.complete(request)
+        response = provider.complete(
+            replace(request, transport_audit_directory=str(output))
+        )
         (output / "raw-response.txt").write_text(response.text)
         save("provider-response.json", response.raw_payload)
         save("call.json", response.metadata_payload())
         summary["network_attempts"] = len(response.provider_attempts)
+        summary["file_api_calls"] = response.metadata_payload().get("file_api_calls", 0)
+        from .workflow_usage import call_usage
+
+        summary["usage"] = call_usage({"metadata": response.metadata_payload()})
         parsed = parse_wire(
             response.text,
             problem_id=case_id,
@@ -241,6 +259,9 @@ def run(fixture, output, provider, registry):
         summary["error_code"] = getattr(exc, "code", None)
         attempts = getattr(provider, "last_provider_attempts", ())
         summary["network_attempts"] = len(attempts)
+        summary["file_api_calls"] = sum(
+            e["api_calls"] for e in getattr(provider, "last_file_operations", ())
+        )
         save(
             "failed-attempts.json",
             [{k: v for k, v in a.items() if k != "error_message"} for a in attempts],

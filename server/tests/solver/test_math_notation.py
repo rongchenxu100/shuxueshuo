@@ -165,8 +165,6 @@ def test_optional_fields_defaults_and_extremum_hints():
         ]
         for g in scope.get("goals", []):
             g.pop("variables", None)
-            if "at" in g:
-                g["at"] = g["at"].replace("min_{E,G}", "min")
         for c in scope.get("children", []):
             strip(c)
         if not scope["facts"]:
@@ -263,13 +261,13 @@ def test_quantifier_domain_and_relation_mutations_fail(old, new):
     assert not compare(expected, actual)["ok"]
 
 
-def test_ray_and_goal_at_mutations_fail():
+def test_ray_and_state_condition_mutations_fail():
     expected = gold("tj-2026-heping-yimo-25")
     actual = json.loads(json.dumps(expected).replace("ray(C,D)", "line(C,D)"))
     assert not compare(expected, actual)["ok"]
     expected = gold("tj-2026-heping-ermo-25")
     actual = deepcopy(expected)
-    actual["root"]["children"][1]["goals"][0].pop("at")
+    actual["root"]["children"][1]["facts"].remove("HF+FM+MG = min(HF+FM+MG)")
     assert not compare(expected, actual)["ok"]
 
 
@@ -301,7 +299,11 @@ def test_sibling_points_invisible_and_independent_same_names_local():
         }
     )
     report = NotationValidator().validate(payload)
-    assert not report.ok and any("invisible:A" in x["message"] for x in report.issues)
+    assert not report.ok and any(
+        x["reason_code"] == "binding.unknown_or_invisible"
+        and x["source"] == "B = A+(1,0)"
+        for x in report.issues
+    )
     payload["root"]["children"][1]["facts"] = ["A = (2,0)"]
     report = NotationValidator().validate(payload)
     assert report.ok

@@ -149,12 +149,17 @@ def test_affected_ownership_ignores_docs_only_changes() -> None:
     "path",
     [
         "server/shuxueshuo_server/problem_understanding/notation_normalization.py",
+        "server/shuxueshuo_server/solver/extraction/deepseek_files.py",
+        "server/shuxueshuo_server/solver/extraction/multimodal_provider.py",
         "server/shuxueshuo_server/problem_understanding/notation_geometry_proofs.py",
         "server/shuxueshuo_server/problem_understanding/notation_implication.py",
         "server/shuxueshuo_server/problem_understanding/proof_budget.py",
         "internal/llm-prompts/problem-math-notation-expressions.json",
+        "internal/llm-prompts/problem-math-notation-review-families.json",
         "internal/llm-prompts/problem-math-notation-system.md",
         "internal/schemas/problem-math-notation-v1.schema.json",
+        "internal/schemas/problem-math-source-review-v1.schema.json",
+        "server/tools/report_math_notation_workflow.py",
         "server/tests/solver/fixtures/math-notation-v1/example.json",
         "server/tests/solver/fixtures/math-notation-v1/future-recorded-batch/example.txt",
     ],
@@ -163,12 +168,20 @@ def test_math_notation_changes_select_generated_and_recorded_gates(path):
     selected, unmapped = _tests_for_changed_paths([path])
     assert not unmapped
     assert "tests/solver/test_math_notation_normalization.py" in selected
+    assert "tests/solver/test_math_notation_state_proofs.py" in selected
+    assert "tests/solver/test_math_notation_state_scope.py" in selected
     assert "tests/solver/test_math_notation_recorded.py" in selected
     assert "tests/solver/test_math_notation_extraction_rules.py" in selected
     assert "tests/solver/test_math_notation_redundancy.py" in selected
     assert "tests/solver/test_math_notation_geometry_proofs.py" in selected
     assert "tests/solver/test_math_notation_intersection_definition.py" in selected
     assert "tests/solver/test_math_notation_angle_catalog.py" in selected
+    assert "tests/solver/test_math_notation_workflow.py" in selected
+    assert "tests/solver/test_math_notation_diagnostic_routes.py" in selected
+    assert "tests/solver/test_math_notation_transport_accounting.py" in selected
+    assert "tests/solver/test_math_notation_review_families.py" in selected
+    assert "tests/solver/test_deepseek_files.py" in selected
+    assert "tests/solver/test_deepseek_vision.py" in selected
     assert "tests/solver/test_math_notation_cleanup.py" in selected
 
 

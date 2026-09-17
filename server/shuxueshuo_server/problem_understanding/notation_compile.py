@@ -102,6 +102,7 @@ class Report:
             "coordinate_bindings": self.semantic_normalization.get(
                 "coordinate_bindings", []
             ),
+            "object_bindings": self.semantic_normalization.get("object_bindings", []),
             "normalization_proofs": self.semantic_normalization.get("proofs", []),
         }
 
@@ -142,11 +143,11 @@ class Scope:
 
     def declare(self, name, kind, *, local=False):
         if name in ("x_axis", "y_axis") or name in BUILTINS:
-            raise NotationError("binding.reserved_name:" + name)
+            raise NotationError("binding.reserved_name", name)
         existing = self.local.get(name) if local else self.lookup(name)
         if existing:
             if existing["kind"] != kind:
-                raise NotationError("binding.type_conflict:" + name)
+                raise NotationError("binding.type_conflict", name)
             return existing
         identity = f"{self.path}:{kind}:{name}"
         value = {"ref": identity, "name": name, "kind": kind, "scope": self.path}
@@ -163,9 +164,9 @@ class Scope:
         if value is None and introduce:
             value = self.declare(name, kind or "scalar")
         if value is None:
-            raise NotationError("binding.unknown_or_invisible:" + name)
+            raise NotationError("binding.unknown_or_invisible", name)
         if kind and value["kind"] != kind:
-            raise NotationError("binding.type_conflict:" + name)
+            raise NotationError("binding.type_conflict", name)
         return node("ref", value["ref"], value["kind"])
 
     def declarations(self, ast):
@@ -187,12 +188,13 @@ class Scope:
             return
         if kind == "=":
             left, right = ast[1:]
-            if left[0] == "name" and (
-                right[0] == "tuple"
-                or (right[0] == "call" and right[1] in ("midpoint", "vertex"))
-                or (right[0] == "+" and right[2][0] == "tuple")
-            ):
-                self.declare(left[1], "point")
+            for name, value in ((left, right), (right, left)):
+                if name[0] == "name" and (
+                    value[0] == "tuple"
+                    or (value[0] == "call" and value[1] in ("midpoint", "vertex"))
+                    or (value[0] == "+" and value[2][0] == "tuple")
+                ):
+                    self.declare(name[1], "point")
             for side in (left, right):
                 if side[0] == "set":
                     for p in side[1:]:
@@ -248,7 +250,7 @@ class Scope:
                 )
             if name[0].islower() and name not in BUILTINS:
                 return self.reference(name, "scalar", introduce=True)
-            raise NotationError("binding.unknown_or_invisible:" + name)
+            raise NotationError("binding.unknown_or_invisible", name)
         if kind == "role":
             return node("role", self.reference(ast[1], "point"), ast[2])
         if kind == "curve_definition":
@@ -295,18 +297,18 @@ class Scope:
                     or packed in bound
                     or any(p in bound for p in packed)
                 ):
-                    raise NotationError("binding.ambiguous_angle_shorthand:" + packed)
+                    raise NotationError("binding.ambiguous_angle_shorthand", packed)
                 return node(
                     "call", "angle", *[self.reference(p, "point") for p in packed]
                 )
             if name not in ARITY and name not in ("fixed", "moving"):
                 if name not in self.functions or len(args) != 1:
-                    raise NotationError("binding.unknown_function:" + name)
+                    raise NotationError("binding.unknown_function", name)
                 return node(
                     "function_call", self.reference(name, "function"), bind(args[0])
                 )
             if name in ARITY and len(args) != ARITY[name]:
-                raise NotationError("binding.call_arity:" + name)
+                raise NotationError("binding.call_arity", name)
             if name in ENDPOINT_PAIR_ARGS:
                 pairs = [
                     node("endpoints", *[bind(p) for p in endpoint_arguments(arg)])
@@ -404,7 +406,7 @@ def typecheck(ast):
         types = [typecheck(x) for x in ast[2:]]
         if name in POINT_ARGS:
             if not types or any(t != "point" for t in types):
-                raise NotationError("type.point_arguments:" + name)
+                raise NotationError("type.point_arguments", name)
             return {
                 "length": "length",
                 "angle": "angle",
@@ -426,7 +428,7 @@ def typecheck(ast):
             "cut_ratio": "endpoints",
         }[name]
         if any(t != required for t in types):
-            raise NotationError("type.call_arguments:" + name)
+            raise NotationError("type.call_arguments", name)
         return {
             "axis": "locus",
             "vertex": "point",
@@ -518,6 +520,7 @@ class NotationValidator:
                 {
                     "path": getattr(exc, "path", None) or "/root",
                     "code": "notation.invalid",
+                    "reason_code": getattr(exc, "code", "internal.exception"),
                     "message": str(exc),
                     **(
                         {"source": exc.source}
@@ -551,6 +554,7 @@ class NotationValidator:
                             "path": location,
                             "source": text,
                             "code": "notation.parse",
+                            "reason_code": getattr(exc, "code", "internal.exception"),
                             "message": str(exc),
                         }
                     )
@@ -574,6 +578,7 @@ class NotationValidator:
                         "path": location,
                         "source": text,
                         "code": "notation.bind",
+                        "reason_code": getattr(exc, "code", "internal.exception"),
                         "message": str(exc),
                     }
                 )
@@ -593,13 +598,6 @@ class NotationValidator:
                 if typ not in expected:
                     raise NotationError("type.goal_target")
                 result = {"kind": goal["kind"], "target": value}
-                if "at" in goal:
-                    result["at"] = env.bind(parse(goal["at"]))
-                    if typecheck(result["at"]) != "boolean":
-                        raise NotationError("type.goal_at")
-                    report.record_intersections(
-                        result["at"], f"{path}.goals[{index}]", goal
-                    )
                 for field in ("variables", "in_terms_of"):
                     if field in goal:
                         result[field] = [env.reference(p) for p in goal[field]]
@@ -610,6 +608,7 @@ class NotationValidator:
                         "path": f"{path}.goals[{index}]",
                         "source": goal,
                         "code": "notation.goal",
+                        "reason_code": getattr(exc, "code", "internal.exception"),
                         "message": str(exc),
                     }
                 )

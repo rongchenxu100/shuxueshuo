@@ -7,6 +7,7 @@ from hashlib import sha256
 from pathlib import Path
 
 import pytest
+from _math_notation_test_support import assert_removed_at_rejected
 
 from shuxueshuo_server.problem_understanding.batch_smoke import prepare_fixture
 from shuxueshuo_server.problem_understanding.notation_compile import NotationValidator
@@ -103,7 +104,8 @@ def test_endpoint_identity_uses_ancestors_but_isolates_siblings():
 def test_point_signatures_never_override_conflicting_types(facts):
     report = NotationValidator().validate(candidate(facts))
     assert not report.ok and any(
-        "type_conflict:A" in e["message"] for e in report.issues
+        e["reason_code"] == "binding.type_conflict" and e["source"] == facts[1]
+        for e in report.issues
     )
 
 
@@ -155,17 +157,21 @@ def test_k_saved_response_only_loses_cascade_errors():
     )
 
 
-def test_reviewed_nankai_gold_changes_only_the_parallel_goal_at(tmp_path):
+def test_reviewed_nankai_gold_uses_one_shared_state_fact(tmp_path):
     name = "tj-2026-nankai-yimo-25"
-    old = json.loads((RECORDED / (name + ".gold.json")).read_text())
     current = json.loads((FIXTURES / (name + ".json")).read_text())
-    expected = deepcopy(old)
-    goals = expected["root"]["children"][1]["children"][1]["goals"]
-    goals[0]["at"] = goals[1]["at"]
-    assert current == expected
+    scope = current["root"]["children"][1]["children"][1]
+    assert scope["facts"] == [
+        "min_{E,G}(EG+FG) = 5*sqrt(10)/2",
+        "EG+FG = min_{E,G}(EG+FG)",
+    ]
+    assert scope["goals"] == [
+        {"kind": "find_equation", "object": "Γ"},
+        {"kind": "find_coordinates", "object": "G"},
+    ]
     actual = json.loads((RECORDED / (name + ".txt")).read_text())
-    assert compare(current, actual)["ok"]
-    assert not compare(old, actual)["ok"]
+    assert assert_removed_at_rejected(actual)
+    assert compare(current, current)["ok"]
     fixture = prepare_fixture(name, tmp_path)
     revision = json.loads((fixture / "gold-revision.json").read_text())
     assert (
@@ -179,25 +185,26 @@ def test_reviewed_nankai_gold_changes_only_the_parallel_goal_at(tmp_path):
 @pytest.mark.parametrize(
     "change", ["remove", "maximum", "different_path", "unrelated_goal"]
 )
-def test_at_stays_strict_after_review(change):
+def test_state_fact_stays_strict_after_review(change):
     gold = json.loads((FIXTURES / "tj-2026-nankai-yimo-25.json").read_text())
     actual = deepcopy(gold)
-    goal = actual["root"]["children"][1]["children"][1]["goals"][0]
+    facts = actual["root"]["children"][1]["children"][1]["facts"]
     if change == "remove":
-        goal.pop("at")
+        facts.pop()
     elif change == "maximum":
-        goal["at"] = goal["at"].replace("min", "max")
+        facts[-1] = facts[-1].replace("min", "max")
     elif change == "different_path":
-        goal["at"] = goal["at"].replace("EG+FG", "EG")
+        facts[-1] = facts[-1].replace("EG+FG", "EG")
     else:
-        actual["root"]["children"][1]["children"][0]["goals"][0]["at"] = goal["at"]
+        actual["root"]["children"][1]["children"][0]["facts"].append(facts.pop())
     assert not compare(gold, actual)["ok"]
 
 
 def test_current_gold_revision_is_hashed_and_preserves_every_previous_gold():
     revision = json.loads((FIXTURES / "gold-revisions.json").read_text())
     assert [case for case, row in revision["cases"].items() if row["changed"]] == [
-        "tj-2026-nankai-yimo-25"
+        "tj-2026-heping-ermo-25",
+        "tj-2026-nankai-yimo-25",
     ]
     for case, row in revision["cases"].items():
         assert (
@@ -210,9 +217,8 @@ def test_current_gold_revision_is_hashed_and_preserves_every_previous_gold():
         )
 
 
-def test_current_gold_seven_recorded_outcomes():
+def test_old_recordings_do_not_become_current_passes_through_implicit_migration():
     manifest = json.loads((RECORDED / "manifest.json").read_text())
-    results = {}
     for row in manifest["cases"]:
         case = row["case"]
         gold = json.loads((FIXTURES / (case + ".json")).read_text())
@@ -222,9 +228,11 @@ def test_current_gold_seven_recorded_outcomes():
             if "policy_sha256" in row
             else None
         )
-        results[case] = evaluate(gold, actual, policy)["ok"]
-    assert sum(results.values()) == 6
-    assert not results["k-quad"]
+        result = evaluate(gold, actual, policy)
+        if assert_removed_at_rejected(actual):
+            assert not result["ok"]
+        else:
+            assert result["ok"] is row["expected_offline_passed"]
 
 
 def test_few_shots_cover_state_scope_missing_diagrams_and_preserve_branches():
@@ -234,8 +242,12 @@ def test_few_shots_cover_state_scope_missing_diagrams_and_preserve_branches():
     assert len(examples) == 6
     single = examples[1]["root"]["goals"]
     parallel = examples[3]["root"]["goals"]
-    assert "at" not in single[0] and "at" in single[1]
-    assert parallel[0]["at"] == parallel[1]["at"]
+    assert len(single) == 1 and single[0]["kind"] == "find_minimum"
+    child = examples[1]["root"]["children"][0]
+    assert child["facts"] == ["PT+TW = min(PT+TW)"]
+    assert child["goals"] == [{"kind": "find_coordinates", "object": "T"}]
+    assert len(parallel) == 2
+    assert "PT+TR = min(PT+TR)" in examples[3]["root"]["facts"]
     assert "UV = 2 ∨ UV = 5" in examples[2]["root"]["facts"]
     assert "UV > 3" in examples[2]["root"]["facts"]
     changed = deepcopy(examples[2])
@@ -255,11 +267,10 @@ def test_few_shots_cover_state_scope_missing_diagrams_and_preserve_branches():
         "保留(1)父节点"
         in schema()["$defs"]["Scope"]["properties"]["children"]["description"]
     )
-    for goal in schema()["$defs"]["Scope"]["properties"]["goals"]["items"]["oneOf"]:
-        assert "并列目标" in goal["properties"]["at"]["description"]
+    assert "仅部分目标" in schema()["$defs"]["Scope"]["description"]
 
 
-def test_model_output_shape_is_unchanged_from_original_live_request():
+def test_model_output_shape_explicitly_removes_goal_state_field():
     def shape(value):
         if isinstance(value, dict):
             return {k: shape(v) for k, v in value.items() if k != "description"}
@@ -268,4 +279,8 @@ def test_model_output_shape_is_unchanged_from_original_live_request():
         return value
 
     previous = json.loads((RECORDED / "wire-shape.json").read_text())
-    assert shape(schema()) == previous["shape"]
+    obsolete = previous["shape"]
+    assert shape(schema()) != obsolete
+    for goal in obsolete["$defs"]["Scope"]["properties"]["goals"]["items"]["oneOf"]:
+        del goal["properties"]["at"]
+    assert shape(schema()) == obsolete

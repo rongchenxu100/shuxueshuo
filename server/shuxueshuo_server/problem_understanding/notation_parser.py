@@ -5,9 +5,14 @@ import unicodedata
 
 
 class NotationError(ValueError):
-    def __init__(self, message, *, path=None, source=None):
-        super().__init__(message)
+    def __init__(self, code, message=None, *, path=None, source=None):
+        if not isinstance(code, str) or not re.fullmatch(
+            r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+", code
+        ):
+            raise ValueError("NotationError requires an explicit dotted error code")
+        super().__init__(code if message is None else f"{code}: {message}")
         self.path, self.source = path, source
+        self.code = code
 
 
 def node(kind, *args):
@@ -98,7 +103,8 @@ class Parser:
             match = TOKEN.match(text, offset)
             if not match:
                 raise NotationError(
-                    f"notation.unrecognized_token at {offset}: {text[offset : offset + 12]}"
+                    "notation.unrecognized_token",
+                    f"at {offset}: {text[offset : offset + 12]}",
                 )
             self.tokens.append(next(v for v in match.groups() if v is not None))
             offset = match.end()
@@ -126,7 +132,9 @@ class Parser:
     def take(self, expected=None):
         value = self.tokens[self.i]
         if expected is not None and value != expected:
-            raise NotationError(f"notation.expected {expected}, got {value}")
+            raise NotationError(
+                "notation.expected", f"expected {expected}, got {value}"
+            )
         if value == "EOF":
             raise NotationError("notation.unexpected_end")
         self.i += 1
@@ -152,7 +160,7 @@ class Parser:
             domain = self.expr(21)
             value = self.make("and", *[self.make("∈", item, domain) for item in values])
         if self.peek() != "EOF":
-            raise NotationError(f"notation.trailing_token {self.peek()}")
+            raise NotationError("notation.trailing_token", self.peek())
         return value
 
     def expr(self, minimum=0):
@@ -245,7 +253,7 @@ class Parser:
             else:
                 left = self.make("name", token)
         else:
-            raise NotationError(f"notation.unexpected_token {token}")
+            raise NotationError("notation.unexpected_token", token)
         if self.peek() == "°":
             self.take()
             left = self.make("degrees", left)

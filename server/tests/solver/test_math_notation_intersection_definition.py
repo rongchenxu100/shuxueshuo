@@ -7,13 +7,13 @@ from itertools import product
 from pathlib import Path
 
 import pytest
+from _math_notation_test_support import assert_removed_at_rejected
 
 from shuxueshuo_server.problem_understanding.notation_compile import NotationValidator
 from shuxueshuo_server.problem_understanding.notation_normalization import (
     normalize_bound,
 )
 from shuxueshuo_server.problem_understanding.notation_semantics import compare, evaluate
-from shuxueshuo_server.problem_understanding.notation_service import parse_candidate
 
 RECORDED = (
     Path(__file__).parent / "fixtures/math-notation-v1/recorded-doubao-20260916-153340"
@@ -151,19 +151,19 @@ def test_declaration_order_is_independent_and_child_errors_keep_their_source():
     assert report.issues[0]["source"] == expression
 
 
-def test_shorthand_inside_logic_and_at_keeps_the_condition():
+def test_shorthand_inside_logic_and_state_facts_keeps_the_condition():
     common = ["Γ:y=x^2+1", "P∈x_axis"]
     a = candidate([*common, "P=axis(Γ)∩x_axis ∨ x(P)=2"])
     b = candidate([*common, "P∈axis(Γ)∩x_axis ∨ x(P)=2"])
     assert compare(a, b)["ok"]
     a = candidate(
-        common,
-        goals=[{"kind": "find_coordinates", "object": "P", "at": "P=axis(Γ)∩x_axis"}],
+        [*common, "P=axis(Γ)∩x_axis"],
+        goals=[{"kind": "find_coordinates", "object": "P"}],
     )
     b = deepcopy(a)
-    b["root"]["goals"][0]["at"] = "P∈axis(Γ)∩x_axis"
+    b["root"]["facts"][-1] = "P∈axis(Γ)∩x_axis"
     assert compare(a, b)["ok"]
-    b["root"]["goals"][0].pop("at")
+    b["root"]["facts"].pop()
     assert not compare(a, b)["ok"]
 
 
@@ -172,7 +172,7 @@ def test_shorthand_inside_logic_and_at_keeps_the_condition():
     json.loads((RECORDED / "manifest.json").read_text())["cases"],
     ids=lambda r: r["case"],
 )
-def test_original_doubao_responses_replay_six_of_seven_without_editing(entry):
+def test_original_doubao_responses_are_immutable_and_removed_fields_are_rejected(entry):
     for name, digest in entry["files"].items():
         assert sha256((RECORDED / name).read_bytes()).hexdigest() == digest
     case = entry["case"]
@@ -184,13 +184,7 @@ def test_original_doubao_responses_replay_six_of_seven_without_editing(entry):
         json.loads(raw),
         json.loads(policy_file.read_text()) if policy_file.exists() else None,
     )
+    if assert_removed_at_rejected(gold, json.loads(raw)):
+        assert not result["ok"]
+        return
     assert result["ok"] is entry["expected_offline_passed"], result
-    if case in ("tj-2026-heping-ermo-25", "tj-2026-nankai-yimo-25"):
-        parsed = parse_candidate(
-            raw,
-            problem_id=case,
-            source_sha256="0" * 64,
-            registry_snapshot="0" * 64,
-            registered_families=[gold["family_id"]],
-        )
-        assert parsed["contract_valid"] and not parsed["continuation"]["blocked"]

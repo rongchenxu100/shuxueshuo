@@ -7,6 +7,7 @@ from itertools import product
 from pathlib import Path
 
 import pytest
+from _math_notation_test_support import assert_removed_at_rejected
 
 from shuxueshuo_server.problem_understanding.notation_compile import NotationValidator
 from shuxueshuo_server.problem_understanding.notation_normalization import (
@@ -152,15 +153,15 @@ def test_axis_membership_inheritance_is_one_way_and_scoped():
     assert not compare(base, changed)["ok"]
 
 
-def test_axis_equivalences_also_apply_to_at_without_dropping_the_state():
+def test_axis_equivalences_apply_to_state_facts_without_dropping_the_state():
     base = candidate(
-        ["P=(n,t)"],
-        goals=[{"kind": "find_coordinates", "object": "P", "at": "P∈x_axis"}],
+        ["P=(n,t)", "P∈x_axis"],
+        goals=[{"kind": "find_coordinates", "object": "P"}],
     )
     changed = deepcopy(base)
-    changed["root"]["goals"][0]["at"] = "y(P)=0"
+    changed["root"]["facts"][-1] = "y(P)=0"
     equivalent(base, changed)
-    changed["root"]["goals"][0].pop("at")
+    changed["root"]["facts"].pop()
     assert not compare(base, changed)["ok"]
 
 
@@ -188,7 +189,7 @@ def test_declaration_and_axis_rules_compose_idempotently_with_set_redundancy():
 
 
 @pytest.mark.parametrize("entry", MANIFEST["cases"], ids=lambda row: row["case"])
-def test_latest_live_responses_are_immutable_and_replay_six_of_seven(entry):
+def test_latest_live_responses_are_immutable_and_removed_fields_are_rejected(entry):
     for name, digest in entry["files"].items():
         assert sha256((RECORDED / name).read_bytes()).hexdigest() == digest
     case = entry["case"]
@@ -197,6 +198,9 @@ def test_latest_live_responses_are_immutable_and_replay_six_of_seven(entry):
     policy_path = RECORDED / (case + ".policy.json")
     policy = json.loads(policy_path.read_text()) if policy_path.exists() else None
     result = evaluate(gold, actual, policy)
+    if assert_removed_at_rejected(gold, actual):
+        assert not result["ok"]
+        return
     assert result["ok"] is entry["expected_offline_passed"], result
     assert NotationValidator().validate(actual).ok
 

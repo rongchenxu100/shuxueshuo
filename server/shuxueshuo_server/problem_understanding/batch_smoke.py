@@ -7,11 +7,13 @@ import shutil
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from hashlib import sha256
 from pathlib import Path
+from time import perf_counter
 
 from .candidate_common import validate_match
 from .identity import revision
 from .notation_contract import CONTRACT
 from .smoke import build_request, run
+from .transport_accounting import transport_cohorts
 from .wire import components
 
 REPO = Path(__file__).resolve().parents[3]
@@ -103,7 +105,7 @@ def prepare_fixture(case, output, *, contract=CONTRACT):
 def preflight(fixture, output, provider, registry):
     from shuxueshuo_server.solver.extraction.artifacts import ExtractionArtifactStore
 
-    provider.prepare_request(
+    request = provider.prepare_request(
         build_request(fixture, ExtractionArtifactStore(output / "preflight"), registry)
     )
     gold = json.loads((fixture / "gold.json").read_text())
@@ -123,24 +125,54 @@ def preflight(fixture, output, provider, registry):
     )
     if not acceptance["ok"]:
         raise ValueError("gold semantic preflight failed: " + str(acceptance))
+    return request
 
 
 def run_batch(
-    output, cases, provider_factory, registry, concurrency=3, *, contract=CONTRACT
+    output,
+    cases,
+    provider_factory,
+    registry,
+    concurrency=3,
+    *,
+    contract=CONTRACT,
+    workflow="single",
 ):
+    if workflow not in {"single", "review-repair"}:
+        raise ValueError("unsupported extraction workflow")
+    if not 1 <= concurrency <= 3 or not cases or len(set(cases)) != len(cases):
+        raise ValueError("invalid batch concurrency or cases")
+    runner = run
+    if workflow == "review-repair":
+        from .workflow_smoke import run as runner
     output.mkdir(parents=True, exist_ok=False)
     prepared = {}
+    image_transports = {}
+    frozen_cases = {}
     # Verify every dependency and gold before paying for any case.
     for case in cases:
         target = output / case
         fixture = prepare_fixture(case, target, contract=contract)
         provider = provider_factory()
-        preflight(fixture, target, provider, registry)
+        request = preflight(fixture, target, provider, registry)
+        image_transports[case] = request.image_transport
+        if workflow == "review-repair":
+            from .workflow_smoke import freeze_inputs
+
+            frozen_cases[case] = freeze_inputs(fixture, request, registry)
         prepared[case] = fixture, provider
+    if workflow == "review-repair":
+        from .workflow_ledger import save
+
+        save(
+            output / "frozen-batch.json",
+            {"cases": frozen_cases, "concurrency": concurrency},
+        )
     results = {}
+    started = perf_counter()
     with ThreadPoolExecutor(max_workers=concurrency) as pool:
         futures = {
-            pool.submit(run, fixture, output / case, provider, registry): case
+            pool.submit(runner, fixture, output / case, provider, registry): case
             for case, (fixture, provider) in prepared.items()
         }
         for future in as_completed(futures):
@@ -153,6 +185,7 @@ def run_batch(
                     "passed": False,
                     "error_type": type(exc).__name__,
                 }
+            results[case]["image_transport"] = image_transports[case]
             print(json.dumps(results[case], ensure_ascii=False), flush=True)
             summary = {
                 "schema_version": "understanding-batch/v1",
@@ -161,15 +194,25 @@ def run_batch(
                 "completed": len(results),
                 "passed": sum(bool(r["passed"]) for r in results.values()),
                 "results": results,
-                "scope": "compact_ir_extraction_only_no_solver_or_review",
+                "image_transport_by_case": image_transports,
+                "kpi_by_image_transport": transport_cohorts(results),
+                "scope": "compact_ir_extraction_only_no_solver_or_review"
+                if workflow == "single"
+                else "compact_ir_review_repair_no_solver",
+                "workflow": workflow,
+                "wall_seconds": round(perf_counter() - started, 3),
             }
+            if workflow == "review-repair":
+                summary["first_passed"] = sum(
+                    bool(r.get("first_passed")) for r in results.values()
+                )
             (output / "batch-summary.json").write_text(
                 json.dumps(summary, ensure_ascii=False, indent=2) + "\n"
             )
     return summary
 
 
-def live_provider_factory(provider_name="deepseek"):
+def live_provider_factory(provider_name="deepseek", *, image_transport=None):
     from dotenv import load_dotenv
 
     from shuxueshuo_server.solver.extraction.multimodal_provider import (
@@ -182,6 +225,12 @@ def live_provider_factory(provider_name="deepseek"):
 
     from .comparison_provider import DoubaoComparisonProvider
 
+    if image_transport is None:
+        image_transport = "files" if provider_name == "deepseek" else "base64"
+    if image_transport not in {"files", "base64"}:
+        raise ValueError("unsupported image transport")
+    if provider_name == "doubao" and image_transport != "base64":
+        raise ValueError("Doubao comparison supports base64 image transport only")
     if os.getenv("RUN_LLM_INTEGRATION") != "1":
         raise ValueError("RUN_LLM_INTEGRATION=1 required")
     load_dotenv(REPO / "server/.env")
@@ -208,6 +257,11 @@ def live_provider_factory(provider_name="deepseek"):
         model="deepseek-flash",
         request_timeout=300,
         max_output_tokens=16384,
+        file_cache_dir=(
+            REPO / "internal/solver-runs/.deepseek-files-cache"
+            if image_transport == "files"
+            else None
+        ),
     )
 
 
@@ -222,17 +276,26 @@ def main():
         "--provider", choices=("deepseek", "doubao"), default="deepseek"
     )
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--image-transport",
+        choices=("files", "base64"),
+        help="DeepSeek defaults to files; Doubao supports base64 only",
+    )
     parser.add_argument("--contract", choices=(CONTRACT,), default=CONTRACT)
     parser.add_argument("--concurrency", type=int, choices=range(1, 4), default=3)
+    parser.add_argument(
+        "--workflow", choices=("single", "review-repair"), default="single"
+    )
     args = parser.parse_args()
     cases = CASES if args.case == "all" else (args.case,)
     result = run_batch(
         args.output,
         cases,
-        live_provider_factory(args.provider),
+        live_provider_factory(args.provider, image_transport=args.image_transport),
         list(problem_domain_family_catalog()),
         args.concurrency,
         contract=args.contract,
+        workflow=args.workflow,
     )
     raise SystemExit(0 if result["passed"] == len(cases) else 1)
 

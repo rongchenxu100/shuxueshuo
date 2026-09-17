@@ -3,6 +3,27 @@
 from types import SimpleNamespace
 
 
+def assert_removed_at_rejected(*payloads):
+    """Archives are evidence, not a compatibility path for removed fields."""
+    from shuxueshuo_server.problem_understanding.notation_compile import (
+        NotationValidator,
+    )
+
+    def contains(value):
+        if isinstance(value, dict):
+            return "at" in value or any(contains(v) for v in value.values())
+        return isinstance(value, list) and any(contains(v) for v in value)
+
+    found = False
+    for payload in payloads:
+        if contains(payload):
+            found = True
+            report = NotationValidator().validate(payload)
+            assert not report.ok and not report.semantic and not report.normalized
+            assert all(issue["code"] == "schema.invalid" for issue in report.issues)
+    return found
+
+
 class Recorded:
     def __init__(self, text, finish="stop", fail=False):
         self.text, self.finish, self.fail, self.calls = text, finish, fail, 0

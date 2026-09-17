@@ -14,12 +14,17 @@ internal/solver-runs/strategy-planner-deepseek-*/
 internal/solver-runs/explanation-builder-deepseek-*/
 internal/solver-runs/visual-builder-deepseek-*/
 internal/solver-runs/problem-extraction/
+internal/solver-runs/.deepseek-files-cache/
 internal/solver-runs/understanding-holdout-*/
+# Raw batch directories stay local; promote selected evidence into test fixtures.
+internal/solver-runs/*/
 internal/review-runs/
 internal/review-analysis/
 
 # Large acceptance evidence archives (keep locally / out of band; not for Git)
 docs/validation/**/evidence.tar.gz
+# Frozen source/template copies stay with local evidence; reports remain reviewable.
+docs/validation/**/frozen-files/
 
 # Local Manim video experiments and rendered deliverables
 videos/basic-inequality-proof/

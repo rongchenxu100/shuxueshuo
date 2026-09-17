@@ -24,7 +24,7 @@ def candidate(**root):
     }
 
 
-@pytest.mark.parametrize("field", ["facts", "definitions", "goal", "at"])
+@pytest.mark.parametrize("field", ["facts", "definitions", "goal", "state"])
 @pytest.mark.parametrize("inherit", [False, True])
 def test_compact_angle_matches_explicit_angle_without_changing_source(field, inherit):
     scope = {}
@@ -32,8 +32,8 @@ def test_compact_angle_matches_explicit_angle_without_changing_source(field, inh
         scope[field] = ["angle(BDC)=2*angle(ABD)"]
     else:
         scope["goals"] = [{"kind": "find_value", "expression": "tan(angle(BDC))"}]
-        if field == "at":
-            scope["goals"][0]["at"] = "angle(BAC)=angle(DAC)"
+        if field == "state":
+            scope["facts"] = ["angle(BAC)=angle(DAC)"]
     root = {"facts": ["quadrilateral(A,B,C,D)"]}
     if inherit:
         root["children"] = [scope]

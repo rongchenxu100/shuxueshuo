@@ -5,6 +5,7 @@ from hashlib import sha256
 from pathlib import Path
 
 import pytest
+from _math_notation_test_support import assert_removed_at_rejected
 
 from shuxueshuo_server.problem_understanding.candidate_common import strict_json
 from shuxueshuo_server.problem_understanding.notation_semantics import evaluate
@@ -38,22 +39,16 @@ def test_original_seven_responses_offline_regression(entry, tmp_path):
         registered_families=[expected["family_id"]] if expected["family_id"] else [],
         store=ExtractionArtifactStore(tmp_path),
     )
-    assert result["ok"] is entry["expected_offline_passed"], result
     assert parsed["candidate_only"] and not parsed["solver_ready"]
+    if assert_removed_at_rejected(expected, actual):
+        assert not result["ok"]
+        return  # Frozen historical scores are not current-contract acceptance.
+    assert result["ok"] is entry["expected_offline_passed"], result
     assert parsed["reports"]["match"]["ok"]
     assert actual["match_status"] == expected["match_status"]
     assert actual["family_id"] == expected["family_id"]
     if entry["expected_offline_passed"]:
         assert parsed["contract_valid"] and not parsed["continuation"]["blocked"]
-    elif case == "tj-2026-nankai-yimo-25":
-        assert parsed["contract_valid"]
-        diff = result["strict"]["differences"]
-        assert len(diff) == 1
-        assert diff[0]["path"] == "/root/children/1/children/1/goals"
-        before = next(g for g in diff[0]["expected"] if g["kind"] == "find_equation")
-        after = next(g for g in diff[0]["actual"] if g["kind"] == "find_equation")
-        assert "at" not in before and "at" in after
-        assert before == {k: v for k, v in after.items() if k != "at"}
     else:
         assert case == "k-quad"
         assert not parsed["contract_valid"]

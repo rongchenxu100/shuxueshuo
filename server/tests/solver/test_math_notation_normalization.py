@@ -86,6 +86,56 @@ def test_coordinate_shared_variable_retains_equality_between_points():
     assert not compare(left, candidate(["P=(1,u)", "Q=(2,v)"]))["ok"]
 
 
+@pytest.mark.parametrize(
+    "name,reverse,child", product(("V", "T"), (False, True), (False, True))
+)
+def test_named_vertex_alias_is_a_scoped_mathematical_object(name, reverse, child):
+    definition = f"vertex(Γ)={name}" if reverse else f"{name}=vertex(Γ)"
+    a = candidate(
+        ["Γ:y=-2*x^2+q"], goals=[{"kind": "find_coordinates", "object": "vertex(Γ)"}]
+    )
+    b = candidate(
+        ["Γ:y=-2*x^2+q", definition],
+        goals=[{"kind": "find_coordinates", "object": name}],
+    )
+    if child:
+        for item in (a, b):
+            item["root"]["children"] = [{"goals": item["root"].pop("goals")}]
+    equivalent(a, b)
+    report = NotationValidator().validate(b)
+    assert report.semantic_normalization["object_bindings"]
+
+
+@pytest.mark.parametrize(
+    "variant", ("constraint", "state", "curve", "branch", "sibling")
+)
+def test_named_vertex_never_erases_conditions_or_crosses_scopes(variant):
+    a = candidate(
+        ["Γ:y=x^2+q"], goals=[{"kind": "find_coordinates", "object": "vertex(Γ)"}]
+    )
+    b = candidate(
+        ["Γ:y=x^2+q", "V=vertex(Γ)"],
+        goals=[{"kind": "find_coordinates", "object": "V"}],
+    )
+    if variant == "constraint":
+        b["root"]["facts"].append("x(V)>0")
+    elif variant == "state":
+        b["root"]["facts"].append("x(V)=min(x(V))")
+    elif variant == "curve":
+        b["root"]["facts"] += ["Ω:y=2*x^2+q", "V=vertex(Ω)"]
+    elif variant == "branch":
+        b["root"]["facts"][-1] = "V=vertex(Γ) ∨ V=(1,0)"
+    else:
+        b["root"] = {
+            "facts": ["Γ:y=x^2+q"],
+            "children": [
+                {"facts": ["V=vertex(Γ)"]},
+                {"goals": [{"kind": "find_coordinates", "object": "V"}]},
+            ],
+        }
+    assert not compare(a, b)["ok"]
+
+
 def test_coordinate_bindings_do_not_escape_branch_or_sibling():
     expected = candidate(
         children=[{"facts": ["P∈x_axis", "x(P)=1"]}, {"facts": ["t>0"]}]
@@ -207,10 +257,16 @@ def test_set_membership_redundancy_is_directional_and_scoped():
     assert not compare(or_premise, added)["ok"]
 
 
-def test_normalization_is_idempotent_auditable_and_preserves_at():
+def test_normalization_is_idempotent_auditable_and_preserves_state():
     payload = candidate(
-        ["square(A,B,C,D)", "line(A,C)∩line(B,D)={H}", "P=(2,t)", "t>0"],
-        goals=[{"kind": "find_coordinates", "object": "P", "at": "y(P)=min(y(P))"}],
+        [
+            "square(A,B,C,D)",
+            "line(A,C)∩line(B,D)={H}",
+            "P=(2,t)",
+            "t>0",
+            "y(P)=min(y(P))",
+        ],
+        goals=[{"kind": "find_coordinates", "object": "P"}],
     )
     report = NotationValidator().validate(payload)
     assert report.ok, report.issues
@@ -223,7 +279,7 @@ def test_normalization_is_idempotent_auditable_and_preserves_at():
     )
     assert report.payload()["coordinate_bindings"]
     altered = deepcopy(payload)
-    altered["root"]["goals"][0].pop("at")
+    altered["root"]["facts"].pop()
     assert not compare(payload, altered)["ok"]
 
 

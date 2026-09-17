@@ -57,13 +57,13 @@
           "A = (-c,0)",
           "F = midpoint(A,E)",
           "H ∈ segment(A,K) ∩ segment(E,G)",
-          "min(HF+FM+MG) = 3*sqrt(5)"
+          "min(HF+FM+MG) = 3*sqrt(5)",
+          "HF+FM+MG = min(HF+FM+MG)"
         ],
         "goals": [
           {
             "kind": "find_coordinates",
-            "object": "E",
-            "at": "HF+FM+MG = min(HF+FM+MG)"
+            "object": "E"
           }
         ]
       }
