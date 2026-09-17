@@ -6,8 +6,6 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator, ValidationError
 
-from shuxueshuo_server.solver.extraction.artifacts import ExtractionArtifactStore
-
 from .candidate_common import strict_json
 from .identity import revision
 from .notation_contract import CONTRACT, ROOT, schema
@@ -26,7 +24,8 @@ from .workflow_diagnostics import (
     review_diagnostics,
     uncertainty_diagnostics,
 )
-from .workflow_ledger import Budget, Ledger, WorkflowStop, save
+from .workflow_ledger import Budget, WorkflowStop
+from .workflow_storage import FileWorkflowStorage
 
 
 def frozen_files():
@@ -49,16 +48,20 @@ def frozen_files():
     }
 
 
-def run_workflow(request, provider, output, registry, *, problem_id, budget=None):
+def run_workflow(request, provider, output, registry, *, problem_id, budget=None,
+                 storage=None, initial_candidate=None, mode="extract", source_hash=None):
+    if mode not in ("extract", "review", "validate") or (mode != "extract" and initial_candidate is None):
+        raise WorkflowStop("workflow.invalid_mode")
     if request.contract_version != CONTRACT or request.contract_schema != schema():
         raise WorkflowStop("workflow.unsupported_or_stale_contract")
     # A new family needs source-review guidance before any paid workflow call.
     try:
-        review_family_context(registry)
+        if mode != 'validate':
+            review_family_context(registry)
     except ReviewFamilyCatalogError as exc:
         raise WorkflowStop(str(exc)) from exc
     budget = budget or Budget()
-    output = Path(output)
+    storage = storage or FileWorkflowStorage(output)
     prepared = provider.prepare_request(request)
     if (
         not 0 < prepared.max_tokens <= 16_384
@@ -72,32 +75,56 @@ def run_workflow(request, provider, output, registry, *, problem_id, budget=None
         "images": [i.artifact.sha256 for i in prepared.images],
         "registry": revision(registry),
         "files": frozen_files(),
+        "mode": mode,
+        "initial_candidate": revision(initial_candidate) if initial_candidate is not None else None,
+        "source_hash": source_hash or prepared.evidence_pack.source_revision_hash,
     }
     # Concurrency/stale-input failures occur before any shared result mutation.
-    with Ledger(output, binding, budget) as ledger:
-        return _run(prepared, provider, output, registry, problem_id, ledger, budget)
+    with storage.ledger(binding, budget) as ledger:
+        return _run(prepared, provider, storage, registry, problem_id, ledger, budget, initial_candidate, mode)
 
 
-def _run(request, provider, output, registry, problem_id, ledger, budget):
+def _run(request, provider, storage, registry, problem_id, ledger, budget, initial_candidate, mode):
     current, parsed, first = None, None, None
     stage, diagnostics, allowed, feedback = "extract", [], [], []
     source_status, source_reviewed, status = "not_reviewed", False, "in_progress"
     seen, events = set(), []
     first_response, last_review = None, None
-    store = ExtractionArtifactStore(output / "artifacts")
+    store = storage.artifacts
 
     def parse(raw):
         return parse_candidate(
             raw,
             problem_id=problem_id,
-            source_sha256=request.images[0].artifact.sha256,
+            source_sha256=ledger.binding['source_hash'],
             registry_snapshot=revision(registry),
             registered_families=[f["family_id"] for f in registry],
             store=store,
         )
 
     try:
+        if initial_candidate is not None and mode != 'extract':
+            import json
+            current = first = initial_candidate
+            parsed = parse(json.dumps(current, ensure_ascii=False))
+            seen.add(revision(current))
+            diagnostics = [*uncertainty_diagnostics(current), *diagnose(parsed, current)]
+            if mode == 'validate':
+                status = 'validated_candidate' if not diagnostics else 'needs_confirmation' if any(
+                    d['action'] == 'needs_confirmation' for d in diagnostics) else 'invalid_candidate'
+            elif any(d['action'] == 'needs_confirmation' for d in diagnostics):
+                status = 'needs_confirmation'
+            elif diagnostics:
+                allowed = repair_permissions(current, diagnostics)
+                stage = 'repair'
+                if not allowed:
+                    status = 'code_gap'
+            else:
+                stage = 'review'
         while True:
+            if status != 'in_progress':
+                break
+            storage.guard()
             if frozen_files() != ledger.binding["files"]:
                 raise WorkflowStop("workflow.stale_binding")
             outgoing = (
@@ -127,7 +154,7 @@ def _run(request, provider, output, registry, problem_id, ledger, budget):
             events.append(event)
             if stage == "extract":
                 first_response = response
-                save(output / "first-response.json", response)
+                storage.save("first-response.json", response)
             if stage == "review":
                 if response["finish_reason"] != "stop":
                     raise WorkflowStop("review.invalid_response")
@@ -143,7 +170,7 @@ def _run(request, provider, output, registry, problem_id, ledger, budget):
                     raise WorkflowStop("review.invalid_response") from exc
                 last_review = {"revision": base_revision, **review}
                 event["review"] = last_review
-                save(output / "latest-review.json", last_review)
+                storage.save("latest-review.json", last_review)
                 source_status = review["status"]
                 if source_status == "confirmed":
                     source_reviewed = True
@@ -161,6 +188,15 @@ def _run(request, provider, output, registry, problem_id, ledger, budget):
 
             if response["finish_reason"] != "stop":
                 event["wire_error"] = "response.truncated_or_invalid_finish"
+                # A structurally complete response is still useful history even
+                # when its transport finish marker prevents adoption.
+                try:
+                    truncated = strict_json(response["text"])
+                except (ValueError, RecursionError):
+                    truncated = None
+                if Draft202012Validator(schema()).is_valid(truncated):
+                    event["parse"] = parse(response["text"])
+                    storage.proposed(truncated, event["parse"], ledger.position)
                 if current is None:
                     diagnostics = [
                         {
@@ -182,7 +218,7 @@ def _run(request, provider, output, registry, problem_id, ledger, budget):
                 proposed = None
             if stage == "extract":
                 first = proposed
-                save(output / "first-parsed.json", proposed_parse)
+                storage.save("first-parsed.json", proposed_parse)
             event["parse"] = proposed_parse
             shape_valid = Draft202012Validator(schema()).is_valid(proposed)
             if not shape_valid:
@@ -193,6 +229,7 @@ def _run(request, provider, output, registry, problem_id, ledger, budget):
                 feedback = new_diagnostics
                 stage = "repair"
                 continue
+            storage.proposed(proposed, proposed_parse, ledger.position)
             if current is not None:
                 guard = guard_changes(current, proposed, allowed)
                 event["change_guard"] = guard
@@ -211,11 +248,12 @@ def _run(request, provider, output, registry, problem_id, ledger, budget):
                 raise WorkflowStop("workflow.oscillation")
             seen.add(exact)
             # Atomic adoption only after both shape and change-authority checks.
+            storage.adopt(proposed, proposed_parse, ledger.position)
             current, parsed = proposed, proposed_parse
             source_status, source_reviewed = "not_reviewed", False
             event.update(adopted=True, revision=exact)
-            save(output / "candidate.json", current)
-            save(output / "parsed.json", parsed)
+            storage.save("candidate.json", current)
+            storage.save("parsed.json", parsed)
             source_diagnostics = uncertainty_diagnostics(current)
             if any(d["action"] == "needs_confirmation" for d in source_diagnostics):
                 diagnostics = source_diagnostics
@@ -274,5 +312,5 @@ def _run(request, provider, output, registry, problem_id, ledger, budget):
         "review": last_review,
         "events": events,
     }
-    save(output / "workflow-result.json", result)
+    storage.save("workflow-result.json", result)
     return result

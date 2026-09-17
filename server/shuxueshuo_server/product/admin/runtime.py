@@ -13,7 +13,7 @@ from sqlalchemy import select, func
 
 from ..application import Application
 from ..config import REPO
-from ..db import transaction
+from ..db import engine, transaction
 from ..errors import ProductError
 from .. import models as m
 from ..runtime_config import RuntimeConfig
@@ -132,15 +132,17 @@ def start(runtime):
 
 def stop(runtime):
     (runtime.settings.root / 'locks/services-draining').touch()
-    a = Application(runtime.settings)
+    # Stop the old processes before migrating. Application requires the new schema,
+    # while draining only needs the jobs table shared by both versions.
+    db = engine(runtime.settings.url())
     try:
         for _ in range(30):
-            with transaction(a.db) as c:
+            with transaction(db) as c:
                 count = c.scalar(select(func.count()).select_from(m.jobs).where(m.jobs.c.status.in_(['queued', 'running'])))
             if not count: break
             time.sleep(1)
         else: raise ProductError('runtime.drain_timeout_tasks_retained')
-    finally: a.close()
+    finally: db.dispose()
     records = process_state(runtime)
     for name in ('frontend', 'api', 'publisher', 'worker'):
         record = records.get(name)

@@ -19,6 +19,9 @@
 .item { width: 100%; padding: 12px; margin-bottom: 4px; border-radius: 12px; text-align: left; font-size: 14px; cursor: pointer; overflow-wrap: anywhere; }
 .item:hover { background: #f4f4f5; }
 .item[aria-current=true] { background: #f0fdfa; color: #0f766e; }
+.itemStatus[data-status=ready], .itemStatus[data-status=unsupported] { color: #0f766e; }
+.itemStatus[data-status=needs_confirmation], .itemStatus[data-status=needs_review], .itemStatus[data-status=needs_revision], .itemStatus[data-status=code_gap] { color: #92400e; }
+.itemStatus[data-status=failed] { color: #be123c; }
 .spinner { width: 14px; height: 14px; margin-top: 5px; flex-shrink: 0; border: 2px solid #99f6e4; border-top-color: #0f766e; border-radius: 50%; animation: workspace-spin 1s linear infinite; }
 .unread { width: 8px; height: 8px; margin: 8px 3px 0; flex-shrink: 0; border-radius: 50%; background: #2563eb; }
 @keyframes workspace-spin { to { transform: rotate(360deg); } }

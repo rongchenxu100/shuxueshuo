@@ -111,11 +111,22 @@ def review_schema():
     return json.loads(SCHEMA_PATH.read_text())
 
 
+def finding_target(candidate, kind, path):
+    """Validate an exact review location; never widen a bad pointer to an ancestor."""
+    if kind == "wrong_transcription":
+        expected = "/original_text" if "original_text" in candidate else ""
+        if path != expected:
+            raise ValueError("review.invalid_transcription_pointer")
+    elif path == "":
+        raise ValueError("review.invalid_global_pointer")
+    return pointer(candidate, path)
+
+
 def validate_review(raw, candidate):
     value = strict_json(raw)
     Draft202012Validator(review_schema()).validate(value)
     for finding in value["findings"]:
-        pointer(candidate, finding["path"])
+        finding_target(candidate, finding["kind"], finding["path"])
     return value
 
 
@@ -126,6 +137,7 @@ def candidate_contract_summary():
     variants = scope["properties"]["goals"]["items"]["oneOf"]
     shared_fields = ("in_terms_of", "variables")
     return {
+        "original_text": contract["properties"]["original_text"]["description"],
         "scope": scope["description"],
         "goal_kinds": [
             {
@@ -156,7 +168,7 @@ def code_validation_summary(base, candidate, registry, validation):
         validation.get("contract") != CANDIDATE_CONTRACT
         or validation.get("revision") != revision(candidate)
         or validation.get("binding", {}).get("source_sha256")
-        != base.images[0].artifact.sha256
+        != base.evidence_pack.source_revision_hash
         or validation.get("binding", {}).get("registry_snapshot") != revision(registry)
         or validation.get("contract_valid") is not True
         or validation.get("reports", {}).get("ir", {}).get("ok") is not True

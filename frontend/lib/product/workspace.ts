@@ -1,11 +1,17 @@
 import { z } from 'zod';
-import { api, post, type ProductBuild } from './client';
+import { api, label, post, type ProductBuild } from './client';
+
+const PresentationSchema = z.object({
+  title: z.string(), title_kind: z.enum(['source_text', 'image']), image_source_id: z.string().uuid(),
+  phase: z.enum(['understanding', 'generation', 'upload']), status: z.string(), reason: z.string().nullable(), result_id: z.string().uuid().nullable(),
+});
 
 export const ProblemSchema = z.object({
   id: z.string().uuid(), title: z.string().nullable(), latest_build_id: z.string().uuid().nullable(),
   current_page_build_id: z.string().uuid().nullable(), updated_at: z.string(),
   statement_text: z.string().nullable().optional(), source_filename: z.string().nullable().optional(),
   latest_build_status: z.string().nullable().optional(),
+  presentation: PresentationSchema.optional(),
 });
 export type WorkspaceProblem = z.infer<typeof ProblemSchema>;
 export const ProblemListSchema = z.object({ problems: z.array(ProblemSchema) });
@@ -23,16 +29,31 @@ export const pendingUploadKey = 'product.workspace.upload.v1';
 export const readResultsKey = 'product.workspace.read-results.v1';
 export const ReadResultsSchema = z.record(z.string().uuid(), z.string().uuid());
 export type ReadResults = z.infer<typeof ReadResultsSchema>;
-export const processing = (problem: WorkspaceProblem) => ['queued', 'running'].includes(problem.latest_build_status ?? '');
+export const processing = (problem: WorkspaceProblem) => ['queued', 'running'].includes(problem.presentation?.status ?? problem.latest_build_status ?? '');
 export function problemTitle(problem: WorkspaceProblem) {
-  return problem.statement_text?.replace(/\s+/g, ' ').trim() || problem.title || problem.source_filename || '新上传的题目';
+  return (problem.presentation?.title ?? problem.statement_text)?.replace(/\s+/g, ' ').trim() || problem.title || '新上传的题目';
+}
+export function problemStatus(problem: WorkspaceProblem) {
+  const p = problem.presentation;
+  if (!p) return label(problem.latest_build_status ?? 'unbuilt');
+  if (p.status === 'ready') return p.phase === 'understanding' ? '题意已提取' : '解析已生成';
+  if (p.status === 'unsupported') return '题意已提取 · 暂不支持题型';
+  if (p.status === 'needs_confirmation') return p.reason === 'missing_figure' ? '待确认题目 · 缺少配图' : '待确认题目';
+  if (p.status === 'needs_review') return p.reason === 'stale' ? '题意已保存 · 需重新复核' : '题意已保存 · 待复核';
+  if (p.status === 'needs_revision') return '待修订题意';
+  if (p.status === 'code_gap') return '题意已保存 · 解析暂不支持';
+  if (p.status === 'not_started') return '已上传 · 待提取';
+  if (p.status === 'running') return p.phase === 'understanding' ? '正在处理题意' : '正在生成解析';
+  if (p.status === 'failed') return p.phase === 'understanding' ? '题意处理失败' : '生成失败';
+  return label(p.status);
 }
 export function unreadResult(problem: WorkspaceProblem, read: ReadResults) {
+  if (problem.presentation) return !!problem.presentation.result_id && read[problem.id] !== problem.presentation.result_id;
   return problem.latest_build_status === 'succeeded' && !!problem.current_page_build_id &&
     read[problem.id] !== problem.current_page_build_id;
 }
 export function markResultRead(problem: WorkspaceProblem, read: ReadResults): ReadResults {
-  return unreadResult(problem, read) ? { ...read, [problem.id]: problem.current_page_build_id! } : read;
+  return unreadResult(problem, read) ? { ...read, [problem.id]: problem.presentation?.result_id ?? problem.current_page_build_id! } : read;
 }
 
 export async function fileFingerprint(file: File) {
@@ -41,7 +62,7 @@ export async function fileFingerprint(file: File) {
 }
 
 // Persist each accepted boundary before continuing. Network retries retain the same keys.
-export async function continueUpload(pending: PendingUpload, file: File | null, save: (value: PendingUpload) => void) {
+export async function continueUpload(pending: PendingUpload, file: File | null, save: (value: PendingUpload) => void, generate = true) {
   let state = { ...pending };
   const persist = () => save({ ...state });
   if (!state.batch_id) {
@@ -72,7 +93,7 @@ export async function continueUpload(pending: PendingUpload, file: File | null, 
     !['succeeded', 'queued', 'running'].includes(latest ?? '');
   let buildId: string | null = null;
   let reusedIdle = false;
-  if (needsBuild) {
+  if (needsBuild && generate) {
     const build = z.object({ build_id: z.string().uuid() }).parse(await post(`/problems/${upload.item.problem_id}/builds`, {
       source_id: upload.item.source_id, batch_item_id: upload.item.id,
     }, `${state.key}-build`));

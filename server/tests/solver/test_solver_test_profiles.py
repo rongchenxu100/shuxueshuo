@@ -149,6 +149,9 @@ def test_affected_ownership_ignores_docs_only_changes() -> None:
     "path",
     [
         "server/shuxueshuo_server/problem_understanding/notation_normalization.py",
+        "server/shuxueshuo_server/problem_understanding/review_contract.py",
+        "server/shuxueshuo_server/problem_understanding/workflow_diagnostics.py",
+        "server/shuxueshuo_server/problem_understanding/repair_guard.py",
         "server/shuxueshuo_server/solver/extraction/deepseek_files.py",
         "server/shuxueshuo_server/solver/extraction/multimodal_provider.py",
         "server/shuxueshuo_server/problem_understanding/notation_geometry_proofs.py",
@@ -177,6 +180,7 @@ def test_math_notation_changes_select_generated_and_recorded_gates(path):
     assert "tests/solver/test_math_notation_intersection_definition.py" in selected
     assert "tests/solver/test_math_notation_angle_catalog.py" in selected
     assert "tests/solver/test_math_notation_workflow.py" in selected
+    assert "tests/solver/test_math_notation_repair_authority.py" in selected
     assert "tests/solver/test_math_notation_diagnostic_routes.py" in selected
     assert "tests/solver/test_math_notation_transport_accounting.py" in selected
     assert "tests/solver/test_math_notation_review_families.py" in selected

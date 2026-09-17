@@ -1,0 +1,113 @@
+{
+  "source_batch": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219",
+  "purpose": "Exact response text for offline product persistence regression; no new model calls.",
+  "cases": {
+    "function-quantifiers": {
+      "image": "server/tests/solver/fixtures/math-notation-v1/integration-images-20260916/function-quantifiers.png",
+      "image_sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138",
+      "responses": [
+        {
+          "file": "function-quantifiers.01-extract.txt",
+          "text_sha256": "8b453b3eb20f790a8d74417666332090703bc234762de14d11bad1e091678eb8",
+          "original_response_sha256": "ea332f56921ae560b8088aff696188a0a343cd67c08e48f949a56ee59204067c"
+        },
+        {
+          "file": "function-quantifiers.02-review.txt",
+          "text_sha256": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca",
+          "original_response_sha256": "2a0d4bb093aa9d29bf7f03b5e94cb2fd06388d638fc10a74307530177f087665"
+        }
+      ]
+    },
+    "k-quad": {
+      "image": "server/tests/solver/fixtures/math-notation-v1/integration-images-20260916/k-quad.png",
+      "image_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+      "responses": [
+        {
+          "file": "k-quad.01-extract.txt",
+          "text_sha256": "a30d8c78f1a12ce6861fcb38b1deabb9c624f388b1113070034d2310a38e1e76",
+          "original_response_sha256": "a128d194b8acadf6d63d2a321e2a575b868645938e0b3bac9ad317b6a4375abd"
+        }
+      ]
+    },
+    "tj-2026-heping-ermo-25": {
+      "image": "server/tests/solver/fixtures/math-notation-v1/integration-images-20260916/tj-2026-heping-ermo-25.png",
+      "image_sha256": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "responses": [
+        {
+          "file": "tj-2026-heping-ermo-25.01-extract.txt",
+          "text_sha256": "27f737644ac28d2a03c497fd84d06a33fe95ce46755d7d7bc6028107cb369a9c",
+          "original_response_sha256": "a8ccf159274a133898fa6e1293843b521aadf526fcf935ad61ab30526923769b"
+        },
+        {
+          "file": "tj-2026-heping-ermo-25.02-review.txt",
+          "text_sha256": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca",
+          "original_response_sha256": "359d2964b639ffb38603647f3d947e09786a41ac02993d096836b23419ec69a9"
+        }
+      ]
+    },
+    "tj-2026-heping-yimo-25": {
+      "image": "server/tests/solver/fixtures/math-notation-v1/integration-images-20260916/tj-2026-heping-yimo-25.png",
+      "image_sha256": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+      "responses": [
+        {
+          "file": "tj-2026-heping-yimo-25.01-extract.txt",
+          "text_sha256": "f07671d168643b12725fdb511afe5382c1cc7a022b9c4c9e29d9bb7226511a41",
+          "original_response_sha256": "788ca5cf2e4aea802d5407ec67ece18e4768c87650ad157e4464971066001e84"
+        },
+        {
+          "file": "tj-2026-heping-yimo-25.02-review.txt",
+          "text_sha256": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca",
+          "original_response_sha256": "03ba7d201c0a52cbdff0414615bc3fbf077ee1585f150845340f43d265a91cee"
+        }
+      ]
+    },
+    "tj-2026-hexi-yimo-25": {
+      "image": "server/tests/solver/fixtures/math-notation-v1/integration-images-20260916/tj-2026-hexi-yimo-25.png",
+      "image_sha256": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "responses": [
+        {
+          "file": "tj-2026-hexi-yimo-25.01-extract.txt",
+          "text_sha256": "5281e8835c6854280a007140e4e8afb0f728d7b583841da6c460677bb20a03c5",
+          "original_response_sha256": "19bc21c59e89edf1127cf4cd482df6ab6e1435ce2c4b652a480cae1847879428"
+        },
+        {
+          "file": "tj-2026-hexi-yimo-25.02-review.txt",
+          "text_sha256": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca",
+          "original_response_sha256": "a85940752681fee6903111b0d6c0cea385391121caf291dd451e6bb7200110ce"
+        }
+      ]
+    },
+    "tj-2026-nankai-yimo-25": {
+      "image": "server/tests/solver/fixtures/math-notation-v1/integration-images-20260916/tj-2026-nankai-yimo-25.png",
+      "image_sha256": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "responses": [
+        {
+          "file": "tj-2026-nankai-yimo-25.01-extract.txt",
+          "text_sha256": "e7eb1e5c92396133c34d730fec0aa95fde5d10bec412071b623826641f5395af",
+          "original_response_sha256": "1076b52188698a2b1caff4e0f62c07d37a6b8250fd2698f8b8a641bb273aa337"
+        },
+        {
+          "file": "tj-2026-nankai-yimo-25.02-review.txt",
+          "text_sha256": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca",
+          "original_response_sha256": "4b730aaab24436967b6641ac2be07c0befc36bcb2b3cc7d4886c081ef2267684"
+        }
+      ]
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "image": "server/tests/solver/fixtures/math-notation-v1/integration-images-20260916/tj-2026-xiqing-yimo-25.png",
+      "image_sha256": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+      "responses": [
+        {
+          "file": "tj-2026-xiqing-yimo-25.01-extract.txt",
+          "text_sha256": "607ea37088206f217dcf39f09a44557eb1e72a27fe50ccd49d9d9b069989de7b",
+          "original_response_sha256": "9ad0b91339575f598957b2b895c62124b08734a4e2d005c03f6d4470622d8d7f"
+        },
+        {
+          "file": "tj-2026-xiqing-yimo-25.02-review.txt",
+          "text_sha256": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca",
+          "original_response_sha256": "c833257fc454f2324a92f7d12170121c7ce150280abc59a241ff3f6e62ce5537"
+        }
+      ]
+    }
+  }
+}

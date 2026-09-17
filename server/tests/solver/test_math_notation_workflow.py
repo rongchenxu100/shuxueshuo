@@ -28,6 +28,7 @@ from shuxueshuo_server.problem_understanding.workflow_diagnostics import (
     diagnose,
     json_pointer,
     permissions,
+    review_diagnostics,
 )
 from shuxueshuo_server.problem_understanding.workflow_ledger import (
     Budget,
@@ -416,7 +417,7 @@ def test_provider_failure_is_persistent_and_does_not_enter_repair(tmp_path):
 def test_schema_examples_and_request_boundaries(tmp_path):
     request = setup(tmp_path)
     examples = json.loads(EXAMPLES_PATH.read_text())
-    assert len(examples) == 10
+    assert len(examples) == 11
     for example in examples:
         validate_review(json.dumps(example["review"]), example["candidate"])
     original = candidate(["t>0"])
@@ -853,3 +854,51 @@ def test_recorded_real_workflow_preserves_responses_and_reassesses_equivalence(
     if entry["case"] == "k-quad":
         assert result["status"] == "needs_confirmation" and result["review_calls"] == 0
         assert checked["accepted_omissions"] and not checked["strict"]["ok"]
+
+
+@pytest.mark.parametrize("missing", [False, True])
+def test_transcription_repair_has_narrow_authority_and_is_reviewed_again(tmp_path, missing):
+    original = candidate(["t>0"])
+    if not missing:
+        original["original_text"] = "t>0"
+    corrected = {**original, "original_text": "已知实数t>0。"}
+    review = finding("" if missing else "/original_text", "wrong_transcription", "题干原文缺失或被改写")
+    checked = validate_review(json.dumps(review), original)
+    grants = permissions(original, review_diagnostics(checked, original))
+    assert grants[0] == {"path": "/original_text", "mode": "source_edit", "reason": "wrong_transcription"}
+    assert guard_changes(original, corrected, grants)["ok"]
+    drift = deepcopy(corrected)
+    drift["root"]["facts"] = ["t>=0"]
+    assert not guard_changes(original, drift, grants)["ok"]
+    if missing:
+        assert not guard_changes(corrected, original, grants)["ok"]
+    model = Sequence(original, review, corrected, OK)
+    result = run(tmp_path, model)
+    assert result["source_reviewed"] and result["status"] == "reviewed_candidate"
+    assert len(model.requests) == 4
+    wire = [json.loads(req.prompt.user_prefix) for req in model.requests]
+    assert wire[1]["candidate"] == original
+    assert wire[1]["candidate_contract"]["original_text"] == schema()["properties"]["original_text"]["description"]
+    assert wire[2]["base_candidate"] == original
+    assert wire[2]["diagnostics"][0]["source"] == original.get("original_text")
+    assert wire[2]["allowed_changes"] == grants
+    assert wire[3]["candidate"] == corrected
+    assert all(not req.evidence_pack.printed_text for req in model.requests)
+
+
+def test_transcription_cannot_be_silently_algebraically_rewritten():
+    original = {**candidate(["t>0"]), "original_text": "t>0"}
+    changed = {**original, "original_text": "0<t"}
+    assert not guard_changes(original, changed, [])["ok"]
+    assert guard_changes(original, changed, [{"path": "/original_text", "mode": "source_edit"}])["ok"]
+    del changed["original_text"]
+    assert not guard_changes(original, changed, [{"path": "/original_text", "mode": "source_edit"}])["ok"]
+
+
+@pytest.mark.parametrize("exists,path", [(True, "/root"), (True, ""), (False, "/root")])
+def test_transcription_findings_cannot_grant_a_math_subtree(exists, path):
+    original = candidate(["t>0"])
+    if exists:
+        original["original_text"] = "已知实数t>0。"
+    with pytest.raises(ValueError, match="invalid_transcription_pointer"):
+        validate_review(json.dumps(finding(path, "wrong_transcription")), original)

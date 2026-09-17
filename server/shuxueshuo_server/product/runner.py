@@ -30,6 +30,9 @@ class StageRunner:
 
     def run(self):
         x = self.x
+        if x.build['pipeline_key'] == 'problem_understanding':
+            from .understanding_runtime import run_product
+            return run_product(x)
         definitions = x.build['pipeline_snapshot']['stages']
         keys = [s['stage_key'] for s in definitions]
         if any(k not in self.adapters for k in keys): raise Conflict('pipeline.unsupported_adapter')

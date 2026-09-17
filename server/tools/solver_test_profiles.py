@@ -92,6 +92,7 @@ OWNERSHIP_RULES = (
             "tests/solver/test_math_notation_intersection_definition.py",
             "tests/solver/test_math_notation_angle_catalog.py",
             "tests/solver/test_math_notation_workflow.py",
+            "tests/solver/test_math_notation_repair_authority.py",
             "tests/solver/test_math_notation_diagnostic_routes.py",
             "tests/solver/test_math_notation_transport_accounting.py",
             "tests/solver/test_math_notation_review_families.py",

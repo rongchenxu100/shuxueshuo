@@ -60,10 +60,15 @@ class ArtifactRepository:
         if not key.startswith(f'workspaces/{ctx.workspace_id}/'):
             raise Forbidden('artifact.workspace_path')
         names = parts(key)
-        if len(names) != 5 or names[2] not in ('sources', 'builds') or names[4] != str(metadata.get('id')):
+        if len(names) != 5 or names[2] not in ('sources', 'builds', 'candidates') or names[4] != str(metadata.get('id')):
             raise IntegrityFailure('artifact.storage_identity')
         if names[2] == 'builds' and names[3] != str(metadata.get('producer_build_id')):
             raise IntegrityFailure('artifact.build_path')
+        if names[2] == 'candidates':
+            candidate = scoped(transaction, m.problem_candidates, ctx, UUID(names[3]))
+            problem(transaction, ctx, candidate['problem_id'], write=True)
+            if metadata.get('producer_build_id') or metadata.get('producer_attempt_id'):
+                raise IntegrityFailure('artifact.candidate_path')
         UUID(names[3])
         if metadata.get('access_class') == 'page' and metadata.get('artifact_type') not in (
             'page_html', 'page_css', 'page_js', 'page_svg', 'page_image', 'page_font'):

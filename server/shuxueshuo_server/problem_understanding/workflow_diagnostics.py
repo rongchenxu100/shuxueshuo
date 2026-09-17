@@ -2,7 +2,7 @@
 
 import re
 
-from .review_contract import pointer
+from .review_contract import finding_target, pointer
 
 REPAIRABLE = frozenset(
     {
@@ -134,13 +134,19 @@ def diagnose(parsed, candidate):
     return result
 
 
+def diagnostic_source(candidate, path):
+    # The full snapshot already travels as base_candidate. Empty-path findings
+    # need no duplicate snapshot in their diagnostic source.
+    return pointer(candidate, path) if candidate is not None and path else None
+
+
 def review_diagnostics(review, candidate=None):
     return [
         {
             "stage": "review",
             "code": f["kind"],
             "path": f["path"],
-            "source": pointer(candidate, f["path"]) if candidate is not None else None,
+            "source": diagnostic_source(candidate, f["path"]),
             "source_excerpt": f["source_excerpt"],
             "message": f["message"],
             "action": "needs_confirmation"
@@ -159,9 +165,23 @@ def permissions(candidate, diagnostics):
     for issue in diagnostics:
         if issue["action"] != "repair":
             continue
-        path = nearest_path(candidate, issue["path"])
+        if issue["stage"] == "review":
+            # Repeat the boundary check even for diagnostics supplied directly.
+            # Review findings must not inherit the compiler's ancestor fallback.
+            try:
+                value = finding_target(candidate, issue["code"], issue["path"])
+            except (KeyError, ValueError, IndexError):
+                continue
+            if issue["code"] == "wrong_transcription":
+                # A missing transcription's empty pointer grants only this field.
+                allowed.append({"path": "/original_text", "mode": "source_edit",
+                                "reason": "wrong_transcription"})
+                continue
+            path = issue["path"]
+        else:
+            path = nearest_path(candidate, issue["path"])
+            value = pointer(candidate, path)
         mode = "replace"
-        value = pointer(candidate, path)
         if (
             issue["stage"] == "compile"
             and isinstance(value, dict)
@@ -245,9 +265,7 @@ def repair_permissions(candidate, diagnostics):
     allowed = permissions(candidate, diagnostics)
     for item in diagnostics:
         path = nearest_path(candidate, item["path"])
-        item.setdefault(
-            "source", pointer(candidate, path) if candidate is not None else None
-        )
+        item.setdefault("source", diagnostic_source(candidate, path))
         item["repair_scope"] = [
             grant
             for grant in allowed

@@ -98,6 +98,7 @@ def test_contract_annotations_and_no_old_fact_schema_in_actual_request(tmp_path)
     assert len(examples) == 6
     for raw in examples:
         example = json.loads(raw)
+        assert example["original_text"]
         assert NotationValidator().validate(example).ok
         assert compare(example, example)["ok"]
     assert "independent_example" not in payload
@@ -439,3 +440,24 @@ def test_no_shape_based_contract_fallback():
         "match_reason": "old",
     }
     assert not parse_candidate_for_test(legacy)["contract_valid"]
+
+
+def test_original_text_is_preserved_but_not_compiled_as_mathematical_facts():
+    original = gold(CASES[0])
+    transcribed = {**original, "original_text": "25. 已知抛物线（a为常数）。\n（1）求顶点坐标。"}
+    report = NotationValidator().validate(transcribed)
+    assert report.ok
+    assert report.normalized["original_text"] == transcribed["original_text"]
+    assert report.semantic == NotationValidator().validate(original).semantic
+    assert compare(original, transcribed)["ok"]
+    # The comparison checks mathematics only; it cannot verify the transcription.
+    changed = {**transcribed, "original_text": "原文转录错误也不能被数学等价比较冒充验证。"}
+    assert compare(transcribed, changed)["ok"]
+
+
+@pytest.mark.parametrize("value", ["", " \n\t", [], {"root": {}}, "字" * 32769])
+def test_original_text_rejects_invalid_shape_and_unbounded_content(value):
+    payload = {**gold(CASES[0]), "original_text": value}
+    report = NotationValidator().validate(payload)
+    assert not report.ok
+    assert report.issues[0]["path"] == "/original_text"

@@ -1,0 +1,106 @@
+{
+  "root": {
+    "definitions": [
+      "若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为 k（k ≥ 1），则称该四边形为“k 倍四边形”。"
+    ],
+    "facts": [
+      "k ≥ 1"
+    ],
+    "children": [
+      {
+        "label": "(1)",
+        "children": [
+          {
+            "label": "图1",
+            "facts": [
+              "parallelogram(A,B,C,D)",
+              "segment(A,C) ∩ segment(B,D) = {O}",
+              "E = midpoint(O,B)",
+              "(bisects(ED, AC) ∧ (cut_ratio(ED, AC) = k ∨ cut_ratio(ED, AC) = 1/k)) ∨ (bisects(AC, ED) ∧ (cut_ratio(AC, ED) = k ∨ cut_ratio(AC, ED) = 1/k))"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "k"
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "missing_figure",
+                "text": "题面引用图1，本次输入图片未提供。"
+              }
+            ]
+          },
+          {
+            "label": "图2",
+            "facts": [
+              "bisects(BD, AC)",
+              "cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "area(△ACD)/area(△ACB)",
+                "in_terms_of": ["k"]
+              }
+            ],
+            "uncertainties": [
+              {
+                "kind": "missing_figure",
+                "text": "题面引用图2，本次输入图片未提供。"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "(2)",
+        "facts": [
+          "bisects(BD, AC)",
+          "cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k",
+          "∠BDC = 2*∠ABD",
+          "BD = 4*CD"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "k"
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "missing_figure",
+            "text": "题面引用图3，本次输入图片未提供。"
+          }
+        ]
+      },
+      {
+        "label": "(3)",
+        "facts": [
+          "A、B为定点；C为动点；D为平面内一点。",
+          "line(A,B) ⟂ line(B,M)",
+          "C ∈ ray(B,M)",
+          "quadrilateral(A,B,C,D)",
+          "bisects(BD, AC)",
+          "cut_ratio(BD, AC) = 2 ∨ cut_ratio(BD, AC) = 1/2",
+          "∠BAC = ∠DAC"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "tan(∠ACD)"
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "missing_figure",
+            "text": "题面引用图4，本次输入图片未提供。"
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "unmatched",
+  "family_id": null,
+  "match_reason": "题面为四边形新定义“k倍四边形”的几何综合题，涉及对角线平分、比例、面积比和三角函数，无二次函数或路径最值结构，不符合注册题型。"
+}

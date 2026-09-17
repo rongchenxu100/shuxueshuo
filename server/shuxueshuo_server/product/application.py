@@ -38,6 +38,16 @@ def statement_text(domain):
     return '\n'.join(lines) or None
 
 
+def deployment_version(discovered=None):
+    from .dependency_cache import release_dependencies
+    from shuxueshuo_server.problem_understanding.workflow import frozen_files
+    discovered = discovered or release_dependencies()
+    runtime = {str(p.relative_to(REPO)): sha256(p.read_bytes()).hexdigest()
+               for p in sorted((REPO / 'server/shuxueshuo_server/product').rglob('*.py'))}
+    return digest({'code': runtime, 'domain': {k: v['resources'] for k, v in discovered['stages'].items()},
+                   'understanding': frozen_files(), 'uv': sha256((REPO / 'server/uv.lock').read_bytes()).hexdigest()})
+
+
 def dependencies(source, revision_id, snapshot):
     """Public allowlisted effective settings; source discovery never reads business history."""
     from .dependency_cache import release_dependencies
@@ -69,7 +79,7 @@ def dependencies(source, revision_id, snapshot):
     runtime = {str(p.relative_to(REPO)): sha256(p.read_bytes()).hexdigest()
                for p in sorted((REPO / 'server/shuxueshuo_server/product').rglob('*.py'))}
     resources['source']['product_runtime'] = digest(runtime)
-    version = digest({'code': runtime, 'domain': resources, 'uv': sha256((REPO / 'server/uv.lock').read_bytes()).hexdigest()})
+    version = deployment_version(discovered)
     target, upstream = {}, {}
     for index, stage in enumerate(snapshot['stages']):
         key = stage['stage_key']
@@ -87,7 +97,7 @@ class Application:
         self.db = self.service.db
         self.discover = discover
         with transaction(self.db) as c:
-            if c.scalar(text('SELECT version_num FROM alembic_version')) != '0002_product_runtime_indexes':
+            if c.scalar(text('SELECT version_num FROM alembic_version')) != '0003_problem_understanding':
                 raise Conflict('migration.upgrade_required')
             if context is None:
                 user = row(c, m.users, key='internal')
@@ -159,16 +169,19 @@ class Application:
         return self.request('source.resolve', key, {'source_id': source_id, 'problem_id': problem_id}, perform)
 
     def problem_summaries(self, c, records):
+        from .problem_presentation import problem_presentations
         if not records:
             return []
         joined = m.problems.outerjoin(m.problem_revisions, m.problems.c.current_revision_id == m.problem_revisions.c.id).outerjoin(
             m.sources, m.problems.c.primary_source_id == m.sources.c.id).outerjoin(m.builds, m.problems.c.latest_build_id == m.builds.c.id)
         details = {r['id']: r for r in c.execute(select(m.problems.c.id, m.problem_revisions.c.domain_json,
-            m.sources.c.filename, m.builds.c.status).select_from(joined).where(
+            m.sources.c.filename, m.builds.c.status, m.builds.c.created_at.label('build_created_at')).select_from(joined).where(
             m.problems.c.workspace_id == self.ctx.workspace_id, m.problems.c.id.in_([p['id'] for p in records]))).mappings()}
+        presentations = problem_presentations(c, records, details)
         return [{**public(p, 'id', 'title', 'primary_source_id', 'current_revision_id', 'latest_build_id', 'current_page_build_id', 'updated_at'),
             'statement_text': statement_text(details[p['id']]['domain_json']),
-            'source_filename': details[p['id']]['filename'], 'latest_build_status': details[p['id']]['status']} for p in records]
+            'source_filename': details[p['id']]['filename'], 'latest_build_status': details[p['id']]['status'],
+            'presentation': presentations[p['id']]} for p in records]
 
     def list_problems(self, *, limit=50, before=None):
         records = self.service.list_problems(self.ctx, limit=limit, before=before)

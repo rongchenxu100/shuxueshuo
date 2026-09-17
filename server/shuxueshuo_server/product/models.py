@@ -93,7 +93,9 @@ sources = table('sources', uid('owner_user_id'), uid('original_artifact_id'),
     uid('normalized_artifact_id', True), col('filename'), col('media_type'), obj('metadata', default=sa.text("'{}'::jsonb")))
 problems = table('problems', uid('owner_user_id'), uid('primary_source_id'), col('title', nullable=True),
     col('visibility', default='private'), uid('current_revision_id', True), uid('latest_build_id', True),
-    uid('current_page_build_id', True), num('lock_version', default='0'), updated=True)
+    uid('current_page_build_id', True), num('lock_version', default='0'),
+    uid('current_source_version_id', True), uid('current_candidate_id', True), uid('latest_extraction_run_id', True),
+    num('understanding_generation', default='0'), updated=True)
 choices(problems, 'visibility', 'private workspace')
 problem_sources = table('problem_sources', uid('problem_id'), uid('source_id'), uid('matched_revision_id', True),
     col('match_method'), uid('match_evidence_artifact_id', True))
@@ -187,6 +189,52 @@ outbox_messages = table('outbox_messages', uid('job_id'), col('message_type'), c
     stamp('available_at', False), stamp('locked_until'), uid('publisher_token', True), stamp('published_at'), col('last_error', nullable=True))
 unique(outbox_messages, 'dedupe_key')
 choices(outbox_messages, 'status', 'pending publishing published failed')
+
+# Candidate storage is independent of the verified Solver domain and page revisions.
+problem_source_versions = table('problem_source_versions', uid('problem_id'), uid('parent_version_id', True),
+    obj('images'), col('source_hash'), uid('created_by_user_id'))
+problem_candidates = table('problem_candidates', uid('problem_id'), uid('source_version_id'), uid('parent_candidate_id', True),
+    col('kind'), obj('candidate_json'), col('candidate_hash'), col('contract_version'), obj('validation_json'),
+    uid('raw_artifact_id', True), uid('origin_run_id', True), num('call_number', True), uid('created_by_user_id'))
+choices(problem_candidates, 'kind', 'model manual')
+extraction_runs = table('extraction_runs', uid('problem_id'), uid('build_id'), uid('source_version_id'),
+    uid('base_candidate_id', True), num('generation'), col('mode'), col('status'), obj('frozen'),
+    obj('workflow_binding', True), obj('result_json', True), uid('candidate_id', True),
+    stamp('finished_at'), col('error_code', nullable=True))
+choices(extraction_runs, 'mode', 'extract review validate')
+choices(extraction_runs, 'status', 'queued running completed failed superseded cancelled')
+unique(extraction_runs, 'build_id')
+extraction_call_reservations = table('extraction_call_reservations', uid('run_id'), num('number'), col('stage'),
+    col('request_hash'), col('base_revision', nullable=True), col('status'), uid('request_artifact_id'),
+    col('receipt_key'), uid('response_artifact_id', True), uid('model_call_id', True), obj('details', True))
+choices(extraction_call_reservations, 'stage', 'extract review repair')
+choices(extraction_call_reservations, 'status', 'reserved completed failed')
+unique(extraction_call_reservations, 'run_id', 'number')
+unique(problem_candidates, 'origin_run_id', 'call_number')
+for t in (problem_source_versions, problem_candidates, extraction_runs):
+    unique(t, 'workspace_id', 'problem_id', 'id')
+    ref(t, 'problem_id', 'problems')
+for t, column, target in (
+    (problem_source_versions, 'parent_version_id', 'problem_source_versions'),
+    (problem_candidates, 'source_version_id', 'problem_source_versions'),
+    (problem_candidates, 'parent_candidate_id', 'problem_candidates'),
+    (problem_candidates, 'origin_run_id', 'extraction_runs'),
+    (extraction_runs, 'source_version_id', 'problem_source_versions'),
+    (extraction_runs, 'base_candidate_id', 'problem_candidates'),
+    (extraction_runs, 'candidate_id', 'problem_candidates'),
+    (extraction_runs, 'build_id', 'builds'),
+    (problems, 'current_source_version_id', 'problem_source_versions'),
+    (problems, 'current_candidate_id', 'problem_candidates'),
+    (problems, 'latest_extraction_run_id', 'extraction_runs'),
+):
+    fk(t, ['workspace_id', 'id' if t is problems else 'problem_id', column], target, ['workspace_id', 'problem_id', 'id'])
+ref(problem_candidates, 'raw_artifact_id', 'artifacts')
+for column, target in {'run_id': 'extraction_runs', 'request_artifact_id': 'artifacts',
+                       'response_artifact_id': 'artifacts', 'model_call_id': 'model_calls'}.items():
+    ref(extraction_call_reservations, column, target)
+sa.Index('ix_extraction_one_active', extraction_runs.c.problem_id, unique=True,
+         postgresql_where=extraction_runs.c.status.in_(['queued', 'running']))
+sa.Index('ix_candidates_history', problem_candidates.c.problem_id, problem_candidates.c.created_at.desc(), problem_candidates.c.id)
 
 # All resource references carry workspace identity, including nullable references.
 references = {

@@ -28,7 +28,8 @@ from .runtime_status import pulse
 
 
 def deployment(service):
-    return dependencies({'sha256': ''}, None, service.registry.get('problem_lesson', CURRENT_PIPELINE_VERSION))['deployment_version']
+    from .application import deployment_version
+    return deployment_version()
 
 
 def queue_for(version): return 'product.build.' + version
@@ -71,6 +72,8 @@ def supervise(runtime, version, message):
         try: execution = a.service.acquire_execution(ctx, job_id, f'local:{os.getpid()}', deployment_version=version, lease_seconds=90)
         except Conflict as exc:
             if str(exc) in ('execution.already_owned', 'job.terminal'): return
+            if str(exc) == 'execution.capacity':
+                raise Reject('execution.capacity', requeue=True) from None
             if str(exc) == 'execution.incompatible_environment':
                 a.service.fail_incompatible_deployment(ctx, build_id)
                 return

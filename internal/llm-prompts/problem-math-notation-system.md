@@ -3,6 +3,13 @@
 只转写定义、条件、目标和分问，不解题，不给答案。忽略手写解答和批注。
 只返回 JSON，不返回 Markdown、解释或自检过程。
 
+## 原题文字与数学候选
+
+新抽取在顶层输出 original_text，完整转录原图题干；root 仍为独立的数学候选。original_text 供人阅读，不是题意摘要，不从 definitions/facts 反向生成。
+保留原题中文叙述、公式、题号和分问顺序、图号、参数说明（包括“为常数”）；按阅读顺序换行。公式允许等义的 Unicode 或 LaTeX 排版，但不化简、不换成自己引入的对象符号，不改写成“Γ: …；P∈Γ”等数学候选。
+多图按输入顺序衔接，重叠的题干只保留一次。忽略手写答案、批注和解题过程；不把图中推断出的关系编入题干原文。无法辨认处写[无法辨认]，并在对应节点的 uncertainties 保留诊断；缺图时仍转录可读文字。
+original_text 中的自然语言、原题明确的“为常数”等文字不受下方 definitions/facts 的简化规则限制。只在顶层保存这一份原文，不在各数学节点重复 source_text。
+
 ## definitions 和 facts 分别写什么
 
 按下面的固定规则放置，不必判断一句话在数学上“算定义还是算条件”。
@@ -86,6 +93,7 @@ facts 表达本节点及其子节点的条件，goals 只表达这些条件下�
 
 ```json
 {
+  "original_text": "曲线 y=x²+u*x+v，其中u,v为常数，u>0。点P(-2,0)在曲线上，曲线与y轴交于点Q。求u的值（用含v的式子表示），并求Q的坐标。",
   "root": {
     "definitions": ["Γ: y = x^2+u*x+v"],
     "facts": ["P = (-2,0)", "u > 0", "P ∈ Γ", "Γ ∩ y_axis = {Q}"],
@@ -108,6 +116,7 @@ facts 表达本节点及其子节点的条件，goals 只表达这些条件下�
 
 ```json
 {
+  "original_text": "正方形PQRS中，P(0,0)、Q(4,0)、S(0,4)，W是PS的中点，T是线段QR上的动点。求PT+TW的最小值，并求取得最小值时T的坐标。",
   "root": {
     "facts": ["P = (0,0)", "Q = (4,0)", "S = (0,4)", "square(P,Q,R,S)", "W = midpoint(P,S)", "T ∈ segment(Q,R)"],
     "goals": [{"kind": "find_minimum", "expression": "PT+TW"}],
@@ -132,6 +141,7 @@ facts 表达本节点及其子节点的条件，goals 只表达这些条件下�
 
 ```json
 {
+  "original_text": "若一条线段的长度等于2或5，则称它为“候选段”。已知U(0,0)、V(t,1)，UV>3，线段UV为候选段，求t的取值范围。",
   "root": {
     "definitions": ["若一条线段的长度等于2或5，则称它为‘候选段’。"],
     "facts": ["U = (0,0)", "V = (t,1)", "UV > 3", "UV = 2 ∨ UV = 5"],
@@ -151,6 +161,7 @@ facts 表达本节点及其子节点的条件，goals 只表达这些条件下�
 
 ```json
 {
+  "original_text": "曲线y=x²+u的顶点为R，P(-2,0)、Q(3,0)，点T在线段PQ上运动。当PT+TR的最小值为8时，求此时曲线的方程和T的坐标。",
   "root": {
     "definitions": ["Γ: y = x^2+u"],
     "facts": ["R = vertex(Γ)", "P = (-2,0)", "Q = (3,0)", "T ∈ segment(P,Q)", "min(PT+TR) = 8", "PT+TR = min(PT+TR)"],
@@ -173,6 +184,7 @@ facts 表达本节点及其子节点的条件，goals 只表达这些条件下�
 
 ```json
 {
+  "original_text": "(1)①如图甲，U(0,0)、V(6,0)，求UV的长。\n②如图乙，线段UV、RS交于W，UW=3，求VW的长。",
   "root": {
     "children": [{
       "label": "(1)",
@@ -205,6 +217,7 @@ facts 表达本节点及其子节点的条件，goals 只表达这些条件下�
 
 ```json
 {
+  "original_text": "如图甲，U(0,0)、V(6,0)，求UV的长。",
   "root": {
     "facts": ["U = (0,0)", "V = (6,0)"],
     "goals": [{"kind":"find_value","expression":"UV"}]

@@ -2,7 +2,11 @@
 
 只输出符合 response_schema 的完整候选 JSON，沿用 problem-math-notation 的数学字符串、分问、目标和匹配字段。不是局部片段，不输出补丁、版本、ID、解释或解法。
 
+顶层 original_text 保存完整题干原文，不是数学摘要。原图中的中文叙述、公式、题号、分问、参数说明和图号都须忠实保留；不从 root 反向生成，不抄手写答案或解析。已有原文在未授权修改时逐字保留。wrong_transcription 只授权按原图补充或修正 /original_text，不因此更改 root；数学关系另有诊断和授权才可修改。无基准候选重新抽取时，同时输出 original_text 和 root；模糊处写[无法辨认]并保留不确定性。
+
 严格遵守 allowed_changes：path 相对于本次 base_candidate；replace 只修正指定项且不得删掉题意；append 只在指定容器增加有原图依据的遗漏；source_edit 允许修正有原图依据的关系；subtree 只允许调整明确指出的分问结构。其他内容保持不变，可接受的符号规范化无需主动改写。repair_feedback 是上次被拒绝的修改说明，不扩大允许范围。
+
+空路径不授予整份候选的修订权。仅在没有可用基准候选、且明确指定 reextract 时重新抽取；缺失 original_text 的复核即使使用空路径报告，修复授权也只指向 /original_text。
 
 不得为消除报错删除条件、目标、量词、最值状态或缺图声明，不得猜测对象或补非退化假设，不得把 matched 改成 unmatched 来绕过题意校验。题型只能按真实题意和注册表声明。定义仍需忠实展开；不解题、不给答案、不排除题面未排除的分支。
 

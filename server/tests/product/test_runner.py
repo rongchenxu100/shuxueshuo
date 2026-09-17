@@ -124,6 +124,37 @@ def test_offline_nine_stages_and_typed_restore(run_context):
     with pytest.raises((ValueError, KeyError, TypeError)): x.validate_restored('source')
 
 
+def test_understanding_preserves_existing_formal_revision_and_page(run_context, monkeypatch):
+    from shuxueshuo_server.product.understanding import Understanding
+    from shuxueshuo_server.product.understanding_runtime import target_dependencies
+    app, x, runner, _, _ = run_context
+    runner.run()
+    old = app.build(x.build['id'])
+    with transaction(app.db) as c:
+        before = dict(row(c, m.problems, id=x.build['problem_id']))
+    u = Understanding(app)
+    source = u.source_version(x.build['problem_id'], None, [x.build['source_id']], 'new-notation-source')
+    candidate = u.save_candidate(x.build['problem_id'], None, UUID(source['id']), {
+        'root': {'facts': ['t>0']}, 'match_status': 'unmatched', 'family_id': None, 'match_reason': '独立候选'}, 'manual-notation')
+    submitted = u.start(x.build['problem_id'], UUID(source['id']), UUID(candidate['id']), 'validate', 'validate-only')
+    version = target_dependencies(source, UUID(candidate['id']))['deployment_version']
+    execution = app.service.acquire_execution(app.ctx, UUID(submitted['job_id']), 'validate', deployment_version=version, lease_seconds=300)
+    current = ExecutionContext(app, app.ctx, UUID(submitted['build_id']), execution['id'], execution['epoch'])
+    def forbidden(*_):
+        raise AssertionError('understanding must never enter OCR, Solver or page generation')
+    for stage in ('observation', 'solver', 'page'):
+        monkeypatch.setattr(StageRunner, stage, forbidden)
+    assert StageRunner(current).run()['status'] == 'validated_candidate'
+    with transaction(app.db) as c:
+        after = row(c, m.problems, id=x.build['problem_id'])
+    for name in ('current_revision_id', 'current_page_build_id', 'latest_build_id'):
+        assert after[name] == before[name]
+    summary = u.summary(x.build['problem_id'])
+    assert summary['formal_page']['revision_id'] == str(before['current_revision_id'])
+    assert summary['formal_page']['build_id'] == str(x.build['id'])
+    assert app.service.page_resource(app.ctx, UUID(old['page_id']), 'index.html')['content_type'] == 'text/html'
+
+
 def test_rebuild_preview_restores_typed_prefix_and_reuses_without_models(run_context):
     app, x, runner, _, _ = run_context
     runner.run()

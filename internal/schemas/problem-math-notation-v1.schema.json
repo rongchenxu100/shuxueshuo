@@ -9,6 +9,13 @@
   ],
   "additionalProperties": false,
   "properties": {
+    "original_text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 32768,
+      "pattern": "\\S",
+      "description": "完整题干原文的忠实转录，供人阅读与页面展示；与root数学候选独立，不参与数学编译。新抽取须填写，历史候选未保存时可缺省。保留原有中文叙述、题号、分问、公式、参数说明和图号，按阅读顺序换行；公式可转为等义Unicode或LaTeX排版，但不得改写叙述、化简、替换题面符号或从root反向生成。多图按输入顺序衔接，重叠题干不重复；不抄手写答案、批注或解析，不将图形推测改写成原文。无法辨认处写[无法辨认]并在对应节点uncertainties说明；缺图仍转录可读题干，不能补造内容。"
+    },
     "root": {
       "$ref": "#/$defs/Scope",
       "description": "整题根节点；共同条件放根节点，各小問按原层级放children。"

@@ -64,6 +64,17 @@ class ExecutionContext:
     def guard(self, *, code=True):
         with transaction(self.service.db) as c: self.service._guard(c, *self.args)
         if code:
+            if self.build['pipeline_key'] == 'problem_understanding':
+                from .understanding_runtime import configuration, target_dependencies
+                with transaction(self.service.db) as c:
+                    run = row(c, m.extraction_runs, build_id=self.build['id'])
+                    source = row(c, m.problem_source_versions, id=run['source_version_id'])
+                if run['frozen'] != configuration():
+                    raise Conflict('build.environment_changed')
+                target = target_dependencies(source, run['base_candidate_id'], run['frozen'])
+                if target['deployment_version'] != self.build['deployment_version']:
+                    raise Conflict('build.environment_changed')
+                return
             if any(s['stage_key'] == 'extraction' and s['contract_version'] != 'v2'
                    for s in self.build['pipeline_snapshot']['stages']):
                 raise Conflict('extraction.rebuild_required')
@@ -175,6 +186,8 @@ class ExecutionContext:
         return VerifiedSolverProblemBundleLoader().load(final, extraction_store(self.work / 'extraction-artifacts'), ancestor_contexts=ancestors)
 
     def validate_restored(self, key):
+        if self.build['pipeline_key'] == 'problem_understanding':
+            return
         from shuxueshuo_server.solver.extraction.context import ProblemExtractionContext
         if key == 'source': ProblemExtractionContext.from_payload(self.read('source', 'Source / selection / initial Context'))
         if key == 'observation': self.contexts()

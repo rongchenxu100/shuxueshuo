@@ -270,7 +270,7 @@ def test_few_shots_cover_state_scope_missing_diagrams_and_preserve_branches():
     assert "仅部分目标" in schema()["$defs"]["Scope"]["description"]
 
 
-def test_model_output_shape_explicitly_removes_goal_state_field():
+def test_model_output_shape_removes_goal_state_and_adds_only_original_text():
     def shape(value):
         if isinstance(value, dict):
             return {k: shape(v) for k, v in value.items() if k != "description"}
@@ -283,4 +283,8 @@ def test_model_output_shape_explicitly_removes_goal_state_field():
     assert shape(schema()) != obsolete
     for goal in obsolete["$defs"]["Scope"]["properties"]["goals"]["items"]["oneOf"]:
         del goal["properties"]["at"]
-    assert shape(schema()) == obsolete
+    current = shape(schema())
+    assert current["properties"].pop("original_text") == {
+        "type": "string", "minLength": 1, "maxLength": 32768, "pattern": r"\S"
+    }
+    assert current == obsolete

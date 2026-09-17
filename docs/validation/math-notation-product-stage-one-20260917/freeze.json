@@ -1,0 +1,224 @@
+{
+  "files": {
+    "templates": {
+      "internal/llm-prompts/problem-math-notation-system.md": "9d8d9ba3fedcdae18d73d7cc77bf2df2369dd5c606e83b9f1bd738930e98b708",
+      "internal/llm-prompts/problem-math-notation-user.md": "e4065b81b1bdd3bccf2f7f6fc6cfd3d4179d3dac84dd58dd9824a3e7266f8e67",
+      "internal/schemas/problem-math-notation-v1.schema.json": "200a6434fb82c4e6d0019c06f94ebd12baf6248562876cf6aecdc50413607a5e",
+      "internal/llm-prompts/problem-math-notation-expressions.json": "79e6a0d2ab19482f4a9ed6760fcc9a850cfb3c66979ab36a692b9284eaebb43f",
+      "internal/llm-prompts/problem-math-notation-repair.md": "46f70f7e5d2f6203dd1e7f66ca3a84ecae5c479562b07331556b514b5bc7221b",
+      "internal/llm-prompts/problem-math-notation-review.md": "3ecf04ba6d894ff6d5ad9f7e03f473c6f1c51d995fec44a931df52f8f384d3d3",
+      "internal/llm-prompts/problem-math-notation-review-few-shots.json": "d59375d3794002ed386559b9be8fc59481dda08334724b59311caa0f262411b3",
+      "internal/llm-prompts/problem-math-notation-review-families.json": "3955151d6fa62807f02bc618c4669414ddbce583782a22611034005f7b757b8e",
+      "internal/schemas/problem-math-source-review-v1.schema.json": "979cfd0766f848aeb830b90eef1a255db5c2eb7ddf941c4c843b9570c6e0ab83"
+    },
+    "implementation": {
+      "problem_understanding/__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+      "problem_understanding/algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+      "problem_understanding/batch_smoke.py": "bb2805256aff3d27f382b441a6717517d260a281442da55ba9339dda02edfd81",
+      "problem_understanding/candidate_common.py": "bf0f3e0371e47809b19800cc0ad091e5f6452851d26c40851270fd6dc3c329e3",
+      "problem_understanding/comparison_provider.py": "24b12606f368f460a9b82b46327d5abc4052548779bff27ddc1f48cbf21cd688",
+      "problem_understanding/identity.py": "a52c7273ed8945df8a958a0667d7ea7ab702fc6587baa4d2f2926010deb1db5b",
+      "problem_understanding/legacy_math_tree.py": "0a66aad35003567957443087944fe43047fb5d15659c34a336dddc41c7798e67",
+      "problem_understanding/math_tree_audit.py": "44891b7f5dcb0537e410c900de22bdeddb8bae4cb7999d0d824abf4e459de444",
+      "problem_understanding/notation_compile.py": "d57da1cbce7722a6979191248c57e5d958f337ec593f786ecb45616d53cd9f3c",
+      "problem_understanding/notation_contract.py": "72b7c8adc0ef2b0fb6d7357242958a961b8810a85866d71eaf88ec0bb3ffc2c0",
+      "problem_understanding/notation_geometry_proofs.py": "b373845d9c33de8ec1d36f45b8ae31c376d8389e4b67f9dd64e753fce7a6b24c",
+      "problem_understanding/notation_implication.py": "20a298eb044e769a0573ba3939bb97589c6c950eaf5c3dac39e0f7d21a3288e3",
+      "problem_understanding/notation_normalization.py": "a9073052c2287f7184a42e7acb51ba602eff6aaa253e9a395ad5c46cbfc1386f",
+      "problem_understanding/notation_parser.py": "59dfca457c5ece9d554494b2059c504793461e7941c6906188b6baa5b1fb0b6e",
+      "problem_understanding/notation_replay.py": "40ba9163a1236f39af67b0ba91f63dcd0edb78273469306101614896e8bda892",
+      "problem_understanding/notation_semantics.py": "e177186bc41594cc362403fc7dc9d8dece8cd57246096ee5780639fd68267ee4",
+      "problem_understanding/notation_service.py": "edf1935b519114a1922a75de5d86f1da9aca5dfae11f5d13b6af5953612b2c56",
+      "problem_understanding/notation_state_proofs.py": "88cd751d5f95756b46ebb1f6040dc6c34eb1f87a118541916b9554867b21d65a",
+      "problem_understanding/observation.py": "30ea92ea9f0cf668dbc62c0aba568329c7f05b7c02d917073fbc97380600e366",
+      "problem_understanding/proof_budget.py": "2fc9ad97ac90584263a6c67783e5c86f6cd1fadd33c6d929d1084cd47297b87d",
+      "problem_understanding/repair_guard.py": "d5952a969e4ca1b04c1a0dabb67a66fd70dc7e41bde7f65c0641a41a2d0d7a99",
+      "problem_understanding/review_contract.py": "9f8949685a56d9d4f5c6953b9d7fa250b194bc4d96e31aebc461ae9696d47888",
+      "problem_understanding/smoke.py": "ce605b415cdf4b4825d346226daee2f18ba83a04dc5b5c18c55ffeca37919405",
+      "problem_understanding/transport_accounting.py": "599d64555f16a062b62aea0e6befc1426816804aa8bc172d79329da85b80bcbf",
+      "problem_understanding/wire.py": "153a5089f7767e48f3bbe66b7e9154f7b64d72c0f142cb9399457f1ef1b55775",
+      "problem_understanding/workflow.py": "8b872c4b086b50b5a20c8a488280cabfd2953f257a7ba0763fab9ba569a9de85",
+      "problem_understanding/workflow_diagnostics.py": "a4af90f2e161aba48d10506bc66f87ac9d084fd88f3844465cb7f0f387df5f9f",
+      "problem_understanding/workflow_ledger.py": "70c1a83d1ffaaa42828c4ad5ec628980ee3e32da52a619cfca1e45fa9a368fad",
+      "problem_understanding/workflow_smoke.py": "1b3a2f7182f8dc97ef12ca99aca9f5a2d500ce4839f6c40b22661915fe81fc53",
+      "problem_understanding/workflow_storage.py": "806a34c02fcec7d1a36269bb4d94fd78180074ac10d8d5621b9407e2de4461bc",
+      "problem_understanding/workflow_usage.py": "b8d7600ad09de15e06f6fc26f85afaabc2f9cb96bdbacbbc2f405d21bc2d8c8a",
+      "solver/extraction/deepseek_files.py": "032996176d76594b35fdd10fb1a9092e51e3b4218490aa1151d9699571bbb0d1",
+      "solver/extraction/multimodal_provider.py": "fad0bae0181ec8de8cb6b891674a2121afc3a1e91a9db311f8886dea4a4f4047"
+    }
+  },
+  "registry": [
+    {
+      "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+      "title": "二次函数等长射线路径最值",
+      "use_when": "题面同时明确给出射线、射线上的动点和与该动点相关的等长条件，且这些结构直接承担路径和的等价替换。",
+      "required_source_primitives": [
+        {
+          "primitive_kind": "entity_type",
+          "primitive_types": [
+            "ray"
+          ],
+          "min_count": 1,
+          "description": "题面必须明确声明一条射线，而不是普通线段或直线。"
+        },
+        {
+          "primitive_kind": "fact_type",
+          "primitive_types": [
+            "point_on_ray"
+          ],
+          "min_count": 1,
+          "description": "题面必须明确声明动点位于该射线上。"
+        },
+        {
+          "primitive_kind": "fact_type",
+          "primitive_types": [
+            "equal_length_condition"
+          ],
+          "min_count": 1,
+          "description": "题面必须明确给出参与路径替换的等长条件。"
+        }
+      ],
+      "do_not_use_when": [
+        "只有直角、等腰或两条普通线段等长，但题面没有射线或射线上动点。",
+        "只是普通两动点距离和，可直接降维和折线拉直。",
+        "核心机制是非1权重路径或正方形反射。"
+      ],
+      "conditional_source_requirements": []
+    },
+    {
+      "family_id": "QuadraticPathMinimumSolver",
+      "title": "普通二次函数路径最值",
+      "use_when": "题面要求普通距离和或折线路径的最小值，允许出现辅助性的直角、等长或中点关系，但路径机制本身不依赖非1权重、射线等长构造或正方形反射。",
+      "required_source_primitives": [
+        {
+          "primitive_kind": "entity_type",
+          "primitive_types": [
+            "function"
+          ],
+          "min_count": 1,
+          "description": "题面必须声明至少一个二次函数对象。"
+        },
+        {
+          "primitive_kind": "fact_type",
+          "primitive_types": [
+            "path_minimum_target",
+            "minimum_value"
+          ],
+          "min_count": 1,
+          "description": "题面必须显式给出路径/距离最值目标或最小值条件。"
+        }
+      ],
+      "do_not_use_when": [
+        "目标路径含明确的非1权重系数，并以加权几何变换为核心。",
+        "题面明确声明射线、射线上动点和等长条件，并用它们替换路径。",
+        "题面以正方形顶点、中点、中心或对角线关系完成路径降维或反射。"
+      ],
+      "conditional_source_requirements": []
+    },
+    {
+      "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+      "title": "二次函数正方形路径最值",
+      "use_when": "题面明确给出二次函数、正方形和路径最值目标，且正方形的中点、中心或邻接关系决定路径等价变换。",
+      "required_source_primitives": [
+        {
+          "primitive_kind": "entity_type",
+          "primitive_types": [
+            "function"
+          ],
+          "min_count": 1,
+          "description": "题面必须声明至少一个二次函数对象。"
+        },
+        {
+          "primitive_kind": "fact_type",
+          "primitive_types": [
+            "square"
+          ],
+          "min_count": 1,
+          "description": "题面必须明确给出正方形事实。"
+        }
+      ],
+      "do_not_use_when": [
+        "题面没有二次函数或明确正方形。",
+        "正方形不参与目标路径的等价变换。",
+        "路径仍含两个独立动点、非直线轨迹或非单位权重。"
+      ],
+      "conditional_source_requirements": []
+    },
+    {
+      "family_id": "QuadraticWeightedPathMinimumSolver",
+      "title": "二次函数加权路径最值",
+      "use_when": "题面目标明确形如 k*PA+PB，且 k 不等于1；该权重是最值目标的一部分，需要加权几何变换后才能使用最短路径。",
+      "required_source_primitives": [
+        {
+          "primitive_kind": "entity_type",
+          "primitive_types": [
+            "function"
+          ],
+          "min_count": 1,
+          "description": "题面必须声明至少一个二次函数对象。"
+        },
+        {
+          "primitive_kind": "fact_type",
+          "primitive_types": [
+            "path_minimum_target"
+          ],
+          "min_count": 1,
+          "description": "必须用 path_minimum_target 声明完整带权路径；sibling 比例事实不可替代。"
+        },
+        {
+          "primitive_kind": "fact_type",
+          "primitive_types": [
+            "minimum_value"
+          ],
+          "min_count": 1,
+          "description": "题面必须直接提出或给出路径最小值。"
+        }
+      ],
+      "do_not_use_when": [
+        "系数只出现在函数、方程或普通线段比例中，而不是路径目标的权重。",
+        "目标只是两个无权距离之和，即使题面另有直角或等长关系。",
+        "核心机制是射线等长替换或正方形反射。"
+      ],
+      "conditional_source_requirements": []
+    }
+  ],
+  "contract": "problem-math-notation/v1",
+  "provider": {
+    "model": "deepseek-flash",
+    "timeout": 300,
+    "max_tokens": 16384,
+    "image_transport": "files",
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low"
+  },
+  "budget": {
+    "content": 3,
+    "review": 3,
+    "semantic": 6,
+    "network": 12
+  },
+  "product_implementation": {
+    "__init__.py": "cdeb1b29026096821041027a5bbd6551ed89594537e47f6eab2c478dbdc66a7d",
+    "api.py": "c621c59029484f8a23f989b9b9e6054f86ad806d38e9fa339fb34fb27d260538",
+    "application.py": "3a48d0046b1c4275fb92bb5798b000f4cea0a72cf711e11df5f6ee00a004f59f",
+    "config.py": "35740104079fceac08895a0923817823d1555e4d16a66f6250a40ba5b930b1b8",
+    "db.py": "9545a4824d81fe3b6c286cb6f458026b09f410714e6057a39ff806e51bd4faa3",
+    "dependency_cache.py": "a17fdb32e50fa3527a0f96a27c63fe4afc377159e3b0286898de06d86da77dbd",
+    "errors.py": "6ef8877fd1da8986345d24d0f7f807b936f2de904847e76d83a381da59f13c7f",
+    "execution.py": "98026136044b4b124e8ef1f96683e7180c668123ad93ceadef823b9355e46f7e",
+    "models.py": "a91c9b474d171a9854c5fbf0ffa463d9ed90ccf69e7ceaabf29a9951a32d9996",
+    "observation.py": "1d0c898f5c0a733b5d302727fbe30868ac954d11649dfd215e81adce99f84fc2",
+    "outbox.py": "d1f374e0ed716f4b542e0c0e4aa56f1fd7ebfe1b61fbd0399290a4e012bbddfb",
+    "pipelines.py": "1f27d4dbcf16dc74f9bc399800672ed75989f0b46a851e73a74a3c93b3c4c6ce",
+    "repositories.py": "0561082fb2f8bab3bd771b4c66146914a2d6a0526d50c21ef7ca81fd47773c0b",
+    "runner.py": "ea1c6db2e456196cb2fd6dfbfd0147df9de60f6a47a81758a68c5a53648768c7",
+    "runtime_config.py": "bae353effd76f6973f7fed90ff8683da1122608689530500b9c6351e3a35757f",
+    "runtime_status.py": "c9caeefcb2452c6d3d22472c57d85a7c2fa3e357519af0aaec25340a0f61c9b2",
+    "services.py": "a5ad08642cc910d51f08adbf70cb97a9ffd13e21cbecd8852db8c56cf20dde6d",
+    "storage.py": "efc0fb2f308e116ef82059777b35f974f42d5b23e1edca431ef2d7c14b86c06c",
+    "transport.py": "c69572e7484b5498f628af67965d06d300c4797819aa67bbfa62a92e996da0d8",
+    "understanding.py": "d02518052a26d653dcd126f01b851b0489ca73f47f228dc5e70353864e4faac4",
+    "understanding_runtime.py": "ed698561447653f2707eabe692294d13275704efdb2bd94fdbceb602cb8dd858",
+    "understanding_storage.py": "30f5c4904b322ae7202c37b2b6dd76181ab8b7f7973be68227d1143694278659"
+  }
+}

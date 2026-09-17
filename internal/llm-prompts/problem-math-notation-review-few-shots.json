@@ -10,7 +10,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "点P在y轴正半轴上。"
     },
     "review": {
       "status": "correction_required",
@@ -36,7 +37,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "直线UV平分线段PQ，交点将UV截得的两段之比为r（未指定方向）。"
     },
     "review": {
       "status": "correction_required",
@@ -79,7 +81,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "参数s。第一问求s+2；第二问当s=3时求s^2。"
     },
     "review": {
       "status": "correction_required",
@@ -110,7 +113,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "函数h(t)=根号(t+5)，求h(2)。"
     },
     "review": {
       "status": "confirmed",
@@ -139,7 +143,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "点Q在x轴正半轴。第一问求Q的坐标。"
     },
     "review": {
       "status": "confirmed",
@@ -169,7 +174,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "如图乙，点R在线段ST上，求RS。"
     },
     "review": {
       "status": "confirmed",
@@ -187,7 +193,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "参数r [无法辨认] 2。"
     },
     "review": {
       "status": "uncertain",
@@ -212,7 +219,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "参数r≥2。"
     },
     "review": {
       "status": "confirmed",
@@ -249,7 +257,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "点P(t,t²)，求y(P)的最小值，并求取得最小值时P的坐标。"
     },
     "review": {
       "status": "confirmed",
@@ -285,7 +294,8 @@
       },
       "match_status": "unmatched",
       "family_id": null,
-      "match_reason": "独立机制例"
+      "match_reason": "独立机制例",
+      "original_text": "点P(t,t²)，求y(P)的最小值，并求取得最小值时P的坐标。"
     },
     "review": {
       "status": "correction_required",
@@ -295,6 +305,38 @@
           "kind": "wrong_scope",
           "source_excerpt": "求y(P)的最小值，并求取得最小值时P的坐标",
           "message": "取得最小值的状态只限定坐标目标，应放入该目标所在子节点；不能将它作为父节点求最小值的共同前提。"
+        }
+      ]
+    }
+  },
+  {
+    "id": "transcription_preserves_source_wording",
+    "source": "已知实数u为常数，u>2，求u的取值范围。",
+    "candidate": {
+      "original_text": "u>2，find_range(u)。",
+      "root": {
+        "facts": [
+          "u>2"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "u"
+          }
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立转录例"
+    },
+    "review": {
+      "status": "correction_required",
+      "findings": [
+        {
+          "path": "/original_text",
+          "kind": "wrong_transcription",
+          "source_excerpt": "已知实数u为常数，u>2，求u的取值范围。",
+          "message": "数学候选已表达条件和所求，但题干原文被改写为数学候选片段，须按原图恢复完整叙述。"
         }
       ]
     }

@@ -185,6 +185,12 @@ flowchart TD
 
 权限模式：`replace` 修复确定的语法/类型错误且保留目标、量词和逻辑要求；`append` 只能在指定容器补项；`source_edit` 修正有来源证据的具体项；`subtree` 只调整授权子树的归属并保留全部内容；没有可靠候选时才用 `reextract`。未知局部引用另授权本问 definitions 的补充，不能改动兄弟问。目标列表级诊断仅允许追加，删除或修正目标必须精确到项。多项变化若无法对应到基准位置则整体拒绝。repair 新发现缺图/歧义时，可在根 uncertainties 补诊断并停止；这不扩大数学内容修改范围，也不算修复成功。
 
+2026-09-17 收紧来源复核的路径授权：空 JSON Pointer `""` 只允许用于 `wrong_transcription`，且当前候选确实缺失 `original_text`；它在服务端转换为唯一的 `/original_text` 授权。其他 finding 必须指向已有的非空路径，整题数学分问为 `/root`。Schema 限制空路径的 kind，代码再核对候选字段是否存在。非法 review 以 `review.invalid_response` 停止，不进入 repair、不改变原候选。
+
+授权生成再次检查 review 的精确路径，不沿用编译诊断的“回退到最近父路径”规则。最终 guard 独立拒绝整份候选的 `source_edit`、`subtree`、`replace`、`append`，已有可用候选时也拒绝 `reextract`；没有可用候选时保留明确的重新抽取。`source_edit` 对分问容器按路径识别，即使容器只有 label、没有 facts/children，也不能整块改写。补充原文、具体数学字符串纠错与保留内容的分问迁移继续可用。该修复有独立攻击回归并纳入 affected 门禁，见[空路径授权修复报告](validation/math-notation-product-stage-one-20260917/repair-authority.md)。
+
+空路径诊断的 `source` 为 null，完整候选仅从 `base_candidate` 读取，不在每个诊断中重复携带。诊断补全也遵循此规则；具体路径继续保留该位置的原内容，不改变授权范围。
+
 ## 5. source review：完整图片对照，简洁诊断输出
 
 采用独立 LLM 调用对照完整原图与候选。职责是发现遗漏、误读及擅自新增的条件。每份本地校验通过且无已确认终止条件的候选都进入复核；正常路径是 1 次抽取 + 1 次复核。每次修订后再次复核。已确认缺图等终止状态不为获得 confirmed 而追加调用。

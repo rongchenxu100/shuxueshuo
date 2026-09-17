@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { api, post, BuildSchema, failureMessage, formatDuration, label, stageElapsedMs, terminal, websocketUrl, type ProductBuild } from '@/lib/product/client';
 import { continueUpload, fileFingerprint, PendingUploadSchema, pendingUploadKey, ProblemListSchema, ProblemSchema,
-  previewPage, stageLabel, problemTitle, processing, unreadResult, markResultRead, ReadResultsSchema, readResultsKey, type ReadResults, type PendingUpload, type WorkspaceProblem } from '@/lib/product/workspace';
+  previewPage, stageLabel, problemTitle, problemStatus, processing, unreadResult, markResultRead, ReadResultsSchema, readResultsKey, type ReadResults, type PendingUpload, type WorkspaceProblem } from '@/lib/product/workspace';
 import styles from './product-workspace.module.css';
 
 const message = (error: unknown) => error instanceof Error ? error.message : '请求未完成，请稍后重试。';
@@ -14,6 +14,26 @@ function formatUpdated(value?: string | null) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
   return date.toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+export function ProblemListItem({ problem: p, selected, disabled, unread, onSelect }: {
+  problem: WorkspaceProblem; selected: boolean; disabled: boolean; unread: boolean; onSelect: () => void;
+}) {
+  return <button disabled={disabled} aria-current={selected} title={problemTitle(p)} className={styles.item} onClick={onSelect}>
+    <span className="flex items-start gap-2">
+      {p.presentation?.title_kind === 'image' &&
+        // Original source thumbnail is authenticated by the same product API.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={`/api/product/v1/problems/${p.id}/source-images/${p.presentation.image_source_id}`} alt="原题缩略图" loading="lazy" className="h-10 w-12 shrink-0 rounded border border-zinc-200 object-contain" />}
+      <span className="line-clamp-2 min-w-0 flex-1 leading-6">{problemTitle(p)}</span>
+      {processing(p) ? <span role="status" aria-label={problemStatus(p)} className={styles.spinner} /> :
+        unread && <span role="status" aria-label="有新的处理结果，未读" className={styles.unread} />}
+    </span>
+    <span className="mt-1 block text-xs text-zinc-500">
+      <span className={styles.itemStatus} data-status={p.presentation?.status}>{problemStatus(p)}</span>
+      {p.updated_at ? ` · ${formatUpdated(p.updated_at)}` : ''}
+    </span>
+  </button>;
 }
 
 export function ProductWorkspace() {
@@ -69,10 +89,12 @@ export function ProductWorkspace() {
     };
     const boot = requestAnimationFrame(restoreRead);
     const refresh = () => { restoreRead(); void loadList(); };
+    const visible = () => { if (!document.hidden) refresh(); };
     const storage = (event: StorageEvent) => { if (event.key === readResultsKey || event.key === null) restoreRead(); };
     const poll = setInterval(() => void loadList(), 5000);
     window.addEventListener('focus', refresh); window.addEventListener('storage', storage);
-    return () => { cancelAnimationFrame(boot); clearInterval(poll); window.removeEventListener('focus', refresh); window.removeEventListener('storage', storage); };
+    document.addEventListener('visibilitychange', visible);
+    return () => { cancelAnimationFrame(boot); clearInterval(poll); window.removeEventListener('focus', refresh); window.removeEventListener('storage', storage); document.removeEventListener('visibilitychange', visible); };
   }, [loadList]);
 
   function acknowledgeResult(problem: WorkspaceProblem) {
@@ -189,6 +211,7 @@ export function ProductWorkspace() {
 
   const activeProblem = selected ? problems.find(p => p.id === selected.id) ?? selected : null;
   const uploadPanel = <>
+    {activeProblem && <Link className="mb-4 block rounded-xl border border-teal-200 p-3 text-sm text-teal-800" href={`/understanding/${activeProblem.id}`}>提取题意 · 查看候选、补图与修订 →</Link>}
     {notice && <p role="status" className="mb-4 rounded-xl bg-teal-50 p-3 text-sm text-teal-800">{notice}</p>}
     {error && <p role="alert" className={`${styles.error} mb-4`}>{error}</p>}
     {(pending || busy) && <div className={`${styles.card} mb-4 space-y-3`}>
@@ -204,22 +227,12 @@ export function ProductWorkspace() {
     {resizing && <div className="fixed inset-0 z-50 cursor-col-resize" />}
     <aside className={styles.sidebar} aria-label="题目列表">
       <header className={styles.header}>{!collapsed && <span>数学说 · 工作台</span>}<button aria-label={collapsed ? '展开题目列表' : '收起题目列表'} onClick={() => setCollapsed(v => !v)} className={`${styles.collapse} cursor-pointer text-zinc-500`}>{collapsed ? '›' : '‹'}</button></header>
-      {!collapsed && <><div className="p-4"><button disabled={busy} className={`${styles.button} ${styles.primary} w-full`} onClick={() => { showProblem(null); setMobilePane('detail'); setNotice(''); }}>＋ 上传新题目</button></div>
+      {!collapsed && <><div className="p-4"><button disabled={busy} className={`${styles.button} ${styles.primary} w-full`} onClick={() => { showProblem(null); setMobilePane('detail'); setNotice(''); }}>＋ 上传新题目</button><Link className="mt-3 block text-center text-sm text-teal-700" href="/understanding">仅提取题意 →</Link></div>
         <div className={styles.scroll} style={{ padding: '0 12px 16px' }}>
           <p className="px-3 py-2 text-xs text-zinc-500">我的题目</p>
           {listError && <p role="alert" className={styles.error}>{listError}<button className="ml-2 underline" onClick={() => void loadList()}>重新加载</button></p>}
-          {problems.map(p => <button disabled={busy} key={p.id} aria-current={selected?.id === p.id}
-            title={p.statement_text || problemTitle(p)} className={styles.item} onClick={() => void selectProblem(p)}>
-            <span className="flex items-start gap-2">
-              <span className="line-clamp-2 min-w-0 flex-1 leading-6">{problemTitle(p)}</span>
-              {processing(p) ? <span role="status" aria-label={p.latest_build_status === 'queued' ? '排队中' : '生成中'} className={styles.spinner} /> :
-                unreadResult(p, readResults) && <span role="status" aria-label="解析已完成，未读" className={styles.unread} />}
-            </span>
-            <span className="mt-1 block text-xs text-zinc-500">
-              {p.latest_build_status ? label(p.latest_build_status) : '尚未生成'}
-              {p.updated_at ? ` · ${formatUpdated(p.updated_at)}` : ''}
-            </span>
-          </button>)}
+          {problems.map(p => <ProblemListItem key={p.id} problem={p} selected={selected?.id === p.id} disabled={busy}
+            unread={unreadResult(p, readResults)} onSelect={() => void selectProblem(p)} />)}
           {!problems.length && !listError && <p className="p-3 text-sm text-zinc-500">上传第一张题目图片开始。</p>}
           {more && <button className={styles.button} onClick={() => void loadList(problems.at(-1))}>加载更多</button>}
         </div><footer className="border-t border-zinc-200 p-4 text-xs text-zinc-500">本地工作空间</footer>
@@ -289,9 +302,9 @@ function RunWorkspace({ problem, onComplete, notices, width, onWidth, onResizing
   const live = Boolean(build && !terminal(build.status));
   useEffect(() => {
     if (!live) return;
-    setNow(Date.now());
+    const boot = requestAnimationFrame(() => setNow(Date.now()));
     const tick = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(tick);
+    return () => { cancelAnimationFrame(boot); clearInterval(tick); };
   }, [live, build?.id]);
   useEffect(() => {
     let stopped = false, fetching = false, completed = false;

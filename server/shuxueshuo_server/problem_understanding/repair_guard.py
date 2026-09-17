@@ -1,5 +1,6 @@
 """Conservative, atomic comparison against the request's original snapshot."""
 
+import re
 from collections import Counter
 
 from .notation_compile import NotationValidator
@@ -158,6 +159,19 @@ def retains(old, new):
 def guard_changes(base, proposed, allowed):
     violations, changes = [], []
     rules = {p["path"]: p for p in allowed}
+    usable_base = isinstance(base, dict) and isinstance(base.get("root"), dict)
+    if any(
+        (p["path"] == "" and p["mode"] != "reextract")
+        or (p["mode"] == "reextract" and (usable_base or p["path"] != ""))
+        for p in allowed
+    ):
+        return {
+            "ok": False,
+            "changes": [],
+            "violations": [{"path": "", "code": "repair.outside_authority",
+                            "message": "整份候选不能被授权重写；仅在没有可用基准候选时允许重新抽取。"}],
+            "actual_diff": snapshot_diff(base, proposed),
+        }
     if any(p["mode"] == "reextract" for p in allowed):
         return {
             "ok": True,
@@ -172,7 +186,10 @@ def guard_changes(base, proposed, allowed):
         )
 
     def walk(a, b, path):
-        if equivalent(a, b):
+        # Original wording must be preserved verbatim outside its own grant;
+        # algebraic equivalence cannot authorize rewriting the source text.
+        unchanged = a == b if path == "/original_text" else equivalent(a, b)
+        if unchanged:
             return
         rule = rules.get(path)
         if rule:
@@ -229,8 +246,10 @@ def guard_changes(base, proposed, allowed):
                 deletion_authorized = rule.get("reason") == "unsupported_addition"
                 if (b is MISSING or b in ("", [], {})) and not deletion_authorized:
                     fail(path, "未授权删除。")
-                elif isinstance(a, dict) and any(
-                    k in a for k in ("children", "facts", "definitions", "goals")
+                elif re.fullmatch(r"/root(?:/children/\d+)*", path) or (
+                    isinstance(a, dict) and any(
+                        k in a for k in ("root", "children", "facts", "definitions", "goals")
+                    )
                 ):
                     fail(path, "来源纠错需要精确定位，不能重写整个分问树。")
                 return
