@@ -356,7 +356,8 @@ class ProductService:
         # A competing binding may have committed while this transaction waited for the job lock.
         return scoped(c, m.builds, ctx, build_id), job
 
-    def acquire_execution(self, ctx, job_id, worker_id, *, deployment_version, lease_seconds=60):
+    def acquire_execution(self, ctx, job_id, worker_id, *, deployment_version,
+                          lease_seconds=60, enforce_environment=True):
         if not 1 <= lease_seconds <= 3600:
             raise ProductError('execution.lease')
         with transaction(self.db) as c:
@@ -368,7 +369,11 @@ class ProductService:
                 lock(c, pool[0])
             problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
             job = scoped(c, m.jobs, ctx, job_id, lock=True)
-            if build['deployment_version'] != deployment_version or self.registry.get(build['pipeline_key'], build['pipeline_version']) != build['pipeline_snapshot']:
+            if enforce_environment and (
+                build['deployment_version'] != deployment_version
+                or self.registry.get(build['pipeline_key'], build['pipeline_version'])
+                != build['pipeline_snapshot']
+            ):
                 raise Conflict('execution.incompatible_environment')
             timestamp = now(c)
             if job['status'] not in ('queued', 'running', 'interrupted') or job['cancel_requested_at']:

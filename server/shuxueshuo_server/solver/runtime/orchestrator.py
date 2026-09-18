@@ -123,7 +123,7 @@ DEBUG_DETERMINISTIC_PLANNER_PROVIDERS: dict[str, PlannerProvider] = {
 
 DEFAULT_PLANNER_PROVIDERS: dict[str, PlannerProvider] = {}
 DEFAULT_STRATEGY_PLANNER_PROVIDER: PlannerProvider = strategy_planner_provider(
-    mode="recorded"
+    mode="recorded", argument_encoding="math-expression/v1"
 )
 
 

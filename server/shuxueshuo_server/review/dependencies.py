@@ -149,11 +149,19 @@ def collect(root=REPO, config=None):
     if inventory(root) != observed:
         raise ValueError('build.source_changed: 依赖探测期间文件变化')
     settings = {key: {} for key in KEYS}
-    settings['observation'] = {'python': os.environ.get('REVIEW_OCR_PYTHON', str(root / 'server/.venv-ocr/bin/python'))}
+    settings['observation'] = {
+        'mode': 'fast-pass',
+        'python': os.environ.get('REVIEW_OCR_PYTHON', str(root / 'server/.venv-ocr/bin/python')),
+    }
     from shuxueshuo_server.solver.extraction.multimodal_provider import vision_effective_config
     settings['extraction'] = {**vision_effective_config(config), 'attempts': 3}
     model = config.llm_model or config.deepseek_model
-    settings['solver'] = {'model': model, 'endpoint_hash': digest(config.deepseek_base_url), 'thinking': 'low', 'max_attempts': config.max_llm_attempts, 'few_shot_mode': config.functional_few_shot_mode}
+    settings['solver'] = {
+        'model': model, 'endpoint_hash': digest(config.deepseek_base_url),
+        'thinking': 'low', 'max_attempts': config.max_llm_attempts,
+        'few_shot_mode': config.functional_few_shot_mode,
+        'argument_encoding': config.argument_encoding,
+    }
     settings['lesson'] = {'model': model, 'endpoint_hash': digest(config.deepseek_base_url), 'thinking': 'disabled'}
     stages = {key: {'resources': resources[key], 'config': settings[key]} for key in KEYS}
     return {'schema_version': 'review-dependency-snapshot/v1', 'stages': stages, 'fingerprint': digest(stages), 'unclassified_resources': unknown}

@@ -13886,6 +13886,7 @@ def test_functional_retry_keeps_the_first_attempt_few_shot_selection() -> None:
     planner = StrategyPlanner(
         ContextBuilder().build(problem),
         problem_authority=cached_problem_planner_authority(),
+        argument_encoding="source-ref",
         mode="deepseek",
         client=InvalidClient(),
         payload_builder=StrategyPayloadBuilder(
@@ -13939,6 +13940,7 @@ def test_functional_configuration_failure_crosses_typed_planner_boundary(
     planner = StrategyPlanner(
         ContextBuilder().build(problem),
         problem_authority=cached_problem_planner_authority(),
+        argument_encoding="source-ref",
         mode="deepseek",
         client=Client(),
         payload_builder=StrategyPayloadBuilder(
@@ -13978,6 +13980,7 @@ def test_functional_projection_failure_crosses_typed_planner_boundary(
     planner = StrategyPlanner(
         ContextBuilder().build(problem),
         problem_authority=cached_problem_planner_authority(),
+        argument_encoding="source-ref",
         mode="deepseek",
         client=Client(),
         payload_builder=StrategyPayloadBuilder(

@@ -64,9 +64,10 @@ class ExecutionContext:
     def guard(self, *, code=True):
         with transaction(self.service.db) as c: self.service._guard(c, *self.args)
         if code:
+            local_development = self.app.settings.mode == 'local'
             if self.build['pipeline_key'] == 'problem_runtime_binding':
                 from .runtime_binding import configuration
-                if self.build['effective_config']['binding'] != configuration():
+                if not local_development and self.build['effective_config']['binding'] != configuration():
                     raise Conflict('build.environment_changed')
                 return
             if self.build['pipeline_key'] == 'problem_understanding':
@@ -74,17 +75,23 @@ class ExecutionContext:
                 with transaction(self.service.db) as c:
                     run = row(c, m.extraction_runs, build_id=self.build['id'])
                     source = row(c, m.problem_source_versions, id=run['source_version_id'])
-                if run['frozen'] != configuration():
+                if not local_development and run['frozen'] != configuration():
                     raise Conflict('build.environment_changed')
                 target = target_dependencies(source, run['base_candidate_id'], run['frozen'])
-                if target['deployment_version'] != self.build['deployment_version']:
+                if not local_development and target['deployment_version'] != self.build['deployment_version']:
                     raise Conflict('build.environment_changed')
                 return
             if any(s['stage_key'] == 'extraction' and s['contract_version'] != 'v2'
                    for s in self.build['pipeline_snapshot']['stages']):
                 raise Conflict('extraction.rebuild_required')
             target = dependencies(self.source, self.build['requested_revision_id'], self.build['pipeline_snapshot'])
-            if target['deployment_version'] != self.build['deployment_version'] or target['config'] != self.build['effective_config']:
+            if (
+                not local_development
+                and (
+                    target['deployment_version'] != self.build['deployment_version']
+                    or target['config'] != self.build['effective_config']
+                )
+            ):
                 raise Conflict('build.environment_changed')
 
     def begin(self, stage_key):

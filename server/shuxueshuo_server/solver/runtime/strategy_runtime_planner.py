@@ -124,7 +124,7 @@ class StrategyPlanner:
         prompt_renderer: StrategyPromptRenderer | None = None,
         functional_plan_fixture_dir: Path | str | None = None,
         scoped_functional_plan_fixture_dir: Path | str | None = None,
-        argument_encoding: str = "source-ref",
+        argument_encoding: str = "math-expression/v1",
     ) -> None:
         if problem_authority is None:
             raise ProblemBundleAuthorityError(
@@ -757,7 +757,7 @@ def strategy_planner_provider(
     scoped_functional_plan_fixture_dir: Path | str | None = None,
     allow_same_problem_few_shot: bool = True,
     functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
-    argument_encoding: str = "source-ref",
+    argument_encoding: str = "math-expression/v1",
 ) -> "Callable[..., StrategyPlanner]":
     """构造 Orchestrator 可用的单一 Strategy provider。"""
     from collections.abc import Callable

@@ -76,6 +76,7 @@ def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
             mode="deepseek",
             client=client,
             functional_few_shot_mode="strict_test",
+            argument_encoding=config.argument_encoding,
         ),
         max_attempts=_max_attempts(),
         debug_dir=debug_dir,

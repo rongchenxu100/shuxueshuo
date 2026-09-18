@@ -28,6 +28,9 @@ from shuxueshuo_server.solver.runtime.functional_few_shots import (
     FunctionalFewShotSelectionMode,
     resolve_functional_few_shot_selection_mode,
 )
+# Keep this module free of method-argument imports: the resolver imports the
+# extraction package, which would otherwise create a runtime import cycle.
+PRODUCTION_ARGUMENT_ENCODING = "math-expression/v1"
 
 if TYPE_CHECKING:
     from shuxueshuo_server.solver.runtime.orchestrator import PlannerProvider
@@ -72,12 +75,19 @@ class SolverRuntimeConfig:
     llm_debug_dir: str | None = None
     allow_same_problem_few_shot: bool = True
     functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None
+    # Direct construction is retained for deterministic/replay fixtures.  The
+    # production factory below pins the active deployment to math expressions.
+    argument_encoding: str = "source-ref"
 
     def __post_init__(self) -> None:
         """校验直接构造配置时的基础约束。"""
         if self.max_llm_attempts < 1:
             raise SolverRuntimeConfigError(
                 "max_llm_attempts must be a positive integer"
+            )
+        if self.argument_encoding not in ("source-ref", PRODUCTION_ARGUMENT_ENCODING):
+            raise SolverRuntimeConfigError(
+                f"unknown Method argument encoding: {self.argument_encoding!r}"
             )
         try:
             resolved_few_shot_mode = resolve_functional_few_shot_selection_mode(
@@ -103,6 +113,7 @@ class SolverRuntimeConfig:
         llm_debug_dir: str | None = None,
         allow_same_problem_few_shot: bool | str | None = None,
         functional_few_shot_mode: str | None = None,
+        argument_encoding: str | None = None,
         env_file: Path | str | None = None,
     ) -> "SolverRuntimeConfig":
         """从 ``server/.env``、环境变量和 CLI 覆盖值构造配置。
@@ -185,6 +196,7 @@ class SolverRuntimeConfig:
             ),
             allow_same_problem_few_shot=resolved_allow_same_problem,
             functional_few_shot_mode=resolved_functional_mode,  # type: ignore[arg-type]
+            argument_encoding=argument_encoding or PRODUCTION_ARGUMENT_ENCODING,
         )
 
     def build_planner_providers(self) -> dict[str, "PlannerProvider"]:
@@ -210,6 +222,7 @@ class SolverRuntimeConfig:
                 mode="recorded",
                 allow_same_problem_few_shot=self.allow_same_problem_few_shot,
                 functional_few_shot_mode=self.functional_few_shot_mode,
+                argument_encoding=self.argument_encoding,
             )
         if self.llm_provider == "deepseek":
             from shuxueshuo_server.solver.runtime.strategy_runtime_planner import (
@@ -221,6 +234,7 @@ class SolverRuntimeConfig:
                 client=self.build_llm_client(),
                 allow_same_problem_few_shot=self.allow_same_problem_few_shot,
                 functional_few_shot_mode=self.functional_few_shot_mode,
+                argument_encoding=self.argument_encoding,
             )
         raise SolverRuntimeConfigError(
             f"--planner strategy does not support --llm-provider {self.llm_provider!r}"

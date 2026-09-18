@@ -112,7 +112,13 @@ def test_public_verified_entry_never_calls_legacy_v1_planner(
             AssertionError("legacy functional_plan/v1 planner must not run")
         ),
     )
-    orchestrator = RuntimeOrchestrator()
+    # This fixture is a legacy source-ref bundle without a notation package;
+    # keep that replay explicit while the production default is math-expression.
+    orchestrator = RuntimeOrchestrator(
+        default_planner_provider=strategy_planner_provider(
+            argument_encoding="source-ref"
+        )
+    )
 
     result = orchestrator.solve_verified(bundle)
 
@@ -126,6 +132,20 @@ def test_public_verified_entry_never_calls_legacy_v1_planner(
     assert checkpoint.schema_version == "functional-goal-execution-checkpoint/v3"
     assert checkpoint.all_required_goals_verified
     assert success.verified_functional_execution is not None
+
+
+def test_runtime_default_strategy_provider_uses_math_expression_encoding(tmp_path) -> None:
+    bundle, *_ = planning_binding_fixture(
+        tmp_path,
+        case="tj-2026-nankai-yimo-25",
+    )
+    provider = RuntimeOrchestrator().default_planner_provider
+    assert provider is not None
+    planner = provider(
+        ContextBuilder().build(bundle.build_solver_problem()),
+        problem_authority=VerifiedPlannerProblemAuthority.from_bundle(bundle),
+    )
+    assert planner.argument_encoding == "math-expression/v1"
 
 
 def test_strategy_provider_requires_problem_bundle_authority(tmp_path) -> None:

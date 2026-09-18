@@ -97,6 +97,21 @@ def test_build_idempotency_fencing_cancel(setup):
     assert s.build_snapshot(ctx, result['build_id'])['build']['status'] == 'cancelled'
 
 
+def test_execution_can_skip_environment_gate_for_local_transport(setup):
+    s, ctx, _ = setup
+    item = upload(s, ctx)
+    result = submit(s, ctx, item, deployment_version='frozen-old-version')
+    execution = s.acquire_execution(
+        ctx,
+        result['job_id'],
+        'local-worker',
+        deployment_version='current-version',
+        enforce_environment=False,
+    )
+    assert execution['status'] == 'running'
+    s.cancel(ctx, result['build_id'])
+
+
 def test_events_rollback_and_outbox_token(setup):
     s, ctx, _ = setup
     item = upload(s, ctx)
@@ -542,6 +557,7 @@ def test_publish_once_fails_retired_deployment_instead_of_routing(setup, monkeyp
     from shuxueshuo_server.product.services import now
     from datetime import timedelta
     from uuid import uuid4
+    monkeypatch.setenv('PRODUCT_MODE', 'server')
     s, ctx, _ = setup
     item = upload(s, ctx)
     build = submit(s, ctx, item, deployment_version='retired-v0')

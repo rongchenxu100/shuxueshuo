@@ -273,7 +273,8 @@ def generate(store, run_id):
         orchestrator = RuntimeOrchestrator(family_registry=config.build_family_registry(),
             planner_providers={}, default_planner_provider=strategy_planner_provider(mode="deepseek",
                 client=planner_client, allow_same_problem_few_shot=False,
-                functional_few_shot_mode=config.functional_few_shot_mode),
+                functional_few_shot_mode=config.functional_few_shot_mode,
+                argument_encoding=config.argument_encoding),
             max_attempts=config.max_llm_attempts, debug_dir=str(debug_dir))
         with DebugJournal(debug_dir, lambda name, doc: add("solver", solver_debug_role(name), name, doc)):
             result = orchestrator.solve_verified(bundle)

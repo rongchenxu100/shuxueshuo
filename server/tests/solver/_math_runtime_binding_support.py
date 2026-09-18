@@ -184,6 +184,7 @@ def replay(case, bound, tmp_path):
     planner = StrategyPlanner(
         ContextBuilder().build(bound.bundle.build_solver_problem()),
         problem_authority=reviewed_authority(bound),
+        argument_encoding="source-ref",
         scoped_functional_plan_fixture_dir=folder,
     )
     return planner.run_scoped(bound.inputs, max_attempts=1)

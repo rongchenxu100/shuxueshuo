@@ -54,22 +54,49 @@ def dependencies(source, revision_id, snapshot):
     discovered = release_dependencies()
     config = {k: dict(v['config']) for k, v in discovered['stages'].items()}
     # Interpreter paths are local routing configuration, not public content.
+    observation_mode = (
+        os.environ.get('PRODUCT_OBSERVATION_MODE')
+        or config.get('observation', {}).get('mode', 'fast-pass')
+    ).strip()
+    if observation_mode not in {'fast-pass', 'ocr'}:
+        raise ProductError('configuration.observation_mode_invalid')
     ocr_url = (os.environ.get('PRODUCT_OCR_URL') or '').rstrip('/')
-    if ocr_url:
+    # The requested mode is part of the frozen build configuration.  An OCR
+    # URL is only a dependency of the explicit ``ocr`` mode; it must not
+    # silently override a deliberate fast-pass run (the production compose
+    # file always provides an OCR URL for the future sidecar deployment).
+    if observation_mode == 'fast-pass':
+        # The observation stage remains in the nine-stage graph, but production
+        # currently records a deterministic image-only context.  No OCR
+        # interpreter/sidecar is a dependency until the real adapter is enabled.
+        config['observation'] = {
+            'mode': 'fast-pass',
+            'provider': 'none',
+            'provider_version': 'fast-pass/v1',
+        }
+    elif ocr_url:
         try:
             with urllib.request.urlopen(f'{ocr_url}/v1/manifests', timeout=60) as response:
                 manifest_body = json.loads(response.read().decode())
             providers = manifest_body['providers']
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, KeyError, TypeError) as exc:
             raise ProductError('configuration.ocr_manifest_unavailable') from exc
-        config['observation'] = {'interpreter_fingerprint': digest({'ocr_sidecar': ocr_url}), 'providers': providers}
+        config['observation'] = {
+            'mode': 'ocr',
+            'interpreter_fingerprint': digest({'ocr_sidecar': ocr_url}),
+            'providers': providers,
+        }
     else:
         interpreter = os.environ.get('REVIEW_OCR_PYTHON', str(REPO / 'server/.venv-ocr/bin/python'))
         observed = subprocess.run([interpreter, '-c',
             'import json; from shuxueshuo_server.solver.extraction.paddle_worker import PaddleF2ProviderWorker; print(json.dumps([m.to_payload() for m in PaddleF2ProviderWorker().manifests()]))'],
             cwd=REPO / 'server', env={**os.environ, 'PYTHONPATH': str(REPO / 'server')}, capture_output=True, text=True, timeout=60)
         if observed.returncode: raise ProductError('configuration.ocr_manifest_unavailable')
-        config['observation'] = {'interpreter_fingerprint': digest(config['observation']), 'providers': json.loads(observed.stdout)}
+        config['observation'] = {
+            'mode': 'ocr',
+            'interpreter_fingerprint': digest(config['observation']),
+            'providers': json.loads(observed.stdout),
+        }
     for key, limit in (('extraction', 3), ('solver', config['solver']['max_attempts']), ('lesson', 1)):
         config[key]['semantic_budget'] = limit
         config[key]['network_budget'] = limit * 2
@@ -329,8 +356,14 @@ class Application:
                         a = row(c, m.artifacts, id=ref['artifact_id'])
                         artifacts.append({**public(a, 'id', 'artifact_type', 'content_type', 'size_bytes', 'sha256'),
                             'stage_key': stage['stage_key'], 'attempt_id': str(attempt['id']), 'name': ref['name'], 'role': ref['role']})
+            effective_config = b.get('effective_config') or {}
+            runtime_config = {
+                'observation_mode': effective_config.get('observation', {}).get('mode'),
+                'argument_encoding': effective_config.get('solver', {}).get('argument_encoding'),
+            }
             return {**public(b, 'id', 'problem_id', 'source_id', 'parent_build_id', 'status', 'created_at', 'started_at', 'finished_at',
                 'requested_revision_id', 'resolved_revision_id', 'error_code', 'pipeline_key', 'pipeline_version'),
+                'runtime_config': runtime_config,
                 'stages': [public(s, 'id', 'stage_key', 'title', 'ordinal', 'status', 'summary') for s in snapshot['stages']],
                 'attempts': attempts, 'artifacts': artifacts, 'last_seq': snapshot['last_seq'],
                 'reviews': [public(r, 'id', 'decision', 'comment', 'created_at', 'supersedes_id') for r in c.execute(

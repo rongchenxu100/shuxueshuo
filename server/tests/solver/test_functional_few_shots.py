@@ -153,6 +153,7 @@ def test_complete_functional_plan_fixture_replays_to_expected_answers(
         default_planner_provider=strategy_planner_provider(
             mode="deepseek",
             client=client,
+            argument_encoding="source-ref",
         ),
         max_attempts=1,
     )

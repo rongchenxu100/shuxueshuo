@@ -211,7 +211,6 @@ export function ProductWorkspace() {
 
   const activeProblem = selected ? problems.find(p => p.id === selected.id) ?? selected : null;
   const uploadPanel = <>
-    {activeProblem && <Link className="mb-4 block rounded-xl border border-teal-200 p-3 text-sm text-teal-800" href={`/understanding/${activeProblem.id}`}>提取题意 · 查看候选、补图与修订 →</Link>}
     {notice && <p role="status" className="mb-4 rounded-xl bg-teal-50 p-3 text-sm text-teal-800">{notice}</p>}
     {error && <p role="alert" className={`${styles.error} mb-4`}>{error}</p>}
     {(pending || busy) && <div className={`${styles.card} mb-4 space-y-3`}>
@@ -227,7 +226,7 @@ export function ProductWorkspace() {
     {resizing && <div className="fixed inset-0 z-50 cursor-col-resize" />}
     <aside className={styles.sidebar} aria-label="题目列表">
       <header className={styles.header}>{!collapsed && <span>数学说 · 工作台</span>}<button aria-label={collapsed ? '展开题目列表' : '收起题目列表'} onClick={() => setCollapsed(v => !v)} className={`${styles.collapse} cursor-pointer text-zinc-500`}>{collapsed ? '›' : '‹'}</button></header>
-      {!collapsed && <><div className="p-4"><button disabled={busy} className={`${styles.button} ${styles.primary} w-full`} onClick={() => { showProblem(null); setMobilePane('detail'); setNotice(''); }}>＋ 上传新题目</button><Link className="mt-3 block text-center text-sm text-teal-700" href="/understanding">仅提取题意 →</Link></div>
+      {!collapsed && <><div className="p-4"><button disabled={busy} className={`${styles.button} ${styles.primary} w-full`} onClick={() => { showProblem(null); setMobilePane('detail'); setNotice(''); }}>＋ 上传新题目</button></div>
         <div className={styles.scroll} style={{ padding: '0 12px 16px' }}>
           <p className="px-3 py-2 text-xs text-zinc-500">我的题目</p>
           {listError && <p role="alert" className={styles.error}>{listError}<button className="ml-2 underline" onClick={() => void loadList()}>重新加载</button></p>}

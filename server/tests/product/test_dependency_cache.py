@@ -95,6 +95,7 @@ def test_product_dependencies_keep_inputs_and_live_ocr_outside_cache(release, mo
     monkeypatch.setattr(dependency_cache, 'REPO', root)
     monkeypatch.setattr(dependency_cache, '_CACHE', ReleaseDependencyCache())
     monkeypatch.setenv('PRODUCT_OCR_URL', 'http://recorded-ocr')
+    monkeypatch.setenv('PRODUCT_OBSERVATION_MODE', 'ocr')
     calls, ocr_calls = [], []
     def discover():
         calls.append(1)

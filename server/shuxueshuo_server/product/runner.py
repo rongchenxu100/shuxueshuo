@@ -75,6 +75,13 @@ class StageRunner:
 
     def ocr(self, phase):
         x = self.x
+        observation_mode = x.build.get('effective_config', {}).get('observation', {}).get('mode')
+        if observation_mode == 'fast-pass':
+            from .observation_fast_pass import run as run_fast_pass
+            run_fast_pass(x, phase)
+            return
+        if observation_mode not in (None, 'ocr'):
+            raise ProductError('configuration.observation_mode_invalid')
         work, source_id = str(x.work), str(x.build['source_id'])
         url = (os.environ.get('PRODUCT_OCR_URL') or '').rstrip('/')
         if url:
@@ -213,9 +220,14 @@ class StageRunner:
         x = self.x
         if not x.config.deepseek_api_key: raise ProductError('configuration.solver_key_missing')
         client = x.config.build_llm_client(thinking_effort='low')
+        frozen_solver_config = x.build.get('effective_config', {}).get('solver', {})
+        argument_encoding = frozen_solver_config.get('argument_encoding', x.config.argument_encoding)
+        if argument_encoding not in ('source-ref', 'math-expression/v1'):
+            raise ProductError('configuration.argument_encoding_invalid')
         orchestrator = RuntimeOrchestrator(family_registry=x.config.build_family_registry(), planner_providers={},
             default_planner_provider=strategy_planner_provider(mode='deepseek', client=AuditedClient(client, x),
-                allow_same_problem_few_shot=False, functional_few_shot_mode=x.config.functional_few_shot_mode),
+                allow_same_problem_few_shot=False, functional_few_shot_mode=x.config.functional_few_shot_mode,
+                argument_encoding=argument_encoding),
             max_attempts=x.config.max_llm_attempts, debug_dir=str(x.work / 'planner'))
         with DebugJournal(x.work / 'planner', lambda name, doc: x.add(name, doc, role=solver_debug_role(name))):
             result = orchestrator.solve_verified(x.bundle())
