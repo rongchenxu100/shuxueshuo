@@ -49,6 +49,7 @@ from shuxueshuo_server.solver.runtime.functional_plan_content import (
     FunctionalPlanContentCompiler,
     capability_bound_base_step_schema,
     capability_bound_step_schema,
+    decode_single_json_object,
     functional_plan_content_from_plan,
     normalize_empty_optional_capability_args,
     normalize_empty_optional_step_maps,
@@ -381,6 +382,7 @@ class FunctionalScopeRepair:
     scope_replacements: Mapping[str, FunctionalScopeReplacement]
     schema_version: str = FUNCTIONAL_SCOPE_REPAIR_CONTRACT
     normalizations: tuple[Any, ...] = ()
+    math_argument_bindings: tuple[Mapping[str, Any], ...] = ()
 
     def __post_init__(self) -> None:
         if self.schema_version != FUNCTIONAL_SCOPE_REPAIR_CONTRACT:
@@ -438,6 +440,7 @@ class ScopedFunctionalScopeRetryAttempt:
     normalized_response: Any = None
     normalized_content: Any = None
     requested_restore_call_ids: tuple[str, ...] = ()
+    math_argument_bindings: tuple[Mapping[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -637,17 +640,26 @@ class FunctionalScopeRepairCompiler:
         *,
         authority: FunctionalScopeRetryAuthority,
         capability_catalog: FunctionalCapabilityCatalog | None = None,
+        math_argument_resolver: Any | None = None,
     ) -> FunctionalScopeRepair:
         try:
-            payload = json.loads(raw)
-        except json.JSONDecodeError as exc:
+            payload, json_normalizations = decode_single_json_object(raw)
+        except (json.JSONDecodeError, ValueError) as exc:
             raise FunctionalScopeRetryError(
                 "functional.repair_response_invalid_json",
                 "$",
                 "scope repair response must be one JSON object",
-                details={"line": exc.lineno, "column": exc.colno},
+                details={
+                    key: value
+                    for key, value in {
+                        "line": getattr(exc, "lineno", None),
+                        "column": getattr(exc, "colno", None),
+                    }.items()
+                    if value is not None
+                },
             ) from exc
-        payload, normalizations = normalize_empty_optional_step_maps(payload)
+        payload, map_normalizations = normalize_empty_optional_step_maps(payload)
+        normalizations = (*json_normalizations, *map_normalizations)
         # Parse the replacement envelope here, not canonical capability inputs.
         # Named-result normalization needs the complete merged Plan to prove
         # producer visibility and latest-state identity. The content compiler
@@ -664,6 +676,16 @@ class FunctionalScopeRepairCompiler:
             error.normalized_response = deepcopy(payload)
             error.content_normalizations = tuple(normalizations)
             raise error
+        math_bindings = ()
+        if math_argument_resolver is not None:
+            from .method_math_arguments import MethodMathArgumentError
+
+            try:
+                payload, records = math_argument_resolver.transform(payload)
+                math_bindings = tuple(records)
+            except MethodMathArgumentError as exc:
+                raise FunctionalScopeRetryError(exc.code, exc.path, exc.message,
+                                                retryable=not exc.configuration) from exc
         if capability_catalog is not None:
             payload, arg_normalizations = normalize_empty_optional_capability_args(
                 payload,
@@ -688,6 +710,7 @@ class FunctionalScopeRepairCompiler:
         return FunctionalScopeRepair(
             scope_replacements=replacements,
             normalizations=normalizations,
+            math_argument_bindings=math_bindings,
         )
 
     def apply_json(
@@ -846,12 +869,126 @@ class FunctionalScopeRepairCompiler:
                 candidate_payload=candidate_payload,
                 details={"diagnostics": [item.to_payload() for item in validation.issues]},
             )
+        parent_state_issue = _retry_parent_state_rewrite_issue(
+            base_plan=base_plan,
+            candidate=candidate,
+            editable_scope_refs=authority.editable_scope_refs,
+        )
+        if parent_state_issue is not None:
+            raise FunctionalScopeRetryError(
+                parent_state_issue["code"],
+                parent_state_issue["path"],
+                parent_state_issue["message"],
+                details=parent_state_issue["details"],
+                candidate_payload=candidate_payload,
+            )
         return FunctionalScopeRepairApplication(
             repair=repair,
             plan=candidate,
             plan_hash=scoped_functional_plan_id(candidate),
             validation_report=validation,
         )
+
+
+def _retry_parent_state_rewrite_issue(
+    *,
+    base_plan: ScopedFunctionalPlan,
+    candidate: ScopedFunctionalPlan,
+    editable_scope_refs: Sequence[str],
+) -> dict[str, Any] | None:
+    """Reject a retry that rewrites an ancestor state consumed by descendants.
+
+    Retry repairs are allowed to add the missing local producer, but they must
+    not replace a parent-visible object's state in order to satisfy a sibling
+    Goal.  Such a rewrite makes the sibling consume a different open/closed
+    state, exactly the failure mode where a parameterized ``B`` leaked into
+    the first question's angle Method.  This guard is intentionally narrower
+    than retry-scope authority: it only rejects a changed writer when the base
+    graph already has descendant consumers of the same named object.
+    """
+
+    editable = set(editable_scope_refs)
+    base_scopes = {
+        scope.scope_ref: scope for scope in _iter_scopes(base_plan.root_scope)
+    }
+    candidate_scopes = {
+        scope.scope_ref: scope
+        for scope in _iter_scopes(candidate.root_scope)
+    }
+    parents = _scope_parent_map(base_plan.root_scope)
+
+    def owner_steps(plan_scopes: Mapping[str, ScopedFunctionalScope]):
+        result: dict[str, tuple[str, ScopedFunctionalStep]] = {}
+        for scope_ref, scope in plan_scopes.items():
+            for step in (*scope.steps, *(item for goal in scope.goals for item in goal.steps)):
+                result[step.step_id] = (scope_ref, step)
+        return result
+
+    base_steps = owner_steps(base_scopes)
+    candidate_steps = owner_steps(candidate_scopes)
+
+    # A string argument is a named object/fact SourceRef after retry
+    # normalization. StepResultRef values are deliberately ignored: they are
+    # exact result edges and do not rewrite a parent object's latest state.
+    consumers_by_ref: dict[str, set[str]] = {}
+    for scope_ref, step in base_steps.values():
+        for values in step.args.values():
+            for value in values:
+                if isinstance(value, str):
+                    consumers_by_ref.setdefault(value, set()).add(scope_ref)
+
+    def is_descendant(scope_ref: str, ancestor: str) -> bool:
+        current: str | None = scope_ref
+        while current is not None:
+            if current == ancestor:
+                return True
+            current = parents.get(current)
+        return False
+
+    for step_id, (scope_ref, step) in candidate_steps.items():
+        if scope_ref not in editable or not step.output_targets:
+            continue
+        previous = base_steps.get(step_id)
+        # Argument-only changes can legitimately repair a shared parent
+        # producer while preserving the same object identity.  The guard is
+        # for state rewrites: a new writer or a changed output target.
+        writer_changed = (
+            previous is None
+            or previous[1].output_targets != step.output_targets
+        )
+        changed_targets = {
+            target
+            for target in step.output_targets.values()
+            if writer_changed
+        }
+        if not changed_targets:
+            continue
+        for target in sorted(changed_targets):
+            descendant_consumers = sorted(
+                consumer_scope
+                for consumer_scope in consumers_by_ref.get(target, ())
+                if consumer_scope != scope_ref
+                and is_descendant(consumer_scope, scope_ref)
+            )
+            if not descendant_consumers:
+                continue
+            return {
+                "code": "functional.retry_parent_state_rewrite",
+                "path": f"$.scope[{scope_ref!r}].step[{step_id!r}].output_targets",
+                "message": (
+                    f"retry step {step_id!r} rewrites parent object {target!r} "
+                    "while descendant Scopes already consume its existing state; "
+                    "produce the parameterized state in its owning child Scope"
+                ),
+                "details": {
+                    "step_id": step_id,
+                    "writer_scope_ref": scope_ref,
+                    "object_ref": target,
+                    "descendant_consumer_scope_refs": descendant_consumers,
+                    "allowed_action": "keep_parent_state_unchanged_and_add_child_state",
+                },
+            }
+    return None
 
 
 class ScopedFunctionalScopeRetryService:
@@ -896,6 +1033,7 @@ class ScopedFunctionalScopeRetryService:
         problem_payload: dict[str, Any],
         max_attempts: int = 3,
         attempt_observer: Callable[[ScopedFunctionalScopeRetryAttempt], None] | None = None,
+        math_argument_resolver: Any | None = None,
     ) -> ScopedFunctionalScopeRetryRunResult:
         if max_attempts < 1:
             raise ValueError("max_attempts must be positive")
@@ -1061,13 +1199,16 @@ class ScopedFunctionalScopeRetryService:
             normalized_response = None
             normalized_content = None
             requested_restore_call_ids = ()
+            math_argument_bindings = ()
             try:
                 if protocol == FUNCTIONAL_PLAN_CONTENT_CONTRACT:
                     compilation = FunctionalPlanContentCompiler().compile_json(
                         raw_response,
                         frame=frame,
                         capability_catalog=capability_catalog,
+                        math_argument_resolver=math_argument_resolver,
                     )
+                    math_argument_bindings = compilation.math_argument_bindings
                     normalized_response = compilation.normalized_payload
                     normalized_content = compilation.normalized_payload
                     candidate_plan = compilation.plan
@@ -1078,7 +1219,9 @@ class ScopedFunctionalScopeRetryService:
                         full_feedback = tuple(item.to_payload() for item in compilation.report.issues)
                         authoring_feedback = compact_validation_feedback(full_feedback)
                         previous_invalid_content = (
-                            plan_content.to_payload() if plan_content is not None else None
+                            plan_content.to_payload()
+                            if plan_content is not None
+                            else deepcopy(compilation.normalized_payload)
                         )
                         raise FunctionalScopeRetryError.from_issues(full_feedback)
                     next_plan = compilation.plan
@@ -1091,7 +1234,9 @@ class ScopedFunctionalScopeRetryService:
                         raw_response,
                         authority=current_authority,
                         capability_catalog=capability_catalog,
+                        math_argument_resolver=math_argument_resolver,
                     )
+                    math_argument_bindings = repair.math_argument_bindings
                     normalized_response = repair.to_payload()
                     content_normalizations = repair.normalizations
                     applied_plan = FunctionalScopeRepairCompiler().apply(
@@ -1158,6 +1303,7 @@ class ScopedFunctionalScopeRetryService:
                     merged_plan=next_plan, repair=repair, content_normalizations=content_normalizations,
                     content_validation_report=validation_report,
                     requested_restore_call_ids=requested_restore_call_ids,
+                    math_argument_bindings=math_argument_bindings,
                 )
                 if attempt_observer is not None:
                     attempt_observer(execution_evidence)
@@ -1217,6 +1363,7 @@ class ScopedFunctionalScopeRetryService:
                     content_normalizations=content_normalizations,
                     final_plan_contract_validation=final_validation,
                     llm_metadata=metadata,
+                    math_argument_bindings=math_argument_bindings,
                 )
                 checkpoint = execution.checkpoint
                 if (
@@ -1287,6 +1434,7 @@ class ScopedFunctionalScopeRetryService:
                         final_plan_contract_validation=final_validation,
                         llm_metadata=metadata,
                         result_scope_authority=expanded_authority,
+                        math_argument_bindings=math_argument_bindings,
                     )
                 )
                 if not exc.retryable:

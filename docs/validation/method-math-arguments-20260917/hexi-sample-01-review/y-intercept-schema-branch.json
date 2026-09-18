@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "properties": {
+    "capability_id": {
+      "const": "quadratic_y_axis_intercept_point"
+    },
+    "parameters": {
+      "$ref": "#/$defs/shared_4"
+    },
+    "args": {
+      "type": "object",
+      "properties": {
+        "quadratic": {
+          "$ref": "#/$defs/source_ref"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "quadratic"
+      ]
+    },
+    "output_targets": {
+      "$ref": "#/$defs/shared_6"
+    },
+    "return_expectations": {
+      "$ref": "#/$defs/shared_7"
+    }
+  }
+}

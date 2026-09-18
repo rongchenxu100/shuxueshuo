@@ -1,0 +1,106 @@
+{
+  "step_id": "synthetic_line_intersection_point",
+  "capability_id": "line_intersection_point",
+  "intent": "联立直线 AB 与 CD 的方程，求交点 H。",
+  "inputs": {
+    "line1_p1": [
+      {
+        "ref": {
+          "kind": "source",
+          "ref": "point:problem:A"
+        },
+        "runtime_type": "Point",
+        "value": [
+          "0",
+          "0"
+        ],
+        "display": "A(0,0)"
+      }
+    ],
+    "line1_p2": [
+      {
+        "ref": {
+          "kind": "source",
+          "ref": "point:problem:B"
+        },
+        "runtime_type": "Point",
+        "value": [
+          "4",
+          "4"
+        ],
+        "display": "B(4,4)"
+      }
+    ],
+    "line2_p1": [
+      {
+        "ref": {
+          "kind": "source",
+          "ref": "point:problem:C"
+        },
+        "runtime_type": "Point",
+        "value": [
+          "0",
+          "4"
+        ],
+        "display": "C(0,4)"
+      }
+    ],
+    "line2_p2": [
+      {
+        "ref": {
+          "kind": "source",
+          "ref": "point:problem:D"
+        },
+        "runtime_type": "Point",
+        "value": [
+          "4",
+          "0"
+        ],
+        "display": "D(4,0)"
+      }
+    ],
+    "target": [
+      {
+        "ref": {
+          "kind": "source",
+          "ref": "point:problem:H"
+        },
+        "runtime_type": "PointRef",
+        "value": {
+          "entity_type": "point",
+          "name": "H",
+          "description": "H"
+        },
+        "display": "H"
+      }
+    ]
+  },
+  "output_targets": {
+    "intersection": "point:problem:H"
+  },
+  "outputs": {
+    "intersection": {
+      "runtime_type": "Point",
+      "value": [
+        "2",
+        "2"
+      ],
+      "display": "H(2,2)"
+    }
+  },
+  "calculations": [],
+  "checks": [
+    {
+      "check_id": "intersection_on_line1",
+      "kind": "runtime_method_check",
+      "passed": true,
+      "detail": "H 在第一条直线上"
+    },
+    {
+      "check_id": "intersection_on_line2",
+      "kind": "runtime_method_check",
+      "passed": true,
+      "detail": "H 在第二条直线上"
+    }
+  ]
+}

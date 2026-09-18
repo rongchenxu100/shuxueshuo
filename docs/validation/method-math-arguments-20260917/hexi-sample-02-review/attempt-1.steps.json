@@ -1,0 +1,193 @@
+{
+  "format": "functional-plan-content/v2",
+  "goal_plans": {
+    "i.P": {
+      "answer_from": {
+        "step_id": "i_vertex",
+        "return": "point"
+      },
+      "steps": [
+        {
+          "step_id": "i_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": [
+              "a=1",
+              "b=2",
+              "c=3"
+            ],
+            "free_parameters": []
+          },
+          "output_targets": {
+            "parabola": "Γ"
+          },
+          "return_expectations": {
+            "parabola": "closed_state"
+          },
+          "intent": "由 a=1,b=2,c=3 建立闭合的抛物线 Γ。"
+        },
+        {
+          "step_id": "i_vertex",
+          "capability_id": "quadratic_vertex_point",
+          "args": {
+            "parabola": {
+              "step_id": "i_parabola",
+              "return": "parabola"
+            }
+          },
+          "output_targets": {
+            "point": "P"
+          },
+          "return_expectations": {
+            "point": "closed_state"
+          },
+          "intent": "求 Γ 的顶点 P 坐标。"
+        }
+      ]
+    },
+    "ii.D": {
+      "answer_from": {
+        "step_id": "ii_solve",
+        "return": "selected_curve_point"
+      },
+      "steps": [
+        {
+          "step_id": "ii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": [
+              "a=2"
+            ],
+            "curve_point": "A",
+            "free_parameters": [
+              "c"
+            ]
+          },
+          "output_targets": {
+            "parabola": "Γ"
+          },
+          "return_expectations": {
+            "parabola": "open_state"
+          },
+          "intent": "由 a=2 和 A∈Γ 建立仍含参数 c 的抛物线状态。"
+        },
+        {
+          "step_id": "ii_C",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "args": {
+            "quadratic": {
+              "step_id": "ii_parabola",
+              "return": "parabola"
+            }
+          },
+          "output_targets": {
+            "point": "C"
+          },
+          "return_expectations": {
+            "point": "open_state"
+          },
+          "intent": "求 Γ 与 y 轴交点 C 的含参坐标。"
+        },
+        {
+          "step_id": "ii_candidates",
+          "capability_id": "right_angle_equal_length_candidates",
+          "args": {
+            "target": "D",
+            "right_angle_equal_length": "∠CAD = 90°, AC = AD"
+          },
+          "intent": "由直角等腰关系生成 D 的两个候选点。"
+        },
+        {
+          "step_id": "ii_solve",
+          "capability_id": "curve_candidate_parameter_solve",
+          "args": {
+            "candidates": {
+              "step_id": "ii_candidates",
+              "return": "candidates"
+            },
+            "parabola": {
+              "step_id": "ii_parabola",
+              "return": "parabola"
+            },
+            "target_point": "D",
+            "point_on_curve": "D ∈ Γ"
+          },
+          "return_expectations": {
+            "selected_curve_point": "closed_state",
+            "solved_parabola": "closed_state"
+          },
+          "intent": "用 D∈Γ 筛选候选并反求参数，得到 D 坐标。"
+        }
+      ]
+    },
+    "iii.b": {
+      "answer_from": {
+        "step_id": "iii_solve",
+        "return": "parameter_value"
+      },
+      "steps": [
+        {
+          "step_id": "iii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": [
+              "a=1"
+            ],
+            "curve_point": "A",
+            "free_parameters": [
+              "b"
+            ]
+          },
+          "output_targets": {
+            "parabola": "Γ"
+          },
+          "return_expectations": {
+            "parabola": "open_state"
+          },
+          "intent": "由 a=1 和 A∈Γ 建立以 b 为自由参数的抛物线状态。"
+        },
+        {
+          "step_id": "iii_M",
+          "capability_id": "point_on_parabola_at_x",
+          "args": {
+            "parabola": {
+              "step_id": "iii_parabola",
+              "return": "parabola"
+            }
+          },
+          "output_targets": {
+            "point": "M"
+          },
+          "return_expectations": {
+            "point": "open_state"
+          },
+          "intent": "由 M 的结构化横坐标 b+1/2 求 M 在 Γ 上的含参坐标。"
+        },
+        {
+          "step_id": "iii_min",
+          "capability_id": "weighted_axis_path_minimum",
+          "args": {
+            "path_minimum_target": "min(sqrt(2)*MN+AN)"
+          },
+          "return_expectations": {
+            "minimum_expression": "open_expression"
+          },
+          "intent": "原子求出加权路径的最小值表达式。"
+        },
+        {
+          "step_id": "iii_solve",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "step_id": "iii_min",
+              "return": "minimum_expression"
+            },
+            "minimum_value": "min(sqrt(2)*MN+AN)=21/4",
+            "parameter": "b"
+          },
+          "intent": "由给定最小值反求参数 b。"
+        }
+      ]
+    }
+  }
+}

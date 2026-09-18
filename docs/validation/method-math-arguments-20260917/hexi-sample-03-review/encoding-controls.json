@@ -1,0 +1,72 @@
+[
+  {
+    "attempt": 1,
+    "source_payload_exactly_matches_transform": true,
+    "canonical_plan_equal": true,
+    "canonical_plan_sha256": "79bac8bdde90a85cab654ff0063fdf7ce13090bb19c6e9c581ae039f2c69f0e7",
+    "same_blocker": [
+      [
+        "candidates_D_ii",
+        {
+          "schema_version": "functional-prompt-diagnostic/v1",
+          "code": "functional.condition_role_state_unavailable",
+          "category": "input",
+          "stage": "reconciliation_binding",
+          "retryability": "planner_repairable",
+          "subjects": [
+            {
+              "ref": "C",
+              "role": "reference",
+              "expected_type": "Point"
+            }
+          ],
+          "expected": {
+            "accepted_types": [
+              "Point"
+            ]
+          },
+          "observed": {},
+          "repair_action": "provide_visible_state_producer",
+          "repair_call_ids": [],
+          "message": "Add or repair a visible producer for the required object state.",
+          "scope_id": "ii",
+          "step_id": "candidates_D_ii"
+        }
+      ]
+    ],
+    "binding_failure_frame": null,
+    "model_calls": 0
+  },
+  {
+    "attempt": 3,
+    "source_payload_exactly_matches_transform": true,
+    "canonical_plan_equal": true,
+    "canonical_plan_sha256": "29b270639069fa5bcc8612532f481b8c5f31092104be5f45231f56660d3557ad",
+    "same_blocker": "planner_configuration_error: planner.functional_arg_version_drift: materialized arg i_vertex.parabola[0] has no StateVersionId",
+    "binding_failure_frame": {
+      "call_id": "i_vertex",
+      "capability_id": "quadratic_vertex_point",
+      "arg_name": "parabola",
+      "item_index": 0,
+      "force_exact_source_versions": true,
+      "debug_materialized_value": false,
+      "source": {
+        "kind": "math_object",
+        "math_object_id": {
+          "value": "function:problem:parabola",
+          "kind": "function",
+          "origin_scope_id": "problem"
+        }
+      },
+      "requires_materialized_state": true,
+      "resolved_value": {
+        "handle": "function:problem:parabola",
+        "runtime_type": "Function",
+        "materialized_runtime_type": "Parabola",
+        "valid_scope": "problem",
+        "source_kind": null
+      }
+    },
+    "model_calls": 0
+  }
+]

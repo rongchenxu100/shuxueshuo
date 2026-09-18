@@ -446,9 +446,11 @@ def resolve_read_closed_constructed_point_roles(
     """Resolve relation object roles without consulting non-read state."""
 
     relation_handles = tuple(
-        handle
-        for handle in compile_input_handles(step)
-        if index.fact_types.get(handle) == "right_angle_equal_length"
+        dict.fromkeys(
+            handle
+            for handle in compile_input_handles(step)
+            if index.fact_types.get(handle) == "right_angle_equal_length"
+        )
     )
     if len(relation_handles) != 1:
         raise StrategyDraftValidationError(

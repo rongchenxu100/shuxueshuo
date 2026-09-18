@@ -1,0 +1,387 @@
+{
+  "version": 1,
+  "id": "tj-2026-heping-ermo-25",
+  "domain": {
+    "minX": -5.752,
+    "maxX": 5.127,
+    "minY": -3.19,
+    "maxY": 5.889
+  },
+  "movingParam": "c",
+  "expressionEnv": [],
+  "fixedPoints": {
+    "AE_proj_i_2": [
+      "-1",
+      "0"
+    ],
+    "AG_proj_i_2": [
+      "t-3",
+      "0"
+    ],
+    "E_axis_i_2": [
+      "-1",
+      "t"
+    ],
+    "E_axis_i_2_candidate_1": [
+      "-1",
+      "2+sqrt(6)"
+    ],
+    "E_axis_i_2_candidate_2": [
+      "-1",
+      "2-sqrt(6)"
+    ],
+    "G_axis_i_2": [
+      "t-3",
+      "-2"
+    ],
+    "K_axis_i_2": [
+      "t-1",
+      "t-2"
+    ],
+    "M_axis_i": [
+      "-1",
+      "0"
+    ],
+    "curve_i_parabola_vertex": [
+      "-1",
+      "4"
+    ],
+    "point_A_i": [
+      "-3",
+      "0"
+    ],
+    "point_B_i": [
+      "1",
+      "0"
+    ],
+    "point_B_ii": [
+      "1",
+      "0"
+    ],
+    "point_E_ii": [
+      "-2",
+      "3/2"
+    ],
+    "point_P_problem": [
+      "-1",
+      "4"
+    ],
+    "point_candidate_solve_axis_point_candidates_i_1_1_i_2": [
+      "-1",
+      "2+sqrt(6)"
+    ],
+    "point_candidate_solve_axis_point_candidates_i_1_2_i_2": [
+      "-1",
+      "2-sqrt(6)"
+    ]
+  },
+  "movingPoints": {
+    "AE_proj_ii": [
+      "1/2-c/2",
+      "0"
+    ],
+    "AG_proj_ii": [
+      "1/4-3*c/4",
+      "0"
+    ],
+    "E_axis_ii": [
+      "1/2-c/2",
+      "c/4+1/4"
+    ],
+    "G_locus_ii_end": [
+      "17/4-3*c/4",
+      "-c/2-1/2"
+    ],
+    "G_locus_ii_start": [
+      "-3*c/4-15/4",
+      "-c/2-1/2"
+    ],
+    "K_axis_ii": [
+      "3/4-c/4",
+      "-c/4-1/4"
+    ],
+    "M_axis_ii": [
+      "1/2-c/2",
+      "0"
+    ],
+    "curve_ii_parabola_vertex": [
+      "1/2-c/2",
+      "c+((c-1)*(c-1))/4"
+    ],
+    "point_A_ii": [
+      "-c",
+      "0"
+    ],
+    "point_A_prime_ii": [
+      "-c",
+      "-c-1"
+    ],
+    "point_F_ii": [
+      "1/4-3*c/4",
+      "c/8+1/8"
+    ],
+    "point_G_ii": [
+      "1/4-3*c/4",
+      "-c/2-1/2"
+    ],
+    "point_H_ii": [
+      "3/8-5*c/8",
+      "-c/8-1/8"
+    ]
+  },
+  "pointMeta": {
+    "AE_proj_i_2": {
+      "label": "AE_projection",
+      "scopeId": "i_2",
+      "scopeRoot": "i",
+      "visualOnly": true
+    },
+    "AE_proj_ii": {
+      "label": "AE_projection",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "visualOnly": true
+    },
+    "AG_proj_i_2": {
+      "label": "AG_projection",
+      "scopeId": "i_2",
+      "scopeRoot": "i",
+      "visualOnly": true
+    },
+    "AG_proj_ii": {
+      "label": "AG_projection",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "visualOnly": true
+    },
+    "E_axis_i_2": {
+      "label": "E",
+      "scopeId": "i_2",
+      "scopeRoot": "i",
+      "definition": "parameterized_point",
+      "parameterSymbol": "t",
+      "sourceStepIds": [
+        "parameterize_axis_point_E_i"
+      ]
+    },
+    "E_axis_i_2_candidate_1": {
+      "label": "E",
+      "scopeId": "i_2",
+      "scopeRoot": "i",
+      "candidateIndex": 1,
+      "visualOnly": true
+    },
+    "E_axis_i_2_candidate_2": {
+      "label": "E",
+      "scopeId": "i_2",
+      "scopeRoot": "i",
+      "candidateIndex": 2,
+      "visualOnly": true
+    },
+    "E_axis_ii": {
+      "label": "E",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "visualOnly": true
+    },
+    "G_axis_i_2": {
+      "label": "G",
+      "scopeId": "i_2",
+      "scopeRoot": "i",
+      "definition": "parameterized_point",
+      "parameterSymbol": "t",
+      "sourceStepIds": [
+        "derive_square_vertex_G_i"
+      ]
+    },
+    "G_locus_ii_end": {
+      "label": "G_locus_end",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "visualOnly": true
+    },
+    "G_locus_ii_start": {
+      "label": "G_locus_start",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "visualOnly": true
+    },
+    "K_axis_i_2": {
+      "label": "K",
+      "scopeId": "i_2",
+      "scopeRoot": "i"
+    },
+    "K_axis_ii": {
+      "label": "K",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "visualOnly": true
+    },
+    "M_axis_i": {
+      "label": "M",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "definition": "axis_x_intercept",
+      "sourceCurveId": "curve_i_parabola",
+      "sourceRef": "point:problem:M"
+    },
+    "M_axis_ii": {
+      "label": "M",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "axis_x_intercept",
+      "sourceCurveId": "curve_ii_parabola",
+      "sourceRef": "point:problem:M"
+    },
+    "curve_i_parabola_vertex": {
+      "label": "",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_i_parabola",
+      "display": "(－1, 4)",
+      "visualOnly": true
+    },
+    "curve_ii_parabola_vertex": {
+      "label": "",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_ii_parabola",
+      "display": "(1/2－c/2, c＋(c－1)²/4)",
+      "visualOnly": true
+    },
+    "point_A_i": {
+      "label": "A",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_x_intercept_A_i"
+      ]
+    },
+    "point_A_ii": {
+      "label": "A",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "evaluate_point_A_ii"
+      ]
+    },
+    "point_A_prime_ii": {
+      "label": "A′",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_path_minimum_ii"
+      ]
+    },
+    "point_B_i": {
+      "label": "B",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "definition": "x_axis_intercept",
+      "sourceCurveId": "curve_i_parabola",
+      "sourceRef": "point:problem:B"
+    },
+    "point_B_ii": {
+      "label": "B",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "x_axis_intercept",
+      "sourceCurveId": "curve_ii_parabola",
+      "sourceRef": "point:problem:B"
+    },
+    "point_E_ii": {
+      "label": "E",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "recover_target_point_E_ii"
+      ]
+    },
+    "point_F_ii": {
+      "label": "F",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "visualOnly": true
+    },
+    "point_G_ii": {
+      "label": "G",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_path_minimum_ii"
+      ],
+      "semanticRoles": [
+        "path_attainment_point"
+      ]
+    },
+    "point_H_ii": {
+      "label": "H",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "visualOnly": true
+    },
+    "point_P_problem": {
+      "label": "P",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_vertex_P_i"
+      ]
+    },
+    "point_candidate_solve_axis_point_candidates_i_1_1_i_2": {
+      "label": "候选1",
+      "scopeId": "i_2",
+      "scopeRoot": "i",
+      "definition": "public_candidate",
+      "sourceStepId": "solve_axis_point_candidates_i",
+      "candidateGroup": 1,
+      "candidateIndex": 1,
+      "visualOnly": true
+    },
+    "point_candidate_solve_axis_point_candidates_i_1_2_i_2": {
+      "label": "候选2",
+      "scopeId": "i_2",
+      "scopeRoot": "i",
+      "definition": "public_candidate",
+      "sourceStepId": "solve_axis_point_candidates_i",
+      "candidateGroup": 1,
+      "candidateIndex": 2,
+      "visualOnly": true
+    }
+  },
+  "curves": [
+    {
+      "id": "curve_i_parabola",
+      "type": "parabola",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "sourceHandle": "fact:i:derive_parabola_i_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 0,
+      "a": "-1",
+      "b": "-2",
+      "c": "3"
+    },
+    {
+      "id": "curve_ii_parabola",
+      "type": "parabola",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "sourceHandle": "fact:ii:derive_parametric_parabola_ii_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 6,
+      "a": "-1",
+      "b": "1-c",
+      "c": "c"
+    }
+  ],
+  "derivedIntersections": []
+}

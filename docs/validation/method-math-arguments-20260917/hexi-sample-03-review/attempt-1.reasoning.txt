@@ -1,0 +1,347 @@
+我们需要输出一个 functional-plan-content/v2 JSON。需要满足 schema 和规则。需要规划三个 Goal: i.P, ii.D, iii.b。Scope 树：problem 根，子 scope i, ii, iii。每个 scope 有 facts。我们需要决定步骤。
+
+目标：
+- i.P: scope i，facts a=1,b=2,c=3,P=vertex(Γ)。Γ: y = a*x^2 - b*x + c。求 P 坐标（顶点）。已知 a,b,c 值，所以抛物线闭合。可以调用 quadratic_from_constraints 用 known_coefficients [a=1,b=2,c=3] 得到 closed_state 抛物线；然后 quadratic_vertex_point 求顶点。目标 answer_from 是顶点 point。或者可以直接用 quadratic_vertex_point 输入 Γ? 但需要先建立抛物线状态。Scope i 有全部系数已知，所以可以一次 quadratic_from_constraints 建立闭合抛物线（known_coefficients）。然后 quadratic_vertex_point 得到 P。目标 answer_from 选择顶点 point。步骤放 scope i（因为只服务于 i.P）。注意 answer_type Point，target_ref P。顶点 return 的 type Point，可以绑定到 P。需要 output_targets? 对于目标答案，可以用 answer_from 选择 producer，不需要 output_targets。但 Capability quadratic_vertex_point 有 output_targets 允许 point 绑定已有对象 P。规则说不要为答案增加 output_targets？ Goal最终答案用 answer_from 选择 producer，代码再根据 Goal authority 验证其对象身份。所以可以不填 output_targets。但是 quadratic_vertex_point 的 return 可能绑定到目标点。如果提供 output_targets 可以吗？规则：“不要为答案增加 output_targets，也不要自造target名称”。所以对于产生最终答案的步骤，不填 output_targets。但 quadratic_vertex_point 的 catalog return 有 target_selection? 实际看看：quadratic_vertex_point 的 output_targets 允许 point 绑定到 Point 对象。如果最终答案是 P，我们可以选择不填 output_targets，代码会通过 answer_from 验证吗？answer_from 只指定 step_id 和 return，代码根据 Goal authority 验证其对象身份。可能可以。但为了明确身份，也许可以填 output_targets: {"point":"P"}。但规则说不要为答案增加 output_targets。所以省略。
+
+- ii.D: scope ii，facts: a=2, A=(-1,0), A∈Γ, D∈Γ, Γ∩y_axis={C}, ∠CAD=90°, AC=AD。求 D 坐标。需要建立抛物线 Γ。a=2，但 b,c 未知。已知 A∈Γ 且 A=(-1,0)，所以代入：0 = 2*1 - b*(-1)? 等等 Γ: y = a*x^2 - b*x + c。A=(-1,0): 0 = 2*(1) - b*(-1) + c = 2 + b + c -> b + c = -2。另外 Γ 与 y 轴交于 C，所以 C=(0,c)。还有 ∠CAD=90°, AC=AD，D 在 Γ 上。需要求 D。这是几何构造：直角等腰三角形，顶点 A 为直角，AC=AD，C 在 y 轴，D 在抛物线上。我们需要求 D。策略：先用已知 a=2 和 A∈Γ 建立含参抛物线（自由参数可能是 b 或 c 或两者？一个方程 b+c=-2，所以一个自由参数。可以选择 free_parameters ["b"] 或 ["c"]。然后利用直角等腰条件构造 D 候选，然后用 D 在 Γ 上筛选并反求参数。Catalog 有 right_angle_equal_length_candidates 和 curve_candidate_parameter_solve。
+
+详细：
+- 已知 Γ 经过 A(-1,0)，a=2。所以 b+c=-2。C 是 y 轴交点 (0,c)。∠CAD=90°, AC=AD。目标 D。我们可以先用 quadratic_from_constraints 建立抛物线状态，参数：a=2 已知，曲线点 A=(-1,0)，free_parameters 应该是什么？应用当前 scope 约束后未确定的独立参数基底。已知 a=2，且 A∈Γ 给出 b+c=-2。所以 b 和 c 中一个自由（另一个由方程确定）。我们可以选择 free_parameters: ["b"] 或 ["c"]。但注意 C 是 y 轴交点，坐标 (0,c)，后面几何构造需要 C。如果我们保留 c 作为自由参数，则 C=(0,c)。如果保留 b，则 c = -2 - b，C=(0,-2-b)。都可以。但后续 D 在 Γ 上筛选可能反求参数。curve_candidate_parameter_solve 会用抛物线状态和参数约束。我们需要让抛物线状态保持开放，且含一个自由参数。选择 free_parameters: ["c"] 可能更直接，因为 C=(0,c)。但 A∈Γ 方程是 b+c=-2，所以如果 free_parameters=["c"]，则 b = -2 - c。抛物线 y = 2x^2 - (-2-c)x + c = 2x^2 + (2+c)x + c。这样 C=(0,c)。直角等腰构造：A(-1,0)，C(0,c) 是已知端点（但 c 是参数）。D 是未知端点，满足 AC=AD 且 ∠CAD=90°。我们可以调用 right_angle_equal_length_candidates 输入 target=D, right_angle_equal_length 条件 "∠CAD=90°, AC=AD"。这个能力产生两个候选点，每个坐标可能含 c。然后需要 D 在 Γ 上，用 curve_candidate_parameter_solve，输入 candidates（来自前序候选），parabola（当前含参抛物线），target_point=D，point_on_curve "D∈Γ"，symbol_constraint 可能参数范围？题面有 b>0 全局，但 scope ii 有 a=2。b>0 可能用于筛选。还有 C 是 y 轴交点，D∈Γ。我们需要看符号约束：根 scope 有 b>0。在 scope ii，b>0 可见（祖先）。所以可以用 symbol_constraint "b>0"。但 curve_candidate_parameter_solve 的 symbol_constraint 是可选的，用于排除候选分支。我们可以传入 b>0 或者根据 c 的关系。但 catalog 说 runtime 会按曲线残余符号自动绑定唯一可见约束；仅在多个非等价约束都可用时填写。我们可以不填，让 runtime 自动。但最好明确。
+
+步骤规划：
+- scope ii 直属步骤：先建立抛物线状态。用 quadratic_from_constraints：known_coefficients ["a=2"]? 还是 parameter_value? 参数：a=2 是已知系数。可以使用 known_coefficients: ["a=2"]。curve_point: ["A=(-1,0)"]。free_parameters: ["c"] (或 ["b"])。target_parameter 可以指定 c 或 b？我们不需要求参数，只需要开放状态。可以省略 target_parameter。但如果我们想输出 parameter_value，可以指定。但为了后续，只需抛物线状态。free_parameters 必须非空。我们选 free_parameters: ["c"]。那么抛物线状态开放，含 c。return parabola。因为这是共享步骤？它只用于 ii.D，所以放在 scope ii 直属步骤（scope_steps.ii）或 Goal ii.D 的局部步骤？规则：只为单个 Goal 答案服务的步骤放该 Goal。这里抛物线建立只用于 ii.D，可以放 Goal ii.D 的局部步骤。但 scope ii 直属步骤和 Goal 局部步骤互斥。如果放 Goal 局部，则 scope_steps.ii 省略或空。多个 Goal 消费共同 producer 放共同祖先。这里只有 ii.D 需要，所以放 Goal ii.D 的 steps 中。但注意 Goal ii.D 的 steps 可以包含多个步骤。scope_steps 是 scope 直属步骤，不属于任何 Goal。我们可以把所有步骤放在 goal_plans.ii.D.steps 中。这样 scope_steps 可以省略或空？schema 中 scope_steps 可选？required 只有 format, goal_plans。scope_steps 是 optional。但如果有 scope 直属步骤，要放。我们目前可能不需要 scope_steps。
+
+但是注意：Goal i.P 的步骤也可以放 goal_plans.i.P.steps。scope i 没有直属步骤。Goal iii.b 同理。
+
+现在细看 ii.D 的步骤：
+1. 建立含参抛物线：quadratic_from_constraints。
+   args: known_coefficients: ["a=2"]? 注意 known_coefficients 是 Fact 类型，math_argument encoding math-expression/v1。可以写 "a=2"。curve_point: "A=(-1,0)"。free_parameters: "c" 或 ["c"]。不填 target_parameter，不填 extra_equation。因为 A∈Γ 已经作为 curve_point。这样抛物线状态 = 2x^2 + (2+c)x + c? 让我们验证：a=2, b+c=-2 => b=-2-c。所以 y = 2x^2 - (-2-c)x + c = 2x^2 + (2+c)x + c。对。
+   return: parabola, 可能 open_state。可以设置 return_expectations: {"parabola": "open_state"}。因为 free_parameters 非空，open_state。
+   step_id: "build_parabola_ii"。
+
+2. 构造直角等腰候选点 D。capability: right_angle_equal_length_candidates。
+   args: target: "D"? 但 target 是 Point 类型，math_argument encoding math-expression/v1。可以写 "D"。right_angle_equal_length: 需要 Fact 类型，fact_types right_angle_equal_length。题面事实 "∠CAD = 90°", "AC = AD"。可以写 math expression "∠CAD=90°, AC=AD" 吗？规则：Fact 使用当前 scope 可见的题设数学条件。条件在 scope ii facts 中有 "∠CAD = 90°", "AC = AD"。我们可以写 "∠CAD = 90°" 和 "AC = AD"？但参数是一个，需要单个 Fact。可以写 "∠CAD=90°, AC=AD" 作为合取？catalog 的 fact_types 是 right_angle_equal_length，可能接受这种表达式。或者写 "∠CAD=90°, AC=AD"。我们按题面写 "∠CAD = 90°, AC = AD"。
+   return: candidates (PointList, internal_only)。不能设置 return binding。步骤输出 candidates。因为 internal_only，下游用 StepResultRef 引用。
+   step_id: "candidates_D_ii"。
+
+3. 用曲线筛选并反求参数：curve_candidate_parameter_solve。
+   args:
+     candidates: {"step_id":"candidates_D_ii","return":"candidates"} （因为 PointList 聚合，可以整体引用？catalog 说 candidates: many Point，可以引用 StepResultRef 或数组。我们可以传 StepResultRef 指向该 return。但 return 是 internal_only，类型 PointList。规则允许匿名结果的下游 arg 用 StepResultRef。可以。
+     parabola: {"step_id":"build_parabola_ii","return":"parabola"} 或 SourceRef "Γ"？这里抛物线状态是开放状态，不是题面 Function 模板。应该用 StepResultRef 指向 build_parabola_ii 的 parabola return。catalog 说 parabola 参数类型 QuadraticFunction，math_argument encoding math-expression/v1。引用当前含参抛物线状态。可以用 StepResultRef。
+     target_point: "D" (题面目标点身份)
+     point_on_curve: "D∈Γ" (Fact，scope ii 有 D∈Γ)
+     symbol_constraint: 可选。scope ii 可见 b>0（根事实）。但我们的自由参数是 c，b = -2 - c。b>0 => -2 - c > 0 => c < -2。可以传 "b>0" 作为约束？symbol_constraint fact_types symbol_constraint。题面根事实 "b>0"。可以写 "b>0"。但 runtime 会按曲线残余符号自动绑定唯一可见约束。我们也可以明确传 "b>0" 来帮助筛选。catalog 说仅在多个非等价约束都可用时填写。这里唯一约束是 b>0。所以可以不填。但为了确保筛选分支，也许填上。但注意 symbol_constraint 的 domain_type Fact，math_argument encoding math-expression/v1。可以传 "b>0"。但我们的抛物线自由参数是 c，b 是依赖参数。可能 runtime 能绑定。我们选择不填，让 runtime 自动。但如果没有约束，可能多个候选都满足？题面有 b>0，应该能排除。我们可以在 args 中显式提供 symbol_constraint: "b>0"。这应该合法，因为它是可见事实。但注意规则：禁止自造条件。b>0 是根事实，可见。可以。
+   return: selected_curve_point (Point), parameter_value (可选), solved_parabola (可选)。目标 D 的 answer_from 应该选择 selected_curve_point 这个 return。step_id 是这个步骤。
+   return_expectations: selected_curve_point 可能 open_state 或 closed_state。因为筛选后反求参数，可能参数 c 被确定，所以 closed_state。可以设置 {"selected_curve_point":"closed_state","solved_parabola":"closed_state"}。但如果不确定，可以省略或设 open/closed。我们期望闭合。
+   output_targets: 这个步骤产生 D 的坐标，且 D 是题面已有目标点。catalog 允许 output_targets 绑定 selected_curve_point 到 D? 规则说不要为答案增加 output_targets。但这里 selected_curve_point 就是最终答案。如果 answer_from 选择它，代码会根据 Goal authority 验证对象身份。output_targets 可以省略。但 catalog 的 output_targets 允许 selected_curve_point: "D"。规则：“不要为答案增加 output_targets”。所以省略。
+
+这样 ii.D 的 answer_from: {"step_id":"solve_D_ii","return":"selected_curve_point"}。
+
+但注意：curve_candidate_parameter_solve 的 return selected_curve_point 类型 Point，answer_type Point，target_ref D。应该可以。
+
+现在 i.P：
+- scope i facts: a=1,b=2,c=3,P=vertex(Γ)。求 P 坐标。
+步骤：
+1. 建立闭合抛物线：quadratic_from_constraints。
+   args: known_coefficients: ["a=1","b=2","c=3"] 或者一次 known_coefficients 多个。catalog 说多个已知系数统一放 known_coefficients。所以 known_coefficients: ["a=1","b=2","c=3"]。不需要 free_parameters 或设为 []。因为闭合。return parabola closed_state。可以指定 return_expectations {"parabola":"closed_state"}。
+   step_id: "build_parabola_i"。
+2. 求顶点：quadratic_vertex_point。
+   args: parabola: {"step_id":"build_parabola_i","return":"parabola"} 或 SourceRef "Γ"? 但 Γ 题面函数模板，现在已有闭合抛物线状态。catalog 说 quadratic_vertex_point 输入 parabola，读取当前函数对象已计算出的抛物线状态。可以用 StepResultRef 指向 build_parabola_i 的 parabola。类型 Parabola。或者用 SourceRef "Γ"？但 SourceRef 可能指题面模板，不是状态。规则：不要用 StepResultRef 指定具名 Function 的普通状态？这里 build_parabola_i 产生的是抛物线状态。应该用 StepResultRef。
+   return: point。目标 P。answer_from 选择这个 return。step_id: "vertex_P_i"。
+   output_targets: 省略（答案）。
+   return_expectations: {"point":"closed_state"}。
+
+这样 i.P 完成。
+
+现在 iii.b：
+- scope iii facts: a=1, A=(-1,0), A∈Γ, M=(b+1/2,y_M), M∈Γ, N=(n,0), n>0, min(sqrt(2)*MN+AN)=21/4。求 b。
+注意：这里 b 是参数，但 scope iii 有 a=1，A∈Γ。Γ: y = a*x^2 - b*x + c。a=1。A=(-1,0) 在 Γ 上：0 = 1*1 - b*(-1) + c = 1 + b + c -> c = -1 - b。所以抛物线只含参数 b（和 c 由 b 确定）。但题面还有 M=(b+1/2, y_M), M∈Γ。M 的横坐标含 b，纵坐标 y_M 未知。M 在 Γ 上给出 y_M = (b+1/2)^2 - b*(b+1/2) + c。代入 c = -1 - b，可以求 y_M 关于 b 的表达式。然后 N=(n,0), n>0，A=(-1,0)。路径 min(sqrt(2)*MN + AN) = 21/4。需要求 b。策略：先建立抛物线状态（已知 a=1, A∈Γ, M∈Γ? 实际上 M 在 Γ 上但 M 坐标含 b，y_M 未知。可以用 quadratic_from_constraints 建立含参抛物线，其自由参数可能是 b 和 c？但 A∈Γ 给出 c = -1 - b，所以只有一个自由参数 b。但 M∈Γ 可以用来求 y_M，但 M 的横坐标是 b+1/2，可以调用 point_on_parabola_at_x 来求 M 的纵坐标？或者直接用 quadratic_from_constraints 建立抛物线，free_parameters: ["b"]，然后 point_on_parabola_at_x 对 M 使用抛物线求 y_M。M 的横坐标题面结构化给出：M=(b+1/2, y_M)。所以可以用 point_on_parabola_at_x，parabola 输入当前含参抛物线，输出 M 的坐标（含 b）。然后需要用 weighted_axis_path_minimum 求最小值表达式，输入 path_minimum_target "min(sqrt(2)*MN+AN)"。这个 Macro 需要 M 和 N 的坐标状态。M 已有坐标（含 b），N=(n,0)，n>0 但 n 未定？N 的坐标是 (n,0)，n 是自由参数。A=(-1,0) 已知。路径 min(sqrt(2)*MN+AN) 涉及 M, N, A。N 在 x 轴上，n>0。weighted_axis_path_minimum 要求路径目标恰由一个非单位权重线段和一个普通线段组成，共享轴上动点。这里 sqrt(2)*MN + AN，共享轴上动点 N。M 是曲线上点，坐标含 b；N=(n,0) 是轴上动点，参数 n；A=(-1,0) 固定。加权端点 M 已有单参数坐标状态？M 的坐标含 b，但 b 是主参数？实际上路径最小值表达式可能同时依赖 b 和 n？但题设给定 min(sqrt(2)*MN+AN)=21/4，要求 b。Macro 会处理定义域和参数。但这里有两个参数 b 和 n？N 的坐标是 (n,0)，n>0 是动点参数。路径目标可能是求关于 n 的最小值，然后这个最小值表达式可能只依赖 b。因为 N 是动点，最小值是对 n 取的。Macro 内部会处理。所以我们需要先建立 M 的坐标状态（含 b），N 的坐标状态（含 n）。然后调用 weighted_axis_path_minimum，输入 path_minimum_target "min(sqrt(2)*MN+AN)"。得到 minimum_expression，可能含 b。然后用 parameter_from_expression_value，输入 expression=minimum_expression，minimum_value="min(sqrt(2)*MN+AN)=21/4"，parameter="b"，得到 b 值。
+
+步骤规划 iii.b：
+1. 建立含参抛物线：quadratic_from_constraints。
+   args: known_coefficients: ["a=1"]? 因为 a=1 已知。curve_point: "A=(-1,0)"。free_parameters: ["b"]（或 ["c"]）。target_parameter 可以指定 b？我们最终要求 b，可以指定 target_parameter: "b"，这样 return parameter_value 可以给出 b 的开放状态。但我们需要闭环。建立抛物线时，A∈Γ 给出 c = -1 - b，所以自由参数是 b。可以设 free_parameters: ["b"]，target_parameter: "b"。但 catalog 说不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。所以不能同时。我们可以设 free_parameters: ["b"]，不设 target_parameter。这样抛物线开放，含 b。return parabola open_state。
+   step_id: "build_parabola_iii"。
+   return_expectations: {"parabola":"open_state"}。
+
+2. 求 M 的坐标：point_on_parabola_at_x。
+   args: parabola: {"step_id":"build_parabola_iii","return":"parabola"}。
+   这个能力会绑定到已有目标点 M，因为题面结构化给出 M=(b+1/2, y_M) 且 M∈Γ。output_targets 可以填 {"point":"M"}。这是合法的，因为 M 是题面已有对象，且不是最终答案。catalog 允许。规则：output_targets 不是声明 return，只是把 return 写入当前 scope 可见的题面已有具名对象。这里 M 是题面已有对象。所以可以填。
+   return: point (M 的坐标含 b)。return_expectations: {"point":"open_state"} 因为含 b。
+   step_id: "point_M_iii"。
+
+3. 求加权路径最小值表达式：weighted_axis_path_minimum。
+   args: path_minimum_target: "min(sqrt(2)*MN+AN)"。注意题面事实是 "min(sqrt(2)*MN + AN) = 21/4"，但 Macro 只输入路径目标，不输入给定最小值。所以 path_minimum_target 应该是 "min(sqrt(2)*MN+AN)" 或 "min(sqrt(2)*MN + AN)"。规则：路径目标用 min(sqrt(2)*MN+AN)。所以写 "min(sqrt(2)*MN+AN)"。
+   return: minimum_expression。可能 open_expression 含 b。return_expectations: {"minimum_expression":"open_expression"}。
+   step_id: "derive_minimum_iii"。
+
+4. 由给定最小值反求 b：parameter_from_expression_value。
+   args: expression: {"step_id":"derive_minimum_iii","return":"minimum_expression"}；minimum_value: "min(sqrt(2)*MN+AN)=21/4"；parameter: "b"。
+   return: parameter_value。目标 b。answer_from 选择这个 return。step_id: "solve_b_iii"。
+   output_targets: 省略（答案）。
+   return_expectations: 不需要，因为固定形态？parameter_from_expression_value 的 return parameter_value 没有 possible_forms，所以不能填 return_expectations。schema 中该 capability 的 return_expectations 是空的 additionalProperties? 实际上 schema 里 parameter_from_expression_value 的 return_expectations 是 {"additionalProperties":false,"minProperties":1,"properties":{},"type":"object"} 意味着可以省略或空。所以省略。
+
+这样 iii.b 完成。
+
+现在需要检查所有步骤的归属和引用。Goal i.P 的步骤在 goal_plans.i.P.steps。Goal ii.D 的步骤在 goal_plans.ii.D.steps。Goal iii.b 的步骤在 goal_plans.iii.b.steps。scope_steps 可以为空或省略。但是规则：Scope直属步骤与Goal局部步骤互斥。我们所有步骤都在 Goal 局部，所以 scope_steps 不需要。schema 中 scope_steps 可选。我们省略。
+
+现在需要确保引用合法：
+- i.P: build_parabola_i 使用 known_coefficients ["a=1","b=2","c=3"]。curve_point 不需要因为系数全知。free_parameters 省略（闭合）。return parabola closed_state。然后 vertex_P_i 使用 parabola: {"step_id":"build_parabola_i","return":"parabola"}。这合法，因为 build_parabola_i 在 goal_plans.i.P.steps 中，是同一 Goal 本地步骤，可见。return 类型 Parabola，quadratic_vertex_point 的 parabola 参数接受 QuadraticFunction。OK。
+  answer_from: {"step_id":"vertex_P_i","return":"point"}。
+  注意：quadratic_vertex_point 的 return 名称是 "point"。answer_type Point，target_ref P。OK。
+
+- ii.D: build_parabola_ii 使用 known_coefficients ["a=2"]，curve_point ["A=(-1,0)"]，free_parameters ["c"]。return parabola open_state。candidates_D_ii 使用 right_angle_equal_length_candidates，args target "D"，right_angle_equal_length "∠CAD = 90°, AC = AD"。return candidates internal_only。solve_D_ii 使用 curve_candidate_parameter_solve，args candidates: {"step_id":"candidates_D_ii","return":"candidates"}，parabola: {"step_id":"build_parabola_ii","return":"parabola"}，target_point: "D"，point_on_curve: "D∈Γ"，symbol_constraint: "b>0"（可选）。return selected_curve_point。answer_from: {"step_id":"solve_D_ii","return":"selected_curve_point"}。
+  注意：candidates 参数是 many Point，可以接受 StepResultRef 指向 PointList？catalog 说 candidates 是 many Point，math_argument encoding math-expression/v1。但 right_angle_equal_length_candidates 的 return 是 PointList 聚合。规则：允许匿名结果的下游 arg 用 StepResultRef。所以可以。
+  但是 curve_candidate_parameter_solve 的 candidates 参数类型是 many Point，期望一个点列表。StepResultRef 指向 PointList 应该可以。如果不行，可能需要数组？但内部结果作为聚合，通常整体引用。我们按 StepResultRef 写。
+
+  另外 symbol_constraint: "b>0" 是根事实，在 scope ii 可见（祖先）。可以。
+
+- iii.b: build_parabola_iii 使用 known_coefficients ["a=1"]，curve_point ["A=(-1,0)"]，free_parameters ["b"]。return parabola open_state。point_M_iii 使用 point_on_parabola_at_x，args parabola: {"step_id":"build_parabola_iii","return":"parabola"}，output_targets: {"point":"M"}。return point open_state。derive_minimum_iii 使用 weighted_axis_path_minimum，args path_minimum_target: "min(sqrt(2)*MN+AN)"。return minimum_expression open_expression。solve_b_iii 使用 parameter_from_expression_value，args expression: {"step_id":"derive_minimum_iii","return":"minimum_expression"}，minimum_value: "min(sqrt(2)*MN+AN)=21/4"，parameter: "b"。return parameter_value。answer_from: {"step_id":"solve_b_iii","return":"parameter_value"}。
+
+现在检查 return_expectations 的规则：
+- 只有 return 明确展示 possible_forms 时才可填写。quadratic_from_constraints 的 parabola 有 possible_forms，可以填。我们填了。
+- quadratic_vertex_point 的 point 有 possible_forms，可以填。
+- right_angle_equal_length_candidates 的 candidates 是 internal_only，没有 possible_forms，不能填 return_expectations。我们没填。
+- curve_candidate_parameter_solve 的 selected_curve_point 有 possible_forms，可以填。我们填了。parameter_value 没有 possible_forms？catalog 中 parameter_value 没有 possible_forms，所以不能填。solved_parabola 有 possible_forms，可以填但可选。
+- point_on_parabola_at_x 的 point 有 possible_forms，可以填。
+- weighted_axis_path_minimum 的 minimum_expression 有 possible_forms，可以填。
+- parameter_from_expression_value 的 parameter_value 没有 possible_forms，不能填。schema 中 return_expectations 属性为空，所以省略。
+
+注意 output_targets 规则：
+- 对于 quadratic_from_constraints，output_targets 可以绑定 parabola 到 Γ，parameter_value 到参数。我们不需要，省略。
+- 对于 quadratic_vertex_point，output_targets 可以绑定 point 到 P。但最终答案不填。省略。
+- 对于 point_on_parabola_at_x，我们填了 {"point":"M"}。这是合法的，因为 M 是题面已有对象，且不是最终答案。但注意 schema 中 point_on_parabola_at_x 的 output_targets 属性 point 枚举 ["M"]。所以只能填 M。我们填 M。
+- 对于 curve_candidate_parameter_solve，output_targets 可以填 selected_curve_point: "D" 等。但最终答案不填。省略。
+- 对于 parameter_from_expression_value，output_targets 可以填 parameter_value 到参数。但最终答案不填。省略。
+
+现在检查 args 的写法：
+- known_coefficients 是 many Fact，math_argument encoding math-expression/v1。我们可以写数组 ["a=1","b=2","c=3"]。但规则说 "Fact 使用当前 scope 可见的题设数学条件（如 a=1, N∈ray(C,D), min(...)=21/4）"。所以 "a=1" 是 Fact。OK。
+- curve_point 是 Point，math_argument encoding math-expression/v1。写 "A=(-1,0)"。但 curve_point 期望 Point 类型，可能应该写点坐标 "(-1,0)"？还是 "A=(-1,0)"？规则：args中的普通具名Entity使用数学表达式字符串（如 Γ、vertex(Γ)、b）；Fact使用当前scope可见的题设数学条件。Point 是 Entity，所以应该用数学表达式字符串表示点，例如 "A" 或 "(-1,0)"？但 curve_point 需要已知坐标的曲线点。题面有 A=(-1,0)。所以可以写 "A=(-1,0)" 还是 "A"？catalog 说 curve_point 是单个已知坐标的曲线点。math_argument encoding math-expression/v1。通常写 "A=(-1,0)" 或 "A"。但为了关联身份，最好写 "A=(-1,0)"，因为这是题面事实。但 Fact 和 Entity 区别：curve_point 是 Point 类型，所以应该是一个点对象，如 "A"。但 A 的坐标在题面是 A=(-1,0)。我们可以写 "A"。但为了确保绑定，写 "A" 可能足够，因为题面有 A=(-1,0) 条件。但规则说 "args中的普通具名Entity使用数学表达式字符串（如 Γ、vertex(Γ)、b）"。所以点 A 就用 "A"。但 curve_point 需要已知坐标，代码会根据可见事实读取坐标。所以写 "A" 应该可以。但为了明确，可以写 "A=(-1,0)"？这看起来像 Fact。我倾向于写 "A" 作为点实体。但 catalog 的 curve_point domain_type Point，math_argument encoding math-expression/v1。示例中可能写 "A"。我们写 "A"。但 scope ii facts 有 "A = (-1,0)" 和 "A ∈ Γ"。所以点 A 存在且有坐标。OK。
+- 对于 right_angle_equal_length_candidates 的 target: "D" 点实体。
+- right_angle_equal_length: Fact 类型，写 "∠CAD = 90°, AC = AD"。这是题面事实。OK。
+- point_on_curve: "D∈Γ" 是 Fact。
+- symbol_constraint: "b>0" 是 Fact。
+- path_minimum_target: "min(sqrt(2)*MN+AN)" 是 Fact 类型 path_minimum_target。题面事实是 "min(sqrt(2)*MN + AN) = 21/4"。但 Macro 只输入路径目标，不输入给定值。所以写 "min(sqrt(2)*MN+AN)" 正确。
+- minimum_value: "min(sqrt(2)*MN+AN)=21/4" 是 Fact。OK。
+
+现在检查 free_parameters：
+- ii: free_parameters ["c"]。应用 scope ii 约束后，a=2 已知，A∈Γ 给出 b+c=-2。所以独立参数基底可以是 {c} 或 {b}。我们选 {c}。正确。
+- iii: free_parameters ["b"]。a=1 已知，A∈Γ 给出 c=-1-b。所以独立参数基底 {b}。正确。
+
+注意：在 iii 中，M=(b+1/2, y_M) 和 M∈Γ 也是 scope iii 事实。建立抛物线时，如果我们用 free_parameters ["b"]，是否已经应用了 M∈Γ？没有，M∈Γ 是另一条曲线点约束，但它包含未知 y_M，所以不能直接用于求系数。它只是定义 M 的纵坐标。所以建立抛物线时忽略 M∈Γ 是合理的，因为 M 的纵坐标未知，不能作为已知曲线点。所以 free_parameters ["b"] 正确。
+
+现在检查步骤顺序：每个 Goal 内步骤按依赖顺序。
+- i.P: build_parabola_i -> vertex_P_i。
+- ii.D: build_parabola_ii -> candidates_D_ii -> solve_D_ii。
+- iii.b: build_parabola_iii -> point_M_iii -> derive_minimum_iii -> solve_b_iii。
+
+step_id 全局唯一。我们使用了：
+i: build_parabola_i, vertex_P_i
+ii: build_parabola_ii, candidates_D_ii, solve_D_ii
+iii: build_parabola_iii, point_M_iii, derive_minimum_iii, solve_b_iii
+唯一。
+
+现在 output_targets 的填写：
+- point_M_iii: output_targets: {"point":"M"}。这是合法的，因为 M 是题面已有对象，且不是最终答案。但 schema 中 point_on_parabola_at_x 的 output_targets 属性 point 枚举 ["M"]。所以必须填 "M"。OK。
+- 其他步骤省略 output_targets。
+
+return_expectations 填写：
+- build_parabola_i: {"parabola":"closed_state"}。
+- vertex_P_i: {"point":"closed_state"}。
+- build_parabola_ii: {"parabola":"open_state"}。
+- candidates_D_ii: 不能填，因为 candidates 没有 possible_forms。
+- solve_D_ii: {"selected_curve_point":"closed_state"}。可选 parameter_value 和 solved_parabola 不填。
+- build_parabola_iii: {"parabola":"open_state"}。
+- point_M_iii: {"point":"open_state"}。
+- derive_minimum_iii: {"minimum_expression":"open_expression"}。
+- solve_b_iii: 省略。
+
+现在检查 answer_from 的 return 名称是否与 capability return 名称一致。
+- i.P: vertex_P_i 的 return 是 "point"。OK。
+- ii.D: solve_D_ii 的 return 是 "selected_curve_point"。OK。
+- iii.b: solve_b_iii 的 return 是 "parameter_value"。OK。
+
+现在检查 schema 是否允许这些步骤。schema 中 step 的 oneOf 根据 capability_id 匹配。我们需要确保每个步骤的 args 符合对应 schema 分支。
+
+检查 i.P 的 build_parabola_i：
+capability_id: quadratic_from_constraints
+args: known_coefficients: ["a=1","b=2","c=3"]。schema 中 known_coefficients 可以是 source_ref 或数组。数组元素是 source_ref (string)。OK。
+curve_point 可选，我们没填。
+free_parameters 可选，我们没填（闭合）。OK。
+return_expectations: {"parabola":"closed_state"} 符合 schema properties parabola enum open_state/closed_state。OK。
+output_targets: 省略。
+
+检查 vertex_P_i：
+capability_id: quadratic_vertex_point
+args: {"parabola": {"step_id":"build_parabola_i","return":"parabola"}}。schema 中 parabola 是 source_ref (string) 吗？看 schema: quadratic_vertex_point 的 args 是 {"parabola": {"$ref":"#/$defs/source_ref"}}。source_ref 是 string minLength 1。但我们可以用 StepResultRef 吗？规则允许 StepResultRef 作为引用。但 schema 中 source_ref 是 string，不是对象。然而在 step 的 args 中，functional_ref 是 oneOf source_ref 或 step_result_ref。所以 args 的值可以是字符串或 StepResultRef 对象。但具体到 quadratic_vertex_point 的 schema，args 属性 parabola 直接是 source_ref，即 string。这意味着在 schema 中，这个参数只接受字符串引用，不接受 StepResultRef 对象？但规则说“允许匿名结果的下游arg，或类型兼容的下游arg消费reference_mode=exact_result return时，可直接用{"step_id":"...","return":"..."}读取它。” 但 schema 可能限制。我们需要看 schema 中 quadratic_vertex_point 的定义：
+{"properties":{"args":{"$ref":"#/$defs/shared_8"}...}} shared_8 是 {"additionalProperties":false,"properties":{"parabola":{"$ref":"#/$defs/source_ref"}},"required":["parabola"],"type":"object"}。source_ref 是 string。所以 schema 强制 parabola 是字符串。但规则说可以用 StepResultRef。这可能意味着在 JSON 中，对于需要 source_ref 的参数，我们应该用字符串引用？但字符串引用如何指向步骤结果？通常 StepResultRef 是对象。但 schema 中 source_ref 是字符串，可能用于引用题面对象。对于步骤结果，可能需要用 StepResultRef 对象，但 schema 不允许？这可能是 schema 的简化，或者代码在运行时接受对象。但为了符合 schema，我们可能需要调整：如果 schema 要求字符串，我们可以用 SourceRef 指向题面对象？但抛物线状态不是题面对象，而是步骤结果。然而 catalog 说 quadratic_vertex_point 输入 parabola，允许当前函数对象已计算出的抛物线状态。可以用 StepResultRef。但 schema 限制。可能 schema 中 args 的 additionalProperties 使用 oneOf functional_ref，而 functional_ref 可以是 source_ref 或 step_result_ref。但 shared_8 直接用了 source_ref，没有用 functional_ref。这意味着这个特定参数在 schema 中只接受字符串。但规则说“引用和步骤归属遵循下方共用规则。” 也许我们应该遵循 schema，使用字符串引用？但字符串引用无法指向步骤结果。除非我们可以用 output_targets 将抛物线状态绑定到题面对象 Γ，然后用 SourceRef "Γ"。例如 build_parabola_i 可以 output_targets: {"parabola":"Γ"}，将步骤产生的抛物线状态写入题面已有对象 Γ。然后 vertex_P_i 的 parabola 参数可以用 SourceRef "Γ"。但规则说 output_targets 不是声明 return，只是把 return 写入当前 scope 可见的题面已有具名对象。这里 Γ 是题面函数模板，是已有对象。我们可以将 build_parabola_i 的 parabola return 写入 Γ？但 catalog 说 quadratic_from_constraints 的 parabola return binding 是 same_compiler_selected_object，对象身份由编译器从当前scope的题面权威中选择。不要为此添加catalog未声明的输入参数。output_targets 可以绑定到 Γ？看 schema 中 quadratic_from_constraints 的 output_targets 允许 parabola: "Γ"。所以我们可以填 output_targets: {"parabola":"Γ"}。这样抛物线状态就写入了 Γ。然后 vertex_P_i 用 SourceRef "Γ" 读取当前抛物线状态。这符合 schema 的 source_ref 字符串。而且规则说“目标只是把已求出的参数值代回同一题面抛物线时，继续使用该Function的SourceRef；编译器会读取当前scope最近可见的Parabola状态和参数值。” 所以这样更好。
+
+同样，其他步骤中需要引用抛物线状态的地方，如果 schema 要求字符串，我们可以通过 output_targets 将状态绑定到 Γ，然后用 SourceRef "Γ"。
+
+让我们检查哪些步骤需要引用步骤结果。
+- vertex_P_i 的 parabola: 可以用 SourceRef "Γ"，如果 build_parabola_i 将 parabola 绑定到 Γ。
+- ii.D: build_parabola_ii 将 parabola 绑定到 Γ。然后 solve_D_ii 的 parabola 参数可以用 SourceRef "Γ"。但 solve_D_ii 还需要 candidates，candidates 是步骤结果，必须用 StepResultRef。schema 中 curve_candidate_parameter_solve 的 args 中 candidates 可以是 shared_3 (functional_ref) 或数组。shared_3 是 oneOf source_ref 或 step_result_ref。所以 candidates 可以用 StepResultRef 对象。OK。
+- iii.b: build_parabola_iii 将 parabola 绑定到 Γ。point_M_iii 的 parabola 用 SourceRef "Γ"。derive_minimum_iii 的 path_minimum_target 是 Fact 字符串，不需要步骤结果。solve_b_iii 的 expression 可以是 StepResultRef 对象，因为 parameter_from_expression_value 的 args 中 expression 是 shared_3 (functional_ref)。OK。
+
+所以我们调整：在 build_parabola_i, build_parabola_ii, build_parabola_iii 中添加 output_targets: {"parabola":"Γ"}。这样它们产生/更新 Γ 状态。注意规则：output_targets 不是声明 return，只是把 return 写入当前 scope 可见的题面已有具名对象。Γ 是题面已有对象。合法。
+
+但注意：quadratic_from_constraints 的 output_targets 中 parabola 枚举 ["Γ"]，所以可以填。parameter_value 也可以绑定到参数，但我们不需要。
+
+然后 vertex_P_i 的 args: {"parabola":"Γ"}。
+point_M_iii 的 args: {"parabola":"Γ"}，output_targets: {"point":"M"}。
+solve_D_ii 的 args: {"candidates": {"step_id":"candidates_D_ii","return":"candidates"}, "parabola":"Γ", "target_point":"D", "point_on_curve":"D∈Γ", "symbol_constraint":"b>0"}。
+
+这样 schema 更兼容。
+
+检查 schema 中 quadratic_from_constraints 的 output_targets 允许 parabola: "Γ"。OK。
+
+现在还需要检查 candidates_D_ii 的 args: target 和 right_angle_equal_length。schema 中 right_angle_equal_length_candidates 的 args 是 target (source_ref) 和 right_angle_equal_length (source_ref)。都是字符串。target 写 "D"，right_angle_equal_length 写 "∠CAD = 90°, AC = AD"。OK。
+
+现在检查 point_on_parabola_at_x 的 args: parabola (source_ref) 字符串 "Γ"。output_targets: {"point":"M"}。OK。
+
+现在检查 weighted_axis_path_minimum 的 args: path_minimum_target (source_ref) 字符串 "min(sqrt(2)*MN+AN)"。OK。
+
+现在检查 parameter_from_expression_value 的 args: expression (shared_3) 可以是 StepResultRef 对象，指向 derive_minimum_iii 的 minimum_expression。minimum_value 字符串。parameter 字符串 "b"。OK。
+
+现在检查所有 step 的 parameters 字段：schema 中 step_base 有 parameters 可选，但我们不需要，省略。
+
+现在组织 JSON。
+
+格式：
+{
+  "format": "functional-plan-content/v2",
+  "goal_plans": {
+    "i.P": {
+      "answer_from": {"step_id": "vertex_P_i", "return": "point"},
+      "steps": [
+        {
+          "step_id": "build_parabola_i",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": ["a=1","b=2","c=3"]
+          },
+          "output_targets": {"parabola": "Γ"},
+          "return_expectations": {"parabola": "closed_state"}
+        },
+        {
+          "step_id": "vertex_P_i",
+          "capability_id": "quadratic_vertex_point",
+          "args": {
+            "parabola": "Γ"
+          },
+          "return_expectations": {"point": "closed_state"}
+        }
+      ]
+    },
+    "ii.D": {
+      "answer_from": {"step_id": "solve_D_ii", "return": "selected_curve_point"},
+      "steps": [
+        {
+          "step_id": "build_parabola_ii",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": ["a=2"],
+            "curve_point": "A",
+            "free_parameters": ["c"]
+          },
+          "output_targets": {"parabola": "Γ"},
+          "return_expectations": {"parabola": "open_state"}
+        },
+        {
+          "step_id": "candidates_D_ii",
+          "capability_id": "right_angle_equal_length_candidates",
+          "args": {
+            "target": "D",
+            "right_angle_equal_length": "∠CAD = 90°, AC = AD"
+          }
+        },
+        {
+          "step_id": "solve_D_ii",
+          "capability_id": "curve_candidate_parameter_solve",
+          "args": {
+            "candidates": {"step_id": "candidates_D_ii", "return": "candidates"},
+            "parabola": "Γ",
+            "target_point": "D",
+            "point_on_curve": "D∈Γ",
+            "symbol_constraint": "b>0"
+          },
+          "return_expectations": {"selected_curve_point": "closed_state"}
+        }
+      ]
+    },
+    "iii.b": {
+      "answer_from": {"step_id": "solve_b_iii", "return": "parameter_value"},
+      "steps": [
+        {
+          "step_id": "build_parabola_iii",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": ["a=1"],
+            "curve_point": "A",
+            "free_parameters": ["b"]
+          },
+          "output_targets": {"parabola": "Γ"},
+          "return_expectations": {"parabola": "open_state"}
+        },
+        {
+          "step_id": "point_M_iii",
+          "capability_id": "point_on_parabola_at_x",
+          "args": {
+            "parabola": "Γ"
+          },
+          "output_targets": {"point": "M"},
+          "return_expectations": {"point": "open_state"}
+        },
+        {
+          "step_id": "derive_minimum_iii",
+          "capability_id": "weighted_axis_path_minimum",
+          "args": {
+            "path_minimum_target": "min(sqrt(2)*MN+AN)"
+          },
+          "return_expectations": {"minimum_expression": "open_expression"}
+        },
+        {
+          "step_id": "solve_b_iii",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {"step_id": "derive_minimum_iii", "return": "minimum_expression"},
+            "minimum_value": "min(sqrt(2)*MN+AN)=21/4",
+            "parameter": "b"
+          }
+        }
+      ]
+    }
+  }
+}
+
+检查：
+- i.P 的 build_parabola_i 的 known_coefficients 是数组。但 schema 中 known_coefficients 可以是 source_ref 或数组。OK。
+- curve_point 写 "A"。但 schema 中 curve_point 是 source_ref 字符串。OK。
+- free_parameters 是 ["c"]，schema 中 free_parameters 可以是 source_ref 或数组。OK。
+- output_targets 中 parabola: "Γ"。schema 中 quadratic_from_constraints 的 output_targets 允许 parabola: "Γ"。OK。
+- return_expectations 中 parabola: "closed_state"。OK。
+- vertex_P_i 的 args 中 parabola: "Γ"。schema 中 quadratic_vertex_point 的 args 是 shared_8，parabola 是 source_ref 字符串。OK。
+- ii.D 的 build_parabola_ii 的 curve_point: "A"。但 scope ii 有 A=(-1,0)。OK。
+- candidates_D_ii 的 right_angle_equal_length: "∠CAD = 90°, AC = AD"。注意题面事实是两个分开的： "∠CAD = 90°", "AC = AD"。但我们可以合并为一个 Fact 字符串吗？catalog 说 fact_types right_angle_equal_length。代码可能会解析。应该可以。
+- solve_D_ii 的 candidates 是 StepResultRef 对象。schema 中 curve_candidate_parameter_solve 的 args 中 candidates 可以是 shared_3 (functional_ref) 或数组。shared_3 是 oneOf source_ref 或 step_result_ref。所以对象 OK。
+- symbol_constraint: "b>0"。这是根事实。OK。
+- iii.b 的 point_M_iii 的 output_targets: {"point":"M"}。schema 中 point_on_parabola_at_x 的 output_targets 允许 point: "M"。OK。
+- derive_minimum_iii 的 path_minimum_target: "min(sqrt(2)*MN+AN)"。OK。
+- solve_b_iii 的 expression 是 StepResultRef 对象。schema 中 parameter_from_expression_value 的 args 中 expression 是 shared_3。OK。
+
+现在检查是否有遗漏的 required 字段。每个 step 必须有 step_id, capability_id, args。我们都有。
+
+检查 answer_from 的 step_id 是否在对应 Goal 的 steps 中。i.P: vertex_P_i 在。ii.D: solve_D_ii 在。iii.b: solve_b_iii 在。OK。
+
+检查 scope_steps：我们省略了。schema 中 scope_steps 可选。OK。
+
+检查是否有重复的 step_id。没有。
+
+检查是否所有 step 都通向至少一个必答 Goal。是的。
+
+检查 output_targets 的使用规则：对于最终答案步骤，我们没有填 output_targets。OK。对于中间步骤，我们填了 output_targets 将抛物线状态绑定到 Γ，将点绑定到 M。这符合规则。
+
+检查 return_expectations 的填写：只有有 possible_forms 的 return 才填。我们填了。对于 candidates，没有填。对于 parameter_value in solve_b_iii，没有填。OK。
+
+检查 free_parameters 是否非空。ii 和 iii 都非空。i 闭合，省略。OK。
+
+现在输出 JSON。注意不要包含 Markdown 或解释。只输出 JSON 对象。

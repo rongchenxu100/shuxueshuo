@@ -1,0 +1,555 @@
+[
+  {
+    "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[0]",
+    "step_id": "build_parabola_i",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "i",
+    "field": "args",
+    "argument": "known_coefficients",
+    "expression": "a=1",
+    "status": "bound_in_isolation",
+    "ref": "symbol_value_a",
+    "audit": {
+      "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[0]",
+      "expression": "a=1",
+      "ref": "symbol_value_a",
+      "scope_ref": "i",
+      "source_paths": [
+        "/root/children/0/facts/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:b3188026a7e90a1c0e24faf6487e8b65d428b91148b5e89b816deccec23a168f"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[1]",
+    "step_id": "build_parabola_i",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "i",
+    "field": "args",
+    "argument": "known_coefficients",
+    "expression": "b=2",
+    "status": "bound_in_isolation",
+    "ref": "symbol_value_b",
+    "audit": {
+      "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[1]",
+      "expression": "b=2",
+      "ref": "symbol_value_b",
+      "scope_ref": "i",
+      "source_paths": [
+        "/root/children/0/facts/1"
+      ],
+      "source_unit_ids": [
+        "notation-unit:54fb367bb8dfd4fbf2733cd5b480b22ccb03e4b6b0a7d649cb20d24bf9f26da8"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[2]",
+    "step_id": "build_parabola_i",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "i",
+    "field": "args",
+    "argument": "known_coefficients",
+    "expression": "c=3",
+    "status": "bound_in_isolation",
+    "ref": "symbol_value_c",
+    "audit": {
+      "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[2]",
+      "expression": "c=3",
+      "ref": "symbol_value_c",
+      "scope_ref": "i",
+      "source_paths": [
+        "/root/children/0/facts/2"
+      ],
+      "source_unit_ids": [
+        "notation-unit:fa068689685f30099eb9bcddd06dec32d493ec6272486c0d7d9f99fa87da16e6"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.i.P.steps[0].output_targets.parabola",
+    "step_id": "build_parabola_i",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "i",
+    "field": "output_targets",
+    "argument": "parabola",
+    "expression": "Γ",
+    "status": "bound_in_isolation",
+    "ref": "parabola",
+    "audit": {
+      "path": "$.goal_plans.i.P.steps[0].output_targets.parabola",
+      "expression": "Γ",
+      "ref": "parabola",
+      "scope_ref": "i",
+      "source_paths": [
+        "/root/definitions/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+        "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.i.P.steps[1].args.parabola",
+    "step_id": "vertex_P_i",
+    "capability_id": "quadratic_vertex_point",
+    "scope": "i",
+    "field": "args",
+    "argument": "parabola",
+    "expression": "Γ",
+    "status": "bound_in_isolation",
+    "ref": "parabola",
+    "audit": {
+      "path": "$.goal_plans.i.P.steps[1].args.parabola",
+      "expression": "Γ",
+      "ref": "parabola",
+      "scope_ref": "i",
+      "source_paths": [
+        "/root/definitions/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+        "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[0].args.known_coefficients[0]",
+    "step_id": "build_parabola_ii",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "ii",
+    "field": "args",
+    "argument": "known_coefficients",
+    "expression": "a=2",
+    "status": "bound_in_isolation",
+    "ref": "symbol_value_a",
+    "audit": {
+      "path": "$.goal_plans.ii.D.steps[0].args.known_coefficients[0]",
+      "expression": "a=2",
+      "ref": "symbol_value_a",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/children/1/facts/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:3f44fe36dc8561548c8a4a3531e9cc8d771a4edd074060de9e132b418b6574f0"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[0].args.curve_point",
+    "step_id": "build_parabola_ii",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "ii",
+    "field": "args",
+    "argument": "curve_point",
+    "expression": "A",
+    "status": "bound_in_isolation",
+    "ref": "A",
+    "audit": {
+      "path": "$.goal_plans.ii.D.steps[0].args.curve_point",
+      "expression": "A",
+      "ref": "A",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/children/1/facts/1"
+      ],
+      "source_unit_ids": [
+        "notation-unit:29b0ce81c9e03288cd5996fbf00e3a389470d9c9ed32a4df422ea641ccdd92c1",
+        "notation-unit:3637b0bb9d2c96772e64da868384979fe5ab117c627e6e4e0698eb7e89c64279"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[0].args.free_parameters[0]",
+    "step_id": "build_parabola_ii",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "ii",
+    "field": "args",
+    "argument": "free_parameters",
+    "expression": "c",
+    "status": "bound_in_isolation",
+    "ref": "c",
+    "audit": {
+      "path": "$.goal_plans.ii.D.steps[0].args.free_parameters[0]",
+      "expression": "c",
+      "ref": "c",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/definitions/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:594623b1a993325533de9b70dd4ed5d36f5e0a9a71c29c52602780cee2da66d1"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[0].output_targets.parabola",
+    "step_id": "build_parabola_ii",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "ii",
+    "field": "output_targets",
+    "argument": "parabola",
+    "expression": "Γ",
+    "status": "bound_in_isolation",
+    "ref": "parabola",
+    "audit": {
+      "path": "$.goal_plans.ii.D.steps[0].output_targets.parabola",
+      "expression": "Γ",
+      "ref": "parabola",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/definitions/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+        "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[1].args.target",
+    "step_id": "candidates_D_ii",
+    "capability_id": "right_angle_equal_length_candidates",
+    "scope": "ii",
+    "field": "args",
+    "argument": "target",
+    "expression": "D",
+    "status": "bound_in_isolation",
+    "ref": "D",
+    "audit": {
+      "path": "$.goal_plans.ii.D.steps[1].args.target",
+      "expression": "D",
+      "ref": "D",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/children/1/facts/3"
+      ],
+      "source_unit_ids": [
+        "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+    "step_id": "candidates_D_ii",
+    "capability_id": "right_angle_equal_length_candidates",
+    "scope": "ii",
+    "field": "args",
+    "argument": "right_angle_equal_length",
+    "expression": "∠CAD = 90°, AC = AD",
+    "status": "invalid_in_isolation",
+    "error": {
+      "code": "functional.math_argument_invalid",
+      "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+      "message": "notation.expected: expected ∈, got ="
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[2].args.parabola",
+    "step_id": "solve_D_ii",
+    "capability_id": "curve_candidate_parameter_solve",
+    "scope": "ii",
+    "field": "args",
+    "argument": "parabola",
+    "expression": "Γ",
+    "status": "bound_in_isolation",
+    "ref": "parabola",
+    "audit": {
+      "path": "$.goal_plans.ii.D.steps[2].args.parabola",
+      "expression": "Γ",
+      "ref": "parabola",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/definitions/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+        "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[2].args.target_point",
+    "step_id": "solve_D_ii",
+    "capability_id": "curve_candidate_parameter_solve",
+    "scope": "ii",
+    "field": "args",
+    "argument": "target_point",
+    "expression": "D",
+    "status": "bound_in_isolation",
+    "ref": "D",
+    "audit": {
+      "path": "$.goal_plans.ii.D.steps[2].args.target_point",
+      "expression": "D",
+      "ref": "D",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/children/1/facts/3"
+      ],
+      "source_unit_ids": [
+        "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[2].args.point_on_curve",
+    "step_id": "solve_D_ii",
+    "capability_id": "curve_candidate_parameter_solve",
+    "scope": "ii",
+    "field": "args",
+    "argument": "point_on_curve",
+    "expression": "D∈Γ",
+    "status": "bound_in_isolation",
+    "ref": "point_on_curve_parabola_d",
+    "audit": {
+      "path": "$.goal_plans.ii.D.steps[2].args.point_on_curve",
+      "expression": "D∈Γ",
+      "ref": "point_on_curve_parabola_d",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/children/1/facts/3"
+      ],
+      "source_unit_ids": [
+        "notation-unit:e2363b3483c9271b5d24825eaf178384fdd093d065e8b5a384922e7fbe8a7750"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.ii.D.steps[2].args.symbol_constraint",
+    "step_id": "solve_D_ii",
+    "capability_id": "curve_candidate_parameter_solve",
+    "scope": "ii",
+    "field": "args",
+    "argument": "symbol_constraint",
+    "expression": "b>0",
+    "status": "bound_in_isolation",
+    "ref": "symbol_constraint_b",
+    "audit": {
+      "path": "$.goal_plans.ii.D.steps[2].args.symbol_constraint",
+      "expression": "b>0",
+      "ref": "symbol_constraint_b",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/facts/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:a9eb81f4f4c8a1d94b368aaaca0aa504746b36d688c8dafc6dc644a4921c0a36"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.iii.b.steps[0].args.known_coefficients[0]",
+    "step_id": "build_parabola_iii",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "iii",
+    "field": "args",
+    "argument": "known_coefficients",
+    "expression": "a=1",
+    "status": "bound_in_isolation",
+    "ref": "symbol_value_a",
+    "audit": {
+      "path": "$.goal_plans.iii.b.steps[0].args.known_coefficients[0]",
+      "expression": "a=1",
+      "ref": "symbol_value_a",
+      "scope_ref": "iii",
+      "source_paths": [
+        "/root/children/2/facts/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:152cb8570887769b15060798f34bb1730a266f660208f0e3e5daae2a1f996083"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.iii.b.steps[0].args.curve_point",
+    "step_id": "build_parabola_iii",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "iii",
+    "field": "args",
+    "argument": "curve_point",
+    "expression": "A",
+    "status": "bound_in_isolation",
+    "ref": "A",
+    "audit": {
+      "path": "$.goal_plans.iii.b.steps[0].args.curve_point",
+      "expression": "A",
+      "ref": "A",
+      "scope_ref": "iii",
+      "source_paths": [
+        "/root/children/2/facts/1"
+      ],
+      "source_unit_ids": [
+        "notation-unit:59323558b2033c6ee0a68ff071a72740934eadd2a5e1e22b4062cfd67ef2f32e",
+        "notation-unit:a31400e67a98599603f0fd43363a13d352c0c0be61f02027b7e08e4eda2d7ff1"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.iii.b.steps[0].args.free_parameters[0]",
+    "step_id": "build_parabola_iii",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "iii",
+    "field": "args",
+    "argument": "free_parameters",
+    "expression": "b",
+    "status": "bound_in_isolation",
+    "ref": "b",
+    "audit": {
+      "path": "$.goal_plans.iii.b.steps[0].args.free_parameters[0]",
+      "expression": "b",
+      "ref": "b",
+      "scope_ref": "iii",
+      "source_paths": [
+        "/root/definitions/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.iii.b.steps[0].output_targets.parabola",
+    "step_id": "build_parabola_iii",
+    "capability_id": "quadratic_from_constraints",
+    "scope": "iii",
+    "field": "output_targets",
+    "argument": "parabola",
+    "expression": "Γ",
+    "status": "bound_in_isolation",
+    "ref": "parabola",
+    "audit": {
+      "path": "$.goal_plans.iii.b.steps[0].output_targets.parabola",
+      "expression": "Γ",
+      "ref": "parabola",
+      "scope_ref": "iii",
+      "source_paths": [
+        "/root/definitions/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+        "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.iii.b.steps[1].args.parabola",
+    "step_id": "point_M_iii",
+    "capability_id": "point_on_parabola_at_x",
+    "scope": "iii",
+    "field": "args",
+    "argument": "parabola",
+    "expression": "Γ",
+    "status": "bound_in_isolation",
+    "ref": "parabola",
+    "audit": {
+      "path": "$.goal_plans.iii.b.steps[1].args.parabola",
+      "expression": "Γ",
+      "ref": "parabola",
+      "scope_ref": "iii",
+      "source_paths": [
+        "/root/definitions/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+        "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.iii.b.steps[1].output_targets.point",
+    "step_id": "point_M_iii",
+    "capability_id": "point_on_parabola_at_x",
+    "scope": "iii",
+    "field": "output_targets",
+    "argument": "point",
+    "expression": "M",
+    "status": "bound_in_isolation",
+    "ref": "M",
+    "audit": {
+      "path": "$.goal_plans.iii.b.steps[1].output_targets.point",
+      "expression": "M",
+      "ref": "M",
+      "scope_ref": "iii",
+      "source_paths": [
+        "/root/children/2/facts/3"
+      ],
+      "source_unit_ids": [
+        "notation-unit:0b53057e6b552f5904c9f5a656b5f023b894c4b42d70cf28541d3be90c5d91dd",
+        "notation-unit:c20787782318db488cd3b92d4ca9f9f77387bbaeeda45142743a8145c4d3b7ed"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.iii.b.steps[2].args.path_minimum_target",
+    "step_id": "derive_minimum_iii",
+    "capability_id": "weighted_axis_path_minimum",
+    "scope": "iii",
+    "field": "args",
+    "argument": "path_minimum_target",
+    "expression": "min(sqrt(2)*MN+AN)",
+    "status": "bound_in_isolation",
+    "ref": "path_minimum_target_m_n_a",
+    "audit": {
+      "path": "$.goal_plans.iii.b.steps[2].args.path_minimum_target",
+      "expression": "min(sqrt(2)*MN+AN)",
+      "ref": "path_minimum_target_m_n_a",
+      "scope_ref": "iii",
+      "source_paths": [
+        "/root/children/2/facts/7"
+      ],
+      "source_unit_ids": [
+        "notation-unit:7f5bdbc7f2073006712d2f8477f5b1169827249ba9345680cc03d66962481a90"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.iii.b.steps[3].args.minimum_value",
+    "step_id": "solve_b_iii",
+    "capability_id": "parameter_from_expression_value",
+    "scope": "iii",
+    "field": "args",
+    "argument": "minimum_value",
+    "expression": "min(sqrt(2)*MN+AN)=21/4",
+    "status": "bound_in_isolation",
+    "ref": "minimum_value",
+    "audit": {
+      "path": "$.goal_plans.iii.b.steps[3].args.minimum_value",
+      "expression": "min(sqrt(2)*MN+AN)=21/4",
+      "ref": "minimum_value",
+      "scope_ref": "iii",
+      "source_paths": [
+        "/root/children/2/facts/7"
+      ],
+      "source_unit_ids": [
+        "notation-unit:c41a184aa05346cdee380f06fcb8c047b1ae362cb8cf6175a5eea003140ebfd5"
+      ]
+    }
+  },
+  {
+    "path": "$.goal_plans.iii.b.steps[3].args.parameter",
+    "step_id": "solve_b_iii",
+    "capability_id": "parameter_from_expression_value",
+    "scope": "iii",
+    "field": "args",
+    "argument": "parameter",
+    "expression": "b",
+    "status": "bound_in_isolation",
+    "ref": "b",
+    "audit": {
+      "path": "$.goal_plans.iii.b.steps[3].args.parameter",
+      "expression": "b",
+      "ref": "b",
+      "scope_ref": "iii",
+      "source_paths": [
+        "/root/definitions/0"
+      ],
+      "source_unit_ids": [
+        "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+      ]
+    }
+  }
+]

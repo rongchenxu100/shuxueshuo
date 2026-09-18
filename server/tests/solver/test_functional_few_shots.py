@@ -520,7 +520,7 @@ def test_nankai_core_annotation_is_rendered_before_strict_plan() -> None:
     assert "成员关系、端点角色、内部反射与取等恢复均由 Macro 验证" in prompt
     assert "同时返回最小值表达式与原题动点的取等状态" in prompt
     assert "先在该构造所属 Scope 用普通 Function 物化端点坐标" in prompt
-    assert "把该 Macro 放在它们最近公共父 Scope，只调用一次" in prompt
+    assert "只有路径表达式本身在共同父 Scope 有受信可见来源时" in prompt
     assert '"capability_id":"coupled_segment_endpoint_replacement_path_minimum"' in prompt
     assert "### FunctionalPlan 示例" in prompt
     assert '"format":"functional_plan/v1"' in prompt

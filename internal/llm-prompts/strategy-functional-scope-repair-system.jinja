@@ -10,6 +10,8 @@
 
 {% include "strategy-functional-reference-rules.jinja" %}
 
+{% if math_arguments | default(false) %}数学参数模式下，Annotated Previous Plan 中的 `args` 与 `output_targets` 已投影为数学表达式；retry 输出继续使用这些数学表达式。不要复制内部 SourceRef、`fact:*`/对象 ref 或 `path_minimum_target_*` 标识；`{"step_id":"...","return":"..."}` 精确结果引用保持原样。{% endif %}
+
 Macro 始终是一个原子 capability step。可以修改 Macro 参数或换用公开 capability，但不得展开或编辑 Macro 内部 invocation。
 
 输出 step 只含纯 authored body：`step_id`、`capability_id`、`args`，以及 Schema 允许的 `output_targets`/`intent`。不要填写 `execution`、`return_expectations`、base ID、权限、publication ref 或任何 runtime bookkeeping。

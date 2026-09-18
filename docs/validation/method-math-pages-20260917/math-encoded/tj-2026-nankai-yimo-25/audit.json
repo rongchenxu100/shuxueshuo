@@ -1,0 +1,27 @@
+{
+  "schema_version": "lesson-capability-case-audit/v1",
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "snapshot_hash": "ba6f2050304142693e743453cca7e6b6104042cc940ba26ee9eba604de454164",
+  "annotated_plan_hash": "a93442c7feb61831c57d955664a2b20444536efb2b14ad9baa1d91b4e37c5286",
+  "lesson_ir_hash": "dcada70e1be938242ad8c12ca5d1ceb337f993cd65c85f9e082dd908f9269893",
+  "visual_step_ir_hash": "a94aabc8e52db5289c532413e05dd78543e63261ca088562254c33b2799b398b",
+  "source_step_count": 13,
+  "lesson_step_count": 16,
+  "visual_frame_count": 16,
+  "source_steps": [
+    "i_derive_D",
+    "i_derive_parabola",
+    "ii_1_evaluate_minimum",
+    "ii_1_solve_m",
+    "ii_1_specialize_parabola",
+    "ii_2_evaluate_G",
+    "ii_2_solve_m",
+    "ii_2_specialize_parabola",
+    "ii_compute_F",
+    "ii_construct_N",
+    "ii_derive_parabola",
+    "ii_path_minimum__ii_1",
+    "ii_path_minimum__ii_2"
+  ],
+  "diagnostics": []
+}

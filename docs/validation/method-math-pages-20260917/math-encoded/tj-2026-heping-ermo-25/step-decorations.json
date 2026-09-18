@@ -1,0 +1,1934 @@
+{
+  "steps": {
+    "teach:derive_parabola_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_parabola_i:1",
+          "caption": "求解析式",
+          "teachingUnitKeys": [
+            "quadratic_from_constraints/derive_function"
+          ],
+          "domain": {
+            "minX": -3.72,
+            "maxX": 1.72,
+            "minY": -2.08,
+            "maxY": 6.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#2563eb",
+              "width": 2.4,
+              "type": "parabola"
+            }
+          ]
+        }
+      ]
+    },
+    "teach:derive_x_intercept_A_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_x_intercept_A_i:1",
+          "caption": "求 x 轴交点",
+          "teachingUnitKeys": [
+            "quadratic_x_axis_intercept_point/solve_intercept"
+          ],
+          "domain": {
+            "minX": -3.72,
+            "maxX": 1.72,
+            "minY": -2.08,
+            "maxY": 6.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_i",
+              "labelText": "A",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_A_i",
+              "text": "A(－3,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel"
+            },
+            {
+              "at": "point_B_i",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ]
+        }
+      ]
+    },
+    "teach:derive_vertex_P_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_vertex_P_i:1",
+          "caption": "求顶点",
+          "teachingUnitKeys": [
+            "quadratic_vertex_point/read_vertex"
+          ],
+          "domain": {
+            "minX": -3.72,
+            "maxX": 1.72,
+            "minY": -2.08,
+            "maxY": 6.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_i",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_i",
+              "text": "A(－3,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_B_i",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "M_axis_i",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 1.5,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_P_problem",
+              "labelText": "P",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_P_problem",
+              "text": "P(－1,4)",
+              "dx": 14,
+              "dy": -34,
+              "type": "coordinateLabel"
+            }
+          ]
+        }
+      ]
+    },
+    "teach:parameterize_axis_point_E_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:parameterize_axis_point_E_i:1",
+          "caption": "设参数点",
+          "teachingUnitKeys": [
+            "quadratic_axis_parameterized_point/parameterize_axis_point"
+          ],
+          "domain": {
+            "minX": -3.72,
+            "maxX": 1.72,
+            "minY": -5.44,
+            "maxY": 5.44
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_i",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_i",
+              "text": "A(－3,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_B_i",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "M_axis_i",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_P_problem",
+              "labelText": "P",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 1.5,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "E_axis_i_2",
+              "labelText": "E",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "E_axis_i_2",
+              "text": "E(－1,t)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel"
+            }
+          ],
+          "localValues": {
+            "t": 0.0
+          },
+          "pointOverrides": {
+            "E_axis_i_2": [
+              "-1",
+              "t"
+            ]
+          },
+          "curveOverrides": {
+            "curve_i_parabola": {
+              "parameter": "t"
+            }
+          }
+        }
+      ]
+    },
+    "teach:derive_square_vertex_G_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_square_vertex_G_i:1",
+          "caption": "正方形求顶点G",
+          "teachingUnitKeys": [
+            "square_adjacent_vertex_from_side/derive_adjacent_vertex"
+          ],
+          "domain": {
+            "minX": -8.8,
+            "maxX": 4.8,
+            "minY": -7.8,
+            "maxY": 5.8
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_i",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_i",
+              "text": "A(－3,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_B_i",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "M_axis_i",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_P_problem",
+              "labelText": "P",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 1.5,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "E_axis_i_2",
+              "labelText": "E",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "E_axis_i_2",
+              "text": "E(－1,t)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "vertices": [
+                "point_A_i",
+                "E_axis_i_2",
+                "M_axis_i"
+              ],
+              "fill": "rgba(245, 158, 11, 0.10)",
+              "color": "rgba(180, 83, 9, 0.42)",
+              "width": 1.0,
+              "dash": "4 4",
+              "type": "outlineRegion"
+            },
+            {
+              "from": "M_axis_i",
+              "to": "E_axis_i_2",
+              "color": "rgba(180, 83, 9, 0.42)",
+              "width": 1.2,
+              "dash": "4 5",
+              "type": "dashedLine"
+            },
+            {
+              "vertex": "M_axis_i",
+              "rayA": "point_A_i",
+              "rayB": "E_axis_i_2",
+              "size": 8,
+              "color": "rgba(180, 83, 9, 0.42)",
+              "type": "rightAngle"
+            },
+            {
+              "vertices": [
+                "point_A_i",
+                "G_axis_i_2",
+                "AG_proj_i_2"
+              ],
+              "fill": "rgba(245, 158, 11, 0.10)",
+              "color": "rgba(180, 83, 9, 0.42)",
+              "width": 1.0,
+              "dash": "4 4",
+              "type": "outlineRegion"
+            },
+            {
+              "from": "AG_proj_i_2",
+              "to": "G_axis_i_2",
+              "color": "rgba(180, 83, 9, 0.42)",
+              "width": 1.2,
+              "dash": "4 5",
+              "type": "dashedLine"
+            },
+            {
+              "at": "AG_proj_i_2",
+              "labelText": "Q",
+              "color": "#64748b",
+              "dx": 12,
+              "dy": -12,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "vertex": "AG_proj_i_2",
+              "rayA": "point_A_i",
+              "rayB": "G_axis_i_2",
+              "size": 8,
+              "color": "rgba(180, 83, 9, 0.42)",
+              "type": "rightAngle"
+            },
+            {
+              "vertices": [
+                "point_A_i",
+                "E_axis_i_2",
+                "K_axis_i_2",
+                "G_axis_i_2"
+              ],
+              "fill": "rgba(14, 165, 233, 0.12)",
+              "color": "#0284c7",
+              "width": 1.2,
+              "dash": "",
+              "type": "outlineRegion"
+            },
+            {
+              "from": "point_A_i",
+              "to": "E_axis_i_2",
+              "color": "#0f766e",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "E_axis_i_2",
+              "to": "K_axis_i_2",
+              "color": "#0f766e",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "K_axis_i_2",
+              "to": "G_axis_i_2",
+              "color": "#0f766e",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "G_axis_i_2",
+              "to": "point_A_i",
+              "color": "#0f766e",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "at": "K_axis_i_2",
+              "labelText": "K",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "G_axis_i_2",
+              "labelText": "G",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": 18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "G_axis_i_2",
+              "text": "G(t－3,－2)",
+              "dx": 14,
+              "dy": 34,
+              "type": "coordinateLabel"
+            },
+            {
+              "vertex": "point_A_i",
+              "rayA": "E_axis_i_2",
+              "rayB": "G_axis_i_2",
+              "size": 10,
+              "color": "#0f766e",
+              "type": "rightAngle"
+            },
+            {
+              "vertex": "E_axis_i_2",
+              "rayA": "point_A_i",
+              "rayB": "K_axis_i_2",
+              "size": 10,
+              "color": "#0f766e",
+              "type": "rightAngle"
+            },
+            {
+              "from": "M_axis_i",
+              "to": "point_A_i",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "AG_proj_i_2",
+              "to": "point_A_i",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "t": 0.0
+          },
+          "pointOverrides": {
+            "E_axis_i_2": [
+              "-1",
+              "t"
+            ],
+            "G_axis_i_2": [
+              "t-3",
+              "-2"
+            ],
+            "AG_proj_i_2": [
+              "t-3",
+              "0"
+            ],
+            "K_axis_i_2": [
+              "t-1",
+              "t-2"
+            ]
+          },
+          "curveOverrides": {
+            "curve_i_parabola": {
+              "parameter": "t"
+            }
+          }
+        }
+      ]
+    },
+    "teach:solve_axis_point_candidates_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:solve_axis_point_candidates_i:1",
+          "caption": "求点E候选",
+          "teachingUnitKeys": [
+            "point_candidates_from_curve_point_condition/solve_candidates"
+          ],
+          "domain": {
+            "minX": -8.9417,
+            "maxX": 5.7292,
+            "minY": -7.9417,
+            "maxY": 6.7292
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_i",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_i",
+              "text": "A(－3,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_B_i",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "M_axis_i",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_P_problem",
+              "labelText": "P",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 1.5,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "E_axis_i_2",
+              "labelText": "E",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "E_axis_i_2",
+              "text": "E(－1,t)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "vertices": [
+                "point_A_i",
+                "E_axis_i_2",
+                "K_axis_i_2",
+                "G_axis_i_2"
+              ],
+              "fill": "rgba(100, 116, 139, 0.08)",
+              "color": "#64748b",
+              "width": 1.2,
+              "dash": "",
+              "type": "outlineRegion",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_i",
+              "to": "E_axis_i_2",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "E_axis_i_2",
+              "to": "K_axis_i_2",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "K_axis_i_2",
+              "to": "G_axis_i_2",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "G_axis_i_2",
+              "to": "point_A_i",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "K_axis_i_2",
+              "labelText": "K",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "G_axis_i_2",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "G_axis_i_2",
+              "text": "G(t－3,－2)",
+              "dx": 14,
+              "dy": 34,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "E_axis_i_2_candidate_1",
+              "labelText": "E",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": 18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "E_axis_i_2_candidate_1",
+              "text": "E(－1,2＋√6)",
+              "dx": 14,
+              "dy": 34,
+              "type": "coordinateLabel"
+            },
+            {
+              "at": "E_axis_i_2_candidate_2",
+              "labelText": "E",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": 18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "E_axis_i_2_candidate_2",
+              "text": "E(－1,2－√6)",
+              "dx": 14,
+              "dy": 34,
+              "type": "coordinateLabel"
+            }
+          ],
+          "localValues": {
+            "t": 0.0
+          },
+          "pointOverrides": {
+            "E_axis_i_2": [
+              "-1",
+              "t"
+            ],
+            "K_axis_i_2": [
+              "t-1",
+              "t-2"
+            ],
+            "G_axis_i_2": [
+              "t-3",
+              "-2"
+            ]
+          },
+          "curveOverrides": {
+            "curve_i_parabola": {
+              "parameter": "t"
+            }
+          },
+          "parameterLandmarks": [
+            {
+              "parameter": "t",
+              "value": 4.449489742783178,
+              "exactValue": "2+sqrt(6)",
+              "display": "2+√6",
+              "epsilon": 0.025,
+              "candidateGeometryRefs": [
+                "E_axis_i_2_candidate_1"
+              ],
+              "highlightGeometryRefs": [
+                "E_axis_i_2",
+                "G_axis_i_2",
+                "K_axis_i_2",
+                "E_axis_i_2_candidate_1"
+              ]
+            },
+            {
+              "parameter": "t",
+              "value": -0.4494897427831781,
+              "exactValue": "2-sqrt(6)",
+              "display": "2-√6",
+              "epsilon": 0.025,
+              "candidateGeometryRefs": [
+                "E_axis_i_2_candidate_2"
+              ],
+              "highlightGeometryRefs": [
+                "E_axis_i_2",
+                "G_axis_i_2",
+                "K_axis_i_2",
+                "E_axis_i_2_candidate_2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "teach:derive_parametric_parabola_ii": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_parametric_parabola_ii:1",
+          "caption": "化简解析式",
+          "teachingUnitKeys": [
+            "quadratic_from_constraints/derive_function"
+          ],
+          "domain": {
+            "minX": -3.838,
+            "maxX": 1.738,
+            "minY": -1.9787,
+            "maxY": 6.1813
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#2563eb",
+              "width": 2.4,
+              "type": "parabola"
+            },
+            {
+              "at": "point_A_ii",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "c": 3.1
+          },
+          "pointOverrides": {
+            "point_A_ii": [
+              "-c",
+              "0"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "c"
+            }
+          }
+        }
+      ]
+    },
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/path_reduction": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_path_minimum_ii:quadratic_square_path_minimum/path_reduction:1",
+          "caption": "化简路径",
+          "teachingUnitKeys": [
+            "quadratic_square_path_minimum/path_reduction"
+          ],
+          "domain": {
+            "minX": -3.838,
+            "maxX": 1.738,
+            "minY": -3.1754,
+            "maxY": 5.3279
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_ii",
+              "labelText": "A",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "vertices": [
+                "point_A_ii",
+                "E_axis_ii",
+                "K_axis_ii",
+                "point_G_ii"
+              ],
+              "fill": "rgba(15, 118, 110, 0.055)",
+              "color": "rgba(15, 118, 110, 0.50)",
+              "width": 1.5,
+              "dash": "",
+              "type": "outlineRegion"
+            },
+            {
+              "vertices": [
+                "point_A_ii",
+                "M_axis_ii",
+                "E_axis_ii"
+              ],
+              "fill": "rgba(14, 165, 233, 0.12)",
+              "color": "rgba(2, 132, 199, 0.40)",
+              "width": 1.2,
+              "dash": "",
+              "type": "outlineRegion"
+            },
+            {
+              "vertices": [
+                "point_A_ii",
+                "E_axis_ii",
+                "point_G_ii"
+              ],
+              "fill": "rgba(180, 83, 9, 0.10)",
+              "color": "rgba(180, 83, 9, 0.42)",
+              "width": 1.2,
+              "dash": "",
+              "type": "outlineRegion"
+            },
+            {
+              "from": "point_H_ii",
+              "to": "point_F_ii",
+              "color": "#7c3aed",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "point_F_ii",
+              "to": "M_axis_ii",
+              "color": "#7c3aed",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "M_axis_ii",
+              "to": "point_G_ii",
+              "color": "#dc2626",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "point_A_ii",
+              "to": "point_G_ii",
+              "color": "#b45309",
+              "width": 2.4,
+              "type": "coloredLine"
+            },
+            {
+              "vertex": "M_axis_ii",
+              "rayA": "point_A_ii",
+              "rayB": "E_axis_ii",
+              "size": 10,
+              "color": "#0f766e",
+              "type": "rightAngle"
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_H_ii",
+              "labelText": "H",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "E_axis_ii",
+              "labelText": "E",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "K_axis_ii",
+              "labelText": "K",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": 18,
+              "type": "point"
+            },
+            {
+              "at": "M_axis_ii",
+              "labelText": "M",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 1.5,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "from": "M_axis_ii",
+              "to": "point_A_ii",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "M_axis_ii",
+              "to": "E_axis_ii",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "c": 3.1,
+            "u": 0.35
+          },
+          "pointOverrides": {
+            "point_A_ii": [
+              "-c",
+              "0"
+            ],
+            "E_axis_ii": [
+              "1/2-c/2",
+              "u*(c+1)/2"
+            ],
+            "K_axis_ii": [
+              "-c/2+u*(c+1)/2+1/2",
+              "-c/2+u*(c+1)/2-1/2"
+            ],
+            "point_G_ii": [
+              "-c+u*(c+1)/2",
+              "-c/2-1/2"
+            ],
+            "M_axis_ii": [
+              "1/2-c/2",
+              "0"
+            ],
+            "point_H_ii": [
+              "-3*c/4+u*(c+1)/4+1/4",
+              "-c/4+u*(c+1)/4-1/4"
+            ],
+            "point_F_ii": [
+              "1/4-3*c/4",
+              "u*(c+1)/4"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "u"
+            }
+          }
+        }
+      ]
+    },
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/reflection_minimum": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_path_minimum_ii:quadratic_square_path_minimum/reflection_minimum:1",
+          "caption": "轨迹与反射",
+          "teachingUnitKeys": [
+            "quadratic_square_path_minimum/reflection_minimum"
+          ],
+          "domain": {
+            "minX": -3.838,
+            "maxX": 1.738,
+            "minY": -5.5944,
+            "maxY": 5.697
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_ii",
+              "labelText": "A",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "from": "M_axis_ii",
+              "to": "point_G_ii",
+              "color": "#7c3aed",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "point_A_ii",
+              "to": "point_G_ii",
+              "color": "#7c3aed",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "from": "G_locus_ii_start",
+              "to": "G_locus_ii_end",
+              "color": "#0f766e",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine"
+            },
+            {
+              "vertices": [
+                "M_axis_ii",
+                "point_A_prime_ii",
+                "point_G_ii"
+              ],
+              "fill": "rgba(180, 83, 9, 0.10)",
+              "color": "#b45309",
+              "width": 1.0,
+              "type": "outlineRegion"
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "point_G_ii",
+              "color": "#b45309",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine"
+            },
+            {
+              "type": "segment",
+              "from": "point_A_prime_ii",
+              "to": "point_G_ii",
+              "label": "AG=A′G",
+              "color": "#b45309",
+              "width": 2.2,
+              "offsetPx": -18
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "M_axis_ii",
+              "color": "#b45309",
+              "width": 2.8,
+              "type": "coloredLine"
+            },
+            {
+              "type": "segment",
+              "from": "point_A_prime_ii",
+              "to": "M_axis_ii",
+              "label": "A′M",
+              "color": "#b45309",
+              "width": 2.8,
+              "offsetPx": 16
+            },
+            {
+              "at": "point_A_prime_ii",
+              "labelText": "A′",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": 18,
+              "type": "point"
+            },
+            {
+              "at": "M_axis_ii",
+              "labelText": "M",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 1.5,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "c": 3.1,
+            "u": 0.35
+          },
+          "pointOverrides": {
+            "point_A_ii": [
+              "-c",
+              "0"
+            ],
+            "M_axis_ii": [
+              "1/2-c/2",
+              "0"
+            ],
+            "point_G_ii": [
+              "-c+u*(c+1)/2",
+              "-c/2-1/2"
+            ],
+            "G_locus_ii_start": [
+              "-3*c/4-15/4",
+              "-c/2-1/2"
+            ],
+            "G_locus_ii_end": [
+              "17/4-3*c/4",
+              "-c/2-1/2"
+            ],
+            "point_A_prime_ii": [
+              "-c",
+              "-c-1"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "u"
+            }
+          }
+        }
+      ]
+    },
+    "teach:solve_parameter_c_ii": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:solve_parameter_c_ii:1",
+          "caption": "反求参数",
+          "teachingUnitKeys": [
+            "parameter_from_expression_value/solve_parameter"
+          ],
+          "domain": {
+            "minX": -6.22,
+            "maxX": -0.78,
+            "minY": -7.08,
+            "maxY": 1.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_ii",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "M_axis_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "G_locus_ii_start",
+              "to": "G_locus_ii_end",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "M_axis_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_prime_ii",
+              "labelText": "A′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "M_axis_ii",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "c": 5.0
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "c"
+            }
+          }
+        }
+      ]
+    },
+    "teach:evaluate_point_A_ii": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:evaluate_point_A_ii:1",
+          "caption": "代入求点",
+          "teachingUnitKeys": [
+            "evaluate_point_at_parameter/substitute_point_parameter"
+          ],
+          "domain": {
+            "minX": -6.08,
+            "maxX": 2.08,
+            "minY": -8.7,
+            "maxY": 11.7
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_ii",
+              "labelText": "A",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "from": "M_axis_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "G_locus_ii_start",
+              "to": "G_locus_ii_end",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "M_axis_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_prime_ii",
+              "labelText": "A′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "M_axis_ii",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_ii",
+              "text": "A(－5,0)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel"
+            }
+          ],
+          "localValues": {
+            "c": 5.0
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "c"
+            }
+          }
+        }
+      ]
+    },
+    "teach:evaluate_minimum_point_G_ii": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:evaluate_minimum_point_G_ii:1",
+          "caption": "代入求点",
+          "teachingUnitKeys": [
+            "evaluate_point_at_parameter/substitute_point_parameter"
+          ],
+          "domain": {
+            "minX": -6.22,
+            "maxX": -0.78,
+            "minY": -7.08,
+            "maxY": 1.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_ii",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "M_axis_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "from": "G_locus_ii_start",
+              "to": "G_locus_ii_end",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "M_axis_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_prime_ii",
+              "labelText": "A′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "M_axis_ii",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_ii",
+              "text": "A(－5,0)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_G_ii",
+              "text": "G(－7/2,－3)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel"
+            }
+          ],
+          "localValues": {
+            "c": 5.0
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "c"
+            }
+          }
+        }
+      ]
+    },
+    "teach:recover_target_point_E_ii": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:recover_target_point_E_ii:1",
+          "caption": "正方形求顶点E",
+          "teachingUnitKeys": [
+            "square_adjacent_vertex_from_side/derive_adjacent_vertex"
+          ],
+          "domain": {
+            "minX": -6.08,
+            "maxX": 2.08,
+            "minY": -8.7,
+            "maxY": 11.7
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_ii",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "M_axis_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_G_ii",
+              "to": "point_A_ii",
+              "color": "#0f766e",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "G_locus_ii_start",
+              "to": "G_locus_ii_end",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_A_prime_ii",
+              "to": "M_axis_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_prime_ii",
+              "labelText": "A′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "M_axis_ii",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_ii",
+              "text": "A(－5,0)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_G_ii",
+              "text": "G(－7/2,－3)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 1.5,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "vertices": [
+                "point_A_ii",
+                "point_G_ii",
+                "AG_proj_ii"
+              ],
+              "fill": "rgba(245, 158, 11, 0.10)",
+              "color": "rgba(180, 83, 9, 0.42)",
+              "width": 1.0,
+              "dash": "4 4",
+              "type": "outlineRegion"
+            },
+            {
+              "from": "AG_proj_ii",
+              "to": "point_G_ii",
+              "color": "rgba(180, 83, 9, 0.42)",
+              "width": 1.2,
+              "dash": "4 5",
+              "type": "dashedLine"
+            },
+            {
+              "at": "AG_proj_ii",
+              "labelText": "Q",
+              "color": "#64748b",
+              "dx": 12,
+              "dy": -12,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "vertex": "AG_proj_ii",
+              "rayA": "point_A_ii",
+              "rayB": "point_G_ii",
+              "size": 8,
+              "color": "rgba(180, 83, 9, 0.42)",
+              "type": "rightAngle"
+            },
+            {
+              "vertices": [
+                "point_A_ii",
+                "point_E_ii",
+                "K_axis_ii",
+                "point_G_ii"
+              ],
+              "fill": "rgba(14, 165, 233, 0.12)",
+              "color": "#0284c7",
+              "width": 1.2,
+              "dash": "",
+              "type": "outlineRegion"
+            },
+            {
+              "from": "point_A_ii",
+              "to": "point_E_ii",
+              "color": "#0f766e",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "point_E_ii",
+              "to": "K_axis_ii",
+              "color": "#0f766e",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "K_axis_ii",
+              "to": "point_G_ii",
+              "color": "#0f766e",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "at": "point_E_ii",
+              "labelText": "E",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": 18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_E_ii",
+              "text": "E(－2,3/2)",
+              "dx": 14,
+              "dy": 34,
+              "type": "coordinateLabel"
+            },
+            {
+              "at": "K_axis_ii",
+              "labelText": "K",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "vertex": "point_A_ii",
+              "rayA": "point_E_ii",
+              "rayB": "point_G_ii",
+              "size": 10,
+              "color": "#0f766e",
+              "type": "rightAngle"
+            },
+            {
+              "vertex": "point_E_ii",
+              "rayA": "point_A_ii",
+              "rayB": "K_axis_ii",
+              "size": 10,
+              "color": "#0f766e",
+              "type": "rightAngle"
+            },
+            {
+              "from": "AG_proj_ii",
+              "to": "point_A_ii",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "c": 5.0
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "c"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

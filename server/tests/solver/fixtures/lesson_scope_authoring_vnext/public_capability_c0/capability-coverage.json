@@ -3976,7 +3976,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+              "role": "读取此前 Method 产生的二次函数表达式状态（latest state）。参数名必须是 quadratic。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数；输出坐标至多保留一个独立参数。题面 Function 模板不能直接充当该输入。"
             }
           ],
           "returns": [
@@ -4004,7 +4004,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+              "role": "读取此前 Method 产生的二次函数表达式状态（latest state）。参数名必须是 quadratic。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数；输出坐标至多保留一个独立参数。题面 Function 模板不能直接充当该输入。"
             }
           ],
           "returns": [
@@ -4032,7 +4032,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+              "role": "读取此前 Method 产生的二次函数表达式状态（latest state）。参数名必须是 quadratic。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数；输出坐标至多保留一个独立参数。题面 Function 模板不能直接充当该输入。"
             }
           ],
           "returns": [
@@ -4060,7 +4060,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+              "role": "读取此前 Method 产生的二次函数表达式状态（latest state）。参数名必须是 quadratic。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数；输出坐标至多保留一个独立参数。题面 Function 模板不能直接充当该输入。"
             }
           ],
           "returns": [

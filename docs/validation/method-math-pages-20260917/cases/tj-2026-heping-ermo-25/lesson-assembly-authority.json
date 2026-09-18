@@ -1,0 +1,222 @@
+{
+  "schema_version": "lesson-assembly-authority/v1",
+  "snapshot_hash": "08423ea79650823f75eb21213490dbe46882b4b8623363d5c32e2c8a0be0684a",
+  "annotated_plan_hash": "af480eb61e22d46cfe0a19c49fefeab42ea738cd59652482aa40ca7e70c1ea71",
+  "lesson_ir_hash": "eac0fbd36eada33d049b3f22b4b017159f5fccf81ff150419533c9cb993f8546",
+  "lesson_steps": {
+    "teach:derive_parabola_i": {
+      "container_ref": "scope:i",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "derive_parabola_i"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints"
+      ],
+      "unit_keys": [
+        "quadratic_from_constraints/derive_function"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_x_intercept_A_i": {
+      "container_ref": "scope:i",
+      "material_positions": [
+        1
+      ],
+      "source_step_ids": [
+        "derive_x_intercept_A_i"
+      ],
+      "capability_ids": [
+        "quadratic_x_axis_intercept_point"
+      ],
+      "unit_keys": [
+        "quadratic_x_axis_intercept_point/solve_intercept"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_vertex_P_i": {
+      "container_ref": "goal:i_1.P",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "derive_vertex_P_i"
+      ],
+      "capability_ids": [
+        "quadratic_vertex_point"
+      ],
+      "unit_keys": [
+        "quadratic_vertex_point/read_vertex"
+      ],
+      "evidence_refs": []
+    },
+    "teach:parameterize_axis_point_E_i": {
+      "container_ref": "goal:i_2.E",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "parameterize_axis_point_E_i"
+      ],
+      "capability_ids": [
+        "quadratic_axis_parameterized_point"
+      ],
+      "unit_keys": [
+        "quadratic_axis_parameterized_point/parameterize_axis_point"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_square_vertex_G_i": {
+      "container_ref": "goal:i_2.E",
+      "material_positions": [
+        1
+      ],
+      "source_step_ids": [
+        "derive_square_vertex_G_i"
+      ],
+      "capability_ids": [
+        "square_adjacent_vertex_from_side"
+      ],
+      "unit_keys": [
+        "square_adjacent_vertex_from_side/derive_adjacent_vertex"
+      ],
+      "evidence_refs": []
+    },
+    "teach:solve_axis_point_candidates_i": {
+      "container_ref": "goal:i_2.E",
+      "material_positions": [
+        2
+      ],
+      "source_step_ids": [
+        "solve_axis_point_candidates_i"
+      ],
+      "capability_ids": [
+        "point_candidates_from_curve_point_condition"
+      ],
+      "unit_keys": [
+        "point_candidates_from_curve_point_condition/solve_candidates"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_parametric_parabola_ii": {
+      "container_ref": "goal:ii.E",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "derive_parametric_parabola_ii"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints"
+      ],
+      "unit_keys": [
+        "quadratic_from_constraints/derive_function"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/path_reduction": {
+      "container_ref": "goal:ii.E",
+      "material_positions": [
+        1
+      ],
+      "source_step_ids": [
+        "derive_path_minimum_ii"
+      ],
+      "capability_ids": [
+        "quadratic_square_path_minimum"
+      ],
+      "unit_keys": [
+        "quadratic_square_path_minimum/path_reduction"
+      ],
+      "evidence_refs": [
+        "path-minimum:4b0220e75b642be74eee2a9244ab5c3ca2b5f6ccd666f7233b920cf3fff027e2"
+      ]
+    },
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/reflection_minimum": {
+      "container_ref": "goal:ii.E",
+      "material_positions": [
+        2
+      ],
+      "source_step_ids": [
+        "derive_path_minimum_ii"
+      ],
+      "capability_ids": [
+        "quadratic_square_path_minimum"
+      ],
+      "unit_keys": [
+        "quadratic_square_path_minimum/reflection_minimum"
+      ],
+      "evidence_refs": [
+        "path-minimum:4b0220e75b642be74eee2a9244ab5c3ca2b5f6ccd666f7233b920cf3fff027e2"
+      ]
+    },
+    "teach:solve_parameter_c_ii": {
+      "container_ref": "goal:ii.E",
+      "material_positions": [
+        3
+      ],
+      "source_step_ids": [
+        "solve_parameter_c_ii"
+      ],
+      "capability_ids": [
+        "parameter_from_expression_value"
+      ],
+      "unit_keys": [
+        "parameter_from_expression_value/solve_parameter"
+      ],
+      "evidence_refs": [
+        "symbolic-closure:778942663f8a50d704390a3c46eb02f605db8810f58010c2694d3fe7c77fa123"
+      ]
+    },
+    "teach:evaluate_point_A_ii": {
+      "container_ref": "goal:ii.E",
+      "material_positions": [
+        4
+      ],
+      "source_step_ids": [
+        "evaluate_point_A_ii"
+      ],
+      "capability_ids": [
+        "evaluate_point_at_parameter"
+      ],
+      "unit_keys": [
+        "evaluate_point_at_parameter/substitute_point_parameter"
+      ],
+      "evidence_refs": []
+    },
+    "teach:evaluate_minimum_point_G_ii": {
+      "container_ref": "goal:ii.E",
+      "material_positions": [
+        5
+      ],
+      "source_step_ids": [
+        "evaluate_minimum_point_G_ii"
+      ],
+      "capability_ids": [
+        "evaluate_point_at_parameter"
+      ],
+      "unit_keys": [
+        "evaluate_point_at_parameter/substitute_point_parameter"
+      ],
+      "evidence_refs": []
+    },
+    "teach:recover_target_point_E_ii": {
+      "container_ref": "goal:ii.E",
+      "material_positions": [
+        6
+      ],
+      "source_step_ids": [
+        "recover_target_point_E_ii"
+      ],
+      "capability_ids": [
+        "square_adjacent_vertex_from_side"
+      ],
+      "unit_keys": [
+        "square_adjacent_vertex_from_side/derive_adjacent_vertex"
+      ],
+      "evidence_refs": []
+    }
+  }
+}

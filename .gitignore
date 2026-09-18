@@ -26,6 +26,30 @@ docs/validation/**/evidence.tar.gz
 # Frozen source/template copies stay with local evidence; reports remain reviewable.
 docs/validation/**/frozen-files/
 
+# Historical validation output directories. Existing tracked summaries stay in Git.
+/docs/validation/math-notation-p2-fixes-20260917/
+/docs/validation/math-notation-product-stage-one-20260917/
+/docs/validation/math-notation-review-prompt-20260917/
+/docs/validation/math-notation-review-repair-20260916-222053/
+/docs/validation/math-notation-review-three-20260917-083103/
+/docs/validation/math-notation-review-two-20260917-065500/
+/docs/validation/math-notation-state-facts-seven-20260917-094219/
+/docs/validation/math-object-tree-comparison-20260917/
+/docs/validation/math-object-tree-state-facts-20260917/
+
+# Local Planner drafts and their generated review artifacts.
+/docs/math-planner-simplification-stages.md
+/docs/planner-compact-input-five-case-review.md
+/docs/validation/planner-compact-input-five-case-20260917/
+
+# Method-math live recheck dumps (full provider transcripts). Keep top-level
+# README/live-report/hexi reviews; evidence lives under ignored solver-runs.
+/docs/validation/method-math-arguments-20260917/*-rerun*/
+/docs/validation/method-math-arguments-20260917/*-network*/
+/docs/validation/method-math-arguments-20260917/heping-optimization-rerun-*/
+/docs/validation/method-math-arguments-20260917/**/offline-probes/
+/docs/validation/method-math-arguments-20260917/**/__pycache__/
+
 # Local Manim video experiments and rendered deliverables
 videos/basic-inequality-proof/
 site/assets/xiaohongshu/basic-inequality-why-carousel/basic-inequality-proof.mp4

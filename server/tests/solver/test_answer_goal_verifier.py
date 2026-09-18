@@ -8,6 +8,7 @@ from shuxueshuo_server.solver import load_problem_ir
 from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
     AnswerGoalVerifier,
     FunctionalGoalVerificationContext,
+    _unreachable_goal_issue,
     _state_write_lineage,
     _typed_runtime_symbol_object_ids,
 )
@@ -32,6 +33,26 @@ from shuxueshuo_server.solver.runtime.strategy_models import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 NANKAI_FIXTURE = REPO_ROOT / "internal/solver-fixtures/tj-2026-nankai-yimo-25.json"
+
+
+def test_unreachable_answer_goal_routes_to_registered_scope() -> None:
+    registry = CanonicalHandleRegistry(
+        scope_ids=frozenset({"i_2"}),
+        entity_handles=frozenset(),
+        fact_handles=frozenset(),
+        answer_handles=frozenset({"answer:i_2.E"}),
+    )
+
+    issue = _unreachable_goal_issue(
+        "answer:i_2.E",
+        handle_registry=registry,
+    )
+
+    assert issue.code == "functional.required_goal_unbound"
+    assert issue.scope_id == "i_2"
+    assert issue.repair_target == "answer:i_2.E"
+
+
 def test_typed_goal_lineage_uses_answer_consumer_scope() -> None:
     problem = load_problem_ir(NANKAI_FIXTURE)
     registry = CanonicalHandleRegistry.from_problem_payload(

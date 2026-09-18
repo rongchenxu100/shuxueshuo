@@ -1,0 +1,126 @@
+{
+  "schema_version": "explanation-snapshot/v3",
+  "problem_id": "synthetic-distance_between_points",
+  "family_id": "lesson_capability_synthetic",
+  "problem_revision": "synthetic:distance_between_points:v1",
+  "problem_semantic_hash": "7ab31b6672d262ca4dba00244348a5b7df28d38704cefd5cce6b4fb033ca60bb",
+  "canonical_plan_hash": "ee4f83a5a7b1605217a546b38b53b4b137fd736e747714cb1a84b672d24ae8b3",
+  "verified_execution_hash": "46e45fed5ef848bf35dd3a3d8bc12b0647a32474e9dee15497bc4c5fe1330da4",
+  "problem": {
+    "original_text": [
+      "已知 A(0,0)，B(3,4)，求线段 AB 的长度。"
+    ],
+    "scopes": [
+      {
+        "scope_id": "problem",
+        "label": "合成验收"
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:problem.distance",
+        "scope_id": "problem",
+        "answer_key": "distance",
+        "value_type": "MinimumExpression"
+      }
+    ],
+    "entities": [
+      {
+        "handle": "point:problem:A",
+        "entity_type": "point",
+        "name": "A",
+        "scope_id": "problem",
+        "coordinate": [
+          "0",
+          "0"
+        ],
+        "definition": "given_point"
+      },
+      {
+        "handle": "point:problem:B",
+        "entity_type": "point",
+        "name": "B",
+        "scope_id": "problem",
+        "coordinate": [
+          "3",
+          "4"
+        ],
+        "definition": "given_point"
+      }
+    ],
+    "facts": []
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {
+      "problem.distance": {
+        "steps": [
+          {
+            "step_id": "synthetic_distance_between_points",
+            "capability_id": "distance_between_points",
+            "intent": "用两点距离公式求线段 AB 的长度。",
+            "inputs": {
+              "p1": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:A"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "0",
+                    "0"
+                  ],
+                  "display": "A(0,0)"
+                }
+              ],
+              "p2": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:B"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "3",
+                    "4"
+                  ],
+                  "display": "B(3,4)"
+                }
+              ]
+            },
+            "output_targets": {},
+            "outputs": {
+              "distance": {
+                "runtime_type": "MinimumExpression",
+                "value": "5",
+                "display": "5"
+              }
+            },
+            "calculations": [],
+            "checks": [
+              {
+                "check_id": "distance_is_nonzero",
+                "kind": "runtime_method_check",
+                "passed": true,
+                "detail": "距离表达式非零"
+              }
+            ]
+          }
+        ],
+        "answer_from": {
+          "step_id": "synthetic_distance_between_points",
+          "return": "distance"
+        }
+      }
+    },
+    "children": []
+  },
+  "evidence": {},
+  "answers": {
+    "problem": {
+      "distance": "5"
+    }
+  }
+}

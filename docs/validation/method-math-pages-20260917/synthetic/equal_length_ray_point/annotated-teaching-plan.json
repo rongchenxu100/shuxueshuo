@@ -1,0 +1,99 @@
+{
+  "problem": {
+    "original_text": [
+      "在射线 AC 上作点 D，使 AD=AB。"
+    ],
+    "scope_labels": {
+      "problem": "合成验收"
+    }
+  },
+  "answers": {
+    "problem.D": {
+      "type": "Point",
+      "value": [
+        "3",
+        "0"
+      ],
+      "display": "D(3,0)"
+    }
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": {
+      "problem.D": [
+        {
+          "inputs": {
+            "anchor": [
+              {
+                "type": "Point",
+                "value": [
+                  "0",
+                  "0"
+                ],
+                "display": "A(0,0)"
+              }
+            ],
+            "reference_point": [
+              {
+                "type": "Point",
+                "value": [
+                  "0",
+                  "3"
+                ],
+                "display": "B(0,3)"
+              }
+            ],
+            "ray_point": [
+              {
+                "type": "Point",
+                "value": [
+                  "2",
+                  "0"
+                ],
+                "display": "C(2,0)"
+              }
+            ],
+            "target": [
+              {
+                "type": "PointRef",
+                "value": {
+                  "entity_type": "point",
+                  "name": "D",
+                  "description": "D"
+                },
+                "display": "D"
+              }
+            ]
+          },
+          "outputs": {
+            "point": {
+              "type": "Point",
+              "value": [
+                "3",
+                "0"
+              ],
+              "display": "D(3,0)"
+            }
+          },
+          "materials": [
+            {
+              "step_ref": "s1",
+              "title": "在射线上作等长点",
+              "nav_title": "作等长点",
+              "goal": "沿指定射线构造一点，使所得线段与参考线段等长。",
+              "derive": [
+                "∵ 射线 AC 由 A(0,0)、C(2,0) 确定",
+                "计算 参考线段 AB＝3",
+                "作 在射线 AC 上截取 AD＝AB",
+                "∴ D(3,0)"
+              ],
+              "conclusions": [
+                "D(3,0)"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,603 @@
+{
+  "meta": {
+    "id": "tj-2026-hexi-yimo-25",
+    "outputPath": "/Users/haorong/projects/code/shuxueshuo/docs/validation/method-math-pages-20260917/math-encoded/tj-2026-hexi-yimo-25/lesson.html",
+    "pageTitle": "tj-2026-hexi-yimo-25（二次函数综合）",
+    "pageDescription": "本题二次函数综合：角度条件。",
+    "breadcrumbTitle": "tj-2026-hexi-yimo-25",
+    "defaultT": 0.75,
+    "classification": {
+      "pattern": "weighted-path-minimum",
+      "methods": [
+        "curve_candidate_parameter_solve",
+        "parameter_from_expression_value",
+        "point_on_parabola_at_x",
+        "quadratic_from_constraints",
+        "quadratic_vertex_point",
+        "quadratic_y_axis_intercept_point",
+        "right_angle_equal_length_candidates",
+        "weighted_axis_path_minimum"
+      ]
+    }
+  },
+  "problem": {
+    "summary": "本题二次函数综合：角度条件。",
+    "lines": [
+      {
+        "text": "Γ: y = a*x^2 - b*x + c"
+      },
+      {
+        "text": "b > 0"
+      },
+      {
+        "text": "a = 1"
+      },
+      {
+        "text": "b = 2"
+      },
+      {
+        "text": "c = 3"
+      },
+      {
+        "text": "P = vertex(Γ)"
+      },
+      {
+        "text": "a = 2"
+      },
+      {
+        "text": "A = (-1,0)"
+      },
+      {
+        "text": "A ∈ Γ"
+      },
+      {
+        "text": "D ∈ Γ"
+      },
+      {
+        "text": "Γ ∩ y_axis = {C}"
+      },
+      {
+        "text": "∠CAD = 90°"
+      },
+      {
+        "text": "AC = AD"
+      },
+      {
+        "text": "a = 1"
+      },
+      {
+        "text": "A = (-1,0)"
+      },
+      {
+        "text": "A ∈ Γ"
+      },
+      {
+        "text": "M = (b + 1/2, y_M)"
+      },
+      {
+        "text": "M ∈ Γ"
+      },
+      {
+        "text": "N = (n,0)",
+        "answerId": "answer_i_P",
+        "answer": "P(1, 2)"
+      },
+      {
+        "text": "n > 0",
+        "answerId": "answer_ii_D",
+        "answer": "D(√2, 1)"
+      },
+      {
+        "text": "min(sqrt(2)*MN + AN) = 21/4",
+        "answerId": "answer_iii_b",
+        "answer": "b＝2"
+      }
+    ]
+  },
+  "ui": {
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "b=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "i": "第（Ⅰ）问：求解析式",
+      "ii": "第（Ⅱ）问：化简解析式",
+      "iii": "第（Ⅲ）问：化简解析式",
+      "第（Ⅰ）问：求解析式": "第（Ⅰ）问：求解析式",
+      "第（Ⅱ）问：化简解析式": "第（Ⅱ）问：化简解析式",
+      "第（Ⅲ）问：化简解析式": "第（Ⅲ）问：化简解析式"
+    },
+    "defaultT": 0.75
+  },
+  "steps": [
+    {
+      "id": "teach:derive_parabola_i",
+      "section": "第（Ⅰ）问：求解析式",
+      "title": "第1步：求函数解析式",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "已知系数条件为 a＝1，b＝2，c＝3"
+        ],
+        [
+          "计算",
+          "代入 y＝ax²－bx＋c，得 y＝x²－2x＋3"
+        ],
+        [
+          "∴",
+          "y＝x²－2x＋3＝(x－1)²＋2"
+        ]
+      ],
+      "box": [
+        "y＝x²－2x＋3"
+      ]
+    },
+    {
+      "id": "teach:derive_vertex_i",
+      "section": "第（Ⅰ）问：求解析式",
+      "title": "第2步：求二次函数顶点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "抛物线为 y＝x²－2x＋3"
+        ],
+        [
+          "计算",
+          "配方，得 y＝(x－1)²＋2"
+        ],
+        [
+          "∴",
+          "顶点为 P(1,2)"
+        ]
+      ],
+      "box": [
+        "P(1,2)"
+      ]
+    },
+    {
+      "id": "teach:derive_parametric_parabola_ii",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第1步：化简函数解析式",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "题设还给出 a＝2"
+        ],
+        [
+          "∵",
+          "A(－1,0) 在 y＝ax²－bx＋c 上"
+        ],
+        [
+          "∴",
+          "代入 A 点坐标，得 0＝2＋b＋c＝b＋c＋2"
+        ],
+        [
+          "∵",
+          "b＞0"
+        ],
+        [
+          "计算",
+          "化简上述方程，得 a＝2，c＝－b－2"
+        ],
+        [
+          "∴",
+          "y＝2x²－bx－b－2"
+        ]
+      ],
+      "box": [
+        "y＝2x²－bx－b－2"
+      ]
+    },
+    {
+      "id": "teach:derive_y_intercept_ii",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第2步：求抛物线与 y 轴交点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "y 轴上的点满足 x＝0"
+        ],
+        [
+          "计算",
+          "代入 x＝0，得 y＝2(0)²－b(0)－b－2＝－b－2"
+        ],
+        [
+          "∴",
+          "C(0,－b－2)"
+        ]
+      ],
+      "box": [
+        "C(0,－b－2)"
+      ]
+    },
+    {
+      "id": "teach:derive_right_angle_candidates_ii",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第3步：由直角等腰关系构造候选点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "以 A 为直角顶点，且 AD＝AC、∠DAC＝90°"
+        ],
+        [
+          "∵",
+          "A(－1,0)，C(0,－b－2)，从 A 到 C 横向变化 1、纵向变化 －b－2"
+        ],
+        [
+          "设",
+          "将 AC 绕 A 顺、逆时针旋转 90°，所得端点分别为 D₁、D₂"
+        ],
+        [
+          "∴",
+          "旋转后横、纵坐标差互换，并改变其中一个方向，所以 D 的两个候选位置为 D₁(－b－3,－1)，D₂(b＋1,1)"
+        ]
+      ],
+      "box": [
+        "D₁(－b－3,－1)，D₂(b＋1,1)"
+      ]
+    },
+    {
+      "id": "teach:select_curve_candidate_ii:curve_candidate_parameter_solve/filter_candidates",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第4步：代入抛物线筛选D并求参数",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "D 在抛物线 y＝2x²－bx－b－2 上"
+        ],
+        [
+          "∵",
+          "将 D₁(－b－3,－1) 代入，得b(3b＋14)＝－17"
+        ],
+        [
+          "∴",
+          "结合b＞0，排除D₁"
+        ],
+        [
+          "∵",
+          "将 D₂(b＋1,1) 代入，得b(b＋2)＝1"
+        ],
+        [
+          "∴",
+          "结合b＞0，保留D₂"
+        ],
+        [
+          "∴",
+          "D＝D₂，即D(b＋1,1)"
+        ],
+        [
+          "∵",
+          "b(b＋2)＝1，b＞0"
+        ],
+        [
+          "∴",
+          "b＝√2－1"
+        ]
+      ],
+      "box": [
+        "b＝√2－1"
+      ]
+    },
+    {
+      "id": "teach:select_curve_candidate_ii:curve_candidate_parameter_solve/solve_parameter_and_curve",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第5步：回代参数确定D的坐标",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "b＝√2－1，D₂(b＋1,1)"
+        ],
+        [
+          "∴",
+          "D(√2,1)"
+        ]
+      ],
+      "box": [
+        "D(√2,1)"
+      ]
+    },
+    {
+      "id": "teach:derive_parametric_parabola_iii",
+      "section": "第（Ⅲ）问：化简解析式",
+      "title": "第1步：化简函数解析式",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "题设还给出 a＝1"
+        ],
+        [
+          "∵",
+          "A(－1,0) 在 y＝ax²－bx＋c 上"
+        ],
+        [
+          "∴",
+          "代入 A 点坐标，得 0＝1＋b＋c＝b＋c＋1"
+        ],
+        [
+          "∵",
+          "b＞0"
+        ],
+        [
+          "计算",
+          "化简上述方程，得 a＝1，c＝－b－1"
+        ],
+        [
+          "∴",
+          "y＝x²－bx－b－1"
+        ]
+      ],
+      "box": [
+        "y＝x²－bx－b－1"
+      ]
+    },
+    {
+      "id": "teach:derive_curve_point_iii",
+      "section": "第（Ⅲ）问：化简解析式",
+      "title": "第2步：由横坐标求抛物线上点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "M 在 y＝x²－bx－b－1 上，且 x＝b＋1/2"
+        ],
+        [
+          "计算",
+          "代入横坐标，y＝(b＋1/2)²－b(b＋1/2)－b－1＝－b/2－3/4"
+        ],
+        [
+          "∴",
+          "M(b＋1/2,－b/2－3/4)"
+        ]
+      ],
+      "box": [
+        "M(b＋1/2,－b/2－3/4)"
+      ]
+    },
+    {
+      "id": "teach:derive_weighted_minimum_iii:weighted_axis_path_minimum/weighted_reduction",
+      "section": "第（Ⅲ）问：化简解析式",
+      "title": "第3步：构造辅助直角三角形消去路径权重",
+      "t": 0.75,
+      "derive": [
+        [
+          "作",
+          "在 x 轴上方作等腰直角三角形 AQN，使 AQ＝QN，∠AQN＝90°"
+        ],
+        [
+          "∵",
+          "AN 是 Rt△AQN 的斜边"
+        ],
+        [
+          "∴",
+          "AN＝√2·QN"
+        ],
+        [
+          "∴",
+          "√2MN＋AN＝√2MN＋√2QN"
+        ],
+        [
+          "∴",
+          "√2MN＋AN＝√2(MN＋QN)"
+        ],
+        [
+          "∵",
+          "N 在 x 轴上运动"
+        ],
+        [
+          "∴",
+          "Q 在过 A 且经过 y 轴正半轴点 (0,1) 的 45° 固定射线 y＝x＋1 上运动"
+        ]
+      ],
+      "box": [
+        "√2MN＋AN＝√2(MN＋QN)"
+      ],
+      "localControls": {
+        "values": {
+          "n": 0.959065
+        },
+        "controls": [
+          {
+            "var": "n",
+            "label": "动点 N",
+            "min": 0.03165,
+            "max": 1.88648,
+            "step": 0.03165,
+            "scale": 1,
+            "precision": 2
+          }
+        ],
+        "note": "拖动N，观察辅助点Q与等价路径同步变化。"
+      }
+    },
+    {
+      "id": "teach:derive_weighted_minimum_iii:weighted_axis_path_minimum/domain_minimum",
+      "section": "第（Ⅲ）问：化简解析式",
+      "title": "第4步：拉直折线求路径最小值",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "两点之间线段最短"
+        ],
+        [
+          "∴",
+          "MN＋NQ≥MQ"
+        ],
+        [
+          "∴",
+          "当 M、N、Q 三点共线时，折线最短"
+        ],
+        [
+          "∵",
+          "Q 在过 A 且经过 y 轴正半轴点 (0,1) 的 45° 固定射线 y＝x＋1 上运动"
+        ],
+        [
+          "∴",
+          "最短时 MQ⊥AQ"
+        ],
+        [
+          "∵",
+          "取等时 N((2b－1)/4,0)，且 N 在 x 轴正半轴上"
+        ],
+        [
+          "∴",
+          "取等条件为 b＞1/2"
+        ],
+        [
+          "∴",
+          "此时 √2MN＋AN 的最小值为 (6b＋9)/4"
+        ]
+      ],
+      "box": [
+        "当 b＞1/2 时，最小值为 (6b＋9)/4"
+      ],
+      "localControls": {
+        "values": {
+          "n": 0.959065
+        },
+        "controls": [
+          {
+            "var": "n",
+            "label": "动点 N",
+            "min": 0.03165,
+            "max": 1.88648,
+            "step": 0.03165,
+            "scale": 1,
+            "precision": 2
+          }
+        ],
+        "note": "拖动N，观察辅助点Q与等价路径同步变化。"
+      }
+    },
+    {
+      "id": "teach:solve_parameter_iii",
+      "section": "第（Ⅲ）问：化简解析式",
+      "title": "第5步：由表达式取值反求参数",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "取等条件为 b ＞ 1/2"
+        ],
+        [
+          "计算",
+          "令 3b/2＋9/4＝21/4，解得 b＝2"
+        ],
+        [
+          "∴",
+          "b＝2"
+        ]
+      ],
+      "box": [
+        "b＝2"
+      ]
+    }
+  ],
+  "policies": {
+    "teach:derive_parabola_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_vertex_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_parametric_parabola_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_y_intercept_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_right_angle_candidates_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:select_curve_candidate_ii:curve_candidate_parameter_solve/filter_candidates": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:select_curve_candidate_ii:curve_candidate_parameter_solve/solve_parameter_and_curve": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_parametric_parabola_iii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_curve_point_iii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_weighted_minimum_iii:weighted_axis_path_minimum/weighted_reduction": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_weighted_minimum_iii:weighted_axis_path_minimum/domain_minimum": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:solve_parameter_iii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    }
+  },
+  "stepLabels": {
+    "teach:derive_parabola_i": "1 求解析式",
+    "teach:derive_vertex_i": "2 求顶点",
+    "teach:derive_parametric_parabola_ii": "1 化简解析式",
+    "teach:derive_y_intercept_ii": "2 求 y 轴交点",
+    "teach:derive_right_angle_candidates_ii": "3 构造候选点",
+    "teach:select_curve_candidate_ii:curve_candidate_parameter_solve/filter_candidates": "4 筛选D并求参",
+    "teach:select_curve_candidate_ii:curve_candidate_parameter_solve/solve_parameter_and_curve": "5 回代求D",
+    "teach:derive_parametric_parabola_iii": "1 化简解析式",
+    "teach:derive_curve_point_iii": "2 代入横坐标",
+    "teach:derive_weighted_minimum_iii:weighted_axis_path_minimum/weighted_reduction": "3 消去路径权重",
+    "teach:derive_weighted_minimum_iii:weighted_axis_path_minimum/domain_minimum": "4 几何求最值",
+    "teach:solve_parameter_iii": "5 反求参数"
+  }
+}

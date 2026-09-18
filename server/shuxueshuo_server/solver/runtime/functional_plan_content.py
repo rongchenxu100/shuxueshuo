@@ -431,6 +431,7 @@ class FunctionalPlanContentCompilation:
     answer_binding_error: FunctionalGoalAnswerBindingError | None = None
     draft_only: bool = False
     normalized_payload: Any = None
+    math_argument_bindings: tuple[Mapping[str, Any], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -843,7 +844,12 @@ def functional_plan_content_schema(
 def decode_single_json_object(
     raw: str,
 ) -> tuple[dict[str, Any], tuple[FunctionalPlanContentNormalization, ...]]:
-    """Decode one JSON object, tolerating one redundant trailing closer."""
+    """Decode one JSON object.
+
+    Tolerates one redundant trailing ``}``/``]``, and discards a non-JSON
+    trailer after a complete object (for example provider/tool markup). A
+    second JSON value, or multiple extra closers, remains invalid.
+    """
 
     try:
         value = json.loads(raw)
@@ -856,14 +862,37 @@ def decode_single_json_object(
             value, end = json.JSONDecoder().raw_decode(stripped)
         except json.JSONDecodeError:
             raise original
-        suffix = stripped[end:]
-        if not isinstance(value, dict) or suffix not in {"}", "]"}:
+        if not isinstance(value, dict):
             raise original
+        trailing = stripped[end:].lstrip()
+        if not trailing:
+            return value, ()
+        if trailing in {"}", "]"}:
+            return value, (
+                FunctionalPlanContentNormalization(
+                    code="functional.trailing_json_delimiter_removed",
+                    path="$",
+                    message=f"removed one redundant trailing {trailing!r}",
+                ),
+            )
+        if trailing[0] in "}]":
+            # Keep the historical rule: only one extra closer by itself is
+            # recoverable.  A closer followed by another closer or markup is
+            # malformed JSON plus a trailer, not a safe one-character repair.
+            raise original
+        if trailing[0] in "{[,\"-" or trailing[0].isdigit():
+            # Another JSON value may follow, including a primitive value; do
+            # not silently keep only the first decoded object.
+            raise original
+        if trailing.startswith(("true", "false", "null")):
+            # JSON literals are also second values, even without a comma.
+            raise original
+        preview = trailing if len(trailing) <= 48 else f"{trailing[:45]}..."
         return value, (
             FunctionalPlanContentNormalization(
-                code="functional.trailing_json_delimiter_removed",
+                code="functional.trailing_non_json_discarded",
                 path="$",
-                message=f"removed one redundant trailing {suffix!r}",
+                message=f"discarded trailing non-JSON suffix starting with {preview!r}",
             ),
         )
 
@@ -877,6 +906,7 @@ class FunctionalPlanContentCompiler:
         *,
         frame: FunctionalPlanAuthorityFrame,
         capability_catalog: FunctionalCapabilityCatalog,
+        math_argument_resolver: Any | None = None,
     ) -> FunctionalPlanContentCompilation:
         try:
             payload, normalizations = decode_single_json_object(raw)
@@ -896,6 +926,7 @@ class FunctionalPlanContentCompiler:
             frame=frame,
             capability_catalog=capability_catalog,
             normalizations=normalizations,
+            math_argument_resolver=math_argument_resolver,
         )
 
     def compile_payload(
@@ -905,7 +936,23 @@ class FunctionalPlanContentCompiler:
         frame: FunctionalPlanAuthorityFrame,
         capability_catalog: FunctionalCapabilityCatalog,
         normalizations: tuple[FunctionalPlanContentNormalization, ...] = (),
+        math_argument_resolver: Any | None = None,
     ) -> FunctionalPlanContentCompilation:
+        math_bindings = ()
+        if math_argument_resolver is not None:
+            from .method_math_arguments import MethodMathArgumentError
+
+            try:
+                payload, records = math_argument_resolver.transform(payload)
+                math_bindings = tuple(records)
+            except MethodMathArgumentError as exc:
+                return FunctionalPlanContentCompilation(
+                    None, None,
+                    ScopedFunctionalPlanValidationReport((
+                        ScopedFunctionalPlanIssue(exc.code, exc.path, exc.message),
+                    )),
+                    normalized_payload=deepcopy(payload),
+                )
         payload, wire_normalizations, wire_issues = _normalize_content_wire(
             payload,
             frame=frame,
@@ -916,7 +963,8 @@ class FunctionalPlanContentCompiler:
             payload, frame=frame, capability_catalog=capability_catalog,
             normalizations=normalizations, wire_issues=wire_issues,
         )
-        return replace(result, normalized_payload=deepcopy(payload))
+        return replace(result, normalized_payload=deepcopy(payload),
+                       math_argument_bindings=math_bindings)
 
     def _compile_normalized_payload(
         self, payload: object, *, frame: FunctionalPlanAuthorityFrame,

@@ -1,0 +1,2827 @@
+{
+  "schema_version": "visual-step-ir/v2",
+  "problem_id": "tj-2026-xiqing-yimo-25",
+  "source_snapshot_hash": "6591f5344cde16641ba406a0f8a8203c45bae1c074f386f0e3392f1837a6f148",
+  "source_lesson_hash": "23de878fe54cb080703cc5e1afc159db034f58382567b38b219e6980ab2ba1e1",
+  "geometry_registry": {
+    "version": 1,
+    "id": "tj-2026-xiqing-yimo-25",
+    "domain": {
+      "minX": -2.8,
+      "maxX": 6.8,
+      "minY": -5.55,
+      "maxY": 10.8
+    },
+    "movingParam": "b",
+    "expressionEnv": [],
+    "fixedPoints": {
+      "curve_i_parabola_vertex": [
+        "2",
+        "9"
+      ],
+      "point_A_problem": [
+        "-1",
+        "0"
+      ]
+    },
+    "movingPoints": {
+      "curve_ii_parabola_vertex": [
+        "b/2",
+        "(b*b)/4+b+1"
+      ],
+      "point_B_ii": [
+        "b+1",
+        "0"
+      ],
+      "point_C_ii": [
+        "0",
+        "b+1"
+      ],
+      "point_D_ii": [
+        "b+2",
+        "-b-3"
+      ],
+      "point_M_ii_2": [
+        "-sqrt(3)*b/3+b-sqrt(3)+2",
+        "0"
+      ],
+      "point_Q_ii_2": [
+        "3*m/4-1/4",
+        "sqrt(3)*(m+1)/4"
+      ]
+    },
+    "pointMeta": {
+      "curve_i_parabola_vertex": {
+        "label": "",
+        "scopeId": "i",
+        "scopeRoot": "i",
+        "definition": "curve_vertex_feature",
+        "sourceCurveId": "curve_i_parabola",
+        "display": "(2, 9)",
+        "visualOnly": true
+      },
+      "curve_ii_parabola_vertex": {
+        "label": "",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "definition": "curve_vertex_feature",
+        "sourceCurveId": "curve_ii_parabola",
+        "display": "(b/2, b²/4＋b＋1)",
+        "visualOnly": true
+      },
+      "point_A_problem": {
+        "label": "A",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:A"
+      },
+      "point_B_ii": {
+        "label": "B",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "derive_x_intercept_B_ii"
+        ]
+      },
+      "point_C_ii": {
+        "label": "C",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "derive_y_intercept_C_ii"
+        ]
+      },
+      "point_D_ii": {
+        "label": "D",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "derive_curve_point_D_ii"
+        ]
+      },
+      "point_M_ii_2": {
+        "label": "M",
+        "scopeId": "ii_2",
+        "scopeRoot": "ii",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "derive_weighted_minimum_ii"
+        ]
+      },
+      "point_Q_ii_2": {
+        "label": "Q",
+        "scopeId": "ii_2",
+        "scopeRoot": "ii",
+        "definition": "visual_auxiliary_parameterized_point",
+        "sourceStepIds": [
+          "derive_weighted_minimum_ii"
+        ]
+      }
+    },
+    "curves": [
+      {
+        "id": "curve_i_parabola",
+        "type": "parabola",
+        "scopeId": "i",
+        "scopeRoot": "i",
+        "sourceHandle": "fact:i:derive_parabola_i_parabola",
+        "objectRef": "function:problem:parabola",
+        "stateRevision": 0,
+        "a": "-1",
+        "b": "4",
+        "c": "5"
+      },
+      {
+        "id": "curve_ii_parabola",
+        "type": "parabola",
+        "scopeId": "ii",
+        "scopeRoot": "ii",
+        "sourceHandle": "fact:ii:derive_parametric_parabola_ii_parabola",
+        "objectRef": "function:problem:parabola",
+        "stateRevision": 2,
+        "a": "-1",
+        "b": "b",
+        "c": "b+1"
+      }
+    ],
+    "derivedIntersections": []
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {},
+    "children": [
+      {
+        "scope_ref": "i",
+        "steps": [],
+        "goals": {
+          "i.vertex": {
+            "steps": [
+              {
+                "visual_step_id": "visual:teach:derive_parabola_i",
+                "lesson_step_id": "teach:derive_parabola_i",
+                "visual_mode": "scene",
+                "frames": [
+                  {
+                    "frame_id": "frame:teach:derive_parabola_i:1",
+                    "teaching_unit_keys": [
+                      "quadratic_from_constraints/derive_function"
+                    ],
+                    "viewport": {
+                      "minX": -2.08,
+                      "maxX": 6.08,
+                      "minY": -1.62,
+                      "maxY": 10.62
+                    },
+                    "objects": [
+                      {
+                        "visual_object_id": "visual:parabola:b572fc18d01339ff",
+                        "component": "Parabola",
+                        "role": "curve:parabola",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "derive_parabola_i"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "curve_i_parabola"
+                        ],
+                        "state": "focus",
+                        "component_payload": {
+                          "curveId": "curve_i_parabola",
+                          "color": "#2563eb",
+                          "width": 2.4
+                        }
+                      },
+                      {
+                        "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                        "component": "Point",
+                        "role": "point:A",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "derive_parabola_i"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "point_A_problem"
+                        ],
+                        "state": "context",
+                        "component_payload": {
+                          "at": "point_A_problem",
+                          "labelText": "A",
+                          "color": "#64748b",
+                          "dx": 14,
+                          "dy": -18
+                        },
+                        "display_label": "A"
+                      }
+                    ],
+                    "local_parameters": [],
+                    "caption": "求解析式"
+                  }
+                ]
+              },
+              {
+                "visual_step_id": "visual:teach:derive_vertex_i",
+                "lesson_step_id": "teach:derive_vertex_i",
+                "visual_mode": "scene",
+                "frames": [
+                  {
+                    "frame_id": "frame:teach:derive_vertex_i:1",
+                    "teaching_unit_keys": [
+                      "quadratic_vertex_point/read_vertex"
+                    ],
+                    "viewport": {
+                      "minX": -2.08,
+                      "maxX": 6.08,
+                      "minY": -1.62,
+                      "maxY": 10.62
+                    },
+                    "objects": [
+                      {
+                        "visual_object_id": "visual:parabola:b572fc18d01339ff",
+                        "component": "Parabola",
+                        "role": "curve:parabola",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "derive_parabola_i"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "curve_i_parabola"
+                        ],
+                        "state": "context",
+                        "component_payload": {
+                          "curveId": "curve_i_parabola",
+                          "color": "#2563eb",
+                          "width": 2.4
+                        }
+                      },
+                      {
+                        "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                        "component": "Point",
+                        "role": "point:A",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "derive_parabola_i"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "point_A_problem"
+                        ],
+                        "state": "context",
+                        "component_payload": {
+                          "at": "point_A_problem",
+                          "labelText": "A",
+                          "color": "#64748b",
+                          "dx": 14,
+                          "dy": -18
+                        },
+                        "display_label": "A"
+                      },
+                      {
+                        "visual_object_id": "visual:axisofsymmetry:c45efc4ebd9e5dbd",
+                        "component": "AxisOfSymmetry",
+                        "role": "curve:axis",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "derive_vertex_i"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "curve_i_parabola"
+                        ],
+                        "state": "context",
+                        "component_payload": {
+                          "curveId": "curve_i_parabola",
+                          "color": "#64748b",
+                          "width": 1.5,
+                          "dash": "7 6"
+                        }
+                      },
+                      {
+                        "visual_object_id": "visual:point:6ee85820d6984c5d",
+                        "component": "Point",
+                        "role": "point:curve_i_parabola_vertex",
+                        "source_refs": [
+                          {
+                            "kind": "functional_step",
+                            "step_id": "derive_vertex_i"
+                          }
+                        ],
+                        "geometry_refs": [
+                          "curve_i_parabola_vertex"
+                        ],
+                        "state": "focus",
+                        "component_payload": {
+                          "at": "curve_i_parabola_vertex",
+                          "labelText": "",
+                          "color": "#b45309",
+                          "dx": 14,
+                          "dy": -18
+                        }
+                      }
+                    ],
+                    "local_parameters": [],
+                    "caption": "求顶点"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "children": []
+      },
+      {
+        "scope_ref": "ii",
+        "steps": [
+          {
+            "visual_step_id": "visual:teach:derive_parametric_parabola_ii",
+            "lesson_step_id": "teach:derive_parametric_parabola_ii",
+            "visual_mode": "scene",
+            "frames": [
+              {
+                "frame_id": "frame:teach:derive_parametric_parabola_ii:1",
+                "teaching_unit_keys": [
+                  "quadratic_from_constraints/derive_function"
+                ],
+                "viewport": {
+                  "minX": -1.738,
+                  "maxX": 3.838,
+                  "minY": -1.9787,
+                  "maxY": 6.1813
+                },
+                "objects": [
+                  {
+                    "visual_object_id": "visual:parabola:8627109999c2e8de",
+                    "component": "Parabola",
+                    "role": "curve:parabola",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_parametric_parabola_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "curve_ii_parabola"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "curveId": "curve_ii_parabola",
+                      "color": "#2563eb",
+                      "width": 2.4
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                    "component": "Point",
+                    "role": "point:A",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_parametric_parabola_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_A_problem",
+                      "labelText": "A",
+                      "color": "#64748b",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "A"
+                  }
+                ],
+                "local_parameters": [
+                  {
+                    "name": "b",
+                    "mathematical_domain": {
+                      "kind": "inequality",
+                      "expression": "b>0"
+                    },
+                    "display_window": {
+                      "min": 0.1,
+                      "max": 6.1,
+                      "step": 0.05
+                    },
+                    "default_value": 2.1,
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_parametric_parabola_ii"
+                      }
+                    ],
+                    "controls": [],
+                    "parameterized_points": {},
+                    "landmarks": [],
+                    "note": ""
+                  }
+                ],
+                "caption": "化简解析式"
+              }
+            ]
+          },
+          {
+            "visual_step_id": "visual:teach:derive_curve_point_D_ii",
+            "lesson_step_id": "teach:derive_curve_point_D_ii",
+            "visual_mode": "scene",
+            "frames": [
+              {
+                "frame_id": "frame:teach:derive_curve_point_D_ii:1",
+                "teaching_unit_keys": [
+                  "point_on_parabola_at_x/substitute_x"
+                ],
+                "viewport": {
+                  "minX": -1.918,
+                  "maxX": 5.018,
+                  "minY": -6.7744,
+                  "maxY": 5.8769
+                },
+                "objects": [
+                  {
+                    "visual_object_id": "visual:parabola:8627109999c2e8de",
+                    "component": "Parabola",
+                    "role": "curve:parabola",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_curve_point_D_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "curve_ii_parabola"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "curveId": "curve_ii_parabola",
+                      "color": "#2563eb",
+                      "width": 2.4
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                    "component": "Point",
+                    "role": "point:A",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_parametric_parabola_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_A_problem",
+                      "labelText": "A",
+                      "color": "#64748b",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "A"
+                  },
+                  {
+                    "visual_object_id": "visual:point:162d85dd6b8d96bd",
+                    "component": "Point",
+                    "role": "point:D",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_curve_point_D_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_D_ii"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_D_ii",
+                      "labelText": "D",
+                      "color": "#b45309",
+                      "dx": 14,
+                      "dy": -18,
+                      "showLabel": false
+                    },
+                    "display_label": "D"
+                  },
+                  {
+                    "visual_object_id": "visual:coordinatelabel:a8fe755b7ba49b4c",
+                    "component": "CoordinateLabel",
+                    "role": "coordinate:point_D_ii",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_curve_point_D_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_D_ii"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_D_ii",
+                      "text": "D(b＋2,－b－3)",
+                      "dx": 14,
+                      "dy": -30
+                    },
+                    "display_label": "D(b＋2,－b－3)"
+                  }
+                ],
+                "local_parameters": [
+                  {
+                    "name": "b",
+                    "mathematical_domain": {
+                      "kind": "inequality",
+                      "expression": "b>0"
+                    },
+                    "display_window": {
+                      "min": 0.1,
+                      "max": 6.1,
+                      "step": 0.05
+                    },
+                    "default_value": 2.1,
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_curve_point_D_ii"
+                      }
+                    ],
+                    "controls": [],
+                    "parameterized_points": {
+                      "point_D_ii": {
+                        "expression": [
+                          "b+2",
+                          "-b-3"
+                        ],
+                        "source": {
+                          "kind": "visible_geometry",
+                          "geometry_ref": "point_D_ii"
+                        }
+                      }
+                    },
+                    "landmarks": [],
+                    "note": ""
+                  }
+                ],
+                "caption": "代入横坐标"
+              }
+            ]
+          },
+          {
+            "visual_step_id": "visual:teach:derive_x_intercept_B_ii",
+            "lesson_step_id": "teach:derive_x_intercept_B_ii",
+            "visual_mode": "scene",
+            "frames": [
+              {
+                "frame_id": "frame:teach:derive_x_intercept_B_ii:1",
+                "teaching_unit_keys": [
+                  "quadratic_x_axis_intercept_point/solve_intercept"
+                ],
+                "viewport": {
+                  "minX": -1.738,
+                  "maxX": 3.838,
+                  "minY": -1.9787,
+                  "maxY": 6.1813
+                },
+                "objects": [
+                  {
+                    "visual_object_id": "visual:parabola:8627109999c2e8de",
+                    "component": "Parabola",
+                    "role": "curve:parabola",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_curve_point_D_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "curve_ii_parabola"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "curveId": "curve_ii_parabola",
+                      "color": "#2563eb",
+                      "width": 2.4
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                    "component": "Point",
+                    "role": "point:A",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_parametric_parabola_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_A_problem",
+                      "labelText": "A",
+                      "color": "#64748b",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "A"
+                  },
+                  {
+                    "visual_object_id": "visual:point:162d85dd6b8d96bd",
+                    "component": "Point",
+                    "role": "point:D",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_curve_point_D_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_D_ii"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_D_ii",
+                      "labelText": "D",
+                      "color": "#b45309",
+                      "dx": 14,
+                      "dy": -18,
+                      "showLabel": false
+                    },
+                    "display_label": "D"
+                  },
+                  {
+                    "visual_object_id": "visual:coordinatelabel:a8fe755b7ba49b4c",
+                    "component": "CoordinateLabel",
+                    "role": "coordinate:point_D_ii",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_curve_point_D_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_D_ii"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_D_ii",
+                      "text": "D(b＋2,－b－3)",
+                      "dx": 14,
+                      "dy": -30
+                    },
+                    "display_label": "D(b＋2,－b－3)"
+                  },
+                  {
+                    "visual_object_id": "visual:point:a5b4af6f833a6924",
+                    "component": "Point",
+                    "role": "point:B",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_x_intercept_B_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_B_ii"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_B_ii",
+                      "labelText": "B",
+                      "color": "#b45309",
+                      "dx": 14,
+                      "dy": -18,
+                      "showLabel": false
+                    },
+                    "display_label": "B"
+                  },
+                  {
+                    "visual_object_id": "visual:coordinatelabel:8f80f25f74d7a3b6",
+                    "component": "CoordinateLabel",
+                    "role": "coordinate:point_B_ii",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_x_intercept_B_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_B_ii"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_B_ii",
+                      "text": "B(b＋1,0)",
+                      "dx": 14,
+                      "dy": -24
+                    },
+                    "display_label": "B(b＋1,0)"
+                  }
+                ],
+                "local_parameters": [
+                  {
+                    "name": "b",
+                    "mathematical_domain": {
+                      "kind": "inequality",
+                      "expression": "b>0"
+                    },
+                    "display_window": {
+                      "min": 0.1,
+                      "max": 6.1,
+                      "step": 0.05
+                    },
+                    "default_value": 2.1,
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_x_intercept_B_ii"
+                      }
+                    ],
+                    "controls": [],
+                    "parameterized_points": {
+                      "point_D_ii": {
+                        "expression": [
+                          "b+2",
+                          "-b-3"
+                        ],
+                        "source": {
+                          "kind": "visible_geometry",
+                          "geometry_ref": "point_D_ii"
+                        }
+                      },
+                      "point_B_ii": {
+                        "expression": [
+                          "b+1",
+                          "0"
+                        ],
+                        "source": {
+                          "kind": "visible_geometry",
+                          "geometry_ref": "point_B_ii"
+                        }
+                      }
+                    },
+                    "landmarks": [],
+                    "note": ""
+                  }
+                ],
+                "caption": "求 x 轴交点"
+              }
+            ]
+          },
+          {
+            "visual_step_id": "visual:teach:derive_y_intercept_C_ii",
+            "lesson_step_id": "teach:derive_y_intercept_C_ii",
+            "visual_mode": "scene",
+            "frames": [
+              {
+                "frame_id": "frame:teach:derive_y_intercept_C_ii:1",
+                "teaching_unit_keys": [
+                  "quadratic_y_axis_intercept_point/solve_intercept"
+                ],
+                "viewport": {
+                  "minX": -1.738,
+                  "maxX": 3.838,
+                  "minY": -1.9787,
+                  "maxY": 6.1813
+                },
+                "objects": [
+                  {
+                    "visual_object_id": "visual:parabola:8627109999c2e8de",
+                    "component": "Parabola",
+                    "role": "curve:parabola",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_y_intercept_C_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "curve_ii_parabola"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "curveId": "curve_ii_parabola",
+                      "color": "#2563eb",
+                      "width": 2.4
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                    "component": "Point",
+                    "role": "point:A",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_parametric_parabola_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_A_problem",
+                      "labelText": "A",
+                      "color": "#64748b",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "A"
+                  },
+                  {
+                    "visual_object_id": "visual:point:162d85dd6b8d96bd",
+                    "component": "Point",
+                    "role": "point:D",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_curve_point_D_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_D_ii"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_D_ii",
+                      "labelText": "D",
+                      "color": "#b45309",
+                      "dx": 14,
+                      "dy": -18,
+                      "showLabel": false
+                    },
+                    "display_label": "D"
+                  },
+                  {
+                    "visual_object_id": "visual:coordinatelabel:a8fe755b7ba49b4c",
+                    "component": "CoordinateLabel",
+                    "role": "coordinate:point_D_ii",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_curve_point_D_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_D_ii"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_D_ii",
+                      "text": "D(b＋2,－b－3)",
+                      "dx": 14,
+                      "dy": -30
+                    },
+                    "display_label": "D(b＋2,－b－3)"
+                  },
+                  {
+                    "visual_object_id": "visual:point:a5b4af6f833a6924",
+                    "component": "Point",
+                    "role": "point:B",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_x_intercept_B_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_B_ii"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_B_ii",
+                      "labelText": "B",
+                      "color": "#b45309",
+                      "dx": 14,
+                      "dy": -18,
+                      "showLabel": false
+                    },
+                    "display_label": "B"
+                  },
+                  {
+                    "visual_object_id": "visual:coordinatelabel:8f80f25f74d7a3b6",
+                    "component": "CoordinateLabel",
+                    "role": "coordinate:point_B_ii",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_x_intercept_B_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_B_ii"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_B_ii",
+                      "text": "B(b＋1,0)",
+                      "dx": 14,
+                      "dy": -24
+                    },
+                    "display_label": "B(b＋1,0)"
+                  },
+                  {
+                    "visual_object_id": "visual:point:198bbff0c09a9406",
+                    "component": "Point",
+                    "role": "point:C",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_y_intercept_C_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_C_ii"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_C_ii",
+                      "labelText": "C",
+                      "color": "#b45309",
+                      "dx": 14,
+                      "dy": -18,
+                      "showLabel": false
+                    },
+                    "display_label": "C"
+                  },
+                  {
+                    "visual_object_id": "visual:coordinatelabel:2b75eac61c938ac4",
+                    "component": "CoordinateLabel",
+                    "role": "coordinate:point_C_ii",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_y_intercept_C_ii"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_C_ii"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_C_ii",
+                      "text": "C(0,b＋1)",
+                      "dx": 14,
+                      "dy": -30
+                    },
+                    "display_label": "C(0,b＋1)"
+                  }
+                ],
+                "local_parameters": [
+                  {
+                    "name": "b",
+                    "mathematical_domain": {
+                      "kind": "inequality",
+                      "expression": "b>0"
+                    },
+                    "display_window": {
+                      "min": 0.1,
+                      "max": 6.1,
+                      "step": 0.05
+                    },
+                    "default_value": 2.1,
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "derive_y_intercept_C_ii"
+                      }
+                    ],
+                    "controls": [],
+                    "parameterized_points": {
+                      "point_D_ii": {
+                        "expression": [
+                          "b+2",
+                          "-b-3"
+                        ],
+                        "source": {
+                          "kind": "visible_geometry",
+                          "geometry_ref": "point_D_ii"
+                        }
+                      },
+                      "point_B_ii": {
+                        "expression": [
+                          "b+1",
+                          "0"
+                        ],
+                        "source": {
+                          "kind": "visible_geometry",
+                          "geometry_ref": "point_B_ii"
+                        }
+                      },
+                      "point_C_ii": {
+                        "expression": [
+                          "0",
+                          "b+1"
+                        ],
+                        "source": {
+                          "kind": "visible_geometry",
+                          "geometry_ref": "point_C_ii"
+                        }
+                      }
+                    },
+                    "landmarks": [],
+                    "note": ""
+                  }
+                ],
+                "caption": "求 y 轴交点"
+              }
+            ]
+          }
+        ],
+        "goals": {},
+        "children": [
+          {
+            "scope_ref": "ii_1",
+            "steps": [],
+            "goals": {
+              "ii_1.b": {
+                "steps": [
+                  {
+                    "visual_step_id": "visual:teach:solve_parameter_from_segment_relation_ii",
+                    "lesson_step_id": "teach:solve_parameter_from_segment_relation_ii",
+                    "visual_mode": "scene",
+                    "frames": [
+                      {
+                        "frame_id": "frame:teach:solve_parameter_from_segment_relation_ii:1",
+                        "teaching_unit_keys": [
+                          "parameter_from_segment_length/solve_parameter"
+                        ],
+                        "viewport": {
+                          "minX": -1.918,
+                          "maxX": 5.018,
+                          "minY": -6.7744,
+                          "maxY": 5.8769
+                        },
+                        "objects": [
+                          {
+                            "visual_object_id": "visual:parabola:8627109999c2e8de",
+                            "component": "Parabola",
+                            "role": "curve:parabola",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "curve_ii_parabola"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "curveId": "curve_ii_parabola",
+                              "color": "#2563eb",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                            "component": "Point",
+                            "role": "point:A",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "solve_parameter_from_segment_relation_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "at": "point_A_problem",
+                              "labelText": "A",
+                              "color": "#dc2626",
+                              "dx": 14,
+                              "dy": -18
+                            },
+                            "display_label": "A"
+                          },
+                          {
+                            "visual_object_id": "visual:point:162d85dd6b8d96bd",
+                            "component": "Point",
+                            "role": "point:D",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "solve_parameter_from_segment_relation_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "at": "point_D_ii",
+                              "labelText": "D",
+                              "color": "#dc2626",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "D"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:a8fe755b7ba49b4c",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_D_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_curve_point_D_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_D_ii",
+                              "text": "D(b＋2,－b－3)",
+                              "dx": 14,
+                              "dy": -30
+                            },
+                            "display_label": "D(b＋2,－b－3)"
+                          },
+                          {
+                            "visual_object_id": "visual:point:a5b4af6f833a6924",
+                            "component": "Point",
+                            "role": "point:B",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "solve_parameter_from_segment_relation_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_B_ii"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "at": "point_B_ii",
+                              "labelText": "B",
+                              "color": "#dc2626",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "B"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:8f80f25f74d7a3b6",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_B_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_x_intercept_B_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_B_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_B_ii",
+                              "text": "B(b＋1,0)",
+                              "dx": 14,
+                              "dy": -24
+                            },
+                            "display_label": "B(b＋1,0)"
+                          },
+                          {
+                            "visual_object_id": "visual:point:198bbff0c09a9406",
+                            "component": "Point",
+                            "role": "point:C",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "solve_parameter_from_segment_relation_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_C_ii"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "at": "point_C_ii",
+                              "labelText": "C",
+                              "color": "#dc2626",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "C"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:2b75eac61c938ac4",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_C_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_C_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_C_ii",
+                              "text": "C(0,b＋1)",
+                              "dx": 14,
+                              "dy": -30
+                            },
+                            "display_label": "C(0,b＋1)"
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:51190856e980ade4",
+                            "component": "ColoredLine",
+                            "role": "parameter_length:target",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "solve_parameter_from_segment_relation_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_D_ii"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "role": "parameter_length:target",
+                              "from": "point_A_problem",
+                              "to": "point_D_ii",
+                              "color": "#b45309",
+                              "width": 2.5,
+                              "dash": ""
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:1571884cdec41602",
+                            "component": "ColoredLine",
+                            "role": "parameter_length:reference",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "solve_parameter_from_segment_relation_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_B_ii",
+                              "point_C_ii"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "role": "parameter_length:reference",
+                              "from": "point_B_ii",
+                              "to": "point_C_ii",
+                              "color": "#0f766e",
+                              "width": 2.0,
+                              "dash": ""
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:distancemarker:42baa18644229ab9",
+                            "component": "DistanceMarker",
+                            "role": "distance",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "solve_parameter_from_segment_relation_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_D_ii"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "from": "point_A_problem",
+                              "to": "point_D_ii",
+                              "label": "",
+                              "color": "#b45309",
+                              "width": 2.5,
+                              "offsetPx": 16
+                            }
+                          }
+                        ],
+                        "local_parameters": [
+                          {
+                            "name": "b",
+                            "mathematical_domain": {
+                              "kind": "inequality",
+                              "expression": "b>0"
+                            },
+                            "display_window": {
+                              "min": 0.1,
+                              "max": 6.1,
+                              "step": 0.05
+                            },
+                            "default_value": 2.1,
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "solve_parameter_from_segment_relation_ii"
+                              }
+                            ],
+                            "controls": [],
+                            "parameterized_points": {
+                              "point_D_ii": {
+                                "expression": [
+                                  "b+2",
+                                  "-b-3"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_D_ii"
+                                }
+                              },
+                              "point_B_ii": {
+                                "expression": [
+                                  "b+1",
+                                  "0"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_B_ii"
+                                }
+                              },
+                              "point_C_ii": {
+                                "expression": [
+                                  "0",
+                                  "b+1"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_C_ii"
+                                }
+                              }
+                            },
+                            "landmarks": [],
+                            "note": ""
+                          }
+                        ],
+                        "caption": "由长度求参数"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "children": []
+          },
+          {
+            "scope_ref": "ii_2",
+            "steps": [],
+            "goals": {
+              "ii_2.b": {
+                "steps": [
+                  {
+                    "visual_step_id": "visual:teach:derive_weighted_minimum_ii:weighted_axis_path_minimum/weighted_reduction",
+                    "lesson_step_id": "teach:derive_weighted_minimum_ii:weighted_axis_path_minimum/weighted_reduction",
+                    "visual_mode": "scene",
+                    "frames": [
+                      {
+                        "frame_id": "frame:teach:derive_weighted_minimum_ii:weighted_axis_path_minimum/weighted_reduction:1",
+                        "teaching_unit_keys": [
+                          "weighted_axis_path_minimum/weighted_reduction"
+                        ],
+                        "viewport": {
+                          "minX": -1.918,
+                          "maxX": 5.018,
+                          "minY": -6.5362,
+                          "maxY": 4.3148
+                        },
+                        "objects": [
+                          {
+                            "visual_object_id": "visual:parabola:8627109999c2e8de",
+                            "component": "Parabola",
+                            "role": "curve:parabola",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "curve_ii_parabola"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "curveId": "curve_ii_parabola",
+                              "color": "#2563eb",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                            "component": "Point",
+                            "role": "point:A",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_parametric_parabola_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_A_problem",
+                              "labelText": "A",
+                              "color": "#64748b",
+                              "dx": 14,
+                              "dy": -18
+                            },
+                            "display_label": "A"
+                          },
+                          {
+                            "visual_object_id": "visual:point:162d85dd6b8d96bd",
+                            "component": "Point",
+                            "role": "point:D",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_curve_point_D_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_D_ii",
+                              "labelText": "D",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "D"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:a8fe755b7ba49b4c",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_D_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_curve_point_D_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_D_ii",
+                              "text": "D(b＋2,－b－3)",
+                              "dx": 14,
+                              "dy": -30
+                            },
+                            "display_label": "D(b＋2,－b－3)"
+                          },
+                          {
+                            "visual_object_id": "visual:point:a5b4af6f833a6924",
+                            "component": "Point",
+                            "role": "point:B",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_x_intercept_B_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_B_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_B_ii",
+                              "labelText": "B",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "B"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:8f80f25f74d7a3b6",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_B_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_x_intercept_B_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_B_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_B_ii",
+                              "text": "B(b＋1,0)",
+                              "dx": 14,
+                              "dy": -24
+                            },
+                            "display_label": "B(b＋1,0)"
+                          },
+                          {
+                            "visual_object_id": "visual:point:198bbff0c09a9406",
+                            "component": "Point",
+                            "role": "point:C",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_C_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_C_ii",
+                              "labelText": "C",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "C"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:2b75eac61c938ac4",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_C_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_C_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_C_ii",
+                              "text": "C(0,b＋1)",
+                              "dx": 14,
+                              "dy": -30
+                            },
+                            "display_label": "C(0,b＋1)"
+                          },
+                          {
+                            "visual_object_id": "visual:outlineregion:cf0d712cb833b1db",
+                            "component": "OutlineRegion",
+                            "role": "outlineregion",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_Q_ii_2",
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "vertices": [
+                                "point_A_problem",
+                                "point_Q_ii_2",
+                                "point_M_ii_2"
+                              ],
+                              "fill": "rgba(180, 83, 9, 0.10)",
+                              "color": "#b45309",
+                              "width": 1.2
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:a40588ab0da92058",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii",
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "from": "point_D_ii",
+                              "to": "point_M_ii_2",
+                              "color": "#7c3aed",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:506932eb956603de",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "from": "point_A_problem",
+                              "to": "point_M_ii_2",
+                              "color": "#7c3aed",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:distancemarker:12bcca7c168294db",
+                            "component": "DistanceMarker",
+                            "role": "distance",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "from": "point_A_problem",
+                              "to": "point_M_ii_2",
+                              "label": "AM＝2·QM",
+                              "color": "#b45309",
+                              "width": 2.0,
+                              "offsetPx": 18
+                            },
+                            "display_label": "AM＝2·QM"
+                          },
+                          {
+                            "visual_object_id": "visual:point:2b402832d7155f9a",
+                            "component": "Point",
+                            "role": "point:M",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "at": "point_M_ii_2",
+                              "labelText": "M",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": 18
+                            },
+                            "display_label": "M"
+                          },
+                          {
+                            "visual_object_id": "visual:point:06f6bc5024a3988a",
+                            "component": "Point",
+                            "role": "point:Q",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_Q_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "at": "point_Q_ii_2",
+                              "labelText": "Q",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18
+                            },
+                            "display_label": "Q"
+                          }
+                        ],
+                        "local_parameters": [
+                          {
+                            "name": "b",
+                            "mathematical_domain": {
+                              "kind": "inequality",
+                              "expression": "b>0"
+                            },
+                            "display_window": {
+                              "min": 0.1,
+                              "max": 6.1,
+                              "step": 0.05
+                            },
+                            "default_value": 2.1,
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "controls": [],
+                            "parameterized_points": {
+                              "point_D_ii": {
+                                "expression": [
+                                  "b+2",
+                                  "-b-3"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_D_ii"
+                                }
+                              },
+                              "point_B_ii": {
+                                "expression": [
+                                  "b+1",
+                                  "0"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_B_ii"
+                                }
+                              },
+                              "point_C_ii": {
+                                "expression": [
+                                  "0",
+                                  "b+1"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_C_ii"
+                                }
+                              },
+                              "point_M_ii_2": {
+                                "expression": [
+                                  "-sqrt(3)*b/3+b-sqrt(3)+2",
+                                  "0"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_M_ii_2"
+                                }
+                              }
+                            },
+                            "landmarks": [],
+                            "note": ""
+                          },
+                          {
+                            "name": "m",
+                            "mathematical_domain": {
+                              "kind": "inequality",
+                              "expression": "m>0"
+                            },
+                            "display_window": {
+                              "min": 0.04,
+                              "max": 5.648,
+                              "step": 0.04
+                            },
+                            "default_value": 2.844,
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "controls": [
+                              {
+                                "var": "m",
+                                "label": "动点 M",
+                                "min": 0.04,
+                                "max": 5.648,
+                                "step": 0.04,
+                                "scale": 1,
+                                "precision": 2
+                              }
+                            ],
+                            "parameterized_points": {
+                              "point_Q_ii_2": {
+                                "expression": [
+                                  "3*m/4-1/4",
+                                  "sqrt(3)*(m+1)/4"
+                                ],
+                                "source": {
+                                  "type": "weighted_axis_path_minimum",
+                                  "role": "student_auxiliary_point"
+                                }
+                              },
+                              "point_M_ii_2": {
+                                "expression": [
+                                  "m",
+                                  "0"
+                                ],
+                                "source": {
+                                  "type": "weighted_axis_path_minimum",
+                                  "role": "moving_point"
+                                }
+                              }
+                            },
+                            "landmarks": [],
+                            "note": "拖动M，观察辅助点Q与等价路径同步变化。"
+                          }
+                        ],
+                        "caption": "消去路径权重"
+                      }
+                    ]
+                  },
+                  {
+                    "visual_step_id": "visual:teach:derive_weighted_minimum_ii:weighted_axis_path_minimum/domain_minimum",
+                    "lesson_step_id": "teach:derive_weighted_minimum_ii:weighted_axis_path_minimum/domain_minimum",
+                    "visual_mode": "scene",
+                    "frames": [
+                      {
+                        "frame_id": "frame:teach:derive_weighted_minimum_ii:weighted_axis_path_minimum/domain_minimum:1",
+                        "teaching_unit_keys": [
+                          "weighted_axis_path_minimum/domain_minimum"
+                        ],
+                        "viewport": {
+                          "minX": -1.918,
+                          "maxX": 5.018,
+                          "minY": -6.5362,
+                          "maxY": 4.3148
+                        },
+                        "objects": [
+                          {
+                            "visual_object_id": "visual:parabola:8627109999c2e8de",
+                            "component": "Parabola",
+                            "role": "curve:parabola",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "curve_ii_parabola"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "curveId": "curve_ii_parabola",
+                              "color": "#2563eb",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                            "component": "Point",
+                            "role": "point:A",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_parametric_parabola_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_A_problem",
+                              "labelText": "A",
+                              "color": "#64748b",
+                              "dx": 14,
+                              "dy": -18
+                            },
+                            "display_label": "A"
+                          },
+                          {
+                            "visual_object_id": "visual:point:162d85dd6b8d96bd",
+                            "component": "Point",
+                            "role": "point:D",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_curve_point_D_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_D_ii",
+                              "labelText": "D",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "D"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:a8fe755b7ba49b4c",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_D_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_curve_point_D_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_D_ii",
+                              "text": "D(b＋2,－b－3)",
+                              "dx": 14,
+                              "dy": -30
+                            },
+                            "display_label": "D(b＋2,－b－3)"
+                          },
+                          {
+                            "visual_object_id": "visual:point:a5b4af6f833a6924",
+                            "component": "Point",
+                            "role": "point:B",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_x_intercept_B_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_B_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_B_ii",
+                              "labelText": "B",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "B"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:8f80f25f74d7a3b6",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_B_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_x_intercept_B_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_B_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_B_ii",
+                              "text": "B(b＋1,0)",
+                              "dx": 14,
+                              "dy": -24
+                            },
+                            "display_label": "B(b＋1,0)"
+                          },
+                          {
+                            "visual_object_id": "visual:point:198bbff0c09a9406",
+                            "component": "Point",
+                            "role": "point:C",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_C_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_C_ii",
+                              "labelText": "C",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "C"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:2b75eac61c938ac4",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_C_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_C_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_C_ii",
+                              "text": "C(0,b＋1)",
+                              "dx": 14,
+                              "dy": -30
+                            },
+                            "display_label": "C(0,b＋1)"
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:a40588ab0da92058",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii",
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "from": "point_D_ii",
+                              "to": "point_M_ii_2",
+                              "color": "#7c3aed",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:506932eb956603de",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_M_ii_2"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "from": "point_A_problem",
+                              "to": "point_M_ii_2",
+                              "color": "#7c3aed",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:point:2b402832d7155f9a",
+                            "component": "Point",
+                            "role": "point:M",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "at": "point_M_ii_2",
+                              "labelText": "M",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": 18
+                            },
+                            "display_label": "M"
+                          },
+                          {
+                            "visual_object_id": "visual:point:06f6bc5024a3988a",
+                            "component": "Point",
+                            "role": "point:Q",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_Q_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "at": "point_Q_ii_2",
+                              "labelText": "Q",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18
+                            },
+                            "display_label": "Q"
+                          },
+                          {
+                            "visual_object_id": "visual:outlineregion:cf0d712cb833b1db",
+                            "component": "OutlineRegion",
+                            "role": "outlineregion",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_Q_ii_2",
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "vertices": [
+                                "point_A_problem",
+                                "point_Q_ii_2",
+                                "point_M_ii_2"
+                              ],
+                              "fill": "rgba(180, 83, 9, 0.10)",
+                              "color": "#b45309",
+                              "width": 1.2
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:d81598db683e87ad",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_Q_ii_2",
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "from": "point_Q_ii_2",
+                              "to": "point_M_ii_2",
+                              "color": "#7c3aed",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:adcdd031559f256d",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_Q_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "from": "point_A_problem",
+                              "to": "point_Q_ii_2",
+                              "color": "#b45309",
+                              "width": 1.8
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:dashedline:72fc20f1bb092789",
+                            "component": "DashedLine",
+                            "role": "dashedline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii",
+                              "point_Q_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "from": "point_D_ii",
+                              "to": "point_Q_ii_2",
+                              "color": "#b45309",
+                              "width": 1.8,
+                              "dash": "5 6"
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:distancemarker:12bcca7c168294db",
+                            "component": "DistanceMarker",
+                            "role": "distance",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_M_ii_2"
+                            ],
+                            "state": "focus",
+                            "component_payload": {
+                              "from": "point_A_problem",
+                              "to": "point_M_ii_2",
+                              "label": "AM＝2·QM",
+                              "color": "#b45309",
+                              "width": 2.0,
+                              "offsetPx": 18
+                            },
+                            "display_label": "AM＝2·QM"
+                          }
+                        ],
+                        "local_parameters": [
+                          {
+                            "name": "b",
+                            "mathematical_domain": {
+                              "kind": "inequality",
+                              "expression": "b>0"
+                            },
+                            "display_window": {
+                              "min": 0.1,
+                              "max": 6.1,
+                              "step": 0.05
+                            },
+                            "default_value": 2.1,
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "controls": [],
+                            "parameterized_points": {
+                              "point_D_ii": {
+                                "expression": [
+                                  "b+2",
+                                  "-b-3"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_D_ii"
+                                }
+                              },
+                              "point_B_ii": {
+                                "expression": [
+                                  "b+1",
+                                  "0"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_B_ii"
+                                }
+                              },
+                              "point_C_ii": {
+                                "expression": [
+                                  "0",
+                                  "b+1"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_C_ii"
+                                }
+                              },
+                              "point_M_ii_2": {
+                                "expression": [
+                                  "-sqrt(3)*b/3+b-sqrt(3)+2",
+                                  "0"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_M_ii_2"
+                                }
+                              }
+                            },
+                            "landmarks": [],
+                            "note": ""
+                          },
+                          {
+                            "name": "m",
+                            "mathematical_domain": {
+                              "kind": "inequality",
+                              "expression": "m>0"
+                            },
+                            "display_window": {
+                              "min": 0.04,
+                              "max": 5.648,
+                              "step": 0.04
+                            },
+                            "default_value": 2.844,
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "controls": [
+                              {
+                                "var": "m",
+                                "label": "动点 M",
+                                "min": 0.04,
+                                "max": 5.648,
+                                "step": 0.04,
+                                "scale": 1,
+                                "precision": 2
+                              }
+                            ],
+                            "parameterized_points": {
+                              "point_Q_ii_2": {
+                                "expression": [
+                                  "3*m/4-1/4",
+                                  "sqrt(3)*(m+1)/4"
+                                ],
+                                "source": {
+                                  "type": "weighted_axis_path_minimum",
+                                  "role": "student_auxiliary_point"
+                                }
+                              },
+                              "point_M_ii_2": {
+                                "expression": [
+                                  "m",
+                                  "0"
+                                ],
+                                "source": {
+                                  "type": "weighted_axis_path_minimum",
+                                  "role": "moving_point"
+                                }
+                              }
+                            },
+                            "landmarks": [],
+                            "note": "拖动M，观察辅助点Q与等价路径同步变化。"
+                          }
+                        ],
+                        "caption": "几何求最值"
+                      }
+                    ]
+                  },
+                  {
+                    "visual_step_id": "visual:teach:solve_parameter_from_minimum_ii",
+                    "lesson_step_id": "teach:solve_parameter_from_minimum_ii",
+                    "visual_mode": "scene",
+                    "frames": [
+                      {
+                        "frame_id": "frame:teach:solve_parameter_from_minimum_ii:1",
+                        "teaching_unit_keys": [
+                          "parameter_from_expression_value/solve_parameter"
+                        ],
+                        "viewport": {
+                          "minX": -1.9,
+                          "maxX": 4.9,
+                          "minY": -6.44,
+                          "maxY": 4.44
+                        },
+                        "objects": [
+                          {
+                            "visual_object_id": "visual:parabola:8627109999c2e8de",
+                            "component": "Parabola",
+                            "role": "curve:parabola",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "curve_ii_parabola"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "curveId": "curve_ii_parabola",
+                              "color": "#2563eb",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                            "component": "Point",
+                            "role": "point:A",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_parametric_parabola_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_A_problem",
+                              "labelText": "A",
+                              "color": "#64748b",
+                              "dx": 14,
+                              "dy": -18
+                            },
+                            "display_label": "A"
+                          },
+                          {
+                            "visual_object_id": "visual:point:162d85dd6b8d96bd",
+                            "component": "Point",
+                            "role": "point:D",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_curve_point_D_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_D_ii",
+                              "labelText": "D",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "D"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:a8fe755b7ba49b4c",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_D_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_curve_point_D_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_D_ii",
+                              "text": "D(4,－5)",
+                              "dx": 14,
+                              "dy": -30
+                            },
+                            "display_label": "D(4,－5)"
+                          },
+                          {
+                            "visual_object_id": "visual:point:a5b4af6f833a6924",
+                            "component": "Point",
+                            "role": "point:B",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_x_intercept_B_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_B_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_B_ii",
+                              "labelText": "B",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "B"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:8f80f25f74d7a3b6",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_B_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_x_intercept_B_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_B_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_B_ii",
+                              "text": "B(3,0)",
+                              "dx": 14,
+                              "dy": -24
+                            },
+                            "display_label": "B(3,0)"
+                          },
+                          {
+                            "visual_object_id": "visual:point:198bbff0c09a9406",
+                            "component": "Point",
+                            "role": "point:C",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_C_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_C_ii",
+                              "labelText": "C",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18,
+                              "showLabel": false
+                            },
+                            "display_label": "C"
+                          },
+                          {
+                            "visual_object_id": "visual:coordinatelabel:2b75eac61c938ac4",
+                            "component": "CoordinateLabel",
+                            "role": "coordinate:point_C_ii",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_y_intercept_C_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_C_ii"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_C_ii",
+                              "text": "C(0,3)",
+                              "dx": 14,
+                              "dy": -30
+                            },
+                            "display_label": "C(0,3)"
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:a40588ab0da92058",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii",
+                              "point_M_ii_2"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "from": "point_D_ii",
+                              "to": "point_M_ii_2",
+                              "color": "#7c3aed",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:506932eb956603de",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_M_ii_2"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "from": "point_A_problem",
+                              "to": "point_M_ii_2",
+                              "color": "#7c3aed",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:point:2b402832d7155f9a",
+                            "component": "Point",
+                            "role": "point:M",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_M_ii_2"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_M_ii_2",
+                              "labelText": "M",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": 18
+                            },
+                            "display_label": "M"
+                          },
+                          {
+                            "visual_object_id": "visual:point:06f6bc5024a3988a",
+                            "component": "Point",
+                            "role": "point:Q",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_Q_ii_2"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "at": "point_Q_ii_2",
+                              "labelText": "Q",
+                              "color": "#b45309",
+                              "dx": 14,
+                              "dy": -18
+                            },
+                            "display_label": "Q"
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:d81598db683e87ad",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_Q_ii_2",
+                              "point_M_ii_2"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "from": "point_Q_ii_2",
+                              "to": "point_M_ii_2",
+                              "color": "#7c3aed",
+                              "width": 2.4
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:coloredline:adcdd031559f256d",
+                            "component": "ColoredLine",
+                            "role": "coloredline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_A_problem",
+                              "point_Q_ii_2"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "from": "point_A_problem",
+                              "to": "point_Q_ii_2",
+                              "color": "#b45309",
+                              "width": 1.8
+                            }
+                          },
+                          {
+                            "visual_object_id": "visual:dashedline:72fc20f1bb092789",
+                            "component": "DashedLine",
+                            "role": "dashedline",
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "derive_weighted_minimum_ii"
+                              }
+                            ],
+                            "geometry_refs": [
+                              "point_D_ii",
+                              "point_Q_ii_2"
+                            ],
+                            "state": "context",
+                            "component_payload": {
+                              "from": "point_D_ii",
+                              "to": "point_Q_ii_2",
+                              "color": "#b45309",
+                              "width": 1.8,
+                              "dash": "5 6"
+                            }
+                          }
+                        ],
+                        "local_parameters": [
+                          {
+                            "name": "b",
+                            "mathematical_domain": {
+                              "kind": "exact",
+                              "value": "2"
+                            },
+                            "display_window": {
+                              "min": 2.0,
+                              "max": 2.0,
+                              "step": 0
+                            },
+                            "default_value": 2.0,
+                            "source_refs": [
+                              {
+                                "kind": "verified_parameter_state",
+                                "name": "b"
+                              }
+                            ],
+                            "controls": [],
+                            "parameterized_points": {},
+                            "landmarks": [],
+                            "note": ""
+                          },
+                          {
+                            "name": "m",
+                            "mathematical_domain": {
+                              "kind": "inequality",
+                              "expression": "m>0"
+                            },
+                            "display_window": {
+                              "min": 0.1,
+                              "max": 6.1,
+                              "step": 0.05
+                            },
+                            "default_value": 1.1132486540518711,
+                            "source_refs": [
+                              {
+                                "kind": "functional_step",
+                                "step_id": "solve_parameter_from_minimum_ii"
+                              }
+                            ],
+                            "controls": [],
+                            "parameterized_points": {
+                              "point_Q_ii_2": {
+                                "expression": [
+                                  "3*m/4-1/4",
+                                  "sqrt(3)*(m+1)/4"
+                                ],
+                                "source": {
+                                  "kind": "visible_geometry",
+                                  "geometry_ref": "point_Q_ii_2"
+                                }
+                              }
+                            },
+                            "landmarks": [],
+                            "note": ""
+                          }
+                        ],
+                        "caption": "反求参数"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "source": "recursive_visual_step_builder",
+    "base_source": "generated",
+    "scene_model": "recursive_complete_frames"
+  }
+}

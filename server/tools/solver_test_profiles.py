@@ -68,6 +68,21 @@ class OwnershipRule:
 OWNERSHIP_RULES = (
     OwnershipRule(
         (
+            "server/shuxueshuo_server/solver/runtime/method_math_*.py",
+            "server/tests/solver/test_method_math_*.py",
+            "server/tests/solver/fixtures/method-math-arguments/*",
+            "server/tools/compare_method_math_arguments.py",
+            "internal/functional-few-shots-v2-math/*",
+        ),
+        (
+            "tests/solver/test_method_math_arguments.py",
+            "tests/solver/test_method_math_prompt.py",
+            "tests/solver/test_functional_scope_retry.py",
+            "tests/solver/test_functional_scope_retry_generated_gate.py",
+        ),
+    ),
+    OwnershipRule(
+        (
             "server/shuxueshuo_server/problem_understanding/runtime_binding.py",
             "server/shuxueshuo_server/problem_understanding/runtime_lowering.py",
             "server/shuxueshuo_server/problem_understanding/compact_planner_input.py",

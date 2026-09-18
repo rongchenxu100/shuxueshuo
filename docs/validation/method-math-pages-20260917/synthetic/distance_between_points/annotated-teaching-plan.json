@@ -1,0 +1,71 @@
+{
+  "problem": {
+    "original_text": [
+      "已知 A(0,0)，B(3,4)，求线段 AB 的长度。"
+    ],
+    "scope_labels": {
+      "problem": "合成验收"
+    }
+  },
+  "answers": {
+    "problem.distance": {
+      "type": "MinimumExpression",
+      "value": "5",
+      "display": "5"
+    }
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": {
+      "problem.distance": [
+        {
+          "inputs": {
+            "p1": [
+              {
+                "type": "Point",
+                "value": [
+                  "0",
+                  "0"
+                ],
+                "display": "A(0,0)"
+              }
+            ],
+            "p2": [
+              {
+                "type": "Point",
+                "value": [
+                  "3",
+                  "4"
+                ],
+                "display": "B(3,4)"
+              }
+            ]
+          },
+          "outputs": {
+            "distance": {
+              "type": "MinimumExpression",
+              "value": "5",
+              "display": "5"
+            }
+          },
+          "materials": [
+            {
+              "step_ref": "s1",
+              "title": "用距离公式计算线段长度",
+              "nav_title": "计算距离",
+              "goal": "计算两点之间的距离，得到当前需要的长度表达式。",
+              "derive": [
+                "∵ 两端点为 A(0,0) 与 B(3,4)",
+                "计算 由两点距离公式，AB＝√[(3－(0))²＋(4－(0))²]＝5",
+                "∴ AB＝5"
+              ],
+              "conclusions": [
+                "5"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

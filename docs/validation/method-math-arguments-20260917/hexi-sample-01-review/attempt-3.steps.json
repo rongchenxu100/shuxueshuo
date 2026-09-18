@@ -1,0 +1,166 @@
+{
+  "format": "functional-plan-content/v2",
+  "goal_plans": {
+    "i.P": {
+      "answer_from": {
+        "step_id": "i_vertex",
+        "return": "point"
+      },
+      "steps": [
+        {
+          "step_id": "i_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": [
+              "a=1",
+              "b=2",
+              "c=3"
+            ],
+            "free_parameters": []
+          },
+          "output_targets": {
+            "parabola": "Γ"
+          },
+          "intent": "建立第(i)问的确定抛物线"
+        },
+        {
+          "step_id": "i_vertex",
+          "capability_id": "quadratic_vertex_point",
+          "args": {
+            "parabola": "Γ"
+          },
+          "output_targets": {
+            "point": "P"
+          },
+          "intent": "求顶点P"
+        }
+      ]
+    },
+    "ii.D": {
+      "answer_from": {
+        "step_id": "ii_solve_D",
+        "return": "selected_curve_point"
+      },
+      "steps": [
+        {
+          "step_id": "ii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": [
+              "a=2"
+            ],
+            "curve_point": "A",
+            "free_parameters": [
+              "b"
+            ]
+          },
+          "output_targets": {
+            "parabola": "Γ"
+          },
+          "intent": "建立第(ii)问含参抛物线"
+        },
+        {
+          "step_id": "ii_y_intercept",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "args": {
+            "parabola": "Γ"
+          },
+          "output_targets": {
+            "point": "C"
+          },
+          "intent": "求y轴交点C"
+        },
+        {
+          "step_id": "ii_candidates",
+          "capability_id": "right_angle_equal_length_candidates",
+          "args": {
+            "target": "D",
+            "right_angle_equal_length": "D ∈ {X | ∠CAX=90°, AX=AC}"
+          },
+          "intent": "由直角等腰关系列D候选点"
+        },
+        {
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "args": {
+            "candidates": {
+              "step_id": "ii_candidates",
+              "return": "candidates"
+            },
+            "parabola": "Γ",
+            "target_point": "D",
+            "point_on_curve": "D ∈ Γ",
+            "symbol_constraint": "b>0"
+          },
+          "output_targets": {
+            "selected_curve_point": "D"
+          },
+          "return_expectations": {
+            "selected_curve_point": "closed_state"
+          },
+          "intent": "用曲线与参数约束筛选D并反求参数"
+        }
+      ]
+    },
+    "iii.b": {
+      "answer_from": {
+        "step_id": "iii_solve_b",
+        "return": "parameter_value"
+      },
+      "steps": [
+        {
+          "step_id": "iii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": [
+              "a=1"
+            ],
+            "curve_point": "A",
+            "free_parameters": [
+              "b"
+            ]
+          },
+          "output_targets": {
+            "parabola": "Γ"
+          },
+          "intent": "建立第(iii)问含参抛物线"
+        },
+        {
+          "step_id": "iii_M",
+          "capability_id": "point_on_parabola_at_x",
+          "args": {
+            "parabola": "Γ"
+          },
+          "output_targets": {
+            "point": "M"
+          },
+          "intent": "由结构化横坐标求抛物线上点M"
+        },
+        {
+          "step_id": "iii_min",
+          "capability_id": "weighted_axis_path_minimum",
+          "args": {
+            "path_minimum_target": "min(sqrt(2)*MN+AN)"
+          },
+          "intent": "求加权路径最小值表达式"
+        },
+        {
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "args": {
+            "expression": {
+              "step_id": "iii_min",
+              "return": "minimum_expression"
+            },
+            "minimum_value": "min(sqrt(2)*MN+AN)=21/4",
+            "parameter": "b"
+          },
+          "output_targets": {
+            "parameter_value": "b"
+          },
+          "intent": "由给定最小值反求b"
+        }
+      ]
+    }
+  }
+}

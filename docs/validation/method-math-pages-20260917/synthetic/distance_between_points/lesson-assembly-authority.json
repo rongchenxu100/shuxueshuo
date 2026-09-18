@@ -1,0 +1,24 @@
+{
+  "schema_version": "lesson-assembly-authority/v1",
+  "snapshot_hash": "dc7eaca3a67b24fef3a1f252fd04b14b185da082ef8c5a2ec0e333d2dd2aa560",
+  "annotated_plan_hash": "00a62b187be97e5e32974419f45ff8eab67bfb96baffd93952ed4d1ef79cce65",
+  "lesson_ir_hash": "5ed665319504ba0b86fd326b275a249a93bc5aa748fc4fd8ee042798c6fce964",
+  "lesson_steps": {
+    "teach:synthetic_distance_between_points": {
+      "container_ref": "goal:problem.distance",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "synthetic_distance_between_points"
+      ],
+      "capability_ids": [
+        "distance_between_points"
+      ],
+      "unit_keys": [
+        "distance_between_points/compute_distance"
+      ],
+      "evidence_refs": []
+    }
+  }
+}

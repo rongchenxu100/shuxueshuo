@@ -1,0 +1,60 @@
+{
+  "steps": {
+    "teach:synthetic_distance_between_points": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:synthetic_distance_between_points:1",
+          "caption": "计算距离",
+          "teachingUnitKeys": [
+            "distance_between_points/compute_distance"
+          ],
+          "domain": {
+            "minX": -1.22,
+            "maxX": 4.22,
+            "minY": -2.08,
+            "maxY": 6.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "from": "point_A_problem",
+              "to": "point_B_problem",
+              "color": "#b45309",
+              "width": 2.6,
+              "dash": "",
+              "type": "coloredLine"
+            },
+            {
+              "type": "segment",
+              "from": "point_A_problem",
+              "to": "point_B_problem",
+              "label": "5",
+              "color": "#b45309",
+              "width": 2.6,
+              "offsetPx": 16
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "at": "point_B_problem",
+              "labelText": "B",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

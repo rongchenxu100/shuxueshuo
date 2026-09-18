@@ -1,0 +1,244 @@
+{
+  "schema_version": "lesson-assembly-authority/v1",
+  "snapshot_hash": "85a246e63a383bd25a40c6fe85eb2c23bf63153bb1fb3282489f49b305275705",
+  "annotated_plan_hash": "90469d8b2461450d7fd623b81ca68c82962d61e1248c3b93681a8cc9bfd1d6fc",
+  "lesson_ir_hash": "e91007b199bd8d65b7276053d04ad4c8c6b828e7ba817166b5d67427ebad94b0",
+  "lesson_steps": {
+    "teach:i_derive_D": {
+      "container_ref": "scope:problem",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "i_derive_D"
+      ],
+      "capability_ids": [
+        "quadratic_axis_from_relation"
+      ],
+      "unit_keys": [
+        "quadratic_axis_from_relation/derive_axis"
+      ],
+      "evidence_refs": []
+    },
+    "teach:i_derive_parabola": {
+      "container_ref": "goal:i.parabola",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "i_derive_parabola"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints"
+      ],
+      "unit_keys": [
+        "quadratic_from_constraints/derive_function"
+      ],
+      "evidence_refs": []
+    },
+    "teach:ii_construct_N:right_angle_equal_length_construct_and_select/construct_candidates": {
+      "container_ref": "scope:ii",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "ii_construct_N"
+      ],
+      "capability_ids": [
+        "right_angle_equal_length_construct_and_select"
+      ],
+      "unit_keys": [
+        "right_angle_equal_length_construct_and_select/construct_candidates"
+      ],
+      "evidence_refs": [
+        "right-angle-construct-select:518f8587c5943a86ed7f6cb536ee48e32597a512e61925cbf32c98bad920b0f4"
+      ]
+    },
+    "teach:ii_construct_N:right_angle_equal_length_construct_and_select/select_candidate": {
+      "container_ref": "scope:ii",
+      "material_positions": [
+        1
+      ],
+      "source_step_ids": [
+        "ii_construct_N"
+      ],
+      "capability_ids": [
+        "right_angle_equal_length_construct_and_select"
+      ],
+      "unit_keys": [
+        "right_angle_equal_length_construct_and_select/select_candidate"
+      ],
+      "evidence_refs": [
+        "right-angle-construct-select:518f8587c5943a86ed7f6cb536ee48e32597a512e61925cbf32c98bad920b0f4"
+      ]
+    },
+    "teach:ii_derive_parabola": {
+      "container_ref": "scope:ii",
+      "material_positions": [
+        2
+      ],
+      "source_step_ids": [
+        "ii_derive_parabola"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints"
+      ],
+      "unit_keys": [
+        "quadratic_from_constraints/derive_function"
+      ],
+      "evidence_refs": []
+    },
+    "teach:ii_compute_F": {
+      "container_ref": "scope:ii",
+      "material_positions": [
+        3
+      ],
+      "source_step_ids": [
+        "ii_compute_F"
+      ],
+      "capability_ids": [
+        "midpoint_point"
+      ],
+      "unit_keys": [
+        "midpoint_point/compute_midpoint"
+      ],
+      "evidence_refs": []
+    },
+    "teach:ii_path_minimum:coupled_segment_endpoint_replacement_path_minimum/endpoint_replacement": {
+      "container_ref": "scope:ii",
+      "material_positions": [
+        4
+      ],
+      "source_step_ids": [
+        "ii_path_minimum"
+      ],
+      "capability_ids": [
+        "coupled_segment_endpoint_replacement_path_minimum"
+      ],
+      "unit_keys": [
+        "coupled_segment_endpoint_replacement_path_minimum/endpoint_replacement"
+      ],
+      "evidence_refs": [
+        "path-minimum:f87579e163b826e640b1a5c70903011b908f823299758bb695d2d31743e2ffe4"
+      ]
+    },
+    "teach:ii_path_minimum:coupled_segment_endpoint_replacement_path_minimum/reflection_minimum": {
+      "container_ref": "scope:ii",
+      "material_positions": [
+        5
+      ],
+      "source_step_ids": [
+        "ii_path_minimum"
+      ],
+      "capability_ids": [
+        "coupled_segment_endpoint_replacement_path_minimum"
+      ],
+      "unit_keys": [
+        "coupled_segment_endpoint_replacement_path_minimum/reflection_minimum"
+      ],
+      "evidence_refs": [
+        "path-minimum:f87579e163b826e640b1a5c70903011b908f823299758bb695d2d31743e2ffe4"
+      ]
+    },
+    "teach:ii_1_solve_m": {
+      "container_ref": "scope:ii_1",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "ii_1_solve_m"
+      ],
+      "capability_ids": [
+        "parameter_from_segment_length"
+      ],
+      "unit_keys": [
+        "parameter_from_segment_length/solve_parameter"
+      ],
+      "evidence_refs": [
+        "symbolic-closure:961efe9a56538b375b933ecbc12b4e4281b58f5f34447414ea41f29cb6a56beb"
+      ]
+    },
+    "teach:ii_1_evaluate_minimum": {
+      "container_ref": "goal:ii_1.min_value",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "ii_1_evaluate_minimum"
+      ],
+      "capability_ids": [
+        "evaluate_expression_at_parameter"
+      ],
+      "unit_keys": [
+        "evaluate_expression_at_parameter/substitute_parameter"
+      ],
+      "evidence_refs": []
+    },
+    "teach:ii_1_specialize_parabola": {
+      "container_ref": "goal:ii_1.parabola",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "ii_1_specialize_parabola"
+      ],
+      "capability_ids": [
+        "evaluate_expression_at_parameter"
+      ],
+      "unit_keys": [
+        "evaluate_expression_at_parameter/substitute_parameter"
+      ],
+      "evidence_refs": []
+    },
+    "teach:ii_2_solve_m": {
+      "container_ref": "scope:ii_2",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "ii_2_solve_m"
+      ],
+      "capability_ids": [
+        "parameter_from_minimum_value"
+      ],
+      "unit_keys": [
+        "parameter_from_minimum_value/solve_parameter"
+      ],
+      "evidence_refs": [
+        "symbolic-closure:cc81fe79544cb6a59c4f0c48c70107236ac0a23f1e3a1bea4eb2607d74b1efac"
+      ]
+    },
+    "teach:ii_2_evaluate_G": {
+      "container_ref": "goal:ii_2.G",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "ii_2_evaluate_G"
+      ],
+      "capability_ids": [
+        "evaluate_point_at_parameter"
+      ],
+      "unit_keys": [
+        "evaluate_point_at_parameter/substitute_point_parameter"
+      ],
+      "evidence_refs": []
+    },
+    "teach:ii_2_specialize_parabola": {
+      "container_ref": "goal:ii_2.parabola",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "ii_2_specialize_parabola"
+      ],
+      "capability_ids": [
+        "evaluate_expression_at_parameter"
+      ],
+      "unit_keys": [
+        "evaluate_expression_at_parameter/substitute_parameter"
+      ],
+      "evidence_refs": []
+    }
+  }
+}

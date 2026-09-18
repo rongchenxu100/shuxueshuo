@@ -1,0 +1,52 @@
+{
+  "step_id": "synthetic_distance_between_points",
+  "capability_id": "distance_between_points",
+  "intent": "用两点距离公式求线段 AB 的长度。",
+  "inputs": {
+    "p1": [
+      {
+        "ref": {
+          "kind": "source",
+          "ref": "point:problem:A"
+        },
+        "runtime_type": "Point",
+        "value": [
+          "0",
+          "0"
+        ],
+        "display": "A(0,0)"
+      }
+    ],
+    "p2": [
+      {
+        "ref": {
+          "kind": "source",
+          "ref": "point:problem:B"
+        },
+        "runtime_type": "Point",
+        "value": [
+          "3",
+          "4"
+        ],
+        "display": "B(3,4)"
+      }
+    ]
+  },
+  "output_targets": {},
+  "outputs": {
+    "distance": {
+      "runtime_type": "MinimumExpression",
+      "value": "5",
+      "display": "5"
+    }
+  },
+  "calculations": [],
+  "checks": [
+    {
+      "check_id": "distance_is_nonzero",
+      "kind": "runtime_method_check",
+      "passed": true,
+      "detail": "距离表达式非零"
+    }
+  ]
+}

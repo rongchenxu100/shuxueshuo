@@ -77,7 +77,7 @@ MATH_PRECONDITIONS = {
         "degree(parabola)=2",
         "square(A,E,K,G)",
         "E ∈ axis(parabola)",
-        "min(path_minimum_target) attained",
+        "path_minimum_target attained",
     ],
     "equal_length_ray_point": ["N ∈ ray(C,D)", "MN=given_length"],
     "angle_sum_equal_angle_candidates": ["angle(A,B,C)+angle(D,E,F)=given_angle"],
@@ -89,11 +89,11 @@ MATH_PRECONDITIONS = {
     ],
     "right_angle_equal_length_candidates": ["angle(A,O,B)=90°", "OA=OB"],
     "weighted_axis_path_minimum": [
-        "path_minimum_target=min(k*MN+AN)",
+        "path_minimum_target=k*MN+AN",
         "k>1",
         "N=(n,0)",
         "n ∈ given_domain",
-        "min(k*MN+AN) attained",
+        "k*MN+AN attained",
     ],
     "curve_candidate_parameter_solve": [
         "target_point ∈ candidates",

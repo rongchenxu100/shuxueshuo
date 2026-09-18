@@ -68,6 +68,7 @@ def write_scoped_attempt_evidence(directory: Path, attempt: Any) -> None:
         save("raw-response", None, "no_visible_response_received")
     save("normalized-response", getattr(attempt, "normalized_response", None), "no_normalized_authoring_response")
     save("normalized-content", getattr(attempt, "normalized_content", None), "no_merged_content_normalization")
+    save("math-argument-bindings", getattr(attempt, "math_argument_bindings", ()))
     save("candidate-plan", getattr(attempt, "candidate_plan", None), "no_structurally_assembled_candidate")
     save("compiled-plan", getattr(attempt, "merged_plan", None), "content_contract_not_passed")
     save("canonical-plan", canonical, "no_canonical_plan_from_this_execution")

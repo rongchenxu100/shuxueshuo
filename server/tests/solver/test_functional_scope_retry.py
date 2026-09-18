@@ -25,6 +25,7 @@ from shuxueshuo_server.solver.runtime.functional_scope_retry import (
     FunctionalScopeRetryAuthorityProjector,
     FunctionalScopeRetryError,
     ScopedFunctionalScopeRetryService,
+    _retry_parent_state_rewrite_issue,
     build_scope_retry_restore_seed,
     functional_annotated_plan_schema,
     functional_scope_repair_schema,
@@ -40,7 +41,9 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     rebase_restored_call_seed,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlan,
     ScopedFunctionalPlanError,
+    ScopedFunctionalScope,
     ScopedFunctionalPlanValidator,
     ScopedFunctionalStep,
     ScopedStepResultRef,
@@ -95,6 +98,70 @@ def _walk_annotated(scope):
     yield scope
     for child in scope.children:
         yield from _walk_annotated(child)
+
+
+def _parent_with_descendant_consumer(*, parent_args, parent_targets):
+    producer = ScopedFunctionalStep(
+        step_id="build_parabola",
+        capability_id="quadratic_from_constraints",
+        args=parent_args,
+        output_targets=parent_targets,
+        return_expectations={},
+    )
+    consumer = ScopedFunctionalStep(
+        step_id="read_parabola",
+        capability_id="quadratic_vertex_point",
+        args={"parabola": ("parabola",)},
+        output_targets={},
+        return_expectations={},
+    )
+    return ScopedFunctionalPlan(
+        root_scope=ScopedFunctionalScope(
+            scope_ref="root",
+            steps=(producer,),
+            children=(ScopedFunctionalScope(scope_ref="child", steps=(consumer,)),),
+        )
+    )
+
+
+def test_parent_state_guard_allows_shared_producer_argument_repair() -> None:
+    base = _parent_with_descendant_consumer(
+        parent_args={"constraints": ("old",)},
+        parent_targets={"parabola": "parabola"},
+    )
+    candidate = _parent_with_descendant_consumer(
+        parent_args={"constraints": ("repaired",)},
+        parent_targets={"parabola": "parabola"},
+    )
+
+    assert (
+        _retry_parent_state_rewrite_issue(
+            base_plan=base,
+            candidate=candidate,
+            editable_scope_refs=("root",),
+        )
+        is None
+    )
+
+
+def test_parent_state_guard_rejects_changed_output_identity() -> None:
+    base = _parent_with_descendant_consumer(
+        parent_args={"constraints": ("old",)},
+        parent_targets={"parabola": "parabola"},
+    )
+    candidate = _parent_with_descendant_consumer(
+        parent_args={"constraints": ("old",)},
+        parent_targets={"coordinate": "parabola"},
+    )
+
+    issue = _retry_parent_state_rewrite_issue(
+        base_plan=base,
+        candidate=candidate,
+        editable_scope_refs=("root",),
+    )
+
+    assert issue is not None
+    assert issue["code"] == "functional.retry_parent_state_rewrite"
 
 
 def _replace_execution_step(scope, step_id, transform):
@@ -723,6 +790,27 @@ def test_structural_repair_parser_allows_refs_before_merged_plan_normalization(
         "return": "point",
     }
     assert not tuple(Draft202012Validator(schema).iter_errors(payload))
+
+
+def test_scope_repair_parser_discards_dsml_trailer_like_content(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=fixture.failed_plan,
+        execution=fixture.execution,
+    )
+    payload = _scope_repair_payload(fixture.failed_plan, "ii")
+
+    repair = FunctionalScopeRepairCompiler().parse_json(
+        json.dumps(payload, ensure_ascii=False)
+        + "</｜｜DSML｜｜ parameter>\n</｜｜DSML｜｜ invoke>",
+        authority=authority,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert repair.scope_replacements["ii"].goals["ii.a"].answer_from
+    assert [item.code for item in repair.normalizations] == [
+        "functional.trailing_non_json_discarded"
+    ]
 
 
 def test_scope_repair_normalizes_optional_empty_capability_args(tmp_path) -> None:

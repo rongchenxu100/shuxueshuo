@@ -1,0 +1,1505 @@
+[
+  {
+    "case": "tj-2026-heping-ermo-25",
+    "encoding": "math-expression/v1",
+    "sample": 1,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.execution_unexpected_failure",
+        "path": "$",
+        "message": "planner_configuration_error: planner.functional_arg_version_drift: materialized arg intercept_A.parabola[0] has no StateVersionId",
+        "retryable": false,
+        "details": {
+          "exception_type": "FunctionalBindingContextError"
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "attempt-error",
+      "first_reported": {
+        "code": "functional.execution_unexpected_failure",
+        "path": "$",
+        "message": "planner_configuration_error: planner.functional_arg_version_drift: materialized arg intercept_A.parabola[0] has no StateVersionId",
+        "retryable": false,
+        "details": {
+          "exception_type": "FunctionalBindingContextError"
+        }
+      },
+      "issues": [
+        {
+          "code": "functional.execution_unexpected_failure",
+          "path": "$",
+          "message": "planner_configuration_error: planner.functional_arg_version_drift: materialized arg intercept_A.parabola[0] has no StateVersionId",
+          "retryable": false,
+          "details": {
+            "exception_type": "FunctionalBindingContextError"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-heping-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 3,
+    "attempt": 3,
+    "protocol": "functional-scope-repair/v1",
+    "attempt_errors": [],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "transaction",
+      "first_reported": {
+        "layer": "trial_execution",
+        "code": "functional.method_result_empty",
+        "step_id": "step_angle_equality",
+        "scope_id": null,
+        "repair_target": "call",
+        "preserve_policy": "preserve_graph",
+        "message": "StatelessMethodError: axis triangle does not establish the required 45 degree reference angle",
+        "hints": [],
+        "related_handles": [],
+        "details": {},
+        "diagnostic_authority": {
+          "schema_version": "functional-diagnostic-authority/v1",
+          "code": "functional.method_result_empty",
+          "category": "result",
+          "stage": "method",
+          "retryability": "planner_repairable",
+          "subjects": [
+            {
+              "role": "horizontal_axis_point",
+              "arg_name": "x_axis_point",
+              "internal_ref": "point:problem:B",
+              "expected_type": "Point",
+              "expected_state": "reference_angle_relation_provable",
+              "observed_type": "Point",
+              "observed_state": "open_state"
+            },
+            {
+              "role": "vertical_axis_point",
+              "arg_name": "y_axis_point",
+              "internal_ref": "point:problem:C",
+              "expected_type": "Point",
+              "expected_state": "reference_angle_relation_provable",
+              "observed_type": "Point",
+              "observed_state": "closed_state"
+            }
+          ],
+          "expected": {
+            "horizontal_length_equals_vertical_length": true
+          },
+          "observed": {
+            "horizontal_free_symbols": [
+              "a"
+            ],
+            "horizontal_length": "3/Abs(a)",
+            "vertical_free_symbols": [],
+            "vertical_length": "3"
+          },
+          "repair_action": "refresh_derived_input_states",
+          "repair_call_ids": [],
+          "original_message": "axis triangle does not establish the required 45 degree reference angle",
+          "authority_details": {},
+          "method_id": "angle_sum_equal_angle_candidates",
+          "capability_id": "angle_sum_equal_angle_candidates",
+          "scope_id": "i_2",
+          "step_id": "step_angle_equality"
+        }
+      },
+      "issues": [
+        {
+          "layer": "trial_execution",
+          "code": "functional.method_result_empty",
+          "step_id": "step_angle_equality",
+          "scope_id": null,
+          "repair_target": "call",
+          "preserve_policy": "preserve_graph",
+          "message": "StatelessMethodError: axis triangle does not establish the required 45 degree reference angle",
+          "hints": [],
+          "related_handles": [],
+          "details": {},
+          "diagnostic_authority": {
+            "schema_version": "functional-diagnostic-authority/v1",
+            "code": "functional.method_result_empty",
+            "category": "result",
+            "stage": "method",
+            "retryability": "planner_repairable",
+            "subjects": [
+              {
+                "role": "horizontal_axis_point",
+                "arg_name": "x_axis_point",
+                "internal_ref": "point:problem:B",
+                "expected_type": "Point",
+                "expected_state": "reference_angle_relation_provable",
+                "observed_type": "Point",
+                "observed_state": "open_state"
+              },
+              {
+                "role": "vertical_axis_point",
+                "arg_name": "y_axis_point",
+                "internal_ref": "point:problem:C",
+                "expected_type": "Point",
+                "expected_state": "reference_angle_relation_provable",
+                "observed_type": "Point",
+                "observed_state": "closed_state"
+              }
+            ],
+            "expected": {
+              "horizontal_length_equals_vertical_length": true
+            },
+            "observed": {
+              "horizontal_free_symbols": [
+                "a"
+              ],
+              "horizontal_length": "3/Abs(a)",
+              "vertical_free_symbols": [],
+              "vertical_length": "3"
+            },
+            "repair_action": "refresh_derived_input_states",
+            "repair_call_ids": [],
+            "original_message": "axis triangle does not establish the required 45 degree reference angle",
+            "authority_details": {},
+            "method_id": "angle_sum_equal_angle_candidates",
+            "capability_id": "angle_sum_equal_angle_candidates",
+            "scope_id": "i_2",
+            "step_id": "step_angle_equality"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 1,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+        "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+              "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+        "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+          "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 1,
+    "attempt": 2,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got =",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got ="
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got ="
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_invalid",
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "message": "notation.expected: expected ∈, got ="
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 1,
+    "attempt": 3,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,"
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,"
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_invalid",
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,"
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 2,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got =",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got ="
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got ="
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_invalid",
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "message": "notation.expected: expected ∈, got ="
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 2,
+    "attempt": 2,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got =",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got ="
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got ="
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_invalid",
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "message": "notation.expected: expected ∈, got ="
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 2,
+    "attempt": 3,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+        "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+              "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+        "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+          "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 3,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got =",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got ="
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got ="
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_invalid",
+          "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+          "message": "notation.expected: expected ∈, got ="
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 3,
+    "attempt": 2,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+        "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+              "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+        "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+          "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 3,
+    "attempt": 3,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got =",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got ="
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got ="
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_invalid",
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "message": "notation.expected: expected ∈, got ="
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "source-ref",
+    "sample": 2,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.plan_content_schema_invalid",
+        "path": "$['scope_steps']['i'][1]['args']",
+        "message": "Undeclared fields are not allowed.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.plan_content_schema_invalid",
+              "path": "$['scope_steps']['i'][1]['args']",
+              "message": "Undeclared fields are not allowed.",
+              "details": {
+                "capability_id": "quadratic_vertex_point",
+                "consumer": {
+                  "step_id": "i_vertex",
+                  "kind": "scope_steps",
+                  "scope_ref": "i"
+                },
+                "diagnostic_id": "6e974cf10edea946",
+                "expected": {
+                  "additionalProperties": false
+                },
+                "observed": {
+                  "unexpected_fields": [
+                    "quadratic"
+                  ]
+                },
+                "repair_action": "repair_capability_arguments",
+                "schema_path": [
+                  "properties",
+                  "scope_steps",
+                  "properties",
+                  "i",
+                  "items",
+                  "oneOf",
+                  11,
+                  "allOf",
+                  1,
+                  "properties",
+                  "args",
+                  "additionalProperties"
+                ],
+                "step_id": "i_vertex",
+                "validator": "additionalProperties"
+              }
+            },
+            {
+              "code": "functional.plan_content_schema_invalid",
+              "path": "$['scope_steps']['i'][1]['args']['parabola']",
+              "message": "Required field is missing.",
+              "details": {
+                "capability_id": "quadratic_vertex_point",
+                "consumer": {
+                  "step_id": "i_vertex",
+                  "kind": "scope_steps",
+                  "scope_ref": "i"
+                },
+                "diagnostic_id": "ec230c1898435fce",
+                "expected": {
+                  "required_fields": [
+                    "parabola"
+                  ]
+                },
+                "observed": {
+                  "missing_fields": [
+                    "parabola"
+                  ]
+                },
+                "repair_action": "repair_capability_arguments",
+                "schema_path": [
+                  "properties",
+                  "scope_steps",
+                  "properties",
+                  "i",
+                  "items",
+                  "oneOf",
+                  11,
+                  "allOf",
+                  1,
+                  "properties",
+                  "args",
+                  "required"
+                ],
+                "step_id": "i_vertex",
+                "validator": "required"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.plan_content_schema_invalid",
+        "path": "$['scope_steps']['i'][1]['args']",
+        "message": "Undeclared fields are not allowed.",
+        "details": {
+          "capability_id": "quadratic_vertex_point",
+          "consumer": {
+            "step_id": "i_vertex",
+            "kind": "scope_steps",
+            "scope_ref": "i"
+          },
+          "diagnostic_id": "6e974cf10edea946",
+          "expected": {
+            "additionalProperties": false
+          },
+          "observed": {
+            "unexpected_fields": [
+              "quadratic"
+            ]
+          },
+          "repair_action": "repair_capability_arguments",
+          "schema_path": [
+            "properties",
+            "scope_steps",
+            "properties",
+            "i",
+            "items",
+            "oneOf",
+            11,
+            "allOf",
+            1,
+            "properties",
+            "args",
+            "additionalProperties"
+          ],
+          "step_id": "i_vertex",
+          "validator": "additionalProperties"
+        }
+      },
+      "issues": [
+        {
+          "code": "functional.plan_content_schema_invalid",
+          "path": "$['scope_steps']['i'][1]['args']",
+          "message": "Undeclared fields are not allowed.",
+          "details": {
+            "capability_id": "quadratic_vertex_point",
+            "consumer": {
+              "step_id": "i_vertex",
+              "kind": "scope_steps",
+              "scope_ref": "i"
+            },
+            "diagnostic_id": "6e974cf10edea946",
+            "expected": {
+              "additionalProperties": false
+            },
+            "observed": {
+              "unexpected_fields": [
+                "quadratic"
+              ]
+            },
+            "repair_action": "repair_capability_arguments",
+            "schema_path": [
+              "properties",
+              "scope_steps",
+              "properties",
+              "i",
+              "items",
+              "oneOf",
+              11,
+              "allOf",
+              1,
+              "properties",
+              "args",
+              "additionalProperties"
+            ],
+            "step_id": "i_vertex",
+            "validator": "additionalProperties"
+          }
+        },
+        {
+          "code": "functional.plan_content_schema_invalid",
+          "path": "$['scope_steps']['i'][1]['args']['parabola']",
+          "message": "Required field is missing.",
+          "details": {
+            "capability_id": "quadratic_vertex_point",
+            "consumer": {
+              "step_id": "i_vertex",
+              "kind": "scope_steps",
+              "scope_ref": "i"
+            },
+            "diagnostic_id": "ec230c1898435fce",
+            "expected": {
+              "required_fields": [
+                "parabola"
+              ]
+            },
+            "observed": {
+              "missing_fields": [
+                "parabola"
+              ]
+            },
+            "repair_action": "repair_capability_arguments",
+            "schema_path": [
+              "properties",
+              "scope_steps",
+              "properties",
+              "i",
+              "items",
+              "oneOf",
+              11,
+              "allOf",
+              1,
+              "properties",
+              "args",
+              "required"
+            ],
+            "step_id": "i_vertex",
+            "validator": "required"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-hexi-yimo-25",
+    "encoding": "source-ref",
+    "sample": 2,
+    "attempt": 2,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "execution-authority",
+      "first_reported": {
+        "code": "functional.step_contract_invalid",
+        "path": "$.steps['ii_solve_d'].args['point_on_curve']",
+        "message": "Fact ref 'math_assertion_0cbab95f645d' has kind 'math_assertion'; argument 'point_on_curve' accepts ['point_on_curve']"
+      },
+      "issues": [
+        {
+          "code": "functional.step_contract_invalid",
+          "path": "$.steps['ii_solve_d'].args['point_on_curve']",
+          "message": "Fact ref 'math_assertion_0cbab95f645d' has kind 'math_assertion'; argument 'point_on_curve' accepts ['point_on_curve']"
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-nankai-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 1,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii[3].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii[3].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii[3].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.scope_steps.ii[3].args.path_minimum_target",
+          "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-nankai-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 1,
+    "attempt": 2,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii_1[4].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii_1[4].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii_1[4].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.scope_steps.ii_1[4].args.path_minimum_target",
+          "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-nankai-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 2,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii[3].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii[3].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii[3].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.scope_steps.ii[3].args.path_minimum_target",
+          "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-nankai-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 2,
+    "attempt": 2,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii_1[2].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii_1[2].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii_1[2].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.scope_steps.ii_1[2].args.path_minimum_target",
+          "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-nankai-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 3,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii[1].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii[1].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii[1].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.scope_steps.ii[1].args.path_minimum_target",
+          "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-nankai-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 3,
+    "attempt": 2,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii[2].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii[2].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.scope_steps.ii[2].args.path_minimum_target",
+        "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.scope_steps.ii[2].args.path_minimum_target",
+          "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-nankai-yimo-25",
+    "encoding": "source-ref",
+    "sample": 1,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "execution-authority",
+      "first_reported": {
+        "code": "functional.step_scope_visibility_drift",
+        "path": "$.steps['ii_path_minimum'].args['path_minimum_target']",
+        "message": "SemanticRef 'path_minimum_target_e_g_f' is outside step scope 'ii'; candidate owner scopes: ['ii_1', 'ii_2']",
+        "details": {
+          "allowed_actions": [
+            "rewrite_open_scopes_with_compatible_visible_producers"
+          ],
+          "consumer": {
+            "step_id": "ii_path_minimum",
+            "scope_ref": "ii",
+            "goal_ref": null,
+            "kind": "scope_steps"
+          },
+          "expected": {
+            "producer_visibility": "visible Scope-owned state or permitted exact Goal answer"
+          },
+          "observed": {
+            "producer_visibility": "not_visible"
+          },
+          "producer": {
+            "ref": "path_minimum_target_e_g_f",
+            "kind": "source",
+            "owner_scope_refs": [
+              "ii_1",
+              "ii_2"
+            ]
+          },
+          "reference_policy": "Changing reference syntax does not grant visibility. Relocation requires code-authorized Scopes; preserve local conditions.",
+          "repair_action": "repair_input_binding",
+          "scope_id": "ii",
+          "step_id": "ii_path_minimum"
+        }
+      },
+      "issues": [
+        {
+          "code": "functional.step_scope_visibility_drift",
+          "path": "$.steps['ii_path_minimum'].args['path_minimum_target']",
+          "message": "SemanticRef 'path_minimum_target_e_g_f' is outside step scope 'ii'; candidate owner scopes: ['ii_1', 'ii_2']",
+          "details": {
+            "allowed_actions": [
+              "rewrite_open_scopes_with_compatible_visible_producers"
+            ],
+            "consumer": {
+              "step_id": "ii_path_minimum",
+              "scope_ref": "ii",
+              "goal_ref": null,
+              "kind": "scope_steps"
+            },
+            "expected": {
+              "producer_visibility": "visible Scope-owned state or permitted exact Goal answer"
+            },
+            "observed": {
+              "producer_visibility": "not_visible"
+            },
+            "producer": {
+              "ref": "path_minimum_target_e_g_f",
+              "kind": "source",
+              "owner_scope_refs": [
+                "ii_1",
+                "ii_2"
+              ]
+            },
+            "reference_policy": "Changing reference syntax does not grant visibility. Relocation requires code-authorized Scopes; preserve local conditions.",
+            "repair_action": "repair_input_binding",
+            "scope_id": "ii",
+            "step_id": "ii_path_minimum"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-nankai-yimo-25",
+    "encoding": "source-ref",
+    "sample": 3,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "execution-authority",
+      "first_reported": {
+        "code": "functional.step_scope_visibility_drift",
+        "path": "$.steps['derive_path_minimum'].args['path_minimum_target']",
+        "message": "SemanticRef 'path_minimum_target_e_g_f' is outside step scope 'ii'; candidate owner scopes: ['ii_1', 'ii_2']",
+        "details": {
+          "allowed_actions": [
+            "rewrite_open_scopes_with_compatible_visible_producers"
+          ],
+          "consumer": {
+            "step_id": "derive_path_minimum",
+            "scope_ref": "ii",
+            "goal_ref": null,
+            "kind": "scope_steps"
+          },
+          "expected": {
+            "producer_visibility": "visible Scope-owned state or permitted exact Goal answer"
+          },
+          "observed": {
+            "producer_visibility": "not_visible"
+          },
+          "producer": {
+            "ref": "path_minimum_target_e_g_f",
+            "kind": "source",
+            "owner_scope_refs": [
+              "ii_1",
+              "ii_2"
+            ]
+          },
+          "reference_policy": "Changing reference syntax does not grant visibility. Relocation requires code-authorized Scopes; preserve local conditions.",
+          "repair_action": "repair_input_binding",
+          "scope_id": "ii",
+          "step_id": "derive_path_minimum"
+        }
+      },
+      "issues": [
+        {
+          "code": "functional.step_scope_visibility_drift",
+          "path": "$.steps['derive_path_minimum'].args['path_minimum_target']",
+          "message": "SemanticRef 'path_minimum_target_e_g_f' is outside step scope 'ii'; candidate owner scopes: ['ii_1', 'ii_2']",
+          "details": {
+            "allowed_actions": [
+              "rewrite_open_scopes_with_compatible_visible_producers"
+            ],
+            "consumer": {
+              "step_id": "derive_path_minimum",
+              "scope_ref": "ii",
+              "goal_ref": null,
+              "kind": "scope_steps"
+            },
+            "expected": {
+              "producer_visibility": "visible Scope-owned state or permitted exact Goal answer"
+            },
+            "observed": {
+              "producer_visibility": "not_visible"
+            },
+            "producer": {
+              "ref": "path_minimum_target_e_g_f",
+              "kind": "source",
+              "owner_scope_refs": [
+                "ii_1",
+                "ii_2"
+              ]
+            },
+            "reference_policy": "Changing reference syntax does not grant visibility. Relocation requires code-authorized Scopes; preserve local conditions.",
+            "repair_action": "repair_input_binding",
+            "scope_id": "ii",
+            "step_id": "derive_path_minimum"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-xiqing-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 1,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.plan_content_schema_invalid",
+        "path": "$['goal_plans']['ii_1.b']['steps'][1]['args']",
+        "message": "Undeclared fields are not allowed.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.plan_content_schema_invalid",
+              "path": "$['goal_plans']['ii_1.b']['steps'][1]['args']",
+              "message": "Undeclared fields are not allowed.",
+              "details": {
+                "capability_id": "quadratic_y_axis_intercept_point",
+                "consumer": {
+                  "step_id": "ii_1_C",
+                  "kind": "goal_steps",
+                  "goal_ref": "ii_1.b",
+                  "scope_ref": "ii_1"
+                },
+                "diagnostic_id": "81bf03f9bb404adf",
+                "expected": {
+                  "additionalProperties": false
+                },
+                "observed": {
+                  "unexpected_fields": [
+                    "parabola"
+                  ]
+                },
+                "repair_action": "repair_capability_arguments",
+                "schema_path": [
+                  "properties",
+                  "goal_plans",
+                  "properties",
+                  "ii_1.b",
+                  "properties",
+                  "steps",
+                  "items",
+                  "oneOf",
+                  13,
+                  "allOf",
+                  1,
+                  "properties",
+                  "args",
+                  "additionalProperties"
+                ],
+                "step_id": "ii_1_C",
+                "validator": "additionalProperties"
+              }
+            },
+            {
+              "code": "functional.plan_content_schema_invalid",
+              "path": "$['goal_plans']['ii_1.b']['steps'][1]['args']['quadratic']",
+              "message": "Required field is missing.",
+              "details": {
+                "capability_id": "quadratic_y_axis_intercept_point",
+                "consumer": {
+                  "step_id": "ii_1_C",
+                  "kind": "goal_steps",
+                  "goal_ref": "ii_1.b",
+                  "scope_ref": "ii_1"
+                },
+                "diagnostic_id": "ea7c334d896d0df3",
+                "expected": {
+                  "required_fields": [
+                    "quadratic"
+                  ]
+                },
+                "observed": {
+                  "missing_fields": [
+                    "quadratic"
+                  ]
+                },
+                "repair_action": "repair_capability_arguments",
+                "schema_path": [
+                  "properties",
+                  "goal_plans",
+                  "properties",
+                  "ii_1.b",
+                  "properties",
+                  "steps",
+                  "items",
+                  "oneOf",
+                  13,
+                  "allOf",
+                  1,
+                  "properties",
+                  "args",
+                  "required"
+                ],
+                "step_id": "ii_1_C",
+                "validator": "required"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.plan_content_schema_invalid",
+        "path": "$['goal_plans']['ii_1.b']['steps'][1]['args']",
+        "message": "Undeclared fields are not allowed.",
+        "details": {
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "consumer": {
+            "step_id": "ii_1_C",
+            "kind": "goal_steps",
+            "goal_ref": "ii_1.b",
+            "scope_ref": "ii_1"
+          },
+          "diagnostic_id": "81bf03f9bb404adf",
+          "expected": {
+            "additionalProperties": false
+          },
+          "observed": {
+            "unexpected_fields": [
+              "parabola"
+            ]
+          },
+          "repair_action": "repair_capability_arguments",
+          "schema_path": [
+            "properties",
+            "goal_plans",
+            "properties",
+            "ii_1.b",
+            "properties",
+            "steps",
+            "items",
+            "oneOf",
+            13,
+            "allOf",
+            1,
+            "properties",
+            "args",
+            "additionalProperties"
+          ],
+          "step_id": "ii_1_C",
+          "validator": "additionalProperties"
+        }
+      },
+      "issues": [
+        {
+          "code": "functional.plan_content_schema_invalid",
+          "path": "$['goal_plans']['ii_1.b']['steps'][1]['args']",
+          "message": "Undeclared fields are not allowed.",
+          "details": {
+            "capability_id": "quadratic_y_axis_intercept_point",
+            "consumer": {
+              "step_id": "ii_1_C",
+              "kind": "goal_steps",
+              "goal_ref": "ii_1.b",
+              "scope_ref": "ii_1"
+            },
+            "diagnostic_id": "81bf03f9bb404adf",
+            "expected": {
+              "additionalProperties": false
+            },
+            "observed": {
+              "unexpected_fields": [
+                "parabola"
+              ]
+            },
+            "repair_action": "repair_capability_arguments",
+            "schema_path": [
+              "properties",
+              "goal_plans",
+              "properties",
+              "ii_1.b",
+              "properties",
+              "steps",
+              "items",
+              "oneOf",
+              13,
+              "allOf",
+              1,
+              "properties",
+              "args",
+              "additionalProperties"
+            ],
+            "step_id": "ii_1_C",
+            "validator": "additionalProperties"
+          }
+        },
+        {
+          "code": "functional.plan_content_schema_invalid",
+          "path": "$['goal_plans']['ii_1.b']['steps'][1]['args']['quadratic']",
+          "message": "Required field is missing.",
+          "details": {
+            "capability_id": "quadratic_y_axis_intercept_point",
+            "consumer": {
+              "step_id": "ii_1_C",
+              "kind": "goal_steps",
+              "goal_ref": "ii_1.b",
+              "scope_ref": "ii_1"
+            },
+            "diagnostic_id": "ea7c334d896d0df3",
+            "expected": {
+              "required_fields": [
+                "quadratic"
+              ]
+            },
+            "observed": {
+              "missing_fields": [
+                "quadratic"
+              ]
+            },
+            "repair_action": "repair_capability_arguments",
+            "schema_path": [
+              "properties",
+              "goal_plans",
+              "properties",
+              "ii_1.b",
+              "properties",
+              "steps",
+              "items",
+              "oneOf",
+              13,
+              "allOf",
+              1,
+              "properties",
+              "args",
+              "required"
+            ],
+            "step_id": "ii_1_C",
+            "validator": "required"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-xiqing-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 2,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+        "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+              "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+        "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+          "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources."
+        }
+      ]
+    }
+  },
+  {
+    "case": "tj-2026-xiqing-yimo-25",
+    "encoding": "math-expression/v1",
+    "sample": 3,
+    "attempt": 1,
+    "protocol": "functional-plan-content/v2",
+    "attempt_errors": [
+      {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+        "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+              "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources."
+            }
+          ]
+        }
+      }
+    ],
+    "execution_blockers": {
+      "ordering": "first blocked pipeline stage; transaction.events records call execution order",
+      "source": "content-validation",
+      "first_reported": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+        "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources."
+      },
+      "issues": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+          "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources."
+        }
+      ]
+    }
+  }
+]

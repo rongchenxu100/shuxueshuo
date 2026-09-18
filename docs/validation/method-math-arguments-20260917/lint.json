@@ -1,0 +1,41 @@
+{
+  "new_files": "ruff passed",
+  "legacy_files": [
+    {
+      "file": "shuxueshuo_server/solver/runtime/functional_plan_content.py",
+      "baseline_count": 12,
+      "current_count": 12,
+      "introduced": []
+    },
+    {
+      "file": "shuxueshuo_server/solver/runtime/functional_scope_retry.py",
+      "baseline_count": 7,
+      "current_count": 7,
+      "introduced": []
+    },
+    {
+      "file": "shuxueshuo_server/solver/runtime/functional_attempt_evidence.py",
+      "baseline_count": 1,
+      "current_count": 1,
+      "introduced": []
+    },
+    {
+      "file": "shuxueshuo_server/solver/runtime/strategy_runtime_planner.py",
+      "baseline_count": 4,
+      "current_count": 4,
+      "introduced": []
+    },
+    {
+      "file": "shuxueshuo_server/solver/runtime/strategy_payload.py",
+      "baseline_count": 10,
+      "current_count": 10,
+      "introduced": []
+    },
+    {
+      "file": "tools/solver_test_profiles.py",
+      "baseline_count": 0,
+      "current_count": 0,
+      "introduced": []
+    }
+  ]
+}

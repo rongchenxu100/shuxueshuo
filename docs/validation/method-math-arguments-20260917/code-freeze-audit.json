@@ -1,0 +1,12 @@
+{
+  "frozen_code_fingerprint": "cd76f58bee7d64a812fb514fe9343d88742c81c8b2fd4e2aa8d59aa1430205b6",
+  "final_code_fingerprint": "cef81f6fc2d8d26eba5a4b6de82a89729c5e1f40cbca5b2ccff0a20b8165d8f9",
+  "changes_after_live": [
+    {
+      "file": "server/shuxueshuo_server/solver/runtime/strategy_runtime_planner.py",
+      "change": "sort three adjacent local imports; all other runtime, parser and prompt files unchanged"
+    }
+  ],
+  "final_offline_equivalent": true,
+  "raw_live_results_unchanged": true
+}

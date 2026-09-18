@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "id": "synthetic-line_intersection_point",
+    "outputPath": "/Users/haorong/projects/code/shuxueshuo/docs/validation/method-math-pages-20260917/synthetic/line_intersection_point/lesson.html",
+    "pageTitle": "synthetic-line_intersection_point",
+    "pageDescription": "本题数学综合：综合解题。",
+    "breadcrumbTitle": "synthetic-line_intersection_point",
+    "defaultT": 0.75,
+    "classification": {
+      "pattern": "lesson_capability_synthetic",
+      "methods": [
+        "line_intersection_point"
+      ]
+    }
+  },
+  "problem": {
+    "summary": "本题数学综合：综合解题。",
+    "lines": [
+      {
+        "text": "已知直线 AB 与 CD 相交于 H，求 H 的坐标。",
+        "answerId": "answer_problem_H",
+        "answer": "H(2, 2)"
+      }
+    ]
+  },
+  "ui": {
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "t=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "problem": "合成验收",
+      "合成验收": "合成验收"
+    },
+    "defaultT": 0.75
+  },
+  "steps": [
+    {
+      "id": "teach:synthetic_line_intersection_point",
+      "section": "合成验收",
+      "title": "第1步：求两直线交点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "第一条直线经过 A(0,0)、B(4,4)，其方程为 y＝x"
+        ],
+        [
+          "∵",
+          "第二条直线经过 C(0,4)、D(4,0)，其方程为 y＝－x＋4"
+        ],
+        [
+          "计算",
+          "联立 y＝x 与 y＝－x＋4，解得 x＝2，y＝2"
+        ],
+        [
+          "∴",
+          "交点为 H(2,2)"
+        ]
+      ],
+      "box": [
+        "H(2,2)"
+      ]
+    }
+  ],
+  "policies": {
+    "teach:synthetic_line_intersection_point": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    }
+  },
+  "stepLabels": {
+    "teach:synthetic_line_intersection_point": "1 求交点"
+  }
+}

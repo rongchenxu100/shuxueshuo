@@ -1,0 +1,95 @@
+{
+  "kind": "manual_browser_regression",
+  "origin": "existing_recorded_solver_and_deterministic_lesson",
+  "page_root": "docs/validation/method-math-pages-20260917",
+  "browser_errors_after_serving_repository_root": [],
+  "checks": [
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "diagrams": 14,
+      "sliders": 2,
+      "control_before": "0.75",
+      "control_after": "0.76",
+      "svg_changed": true
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "diagrams": 13,
+      "sliders": 5,
+      "control_before": "0",
+      "control_after": "0.05",
+      "svg_changed": true
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "diagrams": 12,
+      "sliders": 3,
+      "control_before": "0.7",
+      "control_after": "0.71",
+      "svg_changed": true
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "diagrams": 12,
+      "sliders": 2,
+      "control_before": "0.9495",
+      "control_after": "0.98115",
+      "rendered_svg_and_text_changed": true
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "diagrams": 10,
+      "sliders": 2,
+      "control_before": "2.84",
+      "control_after": "2.88",
+      "svg_changed": "not_separately_diffed",
+      "visual_render_inspected": true
+    }
+  ],
+  "math_encoded_pages": {
+    "base_url": "http://127.0.0.1:8769/docs/validation/method-math-pages-20260917/math-encoded/",
+    "console_errors": [],
+    "checks": [
+      {
+        "case": "tj-2026-hexi-yimo-25",
+        "diagrams": 12,
+        "sliders": 2,
+        "before": "0.9495",
+        "after": "0.98115",
+        "svg_changed": true
+      },
+      {
+        "case": "tj-2026-nankai-yimo-25",
+        "diagrams": 16,
+        "sliders": 4,
+        "before": "0.75",
+        "after": "0.76",
+        "svg_changed": true
+      },
+      {
+        "case": "tj-2026-heping-ermo-25",
+        "diagrams": 13,
+        "sliders": 5,
+        "before": "0",
+        "after": "0.05",
+        "svg_changed": true
+      },
+      {
+        "case": "tj-2026-heping-yimo-25",
+        "diagrams": 12,
+        "sliders": 3,
+        "before": "0.7",
+        "after": "0.71",
+        "svg_changed": true
+      },
+      {
+        "case": "tj-2026-xiqing-yimo-25",
+        "diagrams": 10,
+        "sliders": 2,
+        "before": "2.84",
+        "after": "2.88",
+        "svg_changed": true
+      }
+    ]
+  }
+}

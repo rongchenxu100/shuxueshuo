@@ -1,0 +1,25 @@
+{
+  "schema_version": "lesson-capability-case-audit/v1",
+  "problem_id": "tj-2026-heping-yimo-25",
+  "snapshot_hash": "5d8831651b90a3c5e0fb41510f7e8bb49717a7f0bcb9002ff536524f54c67b88",
+  "annotated_plan_hash": "213c08b920f71128b392c2ebd7c925dac8763cafe443d2623f4f9494ae2a6e8f",
+  "lesson_ir_hash": "f7cbe8f4505b60c657a9cf6f6dfed664d369eadd7d35994a211ce88f53e928d5",
+  "visual_step_ir_hash": "801f2ef156b5a36a9640b24eaa51c360ca647295a58cf8a660a1cb0f7d303f00",
+  "source_step_count": 11,
+  "lesson_step_count": 12,
+  "visual_frame_count": 12,
+  "source_steps": [
+    "derive_axis_intercept_F_i",
+    "derive_curve_intersection_E_i",
+    "derive_equal_angle_i",
+    "derive_parabola_i",
+    "derive_parametric_parabola_ii",
+    "derive_translated_D_i",
+    "derive_x_intercept_B_i",
+    "derive_x_intercept_B_ii",
+    "derive_y_intercept_C_i",
+    "reduce_equal_length_ray_path_ii",
+    "solve_parameter_from_minimum_ii"
+  ],
+  "diagnostics": []
+}

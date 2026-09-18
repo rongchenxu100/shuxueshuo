@@ -1,0 +1,36 @@
+[
+  {
+    "expression": "∠CAD∈90°, AC=AD",
+    "scope": "ii",
+    "status": "rejected",
+    "error_type": "MethodMathArgumentError",
+    "error": "functional.math_argument_invalid at $.args: notation.expected: expected ∈, got ="
+  },
+  {
+    "expression": "∠CAD∈90° ∧ AC=AD",
+    "scope": "ii",
+    "status": "rejected",
+    "error_type": "MethodMathArgumentError",
+    "error": "functional.math_argument_invalid at $.args: type.membership"
+  },
+  {
+    "expression": "∠CAD=90° ∧ AC=AD",
+    "scope": "ii",
+    "status": "bound",
+    "source_ref": "right_angle_equal_length_c_a_d_ac_ad",
+    "audit": {
+      "path": "$.args",
+      "expression": "∠CAD=90° ∧ AC=AD",
+      "ref": "right_angle_equal_length_c_a_d_ac_ad",
+      "scope_ref": "ii",
+      "source_paths": [
+        "/root/children/1/facts/5",
+        "/root/children/1/facts/6"
+      ],
+      "source_unit_ids": [
+        "notation-unit:7c447666876b9d9b08c4a3d2f7b9dd4e4ee73a78aee9724a7160153d80e99205",
+        "notation-unit:c6349138a40f5ea3d04c7a40efdc17e72114797665a5caecc113c47684a00260"
+      ]
+    }
+  }
+]

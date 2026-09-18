@@ -1,0 +1,23 @@
+{
+  "code_fingerprint": "cd76f58bee7d64a812fb514fe9343d88742c81c8b2fd4e2aa8d59aa1430205b6",
+  "cases": {
+    "tj-2026-nankai-yimo-25": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+    "tj-2026-heping-ermo-25": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+    "tj-2026-heping-yimo-25": "680cc4bcd9ea0c0bad275130188f53f332674dce9db585ebdb85596a02ec4820",
+    "tj-2026-hexi-yimo-25": "4ea2b8200a17a3ab1483827473aa50438475979eae15a3dae6b4a3fa6e1ef01f",
+    "tj-2026-xiqing-yimo-25": "c8fc44311550536371728bff412a74652861d17a414705e33e6acdce29f635c3"
+  },
+  "model": "deepseek-v4-flash",
+  "base_url": "https://api.deepseek.com",
+  "thinking_effort": "low",
+  "request_timeout": 120,
+  "sdk_max_retries": "provider_default",
+  "reasoning_only_empty_response_retry": true,
+  "semantic_attempt_budget": 3,
+  "encodings": [
+    "source-ref",
+    "math-expression/v1"
+  ],
+  "samples_per_case_and_encoding": 3,
+  "authority": "frozen_input_with_synthetic_test_admission"
+}

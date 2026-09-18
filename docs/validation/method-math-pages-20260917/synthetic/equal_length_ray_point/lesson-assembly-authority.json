@@ -1,0 +1,24 @@
+{
+  "schema_version": "lesson-assembly-authority/v1",
+  "snapshot_hash": "cced031fbfe90289b1a2063f2799fbd603b93660ccd667fe401796522507986e",
+  "annotated_plan_hash": "a484ec58761b8ecc80b0b14a03eea64357c614335a24dea484af8b55b988fc4a",
+  "lesson_ir_hash": "aec54ad92ca2787707f3f0141a68c6faa611763f6da5ff847e0609bfd0fb07b4",
+  "lesson_steps": {
+    "teach:synthetic_equal_length_ray_point": {
+      "container_ref": "goal:problem.D",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "synthetic_equal_length_ray_point"
+      ],
+      "capability_ids": [
+        "equal_length_ray_point"
+      ],
+      "unit_keys": [
+        "equal_length_ray_point/construct_point"
+      ],
+      "evidence_refs": []
+    }
+  }
+}

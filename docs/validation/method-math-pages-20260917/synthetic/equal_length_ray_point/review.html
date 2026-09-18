@@ -1,0 +1,120 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>equal_length_ray_point synthetic review</title><style>body{font:14px/1.5 sans-serif;margin:24px}pre{white-space:pre-wrap;background:#f5f5f5;padding:12px}iframe{width:100%;height:760px}</style></head><body><h1>equal_length_ray_point</h1><h2>TeachingSource</h2><pre>{
+  &quot;step_id&quot;: &quot;synthetic_equal_length_ray_point&quot;,
+  &quot;capability_id&quot;: &quot;equal_length_ray_point&quot;,
+  &quot;intent&quot;: &quot;在射线 AC 上作点 D，使 AD=AB。&quot;,
+  &quot;inputs&quot;: {
+    &quot;anchor&quot;: [
+      {
+        &quot;ref&quot;: {
+          &quot;kind&quot;: &quot;source&quot;,
+          &quot;ref&quot;: &quot;point:problem:A&quot;
+        },
+        &quot;runtime_type&quot;: &quot;Point&quot;,
+        &quot;value&quot;: [
+          &quot;0&quot;,
+          &quot;0&quot;
+        ],
+        &quot;display&quot;: &quot;A(0,0)&quot;
+      }
+    ],
+    &quot;reference_point&quot;: [
+      {
+        &quot;ref&quot;: {
+          &quot;kind&quot;: &quot;source&quot;,
+          &quot;ref&quot;: &quot;point:problem:B&quot;
+        },
+        &quot;runtime_type&quot;: &quot;Point&quot;,
+        &quot;value&quot;: [
+          &quot;0&quot;,
+          &quot;3&quot;
+        ],
+        &quot;display&quot;: &quot;B(0,3)&quot;
+      }
+    ],
+    &quot;ray_point&quot;: [
+      {
+        &quot;ref&quot;: {
+          &quot;kind&quot;: &quot;source&quot;,
+          &quot;ref&quot;: &quot;point:problem:C&quot;
+        },
+        &quot;runtime_type&quot;: &quot;Point&quot;,
+        &quot;value&quot;: [
+          &quot;2&quot;,
+          &quot;0&quot;
+        ],
+        &quot;display&quot;: &quot;C(2,0)&quot;
+      }
+    ],
+    &quot;target&quot;: [
+      {
+        &quot;ref&quot;: {
+          &quot;kind&quot;: &quot;source&quot;,
+          &quot;ref&quot;: &quot;point:problem:D&quot;
+        },
+        &quot;runtime_type&quot;: &quot;PointRef&quot;,
+        &quot;value&quot;: {
+          &quot;entity_type&quot;: &quot;point&quot;,
+          &quot;name&quot;: &quot;D&quot;,
+          &quot;description&quot;: &quot;D&quot;
+        },
+        &quot;display&quot;: &quot;D&quot;
+      }
+    ]
+  },
+  &quot;output_targets&quot;: {
+    &quot;point&quot;: &quot;point:problem:D&quot;
+  },
+  &quot;outputs&quot;: {
+    &quot;point&quot;: {
+      &quot;runtime_type&quot;: &quot;Point&quot;,
+      &quot;value&quot;: [
+        &quot;3&quot;,
+        &quot;0&quot;
+      ],
+      &quot;display&quot;: &quot;D(3,0)&quot;
+    }
+  },
+  &quot;calculations&quot;: [],
+  &quot;checks&quot;: [
+    {
+      &quot;check_id&quot;: &quot;equal_lengths&quot;,
+      &quot;kind&quot;: &quot;runtime_method_check&quot;,
+      &quot;passed&quot;: true,
+      &quot;detail&quot;: &quot;D 到 anchor 的距离等于参考线段长度&quot;
+    },
+    {
+      &quot;check_id&quot;: &quot;point_on_ray_line&quot;,
+      &quot;kind&quot;: &quot;runtime_method_check&quot;,
+      &quot;passed&quot;: true,
+      &quot;detail&quot;: &quot;D 在指定射线所在直线上&quot;
+    }
+  ]
+}</pre><h2>Bound material</h2><pre>[
+  {
+    &quot;nav_title&quot;: &quot;作等长点&quot;,
+    &quot;title&quot;: &quot;在射线上作等长点&quot;,
+    &quot;goal&quot;: &quot;沿指定射线构造一点，使所得线段与参考线段等长。&quot;,
+    &quot;derive&quot;: [
+      [
+        &quot;∵&quot;,
+        &quot;射线 AC 由 A(0,0)、C(2,0) 确定&quot;
+      ],
+      [
+        &quot;计算&quot;,
+        &quot;参考线段 AB＝3&quot;
+      ],
+      [
+        &quot;作&quot;,
+        &quot;在射线 AC 上截取 AD＝AB&quot;
+      ],
+      [
+        &quot;∴&quot;,
+        &quot;D(3,0)&quot;
+      ]
+    ],
+    &quot;box&quot;: [
+      &quot;D(3,0)&quot;
+    ],
+    &quot;unit_key&quot;: &quot;equal_length_ray_point/construct_point&quot;
+  }
+]</pre><h2>Rendered page</h2><iframe src="lesson.html"></iframe></body></html>

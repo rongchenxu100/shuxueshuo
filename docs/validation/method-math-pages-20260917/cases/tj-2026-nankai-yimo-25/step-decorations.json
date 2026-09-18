@@ -1,0 +1,2450 @@
+{
+  "steps": {
+    "teach:i_derive_D": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:i_derive_D:1",
+          "caption": "求对称轴",
+          "teachingUnitKeys": [
+            "quadratic_axis_from_relation/derive_axis"
+          ],
+          "domain": {
+            "minX": -1.72,
+            "maxX": 3.72,
+            "minY": -4.08,
+            "maxY": 4.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#0f766e",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel"
+            }
+          ]
+        }
+      ]
+    },
+    "teach:i_derive_parabola": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:i_derive_parabola:1",
+          "caption": "求解析式",
+          "teachingUnitKeys": [
+            "quadratic_from_constraints/derive_function"
+          ],
+          "domain": {
+            "minX": -1.72,
+            "maxX": 3.72,
+            "minY": -8.26,
+            "maxY": 1.26
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#2563eb",
+              "width": 2.4,
+              "type": "parabola"
+            }
+          ]
+        }
+      ]
+    },
+    "teach:ii_construct_N:right_angle_equal_length_construct_and_select/construct_candidates": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_construct_N:right_angle_equal_length_construct_and_select/construct_candidates:1",
+          "caption": "构造候选点",
+          "teachingUnitKeys": [
+            "right_angle_equal_length_construct_and_select/construct_candidates"
+          ],
+          "domain": {
+            "minX": -2.7917,
+            "maxX": 5.1513,
+            "minY": -4.7779,
+            "maxY": 4.3017
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.2,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_M_ii_1",
+              "color": "#0f766e",
+              "width": 2.1,
+              "dash": "",
+              "type": "coloredLine"
+            },
+            {
+              "type": "segment",
+              "from": "point_D_problem",
+              "to": "point_M_ii_1",
+              "label": "=",
+              "color": "#0f766e",
+              "width": 2.0,
+              "offsetPx": 14
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_candidate_ii_construct_N_1_1_ii",
+              "color": "#b45309",
+              "width": 2.1,
+              "dash": "",
+              "type": "coloredLine"
+            },
+            {
+              "vertex": "point_D_problem",
+              "rayA": "point_M_ii_1",
+              "rayB": "point_candidate_ii_construct_N_1_1_ii",
+              "color": "#0f766e",
+              "size": 10,
+              "type": "rightAngle"
+            },
+            {
+              "type": "segment",
+              "from": "point_D_problem",
+              "to": "point_candidate_ii_construct_N_1_1_ii",
+              "label": "=",
+              "color": "#b45309",
+              "width": 2.0,
+              "offsetPx": 14
+            },
+            {
+              "at": "point_candidate_ii_construct_N_1_1_ii",
+              "labelText": "N₁",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "from": "point_candidate_ii_construct_N_1_1_ii",
+              "to": "point_construction_ii_construct_N_candidate_projection_1_ii",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "5 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_construction_ii_construct_N_candidate_projection_1_ii",
+              "labelText": "V",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "vertex": "point_construction_ii_construct_N_candidate_projection_1_ii",
+              "rayA": "point_D_problem",
+              "rayB": "point_candidate_ii_construct_N_1_1_ii",
+              "color": "#64748b",
+              "size": 8,
+              "type": "rightAngle",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_candidate_ii_construct_N_1_2_ii",
+              "color": "#b45309",
+              "width": 2.1,
+              "dash": "",
+              "type": "coloredLine"
+            },
+            {
+              "vertex": "point_D_problem",
+              "rayA": "point_M_ii_1",
+              "rayB": "point_candidate_ii_construct_N_1_2_ii",
+              "color": "#0f766e",
+              "size": 10,
+              "type": "rightAngle"
+            },
+            {
+              "type": "segment",
+              "from": "point_D_problem",
+              "to": "point_candidate_ii_construct_N_1_2_ii",
+              "label": "=",
+              "color": "#b45309",
+              "width": 2.0,
+              "offsetPx": 14
+            },
+            {
+              "at": "point_candidate_ii_construct_N_1_2_ii",
+              "labelText": "N₂",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "from": "point_candidate_ii_construct_N_1_2_ii",
+              "to": "point_construction_ii_construct_N_candidate_projection_2_ii",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "5 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_construction_ii_construct_N_candidate_projection_2_ii",
+              "labelText": "W",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "vertex": "point_construction_ii_construct_N_candidate_projection_2_ii",
+              "rayA": "point_D_problem",
+              "rayB": "point_candidate_ii_construct_N_1_2_ii",
+              "color": "#64748b",
+              "size": 8,
+              "type": "rightAngle",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_M_ii_1",
+              "to": "point_construction_ii_construct_N_reference_projection_ii",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "5 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_construction_ii_construct_N_reference_projection_ii",
+              "labelText": "U",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "vertex": "point_construction_ii_construct_N_reference_projection_ii",
+              "rayA": "point_D_problem",
+              "rayB": "point_M_ii_1",
+              "color": "#64748b",
+              "size": 8,
+              "type": "rightAngle",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_M_ii_1",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_construction_ii_construct_N_candidate_projection_1_ii",
+              "to": "point_D_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_construction_ii_construct_N_candidate_projection_2_ii",
+              "to": "point_D_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_construction_ii_construct_N_reference_projection_ii",
+              "to": "point_D_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "m": 4.1
+          },
+          "pointOverrides": {
+            "point_M_ii_1": [
+              "m",
+              "1"
+            ],
+            "point_candidate_ii_construct_N_1_1_ii": [
+              "2",
+              "1-m"
+            ],
+            "point_candidate_ii_construct_N_1_2_ii": [
+              "0",
+              "m-1"
+            ],
+            "point_construction_ii_construct_N_reference_projection_ii": [
+              "m",
+              "0"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_construct_N:right_angle_equal_length_construct_and_select/select_candidate": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_construct_N:right_angle_equal_length_construct_and_select/select_candidate:1",
+          "caption": "筛选唯一点",
+          "teachingUnitKeys": [
+            "right_angle_equal_length_construct_and_select/select_candidate"
+          ],
+          "domain": {
+            "minX": -2.727,
+            "maxX": 4.727,
+            "minY": -5.8681,
+            "maxY": 2.2919
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.2,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,1－m)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel"
+            }
+          ],
+          "localValues": {
+            "m": 4.1
+          },
+          "pointOverrides": {
+            "point_N_ii": [
+              "2",
+              "1-m"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_derive_parabola": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_derive_parabola:1",
+          "caption": "化简解析式",
+          "teachingUnitKeys": [
+            "quadratic_from_constraints/derive_function"
+          ],
+          "domain": {
+            "minX": -2.727,
+            "maxX": 4.727,
+            "minY": -5.8681,
+            "maxY": 2.2919
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#2563eb",
+              "width": 2.4,
+              "type": "parabola"
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,1－m)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            }
+          ],
+          "localValues": {
+            "m": 4.1
+          },
+          "pointOverrides": {
+            "point_N_ii": [
+              "2",
+              "1-m"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_compute_F": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_compute_F:1",
+          "caption": "求中点",
+          "teachingUnitKeys": [
+            "midpoint_point/compute_midpoint"
+          ],
+          "domain": {
+            "minX": -1.22,
+            "maxX": 4.22,
+            "minY": -5.63,
+            "maxY": 2.53
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,1－m)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_N_ii",
+              "color": "#0f766e",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine"
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_F_ii",
+              "text": "F(3/2,1/2－m/2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel"
+            },
+            {
+              "type": "segment",
+              "from": "point_D_problem",
+              "to": "point_F_ii",
+              "label": "=",
+              "color": "#b45309",
+              "width": 1.8,
+              "offsetPx": 13
+            },
+            {
+              "type": "segment",
+              "from": "point_F_ii",
+              "to": "point_N_ii",
+              "label": "=",
+              "color": "#b45309",
+              "width": 1.8,
+              "offsetPx": 13
+            }
+          ],
+          "localValues": {
+            "m": 4.1
+          },
+          "pointOverrides": {
+            "point_N_ii": [
+              "2",
+              "1-m"
+            ],
+            "point_F_ii": [
+              "3/2",
+              "1/2-m/2"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_path_minimum:coupled_segment_endpoint_replacement_path_minimum/endpoint_replacement": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_path_minimum:coupled_segment_endpoint_replacement_path_minimum/endpoint_replacement:1",
+          "caption": "端点替换",
+          "teachingUnitKeys": [
+            "coupled_segment_endpoint_replacement_path_minimum/endpoint_replacement"
+          ],
+          "domain": {
+            "minX": -0.17,
+            "maxX": 5.27,
+            "minY": -5.13,
+            "maxY": 3.03
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,1－m)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "text": "F(3/2,1/2－m/2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_D_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_F_ii",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "vertices": [
+                "point_D_problem",
+                "point_endpoint_replacement_ii_path_minimum_first_leg_projection_ii",
+                "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+                "point_endpoint_replacement_ii_path_minimum_second_leg_projection_ii"
+              ],
+              "fill": "rgba(180, 83, 9, 0.10)",
+              "color": "rgba(180, 83, 9, 0.42)",
+              "width": 1.8,
+              "type": "outlineRegion"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_M_ii_1",
+              "color": "#64748b",
+              "width": 1.8,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_M_ii_1",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "to": "point_endpoint_replacement_ii_path_minimum_first_leg_projection_ii",
+              "color": "#0f766e",
+              "width": 1.7,
+              "dash": "5 5",
+              "type": "dashedLine"
+            },
+            {
+              "vertex": "point_endpoint_replacement_ii_path_minimum_first_leg_projection_ii",
+              "rayA": "point_D_problem",
+              "rayB": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "color": "#0f766e",
+              "size": 8,
+              "type": "rightAngle"
+            },
+            {
+              "from": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "to": "point_endpoint_replacement_ii_path_minimum_second_leg_projection_ii",
+              "color": "#0f766e",
+              "width": 1.7,
+              "dash": "5 5",
+              "type": "dashedLine"
+            },
+            {
+              "vertex": "point_endpoint_replacement_ii_path_minimum_second_leg_projection_ii",
+              "rayA": "point_D_problem",
+              "rayB": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "color": "#0f766e",
+              "size": 8,
+              "type": "rightAngle"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_endpoint_replacement_ii_path_minimum_first_leg_moving_point_ii",
+              "to": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "color": "#dc2626",
+              "width": 2.5
+            },
+            {
+              "type": "segment",
+              "from": "point_endpoint_replacement_ii_path_minimum_first_leg_moving_point_ii",
+              "to": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "label": "EG",
+              "color": "#dc2626",
+              "width": 1.6,
+              "offsetPx": 18,
+              "style": "dimension",
+              "rotateWithLine": false,
+              "extraNormal": 8
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_D_problem",
+              "to": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "color": "#dc2626",
+              "width": 2.5
+            },
+            {
+              "type": "segment",
+              "from": "point_D_problem",
+              "to": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "label": "DG",
+              "color": "#dc2626",
+              "width": 1.6,
+              "offsetPx": -18,
+              "style": "dimension",
+              "rotateWithLine": false,
+              "extraNormal": 8
+            },
+            {
+              "from": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "to": "point_F_ii",
+              "color": "#7c3aed",
+              "width": 2.5,
+              "type": "coloredLine"
+            },
+            {
+              "at": "point_M_ii_1",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_endpoint_replacement_ii_path_minimum_first_leg_moving_point_ii",
+              "labelText": "E",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "at": "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii",
+              "labelText": "G",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "at": "point_endpoint_replacement_ii_path_minimum_first_leg_projection_ii",
+              "labelText": "K",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_endpoint_replacement_ii_path_minimum_second_leg_projection_ii",
+              "labelText": "H",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_endpoint_replacement_ii_path_minimum_first_leg_projection_ii",
+              "to": "point_D_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_endpoint_replacement_ii_path_minimum_second_leg_projection_ii",
+              "to": "point_D_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "m": 4.1,
+            "u": 0.75
+          },
+          "pointOverrides": {
+            "point_N_ii": [
+              "2",
+              "1-m"
+            ],
+            "point_F_ii": [
+              "3/2",
+              "1/2-m/2"
+            ],
+            "point_endpoint_replacement_ii_path_minimum_first_leg_projection_ii": [
+              "-m*u+m+u",
+              "1-u"
+            ],
+            "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii": [
+              "m-u*(m-2)",
+              "-m*u+1"
+            ],
+            "point_endpoint_replacement_ii_path_minimum_second_leg_projection_ii": [
+              "u+1",
+              "u*(1-m)"
+            ],
+            "point_M_ii_1": [
+              "m",
+              "1"
+            ],
+            "point_endpoint_replacement_ii_path_minimum_first_leg_moving_point_ii": [
+              "-2*(m-1)*(u-1)+1",
+              "2-2*u"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "u"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_path_minimum:coupled_segment_endpoint_replacement_path_minimum/reflection_minimum": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_path_minimum:coupled_segment_endpoint_replacement_path_minimum/reflection_minimum:1",
+          "caption": "轨迹与最短路径",
+          "teachingUnitKeys": [
+            "coupled_segment_endpoint_replacement_path_minimum/reflection_minimum"
+          ],
+          "domain": {
+            "minX": 0.262,
+            "maxX": 5.838,
+            "minY": -5.13,
+            "maxY": 3.03
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,1－m)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_F_ii",
+              "text": "F(3/2,1/2－m/2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_D_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_F_ii",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "from": "point_M_ii_1",
+              "to": "point_N_ii",
+              "color": "#0f766e",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine"
+            },
+            {
+              "vertices": [
+                "point_F_ii",
+                "point_D_prime_problem",
+                "point_G_ii"
+              ],
+              "fill": "rgba(180, 83, 9, 0.10)",
+              "color": "#b45309",
+              "width": 1.0,
+              "type": "outlineRegion"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_G_ii",
+              "color": "#7c3aed",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "point_F_ii",
+              "to": "point_G_ii",
+              "color": "#7c3aed",
+              "width": 2.0,
+              "type": "coloredLine"
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_G_ii",
+              "color": "#b45309",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine"
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_F_ii",
+              "color": "#b45309",
+              "width": 2.8,
+              "type": "coloredLine"
+            },
+            {
+              "type": "segment",
+              "from": "point_D_prime_problem",
+              "to": "point_F_ii",
+              "label": "D′F",
+              "color": "#b45309",
+              "width": 2.8,
+              "offsetPx": 16
+            },
+            {
+              "at": "point_D_prime_problem",
+              "labelText": "D′",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": 18,
+              "type": "point"
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "at": "point_M_ii_1",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "m": 4.1,
+            "u": 0.666667
+          },
+          "pointOverrides": {
+            "point_N_ii": [
+              "2",
+              "1-m"
+            ],
+            "point_F_ii": [
+              "3/2",
+              "1/2-m/2"
+            ],
+            "point_M_ii_1": [
+              "m",
+              "1"
+            ],
+            "point_D_prime_problem": [
+              "m+1",
+              "2-m"
+            ],
+            "point_G_ii": [
+              "m-u*(m-2)",
+              "-m*u+1"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "u"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_1_solve_m": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_1_solve_m:1",
+          "caption": "由长度求参数",
+          "teachingUnitKeys": [
+            "parameter_from_segment_length/solve_parameter"
+          ],
+          "domain": {
+            "minX": -0.22,
+            "maxX": 5.22,
+            "minY": -4.58,
+            "maxY": 3.58
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,－2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "text": "F(3/2,－1)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_D_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_F_ii",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "from": "point_M_ii_1",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_F_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_prime_problem",
+              "labelText": "D′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_M_ii_1",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "m": 3.0
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_1_evaluate_minimum": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_1_evaluate_minimum:1",
+          "caption": "代入求值",
+          "teachingUnitKeys": [
+            "evaluate_expression_at_parameter/substitute_parameter"
+          ],
+          "domain": {
+            "minX": -0.22,
+            "maxX": 5.22,
+            "minY": -4.58,
+            "maxY": 3.58
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,－2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "text": "F(3/2,－1)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_D_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_F_ii",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "from": "point_M_ii_1",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_F_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_prime_problem",
+              "labelText": "D′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_M_ii_1",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "m": 3.0
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_1_specialize_parabola": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_1_specialize_parabola:1",
+          "caption": "代入求值",
+          "teachingUnitKeys": [
+            "evaluate_expression_at_parameter/substitute_parameter"
+          ],
+          "domain": {
+            "minX": -1.72,
+            "maxX": 3.72,
+            "minY": -5.58,
+            "maxY": 2.58
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_evaluated_parabola",
+              "color": "#2563eb",
+              "width": 2.4,
+              "type": "parabola"
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,－2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "text": "F(3/2,－1)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_D_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_F_ii",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "from": "point_M_ii_1",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_F_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_prime_problem",
+              "labelText": "D′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_M_ii_1",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "m": 3.0
+          },
+          "curveOverrides": {
+            "curve_ii_evaluated_parabola": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_2_solve_m": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_2_solve_m:1",
+          "caption": "反求参数",
+          "teachingUnitKeys": [
+            "parameter_from_minimum_value/solve_parameter"
+          ],
+          "domain": {
+            "minX": -0.44,
+            "maxX": 10.44,
+            "minY": -8.44,
+            "maxY": 2.44
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,－7)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "text": "F(3/2,－7/2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_D_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_F_ii",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "from": "point_M_ii_1",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_F_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_prime_problem",
+              "labelText": "D′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_M_ii_1",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "m": 8.0
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_2_evaluate_G": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_2_evaluate_G:1",
+          "caption": "代入求点",
+          "teachingUnitKeys": [
+            "evaluate_point_at_parameter/substitute_point_parameter"
+          ],
+          "domain": {
+            "minX": -0.44,
+            "maxX": 10.44,
+            "minY": -8.44,
+            "maxY": 2.44
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,－7)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "text": "F(3/2,－7/2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_D_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_F_ii",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "from": "point_M_ii_1",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_F_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_prime_problem",
+              "labelText": "D′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_M_ii_1",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "m": 8.0
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    },
+    "teach:ii_2_specialize_parabola": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:ii_2_specialize_parabola:1",
+          "caption": "代入求值",
+          "teachingUnitKeys": [
+            "evaluate_expression_at_parameter/substitute_parameter"
+          ],
+          "domain": {
+            "minX": -7.9181,
+            "maxX": 9.9181,
+            "minY": -8.4567,
+            "maxY": 1.29
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "xExpr": "1",
+              "color": "#64748b",
+              "width": 1.6,
+              "dash": "7 6",
+              "type": "axisOfSymmetry",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(1,0)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_evaluated_parabola_3",
+              "color": "#2563eb",
+              "width": 2.4,
+              "type": "parabola"
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "text": "N(2,－7)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "labelText": "F",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_ii",
+              "text": "F(3/2,－7/2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_D_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_F_ii",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "offsetPx": 13,
+              "opacity": 0.58
+            },
+            {
+              "from": "point_M_ii_1",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "7 5",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_F_ii",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_D_prime_problem",
+              "to": "point_F_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_prime_problem",
+              "labelText": "D′",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_M_ii_1",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "m": 8.0
+          },
+          "curveOverrides": {
+            "curve_ii_evaluated_parabola_3": {
+              "parameter": "m"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

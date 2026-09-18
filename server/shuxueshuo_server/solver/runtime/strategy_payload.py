@@ -1121,7 +1121,7 @@ class StrategyPromptRenderer:
 
         system = self.env.get_template(
             "strategy-functional-content-system.jinja"
-        ).render()
+        ).render(math_arguments=payload.get("argument_encoding") == "math-expression/v1")
         user = self.env.get_template(
             "strategy-functional-content-user.jinja"
         ).render(payload=payload)
@@ -1141,7 +1141,7 @@ class StrategyPromptRenderer:
             )
         system = self.env.get_template(
             "strategy-functional-scope-repair-system.jinja"
-        ).render()
+        ).render(math_arguments=payload.get("argument_encoding") == "math-expression/v1")
         user = self.env.get_template(
             "strategy-functional-scope-repair-user.jinja"
         ).render(payload=payload)

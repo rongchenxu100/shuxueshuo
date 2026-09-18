@@ -1,0 +1,548 @@
+{
+  "meta": {
+    "id": "tj-2026-heping-yimo-25",
+    "outputPath": "/Users/haorong/projects/code/shuxueshuo/docs/validation/method-math-pages-20260917/cases/tj-2026-heping-yimo-25/lesson.html",
+    "pageTitle": "第 25 题（二次函数综合）",
+    "pageDescription": "第 25 题二次函数综合：解析式、角度条件与 OM+BN 路径最值。",
+    "breadcrumbTitle": "第 25 题",
+    "defaultT": 0.75,
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": [
+        "angle_sum_equal_angle_candidates",
+        "axis_intercept_from_equal_acute_angles",
+        "equal_length_ray_path_reduction",
+        "line_parabola_second_intersection_point",
+        "parameter_from_expression_value",
+        "quadratic_from_constraints",
+        "quadratic_x_axis_intercept_point",
+        "quadratic_y_axis_intercept_point",
+        "translated_point"
+      ]
+    }
+  },
+  "problem": {
+    "summary": "第 25 题二次函数综合：解析式、角度条件与 OM+BN 路径最值。",
+    "lines": [
+      {
+        "text": "（25）（本小题 10 分）已知抛物线 y=ax²+bx-3（a，b 是常数，a＞0）与 x 轴相交于点 A(-1,0) 和点 B，与 y 轴相交于点 C，将点 C 水平向右平移 2 个单位长度得到点 D，连接 BC。"
+      },
+      {
+        "text": "（Ⅰ）当点 D 落在该抛物线上时，① 求抛物线的解析式；",
+        "answerId": "answer_i_1_parabola",
+        "answer": "y＝x²－2x－3"
+      },
+      {
+        "text": "② 抛物线上的点 E 的横坐标为 m，且 -1＜m＜0，若 ∠CBE+∠ACO=45°，求点 E 的坐标；",
+        "answerId": "answer_i_2_E",
+        "answer": "E(－2/3, －11/9)"
+      },
+      {
+        "text": "（Ⅱ）点 M 是线段 BC 上一动点，连接 OM。点 N 是射线 CD 上一动点，且满足 CN=CM，连接 BN。当 OM+BN 的最小值为 √34 时，求 a 的值。",
+        "answerId": "answer_ii_a",
+        "answer": "a＝3/4"
+      }
+    ]
+  },
+  "ui": {
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "a=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "problem": "整题",
+      "i": "第（Ⅰ）问：求抛物线的解析式",
+      "i_2": "第（Ⅰ）②问：求点 E 的坐标",
+      "ii": "第（Ⅱ）问：求 a 的值",
+      "整题": "整题",
+      "第（Ⅰ）问：求抛物线的解析式": "第（Ⅰ）问：求抛物线的解析式",
+      "第（Ⅰ）②问：求点 E 的坐标": "第（Ⅰ）②问：求点 E 的坐标",
+      "第（Ⅱ）问：求 a 的值": "第（Ⅱ）问：求 a 的值"
+    },
+    "defaultT": 0.75
+  },
+  "steps": [
+    {
+      "id": "teach:derive_y_intercept_C_i",
+      "section": "整题",
+      "title": "第1步：求抛物线与 y 轴交点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "y 轴上的点满足 x＝0"
+        ],
+        [
+          "计算",
+          "代入 x＝0，得 y＝a(0)²＋b(0)－3＝－3"
+        ],
+        [
+          "∴",
+          "C(0,－3)"
+        ]
+      ],
+      "box": [
+        "C(0,－3)"
+      ]
+    },
+    {
+      "id": "teach:derive_translated_D_i",
+      "section": "整题",
+      "title": "第2步：由平移关系求点坐标",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "C(0,－3) 按向量 (2,0) 平移"
+        ],
+        [
+          "计算",
+          "横、纵坐标分别相加：(0＋(2)，－3＋(0))"
+        ],
+        [
+          "∴",
+          "D(2,－3)"
+        ]
+      ],
+      "box": [
+        "D(2,－3)"
+      ]
+    },
+    {
+      "id": "teach:derive_parabola_i",
+      "section": "第（Ⅰ）问：求抛物线的解析式",
+      "title": "第1步：求函数解析式",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "A(－1,0) 在 y＝ax²＋bx－3 上"
+        ],
+        [
+          "∴",
+          "代入 A 点坐标，得 0＝a－b－3"
+        ],
+        [
+          "∵",
+          "D(2,－3) 在 y＝ax²＋bx－3 上"
+        ],
+        [
+          "∴",
+          "代入 D 点坐标，得 －3＝4a＋2b－3"
+        ],
+        [
+          "计算",
+          "联立上述方程，得 a＝1，b＝－2"
+        ],
+        [
+          "∴",
+          "y＝x²－2x－3＝(x－1)²－4"
+        ]
+      ],
+      "box": [
+        "y＝x²－2x－3"
+      ]
+    },
+    {
+      "id": "teach:derive_x_intercept_B_i",
+      "section": "第（Ⅰ）②问：求点 E 的坐标",
+      "title": "第1步：求抛物线与 x 轴交点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "x 轴交点满足 y＝0，即 x²－2x－3＝0"
+        ],
+        [
+          "计算",
+          "x＝－1 或 x＝3"
+        ],
+        [
+          "∵",
+          "结合B的定义，取 x＝3"
+        ],
+        [
+          "∴",
+          "B(3,0)"
+        ]
+      ],
+      "box": [
+        "B(3,0)"
+      ]
+    },
+    {
+      "id": "teach:derive_equal_angle_i",
+      "section": "第（Ⅰ）②问：求点 E 的坐标",
+      "title": "第2步：由角和条件推出等角关系",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "C(0,－3)、O(0,0)、B(3,0)，且 OC⊥OB"
+        ],
+        [
+          "计算",
+          "OC＝3，OB＝3"
+        ],
+        [
+          "∴",
+          "Rt△COB 为等腰直角三角形，所以 ∠CBO＝45°"
+        ],
+        [
+          "∵",
+          "∠CBO＝∠CBE＋∠OBE，且 ∠CBE＋∠ACO＝45°"
+        ],
+        [
+          "∴",
+          "两式消去公共角 ∠CBE，得 ∠OBE＝∠ACO"
+        ]
+      ],
+      "box": [
+        "∠OBE＝∠ACO"
+      ]
+    },
+    {
+      "id": "teach:derive_axis_intercept_F_i",
+      "section": "第（Ⅰ）②问：求点 E 的坐标",
+      "title": "第3步：由等角关系求辅助点坐标",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "B、E、F 共线，所以 ∠OBF＝∠OBE＝∠ACO"
+        ],
+        [
+          "∵",
+          "Rt△BOF 与 Rt△AOC 均为直角三角形"
+        ],
+        [
+          "∴",
+          "tan∠OBF＝OF/OB，tan∠ACO＝AO/CO"
+        ],
+        [
+          "∴",
+          "OF/OB＝AO/CO"
+        ],
+        [
+          "计算",
+          "OB＝3，AO＝1，CO＝3，所以 OF＝1"
+        ],
+        [
+          "∵",
+          "F 在 y 轴负半轴上"
+        ],
+        [
+          "∴",
+          "F(0,－1)"
+        ]
+      ],
+      "box": [
+        "F(0,－1)"
+      ]
+    },
+    {
+      "id": "teach:derive_curve_intersection_E_i",
+      "section": "第（Ⅰ）②问：求点 E 的坐标",
+      "title": "第4步：联立直线与抛物线求交点",
+      "t": 0.75,
+      "derive": [
+        [
+          "作",
+          "连接 B(3,0)、F(0,－1)，得直线 y＝1/3x－1"
+        ],
+        [
+          "计算",
+          "联立 y＝1/3x－1 与 y＝x²－2x－3，得 x＝－2/3 或 x＝3"
+        ],
+        [
+          "∵",
+          "B(3,0) 是已知交点，排除 x＝3"
+        ],
+        [
+          "∴",
+          "另一交点为 E(－2/3,－11/9)"
+        ]
+      ],
+      "box": [
+        "E(－2/3,－11/9)"
+      ]
+    },
+    {
+      "id": "teach:derive_parametric_parabola_ii",
+      "section": "第（Ⅱ）问：求 a 的值",
+      "title": "第1步：化简函数解析式",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "A(－1,0) 在 y＝ax²＋bx－3 上"
+        ],
+        [
+          "∴",
+          "代入 A 点坐标，得 0＝a－b－3"
+        ],
+        [
+          "计算",
+          "化简上述方程，得 b＝a－3"
+        ],
+        [
+          "∴",
+          "y＝ax²＋(a－3)x－3"
+        ]
+      ],
+      "box": [
+        "y＝ax²＋(a－3)x－3"
+      ]
+    },
+    {
+      "id": "teach:derive_x_intercept_B_ii",
+      "section": "第（Ⅱ）问：求 a 的值",
+      "title": "第2步：求抛物线与 x 轴交点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "x 轴交点满足 y＝0，即 ax²＋(a－3)x－3＝0"
+        ],
+        [
+          "计算",
+          "x＝－1 或 x＝3/a"
+        ],
+        [
+          "∵",
+          "结合B的定义，取 x＝3/a"
+        ],
+        [
+          "∴",
+          "B(3/a,0)"
+        ]
+      ],
+      "box": [
+        "B(3/a,0)"
+      ]
+    },
+    {
+      "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction",
+      "section": "第（Ⅱ）问：求 a 的值",
+      "title": "第3步：构造等长辅助点，把两动点路径化为单动点路径",
+      "t": 0.75,
+      "derive": [
+        [
+          "作",
+          "在射线CD上构造G，使CG＝CB"
+        ],
+        [
+          "∵",
+          "CN＝CM；CB＝CG；M在线段CB上，N、G在射线CD上，故∠BCN＝∠GCM"
+        ],
+        [
+          "∴",
+          "△BCN≌△GCM（边角边），故BN＝MG"
+        ],
+        [
+          "∴",
+          "OM＋BN＝OM＋MG"
+        ]
+      ],
+      "box": [
+        "OM＋BN＝OM＋MG"
+      ],
+      "localControls": {
+        "values": {
+          "u": 0.699333
+        },
+        "controls": [
+          {
+            "var": "u",
+            "label": "动点 M：CM/CB",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "scale": 1,
+            "precision": 2
+          },
+          {
+            "var": "u",
+            "label": "动点 N：CN/CG",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "scale": 1,
+            "precision": 2
+          }
+        ],
+        "note": "拖动线段上的动点，射线上的动点按等长条件联动。"
+      }
+    },
+    {
+      "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/minimum_by_segment",
+      "section": "第（Ⅱ）问：求 a 的值",
+      "title": "第4步：在单动点路径中求最小值",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "OM＋BN＝OM＋MG"
+        ],
+        [
+          "∴",
+          "OM＋MG≥OG"
+        ],
+        [
+          "计算",
+          "OG＝√[(3√(a²＋1)/|a|)²＋(－3)²]＝3√(2a²＋1)/|a|"
+        ],
+        [
+          "∴",
+          "路径最小值为 3√(2a²＋1)/|a|"
+        ]
+      ],
+      "box": [
+        "路径最小值为 3√(2a²＋1)/|a|"
+      ],
+      "localControls": {
+        "values": {
+          "u": 0.6993331814234481
+        },
+        "controls": [
+          {
+            "var": "u",
+            "label": "动点 M：CM/CB",
+            "min": 0,
+            "max": 1,
+            "step": 0.01,
+            "scale": 1,
+            "precision": 2
+          }
+        ],
+        "note": "拖动动点，观察单动点路径何时取最小值。"
+      }
+    },
+    {
+      "id": "teach:solve_parameter_from_minimum_ii",
+      "section": "第（Ⅱ）问：求 a 的值",
+      "title": "第5步：由表达式取值反求参数",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "题设要求 3√(2a²＋1)/|a|＝√34"
+        ],
+        [
+          "计算",
+          "解方程，得 a＝－3/4 或 a＝3/4"
+        ],
+        [
+          "∵",
+          "根据 a＞0，保留 a＝3/4"
+        ],
+        [
+          "∴",
+          "a＝3/4"
+        ]
+      ],
+      "box": [
+        "a＝3/4"
+      ]
+    }
+  ],
+  "policies": {
+    "teach:derive_y_intercept_C_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_translated_D_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_parabola_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_x_intercept_B_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_equal_angle_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_axis_intercept_F_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_curve_intersection_E_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_parametric_parabola_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_x_intercept_B_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/minimum_by_segment": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:solve_parameter_from_minimum_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    }
+  },
+  "stepLabels": {
+    "teach:derive_y_intercept_C_i": "1 求 y 轴交点",
+    "teach:derive_translated_D_i": "2 平移求点",
+    "teach:derive_parabola_i": "1 求解析式",
+    "teach:derive_x_intercept_B_i": "1 求 x 轴交点",
+    "teach:derive_equal_angle_i": "2 推出等角关系",
+    "teach:derive_axis_intercept_F_i": "3 等角求截点",
+    "teach:derive_curve_intersection_E_i": "4 联立求交点",
+    "teach:derive_parametric_parabola_ii": "1 化简解析式",
+    "teach:derive_x_intercept_B_ii": "2 求 x 轴交点",
+    "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction": "3 两动点转化",
+    "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/minimum_by_segment": "4 单动点路径最值",
+    "teach:solve_parameter_from_minimum_ii": "5 反求参数"
+  }
+}

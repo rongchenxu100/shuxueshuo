@@ -1,0 +1,26 @@
+{
+  "schema_version": "lesson-capability-case-audit/v1",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "snapshot_hash": "4e29ed8a2192a42feaf5daed6c482c86d544712af1034abf47c4167689a352b9",
+  "annotated_plan_hash": "76d2eefd995e48503aeb4dc8739f144f490bf8cd3f37db97395dc619c8a15eda",
+  "lesson_ir_hash": "07e9683d13df764172fa1ff6ef7304337ee137ec1b3471bddb2ff563f8cc6842",
+  "visual_step_ir_hash": "0633cbd6d9a91f37ed8822458fc4680a5256555b156f6e1707f587dc088be3a6",
+  "source_step_count": 12,
+  "lesson_step_count": 13,
+  "visual_frame_count": 13,
+  "source_steps": [
+    "derive_parabola_i",
+    "derive_parametric_parabola_ii",
+    "derive_path_minimum_ii",
+    "derive_square_vertex_G_i",
+    "derive_vertex_P_i",
+    "derive_x_intercept_A_i",
+    "evaluate_minimum_point_G_ii",
+    "evaluate_point_A_ii",
+    "parameterize_axis_point_E_i",
+    "recover_target_point_E_ii",
+    "solve_axis_point_candidates_i",
+    "solve_parameter_c_ii"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "id": "synthetic-line_intersection_point",
+  "domain": {
+    "minX": -0.8,
+    "maxX": 4.8,
+    "minY": -0.8,
+    "maxY": 4.8
+  },
+  "movingParam": "t",
+  "expressionEnv": [],
+  "fixedPoints": {
+    "point_A_problem": [
+      "0",
+      "0"
+    ],
+    "point_B_problem": [
+      "4",
+      "4"
+    ],
+    "point_C_problem": [
+      "0",
+      "4"
+    ],
+    "point_D_problem": [
+      "4",
+      "0"
+    ],
+    "point_H_problem": [
+      "2",
+      "2"
+    ]
+  },
+  "movingPoints": {},
+  "pointMeta": {
+    "point_A_problem": {
+      "label": "A",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:A"
+    },
+    "point_B_problem": {
+      "label": "B",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:B"
+    },
+    "point_C_problem": {
+      "label": "C",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:C"
+    },
+    "point_D_problem": {
+      "label": "D",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:D"
+    },
+    "point_H_problem": {
+      "label": "H",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "synthetic_line_intersection_point"
+      ]
+    }
+  },
+  "curves": [],
+  "derivedIntersections": []
+}

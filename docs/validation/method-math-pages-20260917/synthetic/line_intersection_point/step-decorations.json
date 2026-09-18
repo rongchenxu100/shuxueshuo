@@ -1,0 +1,95 @@
+{
+  "steps": {
+    "teach:synthetic_line_intersection_point": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:synthetic_line_intersection_point:1",
+          "caption": "求交点",
+          "teachingUnitKeys": [
+            "line_intersection_point/solve_intersection"
+          ],
+          "domain": {
+            "minX": -0.72,
+            "maxX": 4.72,
+            "minY": -2.08,
+            "maxY": 6.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "from": "point_A_problem",
+              "to": "point_B_problem",
+              "color": "#0f766e",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine"
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_problem",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_D_problem",
+              "color": "#0f766e",
+              "width": 2.0,
+              "dash": "",
+              "type": "coloredLine"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_H_problem",
+              "labelText": "H",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_H_problem",
+              "text": "H(2,2)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

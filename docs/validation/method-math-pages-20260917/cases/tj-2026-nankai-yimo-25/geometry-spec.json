@@ -1,0 +1,380 @@
+{
+  "version": 1,
+  "id": "tj-2026-nankai-yimo-25",
+  "domain": {
+    "minX": -7.357,
+    "maxX": 9.357,
+    "minY": -8.967,
+    "maxY": 3.05
+  },
+  "movingParam": "m",
+  "expressionEnv": [],
+  "fixedPoints": {
+    "D_axis_i": [
+      "1",
+      "0"
+    ],
+    "D_axis_ii": [
+      "1",
+      "0"
+    ],
+    "D_axis_ii_1": [
+      "1",
+      "0"
+    ],
+    "D_axis_ii_2": [
+      "1",
+      "0"
+    ],
+    "curve_i_parabola_vertex": [
+      "1",
+      "-7"
+    ],
+    "curve_ii_evaluated_parabola_3_vertex": [
+      "1",
+      "-43/6"
+    ],
+    "curve_ii_evaluated_parabola_vertex": [
+      "1",
+      "-3"
+    ],
+    "point_D_problem": [
+      "1",
+      "0"
+    ],
+    "point_G_ii_2": [
+      "4",
+      "-13/3"
+    ],
+    "point_construction_ii_construct_N_candidate_projection_1_ii": [
+      "2",
+      "0"
+    ],
+    "point_construction_ii_construct_N_candidate_projection_2_ii": [
+      "0",
+      "0"
+    ]
+  },
+  "movingPoints": {
+    "curve_ii_parabola_vertex": [
+      "1",
+      "(-(m*m)+3*m-3)/(m-2)"
+    ],
+    "point_D_prime_problem": [
+      "m+1",
+      "2-m"
+    ],
+    "point_F_ii": [
+      "3/2",
+      "1/2-m/2"
+    ],
+    "point_G_ii": [
+      "m/3+4/3",
+      "1-2*m/3"
+    ],
+    "point_M_ii_1": [
+      "m",
+      "1"
+    ],
+    "point_N_ii": [
+      "2",
+      "1-m"
+    ],
+    "point_candidate_ii_construct_N_1_1_ii": [
+      "2",
+      "1-m"
+    ],
+    "point_candidate_ii_construct_N_1_2_ii": [
+      "0",
+      "m-1"
+    ],
+    "point_construction_ii_construct_N_reference_projection_ii": [
+      "m",
+      "0"
+    ],
+    "point_endpoint_replacement_ii_path_minimum_first_leg_moving_point_ii": [
+      "m/2+1/2",
+      "1/2"
+    ],
+    "point_endpoint_replacement_ii_path_minimum_first_leg_projection_ii": [
+      "m/4+3/4",
+      "1/4"
+    ],
+    "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii": [
+      "m/4+3/2",
+      "1-3*m/4"
+    ],
+    "point_endpoint_replacement_ii_path_minimum_second_leg_projection_ii": [
+      "7/4",
+      "3/4-3*m/4"
+    ]
+  },
+  "pointMeta": {
+    "D_axis_i": {
+      "label": "D",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "definition": "axis_x_intercept",
+      "sourceCurveId": "curve_i_parabola",
+      "sourceRef": "point:problem:D"
+    },
+    "D_axis_ii": {
+      "label": "D",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "axis_x_intercept",
+      "sourceCurveId": "curve_ii_parabola",
+      "sourceRef": "point:problem:D"
+    },
+    "D_axis_ii_1": {
+      "label": "D",
+      "scopeId": "ii_1",
+      "scopeRoot": "ii",
+      "definition": "axis_x_intercept",
+      "sourceCurveId": "curve_ii_evaluated_parabola",
+      "sourceRef": "point:problem:D"
+    },
+    "D_axis_ii_2": {
+      "label": "D",
+      "scopeId": "ii_2",
+      "scopeRoot": "ii",
+      "definition": "axis_x_intercept",
+      "sourceCurveId": "curve_ii_evaluated_parabola_3",
+      "sourceRef": "point:problem:D"
+    },
+    "curve_i_parabola_vertex": {
+      "label": "",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_i_parabola",
+      "display": "(1, －7)",
+      "visualOnly": true
+    },
+    "curve_ii_evaluated_parabola_3_vertex": {
+      "label": "",
+      "scopeId": "ii_2",
+      "scopeRoot": "ii",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_ii_evaluated_parabola_3",
+      "display": "(1, －43/6)",
+      "visualOnly": true
+    },
+    "curve_ii_evaluated_parabola_vertex": {
+      "label": "",
+      "scopeId": "ii_1",
+      "scopeRoot": "ii",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_ii_evaluated_parabola",
+      "display": "(1, －3)",
+      "visualOnly": true
+    },
+    "curve_ii_parabola_vertex": {
+      "label": "",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_ii_parabola",
+      "display": "(1, (－m²＋3m－3)/(m－2))",
+      "visualOnly": true
+    },
+    "point_D_prime_problem": {
+      "label": "D′",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "ii_path_minimum"
+      ]
+    },
+    "point_D_problem": {
+      "label": "D",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "i_derive_D"
+      ]
+    },
+    "point_F_ii": {
+      "label": "F",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "ii_compute_F"
+      ]
+    },
+    "point_G_ii": {
+      "label": "G",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "ii_path_minimum"
+      ]
+    },
+    "point_G_ii_2": {
+      "label": "G",
+      "scopeId": "ii_2",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "ii_2_evaluate_G"
+      ]
+    },
+    "point_M_ii_1": {
+      "label": "M",
+      "scopeId": "ii_1",
+      "scopeRoot": "ii",
+      "definition": "given_point",
+      "sourceRef": "point:ii:M"
+    },
+    "point_N_ii": {
+      "label": "N",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "ii_construct_N"
+      ]
+    },
+    "point_candidate_ii_construct_N_1_1_ii": {
+      "label": "N₁",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "public_candidate",
+      "sourceStepId": "ii_construct_N",
+      "candidateGroup": 1,
+      "candidateIndex": 1,
+      "visualOnly": true
+    },
+    "point_candidate_ii_construct_N_1_2_ii": {
+      "label": "N₂",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "public_candidate",
+      "sourceStepId": "ii_construct_N",
+      "candidateGroup": 1,
+      "candidateIndex": 2,
+      "visualOnly": true
+    },
+    "point_construction_ii_construct_N_candidate_projection_1_ii": {
+      "label": "V",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "public_construction_auxiliary",
+      "sourceStepId": "ii_construct_N",
+      "constructionRole": "candidate_projection",
+      "branchIndex": 1,
+      "visualOnly": true
+    },
+    "point_construction_ii_construct_N_candidate_projection_2_ii": {
+      "label": "W",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "public_construction_auxiliary",
+      "sourceStepId": "ii_construct_N",
+      "constructionRole": "candidate_projection",
+      "branchIndex": 2,
+      "visualOnly": true
+    },
+    "point_construction_ii_construct_N_reference_projection_ii": {
+      "label": "U",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "public_construction_auxiliary",
+      "sourceStepId": "ii_construct_N",
+      "constructionRole": "reference_projection",
+      "branchIndex": 0,
+      "visualOnly": true
+    },
+    "point_endpoint_replacement_ii_path_minimum_first_leg_moving_point_ii": {
+      "label": "E",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "endpoint_replacement_construction",
+      "sourceStepId": "ii_path_minimum",
+      "constructionRole": "first_leg_moving_point",
+      "visualOnly": true
+    },
+    "point_endpoint_replacement_ii_path_minimum_first_leg_projection_ii": {
+      "label": "K",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "endpoint_replacement_construction",
+      "sourceStepId": "ii_path_minimum",
+      "constructionRole": "first_leg_projection",
+      "visualOnly": true
+    },
+    "point_endpoint_replacement_ii_path_minimum_hypotenuse_moving_point_ii": {
+      "label": "G",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "endpoint_replacement_construction",
+      "sourceStepId": "ii_path_minimum",
+      "constructionRole": "hypotenuse_moving_point",
+      "visualOnly": true
+    },
+    "point_endpoint_replacement_ii_path_minimum_second_leg_projection_ii": {
+      "label": "H",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "endpoint_replacement_construction",
+      "sourceStepId": "ii_path_minimum",
+      "constructionRole": "second_leg_projection",
+      "visualOnly": true
+    }
+  },
+  "curves": [
+    {
+      "id": "curve_i_parabola",
+      "type": "parabola",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "sourceHandle": "fact:i:i_derive_parabola_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 1,
+      "a": "2",
+      "b": "-4",
+      "c": "-5"
+    },
+    {
+      "id": "curve_ii_parabola",
+      "type": "parabola",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "sourceHandle": "fact:ii:ii_derive_parabola_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 3,
+      "a": "1/(m-2)",
+      "b": "-2/(m-2)",
+      "c": "1-m"
+    },
+    {
+      "id": "curve_ii_evaluated_parabola",
+      "type": "parabola",
+      "scopeId": "ii_1",
+      "scopeRoot": "ii",
+      "sourceHandle": "fact:ii_1:ii_1_specialize_parabola_evaluated_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 8,
+      "a": "1",
+      "b": "-2",
+      "c": "-2"
+    },
+    {
+      "id": "curve_ii_evaluated_parabola_3",
+      "type": "parabola",
+      "scopeId": "ii_2",
+      "scopeRoot": "ii",
+      "sourceHandle": "fact:ii_2:ii_2_specialize_parabola_evaluated_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 11,
+      "a": "1/6",
+      "b": "-1/3",
+      "c": "-7"
+    }
+  ],
+  "derivedIntersections": []
+}

@@ -1,0 +1,207 @@
+{
+  "kind": "offline_probe_not_live_evidence",
+  "model_calls": 0,
+  "probes": [
+    {
+      "expression": "A",
+      "scope": "ii",
+      "capability": "quadratic_from_constraints",
+      "argument": "curve_point",
+      "ast": [
+        "name",
+        "A"
+      ],
+      "type": "point",
+      "status": "resolved",
+      "ref": "A",
+      "audit": {
+        "path": "$.args",
+        "expression": "A",
+        "ref": "A",
+        "scope_ref": "ii",
+        "source_paths": [
+          "/root/children/1/facts/1"
+        ],
+        "source_unit_ids": [
+          "notation-unit:29b0ce81c9e03288cd5996fbf00e3a389470d9c9ed32a4df422ea641ccdd92c1",
+          "notation-unit:3637b0bb9d2c96772e64da868384979fe5ab117c627e6e4e0698eb7e89c64279"
+        ]
+      }
+    },
+    {
+      "expression": "A=(-1,0)",
+      "scope": "ii",
+      "capability": "quadratic_from_constraints",
+      "argument": "curve_point",
+      "ast": [
+        "=",
+        [
+          "name",
+          "A"
+        ],
+        [
+          "tuple",
+          [
+            "neg",
+            [
+              "number",
+              "1"
+            ]
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ]
+      ],
+      "type": "boolean",
+      "status": "rejected",
+      "error_type": "MethodMathArgumentError",
+      "message": "functional.math_argument_unresolved at $.args: quadratic_from_constraints.curve_point: 'A=(-1,0)' matches 0 visible typed sources."
+    },
+    {
+      "expression": "∠CAD=90°, AC=AD",
+      "scope": "ii",
+      "capability": "right_angle_equal_length_candidates",
+      "argument": "right_angle_equal_length",
+      "status": "rejected",
+      "error_type": "NotationError",
+      "message": "notation.expected: expected ∈, got ="
+    },
+    {
+      "expression": "∠CAD=90° ∧ AC=AD",
+      "scope": "ii",
+      "capability": "right_angle_equal_length_candidates",
+      "argument": "right_angle_equal_length",
+      "ast": [
+        "and",
+        [
+          "=",
+          [
+            "call",
+            "angle",
+            [
+              "name",
+              "C"
+            ],
+            [
+              "name",
+              "A"
+            ],
+            [
+              "name",
+              "D"
+            ]
+          ],
+          [
+            "degrees",
+            [
+              "number",
+              "90"
+            ]
+          ]
+        ],
+        [
+          "=",
+          [
+            "name",
+            "AC"
+          ],
+          [
+            "name",
+            "AD"
+          ]
+        ]
+      ],
+      "type": "boolean",
+      "status": "resolved",
+      "ref": "right_angle_equal_length_c_a_d_ac_ad",
+      "audit": {
+        "path": "$.args",
+        "expression": "∠CAD=90° ∧ AC=AD",
+        "ref": "right_angle_equal_length_c_a_d_ac_ad",
+        "scope_ref": "ii",
+        "source_paths": [
+          "/root/children/1/facts/5",
+          "/root/children/1/facts/6"
+        ],
+        "source_unit_ids": [
+          "notation-unit:7c447666876b9d9b08c4a3d2f7b9dd4e4ee73a78aee9724a7160153d80e99205",
+          "notation-unit:c6349138a40f5ea3d04c7a40efdc17e72114797665a5caecc113c47684a00260"
+        ]
+      }
+    },
+    {
+      "expression": "AC=AD ∧ ∠CAD=90°",
+      "scope": "ii",
+      "capability": "right_angle_equal_length_candidates",
+      "argument": "right_angle_equal_length",
+      "ast": [
+        "and",
+        [
+          "=",
+          [
+            "name",
+            "AC"
+          ],
+          [
+            "name",
+            "AD"
+          ]
+        ],
+        [
+          "=",
+          [
+            "call",
+            "angle",
+            [
+              "name",
+              "C"
+            ],
+            [
+              "name",
+              "A"
+            ],
+            [
+              "name",
+              "D"
+            ]
+          ],
+          [
+            "degrees",
+            [
+              "number",
+              "90"
+            ]
+          ]
+        ]
+      ],
+      "type": "boolean",
+      "status": "resolved",
+      "ref": "right_angle_equal_length_c_a_d_ac_ad",
+      "audit": {
+        "path": "$.args",
+        "expression": "AC=AD ∧ ∠CAD=90°",
+        "ref": "right_angle_equal_length_c_a_d_ac_ad",
+        "scope_ref": "ii",
+        "source_paths": [
+          "/root/children/1/facts/5",
+          "/root/children/1/facts/6"
+        ],
+        "source_unit_ids": [
+          "notation-unit:7c447666876b9d9b08c4a3d2f7b9dd4e4ee73a78aee9724a7160153d80e99205",
+          "notation-unit:c6349138a40f5ea3d04c7a40efdc17e72114797665a5caecc113c47684a00260"
+        ]
+      }
+    },
+    {
+      "expression": "D ∈ {X | ∠CAX=90°, AX=AC}",
+      "scope": "ii",
+      "capability": "right_angle_equal_length_candidates",
+      "argument": "right_angle_equal_length",
+      "status": "rejected",
+      "error_type": "NotationError",
+      "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,"
+    }
+  ]
+}
