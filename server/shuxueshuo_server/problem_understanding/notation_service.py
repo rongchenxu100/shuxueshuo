@@ -95,6 +95,7 @@ def parse_candidate(
                 "defaults": report.defaults,
                 "objects": report.objects,
                 "semantic_normalization": report.semantic_normalization,
+                "normalization_report": report.normalization_report,
                 "well_definedness_obligations": report.well_definedness_obligations,
             },
         )

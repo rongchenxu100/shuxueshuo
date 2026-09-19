@@ -9,7 +9,8 @@ CONFIG = SimpleNamespace(problem_vision_provider='deepseek', deepseek_vision_mod
                          deepseek_vision_base_url='https://api.deepseek.com', deepseek_vision_timeout=300,
                          deepseek_vision_max_tokens=16384, llm_model=None,
                          deepseek_model='solve', deepseek_base_url='url', max_llm_attempts=3,
-                         functional_few_shot_mode='strict_test')
+                         functional_few_shot_mode='strict_test',
+                         argument_encoding='source-ref')
 
 
 def put(root, path, text):
@@ -65,7 +66,10 @@ def test_ignore_outputs_and_config(tmp_path):
 def test_independent_understanding_workflow_has_its_own_dependency_owner(tmp_path):
     before = collect(tmp_path, CONFIG)
     put(tmp_path, 'server/shuxueshuo_server/problem_understanding/runtime_binding.py', 'pass')
-    assert collect(tmp_path, CONFIG) == before
+    # Runtime binding is a projection/runtime dependency.  It must not
+    # invalidate the extraction owner, but it does invalidate projection.
+    after = collect(tmp_path, CONFIG)
+    assert [s for s in KEYS if before['stages'][s] != after['stages'][s]] == ['projection']
 
 
 def test_input_edges_are_distinct_from_audit_edges(tmp_path):

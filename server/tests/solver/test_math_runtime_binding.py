@@ -46,6 +46,8 @@ def test_ten_candidate_bindings_execute_trusted_plans(case, authored, tmp_path):
     assert all(b.bundle.projection_index.source_unit_runtime_nodes.values())
     assert not hasattr(b.bundle, "verified_problem")
     assert b.bundle.build_solver_problem().expected_answers == {}
+    assert b.bundle.normalization_report["ruleset_hash"]
+    assert b.artifacts()["normalization-report.json"]["ruleset_hash"] == b.bundle.normalization_report["ruleset_hash"]
 
     # Every actual source definition/fact/goal has a runtime provenance path.
     def paths(scope, path="/root"):
@@ -148,6 +150,25 @@ def test_shared_endpoint_perpendicular_lowers_to_right_angle():
         and "⟂" in fact.attributes["expression"]
         for fact in ii_scope.facts
     )
+    assert any(
+        fact["type"] == "right_angle_equal_length"
+        for fact in bound.bundle.canonical_solver_input["facts"]
+    )
+
+
+def test_direct_angle_expression_lowers_to_the_same_right_angle_method_fact():
+    raw = candidate("tj-2026-hexi-yimo-25", authored=True)
+    ii = raw["root"]["children"][1]
+    ii["facts"][5] = "∠CAD=90°"
+
+    bound = binding("tj-2026-hexi-yimo-25", payload=raw)
+    ii_scope = bound.bundle.source_graph.root_scope.children[1]
+    right_angle = next(fact for fact in ii_scope.facts if fact.kind == "right_angle")
+    assert right_angle.attributes["angle"] == {
+        "start": "C",
+        "vertex": "A",
+        "end": "D",
+    }
     assert any(
         fact["type"] == "right_angle_equal_length"
         for fact in bound.bundle.canonical_solver_input["facts"]

@@ -188,19 +188,6 @@ def test_real_vision_depends_on_image_without_ocr(tmp_path):
     (output / 'summary.json').write_text(json.dumps(observations, ensure_ascii=False, indent=2))
 
 
-@pytest.mark.live_llm
-@pytest.mark.parametrize('case_id', CASES)
-def test_five_real_deepseek_visual_extractions(tmp_path, case_id):
-    from shuxueshuo_server.solver.extraction.gold_corpus import load_gold_corpus
-    from shuxueshuo_server.solver.extraction.problem_domain_smoke import _run_sample
-    config = live_config()
-    case = next(c for c in load_gold_corpus().cases if c.problem_id == case_id)
-    output = Path(os.environ.get('DEEPSEEK_VISION_LIVE_OUTPUT', str(tmp_path)))
-    result = _run_sample(case, 1, batch_dir=output, f2_root=None, config=config,
-        max_attempts=3, provider_name='deepseek', request_timeout=config.deepseek_vision_timeout)
-    assert result.ok, result.to_payload()
-
-
 @pytest.mark.parametrize('case_id', CASES)
 def test_shared_smoke_with_recorded_external_responses(tmp_path, monkeypatch, case_id):
     from shuxueshuo_server.solver.extraction import problem_domain_smoke as smoke

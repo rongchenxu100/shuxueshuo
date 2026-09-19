@@ -50,11 +50,19 @@ def test_heping_real_nine_stage_build(setup, settings, tmp_path, monkeypatch):
             actual_values.pop(found)
         assert not actual_values, result['answers']
         assert b'<html' in x.bytes('page', 'page_html')
-        assert any(a['name'].startswith('source-review-replay:') for a in dto['artifacts'])
-        report_artifact = next(a for a in dto['artifacts'] if a['artifact_type'] == 'problem_source_review')
+        assert dto['pipeline_version'] == 'v3'
+        workflow = next(a for a in dto['artifacts'] if a['name'] == 'problem-math-workflow.json')
+        binding = next(a for a in dto['artifacts'] if a['name'] == 'binding-result.json')
+        review = next(a for a in dto['artifacts'] if a['name'] == 'problem-math-source-review.json')
         from shuxueshuo_server.product.db import transaction
         with transaction(app.db) as c:
-            assert service.artifacts.verified(c, ctx, UUID(report_artifact['id']))['schema_version'] == 'problem-source-review-audit/v1'
+            assert service.artifacts.verified(c, ctx, UUID(workflow['id']))['schema_version'] == 'problem-math-workflow/v1'
+            assert service.artifacts.verified(c, ctx, UUID(binding['id']))['schema_version'] == 'math-runtime-binding/v1'
+            assert service.artifacts.verified(c, ctx, UUID(review['id']))['schema_version'] == 'problem-math-source-review/v1'
+        workflow_payload = x.read('extraction', 'problem-math-workflow.json')
+        assert workflow_payload.get('status') == 'reviewed_candidate'
+        assert workflow_payload.get('source_reviewed') is True
+        assert x.read('projection', 'binding-result.json').get('schema_version') == 'math-runtime-binding/v1'
     except Exception:
         if app.build(x.build['id'])['status'] not in {'succeeded', 'failed', 'cancelled'}:
             service.finish_failure(*x.args, 'test.live_acceptance_failed')

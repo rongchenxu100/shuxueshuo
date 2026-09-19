@@ -58,9 +58,12 @@ FUNCTIONAL_OPT_IN_CASES: Mapping[str, FunctionalOptInCase] = FUNCTIONAL_BATCH_CA
 def run_deepseek_functional_opt_in(case: FunctionalOptInCase) -> None:
     debug_dir = _debug_dir(case)
     _reset_debug_dir(debug_dir, preserve_batches=debug_dir == case.default_debug_dir)
+    # These opt-in cases bind classic ProblemIR fixtures without a notation
+    # bundle. Keep source-ref even though production defaults to math-expression.
     config = SolverRuntimeConfig.from_sources(
         planner_mode="strategy",
         llm_provider="deepseek",
+        argument_encoding="source-ref",
     )
     if not config.deepseek_api_key:
         pytest.skip("DEEPSEEK_API_KEY is not configured")

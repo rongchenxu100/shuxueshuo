@@ -1371,6 +1371,14 @@ class ScopedFunctionalScopeRetryService:
                             evidence_phase="execution_failed",
                             error=error,
                         ))
+                    # A non-retryable binding-context error is a terminal
+                    # runtime contract failure, not an invalid LLM candidate.
+                    # Preserve the original exception so outer harnesses can
+                    # classify it as execution_failed and retain its typed
+                    # diagnostic.  Only the explicitly recognized latest
+                    # state dependency errors are promoted to planner retry.
+                    if not planner_retryable:
+                        raise
                     raise error from exc
                 except Exception as exc:
                     if attempt_observer is not None:

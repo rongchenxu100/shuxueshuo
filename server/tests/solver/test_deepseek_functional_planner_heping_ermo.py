@@ -13,7 +13,7 @@ from _functional_opt_in_support import (
 
 @pytest.mark.skipif(
     not RUN_FUNCTIONAL,
-    reason="set RUN_LLM_INTEGRATION=1 RUN_DEEPSEEK_FUNCTIONAL_PLANNER=1",
+    reason="set RUN_LLM_INTEGRATION=1 RUN_DEEPSEEK_STRATEGY_PLANNER=1",
 )
 def test_deepseek_functional_plan_solves_heping_ermo() -> None:
     run_deepseek_functional_opt_in(FUNCTIONAL_OPT_IN_CASES["heping-ermo"])

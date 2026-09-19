@@ -57,6 +57,23 @@ def test_compact_angle_matches_explicit_angle_without_changing_source(field, inh
     assert not {"BDC", "ABD", "BAC", "DAC"} & {o["name"] for o in report.objects}
 
 
+def test_direct_angle_expression_is_the_llm_facing_form_and_normalizes_to_right_angle():
+    payload = candidate(
+        facts=["quadrilateral(A,B,C,D)", "∠ABC=90°"]
+    )
+    report = NotationValidator().validate(payload)
+    assert report.ok, report.issues
+    assert payload["root"]["facts"][-1] == "∠ABC=90°"
+    assert any(
+        fact["rule_id"] == "right_angle_from_angle"
+        for fact in report.normalization_report["derived_facts"]
+    ) or any(
+        fact.get("fact", [None])[0] == "="
+        for fact in report.normalization_report["derived_facts"]
+    )
+    assert report.normalization_report["ruleset_hash"]
+
+
 @pytest.mark.parametrize(
     "facts,expression",
     [

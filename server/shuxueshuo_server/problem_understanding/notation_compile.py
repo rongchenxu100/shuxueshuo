@@ -10,6 +10,7 @@ from jsonschema import Draft202012Validator
 from .identity import encoded
 from .notation_contract import schema
 from .notation_parser import BUILTINS, NotationError, definition, node, parse
+from .normalization_report import from_normalization
 
 ARITY = {
     "sqrt": 1,
@@ -77,6 +78,7 @@ class Report:
     defaults: list = dc_field(default_factory=list)
     objects: list = dc_field(default_factory=list)
     semantic_normalization: dict = dc_field(default_factory=dict)
+    normalization_report: dict = dc_field(default_factory=dict)
     source_locations: dict = dc_field(default_factory=dict)
 
     def record_intersections(self, ast, path, source):
@@ -104,6 +106,7 @@ class Report:
             ),
             "object_bindings": self.semantic_normalization.get("object_bindings", []),
             "normalization_proofs": self.semantic_normalization.get("proofs", []),
+            "normalization_report": self.normalization_report,
         }
 
 
@@ -128,6 +131,163 @@ def normalize(payload):
 
     visit(value["root"], 0)
     return value
+
+
+def _expression_texts(scope):
+    for field in ("definitions", "facts"):
+        for text in scope.get(field, ()):
+            if isinstance(text, str):
+                yield text
+    for goal in scope.get("goals", ()):
+        if not isinstance(goal, dict):
+            continue
+        for key in ("expression", "object", "symbol"):
+            value = goal.get(key)
+            if isinstance(value, str):
+                yield value
+    for child in scope.get("children", ()):
+        yield from _expression_texts(child)
+
+
+def _expression_ast(text):
+    try:
+        return definition(text)
+    except (NotationError, RecursionError):
+        try:
+            return parse(text)
+        except (NotationError, RecursionError):
+            return None
+
+
+def _is_zero_number(ast):
+    return ast == ["number", "0"] or ast == ["number", "0.0"]
+
+
+def _is_origin_tuple(ast):
+    return (
+        isinstance(ast, list)
+        and ast
+        and ast[0] == "tuple"
+        and len(ast) == 3
+        and _is_zero_number(ast[1])
+        and _is_zero_number(ast[2])
+    )
+
+
+def _is_axes_constant(ast):
+    return (
+        isinstance(ast, list)
+        and len(ast) == 2
+        and ast[0] in ("name", "axis_constant")
+        and ast[1] in ("x_axis", "y_axis")
+    )
+
+
+def _is_axes_intersection(ast):
+    if not (isinstance(ast, list) and ast and ast[0] == "∩" and len(ast) == 3):
+        return False
+    return {_axes_name(ast[1]), _axes_name(ast[2])} == {"x_axis", "y_axis"}
+
+
+def _axes_name(ast):
+    if _is_axes_constant(ast):
+        return ast[1]
+    return None
+
+
+def _mentions_point_letter(ast, letter):
+    if not isinstance(ast, list) or not ast:
+        return False
+    if ast[0] == "name":
+        name = ast[1]
+        if name == letter:
+            return True
+        if isinstance(name, str) and re.fullmatch(r"[A-Z]{2,}", name) and letter in name:
+            return True
+    return any(_mentions_point_letter(child, letter) for child in children(ast))
+
+
+def _coordinate_frame_signal(ast):
+    if not isinstance(ast, list) or not ast:
+        return False
+    kind = ast[0]
+    if kind == "curve_definition":
+        return True
+    if kind in ("name", "axis_constant") and len(ast) == 2 and ast[1] in (
+        "x_axis",
+        "y_axis",
+    ):
+        return True
+    if kind == "call" and len(ast) >= 2 and ast[1] in ("x", "y"):
+        return True
+    if kind == "tuple" and len(ast) == 3:
+        return True
+    return any(_coordinate_frame_signal(child) for child in children(ast))
+
+
+def _o_definition_kind(ast):
+    """Classify an expression's effect on point O: origin, conflict, or None."""
+    if not isinstance(ast, list) or not ast:
+        return None
+    kind = ast[0]
+    if kind == "=" and len(ast) == 3:
+        for point, value in ((ast[1], ast[2]), (ast[2], ast[1])):
+            if not isinstance(point, list) or not isinstance(value, list) or not value:
+                continue
+            if point == ["name", "O"]:
+                if _is_origin_tuple(value) or _is_axes_intersection(value):
+                    return "origin"
+                if value[0] in ("tuple", "call", "+", "∩", "set"):
+                    return "conflict"
+            if point[0] == "set" and any(p == ["name", "O"] for p in point[1:]):
+                if _is_axes_intersection(value):
+                    return "origin"
+                if value[0] in ("∩", "set"):
+                    return "conflict"
+    if kind == "∈" and len(ast) == 3 and ast[1] == ["name", "O"]:
+        locus = ast[2]
+        if _is_axes_constant(locus) or _is_axes_intersection(locus):
+            return None
+        return "conflict"
+    if kind == "role" and len(ast) >= 3 and ast[1] == "O" and ast[2] == "moving":
+        return "conflict"
+    for child in children(ast):
+        status = _o_definition_kind(child)
+        if status:
+            return status
+    return None
+
+
+def coordinate_origin_default(root):
+    """Whether root should receive the code default O=(0,0).
+
+    Matches problem-math-notation-review: coordinate frame + referenced O + no
+    conflicting definition. Explicit root O=(0,0) is left to the candidate.
+    """
+    has_frame = False
+    mentions_o = False
+    conflict = False
+    root_has_origin = False
+    for text in root.get("definitions", ()) + root.get("facts", ()):
+        if not isinstance(text, str):
+            continue
+        ast = _expression_ast(text)
+        if ast is None:
+            continue
+        if _o_definition_kind(ast) == "origin":
+            root_has_origin = True
+    for text in _expression_texts(root):
+        ast = _expression_ast(text)
+        if ast is None:
+            if "x_axis" in text or "y_axis" in text:
+                has_frame = True
+            continue
+        has_frame = has_frame or _coordinate_frame_signal(ast)
+        mentions_o = mentions_o or _mentions_point_letter(ast, "O")
+        status = _o_definition_kind(ast)
+        if status == "conflict":
+            conflict = True
+    return has_frame and mentions_o and not conflict and not root_has_origin
 
 
 class Scope:
@@ -515,6 +675,11 @@ class NotationValidator:
                     report.objects,
                     source_locations=report.source_locations,
                 )
+                report.normalization_report = from_normalization(
+                    report.semantic,
+                    report.semantic_normalization,
+                    proofs=report.semantic_normalization.get("proofs", []),
+                ).to_payload()
         except (NotationError, RecursionError, ValueError, TypeError) as exc:
             report.issues.append(
                 {
@@ -533,6 +698,25 @@ class NotationValidator:
 
     def scope(self, source, report, path, parent=None):
         env = Scope(report, path, parent)
+        compiled = []
+        if path == "r" and coordinate_origin_default(source):
+            # Coordinate-frame default: visible root O=(0,0) before child scopes
+            # bind references such as ∠ACO or OM. See problem-math-notation-review.
+            origin = env.declare("O", "point")
+            compiled.append(
+                [
+                    "=",
+                    ["ref", origin["ref"], "point"],
+                    ["tuple", ["number", "0"], ["number", "0"]],
+                ]
+            )
+            report.defaults.append(
+                {
+                    "ref": origin["ref"],
+                    "domain": "origin",
+                    "origin": "code_default",
+                }
+            )
         expressions = []
         for field in ("definitions", "facts"):
             for index, text in enumerate(source[field]):
@@ -558,7 +742,6 @@ class NotationValidator:
                             "message": str(exc),
                         }
                     )
-        compiled = []
         for ast, location, text in expressions:
             try:
                 value = env.bind(ast)
@@ -571,6 +754,14 @@ class NotationValidator:
                 elif value_type != "boolean":
                     raise NotationError("type.fact_must_be_relation")
                 compiled.append(value)
+                # Keep the original LLM-facing expression attached to the
+                # bound AST.  Normalization may derive internal facts from
+                # this AST, but must be able to report the source JSON path
+                # and source text without rewriting the candidate.
+                report.source_locations[encoded(value).decode()] = {
+                    "path": location,
+                    "source": text,
+                }
                 report.record_intersections(value, location, text)
             except (NotationError, RecursionError) as exc:
                 report.issues.append(

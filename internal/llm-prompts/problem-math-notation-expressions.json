@@ -1,6 +1,6 @@
 {
   "purpose": "definitions/facts及目标字段共用的数学表达记法目录。只从这些基础记法组合表达题意，不自造操作名。",
-  "output_rule": "目录中的id、syntax、meaning等字段仅供阅读，不是输出格式。模型的definitions/facts仍输出数学字符串数组，不输出表达对象、目录条目或运算树。优先按Schema中的字段放置规则组织。",
+  "output_rule": "目录中的id、syntax、meaning等字段仅供阅读，不是输出格式。模型的definitions/facts仍输出数学字符串数组，不输出表达对象、目录条目或运算树。优先按Schema中的字段放置规则组织；在目录支持的范围内保留题面直观表达，不为等价关系提前改写。",
   "expressions": [
     {
       "id": "curve_definition",
@@ -28,9 +28,9 @@
     },
     {
       "id": "angle",
-      "syntax": "∠BAC；angle(B,A,C)；45°",
-      "meaning": "非定向内角，三点记法的中间点A是顶点；°表示角度。",
-      "examples": ["∠BAC = 2*∠DAC", "angle(B,A,C) = 45°"]
+      "syntax": "∠BAC；45°",
+      "meaning": "非定向内角，三点记法的中间点A是顶点；°表示角度。直接使用题面角记法，不构造解析器函数语法，也不改写为两直线垂直。",
+      "examples": ["∠BAC = 2*∠DAC", "∠ABC = 45°"]
     },
     {
       "id": "area",
@@ -65,7 +65,7 @@
     {
       "id": "line_relations",
       "syntax": "line(A,B) ⟂ line(C,D)；line(A,B) ∥ line(C,D)",
-      "meaning": "两条直线垂直或平行；操作数写直线，不写长度AB。",
+      "meaning": "两条直线垂直或平行；操作数写直线，不写长度AB。只有题面明确给出垂直或平行时使用；不要把题面的直角表达主动改写为垂直。",
       "examples": ["line(A,B) ⟂ line(C,D)", "line(A,B) ∥ line(C,D)"]
     },
     {

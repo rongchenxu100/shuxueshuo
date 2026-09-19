@@ -93,6 +93,12 @@ def test_contract_annotations_and_no_old_fact_schema_in_actual_request(tmp_path)
     assert "不将“(1)图甲”“(1)图乙”平铺" in request.prompt.system
     assert "提供图甲不能代替题面引用的图乙" in request.prompt.system
     assert "示例五：同一分问的两幅图，仅提供其中一幅" in request.prompt.system
+    assert "题面直观表达优先" in request.prompt.system
+    assert "直接写 `∠ABC = 90°`" in request.prompt.system
+    assert "angle(A,B,C)" not in request.prompt.system
+    assert "等价转换由后续代码归一化层完成" in request.prompt.system
+    assert "不为等价关系提前改写" in request.prompt.user_prefix
+    assert "angle(B,A,C)" not in request.prompt.user_prefix
     assert request.prompt.user_suffix == USER_PATH.read_text().strip()
     examples = re.findall(r"```json\n(.*?)\n```", request.prompt.system, re.DOTALL)
     assert len(examples) == 6
@@ -310,6 +316,99 @@ def test_sibling_points_invisible_and_independent_same_names_local():
     assert report.ok
     points = [x for x in report.objects if x["name"] == "A"]
     assert len({p["ref"] for p in points}) == 2
+
+
+def test_coordinate_origin_o_defaults_at_root_when_omitted():
+    payload = candidate(
+        {
+            "definitions": ["Γ: y = a*x^2+b*x-3"],
+            "facts": ["A = (-1,0)", "Γ ∩ x_axis = {A,B}", "Γ ∩ y_axis = {C}"],
+            "children": [
+                {
+                    "label": "（Ⅰ）",
+                    "children": [
+                        {
+                            "label": "②",
+                            "facts": ["∠CBE + ∠ACO = 45°"],
+                        }
+                    ],
+                },
+                {
+                    "label": "（Ⅱ）",
+                    "facts": [
+                        "M ∈ segment(B,C)",
+                        "N ∈ ray(C,D)",
+                        "min(OM+BN) = sqrt(34)",
+                    ],
+                    "goals": [{"kind": "find_value", "expression": "a"}],
+                },
+            ],
+        }
+    )
+    # D is used but undeclared in this minimal fixture; declare it for bind.
+    payload["root"]["facts"].append("D = C+(2,0)")
+    report = NotationValidator().validate(payload)
+    assert report.ok, report.issues
+    assert any(
+        x["name"] == "O" and x["scope"] == "r" and x["ref"] == "r:point:O"
+        for x in report.objects
+    )
+    assert any(
+        x["ref"] == "r:point:O" and x["domain"] == "origin" and x["origin"] == "code_default"
+        for x in report.defaults
+    )
+    assert report.semantic["facts"][0] == [
+        "=",
+        ["ref", "r:point:O", "point"],
+        ["tuple", ["number", "0"], ["number", "0"]],
+    ]
+
+
+def test_coordinate_origin_o_not_forced_without_frame_or_when_conflicting():
+    geometry = candidate({"facts": ["∠ACO = 90°", "length(A,C) = 1"]})
+    report = NotationValidator().validate(geometry)
+    assert report.ok, report.issues
+    assert not any(x.get("domain") == "origin" for x in report.defaults)
+    assert not any(
+        fact
+        == [
+            "=",
+            ["ref", "r:point:O", "point"],
+            ["tuple", ["number", "0"], ["number", "0"]],
+        ]
+        for fact in report.semantic["facts"]
+    )
+
+    conflict = candidate(
+        {
+            "definitions": ["Γ: y = x^2"],
+            "facts": ["A = (1,0)", "B = (-1,0)", "O = midpoint(A,B)", "length(O,A) = 1"],
+        }
+    )
+    report = NotationValidator().validate(conflict)
+    assert report.ok, report.issues
+    assert not any(x.get("domain") == "origin" for x in report.defaults)
+    assert not any(
+        fact
+        == [
+            "=",
+            ["ref", "r:point:O", "point"],
+            ["tuple", ["number", "0"], ["number", "0"]],
+        ]
+        for fact in report.semantic["facts"]
+    )
+
+
+def test_explicit_root_origin_skips_code_default():
+    payload = candidate(
+        {
+            "definitions": ["Γ: y = x^2", "O = (0,0)"],
+            "facts": ["A = (1,0)", "min(OA) = 1"],
+        }
+    )
+    report = NotationValidator().validate(payload)
+    assert report.ok, report.issues
+    assert not any(x.get("domain") == "origin" for x in report.defaults)
 
 
 @pytest.mark.parametrize(

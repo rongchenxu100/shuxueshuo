@@ -1,7 +1,7 @@
 {
   "schema_version": "lesson-capability-artifact-hashes/v1",
   "source_batch": "f5-f5c0-public-capability-review",
-  "registry_fingerprint": "39e0ecba7e2e68863c85508661038c9658ce99e67ad7bb13e00f65c269e560d1",
+  "registry_fingerprint": "a3d67907c53a34bd8d4d34982b36dc3e7871cde7abfa7124348e323ac5d41b5e",
   "summary": {
     "public_capability_count": 29,
     "public_function_count": 23,
@@ -14,10 +14,10 @@
   "recorded_cases": [
     {
       "problem_id": "tj-2026-heping-ermo-25",
-      "snapshot_hash": "08423ea79650823f75eb21213490dbe46882b4b8623363d5c32e2c8a0be0684a",
+      "snapshot_hash": "a9dc432eafef03cf85f67d775e0ab0ffcf59d0333d0427b8cfe0192a5e31c651",
       "annotated_plan_hash": "af480eb61e22d46cfe0a19c49fefeab42ea738cd59652482aa40ca7e70c1ea71",
-      "lesson_ir_hash": "eac0fbd36eada33d049b3f22b4b017159f5fccf81ff150419533c9cb993f8546",
-      "visual_step_ir_hash": "f74f448bd129218aee2476b1ed1e96d4e59b68efdbbd50f15a3c69a9ffb33325",
+      "lesson_ir_hash": "a84c430931440e0c6f629c6c8ef5caf51827244f1ac4e0c1623638ffa486990b",
+      "visual_step_ir_hash": "1607a065bdbe8e3b2e642fe46a2dcec90b0960a82043de86ea621c59d9229ef8",
       "source_step_count": 12,
       "lesson_step_count": 13,
       "visual_frame_count": 13

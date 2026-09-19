@@ -70,6 +70,14 @@ def main(argv: list[str] | None = None) -> int:
         help="Maximum DeepSeek planning attempts when --planner strategy is selected.",
     )
     parser.add_argument(
+        "--argument-encoding",
+        choices=("source-ref", "math-expression/v1"),
+        help=(
+            "Method argument encoding for Strategy planning. The production default "
+            "is math-expression/v1; source-ref is retained for legacy bundles."
+        ),
+    )
+    parser.add_argument(
         "--llm-debug-dir",
         help="Directory for per-attempt LLM planner debug artifacts.",
     )
@@ -82,6 +90,7 @@ def main(argv: list[str] | None = None) -> int:
             llm_model=args.llm_model,
             max_llm_attempts=args.llm_max_attempts,
             llm_debug_dir=args.llm_debug_dir,
+            argument_encoding=args.argument_encoding,
         )
         if args.fixture:
             if runtime_config.planner_mode != "deterministic":

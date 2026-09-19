@@ -61,6 +61,7 @@ class LoweredNotation:
     units: dict
     provenance: dict
     motion_bindings: list
+    normalization_report: dict
 
 
 class NotationRuntimeLowerer:
@@ -136,7 +137,12 @@ class NotationRuntimeLowerer:
                         getattr(item, "local_id", None),
                     )
         return LoweredNotation(
-            self.report, graph, self.units, self.provenance, self.motion_bindings
+            self.report,
+            graph,
+            self.units,
+            self.provenance,
+            self.motion_bindings,
+            self.report.normalization_report,
         )
 
     def identity(self, path, rule, payload, premises=()):

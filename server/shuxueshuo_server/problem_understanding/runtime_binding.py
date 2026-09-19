@@ -1,7 +1,7 @@
 """Pure, version-pinned runtime binding and separate Solver admission."""
 
 from collections.abc import Mapping
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from types import MappingProxyType
 from typing import Any
 
@@ -45,6 +45,9 @@ class NotationRuntimeBundle:
     candidate: Mapping
     provenance: Mapping
     motion_bindings: tuple = ()
+    normalization_report: Mapping = field(
+        default_factory=lambda: MappingProxyType({})
+    )
     source_artifact_ids: tuple = ()
     admission_evidence: Mapping | None = None
 
@@ -150,6 +153,7 @@ class RuntimeBinding:
                 )
         return {
             "canonical-input.json": thaw_json(self.bundle.canonical_solver_input),
+            "normalization-report.json": thaw_json(self.bundle.normalization_report),
             "projection-manifest.json": self.bundle.projection_manifest.to_payload(),
             "source-map.json": thaw_json(self.bundle.provenance),
             "motion-bindings.json": thaw_json(self.bundle.motion_bindings),
@@ -273,7 +277,14 @@ def _bind_notation(
     for provenance in lower.provenance.values():
         provenance["source_identity"] = identity
     revision = "problem-revision:" + stable_hash(identity)
-    semantic_hash = stable_hash(lower.report.semantic)
+    semantic_hash = stable_hash(
+        {
+            "semantic": lower.report.semantic,
+            "normalization_ruleset_hash": lower.normalization_report.get(
+                "ruleset_hash"
+            ),
+        }
+    )
     projection = ProblemDomainProjector().project_graph(
         lower.graph, revision_id=revision, semantic_hash=semantic_hash
     )
@@ -297,6 +308,7 @@ def _bind_notation(
         freeze_json(candidate),
         freeze_json(lower.provenance),
         freeze_json(lower.motion_bindings),
+        freeze_json(lower.normalization_report),
     )
     problem = bundle.build_solver_problem()
     if DEFAULT_FAMILY_REGISTRY.match(problem) != family:

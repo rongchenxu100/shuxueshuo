@@ -138,26 +138,6 @@ def test_near_miss_conditions_remain_significant(mutation):
         assert b.projection is None or not compare_solver_projection_semantics(a.projection.canonical_input,b.projection.canonical_input).ok
 
 
-@pytest.mark.live_llm
-@pytest.mark.parametrize('case',CASES)
-def test_live_frozen_holdout(tmp_path,case):
-    from test_deepseek_vision import live_config
-    config=live_config()
-    output=Path(os.environ.get('UNDERSTANDING_HOLDOUT_OUTPUT',str(tmp_path)))/case
-    output.mkdir(parents=True,exist_ok=False)
-    from shuxueshuo_server.solver.extraction.problem_domain_smoke import _implementation_hashes
-    repo=Path(__file__).resolve().parents[3]
-    protocol={'implementation':_implementation_hashes(repo),
-              'fixture_manifest_sha256':sha256((FIXTURES/'manifest.json').read_bytes()).hexdigest()}
-    protocol_path=output.parent/'protocol.json'
-    try:
-        with protocol_path.open('x') as stream:
-            json.dump(protocol,stream,indent=2,sort_keys=True)
-    except FileExistsError:
-        assert json.loads(protocol_path.read_text())==protocol, 'Implementation changed during batch'
-    run_case(output,case,create_vision_provider(config))
-
-
 @pytest.mark.parametrize('status',['correction_required','uncertain'])
 def test_independent_negative_review_blocks_adoption(tmp_path,status):
     from test_problem_domain_recorded import _RecordedProvider

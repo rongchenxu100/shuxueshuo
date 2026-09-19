@@ -171,7 +171,7 @@ class Geometry:
 def normalize_bound(root, objects, *, source_locations=None):
     source_locations = source_locations or {}
     budget = ProofBudget()
-    proofs, bindings, object_bindings = [], [], []
+    proofs, bindings, object_bindings, blocked = [], [], [], []
     declaration_refs = set()
     owners = {obj["ref"]: obj["scope"] for obj in objects}
 
@@ -186,15 +186,19 @@ def normalize_bound(root, objects, *, source_locations=None):
 
     def record(rule, scope, before, after, premises=()):
         if before != after:
-            proofs.append(
-                {
-                    "rule": rule,
-                    "scope": scope,
-                    "before": before,
-                    "after": after,
-                    "premises": list(premises),
-                }
-            )
+            proof = {
+                "rule": rule,
+                "scope": scope,
+                "before": before,
+                "after": after,
+                "premises": list(premises),
+            }
+            origin = source_locations.get(key(before), {})
+            if origin.get("path"):
+                proof["source_paths"] = [origin["path"]]
+            if origin.get("source") is not None:
+                proof["source_expression"] = origin["source"]
+            proofs.append(proof)
 
     def coordinates(ast, scope):
         budget.use()
@@ -238,6 +242,49 @@ def normalize_bound(root, objects, *, source_locations=None):
             record("coordinate_axis_membership", scope, value, after)
             return after
         return [axis_memberships(v, scope) if isinstance(v, list) else v for v in value]
+
+    def right_angle_canonical(value):
+        """Return an internal canonical right-angle fact without rewriting source AST."""
+        if (
+            isinstance(value, list)
+            and len(value) == 3
+            and value[0] == "="
+        ):
+            for angle, degrees in ((value[1], value[2]), (value[2], value[1])):
+                if (
+                    isinstance(angle, list)
+                    and angle[:2] == ["call", "angle"]
+                    and isinstance(degrees, list)
+                    and degrees[:2] == ["degrees", ["number", "90"]]
+                ):
+                    start, vertex, end = angle[2:]
+                    start, end = sorted((start, end), key=key)
+                    return ["right_angle", start, vertex, end], "right_angle_from_angle"
+        if (
+            isinstance(value, list)
+            and len(value) == 3
+            and value[0] == "⟂"
+            and all(
+                isinstance(locus, list)
+                and locus[:2] in (["call", "line"], ["call", "segment"])
+                and len(locus) == 4
+                for locus in value[1:]
+            )
+        ):
+            first, second = value[1][2:], value[2][2:]
+            shared = {item[1] for item in first} & {item[1] for item in second}
+            if len(shared) == 1:
+                vertex_id = next(iter(shared))
+                start = next(item for item in first if item[1] != vertex_id)
+                end = next(item for item in second if item[1] != vertex_id)
+                vertex = next(item for item in first if item[1] == vertex_id)
+                start, end = sorted((start, end), key=key)
+                return ["right_angle", start, vertex, end], "right_angle_from_perpendicular"
+            return None, "right_angle_from_perpendicular", {
+                "code": "ambiguous_entity_scope",
+                "message": "perpendicular loci need exactly one shared endpoint",
+            }
+        return None
 
     def visit(source, inherited_facts=(), inherited_aliases=None):
         path = source["scope"]
@@ -436,6 +483,25 @@ def normalize_bound(root, objects, *, source_locations=None):
                 seen[code] = fact
                 distinct.append(fact)
         kept = distinct
+        # Keep the source expression in ``kept`` and record a typed canonical
+        # right-angle fact only in the proof/report layer.  The canonical fact
+        # is internal and must never be emitted back to the LLM.
+        for fact in kept:
+            canonical_right_angle = right_angle_canonical(fact)
+            if canonical_right_angle is not None:
+                if len(canonical_right_angle) == 3:
+                    after, rule, reason = canonical_right_angle
+                    blocked.append(
+                        {
+                            "scope": path,
+                            "rule_id": rule,
+                            "source": fact,
+                            **reason,
+                        }
+                    )
+                else:
+                    after, rule = canonical_right_angle
+                    record(rule, path, fact, after)
         goals = []
         for goal in source["goals"]:
             normalized_goal = {}
@@ -498,4 +564,5 @@ def normalize_bound(root, objects, *, source_locations=None):
         "coordinate_bindings": bindings,
         "object_bindings": object_bindings,
         "proofs": proofs,
+        "blocked": blocked,
     }
