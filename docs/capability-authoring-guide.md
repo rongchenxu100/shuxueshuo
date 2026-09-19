@@ -11,7 +11,8 @@ FunctionalPlan 中，LLM 只负责：
 - 选择合适的 capability；
 - 引用题目中的数学实体和 Fact；
 - 表达调用之间的数学依赖；
-- 将公开 return 绑定到对象或答案。
+- 将公开 return 绑定到对象或答案；
+- 在契约允许时填写**候选推导参数**（完整式链、候选结构等），而不是宣布已验证事实。
 
 代码负责：
 
@@ -19,9 +20,22 @@ FunctionalPlan 中，LLM 只负责：
 - 按 Method input view 选择实体身份、最新状态、不可变值或匿名精确结果；
 - `MathObjectId`、`StateVersionId` 和 scope 可见性；
 - method/Macro 编译与事务执行；
+- 对候选参数做机械验证，通过后才提交 StateVersion；
 - output contract、symbolic closure、状态提交和 provenance。
 
 不要让 LLM 猜 method 名、runtime path、StateSlot、内部临时输出或编译顺序。
+
+### 1.1 新增能力时优先的 Method 范式
+
+公开 capability 背后的 Method，**优先采用 `organize_expressions` 范式**：LLM 在 `parameters` 中给出候选步骤，Method 只验证与分类，不负责「想出解法」。设计细节与准入清单见 `functional-method-dsl-authoring-guide.md` §3；实现参考 `docs/organize-expressions-q08-design.md`。
+
+```text
+优先：验证型（LLM 填候选 → 代码验事实 → 提交状态）
+其次：计算型（输入唯一决定输出，内核计算，LLM 不填答案）
+禁止：题号/技巧补丁 Method、把讲解特例写进 Method 内核
+```
+
+覆盖面应主要来自 **FunctionalPlan 编排与参数契约**，而不是持续增加 Method 个数。仅当现有验证域无法诚实扩展、且机制可命名可复用时，才新增 Method。
 
 ## 2. 权威链
 
@@ -267,14 +281,15 @@ Catalog 面向“选哪个能力”，不解释内部实现。
 
 ## 11. 实现步骤
 
-1. 在事实源中定义或扩展 MethodSpec。
-2. 声明 FunctionSpec 或 MacroSpec。
-3. 补齐 args、returns、binding role 和 output mapping。
-4. 若反求参数，注册 closure builder/filter/validator。
-5. 重新生成并校验 catalog/spec 资产。
-6. 添加 method、direct compiler、transaction 和 provenance 测试。
-7. 增加相邻能力负例，确认 LLM 可区分机制。
-8. 运行 solver 全量回归和真实 Functional smoke。
+1. 按 `functional-method-dsl-authoring-guide.md` §3 完成范式选择：优先验证型（仿 `organize_expressions`），其次计算型；写清为何不能扩展现有 Method。
+2. 在事实源中定义或扩展 MethodSpec（验证型必须声明 `parameters_schema` 与失败语义）。
+3. 声明 FunctionSpec 或 MacroSpec。
+4. 补齐 args、returns、binding role 和 output mapping。
+5. 若反求参数，注册 closure builder/filter/validator。
+6. 重新生成并校验 catalog/spec 资产。
+7. 添加 method、direct compiler、transaction 和 provenance 测试；验证型另测「错误候选被拒绝、正确候选可提交」。
+8. 增加相邻能力负例，确认 LLM 可区分机制。
+9. 运行 solver 全量回归和真实 Functional smoke。
 
 ## 12. 最小测试清单
 

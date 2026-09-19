@@ -6,6 +6,8 @@
 
 `organize_expressions`（整理式子）不寻找解法。LLM 写候选完整式链，代码验证、识别相邻结构变化、生成讲解。它不是把 LLM 的标签当作数学证明，也不要求 LLM 编写 HTML、reason 或教学节拍。
 
+**规范地位：** 本 Method 是新增能力的优先范式。增加 Method 时须先按 `docs/functional-method-dsl-authoring-guide.md` §3 判断能否做成「LLM 填候选、代码验事实」；公开 capability 侧见 `docs/capability-authoring-guide.md` §1.1。
+
 | 层 | 职责 | 不负责 |
 |---|---|---|
 | LLM | 选择整理路线，输出 `parameters.steps`，标出使用的已有条件 | 运算类型、证明通过标志、结构节点、状态版本、学生文案 |

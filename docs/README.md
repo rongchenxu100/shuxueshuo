@@ -16,8 +16,9 @@
 ## Solver 与 LLM
 
 - `method-solver-architecture.md`：当前 FunctionalPlan 到 runtime 的生产链。
-- `functional-method-dsl-authoring-guide.md`：把 FunctionalPlan 视为 DSL 时，新增 Method 的语义边界、代码契约、诊断与测试规范。
-- `capability-authoring-guide.md`：新增 Function、Macro、binding、return 与 closure contract 的规范。
+- `functional-method-dsl-authoring-guide.md`：把 FunctionalPlan 视为 DSL 时，新增 Method 的语义边界、代码契约、诊断与测试规范；**§3 规定优先采用 `organize_expressions` 验证型范式，并给出防无限打补丁清单**。
+- `capability-authoring-guide.md`：新增 Function、Macro、binding、return 与 closure contract 的规范；§1.1 与上条交叉引用。
+- `organize-expressions-q08-design.md`：验证型 Method 参考实现（LLM 填式链、代码验等价）。
 - `llm-context-model-design.md`：Context version、dependency、stale/rebase 规范。
 - `llm-planner-reliability-engineering.md`：失败归因、指标和候选选择原则。
 - `llm-sample-failure-review-guide.md`：逐 sample 检查 prompt、thinking、Plan、runtime 与 retry 的证据流程；包含输出超长专项和逐轮图示规范。
