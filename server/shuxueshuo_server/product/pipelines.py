@@ -16,9 +16,16 @@ V1 = {
 }
 
 
-CURRENT_PIPELINE_VERSION = 'v2'
+CURRENT_PIPELINE_VERSION = 'v3'
 V2 = deepcopy(V1)
 next(s for s in V2['stages'] if s['stage_key'] == 'extraction')['contract_version'] = 'v2'
+V3 = deepcopy(V2)
+next(s for s in V3['stages'] if s['stage_key'] == 'extraction')['contract_version'] = 'problem-math-notation/v1'
+next(s for s in V3['stages'] if s['stage_key'] == 'projection')['contract_version'] = 'math-runtime-binding/v1'
+V3['completion']['required_artifacts'].extend([
+    {'stage_key': 'extraction', 'name': 'problem-math-workflow.json', 'schema_version': 'problem-math-workflow/v1'},
+    {'stage_key': 'projection', 'name': 'binding-result.json', 'schema_version': 'math-runtime-binding/v1'},
+])
 UNDERSTANDING = {
     'schema_version': 'product-pipeline/v1',
     'stages': [
@@ -80,6 +87,7 @@ def validate(snapshot):
 class PipelineRegistry:
     def __init__(self):
         self._definitions = {('problem_lesson', 'v1'): validate(V1), ('problem_lesson', 'v2'): validate(V2),
+                             ('problem_lesson', 'v3'): validate(V3),
                              ('problem_understanding', 'v1'): validate(UNDERSTANDING),
                              ('problem_runtime_binding', 'v1'): validate(RUNTIME_BINDING)}
 

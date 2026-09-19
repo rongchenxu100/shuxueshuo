@@ -57,6 +57,7 @@ class ExecutionContext:
         self.work.mkdir(parents=True, exist_ok=True)
         self.refs, self.outputs, self.stage_key, self.attempt = {}, [], None, None
         self.pending_revision = None
+        self._notation_authority = None
         from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
         self.config = SolverRuntimeConfig.from_sources(planner_mode='strategy', llm_provider='deepseek', allow_same_problem_few_shot=False)
         self.secrets = [s for s in (self.config.deepseek_api_key, self.config.doubao_api_key) if s]
@@ -81,8 +82,10 @@ class ExecutionContext:
                 if not local_development and target['deployment_version'] != self.build['deployment_version']:
                     raise Conflict('build.environment_changed')
                 return
-            if any(s['stage_key'] == 'extraction' and s['contract_version'] != 'v2'
-                   for s in self.build['pipeline_snapshot']['stages']):
+            extraction = next((s for s in self.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction'), None)
+            if (self.build['pipeline_version'] in ('v1', 'v2')
+                    or (self.build['pipeline_version'] == 'v3' and extraction and extraction['contract_version'] != 'problem-math-notation/v1')
+                    or (self.build['pipeline_version'] not in ('v1', 'v2', 'v3') and extraction and extraction['contract_version'] not in ('v2', 'problem-math-notation/v1'))):
                 raise Conflict('extraction.rebuild_required')
             target = dependencies(self.source, self.build['requested_revision_id'], self.build['pipeline_snapshot'])
             if (
@@ -190,6 +193,9 @@ class ExecutionContext:
         return initial, observation, tuple(ancestors)
 
     def bundle(self):
+        extraction = next((s for s in self.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction'), None)
+        if extraction and extraction['contract_version'] == 'problem-math-notation/v1':
+            return self.notation_authority().bundle
         from shuxueshuo_server.solver.extraction.context import ProblemExtractionContext
         from shuxueshuo_server.solver.extraction.problem_solver_bundle import VerifiedSolverProblemBundleLoader
         from shuxueshuo_server.review.replay import extraction_store
@@ -197,13 +203,90 @@ class ExecutionContext:
         final = ProblemExtractionContext.from_payload(self.read('extraction', 'Extraction Context'), ancestor_contexts=ancestors)
         return VerifiedSolverProblemBundleLoader().load(final, extraction_store(self.work / 'extraction-artifacts'), ancestor_contexts=ancestors)
 
+    def notation_authority(self):
+        """Rebuild the pure notation bundle from the frozen extraction checkpoint.
+
+        Binding is deterministic and therefore safe during recovery; this method
+        never invokes the extraction provider and only admits a candidate whose
+        current source review is complete.
+        """
+        if self._notation_authority is not None:
+            return self._notation_authority
+        binding, evidence = self.notation_binding()
+        result_ref = self.refs.get(('projection', 'binding-result.json'))
+        if result_ref:
+            result = self.read('projection', 'binding-result.json')
+            if result.get('schema_version') != 'math-runtime-binding/v1' or result.get('source_identity') != dict(binding.source_identity):
+                raise IntegrityFailure('checkpoint.binding_identity')
+        from shuxueshuo_server.problem_understanding.runtime_binding import authorize_binding
+        self._notation_authority = authorize_binding(binding, evidence)
+        return self._notation_authority
+
+    def notation_binding(self):
+        from shuxueshuo_server.problem_understanding.runtime_binding import (
+            AdmissionEvidence, bind_notation,
+        )
+        from shuxueshuo_server.product.repositories import scoped
+        with transaction(self.service.db) as c:
+            # A checkpoint rebuild reuses the extraction artifacts but does
+            # not create a second provider/workflow ledger row.  Follow the
+            # build lineage so projection/solver recovery can restore the
+            # exact reviewed candidate without invoking extraction again.
+            run = None
+            lineage_build_id = self.build['id']
+            while lineage_build_id:
+                run = row(c, m.extraction_runs, build_id=lineage_build_id)
+                if run and run['status'] == 'completed' and run['candidate_id']:
+                    break
+                lineage = scoped(c, m.builds, self.ctx, lineage_build_id)
+                lineage_build_id = lineage.get('parent_build_id')
+            if not run or not run['candidate_id']:
+                raise ProductError('extraction.rebuild_required')
+            source = scoped(c, m.problem_source_versions, self.ctx, run['source_version_id'])
+            candidate = scoped(c, m.problem_candidates, self.ctx, run['candidate_id'])
+            p = scoped(c, m.problems, self.ctx, run['problem_id'])
+        workflow = self.read('extraction', 'problem-math-workflow.json')
+        if workflow.get('status') != 'reviewed_candidate' or not workflow.get('source_reviewed'):
+            raise ProductError('extraction.source_review_required')
+        same_snapshot = (
+            run['status'] == 'completed'
+            and p['current_source_version_id'] == run['source_version_id']
+            and p['understanding_generation'] == run['generation']
+            and candidate['source_version_id'] == source['id']
+        )
+        # A checkpoint rebuild may either retain the parent extraction ledger
+        # or carry a legacy empty child row.  The lineage walk deliberately
+        # selects the completed parent run in both cases, so its adopted
+        # candidate remains the authoritative reviewed snapshot.  For a live
+        # run, keep the stricter compare-and-swap check against the problem
+        # pointer.
+        reused_lineage = str(run['build_id']) != str(self.build['id'])
+        current = same_snapshot and (
+            run['candidate_id'] == p['current_candidate_id']
+            or (reused_lineage and p['current_candidate_id'] is None)
+        )
+        binding = bind_notation(candidate['candidate_json'], problem_id=str(run['problem_id']),
+            candidate_id=str(candidate['id']), source_version_id=str(source['id']), source_hash=source['source_hash'])
+        return binding, AdmissionEvidence(
+            candidate_id=str(candidate['id']), candidate_hash=candidate['candidate_hash'],
+            source_version_id=str(source['id']), source_hash=source['source_hash'],
+            review_run_id=str(run['id']), review_current=current)
+
     def validate_restored(self, key):
         if self.build['pipeline_key'] == 'problem_understanding':
             return
         from shuxueshuo_server.solver.extraction.context import ProblemExtractionContext
         if key == 'source': ProblemExtractionContext.from_payload(self.read('source', 'Source / selection / initial Context'))
         if key == 'observation': self.contexts()
-        if key in ('extraction', 'projection'): self.bundle()
+        if key == 'extraction':
+            extraction = next((s for s in self.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction'), None)
+            if extraction and extraction['contract_version'] == 'problem-math-notation/v1':
+                workflow = self.read('extraction', 'problem-math-workflow.json')
+                if workflow.get('schema_version') != 'problem-math-workflow/v1' or not workflow.get('candidate_only'):
+                    raise IntegrityFailure('checkpoint.notation_workflow')
+            else:
+                self.bundle()
+        if key == 'projection': self.bundle()
         if key == 'solver':
             from shuxueshuo_server.review.replay import restore_evidence, EVIDENCE
             restore_evidence(self.bundle(), self.read('solver', 'VerifiedFunctionalPlanExecution'), self.read('solver', EVIDENCE), self.config)

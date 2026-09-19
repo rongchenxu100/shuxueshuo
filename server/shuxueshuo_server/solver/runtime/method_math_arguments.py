@@ -197,7 +197,7 @@ def _unwrapped_minimum_expression(text):
         return None
     if len(extrema) != 1:
         return None
-    operator, variables, body = extrema[0][1], extrema[0][2], extrema[0][3]
+    operator, _, body = extrema[0][1], extrema[0][2], extrema[0][3]
     if operator != "min":
         return None
     return _render(body)
@@ -276,6 +276,7 @@ class MethodMathArgumentResolver:
             for s in bundle.source_graph.root_scope.iter_scopes()
             for e in s.entities
         }
+        self.object_names = {item["ref"]: item["name"] for item in report.objects}
         self.facts = {
             f.unit_id: f
             for s in bundle.source_graph.root_scope.iter_scopes()
@@ -465,6 +466,56 @@ class MethodMathArgumentResolver:
                 return tuple(source.expressions)
         return ()
 
+    def _perpendicular_signature(self, expression, *, scope_id):
+        """Return ``(vertex, endpoints)`` for a shared-endpoint ⟂ spelling."""
+        try:
+            bound = self.environments[scope_id].bind(parse(expression))
+        except (NotationError, ValueError, TypeError, RecursionError):
+            return None
+        if len(bound) != 3 or bound[0] != "⟂":
+            return None
+        loci = bound[1:]
+        endpoint_pairs = []
+        for locus in loci:
+            if (
+                len(locus) != 4
+                or locus[:2] not in (["call", "line"], ["call", "segment"])
+                or any(ref[0] != "ref" or ref[2] != "point" for ref in locus[2:])
+            ):
+                return None
+            endpoint_pairs.append(locus[2:])
+        shared = {ref[1] for ref in endpoint_pairs[0]} & {
+            ref[1] for ref in endpoint_pairs[1]
+        }
+        if len(shared) != 1:
+            return None
+        vertex = next(iter(shared))
+        ends = frozenset(
+            self.object_names.get(ref[1], ref[1])
+            for pair in endpoint_pairs
+            for ref in pair
+            if ref[1] != vertex
+        )
+        if len(ends) != 2:
+            return None
+        return self.object_names.get(vertex, vertex), ends
+
+    def _matches_right_angle_source(self, source, expression, *, scope_id):
+        signature = self._perpendicular_signature(expression, scope_id=scope_id)
+        if signature is None:
+            return False
+        vertex, ends = signature
+        for unit_id in source.authority.source_unit_ids:
+            fact = self.facts.get(unit_id)
+            if fact is None or fact.kind != "right_angle":
+                continue
+            angle = fact.attributes.get("angle", {})
+            if angle.get("vertex") != vertex:
+                continue
+            if frozenset((angle.get("start"), angle.get("end"))) == ends:
+                return True
+        return False
+
     def resolve(
         self,
         capability_id,
@@ -486,6 +537,7 @@ class MethodMathArgumentResolver:
         cap = self.catalog.get(capability_id)
         if cap is None:
             return expression, None
+        requested_arg_name = arg_name
         arg_name = self._condition_arg_name(capability_id, arg_name)
         arg = next(
             (a for a in cap.args if a.name == arg_name or arg_name in a.aliases), None
@@ -540,7 +592,14 @@ class MethodMathArgumentResolver:
                         key = self._key(candidate, a.owner_scope_id)
                     except (NotationError, ValueError, TypeError, RecursionError):
                         continue
-                    if key == wanted:
+                    equivalent_perpendicular = (
+                        requested_arg_name == "angle"
+                        and a.semantic_ref.value_type == "right_angle_equal_length"
+                        and self._matches_right_angle_source(
+                            source, expression, scope_id=scope_id
+                        )
+                    )
+                    if key == wanted or equivalent_perpendicular:
                         matches.append(source)
                         break
                 if matches and matches[-1] is source:

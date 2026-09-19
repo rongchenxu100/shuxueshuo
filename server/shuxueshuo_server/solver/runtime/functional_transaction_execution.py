@@ -6859,6 +6859,7 @@ class FunctionalTransactionalInterpreter:
         handle_registry: CanonicalHandleRegistry,
         problem_payload: Mapping[str, Any],
         restored_seed: FunctionalRestoredCallSeed | None = None,
+        blocked_answer_handles: frozenset[str] = frozenset(),
     ) -> FunctionalTransactionalAttemptResult:
         """Execute C2 and derive goal, output and retry facts from runtime."""
         report = self.execute(
@@ -6952,6 +6953,13 @@ class FunctionalTransactionalInterpreter:
                     inputs.method_specs,
                 ),
                 state_writes=state_writes,
+            ),
+            blocked_answer_handles=(
+                blocked_answer_handles
+                | _blocked_answer_handles(
+                    raw_plan,
+                    reconciliation=reconciliation,
+                )
             ),
         )
         goal_report = AnswerGoalVerifier().verify_report(
@@ -10191,6 +10199,36 @@ def _functional_goal_producers(
             produces=produces,
         )
     return result
+
+
+def _blocked_answer_handles(
+    raw_plan: FunctionalPlan,
+    *,
+    reconciliation: FunctionalPlanReconciliationResult,
+) -> frozenset[str]:
+    """Return answer handles whose authored producer is absent from replay.
+
+    Scoped authority removes an invalid step and its dependent suffix before
+    the transactional interpreter builds its logical graph.  An answer
+    producer removed for that reason is *blocked*, not an unbound answer.  We
+    identify it from the typed answer return binding on the authored call and
+    the reconciled call ids; no problem-specific step names or scopes are
+    involved.
+    """
+
+    reconciled_call_ids = {item.call_id for item in reconciliation.calls}
+    handles: set[str] = set()
+    for call in raw_plan.calls:
+        if call.call_id in reconciled_call_ids:
+            continue
+        for binding in call.return_bindings.values():
+            if binding.kind != "answer":
+                continue
+            ref = str(binding.ref).strip()
+            if not ref:
+                continue
+            handles.add(ref if ref.startswith("answer:") else f"answer:{ref}")
+    return frozenset(handles)
 
 
 def _issue(

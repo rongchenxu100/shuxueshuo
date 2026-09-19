@@ -827,6 +827,72 @@ def test_role_binder_resolves_same_label_by_current_branch(
     assert binder.geometry_point_name("O", "ii") == "O"
 
 
+def test_typed_relation_prefers_parent_scope_point_over_evaluated_duplicate() -> None:
+    geometry = {
+        "fixedPoints": {"point_D_ii": ["1", "0"]},
+        "movingPoints": {
+            "point_M_ii_1": ["m", "1"],
+            "point_M_ii_2": ["8", "1"],
+        },
+        "pointMeta": {
+            "point_D_ii": {"label": "D", "scopeId": "ii", "scopeRoot": "ii"},
+            "point_M_ii_1": {
+                "label": "M",
+                "scopeId": "ii_1",
+                "scopeRoot": "ii",
+                "definition": "runtime_point_output",
+            },
+            "point_M_ii_2": {
+                "label": "M",
+                "scopeId": "ii_2",
+                "scopeRoot": "ii",
+                "definition": "runtime_point_output",
+            },
+        },
+        "curves": [],
+    }
+    problem = {
+        "entities": [
+            {
+                "entity_type": "point",
+                "handle": "point:ii:M",
+                "name": "M",
+                "coordinate": ["m", "1"],
+                "scope_id": "ii",
+            }
+        ],
+        "facts": [],
+    }
+    binder = VisualRoleBinderRegistry.default(geometry, problem)
+    source = TeachingSource(
+        source_step_id="solve_N",
+        capability_id="right_angle_equal_length_construct_and_select",
+        inputs={
+            "right_angle_equal_length": (
+                {
+                    "runtime_type": "right_angle_equal_length",
+                    "value": {"angle": ["M", "D", "N"]},
+                },
+            )
+        },
+        outputs={"selected_target_point": {"runtime_type": "Point"}},
+        output_targets={"selected_target_point": "N"},
+    )
+    roles = binder._typed_relation_input_roles(
+        {
+            "right_angle_equal_length": [
+                {
+                    "runtime_type": "right_angle_equal_length",
+                    "value": {"angle": ["M", "D", "N"]},
+                }
+            ]
+        },
+        source=source,
+        scope_id="ii",
+    )
+    assert roles["reference"][0]["geometry_ref"] == "point_M_ii_1"
+
+
 def test_compiler_uses_only_frame_local_scene_payloads(
     heping_yimo_page: HepingYimoPage,
 ) -> None:

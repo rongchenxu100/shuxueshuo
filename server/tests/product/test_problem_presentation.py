@@ -93,3 +93,36 @@ def test_stale_review_explains_which_binding_changed(current, change, reason):
     assert not state['source_reviewed']
     assert state['source_status'] == 'stale'
     assert state['review_stale_reason'] == reason
+
+
+def test_local_review_keeps_unmatched_candidate_as_unsupported_after_config_change(current):
+    p, source, candidate, run, config = current
+    result = understanding_presentation(p, source, candidate, run, {'contract': 'v2'}, local=True)
+    assert result['status'] == 'unsupported'
+    assert result['reason'] is None
+
+
+def test_ready_candidate_defers_to_active_lesson_build(current):
+    from shuxueshuo_server.product.problem_presentation import overlay_active_build
+
+    p, source, candidate, run, config = current
+    candidate = {
+        **candidate,
+        'candidate_json': {
+            **candidate['candidate_json'],
+            'match_status': 'matched',
+            'family_id': 'parabola',
+            'original_text': '已知抛物线',
+        },
+    }
+    ready = understanding_presentation(p, source, candidate, run, config, local=True)
+    assert ready['status'] == 'ready' and ready['result_id'] == str(run['id'])
+    demoted = overlay_active_build(ready, 'running')
+    assert demoted == {
+        **ready,
+        'phase': 'generation',
+        'status': 'running',
+        'result_id': None,
+    }
+    assert overlay_active_build(ready, 'succeeded') is ready
+    assert overlay_active_build(ready, 'failed') is ready

@@ -2,12 +2,27 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { api, post, BuildSchema, failureMessage, formatDuration, label, stageElapsedMs, terminal, websocketUrl, type ProductBuild } from '@/lib/product/client';
+import { api, post, BuildSchema, failureMessage, formatDuration, label, stageElapsedMs, terminal, websocketUrl, ProductApiError, type ProductBuild } from '@/lib/product/client';
 import { continueUpload, fileFingerprint, PendingUploadSchema, pendingUploadKey, ProblemListSchema, ProblemSchema,
-  previewPage, stageLabel, problemTitle, problemStatus, processing, unreadResult, markResultRead, ReadResultsSchema, readResultsKey, type ReadResults, type PendingUpload, type WorkspaceProblem } from '@/lib/product/workspace';
+  previewPage, stageLabel, problemTitle, problemStatus, problemIntervention, processing, unreadResult, markResultRead, ReadResultsSchema, readResultsKey, type ReadResults, type PendingUpload, type WorkspaceProblem, type ProblemIntervention } from '@/lib/product/workspace';
 import styles from './product-workspace.module.css';
 
 const message = (error: unknown) => error instanceof Error ? error.message : '请求未完成，请稍后重试。';
+
+function interventionNotice(kind: ProblemIntervention) {
+  if (kind === 'missing_figure') return {
+    title: '题目缺少配图',
+    message: '题干引用了图形，但当前图片中没有完整配图。请补充图片，或确认题目不需要配图后再继续。',
+  };
+  if (kind === 'confirmation') return {
+    title: '题目需要确认',
+    message: '系统无法可靠确认题意。请检查题目图片和提取结果，确认内容或重新上传清晰图片后再继续。',
+  };
+  return {
+    title: '暂不支持题型',
+    message: '题目已识别，但当前系统暂不支持该题型，后续解答步骤未执行。',
+  };
+}
 
 function formatUpdated(value?: string | null) {
   if (!value) return '';
@@ -143,6 +158,7 @@ export function ProductWorkspace() {
     let active = true;
     const turn = navigation.current;
     async function initialize() {
+      let problemId: string | null = null;
       try {
         const raw = localStorage.getItem(pendingUploadKey);
         if (raw) {
@@ -151,13 +167,25 @@ export function ProductWorkspace() {
           if (active) { pendingRef.current = parsed.data; setPending(parsed.data); await resume(parsed.data, null); }
           return;
         }
-        const id = new URL(window.location.href).searchParams.get('problem');
-        if (id) {
-          if (!ProblemSchema.shape.id.safeParse(id).success) throw new Error('题目链接无效。');
-          const problem = ProblemSchema.parse(await api(`/problems/${id}`));
+        problemId = new URL(window.location.href).searchParams.get('problem');
+        if (problemId) {
+          if (!ProblemSchema.shape.id.safeParse(problemId).success) throw new Error('题目链接无效。');
+          const problem = ProblemSchema.parse(await api(`/problems/${problemId}`));
           if (active && navigation.current === turn) { setSelected(problem); setMobilePane('detail'); }
         }
-      } catch (e) { if (active) setError(message(e)); }
+      } catch (e) {
+        if (!active) return;
+        // A cleared local workspace can leave an old ?problem= URL in the browser.
+        // Treat that as navigation recovery, not as an operation/permission failure.
+        if (problemId && e instanceof ProductApiError && e.status === 404) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete('problem');
+          window.history.replaceState(null, '', url);
+          setSelected(null); setMobilePane('detail'); setNotice('原题目已被清理，已返回新题目页面。'); setError('');
+          return;
+        }
+        setError(message(e));
+      }
     }
     const boot = requestAnimationFrame(() => { void loadList(); void initialize(); });
     return () => { active = false; cancelAnimationFrame(boot); };
@@ -348,8 +376,12 @@ function RunWorkspace({ problem, onComplete, notices, width, onWidth, onResizing
     return () => { stopped = true; clearInterval(poll); clearTimeout(reconnect); socket?.close(); window.removeEventListener('focus', focus); };
   }, [problem.id, problem.latest_build_id, onComplete]);
   const normalized = build?.artifacts.find(a => a.stage_key === 'source' && a.name === '规范化图片');
+  const intervention = problemIntervention(problem);
+  const interventionCopy = intervention ? interventionNotice(intervention) : null;
+  const failedStage = build?.stages.find(stage => stage.status === 'failed');
+  const runFailureTitle = failedStage && failedStage.ordinal <= 3 ? '提取题目失败（系统错误）' : '解答失败（系统错误）';
   return <>
-    <PagePreview build={build} />
+    <PagePreview build={build} fallbackPageId={problem.current_page_build_id} />
     <section className={styles.middle} aria-label="生成进度"><header className={styles.header}>
       <button type="button" className={styles.back} onClick={onBack}>← 题目列表</button>
       <span>生成进度</span>
@@ -357,32 +389,41 @@ function RunWorkspace({ problem, onComplete, notices, width, onWidth, onResizing
     </header>
       <div className={styles.scroll}>{notices}{error && <p role="alert" className={`${styles.error} mb-4`}>{error}</p>}
         <div className={`${styles.card} space-y-4`}>
-          <h1 className="text-xl font-semibold">{build ? label(build.status) === '已完成' ? '解析已生成' : label(build.status) : '正在读取生成进度…'}</h1>
+          <h1 className="text-xl font-semibold">{interventionCopy?.title ?? (build?.status === 'failed' ? runFailureTitle : build ? label(build.status) === '已完成' ? '已完成' : label(build.status) : '正在读取生成进度…')}</h1>
+          {interventionCopy && <div className={styles.blocked} role="status"><p className="font-medium">{interventionCopy.title}</p><p className="mt-1">{interventionCopy.message}</p></div>}
           {normalized && <details><summary className="cursor-pointer text-sm text-zinc-500">查看题目图片</summary>
             {/* Authenticated artifact endpoint; bypass image optimization. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img alt="题目图片" className="mt-3 h-auto max-w-full rounded-lg" src={`/api/product/v1/builds/${build!.id}/artifacts/${normalized.id}`} />
           </details>}
-          {build?.error_code && <div className={styles.error}><p>{failureMessage(build.error_code)}</p><Link className="mt-2 inline-block underline" href={`/review/runs/${build.id}`}>查看诊断与重试</Link></div>}
-          {build?.status === 'succeeded' && !previewPage(build) && <p className={styles.muted}>解析版本已失效，请到审查页面确认并重新生成。</p>}
+          {build?.error_code && !interventionCopy && <div className={styles.error}><p>{failureMessage(build.error_code)}</p><Link className="mt-2 inline-block underline" href={`/review/runs/${build.id}`}>查看诊断与重试</Link></div>}
+          {build?.status === 'succeeded' && !previewPage(build, problem.current_page_build_id) && <p className={styles.muted}>解析版本已失效，请到审查页面确认并重新生成。</p>}
           {build?.status === 'cancelled' && <p className={styles.muted}>本次生成已取消，题目图片仍已保存。</p>}
           {build && !terminal(build.status) && <p className={styles.muted}>正在处理题目。关闭页面不会中断生成，稍后可以从左侧列表继续查看。</p>}
           <ol aria-label="生成步骤">{build?.stages.map(stage => {
+            // Keep real failed/succeeded/in-flight outcomes visible; only
+            // collapse stages that never started after an early intervention
+            // or upstream failure.
+            const inFlight = ['failed', 'succeeded', 'running', 'queued'].includes(stage.status);
+            const skipped = Boolean(
+              (interventionCopy && stage.ordinal >= 4 && !inFlight) ||
+              (build.status === 'failed' && failedStage && stage.ordinal > failedStage.ordinal),
+            );
             const elapsed = stageElapsedMs(build, stage.id, now);
-            const statusLine = [label(stage.status), elapsed != null ? formatDuration(elapsed) : null].filter(Boolean).join(' · ');
+            const statusLine = skipped ? '未执行' : [label(stage.status), elapsed != null ? formatDuration(elapsed) : null].filter(Boolean).join(' · ');
             return <li className={styles.stage} key={stage.id}>
-              <span className={styles.dot} data-status={stage.status}>{stage.status === 'succeeded' ? '✓' : stage.ordinal}</span>
+              <span className={styles.dot} data-status={skipped ? 'skipped' : stage.status}>{!skipped && stage.status === 'succeeded' ? '✓' : stage.ordinal}</span>
               <div className="min-w-0 flex-1"><p className="text-sm font-medium">{stageLabel(stage)}</p><p className="mt-1 text-xs text-zinc-500">{statusLine}</p></div>
             </li>;
           })}</ol>
         </div>
-      </div>{previewPage(build) && <ResizeHandle label="调整生成进度栏宽度" value={width} min={240} max={480} onChange={onWidth} onResizing={onResizing} reverse />}
+      </div>{previewPage(build, problem.current_page_build_id) && <ResizeHandle label="调整生成进度栏宽度" value={width} min={240} max={480} onChange={onWidth} onResizing={onResizing} reverse />}
     </section>
   </>;
 }
 
-function PagePreview({ build }: { build: ProductBuild | null }) {
-  const page = previewPage(build);
+function PagePreview({ build, fallbackPageId }: { build: ProductBuild | null; fallbackPageId?: string | null }) {
+  const page = previewPage(build, fallbackPageId);
   if (!page) return null;
   return <section className={styles.preview} aria-label="解析网页"><header className={styles.header}><span>解析网页</span><a className="text-xs font-normal text-teal-700" href={`/api/product/v1/pages/${page}/index.html`} target="_blank" rel="noreferrer">新窗口打开 ↗</a></header>
     <iframe key={page} className={styles.frame} title="题目解析网页" sandbox="allow-scripts" src={`/api/product/v1/pages/${page}/index.html`} />

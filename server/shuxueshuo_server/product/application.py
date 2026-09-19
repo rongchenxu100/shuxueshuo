@@ -26,6 +26,27 @@ def public(row_value, *fields):
     return jsonable_encoder({k: row_value[k] for k in fields}) if row_value else None
 
 
+def latest_notation_page_id(c, problem_id):
+    """Latest succeeded v3 lesson page when formal current_page_build_id is unset.
+
+    Notation builds keep a build-local revision and therefore cannot advance the
+    database current_page pointer (revision must match). The workspace still
+    needs a stable "current page" after a later failed rebuild.
+    """
+    return c.scalar(
+        select(m.page_builds.c.id)
+        .select_from(m.page_builds.join(m.builds, m.builds.c.id == m.page_builds.c.build_id))
+        .where(
+            m.builds.c.problem_id == problem_id,
+            m.builds.c.status == 'succeeded',
+            m.builds.c.pipeline_key == 'problem_lesson',
+            m.builds.c.pipeline_version == 'v3',
+        )
+        .order_by(m.builds.c.finished_at.desc().nullslast(), m.page_builds.c.id.desc())
+        .limit(1)
+    )
+
+
 def statement_text(domain):
     """Keep the reviewed source wording and subquestion order, without solver answers."""
     lines = []
@@ -41,11 +62,18 @@ def statement_text(domain):
 def deployment_version(discovered=None):
     from .dependency_cache import release_dependencies
     from shuxueshuo_server.problem_understanding.workflow import frozen_files
+    from shuxueshuo_server.problem_understanding.notation_contract import CONTRACT
     discovered = discovered or release_dependencies()
     runtime = {str(p.relative_to(REPO)): sha256(p.read_bytes()).hexdigest()
                for p in sorted((REPO / 'server/shuxueshuo_server/product').rglob('*.py'))}
+    runtime_binding = {
+        str(p.relative_to(REPO)): sha256(p.read_bytes()).hexdigest()
+        for p in sorted((REPO / 'server/shuxueshuo_server/problem_understanding').glob('runtime_*.py'))
+    }
     return digest({'code': runtime, 'domain': {k: v['resources'] for k, v in discovered['stages'].items()},
-                   'understanding': frozen_files(), 'uv': sha256((REPO / 'server/uv.lock').read_bytes()).hexdigest()})
+                   'understanding': {'files': frozen_files(), 'runtime_binding': runtime_binding,
+                                     'contract': CONTRACT},
+                   'uv': sha256((REPO / 'server/uv.lock').read_bytes()).hexdigest()})
 
 
 def dependencies(source, revision_id, snapshot):
@@ -102,6 +130,23 @@ def dependencies(source, revision_id, snapshot):
         config[key]['network_budget'] = limit * 2
         config[key]['sdk_retries'] = 0
     config['extraction'].update(draft_budget=3, review_budget=3, semantic_budget=6, network_budget=12, source_review_contract='problem-source-review/v1')
+    extraction_contract = next(s['contract_version'] for s in snapshot['stages'] if s['stage_key'] == 'extraction')
+    if extraction_contract == 'problem-math-notation/v1':
+        from shuxueshuo_server.problem_understanding import notation_contract
+        from .understanding import registry
+        from shuxueshuo_server.problem_understanding.workflow import frozen_files
+        from .understanding_runtime import configuration as notation_configuration
+        config['extraction'] = notation_configuration()
+        config['extraction']['contract'] = notation_contract.CONTRACT
+        config['extraction']['source_review_contract'] = 'problem-math-source-review/v1'
+        config['extraction']['registry'] = digest(registry())
+        config['extraction']['files'] = frozen_files()
+        config['projection'] = {
+            'contract': 'math-runtime-binding/v1',
+            'runtime_binding': deployment_version(discovered),
+            'semantic_budget': 0,
+            'network_budget': 0,
+        }
     resources = {k: v['resources'] for k, v in discovered['stages'].items()}
     runtime = {str(p.relative_to(REPO)): sha256(p.read_bytes()).hexdigest()
                for p in sorted((REPO / 'server/shuxueshuo_server/product').rglob('*.py'))}
@@ -204,11 +249,19 @@ class Application:
         details = {r['id']: r for r in c.execute(select(m.problems.c.id, m.problem_revisions.c.domain_json,
             m.sources.c.filename, m.builds.c.status, m.builds.c.created_at.label('build_created_at')).select_from(joined).where(
             m.problems.c.workspace_id == self.ctx.workspace_id, m.problems.c.id.in_([p['id'] for p in records]))).mappings()}
-        presentations = problem_presentations(c, records, details)
-        return [{**public(p, 'id', 'title', 'primary_source_id', 'current_revision_id', 'latest_build_id', 'current_page_build_id', 'updated_at'),
-            'statement_text': statement_text(details[p['id']]['domain_json']),
-            'source_filename': details[p['id']]['filename'], 'latest_build_status': details[p['id']]['status'],
-            'presentation': presentations[p['id']]} for p in records]
+        presentations = problem_presentations(c, records, details, local=self.settings.mode == 'local')
+        summaries = []
+        for p in records:
+            page_id = p['current_page_build_id'] or latest_notation_page_id(c, p['id'])
+            summaries.append({
+                **public(p, 'id', 'title', 'primary_source_id', 'current_revision_id', 'latest_build_id', 'updated_at'),
+                'current_page_build_id': str(page_id) if page_id else None,
+                'statement_text': statement_text(details[p['id']]['domain_json']),
+                'source_filename': details[p['id']]['filename'],
+                'latest_build_status': details[p['id']]['status'],
+                'presentation': presentations[p['id']],
+            })
+        return summaries
 
     def list_problems(self, *, limit=50, before=None):
         records = self.service.list_problems(self.ctx, limit=limit, before=before)
@@ -232,8 +285,10 @@ class Application:
                 p = problem(c, self.ctx, item['problem_id'])
                 bid = item['initial_build_id'] or p['latest_build_id']
                 b = row(c, m.builds, id=bid) if bid else None
+                page_id = p['current_page_build_id'] or latest_notation_page_id(c, p['id'])
                 items.append({**public(item, 'id', 'position', 'problem_id', 'source_id', 'initial_build_id'),
-                    'build_id': str(bid) if bid else None, 'status': b['status'] if b else 'unbuilt', 'current_page_build_id': str(p['current_page_build_id']) if p['current_page_build_id'] else None})
+                    'build_id': str(bid) if bid else None, 'status': b['status'] if b else 'unbuilt',
+                    'current_page_build_id': str(page_id) if page_id else None})
             return {**public(batch, 'id', 'name', 'created_at'), 'items': items, 'last_seq': stream['last_seq'] if stream else 0}
 
     def revision_preview(self, problem_id, base_id, domain):
@@ -283,12 +338,35 @@ class Application:
             rows = {r['stage_key']: r for r in c.execute(select(m.build_stages).where(m.build_stages.c.build_id == build_id)).mappings()}
             current_revision = str(p['current_revision_id']) if p['current_revision_id'] else None
             resolved_revision = str(original['resolved_revision_id']) if original.get('resolved_revision_id') else None
+            resolved_revision_row = (
+                row(c, m.problem_revisions, id=original['resolved_revision_id'])
+                if original.get('resolved_revision_id')
+                else None
+            )
+            notation_revision = bool(
+                resolved_revision_row
+                and (resolved_revision_row.get('verified_json') or {}).get(
+                    'notation_authority'
+                )
+            )
+            extraction_contract = next(
+                (s['contract_version'] for s in original['pipeline_snapshot']['stages']
+                 if s['stage_key'] == 'extraction'),
+                None,
+            )
             for key in keys:
                 stage = rows.get(key)
                 if not stage or stage['status'] != 'succeeded': reasons.append({'stage': key, 'code': 'stage.incomplete'})
                 elif next((s['contract_version'] for s in original['pipeline_snapshot']['stages'] if s['stage_key'] == key), None) != next(s['contract_version'] for s in snapshot['stages'] if s['stage_key'] == key): reasons.append({'stage': key, 'code': 'build.contract_changed'})
                 elif original['target_dependencies'].get(key) != target['dependencies'][key]: reasons.append({'stage': key, 'code': 'build.dependencies_changed'})
-                elif key == 'extraction' and resolved_revision != current_revision:
+                elif (
+                    key == 'extraction'
+                    and not (
+                        extraction_contract == 'problem-math-notation/v1'
+                        and (current_revision is None or notation_revision)
+                    )
+                    and resolved_revision != current_revision
+                ):
                     # Parent extraction produced a different meaning than the rebuild request.
                     reasons.append({'stage': key, 'code': 'build.revision_changed'})
                 else:
@@ -369,7 +447,18 @@ class Application:
                 'reviews': [public(r, 'id', 'decision', 'comment', 'created_at', 'supersedes_id') for r in c.execute(
                     select(m.review_decisions).where(m.review_decisions.c.page_build_id == page['id']).order_by(m.review_decisions.c.created_at)).mappings()] if page else [],
                 'page_id': str(page['id']) if page else None,
-                'page_current': bool(page and page['id'] == p['current_page_build_id'])}
+                # v3 notation pages intentionally keep a build-local
+                # revision instead of promoting it to the legacy formal
+                # revision pointer.  Treat the latest succeeded v3 page as
+                # current even after a newer failed/queued rebuild, without
+                # weakening the database current-page foreign-key invariant.
+                'page_current': bool(page and (
+                    page['id'] == p['current_page_build_id']
+                    or (b['pipeline_key'] == 'problem_lesson'
+                        and b['pipeline_version'] == 'v3'
+                        and b['status'] == 'succeeded'
+                        and page['id'] == latest_notation_page_id(c, p['id']))
+                ))}
 
     def events(self, kind, aggregate_id, after=0):
         records = self.service.read_events(self.ctx, kind, aggregate_id, after=after)

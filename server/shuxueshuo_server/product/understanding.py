@@ -53,15 +53,15 @@ def check_shape(candidate):
         raise error
 
 
-def candidate_state(p, candidate, run, config):
+def candidate_state(p, candidate, run, config, *, local=False):
     """Shared current-version status for the detail page and workspace list."""
     result = run['result_json'] if run and run['result_json'] else {}
     bound = bool(run and candidate and run['candidate_id'] == candidate['id'] and
         candidate['source_version_id'] == p['current_source_version_id'] and
         run['source_version_id'] == p['current_source_version_id'] and
         run['generation'] == p['understanding_generation'])
-    valid_review = bool(bound and run['status'] == 'completed' and
-        result.get('source_reviewed') and run['frozen'] == config)
+    valid_review = bool(bound and run['status'] == 'completed' and result.get('source_reviewed') and
+        (local or run['frozen'] == config))
     stale_reason = None
     if result.get('source_reviewed') and not valid_review:
         if not bound:
@@ -278,6 +278,7 @@ class Understanding:
             return public(run)
 
     def summary(self, problem_id):
+        from .application import latest_notation_page_id
         from .understanding_runtime import configuration
         from .runtime_binding import binding_state
         with transaction(self.db) as c:
@@ -285,8 +286,9 @@ class Understanding:
             source = row(c, m.problem_source_versions, id=p['current_source_version_id']) if p['current_source_version_id'] else None
             candidate = row(c, m.problem_candidates, id=p['current_candidate_id']) if p['current_candidate_id'] else None
             run = row(c, m.extraction_runs, id=p['latest_extraction_run_id']) if p['latest_extraction_run_id'] else None
-            state = candidate_state(p, candidate, run, configuration())
-            page = row(c, m.page_builds, id=p['current_page_build_id']) if p['current_page_build_id'] else None
+            state = candidate_state(p, candidate, run, configuration(), local=self.app.settings.mode == 'local')
+            page_id = p['current_page_build_id'] or latest_notation_page_id(c, problem_id)
+            page = row(c, m.page_builds, id=page_id) if page_id else None
             admission = binding_state(c, p)
             return public({'problem_id': problem_id, 'candidate_only': True, **admission,
                 'source_version': dict(source) if source else None, 'candidate': dict(candidate) if candidate else None,
@@ -294,4 +296,5 @@ class Understanding:
                 **state,
                 'primary_source_id': p['primary_source_id'],
                 'formal_page': {k: page[k] for k in ('id', 'build_id', 'revision_id')} if page else None,
-                'current_revision_id': p['current_revision_id'], 'current_page_build_id': p['current_page_build_id']})
+                'current_revision_id': p['current_revision_id'],
+                'current_page_build_id': page_id})

@@ -242,6 +242,48 @@ class ProductService:
             .values(matched_revision_id=revision_id))
         append_event(c, ctx.workspace_id, 'build', build['id'], 'build.revision_bound', {'revision_id': str(revision_id)})
 
+    def bind_notation_revision(self, ctx, build_id, execution_id, epoch, *, graph, semantic_hash, authority):
+        """Register page lineage for an admitted notation bundle.
+
+        The notation workflow does not produce a legacy ``VerifiedProblem``
+        revision. ``page_builds`` still has a required revision foreign key,
+        so keep a build-local extracted envelope for page/review lineage while
+        leaving the problem's current domain revision untouched.
+        """
+        with transaction(self.db) as c:
+            build, _ = self._guard(c, ctx, build_id, execution_id, epoch)
+            if build['resolved_revision_id'] is not None:
+                return dict(row(c, m.problem_revisions, id=build['resolved_revision_id']))
+            p = problem(c, ctx, build['problem_id'], write=True, lock=True)
+            revision_no = c.scalar(select(func.coalesce(func.max(m.problem_revisions.c.revision_no), 0)).where(
+                m.problem_revisions.c.problem_id == build['problem_id'])) + 1
+            graph = dict(graph)
+            graph.setdefault('schema_version', 'problem-domain/v1')
+            verified = {'graph': graph, 'semantic_hash': semantic_hash,
+                        'revision_id': authority.get('problem_revision_id') if isinstance(authority, dict) else None,
+                        'notation_authority': authority}
+            revision = insert(c, m.problem_revisions, workspace_id=ctx.workspace_id,
+                problem_id=build['problem_id'], revision_no=revision_no, parent_revision_id=p['current_revision_id'],
+                kind='extracted', domain_json=graph, verified_json=verified, semantic_hash=semantic_hash,
+                schema_version=graph['schema_version'], human_diff=None, created_by_user_id=ctx.user_id,
+                origin_build_id=build_id)
+            update(c, m.builds, build_id, resolved_revision_id=revision['id'])
+            append_event(c, ctx.workspace_id, 'build', build_id, 'build.notation_revision_bound',
+                         {'revision_id': str(revision['id'])})
+            return dict(revision)
+
+    def bind_existing_revision(self, ctx, build_id, execution_id, epoch, revision_id):
+        """Carry a notation page-lineage revision into a checkpoint rebuild."""
+        with transaction(self.db) as c:
+            build, _ = self._guard(c, ctx, build_id, execution_id, epoch)
+            revision = scoped(c, m.problem_revisions, ctx, revision_id)
+            if revision['problem_id'] != build['problem_id']:
+                raise Conflict('revision.wrong_build')
+            if build['resolved_revision_id'] not in (None, revision_id):
+                raise Conflict('build.revision_already_bound')
+            update(c, m.builds, build_id, resolved_revision_id=revision_id)
+            return dict(revision)
+
     def bind_requested_revision(self, ctx, build_id, execution_id, epoch):
         """Explicitly accept the frozen revision when extraction is skipped/reused."""
         with transaction(self.db) as c:
@@ -263,6 +305,13 @@ class ProductService:
         if not deployment_version or not isinstance(dependencies, dict):
             raise ProductError('build.frozen_inputs_required')
         config = clean_config(config)
+        stage_keys = [stage['stage_key'] for stage in snapshot['stages']]
+        reuse_notation_extraction = (
+            pipeline_key == 'problem_lesson'
+            and pipeline_version == CURRENT_PIPELINE_VERSION
+            and 'extraction' in stage_keys
+            and stage_keys.index(from_stage) > stage_keys.index('extraction')
+        )
         request = dict(problem_id=str(problem_id), source_id=str(source_id), base_revision_id=str(base_revision_id),
             dependencies=dependencies, config=config, deployment_version=deployment_version, from_stage=from_stage,
             pipeline_key=pipeline_key, pipeline_version=pipeline_version, parent_build_id=str(parent_build_id),
@@ -321,6 +370,48 @@ class ProductService:
             if type(budget.get('deliveries')) is not int or budget['deliveries'] < 1:
                 raise ProductError('job.invalid_budget')
             job = insert(c, m.jobs, workspace_id=ctx.workspace_id, build_id=build['id'], status='queued', retry_budget=budget)
+            if pipeline_key == 'problem_lesson' and pipeline_version == CURRENT_PIPELINE_VERSION:
+                # v3 owns a notation workflow row so its durable ledger and
+                # candidate history are attached to the same nine-stage build.
+                # A suffix rebuild starts after extraction and keeps the
+                # parent row authoritative instead of creating a new pending
+                # understanding run.
+                from .understanding import registry as notation_registry
+                from .understanding_runtime import configuration as notation_configuration
+                if not reuse_notation_extraction:
+                    current_source = row(c, m.problem_source_versions, id=p['current_source_version_id']) if p['current_source_version_id'] else None
+                    source_hash = digest([{'source_id': str(source['id']), 'sha256': self.artifacts.verified(c, ctx, source['original_artifact_id'])['sha256']}])
+                    for active in c.execute(select(m.extraction_runs).where(
+                            m.extraction_runs.c.problem_id == problem_id,
+                            m.extraction_runs.c.status.in_(['queued', 'running']))).mappings():
+                        update(c, m.extraction_runs, active['id'], status='superseded', finished_at=now(c))
+                    if current_source and current_source['source_hash'] == source_hash and any(
+                            image.get('source_id') == str(source['id']) for image in current_source['images']):
+                        source_version = current_source
+                        generation = p['understanding_generation']
+                        update(c, m.problems, problem_id, current_candidate_id=None, latest_extraction_run_id=None,
+                               updated_at=now(c))
+                    else:
+                        original = self.artifacts.verified(c, ctx, source['original_artifact_id'])
+                        meta = source['metadata'] or {}
+                        source_version = insert(c, m.problem_source_versions, workspace_id=ctx.workspace_id,
+                            problem_id=problem_id, parent_version_id=p['current_source_version_id'],
+                            images=[{'source_id': str(source['id']), 'artifact_id': str(original['id']),
+                                     'sha256': original['sha256'], 'filename': source['filename'],
+                                     'media_type': original['content_type'], **meta}],
+                            source_hash=source_hash, created_by_user_id=ctx.user_id)
+                        generation = p['understanding_generation'] + 1
+                        update(c, m.problems, problem_id, current_source_version_id=source_version['id'],
+                               current_candidate_id=None, latest_extraction_run_id=None,
+                               understanding_generation=generation, updated_at=now(c))
+                    frozen = notation_configuration()
+                    frozen['registry'] = notation_registry()
+                    frozen['source_review_contract'] = 'problem-math-source-review/v1'
+                    run = insert(c, m.extraction_runs, workspace_id=ctx.workspace_id, problem_id=problem_id,
+                        source_version_id=source_version['id'], base_candidate_id=None, candidate_id=None,
+                        generation=generation, mode='extract', status='queued', frozen=frozen, build_id=build['id'])
+                    update(c, m.problems, problem_id, latest_extraction_run_id=run['id'],
+                           understanding_generation=generation, updated_at=now(c))
             current_page_id = p['current_page_build_id']
             if current_page_id and pipeline_key not in ('problem_understanding', 'problem_runtime_binding'):
                 page = row(c, m.page_builds, id=current_page_id)
@@ -721,6 +812,11 @@ class ProductService:
             update(c, m.builds, build_id, status='succeeded', finished_at=now(c))
             update(c, m.jobs, job['id'], status='succeeded', lease_expires_at=None)
             update(c, m.job_executions, execution_id, status='succeeded', finished_at=now(c))
+            # A notation build owns a build-local page lineage revision.  It
+            # must not promote that extracted projection to the problem's
+            # legacy current_revision_id; the database trigger consequently
+            # only permits advancing current_page_build_id when both point to
+            # the same formal revision.
             if p['latest_build_id'] == build_id and p['current_revision_id'] == build['resolved_revision_id']:
                 update(c, m.problems, p['id'], current_page_build_id=page['id'], lock_version=p['lock_version'] + 1, updated_at=now(c))
             append_event(c, ctx.workspace_id, 'build', build_id, 'build.succeeded', {'page_build_id': str(page['id'])})

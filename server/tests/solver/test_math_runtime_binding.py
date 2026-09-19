@@ -11,11 +11,15 @@ from _math_runtime_binding_support import (
     replay_errors,
     reviewed_authority,
 )
+
 from shuxueshuo_server.problem_understanding.runtime_binding import (
     AdmissionEvidence,
     authorize_binding,
 )
-from shuxueshuo_server.problem_understanding.runtime_lowering import BindingError
+from shuxueshuo_server.problem_understanding.runtime_lowering import (
+    BindingError,
+    NotationRuntimeLowerer,
+)
 from shuxueshuo_server.solver.extraction.problem_planner_authority import (
     VerifiedPlannerProblemAuthority,
 )
@@ -88,6 +92,123 @@ def test_local_same_named_points_and_coordinate_aliases_keep_identity():
     point = next(e for e in raw["entities"] if e["name"] == "M")
     assert point["definition"] == "point_on_parabola_at_x"
     assert point["x"] == "b + 1/2"
+
+
+def test_point_on_curve_with_explicit_self_ordinate_lowers_as_curve_at_x():
+    raw = candidate(CASES[4])
+    raw["root"]["children"][1]["facts"][0] = "D = (b+2, y(D))"
+
+    bound = binding(CASES[4], payload=raw)
+    points = [
+        entity
+        for entity in bound.bundle.canonical_solver_input["entities"]
+        if entity["name"] == "D"
+    ]
+    assert points and points[0]["definition"] == "point_on_parabola_at_x"
+    assert points[0]["x"] == "b + 2"
+
+
+def test_positive_axis_coordinate_promotes_motion_symbol_constraint(tmp_path):
+    raw = candidate(CASES[3], authored=True)
+    part_iii = raw["root"]["children"][2]
+    part_iii["facts"] = [
+        "x(N)>0" if item == "n > 0" else item
+        for item in part_iii["facts"]
+    ]
+
+    bound = binding(CASES[3], authored=True, payload=raw)
+    constraints = [
+        authority.semantic_ref.ref
+        for authority in bound.planning_context.ref_authorities.values()
+        if authority.semantic_ref.value_type == "symbol_constraint"
+    ]
+
+    assert "symbol_constraint_n" in constraints
+    result = replay(CASES[3], bound, tmp_path)
+    assert result.status == "accepted", replay_errors(result)
+
+
+def test_shared_endpoint_perpendicular_lowers_to_right_angle():
+    raw = candidate("tj-2026-hexi-yimo-25", authored=True)
+    ii = raw["root"]["children"][1]
+    ii["facts"][5] = "line(A,C) ⟂ line(A,D)"
+
+    bound = binding("tj-2026-hexi-yimo-25", payload=raw)
+    ii_scope = bound.bundle.source_graph.root_scope.children[1]
+    right_angle = next(
+        fact for fact in ii_scope.facts if fact.kind == "right_angle"
+    )
+    assert right_angle.attributes["angle"] == {
+        "start": "C",
+        "vertex": "A",
+        "end": "D",
+    }
+    assert any(
+        fact.kind == "math_assertion"
+        and "⟂" in fact.attributes["expression"]
+        for fact in ii_scope.facts
+    )
+    assert any(
+        fact["type"] == "right_angle_equal_length"
+        for fact in bound.bundle.canonical_solver_input["facts"]
+    )
+
+
+def test_perpendicular_without_shared_endpoint_fails_explicitly():
+    raw = candidate("tj-2026-hexi-yimo-25", authored=True)
+    ii = raw["root"]["children"][1]
+    ii["facts"][5] = "line(A,C) ⟂ line(B,D)"
+
+    with pytest.raises(
+        BindingError, match="perpendicular_requires_shared_endpoint"
+    ):
+        NotationRuntimeLowerer().lower(raw, problem_id="perpendicular-test")
+
+
+def test_standalone_segment_declarations_are_audit_only():
+    candidate = {
+        "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+        "match_status": "matched",
+        "match_reason": "segment declarations are source geometry",
+        "root": {
+            "definitions": ["Γ: y = a*x^2+b*x-3"],
+            "facts": [
+                "a > 0",
+                "A = (-1,0)",
+                "C = (0,-3)",
+                "D = C+(2,0)",
+                "segment(B,C)",
+                "M ∈ segment(B,C)",
+                "segment(O,M)",
+                "N ∈ ray(C,D)",
+                "CN = CM",
+                "segment(B,N)",
+            ],
+            "goals": [],
+            "uncertainties": [],
+            "children": [],
+        },
+    }
+
+    lowered = NotationRuntimeLowerer().lower(candidate, problem_id="segment-audit")
+    assert any(f.kind == "equal_length" for f in lowered.graph.root_scope.facts)
+
+
+def test_repeated_parent_point_declaration_is_inherited_once():
+    raw = candidate(CASES[4])
+    raw["root"]["facts"] = [
+        "D = (b+2, y_D)",
+        "D ∈ Γ",
+        *raw["root"].get("facts", []),
+    ]
+
+    bound = binding(CASES[4], payload=raw)
+    d_points = [
+        entity
+        for entity in bound.bundle.canonical_solver_input["entities"]
+        if entity["name"] == "D"
+    ]
+    assert len(d_points) == 1
 
 
 def test_attainment_and_value_are_independent_runtime_conditions():

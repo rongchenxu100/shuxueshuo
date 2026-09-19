@@ -5,7 +5,7 @@ lowered unit retains its original JSON pointer and the premises of its rule.
 It is deliberately not a VerifiedProblem, nor an accepted extraction context.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import sympy as sp
 
@@ -64,6 +64,37 @@ class LoweredNotation:
 
 
 class NotationRuntimeLowerer:
+    def _dedupe_inherited_point_facts(self, scope, ancestors=()):
+        """Collapse repeated inherited curve-point assertions.
+
+        Vision extraction may repeat a global declaration in the question
+        subtree (for example ``D=(b+2,y_D), D∈Γ``).  The two statements have
+        the same mathematical identity; keeping both would create a child
+        SourceRef that shadows the parent's ref and the planning catalog
+        correctly rejects that ambiguity.  The source units remain in
+        provenance, while the executable graph keeps the inherited fact once.
+        """
+        inherited = set(ancestors)
+        facts = []
+        for fact in scope.facts:
+            key = (
+                fact.kind,
+                stable_hash(thaw_json(fact.attributes)),
+            )
+            if fact.kind in ("point_construction", "point_on_curve") and key in inherited:
+                continue
+            facts.append(fact)
+        own = {
+            (fact.kind, stable_hash(thaw_json(fact.attributes)))
+            for fact in facts
+            if fact.kind in ("point_construction", "point_on_curve")
+        }
+        children = tuple(
+            self._dedupe_inherited_point_facts(child, inherited | own)
+            for child in scope.children
+        )
+        return replace(scope, facts=tuple(facts), children=children)
+
     def lower(self, candidate, *, problem_id):
         self.report = NotationValidator().validate(candidate)
         if not self.report.ok:
@@ -77,6 +108,7 @@ class NotationRuntimeLowerer:
         root = self.scope(
             self.report.semantic, candidate["root"], ("problem",), "/root", []
         )
+        root = self._dedupe_inherited_point_facts(root)
         for ast, source in self.coordinate_conditions:
             if stable_hash([source, ast]) not in self.covered_coordinates:
                 raise BindingError(
@@ -181,6 +213,55 @@ class NotationRuntimeLowerer:
             return signature(left) == signature(right)
         except BindingError:
             return False
+
+    def perpendicular_angle(self, ast, source):
+        """Lower perpendicular loci to an angle only when the vertex is explicit.
+
+        The notation language accepts both ``∠ABC = 90°`` and equivalent
+        relations such as ``line(A,B) ⟂ line(A,C)``.  The solver runtime has a
+        typed ``right_angle`` fact, so a shared endpoint gives us a lossless
+        executable representation.  Disjoint loci must not be assigned an
+        invented angle vertex.
+        """
+        if len(ast) != 3:
+            raise BindingError("binding.invalid_perpendicular_relation", source, str(ast))
+
+        loci = ast[1:]
+        endpoints = []
+        for locus in loci:
+            if not (call(locus, "line") or call(locus, "segment")) or len(locus) != 4:
+                raise BindingError(
+                    "binding.invalid_perpendicular_relation", source, str(ast)
+                )
+            refs_ = locus[2:]
+            if any(ref[0] != "ref" or ref[2] != "point" for ref in refs_):
+                raise BindingError(
+                    "binding.invalid_perpendicular_relation", source, str(ast)
+                )
+            if refs_[0][1] == refs_[1][1]:
+                raise BindingError(
+                    "binding.invalid_perpendicular_relation", source, str(ast)
+                )
+            endpoints.append(refs_)
+
+        shared = {left[1] for left in endpoints[0]} & {
+            right[1] for right in endpoints[1]
+        }
+        if len(shared) != 1:
+            raise BindingError(
+                "binding.perpendicular_requires_shared_endpoint",
+                source,
+                "perpendicular loci need exactly one shared endpoint to form a right angle",
+            )
+        vertex_ref = next(iter(shared))
+        start_ref = next(ref for ref in endpoints[0] if ref[1] != vertex_ref)
+        end_ref = next(ref for ref in endpoints[1] if ref[1] != vertex_ref)
+        vertex = next(ref for ref in endpoints[0] if ref[1] == vertex_ref)
+        return {
+            "start": self.name(start_ref),
+            "vertex": self.name(vertex),
+            "end": self.name(end_ref),
+        }
 
     def cover_coordinate(self, ast, source):
         self.covered_coordinates.add(stable_hash([source, ast]))
@@ -359,6 +440,36 @@ class NotationRuntimeLowerer:
                     raise BindingError(
                         "binding.unsupported_condition", source, str(ast)
                     )
+            elif k == "⟂":
+                fact(
+                    "right_angle",
+                    source,
+                    "perpendicular_shared_endpoint",
+                    angle=self.perpendicular_angle(ast, source),
+                )
+            elif k == "role":
+                # Role annotations (for example ``M 为动点``) are source
+                # metadata.  Executable motion is established by the
+                # coordinate/path facts consumed by bind_motion; retaining
+                # the annotation as a math_assertion above is sufficient and
+                # prevents it from being mistaken for an unsupported relation.
+                if (
+                    len(ast) != 3
+                    or ast[1][0] != "ref"
+                    or ast[1][2] != "point"
+                    or ast[2] not in ("moving", "fixed")
+                ):
+                    raise BindingError("binding.unsupported_relation", source, str(ast))
+            elif k == "object_declaration":
+                # A standalone segment/line declaration is geometric source
+                # notation used by memberships and length relations.  The
+                # executable projection is created when a point is placed on
+                # the object (or when a length is compared); the declaration
+                # itself has no runtime fact to evaluate.
+                if len(ast) != 2 or not (
+                    call(ast[1], "segment") or call(ast[1], "line")
+                ):
+                    raise BindingError("binding.unsupported_relation", source, str(ast))
             elif k == "∈":
                 point, locus = ast[1:]
                 if point[0] != "ref" or point[2] != "point":
@@ -402,6 +513,13 @@ class NotationRuntimeLowerer:
                         through=self.name(locus[3]),
                     )
                     fact("point_on_ray", source, point=self.name(point), ray=ray)
+                elif locus[0] == "axis_constant":
+                    # ``M ∈ x_axis`` is redundant when the point already has
+                    # an explicit zero ordinate (the common moving-point
+                    # notation ``M=(m,0)``).  Keep it as a source assertion;
+                    # the coordinate fact is the executable binding.
+                    if locus[1] not in ("x_axis", "y_axis"):
+                        raise BindingError("binding.unsupported_locus", source, str(locus))
                 elif locus[0] == "∩":
                     self.intersection(locus, [point], source, visible, fact)
                 else:
@@ -513,7 +631,13 @@ class NotationRuntimeLowerer:
                 }[kind]
                 attrs = {"target": self.name(target)}
             elif kind == "find_minimum":
-                self.bind_motion(target, goal.get("variables", []), source, visible)
+                self.bind_motion(
+                    target,
+                    goal.get("variables", []),
+                    source,
+                    visible,
+                    record_fact=fact,
+                )
                 attrs = {"expression": {"terms": self.terms(target)}}
                 kind = "minimum_value"
                 fact("minimum_target", source, "goal_minimum", **attrs)
@@ -567,7 +691,17 @@ class NotationRuntimeLowerer:
             name = self.name(point)
             if value[0] == "tuple":
                 membership = self.curve_membership(point, visible)
-                if value[2][0] == "ref" and membership:
+                # The notation compiler normalizes an omitted ordinate in a
+                # point-on-curve declaration such as ``D = (b+2, y(D))`` to
+                # an explicit self coordinate call.  It still means “the
+                # point on this curve at the supplied x”, rather than an
+                # algebraic expression that the lowerer should evaluate.
+                self_y_coordinate = (
+                    call(value[2], "y")
+                    and len(value[2]) == 3
+                    and value[2][2] == point
+                )
+                if membership and (value[2][0] == "ref" or self_y_coordinate):
                     fact(
                         "point_construction",
                         source,
@@ -665,7 +799,13 @@ class NotationRuntimeLowerer:
             minimum, value = pair
             if minimum[1] != "min":
                 raise BindingError("binding.unsupported_extremum", source, str(minimum))
-            self.bind_motion(minimum[3], minimum[2], source, visible)
+            self.bind_motion(
+                minimum[3],
+                minimum[2],
+                source,
+                visible,
+                record_fact=fact,
+            )
             terms = {"terms": self.terms(minimum[3])}
             fact("minimum_target", source, "minimum_path", expression=terms)
             if self.same_path(value, minimum[3]):
@@ -869,7 +1009,15 @@ class NotationRuntimeLowerer:
                     return
         raise BindingError("binding.unsupported_intersection", source, str(locus))
 
-    def bind_motion(self, expression, explicit, source, visible):
+    def bind_motion(
+        self,
+        expression,
+        explicit,
+        source,
+        visible,
+        *,
+        record_fact=None,
+    ):
         path_points = {
             r for r in refs(expression) if self.objects[r]["kind"] == "point"
         }
@@ -932,6 +1080,59 @@ class NotationRuntimeLowerer:
                 source,
                 "explicit minimum variables differ from the method motion binding",
             )
+        # A moving point's domain is often written as ``x(M)>0`` instead of
+        # repeating the scalar condition ``m>0``.  Once its axis coordinate
+        # binding identifies the independent motion variable, this condition
+        # is executable motion metadata.  Do not cover constraints on other
+        # path points (for example an extra ``x(D)<0``), which must remain a
+        # hard binding error.
+        motion_points = set()
+        motion_coordinate_symbols = {}
+        for ast, _, _ in visible:
+            pair = equality(
+                ast,
+                lambda a: a[0] == "ref" and a[2] == "point",
+                lambda a: a[0] == "tuple",
+            )
+            if not pair or pair[0][1] not in path_points or pair[1][2] != ["number", "0"]:
+                continue
+            if refs(pair[1][1]) & allowed:
+                motion_points.add(pair[0][1])
+                if pair[1][1][0] == "ref" and pair[1][1][2] == "scalar":
+                    motion_coordinate_symbols[pair[0][1]] = pair[1][1][1]
+        for ast, coordinate_source in self.coordinate_conditions:
+            if (
+                len(ast) == 3
+                and ast[1][0] == "call"
+                and ast[1][1] in ("x", "y")
+                and ast[1][2][0] == "ref"
+                and ast[1][2][1] in motion_points
+            ):
+                self.cover_coordinate(ast, coordinate_source)
+                # ``x(N)>0`` is mathematically the same domain declaration as
+                # ``n>0`` when ``N=(n,0)`` is the moving point.  Preserve the
+                # coordinate evidence while also materializing the scalar
+                # constraint required by weighted-path Macros.  Only promote
+                # coordinates of the motion point; unrelated conditions such
+                # as ``x(D)<0`` must remain ordinary coordinate constraints.
+                if (
+                    record_fact is not None
+                    and ast[1][1] == "x"
+                    and ast[1][2][1] in motion_coordinate_symbols
+                ):
+                    record_fact(
+                        "symbol_constraint",
+                        coordinate_source,
+                        symbol=self.name(
+                            [
+                                "ref",
+                                motion_coordinate_symbols[ast[1][2][1]],
+                                "scalar",
+                            ]
+                        ),
+                        operator=ast[0],
+                        value=self.text(ast[2]),
+                    )
         self.motion_bindings.append(
             {
                 "path": source,

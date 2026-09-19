@@ -47,7 +47,7 @@ def test_pipeline_evolution():
     changed = deepcopy(V1)
     changed['stages'].append(dict(stage_key='page_check', title='页面检查', ordinal=10, contract_version='v1', depends_on=['page']))
     changed['completion']['required_stages'].append('page_check')
-    registry.register('problem_lesson', 'v3', changed)
+    registry.register('problem_lesson', 'v4', changed)
     assert len(registry.get('problem_lesson', 'v1')['stages']) == 9
     with pytest.raises(Conflict):
         registry.register('problem_lesson', 'v1', changed)

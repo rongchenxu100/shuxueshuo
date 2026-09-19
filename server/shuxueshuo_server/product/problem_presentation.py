@@ -15,8 +15,20 @@ def original_text_excerpt(candidate):
     return (excerpt[:240] + '…') if len(excerpt) > 240 else excerpt
 
 
-def understanding_presentation(p, source, candidate, run, config):
-    state = candidate_state(p, candidate, run, config)
+def overlay_active_build(presentation, build_status):
+    """Extraction can finish while the lesson build is still projecting/solving."""
+    if presentation['status'] == 'ready' and build_status in ('queued', 'running'):
+        return {
+            **presentation,
+            'phase': 'generation',
+            'status': build_status,
+            'result_id': None,
+        }
+    return presentation
+
+
+def understanding_presentation(p, source, candidate, run, config, *, local=False):
+    state = candidate_state(p, candidate, run, config, local=local)
     result = (run['result_json'] or {}) if run else {}
     diagnostics = [*state['diagnostics'], *uncertainty_diagnostics(candidate['candidate_json'] if candidate else {})]
     reason = None
@@ -49,7 +61,7 @@ def understanding_presentation(p, source, candidate, run, config):
     }
 
 
-def problem_presentations(c, records, legacy):
+def problem_presentations(c, records, legacy, *, local=False):
     """Batch current pointers; query cost is independent of the number of problems."""
     def indexed(table, field):
         ids = [p[field] for p in records if p[field]]
@@ -75,7 +87,10 @@ def problem_presentations(c, records, legacy):
             run = None
         activity_time = max(item['created_at'] for item in (source, candidate, run) if item) if source else None
         if source and (not details['build_created_at'] or activity_time >= details['build_created_at']):
-            presentations[p['id']] = understanding_presentation(p, source, candidate, run, config)
+            presentations[p['id']] = overlay_active_build(
+                understanding_presentation(p, source, candidate, run, config, local=local),
+                details['status'],
+            )
         else:
             from .application import statement_text
             statement = statement_text(details['domain_json'])

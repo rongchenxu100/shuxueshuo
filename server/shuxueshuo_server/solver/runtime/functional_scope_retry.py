@@ -38,6 +38,9 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     _json_safe_value,
     _prompt_safe_value,
 )
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalBindingContextError,
+)
 from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
     FunctionalCapabilityCatalog,
 )
@@ -1320,6 +1323,55 @@ class ScopedFunctionalScopeRetryService:
                         attempt=semantic_attempt - 1,
                         restored_seed=restored_seed,
                     )
+                except FunctionalBindingContextError as exc:
+                    # A candidate plan can be schema-valid and still select a
+                    # latest-state input before its producer has materialized.
+                    # Keep that planner-repairable diagnostic inside this
+                    # retry protocol instead of letting it escape to the outer
+                    # solver boundary (which would record only one attempt).
+                    # The binding layer historically raises this diagnostic
+                    # with its low-level default (non-retryable) because the
+                    # standalone execution API must preserve its authority
+                    # semantics.  At the planner boundary the same code is a
+                    # candidate-plan dependency error and is repairable.
+                    planner_retryable = (
+                        exc.retryable
+                        or (
+                            exc.code.startswith(
+                                "planner.method_input_view_authority_"
+                            )
+                            and exc.code.endswith("_missing")
+                        )
+                    )
+                    error = FunctionalScopeRetryError(
+                        exc.code,
+                        (
+                            f"$.steps[{exc.step_id}].args.{exc.arg_name}"
+                            if exc.step_id and exc.arg_name
+                            else "$"
+                        ),
+                        str(exc),
+                        retryable=planner_retryable,
+                        details={
+                            "exception_type": type(exc).__name__,
+                            "expected": dict(exc.expected),
+                            "observed": dict(exc.observed),
+                            "repair_action": exc.repair_action,
+                        },
+                        normalized_response=normalized_response,
+                        candidate_payload=(
+                            normalized_content
+                            or normalized_response
+                            or candidate_plan
+                        ),
+                    )
+                    if attempt_observer is not None:
+                        attempt_observer(replace(
+                            execution_evidence,
+                            evidence_phase="execution_failed",
+                            error=error,
+                        ))
+                    raise error from exc
                 except Exception as exc:
                     if attempt_observer is not None:
                         attempt_observer(replace(
@@ -1406,7 +1458,14 @@ class ScopedFunctionalScopeRetryService:
                     break
                 signatures.append(signature)
                 current_authority = next_authority
-                previous_response_error = None
+                # Final-contract failures are discovered after execution, so
+                # they are not part of the checkpoint's root_issues.  Keep a
+                # prompt-safe copy for the next Scope repair; otherwise the
+                # LLM receives the old execution tree but no explanation of
+                # why the required answer is still unreachable.
+                previous_response_error = _final_contract_retry_feedback(
+                    additional_issues
+                )
             except FunctionalScopeRetryError as exc:
                 record_attempt(
                     ScopedFunctionalScopeRetryAttempt(
@@ -1443,6 +1502,21 @@ class ScopedFunctionalScopeRetryService:
                     if expanded_authority is not None:
                         current_authority = expanded_authority
                     previous_response_error = exc.to_prompt_payload()
+                else:
+                    # No checkpoint exists when the first candidate fails
+                    # during binding.  Retry the complete content contract and
+                    # carry both the invalid candidate and the bounded error
+                    # feedback forward.
+                    authoring_feedback = (exc.to_prompt_payload(),)
+                    previous_invalid_content = (
+                        deepcopy(plan_content.to_payload())
+                        if plan_content is not None
+                        else deepcopy(
+                            normalized_content
+                            or normalized_response
+                            or exc.candidate_payload
+                        )
+                    )
 
         return ScopedFunctionalScopeRetryRunResult(
             status="blocked",
@@ -2366,9 +2440,51 @@ def _final_contract_retry_issues(
             **item.to_payload(),
             "stage": "validation",
             "retryability": "planner_repairable",
+            **(
+                {
+                    "suggestion": (
+                        "Add the complete executable producer chain for the "
+                        "required answer in this Scope, then point answer_from "
+                        "to the final producer return."
+                    )
+                }
+                if item.code == "functional.required_goal_unbound"
+                else {}
+            ),
         }
         for item in validation.report.issues
     )
+
+
+def _final_contract_retry_feedback(
+    issues: Sequence[Mapping[str, Any]],
+) -> dict[str, Any] | None:
+    """Return the final-plan failure that the next repair prompt must see.
+
+    These issues are computed after the execution checkpoint is built and
+    therefore cannot be recovered from ``checkpoint.root_issues`` by the
+    annotated-plan projector.  Keep the first issue as the primary diagnostic
+    and include the bounded list so the model can repair the whole missing
+    chain in one Scope replacement.
+    """
+
+    if not issues:
+        return None
+    first = dict(issues[0])
+    details = dict(first.get("details") or {})
+    if len(issues) > 1:
+        details["diagnostics"] = [dict(item) for item in issues]
+    first["details"] = details
+    first["stage"] = "validation"
+    first.pop("retryability", None)
+    if first.get("code") == "functional.required_goal_unbound":
+        first.setdefault(
+            "suggestion",
+            "Add the complete executable producer chain for the required "
+            "answer in this Scope, then point answer_from to the final "
+            "producer return.",
+        )
+    return first
 
 
 def _execution_issue_signature(

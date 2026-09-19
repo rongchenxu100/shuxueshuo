@@ -17,6 +17,18 @@ export const terminal = (state: string) => ['succeeded', 'failed', 'interrupted'
 export const label = (state: string) => ({ queued: '排队中', pending: '等待中', running: '进行中', succeeded: '已完成',
   failed: '失败', interrupted: '已中断', cancelled: '已取消', unbuilt: '尚未生成', blocked: '受阻' }[state] ?? state);
 
+export class ProductApiError extends Error {
+  readonly status: number;
+  readonly code: string | null;
+
+  constructor(message: string, status: number, code: string | null = null) {
+    super(message);
+    this.name = 'ProductApiError';
+    this.status = status;
+    this.code = code;
+  }
+}
+
 export function formatDuration(ms: number) {
   const seconds = Math.max(0, Math.floor(ms / 1000));
   if (seconds < 60) return `${seconds} 秒`;
@@ -51,6 +63,7 @@ export const failureMessage = (code: string) => ({
   'model.budget_exhausted': '本次生成的模型尝试次数已用完。可以预览后重新提交生成。',
   'job.budget_exhausted': '任务多次中断，已停止自动恢复。可以预览后重新提交生成。',
   'build.environment_changed': '运行条件发生变化，请重新预览生成范围。',
+  'build.requested_revision_missing': '题意抽取已完成，但系统未生成求解输入，本次解答尚未开始。请重新提交生成。',
   'build.timeout': '本次生成超过时限，已停止。',
   'page.compile_failed': '解析网页编译未通过，请查看阶段校验材料。',
 }[code] ?? '本次生成未完成，请查看阶段校验材料后预览重建范围。');
@@ -58,7 +71,7 @@ export const failureMessage = (code: string) => ({
 export async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`/api/product/v1${path}`, { cache: 'no-store', ...init });
   const data = await response.json();
-  if (!response.ok) throw new Error(data.error?.message ?? data.detail ?? '请求未完成');
+  if (!response.ok) throw new ProductApiError(data.error?.message ?? data.detail ?? '请求未完成', response.status, data.error?.code ?? null);
   return data as T;
 }
 

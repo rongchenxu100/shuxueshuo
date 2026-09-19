@@ -14,7 +14,7 @@ const problem = {
 it('shows original source wording and the processing outcome without a generated page', () => {
   const html = renderToStaticMarkup(<ProblemListItem problem={problem} selected={false} disabled={false} unread onSelect={vi.fn()} />);
   expect(html).toContain('已知函数f(x)=x²+bx+c，g(x)=2x−1。');
-  expect(html).toContain('题意已提取 · 暂不支持题型');
+  expect(html).toContain('暂不支持题型');
   expect(html).toContain('有新的处理结果，未读');
   expect(html).not.toContain('规范化图片');
   expect(html).not.toContain('尚未生成');

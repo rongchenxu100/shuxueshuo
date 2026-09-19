@@ -61,10 +61,14 @@ def inventory(root=REPO):
 
 def resource_owner(path):
     """Every resource has an explicit consumer or a conservative fallback."""
-    # The existing Review pipeline does not consume the independent product
-    # understanding/binding workflow, which freezes its own code dependencies.
-    if path.startswith(('server/shuxueshuo_server/product/', 'server/shuxueshuo_server/problem_understanding/')):
+    # The product pipeline freezes its notation workflow and runtime lowering
+    # separately; keep those files visible to the corresponding stage owners.
+    if path.startswith('server/shuxueshuo_server/product/'):
         return None, False
+    if path.startswith('server/shuxueshuo_server/problem_understanding/'):
+        if Path(path).stem in {'runtime_binding', 'runtime_lowering', 'compact_planner_input'}:
+            return 'projection', False
+        return 'extraction', False
     if path.startswith(('tools/', 'internal/templates/', 'internal/config/', 'site/assets/', 'frontend/')):
         return 'page', False
     if path.startswith(('internal/functional-plan-', 'internal/functional-few-shot')):

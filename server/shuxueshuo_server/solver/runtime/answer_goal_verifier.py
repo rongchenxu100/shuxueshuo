@@ -75,6 +75,11 @@ class FunctionalGoalVerificationContext:
     goal_producers: Mapping[str, FunctionalGoalProducer] = field(
         default_factory=dict
     )
+    # Answer producers can be deliberately omitted from the executable graph
+    # when an earlier authoritative step is invalid.  Keep those answer
+    # handles distinct from genuinely unbound goals so the latter still
+    # produce a planner diagnostic.
+    blocked_answer_handles: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -169,6 +174,14 @@ class AnswerGoalVerifier:
                 continue
             step = functional_context.goal_producers.get(goal_handle)
             if step is None:
+                if goal_handle in functional_context.blocked_answer_handles:
+                    results.append(
+                        AnswerGoalVerificationItem(
+                            goal_handle,
+                            "not_executed",
+                        )
+                    )
+                    continue
                 results.append(
                     AnswerGoalVerificationItem(
                         goal_handle,

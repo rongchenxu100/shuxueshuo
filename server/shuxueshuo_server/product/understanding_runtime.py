@@ -47,7 +47,7 @@ def target_dependencies(source, candidate_id, config=None):
             'config': {'source': {}, 'extraction': config}, 'deployment_version': deployment_version()}
 
 
-def build_request(service, ctx, source, families):
+def build_request(service, ctx, source, families, observation=None):
     images = []
     for index, item in enumerate(source['images']):
         with transaction(service.db) as c:
@@ -62,7 +62,7 @@ def build_request(service, ctx, source, families):
             content, item['width'], item['height']))
     pack = MultimodalEvidencePack(schema_version='multimodal-evidence-pack/v1', evidence_pack_id=str(source['id']),
         base_context_id=str(source['id']), source_id=str(source['id']), source_revision_hash=source['source_hash'],
-        selection_id='whole-images', observation_hash=digest({}), images=tuple(
+        selection_id='whole-images', observation_hash=digest(observation or {}), images=tuple(
             MultimodalImageInput(i.role, i.page_id, i.role, i.artifact, i.width, i.height) for i in images),
         printed_text=(), recognized_formulas=(), unresolved_items=(), region_index=())
     payload = {'registered_families': families, 'response_schema': contract.schema(),

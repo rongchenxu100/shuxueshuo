@@ -101,6 +101,22 @@ def test_equivalent_conditions_bind_same_existing_evidence(text):
     assert audit["source_paths"] == ["/root/children/0/facts/0"]
 
 
+def test_perpendicular_line_spelling_binds_to_right_angle_condition():
+    raw = candidate("tj-2026-hexi-yimo-25", authored=True)
+    raw["root"]["children"][1]["facts"][5] = "line(A,C) ⟂ line(A,D)"
+    resolver = resolver_for(binding("tj-2026-hexi-yimo-25", payload=raw))
+
+    ref, audit = resolver.resolve(
+        "right_angle_equal_length_candidates",
+        "angle",
+        "line(A,C) ⟂ line(A,D)",
+        scope_id="ii",
+    )
+
+    assert ref.startswith("right_angle_equal_length_")
+    assert "/root/children/1/facts/5" in audit["source_paths"]
+
+
 def test_math_binding_failure_preserves_decoded_content_for_retry(tmp_path) -> None:
     bound = binding(CASES[3])
     baseline = replay(CASES[3], bound, tmp_path)

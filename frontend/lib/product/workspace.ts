@@ -29,25 +29,47 @@ export const pendingUploadKey = 'product.workspace.upload.v1';
 export const readResultsKey = 'product.workspace.read-results.v1';
 export const ReadResultsSchema = z.record(z.string().uuid(), z.string().uuid());
 export type ReadResults = z.infer<typeof ReadResultsSchema>;
-export const processing = (problem: WorkspaceProblem) => ['queued', 'running'].includes(problem.presentation?.status ?? problem.latest_build_status ?? '');
+export const processing = (problem: WorkspaceProblem) => (
+  ['queued', 'running'].includes(problem.latest_build_status ?? '')
+  || ['queued', 'running'].includes(problem.presentation?.status ?? '')
+);
 export function problemTitle(problem: WorkspaceProblem) {
   return (problem.presentation?.title ?? problem.statement_text)?.replace(/\s+/g, ' ').trim() || problem.title || '新上传的题目';
 }
+export type ProblemIntervention = 'missing_figure' | 'confirmation' | 'unsupported';
+export function problemIntervention(problem: WorkspaceProblem): ProblemIntervention | null {
+  const p = problem.presentation;
+  if (!p) return null;
+  if (p.status === 'needs_confirmation') return p.reason === 'missing_figure' ? 'missing_figure' : 'confirmation';
+  if (p.status === 'needs_review' || p.status === 'needs_revision') return 'confirmation';
+  if (p.status === 'unsupported' || p.status === 'code_gap') return 'unsupported';
+  return null;
+}
 export function problemStatus(problem: WorkspaceProblem) {
   const p = problem.presentation;
-  if (!p) return label(problem.latest_build_status ?? 'unbuilt');
-  if (p.status === 'ready') return p.phase === 'understanding' ? '题意已提取' : '解析已生成';
-  if (p.status === 'unsupported') return '题意已提取 · 暂不支持题型';
-  if (p.status === 'needs_confirmation') return p.reason === 'missing_figure' ? '待确认题目 · 缺少配图' : '待确认题目';
-  if (p.status === 'needs_review') return p.reason === 'stale' ? '题意已保存 · 需重新复核' : '题意已保存 · 待复核';
-  if (p.status === 'needs_revision') return '待修订题意';
-  if (p.status === 'code_gap') return '题意已保存 · 解析暂不支持';
+  const build = problem.latest_build_status;
+  // Candidate readiness is independent of the lesson build. While a build is
+  // still active — or after it fails — prefer the build status over a `ready`
+  // extraction presentation that would otherwise claim the whole run finished.
+  if (build === 'failed' && (!p || p.status === 'ready')) return '解答失败（系统错误）';
+  if (build === 'queued' || build === 'running') {
+    if (p?.status === 'queued' || p?.status === 'running') {
+      return p.phase === 'understanding' ? '正在提取题目' : '正在解答';
+    }
+    return '正在解答';
+  }
+  if (!p) return label(build ?? 'unbuilt');
+  if (p.status === 'ready') return '已完成';
+  if (p.status === 'unsupported' || p.status === 'code_gap') return '暂不支持题型';
+  if (p.status === 'needs_confirmation') return p.reason === 'missing_figure' ? '题目缺少图片' : '题目需要确认';
+  if (p.status === 'needs_review' || p.status === 'needs_revision') return '题目需要确认';
   if (p.status === 'not_started') return '已上传 · 待提取';
-  if (p.status === 'running') return p.phase === 'understanding' ? '正在处理题意' : '正在生成解析';
-  if (p.status === 'failed') return p.phase === 'understanding' ? '题意处理失败' : '生成失败';
+  if (p.status === 'queued' || p.status === 'running') return p.phase === 'understanding' ? '正在提取题目' : '正在解答';
+  if (p.status === 'failed') return p.phase === 'understanding' ? '提取题目失败（系统错误）' : '解答失败（系统错误）';
   return label(p.status);
 }
 export function unreadResult(problem: WorkspaceProblem, read: ReadResults) {
+  if (['queued', 'running'].includes(problem.latest_build_status ?? '')) return false;
   if (problem.presentation) return !!problem.presentation.result_id && read[problem.id] !== problem.presentation.result_id;
   return problem.latest_build_status === 'succeeded' && !!problem.current_page_build_id &&
     read[problem.id] !== problem.current_page_build_id;
@@ -108,8 +130,18 @@ export async function continueUpload(pending: PendingUpload, file: File | null, 
   };
 }
 
-export function previewPage(build: ProductBuild | null) {
-  return build?.status === 'succeeded' && build.page_current ? build.page_id : null;
+export function previewPage(build: ProductBuild | null, fallbackPageId?: string | null) {
+  if (build?.status === 'succeeded' && build.page_current) return build.page_id;
+  // After a failed/cancelled v3 rebuild the latest build has no page, but the
+  // API still synthesizes current_page_build_id from the last succeeded page.
+  if (
+    fallbackPageId
+    && build
+    && ['failed', 'cancelled', 'interrupted'].includes(build.status)
+  ) {
+    return fallbackPageId;
+  }
+  return null;
 }
 
 export function stageLabel(stage: ProductBuild['stages'][number]) {
