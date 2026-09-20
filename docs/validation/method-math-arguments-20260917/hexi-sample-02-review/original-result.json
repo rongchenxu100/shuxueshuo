@@ -1,0 +1,109 @@
+{
+  "case": "tj-2026-hexi-yimo-25",
+  "encoding": "math-expression/v1",
+  "sample": 2,
+  "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+  "status": "blocked",
+  "terminal_exception": null,
+  "first_success": false,
+  "final_success": false,
+  "answers_match": false,
+  "answer_error": null,
+  "semantic_attempts": 3,
+  "retries": 2,
+  "seconds": 164.560928999912,
+  "tokens": {
+    "prompt_tokens": 40949,
+    "completion_tokens": 40315,
+    "total_tokens": 81264
+  },
+  "observed_tokens": {
+    "prompt_tokens": 40949,
+    "completion_tokens": 40315,
+    "total_tokens": 81264
+  },
+  "usage_complete": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "protocol": "functional-plan-content/v2",
+      "errors": [
+        {
+          "code": "functional.math_argument_invalid",
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "message": "notation.expected: expected ∈, got =",
+          "retryable": true,
+          "details": {
+            "diagnostics": [
+              {
+                "code": "functional.math_argument_invalid",
+                "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+                "message": "notation.expected: expected ∈, got ="
+              }
+            ]
+          }
+        }
+      ],
+      "provider_requests": 1,
+      "usage": {
+        "prompt_tokens": 13609,
+        "completion_tokens": 12918,
+        "total_tokens": 26527
+      }
+    },
+    {
+      "attempt": 2,
+      "protocol": "functional-plan-content/v2",
+      "errors": [
+        {
+          "code": "functional.math_argument_invalid",
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "message": "notation.expected: expected ∈, got =",
+          "retryable": true,
+          "details": {
+            "diagnostics": [
+              {
+                "code": "functional.math_argument_invalid",
+                "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+                "message": "notation.expected: expected ∈, got ="
+              }
+            ]
+          }
+        }
+      ],
+      "provider_requests": 1,
+      "usage": {
+        "prompt_tokens": 13670,
+        "completion_tokens": 15341,
+        "total_tokens": 29011
+      }
+    },
+    {
+      "attempt": 3,
+      "protocol": "functional-plan-content/v2",
+      "errors": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+          "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources.",
+          "retryable": true,
+          "details": {
+            "diagnostics": [
+              {
+                "code": "functional.math_argument_unresolved",
+                "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+                "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+              }
+            ]
+          }
+        }
+      ],
+      "provider_requests": 1,
+      "usage": {
+        "prompt_tokens": 13670,
+        "completion_tokens": 12056,
+        "total_tokens": 25726
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "meta": {
+    "id": "synthetic-equal_length_ray_point",
+    "outputPath": "/Users/haorong/projects/code/shuxueshuo/docs/validation/method-math-pages-20260917/synthetic/equal_length_ray_point/lesson.html",
+    "pageTitle": "synthetic-equal_length_ray_point",
+    "pageDescription": "本题数学综合：综合解题。",
+    "breadcrumbTitle": "synthetic-equal_length_ray_point",
+    "defaultT": 0.75,
+    "classification": {
+      "pattern": "lesson_capability_synthetic",
+      "methods": [
+        "equal_length_ray_point"
+      ]
+    }
+  },
+  "problem": {
+    "summary": "本题数学综合：综合解题。",
+    "lines": [
+      {
+        "text": "在射线 AC 上作点 D，使 AD=AB。",
+        "answerId": "answer_problem_D",
+        "answer": "D(3, 0)"
+      }
+    ]
+  },
+  "ui": {
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "t=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "problem": "合成验收",
+      "合成验收": "合成验收"
+    },
+    "defaultT": 0.75
+  },
+  "steps": [
+    {
+      "id": "teach:synthetic_equal_length_ray_point",
+      "section": "合成验收",
+      "title": "第1步：在射线上作等长点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "射线 AC 由 A(0,0)、C(2,0) 确定"
+        ],
+        [
+          "计算",
+          "参考线段 AB＝3"
+        ],
+        [
+          "作",
+          "在射线 AC 上截取 AD＝AB"
+        ],
+        [
+          "∴",
+          "D(3,0)"
+        ]
+      ],
+      "box": [
+        "D(3,0)"
+      ]
+    }
+  ],
+  "policies": {
+    "teach:synthetic_equal_length_ray_point": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    }
+  },
+  "stepLabels": {
+    "teach:synthetic_equal_length_ray_point": "1 作等长点"
+  }
+}

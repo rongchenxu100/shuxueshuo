@@ -1,0 +1,3689 @@
+{
+  "case": "tj-2026-hexi-yimo-25",
+  "sample": 1,
+  "source": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/method-math-arguments-20260917/live/tj-2026-hexi-yimo-25/math/1",
+  "model_calls": 0,
+  "attempts": [
+    {
+      "number": 1,
+      "protocol": "functional-plan-content/v2",
+      "metadata": {
+        "semantic_attempt": 1,
+        "planner_protocol": "functional-plan-content/v2",
+        "provider": "deepseek",
+        "request_model": "deepseek-v4-flash",
+        "response_model": "deepseek-flash",
+        "usage": {
+          "prompt_tokens": 13609,
+          "completion_tokens": 12187,
+          "total_tokens": 25796
+        },
+        "provider_attempts": [
+          {
+            "provider_attempt": 1,
+            "response_model": "deepseek-flash",
+            "usage": {
+              "completion_tokens": 12187,
+              "prompt_tokens": 13609,
+              "total_tokens": 25796,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 11283,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 1280
+              },
+              "prompt_cache_hit_tokens": 1280,
+              "prompt_cache_miss_tokens": 12329
+            },
+            "finish_reason": "stop",
+            "visible_content": true,
+            "reasoning_content_available": true,
+            "reasoning_content_chars": 29716,
+            "response_format": "json_object",
+            "thinking_mode": "enabled",
+            "reasoning_effort": "low"
+          }
+        ],
+        "provider_invocation_id": 1
+      },
+      "provider_options": {
+        "provider_attempt": 1,
+        "model": "deepseek-v4-flash",
+        "timeout": 120.0,
+        "options": {
+          "response_format": {
+            "type": "json_object"
+          },
+          "extra_body": {
+            "thinking": {
+              "type": "enabled"
+            }
+          },
+          "reasoning_effort": "low"
+        }
+      },
+      "provider_prompt_matches_saved_messages": true,
+      "artifact_hashes_checked": [
+        "request",
+        "raw-response",
+        "normalized-response",
+        "normalized-content",
+        "math-argument-bindings",
+        "normalizations",
+        "content-validation",
+        "checkpoint-capabilities",
+        "reuse",
+        "attempt-error",
+        "candidate-error",
+        "blockers",
+        "provider-requests",
+        "provider-responses",
+        "provider-reasoning",
+        "provider-metadata"
+      ],
+      "index": {
+        "schema_version": "functional-attempt-evidence/v1",
+        "semantic_attempt": 1,
+        "planner_protocol": "functional-plan-content/v2",
+        "phase": "completed",
+        "base_plan_hash": null,
+        "base_checkpoint_id": null,
+        "result_checkpoint_id": null,
+        "artifacts": {
+          "request": {
+            "status": "saved",
+            "file": "attempt-1.request.json",
+            "sha256": "61342dee58e240b202b2e7ab7c14f10fd7f4bb9e6245da4858bf8872e8a0a8ff"
+          },
+          "raw-response": {
+            "status": "saved",
+            "file": "attempt-1.raw-response.json",
+            "sha256": "84d6b2c617d17a70e122424ddb38ed67a789819b39f1b679f91f01dddcce6f7f"
+          },
+          "normalized-response": {
+            "status": "saved",
+            "file": "attempt-1.normalized-response.json",
+            "sha256": "0d0142605b7e88eb5d74b1e1d4dc06fecf0c87113b032e7e6d817315c1efb029"
+          },
+          "normalized-content": {
+            "status": "saved",
+            "file": "attempt-1.normalized-content.json",
+            "sha256": "0d0142605b7e88eb5d74b1e1d4dc06fecf0c87113b032e7e6d817315c1efb029"
+          },
+          "math-argument-bindings": {
+            "status": "saved",
+            "file": "attempt-1.math-argument-bindings.json",
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "candidate-plan": {
+            "status": "not_available",
+            "reason": "no_structurally_assembled_candidate"
+          },
+          "compiled-plan": {
+            "status": "not_available",
+            "reason": "content_contract_not_passed"
+          },
+          "canonical-plan": {
+            "status": "not_available",
+            "reason": "no_canonical_plan_from_this_execution"
+          },
+          "base-plan": {
+            "status": "not_available",
+            "reason": "no_previous_execution_base"
+          },
+          "base-checkpoint": {
+            "status": "not_available",
+            "reason": "no_previous_execution_checkpoint"
+          },
+          "base-authority": {
+            "status": "not_available",
+            "reason": "not_a_scope_repair"
+          },
+          "result-authority": {
+            "status": "not_available",
+            "reason": "no_next_scope_authority"
+          },
+          "normalizations": {
+            "status": "saved",
+            "file": "attempt-1.normalizations.json",
+            "sha256": "39bd26cf99fc6304ce61cccd4e322084dead8828c0c3ef5305c7360c74625786"
+          },
+          "content-validation": {
+            "status": "saved",
+            "file": "attempt-1.content-validation.json",
+            "sha256": "1d0d4412958c764f24c0b9b8d1f5a1b463d9241cc9d45ead2103acc1fd033161"
+          },
+          "execution-validation": {
+            "status": "not_available",
+            "reason": "stage_not_reached"
+          },
+          "execution-authority": {
+            "status": "not_available",
+            "reason": "stage_not_reached"
+          },
+          "final-plan-contract-validation": {
+            "status": "not_available",
+            "reason": "stage_not_reached"
+          },
+          "transaction": {
+            "status": "not_available",
+            "reason": "transaction_not_started"
+          },
+          "checkpoint": {
+            "status": "not_available",
+            "reason": "execution_did_not_produce_checkpoint"
+          },
+          "verified-execution": {
+            "status": "not_available",
+            "reason": "execution_not_verified"
+          },
+          "checkpoint-capabilities": {
+            "status": "saved",
+            "file": "attempt-1.checkpoint-capabilities.json",
+            "sha256": "a0df6e473d9c37846c22b25cfca200c53bcfd4c4366a0c40ac3183064f2b755d"
+          },
+          "reuse": {
+            "status": "saved",
+            "file": "attempt-1.reuse.json",
+            "sha256": "2cd1cc1cf35476210171034a2b2e8c4d0594c451cef7d3548468010241637243"
+          },
+          "attempt-error": {
+            "status": "saved",
+            "file": "attempt-1.attempt-error.json",
+            "sha256": "6a67a5cdc362f5d36f5bf49c1fe70f6764bdfc4a563b2e1c5f5385f6bfdf7885"
+          },
+          "candidate-error": {
+            "status": "saved",
+            "file": "attempt-1.candidate-error.json",
+            "sha256": "6a67a5cdc362f5d36f5bf49c1fe70f6764bdfc4a563b2e1c5f5385f6bfdf7885"
+          },
+          "blockers": {
+            "status": "saved",
+            "file": "attempt-1.blockers.json",
+            "sha256": "60e1a8176c465ad510619c413ef10b90d9b9ddae0d09d99da0d226f56f9eeab4"
+          },
+          "provider-requests": {
+            "status": "saved",
+            "file": "attempt-1.provider-requests.json",
+            "sha256": "692f615e985f4c234c3ab6534d6c9d95e848a98ab78a903e3815f2d9ad058dd4"
+          },
+          "provider-responses": {
+            "status": "saved",
+            "file": "attempt-1.provider-responses.json",
+            "sha256": "ca84c11869bf6c5051aa199e90c1669a496e7af0375f7fdcc3c8a5d3c92a5b9b"
+          },
+          "provider-reasoning": {
+            "status": "saved",
+            "file": "attempt-1.provider-reasoning.json",
+            "sha256": "78b3ca229896273b4e5208e69824bbbd7bd31ce62afe25a0dfe8bcfb2e2d2e01"
+          },
+          "provider-metadata": {
+            "status": "saved",
+            "file": "attempt-1.provider-metadata.json",
+            "sha256": "7a5567c83e250ff5e389647912fb78fbf9182d0d221634c1f7e3a1946620e023"
+          }
+        },
+        "legacy_aliases": {
+          "attempt-1.functional-plan.json": "raw-response"
+        }
+      },
+      "system_sha256": "d33c4a1785f29399b4affb0543cb9da242b3f89c1f8e65a5eb302fb93039daa2",
+      "user_sha256": "66e97418d6b0bfdf050b4363c718403bf5464a280a7416153d65da4dd8264386",
+      "system_chars": 3165,
+      "user_chars": 37815,
+      "prompt_sections": [
+        {
+          "name": "## Problem Planning Context",
+          "chars": 859,
+          "bytes": 1043,
+          "sha256": "9db59d7e9d63244dda97c5ef2497c859a8973862ede540df794859c627701755"
+        },
+        {
+          "name": "## Plan Authority Frame",
+          "chars": 407,
+          "bytes": 461,
+          "sha256": "e67d227076d498722ee3036040c7f05a5f8353d93e1abd48ecc3b378b05594ea"
+        },
+        {
+          "name": "## Strategy Principles",
+          "chars": 469,
+          "bytes": 1045,
+          "sha256": "86a3fbdc209c879ff3f5e33da99c7425a13593a00634bb1f7cb9b3a22caad43e"
+        },
+        {
+          "name": "## Functional Capability Catalog",
+          "chars": 22557,
+          "bytes": 33257,
+          "sha256": "378082121a6a8f7132526f04c61efb84e0bb5033852487d3ac799ab065899d65"
+        },
+        {
+          "name": "## FunctionalPlan Content Mechanism Example",
+          "chars": 833,
+          "bytes": 1239,
+          "sha256": "4e75e21b2d7c7cf5493d9d768c376ff44f4bc9d174fce273945d7b920c7b2972"
+        },
+        {
+          "name": "## Full-plan Validation Feedback",
+          "chars": 97,
+          "bytes": 165,
+          "sha256": "6699172af325de431c72b852ad40c7fc8591fc82f5f15843b6f93a8e982430cd"
+        },
+        {
+          "name": "## Authority-bound Output JSON Schema",
+          "chars": 12523,
+          "bytes": 12527,
+          "sha256": "8708d9529cbbf47ed47a784836bb0f7fa5f9eaa7d1dd2b8802b6449ff0eee91f"
+        }
+      ],
+      "thinking_chars": 29716,
+      "thinking_tokens": 11283,
+      "visible_tokens_by_subtraction": 904,
+      "visible_chars": 2813,
+      "feedback_received": [],
+      "previous_plan_sent": false,
+      "execution_tree_sent": false,
+      "graph": [
+        {
+          "scope": "i",
+          "goal": "i.P",
+          "path": "$.goal_plans.i.P.steps[0]",
+          "step": {
+            "step_id": "i_build_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "a=1",
+                "b=2",
+                "c=3"
+              ]
+            },
+            "output_targets": {
+              "parabola": "Γ"
+            },
+            "return_expectations": {
+              "parabola": "closed_state"
+            },
+            "intent": "建立(Ⅰ)中系数完全确定的抛物线 Γ。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "i",
+          "goal": "i.P",
+          "path": "$.goal_plans.i.P.steps[1]",
+          "step": {
+            "step_id": "i_vertex_P",
+            "capability_id": "quadratic_vertex_point",
+            "args": {
+              "parabola": "Γ"
+            },
+            "output_targets": {
+              "point": "P"
+            },
+            "return_expectations": {
+              "point": "closed_state"
+            },
+            "intent": "求抛物线 Γ 的顶点 P。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[0]",
+          "step": {
+            "step_id": "ii_build_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "a=2"
+              ],
+              "curve_points": [
+                "A=(-1,0)"
+              ],
+              "free_parameters": [
+                "b"
+              ]
+            },
+            "output_targets": {
+              "parabola": "Γ"
+            },
+            "return_expectations": {
+              "parabola": "open_state"
+            },
+            "intent": "建立(Ⅱ)中 a=2 且过 A 的含 b 抛物线 Γ。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[1]",
+          "step": {
+            "step_id": "ii_y_intercept_C",
+            "capability_id": "quadratic_y_axis_intercept_point",
+            "args": {
+              "quadratic": "Γ"
+            },
+            "output_targets": {
+              "point": "C"
+            },
+            "return_expectations": {
+              "point": "open_state"
+            },
+            "intent": "求 Γ 与 y 轴交点 C，坐标为含 b 的表达式。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[2]",
+          "step": {
+            "step_id": "ii_gen_candidates_D",
+            "capability_id": "right_angle_equal_length_candidates",
+            "args": {
+              "target": "D",
+              "right_angle_equal_length": "∠CAD=90°, AC=AD"
+            },
+            "intent": "由直角等腰关系列出 D 的两个候选点。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[3]",
+          "step": {
+            "step_id": "ii_solve_D",
+            "capability_id": "curve_candidate_parameter_solve",
+            "args": {
+              "candidates": {
+                "step_id": "ii_gen_candidates_D",
+                "return": "candidates"
+              },
+              "parabola": "Γ",
+              "target_point": "D",
+              "point_on_curve": "D∈Γ",
+              "symbol_constraint": "b>0"
+            },
+            "output_targets": {
+              "selected_curve_point": "D"
+            },
+            "return_expectations": {
+              "selected_curve_point": "closed_state"
+            },
+            "intent": "用 D 在 Γ 上及 b>0 筛选候选并反求 b，得到 D 坐标。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[0]",
+          "step": {
+            "step_id": "iii_build_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "a=1"
+              ],
+              "curve_points": [
+                "A=(-1,0)"
+              ],
+              "free_parameters": [
+                "b"
+              ]
+            },
+            "output_targets": {
+              "parabola": "Γ"
+            },
+            "return_expectations": {
+              "parabola": "open_state"
+            },
+            "intent": "建立(Ⅲ)中 a=1 且过 A 的含 b 抛物线 Γ。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[1]",
+          "step": {
+            "step_id": "iii_point_M",
+            "capability_id": "point_on_parabola_at_x",
+            "args": {
+              "parabola": "Γ"
+            },
+            "output_targets": {
+              "point": "M"
+            },
+            "return_expectations": {
+              "point": "open_state"
+            },
+            "intent": "由 M 的结构化横坐标求其在 Γ 上的纵坐标。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[2]",
+          "step": {
+            "step_id": "iii_path_min",
+            "capability_id": "weighted_axis_path_minimum",
+            "args": {
+              "path_minimum_target": "min(sqrt(2)*MN+AN)"
+            },
+            "return_expectations": {
+              "minimum_expression": "open_expression"
+            },
+            "intent": "原子求出覆盖定义域的加权路径最小值表达式。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[3]",
+          "step": {
+            "step_id": "iii_solve_b",
+            "capability_id": "parameter_from_expression_value",
+            "args": {
+              "expression": {
+                "step_id": "iii_path_min",
+                "return": "minimum_expression"
+              },
+              "minimum_value": "min(sqrt(2)*MN+AN)=21/4",
+              "parameter": "b"
+            },
+            "output_targets": {
+              "parameter_value": "b"
+            },
+            "intent": "由题设最小值反求参数 b。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        }
+      ],
+      "isolated_argument_checks": [
+        {
+          "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[0]",
+          "step_id": "i_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "a=1",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_a",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[0]",
+            "expression": "a=1",
+            "ref": "symbol_value_a",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:b3188026a7e90a1c0e24faf6487e8b65d428b91148b5e89b816deccec23a168f"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[1]",
+          "step_id": "i_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "b=2",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_b",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[1]",
+            "expression": "b=2",
+            "ref": "symbol_value_b",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/1"
+            ],
+            "source_unit_ids": [
+              "notation-unit:54fb367bb8dfd4fbf2733cd5b480b22ccb03e4b6b0a7d649cb20d24bf9f26da8"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[2]",
+          "step_id": "i_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "c=3",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_c",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[2]",
+            "expression": "c=3",
+            "ref": "symbol_value_c",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/2"
+            ],
+            "source_unit_ids": [
+              "notation-unit:fa068689685f30099eb9bcddd06dec32d493ec6272486c0d7d9f99fa87da16e6"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[0].output_targets.parabola",
+          "step_id": "i_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "output_targets",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].output_targets.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[1].args.parabola",
+          "step_id": "i_vertex_P",
+          "capability_id": "quadratic_vertex_point",
+          "scope": "i",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[1].args.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[1].output_targets.point",
+          "step_id": "i_vertex_P",
+          "capability_id": "quadratic_vertex_point",
+          "scope": "i",
+          "field": "output_targets",
+          "argument": "point",
+          "expression": "P",
+          "status": "bound_in_isolation",
+          "ref": "P",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[1].output_targets.point",
+            "expression": "P",
+            "ref": "P",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:2553f5fb8ce9d94fc40fc6c5f83fb22326abfe4e8a53acea35039e4de937acf2",
+              "notation-unit:e8ddfe1da97dd9915bb97f02f1e208640369c2bcfd3f7d8c0377b74a93e39e67"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].args.known_coefficients[0]",
+          "step_id": "ii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "a=2",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_a",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].args.known_coefficients[0]",
+            "expression": "a=2",
+            "ref": "symbol_value_a",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3f44fe36dc8561548c8a4a3531e9cc8d771a4edd074060de9e132b418b6574f0"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+          "step_id": "ii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "args",
+          "argument": "curve_points",
+          "expression": "A=(-1,0)",
+          "status": "invalid_in_isolation",
+          "error": {
+            "code": "functional.math_argument_unresolved",
+            "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+            "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].args.free_parameters[0]",
+          "step_id": "ii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "args",
+          "argument": "free_parameters",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].args.free_parameters[0]",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].output_targets.parabola",
+          "step_id": "ii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].output_targets.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[1].args.quadratic",
+          "step_id": "ii_y_intercept_C",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "scope": "ii",
+          "field": "args",
+          "argument": "quadratic",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[1].args.quadratic",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[1].output_targets.point",
+          "step_id": "ii_y_intercept_C",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "point",
+          "expression": "C",
+          "status": "bound_in_isolation",
+          "ref": "C",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[1].output_targets.point",
+            "expression": "C",
+            "ref": "C",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/4"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3a1fdf3669f838addbd6ad91c3da22412e00a2126b0c41d2ad9623350e11a30b",
+              "notation-unit:efafd16f3dc587df9319fcea787a75f98fdb6b76575f9cea600288b10bce7f12"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[2].args.target",
+          "step_id": "ii_gen_candidates_D",
+          "capability_id": "right_angle_equal_length_candidates",
+          "scope": "ii",
+          "field": "args",
+          "argument": "target",
+          "expression": "D",
+          "status": "bound_in_isolation",
+          "ref": "D",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[2].args.target",
+            "expression": "D",
+            "ref": "D",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "step_id": "ii_gen_candidates_D",
+          "capability_id": "right_angle_equal_length_candidates",
+          "scope": "ii",
+          "field": "args",
+          "argument": "right_angle_equal_length",
+          "expression": "∠CAD=90°, AC=AD",
+          "status": "invalid_in_isolation",
+          "error": {
+            "code": "functional.math_argument_invalid",
+            "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+            "message": "notation.expected: expected ∈, got ="
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.parabola",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.target_point",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "target_point",
+          "expression": "D",
+          "status": "bound_in_isolation",
+          "ref": "D",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.target_point",
+            "expression": "D",
+            "ref": "D",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.point_on_curve",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "point_on_curve",
+          "expression": "D∈Γ",
+          "status": "bound_in_isolation",
+          "ref": "point_on_curve_parabola_d",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.point_on_curve",
+            "expression": "D∈Γ",
+            "ref": "point_on_curve_parabola_d",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:e2363b3483c9271b5d24825eaf178384fdd093d065e8b5a384922e7fbe8a7750"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.symbol_constraint",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "symbol_constraint",
+          "expression": "b>0",
+          "status": "bound_in_isolation",
+          "ref": "symbol_constraint_b",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.symbol_constraint",
+            "expression": "b>0",
+            "ref": "symbol_constraint_b",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:a9eb81f4f4c8a1d94b368aaaca0aa504746b36d688c8dafc6dc644a4921c0a36"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].output_targets.selected_curve_point",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "selected_curve_point",
+          "expression": "D",
+          "status": "bound_in_isolation",
+          "ref": "D",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].output_targets.selected_curve_point",
+            "expression": "D",
+            "ref": "D",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].args.known_coefficients[0]",
+          "step_id": "iii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "a=1",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_a",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].args.known_coefficients[0]",
+            "expression": "a=1",
+            "ref": "symbol_value_a",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:152cb8570887769b15060798f34bb1730a266f660208f0e3e5daae2a1f996083"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].args.curve_points[0]",
+          "step_id": "iii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "args",
+          "argument": "curve_points",
+          "expression": "A=(-1,0)",
+          "status": "invalid_in_isolation",
+          "error": {
+            "code": "functional.math_argument_unresolved",
+            "path": "$.goal_plans.iii.b.steps[0].args.curve_points[0]",
+            "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].args.free_parameters[0]",
+          "step_id": "iii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "args",
+          "argument": "free_parameters",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].args.free_parameters[0]",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].output_targets.parabola",
+          "step_id": "iii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "output_targets",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].output_targets.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[1].args.parabola",
+          "step_id": "iii_point_M",
+          "capability_id": "point_on_parabola_at_x",
+          "scope": "iii",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[1].args.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[1].output_targets.point",
+          "step_id": "iii_point_M",
+          "capability_id": "point_on_parabola_at_x",
+          "scope": "iii",
+          "field": "output_targets",
+          "argument": "point",
+          "expression": "M",
+          "status": "bound_in_isolation",
+          "ref": "M",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[1].output_targets.point",
+            "expression": "M",
+            "ref": "M",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:0b53057e6b552f5904c9f5a656b5f023b894c4b42d70cf28541d3be90c5d91dd",
+              "notation-unit:c20787782318db488cd3b92d4ca9f9f77387bbaeeda45142743a8145c4d3b7ed"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[2].args.path_minimum_target",
+          "step_id": "iii_path_min",
+          "capability_id": "weighted_axis_path_minimum",
+          "scope": "iii",
+          "field": "args",
+          "argument": "path_minimum_target",
+          "expression": "min(sqrt(2)*MN+AN)",
+          "status": "bound_in_isolation",
+          "ref": "path_minimum_target_m_n_a",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[2].args.path_minimum_target",
+            "expression": "min(sqrt(2)*MN+AN)",
+            "ref": "path_minimum_target_m_n_a",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/7"
+            ],
+            "source_unit_ids": [
+              "notation-unit:7f5bdbc7f2073006712d2f8477f5b1169827249ba9345680cc03d66962481a90"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[3].args.minimum_value",
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "scope": "iii",
+          "field": "args",
+          "argument": "minimum_value",
+          "expression": "min(sqrt(2)*MN+AN)=21/4",
+          "status": "bound_in_isolation",
+          "ref": "minimum_value",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[3].args.minimum_value",
+            "expression": "min(sqrt(2)*MN+AN)=21/4",
+            "ref": "minimum_value",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/7"
+            ],
+            "source_unit_ids": [
+              "notation-unit:c41a184aa05346cdee380f06fcb8c047b1ae362cb8cf6175a5eea003140ebfd5"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[3].args.parameter",
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "scope": "iii",
+          "field": "args",
+          "argument": "parameter",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[3].args.parameter",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[3].output_targets.parameter_value",
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "scope": "iii",
+          "field": "output_targets",
+          "argument": "parameter_value",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[3].output_targets.parameter_value",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        }
+      ],
+      "actual_failure": {
+        "code": "functional.math_argument_unresolved",
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+        "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources.",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+              "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+            }
+          ]
+        }
+      },
+      "runtime_reuse": {
+        "base_checkpoint_id": null,
+        "result_checkpoint_id": null,
+        "requested_call_ids": [],
+        "actual_restored_call_ids": [],
+        "executed_call_ids": [],
+        "previous_calls_not_requested": [],
+        "execution_started": false,
+        "editable_scope_refs": []
+      },
+      "raw_equals_saved_normalized_content": true,
+      "standalone_prompt_schema_check": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    {
+      "number": 2,
+      "protocol": "functional-plan-content/v2",
+      "metadata": {
+        "semantic_attempt": 2,
+        "planner_protocol": "functional-plan-content/v2",
+        "provider": "deepseek",
+        "request_model": "deepseek-v4-flash",
+        "response_model": "deepseek-flash",
+        "usage": {
+          "prompt_tokens": 13685,
+          "completion_tokens": 14853,
+          "total_tokens": 28538
+        },
+        "provider_attempts": [
+          {
+            "provider_attempt": 1,
+            "response_model": "deepseek-flash",
+            "usage": {
+              "completion_tokens": 14853,
+              "prompt_tokens": 13685,
+              "total_tokens": 28538,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 13959,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 9728
+              },
+              "prompt_cache_hit_tokens": 9728,
+              "prompt_cache_miss_tokens": 3957
+            },
+            "finish_reason": "stop",
+            "visible_content": true,
+            "reasoning_content_available": true,
+            "reasoning_content_chars": 35033,
+            "response_format": "json_object",
+            "thinking_mode": "enabled",
+            "reasoning_effort": "low"
+          }
+        ],
+        "provider_invocation_id": 2
+      },
+      "provider_options": {
+        "provider_attempt": 1,
+        "model": "deepseek-v4-flash",
+        "timeout": 120.0,
+        "options": {
+          "response_format": {
+            "type": "json_object"
+          },
+          "extra_body": {
+            "thinking": {
+              "type": "enabled"
+            }
+          },
+          "reasoning_effort": "low"
+        }
+      },
+      "provider_prompt_matches_saved_messages": true,
+      "artifact_hashes_checked": [
+        "request",
+        "raw-response",
+        "normalized-response",
+        "normalized-content",
+        "math-argument-bindings",
+        "normalizations",
+        "content-validation",
+        "checkpoint-capabilities",
+        "reuse",
+        "attempt-error",
+        "candidate-error",
+        "blockers",
+        "provider-requests",
+        "provider-responses",
+        "provider-reasoning",
+        "provider-metadata"
+      ],
+      "index": {
+        "schema_version": "functional-attempt-evidence/v1",
+        "semantic_attempt": 2,
+        "planner_protocol": "functional-plan-content/v2",
+        "phase": "completed",
+        "base_plan_hash": null,
+        "base_checkpoint_id": null,
+        "result_checkpoint_id": null,
+        "artifacts": {
+          "request": {
+            "status": "saved",
+            "file": "attempt-2.request.json",
+            "sha256": "8606caad871d3f7b7777af25904cd62355b47ff4c160f3862f5568d67619be18"
+          },
+          "raw-response": {
+            "status": "saved",
+            "file": "attempt-2.raw-response.json",
+            "sha256": "c599bcd8a062552c95e6b8206f5cc0d14ccad034c013012e27d97d47b371dc65"
+          },
+          "normalized-response": {
+            "status": "saved",
+            "file": "attempt-2.normalized-response.json",
+            "sha256": "41ddb4ba217051a327c4c990f9b8dc3f4e363c47ae495082f9fa382ce17f92a4"
+          },
+          "normalized-content": {
+            "status": "saved",
+            "file": "attempt-2.normalized-content.json",
+            "sha256": "41ddb4ba217051a327c4c990f9b8dc3f4e363c47ae495082f9fa382ce17f92a4"
+          },
+          "math-argument-bindings": {
+            "status": "saved",
+            "file": "attempt-2.math-argument-bindings.json",
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "candidate-plan": {
+            "status": "not_available",
+            "reason": "no_structurally_assembled_candidate"
+          },
+          "compiled-plan": {
+            "status": "not_available",
+            "reason": "content_contract_not_passed"
+          },
+          "canonical-plan": {
+            "status": "not_available",
+            "reason": "no_canonical_plan_from_this_execution"
+          },
+          "base-plan": {
+            "status": "not_available",
+            "reason": "no_previous_execution_base"
+          },
+          "base-checkpoint": {
+            "status": "not_available",
+            "reason": "no_previous_execution_checkpoint"
+          },
+          "base-authority": {
+            "status": "not_available",
+            "reason": "not_a_scope_repair"
+          },
+          "result-authority": {
+            "status": "not_available",
+            "reason": "no_next_scope_authority"
+          },
+          "normalizations": {
+            "status": "saved",
+            "file": "attempt-2.normalizations.json",
+            "sha256": "39bd26cf99fc6304ce61cccd4e322084dead8828c0c3ef5305c7360c74625786"
+          },
+          "content-validation": {
+            "status": "saved",
+            "file": "attempt-2.content-validation.json",
+            "sha256": "cea0cdb1f0505036d09f94beee5ca6eb6dc6fcfd074766d109e98dbc35a2f855"
+          },
+          "execution-validation": {
+            "status": "not_available",
+            "reason": "stage_not_reached"
+          },
+          "execution-authority": {
+            "status": "not_available",
+            "reason": "stage_not_reached"
+          },
+          "final-plan-contract-validation": {
+            "status": "not_available",
+            "reason": "stage_not_reached"
+          },
+          "transaction": {
+            "status": "not_available",
+            "reason": "transaction_not_started"
+          },
+          "checkpoint": {
+            "status": "not_available",
+            "reason": "execution_did_not_produce_checkpoint"
+          },
+          "verified-execution": {
+            "status": "not_available",
+            "reason": "execution_not_verified"
+          },
+          "checkpoint-capabilities": {
+            "status": "saved",
+            "file": "attempt-2.checkpoint-capabilities.json",
+            "sha256": "a0df6e473d9c37846c22b25cfca200c53bcfd4c4366a0c40ac3183064f2b755d"
+          },
+          "reuse": {
+            "status": "saved",
+            "file": "attempt-2.reuse.json",
+            "sha256": "2cd1cc1cf35476210171034a2b2e8c4d0594c451cef7d3548468010241637243"
+          },
+          "attempt-error": {
+            "status": "saved",
+            "file": "attempt-2.attempt-error.json",
+            "sha256": "b508dd918259df34f658ec4c2278e1e33afe2cce248f8d8d3a359a23b90da1b7"
+          },
+          "candidate-error": {
+            "status": "saved",
+            "file": "attempt-2.candidate-error.json",
+            "sha256": "b508dd918259df34f658ec4c2278e1e33afe2cce248f8d8d3a359a23b90da1b7"
+          },
+          "blockers": {
+            "status": "saved",
+            "file": "attempt-2.blockers.json",
+            "sha256": "ea8dd521152de6242440d2d3e7355eba686fa7622b274b01a0af7ceb3b567356"
+          },
+          "provider-requests": {
+            "status": "saved",
+            "file": "attempt-2.provider-requests.json",
+            "sha256": "87c9e03ab2303c9a1c08153d66e008b0f9b783cd0f3d05fccc3140f45b3fd830"
+          },
+          "provider-responses": {
+            "status": "saved",
+            "file": "attempt-2.provider-responses.json",
+            "sha256": "66ed300d877718a9b2b2ed0c939e46098c9e27ecf1a4a63e675709e6b3dbf00c"
+          },
+          "provider-reasoning": {
+            "status": "saved",
+            "file": "attempt-2.provider-reasoning.json",
+            "sha256": "dbf2d1f7f4c3f724a6b51f172a6792deb44ee9a88ec1a909f9f880cf36fe2750"
+          },
+          "provider-metadata": {
+            "status": "saved",
+            "file": "attempt-2.provider-metadata.json",
+            "sha256": "ad0c51b1ebff7b0952e29eac344b820abad918fed2c09401ec4aebb0a7b19b3a"
+          }
+        },
+        "legacy_aliases": {
+          "attempt-2.functional-plan.json": "raw-response"
+        }
+      },
+      "system_sha256": "d33c4a1785f29399b4affb0543cb9da242b3f89c1f8e65a5eb302fb93039daa2",
+      "user_sha256": "054062d1fc17f80524542db8be545913ef42910d6fc27dc26d075345752e3243",
+      "system_chars": 3165,
+      "user_chars": 38062,
+      "prompt_sections": [
+        {
+          "name": "## Problem Planning Context",
+          "chars": 859,
+          "bytes": 1043,
+          "sha256": "9db59d7e9d63244dda97c5ef2497c859a8973862ede540df794859c627701755"
+        },
+        {
+          "name": "## Plan Authority Frame",
+          "chars": 407,
+          "bytes": 461,
+          "sha256": "e67d227076d498722ee3036040c7f05a5f8353d93e1abd48ecc3b378b05594ea"
+        },
+        {
+          "name": "## Strategy Principles",
+          "chars": 469,
+          "bytes": 1045,
+          "sha256": "86a3fbdc209c879ff3f5e33da99c7425a13593a00634bb1f7cb9b3a22caad43e"
+        },
+        {
+          "name": "## Functional Capability Catalog",
+          "chars": 22557,
+          "bytes": 33257,
+          "sha256": "378082121a6a8f7132526f04c61efb84e0bb5033852487d3ac799ab065899d65"
+        },
+        {
+          "name": "## FunctionalPlan Content Mechanism Example",
+          "chars": 833,
+          "bytes": 1239,
+          "sha256": "4e75e21b2d7c7cf5493d9d768c376ff44f4bc9d174fce273945d7b920c7b2972"
+        },
+        {
+          "name": "## Full-plan Validation Feedback",
+          "chars": 344,
+          "bytes": 412,
+          "sha256": "22de39932be0ba7b117dea4bf2c1640ee5b0a2052f406d33712d6d6c0465d0d6"
+        },
+        {
+          "name": "## Authority-bound Output JSON Schema",
+          "chars": 12523,
+          "bytes": 12527,
+          "sha256": "8708d9529cbbf47ed47a784836bb0f7fa5f9eaa7d1dd2b8802b6449ff0eee91f"
+        }
+      ],
+      "thinking_chars": 35033,
+      "thinking_tokens": 13959,
+      "visible_tokens_by_subtraction": 894,
+      "visible_chars": 2842,
+      "feedback_received": [
+        {
+          "code": "functional.math_argument_unresolved",
+          "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+          "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources.",
+          "details": {
+            "diagnostic_id": "3a13339078ab5436"
+          }
+        }
+      ],
+      "previous_plan_sent": false,
+      "execution_tree_sent": false,
+      "graph": [
+        {
+          "scope": "i",
+          "goal": "i.P",
+          "path": "$.goal_plans.i.P.steps[0]",
+          "step": {
+            "step_id": "i_build_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "a=1",
+                "b=2",
+                "c=3"
+              ],
+              "free_parameters": []
+            },
+            "output_targets": {
+              "parabola": "Γ"
+            },
+            "return_expectations": {
+              "parabola": "closed_state"
+            },
+            "intent": "由已知系数建立封闭抛物线 Γ。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "i",
+          "goal": "i.P",
+          "path": "$.goal_plans.i.P.steps[1]",
+          "step": {
+            "step_id": "i_vertex_P",
+            "capability_id": "quadratic_vertex_point",
+            "args": {
+              "parabola": "Γ"
+            },
+            "output_targets": {
+              "point": "P"
+            },
+            "return_expectations": {
+              "point": "closed_state"
+            },
+            "intent": "求抛物线顶点 P 的坐标。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[0]",
+          "step": {
+            "step_id": "ii_build_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "a=2"
+              ],
+              "curve_points": [
+                "A"
+              ],
+              "free_parameters": [
+                "b"
+              ]
+            },
+            "output_targets": {
+              "parabola": "Γ"
+            },
+            "return_expectations": {
+              "parabola": "open_state"
+            },
+            "intent": "由 a=2 和曲线点 A 建立含参抛物线 Γ。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[1]",
+          "step": {
+            "step_id": "ii_y_intercept_C",
+            "capability_id": "quadratic_y_axis_intercept_point",
+            "args": {
+              "quadratic": "Γ"
+            },
+            "output_targets": {
+              "point": "C"
+            },
+            "return_expectations": {
+              "point": "open_state"
+            },
+            "intent": "求 Γ 与 y 轴交点 C。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[2]",
+          "step": {
+            "step_id": "ii_D_candidates",
+            "capability_id": "right_angle_equal_length_candidates",
+            "args": {
+              "target": "D",
+              "right_angle_equal_length": "∠CAD = 90°, AC = AD"
+            },
+            "intent": "由直角等腰关系生成 D 的候选点。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[3]",
+          "step": {
+            "step_id": "ii_solve_D",
+            "capability_id": "curve_candidate_parameter_solve",
+            "args": {
+              "candidates": {
+                "step_id": "ii_D_candidates",
+                "return": "candidates"
+              },
+              "parabola": "Γ",
+              "target_point": "D",
+              "point_on_curve": "D ∈ Γ",
+              "symbol_constraint": "b>0"
+            },
+            "output_targets": {
+              "selected_curve_point": "D",
+              "solved_parabola": "Γ"
+            },
+            "return_expectations": {
+              "selected_curve_point": "closed_state",
+              "solved_parabola": "closed_state"
+            },
+            "intent": "用曲线归属和参数约束筛选候选点并反求参数，确定 D 坐标。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[0]",
+          "step": {
+            "step_id": "iii_build_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "a=1"
+              ],
+              "curve_points": [
+                "A"
+              ],
+              "free_parameters": [
+                "b"
+              ]
+            },
+            "output_targets": {
+              "parabola": "Γ"
+            },
+            "return_expectations": {
+              "parabola": "open_state"
+            },
+            "intent": "由 a=1 和曲线点 A 建立含参抛物线 Γ。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[1]",
+          "step": {
+            "step_id": "iii_point_M",
+            "capability_id": "point_on_parabola_at_x",
+            "args": {
+              "parabola": "Γ"
+            },
+            "output_targets": {
+              "point": "M"
+            },
+            "return_expectations": {
+              "point": "open_state"
+            },
+            "intent": "由 M 的结构化横坐标求 M 在 Γ 上的坐标。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[2]",
+          "step": {
+            "step_id": "iii_path_min",
+            "capability_id": "weighted_axis_path_minimum",
+            "args": {
+              "path_minimum_target": "min(sqrt(2)*MN + AN)"
+            },
+            "return_expectations": {
+              "minimum_expression": "open_expression"
+            },
+            "intent": "求加权路径的最小值表达式。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[3]",
+          "step": {
+            "step_id": "iii_solve_b",
+            "capability_id": "parameter_from_expression_value",
+            "args": {
+              "expression": {
+                "step_id": "iii_path_min",
+                "return": "minimum_expression"
+              },
+              "minimum_value": "min(sqrt(2)*MN + AN) = 21/4",
+              "parameter": "b"
+            },
+            "output_targets": {
+              "parameter_value": "b"
+            },
+            "intent": "由给定最小值反求参数 b。"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        }
+      ],
+      "isolated_argument_checks": [
+        {
+          "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[0]",
+          "step_id": "i_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "a=1",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_a",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[0]",
+            "expression": "a=1",
+            "ref": "symbol_value_a",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:b3188026a7e90a1c0e24faf6487e8b65d428b91148b5e89b816deccec23a168f"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[1]",
+          "step_id": "i_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "b=2",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_b",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[1]",
+            "expression": "b=2",
+            "ref": "symbol_value_b",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/1"
+            ],
+            "source_unit_ids": [
+              "notation-unit:54fb367bb8dfd4fbf2733cd5b480b22ccb03e4b6b0a7d649cb20d24bf9f26da8"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[2]",
+          "step_id": "i_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "c=3",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_c",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[2]",
+            "expression": "c=3",
+            "ref": "symbol_value_c",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/2"
+            ],
+            "source_unit_ids": [
+              "notation-unit:fa068689685f30099eb9bcddd06dec32d493ec6272486c0d7d9f99fa87da16e6"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[0].output_targets.parabola",
+          "step_id": "i_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "output_targets",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].output_targets.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[1].args.parabola",
+          "step_id": "i_vertex_P",
+          "capability_id": "quadratic_vertex_point",
+          "scope": "i",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[1].args.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[1].output_targets.point",
+          "step_id": "i_vertex_P",
+          "capability_id": "quadratic_vertex_point",
+          "scope": "i",
+          "field": "output_targets",
+          "argument": "point",
+          "expression": "P",
+          "status": "bound_in_isolation",
+          "ref": "P",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[1].output_targets.point",
+            "expression": "P",
+            "ref": "P",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:2553f5fb8ce9d94fc40fc6c5f83fb22326abfe4e8a53acea35039e4de937acf2",
+              "notation-unit:e8ddfe1da97dd9915bb97f02f1e208640369c2bcfd3f7d8c0377b74a93e39e67"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].args.known_coefficients[0]",
+          "step_id": "ii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "a=2",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_a",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].args.known_coefficients[0]",
+            "expression": "a=2",
+            "ref": "symbol_value_a",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3f44fe36dc8561548c8a4a3531e9cc8d771a4edd074060de9e132b418b6574f0"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+          "step_id": "ii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "args",
+          "argument": "curve_points",
+          "expression": "A",
+          "status": "bound_in_isolation",
+          "ref": "A",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+            "expression": "A",
+            "ref": "A",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/1"
+            ],
+            "source_unit_ids": [
+              "notation-unit:29b0ce81c9e03288cd5996fbf00e3a389470d9c9ed32a4df422ea641ccdd92c1",
+              "notation-unit:3637b0bb9d2c96772e64da868384979fe5ab117c627e6e4e0698eb7e89c64279"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].args.free_parameters[0]",
+          "step_id": "ii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "args",
+          "argument": "free_parameters",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].args.free_parameters[0]",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].output_targets.parabola",
+          "step_id": "ii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].output_targets.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[1].args.quadratic",
+          "step_id": "ii_y_intercept_C",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "scope": "ii",
+          "field": "args",
+          "argument": "quadratic",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[1].args.quadratic",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[1].output_targets.point",
+          "step_id": "ii_y_intercept_C",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "point",
+          "expression": "C",
+          "status": "bound_in_isolation",
+          "ref": "C",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[1].output_targets.point",
+            "expression": "C",
+            "ref": "C",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/4"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3a1fdf3669f838addbd6ad91c3da22412e00a2126b0c41d2ad9623350e11a30b",
+              "notation-unit:efafd16f3dc587df9319fcea787a75f98fdb6b76575f9cea600288b10bce7f12"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[2].args.target",
+          "step_id": "ii_D_candidates",
+          "capability_id": "right_angle_equal_length_candidates",
+          "scope": "ii",
+          "field": "args",
+          "argument": "target",
+          "expression": "D",
+          "status": "bound_in_isolation",
+          "ref": "D",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[2].args.target",
+            "expression": "D",
+            "ref": "D",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "step_id": "ii_D_candidates",
+          "capability_id": "right_angle_equal_length_candidates",
+          "scope": "ii",
+          "field": "args",
+          "argument": "right_angle_equal_length",
+          "expression": "∠CAD = 90°, AC = AD",
+          "status": "invalid_in_isolation",
+          "error": {
+            "code": "functional.math_argument_invalid",
+            "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+            "message": "notation.expected: expected ∈, got ="
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.parabola",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.target_point",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "target_point",
+          "expression": "D",
+          "status": "bound_in_isolation",
+          "ref": "D",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.target_point",
+            "expression": "D",
+            "ref": "D",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.point_on_curve",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "point_on_curve",
+          "expression": "D ∈ Γ",
+          "status": "bound_in_isolation",
+          "ref": "point_on_curve_parabola_d",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.point_on_curve",
+            "expression": "D ∈ Γ",
+            "ref": "point_on_curve_parabola_d",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:e2363b3483c9271b5d24825eaf178384fdd093d065e8b5a384922e7fbe8a7750"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.symbol_constraint",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "symbol_constraint",
+          "expression": "b>0",
+          "status": "bound_in_isolation",
+          "ref": "symbol_constraint_b",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.symbol_constraint",
+            "expression": "b>0",
+            "ref": "symbol_constraint_b",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:a9eb81f4f4c8a1d94b368aaaca0aa504746b36d688c8dafc6dc644a4921c0a36"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].output_targets.selected_curve_point",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "selected_curve_point",
+          "expression": "D",
+          "status": "bound_in_isolation",
+          "ref": "D",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].output_targets.selected_curve_point",
+            "expression": "D",
+            "ref": "D",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].output_targets.solved_parabola",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "solved_parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].output_targets.solved_parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].args.known_coefficients[0]",
+          "step_id": "iii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "a=1",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_a",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].args.known_coefficients[0]",
+            "expression": "a=1",
+            "ref": "symbol_value_a",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:152cb8570887769b15060798f34bb1730a266f660208f0e3e5daae2a1f996083"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].args.curve_points[0]",
+          "step_id": "iii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "args",
+          "argument": "curve_points",
+          "expression": "A",
+          "status": "bound_in_isolation",
+          "ref": "A",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].args.curve_points[0]",
+            "expression": "A",
+            "ref": "A",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/1"
+            ],
+            "source_unit_ids": [
+              "notation-unit:59323558b2033c6ee0a68ff071a72740934eadd2a5e1e22b4062cfd67ef2f32e",
+              "notation-unit:a31400e67a98599603f0fd43363a13d352c0c0be61f02027b7e08e4eda2d7ff1"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].args.free_parameters[0]",
+          "step_id": "iii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "args",
+          "argument": "free_parameters",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].args.free_parameters[0]",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].output_targets.parabola",
+          "step_id": "iii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "output_targets",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].output_targets.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[1].args.parabola",
+          "step_id": "iii_point_M",
+          "capability_id": "point_on_parabola_at_x",
+          "scope": "iii",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[1].args.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[1].output_targets.point",
+          "step_id": "iii_point_M",
+          "capability_id": "point_on_parabola_at_x",
+          "scope": "iii",
+          "field": "output_targets",
+          "argument": "point",
+          "expression": "M",
+          "status": "bound_in_isolation",
+          "ref": "M",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[1].output_targets.point",
+            "expression": "M",
+            "ref": "M",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:0b53057e6b552f5904c9f5a656b5f023b894c4b42d70cf28541d3be90c5d91dd",
+              "notation-unit:c20787782318db488cd3b92d4ca9f9f77387bbaeeda45142743a8145c4d3b7ed"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[2].args.path_minimum_target",
+          "step_id": "iii_path_min",
+          "capability_id": "weighted_axis_path_minimum",
+          "scope": "iii",
+          "field": "args",
+          "argument": "path_minimum_target",
+          "expression": "min(sqrt(2)*MN + AN)",
+          "status": "bound_in_isolation",
+          "ref": "path_minimum_target_m_n_a",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[2].args.path_minimum_target",
+            "expression": "min(sqrt(2)*MN + AN)",
+            "ref": "path_minimum_target_m_n_a",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/7"
+            ],
+            "source_unit_ids": [
+              "notation-unit:7f5bdbc7f2073006712d2f8477f5b1169827249ba9345680cc03d66962481a90"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[3].args.minimum_value",
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "scope": "iii",
+          "field": "args",
+          "argument": "minimum_value",
+          "expression": "min(sqrt(2)*MN + AN) = 21/4",
+          "status": "bound_in_isolation",
+          "ref": "minimum_value",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[3].args.minimum_value",
+            "expression": "min(sqrt(2)*MN + AN) = 21/4",
+            "ref": "minimum_value",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/7"
+            ],
+            "source_unit_ids": [
+              "notation-unit:c41a184aa05346cdee380f06fcb8c047b1ae362cb8cf6175a5eea003140ebfd5"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[3].args.parameter",
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "scope": "iii",
+          "field": "args",
+          "argument": "parameter",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[3].args.parameter",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[3].output_targets.parameter_value",
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "scope": "iii",
+          "field": "output_targets",
+          "argument": "parameter_value",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[3].output_targets.parameter_value",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        }
+      ],
+      "actual_failure": {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.expected: expected ∈, got =",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got ="
+            }
+          ]
+        }
+      },
+      "runtime_reuse": {
+        "base_checkpoint_id": null,
+        "result_checkpoint_id": null,
+        "requested_call_ids": [],
+        "actual_restored_call_ids": [],
+        "executed_call_ids": [],
+        "previous_calls_not_requested": [],
+        "execution_started": false,
+        "editable_scope_refs": []
+      },
+      "raw_equals_saved_normalized_content": true,
+      "standalone_prompt_schema_check": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    {
+      "number": 3,
+      "protocol": "functional-plan-content/v2",
+      "metadata": {
+        "semantic_attempt": 3,
+        "planner_protocol": "functional-plan-content/v2",
+        "provider": "deepseek",
+        "request_model": "deepseek-v4-flash",
+        "response_model": "deepseek-flash",
+        "usage": {
+          "prompt_tokens": 13670,
+          "completion_tokens": 21425,
+          "total_tokens": 35095
+        },
+        "provider_attempts": [
+          {
+            "provider_attempt": 1,
+            "response_model": "deepseek-flash",
+            "usage": {
+              "completion_tokens": 21425,
+              "prompt_tokens": 13670,
+              "total_tokens": 35095,
+              "completion_tokens_details": {
+                "accepted_prediction_tokens": null,
+                "audio_tokens": null,
+                "reasoning_tokens": 20687,
+                "rejected_prediction_tokens": null
+              },
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 9728
+              },
+              "prompt_cache_hit_tokens": 9728,
+              "prompt_cache_miss_tokens": 3942
+            },
+            "finish_reason": "stop",
+            "visible_content": true,
+            "reasoning_content_available": true,
+            "reasoning_content_chars": 51710,
+            "response_format": "json_object",
+            "thinking_mode": "enabled",
+            "reasoning_effort": "low"
+          }
+        ],
+        "provider_invocation_id": 3
+      },
+      "provider_options": {
+        "provider_attempt": 1,
+        "model": "deepseek-v4-flash",
+        "timeout": 120.0,
+        "options": {
+          "response_format": {
+            "type": "json_object"
+          },
+          "extra_body": {
+            "thinking": {
+              "type": "enabled"
+            }
+          },
+          "reasoning_effort": "low"
+        }
+      },
+      "provider_prompt_matches_saved_messages": true,
+      "artifact_hashes_checked": [
+        "request",
+        "raw-response",
+        "normalized-response",
+        "normalized-content",
+        "math-argument-bindings",
+        "normalizations",
+        "content-validation",
+        "checkpoint-capabilities",
+        "reuse",
+        "attempt-error",
+        "candidate-error",
+        "blockers",
+        "provider-requests",
+        "provider-responses",
+        "provider-reasoning",
+        "provider-metadata"
+      ],
+      "index": {
+        "schema_version": "functional-attempt-evidence/v1",
+        "semantic_attempt": 3,
+        "planner_protocol": "functional-plan-content/v2",
+        "phase": "completed",
+        "base_plan_hash": null,
+        "base_checkpoint_id": null,
+        "result_checkpoint_id": null,
+        "artifacts": {
+          "request": {
+            "status": "saved",
+            "file": "attempt-3.request.json",
+            "sha256": "dc6f4cf6dac905e223925d1e5a2ddfea6fa23754bde39d4a6f1914cace7cdaa1"
+          },
+          "raw-response": {
+            "status": "saved",
+            "file": "attempt-3.raw-response.json",
+            "sha256": "275eeeb66e43f16a84638235931efdd16fc975b17372da795d846d13db3c5027"
+          },
+          "normalized-response": {
+            "status": "saved",
+            "file": "attempt-3.normalized-response.json",
+            "sha256": "8c52e7eba86b02a7a048b3fa070d718e6679e810ff2aa15953faca9bd3da22f1"
+          },
+          "normalized-content": {
+            "status": "saved",
+            "file": "attempt-3.normalized-content.json",
+            "sha256": "8c52e7eba86b02a7a048b3fa070d718e6679e810ff2aa15953faca9bd3da22f1"
+          },
+          "math-argument-bindings": {
+            "status": "saved",
+            "file": "attempt-3.math-argument-bindings.json",
+            "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          "candidate-plan": {
+            "status": "not_available",
+            "reason": "no_structurally_assembled_candidate"
+          },
+          "compiled-plan": {
+            "status": "not_available",
+            "reason": "content_contract_not_passed"
+          },
+          "canonical-plan": {
+            "status": "not_available",
+            "reason": "no_canonical_plan_from_this_execution"
+          },
+          "base-plan": {
+            "status": "not_available",
+            "reason": "no_previous_execution_base"
+          },
+          "base-checkpoint": {
+            "status": "not_available",
+            "reason": "no_previous_execution_checkpoint"
+          },
+          "base-authority": {
+            "status": "not_available",
+            "reason": "not_a_scope_repair"
+          },
+          "result-authority": {
+            "status": "not_available",
+            "reason": "no_next_scope_authority"
+          },
+          "normalizations": {
+            "status": "saved",
+            "file": "attempt-3.normalizations.json",
+            "sha256": "39bd26cf99fc6304ce61cccd4e322084dead8828c0c3ef5305c7360c74625786"
+          },
+          "content-validation": {
+            "status": "saved",
+            "file": "attempt-3.content-validation.json",
+            "sha256": "6e38d3dbab79d414729c00b5360617bd157f94ba1822843ade8a7a9356f25259"
+          },
+          "execution-validation": {
+            "status": "not_available",
+            "reason": "stage_not_reached"
+          },
+          "execution-authority": {
+            "status": "not_available",
+            "reason": "stage_not_reached"
+          },
+          "final-plan-contract-validation": {
+            "status": "not_available",
+            "reason": "stage_not_reached"
+          },
+          "transaction": {
+            "status": "not_available",
+            "reason": "transaction_not_started"
+          },
+          "checkpoint": {
+            "status": "not_available",
+            "reason": "execution_did_not_produce_checkpoint"
+          },
+          "verified-execution": {
+            "status": "not_available",
+            "reason": "execution_not_verified"
+          },
+          "checkpoint-capabilities": {
+            "status": "saved",
+            "file": "attempt-3.checkpoint-capabilities.json",
+            "sha256": "a0df6e473d9c37846c22b25cfca200c53bcfd4c4366a0c40ac3183064f2b755d"
+          },
+          "reuse": {
+            "status": "saved",
+            "file": "attempt-3.reuse.json",
+            "sha256": "2cd1cc1cf35476210171034a2b2e8c4d0594c451cef7d3548468010241637243"
+          },
+          "attempt-error": {
+            "status": "saved",
+            "file": "attempt-3.attempt-error.json",
+            "sha256": "6bcb3c7b8ce1bc99bd79fe30e6aff374235e7d27cea990003547a42533fdadbc"
+          },
+          "candidate-error": {
+            "status": "saved",
+            "file": "attempt-3.candidate-error.json",
+            "sha256": "6bcb3c7b8ce1bc99bd79fe30e6aff374235e7d27cea990003547a42533fdadbc"
+          },
+          "blockers": {
+            "status": "saved",
+            "file": "attempt-3.blockers.json",
+            "sha256": "dedcb07a4563b7aa302956d58cfbcb68c30fd1ca1ff5728d4f3187bd5ca88f84"
+          },
+          "provider-requests": {
+            "status": "saved",
+            "file": "attempt-3.provider-requests.json",
+            "sha256": "4a9765166838df06da6ce7659a58116e6fb30ceecc8db67b19579819cce86a97"
+          },
+          "provider-responses": {
+            "status": "saved",
+            "file": "attempt-3.provider-responses.json",
+            "sha256": "92b146ea96fe58cd7e5e40adce773417dcc6f689d899f806d3be614364ba3191"
+          },
+          "provider-reasoning": {
+            "status": "saved",
+            "file": "attempt-3.provider-reasoning.json",
+            "sha256": "349a042f1a81d041f9f94ee07d5882db39f62742e1d20c5f9c311df9ad1e123b"
+          },
+          "provider-metadata": {
+            "status": "saved",
+            "file": "attempt-3.provider-metadata.json",
+            "sha256": "fee5d2d553953baace43415b289b90ea9cb9787cab726c66785271f73bb8a2a6"
+          }
+        },
+        "legacy_aliases": {
+          "attempt-3.functional-plan.json": "raw-response"
+        }
+      },
+      "system_sha256": "d33c4a1785f29399b4affb0543cb9da242b3f89c1f8e65a5eb302fb93039daa2",
+      "user_sha256": "e065a029da94204c7fc0f9dbbd01e221f0e8fc5a910741804677e10cfcb65189",
+      "system_chars": 3165,
+      "user_chars": 38020,
+      "prompt_sections": [
+        {
+          "name": "## Problem Planning Context",
+          "chars": 859,
+          "bytes": 1043,
+          "sha256": "9db59d7e9d63244dda97c5ef2497c859a8973862ede540df794859c627701755"
+        },
+        {
+          "name": "## Plan Authority Frame",
+          "chars": 407,
+          "bytes": 461,
+          "sha256": "e67d227076d498722ee3036040c7f05a5f8353d93e1abd48ecc3b378b05594ea"
+        },
+        {
+          "name": "## Strategy Principles",
+          "chars": 469,
+          "bytes": 1045,
+          "sha256": "86a3fbdc209c879ff3f5e33da99c7425a13593a00634bb1f7cb9b3a22caad43e"
+        },
+        {
+          "name": "## Functional Capability Catalog",
+          "chars": 22557,
+          "bytes": 33257,
+          "sha256": "378082121a6a8f7132526f04c61efb84e0bb5033852487d3ac799ab065899d65"
+        },
+        {
+          "name": "## FunctionalPlan Content Mechanism Example",
+          "chars": 833,
+          "bytes": 1239,
+          "sha256": "4e75e21b2d7c7cf5493d9d768c376ff44f4bc9d174fce273945d7b920c7b2972"
+        },
+        {
+          "name": "## Full-plan Validation Feedback",
+          "chars": 302,
+          "bytes": 372,
+          "sha256": "77dbf9c16304600a26b88dd27ae211db02a222b1b846db0da0f3345a5bd52d11"
+        },
+        {
+          "name": "## Authority-bound Output JSON Schema",
+          "chars": 12523,
+          "bytes": 12527,
+          "sha256": "8708d9529cbbf47ed47a784836bb0f7fa5f9eaa7d1dd2b8802b6449ff0eee91f"
+        }
+      ],
+      "thinking_chars": 51710,
+      "thinking_tokens": 20687,
+      "visible_tokens_by_subtraction": 738,
+      "visible_chars": 2318,
+      "feedback_received": [
+        {
+          "code": "functional.math_argument_invalid",
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "message": "notation.expected: expected ∈, got =",
+          "details": {
+            "diagnostic_id": "de16701d01f14b7f"
+          }
+        }
+      ],
+      "previous_plan_sent": false,
+      "execution_tree_sent": false,
+      "graph": [
+        {
+          "scope": "i",
+          "goal": "i.P",
+          "path": "$.goal_plans.i.P.steps[0]",
+          "step": {
+            "step_id": "i_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "a=1",
+                "b=2",
+                "c=3"
+              ],
+              "free_parameters": []
+            },
+            "output_targets": {
+              "parabola": "Γ"
+            },
+            "intent": "建立第(i)问的确定抛物线"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "i",
+          "goal": "i.P",
+          "path": "$.goal_plans.i.P.steps[1]",
+          "step": {
+            "step_id": "i_vertex",
+            "capability_id": "quadratic_vertex_point",
+            "args": {
+              "parabola": "Γ"
+            },
+            "output_targets": {
+              "point": "P"
+            },
+            "intent": "求顶点P"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[0]",
+          "step": {
+            "step_id": "ii_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "a=2"
+              ],
+              "curve_point": "A",
+              "free_parameters": [
+                "b"
+              ]
+            },
+            "output_targets": {
+              "parabola": "Γ"
+            },
+            "intent": "建立第(ii)问含参抛物线"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[1]",
+          "step": {
+            "step_id": "ii_y_intercept",
+            "capability_id": "quadratic_y_axis_intercept_point",
+            "args": {
+              "parabola": "Γ"
+            },
+            "output_targets": {
+              "point": "C"
+            },
+            "intent": "求y轴交点C"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[2]",
+          "step": {
+            "step_id": "ii_candidates",
+            "capability_id": "right_angle_equal_length_candidates",
+            "args": {
+              "target": "D",
+              "right_angle_equal_length": "D ∈ {X | ∠CAX=90°, AX=AC}"
+            },
+            "intent": "由直角等腰关系列D候选点"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "ii",
+          "goal": "ii.D",
+          "path": "$.goal_plans.ii.D.steps[3]",
+          "step": {
+            "step_id": "ii_solve_D",
+            "capability_id": "curve_candidate_parameter_solve",
+            "args": {
+              "candidates": {
+                "step_id": "ii_candidates",
+                "return": "candidates"
+              },
+              "parabola": "Γ",
+              "target_point": "D",
+              "point_on_curve": "D ∈ Γ",
+              "symbol_constraint": "b>0"
+            },
+            "output_targets": {
+              "selected_curve_point": "D"
+            },
+            "return_expectations": {
+              "selected_curve_point": "closed_state"
+            },
+            "intent": "用曲线与参数约束筛选D并反求参数"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[0]",
+          "step": {
+            "step_id": "iii_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "args": {
+              "known_coefficients": [
+                "a=1"
+              ],
+              "curve_point": "A",
+              "free_parameters": [
+                "b"
+              ]
+            },
+            "output_targets": {
+              "parabola": "Γ"
+            },
+            "intent": "建立第(iii)问含参抛物线"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[1]",
+          "step": {
+            "step_id": "iii_M",
+            "capability_id": "point_on_parabola_at_x",
+            "args": {
+              "parabola": "Γ"
+            },
+            "output_targets": {
+              "point": "M"
+            },
+            "intent": "由结构化横坐标求抛物线上点M"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[2]",
+          "step": {
+            "step_id": "iii_min",
+            "capability_id": "weighted_axis_path_minimum",
+            "args": {
+              "path_minimum_target": "min(sqrt(2)*MN+AN)"
+            },
+            "intent": "求加权路径最小值表达式"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        },
+        {
+          "scope": "iii",
+          "goal": "iii.b",
+          "path": "$.goal_plans.iii.b.steps[3]",
+          "step": {
+            "step_id": "iii_solve_b",
+            "capability_id": "parameter_from_expression_value",
+            "args": {
+              "expression": {
+                "step_id": "iii_min",
+                "return": "minimum_expression"
+              },
+              "minimum_value": "min(sqrt(2)*MN+AN)=21/4",
+              "parameter": "b"
+            },
+            "output_targets": {
+              "parameter_value": "b"
+            },
+            "intent": "由给定最小值反求b"
+          },
+          "runtime_status": "NOT EXECUTED",
+          "actual_result": null
+        }
+      ],
+      "isolated_argument_checks": [
+        {
+          "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[0]",
+          "step_id": "i_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "a=1",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_a",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[0]",
+            "expression": "a=1",
+            "ref": "symbol_value_a",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:b3188026a7e90a1c0e24faf6487e8b65d428b91148b5e89b816deccec23a168f"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[1]",
+          "step_id": "i_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "b=2",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_b",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[1]",
+            "expression": "b=2",
+            "ref": "symbol_value_b",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/1"
+            ],
+            "source_unit_ids": [
+              "notation-unit:54fb367bb8dfd4fbf2733cd5b480b22ccb03e4b6b0a7d649cb20d24bf9f26da8"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[2]",
+          "step_id": "i_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "c=3",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_c",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].args.known_coefficients[2]",
+            "expression": "c=3",
+            "ref": "symbol_value_c",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/2"
+            ],
+            "source_unit_ids": [
+              "notation-unit:fa068689685f30099eb9bcddd06dec32d493ec6272486c0d7d9f99fa87da16e6"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[0].output_targets.parabola",
+          "step_id": "i_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "i",
+          "field": "output_targets",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[0].output_targets.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[1].args.parabola",
+          "step_id": "i_vertex",
+          "capability_id": "quadratic_vertex_point",
+          "scope": "i",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[1].args.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.i.P.steps[1].output_targets.point",
+          "step_id": "i_vertex",
+          "capability_id": "quadratic_vertex_point",
+          "scope": "i",
+          "field": "output_targets",
+          "argument": "point",
+          "expression": "P",
+          "status": "bound_in_isolation",
+          "ref": "P",
+          "audit": {
+            "path": "$.goal_plans.i.P.steps[1].output_targets.point",
+            "expression": "P",
+            "ref": "P",
+            "scope_ref": "i",
+            "source_paths": [
+              "/root/children/0/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:2553f5fb8ce9d94fc40fc6c5f83fb22326abfe4e8a53acea35039e4de937acf2",
+              "notation-unit:e8ddfe1da97dd9915bb97f02f1e208640369c2bcfd3f7d8c0377b74a93e39e67"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].args.known_coefficients[0]",
+          "step_id": "ii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "a=2",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_a",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].args.known_coefficients[0]",
+            "expression": "a=2",
+            "ref": "symbol_value_a",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3f44fe36dc8561548c8a4a3531e9cc8d771a4edd074060de9e132b418b6574f0"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].args.curve_point",
+          "step_id": "ii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "args",
+          "argument": "curve_point",
+          "expression": "A",
+          "status": "bound_in_isolation",
+          "ref": "A",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].args.curve_point",
+            "expression": "A",
+            "ref": "A",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/1"
+            ],
+            "source_unit_ids": [
+              "notation-unit:29b0ce81c9e03288cd5996fbf00e3a389470d9c9ed32a4df422ea641ccdd92c1",
+              "notation-unit:3637b0bb9d2c96772e64da868384979fe5ab117c627e6e4e0698eb7e89c64279"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].args.free_parameters[0]",
+          "step_id": "ii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "args",
+          "argument": "free_parameters",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].args.free_parameters[0]",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[0].output_targets.parabola",
+          "step_id": "ii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[0].output_targets.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[1].args.parabola",
+          "step_id": "ii_y_intercept",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "scope": "ii",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "Γ",
+          "audit": null
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[1].output_targets.point",
+          "step_id": "ii_y_intercept",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "point",
+          "expression": "C",
+          "status": "bound_in_isolation",
+          "ref": "C",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[1].output_targets.point",
+            "expression": "C",
+            "ref": "C",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/4"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3a1fdf3669f838addbd6ad91c3da22412e00a2126b0c41d2ad9623350e11a30b",
+              "notation-unit:efafd16f3dc587df9319fcea787a75f98fdb6b76575f9cea600288b10bce7f12"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[2].args.target",
+          "step_id": "ii_candidates",
+          "capability_id": "right_angle_equal_length_candidates",
+          "scope": "ii",
+          "field": "args",
+          "argument": "target",
+          "expression": "D",
+          "status": "bound_in_isolation",
+          "ref": "D",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[2].args.target",
+            "expression": "D",
+            "ref": "D",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+          "step_id": "ii_candidates",
+          "capability_id": "right_angle_equal_length_candidates",
+          "scope": "ii",
+          "field": "args",
+          "argument": "right_angle_equal_length",
+          "expression": "D ∈ {X | ∠CAX=90°, AX=AC}",
+          "status": "invalid_in_isolation",
+          "error": {
+            "code": "functional.math_argument_invalid",
+            "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+            "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,"
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.parabola",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.target_point",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "target_point",
+          "expression": "D",
+          "status": "bound_in_isolation",
+          "ref": "D",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.target_point",
+            "expression": "D",
+            "ref": "D",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.point_on_curve",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "point_on_curve",
+          "expression": "D ∈ Γ",
+          "status": "bound_in_isolation",
+          "ref": "point_on_curve_parabola_d",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.point_on_curve",
+            "expression": "D ∈ Γ",
+            "ref": "point_on_curve_parabola_d",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:e2363b3483c9271b5d24825eaf178384fdd093d065e8b5a384922e7fbe8a7750"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].args.symbol_constraint",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "args",
+          "argument": "symbol_constraint",
+          "expression": "b>0",
+          "status": "bound_in_isolation",
+          "ref": "symbol_constraint_b",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].args.symbol_constraint",
+            "expression": "b>0",
+            "ref": "symbol_constraint_b",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:a9eb81f4f4c8a1d94b368aaaca0aa504746b36d688c8dafc6dc644a4921c0a36"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.ii.D.steps[3].output_targets.selected_curve_point",
+          "step_id": "ii_solve_D",
+          "capability_id": "curve_candidate_parameter_solve",
+          "scope": "ii",
+          "field": "output_targets",
+          "argument": "selected_curve_point",
+          "expression": "D",
+          "status": "bound_in_isolation",
+          "ref": "D",
+          "audit": {
+            "path": "$.goal_plans.ii.D.steps[3].output_targets.selected_curve_point",
+            "expression": "D",
+            "ref": "D",
+            "scope_ref": "ii",
+            "source_paths": [
+              "/root/children/1/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].args.known_coefficients[0]",
+          "step_id": "iii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "args",
+          "argument": "known_coefficients",
+          "expression": "a=1",
+          "status": "bound_in_isolation",
+          "ref": "symbol_value_a",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].args.known_coefficients[0]",
+            "expression": "a=1",
+            "ref": "symbol_value_a",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:152cb8570887769b15060798f34bb1730a266f660208f0e3e5daae2a1f996083"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].args.curve_point",
+          "step_id": "iii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "args",
+          "argument": "curve_point",
+          "expression": "A",
+          "status": "bound_in_isolation",
+          "ref": "A",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].args.curve_point",
+            "expression": "A",
+            "ref": "A",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/1"
+            ],
+            "source_unit_ids": [
+              "notation-unit:59323558b2033c6ee0a68ff071a72740934eadd2a5e1e22b4062cfd67ef2f32e",
+              "notation-unit:a31400e67a98599603f0fd43363a13d352c0c0be61f02027b7e08e4eda2d7ff1"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].args.free_parameters[0]",
+          "step_id": "iii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "args",
+          "argument": "free_parameters",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].args.free_parameters[0]",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[0].output_targets.parabola",
+          "step_id": "iii_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "scope": "iii",
+          "field": "output_targets",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[0].output_targets.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[1].args.parabola",
+          "step_id": "iii_M",
+          "capability_id": "point_on_parabola_at_x",
+          "scope": "iii",
+          "field": "args",
+          "argument": "parabola",
+          "expression": "Γ",
+          "status": "bound_in_isolation",
+          "ref": "parabola",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[1].args.parabola",
+            "expression": "Γ",
+            "ref": "parabola",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+              "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[1].output_targets.point",
+          "step_id": "iii_M",
+          "capability_id": "point_on_parabola_at_x",
+          "scope": "iii",
+          "field": "output_targets",
+          "argument": "point",
+          "expression": "M",
+          "status": "bound_in_isolation",
+          "ref": "M",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[1].output_targets.point",
+            "expression": "M",
+            "ref": "M",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/3"
+            ],
+            "source_unit_ids": [
+              "notation-unit:0b53057e6b552f5904c9f5a656b5f023b894c4b42d70cf28541d3be90c5d91dd",
+              "notation-unit:c20787782318db488cd3b92d4ca9f9f77387bbaeeda45142743a8145c4d3b7ed"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[2].args.path_minimum_target",
+          "step_id": "iii_min",
+          "capability_id": "weighted_axis_path_minimum",
+          "scope": "iii",
+          "field": "args",
+          "argument": "path_minimum_target",
+          "expression": "min(sqrt(2)*MN+AN)",
+          "status": "bound_in_isolation",
+          "ref": "path_minimum_target_m_n_a",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[2].args.path_minimum_target",
+            "expression": "min(sqrt(2)*MN+AN)",
+            "ref": "path_minimum_target_m_n_a",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/7"
+            ],
+            "source_unit_ids": [
+              "notation-unit:7f5bdbc7f2073006712d2f8477f5b1169827249ba9345680cc03d66962481a90"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[3].args.minimum_value",
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "scope": "iii",
+          "field": "args",
+          "argument": "minimum_value",
+          "expression": "min(sqrt(2)*MN+AN)=21/4",
+          "status": "bound_in_isolation",
+          "ref": "minimum_value",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[3].args.minimum_value",
+            "expression": "min(sqrt(2)*MN+AN)=21/4",
+            "ref": "minimum_value",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/children/2/facts/7"
+            ],
+            "source_unit_ids": [
+              "notation-unit:c41a184aa05346cdee380f06fcb8c047b1ae362cb8cf6175a5eea003140ebfd5"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[3].args.parameter",
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "scope": "iii",
+          "field": "args",
+          "argument": "parameter",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[3].args.parameter",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        },
+        {
+          "path": "$.goal_plans.iii.b.steps[3].output_targets.parameter_value",
+          "step_id": "iii_solve_b",
+          "capability_id": "parameter_from_expression_value",
+          "scope": "iii",
+          "field": "output_targets",
+          "argument": "parameter_value",
+          "expression": "b",
+          "status": "bound_in_isolation",
+          "ref": "b",
+          "audit": {
+            "path": "$.goal_plans.iii.b.steps[3].output_targets.parameter_value",
+            "expression": "b",
+            "ref": "b",
+            "scope_ref": "iii",
+            "source_paths": [
+              "/root/definitions/0"
+            ],
+            "source_unit_ids": [
+              "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+            ]
+          }
+        }
+      ],
+      "actual_failure": {
+        "code": "functional.math_argument_invalid",
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,",
+        "retryable": true,
+        "details": {
+          "diagnostics": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,"
+            }
+          ]
+        }
+      },
+      "runtime_reuse": {
+        "base_checkpoint_id": null,
+        "result_checkpoint_id": null,
+        "requested_call_ids": [],
+        "actual_restored_call_ids": [],
+        "executed_call_ids": [],
+        "previous_calls_not_requested": [],
+        "execution_started": false,
+        "editable_scope_refs": []
+      },
+      "raw_equals_saved_normalized_content": true,
+      "standalone_prompt_schema_check": {
+        "ok": false,
+        "errors": [
+          {
+            "path": [
+              "goal_plans",
+              "ii.D",
+              "steps",
+              1
+            ],
+            "message": "{'step_id': 'ii_y_intercept', 'capability_id': 'quadratic_y_axis_intercept_point', 'args': {'parabola': 'Γ'}, 'output_targets': {'point': 'C'}, 'intent': '求y轴交点C'} is not valid under any of the given schemas"
+          }
+        ]
+      }
+    }
+  ],
+  "sample_prompt_comparison": [
+    {
+      "sample": 1,
+      "system_sha256": "d33c4a1785f29399b4affb0543cb9da242b3f89c1f8e65a5eb302fb93039daa2",
+      "user_sha256": "66e97418d6b0bfdf050b4363c718403bf5464a280a7416153d65da4dd8264386",
+      "catalog_sha256": "190efd7b9ddf1ab2d92aeb2b91d40dd5fb152dc6b49383117651bd428e8bbd09",
+      "schema_sha256": "9b95fb3979200da712d43a6943fd44c0e1daa034f3bb412919efd51eff5306a2"
+    },
+    {
+      "sample": 2,
+      "system_sha256": "d33c4a1785f29399b4affb0543cb9da242b3f89c1f8e65a5eb302fb93039daa2",
+      "user_sha256": "66e97418d6b0bfdf050b4363c718403bf5464a280a7416153d65da4dd8264386",
+      "catalog_sha256": "190efd7b9ddf1ab2d92aeb2b91d40dd5fb152dc6b49383117651bd428e8bbd09",
+      "schema_sha256": "9b95fb3979200da712d43a6943fd44c0e1daa034f3bb412919efd51eff5306a2"
+    },
+    {
+      "sample": 3,
+      "system_sha256": "d33c4a1785f29399b4affb0543cb9da242b3f89c1f8e65a5eb302fb93039daa2",
+      "user_sha256": "66e97418d6b0bfdf050b4363c718403bf5464a280a7416153d65da4dd8264386",
+      "catalog_sha256": "190efd7b9ddf1ab2d92aeb2b91d40dd5fb152dc6b49383117651bd428e8bbd09",
+      "schema_sha256": "9b95fb3979200da712d43a6943fd44c0e1daa034f3bb412919efd51eff5306a2"
+    }
+  ]
+}

@@ -641,6 +641,7 @@ class PlannerRetryReplayService:
         runtime_context: Any,
         finalized_authority: Any | None = None,
         restored_seed: FunctionalRestoredCallSeed | None = None,
+        blocked_answer_handles: frozenset[str] = frozenset(),
     ) -> PlannerRetryReplayResult:
         """Execute one reconciled graph after optional scoped finalization."""
 
@@ -673,6 +674,7 @@ class PlannerRetryReplayService:
             problem_payload=problem_payload,
             runtime_context=runtime_context,
             restored_seed=restored_seed,
+            blocked_answer_handles=blocked_answer_handles,
         )
 
     def _finalize_functional_replay(
@@ -686,6 +688,7 @@ class PlannerRetryReplayService:
         problem_payload: dict[str, Any] | None,
         runtime_context: Any,
         restored_seed: FunctionalRestoredCallSeed | None = None,
+        blocked_answer_handles: frozenset[str] = frozenset(),
     ) -> PlannerRetryReplayResult:
         if (
             self._functional_transaction_mode
@@ -737,6 +740,7 @@ class PlannerRetryReplayService:
                         handle_registry=handle_registry,
                         problem_payload=context_problem_payload,
                         restored_seed=restored_seed,
+                        blocked_answer_handles=blocked_answer_handles,
                     )
                 )
             except Exception as exc:

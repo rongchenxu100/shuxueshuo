@@ -1,0 +1,56 @@
+{
+  "schema_version": "problem-domain/v2",
+  "family_id": null,
+  "match_status": "unmatched",
+  "match_reason": "示例注册表为空，没有三角形关系求解器。",
+  "root": {
+    "label": "合邻三角形示例",
+    "source_text": [
+      "若三角形某顶点相邻两边相等，或该顶点的角为直角，则称它为该顶点的“合邻三角形”。已知ABC为A点的合邻三角形，且∠BAC=60°。"
+    ],
+    "entities": [
+      {
+        "kind": "point",
+        "label": "A"
+      },
+      {
+        "kind": "point",
+        "label": "B"
+      },
+      {
+        "kind": "point",
+        "label": "C"
+      }
+    ],
+    "facts": [
+      {
+        "kind": "angle_value",
+        "angle": "BAC",
+        "degrees": "60"
+      },
+      {
+        "kind": "any_of",
+        "branches": [
+          [
+            {
+              "kind": "equal_length",
+              "segments": [
+                "AB",
+                "AC"
+              ]
+            }
+          ],
+          [
+            {
+              "kind": "right_angle",
+              "angle": "BAC"
+            }
+          ]
+        ]
+      }
+    ],
+    "goals": [],
+    "children": [],
+    "uncertainties": []
+  }
+}

@@ -1,0 +1,568 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>七题数学字符串抽取：实际输出</title><style>body{font:16px/1.65 system-ui;max-width:980px;margin:40px auto;padding:0 24px;color:#17243a}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:18px;border-radius:8px}section{border-top:2px solid #ddd;margin:32px 0}summary{cursor:pointer}</style><h1>模型实际输出与离线回放</h1><p>真实批次 4/7 通过；当前离线回放 6/7 通过。以下展示保存的完整返回及后续离线校验，不含新的模型调用。候选尚未接入 Solver。</p><section><h2>tj-2026-heping-yimo-25</h2><p>真实批次：通过；离线回放：通过；耗时：58.53 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2 + b*x - 3&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;a &gt; 0&quot;,
+      &quot;A = (-1, 0)&quot;,
+      &quot;A ∈ Γ&quot;,
+      &quot;Γ ∩ x_axis = {A, B}&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;D = C + (2, 0)&quot;,
+      &quot;O = (0, 0)&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(Ⅰ)&quot;,
+        &quot;facts&quot;: [
+          &quot;D ∈ Γ&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;E ∈ Γ&quot;,
+              &quot;x(E) = m&quot;,
+              &quot;-1 &lt; m &lt; 0&quot;,
+              &quot;∠CBE + ∠ACO = 45°&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;E&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(Ⅱ)&quot;,
+        &quot;facts&quot;: [
+          &quot;M ∈ segment(B, C)&quot;,
+          &quot;N ∈ ray(C, D)&quot;,
+          &quot;CN = CM&quot;,
+          &quot;min(OM + BN) = sqrt(34)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;a&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticEqualLengthRayPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面给出二次函数抛物线，存在射线CD，动点N位于射线CD上，满足等长条件CN=CM，且给出OM+BN的最小值条件，符合二次函数等长射线路径最值题型的要求。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;candidate_only&quot;,
+  &quot;blocked&quot;: false,
+  &quot;error_code&quot;: null,
+  &quot;user_action&quot;: null,
+  &quot;message&quot;: null,
+  &quot;missing_figures&quot;: []
+}</pre></details></section><section><h2>tj-2026-heping-ermo-25</h2><p>真实批次：失败；离线回放：通过；耗时：49.427 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = -x^2 + b*x + c&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;c &gt; 1&quot;,
+      &quot;P = vertex(Γ)&quot;,
+      &quot;Γ ∩ x_axis = {A, B} ∧ x(A) &lt; x(B)&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;M = axis(Γ) ∩ x_axis&quot;,
+      &quot;E ∈ axis(Γ)&quot;,
+      &quot;square(A,E,K,G)&quot;,
+      &quot;y(G) &lt; 0&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;（Ⅰ）&quot;,
+        &quot;facts&quot;: [
+          &quot;b = -2&quot;,
+          &quot;c = 3&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;P&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;A&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;G ∈ Γ&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;E&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（Ⅱ）&quot;,
+        &quot;facts&quot;: [
+          &quot;A = (-c, 0)&quot;,
+          &quot;F = midpoint(A,E)&quot;,
+          &quot;line(A,K) ∩ line(E,G) = {H}&quot;,
+          &quot;min(HF + FM + MG) = 3*sqrt(5)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;E&quot;,
+            &quot;at&quot;: &quot;HF + FM + MG = min(HF + FM + MG)&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticSquareReflectionPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面给出二次函数抛物线、正方形AEKG及HF+FM+MG的路径最小值目标，路径相关的F、H、G点均由正方形的边、中点、对角线关系定义，正方形参与路径等价变换，符合该题型适用条件。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;candidate_only&quot;,
+  &quot;blocked&quot;: false,
+  &quot;error_code&quot;: null,
+  &quot;user_action&quot;: null,
+  &quot;message&quot;: null,
+  &quot;missing_figures&quot;: []
+}</pre></details></section><section><h2>tj-2026-hexi-yimo-25</h2><p>真实批次：通过；离线回放：通过；耗时：31.913 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2 - b*x + c&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;b &gt; 0&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(I)&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 1&quot;,
+          &quot;b = 2&quot;,
+          &quot;c = 3&quot;,
+          &quot;P = vertex(Γ)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;P&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(II)&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 2&quot;,
+          &quot;A = (-1, 0)&quot;,
+          &quot;A ∈ Γ&quot;,
+          &quot;D ∈ Γ&quot;,
+          &quot;Γ ∩ y_axis = {C}&quot;,
+          &quot;∠CAD = 90°&quot;,
+          &quot;AC = AD&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;D&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(III)&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 1&quot;,
+          &quot;A = (-1, 0)&quot;,
+          &quot;A ∈ Γ&quot;,
+          &quot;M = (b + 1/2, y_M)&quot;,
+          &quot;M ∈ Γ&quot;,
+          &quot;N = (n, 0)&quot;,
+          &quot;n &gt; 0&quot;,
+          &quot;min(sqrt(2)*MN + AN) = 21/4&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;b&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面给出二次函数抛物线，第(III)问的目标路径为带非1权重√2的sqrt(2)*MN + AN，且明确给出该路径最小值为21/4，符合二次函数加权路径最值题型要求，不属于射线等长替换、正方形反射或普通无权路径情形。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;candidate_only&quot;,
+  &quot;blocked&quot;: false,
+  &quot;error_code&quot;: null,
+  &quot;user_action&quot;: null,
+  &quot;message&quot;: null,
+  &quot;missing_figures&quot;: []
+}</pre></details></section><section><h2>tj-2026-nankai-yimo-25</h2><p>真实批次：失败；离线回放：通过；耗时：56.305 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2 + b*x + c&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;a &gt; 0&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;2*a + b = 0&quot;,
+      &quot;D = axis(Γ) ∩ x_axis&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(I)&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 2&quot;,
+          &quot;c = -5&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;D&quot;
+          },
+          {
+            &quot;kind&quot;: &quot;find_equation&quot;,
+            &quot;object&quot;: &quot;Γ&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(II)&quot;,
+        &quot;facts&quot;: [
+          &quot;M = (m, 1)&quot;,
+          &quot;M ∈ Γ&quot;,
+          &quot;N ∈ Γ&quot;,
+          &quot;m &gt; 2&quot;,
+          &quot;x(N) &gt; 0 ∧ y(N) &lt; 0&quot;,
+          &quot;∠MDN = 90°&quot;,
+          &quot;DM = DN&quot;,
+          &quot;E ∈ segment(D,M)&quot;,
+          &quot;G ∈ segment(M,N)&quot;,
+          &quot;F = midpoint(D,N)&quot;,
+          &quot;DE = sqrt(2)*NG&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;facts&quot;: [
+              &quot;MN = sqrt(10)&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_minimum&quot;,
+                &quot;expression&quot;: &quot;EG+FG&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;min(EG+FG) = 5*sqrt(10)/2&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;,
+                &quot;at&quot;: &quot;EG+FG = min(EG+FG)&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;G&quot;,
+                &quot;at&quot;: &quot;EG+FG = min(EG+FG)&quot;
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面给出二次函数抛物线，且存在EG+FG的路径最小值目标与最小值条件，路径为无权距离和，不涉及非1权重、射线等长替换或正方形反射机制，符合普通二次函数路径最值题型。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;candidate_only&quot;,
+  &quot;blocked&quot;: false,
+  &quot;error_code&quot;: null,
+  &quot;user_action&quot;: null,
+  &quot;message&quot;: null,
+  &quot;missing_figures&quot;: []
+}</pre></details></section><section><h2>tj-2026-xiqing-yimo-25</h2><p>真实批次：通过；离线回放：通过；耗时：48.785 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = -x^2 + b*x + c&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;b &gt; 0&quot;,
+      &quot;A = (-1, 0)&quot;,
+      &quot;A ∈ Γ&quot;,
+      &quot;Γ ∩ x_axis = {A, B}&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;facts&quot;: [
+          &quot;b = 4&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;vertex(Γ)&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;x(D) = b + 2&quot;,
+          &quot;D ∈ Γ&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;facts&quot;: [
+              &quot;AD = 2*BC&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;b&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;M = (m, 0)&quot;,
+              &quot;m &gt; 0&quot;,
+              &quot;min(2*DM + AM) = 5 + 5*sqrt(3)&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;b&quot;
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面声明了二次函数抛物线Γ，存在带权距离和2DM+AM（权重为2，不等于1）的最值目标，且给出了该路径的最小值条件，符合二次函数加权路径最值题型的要求。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;candidate_only&quot;,
+  &quot;blocked&quot;: false,
+  &quot;error_code&quot;: null,
+  &quot;user_action&quot;: null,
+  &quot;message&quot;: null,
+  &quot;missing_figures&quot;: []
+}</pre></details></section><section><h2>k-quad</h2><p>真实批次：失败；离线回放：失败；耗时：86.199 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为 k（k ≥ 1），则称该四边形为“k 倍四边形”。&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;图1&quot;,
+            &quot;facts&quot;: [
+              &quot;parallelogram(A,B,C,D)&quot;,
+              &quot;O = segment(A,C) ∩ segment(B,D)&quot;,
+              &quot;E = midpoint(O,B)&quot;,
+              &quot;(bisects(ED, AC) ∧ (cut_ratio(ED, AC) = k ∨ cut_ratio(ED, AC) = 1/k)) ∨ (bisects(AC, ED) ∧ (cut_ratio(AC, ED) = k ∨ cut_ratio(AC, ED) = 1/k)) ∧ k ≥ 1&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;k&quot;
+              }
+            ],
+            &quot;uncertainties&quot;: [
+              {
+                &quot;kind&quot;: &quot;missing_figure&quot;,
+                &quot;text&quot;: &quot;题面引用图1，本次输入未提供该几何示意图。&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;图2&quot;,
+            &quot;facts&quot;: [
+              &quot;bisects(BD, AC)&quot;,
+              &quot;(cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k) ∧ k ≥ 1&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;area(△ACD)/area(△ACB)&quot;,
+                &quot;in_terms_of&quot;: [
+                  &quot;k&quot;
+                ]
+              }
+            ],
+            &quot;uncertainties&quot;: [
+              {
+                &quot;kind&quot;: &quot;missing_figure&quot;,
+                &quot;text&quot;: &quot;题面引用图2，本次输入未提供该几何示意图。&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;bisects(BD, AC)&quot;,
+          &quot;(cut_ratio(BD, AC) = k ∨ cut_ratio(BD, AC) = 1/k) ∧ k ≥ 1&quot;,
+          &quot;∠BDC = 2*∠ABD&quot;,
+          &quot;BD = 4*CD&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;k&quot;
+          }
+        ],
+        &quot;uncertainties&quot;: [
+          {
+            &quot;kind&quot;: &quot;missing_figure&quot;,
+            &quot;text&quot;: &quot;题面引用图3，本次输入未提供该几何示意图。&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(3)&quot;,
+        &quot;facts&quot;: [
+          &quot;A、B为定点；C为动点；D为平面内一点。&quot;,
+          &quot;line(A,B) ⟂ line(B,M)&quot;,
+          &quot;C ∈ ray(B,M)&quot;,
+          &quot;bisects(BD, AC)&quot;,
+          &quot;∠BAC = ∠DAC&quot;,
+          &quot;(cut_ratio(BD, AC) = 2 ∨ cut_ratio(BD, AC) = 1/2)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;tan(∠ACD)&quot;
+          }
+        ],
+        &quot;uncertainties&quot;: [
+          {
+            &quot;kind&quot;: &quot;missing_figure&quot;,
+            &quot;text&quot;: &quot;题面引用图4，本次输入未提供该几何示意图。&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;unmatched&quot;,
+  &quot;family_id&quot;: null,
+  &quot;match_reason&quot;: &quot;本题为k倍四边形新定义几何题，未出现二次函数对象及路径最值目标，不符合注册的四类二次函数路径最值题型的适用条件。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;needs_confirmation&quot;,
+  &quot;blocked&quot;: true,
+  &quot;error_code&quot;: &quot;extraction.missing_figure&quot;,
+  &quot;user_action&quot;: &quot;supplement_image&quot;,
+  &quot;message&quot;: &quot;题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。&quot;,
+  &quot;missing_figures&quot;: [
+    {
+      &quot;scope&quot;: &quot;r.c0.c0&quot;,
+      &quot;label&quot;: &quot;图1&quot;,
+      &quot;text&quot;: &quot;题面引用图1，本次输入未提供该几何示意图。&quot;
+    },
+    {
+      &quot;scope&quot;: &quot;r.c0.c1&quot;,
+      &quot;label&quot;: &quot;图2&quot;,
+      &quot;text&quot;: &quot;题面引用图2，本次输入未提供该几何示意图。&quot;
+    },
+    {
+      &quot;scope&quot;: &quot;r.c1&quot;,
+      &quot;label&quot;: &quot;(2)&quot;,
+      &quot;text&quot;: &quot;题面引用图3，本次输入未提供该几何示意图。&quot;
+    },
+    {
+      &quot;scope&quot;: &quot;r.c2&quot;,
+      &quot;label&quot;: &quot;(3)&quot;,
+      &quot;text&quot;: &quot;题面引用图4，本次输入未提供该几何示意图。&quot;
+    }
+  ]
+}</pre></details></section><section><h2>function-quantifiers</h2><p>真实批次：通过；离线回放：通过；耗时：19.964 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;f(x) = x^2 + b*x + c&quot;,
+      &quot;g(x) = 2*x - 1&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;facts&quot;: [
+          &quot;∀x∈ℝ: f(x) ≥ g(x)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_minimum&quot;,
+            &quot;expression&quot;: &quot;b^2 + c^2&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;∃x_0∈[1,3]: f(x_0) ≤ g(x_0)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_range&quot;,
+            &quot;symbol&quot;: &quot;b&quot;,
+            &quot;in_terms_of&quot;: [
+              &quot;c&quot;
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;unmatched&quot;,
+  &quot;family_id&quot;: null,
+  &quot;match_reason&quot;: &quot;题面给出二次函数与一次函数的恒成立、存在性不等式条件，分别求代数式最小值与参数取值范围，未涉及路径/距离最值、射线动点等长替换、正方形反射或加权路径目标，不符合本次注册的任何题型。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;candidate_only&quot;,
+  &quot;blocked&quot;: false,
+  &quot;error_code&quot;: null,
+  &quot;user_action&quot;: null,
+  &quot;message&quot;: null,
+  &quot;missing_figures&quot;: []
+}</pre></details></section></html>

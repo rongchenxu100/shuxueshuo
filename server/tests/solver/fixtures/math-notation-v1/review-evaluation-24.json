@@ -1,0 +1,1177 @@
+{
+  "purpose": "独立来源对照评价集。文字说明为人工标注证据，仅用于离线录制路由；含图像/手写说明的用例尚不是实际图片视觉评价。不得注入真实七题请求或few-shot。",
+  "cases": [
+    {
+      "id": "missing_polygon",
+      "category": "condition",
+      "source": "四边形JKLM中，直线JL垂直KM。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "line(J,L) ⟂ line(K,M)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "quadrilateral(J,K,L,M)",
+            "line(J,L) ⟂ line(K,M)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root",
+            "kind": "missing_condition",
+            "source_excerpt": "四边形JKLM中，直线JL垂直KM。",
+            "message": "遗漏四边形构型。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing_function_range",
+      "category": "condition",
+      "source": "函数u(t)=t^2+2，参数q小于-2，求u(q)。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [],
+          "definitions": [
+            "u(t)=t^2+2"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "u(q)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "q<-2"
+          ],
+          "definitions": [
+            "u(t)=t^2+2"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "u(q)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root",
+            "kind": "missing_condition",
+            "source_excerpt": "函数u(t)=t^2+2，参数q小于-2，求u(q)。",
+            "message": "遗漏参数q范围。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wrong_negative",
+      "category": "symbol",
+      "source": "函数v(z)=z^2-7，求v(1)。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [],
+          "definitions": [
+            "v(z)=z^2+7"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "v(1)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [],
+          "definitions": [
+            "v(z)=z^2-7"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "v(1)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/definitions/0",
+            "kind": "wrong_expression",
+            "source_excerpt": "函数v(z)=z^2-7，求v(1)。",
+            "message": "常数项负号误读为正号。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "wrong_fraction",
+      "category": "symbol",
+      "source": "点W的坐标为(2/3,1)，求W的坐标。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "W=(3/2,1)"
+          ],
+          "goals": [
+            {
+              "kind": "find_coordinates",
+              "object": "W"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "W=(2/3,1)"
+          ],
+          "goals": [
+            {
+              "kind": "find_coordinates",
+              "object": "W"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/facts/0",
+            "kind": "wrong_expression",
+            "source_excerpt": "点W的坐标为(2/3,1)，求W的坐标。",
+            "message": "横坐标分子分母颠倒。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ray_origin",
+      "category": "direction",
+      "source": "点Z在以J为端点、经过K的射线上。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "Z∈ray(K,J)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "Z∈ray(J,K)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/facts/0",
+            "kind": "wrong_expression",
+            "source_excerpt": "点Z在以J为端点、经过K的射线上。",
+            "message": "射线起点应为J。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "angle_vertex",
+      "category": "direction",
+      "source": "三角形JKL中，角JKL等于35度。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "∠KJL=35°"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "∠JKL=35°"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/facts/0",
+            "kind": "wrong_expression",
+            "source_excerpt": "三角形JKL中，角JKL等于35度。",
+            "message": "角顶点应为K。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "scope_leak",
+      "category": "scope",
+      "source": "第一问给定r=5，求r+1；第二问求r^2。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "r=5"
+          ],
+          "children": [
+            {
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "r+1"
+                }
+              ]
+            },
+            {
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "r^2"
+                }
+              ]
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [],
+          "children": [
+            {
+              "facts": [
+                "r=5"
+              ],
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "r+1"
+                }
+              ]
+            },
+            {
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "r^2"
+                }
+              ]
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root",
+            "kind": "wrong_scope",
+            "source_excerpt": "第一问给定r=5，求r+1；第二问求r^2。",
+            "message": "第一问的局部条件误放到公共条件。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sibling_swap",
+      "category": "scope",
+      "source": "第一问给定p<0，求p+1；第二问给定p>2，求p-1。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [],
+          "children": [
+            {
+              "facts": [
+                "p>2"
+              ],
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "p+1"
+                }
+              ]
+            },
+            {
+              "facts": [
+                "p<0"
+              ],
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "p-1"
+                }
+              ]
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [],
+          "children": [
+            {
+              "facts": [
+                "p<0"
+              ],
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "p+1"
+                }
+              ]
+            },
+            {
+              "facts": [
+                "p>2"
+              ],
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "p-1"
+                }
+              ]
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root",
+            "kind": "wrong_scope",
+            "source_excerpt": "第一问给定p<0，求p+1；第二问给定p>2，求p-1。",
+            "message": "两问局部条件互换。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "quantifier",
+      "category": "logic",
+      "source": "对所有实数z均有z^2+q>=0，求q的范围。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "∃z∈ℝ:z^2+q>=0"
+          ],
+          "goals": [
+            {
+              "kind": "find_range",
+              "symbol": "q"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "∀z∈ℝ:z^2+q>=0"
+          ],
+          "goals": [
+            {
+              "kind": "find_range",
+              "symbol": "q"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/facts/0",
+            "kind": "wrong_expression",
+            "source_excerpt": "对所有实数z均有z^2+q>=0，求q的范围。",
+            "message": "全称量词误为存在量词。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "or_scope",
+      "category": "logic",
+      "source": "p=1或p=2，并且这两种情况均要求q>3。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "p=1 ∨ p=2 ∧ q>3"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "(p=1 ∨ p=2) ∧ q>3"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/facts/0",
+            "kind": "wrong_expression",
+            "source_excerpt": "p=1或p=2，并且这两种情况均要求q>3。",
+            "message": "公共限制只作用于第二分支。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing_goal",
+      "category": "goal",
+      "source": "函数w(z)=z^2，求w(3)和w(4)。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [],
+          "definitions": [
+            "w(z)=z^2"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "w(3)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [],
+          "definitions": [
+            "w(z)=z^2"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "w(3)"
+            },
+            {
+              "kind": "find_value",
+              "expression": "w(4)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/goals",
+            "kind": "wrong_goal",
+            "source_excerpt": "函数w(z)=z^2，求w(3)和w(4)。",
+            "message": "遗漏第二个并列目标。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "invented_state",
+      "category": "goal",
+      "source": "已知p>1，求p的值。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "p>1",
+            "p^2=min(p^2)"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "p"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "p>1"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "p"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/facts/1",
+            "kind": "unsupported_addition",
+            "source_excerpt": "已知p>1，求p的值。",
+            "message": "题面没有最优状态限定。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "handwritten_answer",
+      "category": "contamination",
+      "source": "印刷题：已知r>0，求r。旁边手写批注：r=6。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "r>0",
+            "r=6"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "r"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "r>0"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "r"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/facts/1",
+            "kind": "unsupported_addition",
+            "source_excerpt": "印刷题：已知r>0，求r。旁边手写批注：r=6。",
+            "message": "手写答案不属于已知条件。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "invented_parallel",
+      "category": "contamination",
+      "source": "图中只有一般四边形JKLM，无平行标记或平行文字。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "quadrilateral(J,K,L,M)",
+            "line(J,K)∥line(L,M)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "quadrilateral(J,K,L,M)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/facts/1",
+            "kind": "unsupported_addition",
+            "source_excerpt": "图中只有一般四边形JKLM，无平行标记或平行文字。",
+            "message": "仅凭视觉形状补出了平行条件。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "figure_absent",
+      "category": "image",
+      "source": "题面文字：如图丙，Z是JK的中点，求JZ。当前来源未提供图丙。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "Z=midpoint(J,K)"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "JZ"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "Z=midpoint(J,K)"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "JZ"
+            }
+          ],
+          "uncertainties": [
+            {
+              "kind": "missing_figure",
+              "text": "图丙未提供"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root",
+            "kind": "missing_figure",
+            "source_excerpt": "题面文字：如图丙，Z是JK的中点，求JZ。当前来源未提供图丙。",
+            "message": "引用图丙却未提供；候选未标记缺图。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "right_angle_mark",
+      "category": "image",
+      "source": "已提供三角形JKL的图，K处有明确的印刷直角标记。题面要求求JK。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "J为平面内一点。",
+            "K为平面内一点。",
+            "L为平面内一点。"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "JK"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "J为平面内一点。",
+            "K为平面内一点。",
+            "L为平面内一点。",
+            "∠JKL=90°"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "JK"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root",
+            "kind": "missing_condition",
+            "source_excerpt": "已提供三角形JKL的图，K处有明确的印刷直角标记。题面要求求JK。",
+            "message": "图中明确直角标记没有进入候选。"
+          }
+        ]
+      }
+    },
+    {
+      "id": "correct_condition",
+      "category": "condition",
+      "source": "四边形JKLM中，直线JL垂直KM。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "quadrilateral(J,K,L,M)",
+            "line(J,L) ⟂ line(K,M)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "quadrilateral(J,K,L,M)",
+            "line(J,L) ⟂ line(K,M)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "confirmed",
+        "findings": []
+      }
+    },
+    {
+      "id": "correct_symbol",
+      "category": "symbol",
+      "source": "函数v(z)=z^2-7，求v(1)。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [],
+          "definitions": [
+            "v(z)=z^2-7"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "v(1)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [],
+          "definitions": [
+            "v(z)=z^2-7"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "v(1)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "confirmed",
+        "findings": []
+      }
+    },
+    {
+      "id": "correct_direction",
+      "category": "direction",
+      "source": "点Z在以J为端点、经过K的射线上。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "Z∈ray(J,K)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "Z∈ray(J,K)"
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "confirmed",
+        "findings": []
+      }
+    },
+    {
+      "id": "correct_scope",
+      "category": "scope",
+      "source": "第一问给定r=5，求r+1；第二问求r^2。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [],
+          "children": [
+            {
+              "facts": [
+                "r=5"
+              ],
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "r+1"
+                }
+              ]
+            },
+            {
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "r^2"
+                }
+              ]
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [],
+          "children": [
+            {
+              "facts": [
+                "r=5"
+              ],
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "r+1"
+                }
+              ]
+            },
+            {
+              "goals": [
+                {
+                  "kind": "find_value",
+                  "expression": "r^2"
+                }
+              ]
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "confirmed",
+        "findings": []
+      }
+    },
+    {
+      "id": "correct_logic",
+      "category": "logic",
+      "source": "对所有实数z均有z^2+q>=0，求q的范围。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "∀z∈ℝ:z^2+q>=0"
+          ],
+          "goals": [
+            {
+              "kind": "find_range",
+              "symbol": "q"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "∀z∈ℝ:z^2+q>=0"
+          ],
+          "goals": [
+            {
+              "kind": "find_range",
+              "symbol": "q"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "confirmed",
+        "findings": []
+      }
+    },
+    {
+      "id": "correct_goal",
+      "category": "goal",
+      "source": "函数w(z)=z^2，求w(3)和w(4)。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [],
+          "definitions": [
+            "w(z)=z^2"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "w(3)"
+            },
+            {
+              "kind": "find_value",
+              "expression": "w(4)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [],
+          "definitions": [
+            "w(z)=z^2"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "w(3)"
+            },
+            {
+              "kind": "find_value",
+              "expression": "w(4)"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "confirmed",
+        "findings": []
+      }
+    },
+    {
+      "id": "correct_contamination",
+      "category": "contamination",
+      "source": "印刷题：已知r>0，求r。旁边手写批注：r=6。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "r>0"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "r"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "r>0"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "r"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "confirmed",
+        "findings": []
+      }
+    },
+    {
+      "id": "correct_image",
+      "category": "image",
+      "source": "题面文字：如图丙，Z是JK的中点，求JZ。当前来源未提供图丙。",
+      "source_kind": "authored_evidence",
+      "candidate": {
+        "root": {
+          "facts": [
+            "Z=midpoint(J,K)"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "JZ"
+            }
+          ],
+          "uncertainties": [
+            {
+              "kind": "missing_figure",
+              "text": "图丙未提供"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "reference": {
+        "root": {
+          "facts": [
+            "Z=midpoint(J,K)"
+          ],
+          "goals": [
+            {
+              "kind": "find_value",
+              "expression": "JZ"
+            }
+          ],
+          "uncertainties": [
+            {
+              "kind": "missing_figure",
+              "text": "图丙未提供"
+            }
+          ]
+        },
+        "match_status": "unmatched",
+        "family_id": null,
+        "match_reason": "独立评价题"
+      },
+      "expected_review": {
+        "status": "confirmed",
+        "findings": []
+      }
+    }
+  ]
+}

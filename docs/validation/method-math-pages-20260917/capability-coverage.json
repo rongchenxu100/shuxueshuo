@@ -1,0 +1,4629 @@
+{
+  "schema_version": "lesson-capability-coverage/v1",
+  "registry_fingerprint": "39e0ecba7e2e68863c85508661038c9658ce99e67ad7bb13e00f65c269e560d1",
+  "summary": {
+    "public_capability_count": 29,
+    "public_function_count": 23,
+    "public_macro_count": 6,
+    "recorded_coverage_count": 26,
+    "synthetic_coverage_count": 3,
+    "complete_coverage_count": 29,
+    "diagnostic_count": 0
+  },
+  "capabilities": {
+    "angle_sum_equal_angle_candidates": {
+      "kind": "function",
+      "source_id": "angle_sum_equal_angle_candidates",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "angle_sum_equal_angle_candidates",
+          "title": "由角和条件寻找等角",
+          "use_when": "当题面给出两个角之和为 45°，且 angle_terms 的结构能够确定一个非退化的坐标轴等腰直角参考三角形时，消去公共角并输出 AngleEquality。只需提供结构化角和条件；水平轴点、竖直轴点、参考点和原点由代码从角的顶点顺序确定。点坐标可以含未定参数，只要坐标轴关系与等腰关系能够被符号恒等验证；无需先求出参数。本能力只推出等角事实，不计算目标点坐标。",
+          "args": [
+            {
+              "name": "condition",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "angle_sum"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "angle_equality",
+              "type": "AngleEquality",
+              "binding": "call_result_or_answer_or_existing_object"
+            }
+          ],
+          "do_not_use_when": [
+            "角和不是 45°，或两个角的点顺序不能构成所需的坐标轴参考三角形。",
+            "坐标轴关系或等腰关系只在某个尚未求出的参数值下成立，而不是符号恒等时。",
+            "不要手工交换水平轴点、竖直轴点、参考点和原点；这些机械角色由结构化 angle_terms 决定。",
+            "目标是直接求坐标时不能跳过等角事实的后续消费能力。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "angle_sum_equal_angle_candidates/derive_equal_angle"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "AngleEqualityMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "derive_equal_angle_i",
+          "scope_ref": "i_2",
+          "goal_ref": "i_2.E"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "axis_intercept_from_equal_acute_angles": {
+      "kind": "function",
+      "source_id": "axis_intercept_from_equal_acute_angles",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "axis_intercept_from_equal_acute_angles",
+          "title": "由等锐角求轴上截点",
+          "use_when": "消费前序 AngleEquality，通过两个非退化直角三角形的正切比相等，求目标直线与竖直轴的辅助交点。只需提供等角事实；目标水平轴点、参考水平轴点、竖直轴点和原点由代码从等角两边的点顺序恢复。这些点可以携带符号坐标，输出也可以是待后续约束闭合的参数化 Point。本能力只计算轴截点，不证明该点在抛物线上，也不返回直线与抛物线的另一个交点；若最终目标是曲线点，还必须继续使用直线与抛物线交点能力。",
+          "args": [
+            {
+              "name": "angle_equality",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "只有原始角和条件、尚未得到 AngleEquality 时，不能直接使用本能力。",
+            "等角两边不能形成两个非退化直角三角形，或目标不是竖直轴截点。",
+            "最终答案是抛物线上的曲线点时，不要把本能力的辅助轴截点直接绑定为该答案。",
+            "不要手工交换目标水平轴点、参考水平轴点、竖直轴点和原点；这些机械角色由 AngleEquality 决定。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "axis_intercept_from_equal_acute_angles/solve_intercept"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "EqualAcuteAngleInterceptMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "derive_axis_intercept_F_i",
+          "scope_ref": "i_2",
+          "goal_ref": "i_2.E"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "coupled_segment_endpoint_replacement_path_minimum": {
+      "kind": "macro",
+      "source_id": "coupled_segment_endpoint_replacement_path_minimum",
+      "families": [
+        "QuadraticPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "coupled_segment_endpoint_replacement_path_minimum",
+          "title": "耦合线段端点替换路径最值",
+          "use_when": "当两动点分别位于两条相接线段，且题面比例/等长关系能够把两动点之间的距离替换为已有固定端点到保留动点的距离时，原子完成端点替换、单动点轨迹、折线拉直、最小值和取等点。Planner 只选择路径目标与负责耦合的线段关系；成员关系、端点和保留动点由代码解析。若其中的固定端点由中点等题面构造定义，先用对应普通 Function 物化该点坐标；这只是准备输入，不是展开 Macro。",
+          "args": [
+            {
+              "name": "path_minimum_target",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "path_minimum_target"
+              ]
+            },
+            {
+              "name": "segment_binding_relation",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "segment_relation",
+                "segment_length_relation"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "minimum_expression",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "仍依赖题面参数时为 open_expression；参数确定后为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "attainment_point",
+              "type": "Point",
+              "binding": "exact_call_result_or_answer",
+              "reference_mode": "exact_result",
+              "desc": "端点替换后保留动点的取等状态；身份由代码从路径和线段关系中确定，后续通过 StepResultRef 消费。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "路径本身已经只有一个动点，不需要耦合端点替换。",
+            "比例关系要求创建新的辅助点、射线、正方形变换或非1权重构造。",
+            "两动点的成员关系与耦合线段不能形成唯一连通结构。",
+            "保留动点的轨迹不是直线。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "coupled_segment_endpoint_replacement_path_minimum/endpoint_replacement",
+        "coupled_segment_endpoint_replacement_path_minimum/reflection_minimum"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": {
+        "endpoint_replacement": [
+          "EquivalentSegmentMarker"
+        ],
+        "reflection_minimum": [
+          "AtomicPathMinimumMarker"
+        ]
+      },
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_path_minimum",
+          "scope_ref": "ii",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "curve_candidate_parameter_solve": {
+      "kind": "macro",
+      "source_id": "curve_candidate_parameter_solve",
+      "families": [
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "curve_candidate_parameter_solve",
+          "title": "曲线候选点筛选并反求参数",
+          "use_when": "前序几何构造已经产生一组有坐标的候选点后，用当前问含参抛物线和参数约束筛出唯一候选点，再把该含参点代入抛物线反求参数并代回抛物线。candidates 必须引用前序调用实际产出的候选点集合，不能把尚未求出坐标的目标点包成单元素伪候选列表。若曲线条件本身不能唯一排除分支时，runtime 会按残余符号自动绑定唯一可见的 symbol_constraint；只有存在多个非等价候选时才需要显式消歧。",
+          "args": [
+            {
+              "name": "candidates",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "many",
+              "role": "前序几何构造调用实际产出的候选点列表；每个候选都必须已有坐标状态。不能填写尚未求出坐标的目标点，也不能填写只含目标对象的伪候选列表。"
+            },
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "用于检验候选点并反求参数的当前含参抛物线状态。"
+            },
+            {
+              "name": "target_point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "候选筛选后要写入坐标的题面目标点身份；它不是 candidates 的替代输入。"
+            },
+            {
+              "name": "point_on_curve",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "fact_types": [
+                "point_on_curve"
+              ],
+              "role": "目标点属于该抛物线的结构化条件。"
+            },
+            {
+              "name": "symbol_constraint",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "fact_types": [
+                "symbol_constraint"
+              ],
+              "role": "用于排除候选分支的参数范围或符号约束。runtime 会按曲线残余符号自动绑定唯一可见约束；仅在多个非等价约束都可用时填写此参数进行消歧。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "selected_curve_point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            },
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "cardinality": "optional"
+            },
+            {
+              "name": "solved_parabola",
+              "type": "Parabola",
+              "binding": "same_object_as:parabola",
+              "required": false,
+              "cardinality": "optional",
+              "desc": "抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 closed_state。代码以 runtime 表达式的自由符号为准。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "目标点已经在题面结构化声明横坐标，只需代入抛物线求纵坐标。",
+            "当前没有前序几何构造产生的 materialized PointList 候选状态。",
+            "试图把尚未求坐标的 target_point 本身或只含该对象的列表作为 candidates。",
+            "多个候选都可能满足曲线方程，但没有提供用于选择分支的参数范围或符号约束；不要假定默认旋转方向。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "curve_candidate_parameter_solve/filter_candidates",
+        "curve_candidate_parameter_solve/solve_parameter_and_curve"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": {
+        "filter_candidates": [
+          "CurveCandidateFilterMarker"
+        ],
+        "solve_parameter_and_curve": [
+          "SolvedCurveCandidateMarker"
+        ]
+      },
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "select_curve_candidate_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.D"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "distance_between_points": {
+      "kind": "function",
+      "source_id": "distance_between_points",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "distance_between_points",
+          "title": "计算两点距离",
+          "use_when": "输入两点及可选参数值，输出两点距离。端点仍含未定参数时结果是开放表达式；所有参数已确定时结果是可直接使用的闭合值。代入一个参数不保证其他参数也已闭合。",
+          "args": [
+            {
+              "name": "p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "distance",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "端点仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_distance",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            }
+          ],
+          "input_requirements": [
+            {
+              "requirement": "p1、p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "distance_between_points",
+          "title": "计算两点距离",
+          "use_when": "输入两点及可选参数值，输出两点距离。端点仍含未定参数时结果是开放表达式；所有参数已确定时结果是可直接使用的闭合值。代入一个参数不保证其他参数也已闭合。",
+          "args": [
+            {
+              "name": "p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "distance",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "端点仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_distance",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            }
+          ],
+          "input_requirements": [
+            {
+              "requirement": "p1、p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "distance_between_points",
+          "title": "计算两点距离",
+          "use_when": "输入两点及可选参数值，输出两点距离。端点仍含未定参数时结果是开放表达式；所有参数已确定时结果是可直接使用的闭合值。代入一个参数不保证其他参数也已闭合。",
+          "args": [
+            {
+              "name": "p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "distance",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "端点仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_distance",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            }
+          ],
+          "input_requirements": [
+            {
+              "requirement": "p1、p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "distance_between_points",
+          "title": "计算两点距离",
+          "use_when": "输入两点及可选参数值，输出两点距离。端点仍含未定参数时结果是开放表达式；所有参数已确定时结果是可直接使用的闭合值。代入一个参数不保证其他参数也已闭合。",
+          "args": [
+            {
+              "name": "p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "distance",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "端点仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_distance",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "代入指定参数后若仍含其他未确定参数则为 open_expression；不存在自由参数时为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            }
+          ],
+          "input_requirements": [
+            {
+              "requirement": "p1、p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "distance_between_points/compute_distance"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "DistanceBetweenPointsMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [],
+      "synthetic_scenario": {
+        "schema_version": "lesson-capability-synthetic-scenario/v1",
+        "problem_id": "synthetic-distance_between_points",
+        "source_step_id": "synthetic_distance_between_points",
+        "execution": "real_stateless_method",
+        "input_runtime_types": {
+          "p1": [
+            "Point"
+          ],
+          "p2": [
+            "Point"
+          ]
+        },
+        "output_runtime_types": {
+          "distance": "MinimumExpression"
+        },
+        "checks_passed": true
+      }
+    },
+    "equal_length_ray_path_reduction": {
+      "kind": "macro",
+      "source_id": "equal_length_ray_path_reduction",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "equal_length_ray_path_reduction",
+          "title": "等长射线路径降维为单距离最值",
+          "use_when": "仅用于一个动点在线段上、另一个动点在射线上，并且题设给出二者相对同一端点的等长关系。该能力在内部完成辅助点构造，把两动点距离和直接化为一个固定点到辅助点的单距离最小值表达式；它返回 MinimumExpression，而不是供后续普通折线拉直的内部路径中间值。结果仍含参数时为开放表达式，不含自由参数时为闭合值。",
+          "args": [
+            {
+              "name": "path_minimum_target",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "path_minimum_target"
+              ]
+            },
+            {
+              "name": "equal_length_condition",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "equal_length_condition"
+              ]
+            },
+            {
+              "name": "point_on_segment",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "point_on_segment"
+              ]
+            },
+            {
+              "name": "point_on_ray",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "point_on_ray"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "minimum_expression",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "端点仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "缺少“一个点在线段、一个点在射线、相对同一端点等长”中的任一结构化条件。",
+            "原路径只是普通两段等长/比例替换、三段正方形路径或带权距离；这些结构应使用各自的路径降维能力。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "equal_length_ray_path_reduction/path_reduction",
+        "equal_length_ray_path_reduction/minimum_by_segment"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": {
+        "minimum_by_segment": [
+          "PathMinimumTriangleMarker",
+          "AuxiliaryRayGuideMarker"
+        ],
+        "path_reduction": [
+          "CongruentTriangleMarker",
+          "EquivalentSegmentMarker"
+        ]
+      },
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "reduce_equal_length_ray_path_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.a"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "equal_length_ray_point": {
+      "kind": "function",
+      "source_id": "equal_length_ray_point",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "equal_length_ray_point",
+          "title": "射线上等长构造点",
+          "use_when": "当已知射线端点、射线方向点和参考线段另一端，需要在该射线上构造等长点时使用。输出满足 anchor-target = anchor-reference；若它只是后续计算的辅助点，无需绑定题面对象，直接引用本调用结果。",
+          "args": [],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "射线上的等长构造点。作为中间辅助点时可不绑定题面对象，后续调用直接引用本 call 的 point 结果；作为题面对象或答案时仍应显式绑定。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "只有线段长度、但没有由两个不同点确定的射线方向。",
+            "目标是求曲线交点、坐标轴截点或路径最小值，而不是先构造射线上等长点。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "equal_length_ray_point/construct_point"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "EqualLengthRayPointMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [],
+      "synthetic_scenario": {
+        "schema_version": "lesson-capability-synthetic-scenario/v1",
+        "problem_id": "synthetic-equal_length_ray_point",
+        "source_step_id": "synthetic_equal_length_ray_point",
+        "execution": "real_stateless_method",
+        "input_runtime_types": {
+          "anchor": [
+            "Point"
+          ],
+          "reference_point": [
+            "Point"
+          ],
+          "ray_point": [
+            "Point"
+          ],
+          "target": [
+            "PointRef"
+          ]
+        },
+        "output_runtime_types": {
+          "point": "Point"
+        },
+        "checks_passed": true
+      }
+    },
+    "evaluate_expression_at_parameter": {
+      "kind": "function",
+      "source_id": "evaluate_expression_at_parameter",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "evaluate_expression_at_parameter",
+          "title": "代入参数化简表达式",
+          "use_when": "对已经得到的 Expression、MinimumExpression 或 Parabola 状态代入一个同身份参数值，并输出同类型状态。输入类型决定唯一 return：Expression 输出 evaluated_expression，MinimumExpression 输出 evaluated_minimum_expression，Parabola 输出 evaluated_parabola。代入一个参数不保证其他自由参数也已闭合；最终结果形态由剩余自由符号决定。若输入已经完全闭合，重复求值是保持同类型和同值的安全 no-op。",
+          "args": [
+            {
+              "name": "expression",
+              "domain_type": "Expression",
+              "required": true,
+              "cardinality": "one",
+              "role": "需要代入一个已知参数值的当前 Expression、MinimumExpression 或 Parabola 状态。题面 Function 模板不是已经得到的 Parabola 状态；输入类型会确定唯一的同类型 return。"
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "evaluated_expression",
+              "type": "Expression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "仅当输入是 Expression 状态时产生；不能作为 Parabola 传给曲线顶点、交点或对称轴能力。 代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_minimum_expression",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "仅当输入是 MinimumExpression 状态时产生。 代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_parabola",
+              "type": "Parabola",
+              "binding": "same_object_as:expression",
+              "required": false,
+              "desc": "仅当输入已经是 Parabola 状态时产生，表示代入参数后的同一抛物线状态；普通 Expression 输入不会产生该 return。 抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 closed_state。代码以 runtime 表达式的自由符号为准。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "只有 ProblemIR 中的 Function 模板、尚未得到同一函数对象的 Parabola 状态；建立抛物线应使用 quadratic_from_constraints。",
+            "需要依次代入多个已知二次函数系数；应把这些系数值一次放入 quadratic_from_constraints.known_coefficients。",
+            "不要假定 evaluated_expression、evaluated_minimum_expression 和 evaluated_parabola 会同时产生；实际 return 只由输入状态类型决定。",
+            "表达式仍含自由符号但不含待代入 Symbol，或 ParameterValue 属于另一个 Symbol；例如表达式只含参数 u 时，不能用参数 v 的值关闭该表达式。",
+            "试图通过代入无关参数改变或关闭函数状态；应先选择实际出现在该状态自由符号集合中的参数。",
+            "仅为了重复关闭一个已经闭合的状态而新增本步骤；运行时会安全地视为 no-op，但 Planner 通常应直接复用该状态。"
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "evaluate_expression_at_parameter",
+          "title": "代入参数化简表达式",
+          "use_when": "对已经得到的 Expression、MinimumExpression 或 Parabola 状态代入一个同身份参数值，并输出同类型状态。输入类型决定唯一 return：Expression 输出 evaluated_expression，MinimumExpression 输出 evaluated_minimum_expression，Parabola 输出 evaluated_parabola。代入一个参数不保证其他自由参数也已闭合；最终结果形态由剩余自由符号决定。若输入已经完全闭合，重复求值是保持同类型和同值的安全 no-op。",
+          "args": [
+            {
+              "name": "expression",
+              "domain_type": "Expression",
+              "required": true,
+              "cardinality": "one",
+              "role": "需要代入一个已知参数值的当前 Expression、MinimumExpression 或 Parabola 状态。题面 Function 模板不是已经得到的 Parabola 状态；输入类型会确定唯一的同类型 return。"
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "evaluated_expression",
+              "type": "Expression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "仅当输入是 Expression 状态时产生；不能作为 Parabola 传给曲线顶点、交点或对称轴能力。 代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_minimum_expression",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "仅当输入是 MinimumExpression 状态时产生。 代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_parabola",
+              "type": "Parabola",
+              "binding": "same_object_as:expression",
+              "required": false,
+              "desc": "仅当输入已经是 Parabola 状态时产生，表示代入参数后的同一抛物线状态；普通 Expression 输入不会产生该 return。 抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 closed_state。代码以 runtime 表达式的自由符号为准。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "只有 ProblemIR 中的 Function 模板、尚未得到同一函数对象的 Parabola 状态；建立抛物线应使用 quadratic_from_constraints。",
+            "需要依次代入多个已知二次函数系数；应把这些系数值一次放入 quadratic_from_constraints.known_coefficients。",
+            "不要假定 evaluated_expression、evaluated_minimum_expression 和 evaluated_parabola 会同时产生；实际 return 只由输入状态类型决定。",
+            "表达式仍含自由符号但不含待代入 Symbol，或 ParameterValue 属于另一个 Symbol；例如表达式只含参数 u 时，不能用参数 v 的值关闭该表达式。",
+            "试图通过代入无关参数改变或关闭函数状态；应先选择实际出现在该状态自由符号集合中的参数。",
+            "仅为了重复关闭一个已经闭合的状态而新增本步骤；运行时会安全地视为 no-op，但 Planner 通常应直接复用该状态。"
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "evaluate_expression_at_parameter",
+          "title": "代入参数化简表达式",
+          "use_when": "对已经得到的 Expression、MinimumExpression 或 Parabola 状态代入一个同身份参数值，并输出同类型状态。输入类型决定唯一 return：Expression 输出 evaluated_expression，MinimumExpression 输出 evaluated_minimum_expression，Parabola 输出 evaluated_parabola。代入一个参数不保证其他自由参数也已闭合；最终结果形态由剩余自由符号决定。若输入已经完全闭合，重复求值是保持同类型和同值的安全 no-op。",
+          "args": [
+            {
+              "name": "expression",
+              "domain_type": "Expression",
+              "required": true,
+              "cardinality": "one",
+              "role": "需要代入一个已知参数值的当前 Expression、MinimumExpression 或 Parabola 状态。题面 Function 模板不是已经得到的 Parabola 状态；输入类型会确定唯一的同类型 return。"
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "evaluated_expression",
+              "type": "Expression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "仅当输入是 Expression 状态时产生；不能作为 Parabola 传给曲线顶点、交点或对称轴能力。 代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_minimum_expression",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "仅当输入是 MinimumExpression 状态时产生。 代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_parabola",
+              "type": "Parabola",
+              "binding": "same_object_as:expression",
+              "required": false,
+              "desc": "仅当输入已经是 Parabola 状态时产生，表示代入参数后的同一抛物线状态；普通 Expression 输入不会产生该 return。 抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 closed_state。代码以 runtime 表达式的自由符号为准。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "只有 ProblemIR 中的 Function 模板、尚未得到同一函数对象的 Parabola 状态；建立抛物线应使用 quadratic_from_constraints。",
+            "需要依次代入多个已知二次函数系数；应把这些系数值一次放入 quadratic_from_constraints.known_coefficients。",
+            "不要假定 evaluated_expression、evaluated_minimum_expression 和 evaluated_parabola 会同时产生；实际 return 只由输入状态类型决定。",
+            "表达式仍含自由符号但不含待代入 Symbol，或 ParameterValue 属于另一个 Symbol；例如表达式只含参数 u 时，不能用参数 v 的值关闭该表达式。",
+            "试图通过代入无关参数改变或关闭函数状态；应先选择实际出现在该状态自由符号集合中的参数。",
+            "仅为了重复关闭一个已经闭合的状态而新增本步骤；运行时会安全地视为 no-op，但 Planner 通常应直接复用该状态。"
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "evaluate_expression_at_parameter",
+          "title": "代入参数化简表达式",
+          "use_when": "对已经得到的 Expression、MinimumExpression 或 Parabola 状态代入一个同身份参数值，并输出同类型状态。输入类型决定唯一 return：Expression 输出 evaluated_expression，MinimumExpression 输出 evaluated_minimum_expression，Parabola 输出 evaluated_parabola。代入一个参数不保证其他自由参数也已闭合；最终结果形态由剩余自由符号决定。若输入已经完全闭合，重复求值是保持同类型和同值的安全 no-op。",
+          "args": [
+            {
+              "name": "expression",
+              "domain_type": "Expression",
+              "required": true,
+              "cardinality": "one",
+              "role": "需要代入一个已知参数值的当前 Expression、MinimumExpression 或 Parabola 状态。题面 Function 模板不是已经得到的 Parabola 状态；输入类型会确定唯一的同类型 return。"
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "evaluated_expression",
+              "type": "Expression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "仅当输入是 Expression 状态时产生；不能作为 Parabola 传给曲线顶点、交点或对称轴能力。 代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_minimum_expression",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "仅当输入是 MinimumExpression 状态时产生。 代入后仍含未确定参数时为 open_expression；不存在自由参数时为 closed_value，可直接作为数值答案。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "evaluated_parabola",
+              "type": "Parabola",
+              "binding": "same_object_as:expression",
+              "required": false,
+              "desc": "仅当输入已经是 Parabola 状态时产生，表示代入参数后的同一抛物线状态；普通 Expression 输入不会产生该 return。 抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 closed_state。代码以 runtime 表达式的自由符号为准。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "只有 ProblemIR 中的 Function 模板、尚未得到同一函数对象的 Parabola 状态；建立抛物线应使用 quadratic_from_constraints。",
+            "需要依次代入多个已知二次函数系数；应把这些系数值一次放入 quadratic_from_constraints.known_coefficients。",
+            "不要假定 evaluated_expression、evaluated_minimum_expression 和 evaluated_parabola 会同时产生；实际 return 只由输入状态类型决定。",
+            "表达式仍含自由符号但不含待代入 Symbol，或 ParameterValue 属于另一个 Symbol；例如表达式只含参数 u 时，不能用参数 v 的值关闭该表达式。",
+            "试图通过代入无关参数改变或关闭函数状态；应先选择实际出现在该状态自由符号集合中的参数。",
+            "仅为了重复关闭一个已经闭合的状态而新增本步骤；运行时会安全地视为 no-op，但 Planner 通常应直接复用该状态。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "evaluate_expression_at_parameter/substitute_parameter"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "EvaluatedParabolaMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_1_evaluate_minimum",
+          "scope_ref": "ii_1",
+          "goal_ref": "ii_1.min_value"
+        },
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_1_specialize_parabola",
+          "scope_ref": "ii_1",
+          "goal_ref": "ii_1.parabola"
+        },
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_2_specialize_parabola",
+          "scope_ref": "ii_2",
+          "goal_ref": "ii_2.parabola"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "evaluate_point_at_parameter": {
+      "kind": "function",
+      "source_id": "evaluate_point_at_parameter",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "evaluate_point_at_parameter",
+          "title": "代入参数求点坐标",
+          "use_when": "Given 含参点坐标、一个参数符号和同身份参数值, derive 代入该参数后的同一 Point 状态；其他尚未求值的自由符号可以保留。",
+          "args": [
+            {
+              "name": "point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "同一对象当前已有的含参坐标状态。"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": true,
+              "cardinality": "one",
+              "role": "用于消去点坐标中同一 Symbol 身份自由参数的已求值；不能用曲线系数值代替动点独立的位置参数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "evaluated_point",
+              "type": "Point",
+              "binding": "same_object_as:point",
+              "desc": "代入参数后的同一 Point 坐标状态，不产生新的几何对象。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。",
+            "ParameterValue 对应的 Symbol 不是该 Point 坐标中的未定参数；例如曲线系数 c 不能代替轴上动点自己的位置参数。",
+            "最终答案点需要先由路径极值点经过正方形、旋转、中点或其它几何关系恢复；应先求极值状态，再做几何状态转移。"
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "evaluate_point_at_parameter",
+          "title": "代入参数求点坐标",
+          "use_when": "Given 含参点坐标、一个参数符号和同身份参数值, derive 代入该参数后的同一 Point 状态；其他尚未求值的自由符号可以保留。",
+          "args": [
+            {
+              "name": "point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "同一对象当前已有的含参坐标状态。"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": true,
+              "cardinality": "one",
+              "role": "用于消去点坐标中同一 Symbol 身份自由参数的已求值；不能用曲线系数值代替动点独立的位置参数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "evaluated_point",
+              "type": "Point",
+              "binding": "same_object_as:point",
+              "desc": "代入参数后的同一 Point 坐标状态，不产生新的几何对象。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。",
+            "ParameterValue 对应的 Symbol 不是该 Point 坐标中的未定参数；例如曲线系数 c 不能代替轴上动点自己的位置参数。",
+            "最终答案点需要先由路径极值点经过正方形、旋转、中点或其它几何关系恢复；应先求极值状态，再做几何状态转移。"
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "evaluate_point_at_parameter",
+          "title": "代入参数求点坐标",
+          "use_when": "Given 含参点坐标、一个参数符号和同身份参数值, derive 代入该参数后的同一 Point 状态；其他尚未求值的自由符号可以保留。",
+          "args": [
+            {
+              "name": "point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "同一对象当前已有的含参坐标状态。"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": true,
+              "cardinality": "one",
+              "role": "用于消去点坐标中同一 Symbol 身份自由参数的已求值；不能用曲线系数值代替动点独立的位置参数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "evaluated_point",
+              "type": "Point",
+              "binding": "same_object_as:point",
+              "desc": "代入参数后的同一 Point 坐标状态，不产生新的几何对象。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。",
+            "ParameterValue 对应的 Symbol 不是该 Point 坐标中的未定参数；例如曲线系数 c 不能代替轴上动点自己的位置参数。",
+            "最终答案点需要先由路径极值点经过正方形、旋转、中点或其它几何关系恢复；应先求极值状态，再做几何状态转移。"
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "evaluate_point_at_parameter",
+          "title": "代入参数求点坐标",
+          "use_when": "Given 含参点坐标、一个参数符号和同身份参数值, derive 代入该参数后的同一 Point 状态；其他尚未求值的自由符号可以保留。",
+          "args": [
+            {
+              "name": "point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "同一对象当前已有的含参坐标状态。"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": true,
+              "cardinality": "one",
+              "role": "用于消去点坐标中同一 Symbol 身份自由参数的已求值；不能用曲线系数值代替动点独立的位置参数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "evaluated_point",
+              "type": "Point",
+              "binding": "same_object_as:point",
+              "desc": "代入参数后的同一 Point 坐标状态，不产生新的几何对象。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "目标是构造另一个几何点；本能力只把参数值代入同一 Point 的已有坐标状态，不改变对象身份。",
+            "ParameterValue 对应的 Symbol 不是该 Point 坐标中的未定参数；例如曲线系数 c 不能代替轴上动点自己的位置参数。",
+            "最终答案点需要先由路径极值点经过正方形、旋转、中点或其它几何关系恢复；应先求极值状态，再做几何状态转移。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "evaluate_point_at_parameter/substitute_point_parameter"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "EvaluatedPointMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "evaluate_minimum_point_G_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.E"
+        },
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "evaluate_point_A_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.E"
+        },
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_2_evaluate_G",
+          "scope_ref": "ii_2",
+          "goal_ref": "ii_2.G"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "line_intersection_point": {
+      "kind": "function",
+      "source_id": "line_intersection_point",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "line_intersection_point",
+          "title": "求两直线交点",
+          "use_when": "输入: 两条直线；输出: 交点坐标。",
+          "args": [
+            {
+              "name": "line1_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line1_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line2_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line2_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "intersection",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "input_requirements": [
+            {
+              "requirement": "line1_p1、line1_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line2_p1、line2_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line1_p1、line1_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            },
+            {
+              "requirement": "line2_p1、line2_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "line_intersection_point",
+          "title": "求两直线交点",
+          "use_when": "输入: 两条直线；输出: 交点坐标。",
+          "args": [
+            {
+              "name": "line1_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line1_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line2_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line2_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "intersection",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "input_requirements": [
+            {
+              "requirement": "line1_p1、line1_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line2_p1、line2_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line1_p1、line1_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            },
+            {
+              "requirement": "line2_p1、line2_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "line_intersection_point",
+          "title": "求两直线交点",
+          "use_when": "输入: 两条直线；输出: 交点坐标。",
+          "args": [
+            {
+              "name": "line1_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line1_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line2_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line2_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "intersection",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "input_requirements": [
+            {
+              "requirement": "line1_p1、line1_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line2_p1、line2_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line1_p1、line1_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            },
+            {
+              "requirement": "line2_p1、line2_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "line_intersection_point",
+          "title": "求两直线交点",
+          "use_when": "输入: 两条直线；输出: 交点坐标。",
+          "args": [
+            {
+              "name": "line1_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line1_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line2_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "line2_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "intersection",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "input_requirements": [
+            {
+              "requirement": "line1_p1、line1_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line2_p1、line2_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line1_p1、line1_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            },
+            {
+              "requirement": "line2_p1、line2_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "line_intersection_point/solve_intersection"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "LineIntersectionMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [],
+      "synthetic_scenario": {
+        "schema_version": "lesson-capability-synthetic-scenario/v1",
+        "problem_id": "synthetic-line_intersection_point",
+        "source_step_id": "synthetic_line_intersection_point",
+        "execution": "real_stateless_method",
+        "input_runtime_types": {
+          "line1_p1": [
+            "Point"
+          ],
+          "line1_p2": [
+            "Point"
+          ],
+          "line2_p1": [
+            "Point"
+          ],
+          "line2_p2": [
+            "Point"
+          ],
+          "target": [
+            "PointRef"
+          ]
+        },
+        "output_runtime_types": {
+          "intersection": "Point"
+        },
+        "checks_passed": true
+      }
+    },
+    "line_parabola_second_intersection_point": {
+      "kind": "function",
+      "source_id": "line_parabola_second_intersection_point",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "line_parabola_second_intersection_point",
+          "title": "求直线与抛物线的另一交点",
+          "use_when": "输入: 抛物线、确定直线的两点、已知交点和目标 Point identity；输出: 直线与抛物线的另一个交点。line_p1/line_p2 顺序可交换，且任一端点都可来自匿名步骤结果。可用 target.x_range 选择符合题设范围的点。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "line_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。若该点也是抛物线已知交点，通常同时把它传给 known_point。"
+            },
+            {
+              "name": "line_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，从而得到非竖直直线。"
+            },
+            {
+              "name": "known_point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "目标直线与抛物线共有、并需要从联立结果中排除的已知交点；通常直接复用 line_p1 或 line_p2，禁止传入不在目标直线上的点。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "provides": [
+                "curve_intersection_point"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "line_p1 与 line_p2 横坐标相同或两点重合，无法确定本方法支持的非竖直直线。",
+            "known_point 不同时位于目标直线和抛物线上；不要仅因它在抛物线上就把它作为排除点。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "输出由已知直线与抛物线的另一个交点推出，因此携带曲线成员证据。"
+            },
+            {
+              "requirement": "line_p1、line_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line_p1、line_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "line_parabola_second_intersection_point",
+          "title": "求直线与抛物线的另一交点",
+          "use_when": "输入: 抛物线、确定直线的两点、已知交点和目标 Point identity；输出: 直线与抛物线的另一个交点。line_p1/line_p2 顺序可交换，且任一端点都可来自匿名步骤结果。可用 target.x_range 选择符合题设范围的点。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "line_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。若该点也是抛物线已知交点，通常同时把它传给 known_point。"
+            },
+            {
+              "name": "line_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，从而得到非竖直直线。"
+            },
+            {
+              "name": "known_point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "目标直线与抛物线共有、并需要从联立结果中排除的已知交点；通常直接复用 line_p1 或 line_p2，禁止传入不在目标直线上的点。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "provides": [
+                "curve_intersection_point"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "line_p1 与 line_p2 横坐标相同或两点重合，无法确定本方法支持的非竖直直线。",
+            "known_point 不同时位于目标直线和抛物线上；不要仅因它在抛物线上就把它作为排除点。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "输出由已知直线与抛物线的另一个交点推出，因此携带曲线成员证据。"
+            },
+            {
+              "requirement": "line_p1、line_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line_p1、line_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "line_parabola_second_intersection_point",
+          "title": "求直线与抛物线的另一交点",
+          "use_when": "输入: 抛物线、确定直线的两点、已知交点和目标 Point identity；输出: 直线与抛物线的另一个交点。line_p1/line_p2 顺序可交换，且任一端点都可来自匿名步骤结果。可用 target.x_range 选择符合题设范围的点。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "line_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。若该点也是抛物线已知交点，通常同时把它传给 known_point。"
+            },
+            {
+              "name": "line_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，从而得到非竖直直线。"
+            },
+            {
+              "name": "known_point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "目标直线与抛物线共有、并需要从联立结果中排除的已知交点；通常直接复用 line_p1 或 line_p2，禁止传入不在目标直线上的点。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "provides": [
+                "curve_intersection_point"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "line_p1 与 line_p2 横坐标相同或两点重合，无法确定本方法支持的非竖直直线。",
+            "known_point 不同时位于目标直线和抛物线上；不要仅因它在抛物线上就把它作为排除点。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "输出由已知直线与抛物线的另一个交点推出，因此携带曲线成员证据。"
+            },
+            {
+              "requirement": "line_p1、line_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line_p1、line_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "line_parabola_second_intersection_point",
+          "title": "求直线与抛物线的另一交点",
+          "use_when": "输入: 抛物线、确定直线的两点、已知交点和目标 Point identity；输出: 直线与抛物线的另一个交点。line_p1/line_p2 顺序可交换，且任一端点都可来自匿名步骤结果。可用 target.x_range 选择符合题设范围的点。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "line_p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "确定目标直线的第一个点；必须与 line_p2 的横坐标不同。若该点也是抛物线已知交点，通常同时把它传给 known_point。"
+            },
+            {
+              "name": "line_p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "确定目标直线的第二个点；必须与 line_p1 的横坐标不同，从而得到非竖直直线。"
+            },
+            {
+              "name": "known_point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "目标直线与抛物线共有、并需要从联立结果中排除的已知交点；通常直接复用 line_p1 或 line_p2，禁止传入不在目标直线上的点。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "provides": [
+                "curve_intersection_point"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "line_p1 与 line_p2 横坐标相同或两点重合，无法确定本方法支持的非竖直直线。",
+            "known_point 不同时位于目标直线和抛物线上；不要仅因它在抛物线上就把它作为排除点。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "输出由已知直线与抛物线的另一个交点推出，因此携带曲线成员证据。"
+            },
+            {
+              "requirement": "line_p1、line_p2 必须引用彼此不同的语义状态。"
+            },
+            {
+              "requirement": "line_p1、line_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "line_parabola_second_intersection_point/solve_intersection"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "LineParabolaIntersectionMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "derive_curve_intersection_E_i",
+          "scope_ref": "i_2",
+          "goal_ref": "i_2.E"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "midpoint_point": {
+      "kind": "function",
+      "source_id": "midpoint_point",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "midpoint_point",
+          "title": "求中点坐标",
+          "use_when": "输入: 两端点和中点定义；输出: 中点坐标。",
+          "args": [
+            {
+              "name": "midpoint_definition",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "midpoint_definition"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "midpoint",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "midpoint_point",
+          "title": "求中点坐标",
+          "use_when": "输入: 两端点和中点定义；输出: 中点坐标。",
+          "args": [
+            {
+              "name": "midpoint_definition",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "midpoint_definition"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "midpoint",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "midpoint_point",
+          "title": "求中点坐标",
+          "use_when": "输入: 两端点和中点定义；输出: 中点坐标。",
+          "args": [
+            {
+              "name": "midpoint_definition",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "midpoint_definition"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "midpoint",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "midpoint_point",
+          "title": "求中点坐标",
+          "use_when": "输入: 两端点和中点定义；输出: 中点坐标。",
+          "args": [
+            {
+              "name": "midpoint_definition",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "midpoint_definition"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "midpoint",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "midpoint_point/compute_midpoint"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "MidpointMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_compute_F",
+          "scope_ref": "ii",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "parameter_from_expression_value": {
+      "kind": "function",
+      "source_id": "parameter_from_expression_value",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "parameter_from_expression_value",
+          "title": "由表达式取值反求参数",
+          "use_when": "输入: 已推导表达式与给定值条件；输出: 参数值。使用原则: 当几何或代数步骤已经给出含参数表达式，而题设给出该表达式的取值时使用。",
+          "args": [
+            {
+              "name": "expression",
+              "domain_type": "Expression",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "minimum_value",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "minimum_value"
+              ]
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:parameter"
+            }
+          ],
+          "do_not_use_when": [
+            "尚未得到可代入的含参表达式，或题面没有给出该表达式对应的取值条件。",
+            "目标是完成路径转化或推导最小值表达式，而不是由一个已知表达式取值反求参数。",
+            "表达式仍含两个或更多相互独立的未知 Symbol；中学生解法应先利用显式关系或已知参数值化为单一未知量。",
+            "所选 parameter 没有实际出现在 expression 中；此时应改用真正含该参数的表达式，不能按其他小问的步骤机械反求。",
+            "方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；该能力不会默认选择第一个解。"
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "parameter_from_expression_value",
+          "title": "由表达式取值反求参数",
+          "use_when": "输入: 已推导表达式与给定值条件；输出: 参数值。使用原则: 当几何或代数步骤已经给出含参数表达式，而题设给出该表达式的取值时使用。",
+          "args": [
+            {
+              "name": "expression",
+              "domain_type": "Expression",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "minimum_value",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "minimum_value"
+              ]
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:parameter"
+            }
+          ],
+          "do_not_use_when": [
+            "尚未得到可代入的含参表达式，或题面没有给出该表达式对应的取值条件。",
+            "目标是完成路径转化或推导最小值表达式，而不是由一个已知表达式取值反求参数。",
+            "表达式仍含两个或更多相互独立的未知 Symbol；中学生解法应先利用显式关系或已知参数值化为单一未知量。",
+            "所选 parameter 没有实际出现在 expression 中；此时应改用真正含该参数的表达式，不能按其他小问的步骤机械反求。",
+            "方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；该能力不会默认选择第一个解。"
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "parameter_from_expression_value",
+          "title": "由表达式取值反求参数",
+          "use_when": "输入: 已推导表达式与给定值条件；输出: 参数值。使用原则: 当几何或代数步骤已经给出含参数表达式，而题设给出该表达式的取值时使用。",
+          "args": [
+            {
+              "name": "expression",
+              "domain_type": "Expression",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "minimum_value",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "minimum_value"
+              ]
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:parameter"
+            }
+          ],
+          "do_not_use_when": [
+            "尚未得到可代入的含参表达式，或题面没有给出该表达式对应的取值条件。",
+            "目标是完成路径转化或推导最小值表达式，而不是由一个已知表达式取值反求参数。",
+            "表达式仍含两个或更多相互独立的未知 Symbol；中学生解法应先利用显式关系或已知参数值化为单一未知量。",
+            "所选 parameter 没有实际出现在 expression 中；此时应改用真正含该参数的表达式，不能按其他小问的步骤机械反求。",
+            "方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；该能力不会默认选择第一个解。"
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "parameter_from_expression_value",
+          "title": "由表达式取值反求参数",
+          "use_when": "输入: 已推导表达式与给定值条件；输出: 参数值。使用原则: 当几何或代数步骤已经给出含参数表达式，而题设给出该表达式的取值时使用。",
+          "args": [
+            {
+              "name": "expression",
+              "domain_type": "Expression",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "minimum_value",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "minimum_value"
+              ]
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:parameter"
+            }
+          ],
+          "do_not_use_when": [
+            "尚未得到可代入的含参表达式，或题面没有给出该表达式对应的取值条件。",
+            "目标是完成路径转化或推导最小值表达式，而不是由一个已知表达式取值反求参数。",
+            "表达式仍含两个或更多相互独立的未知 Symbol；中学生解法应先利用显式关系或已知参数值化为单一未知量。",
+            "所选 parameter 没有实际出现在 expression 中；此时应改用真正含该参数的表达式，不能按其他小问的步骤机械反求。",
+            "方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；该能力不会默认选择第一个解。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "parameter_from_expression_value/solve_parameter"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "no_new_visual",
+      "visual_components": [],
+      "no_new_visual_reason": "本步骤只由已有表达式反求参数，不产生新的几何对象。",
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "solve_parameter_c_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.E"
+        },
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "solve_parameter_from_minimum_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.a"
+        },
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "solve_parameter_iii",
+          "scope_ref": "iii",
+          "goal_ref": "iii.b"
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "step_id": "solve_parameter_from_minimum_ii",
+          "scope_ref": "ii_2",
+          "goal_ref": "ii_2.b"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "parameter_from_minimum_value": {
+      "kind": "function",
+      "source_id": "parameter_from_minimum_value",
+      "families": [
+        "QuadraticPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "parameter_from_minimum_value",
+          "title": "由最小值反求参数",
+          "use_when": "输入: 最小值表达式与给定最小值条件；输出: 参数值。",
+          "args": [
+            {
+              "name": "minimum_expression",
+              "domain_type": "Expression",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "minimum_value",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "minimum_value"
+              ]
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:parameter"
+            }
+          ],
+          "do_not_use_when": [
+            "输入表达式不具有最小值语义，或题面给出的只是普通表达式取值条件。",
+            "尚未得到可代入的最小值表达式。",
+            "最小值表达式仍含两个或更多相互独立的未知 Symbol；应先化为单一未知量。",
+            "当前目标只是更新函数或几何对象状态；该能力只反求最小值表达式中实际存在的单一目标参数，不代替状态更新。",
+            "最小值方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；不会默认选择第一个解。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "parameter_from_minimum_value/solve_parameter"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_2_solve_m",
+          "scope_ref": "ii_2",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "parameter_from_segment_length": {
+      "kind": "function",
+      "source_id": "parameter_from_segment_length",
+      "families": [
+        "QuadraticPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "parameter_from_segment_length",
+          "title": "由线段长度求参数",
+          "use_when": "输入: 线段端点和长度/线段比例条件；输出: 满足条件的参数值。支持 MN²=10 与 AD=2BC 这类原始线段关系。",
+          "args": [
+            {
+              "name": "p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "reference_p1",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "reference_p2",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "length_squared",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "length_squared",
+                "segment_length_relation"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:parameter"
+            }
+          ],
+          "do_not_use_when": [
+            "parameter 没有实际出现在由端点和长度条件建立的方程中。",
+            "线段比例条件缺少对应 reference_p1/reference_p2；不能按点名或条件文本猜测参照端点。",
+            "长度方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；不会默认选择第一个解。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "p1、p2 必须是长度条件所声明线段的两个端点；端点顺序可以交换。"
+            },
+            {
+              "requirement": "比例长度条件的 reference_p1、reference_p2 必须是参照线段的两个端点；端点顺序可以交换。"
+            },
+            {
+              "requirement": "p1、p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            },
+            {
+              "requirement": "reference_p1、reference_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "parameter_from_segment_length",
+          "title": "由线段长度求参数",
+          "use_when": "输入: 线段端点和长度/线段比例条件；输出: 满足条件的参数值。支持 MN²=10 与 AD=2BC 这类原始线段关系。",
+          "args": [
+            {
+              "name": "p1",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "p2",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "reference_p1",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "reference_p2",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            },
+            {
+              "name": "length_squared",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "length_squared",
+                "segment_length_relation"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:parameter"
+            }
+          ],
+          "do_not_use_when": [
+            "parameter 没有实际出现在由端点和长度条件建立的方程中。",
+            "线段比例条件缺少对应 reference_p1/reference_p2；不能按点名或条件文本猜测参照端点。",
+            "长度方程有多个合法参数分支但没有提供足以唯一筛选的结构化 constraint；不会默认选择第一个解。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "p1、p2 必须是长度条件所声明线段的两个端点；端点顺序可以交换。"
+            },
+            {
+              "requirement": "比例长度条件的 reference_p1、reference_p2 必须是参照线段的两个端点；端点顺序可以交换。"
+            },
+            {
+              "requirement": "p1、p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            },
+            {
+              "requirement": "reference_p1、reference_p2 表示无序的等价输入槽位；交换它们不改变数学结果。"
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "parameter_from_segment_length/solve_parameter"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "SegmentParameterMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_1_solve_m",
+          "scope_ref": "ii_1",
+          "goal_ref": null
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "step_id": "solve_parameter_from_segment_relation_ii",
+          "scope_ref": "ii_1",
+          "goal_ref": "ii_1.b"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "point_candidates_from_curve_point_condition": {
+      "kind": "function",
+      "source_id": "point_candidates_from_curve_point_condition",
+      "families": [
+        "QuadraticSquareReflectionPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "point_candidates_from_curve_point_condition",
+          "title": "由曲线点条件求目标点候选",
+          "use_when": "Given 待返回的目标点 P(t)、仅用于施加曲线条件的点 Q(t) 和已解抛物线, derive 使 Q(t) 在曲线上的 P 候选列表。返回值是一个整体的 PointList；列表中的每个候选保持 target_point=P 的对象身份，curve_point=Q 只提供约束。PointList 不能绑定为单个 Point。适用于几何构造先得到两个同参数点，再用 Q 落曲线来反求 P 的场景。",
+          "args": [
+            {
+              "name": "target_point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "curve_point",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "parameter",
+              "domain_type": "Symbol",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "candidates",
+              "type": "PointList",
+              "binding": "aggregate_elements_same_object_as:target_point",
+              "value_cardinality": "aggregate",
+              "desc": "返回值是一个整体的 PointList 聚合值，不是单个对象。列表元素保持 target_point 的对象身份；若绑定 required answer，必须使用 answer 类型的 binding 且 value_type=PointList；不得绑定为单个对象。"
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "point_candidates_from_curve_point_condition/solve_candidates"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "CurvePointCandidateMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "solve_axis_point_candidates_i",
+          "scope_ref": "i_2",
+          "goal_ref": "i_2.E"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "point_on_parabola_at_x": {
+      "kind": "function",
+      "source_id": "point_on_parabola_at_x",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "point_on_parabola_at_x",
+          "title": "由横坐标求抛物线上点",
+          "use_when": "仅在题面已把目标点的横坐标作为结构化条件直接给出、只需代入当前抛物线求纵坐标时使用。FunctionalPlan 只显式传入 parabola，并把 point return 绑定到该已有目标点；代码从目标点的结构化 definition.x 或 definition.x_coordinate 读取横坐标。strategy/reason 中自行写出的横坐标不能替代这项题面证据。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "返回 return binding 指向的同一个 Point 对象。该已有对象必须已经在题面结构化定义中直接给出 x 或 x_coordinate；代码读取该横坐标并用抛物线计算纵坐标。坐标仍含未确定参数时为 open_state。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "target_selection": {
+                "fact_kind": "point_on_curve",
+                "target_field": "point",
+                "description": "若可见 point_on_curve 事实唯一声明了当前抛物线上、具有结构化横坐标的 Point，则代码绑定该已有对象；存在多个候选时必须显式 output_targets。",
+                "related_arg": "parabola",
+                "related_field": "owner",
+                "required_fields": {
+                  "construction": "curve_at_x"
+                },
+                "policy": "unique_visible_fact_target"
+              }
+            }
+          ],
+          "do_not_use_when": [
+            "目标点没有题面结构化横坐标定义时禁止使用；仅知道点在抛物线上、只有几何关系，或只在 strategy/reason 中写出横坐标，都需要先通过其它能力确定横坐标。",
+            "前序几何构造已经产生多个有坐标的候选点，需要继续筛选唯一候选。",
+            "需要从候选分支反求参数并把参数代回抛物线。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "目标点的横坐标必须来自结构化定义；代入抛物线后，输出才获得曲线成员证据。"
+            }
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "point_on_parabola_at_x",
+          "title": "由横坐标求抛物线上点",
+          "use_when": "仅在题面已把目标点的横坐标作为结构化条件直接给出、只需代入当前抛物线求纵坐标时使用。FunctionalPlan 只显式传入 parabola，并把 point return 绑定到该已有目标点；代码从目标点的结构化 definition.x 或 definition.x_coordinate 读取横坐标。strategy/reason 中自行写出的横坐标不能替代这项题面证据。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "返回 return binding 指向的同一个 Point 对象。该已有对象必须已经在题面结构化定义中直接给出 x 或 x_coordinate；代码读取该横坐标并用抛物线计算纵坐标。坐标仍含未确定参数时为 open_state。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "target_selection": {
+                "fact_kind": "point_on_curve",
+                "target_field": "point",
+                "description": "若可见 point_on_curve 事实唯一声明了当前抛物线上、具有结构化横坐标的 Point，则代码绑定该已有对象；存在多个候选时必须显式 output_targets。",
+                "related_arg": "parabola",
+                "related_field": "owner",
+                "required_fields": {
+                  "construction": "curve_at_x"
+                },
+                "policy": "unique_visible_fact_target"
+              }
+            }
+          ],
+          "do_not_use_when": [
+            "目标点没有题面结构化横坐标定义时禁止使用；仅知道点在抛物线上、只有几何关系，或只在 strategy/reason 中写出横坐标，都需要先通过其它能力确定横坐标。",
+            "前序几何构造已经产生多个有坐标的候选点，需要继续筛选唯一候选。",
+            "需要从候选分支反求参数并把参数代回抛物线。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "目标点的横坐标必须来自结构化定义；代入抛物线后，输出才获得曲线成员证据。"
+            }
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "point_on_parabola_at_x",
+          "title": "由横坐标求抛物线上点",
+          "use_when": "仅在题面已把目标点的横坐标作为结构化条件直接给出、只需代入当前抛物线求纵坐标时使用。FunctionalPlan 只显式传入 parabola，并把 point return 绑定到该已有目标点；代码从目标点的结构化 definition.x 或 definition.x_coordinate 读取横坐标。strategy/reason 中自行写出的横坐标不能替代这项题面证据。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "返回 return binding 指向的同一个 Point 对象。该已有对象必须已经在题面结构化定义中直接给出 x 或 x_coordinate；代码读取该横坐标并用抛物线计算纵坐标。坐标仍含未确定参数时为 open_state。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "target_selection": {
+                "fact_kind": "point_on_curve",
+                "target_field": "point",
+                "description": "若可见 point_on_curve 事实唯一声明了当前抛物线上、具有结构化横坐标的 Point，则代码绑定该已有对象；存在多个候选时必须显式 output_targets。",
+                "related_arg": "parabola",
+                "related_field": "owner",
+                "required_fields": {
+                  "construction": "curve_at_x"
+                },
+                "policy": "unique_visible_fact_target"
+              }
+            }
+          ],
+          "do_not_use_when": [
+            "目标点没有题面结构化横坐标定义时禁止使用；仅知道点在抛物线上、只有几何关系，或只在 strategy/reason 中写出横坐标，都需要先通过其它能力确定横坐标。",
+            "前序几何构造已经产生多个有坐标的候选点，需要继续筛选唯一候选。",
+            "需要从候选分支反求参数并把参数代回抛物线。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "目标点的横坐标必须来自结构化定义；代入抛物线后，输出才获得曲线成员证据。"
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "point_on_parabola_at_x",
+          "title": "由横坐标求抛物线上点",
+          "use_when": "仅在题面已把目标点的横坐标作为结构化条件直接给出、只需代入当前抛物线求纵坐标时使用。FunctionalPlan 只显式传入 parabola，并把 point return 绑定到该已有目标点；代码从目标点的结构化 definition.x 或 definition.x_coordinate 读取横坐标。strategy/reason 中自行写出的横坐标不能替代这项题面证据。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "返回 return binding 指向的同一个 Point 对象。该已有对象必须已经在题面结构化定义中直接给出 x 或 x_coordinate；代码读取该横坐标并用抛物线计算纵坐标。坐标仍含未确定参数时为 open_state。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "target_selection": {
+                "fact_kind": "point_on_curve",
+                "target_field": "point",
+                "description": "若可见 point_on_curve 事实唯一声明了当前抛物线上、具有结构化横坐标的 Point，则代码绑定该已有对象；存在多个候选时必须显式 output_targets。",
+                "related_arg": "parabola",
+                "related_field": "owner",
+                "required_fields": {
+                  "construction": "curve_at_x"
+                },
+                "policy": "unique_visible_fact_target"
+              }
+            }
+          ],
+          "do_not_use_when": [
+            "目标点没有题面结构化横坐标定义时禁止使用；仅知道点在抛物线上、只有几何关系，或只在 strategy/reason 中写出横坐标，都需要先通过其它能力确定横坐标。",
+            "前序几何构造已经产生多个有坐标的候选点，需要继续筛选唯一候选。",
+            "需要从候选分支反求参数并把参数代回抛物线。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "目标点的横坐标必须来自结构化定义；代入抛物线后，输出才获得曲线成员证据。"
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "point_on_parabola_at_x/substitute_x"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "PointOnParabolaMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "derive_curve_point_iii",
+          "scope_ref": "iii",
+          "goal_ref": "iii.b"
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "step_id": "derive_curve_point_D_ii",
+          "scope_ref": "ii",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "quadratic_axis_from_relation": {
+      "kind": "function",
+      "source_id": "quadratic_axis_from_relation",
+      "families": [
+        "QuadraticPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "quadratic_axis_from_relation",
+          "title": "由系数关系求对称轴交点",
+          "use_when": "输入: 二次函数系数关系与目标点定义；输出: 对称轴与 x 轴交点。",
+          "args": [
+            {
+              "name": "coefficient_relation",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "axis_point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "quadratic_axis_from_relation/derive_axis"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "QuadraticAxisRelationMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "i_derive_D",
+          "scope_ref": "problem",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "quadratic_axis_parameterized_point": {
+      "kind": "function",
+      "source_id": "quadratic_axis_parameterized_point",
+      "families": [
+        "QuadraticSquareReflectionPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "quadratic_axis_parameterized_point",
+          "title": "构造对称轴参数化点",
+          "use_when": "Given 已解抛物线和目标 Point identity, derive 该点在抛物线对称轴上的参数化坐标。适用于后续再由几何或曲线条件求参数的步骤。输出参数是绑定到该 Point 的新坐标参数，默认不等于抛物线系数或其他可见参数。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "required": false,
+              "desc": "坐标仍含该 Point 专属参数时为 open_state；只有该参数已由同身份 ParameterValue 消去后才是 closed_state。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "target_selection": {
+                "fact_kind": "axis_membership",
+                "target_field": "point",
+                "description": "若可见 axis_membership 事实唯一确定当前抛物线对称轴上的 Point，则代码可绑定该已有对象；存在多个候选时必须显式 output_targets。",
+                "related_arg": "parabola",
+                "related_field": "curve",
+                "required_fields": {
+                  "axis": "symmetry"
+                },
+                "policy": "unique_visible_fact_target"
+              }
+            },
+            {
+              "name": "parameter",
+              "type": "Symbol",
+              "binding": "internal_only"
+            }
+          ],
+          "do_not_use_when": [
+            "只有某个抛物线系数或其他 Symbol 的值，却没有条件证明它就是目标点的坐标参数；不同 Symbol identity 的参数值不能互相代入。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "quadratic_axis_parameterized_point/parameterize_axis_point"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "AxisParameterizedPointMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "parameterize_axis_point_E_i",
+          "scope_ref": "i_2",
+          "goal_ref": "i_2.E"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "quadratic_from_constraints": {
+      "kind": "function",
+      "source_id": "quadratic_from_constraints",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "quadratic_from_constraints",
+          "title": "由二次函数约束求抛物线",
+          "use_when": "根据当前scope中由编译器注入的唯一题面二次函数身份与可见状态，联立本步骤新增的已知系数、系数关系、曲线点、等式或参数值，输出最简系数与抛物线。Plan只填写catalog公开的约束参数；quadratic、parabola、x和all_coefficients均由编译器确定，不得自行放入args。指定target_parameter时还可输出该系数关于free_parameters的开放或闭合状态。使用原则：多个已知系数应一次放入 known_coefficients；单个运行参数代入才使用parameter_value；free_parameters必须给出应用本步骤当前scope约束后的一组完整独立参数基底：开放状态必填非空，闭合状态可填[]或省略。",
+          "args": [
+            {
+              "name": "known_coefficients",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "many",
+              "fact_types": [
+                "symbol_value"
+              ],
+              "role": "零个或多个已经求得的二次函数系数值。多个系数统一放在这里，不要再重复写入 parameter_value。"
+            },
+            {
+              "name": "coefficient_relation",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "role": "题面给出的二次函数系数等式关系。"
+            },
+            {
+              "name": "extra_equation",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "role": "用于求系数的额外等式。参数范围、不等式和定义域条件不能填入这里。"
+            },
+            {
+              "name": "curve_point",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one",
+              "role": "单个已知坐标的曲线点；多个曲线点请改用 curve_points，不要在两个参数中重复同一点。"
+            },
+            {
+              "name": "curve_points",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "many",
+              "role": "零个或多个已知坐标的曲线点；每个点都会作为独立曲线约束。"
+            },
+            {
+              "name": "free_parameters",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "many",
+              "role": "应用当前scope约束后仍未确定的一组完整独立参数基底。开放状态必须填写非空基底；闭合状态可填写[]或省略。可使用runtime可证明等价的任一基底，不得按下游Goal目标人为收窄。"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one",
+              "role": "单个需要代入当前抛物线状态的已求参数值。它不是多个已知系数的容器；多个系数请使用 known_coefficients。"
+            },
+            {
+              "name": "target_parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one",
+              "role": "本轮希望明确求出的二次函数系数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "coefficients",
+              "type": "Coefficients",
+              "binding": "call_result_or_answer_or_existing_object",
+              "value_cardinality": "aggregate",
+              "desc": "返回值是一个整体的 Coefficients 聚合值，不是单个对象。若绑定 required answer，必须使用 answer 类型的 binding 且 value_type=Coefficients；不得绑定为单个对象。"
+            },
+            {
+              "name": "parabola",
+              "type": "Parabola",
+              "binding": "same_compiler_selected_object",
+              "desc": "抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 closed_state。代码以 runtime 表达式的自由符号为准。 对象身份由编译器从当前scope的题面权威中选择；不要为此添加catalog未声明的输入参数。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            },
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:target_parameter",
+              "required": false,
+              "desc": "target_parameter 的当前值；仍依赖明确保留的参数时是开放 Symbol 状态。 目标系数仍依赖明确保留的参数时为 open_state；不存在自由符号时为 closed_state。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
+            "不能根据下游Goal希望求哪个参数来选择或缩减free_parameters；它必须是当前scope约束后完整的独立基底。runtime可证明等价的基底均合法。",
+            "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 parameter_value；代码只会在 Symbol 身份唯一时确定性补全。",
+            "不要把参数范围或不等式放入 extra_equation；它只接受用于求系数的等式。",
+            "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。",
+            "题面 Function 模板已有多个已知系数时，不要逐个调用 evaluate_expression_at_parameter；使用 known_coefficients 一次建立当前 Parabola 状态。",
+            "目标只是把已求出的参数值代回同一题面抛物线时，继续使用该Function的SourceRef；编译器会读取当前scope最近可见的Parabola状态和参数值。不要用StepResultRef指定具名Function的普通状态，也不要再次建立抛物线。",
+            "不要添加quadratic、parabola、x或all_coefficients参数；这些内部输入由编译器从当前scope的题面权威中注入，且不属于公开args。",
+            "新增曲线点或方程代入后成为恒等式，或只约束其他符号，却仍指定一个未出现在这些约束中的 target_parameter；该能力不能凭目标名称反求系数。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "free_parameters、target_parameter 必须引用彼此不同的语义状态。"
+            }
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "quadratic_from_constraints",
+          "title": "由二次函数约束求抛物线",
+          "use_when": "根据当前scope中由编译器注入的唯一题面二次函数身份与可见状态，联立本步骤新增的已知系数、系数关系、曲线点、等式或参数值，输出最简系数与抛物线。Plan只填写catalog公开的约束参数；quadratic、parabola、x和all_coefficients均由编译器确定，不得自行放入args。指定target_parameter时还可输出该系数关于free_parameters的开放或闭合状态。使用原则：多个已知系数应一次放入 known_coefficients；单个运行参数代入才使用parameter_value；free_parameters必须给出应用本步骤当前scope约束后的一组完整独立参数基底：开放状态必填非空，闭合状态可填[]或省略。",
+          "args": [
+            {
+              "name": "known_coefficients",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "many",
+              "fact_types": [
+                "symbol_value"
+              ],
+              "role": "零个或多个已经求得的二次函数系数值。多个系数统一放在这里，不要再重复写入 parameter_value。"
+            },
+            {
+              "name": "coefficient_relation",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "role": "题面给出的二次函数系数等式关系。"
+            },
+            {
+              "name": "extra_equation",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "role": "用于求系数的额外等式。参数范围、不等式和定义域条件不能填入这里。"
+            },
+            {
+              "name": "curve_point",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one",
+              "role": "单个已知坐标的曲线点；多个曲线点请改用 curve_points，不要在两个参数中重复同一点。"
+            },
+            {
+              "name": "curve_points",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "many",
+              "role": "零个或多个已知坐标的曲线点；每个点都会作为独立曲线约束。"
+            },
+            {
+              "name": "free_parameters",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "many",
+              "role": "应用当前scope约束后仍未确定的一组完整独立参数基底。开放状态必须填写非空基底；闭合状态可填写[]或省略。可使用runtime可证明等价的任一基底，不得按下游Goal目标人为收窄。"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one",
+              "role": "单个需要代入当前抛物线状态的已求参数值。它不是多个已知系数的容器；多个系数请使用 known_coefficients。"
+            },
+            {
+              "name": "target_parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one",
+              "role": "本轮希望明确求出的二次函数系数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "coefficients",
+              "type": "Coefficients",
+              "binding": "call_result_or_answer_or_existing_object",
+              "value_cardinality": "aggregate",
+              "desc": "返回值是一个整体的 Coefficients 聚合值，不是单个对象。若绑定 required answer，必须使用 answer 类型的 binding 且 value_type=Coefficients；不得绑定为单个对象。"
+            },
+            {
+              "name": "parabola",
+              "type": "Parabola",
+              "binding": "same_compiler_selected_object",
+              "desc": "抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 closed_state。代码以 runtime 表达式的自由符号为准。 对象身份由编译器从当前scope的题面权威中选择；不要为此添加catalog未声明的输入参数。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            },
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:target_parameter",
+              "required": false,
+              "desc": "target_parameter 的当前值；仍依赖明确保留的参数时是开放 Symbol 状态。 目标系数仍依赖明确保留的参数时为 open_state；不存在自由符号时为 closed_state。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
+            "不能根据下游Goal希望求哪个参数来选择或缩减free_parameters；它必须是当前scope约束后完整的独立基底。runtime可证明等价的基底均合法。",
+            "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 parameter_value；代码只会在 Symbol 身份唯一时确定性补全。",
+            "不要把参数范围或不等式放入 extra_equation；它只接受用于求系数的等式。",
+            "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。",
+            "题面 Function 模板已有多个已知系数时，不要逐个调用 evaluate_expression_at_parameter；使用 known_coefficients 一次建立当前 Parabola 状态。",
+            "目标只是把已求出的参数值代回同一题面抛物线时，继续使用该Function的SourceRef；编译器会读取当前scope最近可见的Parabola状态和参数值。不要用StepResultRef指定具名Function的普通状态，也不要再次建立抛物线。",
+            "不要添加quadratic、parabola、x或all_coefficients参数；这些内部输入由编译器从当前scope的题面权威中注入，且不属于公开args。",
+            "新增曲线点或方程代入后成为恒等式，或只约束其他符号，却仍指定一个未出现在这些约束中的 target_parameter；该能力不能凭目标名称反求系数。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "free_parameters、target_parameter 必须引用彼此不同的语义状态。"
+            }
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "quadratic_from_constraints",
+          "title": "由二次函数约束求抛物线",
+          "use_when": "根据当前scope中由编译器注入的唯一题面二次函数身份与可见状态，联立本步骤新增的已知系数、系数关系、曲线点、等式或参数值，输出最简系数与抛物线。Plan只填写catalog公开的约束参数；quadratic、parabola、x和all_coefficients均由编译器确定，不得自行放入args。指定target_parameter时还可输出该系数关于free_parameters的开放或闭合状态。使用原则：多个已知系数应一次放入 known_coefficients；单个运行参数代入才使用parameter_value；free_parameters必须给出应用本步骤当前scope约束后的一组完整独立参数基底：开放状态必填非空，闭合状态可填[]或省略。",
+          "args": [
+            {
+              "name": "known_coefficients",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "many",
+              "fact_types": [
+                "symbol_value"
+              ],
+              "role": "零个或多个已经求得的二次函数系数值。多个系数统一放在这里，不要再重复写入 parameter_value。"
+            },
+            {
+              "name": "coefficient_relation",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "role": "题面给出的二次函数系数等式关系。"
+            },
+            {
+              "name": "extra_equation",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "role": "用于求系数的额外等式。参数范围、不等式和定义域条件不能填入这里。"
+            },
+            {
+              "name": "curve_point",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one",
+              "role": "单个已知坐标的曲线点；多个曲线点请改用 curve_points，不要在两个参数中重复同一点。"
+            },
+            {
+              "name": "curve_points",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "many",
+              "role": "零个或多个已知坐标的曲线点；每个点都会作为独立曲线约束。"
+            },
+            {
+              "name": "free_parameters",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "many",
+              "role": "应用当前scope约束后仍未确定的一组完整独立参数基底。开放状态必须填写非空基底；闭合状态可填写[]或省略。可使用runtime可证明等价的任一基底，不得按下游Goal目标人为收窄。"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one",
+              "role": "单个需要代入当前抛物线状态的已求参数值。它不是多个已知系数的容器；多个系数请使用 known_coefficients。"
+            },
+            {
+              "name": "target_parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one",
+              "role": "本轮希望明确求出的二次函数系数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "coefficients",
+              "type": "Coefficients",
+              "binding": "call_result_or_answer_or_existing_object",
+              "value_cardinality": "aggregate",
+              "desc": "返回值是一个整体的 Coefficients 聚合值，不是单个对象。若绑定 required answer，必须使用 answer 类型的 binding 且 value_type=Coefficients；不得绑定为单个对象。"
+            },
+            {
+              "name": "parabola",
+              "type": "Parabola",
+              "binding": "same_compiler_selected_object",
+              "desc": "抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 closed_state。代码以 runtime 表达式的自由符号为准。 对象身份由编译器从当前scope的题面权威中选择；不要为此添加catalog未声明的输入参数。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            },
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:target_parameter",
+              "required": false,
+              "desc": "target_parameter 的当前值；仍依赖明确保留的参数时是开放 Symbol 状态。 目标系数仍依赖明确保留的参数时为 open_state；不存在自由符号时为 closed_state。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
+            "不能根据下游Goal希望求哪个参数来选择或缩减free_parameters；它必须是当前scope约束后完整的独立基底。runtime可证明等价的基底均合法。",
+            "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 parameter_value；代码只会在 Symbol 身份唯一时确定性补全。",
+            "不要把参数范围或不等式放入 extra_equation；它只接受用于求系数的等式。",
+            "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。",
+            "题面 Function 模板已有多个已知系数时，不要逐个调用 evaluate_expression_at_parameter；使用 known_coefficients 一次建立当前 Parabola 状态。",
+            "目标只是把已求出的参数值代回同一题面抛物线时，继续使用该Function的SourceRef；编译器会读取当前scope最近可见的Parabola状态和参数值。不要用StepResultRef指定具名Function的普通状态，也不要再次建立抛物线。",
+            "不要添加quadratic、parabola、x或all_coefficients参数；这些内部输入由编译器从当前scope的题面权威中注入，且不属于公开args。",
+            "新增曲线点或方程代入后成为恒等式，或只约束其他符号，却仍指定一个未出现在这些约束中的 target_parameter；该能力不能凭目标名称反求系数。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "free_parameters、target_parameter 必须引用彼此不同的语义状态。"
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "quadratic_from_constraints",
+          "title": "由二次函数约束求抛物线",
+          "use_when": "根据当前scope中由编译器注入的唯一题面二次函数身份与可见状态，联立本步骤新增的已知系数、系数关系、曲线点、等式或参数值，输出最简系数与抛物线。Plan只填写catalog公开的约束参数；quadratic、parabola、x和all_coefficients均由编译器确定，不得自行放入args。指定target_parameter时还可输出该系数关于free_parameters的开放或闭合状态。使用原则：多个已知系数应一次放入 known_coefficients；单个运行参数代入才使用parameter_value；free_parameters必须给出应用本步骤当前scope约束后的一组完整独立参数基底：开放状态必填非空，闭合状态可填[]或省略。",
+          "args": [
+            {
+              "name": "known_coefficients",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "many",
+              "fact_types": [
+                "symbol_value"
+              ],
+              "role": "零个或多个已经求得的二次函数系数值。多个系数统一放在这里，不要再重复写入 parameter_value。"
+            },
+            {
+              "name": "coefficient_relation",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "role": "题面给出的二次函数系数等式关系。"
+            },
+            {
+              "name": "extra_equation",
+              "domain_type": "Fact",
+              "required": false,
+              "cardinality": "one",
+              "role": "用于求系数的额外等式。参数范围、不等式和定义域条件不能填入这里。"
+            },
+            {
+              "name": "curve_point",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one",
+              "role": "单个已知坐标的曲线点；多个曲线点请改用 curve_points，不要在两个参数中重复同一点。"
+            },
+            {
+              "name": "curve_points",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "many",
+              "role": "零个或多个已知坐标的曲线点；每个点都会作为独立曲线约束。"
+            },
+            {
+              "name": "free_parameters",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "many",
+              "role": "应用当前scope约束后仍未确定的一组完整独立参数基底。开放状态必须填写非空基底；闭合状态可填写[]或省略。可使用runtime可证明等价的任一基底，不得按下游Goal目标人为收窄。"
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one",
+              "role": "单个需要代入当前抛物线状态的已求参数值。它不是多个已知系数的容器；多个系数请使用 known_coefficients。"
+            },
+            {
+              "name": "target_parameter",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one",
+              "role": "本轮希望明确求出的二次函数系数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "coefficients",
+              "type": "Coefficients",
+              "binding": "call_result_or_answer_or_existing_object",
+              "value_cardinality": "aggregate",
+              "desc": "返回值是一个整体的 Coefficients 聚合值，不是单个对象。若绑定 required answer，必须使用 answer 类型的 binding 且 value_type=Coefficients；不得绑定为单个对象。"
+            },
+            {
+              "name": "parabola",
+              "type": "Parabola",
+              "binding": "same_compiler_selected_object",
+              "desc": "抛物线状态仍含未确定系数或参数时为 open_state；不存在自由符号时为 closed_state。代码以 runtime 表达式的自由符号为准。 对象身份由编译器从当前scope的题面权威中选择；不要为此添加catalog未声明的输入参数。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            },
+            {
+              "name": "parameter_value",
+              "type": "ParameterValue",
+              "binding": "same_object_as:target_parameter",
+              "required": false,
+              "desc": "target_parameter 的当前值；仍依赖明确保留的参数时是开放 Symbol 状态。 目标系数仍依赖明确保留的参数时为 open_state；不存在自由符号时为 closed_state。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "当前目标所需的同一抛物线状态已经由前序调用完整确定，无需用相同约束重复求解。",
+            "不能根据下游Goal希望求哪个参数来选择或缩减free_parameters；它必须是当前scope约束后完整的独立基底。runtime可证明等价的基底均合法。",
+            "要求 closed_state 时，不能遗漏当前抛物线仍含自由符号对应的 parameter_value；代码只会在 Symbol 身份唯一时确定性补全。",
+            "不要把参数范围或不等式放入 extra_equation；它只接受用于求系数的等式。",
+            "不要把同一个 Symbol 同时声明为 free_parameters 和 target_parameter。",
+            "题面 Function 模板已有多个已知系数时，不要逐个调用 evaluate_expression_at_parameter；使用 known_coefficients 一次建立当前 Parabola 状态。",
+            "目标只是把已求出的参数值代回同一题面抛物线时，继续使用该Function的SourceRef；编译器会读取当前scope最近可见的Parabola状态和参数值。不要用StepResultRef指定具名Function的普通状态，也不要再次建立抛物线。",
+            "不要添加quadratic、parabola、x或all_coefficients参数；这些内部输入由编译器从当前scope的题面权威中注入，且不属于公开args。",
+            "新增曲线点或方程代入后成为恒等式，或只约束其他符号，却仍指定一个未出现在这些约束中的 target_parameter；该能力不能凭目标名称反求系数。"
+          ],
+          "input_requirements": [
+            {
+              "requirement": "free_parameters、target_parameter 必须引用彼此不同的语义状态。"
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "quadratic_from_constraints/derive_function"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "QuadraticCurveMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "derive_parabola_i",
+          "scope_ref": "i",
+          "goal_ref": null
+        },
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "derive_parametric_parabola_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.E"
+        },
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "derive_parabola_i",
+          "scope_ref": "i",
+          "goal_ref": null
+        },
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "derive_parametric_parabola_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.a"
+        },
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "derive_parabola_i",
+          "scope_ref": "i",
+          "goal_ref": "i.P"
+        },
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "derive_parametric_parabola_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.D"
+        },
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "derive_parametric_parabola_iii",
+          "scope_ref": "iii",
+          "goal_ref": "iii.b"
+        },
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "i_derive_parabola",
+          "scope_ref": "i",
+          "goal_ref": "i.parabola"
+        },
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_derive_parabola",
+          "scope_ref": "ii",
+          "goal_ref": null
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "step_id": "derive_parabola_i",
+          "scope_ref": "i",
+          "goal_ref": "i.vertex"
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "step_id": "derive_parametric_parabola_ii",
+          "scope_ref": "ii",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "quadratic_square_path_minimum": {
+      "kind": "macro",
+      "source_id": "quadratic_square_path_minimum",
+      "families": [
+        "QuadraticSquareReflectionPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "quadratic_square_path_minimum",
+          "title": "二次函数正方形路径最值",
+          "use_when": "当二次函数确定正方形相关点的参数化状态，且题面路径可由正方形的中点、中心和旋转关系降为单动点直线轨迹时，原子地求出最小值表达式和取等号时的降维后正方形动点。Planner 只选择当前抛物线、路径目标和正方形；相关中点、中心、轴成员关系及几何角色由代码解析并验证。attainment_point 的对象身份也由代码绑定，不是当前 Goal 的最终答案点；后续应通过 StepResultRef 消费，不要为它设置 output_targets。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "path_minimum_target",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "path_minimum_target"
+              ]
+            },
+            {
+              "name": "square",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "square"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "minimum_expression",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "仍依赖二次函数主参数时为 open_expression；参数已确定且表达式无自由符号时为 closed_value。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            },
+            {
+              "name": "attainment_point",
+              "type": "Point",
+              "binding": "exact_call_result_or_answer",
+              "reference_mode": "exact_result",
+              "desc": "正方形关系降维后唯一动点的取等坐标；对象身份由代码从结构化路径和正方形中解析。不要把它绑定为当前 Goal 的最终答案点，后续直接用 StepResultRef 消费。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "正方形不参与路径降维或轨迹传播。",
+            "路径含有无法消除的两个独立动点。",
+            "有效动点轨迹不是直线，或目标是加权距离。",
+            "当前函数状态不是二次函数。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "quadratic_square_path_minimum/path_reduction",
+        "quadratic_square_path_minimum/reflection_minimum"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": {
+        "path_reduction": [
+          "AtomicSquarePathReductionMarker"
+        ],
+        "reflection_minimum": [
+          "AtomicPathMinimumMarker"
+        ]
+      },
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "derive_path_minimum_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.E"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "quadratic_vertex_point": {
+      "kind": "function",
+      "source_id": "quadratic_vertex_point",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "quadratic_vertex_point",
+          "title": "求二次函数顶点",
+          "use_when": "输入: 抛物线表达式；输出: 顶点坐标。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "quadratic_vertex_point",
+          "title": "求二次函数顶点",
+          "use_when": "输入: 抛物线表达式；输出: 顶点坐标。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "quadratic_vertex_point",
+          "title": "求二次函数顶点",
+          "use_when": "输入: 抛物线表达式；输出: 顶点坐标。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "quadratic_vertex_point",
+          "title": "求二次函数顶点",
+          "use_when": "输入: 抛物线表达式；输出: 顶点坐标。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "quadratic_vertex_point/read_vertex"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "QuadraticVertexMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "derive_vertex_P_i",
+          "scope_ref": "i_1",
+          "goal_ref": "i_1.P"
+        },
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "derive_vertex_i",
+          "scope_ref": "i",
+          "goal_ref": "i.P"
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "step_id": "derive_vertex_i",
+          "scope_ref": "i",
+          "goal_ref": "i.vertex"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "quadratic_x_axis_intercept_point": {
+      "kind": "function",
+      "source_id": "quadratic_x_axis_intercept_point",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "quadratic_x_axis_intercept_point",
+          "title": "求二次函数与 x 轴交点",
+          "use_when": "从当前抛物线求指定的 x 轴交点，坐标可以保留参数。known_point 仅表示另一个已经求出坐标的 x 轴交点；未知时应省略，不能填写当前目标点。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "known_point",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one",
+              "role": "可选的另一个 x 轴交点，必须已经具有坐标。不能填写当前正在求解的目标点；若没有另一个已知坐标的交点则直接省略。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "不要把当前正在求解的目标交点同时作为 known_point。",
+            "只有 Point identity 或点名、尚无坐标状态的点不能作为 known_point。",
+            "同一目标点已有可见含参坐标时，不要从无状态依赖的另一条抛物线直接覆盖；应继续闭合已有点状态，或确保当前抛物线状态可证明由前序抛物线状态闭合得到。"
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "quadratic_x_axis_intercept_point",
+          "title": "求二次函数与 x 轴交点",
+          "use_when": "从当前抛物线求指定的 x 轴交点，坐标可以保留参数。known_point 仅表示另一个已经求出坐标的 x 轴交点；未知时应省略，不能填写当前目标点。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "known_point",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one",
+              "role": "可选的另一个 x 轴交点，必须已经具有坐标。不能填写当前正在求解的目标点；若没有另一个已知坐标的交点则直接省略。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "不要把当前正在求解的目标交点同时作为 known_point。",
+            "只有 Point identity 或点名、尚无坐标状态的点不能作为 known_point。",
+            "同一目标点已有可见含参坐标时，不要从无状态依赖的另一条抛物线直接覆盖；应继续闭合已有点状态，或确保当前抛物线状态可证明由前序抛物线状态闭合得到。"
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "quadratic_x_axis_intercept_point",
+          "title": "求二次函数与 x 轴交点",
+          "use_when": "从当前抛物线求指定的 x 轴交点，坐标可以保留参数。known_point 仅表示另一个已经求出坐标的 x 轴交点；未知时应省略，不能填写当前目标点。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "known_point",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one",
+              "role": "可选的另一个 x 轴交点，必须已经具有坐标。不能填写当前正在求解的目标点；若没有另一个已知坐标的交点则直接省略。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "不要把当前正在求解的目标交点同时作为 known_point。",
+            "只有 Point identity 或点名、尚无坐标状态的点不能作为 known_point。",
+            "同一目标点已有可见含参坐标时，不要从无状态依赖的另一条抛物线直接覆盖；应继续闭合已有点状态，或确保当前抛物线状态可证明由前序抛物线状态闭合得到。"
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "quadratic_x_axis_intercept_point",
+          "title": "求二次函数与 x 轴交点",
+          "use_when": "从当前抛物线求指定的 x 轴交点，坐标可以保留参数。known_point 仅表示另一个已经求出坐标的 x 轴交点；未知时应省略，不能填写当前目标点。",
+          "args": [
+            {
+              "name": "parabola",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+            },
+            {
+              "name": "known_point",
+              "domain_type": "Point",
+              "required": false,
+              "cardinality": "one",
+              "role": "可选的另一个 x 轴交点，必须已经具有坐标。不能填写当前正在求解的目标点；若没有另一个已知坐标的交点则直接省略。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "不要把当前正在求解的目标交点同时作为 known_point。",
+            "只有 Point identity 或点名、尚无坐标状态的点不能作为 known_point。",
+            "同一目标点已有可见含参坐标时，不要从无状态依赖的另一条抛物线直接覆盖；应继续闭合已有点状态，或确保当前抛物线状态可证明由前序抛物线状态闭合得到。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "quadratic_x_axis_intercept_point/solve_intercept"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "QuadraticXAxisInterceptMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "derive_x_intercept_A_i",
+          "scope_ref": "i",
+          "goal_ref": null
+        },
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "derive_x_intercept_B_i",
+          "scope_ref": "i_2",
+          "goal_ref": "i_2.E"
+        },
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "derive_x_intercept_B_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.a"
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "step_id": "derive_x_intercept_B_ii",
+          "scope_ref": "ii",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "quadratic_y_axis_intercept_point": {
+      "kind": "function",
+      "source_id": "quadratic_y_axis_intercept_point",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "title": "求二次函数与 y 轴交点",
+          "use_when": "输入二次函数表达式；输出 x=0 时的 y 轴交点。原函数可以含其它未定系数，但输出坐标至多保留一个独立参数。",
+          "args": [
+            {
+              "name": "quadratic",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "截距仍含一个未定参数时为 open_state；不存在自由参数时为 closed_state。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "max_independent_free_parameters": 1
+            }
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "title": "求二次函数与 y 轴交点",
+          "use_when": "输入二次函数表达式；输出 x=0 时的 y 轴交点。原函数可以含其它未定系数，但输出坐标至多保留一个独立参数。",
+          "args": [
+            {
+              "name": "quadratic",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "截距仍含一个未定参数时为 open_state；不存在自由参数时为 closed_state。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "max_independent_free_parameters": 1
+            }
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "title": "求二次函数与 y 轴交点",
+          "use_when": "输入二次函数表达式；输出 x=0 时的 y 轴交点。原函数可以含其它未定系数，但输出坐标至多保留一个独立参数。",
+          "args": [
+            {
+              "name": "quadratic",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "截距仍含一个未定参数时为 open_state；不存在自由参数时为 closed_state。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "max_independent_free_parameters": 1
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "title": "求二次函数与 y 轴交点",
+          "use_when": "输入二次函数表达式；输出 x=0 时的 y 轴交点。原函数可以含其它未定系数，但输出坐标至多保留一个独立参数。",
+          "args": [
+            {
+              "name": "quadratic",
+              "domain_type": "QuadraticFunction",
+              "required": true,
+              "cardinality": "one",
+              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "截距仍含一个未定参数时为 open_state；不存在自由参数时为 closed_state。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ],
+              "max_independent_free_parameters": 1
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "quadratic_y_axis_intercept_point/solve_intercept"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "QuadraticYAxisInterceptMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "derive_y_intercept_C_i",
+          "scope_ref": "problem",
+          "goal_ref": null
+        },
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "derive_y_intercept_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.D"
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "step_id": "derive_y_intercept_C_ii",
+          "scope_ref": "ii",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "right_angle_equal_length_candidates": {
+      "kind": "function",
+      "source_id": "right_angle_equal_length_candidates",
+      "families": [
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "right_angle_equal_length_candidates",
+          "title": "直角等腰旋转列候选点",
+          "use_when": "输入: 直角顶点、已知端点和未知端点定义，点坐标可含参数；输出: 直角等腰旋转得到的两个候选点，候选坐标可保留参数。",
+          "args": [
+            {
+              "name": "target",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one",
+              "role": "target"
+            },
+            {
+              "name": "right_angle_equal_length",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "right_angle_equal_length"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "candidates",
+              "type": "PointList",
+              "binding": "internal_only",
+              "value_cardinality": "aggregate",
+              "required": false,
+              "desc": "返回值是一个整体的 PointList 聚合值，不是单个对象。该 return 是 internal_only，不能设置 return binding。"
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "right_angle_equal_length_candidates/construct_candidates"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "RightAngleEqualLengthCandidatesMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "derive_right_angle_candidates_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.D"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "right_angle_equal_length_construct_and_select": {
+      "kind": "macro",
+      "source_id": "right_angle_equal_length_construct_and_select",
+      "families": [
+        "QuadraticPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "right_angle_equal_length_construct_and_select",
+          "title": "直角等腰构造并筛选点",
+          "use_when": "由直角等腰/旋转关系先列出候选点，再结合象限、参数范围或曲线条件筛选出符合题设的点。",
+          "args": [
+            {
+              "name": "right_angle_equal_length",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "right_angle_equal_length"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "selected_target_point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "只有直角或等长中的单个条件，无法确定构造点所需的完整对象角色和约束。",
+            "只有完整直角等长关系、曲线归属和参数正负条件，但没有明确的象限、方向或唯一几何筛选条件；此时应先列出全部几何候选，再使用曲线和参数条件筛选，不能假定默认旋转方向。"
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "right_angle_equal_length_construct_and_select",
+          "title": "直角等腰构造并筛选点",
+          "use_when": "仅在直角等腰关系之外，还存在能够直接唯一选择旋转分支的象限、方向或同类几何筛选条件时，生成候选并立即选出目标点。若分支只能通过“点在曲线上”和参数正负条件确定，应使用候选生成能力后再进行曲线筛选。",
+          "args": [
+            {
+              "name": "right_angle_equal_length",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "right_angle_equal_length"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "selected_target_point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "只有直角或等长中的单个条件，无法确定构造点所需的完整对象角色和约束。",
+            "只有完整直角等长关系、曲线归属和参数正负条件，但没有明确的象限、方向或唯一几何筛选条件；此时应先列出全部几何候选，再使用曲线和参数条件筛选，不能假定默认旋转方向。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "right_angle_equal_length_construct_and_select/construct_candidates",
+        "right_angle_equal_length_construct_and_select/select_candidate"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": {
+        "construct_candidates": [
+          "QuadraticContextMarker",
+          "RightAngleEqualLengthCandidatesMarker"
+        ],
+        "select_candidate": [
+          "CandidateSelectionMarker"
+        ]
+      },
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-nankai-yimo-25",
+          "step_id": "ii_construct_N",
+          "scope_ref": "ii",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "square_adjacent_vertex_from_side": {
+      "kind": "function",
+      "source_id": "square_adjacent_vertex_from_side",
+      "families": [
+        "QuadraticSquareReflectionPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "square_adjacent_vertex_from_side",
+          "title": "由正方形边求相邻顶点",
+          "use_when": "由正方形一条已知边的两个已计算端点、顶点顺序和方向条件，求指定相邻顶点的坐标表达式。必须通过公开返回角色 adjacent_vertex 明确绑定本次要计算的正方形顶点；代码用该对象在 ordered vertices 中的角色确定旋转方向，不会在多个剩余顶点之间猜测。该能力只做 90° 旋转构造，不负责把顶点代入曲线求参数。",
+          "args": [
+            {
+              "name": "side_start",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "side_end",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            },
+            {
+              "name": "square",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "square"
+              ]
+            },
+            {
+              "name": "parameter_value",
+              "domain_type": "Symbol",
+              "required": false,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "adjacent_vertex",
+              "type": "Point",
+              "binding": "explicit_answer_or_existing_object",
+              "desc": "由正方形的一条有向边恢复相邻顶点；返回必须绑定本次实际求出的题面对象。 坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "已知边任一端点只有对象引用而没有坐标状态。",
+            "目标是求当前边端点本身，而不是由这条边旋转得到的相邻顶点。",
+            "正方形关系中仍有多个合法候选顶点，但没有通过公开返回角色 adjacent_vertex 明确绑定本次要计算的对象。",
+            "side_start 或 side_end 来自前序 call，但该返回没有绑定到正方形中对应的已有顶点对象；call-local Point 不能代替 ordered vertices 中的对象身份。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "square_adjacent_vertex_from_side/derive_adjacent_vertex"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "SquareAdjacentVertexMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "derive_square_vertex_G_i",
+          "scope_ref": "i_2",
+          "goal_ref": "i_2.E"
+        },
+        {
+          "problem_id": "tj-2026-heping-ermo-25",
+          "step_id": "recover_target_point_E_ii",
+          "scope_ref": "ii",
+          "goal_ref": "ii.E"
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "translated_point": {
+      "kind": "function",
+      "source_id": "translated_point",
+      "families": [
+        "QuadraticEqualLengthRayPathMinimumSolver",
+        "QuadraticPathMinimumSolver",
+        "QuadraticSquareReflectionPathMinimumSolver",
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticEqualLengthRayPathMinimumSolver": {
+          "capability_id": "translated_point",
+          "title": "由平移求点坐标",
+          "use_when": "输入: 源点坐标和目标 Point identity 中的平移向量；输出: 目标点坐标。",
+          "args": [
+            {
+              "name": "source",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        },
+        "QuadraticPathMinimumSolver": {
+          "capability_id": "translated_point",
+          "title": "由平移求点坐标",
+          "use_when": "输入: 源点坐标和目标 Point identity 中的平移向量；输出: 目标点坐标。",
+          "args": [
+            {
+              "name": "source",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        },
+        "QuadraticSquareReflectionPathMinimumSolver": {
+          "capability_id": "translated_point",
+          "title": "由平移求点坐标",
+          "use_when": "输入: 源点坐标和目标 Point identity 中的平移向量；输出: 目标点坐标。",
+          "args": [
+            {
+              "name": "source",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        },
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "translated_point",
+          "title": "由平移求点坐标",
+          "use_when": "输入: 源点坐标和目标 Point identity 中的平移向量；输出: 目标点坐标。",
+          "args": [
+            {
+              "name": "source",
+              "domain_type": "Point",
+              "required": true,
+              "cardinality": "one"
+            }
+          ],
+          "returns": [
+            {
+              "name": "point",
+              "type": "Point",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "坐标仍含未确定符号时为 open_state；不存在自由符号时为 closed_state。重复写入同一对象时，代码会验证它是否为状态收敛。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_state",
+                "closed_state"
+              ]
+            }
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "translated_point/apply_translation"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": [
+        "TranslationMarker"
+      ],
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-heping-yimo-25",
+          "step_id": "derive_translated_D_i",
+          "scope_ref": "problem",
+          "goal_ref": null
+        }
+      ],
+      "synthetic_scenario": null
+    },
+    "weighted_axis_path_minimum": {
+      "kind": "macro",
+      "source_id": "weighted_axis_path_minimum",
+      "families": [
+        "QuadraticWeightedPathMinimumSolver"
+      ],
+      "public_contract": {
+        "QuadraticWeightedPathMinimumSolver": {
+          "capability_id": "weighted_axis_path_minimum",
+          "title": "加权轴上路径最值",
+          "use_when": "当路径目标恰由一个非单位权重线段和一个普通线段组成、两项共享同一轴上动点，且加权端点已有单参数坐标状态时，原子完成辅助三角形、轨迹、折线拉直、合法域和取等可达性验证。Planner 只选择完整的 path_minimum_target；曲线端点、轴上固定端点、动点、两个参数及其定义域全部由代码从 typed path terms 和可见状态唯一解析。该 Macro 只返回最小值表达式；题设给定最小值后，继续用普通参数求解能力。",
+          "args": [
+            {
+              "name": "path_minimum_target",
+              "domain_type": "Fact",
+              "required": true,
+              "cardinality": "one",
+              "fact_types": [
+                "path_minimum_target"
+              ]
+            }
+          ],
+          "returns": [
+            {
+              "name": "minimum_expression",
+              "type": "MinimumExpression",
+              "binding": "call_result_or_answer_or_existing_object",
+              "desc": "仍依赖主参数时为 open_expression；参数已确定且结果无自由符号时为 closed_value。定义域边界会由内核直接表示为 Piecewise，不增加 Planner 步骤。",
+              "return_expectation_policy": "selectable",
+              "possible_forms": [
+                "open_expression",
+                "closed_value"
+              ]
+            }
+          ],
+          "do_not_use_when": [
+            "路径没有非单位权重，或两项不共享同一个轴上动点。",
+            "加权系数没有登记对应的辅助三角形几何 profile。",
+            "加权端点尚未物化为只含一个主参数的 Point 状态。",
+            "目标需要正方形降维、两动点端点替换或等长射线构造。"
+          ]
+        }
+      },
+      "teaching_disposition": "explicit",
+      "teaching_units": [
+        "weighted_axis_path_minimum/weighted_reduction",
+        "weighted_axis_path_minimum/domain_minimum"
+      ],
+      "generic_teaching_reason": null,
+      "visual_disposition": "explicit",
+      "visual_components": {
+        "domain_minimum": [
+          "AtomicPathMinimumMarker"
+        ],
+        "weighted_reduction": [
+          "AtomicPathMinimumMarker"
+        ]
+      },
+      "no_new_visual_reason": null,
+      "diagnostics": [],
+      "recorded_occurrences": [
+        {
+          "problem_id": "tj-2026-hexi-yimo-25",
+          "step_id": "derive_weighted_minimum_iii",
+          "scope_ref": "iii",
+          "goal_ref": "iii.b"
+        },
+        {
+          "problem_id": "tj-2026-xiqing-yimo-25",
+          "step_id": "derive_weighted_minimum_ii",
+          "scope_ref": "ii_2",
+          "goal_ref": "ii_2.b"
+        }
+      ],
+      "synthetic_scenario": null
+    }
+  },
+  "internal_capabilities": [
+    {
+      "method_id": "coupled_segment_endpoint_replacement_path_minimum_kernel",
+      "public": false,
+      "teaching_source_allowed": false
+    },
+    {
+      "method_id": "filter_point_candidates_by_quadratic_curve",
+      "public": false,
+      "teaching_source_allowed": false
+    },
+    {
+      "method_id": "organize_expressions",
+      "public": false,
+      "teaching_source_allowed": false
+    },
+    {
+      "method_id": "parameter_from_curve_point_on_quadratic",
+      "public": false,
+      "teaching_source_allowed": false
+    },
+    {
+      "method_id": "quadratic_axis_x_intercept_point",
+      "public": false,
+      "teaching_source_allowed": false
+    },
+    {
+      "method_id": "quadratic_square_path_minimum_kernel",
+      "public": false,
+      "teaching_source_allowed": false
+    },
+    {
+      "method_id": "select_point_by_quadrant_constraint",
+      "public": false,
+      "teaching_source_allowed": false
+    },
+    {
+      "method_id": "square_opposite_point",
+      "public": false,
+      "teaching_source_allowed": false
+    },
+    {
+      "method_id": "weighted_axis_path_minimum_kernel",
+      "public": false,
+      "teaching_source_allowed": false
+    }
+  ],
+  "diagnostics": []
+}

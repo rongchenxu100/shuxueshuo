@@ -1,0 +1,200 @@
+{
+  "format": "functional-plan-content/v2",
+  "goal_plans": {
+    "i_1.P": {
+      "answer_from": {
+        "step_id": "vertex_P",
+        "return": "point"
+      },
+      "steps": [
+        {
+          "step_id": "vertex_P",
+          "capability_id": "quadratic_vertex_point",
+          "intent": "求第（Ⅰ）问①中顶点P的坐标。",
+          "args": {
+            "parabola": "Γ"
+          },
+          "output_targets": {
+            "point": "P"
+          },
+          "return_expectations": {
+            "point": "closed_state"
+          }
+        }
+      ]
+    },
+    "i_1.A": {
+      "answer_from": {
+        "step_id": "intercept_A",
+        "return": "point"
+      },
+      "steps": [
+        {
+          "step_id": "intercept_A",
+          "capability_id": "quadratic_x_axis_intercept_point",
+          "intent": "求第（Ⅰ）问①中x轴交点A的坐标。",
+          "args": {
+            "parabola": "Γ"
+          },
+          "output_targets": {
+            "point": "A"
+          },
+          "return_expectations": {
+            "point": "closed_state"
+          }
+        }
+      ]
+    },
+    "i_2.E": {
+      "answer_from": {
+        "step_id": "i2_candidates",
+        "return": "candidates"
+      },
+      "steps": [
+        {
+          "step_id": "i2_intercept_A",
+          "capability_id": "quadratic_x_axis_intercept_point",
+          "intent": "求当前抛物线在x轴上的交点A，为正方形边提供起点坐标。",
+          "args": {
+            "parabola": "Γ"
+          },
+          "output_targets": {
+            "point": "A"
+          },
+          "return_expectations": {
+            "point": "closed_state"
+          }
+        },
+        {
+          "step_id": "i2_axis_E",
+          "capability_id": "quadratic_axis_parameterized_point",
+          "intent": "构造对称轴上的参数化点E。",
+          "args": {
+            "parabola": "Γ"
+          },
+          "output_targets": {
+            "point": "E"
+          },
+          "return_expectations": {
+            "point": "open_state"
+          }
+        },
+        {
+          "step_id": "i2_G",
+          "capability_id": "square_adjacent_vertex_from_side",
+          "intent": "由正方形边AE求相邻顶点G的参数化坐标。",
+          "args": {
+            "side_start": "A",
+            "side_end": {
+              "step_id": "i2_axis_E",
+              "return": "point"
+            },
+            "square": "square(A,E,K,G)"
+          },
+          "output_targets": {
+            "adjacent_vertex": "G"
+          },
+          "return_expectations": {
+            "adjacent_vertex": "open_state"
+          }
+        },
+        {
+          "step_id": "i2_candidates",
+          "capability_id": "point_candidates_from_curve_point_condition",
+          "intent": "由G∈Γ反求E的候选点列表。",
+          "args": {
+            "target_point": {
+              "step_id": "i2_axis_E",
+              "return": "point"
+            },
+            "curve_point": {
+              "step_id": "i2_G",
+              "return": "adjacent_vertex"
+            },
+            "parabola": "Γ",
+            "parameter": {
+              "step_id": "i2_axis_E",
+              "return": "parameter"
+            }
+          },
+          "output_targets": {
+            "candidates": "E"
+          }
+        }
+      ]
+    },
+    "ii.E": {
+      "answer_from": {
+        "step_id": "ii_evaluate_E",
+        "return": "evaluated_point"
+      },
+      "steps": [
+        {
+          "step_id": "ii_build_parabola",
+          "capability_id": "quadratic_from_constraints",
+          "intent": "利用A=(-c,0)在抛物线上，将抛物线化为含单参数c的状态。",
+          "args": {
+            "curve_point": "A",
+            "free_parameters": "c"
+          },
+          "return_expectations": {
+            "parabola": "open_state"
+          }
+        },
+        {
+          "step_id": "ii_path_min",
+          "capability_id": "quadratic_square_path_minimum",
+          "intent": "原子求正方形路径HF+FM+MG的最小值表达式及取等点。",
+          "args": {
+            "parabola": {
+              "step_id": "ii_build_parabola",
+              "return": "parabola"
+            },
+            "path_minimum_target": "HF+FM+MG",
+            "square": "square(A,E,K,G)"
+          },
+          "return_expectations": {
+            "minimum_expression": "open_expression"
+          }
+        },
+        {
+          "step_id": "ii_solve_c",
+          "capability_id": "parameter_from_expression_value",
+          "intent": "由最小值等于3√5反求参数c。",
+          "args": {
+            "expression": {
+              "step_id": "ii_path_min",
+              "return": "minimum_expression"
+            },
+            "minimum_value": "min(HF+FM+MG)=3*sqrt(5)",
+            "parameter": "c"
+          },
+          "output_targets": {
+            "parameter_value": "c"
+          }
+        },
+        {
+          "step_id": "ii_evaluate_E",
+          "capability_id": "evaluate_point_at_parameter",
+          "intent": "将已求参数c代入取等点坐标，得到E的最终坐标。",
+          "args": {
+            "point": {
+              "step_id": "ii_path_min",
+              "return": "attainment_point"
+            },
+            "parameter_value": {
+              "step_id": "ii_solve_c",
+              "return": "parameter_value"
+            }
+          },
+          "output_targets": {
+            "evaluated_point": "E"
+          },
+          "return_expectations": {
+            "evaluated_point": "closed_state"
+          }
+        }
+      ]
+    }
+  }
+}

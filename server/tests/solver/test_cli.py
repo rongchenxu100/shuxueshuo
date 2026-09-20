@@ -168,6 +168,8 @@ def test_solve_problem_cli_strategy_recorded_explicit(tmp_path) -> None:
             "strategy",
             "--llm-provider",
             "recorded",
+            "--argument-encoding",
+            "source-ref",
         ],
         check=False,
         capture_output=True,

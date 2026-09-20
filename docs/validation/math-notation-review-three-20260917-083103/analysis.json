@@ -1,0 +1,471 @@
+{
+  "scope": "three_review_only_same_images_and_candidates_no_extraction_or_repair",
+  "selection": [
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "response": "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-nankai-yimo-25/workflow/calls/01-review/response.json",
+      "input_tokens": 7369,
+      "output_tokens": 8998,
+      "reasoning_tokens": 8987,
+      "visible_output_tokens": 11,
+      "usage_available": true,
+      "seconds": 43.418
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "response": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-hexi-yimo-25/workflow/calls/02-review/response.json",
+      "input_tokens": 5938,
+      "output_tokens": 8805,
+      "reasoning_tokens": 8794,
+      "visible_output_tokens": 11,
+      "usage_available": true,
+      "seconds": 41.614
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "response": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-xiqing-yimo-25/workflow/calls/02-review/response.json",
+      "input_tokens": 5825,
+      "output_tokens": 6799,
+      "reasoning_tokens": 6788,
+      "visible_output_tokens": 11,
+      "usage_available": true,
+      "seconds": 33.362
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "response": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-heping-ermo-25/workflow/calls/02-review/response.json",
+      "input_tokens": 5997,
+      "output_tokens": 5310,
+      "reasoning_tokens": 5299,
+      "visible_output_tokens": 11,
+      "usage_available": true,
+      "seconds": 24.551
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "response": "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-heping-yimo-25/workflow/calls/01-review/response.json",
+      "input_tokens": 7367,
+      "output_tokens": 2128,
+      "reasoning_tokens": 2117,
+      "visible_output_tokens": 11,
+      "usage_available": true,
+      "seconds": 12.941
+    },
+    {
+      "case": "function-quantifiers",
+      "response": "internal/solver-runs/math-notation-review-repair-20260916-222053/function-quantifiers/workflow/calls/02-review/response.json",
+      "input_tokens": 5592,
+      "output_tokens": 1458,
+      "reasoning_tokens": 1447,
+      "visible_output_tokens": 11,
+      "usage_available": true,
+      "seconds": 7.694
+    }
+  ],
+  "cases": {
+    "tj-2026-hexi-yimo-25": {
+      "title": "河西一模",
+      "metrics": {
+        "input_tokens": {
+          "before": 5938,
+          "after": 7439,
+          "change_percent": 25.28
+        },
+        "output_tokens": {
+          "before": 8805,
+          "after": 11452,
+          "change_percent": 30.06
+        },
+        "reasoning_tokens": {
+          "before": 8794,
+          "after": 11441,
+          "change_percent": 30.1
+        },
+        "visible_output_tokens": {
+          "before": 11,
+          "after": 11,
+          "change_percent": 0.0
+        },
+        "seconds": {
+          "before": 41.614,
+          "after": 58.68,
+          "change_percent": 41.01
+        },
+        "total_tokens": {
+          "before": 14743,
+          "after": 18891,
+          "change_percent": 28.14
+        }
+      },
+      "review": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "semantic_calls": 1,
+      "network_attempts": 1,
+      "file_api_calls": 1,
+      "file_operations": [
+        {
+          "operation": "upload",
+          "status": "completed",
+          "sha256": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+          "api_calls": 1,
+          "file_id": "file-api-df26542c-34f0-4569-826a-4bee376acbb4",
+          "expires_at": 1789691477,
+          "elapsed_ms": 773
+        }
+      ],
+      "baseline_response": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-hexi-yimo-25/workflow/calls/02-review/response.json",
+      "cache_hit_tokens": {
+        "before": 4224,
+        "after": 0
+      },
+      "thinking": {
+        "before_chars": 14687,
+        "after_chars": 19563,
+        "after_lines": 291,
+        "literal_counts": {
+          "path_minimum_target": 13,
+          "confirmed": 14,
+          "at_word": 29
+        }
+      },
+      "analysis": {
+        "summary": "thinking 增加 30.10%，本轮最耗时；主要问题是已经确认后继续反复排查。",
+        "checks": "核对了 -b*x 的负号、b+1/2 的分数范围、角 CAD 的顶点、N 的正半轴、三个小问的 a 值和 A∈Γ 的归属。",
+        "problems": "L57、119、156、188 多次因注册表中的旧 path_minimum_target 类型怀疑遗漏字段；全文该名称出现 13 次。L125、152、170 开始代入曲线推导 c 或 y_M，随后又承认无需展开。L252 已表示可 confirmed，仍继续到 L291；全文 confirmed 出现 14 次。",
+        "visual": "没有出现需要保留的具体读图歧义；最终没有误改候选，但大段重复没有带来新的来源差异。"
+      },
+      "evidence": [
+        {
+          "topic": "来源检查",
+          "start_line": 41,
+          "end_line": 50,
+          "text": "- 原图 III 中“当a=1时，点A(-1,0)在该抛物线上”有。候选有。\n- “且有点M(b+1/2, y_M)在抛物线上”有。\n- “点N(n,0)是x轴正半轴上的动点”：候选 N=(n,0), n>0, N为动点。原图 x轴正半轴，n>0 正确；N为动点正确。但可能还缺少“N在x轴”已经由 N=(n,0) 表达。可以。\n- “当√2 MN + AN的最小值为21/4时，求b的值”：候选 facts 有 min(sqrt(2)*MN + AN) = 21/4；goals find_value b；at: sqrt(2)*MN + AN = min(...)。这个 at 正确：求b在最小值时。但注意原题的条件“当...最小值为...时”是条件，不只是目标修饰。候选把 min=21/4放在 facts，并在 goal at 填关系，正确。\n\n但是需要检查是否有遗漏：原图 (III) 中 “点A(-1,0)在该抛物线上”，候选 A∈Γ。注意：A∈Γ 在 II 中也有，III 中也有。候选 III 有。\n- 原图 III 中“点M(b+1/2, y_M)在抛物线上”，候选 M = (b + 1/2, y_M)，M∈Γ。注意：坐标中的 y_M 是下标 M 的 y 坐标，可以。\n- 原题“点N(n,0)是x轴正半轴上的动点”：候选 N=(n,0)，n>0，N为动点。但原题说 N(n,0) 在 x 轴正半轴，n>0 正确。但 N 在 x 轴上由 n,0 表达；可以。\n- 原题“√2 MN + AN”中 √2 是系数，候选 sqrt(2)*MN + AN 正确。\n- 原题最小值 21/4，候选 21/4 正确。"
+        },
+        {
+          "topic": "旧类型字段干扰",
+          "start_line": 52,
+          "end_line": 57,
+          "text": "整体看候选基本一致。但需要检查匹配 family 是否合适。题目 (III) 是二次函数加权路径最值，目标 √2 MN + AN 最小值为 21/4，求 b。family QuadraticWeightedPathMinimumSolver 要求：\nrequired_source_primitives:\n- function: 至少一个二次函数对象。有 Γ: y = a*x^2 - b*x + c。\n- path_minimum_target: 必须用 path_minimum_target 声明完整带权路径；sibling 比例事实不可替代。\n- minimum_value: 题面必须直接提出或给出路径最小值。\n候选 facts 只有 min(sqrt(2)*MN + AN) = 21/4，没有显式 path_minimum_target？但根据 candidate_contract 没有说明 match 字段细节，但 code_validation match_declaration passed。然而复核职责包括题型适用？八类中第6目标与状态，还有图像完整性等。我们需要检查是否 matched 合理。候选 match_reason 说“第(III)问目标为加权路径 sqrt(2)*MN + AN 的最小值为 21/4，符合加权路径最值题型。”这个匹配可能正确？但原题第(III)问有射线？没有射线。是二次函数加权路径最值。family 要求 required_source_primitives 中 path_minimum_target 类型。候选 facts 中 \"min(sqrt(2)*MN + AN) = 21/4\" 可能被识别为 minimum_value，但不显式 path_minimum_target？这可能是代码映射问题，不是我们纠正的字段？但复核要检查题型适用吗？候选的 match_status 为 matched，family_id 正确？题面确实有二次函数和加权路径最小值；但需要注意的是 QuadraticWeightedPathMinimumSolver 的 use_when：目标明确形如 k*PA+PB，且 k 不等于1；该权重是最值目标的一部分，需要加权几何变换后才能使用最短路径。这里 √2 MN + AN，k=√2 ≠1；但注意路径是 M 到 N 加 A 到 N，两个动点？N 动点，M 是定点？题面 M(b+1/2, y_M) 在抛物线上，M 实际上由 b 决定，不是动点？可能 M 是抛物线上一点，但 y_M 是纵坐标，当 b 变化时 M 变化。但最值关于 N 动点？加权路径。family 可能匹配。我们不需要重新求解，但需要判断是否有题型不适用？do_not_use_when: 系数只出现在函数、方程或普通线段比例中，而不是路径目标的权重。这里系数 √2 出现在路径目标中，所以适用。核心机制不是射线等长或正方形反射，是加权。可以。所以匹配可能没问题。"
+        },
+        {
+          "topic": "再次讨论旧字段",
+          "start_line": 117,
+          "end_line": 125,
+          "text": "可能存在的问题：候选 (III) 的 goals 中 at 表达式是 `\"sqrt(2)*MN + AN = min(sqrt(2)*MN + AN)\"`，但原题是“当√2 MN + AN的最小值为21/4时，求b的值”。通常 goal_at 应该写表达式等于其最小值；候选写了等于 min(表达式)，可以。但候选同时 facts 有 `min(sqrt(2)*MN + AN) = 21/4`，这是原题的最小值条件。两者并存可以。但需注意：at 字段用于表达“此时”，而 facts 中的 min=21/4 是条件。可以。\n\n现在，我们需要检查匹配的 family 是否合适；如果不合适，属于题型适用问题吗？第6目标与状态？还是 match 声明？candidate_contract 中 match_status matched；我们的复核职责包括检查题型适用？在“已经约定的记法与缺省规则”中说“依据 use_when、来源条件与排除条件检查题型，不强迫合法 unmatched 匹配，不推导求解机制。” 所以可以检查。但候选 family 是 QuadraticWeightedPathMinimumSolver。题面是否属于加权路径最值？目标 `sqrt(2)*MN + AN`，系数 √2 不为1；但路径是 MN + AN，两个线段共享 N？M 不是动点？加权路径最值题型通常 k*PA+PB，这里 k=√2，路径项 MN + AN。满足。但 use_when 说“目标明确形如 k*PA+PB，且 k 不等于1；该权重是最值目标的一部分，需要加权几何变换后才能使用最短路径。” 这里 k=√2，符合。required_source_primitives 中 path_minimum_target 必须用 path_minimum_target 声明完整带权路径；候选没有显式 path_minimum_target 字段，但在 facts 中有 min(sqrt(2)*MN+AN)=21/4，可能被识别为包含路径最小值。代码验证 match_declaration passed，可能映射到了。复核不需要纠正字段？但如果候选缺少必要的 path_minimum_target 类型，可能 wrong_expression? 但问题在于候选只有 min(...)=21/4，这是 minimum_value 事实，不一定是 path_minimum_target。但代码通过，我们不能仅因缺少字段名而判错；数学内容完整。可以。\n\n可能另一个问题：原题 (III) 中有“点N(n,0)是x轴正半轴上的动点”，候选写 `N=(n,0)` 和 `n > 0`；但是原题括号中的“n,0”中 n 可能是参数，且 n>0。候选正确。但原题中“点N(n,0)是x轴正半轴上的动点”并没有明确说 n 是变量，但 N 是动点，所以 n 是变量。候选 N为动点，可以。但是，候选在 goals 中 find_value b，没有要求求 n；可以。\n\n现在，我们可能发现候选 (III) 中“N为动点”是中文，允许点角色声明，但也可以省略；有也可以。可以。\n\n可能存在的一个大问题：原题 (III) 中“当a=1时，点A(-1,0)在该抛物线上，且有点M(b + 1/2, y_M)在抛物线上，点N(n,0)是x轴正半轴上的动点，当√2 MN + AN的最小值为21/4时，求b的值。” 注意，在 (III) 中，M 的坐标包含 b + 1/2，且 M 在抛物线上，但抛物线方程 Γ: y = a x^2 - b x + c。当 a=1 时，抛物线为 y = x^2 - b x + c。A(-1,0) 在抛物线上意味着 0 = 1 + b + c，即 c = -1 - b。但候选没有写这个关系？它写 A ∈ Γ，这是条件，不需要显式展开。可以。M 在抛物线上也是一个条件，候选写 M ∈ Γ，可以。但原题中 A(-1,0) 在抛物线上，这是一个条件，候选有 A∈Γ。可以。"
+        },
+        {
+          "topic": "不必要的代数展开",
+          "start_line": 152,
+          "end_line": 152,
+          "text": "现在，我们需要考虑原题 (III) 中“点A(-1,0)在该抛物线上”是在“当a=1时”之后，并且与 (II) 的 A 是否相同？候选 III 重新写 A=(-1,0)，可以。但注意：原题 (II) 中 A(-1,0) 也在抛物线上，但 (II) 的 a=2，抛物线是 y = 2x^2 - b x + c，A(-1,0) 在抛物线上意味着 0 = 2 + b + c，即 c = -2 - b。而 (III) 的 a=1，抛物线是 y = x^2 - b x + c，A(-1,0) 在抛物线上意味着 0 = 1 + b + c，即 c = -1 - b。这两个 b 相同吗？题目中 b 是同一个参数，但不同分问可能取不同的 a，所以 b 可能被不同条件约束；没有问题。候选各自保留局部条件。"
+        },
+        {
+          "topic": "再推导纵坐标",
+          "start_line": 170,
+          "end_line": 170,
+          "text": "另一个问题：候选 (III) 中 `M = (b + 1/2, y_M)`，然后 `M ∈ Γ`。但原题中“有点M(b + 1/2, y_M)在抛物线上”，候选用 `M = ...` 和 `M ∈ Γ`。可以。但注意，如果 M ∈ Γ，那么 y_M 应该等于抛物线在 x = b+1/2 处的函数值，即 y_M = (b+1/2)^2 - b(b+1/2) + c。候选没有展开，可以。"
+        },
+        {
+          "topic": "确认后继续循环",
+          "start_line": 252,
+          "end_line": 291,
+          "text": "现在，似乎没有错误。我们可以输出 confirmed。\n\n但等等，再仔细看原图：第 (III) 行开头“（III）当a=1时，点A(-1,0)在该抛物线上，且有点M(b+1/2, y_M)在抛物线上，点N(n,0)是x轴正半轴上的动点，当√2 MN + AN的最小值为21/4时，求b的值.” 注意：这里“点A(-1,0)在该抛物线上”后面是“且有点M...在抛物线上”，两个“在抛物线上”条件。候选有 A∈Γ 和 M∈Γ。可以。\n\n但是，原题 (III) 中“点A(-1,0)在该抛物线上”中的点 A 是否与 (II) 中的 A 是同一个点？题中 A 出现多次，坐标相同 (-1,0)。候选在 II 和 III 都写了 A=(-1,0)，没问题。\n\n现在，一个潜在问题：候选 (II) 中 `A ∈ Γ` 和 `D ∈ Γ`，但原题“点A(-1,0)和点D在该抛物线上”可以理解为 A 和 D 都在抛物线上；候选有。但是，候选 `A ∈ Γ` 加上 `A = (-1,0)`，则 A 的坐标满足抛物线，但候选没有写出由 A∈Γ 推导 c 的条件；不需要。\n\n现在，一个潜在问题：候选 (II) 中 `∠CAD = 90°`，但原题是“且∠CAD = 90°，AC = AD”。候选写 ∠CAD=90°，正确。角顶点是 A，两边是 AC 和 AD；可以。\n\n现在，可能候选 (II) 中 `AC = AD` 是长度相等，候选写长度相等；可以。\n\n现在，一个可能：候选 (II) 中 `Γ ∩ y_axis = {C}` 用集合单元素；但原题“点C为抛物线与y轴的交点”没有说 C 是唯一的，但抛物线二次函数确实唯一；可以。如果严格，可以用 `C ∈ Γ ∩ y_axis`，但也可以。\n\n现在，应该 confirmed。\n\n但是，我们需要考虑原图是否有隐藏的印刷标记：指数 x^2 的 2 是上标，候选 `a*x^2` 正确。b 的符号：原题 `- b x + c`，候选 `- b*x + c`，正确。原题 `b > 0`，候选 `b > 0`，正确。原题 `a = 2`，候选 `a = 2`。原题 `b + 1/2`，候选 `b + 1/2`，正确。原题 `21/4`，候选 `21/4`，正确。\n\n现在，如果 confirmed，输出 findings 空。但我们需要确保 response_schema 要求：如果 status confirmed，findings maxItems 0；不需要其他字段。可以。\n\n但我们要不要考虑候选匹配题型 matched 但 family_id 是否准确？候选 family_id 是 QuadraticWeightedPathMinimumSolver，正确。可以。\n\n现在，也许有一个问题：原题 (III) 中“点N(n,0)是x轴正半轴上的动点”，候选写 `N = (n,0)`，但原题中 n 是参数，尚未定义；候选没有给 n 的作用域，但可以。N为动点，可以。\n\n现在，一个可能：候选 (III) 的 facts 中 `N为动点` 是中文，但允许。可以。\n\n现在，最终输出 confirmed。\n\n但等等，需要检查是否“无题设混入”：候选 root 中 definitions 有 Γ，但原题没有给抛物线符号 Γ；这是引入符号，可以。catalog 中 curve_definition 允许 `Γ: y = ...`。可以。\n候选 (I) 中 P = vertex(Γ) 是引入符号，可以。\n候选 (II) 中 Γ ∩ y_axis = {C}，引入集合，可以。\n候选 (III) 中 min(...)=21/4，是原题条件。可以。\n\n现在，可能的错误：候选 (III) 中 at 表达式写 `sqrt(2)*MN + AN = min(sqrt(2)*MN + AN)`，但原题求 b 时最小值已经给出为 21/4，所以 at 关系应紧密联系 21/4？契约说 at 只表达“取得最值时/此时”，不要求重复最小值。可以。\n\n现在，一个可能：原题 (III) 中“当√2 MN + AN的最小值为21/4时，求b的值”，其中“21/4”是数值，候选 facts 有 `min(...) = 21/4`。可以。\n\n现在，输出。\n\n但是，我们需要确保没有未解决的来源疑问。没有。所以 confirmed。"
+        }
+      ],
+      "sha256": {
+        "candidate.json": "a8b13ff401221108a439299684402adb69655e905f6e22c13e599d700c43d0c5",
+        "source-1.png": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+        "thinking.txt": "8fcb77c3658bc29bf8a3721dbfdb28ec1ffc59744d94c78b5cddc196ce4d5456",
+        "baseline-thinking.txt": "4b1556e16d3eb84bdf83a0f89986aaa19fd7a273ec8c02fe4e51e1ce7ce7eaf8",
+        "prepared-request.json": "46016e276b0e7249492be2e30188b1d51517041c3b11874834dda879586bb20d",
+        "baseline-request.json": "457af4724d338ca4eb8986bc80042ef9b2e3f49e9303b712341acae346a0235a",
+        "baseline-response.json": "bba76d5a04f2b39219195e0e05f4ca9b9813eed82fc8cabf10d7f362f4765f20",
+        "workflow/calls/01-review/request.json": "46016e276b0e7249492be2e30188b1d51517041c3b11874834dda879586bb20d",
+        "workflow/calls/01-review/response.json": "f478dfe27bcb2432d8f9d11d7eed309b0c6485cad0cfe0d16d40136e05c79c6c",
+        "workflow/calls/01-review/provider-attempts/01-request.json": "56e477016d4fb04e46a412785fba41d1e7330a57bb8b8312f74e34ace97614b4",
+        "workflow/calls/01-review/file-operations.json": "beb0328ac852ddc41adefac5d5c511ba6ab2cabca31479fb4d3c4e301ff2347a"
+      }
+    },
+    "tj-2026-nankai-yimo-25": {
+      "title": "南开一模",
+      "metrics": {
+        "input_tokens": {
+          "before": 7369,
+          "after": 7592,
+          "change_percent": 3.03
+        },
+        "output_tokens": {
+          "before": 8998,
+          "after": 8829,
+          "change_percent": -1.88
+        },
+        "reasoning_tokens": {
+          "before": 8987,
+          "after": 8818,
+          "change_percent": -1.88
+        },
+        "visible_output_tokens": {
+          "before": 11,
+          "after": 11,
+          "change_percent": 0.0
+        },
+        "seconds": {
+          "before": 43.418,
+          "after": 48.967,
+          "change_percent": 12.78
+        },
+        "total_tokens": {
+          "before": 16367,
+          "after": 16421,
+          "change_percent": 0.33
+        }
+      },
+      "review": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "semantic_calls": 1,
+      "network_attempts": 1,
+      "file_api_calls": 1,
+      "file_operations": [
+        {
+          "operation": "upload",
+          "status": "completed",
+          "sha256": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+          "api_calls": 1,
+          "file_id": "file-api-f46d38e6-a21d-4114-851a-256149ba164f",
+          "expires_at": 1789691479,
+          "elapsed_ms": 2498
+        }
+      ],
+      "baseline_response": "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-nankai-yimo-25/workflow/calls/01-review/response.json",
+      "cache_hit_tokens": {
+        "before": 0,
+        "after": 4864
+      },
+      "thinking": {
+        "before_chars": 15994,
+        "after_chars": 16308,
+        "after_lines": 311,
+        "literal_counts": {
+          "path_minimum_target": 2,
+          "confirmed": 6,
+          "at_word": 27
+        }
+      },
+      "analysis": {
+        "summary": "thinking 几乎未减少，题型机制分析和可选动点声明仍反复出现。",
+        "checks": "核对了第四象限的严格不等式、E/G 对应的线段、F 中点、两子问条件归属和两个目标的“此时”。",
+        "problems": "L193 长篇猜测 DE=√2·NG 的求解机制，甚至讨论“胡不归/阿氏圆”；这已偏离直接来源核对。L22、36、127、149、209、231 反复纠结动点标签。L253 又检查 ∧ 能否出现在 JSON，属于代码已处理的内容。",
+        "visual": "L7、68、115、185 直接接受 DM=DN，没有保留此前对扫描符号的疑问。这次未出现原先“题目需要等长”的显式论证，但也没有新的可辨认证据；MN-003 继续开放，不据此认定等长关系本身错误。"
+      },
+      "evidence": [
+        {
+          "topic": "来源检查",
+          "start_line": 22,
+          "end_line": 30,
+          "text": "- 条件完整性：原图说“点E和点G分别是线段DM和线段MN上的动点”，候选 E∈segment(D,M), G∈segment(M,N)。OK。但注意：E和G是“动点”，候选没有点角色声明，但关系已足够。可以接受？点角色声明可选。动点信息可能不需要额外。但需要E、G是动点，线段上一点。候选只写 ∈ segment，未写“动点”；但这属于角色声明，可能可接受。但原图还说“点F为线段DN的中点”，候选 F=midpoint(D,N)。OK。\n- 原图说“DE=√2 NG” 候选 DE = sqrt(2)*NG。OK。\n- 原图II：点M(m,1)和点N均在抛物线上，其中m>2，且点N在第四象限。候选 M=(m,1), m>2, M∈Γ, N∈Γ, x(N)>0 ∧ y(N)<0。第四象限意味着 x>0 且 y<0。候选用了 x(N)>0 ∧ y(N)<0。OK。\n- 对称轴与x轴相交于点D：候选 axis(Γ) ∩ x_axis = {D}。OK。\n- 与y轴相交于点C：候选 Γ ∩ y_axis = {C}。OK。\n- 2a+b=0：候选 2*a + b = 0。OK。\n- a>0：候选。\n- 分问①：当MN=√10时，求抛物线解析式，并直接写出EG+FG的最小值。候选 facts MN=sqrt(10)；goals find_equation Γ, find_minimum EG+FG。OK。\n- ②：当EG+FG取得最小值为5√10/2时，直接写出此时抛物线的解析式和点G的坐标。候选 facts min(EG+FG)=5*sqrt(10)/2；goals find_equation Γ at \"EG+FG = min(EG+FG)\", find_coordinates G at \"EG+FG = min(EG+FG)\"。这里需要检查：原句“当EG+FG取得最小值为...时，直接写出此时抛物线的解析式和点G的坐标”。意思是：在 EG+FG 取得最小值（且该最小值为给定值）的时候，求抛物线解析式和 G 坐标。候选把 at 填为 \"EG+FG = min(EG+FG)\"，这表示取得最小值时。这是符合 goal_at 的。但注意 facts 中已经写 min(EG+FG)=5√10/2。而 goals 的 at 表示此时。OK。不过候选 goal find_equation Γ 有 at，而原句“此时抛物线的解析式”确实有 at 修饰解析式；G坐标也有 at。OK。"
+        },
+        {
+          "topic": "最值与作用域",
+          "start_line": 52,
+          "end_line": 54,
+          "text": "10. 关于 II②：原图“当EG+FG取得最小值为5√10/2时，直接写出此时抛物线的解析式和点G的坐标。”候选 facts min(EG+FG)=5√10/2；goals find_equation Γ at \"EG+FG = min(EG+FG)\", find_coordinates G at \"EG+FG = min(EG+FG)\"。这个 at 表达式 \"EG+FG = min(EG+FG)\" 与 goal_at 示例一致，表示取得最值时。但需要注意：原题说“当EG+FG取得最小值为...时”，即最小值等于给定值，然后“此时”的解析式和G坐标。候选 facts 记录了 min 值；goals 的 at 只写取得最小值状态，没有把具体的 min 值加进去。这应该可以，因为 facts 已经给出。根据契约：“at 仅在该目标有题面明确的‘取得最值时/此时’限定时填写数学关系，如UV+VW=min(UV+VW)。不自行增加最优状态；‘最小值为7’应作为facts中的min(UV+VW)=7，不能仅改成此处的UV+VW=7。” 候选正确地做了：min 值在 facts，at 用 EG+FG = min(EG+FG)。OK。\n\n11. 但检查分问归属：II 级 facts 中的局部条件应该只作用于 II 及其子问。候选把 II 的所有条件放在 children[1].facts，包括 M,N, ∠MDN=90°, DM=DN, E,G,F, DE=sqrt(2) NG。这些是 II 的公共条件，适用于 ①②。OK。"
+        },
+        {
+          "topic": "反复讨论动点",
+          "start_line": 149,
+          "end_line": 155,
+          "text": "我觉得候选基本准确。但需要检查是否有遗漏条件：原图“点E和点G分别是线段DM和线段MN上的动点” 包含了“动点”二字，候选只写了 E∈segment(D,M), G∈segment(M,N)，没有明确 E,G 是动点。不过 goal find_minimum 表示它们是动点。这应该不算缺失？契约说“点的取值范围及关联条件仍用数学式保留”。动点可以由最值目标体现。可接受。\n\n但是，有一个潜在问题：候选把 \"E ∈ segment(D,M)\" 和 \"G ∈ segment(M,N)\" 放在 II 的 facts 中，而原题“点E和点G分别是线段DM和线段MN上的动点”是 II 的条件，OK。\n\n另一个潜在问题：候选 II 中 \"DE = sqrt(2)*NG\" 用了 NG，但 N 和 G 之间。原题“DE=√2 NG”中 NG 是线段长度；候选写 \"NG\" 作为长度，OK。\n\n另一个潜在问题：候选 II 中 \"x(N) > 0 ∧ y(N) < 0\" 使用了 ∧，原题“第四象限”就是两个条件同时成立，OK。"
+        },
+        {
+          "topic": "推演题型机制",
+          "start_line": 193,
+          "end_line": 193,
+          "text": "可能需要检查候选的 \"match_reason\" 中“无射线等长构造、正方形或非1权重” 但题面有 DE=√2 NG，这不是1权重吗？这串“等长”不是“射线等长构造”。但“非1权重”指目标路径权重。候选说无，可能正确。但是，题面“DE=√2 NG”可能用于把 EG+FG 转化为某条折线，类似非1权重路径？我们需要看看是否 family 匹配可能有误。如果 family 匹配错误，可能不算来源错误？响应 schema 的 finding kind 没有 family 匹配错误专门类别，但 unsupported_addition? 或 wrong_goal? 匹配声明可能不算数学表达？我们职责包括题型适用。如果候选匹配错误，可能需要 uncertain 或 correction? 但代码验证 match_declaration passed，family_semantics not_checked。我们需要依据来源检查题型。原题机制：抛物线，动点E在DM上，G在MN上，F中点，DE=√2 NG。目标 EG+FG 最小值。这很可能需要利用 DE=√2 NG 进行转化，可能属于加权路径？但目标不是加权路径，可能选用 QuadraticPathMinimumSolver 合理。不过 registered_families 中有 QuadraticEqualLengthRayPathMinimumSolver 要求射线，没有。QuadraticPathMinimumSolver 的 use_when 说“允许出现辅助性的直角、等长或中点关系，但路径机制本身不依赖非1权重、射线等长构造或正方形反射。” 本题路径机制是否依赖 DE=√2 NG？可能 DE=√2 NG 是路径转化的关键，路径机制依赖非1权重？DE=√2 NG 的 √2 不是目标路径权重，而是约束条件，可能用于确定 G 在 MN 上的位置。也许是路径机制本身依赖该等长条件？但注册表的“等长条件”要求参与路径替换的等长条件。本题是否有“等长条件”参与路径替换？DE=√2 NG 可能用于把 EG+FG 转化为其他折线，所以路径机制可能依赖该等长条件。但是 use_when 说允许辅助性的等长关系，但路径机制本身不依赖非1权重、射线等长构造或正方形反射。这里 DE=√2 NG 是辅助性的等长关系，还是核心机制？不确定。但题面有“DE=√2 NG”且点F中点，EG+FG最小值。这可能是经典的“胡不归”或“阿氏圆”类问题？DE=√2 NG 可能通过构造等腰直角三角形来转化。但目标路径 EG+FG 没有权重，所以不是简单加权路径。匹配 QuadraticPathMinimumSolver 可能合理。由于我们不能重新求解，但匹配声明已通过代码，family_semantics 未检查。如果存在明显错误，我们可以指出。但这里没有足够依据判定匹配错误。"
+        },
+        {
+          "topic": "重复格式检查",
+          "start_line": 243,
+          "end_line": 269,
+          "text": "可能候选在 root facts 中 \"a > 0\" 和 \"2*a + b = 0\" 是否应该作为 definitions？可以。\n\n可能候选的 \"Γ ∩ y_axis = {C}\" 没有说明 C 是交点，是点；OK。\n\n可能候选的 \"axis(Γ) ∩ x_axis = {D}\" 没有说明 D 是交点，是点；OK。\n\n可能候选的 \"N ∈ Γ\" 和 \"M ∈ Γ\" 有重复？OK。\n\n可能候选的 \"N ∈ Γ\" 可能还需要 \"N 在第四象限\" 但已有。\n\n可能候选中 \"x(N) > 0 ∧ y(N) < 0\" 的 ∧ 符号在 JSON 中可接受？代码验证 notation passed，OK。\n\n可能候选的 \"√2\" 写成 sqrt(2)，OK。\n\n可能候选的 \"5√10/2\" 写成 5*sqrt(10)/2，OK。\n\n可能候选的 \"2a+b=0\" 写成 2*a + b = 0，OK。\n\n可能候选的 \"a=2,c=-5\" 写成 a = 2, c = -5，OK。\n\n可能候选的 \"DE=√2 NG\" 写成 DE = sqrt(2)*NG，OK。\n\n可能候选的 \"∠MDN=90°\" 写成 ∠MDN = 90°，OK。\n\n可能候选的 \"MN=√10\" 写成 MN = sqrt(10)，OK。\n\n可能候选的 \"点N在第四象限\" 写成 x(N)>0 ∧ y(N)<0，OK。"
+        },
+        {
+          "topic": "确认后的再次核对",
+          "start_line": 277,
+          "end_line": 311,
+          "text": "因此响应 status confirmed，findings 空。\n\n但再考虑一点：候选的 facts 中 \"M ∈ Γ\" 和 \"N ∈ Γ\" 分开写，原句“点M(m,1)和点N均在抛物线上”，其中 M 的坐标已给，N 也在抛物线上，OK。但候选没有给 N 的坐标，可能因为 N 由条件确定。OK。\n\n候选的 facts 中 \"M = (m,1)\" 但原句“点M(m,1)”括号中“m，1”是坐标。OK。\n\n候选的 facts 中 \"m > 2\" 是条件。OK。\n\n候选的 facts 中 \"N ∈ Γ\" 和 \"x(N) > 0 ∧ y(N) < 0\" 放在同一级；OK。\n\n候选的 II 中 \"E ∈ segment(D,M)\" 和 \"G ∈ segment(M,N)\" 分别对应“点E和点G分别是线段DM和线段MN上的动点”。OK。\n\n候选的 II 中 \"F = midpoint(D,N)\" 对应“点F为线段DN的中点”。OK。\n\n候选的 II 中 \"DE = sqrt(2)*NG\" 对应“且DE=√2 NG”。OK。\n\n候选的 I 中 facts \"a = 2\",\"c = -5\"，但 root 还有 \"a>0\",\"2a+b=0\"；I 当 a=2,c=-5 时，root 的条件仍成立，所以可以求 b。OK。\n\n候选的 root definitions \"Γ: y = a*x^2 + b*x + c\" 但 I 的解析式应该是 Γ 在 a=2,c=-5 下的具体表达式；goal find_equation Γ 引用 Γ。OK。\n\n可能问题：候选在 II① facts 中写 \"MN = sqrt(10)\"，但原题“当MN=√10时” 是条件。OK。\n\n候选在 II② facts 中写 \"min(EG+FG) = 5*sqrt(10)/2\"，但原题“当EG+FG取得最小值为5√10/2时” 这是条件。OK。\n\n候选在 II② goals 中 find_equation Γ at \"EG+FG = min(EG+FG)\" 和 find_coordinates G at 同。但原题“直接写出此时抛物线的解析式和点G的坐标” 的“此时”修饰这两个目标。OK。\n\n没有错误。\n\n但需要检查：候选在 II② 的 goal find_equation Γ 有 at，但原题“此时抛物线的解析式”确实要求在该最小值条件下求解析式。OK。\n\n可能问题：候选的 II② facts 中 \"min(EG+FG) = 5*sqrt(10)/2\" 是 fact，但原题中“当EG+FG取得最小值为5√10/2时” 是条件，不是结论；候选作为 fact 可以。\n\n最终输出 confirmed。findings 空。\n\n但是，响应格式要求：status confirmed 则 findings 空。我们输出 {\"status\":\"confirmed\",\"findings\":[]}。"
+        }
+      ],
+      "sha256": {
+        "candidate.json": "089d64eafd52589be34560133a5f0d4ec14cc64ea8a585403448b981a29bf98f",
+        "source-1.png": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+        "thinking.txt": "47948a35eb9c4d49566fec53fb544061603929b01d88c8bb531e2e9a7ce9f820",
+        "baseline-thinking.txt": "bd78da11240d7651da7607d4bdf67d2fa015d58a762e6952e2a8c778ccdbe80e",
+        "prepared-request.json": "7da198024c1ee1b4f9ecccbf28d4da9845e5d109065e2e24e9e69d5724c9b65d",
+        "baseline-request.json": "c84c74fd9c095393214b5d45db4945afc579fdc7279af94f1e6a6d5d05f74a6d",
+        "baseline-response.json": "9622e9b46a2737120794353c5f29a4c29ce903fc4456e4b63ef0d0e138f48c06",
+        "workflow/calls/01-review/request.json": "7da198024c1ee1b4f9ecccbf28d4da9845e5d109065e2e24e9e69d5724c9b65d",
+        "workflow/calls/01-review/response.json": "8a4e74c013175b3a49da4ee2c070c9da10bd0df0fbf221b5d684251d2f352865",
+        "workflow/calls/01-review/provider-attempts/01-request.json": "92984bc406f7ccaf2b64cbbd13f59b7f2239b5b6b9b12efa4679ed0978be6bb9",
+        "workflow/calls/01-review/file-operations.json": "db4a13d9876dcfa117ffcac20a9c57847a86f440b5b17ede0a802829575c1531"
+      }
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "title": "西青一模",
+      "metrics": {
+        "input_tokens": {
+          "before": 5825,
+          "after": 7323,
+          "change_percent": 25.72
+        },
+        "output_tokens": {
+          "before": 6799,
+          "after": 2850,
+          "change_percent": -58.08
+        },
+        "reasoning_tokens": {
+          "before": 6788,
+          "after": 2839,
+          "change_percent": -58.18
+        },
+        "visible_output_tokens": {
+          "before": 11,
+          "after": 11,
+          "change_percent": 0.0
+        },
+        "seconds": {
+          "before": 33.362,
+          "after": 17.039,
+          "change_percent": -48.93
+        },
+        "total_tokens": {
+          "before": 12624,
+          "after": 10173,
+          "change_percent": -19.42
+        }
+      },
+      "review": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "semantic_calls": 1,
+      "network_attempts": 1,
+      "file_api_calls": 1,
+      "file_operations": [
+        {
+          "operation": "upload",
+          "status": "completed",
+          "sha256": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+          "api_calls": 1,
+          "file_id": "file-api-3e7685a9-a804-4b54-b8e4-f89affb3ef0a",
+          "expires_at": 1789691477,
+          "elapsed_ms": 881
+        }
+      ],
+      "baseline_response": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-xiqing-yimo-25/workflow/calls/02-review/response.json",
+      "cache_hit_tokens": {
+        "before": 4224,
+        "after": 0
+      },
+      "thinking": {
+        "before_chars": 11767,
+        "after_chars": 8864,
+        "after_lines": 116,
+        "literal_counts": {
+          "path_minimum_target": 2,
+          "confirmed": 5,
+          "at_word": 37
+        }
+      },
+      "analysis": {
+        "summary": "thinking 下降 58.18%，耗时下降 48.93%，但 at 仍是主要纠结点。",
+        "checks": "核对了 -x² 的负号、M 在 x 轴正半轴所以 m>0、D 的坐标及在曲线上、AD=2BC、5+5√3，以及 b=4 仅属于第(1)问。",
+        "problems": "L28、60–64、88、94、112–114 多次讨论同一 at 是否多余。候选 facts 已完整保留 min(2DM+AM)=5+5√3，最终仍接受了 at。candidate_contract 的“仅在题面明确…时填写”是抽取编写规则，容易与 review 的等价接受规则混在一起。",
+        "visual": "本次 thinking 使用英文，因此中英文关键词次数和字符长度不能直接当成跨轮成本指标；token 以供应商 usage 为准。"
+      },
+      "evidence": [
+        {
+          "topic": "有效来源检查",
+          "start_line": 18,
+          "end_line": 26,
+          "text": "Original says 经过点A(-1,0) (passes through A) — candidate has A=(-1,0) and A ∈ Γ, fine.\n\n(1) facts: b=4, V = vertex(Γ); goal find_coordinates V. Correct.\n\n(2) facts: D=(b+2, y_D), D ∈ Γ. Hmm, \"点 D(b+2, y_D) 是抛物线上任意一点\" — candidate writes D = (b+2, y_D). Using y_D as y-coordinate. That's acceptable-ish. Actually could write D=(b+2, y(D)). Fine.\n\n① facts: AD = 2*BC; goal find_value b. Correct.\n\n② facts: M = (m,0), m > 0, min(2*DM+AM) = 5 + 5*sqrt(3); goal find_value b at \"2*DM+AM = min(2*DM+AM)\"."
+        },
+        {
+          "topic": "首次长篇讨论 at",
+          "start_line": 28,
+          "end_line": 28,
+          "text": "Original: \"当 2DM + AM 的最小值为 5 + 5√3 时，求 b 的值\". So the condition is min = 5+5√3, and \"此时\" — actually \"当...时，求 b 的值\" means \"when the minimum value of 2DM+AM is 5+5√3, find b\". Hmm, the goal is just b's value; is there an \"at\" modification? The at field is for \"取得最值时/此时\". Here the condition \"当...时\" is essentially the constraint. The candidate put at: \"2*DM+AM = min(2*DM+AM)\". Hmm, this is a bit of an addition — the original doesn't say \"此时 2DM+AM 取得最小值\" separately; the condition is the minimum value equals 5+5√3. Actually the goal is find b, and the \"当...时\" is a condition on the minimum. The at field says \"expression = min(expression)\" which indicates the optimal state. This is arguably consistent with \"当最小值为...时\". Hmm, but is it an unsupported addition? The schema says at is \"仅在该目标有题面明确的'取得最值时/此时'限定时填写\". Here 题面 says \"当 2DM+AM 的最小值为 5+5√3 时\" — this is a \"当时\" condition tied to the minimum. It's not exactly \"此时\" referring to the optimum of the goal... Actually the goal is b, and the condition is min(2DM+AM)=5+5√3. Writing at as 2DM+AM=min(2DM+AM) essentially restates the same. Hmm. The instructions say \"不要仅因多写或少写 at 就判错，要确认是否改变所求及限定\" and \"'最小值为7'应作为facts中的min(UV+VW)=7，不能仅改成此处的UV+VW=7\". Candidate did put min(...)=5+5√3 in facts, and also added at. Adding at is a mild addition but doesn't change the goal. Hmm. The at here \"2DM+AM = min(2DM+AM)\" is derived from \"最小值为5+5√3时\". Is that \"此时修饰\"? It's borderline. I'd say it's acceptable/not an error worth flagging; at least it's not changing the required answer. Actually, could be considered unsupported_addition? But the guidelines say don't flag merely extra at unless it changes 所求. I'll not flag."
+        },
+        {
+          "topic": "已接受后重新讨论",
+          "start_line": 60,
+          "end_line": 66,
+          "text": "- The at field: \"2*DM+AM = min(2*DM+AM)\". Original: \"当 2DM+AM 的最小值为 5+5√3 时\". Hmm — the \"当...时\" modifies the condition. Is there an issue that at is unnecessary? Per guidance, not flagged.\n\nWait, actually there might be an issue: is at supposed to be \"2*DM+AM = min(2*DM+AM)\"? The at's meaning is \"在取得最值时\". The problem doesn't ask for anything at the optimal moment other than b's value which is determined by the constraint. I think harmless.\n\nHmm, but wait — does the goal's at get applied correctly? The goal is find b at ... the at modifies b's value to be at the optimal state. That's consistent.\n\nAnother consideration: (2) ② condition \"M(m,0) 是 x 轴正半轴上的动点\" — m>0. Candidate has m>0. Good, not m≥0."
+        },
+        {
+          "topic": "结尾继续讨论 at",
+          "start_line": 88,
+          "end_line": 116,
+          "text": "So overall seems consistent. Do I need to check the \"at\" more carefully? The rule says: \"最值等于某数不能仅改成普通取值\" — fine. \"不要仅因多写或少写 at 就判错\". So at is fine.\n\nCould there be an issue with the goal in ②: original asks \"求 b 的值\" — candidate find_value expression \"b\". Good.\n\nAlso (2)①: 求 b 的值. Good.\n\nStatus: Let me consider whether the extra \"at\" could be an unsupported_addition. The at field usage: \"仅在该目标有题面明确的'取得最值时/此时'限定时填写\". 题面 \"当 2DM+AM 的最小值为 5+5√3 时，求 b 的值\" — this is a 当时 condition where the minimum value is specified; it does correspond to \"取得最值时\" in the sense that the constraint ties b to the optimum. I think it's acceptable, borderline. The guidance explicitly says don't flag merely extra at. I'll go confirmed.\n\nBut wait, also check: \"A ∈ Γ\" and \"A = (-1,0)\" — fine.\n\nWhat about \"Γ ∩ y_axis = {C}\"? Original says 与y轴交于点C (singular). Fine.\n\nStatus: confirmed with empty findings.\n\nHmm, one more thought — is there any issue with the fact \"Γ ∩ x_axis = {A,B}\" where B is defined as the intersection? Yes B is properly introduced.\n\nAlso the definitions only include Γ. c appears as a parameter but no definition needed.\n\nOne more check: original \"b>0\" — candidate root facts has \"b > 0\". Good.\n\nAlso is \"b=4\" local to (1)? Original: \"当 b=4 时，求抛物线的顶点坐标\" — yes local to (1). Candidate placed in child (1). Good.\n\nSo status confirmed.\n\nActually let me reconsider the at once more. Schema's at example: \"AP+PQ = min(AP+PQ)\" for \"取得最值时/此时\". Here the problem states the minimum value equals a number; the condition is that the minimum equals 5+5√3. The at \"2DM+AM = min(2DM+AM)\" is a tautology-ish restatement of being at the optimum... It doesn't introduce new math. It's arguably an unnecessary but non-damaging addition. Per instructions: \"不要仅因多写或少写 at 就判错，要确认是否改变所求及限定\". It doesn't. So confirmed.\n\nHmm, but should I flag as unsupported_addition because 题面 didn't say \"此时\"? The guidance says don't flag merely for extra at. So no.\n\nFinal answer: confirmed, findings []."
+        }
+      ],
+      "sha256": {
+        "candidate.json": "f8573ebcc2f1098f3827f50203f9e8caafb8031fdc78b8baa03c5655e862b18d",
+        "source-1.png": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+        "thinking.txt": "bbb123fe35df9410c3192e0594ff62399d11dedc6ef75090a7dff39971b449fe",
+        "baseline-thinking.txt": "345c93c7e9f479319217987e0678de286a10e913e9acb0c230aeea452465acc3",
+        "prepared-request.json": "5efca9a8964142865f611bfc3d674b21898741f97819f59dad6fbba11e2b62ed",
+        "baseline-request.json": "6c4417c18063affe6a28ad3a98d618cac2ab2d04f714040ef24fb01a2a3c9359",
+        "baseline-response.json": "23c9217fe3ce0144a79ebee938fe9bcae1cc1fd9ad93dbd6be74984536a9aa23",
+        "workflow/calls/01-review/request.json": "5efca9a8964142865f611bfc3d674b21898741f97819f59dad6fbba11e2b62ed",
+        "workflow/calls/01-review/response.json": "d9311bc1c4488506c0504ed55e2378034add70da4bd5e0eb30b65e5980508d31",
+        "workflow/calls/01-review/provider-attempts/01-request.json": "76a377fa317b856997dbb2132a4450140d94a704abb6ca417e744e2454e4f533",
+        "workflow/calls/01-review/file-operations.json": "dafcd01851097e81ce0dcb64d6d99699f769ed0c638f48be1edc53221ef218e8"
+      }
+    }
+  },
+  "wall_seconds": 58.692,
+  "caveats": [
+    "三题均为已有正确候选，confirmed 不代表错误检出率。",
+    "南开基线来自最近两题批次；河西、西青来自七题原批次。各题原图与候选不变，但基线提示词版本不统一。",
+    "单次样本，无法排除采样、服务负载、前缀缓存和图片传输方式差异；不是随机重复 A/B。",
+    "thinking 是模型自述，不能代替图像证据。字符串次数不等于浪费 token 比例。",
+    "本轮三个候选都不引用原点 O，无法评价新增 O 约定的实际效果。"
+  ],
+  "aggregate": {
+    "input_tokens": {
+      "before": 19132,
+      "after": 22354,
+      "change_percent": 16.84
+    },
+    "output_tokens": {
+      "before": 24602,
+      "after": 23131,
+      "change_percent": -5.98
+    },
+    "reasoning_tokens": {
+      "before": 24569,
+      "after": 23098,
+      "change_percent": -5.99
+    },
+    "visible_output_tokens": {
+      "before": 33,
+      "after": 33,
+      "change_percent": 0.0
+    },
+    "seconds": {
+      "before": 118.394,
+      "after": 124.686,
+      "change_percent": 5.31
+    },
+    "total_tokens": {
+      "before": 43734,
+      "after": 45485,
+      "change_percent": 4.0
+    }
+  },
+  "file_upload_seconds": 4.152
+}

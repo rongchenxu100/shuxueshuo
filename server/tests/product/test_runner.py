@@ -14,7 +14,7 @@ from shuxueshuo_server.product import models as m
 from shuxueshuo_server.product.application import Application
 from shuxueshuo_server.product.db import transaction
 from shuxueshuo_server.product.execution import ExecutionContext
-from shuxueshuo_server.product.runner import StageRunner
+from shuxueshuo_server.product.runner import StageRunner, _use_reviewed_source_text
 from shuxueshuo_server.product.repositories import row
 from shuxueshuo_server.product.errors import IntegrityFailure
 
@@ -26,6 +26,86 @@ def fixture_domain(tmp_path):
         from _problem_planning_support import accepted_bundle_fixture
         return accepted_bundle_fixture(tmp_path, case='tj-2026-heping-yimo-25')
     finally: sys.path.remove(helper)
+
+
+def test_page_problem_uses_reviewed_source_text_and_preserves_answers():
+    lesson = {
+        'problem': {'lines': [
+            {'text': 'normalized (1)', 'answerId': 'a1', 'answer': '点 V'},
+            {'text': 'normalized ①', 'answerId': 'a2', 'answer': 'b＝1'},
+            {'text': 'normalized ②', 'answerId': 'a3', 'answer': 'b＝2'},
+        ]}
+    }
+
+    class Context:
+        def read(self, stage, name):
+            assert (stage, name) == ('extraction', 'problem-math-candidate.json')
+            return {'original_text': '25. 原题\n（1）第一问\n（2）第二问\n① 子问\n② 子问'}
+
+    _use_reviewed_source_text(lesson, Context())
+    assert [line['text'] for line in lesson['problem']['lines']] == [
+        '25. 原题', '（1）第一问', '（2）第二问', '① 子问', '② 子问'
+    ]
+    assert [line.get('answerId') for line in lesson['problem']['lines']] == [None, 'a1', None, 'a2', 'a3']
+
+
+def test_page_problem_binds_flat_parent_answers():
+    lesson = {
+        'problem': {'lines': [
+            {'text': 'n1', 'answerId': 'a1', 'answer': '1'},
+            {'text': 'n2', 'answerId': 'a2', 'answer': '2'},
+            {'text': 'n3', 'answerId': 'a3', 'answer': '3'},
+        ]}
+    }
+
+    class Context:
+        def read(self, stage, name):
+            return {'original_text': '已知\n（1）第一问\n（2）第二问\n（3）第三问'}
+
+    _use_reviewed_source_text(lesson, Context())
+    assert [line.get('answerId') for line in lesson['problem']['lines']] == [None, 'a1', 'a2', 'a3']
+    assert [line['text'] if isinstance(line, dict) else line for line in lesson['problem']['lines']] == [
+        '已知', '（1）第一问', '（2）第二问', '（3）第三问'
+    ]
+
+
+def test_page_problem_binds_roman_parent_answers():
+    lesson = {
+        'problem': {'lines': [
+            {'text': 'n1', 'answerId': 'a1', 'answer': '甲'},
+            {'text': 'n2', 'answerId': 'a2', 'answer': '乙'},
+        ]}
+    }
+
+    class Context:
+        def read(self, stage, name):
+            return {'original_text': '已知\n（Ⅰ）第一问\n（Ⅱ）第二问'}
+
+    _use_reviewed_source_text(lesson, Context())
+    assert [line.get('answerId') for line in lesson['problem']['lines']] == [None, 'a1', 'a2']
+
+
+def test_page_problem_binds_heping_style_nested_answers():
+    """（Ⅰ） stems ①②; （Ⅱ） is its own answered question."""
+    lesson = {
+        'problem': {'lines': [
+            {'text': 'n1', 'answerId': 'a1', 'answer': '①答'},
+            {'text': 'n2', 'answerId': 'a2', 'answer': '②答'},
+            {'text': 'n3', 'answerId': 'a3', 'answer': 'Ⅱ答'},
+        ]}
+    }
+
+    class Context:
+        def read(self, stage, name):
+            return {'original_text': '已知\n（Ⅰ）如图\n① 求坐标\n② 求面积\n（Ⅱ）求最值'}
+
+    _use_reviewed_source_text(lesson, Context())
+    assert [line.get('answerId') for line in lesson['problem']['lines']] == [
+        None, None, 'a1', 'a2', 'a3'
+    ]
+    assert [line['text'] if isinstance(line, dict) else line for line in lesson['problem']['lines']] == [
+        '已知', '（Ⅰ）如图', '① 求坐标', '② 求面积', '（Ⅱ）求最值'
+    ]
 
 
 def offline_discover(source, revision, snapshot):
@@ -124,6 +204,37 @@ def test_offline_nine_stages_and_typed_restore(run_context):
     with pytest.raises((ValueError, KeyError, TypeError)): x.validate_restored('source')
 
 
+def test_understanding_preserves_existing_formal_revision_and_page(run_context, monkeypatch):
+    from shuxueshuo_server.product.understanding import Understanding
+    from shuxueshuo_server.product.understanding_runtime import target_dependencies
+    app, x, runner, _, _ = run_context
+    runner.run()
+    old = app.build(x.build['id'])
+    with transaction(app.db) as c:
+        before = dict(row(c, m.problems, id=x.build['problem_id']))
+    u = Understanding(app)
+    source = u.source_version(x.build['problem_id'], None, [x.build['source_id']], 'new-notation-source')
+    candidate = u.save_candidate(x.build['problem_id'], None, UUID(source['id']), {
+        'root': {'facts': ['t>0']}, 'match_status': 'unmatched', 'family_id': None, 'match_reason': '独立候选'}, 'manual-notation')
+    submitted = u.start(x.build['problem_id'], UUID(source['id']), UUID(candidate['id']), 'validate', 'validate-only')
+    version = target_dependencies(source, UUID(candidate['id']))['deployment_version']
+    execution = app.service.acquire_execution(app.ctx, UUID(submitted['job_id']), 'validate', deployment_version=version, lease_seconds=300)
+    current = ExecutionContext(app, app.ctx, UUID(submitted['build_id']), execution['id'], execution['epoch'])
+    def forbidden(*_):
+        raise AssertionError('understanding must never enter OCR, Solver or page generation')
+    for stage in ('observation', 'solver', 'page'):
+        monkeypatch.setattr(StageRunner, stage, forbidden)
+    assert StageRunner(current).run()['status'] == 'validated_candidate'
+    with transaction(app.db) as c:
+        after = row(c, m.problems, id=x.build['problem_id'])
+    for name in ('current_revision_id', 'current_page_build_id', 'latest_build_id'):
+        assert after[name] == before[name]
+    summary = u.summary(x.build['problem_id'])
+    assert summary['formal_page']['revision_id'] == str(before['current_revision_id'])
+    assert summary['formal_page']['build_id'] == str(x.build['id'])
+    assert app.service.page_resource(app.ctx, UUID(old['page_id']), 'index.html')['content_type'] == 'text/html'
+
+
 def test_rebuild_preview_restores_typed_prefix_and_reuses_without_models(run_context):
     app, x, runner, _, _ = run_context
     runner.run()
@@ -139,7 +250,44 @@ def test_rebuild_preview_restores_typed_prefix_and_reuses_without_models(run_con
     assert app.build(context.build['id'])['page_current']
     with transaction(app.db) as c:
         reused = c.execute(select(m.stage_attempts).where(m.stage_attempts.c.execution_id == execution['id'], m.stage_attempts.c.kind == 'reused')).all()
-        assert len(reused) == 8
+    assert len(reused) == 8
+
+
+def test_solver_rebuild_reuses_understanding_ledger(run_context):
+    """A solver rebuild must keep the already reviewed notation candidate."""
+    app, x, runner, _, _ = run_context
+    runner.run()
+    with transaction(app.db) as c:
+        before_problem = dict(row(c, m.problems, id=x.build['problem_id']))
+        before_runs = c.execute(
+            select(m.extraction_runs.c.id).where(
+                m.extraction_runs.c.problem_id == x.build['problem_id']
+            )
+        ).scalars().all()
+
+    preview = app.rebuild_preview(x.build['id'], 'solver')
+    assert 'solver' in preview['rerun_stages']
+    child = app.rebuild(
+        x.build['id'], 'solver', preview['fingerprint'], 'solver-rebuild'
+    )
+
+    with transaction(app.db) as c:
+        after_problem = dict(row(c, m.problems, id=x.build['problem_id']))
+        after_runs = c.execute(
+            select(m.extraction_runs.c.id).where(
+                m.extraction_runs.c.problem_id == x.build['problem_id']
+            )
+        ).scalars().all()
+
+    assert child['build_id'] != str(x.build['id'])
+    assert after_runs == before_runs
+    for key in (
+        'current_source_version_id',
+        'current_candidate_id',
+        'latest_extraction_run_id',
+        'understanding_generation',
+    ):
+        assert after_problem[key] == before_problem[key]
 
 
 def test_call_budget_persists_across_execution_recovery(run_context):

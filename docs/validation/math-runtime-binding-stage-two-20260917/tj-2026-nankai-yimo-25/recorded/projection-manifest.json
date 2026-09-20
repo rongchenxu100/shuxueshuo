@@ -1,0 +1,245 @@
+{
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "family_id": "QuadraticPathMinimumSolver",
+  "problem_revision_id": "problem-revision:5961f3e1a10f2dbbedb1fe36870ad10408a5964fd16dc0c1d1dbce2a120d8eec",
+  "problem_semantic_hash": "14bd4b773caf23011fbc77d0efe1ce7db9a8286ed1f25a69eec274a043e7386e",
+  "runtime_node_sources": {
+    "answer:i.D": [
+      "notation-unit:201030f153f47f0be39f496dd969916efdac5f8c7058cd4e2dca8a8a019e14c2"
+    ],
+    "answer:i.parabola": [
+      "notation-unit:0d356d49ebc48e520010d13eda1bd399f2adf2331329f767344e4184be8bc40b"
+    ],
+    "answer:ii_1.min_value": [
+      "notation-unit:4a3a334039bc0660cd3c1b055b16f9094038ddf4153747df40a332d84e4d7e70"
+    ],
+    "answer:ii_1.parabola": [
+      "notation-unit:bc84cff4bd164bda65f374fb48b4d3d661cfc1b19dc043aef054b224107c811d"
+    ],
+    "answer:ii_2.G": [
+      "notation-unit:0088da81007159d7687212ce375f217381f873a939e249d932df992f0fa23781"
+    ],
+    "answer:ii_2.parabola": [
+      "notation-unit:b1a82ce24e9ef31e0736b2fe451b89ae588e9c9184a9f88497ec12e0edfa9623"
+    ],
+    "fact:i:math_assertion_6ef85b4d76e0": [
+      "notation-unit:6ef85b4d76e06d8e2d8f8801f257c0485608865fbd6d9fbdcfd010e1b003d969"
+    ],
+    "fact:i:math_assertion_86e0422ff0e9": [
+      "notation-unit:86e0422ff0e936cfec8abb3db5567c80ac52c9ef5f0c8605e2e9b06a6b496eaa"
+    ],
+    "fact:i:symbol_value_6db3cdaff47f": [
+      "notation-unit:6db3cdaff47fff07163cf9acc9b01d9df8ba722583310a528815ed2fd6293126"
+    ],
+    "fact:i:symbol_value_6f3931f2fb41": [
+      "notation-unit:6f3931f2fb41291d34f91c3f489c1794399de6efcac80be8297202dd15e4950d"
+    ],
+    "fact:ii:length_relation_a60b9756e688": [
+      "notation-unit:a60b9756e688b3e6bffe558d845ac059f25bfeb41e1da07d946cec9812f0a4cf"
+    ],
+    "fact:ii:math_assertion_1a0b15dd06d0": [
+      "notation-unit:1a0b15dd06d0f1bed308ba65e61e4a0e828188e2ccd57229a2ffefbe82eee3a9"
+    ],
+    "fact:ii:math_assertion_3dcc6c5447dd": [
+      "notation-unit:3dcc6c5447dd3ea799c8a958814afa09d760520219bfb95198ac2a8c940a3b36"
+    ],
+    "fact:ii:math_assertion_47e27d277b9b": [
+      "notation-unit:47e27d277b9b8fc4d3928ff5338354f75171281b84c57c5d497bcf3a4c94ccf2"
+    ],
+    "fact:ii:math_assertion_585b722f346c": [
+      "notation-unit:585b722f346cf09988db4338528a65a8901af98c1eba8fa3c68a95d882eeec2f"
+    ],
+    "fact:ii:math_assertion_5ec8c54e33b8": [
+      "notation-unit:5ec8c54e33b8a9b167d16499bdbab9e96bd0b781416abbdba96a87939c2c03b6"
+    ],
+    "fact:ii:math_assertion_73e8c02c4fff": [
+      "notation-unit:73e8c02c4fffee889b2a63de09886639f2465bab76a1dc38813b61be24bcd908"
+    ],
+    "fact:ii:math_assertion_c222142492da": [
+      "notation-unit:c222142492da0caae070f7dd97f6c1435bfe4f46e2c0a7045fd27365383d024c"
+    ],
+    "fact:ii:math_assertion_ca0b92b7673c": [
+      "notation-unit:ca0b92b7673c1fed54382611233b5dd4bbe3c1f3707e432b1b6d2c609893d61d"
+    ],
+    "fact:ii:math_assertion_dd4881cab6b3": [
+      "notation-unit:dd4881cab6b3e674d123cf8912ea4334bf85528ee0c53d59da331ef6a6282892"
+    ],
+    "fact:ii:math_assertion_e2e16d0cd516": [
+      "notation-unit:e2e16d0cd5166c4b1a5d0adf5e46a938f709b8d3fa6221daaac3ec937d57c742"
+    ],
+    "fact:ii:math_assertion_ecf7e27e8333": [
+      "notation-unit:ecf7e27e8333e39e9fa9a565cfdb2188639d1f30d3e69944899dca452bf3ae48"
+    ],
+    "fact:ii:midpoint_f1e57ffc0641": [
+      "notation-unit:f1e57ffc0641c5aa6f698e58cc0e6f35b0f4debdebac12f086bfbdc0c0327945"
+    ],
+    "fact:ii:point_coordinate_b92db4801371": [
+      "notation-unit:b92db48013713468dcaf12c229bc30c36f93ae307c0d4b807e3f709ad86c6412"
+    ],
+    "fact:ii:point_on_curve_42b9b5d08b43": [
+      "notation-unit:42b9b5d08b4381873150e65c25f37e5102b418d6961ca490b1ea7310dbe7bdaa"
+    ],
+    "fact:ii:point_on_curve_aca91a007c96": [
+      "notation-unit:aca91a007c9617ad705f9ccf807f1f2fdfa18a8d007ea3119865032c34d8eba3"
+    ],
+    "fact:ii:point_on_segment_1dbe4acca743": [
+      "notation-unit:1dbe4acca743bb01c034f46fca07e0c9b9dfb8229b69260d19e147688963b1f5"
+    ],
+    "fact:ii:point_on_segment_4cd75b795d3c": [
+      "notation-unit:4cd75b795d3c02f92b9a51d8862b51504bde572d55ff465e345fd3f3fa7ef0dc"
+    ],
+    "fact:ii:quadrant_membership_229f8b2b65d2": [
+      "notation-unit:229f8b2b65d2fb54280a342e8ddfaa29cdf1ecb5f57b75aeb3c06d9961a1cb6b"
+    ],
+    "fact:ii:right_angle_equal_length_2aed1a66cde3": [
+      "notation-unit:093522d92371c6f33af9ad422264ec823e231d09be3bc65fc0adefa09b7594b5",
+      "notation-unit:53140f832d9b7a1680784f7b8f968322b8f753a2243a98232236e8be99e9d2e2"
+    ],
+    "fact:ii:symbol_constraint_088d48c925c5": [
+      "notation-unit:088d48c925c52359154ea76e1e5a1c0432c68a83b33ea65fb9dff14a5a63165b"
+    ],
+    "fact:ii_1:length_value_30201c18bf0c": [
+      "notation-unit:30201c18bf0c0060bb6856d505b54ed4ad5626a67414cd02fc43f589bf8cec2b"
+    ],
+    "fact:ii_1:math_assertion_3914b21db86f": [
+      "notation-unit:3914b21db86f1353ecdd1ac9ae265b1f4bc9e88e57ece910b34297eb5ac158e8"
+    ],
+    "fact:ii_1:minimum_target_a45950ef1bd4": [
+      "notation-unit:a45950ef1bd49bd6fe6f1fdd5ef7770418b364e8d3ff6a1adb23c08c4c4b2188"
+    ],
+    "fact:ii_2:math_assertion_0ebb78763196": [
+      "notation-unit:0ebb78763196d01d5af055abc2cf0431163403d9338474d8842c62e89dc98d3e"
+    ],
+    "fact:ii_2:math_assertion_b25727dc7a85": [
+      "notation-unit:b25727dc7a85819335f6c32448950a944b7e94c6325482696906e45445cd07db"
+    ],
+    "fact:ii_2:minimum_attained_f4e8931a9932": [
+      "notation-unit:f4e8931a9932cfad6f35667bd215d080ab664fcf1a5eb4ad8dd37dd35d77a23c"
+    ],
+    "fact:ii_2:minimum_target_5fd0c4b2daa0": [
+      "notation-unit:5fd0c4b2daa0cded7cd9453b5ba6693b4026a4838e6259e524d36833aaacb7bc"
+    ],
+    "fact:ii_2:minimum_value_given_ab81c394dec1": [
+      "notation-unit:ab81c394dec1a06ce5ae5fa3f6783c70fe7b62ccd7004506f0ad44c369d8d877"
+    ],
+    "fact:problem:equation_563238a9ae14": [
+      "notation-unit:563238a9ae145c91fdffb3d4a59aaa0efbf7024c9b257a4bba72ae216a4eea72"
+    ],
+    "fact:problem:math_assertion_082fc43440f5": [
+      "notation-unit:082fc43440f5f7e2bbead07abd3e1aeaf17c29f33345923f2463b5815954a084"
+    ],
+    "fact:problem:math_assertion_5c2d109d318d": [
+      "notation-unit:5c2d109d318df5348d80c0b1175ddb9756d1828a54114e11f397983c345d580b"
+    ],
+    "fact:problem:math_assertion_860186735df9": [
+      "notation-unit:860186735df967335921b22790fc5229539d6073b825262f81926f74ecc37c14"
+    ],
+    "fact:problem:math_assertion_a37eeec1f8b2": [
+      "notation-unit:a37eeec1f8b2c01abd4eb1056e0207bea7d000802f1ac2e363a76a3e0f8665cf"
+    ],
+    "fact:problem:math_assertion_b136bf6d334c": [
+      "notation-unit:b136bf6d334c0edaa9e70af864bda62ca009e86c806755c270dff33ff75f9101"
+    ],
+    "fact:problem:symbol_constraint_1c521a445476": [
+      "notation-unit:1c521a445476a61b81f18ee3bca57b1e0572a85d2e71386370b7c9797dd18449"
+    ],
+    "function:problem:parabola": [
+      "notation-unit:06d226f514f4be336cd7c34ec2593c969c2252516c53da15638b688a422b0836",
+      "notation-unit:563238a9ae145c91fdffb3d4a59aaa0efbf7024c9b257a4bba72ae216a4eea72",
+      "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4"
+    ],
+    "point:ii:E": [
+      "notation-unit:4cd75b795d3c02f92b9a51d8862b51504bde572d55ff465e345fd3f3fa7ef0dc",
+      "notation-unit:ebc03835150a8d8e3fc3db121d5c272cd8b6ed493451df103fa8352ad7945fec"
+    ],
+    "point:ii:F": [
+      "notation-unit:0b832f6297fe56a1209f7743c69fe603df02c55cb61a245313dfe37e83a7204a",
+      "notation-unit:f1e57ffc0641c5aa6f698e58cc0e6f35b0f4debdebac12f086bfbdc0c0327945"
+    ],
+    "point:ii:G": [
+      "notation-unit:1dbe4acca743bb01c034f46fca07e0c9b9dfb8229b69260d19e147688963b1f5",
+      "notation-unit:383208d63aa7a43188470fd8bdec0c74569d70aaf0db7eaed335d5d7a4dc5aef"
+    ],
+    "point:ii:M": [
+      "notation-unit:5a86349b65dd6664953c5c7a1ad62efb2dd4a367b7e097342f5ac17b88850070",
+      "notation-unit:b92db48013713468dcaf12c229bc30c36f93ae307c0d4b807e3f709ad86c6412"
+    ],
+    "point:ii:N": [
+      "notation-unit:6281023307427468677d14d8c8ce975000f39800b60f2b3e1591d407a83b6ed4"
+    ],
+    "point:problem:C": [
+      "notation-unit:7f4db7bebe4abeb6ba3a9d374fb650c070164b1bd302743cc869ccd270cfbc75",
+      "notation-unit:d888ea30e9a72db094556e92a899569337c295699d995f8cd755125ec560cc13"
+    ],
+    "point:problem:D": [
+      "notation-unit:6f0bd6652537f6482e054f0614f8cc808a03ab5c9235dca095ae333ce615e3ea",
+      "notation-unit:7b7505f988a79c1edf66a2a0332241332189aa0e626c70dfd8306af73b1595ad"
+    ],
+    "scope:i": [
+      "notation-unit:44d3e38a53577e2604b492f61f08898105219e33074541d1dda844bc5f7760e0"
+    ],
+    "scope:ii": [
+      "notation-unit:e8bf8da2e80210d3b4d3e3b5195d7ba2c05e4047a7b9cd4659a046d379e3d65f"
+    ],
+    "scope:ii_1": [
+      "notation-unit:ae9d5196cb995bef12c235f99c5577f88e3059ebce5f1f55798a2ccc42ac3d11"
+    ],
+    "scope:ii_2": [
+      "notation-unit:668d7ff1f3f9f8951540ac5ce236e3cd4f1e3cfdf472e38652eee5a4aff818fc"
+    ],
+    "scope:problem": [
+      "notation-unit:2294b43ae811e550d9458939d79f476b661323fe1aa2782e976e11b899d301bc"
+    ],
+    "segment:ii:DE": [
+      "notation-unit:a60b9756e688b3e6bffe558d845ac059f25bfeb41e1da07d946cec9812f0a4cf"
+    ],
+    "segment:ii:DM": [
+      "notation-unit:093522d92371c6f33af9ad422264ec823e231d09be3bc65fc0adefa09b7594b5",
+      "notation-unit:4cd75b795d3c02f92b9a51d8862b51504bde572d55ff465e345fd3f3fa7ef0dc"
+    ],
+    "segment:ii:DN": [
+      "notation-unit:093522d92371c6f33af9ad422264ec823e231d09be3bc65fc0adefa09b7594b5"
+    ],
+    "segment:ii:MN": [
+      "notation-unit:1dbe4acca743bb01c034f46fca07e0c9b9dfb8229b69260d19e147688963b1f5",
+      "notation-unit:30201c18bf0c0060bb6856d505b54ed4ad5626a67414cd02fc43f589bf8cec2b"
+    ],
+    "segment:ii:NG": [
+      "notation-unit:a60b9756e688b3e6bffe558d845ac059f25bfeb41e1da07d946cec9812f0a4cf"
+    ],
+    "symbol:ii:m": [
+      "notation-unit:347a2ef77de60a61ed63ebf2a5d855705f8fcf1c8324323be36dda34a8e941f9"
+    ],
+    "symbol:problem:a": [
+      "notation-unit:8a0fd41d369dc5dad114a0cbc4853c73a0fd023a38c29117e9d99821c662cb05"
+    ],
+    "symbol:problem:b": [
+      "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+    ],
+    "symbol:problem:c": [
+      "notation-unit:594623b1a993325533de9b70dd4ed5d36f5e0a9a71c29c52602780cee2da66d1"
+    ],
+    "symbol:problem:x": [
+      "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717"
+    ]
+  },
+  "value_object_sources": {
+    "segment:ii:DE": [
+      "notation-unit:a60b9756e688b3e6bffe558d845ac059f25bfeb41e1da07d946cec9812f0a4cf"
+    ],
+    "segment:ii:DM": [
+      "notation-unit:093522d92371c6f33af9ad422264ec823e231d09be3bc65fc0adefa09b7594b5",
+      "notation-unit:4cd75b795d3c02f92b9a51d8862b51504bde572d55ff465e345fd3f3fa7ef0dc"
+    ],
+    "segment:ii:DN": [
+      "notation-unit:093522d92371c6f33af9ad422264ec823e231d09be3bc65fc0adefa09b7594b5"
+    ],
+    "segment:ii:MN": [
+      "notation-unit:1dbe4acca743bb01c034f46fca07e0c9b9dfb8229b69260d19e147688963b1f5",
+      "notation-unit:30201c18bf0c0060bb6856d505b54ed4ad5626a67414cd02fc43f589bf8cec2b"
+    ],
+    "segment:ii:NG": [
+      "notation-unit:a60b9756e688b3e6bffe558d845ac059f25bfeb41e1da07d946cec9812f0a4cf"
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "case": "tj-2026-hexi-yimo-25",
+  "sample": 1,
+  "review_model_calls": 0,
+  "original_artifact_sha256_verified": [
+    {
+      "attempt": 1,
+      "count": 16
+    },
+    {
+      "attempt": 2,
+      "count": 16
+    },
+    {
+      "attempt": 3,
+      "count": 16
+    }
+  ],
+  "three_original_compiler_diagnostics_reproduced": true,
+  "three_provider_message_arrays_equal_saved_prompts": true,
+  "all_30_original_steps_not_executed": true,
+  "mermaid_diagrams": 10,
+  "scope_subgraphs": 9,
+  "step_nodes": 30,
+  "review_links_checked": 48,
+  "broken_links": [],
+  "offline_counterfactuals": {
+    "total": 6,
+    "accepted_and_answers_verified": 3,
+    "expected_remaining_blockers": 3
+  },
+  "inline_view": {
+    "bytes": 284777,
+    "attempt_tabs_checked": [
+      1,
+      2,
+      3
+    ],
+    "step_json_selection_checked": "S1 iii_path_min",
+    "console_errors": [],
+    "desktop_viewport_width": 736,
+    "desktop_svg_width": 689,
+    "narrow_viewport_width": 320,
+    "narrow_document_width": 273,
+    "narrow_scroll_width": 273,
+    "narrow_scope_layout": "one column",
+    "preview_tab_closed": true,
+    "temporary_server_stopped": true
+  }
+}

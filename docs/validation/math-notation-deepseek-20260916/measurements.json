@@ -1,0 +1,51 @@
+{
+  "counting": "Unicode characters, compact JSON, image bytes excluded",
+  "new_schema_chars": 5343,
+  "old_model_schema_chars": 17011,
+  "new_prompt_text_chars": 8658,
+  "old_prompt_text_chars_same_image_only": 23487,
+  "gold": {
+    "tj-2026-heping-yimo-25": {
+      "old_chars": 3224,
+      "new_chars": 698,
+      "new_revision": "cd272ff543ac9bd88ff2ae332e1c8e5e55f3c01c114130e30ebb46eda54b6c56",
+      "reduction_percent": 78.35
+    },
+    "tj-2026-heping-ermo-25": {
+      "old_chars": 3384,
+      "new_chars": 820,
+      "new_revision": "6205d880b32dba90e062f0d6dfd2913ea6f9e19234b0b394b67e1b966a921fc4",
+      "reduction_percent": 75.77
+    },
+    "tj-2026-hexi-yimo-25": {
+      "old_chars": 3226,
+      "new_chars": 681,
+      "new_revision": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "reduction_percent": 78.89
+    },
+    "tj-2026-nankai-yimo-25": {
+      "old_chars": 3720,
+      "new_chars": 932,
+      "new_revision": "6522f48b466c5ebe8a5e1aa094169684d03cb54fbcb87c8822a02470b32dcf10",
+      "reduction_percent": 74.95
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "old_chars": 2699,
+      "new_chars": 642,
+      "new_revision": "8507af7579cad0741ab165878a4ec867654e24726a274a2f2e0237a8ee6f56e3",
+      "reduction_percent": 76.21
+    },
+    "k-quad": {
+      "old_chars": 5381,
+      "new_chars": 1500,
+      "new_revision": "3ec8f8d7ebf9119e681a99266bf7217cac7c311974a27474cb1a4efaf8af705b",
+      "reduction_percent": 72.12
+    },
+    "function-quantifiers": {
+      "old_chars": 1429,
+      "new_chars": 421,
+      "new_revision": "4cd8ce31d32828f95a21e87e3a38c3b9dd1c94784eefba412240336358435f4e",
+      "reduction_percent": 70.54
+    }
+  }
+}

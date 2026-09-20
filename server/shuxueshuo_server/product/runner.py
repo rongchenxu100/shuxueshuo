@@ -1,8 +1,10 @@
 """Nine real domain adapters driven by the build's frozen stage registry."""
 from io import BytesIO
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import sys
 import urllib.error
@@ -20,6 +22,7 @@ from .errors import Conflict, IntegrityFailure, ProductError
 from .execution import ExecutionContext, AuditedClient, require_source_review_config
 from .repositories import row
 from .runtime_config import load_runtime
+from .services import now
 from .transport import context_for
 
 
@@ -30,6 +33,12 @@ class StageRunner:
 
     def run(self):
         x = self.x
+        if x.build['pipeline_key'] == 'problem_runtime_binding':
+            from .runtime_binding import run_product
+            return run_product(x)
+        if x.build['pipeline_key'] == 'problem_understanding':
+            from .understanding_runtime import run_product
+            return run_product(x)
         definitions = x.build['pipeline_snapshot']['stages']
         keys = [s['stage_key'] for s in definitions]
         if any(k not in self.adapters for k in keys): raise Conflict('pipeline.unsupported_adapter')
@@ -52,12 +61,37 @@ class StageRunner:
                     if key == 'extraction':
                         parent_build = row(c, m.builds, id=x.build['parent_build_id'])
                         parent_resolved = parent_build['resolved_revision_id'] if parent_build else None
-                        if parent_resolved != x.build['requested_revision_id']:
+                        contract = next(s['contract_version'] for s in x.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction')
+                        if contract != 'problem-math-notation/v1' and parent_resolved != x.build['requested_revision_id']:
                             raise IntegrityFailure('checkpoint.revision_mismatch')
                 x.restore(parent, old)
                 x.service.commit_stage(*x.args, key, manifest_artifact_id=old['manifest_artifact_id'],
                     checkpoint_artifact_id=old['checkpoint_artifact_id'], outputs=outputs, reused_from_attempt_id=old['id'])
-                if key == 'extraction': x.service.bind_requested_revision(*x.args)
+                if key == 'extraction':
+                    contract = next(s['contract_version'] for s in x.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction')
+                    if contract != 'problem-math-notation/v1':
+                        x.service.bind_requested_revision(*x.args)
+                    else:
+                        # Older checkpoint rebuilds created a child ledger row;
+                        # keep it coherent when present.  New rebuilds that
+                        # start after extraction retain the parent ledger and
+                        # therefore legitimately have no child row to copy.
+                        with transaction(x.service.db) as c:
+                            parent_run = row(c, m.extraction_runs, build_id=x.build['parent_build_id'])
+                            child_run = row(c, m.extraction_runs, build_id=x.build['id'])
+                            if parent_run and child_run and parent_run['status'] == 'completed' and parent_run['candidate_id']:
+                                c.execute(m.extraction_runs.update().where(m.extraction_runs.c.id == child_run['id']).values(
+                                    status='completed', candidate_id=parent_run['candidate_id'],
+                                    result_json=parent_run['result_json'], finished_at=now(c)))
+                                c.execute(m.problems.update().where(m.problems.c.id == x.build['problem_id']).values(
+                                    current_candidate_id=parent_run['candidate_id'], latest_extraction_run_id=child_run['id']))
+                if key == 'projection':
+                    contract = next(s['contract_version'] for s in x.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction')
+                    if contract == 'problem-math-notation/v1':
+                        with transaction(x.service.db) as c:
+                            parent = row(c, m.builds, id=x.build['parent_build_id'])
+                        if parent and parent['resolved_revision_id']:
+                            x.service.bind_existing_revision(*x.args, parent['resolved_revision_id'])
                 continue
             x.begin(key)
             summary = self.adapters[key]()
@@ -69,6 +103,13 @@ class StageRunner:
 
     def ocr(self, phase):
         x = self.x
+        observation_mode = x.build.get('effective_config', {}).get('observation', {}).get('mode')
+        if observation_mode == 'fast-pass':
+            from .observation_fast_pass import run as run_fast_pass
+            run_fast_pass(x, phase)
+            return
+        if observation_mode not in (None, 'ocr'):
+            raise ProductError('configuration.observation_mode_invalid')
         work, source_id = str(x.work), str(x.build['source_id'])
         url = (os.environ.get('PRODUCT_OCR_URL') or '').rstrip('/')
         if url:
@@ -137,10 +178,13 @@ class StageRunner:
 
     def extraction(self):
         x = self.x
+        extraction_contract = next(s['contract_version'] for s in x.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction')
+        if extraction_contract == 'problem-math-notation/v1':
+            return self.math_notation_extraction()
         from shuxueshuo_server.solver.extraction.context import ExtractionAttemptLedger, SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND
         from shuxueshuo_server.solver.extraction.problem_domain_service import ProblemDomainExtractionService
         from shuxueshuo_server.solver.extraction.problem_source_review import SOURCE_REVIEW_BLOCKING_CODES
-        from shuxueshuo_server.solver.extraction.multimodal_provider import DoubaoMultimodalExtractionProvider
+        from shuxueshuo_server.solver.extraction.multimodal_provider import create_vision_provider
         from shuxueshuo_server.review.replay import archive_bytes, ARCHIVE, extraction_store
         initial, observation, _ = x.contexts()
         store = extraction_store(x.work / 'extraction-artifacts')
@@ -165,9 +209,8 @@ class StageRunner:
             x.service.bind_requested_revision(*x.args)
         else:
             require_source_review_config(x.build)
-            if not x.config.doubao_api_key: raise ProductError('configuration.extraction_key_missing')
-            provider = AuditedClient(DoubaoMultimodalExtractionProvider(api_key=x.config.doubao_api_key,
-                base_url=x.config.doubao_base_url, model=x.config.doubao_model, request_timeout=180), x)
+            if not x.config.deepseek_api_key: raise ProductError('configuration.extraction_key_missing')
+            provider = AuditedClient(create_vision_provider(x.config, frozen_config=x.build['effective_config']['extraction']), x)
             result = ProblemDomainExtractionService(input_artifact_reader=store, output_artifact_store=store, provider=provider).run(
                 observation, attempt_ledger=ExtractionAttemptLedger.for_context(observation), ancestor_contexts=(initial,), max_attempts=3)
             for attempt in result.attempts:
@@ -189,7 +232,72 @@ class StageRunner:
         x.bundle()
         return '题意通过正式校验并绑定修订'
 
+    def math_notation_extraction(self):
+        """Run the notation workflow inside this build's extraction attempt."""
+        from .understanding import registry
+        from .understanding_runtime import build_request
+        from .understanding_storage import DatabaseWorkflowStorage
+        from shuxueshuo_server.problem_understanding.workflow import run_workflow
+        from shuxueshuo_server.solver.extraction.multimodal_provider import DeepSeekMultimodalExtractionProvider
+        x = self.x
+        with transaction(x.service.db) as c:
+            run_row = row(c, m.extraction_runs, build_id=x.build['id'])
+            run = dict(run_row) if run_row else None
+            source = dict(row(c, m.problem_source_versions, id=run['source_version_id'])) if run else None
+            candidate = row(c, m.problem_candidates, id=run['base_candidate_id']) if run and run['base_candidate_id'] else None
+        if not run:
+            raise ProductError('extraction.workflow_missing')
+        if run['status'] == 'completed' and run['result_json']:
+            result = run['result_json']
+            x.add('problem-math-candidate.json', result.get('candidate'), schema='problem-math-notation/v1')
+            x.add('problem-math-parsed.json', result.get('parsed'), schema='problem-math-notation-parse/v1')
+            self._emit_math_diagnostics(result)
+            x.add('problem-math-workflow.json', result, schema='problem-math-workflow/v1')
+            x.add('problem-math-source-review.json', result.get('review'), schema='problem-math-source-review/v1')
+            # StageRunner owns the single checkpoint/commit for every stage.
+            # Keep this recovery path limited to restoring its outputs.
+            return '恢复已持久化的数学记号候选与原图复核'
+        store = DatabaseWorkflowStorage(x, run)
+        store.guard()
+        with transaction(x.service.db) as c:
+            c.execute(m.extraction_runs.update().where(m.extraction_runs.c.id == run['id']).values(status='running'))
+        if not x.config.deepseek_api_key:
+            raise ProductError('configuration.extraction_key_missing')
+        observation = x.read('observation', 'Observation Context')
+        request = build_request(x.service, x.ctx, source, run['frozen']['registry'], observation=observation)
+        provider = DeepSeekMultimodalExtractionProvider(
+            api_key=x.config.deepseek_api_key, base_url='https://api.deepseek.com',
+            model='deepseek-flash', request_timeout=300, max_output_tokens=16384,
+            file_cache_dir=x.app.settings.root / 'deepseek-files-cache')
+        result = run_workflow(request, provider, x.work, run['frozen']['registry'],
+            problem_id=str(run['problem_id']), storage=store,
+            initial_candidate=candidate['candidate_json'] if candidate else None,
+            mode=run['mode'], source_hash=source['source_hash'])
+        # Keep the workflow's durable ledger artifacts and expose the stable
+        # extraction contract through the stage checkpoint.
+        x.add('problem-math-candidate.json', result.get('candidate'), schema='problem-math-notation/v1')
+        x.add('problem-math-parsed.json', result.get('parsed'), schema='problem-math-notation-parse/v1')
+        self._emit_math_diagnostics(result)
+        x.add('problem-math-workflow.json', result, schema='problem-math-workflow/v1')
+        x.add('problem-math-source-review.json', result.get('review'), schema='problem-math-source-review/v1')
+        with transaction(x.service.db) as c:
+            c.execute(m.extraction_runs.update().where(m.extraction_runs.c.id == run['id']).values(
+                status='completed', result_json=result, finished_at=datetime.now(timezone.utc)))
+        return '数学记号候选与原图复核已持久化'
+
+    def _emit_math_diagnostics(self, result):
+        parsed = result.get('parsed') or {}
+        x = self.x
+        x.add('problem-math-normalized.json', parsed.get('objects', {}).get('ir'), role='validation')
+        x.add('problem-math-compiled.json', parsed.get('objects', {}), role='validation')
+        x.add('problem-math-continuation.json', parsed.get('continuation'), role='validation')
+        x.add('problem-math-validation.json', parsed.get('reports', {}), role='validation')
+        x.add('notation-diagnostics.json', result.get('diagnostics', []), role='validation')
+
     def projection(self):
+        extraction_contract = next(s['contract_version'] for s in self.x.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction')
+        if extraction_contract == 'problem-math-notation/v1':
+            return self.math_runtime_projection()
         from shuxueshuo_server.solver.extraction.problem_planner_authority import VerifiedPlannerProblemAuthority
         x = self.x
         bundle = x.bundle()
@@ -200,6 +308,39 @@ class StageRunner:
         x.add('Planning Context', authority.planning_context.authority_payload())
         return '来源、题意与 Solver 输入身份一致'
 
+    def math_runtime_projection(self):
+        x = self.x
+        from shuxueshuo_server.problem_understanding.runtime_binding import authorize_binding
+        try:
+            binding, evidence = x.notation_binding()
+            authority = authorize_binding(binding, evidence)
+            x._notation_authority = authority
+            x.service.bind_notation_revision(
+                *x.args,
+                graph=binding.bundle.source_graph.wire_payload(),
+                semantic_hash=authority.bundle.authority_token.problem_semantic_hash,
+                authority=authority.bundle.authority_payload(),
+            )
+        except Exception as exc:
+            code = getattr(exc, 'code', 'binding.failed')
+            x.add('binding-diagnostic.json', {
+                'schema_version': 'math-runtime-binding/v1', 'code': code,
+                'message': str(exc), 'stage': 'projection'}, role='validation')
+            raise ProductError(code) from exc
+        for name, value in binding.artifacts().items():
+            x.add('math-runtime-binding/' + name, value, role='output')
+        x.add('Solver ProblemIR', authority.bundle.canonical_solver_input)
+        x.add('Planning Context', authority.planning_context.authority_payload())
+        x.add('Bundle authority', authority.bundle.authority_token)
+        x.add('solver-authority.json', authority.bundle.authority_payload(), schema='solver-authority/v1')
+        x.add('binding-result.json', {
+            'schema_version': 'math-runtime-binding/v1',
+            'source_identity': dict(binding.source_identity),
+            'authority': authority.bundle.authority_payload(),
+            'planning_context': authority.planning_context.authority_payload(),
+        }, schema='math-runtime-binding/v1')
+        return '数学记号已授权绑定到 Solver 输入'
+
     def solver(self):
         from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
         from shuxueshuo_server.solver.runtime.strategy_runtime_planner import strategy_planner_provider
@@ -208,9 +349,14 @@ class StageRunner:
         x = self.x
         if not x.config.deepseek_api_key: raise ProductError('configuration.solver_key_missing')
         client = x.config.build_llm_client(thinking_effort='low')
+        frozen_solver_config = x.build.get('effective_config', {}).get('solver', {})
+        argument_encoding = frozen_solver_config.get('argument_encoding', x.config.argument_encoding)
+        if argument_encoding not in ('source-ref', 'math-expression/v1'):
+            raise ProductError('configuration.argument_encoding_invalid')
         orchestrator = RuntimeOrchestrator(family_registry=x.config.build_family_registry(), planner_providers={},
             default_planner_provider=strategy_planner_provider(mode='deepseek', client=AuditedClient(client, x),
-                allow_same_problem_few_shot=False, functional_few_shot_mode=x.config.functional_few_shot_mode),
+                allow_same_problem_few_shot=False, functional_few_shot_mode=x.config.functional_few_shot_mode,
+                argument_encoding=argument_encoding),
             max_attempts=x.config.max_llm_attempts, debug_dir=str(x.work / 'planner'))
         with DebugJournal(x.work / 'planner', lambda name, doc: x.add(name, doc, role=solver_debug_role(name))):
             result = orchestrator.solve_verified(x.bundle())
@@ -271,7 +417,9 @@ class StageRunner:
         output.mkdir(exist_ok=True)
         for name in ('geometry-spec.json', 'step-decorations.json', 'lesson-data.json'):
             data = x.read('visual', name)
-            if name == 'lesson-data.json': data.setdefault('meta', {})['outputPath'] = str(output / 'lesson.html')
+            if name == 'lesson-data.json':
+                _use_reviewed_source_text(data, x)
+                data.setdefault('meta', {})['outputPath'] = str(output / 'lesson.html')
             (output / name).write_text(json.dumps(data, ensure_ascii=False))
         for tool, args in (('validate-geometry-spec.mjs', []), ('build-lesson-page.mjs', ['--standalone', '--product-preview'])):
             result = subprocess.run(['node', str(REPO / 'tools' / tool), str(output), *args], cwd=REPO, capture_output=True, text=True, timeout=180)
@@ -283,6 +431,65 @@ class StageRunner:
         x.add('page_manifest', {'schema_version': 'product-page/v1', 'entry_artifact_id': str(entry['id']), 'assets': {'index.html': str(entry['id'])}},
               kind='page_manifest', schema='product-page/v1')
         return '解析网页已编译并通过检查'
+
+
+def _use_reviewed_source_text(lesson_data, context):
+    """Show the reviewed source transcription above the compiled lesson facts."""
+    try:
+        candidate = context.read('extraction', 'problem-math-candidate.json')
+    except (KeyError, ProductError, TypeError, ValueError):
+        return
+    if not isinstance(candidate, dict):
+        return
+    value = candidate.get('original_text')
+    if isinstance(value, str):
+        source_lines = [line.strip() for line in value.splitlines() if line.strip()]
+    elif isinstance(value, list):
+        source_lines = [str(line).strip() for line in value if str(line).strip()]
+    else:
+        return
+    if not source_lines or not isinstance(lesson_data.get('problem'), dict):
+        return
+    existing = lesson_data['problem'].get('lines') or []
+    answers = [
+        {'answerId': line['answerId'], 'answer': line.get('answer', '')}
+        for line in existing
+        if isinstance(line, dict) and line.get('answerId')
+    ]
+    chunks = []
+    parent_mark = r'[（(]\s*(?:[0-9一二三四五六七八九十]+|[IVXⅠⅡⅢⅣⅤ]+)\s*[）)]'
+    child_mark = r'[①②③④⑤⑥⑦⑧⑨⑩]'
+    marker = re.compile(rf'(?={parent_mark}|(?={child_mark}))')
+    for line in source_lines:
+        chunks.extend(part.strip() for part in marker.split(line) if part.strip())
+    if not chunks:
+        chunks = source_lines
+    parent_chunks = [
+        index for index, line in enumerate(chunks)
+        if re.search(parent_mark, line)
+    ]
+    child_chunks = [
+        index for index, line in enumerate(chunks)
+        if re.search(child_mark, line)
+    ]
+    # Answer slots follow section ownership: children between parent i and
+    # parent i+1 belong to that section (parent is stem-only); a parent with
+    # no children is itself answerable.  Flat （1）（2）（3） and heping-style
+    # （Ⅰ）①②（Ⅱ） both fall out correctly; west-qing （1）（2）①② keeps （1）.
+    if not parent_chunks:
+        marker_chunks = child_chunks
+    else:
+        marker_chunks = [c for c in child_chunks if c < parent_chunks[0]]
+        for i, parent_idx in enumerate(parent_chunks):
+            next_parent = parent_chunks[i + 1] if i + 1 < len(parent_chunks) else len(chunks)
+            kids = [c for c in child_chunks if parent_idx < c < next_parent]
+            marker_chunks.extend(kids if kids else [parent_idx])
+    for answer, index in zip(answers, marker_chunks):
+        chunks[index] = {"text": chunks[index], **answer}
+    lesson_data['problem']['lines'] = [
+        item if isinstance(item, dict) else {"text": item}
+        for item in chunks
+    ]
 
 
 def main():

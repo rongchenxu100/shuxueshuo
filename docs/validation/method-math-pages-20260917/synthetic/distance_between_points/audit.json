@@ -1,0 +1,15 @@
+{
+  "schema_version": "lesson-capability-case-audit/v1",
+  "problem_id": "synthetic-distance_between_points",
+  "snapshot_hash": "dc7eaca3a67b24fef3a1f252fd04b14b185da082ef8c5a2ec0e333d2dd2aa560",
+  "annotated_plan_hash": "00a62b187be97e5e32974419f45ff8eab67bfb96baffd93952ed4d1ef79cce65",
+  "lesson_ir_hash": "5ed665319504ba0b86fd326b275a249a93bc5aa748fc4fd8ee042798c6fce964",
+  "visual_step_ir_hash": "222747583448f9703499103700b99cfebf04372e73962757cd9cd98d5eed470f",
+  "source_step_count": 1,
+  "lesson_step_count": 1,
+  "visual_frame_count": 1,
+  "source_steps": [
+    "synthetic_distance_between_points"
+  ],
+  "diagnostics": []
+}

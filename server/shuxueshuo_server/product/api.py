@@ -109,6 +109,7 @@ def error_response(exc, request):
         'revision.base_changed': '题意已有新版本，请刷新后修改。', 'execution.fenced': '本次执行已失效。',
         'access.loopback_only': '当前服务仅允许本机访问。', 'events.resnapshot_required': '请重新加载当前状态。'}
     return JSONResponse({'error': {'code': code, 'message': messages.get(code, '操作未完成，请检查输入、权限或最新任务状态。'),
+        'details': getattr(exc, 'details', None),
         'request_id': getattr(request.state, 'request_id', str(uuid4()))}}, status_code=status)
 
 
@@ -157,7 +158,8 @@ def health(request: Request):
 @router.get('/requests/{operation}/{request_id}')
 def request_status(operation: str, request_id: str, request: Request):
     a = app_for(request)
-    if operation not in ('upload', 'batch.create', 'build.create', 'build.rebuild', 'revision.save', 'source.resolve', 'page.review'):
+    if operation not in ('upload', 'batch.create', 'build.create', 'build.rebuild', 'revision.save', 'source.resolve', 'page.review',
+                         'understanding.upload', 'understanding.source_version', 'understanding.candidate', 'understanding.run', 'runtime_binding.run'):
         raise ProductError('request.operation')
     with transaction(a.db) as c:
         record = row(c, m.idempotency_requests, workspace_id=a.ctx.workspace_id, user_id=a.ctx.user_id, operation=operation, request_id=request_id)
@@ -205,6 +207,132 @@ def problems(request: Request, limit: int = Query(50, ge=1, le=100), before_time
 
 @router.get('/problems/{problem_id}')
 def get_problem(problem_id: UUID, request: Request): return app_for(request).get_problem(problem_id)
+
+
+class SourceVersionInput(Input):
+    base_source_version_id: UUID | None
+    source_ids: list[UUID] = Field(min_length=1, max_length=600)
+
+
+class CandidateInput(Input):
+    base_candidate_id: UUID | None
+    source_version_id: UUID
+    candidate: dict
+
+
+class ExtractionRunInput(Input):
+    base_candidate_id: UUID | None
+    source_version_id: UUID
+    mode: Literal['extract', 'review', 'validate'] = 'extract'
+
+
+def understanding_for(request):
+    from .understanding import Understanding
+    return Understanding(app_for(request))
+
+
+class RuntimeBindingRunInput(Input):
+    candidate_id: UUID
+    source_version_id: UUID
+
+
+@router.post('/problems/{problem_id}/runtime-binding-runs', status_code=202)
+def runtime_binding_start(problem_id: UUID, body: RuntimeBindingRunInput, request: Request, idempotency_key: str = Header()):
+    from .runtime_binding import RuntimeBindings
+    return RuntimeBindings(app_for(request)).start(problem_id, body.candidate_id, body.source_version_id, idempotency_key)
+
+
+@router.get('/problems/{problem_id}/runtime-binding-runs')
+def runtime_binding_runs(problem_id: UUID, request: Request, limit: int = 20, before: UUID | None = None):
+    from .runtime_binding import RuntimeBindings
+    return RuntimeBindings(app_for(request)).runs(problem_id, limit, before)
+
+
+@router.get('/runtime-binding-runs/{run_id}')
+def runtime_binding_run(run_id: UUID, request: Request):
+    from .runtime_binding import RuntimeBindings
+    return RuntimeBindings(app_for(request)).run(run_id)
+
+
+@router.get('/problems/{problem_id}/understanding')
+def understanding_summary(problem_id: UUID, request: Request):
+    return understanding_for(request).summary(problem_id)
+
+
+@router.post('/problems/{problem_id}/source-images', status_code=201)
+async def understanding_upload(problem_id: UUID, request: Request, idempotency_key: str = Header()):
+    form = await request.form()
+    image = form.get('image')
+    if not isinstance(image, UploadFile):
+        raise ProductError('upload.missing_image')
+    content = await image.read(20 * 1024**2 + 1)
+    return await asyncio.to_thread(understanding_for(request).upload, problem_id, content,
+                                  image.filename or 'image', image.content_type, idempotency_key)
+
+
+@router.get('/problems/{problem_id}/source-images/{source_id}')
+def understanding_image(problem_id: UUID, source_id: UUID, request: Request):
+    a = app_for(request)
+    with transaction(a.db) as c:
+        problem(c, a.ctx, problem_id)
+        if not row(c, m.problem_sources, problem_id=problem_id, source_id=source_id):
+            raise Forbidden('source.not_linked')
+        source = scoped(c, m.sources, a.ctx, source_id)
+        artifact = a.service.artifacts.verified(c, a.ctx, source['original_artifact_id'])
+    with a.service.storage.open(artifact['storage_key']) as stream:
+        content = stream.read()
+    return Response(content, media_type=artifact['content_type'], headers={'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'})
+
+
+@router.post('/problems/{problem_id}/source-versions', status_code=201)
+def understanding_source(problem_id: UUID, body: SourceVersionInput, request: Request, idempotency_key: str = Header()):
+    return understanding_for(request).source_version(problem_id, body.base_source_version_id, body.source_ids, idempotency_key)
+
+
+@router.get('/problems/{problem_id}/candidates')
+def understanding_candidates(problem_id: UUID, request: Request, limit: int = 20, before: UUID | None = None):
+    return understanding_for(request).candidates(problem_id, limit, before)
+
+
+@router.get('/problems/{problem_id}/candidates/{candidate_id}')
+def understanding_candidate(problem_id: UUID, candidate_id: UUID, request: Request):
+    return understanding_for(request).candidate(problem_id, candidate_id)
+
+
+@router.get('/problems/{problem_id}/candidates/{candidate_id}/artifacts/{artifact_id}')
+def understanding_candidate_artifact(problem_id: UUID, candidate_id: UUID, artifact_id: UUID, request: Request):
+    a = app_for(request)
+    candidate = understanding_for(request).candidate(problem_id, candidate_id)
+    allowed = {v['artifact_id'] for v in candidate['validation_json'].get('artifacts', {}).values()}
+    if str(artifact_id) not in allowed:
+        raise Forbidden('artifact.not_in_candidate')
+    with transaction(a.db) as c:
+        artifact = a.service.artifacts.verified(c, a.ctx, artifact_id)
+    with a.service.storage.open(artifact['storage_key']) as stream:
+        content = stream.read()
+    return Response(content, media_type=artifact['content_type'], headers={'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff'})
+
+
+@router.post('/problems/{problem_id}/candidates', status_code=201)
+def understanding_edit(problem_id: UUID, body: CandidateInput, request: Request, idempotency_key: str = Header()):
+    return understanding_for(request).save_candidate(problem_id, body.base_candidate_id, body.source_version_id, body.candidate, idempotency_key)
+
+
+@router.post('/problems/{problem_id}/extraction-runs', status_code=202)
+def understanding_start(problem_id: UUID, body: ExtractionRunInput, request: Request, idempotency_key: str = Header()):
+    return understanding_for(request).start(problem_id, body.source_version_id, body.base_candidate_id, body.mode, idempotency_key)
+
+
+@router.get('/extraction-runs/{run_id}')
+def understanding_run(run_id: UUID, request: Request):
+    return understanding_for(request).run(run_id)
+
+
+@router.get('/problems/{problem_id}/extraction-runs')
+def understanding_runs(problem_id: UUID, request: Request, limit: int = 20, before: UUID | None = None):
+    if not 1 <= limit <= 100:
+        raise ProductError('query.limit')
+    return understanding_for(request).runs(problem_id, limit, before)
 
 
 @router.get('/problems/{problem_id}/revisions/{revision_id}')

@@ -1,0 +1,1817 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "problem-domain/v2"
+    },
+    "root": {
+      "$ref": "#/$defs/Scope"
+    },
+    "family_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "match_status": {
+      "enum": [
+        "matched",
+        "unmatched"
+      ]
+    },
+    "match_reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8192
+    }
+  },
+  "required": [
+    "schema_version",
+    "root",
+    "family_id",
+    "match_status",
+    "match_reason"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Scope": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "source_text": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "point",
+                  "scalar",
+                  "curve"
+                ]
+              },
+              "label": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "role": {
+                "enum": [
+                  "fixed",
+                  "moving"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "label"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Fact"
+          },
+          "minItems": 0,
+          "maxItems": 128
+        },
+        "goals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Goal"
+          },
+          "minItems": 0,
+          "maxItems": 64
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Scope"
+          },
+          "minItems": 0,
+          "maxItems": 16
+        },
+        "uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "missing_figure",
+                  "ambiguous_symbol",
+                  "unreadable",
+                  "occluded",
+                  "unstructured",
+                  "ambiguous_reuse"
+                ]
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 8192
+              }
+            },
+            "required": [
+              "kind",
+              "text"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 0,
+          "maxItems": 32
+        }
+      },
+      "required": [
+        "label",
+        "source_text",
+        "entities",
+        "facts",
+        "goals",
+        "children",
+        "uncertainties"
+      ],
+      "additionalProperties": false
+    },
+    "Fact": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "any_of"
+            },
+            "branches": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Fact"
+                },
+                "minItems": 1,
+                "maxItems": 128
+              },
+              "minItems": 2,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "branches"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "polygon"
+            },
+            "vertices": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3,8}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 3,
+                  "maxItems": 8
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "vertices"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "angle_equal"
+            },
+            "angles": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "angles"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "angle_ratio"
+            },
+            "angles": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "ratio": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "angles",
+            "ratio"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "angle_value"
+            },
+            "angle": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              ]
+            },
+            "degrees": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "angle",
+            "degrees"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "right_angle"
+            },
+            "angle": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "angle"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "angle_sum"
+            },
+            "angles": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "degrees": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "angles",
+            "degrees"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "equal_length"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "segments"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "length_ratio"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "ratio": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "segments",
+            "ratio"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "length_value"
+            },
+            "segment": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "segment",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "squared_length_value"
+            },
+            "segment": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "segment",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "area_equal"
+            },
+            "triangles": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "triangles"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "area_ratio"
+            },
+            "triangles": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "ratio": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "triangles",
+            "ratio"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "area_value"
+            },
+            "triangle": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "triangle",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "midpoint"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "segment": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "segment"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "intersection"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "interior": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "segments"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "diagonal"
+            },
+            "polygon": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{4}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 4,
+                  "maxItems": 4
+                }
+              ]
+            },
+            "segment": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "polygon",
+            "segment"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "diagonal_bisects"
+            },
+            "polygon": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{4}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 4,
+                  "maxItems": 4
+                }
+              ]
+            },
+            "bisector": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            },
+            "bisected": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "polygon",
+            "bisector",
+            "bisected"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "parallel"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "segments"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "perpendicular"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "segments"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "point_on_ray"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "ray": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "ray"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "point_on_segment"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "segment": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            },
+            "interior": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "segment"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "square"
+            },
+            "polygon": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{4}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 4,
+                  "maxItems": 4
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "polygon"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "parallelogram"
+            },
+            "polygon": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{4}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 4,
+                  "maxItems": 4
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "polygon"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "coordinates"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "coordinates": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "coordinates"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "origin"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            }
+          },
+          "required": [
+            "kind",
+            "point"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "translation"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "original": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "vector": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "original",
+            "vector"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "curve_equation"
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "independent": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "dependent": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            }
+          },
+          "required": [
+            "kind",
+            "curve",
+            "expression",
+            "independent",
+            "dependent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "curve_at_x"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "x": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "curve",
+            "x"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "curve_landmark"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "landmark": {
+              "enum": [
+                "vertex",
+                "x_axis_intercept",
+                "y_axis_intercept",
+                "axis_x_intercept"
+              ]
+            },
+            "side": {
+              "enum": [
+                "left",
+                "right"
+              ]
+            },
+            "exclude_point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "curve",
+            "landmark"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "point_on_curve"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "curve"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "point_on_axis"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "axis": {
+              "enum": [
+                "x",
+                "y",
+                "symmetry"
+              ]
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            }
+          },
+          "required": [
+            "kind",
+            "point",
+            "axis"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "scalar_constraint"
+            },
+            "symbol": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            },
+            "operator": {
+              "enum": [
+                "=",
+                "!=",
+                ">",
+                ">=",
+                "<",
+                "<="
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "symbol",
+            "operator",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "quantity_relation"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "operator": {
+              "enum": [
+                "=",
+                "!=",
+                ">",
+                ">=",
+                "<",
+                "<="
+              ]
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "expression",
+            "operator",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "extremum_constraint"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "direction": {
+              "enum": [
+                "minimum",
+                "maximum"
+              ]
+            },
+            "variables": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            },
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          },
+          "required": [
+            "kind",
+            "expression",
+            "direction",
+            "variables"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Goal": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_value"
+            },
+            "target": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "in_terms_of": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "target"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_length"
+            },
+            "segment": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{2}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              ]
+            },
+            "in_terms_of": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "segment"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_angle"
+            },
+            "angle": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              ]
+            },
+            "in_terms_of": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "angle"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_area"
+            },
+            "triangle": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              ]
+            },
+            "in_terms_of": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "triangle"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_area_ratio"
+            },
+            "triangles": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{3}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "in_terms_of": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "triangles"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_length_ratio"
+            },
+            "segments": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "pattern": "^[A-Z]{2}$"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                ]
+              },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "in_terms_of": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "segments"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_tan"
+            },
+            "angle": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              ]
+            },
+            "in_terms_of": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "angle"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_coordinates"
+            },
+            "point": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            }
+          },
+          "required": [
+            "kind",
+            "point"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_equation"
+            },
+            "curve": {
+              "type": "string",
+              "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+            }
+          },
+          "required": [
+            "kind",
+            "curve"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_minimum"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "variables": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            },
+            "in_terms_of": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "expression",
+            "variables"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "find_maximum"
+            },
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            },
+            "variables": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            },
+            "in_terms_of": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+              },
+              "minItems": 1,
+              "maxItems": 16
+            }
+          },
+          "required": [
+            "kind",
+            "expression",
+            "variables"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "match_status": {
+            "const": "unmatched"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "family_id": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "family_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z\\u4e00-\\u9fff][A-Za-z0-9_\\u4e00-\\u9fff]{0,63}$"
+          }
+        }
+      }
+    }
+  ]
+}

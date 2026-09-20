@@ -1,0 +1,307 @@
+{
+  "schema_version": "visual-step-ir/v2",
+  "problem_id": "synthetic-line_intersection_point",
+  "source_snapshot_hash": "7cb1cc72d436ada218de0dddac971feb98b38d7ad6869d9286f0b9dd8b369734",
+  "source_lesson_hash": "d98b5900d159d2de08476fc0e21a123eefca6682e44b93c8ecf49309bae9aad2",
+  "geometry_registry": {
+    "version": 1,
+    "id": "synthetic-line_intersection_point",
+    "domain": {
+      "minX": -0.8,
+      "maxX": 4.8,
+      "minY": -0.8,
+      "maxY": 4.8
+    },
+    "movingParam": "t",
+    "expressionEnv": [],
+    "fixedPoints": {
+      "point_A_problem": [
+        "0",
+        "0"
+      ],
+      "point_B_problem": [
+        "4",
+        "4"
+      ],
+      "point_C_problem": [
+        "0",
+        "4"
+      ],
+      "point_D_problem": [
+        "4",
+        "0"
+      ],
+      "point_H_problem": [
+        "2",
+        "2"
+      ]
+    },
+    "movingPoints": {},
+    "pointMeta": {
+      "point_A_problem": {
+        "label": "A",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:A"
+      },
+      "point_B_problem": {
+        "label": "B",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:B"
+      },
+      "point_C_problem": {
+        "label": "C",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:C"
+      },
+      "point_D_problem": {
+        "label": "D",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:D"
+      },
+      "point_H_problem": {
+        "label": "H",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "synthetic_line_intersection_point"
+        ]
+      }
+    },
+    "curves": [],
+    "derivedIntersections": []
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {
+      "problem.H": {
+        "steps": [
+          {
+            "visual_step_id": "visual:teach:synthetic_line_intersection_point",
+            "lesson_step_id": "teach:synthetic_line_intersection_point",
+            "visual_mode": "scene",
+            "frames": [
+              {
+                "frame_id": "frame:teach:synthetic_line_intersection_point:1",
+                "teaching_unit_keys": [
+                  "line_intersection_point/solve_intersection"
+                ],
+                "viewport": {
+                  "minX": -0.72,
+                  "maxX": 4.72,
+                  "minY": -2.08,
+                  "maxY": 6.08
+                },
+                "objects": [
+                  {
+                    "visual_object_id": "visual:coloredline:4702eca69e665b78",
+                    "component": "ColoredLine",
+                    "role": "intersection:line1",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_line_intersection_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem",
+                      "point_B_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "role": "intersection:line1",
+                      "from": "point_A_problem",
+                      "to": "point_B_problem",
+                      "color": "#0f766e",
+                      "width": 2.0,
+                      "dash": ""
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                    "component": "Point",
+                    "role": "point:A",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_line_intersection_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_A_problem",
+                      "labelText": "A",
+                      "color": "#64748b",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "A"
+                  },
+                  {
+                    "visual_object_id": "visual:point:b0dface9ac4ac702",
+                    "component": "Point",
+                    "role": "point:B",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_line_intersection_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_B_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_B_problem",
+                      "labelText": "B",
+                      "color": "#64748b",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "B"
+                  },
+                  {
+                    "visual_object_id": "visual:coloredline:f5b44c5c514035c6",
+                    "component": "ColoredLine",
+                    "role": "intersection:line2",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_line_intersection_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_C_problem",
+                      "point_D_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "role": "intersection:line2",
+                      "from": "point_C_problem",
+                      "to": "point_D_problem",
+                      "color": "#0f766e",
+                      "width": 2.0,
+                      "dash": ""
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:point:c00eaaeae2b8bfc3",
+                    "component": "Point",
+                    "role": "point:C",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_line_intersection_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_C_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_C_problem",
+                      "labelText": "C",
+                      "color": "#64748b",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "C"
+                  },
+                  {
+                    "visual_object_id": "visual:point:6ca25e871fae983b",
+                    "component": "Point",
+                    "role": "point:D",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_line_intersection_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_D_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_D_problem",
+                      "labelText": "D",
+                      "color": "#64748b",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "D"
+                  },
+                  {
+                    "visual_object_id": "visual:point:9ff20c29f7f1852b",
+                    "component": "Point",
+                    "role": "point:H",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_line_intersection_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_H_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_H_problem",
+                      "labelText": "H",
+                      "color": "#b45309",
+                      "dx": 14,
+                      "dy": -18,
+                      "showLabel": false
+                    },
+                    "display_label": "H"
+                  },
+                  {
+                    "visual_object_id": "visual:coordinatelabel:5ffb34a12eb0d64c",
+                    "component": "CoordinateLabel",
+                    "role": "coordinate:point_H_problem",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_line_intersection_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_H_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_H_problem",
+                      "text": "H(2,2)",
+                      "dx": 14,
+                      "dy": -30
+                    },
+                    "display_label": "H(2,2)"
+                  }
+                ],
+                "local_parameters": [],
+                "caption": "求交点"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "children": []
+  },
+  "metadata": {
+    "source": "recursive_visual_step_builder",
+    "base_source": "generated",
+    "scene_model": "recursive_complete_frames"
+  }
+}

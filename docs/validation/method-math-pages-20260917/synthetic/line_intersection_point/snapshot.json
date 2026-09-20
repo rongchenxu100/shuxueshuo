@@ -1,0 +1,213 @@
+{
+  "schema_version": "explanation-snapshot/v3",
+  "problem_id": "synthetic-line_intersection_point",
+  "family_id": "lesson_capability_synthetic",
+  "problem_revision": "synthetic:line_intersection_point:v1",
+  "problem_semantic_hash": "b29a61a5c69dc95d3be7b9bcc4c8f2a608da6840ae45b8d61fea31964b537959",
+  "canonical_plan_hash": "58fb7dfe30ee1f8876475fca4f1cfe39d306ec2151bc330dfa35aa4fa19d3eff",
+  "verified_execution_hash": "9ca651162d14865472818713b33ae269c41360e9c08ba92162133da8d2ab26ca",
+  "problem": {
+    "original_text": [
+      "已知直线 AB 与 CD 相交于 H，求 H 的坐标。"
+    ],
+    "scopes": [
+      {
+        "scope_id": "problem",
+        "label": "合成验收"
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:problem.H",
+        "scope_id": "problem",
+        "answer_key": "H",
+        "value_type": "Point",
+        "target_handle": "point:problem:H"
+      }
+    ],
+    "entities": [
+      {
+        "handle": "point:problem:A",
+        "entity_type": "point",
+        "name": "A",
+        "scope_id": "problem",
+        "coordinate": [
+          "0",
+          "0"
+        ],
+        "definition": "given_point"
+      },
+      {
+        "handle": "point:problem:B",
+        "entity_type": "point",
+        "name": "B",
+        "scope_id": "problem",
+        "coordinate": [
+          "4",
+          "4"
+        ],
+        "definition": "given_point"
+      },
+      {
+        "handle": "point:problem:C",
+        "entity_type": "point",
+        "name": "C",
+        "scope_id": "problem",
+        "coordinate": [
+          "0",
+          "4"
+        ],
+        "definition": "given_point"
+      },
+      {
+        "handle": "point:problem:D",
+        "entity_type": "point",
+        "name": "D",
+        "scope_id": "problem",
+        "coordinate": [
+          "4",
+          "0"
+        ],
+        "definition": "given_point"
+      },
+      {
+        "handle": "point:problem:H",
+        "entity_type": "point",
+        "name": "H",
+        "scope_id": "problem",
+        "definition": "derived_point"
+      }
+    ],
+    "facts": []
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {
+      "problem.H": {
+        "steps": [
+          {
+            "step_id": "synthetic_line_intersection_point",
+            "capability_id": "line_intersection_point",
+            "intent": "联立直线 AB 与 CD 的方程，求交点 H。",
+            "inputs": {
+              "line1_p1": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:A"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "0",
+                    "0"
+                  ],
+                  "display": "A(0,0)"
+                }
+              ],
+              "line1_p2": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:B"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "4",
+                    "4"
+                  ],
+                  "display": "B(4,4)"
+                }
+              ],
+              "line2_p1": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:C"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "0",
+                    "4"
+                  ],
+                  "display": "C(0,4)"
+                }
+              ],
+              "line2_p2": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:D"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "4",
+                    "0"
+                  ],
+                  "display": "D(4,0)"
+                }
+              ],
+              "target": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:H"
+                  },
+                  "runtime_type": "PointRef",
+                  "value": {
+                    "entity_type": "point",
+                    "name": "H",
+                    "description": "H"
+                  },
+                  "display": "H"
+                }
+              ]
+            },
+            "output_targets": {
+              "intersection": "point:problem:H"
+            },
+            "outputs": {
+              "intersection": {
+                "runtime_type": "Point",
+                "value": [
+                  "2",
+                  "2"
+                ],
+                "display": "H(2,2)"
+              }
+            },
+            "calculations": [],
+            "checks": [
+              {
+                "check_id": "intersection_on_line1",
+                "kind": "runtime_method_check",
+                "passed": true,
+                "detail": "H 在第一条直线上"
+              },
+              {
+                "check_id": "intersection_on_line2",
+                "kind": "runtime_method_check",
+                "passed": true,
+                "detail": "H 在第二条直线上"
+              }
+            ]
+          }
+        ],
+        "answer_from": {
+          "step_id": "synthetic_line_intersection_point",
+          "return": "intersection"
+        }
+      }
+    },
+    "children": []
+  },
+  "evidence": {},
+  "answers": {
+    "problem": {
+      "H": [
+        "2",
+        "2"
+      ]
+    }
+  }
+}

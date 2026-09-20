@@ -1,0 +1,16 @@
+{
+  "shuxueshuo_server/problem_understanding/measure.py": "d0695b65cc5fd31d9deaf98cd78cb36b5b4e61c71fd5518e0daf7e1850215e99",
+  "shuxueshuo_server/problem_understanding/service.py": "b19ad6a88b1f57fe016d570031cfa9ddb94a4b5026f42196996e9a3faf3c6365",
+  "shuxueshuo_server/problem_understanding/algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+  "shuxueshuo_server/problem_understanding/__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+  "shuxueshuo_server/problem_understanding/comparison.py": "e0c66d1ff17160e2e09665c67a8262167cc5d35be47f7e462e40552f5b1995cc",
+  "shuxueshuo_server/problem_understanding/authoring.py": "3d56d4e5da623229279a401c0e70f3d00d2173b96c3827c7f01485447950294e",
+  "shuxueshuo_server/problem_understanding/contracts.py": "8260b605391f7ba58ae6a5092393f86294e34fe9879a8b18fe9634be47f9803f",
+  "shuxueshuo_server/problem_understanding/prompt.py": "f302a474226f96ef35c81edb7bcfd2830f7a2b1597c13efe1ecb170d073d6d11",
+  "shuxueshuo_server/problem_understanding/identity.py": "928775ee9a74fd4113141f4f606a6f9b740be39d62d77b26e43b91159ab06ed8",
+  "shuxueshuo_server/problem_understanding/smoke.py": "db251fdad0c1bd88f68a98c83808f0652e195b4ba48fcb6a2a8ef667ff5ee834",
+  "shuxueshuo_server/problem_understanding/validation.py": "d9dde956603e698294c74abb30336b8cdf227694302bb61cdffd69151abc98f8",
+  "tests/solver/fixtures/understanding-v2/k-quad/gold.json": "cb7cb8e1ee816ba01e1693ededdaf51c7fc9593fbe8748d2b0f044a803c622ae",
+  "tests/solver/test_understanding_authoring.py": "11157eb1c864ddaea04e80a97eb69a966646f48b43c10eed2d257df6c3fbdded",
+  "tests/solver/test_understanding_v2.py": "43ea4bafd4175e786e222d9c7b9b1a4ca2ee5ae6157f9bf23fd261cbe37e6218"
+}

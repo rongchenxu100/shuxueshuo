@@ -1,0 +1,49 @@
+{
+  "schema_version": "lesson-ir/v2",
+  "problem_id": "synthetic-distance_between_points",
+  "problem_revision": "synthetic:distance_between_points:v1",
+  "source_snapshot_hash": "dc7eaca3a67b24fef3a1f252fd04b14b185da082ef8c5a2ec0e333d2dd2aa560",
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {
+      "problem.distance": {
+        "steps": [
+          {
+            "lesson_step_id": "teach:synthetic_distance_between_points",
+            "source_step_ids": [
+              "synthetic_distance_between_points"
+            ],
+            "capability_ids": [
+              "distance_between_points"
+            ],
+            "teaching_unit_keys": [
+              "distance_between_points/compute_distance"
+            ],
+            "title": "用距离公式计算线段长度",
+            "nav_title": "计算距离",
+            "goal": "计算两点之间的距离，得到当前需要的长度表达式。",
+            "derive": [
+              [
+                "∵",
+                "两端点为 A(0,0) 与 B(3,4)"
+              ],
+              [
+                "计算",
+                "由两点距离公式，AB＝√[(3－(0))²＋(4－(0))²]＝5"
+              ],
+              [
+                "∴",
+                "AB＝5"
+              ]
+            ],
+            "box": [
+              "5"
+            ]
+          }
+        ]
+      }
+    },
+    "children": []
+  }
+}

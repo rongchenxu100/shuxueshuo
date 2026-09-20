@@ -16,9 +16,35 @@ V1 = {
 }
 
 
-CURRENT_PIPELINE_VERSION = 'v2'
+CURRENT_PIPELINE_VERSION = 'v3'
 V2 = deepcopy(V1)
 next(s for s in V2['stages'] if s['stage_key'] == 'extraction')['contract_version'] = 'v2'
+V3 = deepcopy(V2)
+next(s for s in V3['stages'] if s['stage_key'] == 'extraction')['contract_version'] = 'problem-math-notation/v1'
+next(s for s in V3['stages'] if s['stage_key'] == 'projection')['contract_version'] = 'math-runtime-binding/v1'
+V3['completion']['required_artifacts'].extend([
+    {'stage_key': 'extraction', 'name': 'problem-math-workflow.json', 'schema_version': 'problem-math-workflow/v1'},
+    {'stage_key': 'projection', 'name': 'binding-result.json', 'schema_version': 'math-runtime-binding/v1'},
+])
+UNDERSTANDING = {
+    'schema_version': 'product-pipeline/v1',
+    'stages': [
+        {'stage_key': 'source', 'title': '题目图片', 'ordinal': 1, 'contract_version': 'math-source/v1', 'depends_on': []},
+        {'stage_key': 'extraction', 'title': '题意抽取与复核', 'ordinal': 2,
+         'contract_version': 'problem-math-notation/v1', 'depends_on': ['source']},
+    ],
+    'completion': {'required_stages': ['source', 'extraction'], 'required_artifacts': [
+        {'stage_key': 'extraction', 'name': 'workflow-result.json', 'schema_version': 'problem-math-workflow/v1'}]},
+}
+
+
+RUNTIME_BINDING = {
+    'schema_version': 'product-pipeline/v1',
+    'stages': [{'stage_key': 'binding', 'title': '检查求解条件', 'ordinal': 1,
+                'contract_version': 'math-runtime-binding/v1', 'depends_on': []}],
+    'completion': {'required_stages': ['binding'], 'required_artifacts': [
+        {'stage_key': 'binding', 'name': 'binding-result.json', 'schema_version': 'math-runtime-binding/v1'}]},
+}
 
 
 def validate(snapshot):
@@ -60,7 +86,10 @@ def validate(snapshot):
 
 class PipelineRegistry:
     def __init__(self):
-        self._definitions = {('problem_lesson', 'v1'): validate(V1), ('problem_lesson', 'v2'): validate(V2)}
+        self._definitions = {('problem_lesson', 'v1'): validate(V1), ('problem_lesson', 'v2'): validate(V2),
+                             ('problem_lesson', 'v3'): validate(V3),
+                             ('problem_understanding', 'v1'): validate(UNDERSTANDING),
+                             ('problem_runtime_binding', 'v1'): validate(RUNTIME_BINDING)}
 
     def register(self, key, version, snapshot):
         checked = validate(snapshot)

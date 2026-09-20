@@ -1,0 +1,20 @@
+{
+  "batch": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/math-notation-provider-comparison-20260916-153340",
+  "timings": {
+    "deepseek": {
+      "passed": 6,
+      "completed": 7,
+      "started_at": "2026-09-16T07:34:18.804770+00:00",
+      "finished_at": "2026-09-16T07:35:52.425079+00:00",
+      "wall_seconds": 93.62
+    },
+    "doubao": {
+      "passed": 4,
+      "completed": 7,
+      "started_at": "2026-09-16T07:35:52.429224+00:00",
+      "finished_at": "2026-09-16T07:38:17.689354+00:00",
+      "wall_seconds": 145.259
+    }
+  },
+  "network_runs": 2
+}

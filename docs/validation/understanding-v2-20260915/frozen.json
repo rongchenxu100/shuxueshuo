@@ -1,0 +1,16 @@
+{
+  "contracts": {
+    "problem-transcription/v1": "c1137f659b8da403781853cc37c43799ad42ad26934e52c855f7b6e4a2ce8531",
+    "problem-domain/v2": "8df67f28fc76ab9603b4253b82f2b255b486dcdfb4ed3eee57c4114d6a973ba1",
+    "problem-solver-match/v1": "5f3637c6ee67464ad43e880e2b8145024bb5327ad9c1a8828fd56f1c7fd69783",
+    "problem-understanding/v1": "6b1028366f389287b58808ddfe21633232d970cdb02558c058a4e5d3d90af2a6",
+    "problem-repair/v2": "dcaf7a6db096d03338627f1c83738e6be4f8bfba3a06e9716ef245ed89a6dc42"
+  },
+  "request_hash": "7e158015e376637ba3b7633e14bd74cf6eaac88654a3f6e54a7e66a994bdfa14",
+  "gold_sha256": "532b9829efd5884172d8209642dd4fc530ed669559204ce806ce91f8aebc0f79",
+  "image_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+  "semantic_budget": 1,
+  "network_budget": 2,
+  "sdk_retries": 0,
+  "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+}

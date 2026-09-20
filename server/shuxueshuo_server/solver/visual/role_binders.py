@@ -504,10 +504,24 @@ class VisualRoleBinderRegistry:
                 if len(same_branch) == 1:
                     geometry_ref = same_branch[0]
                 elif len(same_branch) > 1:
-                    raise ValueError(
-                        "visual_typed_relation_point_ambiguous: "
-                        f"label={label}, scope={scope_id}, refs={same_branch}"
-                    )
+                    # A parent-scope point can have evaluated descendants
+                    # with the same public label.  Resolve that identity from
+                    # the canonical ProblemIR coordinate before declaring an
+                    # ambiguity; only genuinely different points remain an
+                    # error.
+                    entity = self.index.point_entity_for_name_or_handle(label)
+                    coordinate = entity.get("coordinate") if entity else None
+                    if coordinate is not None:
+                        candidate = self._geometry_point_for_value(
+                            label, coordinate, scope_id
+                        )
+                        if candidate in same_branch:
+                            geometry_ref = candidate
+                    if not geometry_ref:
+                        raise ValueError(
+                            "visual_typed_relation_point_ambiguous: "
+                            f"label={label}, scope={scope_id}, refs={same_branch}"
+                        )
             if not geometry_ref:
                 raise ValueError(
                     "visual_typed_relation_point_missing: "

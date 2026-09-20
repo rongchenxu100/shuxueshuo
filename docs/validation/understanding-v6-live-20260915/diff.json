@@ -1,0 +1,1929 @@
+{
+  "ok": false,
+  "expected_hash": "7be18d6923d0a9c189e506fe54894c509bac87ee6e2dd0a6bd35f4e371a10e49",
+  "actual_hash": "0326bc8e759db094effd6deef6ce8f431e0425577e99f7fc84080680a48bdad0",
+  "differences": [
+    {
+      "path": "root/children/0/children/0/facts/0",
+      "expected_count": 8,
+      "actual_count": 7
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e2"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e3",
+        "r.c0.c0.e5"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/0/dimension",
+      "expected": [
+        0,
+        0
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/0/expression",
+      "expected": "r_c0_c0_e7 - 1",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e5",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/0/relation",
+      "expected": ">=",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/1/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/1/expression",
+      "expected": "-length_r_c0_c0_e0_r_c0_c0_e6 + length_r_c0_c0_e2_r_c0_c0_e6*r_c0_c0_e7",
+      "actual": "r_c0_c0_e7 - 1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/1/relation",
+      "expected": "=",
+      "actual": ">="
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/2/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/2/expression",
+      "expected": null,
+      "actual": "-length_r_c0_c0_e3_r_c0_c0_e6 + length_r_c0_c0_e5_r_c0_c0_e6*r_c0_c0_e7"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/2/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/2/point",
+      "expected": "r.c0.c0.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/2/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/2/segments",
+      "expected": [
+        [
+          "r.c0.c0.e0",
+          "r.c0.c0.e2"
+        ],
+        [
+          "r.c0.c0.e1",
+          "r.c0.c0.e3"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/3/point",
+      "expected": "r.c0.c0.e6",
+      "actual": "r.c0.c0.e4"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/3/segments/1/0",
+      "expected": "r.c0.c0.e3",
+      "actual": "r.c0.c0.e1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/3/segments/1/1",
+      "expected": "r.c0.c0.e4",
+      "actual": "r.c0.c0.e3"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/4/kind",
+      "expected": "midpoint",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/4/point",
+      "expected": "r.c0.c0.e4",
+      "actual": "r.c0.c0.e6"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/4/segment",
+      "expected": [
+        "r.c0.c0.e1",
+        "r.c0.c0.e5"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/4/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c0.c0.e0",
+          "r.c0.c0.e2"
+        ],
+        [
+          "r.c0.c0.e3",
+          "r.c0.c0.e5"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/5/point",
+      "expected": "r.c0.c0.e6",
+      "actual": "r.c0.c0.e5"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/5/segment/0",
+      "expected": "r.c0.c0.e3",
+      "actual": "r.c0.c0.e1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/6/kind",
+      "expected": "polygon",
+      "actual": "parallelogram"
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/6/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e1",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/0/6/vertices",
+      "expected": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e1",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/1",
+      "expected_count": 8,
+      "actual_count": 7
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e2"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e3",
+        "r.c0.c0.e5"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/0/dimension",
+      "expected": [
+        0,
+        0
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/0/expression",
+      "expected": "r_c0_c0_e7 - 1",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e5",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/0/relation",
+      "expected": ">=",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/1/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/1/expression",
+      "expected": "-length_r_c0_c0_e0_r_c0_c0_e6*r_c0_c0_e7 + length_r_c0_c0_e2_r_c0_c0_e6",
+      "actual": "r_c0_c0_e7 - 1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/1/relation",
+      "expected": "=",
+      "actual": ">="
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/2/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/2/expression",
+      "expected": null,
+      "actual": "-length_r_c0_c0_e3_r_c0_c0_e6*r_c0_c0_e7 + length_r_c0_c0_e5_r_c0_c0_e6"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/2/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/2/point",
+      "expected": "r.c0.c0.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/2/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/2/segments",
+      "expected": [
+        [
+          "r.c0.c0.e0",
+          "r.c0.c0.e2"
+        ],
+        [
+          "r.c0.c0.e1",
+          "r.c0.c0.e3"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/3/point",
+      "expected": "r.c0.c0.e6",
+      "actual": "r.c0.c0.e4"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/3/segments/1/0",
+      "expected": "r.c0.c0.e3",
+      "actual": "r.c0.c0.e1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/3/segments/1/1",
+      "expected": "r.c0.c0.e4",
+      "actual": "r.c0.c0.e3"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/4/kind",
+      "expected": "midpoint",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/4/point",
+      "expected": "r.c0.c0.e4",
+      "actual": "r.c0.c0.e6"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/4/segment",
+      "expected": [
+        "r.c0.c0.e1",
+        "r.c0.c0.e5"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/4/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c0.c0.e0",
+          "r.c0.c0.e2"
+        ],
+        [
+          "r.c0.c0.e3",
+          "r.c0.c0.e5"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/5/point",
+      "expected": "r.c0.c0.e6",
+      "actual": "r.c0.c0.e5"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/5/segment/0",
+      "expected": "r.c0.c0.e3",
+      "actual": "r.c0.c0.e1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/6/kind",
+      "expected": "polygon",
+      "actual": "parallelogram"
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/6/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e1",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/1/6/vertices",
+      "expected": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e1",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/2",
+      "expected_count": 8,
+      "actual_count": 7
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e3",
+        "r.c0.c0.e5"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e2"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/0/dimension",
+      "expected": [
+        0,
+        0
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/0/expression",
+      "expected": "r_c0_c0_e7 - 1",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e5",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/0/relation",
+      "expected": ">=",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/1/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/1/expression",
+      "expected": "-length_r_c0_c0_e3_r_c0_c0_e6 + length_r_c0_c0_e4_r_c0_c0_e6*r_c0_c0_e7",
+      "actual": "r_c0_c0_e7 - 1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/1/relation",
+      "expected": "=",
+      "actual": ">="
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/2/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/2/expression",
+      "expected": null,
+      "actual": "-length_r_c0_c0_e0_r_c0_c0_e6 + length_r_c0_c0_e2_r_c0_c0_e6*r_c0_c0_e7"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/2/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/2/point",
+      "expected": "r.c0.c0.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/2/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/2/segments",
+      "expected": [
+        [
+          "r.c0.c0.e0",
+          "r.c0.c0.e2"
+        ],
+        [
+          "r.c0.c0.e1",
+          "r.c0.c0.e3"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/3/point",
+      "expected": "r.c0.c0.e6",
+      "actual": "r.c0.c0.e4"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/3/segments/1/0",
+      "expected": "r.c0.c0.e3",
+      "actual": "r.c0.c0.e1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/3/segments/1/1",
+      "expected": "r.c0.c0.e4",
+      "actual": "r.c0.c0.e3"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/4/kind",
+      "expected": "midpoint",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/4/point",
+      "expected": "r.c0.c0.e4",
+      "actual": "r.c0.c0.e6"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/4/segment",
+      "expected": [
+        "r.c0.c0.e1",
+        "r.c0.c0.e5"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/4/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c0.c0.e0",
+          "r.c0.c0.e2"
+        ],
+        [
+          "r.c0.c0.e3",
+          "r.c0.c0.e5"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/5/point",
+      "expected": "r.c0.c0.e6",
+      "actual": "r.c0.c0.e5"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/5/segment/0",
+      "expected": "r.c0.c0.e0",
+      "actual": "r.c0.c0.e1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/5/segment/1",
+      "expected": "r.c0.c0.e2",
+      "actual": "r.c0.c0.e4"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/6/kind",
+      "expected": "polygon",
+      "actual": "parallelogram"
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/6/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e1",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/2/6/vertices",
+      "expected": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e1",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/3",
+      "expected_count": 8,
+      "actual_count": 7
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e3",
+        "r.c0.c0.e5"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e2"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/0/dimension",
+      "expected": [
+        0,
+        0
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/0/expression",
+      "expected": "r_c0_c0_e7 - 1",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e5",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/0/relation",
+      "expected": ">=",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/1/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/1/expression",
+      "expected": "-length_r_c0_c0_e3_r_c0_c0_e6*r_c0_c0_e7 + length_r_c0_c0_e4_r_c0_c0_e6",
+      "actual": "r_c0_c0_e7 - 1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/1/relation",
+      "expected": "=",
+      "actual": ">="
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/2/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/2/expression",
+      "expected": null,
+      "actual": "-length_r_c0_c0_e0_r_c0_c0_e6*r_c0_c0_e7 + length_r_c0_c0_e2_r_c0_c0_e6"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/2/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/2/point",
+      "expected": "r.c0.c0.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/2/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/2/segments",
+      "expected": [
+        [
+          "r.c0.c0.e0",
+          "r.c0.c0.e2"
+        ],
+        [
+          "r.c0.c0.e1",
+          "r.c0.c0.e3"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/3/point",
+      "expected": "r.c0.c0.e6",
+      "actual": "r.c0.c0.e4"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/3/segments/1/0",
+      "expected": "r.c0.c0.e3",
+      "actual": "r.c0.c0.e1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/3/segments/1/1",
+      "expected": "r.c0.c0.e4",
+      "actual": "r.c0.c0.e3"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/4/kind",
+      "expected": "midpoint",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/4/point",
+      "expected": "r.c0.c0.e4",
+      "actual": "r.c0.c0.e6"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/4/segment",
+      "expected": [
+        "r.c0.c0.e1",
+        "r.c0.c0.e5"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/4/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c0.c0.e0",
+          "r.c0.c0.e2"
+        ],
+        [
+          "r.c0.c0.e3",
+          "r.c0.c0.e5"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/5/point",
+      "expected": "r.c0.c0.e6",
+      "actual": "r.c0.c0.e5"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/5/segment/0",
+      "expected": "r.c0.c0.e0",
+      "actual": "r.c0.c0.e1"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/5/segment/1",
+      "expected": "r.c0.c0.e2",
+      "actual": "r.c0.c0.e4"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/6/kind",
+      "expected": "polygon",
+      "actual": "parallelogram"
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/6/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e1",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/0/facts/3/6/vertices",
+      "expected": [
+        "r.c0.c0.e0",
+        "r.c0.c0.e1",
+        "r.c0.c0.e2",
+        "r.c0.c0.e3"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/0/uncertainties",
+      "expected_count": 2,
+      "actual_count": 1
+    },
+    {
+      "path": "root/children/0/children/0/uncertainties/0",
+      "expected": "ambiguous_symbol",
+      "actual": "missing_figure"
+    },
+    {
+      "path": "root/children/0/children/1/facts",
+      "expected_count": 4,
+      "actual_count": 2
+    },
+    {
+      "path": "root/children/0/children/1/facts/0",
+      "expected_count": 6,
+      "actual_count": 4
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c0.c1.e0",
+        "r.c0.c1.e2"
+      ]
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c0.c1.e1",
+        "r.c0.c1.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/0/dimension",
+      "expected": [
+        0,
+        0
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/0/expression",
+      "expected": "r_c0_c1_e5 - 1",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c1.e0",
+        "r.c0.c1.e1",
+        "r.c0.c1.e2",
+        "r.c0.c1.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/0/relation",
+      "expected": ">=",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/1/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/1/expression",
+      "expected": "-length_r_c0_c1_e0_r_c0_c1_e4 + length_r_c0_c1_e2_r_c0_c1_e4*r_c0_c1_e5",
+      "actual": "r_c0_c1_e5 - 1"
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/1/relation",
+      "expected": "=",
+      "actual": ">="
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/2/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/2/expression",
+      "expected": null,
+      "actual": "-length_r_c0_c1_e1_r_c0_c1_e4 + length_r_c0_c1_e3_r_c0_c1_e4*r_c0_c1_e5"
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/2/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/2/point",
+      "expected": "r.c0.c1.e4",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/2/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/2/segments",
+      "expected": [
+        [
+          "r.c0.c1.e0",
+          "r.c0.c1.e2"
+        ],
+        [
+          "r.c0.c1.e1",
+          "r.c0.c1.e3"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/3/kind",
+      "expected": "midpoint",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/3/segment",
+      "expected": [
+        "r.c0.c1.e0",
+        "r.c0.c1.e2"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/0/3/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c0.c1.e0",
+          "r.c0.c1.e2"
+        ],
+        [
+          "r.c0.c1.e1",
+          "r.c0.c1.e3"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/0/children/1/facts/1",
+      "expected_count": 6,
+      "actual_count": 4
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c0.c1.e0",
+        "r.c0.c1.e2"
+      ]
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c0.c1.e1",
+        "r.c0.c1.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/0/dimension",
+      "expected": [
+        0,
+        0
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/0/expression",
+      "expected": "r_c0_c1_e5 - 1",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c0.c1.e0",
+        "r.c0.c1.e1",
+        "r.c0.c1.e2",
+        "r.c0.c1.e3"
+      ]
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/0/relation",
+      "expected": ">=",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/1/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/1/expression",
+      "expected": "-length_r_c0_c1_e0_r_c0_c1_e4*r_c0_c1_e5 + length_r_c0_c1_e2_r_c0_c1_e4",
+      "actual": "r_c0_c1_e5 - 1"
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/1/relation",
+      "expected": "=",
+      "actual": ">="
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/2/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/2/expression",
+      "expected": null,
+      "actual": "-length_r_c0_c1_e1_r_c0_c1_e4*r_c0_c1_e5 + length_r_c0_c1_e3_r_c0_c1_e4"
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/2/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/2/point",
+      "expected": "r.c0.c1.e4",
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/2/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/2/segments",
+      "expected": [
+        [
+          "r.c0.c1.e0",
+          "r.c0.c1.e2"
+        ],
+        [
+          "r.c0.c1.e1",
+          "r.c0.c1.e3"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/3/kind",
+      "expected": "midpoint",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/3/segment",
+      "expected": [
+        "r.c0.c1.e0",
+        "r.c0.c1.e2"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/0/children/1/facts/1/3/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c0.c1.e0",
+          "r.c0.c1.e2"
+        ],
+        [
+          "r.c0.c1.e1",
+          "r.c0.c1.e3"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/1/facts",
+      "expected_count": 4,
+      "actual_count": 2
+    },
+    {
+      "path": "root/children/1/facts/0",
+      "expected_count": 8,
+      "actual_count": 6
+    },
+    {
+      "path": "root/children/1/facts/0/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c1.e0",
+        "r.c1.e2"
+      ]
+    },
+    {
+      "path": "root/children/1/facts/0/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c1.e1",
+        "r.c1.e3"
+      ]
+    },
+    {
+      "path": "root/children/1/facts/0/0/dimension",
+      "expected": [
+        0,
+        0
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/0/0/expression",
+      "expected": "r_c1_e5 - 1",
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/0/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/1/facts/0/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c1.e0",
+        "r.c1.e1",
+        "r.c1.e2",
+        "r.c1.e3"
+      ]
+    },
+    {
+      "path": "root/children/1/facts/0/0/relation",
+      "expected": ">=",
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/0/1/dimension/1",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/1/facts/0/1/expression",
+      "expected": "-2*angle_r_c1_e0_r_c1_e1_r_c1_e3 + angle_r_c1_e1_r_c1_e3_r_c1_e2",
+      "actual": "r_c1_e5 - 1"
+    },
+    {
+      "path": "root/children/1/facts/0/1/relation",
+      "expected": "=",
+      "actual": ">="
+    },
+    {
+      "path": "root/children/1/facts/0/2/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/1/facts/0/2/dimension/1",
+      "expected": 0,
+      "actual": 1
+    },
+    {
+      "path": "root/children/1/facts/0/2/expression",
+      "expected": "-length_r_c1_e0_r_c1_e4 + length_r_c1_e2_r_c1_e4*r_c1_e5",
+      "actual": "-2*angle_r_c1_e0_r_c1_e1_r_c1_e3 + angle_r_c1_e1_r_c1_e3_r_c1_e2"
+    },
+    {
+      "path": "root/children/1/facts/0/4/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/1/facts/0/4/expression",
+      "expected": null,
+      "actual": "-length_r_c1_e1_r_c1_e4 + length_r_c1_e3_r_c1_e4*r_c1_e5"
+    },
+    {
+      "path": "root/children/1/facts/0/4/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/0/4/point",
+      "expected": "r.c1.e4",
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/0/4/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/1/facts/0/4/segments",
+      "expected": [
+        [
+          "r.c1.e0",
+          "r.c1.e2"
+        ],
+        [
+          "r.c1.e1",
+          "r.c1.e3"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/0/5/kind",
+      "expected": "midpoint",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/1/facts/0/5/segment",
+      "expected": [
+        "r.c1.e0",
+        "r.c1.e2"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/0/5/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c1.e0",
+          "r.c1.e2"
+        ],
+        [
+          "r.c1.e1",
+          "r.c1.e3"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/1/facts/1",
+      "expected_count": 8,
+      "actual_count": 6
+    },
+    {
+      "path": "root/children/1/facts/1/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c1.e0",
+        "r.c1.e2"
+      ]
+    },
+    {
+      "path": "root/children/1/facts/1/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c1.e1",
+        "r.c1.e3"
+      ]
+    },
+    {
+      "path": "root/children/1/facts/1/0/dimension",
+      "expected": [
+        0,
+        0
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/1/0/expression",
+      "expected": "r_c1_e5 - 1",
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/1/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/1/facts/1/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c1.e0",
+        "r.c1.e1",
+        "r.c1.e2",
+        "r.c1.e3"
+      ]
+    },
+    {
+      "path": "root/children/1/facts/1/0/relation",
+      "expected": ">=",
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/1/1/dimension/1",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/1/facts/1/1/expression",
+      "expected": "-2*angle_r_c1_e0_r_c1_e1_r_c1_e3 + angle_r_c1_e1_r_c1_e3_r_c1_e2",
+      "actual": "r_c1_e5 - 1"
+    },
+    {
+      "path": "root/children/1/facts/1/1/relation",
+      "expected": "=",
+      "actual": ">="
+    },
+    {
+      "path": "root/children/1/facts/1/2/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/1/facts/1/2/dimension/1",
+      "expected": 0,
+      "actual": 1
+    },
+    {
+      "path": "root/children/1/facts/1/2/expression",
+      "expected": "-length_r_c1_e0_r_c1_e4*r_c1_e5 + length_r_c1_e2_r_c1_e4",
+      "actual": "-2*angle_r_c1_e0_r_c1_e1_r_c1_e3 + angle_r_c1_e1_r_c1_e3_r_c1_e2"
+    },
+    {
+      "path": "root/children/1/facts/1/4/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/1/facts/1/4/expression",
+      "expected": null,
+      "actual": "-length_r_c1_e1_r_c1_e4*r_c1_e5 + length_r_c1_e3_r_c1_e4"
+    },
+    {
+      "path": "root/children/1/facts/1/4/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/1/4/point",
+      "expected": "r.c1.e4",
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/1/4/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/1/facts/1/4/segments",
+      "expected": [
+        [
+          "r.c1.e0",
+          "r.c1.e2"
+        ],
+        [
+          "r.c1.e1",
+          "r.c1.e3"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/1/5/kind",
+      "expected": "midpoint",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/1/facts/1/5/segment",
+      "expected": [
+        "r.c1.e0",
+        "r.c1.e2"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/1/facts/1/5/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c1.e0",
+          "r.c1.e2"
+        ],
+        [
+          "r.c1.e1",
+          "r.c1.e3"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/2/entities",
+      "expected_count": 6,
+      "actual_count": 7
+    },
+    {
+      "path": "root/children/2/entities/2/role",
+      "expected": null,
+      "actual": "moving"
+    },
+    {
+      "path": "root/children/2/entities/3/role",
+      "expected": "moving",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts",
+      "expected_count": 4,
+      "actual_count": 2
+    },
+    {
+      "path": "root/children/2/facts/0/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c2.e0",
+        "r.c2.e2"
+      ]
+    },
+    {
+      "path": "root/children/2/facts/0/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c2.e1",
+        "r.c2.e3"
+      ]
+    },
+    {
+      "path": "root/children/2/facts/0/0/dimension",
+      "expected": [
+        0,
+        1
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/0/expression",
+      "expected": "-angle_r_c2_e1_r_c2_e0_r_c2_e3 + angle_r_c2_e3_r_c2_e0_r_c2_e4",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/2/facts/0/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c2.e0",
+        "r.c2.e1",
+        "r.c2.e2",
+        "r.c2.e3"
+      ]
+    },
+    {
+      "path": "root/children/2/facts/0/0/relation",
+      "expected": "=",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/1/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/2/facts/0/1/expression",
+      "expected": "-2*length_r_c2_e0_r_c2_e5 + length_r_c2_e3_r_c2_e5",
+      "actual": "2 - r_c2_e6"
+    },
+    {
+      "path": "root/children/2/facts/0/2/dimension",
+      "expected": null,
+      "actual": [
+        0,
+        0
+      ]
+    },
+    {
+      "path": "root/children/2/facts/0/2/expression",
+      "expected": null,
+      "actual": "r_c2_e6 - 1"
+    },
+    {
+      "path": "root/children/2/facts/0/2/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/2/point",
+      "expected": "r.c2.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/2/relation",
+      "expected": null,
+      "actual": ">="
+    },
+    {
+      "path": "root/children/2/facts/0/2/segments",
+      "expected": [
+        [
+          "r.c2.e0",
+          "r.c2.e3"
+        ],
+        [
+          "r.c2.e1",
+          "r.c2.e4"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/3/dimension",
+      "expected": null,
+      "actual": [
+        0,
+        1
+      ]
+    },
+    {
+      "path": "root/children/2/facts/0/3/expression",
+      "expected": null,
+      "actual": "-angle_r_c2_e1_r_c2_e0_r_c2_e2 + angle_r_c2_e2_r_c2_e0_r_c2_e3"
+    },
+    {
+      "path": "root/children/2/facts/0/3/kind",
+      "expected": "midpoint",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/3/point",
+      "expected": "r.c2.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/3/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/2/facts/0/3/segment",
+      "expected": [
+        "r.c2.e0",
+        "r.c2.e3"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/4/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/2/facts/0/4/expression",
+      "expected": null,
+      "actual": "-2*length_r_c2_e1_r_c2_e5 + length_r_c2_e3_r_c2_e5"
+    },
+    {
+      "path": "root/children/2/facts/0/4/kind",
+      "expected": "midpoint",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/4/point",
+      "expected": "r.c2.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/4/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/2/facts/0/4/segment",
+      "expected": [
+        "r.c2.e1",
+        "r.c2.e4"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/5/kind",
+      "expected": "perpendicular",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/2/facts/0/5/point",
+      "expected": null,
+      "actual": "r.c2.e5"
+    },
+    {
+      "path": "root/children/2/facts/0/5/segments/0/1",
+      "expected": "r.c2.e1",
+      "actual": "r.c2.e2"
+    },
+    {
+      "path": "root/children/2/facts/0/5/segments/1/1",
+      "expected": "r.c2.e2",
+      "actual": "r.c2.e3"
+    },
+    {
+      "path": "root/children/2/facts/0/6/kind",
+      "expected": "point_on_ray",
+      "actual": "perpendicular"
+    },
+    {
+      "path": "root/children/2/facts/0/6/point",
+      "expected": "r.c2.e3",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/6/ray",
+      "expected": [
+        "r.c2.e1",
+        "r.c2.e2"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/0/6/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c2.e0",
+          "r.c2.e1"
+        ],
+        [
+          "r.c2.e1",
+          "r.c2.e4"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/2/facts/0/7/kind",
+      "expected": "polygon",
+      "actual": "point_on_ray"
+    },
+    {
+      "path": "root/children/2/facts/0/7/point",
+      "expected": null,
+      "actual": "r.c2.e2"
+    },
+    {
+      "path": "root/children/2/facts/0/7/ray",
+      "expected": null,
+      "actual": [
+        "r.c2.e1",
+        "r.c2.e4"
+      ]
+    },
+    {
+      "path": "root/children/2/facts/0/7/vertices",
+      "expected": [
+        "r.c2.e0",
+        "r.c2.e1",
+        "r.c2.e3",
+        "r.c2.e4"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/0/bisected",
+      "expected": null,
+      "actual": [
+        "r.c2.e0",
+        "r.c2.e2"
+      ]
+    },
+    {
+      "path": "root/children/2/facts/1/0/bisector",
+      "expected": null,
+      "actual": [
+        "r.c2.e1",
+        "r.c2.e3"
+      ]
+    },
+    {
+      "path": "root/children/2/facts/1/0/dimension",
+      "expected": [
+        0,
+        1
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/0/expression",
+      "expected": "-angle_r_c2_e1_r_c2_e0_r_c2_e3 + angle_r_c2_e3_r_c2_e0_r_c2_e4",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/0/kind",
+      "expected": null,
+      "actual": "diagonal_bisects"
+    },
+    {
+      "path": "root/children/2/facts/1/0/polygon",
+      "expected": null,
+      "actual": [
+        "r.c2.e0",
+        "r.c2.e1",
+        "r.c2.e2",
+        "r.c2.e3"
+      ]
+    },
+    {
+      "path": "root/children/2/facts/1/0/relation",
+      "expected": "=",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/1/dimension/0",
+      "expected": 1,
+      "actual": 0
+    },
+    {
+      "path": "root/children/2/facts/1/1/expression",
+      "expected": "-2*length_r_c2_e1_r_c2_e5 + length_r_c2_e4_r_c2_e5",
+      "actual": "2 - r_c2_e6"
+    },
+    {
+      "path": "root/children/2/facts/1/2/dimension",
+      "expected": null,
+      "actual": [
+        0,
+        0
+      ]
+    },
+    {
+      "path": "root/children/2/facts/1/2/expression",
+      "expected": null,
+      "actual": "r_c2_e6 - 1"
+    },
+    {
+      "path": "root/children/2/facts/1/2/kind",
+      "expected": "intersection",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/2/point",
+      "expected": "r.c2.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/2/relation",
+      "expected": null,
+      "actual": ">="
+    },
+    {
+      "path": "root/children/2/facts/1/2/segments",
+      "expected": [
+        [
+          "r.c2.e0",
+          "r.c2.e3"
+        ],
+        [
+          "r.c2.e1",
+          "r.c2.e4"
+        ]
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/3/dimension",
+      "expected": null,
+      "actual": [
+        0,
+        1
+      ]
+    },
+    {
+      "path": "root/children/2/facts/1/3/expression",
+      "expected": null,
+      "actual": "-angle_r_c2_e1_r_c2_e0_r_c2_e2 + angle_r_c2_e2_r_c2_e0_r_c2_e3"
+    },
+    {
+      "path": "root/children/2/facts/1/3/kind",
+      "expected": "midpoint",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/3/point",
+      "expected": "r.c2.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/3/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/2/facts/1/3/segment",
+      "expected": [
+        "r.c2.e0",
+        "r.c2.e3"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/4/dimension",
+      "expected": null,
+      "actual": [
+        1,
+        0
+      ]
+    },
+    {
+      "path": "root/children/2/facts/1/4/expression",
+      "expected": null,
+      "actual": "-length_r_c2_e1_r_c2_e5 + 2*length_r_c2_e3_r_c2_e5"
+    },
+    {
+      "path": "root/children/2/facts/1/4/kind",
+      "expected": "midpoint",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/4/point",
+      "expected": "r.c2.e5",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/4/relation",
+      "expected": null,
+      "actual": "="
+    },
+    {
+      "path": "root/children/2/facts/1/4/segment",
+      "expected": [
+        "r.c2.e0",
+        "r.c2.e3"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/5/kind",
+      "expected": "perpendicular",
+      "actual": "intersection"
+    },
+    {
+      "path": "root/children/2/facts/1/5/point",
+      "expected": null,
+      "actual": "r.c2.e5"
+    },
+    {
+      "path": "root/children/2/facts/1/5/segments/0/1",
+      "expected": "r.c2.e1",
+      "actual": "r.c2.e2"
+    },
+    {
+      "path": "root/children/2/facts/1/5/segments/1/1",
+      "expected": "r.c2.e2",
+      "actual": "r.c2.e3"
+    },
+    {
+      "path": "root/children/2/facts/1/6/kind",
+      "expected": "point_on_ray",
+      "actual": "perpendicular"
+    },
+    {
+      "path": "root/children/2/facts/1/6/point",
+      "expected": "r.c2.e3",
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/6/ray",
+      "expected": [
+        "r.c2.e1",
+        "r.c2.e2"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/facts/1/6/segments",
+      "expected": null,
+      "actual": [
+        [
+          "r.c2.e0",
+          "r.c2.e1"
+        ],
+        [
+          "r.c2.e1",
+          "r.c2.e4"
+        ]
+      ]
+    },
+    {
+      "path": "root/children/2/facts/1/7/kind",
+      "expected": "polygon",
+      "actual": "point_on_ray"
+    },
+    {
+      "path": "root/children/2/facts/1/7/point",
+      "expected": null,
+      "actual": "r.c2.e2"
+    },
+    {
+      "path": "root/children/2/facts/1/7/ray",
+      "expected": null,
+      "actual": [
+        "r.c2.e1",
+        "r.c2.e4"
+      ]
+    },
+    {
+      "path": "root/children/2/facts/1/7/vertices",
+      "expected": [
+        "r.c2.e0",
+        "r.c2.e1",
+        "r.c2.e3",
+        "r.c2.e4"
+      ],
+      "actual": null
+    },
+    {
+      "path": "root/children/2/goals/0/expression",
+      "expected": "tan(pi*angle_r_c2_e0_r_c2_e3_r_c2_e4/180)",
+      "actual": "tan(pi*angle_r_c2_e0_r_c2_e2_r_c2_e3/180)"
+    },
+    {
+      "path": "root/children/2/obligations/0/expression",
+      "expected": "angle_r_c2_e0_r_c2_e3_r_c2_e4",
+      "actual": "angle_r_c2_e0_r_c2_e2_r_c2_e3"
+    }
+  ],
+  "mapping_budget_exhausted": false,
+  "unmatched": true
+}

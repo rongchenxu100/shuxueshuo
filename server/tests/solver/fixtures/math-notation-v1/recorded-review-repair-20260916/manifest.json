@@ -1,0 +1,175 @@
+{
+  "source_batch": "math-notation-review-repair-20260916-222053",
+  "source_mode": "real_deepseek_image_only",
+  "replay_network_calls": 0,
+  "live_passed": 5,
+  "cases": [
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-heping-yimo-25.gold.json": "5205e27496e8169ee280ebf2afaf0126c5c03248df87869e543e3779550ab7c0",
+        "tj-2026-heping-yimo-25.01-extract.txt": "2136889ecc4f6e688de7b95fcdb46bd8bd2b7d928b4a28991f937952cde82dc0",
+        "tj-2026-heping-yimo-25.02-review.txt": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+      },
+      "calls": [
+        {
+          "stage": "extract",
+          "file": "tj-2026-heping-yimo-25.01-extract.txt",
+          "finish_reason": "stop"
+        },
+        {
+          "stage": "review",
+          "file": "tj-2026-heping-yimo-25.02-review.txt",
+          "finish_reason": "stop"
+        }
+      ],
+      "image_sha256": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+      "source_reviewed": true
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-heping-ermo-25.gold.json": "02558e40fb2a25a23d252b7307f852b1f00e09b4e24e5f0a0db5409263d24b3b",
+        "tj-2026-heping-ermo-25.01-extract.txt": "938a0a8237e700fadcc7560880680825fabc21bc327a6b0d1ce47b425fb41a06",
+        "tj-2026-heping-ermo-25.02-review.txt": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+      },
+      "calls": [
+        {
+          "stage": "extract",
+          "file": "tj-2026-heping-ermo-25.01-extract.txt",
+          "finish_reason": "stop"
+        },
+        {
+          "stage": "review",
+          "file": "tj-2026-heping-ermo-25.02-review.txt",
+          "finish_reason": "stop"
+        }
+      ],
+      "image_sha256": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "source_reviewed": true
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "live_passed": false,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-hexi-yimo-25.gold.json": "af68c5c8929471bb291fc0ee92584114dc2c8cc9b9ef55930e6cfb0dde2b2038",
+        "tj-2026-hexi-yimo-25.01-extract.txt": "a8b13ff401221108a439299684402adb69655e905f6e22c13e599d700c43d0c5",
+        "tj-2026-hexi-yimo-25.02-review.txt": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+      },
+      "calls": [
+        {
+          "stage": "extract",
+          "file": "tj-2026-hexi-yimo-25.01-extract.txt",
+          "finish_reason": "stop"
+        },
+        {
+          "stage": "review",
+          "file": "tj-2026-hexi-yimo-25.02-review.txt",
+          "finish_reason": "stop"
+        }
+      ],
+      "image_sha256": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_reviewed": true,
+      "previous_offline_passed": false,
+      "reclassified_comparison_gap": "parameter_goal_extremum_witness"
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-nankai-yimo-25.gold.json": "4bb26045c984a7bebbbfaa18fe740a6e758ef1deac24a690d4fe823b7d1ba4f1",
+        "tj-2026-nankai-yimo-25.01-extract.txt": "45c0934e95a57d0876f545629c58f123d3e06e62bebebf165f453cf17c20b762",
+        "tj-2026-nankai-yimo-25.02-review.txt": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+      },
+      "calls": [
+        {
+          "stage": "extract",
+          "file": "tj-2026-nankai-yimo-25.01-extract.txt",
+          "finish_reason": "stop"
+        },
+        {
+          "stage": "review",
+          "file": "tj-2026-nankai-yimo-25.02-review.txt",
+          "finish_reason": "stop"
+        }
+      ],
+      "image_sha256": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_reviewed": true
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "live_passed": false,
+      "expected_offline_passed": true,
+      "files": {
+        "tj-2026-xiqing-yimo-25.gold.json": "56448536f0cb317318597d41df2d191df4e65da6f7cccbf982469f85cb1809f2",
+        "tj-2026-xiqing-yimo-25.01-extract.txt": "f8573ebcc2f1098f3827f50203f9e8caafb8031fdc78b8baa03c5655e862b18d",
+        "tj-2026-xiqing-yimo-25.02-review.txt": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+      },
+      "calls": [
+        {
+          "stage": "extract",
+          "file": "tj-2026-xiqing-yimo-25.01-extract.txt",
+          "finish_reason": "stop"
+        },
+        {
+          "stage": "review",
+          "file": "tj-2026-xiqing-yimo-25.02-review.txt",
+          "finish_reason": "stop"
+        }
+      ],
+      "image_sha256": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+      "source_reviewed": true,
+      "previous_offline_passed": false,
+      "reclassified_comparison_gap": "parameter_goal_extremum_witness"
+    },
+    {
+      "case": "k-quad",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "k-quad.gold.json": "d5cec68a04883a5f6a31d28d2020360d0e9ce8a46f45156c11e9cdf42249a76e",
+        "k-quad.acceptance-policy.json": "11a03d5d554f30de43f974781c6fe9ff7bb6a44a535f30ec2567d70991c69fb0",
+        "k-quad.01-extract.txt": "fab13189b4dcc0ecc0ca89f30d58f0171eb033c8942b08473335c5946f5b234b"
+      },
+      "calls": [
+        {
+          "stage": "extract",
+          "file": "k-quad.01-extract.txt",
+          "finish_reason": "stop"
+        }
+      ],
+      "image_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+      "source_reviewed": false
+    },
+    {
+      "case": "function-quantifiers",
+      "live_passed": true,
+      "expected_offline_passed": true,
+      "files": {
+        "function-quantifiers.gold.json": "f6faab076a0287b3d8d5e437dfe8318a29e453e8add9d66ca3657e4dc6d50749",
+        "function-quantifiers.01-extract.txt": "0928431d5d9814a36b2cb1524813aa06e2d3addd2a9bc07297a1954a889ca5c5",
+        "function-quantifiers.02-review.txt": "112a45e943956985374c81946d52b8f78d85e525f7a4c15bec45bf4f8700c5ca"
+      },
+      "calls": [
+        {
+          "stage": "extract",
+          "file": "function-quantifiers.01-extract.txt",
+          "finish_reason": "stop"
+        },
+        {
+          "stage": "review",
+          "file": "function-quantifiers.02-review.txt",
+          "finish_reason": "stop"
+        }
+      ],
+      "image_sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138",
+      "source_reviewed": true
+    }
+  ]
+}

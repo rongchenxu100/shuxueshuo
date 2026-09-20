@@ -1,0 +1,18 @@
+{
+  "original_live_passed": false,
+  "original_gold_offline_passed": false,
+  "revised_gold_offline_passed": true,
+  "original_parse_issues": 0,
+  "current_parse_issues": [],
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "raw_sha256": "38cf98c5f6045a1d975c0f918ee689304b9c4f950185fcdb684dd1292204e371",
+  "previous_gold_sha256": "6f7cd929a1994559800d8e195d607a8ff87beb570cbd70b05f462bbcb4310a55",
+  "current_gold_sha256": "4bb26045c984a7bebbbfaa18fe740a6e758ef1deac24a690d4fe823b7d1ba4f1"
+}

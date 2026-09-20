@@ -1,0 +1,822 @@
+{
+  "problem": {
+    "original_text": [
+      "Γ: y = a*x^2+b*x-3",
+      "a > 0",
+      "A = (-1,0)",
+      "Γ ∩ x_axis = {A,B}",
+      "Γ ∩ y_axis = {C}",
+      "D = C+(2,0)",
+      "O = (0,0)",
+      "D ∈ Γ",
+      "①",
+      "E ∈ Γ",
+      "x(E) = m",
+      "-1 < m ∧ m < 0",
+      "angle(C,B,E) + angle(A,C,O) = 45°",
+      "M ∈ segment(B,C)",
+      "N ∈ ray(C,D)",
+      "CN = CM",
+      "min(OM+BN) = √34"
+    ],
+    "scope_labels": {
+      "problem": "题目",
+      "i": "（I）",
+      "i_1": "①",
+      "i_2": "②",
+      "ii": "（II）"
+    }
+  },
+  "answers": {
+    "i_1.parabola": {
+      "type": "Parabola",
+      "value": "x**2 - 2*x - 3",
+      "display": "x²-2x-3"
+    },
+    "i_2.E": {
+      "type": "Point",
+      "value": [
+        "-2/3",
+        "-11/9"
+      ],
+      "display": "E(-2/3,-11/9)"
+    },
+    "ii.a": {
+      "type": "ParameterValue",
+      "value": "3/4",
+      "display": "3/4"
+    }
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [
+      {
+        "inputs": {
+          "quadratic": [
+            {
+              "type": "Expression",
+              "value": "a*x**2 + b*x - 3",
+              "display": "ax²+bx-3"
+            }
+          ]
+        },
+        "outputs": {
+          "point": {
+            "type": "Point",
+            "value": [
+              "0",
+              "-3"
+            ],
+            "display": "C(0,-3)"
+          }
+        },
+        "materials": [
+          {
+            "step_ref": "s1",
+            "title": "求抛物线与 y 轴交点",
+            "nav_title": "求 y 轴交点",
+            "goal": "令 x＝0，求抛物线与 y 轴的交点。",
+            "derive": [
+              "∵ y 轴上的点满足 x＝0",
+              "计算 代入 x＝0，得 y＝a(0)²＋b(0)－3＝－3",
+              "∴ C(0,－3)"
+            ],
+            "conclusions": [
+              "C(0,－3)"
+            ]
+          }
+        ]
+      },
+      {
+        "inputs": {
+          "source": [
+            {
+              "type": "Point",
+              "value": [
+                "0",
+                "-3"
+              ],
+              "display": "C(0,-3)"
+            }
+          ]
+        },
+        "outputs": {
+          "point": {
+            "type": "Point",
+            "value": [
+              "2",
+              "-3"
+            ],
+            "display": "D(2,-3)"
+          }
+        },
+        "materials": [
+          {
+            "step_ref": "s2",
+            "title": "由平移关系求点坐标",
+            "nav_title": "平移求点",
+            "goal": "根据题设平移关系，由源点坐标求目标点坐标。",
+            "derive": [
+              "∵ C(0,－3) 按向量 (2,0) 平移",
+              "计算 横、纵坐标分别相加：(0＋(2)，－3＋(0))",
+              "∴ D(2,－3)"
+            ],
+            "conclusions": [
+              "D(2,－3)"
+            ]
+          }
+        ]
+      }
+    ],
+    "children": [
+      {
+        "scope_ref": "i",
+        "steps": [
+          {
+            "inputs": {
+              "curve_points": [
+                {
+                  "type": "Point",
+                  "value": [
+                    "-1",
+                    "0"
+                  ],
+                  "display": "A(-1,0)"
+                },
+                {
+                  "type": "Point",
+                  "value": [
+                    "2",
+                    "-3"
+                  ],
+                  "display": "D(2,-3)"
+                }
+              ]
+            },
+            "outputs": {
+              "coefficients": {
+                "type": "Coefficients",
+                "value": {
+                  "a": "1",
+                  "b": "-2"
+                },
+                "display": "{\"a\": \"1\", \"b\": \"-2\"}"
+              },
+              "parabola": {
+                "type": "Parabola",
+                "value": "x**2 - 2*x - 3",
+                "display": "x²-2x-3"
+              }
+            },
+            "materials": [
+              {
+                "step_ref": "s1",
+                "title": "求函数解析式",
+                "nav_title": "求解析式",
+                "goal": "代入当前问给出的约束，确定二次函数解析式。",
+                "derive": [
+                  "∵ A(－1,0) 在 y＝ax²＋bx－3 上",
+                  "∴ 代入 A 点坐标，得 0＝a－b－3",
+                  "∵ D(2,－3) 在 y＝ax²＋bx－3 上",
+                  "∴ 代入 D 点坐标，得 －3＝4a＋2b－3",
+                  "计算 联立上述方程，得 a＝1，b＝－2",
+                  "∴ y＝x²－2x－3＝(x－1)²－4"
+                ],
+                "conclusions": [
+                  "y＝x²－2x－3"
+                ]
+              }
+            ]
+          }
+        ],
+        "children": [
+          {
+            "scope_ref": "i_2",
+            "goals": {
+              "i_2.E": [
+                {
+                  "inputs": {
+                    "known_point": [
+                      {
+                        "type": "Point",
+                        "value": [
+                          "-1",
+                          "0"
+                        ],
+                        "display": "A(-1,0)"
+                      }
+                    ],
+                    "parabola": [
+                      {
+                        "type": "Parabola",
+                        "value": "x**2 - 2*x - 3",
+                        "display": "x²-2x-3"
+                      }
+                    ]
+                  },
+                  "outputs": {
+                    "point": {
+                      "type": "Point",
+                      "value": [
+                        "3",
+                        "0"
+                      ],
+                      "display": "B(3,0)"
+                    }
+                  },
+                  "materials": [
+                    {
+                      "step_ref": "s1",
+                      "title": "求抛物线与 x 轴交点",
+                      "nav_title": "求 x 轴交点",
+                      "goal": "令 y＝0，求出指定的 x 轴交点。",
+                      "derive": [
+                        "∵ x 轴交点满足 y＝0，即 x²－2x－3＝0",
+                        "计算 x＝－1 或 x＝3",
+                        "∵ 结合B的定义，取 x＝3",
+                        "∴ B(3,0)"
+                      ],
+                      "conclusions": [
+                        "B(3,0)"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": {
+                    "condition": [
+                      {
+                        "type": "angle_sum",
+                        "value": {
+                          "angle_terms": [
+                            "CBE",
+                            "ACO"
+                          ],
+                          "description": "angle sum",
+                          "type": "angle_sum",
+                          "value": "45"
+                        },
+                        "display": "anglesum"
+                      }
+                    ]
+                  },
+                  "outputs": {
+                    "angle_equality": {
+                      "type": "AngleEquality",
+                      "value": {
+                        "left_angle": "OBF",
+                        "left_angle_points": [
+                          "O",
+                          "B",
+                          "F"
+                        ],
+                        "reference_angle": "CBO",
+                        "reference_angle_value": "45",
+                        "right_angle": "ACO",
+                        "right_angle_points": [
+                          "A",
+                          "C",
+                          "O"
+                        ],
+                        "shared_angle": "CBE",
+                        "source": "angle sum"
+                      },
+                      "display": "∠OBF＝∠ACO"
+                    }
+                  },
+                  "materials": [
+                    {
+                      "step_ref": "s2",
+                      "title": "由角和条件推出等角关系",
+                      "nav_title": "推出等角关系",
+                      "goal": "利用角和条件与坐标轴中的 45° 参考角，推出可用的等角关系。",
+                      "derive": [
+                        "∵ C(0,－3)、O(0,0)、B(3,0)，且 OC⊥OB",
+                        "计算 OC＝3，OB＝3",
+                        "∴ Rt△COB 为等腰直角三角形，所以 ∠CBO＝45°",
+                        "∵ ∠CBO＝∠CBE＋∠OBE，且 ∠CBE＋∠ACO＝45°",
+                        "∴ 两式消去公共角 ∠CBE，得 ∠OBE＝∠ACO"
+                      ],
+                      "conclusions": [
+                        "∠OBE＝∠ACO"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": {
+                    "angle_equality": [
+                      {
+                        "type": "AngleEquality",
+                        "value": {
+                          "left_angle": "OBF",
+                          "left_angle_points": [
+                            "O",
+                            "B",
+                            "F"
+                          ],
+                          "reference_angle": "CBO",
+                          "reference_angle_value": "45",
+                          "right_angle": "ACO",
+                          "right_angle_points": [
+                            "A",
+                            "C",
+                            "O"
+                          ],
+                          "shared_angle": "CBE",
+                          "source": "angle sum"
+                        },
+                        "display": "∠OBF＝∠ACO"
+                      }
+                    ]
+                  },
+                  "outputs": {
+                    "point": {
+                      "type": "Point",
+                      "value": [
+                        "0",
+                        "-1"
+                      ],
+                      "display": "F(0,-1)"
+                    }
+                  },
+                  "materials": [
+                    {
+                      "step_ref": "s3",
+                      "title": "由等角关系求辅助点坐标",
+                      "nav_title": "等角求截点",
+                      "goal": "由等锐角得到正切比相等，求目标直线在坐标轴上的截点。",
+                      "derive": [
+                        "∵ B、E、F 共线，所以 ∠OBF＝∠OBE＝∠ACO",
+                        "∵ Rt△BOF 与 Rt△AOC 均为直角三角形",
+                        "∴ tan∠OBF＝OF/OB，tan∠ACO＝AO/CO",
+                        "∴ OF/OB＝AO/CO",
+                        "计算 OB＝3，AO＝1，CO＝3，所以 OF＝1",
+                        "∵ F 在 y 轴负半轴上",
+                        "∴ F(0,－1)"
+                      ],
+                      "conclusions": [
+                        "F(0,－1)"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": {
+                    "known_point": [
+                      {
+                        "type": "Point",
+                        "value": [
+                          "3",
+                          "0"
+                        ],
+                        "display": "B(3,0)"
+                      }
+                    ],
+                    "line_p1": [
+                      {
+                        "type": "Point",
+                        "value": [
+                          "3",
+                          "0"
+                        ],
+                        "display": "B(3,0)"
+                      }
+                    ],
+                    "line_p2": [
+                      {
+                        "type": "Point",
+                        "value": [
+                          "0",
+                          "-1"
+                        ],
+                        "display": "F(0,-1)"
+                      }
+                    ],
+                    "parabola": [
+                      {
+                        "type": "Parabola",
+                        "value": "x**2 - 2*x - 3",
+                        "display": "x²-2x-3"
+                      }
+                    ]
+                  },
+                  "outputs": {
+                    "point": {
+                      "type": "Point",
+                      "value": [
+                        "-2/3",
+                        "-11/9"
+                      ],
+                      "display": "E(-2/3,-11/9)"
+                    }
+                  },
+                  "materials": [
+                    {
+                      "step_ref": "s4",
+                      "title": "联立直线与抛物线求交点",
+                      "nav_title": "联立求交点",
+                      "goal": "由两个已知点确定直线，再与抛物线联立求另一交点。",
+                      "derive": [
+                        "作 连接 B(3,0)、F(0,－1)，得直线 y＝1/3x－1",
+                        "计算 联立 y＝1/3x－1 与 y＝x²－2x－3，得 x＝－2/3 或 x＝3",
+                        "∵ B(3,0) 是已知交点，排除 x＝3",
+                        "∴ 另一交点为 E(－2/3,－11/9)"
+                      ],
+                      "conclusions": [
+                        "E(－2/3,－11/9)"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "scope_ref": "ii",
+        "goals": {
+          "ii.a": [
+            {
+              "inputs": {
+                "curve_point": [
+                  {
+                    "type": "Point",
+                    "value": [
+                      "-1",
+                      "0"
+                    ],
+                    "display": "A(-1,0)"
+                  }
+                ],
+                "free_parameters": [
+                  {
+                    "type": "Symbol",
+                    "value": "a",
+                    "display": "a"
+                  }
+                ]
+              },
+              "outputs": {
+                "coefficients": {
+                  "type": "Coefficients",
+                  "value": {
+                    "b": "a - 3"
+                  },
+                  "display": "{\"b\": \"a - 3\"}"
+                },
+                "parabola": {
+                  "type": "Parabola",
+                  "value": "a*x**2 + a*x - 3*x - 3",
+                  "display": "ax²+ax-3x-3"
+                }
+              },
+              "materials": [
+                {
+                  "step_ref": "s1",
+                  "title": "化简函数解析式",
+                  "nav_title": "化简解析式",
+                  "goal": "代入当前问给出的约束，确定二次函数解析式。",
+                  "derive": [
+                    "∵ A(－1,0) 在 y＝ax²＋bx－3 上",
+                    "∴ 代入 A 点坐标，得 0＝a－b－3",
+                    "∵ a＞0",
+                    "计算 化简上述方程，得 b＝a－3",
+                    "∴ y＝ax²＋(a－3)x－3"
+                  ],
+                  "conclusions": [
+                    "y＝ax²＋(a－3)x－3"
+                  ]
+                }
+              ]
+            },
+            {
+              "inputs": {
+                "known_point": [
+                  {
+                    "type": "Point",
+                    "value": [
+                      "-1",
+                      "0"
+                    ],
+                    "display": "A(-1,0)"
+                  }
+                ],
+                "parabola": [
+                  {
+                    "type": "Parabola",
+                    "value": "a*x**2 + a*x - 3*x - 3",
+                    "display": "ax²+ax-3x-3"
+                  }
+                ]
+              },
+              "outputs": {
+                "point": {
+                  "type": "Point",
+                  "value": [
+                    "3/a",
+                    "0"
+                  ],
+                  "display": "B(3/a,0)"
+                }
+              },
+              "materials": [
+                {
+                  "step_ref": "s2",
+                  "title": "求抛物线与 x 轴交点",
+                  "nav_title": "求 x 轴交点",
+                  "goal": "令 y＝0，求出指定的 x 轴交点。",
+                  "derive": [
+                    "∵ x 轴交点满足 y＝0，即 ax²＋(a－3)x－3＝0",
+                    "计算 x＝－1 或 x＝3/a",
+                    "∵ 结合B的定义，取 x＝3/a",
+                    "∴ B(3/a,0)"
+                  ],
+                  "conclusions": [
+                    "B(3/a,0)"
+                  ]
+                }
+              ]
+            },
+            {
+              "inputs": {
+                "equal_length_condition": [
+                  {
+                    "type": "equal_length_condition",
+                    "value": {
+                      "description": "equal length",
+                      "left": "CN",
+                      "right": "CM",
+                      "type": "equal_length_condition"
+                    },
+                    "display": "equallength"
+                  }
+                ],
+                "path_minimum_target": [
+                  {
+                    "type": "path_minimum_target",
+                    "value": {
+                      "description": "minimum target",
+                      "path": "OM+BN",
+                      "terms": [
+                        [
+                          "O",
+                          "M"
+                        ],
+                        [
+                          "B",
+                          "N"
+                        ]
+                      ],
+                      "type": "path_minimum_target"
+                    },
+                    "display": "OM+BN"
+                  }
+                ],
+                "point_on_ray": [
+                  {
+                    "type": "point_on_ray",
+                    "value": {
+                      "description": "point on ray",
+                      "point": "N",
+                      "ray": "ray:ii:CD",
+                      "type": "point_on_ray"
+                    },
+                    "display": "pointonray"
+                  }
+                ],
+                "point_on_segment": [
+                  {
+                    "type": "point_on_segment",
+                    "value": {
+                      "description": "point on segment",
+                      "point": "M",
+                      "segment": "BC",
+                      "type": "point_on_segment"
+                    },
+                    "display": "pointonsegment"
+                  }
+                ]
+              },
+              "outputs": {
+                "minimum_expression": {
+                  "type": "MinimumExpression",
+                  "value": "3*sqrt(2*a**2 + 1)/Abs(a)",
+                  "display": "3√(2a²+1)/|a|"
+                }
+              },
+              "calculations": [
+                {
+                  "kind": "equivalence_chain",
+                  "value": {
+                    "statements": [
+                      "CN=CM",
+                      "CB=CG",
+                      "M在线段CB上，N、G在射线CD上，故∠BCN=∠GCM",
+                      "△BCN≌△GCM（边角边），故BN=MG",
+                      "OM+BN=OM+MG"
+                    ],
+                    "result": "OM+BN=OM+MG"
+                  },
+                  "display": [
+                    "CN＝CM",
+                    "CB＝CG",
+                    "M在线段CB上，N、G在射线CD上，故∠BCN=∠GCM",
+                    "△BCN≌△GCM（边角边），故BN=MG",
+                    "OM+BN＝OM+MG"
+                  ]
+                },
+                {
+                  "kind": "equal_length_point_on_ray",
+                  "value": {
+                    "facts": {
+                      "anchor": "C",
+                      "coordinate": [
+                        "3*sqrt(a**2 + 1)/Abs(a)",
+                        "-3"
+                      ],
+                      "fixed_point": "O",
+                      "fixed_point_coordinate": [
+                        "0",
+                        "0"
+                      ],
+                      "kind": "equal_length_point_on_ray",
+                      "label": "G",
+                      "minimum_distance_components": [
+                        "3*sqrt(a**2 + 1)/Abs(a)",
+                        "-3"
+                      ],
+                      "minimum_segment": "OG",
+                      "ray_direction_point": "D",
+                      "reference_point": "B"
+                    }
+                  },
+                  "display": [
+                    "{\"facts\":{\"anchor\":\"C\",\"coordinate\":[\"3*sqrt(a**2 + 1)/Abs(a)\",\"-3\"],\"fixed_point\":\"O\",\"fixed_point_coordinate\":[\"0\",\"0\"],\"kind\":\"equal_length_point_on_ray\",\"label\":\"G\",\"minimum_distance_components\":[\"3*sqrt(a**2 + 1)/Abs(a)\",\"-3\"],\"minimum_segment\":\"OG\",\"ray_direction_point\":\"D\",\"reference_point\":\"B\"}}"
+                  ]
+                },
+                {
+                  "kind": "minimum",
+                  "value": {
+                    "strategy": "direct_intersection",
+                    "expression": "3*sqrt(2*a**2 + 1)/Abs(a)"
+                  },
+                  "display": [
+                    "最小值为3√(2a²+1)/|a|"
+                  ]
+                },
+                {
+                  "kind": "attainment",
+                  "value": {
+                    "points": {
+                      "M": [
+                        "3*sqrt(a**2 + 1)/(a*(sqrt(a**2 + 1) + 1))",
+                        "-3/(sqrt(a**2 + 1) + 1)"
+                      ],
+                      "N": [
+                        "3*(a**2 + 1)/((sqrt(a**2 + 1) + 1)*Abs(a))",
+                        "-3"
+                      ]
+                    }
+                  },
+                  "display": [
+                    "取等点为M(3√(a²+1)/(a(√(a²+1)+1)),-3/(√(a²+1)+1))",
+                    "取等点为N(3(a²+1)/((√(a²+1)+1)|a|),-3)"
+                  ]
+                }
+              ],
+              "materials": [
+                {
+                  "step_ref": "s3",
+                  "title": "构造等长辅助点，把两动点路径化为单动点路径",
+                  "nav_title": "两动点转化",
+                  "goal": "利用等长条件构造辅助点，证明原路径可等价替换。",
+                  "derive": [
+                    "作 在射线CD上构造G，使CG＝CB",
+                    "∵ CN＝CM；CB＝CG；M在线段CB上，N、G在射线CD上，故∠BCN＝∠GCM",
+                    "∴ △BCN≌△GCM（边角边），故BN＝MG",
+                    "∴ OM＋BN＝OM＋MG"
+                  ],
+                  "conclusions": [
+                    "OM＋BN＝OM＋MG"
+                  ]
+                },
+                {
+                  "step_ref": "s4",
+                  "title": "在单动点路径中求最小值",
+                  "nav_title": "单动点路径最值",
+                  "goal": "在等价路径中利用两点之间线段最短得到最小值。",
+                  "derive": [
+                    "∵ OM＋BN＝OM＋MG",
+                    "∴ OM＋MG≥OG",
+                    "计算 OG＝√[(3√(a²＋1)/|a|)²＋(－3)²]＝3√(2a²＋1)/|a|",
+                    "∴ 路径最小值为 3√(2a²＋1)/|a|"
+                  ],
+                  "conclusions": [
+                    "路径最小值为 3√(2a²＋1)/|a|"
+                  ]
+                }
+              ]
+            },
+            {
+              "inputs": {
+                "expression": [
+                  {
+                    "type": "MinimumExpression",
+                    "value": "3*sqrt(2*a**2 + 1)/Abs(a)",
+                    "display": "3√(2a²+1)/|a|"
+                  }
+                ],
+                "minimum_value": [
+                  {
+                    "type": "minimum_value",
+                    "value": {
+                      "description": "minimum value given",
+                      "path": "OM+BN",
+                      "type": "minimum_value",
+                      "value": "sqrt(34)"
+                    },
+                    "display": "OM+BN=√34"
+                  }
+                ],
+                "parameter": [
+                  {
+                    "type": "Symbol",
+                    "value": "a",
+                    "display": "a"
+                  }
+                ]
+              },
+              "outputs": {
+                "parameter_value": {
+                  "type": "ParameterValue",
+                  "value": "3/4",
+                  "display": "3/4"
+                }
+              },
+              "calculations": [
+                {
+                  "kind": "equation_system",
+                  "value": {
+                    "equations": [
+                      "Eq(3*sqrt(2*a**2 + 1)/Abs(a), sqrt(34))"
+                    ],
+                    "sources": [
+                      "expression",
+                      "condition"
+                    ]
+                  },
+                  "display": [
+                    "3√(2a²+1)/|a|＝√34"
+                  ]
+                },
+                {
+                  "kind": "substitution",
+                  "value": {
+                    "values": [
+                      {
+                        "symbol": "a",
+                        "value": "3/4"
+                      }
+                    ]
+                  },
+                  "display": [
+                    "a＝3/4"
+                  ]
+                },
+                {
+                  "kind": "solution",
+                  "value": {
+                    "target": "a",
+                    "value": "3/4"
+                  },
+                  "display": [
+                    "a＝3/4"
+                  ]
+                }
+              ],
+              "materials": [
+                {
+                  "step_ref": "s5",
+                  "title": "由表达式取值反求参数",
+                  "nav_title": "反求参数",
+                  "goal": "把题设给定值代入已得到的表达式，解出参数并筛选合法分支。",
+                  "derive": [
+                    "∵ 题设要求 3√(2a²＋1)/|a|＝√34",
+                    "计算 解方程，得 a＝－3/4 或 a＝3/4",
+                    "∵ 根据 a＞0，保留 a＝3/4",
+                    "∴ a＝3/4"
+                  ],
+                  "conclusions": [
+                    "a＝3/4"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

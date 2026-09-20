@@ -1,0 +1,14 @@
+{
+  "case": "tj-2026-hexi-yimo-25",
+  "problem": {
+    "old_characters": 4271,
+    "new_characters": 675
+  },
+  "methods": {
+    "old_characters": 18966,
+    "new_characters": 7958
+  },
+  "token_count": null,
+  "token_reason": "No matching DeepSeek tokenizer; no model call.",
+  "scope": "JSON problem and method sections measured separately; not a full request ratio."
+}

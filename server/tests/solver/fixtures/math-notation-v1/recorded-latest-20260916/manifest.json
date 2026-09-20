@@ -1,0 +1,63 @@
+{
+  "network_calls": 0,
+  "purpose": "Immutable recorded extraction responses; regression outcomes do not replace live outcomes.",
+  "cases": [
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "source": "internal/solver-runs/math-notation-heping-yimo-20260916-120146/tj-2026-heping-yimo-25",
+      "raw_sha256": "f29c9ca2d2e5533afd46a05dcafb3164299e53e5b448eb2ec110c5eeca76a6d1",
+      "gold_sha256": "5205e27496e8169ee280ebf2afaf0126c5c03248df87869e543e3779550ab7c0",
+      "live_passed": true,
+      "expected_offline_passed": true
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "source": "internal/solver-runs/math-notation-remaining-six-20260916-120805/tj-2026-heping-ermo-25",
+      "raw_sha256": "52dc2ef05adae379e236124aa5f2855b2f624fa76add92d0f02d015cba92ada6",
+      "gold_sha256": "02558e40fb2a25a23d252b7307f852b1f00e09b4e24e5f0a0db5409263d24b3b",
+      "live_passed": false,
+      "expected_offline_passed": true
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "source": "internal/solver-runs/math-notation-remaining-six-20260916-120805/tj-2026-hexi-yimo-25",
+      "raw_sha256": "8acc708862c2720899af002c0f396861e659b95926b975fcd4a2e153fdf4959e",
+      "gold_sha256": "af68c5c8929471bb291fc0ee92584114dc2c8cc9b9ef55930e6cfb0dde2b2038",
+      "live_passed": false,
+      "expected_offline_passed": true
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "source": "internal/solver-runs/math-notation-remaining-six-20260916-120805/tj-2026-nankai-yimo-25",
+      "raw_sha256": "38cf98c5f6045a1d975c0f918ee689304b9c4f950185fcdb684dd1292204e371",
+      "gold_sha256": "6f7cd929a1994559800d8e195d607a8ff87beb570cbd70b05f462bbcb4310a55",
+      "live_passed": false,
+      "expected_offline_passed": false
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "source": "internal/solver-runs/math-notation-remaining-six-20260916-120805/tj-2026-xiqing-yimo-25",
+      "raw_sha256": "59652596e11d71fb12241b353aa85aa89147dacad6f1c4369a27408fed7e4a31",
+      "gold_sha256": "56448536f0cb317318597d41df2d191df4e65da6f7cccbf982469f85cb1809f2",
+      "live_passed": false,
+      "expected_offline_passed": true
+    },
+    {
+      "case": "k-quad",
+      "source": "internal/solver-runs/math-notation-remaining-six-20260916-120805/k-quad",
+      "raw_sha256": "fc97329cc21410b4e333ef28dbdba8777ae378a6feefdf5435e9da243f217860",
+      "gold_sha256": "d5cec68a04883a5f6a31d28d2020360d0e9ce8a46f45156c11e9cdf42249a76e",
+      "live_passed": false,
+      "expected_offline_passed": false,
+      "policy_sha256": "11a03d5d554f30de43f974781c6fe9ff7bb6a44a535f30ec2567d70991c69fb0"
+    },
+    {
+      "case": "function-quantifiers",
+      "source": "internal/solver-runs/math-notation-remaining-six-20260916-120805/function-quantifiers",
+      "raw_sha256": "23992ef6804d503a7f18be3fd88ce9ca4c7cc154bb83dc6979ae0db4a26a3cc7",
+      "gold_sha256": "f6faab076a0287b3d8d5e437dfe8318a29e453e8add9d66ca3657e4dc6d50749",
+      "live_passed": true,
+      "expected_offline_passed": true
+    }
+  ]
+}

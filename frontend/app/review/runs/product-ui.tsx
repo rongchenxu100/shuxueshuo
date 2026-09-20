@@ -311,6 +311,7 @@ export function ProductDetail({ runId }: { runId: string }) {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">题目解析</h1>
         <p className="mt-1 text-sm text-slate-500">{runId.slice(0, 8)} · {label(build.status)} · {connected ? '实时更新' : '正在恢复连接'}</p>
+        <Link className="mt-3 inline-block text-sm text-teal-700" href={`/understanding/${build.problem_id}`}>提取题意 · 查看候选、补图与修订 →</Link>
       </div>
       {!terminal(build.status) && <button className={button} onClick={() => void action(() => post(`/builds/${runId}/cancel`, {}))}>取消生成</button>}
     </header>

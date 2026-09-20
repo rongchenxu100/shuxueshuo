@@ -10,6 +10,8 @@ import re
 import sympy as sp
 import unicodedata
 
+from .expression_normalization import normalize_expression_spelling
+
 
 SemanticMismatchKind = Literal[
     "missing",
@@ -324,7 +326,7 @@ def _solver_projection_snapshot(payload: Mapping[str, Any]) -> dict[str, Any]:
         text = str(value)
         for handle, entity in sorted(entity_by_handle.items(), key=lambda pair: -len(pair[0])):
             text = text.replace(handle, semantic_names.get(handle, str(entity.get("name", handle))))
-        return _projection_text(text).replace("*", "")
+        return normalize_expression_spelling(_projection_text(text))
 
     def segment(value: Any) -> str:
         if isinstance(value, Mapping):
@@ -575,10 +577,10 @@ def _runtime_fact_signature(
     elif kind == "square_center":
         payload["point"] = entity_ref(item.get("point"))
     elif kind == "path_minimum_target":
-        payload["path"] = expression(item.get("path"))
+        payload["path"] = _legacy_path_spelling(expression(item.get("path")))
     elif kind == "minimum_value":
         payload.update(
-            {"path": expression(item.get("path")), "value": expression(item.get("value"))}
+            {"path": _legacy_path_spelling(expression(item.get("path"))), "value": expression(item.get("value"))}
         )
     else:
         payload["fields"] = {
@@ -629,11 +631,17 @@ def _runtime_entity_semantic_name(item: Mapping[str, Any]) -> str:
     return _projection_text(item.get("name"))
 
 
+def _legacy_path_spelling(value: str) -> str:
+    # Legacy LengthSum display uses implicit numeric weights (e.g. 3PQ).
+    # Restrict this bridge to path fields; do not erase arithmetic operators.
+    return normalize_expression_spelling(re.sub(r"(?<=\d)(?=[A-Z]{2}\b)", "*", value))
+
+
 def _squared_expression(value: str) -> str:
     try:
-        return _projection_text(
+        return normalize_expression_spelling(
             sp.sstr(sp.simplify(sp.sympify(value.replace("^", "**")) ** 2))
-        ).replace("*", "")
+        )
     except (TypeError, ValueError, sp.SympifyError):
         return f"({value})^2"
 

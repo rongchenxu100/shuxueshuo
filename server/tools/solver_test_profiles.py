@@ -1,9 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Iterable
-
 
 PROFILE_MARKERS = {
     "fast": "not solver_contract and not solver_full and not live_llm",
@@ -67,6 +66,75 @@ class OwnershipRule:
 
 
 OWNERSHIP_RULES = (
+    OwnershipRule(
+        (
+            "server/shuxueshuo_server/solver/runtime/method_math_*.py",
+            "server/tests/solver/test_method_math_*.py",
+            "server/tests/solver/fixtures/method-math-arguments/*",
+            "server/tools/compare_method_math_arguments.py",
+            "internal/functional-few-shots-v2-math/*",
+        ),
+        (
+            "tests/solver/test_method_math_arguments.py",
+            "tests/solver/test_method_math_prompt.py",
+            "tests/solver/test_functional_scope_retry.py",
+            "tests/solver/test_functional_scope_retry_generated_gate.py",
+        ),
+    ),
+    OwnershipRule(
+        (
+            "server/shuxueshuo_server/problem_understanding/runtime_binding.py",
+            "server/shuxueshuo_server/problem_understanding/runtime_lowering.py",
+            "server/shuxueshuo_server/problem_understanding/compact_planner_input.py",
+            "server/shuxueshuo_server/solver/runtime/capability_math_signatures.py",
+            "server/tests/solver/_math_runtime_binding_support.py",
+            "server/tests/solver/fixtures/math-runtime-binding-stage-two/*",
+            "server/tools/replay_math_runtime_binding.py",
+        ),
+        (
+            "tests/solver/test_math_runtime_binding.py",
+            "tests/solver/test_math_compact_planner_input.py",
+        ),
+    ),
+    OwnershipRule(
+        (
+            "server/shuxueshuo_server/problem_understanding/*.py",
+            "server/shuxueshuo_server/solver/extraction/deepseek_files.py",
+            "server/shuxueshuo_server/solver/extraction/multimodal_provider.py",
+            "internal/llm-prompts/problem-math-notation-*",
+            "internal/schemas/problem-math-notation-*.schema.json",
+            "internal/schemas/problem-math-source-review-*.schema.json",
+            "server/tests/solver/fixtures/math-notation-v1/*.json",
+            "server/tests/solver/fixtures/math-notation-v1/*/*",
+            "server/tests/solver/_math_notation_test_support.py",
+            "server/tools/report_math_notation_workflow.py",
+            "tools/prepare_understanding_test_images.py",
+        ),
+        (
+            "tests/solver/test_math_notation.py",
+            "tests/solver/test_math_notation_normalization.py",
+            "tests/solver/test_math_notation_state_proofs.py",
+            "tests/solver/test_math_notation_state_scope.py",
+            "tests/solver/test_math_notation_recorded.py",
+            "tests/solver/test_math_notation_extraction_rules.py",
+            "tests/solver/test_math_notation_redundancy.py",
+            "tests/solver/test_math_notation_geometry_proofs.py",
+            "tests/solver/test_math_notation_intersection_definition.py",
+            "tests/solver/test_math_notation_angle_catalog.py",
+            "tests/solver/test_math_notation_workflow.py",
+            "tests/solver/test_math_notation_repair_authority.py",
+            "tests/solver/test_math_notation_diagnostic_routes.py",
+            "tests/solver/test_math_notation_transport_accounting.py",
+            "tests/solver/test_math_notation_review_families.py",
+            "tests/solver/test_deepseek_files.py",
+            "tests/solver/test_deepseek_vision.py",
+            "tests/solver/test_deepseek_vision_empty_retry.py",
+            "tests/solver/test_math_notation_seven.py",
+            "tests/solver/test_math_notation_providers.py",
+            "tests/solver/test_math_notation_candidate.py",
+            "tests/solver/test_math_notation_cleanup.py",
+        ),
+    ),
     OwnershipRule(
         (
             "server/tools/run_solver_tests.py",
@@ -186,9 +254,7 @@ OWNERSHIP_RULES = (
         ),
     ),
     OwnershipRule(
-        (
-            "server/shuxueshuo_server/solver/lesson_annotated_teaching_review.py",
-        ),
+        ("server/shuxueshuo_server/solver/lesson_annotated_teaching_review.py",),
         (
             "tests/solver/test_annotated_teaching_plan.py",
             "tests/solver/test_lesson_scope_authoring_b2.py",
@@ -287,10 +353,7 @@ OWNERSHIP_RULES = (
         ),
     ),
     OwnershipRule(
-        (
-            "server/tests/solver/fixtures/"
-            "lesson_scope_authoring_vnext/**/*",
-        ),
+        ("server/tests/solver/fixtures/lesson_scope_authoring_vnext/**/*",),
         (
             "tests/solver/test_lesson_scope_authoring_b2.py",
             "tests/solver/test_lesson_scope_authoring_b3.py",
@@ -311,6 +374,10 @@ def is_solver_source(path: str | Path) -> bool:
     return normalized.startswith(
         (
             "server/shuxueshuo_server/solver/",
+            "server/shuxueshuo_server/problem_understanding/",
+            "internal/llm-prompts/problem-math-notation-",
+            "internal/schemas/problem-math-notation-",
+            "internal/schemas/problem-math-source-review-",
             "internal/llm-prompts/strategy-functional",
             "internal/schemas/functional-",
         )

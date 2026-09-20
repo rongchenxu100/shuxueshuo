@@ -341,7 +341,10 @@ def quadratic_vertex_point_rule() -> MethodBindingRuleSpec:
             canonical_x_binding(),
             previous_output_identity_binding("target", output_name="point"),
         ),
-        prep_invocations=quadratic_state_prep_invocations("parabola"),
+        # A public Function template is not an implicit producer.  The planner
+        # must schedule quadratic_from_constraints explicitly before consuming
+        # the materialized Parabola state here.
+        prep_invocations=(),
     )
 
 

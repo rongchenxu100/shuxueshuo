@@ -1,0 +1,24 @@
+{
+  "schema_version": "lesson-capability-case-audit/v1",
+  "problem_id": "tj-2026-hexi-yimo-25",
+  "snapshot_hash": "61020c458ac3a278b960b45178b890862d9b065497128e63fe51c30d86e66a6c",
+  "annotated_plan_hash": "17244c2ea737a788c259ff2f2697f4c2af7d623744332936a4e84fbfa194fc57",
+  "lesson_ir_hash": "66751573d48b2f623cd54c6c4b06fad0881b2201fa6d8a76817e94a20adb257b",
+  "visual_step_ir_hash": "90c1891313165c59d855653532ff314cc8156d4da052bc1812575cd92d433201",
+  "source_step_count": 10,
+  "lesson_step_count": 12,
+  "visual_frame_count": 12,
+  "source_steps": [
+    "derive_curve_point_iii",
+    "derive_parabola_i",
+    "derive_parametric_parabola_ii",
+    "derive_parametric_parabola_iii",
+    "derive_right_angle_candidates_ii",
+    "derive_vertex_i",
+    "derive_weighted_minimum_iii",
+    "derive_y_intercept_ii",
+    "select_curve_candidate_ii",
+    "solve_parameter_iii"
+  ],
+  "diagnostics": []
+}

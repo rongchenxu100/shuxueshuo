@@ -1,0 +1,1989 @@
+{
+  "frozen": {
+    "code_fingerprint": "cd76f58bee7d64a812fb514fe9343d88742c81c8b2fd4e2aa8d59aa1430205b6",
+    "cases": {
+      "tj-2026-nankai-yimo-25": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "tj-2026-heping-ermo-25": "782b4b1db48cb30aae289b28ba952afd50c9ead9dae5f5795d083ffb3ef31575",
+      "tj-2026-heping-yimo-25": "680cc4bcd9ea0c0bad275130188f53f332674dce9db585ebdb85596a02ec4820",
+      "tj-2026-hexi-yimo-25": "4ea2b8200a17a3ab1483827473aa50438475979eae15a3dae6b4a3fa6e1ef01f",
+      "tj-2026-xiqing-yimo-25": "c8fc44311550536371728bff412a74652861d17a414705e33e6acdce29f635c3"
+    },
+    "model": "deepseek-v4-flash",
+    "base_url": "https://api.deepseek.com",
+    "thinking_effort": "low",
+    "request_timeout": 120,
+    "sdk_max_retries": "provider_default",
+    "reasoning_only_empty_response_retry": true,
+    "semantic_attempt_budget": 3,
+    "encodings": [
+      "source-ref",
+      "math-expression/v1"
+    ],
+    "samples_per_case_and_encoding": 3,
+    "authority": "frozen_input_with_synthetic_test_admission"
+  },
+  "summary": {
+    "source-ref": {
+      "runs": 15,
+      "first_successes": 9,
+      "final_successes": 14,
+      "resolved_runs": 14,
+      "final_success_rate_observed": 1.0,
+      "final_success_rate_lower_bound": 0.9333333333333333,
+      "retries": 6,
+      "binding_errors": 0,
+      "usage_complete": false,
+      "observed_tokens": {
+        "prompt_tokens": 302750,
+        "completion_tokens": 320415,
+        "total_tokens": 623165
+      },
+      "total_run_seconds": 1305.1722073743585,
+      "timed_runs": 14,
+      "mean_timed_run_seconds": 93.22658624102561,
+      "timing_complete": false,
+      "interrupted_runs": 1,
+      "attempt_error_codes": {
+        "functional.plan_content_schema_invalid": 1
+      }
+    },
+    "math-expression/v1": {
+      "runs": 15,
+      "first_successes": 3,
+      "final_successes": 9,
+      "resolved_runs": 14,
+      "final_success_rate_observed": 0.6428571428571429,
+      "final_success_rate_lower_bound": 0.6,
+      "retries": 18,
+      "binding_errors": 17,
+      "usage_complete": false,
+      "observed_tokens": {
+        "prompt_tokens": 445165,
+        "completion_tokens": 542928,
+        "total_tokens": 988093
+      },
+      "total_run_seconds": 1989.2134816225152,
+      "timed_runs": 13,
+      "mean_timed_run_seconds": 153.0164216632704,
+      "timing_complete": false,
+      "interrupted_runs": 1,
+      "attempt_error_codes": {
+        "functional.execution_unexpected_failure": 1,
+        "functional.math_argument_unresolved": 11,
+        "functional.math_argument_invalid": 6,
+        "functional.plan_content_schema_invalid": 1
+      }
+    }
+  },
+  "runs": [
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "encoding": "math-expression/v1",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "execution_failed",
+      "first_success": false,
+      "final_success": false,
+      "answers_match": false,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": null,
+      "tokens": {
+        "prompt_tokens": 14456,
+        "completion_tokens": 17746,
+        "total_tokens": 32202
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14456,
+        "completion_tokens": 17746,
+        "total_tokens": 32202
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.execution_unexpected_failure",
+              "path": "$",
+              "message": "planner_configuration_error: planner.functional_arg_version_drift: materialized arg intercept_A.parabola[0] has no StateVersionId",
+              "retryable": false,
+              "details": {
+                "exception_type": "FunctionalBindingContextError"
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14456,
+            "completion_tokens": 17746,
+            "total_tokens": 32202
+          },
+          "phase": "execution_failed"
+        }
+      ],
+      "recovery": {
+        "reason": "batch_worker_exception_serialization_aborted_pool",
+        "response_unknown": false,
+        "automatic_resubmission": false,
+        "original_responses_preserved": true
+      }
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "encoding": "math-expression/v1",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 90.36961504095234,
+      "tokens": {
+        "prompt_tokens": 14456,
+        "completion_tokens": 21033,
+        "total_tokens": 35489
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14456,
+        "completion_tokens": 21033,
+        "total_tokens": 35489
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14456,
+            "completion_tokens": 21033,
+            "total_tokens": 35489
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "encoding": "math-expression/v1",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 80.16612312500365,
+      "tokens": {
+        "prompt_tokens": 14456,
+        "completion_tokens": 18851,
+        "total_tokens": 33307
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14456,
+        "completion_tokens": 18851,
+        "total_tokens": 33307
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14456,
+            "completion_tokens": 18851,
+            "total_tokens": 33307
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "encoding": "source-ref",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 2,
+      "retries": 1,
+      "seconds": 132.6966968330089,
+      "tokens": {
+        "prompt_tokens": 30987,
+        "completion_tokens": 31546,
+        "total_tokens": 62533
+      },
+      "observed_tokens": {
+        "prompt_tokens": 30987,
+        "completion_tokens": 31546,
+        "total_tokens": 62533
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15557,
+            "completion_tokens": 17989,
+            "total_tokens": 33546
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-scope-repair/v1",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15430,
+            "completion_tokens": 13557,
+            "total_tokens": 28987
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "encoding": "source-ref",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 2,
+      "retries": 1,
+      "seconds": 107.68285308289342,
+      "tokens": {
+        "prompt_tokens": 30642,
+        "completion_tokens": 25357,
+        "total_tokens": 55999
+      },
+      "observed_tokens": {
+        "prompt_tokens": 30642,
+        "completion_tokens": 25357,
+        "total_tokens": 55999
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15557,
+            "completion_tokens": 12713,
+            "total_tokens": 28270
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-scope-repair/v1",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15085,
+            "completion_tokens": 12644,
+            "total_tokens": 27729
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "encoding": "source-ref",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 86.31599870882928,
+      "tokens": {
+        "prompt_tokens": 15557,
+        "completion_tokens": 19795,
+        "total_tokens": 35352
+      },
+      "observed_tokens": {
+        "prompt_tokens": 15557,
+        "completion_tokens": 19795,
+        "total_tokens": 35352
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15557,
+            "completion_tokens": 19795,
+            "total_tokens": 35352
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 2,
+      "retries": 1,
+      "seconds": 101.96110883308575,
+      "tokens": {
+        "prompt_tokens": 26447,
+        "completion_tokens": 24638,
+        "total_tokens": 51085
+      },
+      "observed_tokens": {
+        "prompt_tokens": 26447,
+        "completion_tokens": 24638,
+        "total_tokens": 51085
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13442,
+            "completion_tokens": 17753,
+            "total_tokens": 31195
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-scope-repair/v1",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13005,
+            "completion_tokens": 6885,
+            "total_tokens": 19890
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 79.77953112497926,
+      "tokens": {
+        "prompt_tokens": 13442,
+        "completion_tokens": 19540,
+        "total_tokens": 32982
+      },
+      "observed_tokens": {
+        "prompt_tokens": 13442,
+        "completion_tokens": 19540,
+        "total_tokens": 32982
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13442,
+            "completion_tokens": 19540,
+            "total_tokens": 32982
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "blocked",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": false,
+      "answers_match": false,
+      "answer_error": null,
+      "semantic_attempts": 3,
+      "retries": 2,
+      "seconds": 141.08032733295113,
+      "tokens": {
+        "prompt_tokens": 38783,
+        "completion_tokens": 32829,
+        "total_tokens": 71612
+      },
+      "observed_tokens": {
+        "prompt_tokens": 38783,
+        "completion_tokens": 32829,
+        "total_tokens": 71612
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13442,
+            "completion_tokens": 14572,
+            "total_tokens": 28014
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-scope-repair/v1",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 12587,
+            "completion_tokens": 6071,
+            "total_tokens": 18658
+          }
+        },
+        {
+          "attempt": 3,
+          "protocol": "functional-scope-repair/v1",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 12754,
+            "completion_tokens": 12186,
+            "total_tokens": 24940
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "encoding": "source-ref",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "interrupted_response_unknown",
+      "first_success": false,
+      "final_success": false,
+      "answers_match": false,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": null,
+      "tokens": null,
+      "observed_tokens": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0
+      },
+      "usage_complete": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 0,
+          "usage": null,
+          "phase": "requested"
+        }
+      ],
+      "recovery": {
+        "reason": "batch_worker_exception_serialization_aborted_pool",
+        "response_unknown": true,
+        "automatic_resubmission": false,
+        "original_responses_preserved": true
+      }
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "encoding": "source-ref",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 91.96098112477921,
+      "tokens": {
+        "prompt_tokens": 14397,
+        "completion_tokens": 22559,
+        "total_tokens": 36956
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14397,
+        "completion_tokens": 22559,
+        "total_tokens": 36956
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14397,
+            "completion_tokens": 22559,
+            "total_tokens": 36956
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "encoding": "source-ref",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 62.25534887495451,
+      "tokens": {
+        "prompt_tokens": 14397,
+        "completion_tokens": 15477,
+        "total_tokens": 29874
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14397,
+        "completion_tokens": 15477,
+        "total_tokens": 29874
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14397,
+            "completion_tokens": 15477,
+            "total_tokens": 29874
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "blocked",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": false,
+      "answers_match": false,
+      "answer_error": null,
+      "semantic_attempts": 3,
+      "retries": 2,
+      "seconds": 201.94883558293805,
+      "tokens": {
+        "prompt_tokens": 40964,
+        "completion_tokens": 48465,
+        "total_tokens": 89429
+      },
+      "observed_tokens": {
+        "prompt_tokens": 40964,
+        "completion_tokens": 48465,
+        "total_tokens": 89429
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+              "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+                    "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13609,
+            "completion_tokens": 12187,
+            "total_tokens": 25796
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got =",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_invalid",
+                    "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+                    "message": "notation.expected: expected ∈, got ="
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13685,
+            "completion_tokens": 14853,
+            "total_tokens": 28538
+          }
+        },
+        {
+          "attempt": 3,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_invalid",
+                    "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+                    "message": "notation.unrecognized_token: at 6:  | ∠CAX=90°,"
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13670,
+            "completion_tokens": 21425,
+            "total_tokens": 35095
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "blocked",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": false,
+      "answers_match": false,
+      "answer_error": null,
+      "semantic_attempts": 3,
+      "retries": 2,
+      "seconds": 164.560928999912,
+      "tokens": {
+        "prompt_tokens": 40949,
+        "completion_tokens": 40315,
+        "total_tokens": 81264
+      },
+      "observed_tokens": {
+        "prompt_tokens": 40949,
+        "completion_tokens": 40315,
+        "total_tokens": 81264
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got =",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_invalid",
+                    "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+                    "message": "notation.expected: expected ∈, got ="
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13609,
+            "completion_tokens": 12918,
+            "total_tokens": 26527
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got =",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_invalid",
+                    "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+                    "message": "notation.expected: expected ∈, got ="
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13670,
+            "completion_tokens": 15341,
+            "total_tokens": 29011
+          }
+        },
+        {
+          "attempt": 3,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+              "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.goal_plans.ii.D.steps[0].args.curve_points[0]",
+                    "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13670,
+            "completion_tokens": 12056,
+            "total_tokens": 25726
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "blocked",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": false,
+      "answers_match": false,
+      "answer_error": null,
+      "semantic_attempts": 3,
+      "retries": 2,
+      "seconds": 169.33054183307104,
+      "tokens": {
+        "prompt_tokens": 40963,
+        "completion_tokens": 42230,
+        "total_tokens": 83193
+      },
+      "observed_tokens": {
+        "prompt_tokens": 40963,
+        "completion_tokens": 42230,
+        "total_tokens": 83193
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got =",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_invalid",
+                    "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+                    "message": "notation.expected: expected ∈, got ="
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13609,
+            "completion_tokens": 12007,
+            "total_tokens": 25616
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+              "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+                    "message": "quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13671,
+            "completion_tokens": 11190,
+            "total_tokens": 24861
+          }
+        },
+        {
+          "attempt": 3,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_invalid",
+              "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+              "message": "notation.expected: expected ∈, got =",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_invalid",
+                    "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+                    "message": "notation.expected: expected ∈, got ="
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13683,
+            "completion_tokens": 19033,
+            "total_tokens": 32716
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "encoding": "source-ref",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 69.24370133294724,
+      "tokens": {
+        "prompt_tokens": 14739,
+        "completion_tokens": 17561,
+        "total_tokens": 32300
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14739,
+        "completion_tokens": 17561,
+        "total_tokens": 32300
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14739,
+            "completion_tokens": 17561,
+            "total_tokens": 32300
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "encoding": "source-ref",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 3,
+      "retries": 2,
+      "seconds": 109.48331108293496,
+      "tokens": {
+        "prompt_tokens": 45136,
+        "completion_tokens": 26219,
+        "total_tokens": 71355
+      },
+      "observed_tokens": {
+        "prompt_tokens": 45136,
+        "completion_tokens": 26219,
+        "total_tokens": 71355
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.plan_content_schema_invalid",
+              "path": "$['scope_steps']['i'][1]['args']",
+              "message": "Undeclared fields are not allowed.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.plan_content_schema_invalid",
+                    "path": "$['scope_steps']['i'][1]['args']",
+                    "message": "Undeclared fields are not allowed.",
+                    "details": {
+                      "capability_id": "quadratic_vertex_point",
+                      "consumer": {
+                        "step_id": "i_vertex",
+                        "kind": "scope_steps",
+                        "scope_ref": "i"
+                      },
+                      "diagnostic_id": "6e974cf10edea946",
+                      "expected": {
+                        "additionalProperties": false
+                      },
+                      "observed": {
+                        "unexpected_fields": [
+                          "quadratic"
+                        ]
+                      },
+                      "repair_action": "repair_capability_arguments",
+                      "schema_path": [
+                        "properties",
+                        "scope_steps",
+                        "properties",
+                        "i",
+                        "items",
+                        "oneOf",
+                        11,
+                        "allOf",
+                        1,
+                        "properties",
+                        "args",
+                        "additionalProperties"
+                      ],
+                      "step_id": "i_vertex",
+                      "validator": "additionalProperties"
+                    }
+                  },
+                  {
+                    "code": "functional.plan_content_schema_invalid",
+                    "path": "$['scope_steps']['i'][1]['args']['parabola']",
+                    "message": "Required field is missing.",
+                    "details": {
+                      "capability_id": "quadratic_vertex_point",
+                      "consumer": {
+                        "step_id": "i_vertex",
+                        "kind": "scope_steps",
+                        "scope_ref": "i"
+                      },
+                      "diagnostic_id": "ec230c1898435fce",
+                      "expected": {
+                        "required_fields": [
+                          "parabola"
+                        ]
+                      },
+                      "observed": {
+                        "missing_fields": [
+                          "parabola"
+                        ]
+                      },
+                      "repair_action": "repair_capability_arguments",
+                      "schema_path": [
+                        "properties",
+                        "scope_steps",
+                        "properties",
+                        "i",
+                        "items",
+                        "oneOf",
+                        11,
+                        "allOf",
+                        1,
+                        "properties",
+                        "args",
+                        "required"
+                      ],
+                      "step_id": "i_vertex",
+                      "validator": "required"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14739,
+            "completion_tokens": 11888,
+            "total_tokens": 26627
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15892,
+            "completion_tokens": 6134,
+            "total_tokens": 22026
+          }
+        },
+        {
+          "attempt": 3,
+          "protocol": "functional-scope-repair/v1",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14505,
+            "completion_tokens": 8197,
+            "total_tokens": 22702
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "encoding": "source-ref",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 59.776326624909416,
+      "tokens": {
+        "prompt_tokens": 14739,
+        "completion_tokens": 14622,
+        "total_tokens": 29361
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14739,
+        "completion_tokens": 14622,
+        "total_tokens": 29361
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14739,
+            "completion_tokens": 14622,
+            "total_tokens": 29361
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "interrupted_response_unknown",
+      "first_success": false,
+      "final_success": false,
+      "answers_match": false,
+      "answer_error": null,
+      "semantic_attempts": 3,
+      "retries": 2,
+      "seconds": null,
+      "tokens": null,
+      "observed_tokens": {
+        "prompt_tokens": 29387,
+        "completion_tokens": 42987,
+        "total_tokens": 72374
+      },
+      "usage_complete": false,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii[3].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.scope_steps.ii[3].args.path_minimum_target",
+                    "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14655,
+            "completion_tokens": 20609,
+            "total_tokens": 35264
+          },
+          "phase": "completed"
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii_1[4].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.scope_steps.ii_1[4].args.path_minimum_target",
+                    "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14732,
+            "completion_tokens": 22378,
+            "total_tokens": 37110
+          },
+          "phase": "completed"
+        },
+        {
+          "attempt": 3,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 0,
+          "usage": null,
+          "phase": "requested"
+        }
+      ],
+      "recovery": {
+        "reason": "batch_worker_exception_serialization_aborted_pool",
+        "response_unknown": true,
+        "automatic_resubmission": false,
+        "original_responses_preserved": true
+      }
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 3,
+      "retries": 2,
+      "seconds": 264.885280582821,
+      "tokens": {
+        "prompt_tokens": 44118,
+        "completion_tokens": 64492,
+        "total_tokens": 108610
+      },
+      "observed_tokens": {
+        "prompt_tokens": 44118,
+        "completion_tokens": 64492,
+        "total_tokens": 108610
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii[3].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.scope_steps.ii[3].args.path_minimum_target",
+                    "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14655,
+            "completion_tokens": 20067,
+            "total_tokens": 34722
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii_1[2].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.scope_steps.ii_1[2].args.path_minimum_target",
+                    "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14732,
+            "completion_tokens": 24304,
+            "total_tokens": 39036
+          }
+        },
+        {
+          "attempt": 3,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14731,
+            "completion_tokens": 20121,
+            "total_tokens": 34852
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 3,
+      "retries": 2,
+      "seconds": 286.66533233295195,
+      "tokens": {
+        "prompt_tokens": 44122,
+        "completion_tokens": 71278,
+        "total_tokens": 115400
+      },
+      "observed_tokens": {
+        "prompt_tokens": 44122,
+        "completion_tokens": 71278,
+        "total_tokens": 115400
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii[1].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.scope_steps.ii[1].args.path_minimum_target",
+                    "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'min(EG+FG)' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14655,
+            "completion_tokens": 18558,
+            "total_tokens": 33213
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.scope_steps.ii[2].args.path_minimum_target",
+              "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.scope_steps.ii[2].args.path_minimum_target",
+                    "message": "coupled_segment_endpoint_replacement_path_minimum.path_minimum_target: 'EG+FG' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14734,
+            "completion_tokens": 26847,
+            "total_tokens": 41581
+          }
+        },
+        {
+          "attempt": 3,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14733,
+            "completion_tokens": 25873,
+            "total_tokens": 40606
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "encoding": "source-ref",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 2,
+      "retries": 1,
+      "seconds": 137.5323497080244,
+      "tokens": {
+        "prompt_tokens": 32050,
+        "completion_tokens": 34537,
+        "total_tokens": 66587
+      },
+      "observed_tokens": {
+        "prompt_tokens": 32050,
+        "completion_tokens": 34537,
+        "total_tokens": 66587
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15966,
+            "completion_tokens": 19589,
+            "total_tokens": 35555
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-scope-repair/v1",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 16084,
+            "completion_tokens": 14948,
+            "total_tokens": 31032
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "encoding": "source-ref",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 84.9670524590183,
+      "tokens": {
+        "prompt_tokens": 15966,
+        "completion_tokens": 21810,
+        "total_tokens": 37776
+      },
+      "observed_tokens": {
+        "prompt_tokens": 15966,
+        "completion_tokens": 21810,
+        "total_tokens": 37776
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15966,
+            "completion_tokens": 21810,
+            "total_tokens": 37776
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "encoding": "source-ref",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 2,
+      "retries": 1,
+      "seconds": 141.27499075001106,
+      "tokens": {
+        "prompt_tokens": 31804,
+        "completion_tokens": 36271,
+        "total_tokens": 68075
+      },
+      "observed_tokens": {
+        "prompt_tokens": 31804,
+        "completion_tokens": 36271,
+        "total_tokens": 68075
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15966,
+            "completion_tokens": 25813,
+            "total_tokens": 41779
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-scope-repair/v1",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 15838,
+            "completion_tokens": 10458,
+            "total_tokens": 26296
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 2,
+      "retries": 1,
+      "seconds": 131.85866308398545,
+      "tokens": {
+        "prompt_tokens": 28254,
+        "completion_tokens": 31964,
+        "total_tokens": 60218
+      },
+      "observed_tokens": {
+        "prompt_tokens": 28254,
+        "completion_tokens": 31964,
+        "total_tokens": 60218
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.plan_content_schema_invalid",
+              "path": "$['goal_plans']['ii_1.b']['steps'][1]['args']",
+              "message": "Undeclared fields are not allowed.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.plan_content_schema_invalid",
+                    "path": "$['goal_plans']['ii_1.b']['steps'][1]['args']",
+                    "message": "Undeclared fields are not allowed.",
+                    "details": {
+                      "capability_id": "quadratic_y_axis_intercept_point",
+                      "consumer": {
+                        "step_id": "ii_1_C",
+                        "kind": "goal_steps",
+                        "goal_ref": "ii_1.b",
+                        "scope_ref": "ii_1"
+                      },
+                      "diagnostic_id": "81bf03f9bb404adf",
+                      "expected": {
+                        "additionalProperties": false
+                      },
+                      "observed": {
+                        "unexpected_fields": [
+                          "parabola"
+                        ]
+                      },
+                      "repair_action": "repair_capability_arguments",
+                      "schema_path": [
+                        "properties",
+                        "goal_plans",
+                        "properties",
+                        "ii_1.b",
+                        "properties",
+                        "steps",
+                        "items",
+                        "oneOf",
+                        13,
+                        "allOf",
+                        1,
+                        "properties",
+                        "args",
+                        "additionalProperties"
+                      ],
+                      "step_id": "ii_1_C",
+                      "validator": "additionalProperties"
+                    }
+                  },
+                  {
+                    "code": "functional.plan_content_schema_invalid",
+                    "path": "$['goal_plans']['ii_1.b']['steps'][1]['args']['quadratic']",
+                    "message": "Required field is missing.",
+                    "details": {
+                      "capability_id": "quadratic_y_axis_intercept_point",
+                      "consumer": {
+                        "step_id": "ii_1_C",
+                        "kind": "goal_steps",
+                        "goal_ref": "ii_1.b",
+                        "scope_ref": "ii_1"
+                      },
+                      "diagnostic_id": "ea7c334d896d0df3",
+                      "expected": {
+                        "required_fields": [
+                          "quadratic"
+                        ]
+                      },
+                      "observed": {
+                        "missing_fields": [
+                          "quadratic"
+                        ]
+                      },
+                      "repair_action": "repair_capability_arguments",
+                      "schema_path": [
+                        "properties",
+                        "goal_plans",
+                        "properties",
+                        "ii_1.b",
+                        "properties",
+                        "steps",
+                        "items",
+                        "oneOf",
+                        13,
+                        "allOf",
+                        1,
+                        "properties",
+                        "args",
+                        "required"
+                      ],
+                      "step_id": "ii_1_C",
+                      "validator": "required"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13555,
+            "completion_tokens": 15129,
+            "total_tokens": 28684
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14699,
+            "completion_tokens": 16835,
+            "total_tokens": 31534
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 2,
+      "retries": 1,
+      "seconds": 115.58531849994324,
+      "tokens": {
+        "prompt_tokens": 27184,
+        "completion_tokens": 28331,
+        "total_tokens": 55515
+      },
+      "observed_tokens": {
+        "prompt_tokens": 27184,
+        "completion_tokens": 28331,
+        "total_tokens": 55515
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+              "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+                    "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13555,
+            "completion_tokens": 14341,
+            "total_tokens": 27896
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13629,
+            "completion_tokens": 13990,
+            "total_tokens": 27619
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "encoding": "math-expression/v1",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": false,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 2,
+      "retries": 1,
+      "seconds": 161.0218752499204,
+      "tokens": {
+        "prompt_tokens": 27184,
+        "completion_tokens": 38229,
+        "total_tokens": 65413
+      },
+      "observed_tokens": {
+        "prompt_tokens": 27184,
+        "completion_tokens": 38229,
+        "total_tokens": 65413
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [
+            {
+              "code": "functional.math_argument_unresolved",
+              "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+              "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources.",
+              "retryable": true,
+              "details": {
+                "diagnostics": [
+                  {
+                    "code": "functional.math_argument_unresolved",
+                    "path": "$.goal_plans.i.vertex.steps[0].args.parameter_value",
+                    "message": "evaluate_expression_at_parameter.parameter_value: 'b=4' matches 0 visible typed sources."
+                  }
+                ]
+              }
+            }
+          ],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13555,
+            "completion_tokens": 19962,
+            "total_tokens": 33517
+          }
+        },
+        {
+          "attempt": 2,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 13629,
+            "completion_tokens": 18267,
+            "total_tokens": 31896
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "encoding": "source-ref",
+      "sample": 1,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 82.14135312498547,
+      "tokens": {
+        "prompt_tokens": 14112,
+        "completion_tokens": 19638,
+        "total_tokens": 33750
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14112,
+        "completion_tokens": 19638,
+        "total_tokens": 33750
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14112,
+            "completion_tokens": 19638,
+            "total_tokens": 33750
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "encoding": "source-ref",
+      "sample": 2,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 63.27168529201299,
+      "tokens": {
+        "prompt_tokens": 14112,
+        "completion_tokens": 17012,
+        "total_tokens": 31124
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14112,
+        "completion_tokens": 17012,
+        "total_tokens": 31124
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14112,
+            "completion_tokens": 17012,
+            "total_tokens": 31124
+          }
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "encoding": "source-ref",
+      "sample": 3,
+      "frozen_digest": "a784ee77a99525d3c6fc1e7d7aa27874c7424a1afcbe6636817f0cc506df0d17",
+      "status": "accepted",
+      "terminal_exception": null,
+      "first_success": true,
+      "final_success": true,
+      "answers_match": true,
+      "answer_error": null,
+      "semantic_attempts": 1,
+      "retries": 0,
+      "seconds": 76.56955837504938,
+      "tokens": {
+        "prompt_tokens": 14112,
+        "completion_tokens": 18011,
+        "total_tokens": 32123
+      },
+      "observed_tokens": {
+        "prompt_tokens": 14112,
+        "completion_tokens": 18011,
+        "total_tokens": 32123
+      },
+      "usage_complete": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "protocol": "functional-plan-content/v2",
+          "errors": [],
+          "provider_requests": 1,
+          "usage": {
+            "prompt_tokens": 14112,
+            "completion_tokens": 18011,
+            "total_tokens": 32123
+          }
+        }
+      ]
+    }
+  ],
+  "current_product_admission": false,
+  "paid_extraction_calls": 0,
+  "paid_explanation_calls": 0
+}

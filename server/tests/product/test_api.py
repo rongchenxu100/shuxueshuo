@@ -60,6 +60,10 @@ def test_upload_and_first_build_idempotency(api):
     build = client.get('/api/product/v1/builds/' + result.json()['build_id']).json()
     assert len(build['stages']) == 9 and build['status'] == 'queued'
     assert 'effective_config' not in build and 'target_dependencies' not in build
+    assert build['runtime_config'] == {
+        'observation_mode': None,
+        'argument_encoding': None,
+    }
     assert client.get('/api/product/v1/batches/' + batch['id']).json()['items'][0]['status'] == 'queued'
     _, repeated, _ = create(client, 'again')
     assert repeated['status'] == 'reused' and repeated['item']['problem_id'] == item['problem_id']

@@ -124,6 +124,7 @@ class StrategyPlanner:
         prompt_renderer: StrategyPromptRenderer | None = None,
         functional_plan_fixture_dir: Path | str | None = None,
         scoped_functional_plan_fixture_dir: Path | str | None = None,
+        argument_encoding: str = "math-expression/v1",
     ) -> None:
         if problem_authority is None:
             raise ProblemBundleAuthorityError(
@@ -135,6 +136,9 @@ class StrategyPlanner:
         self.problem_authority = problem_authority
         self.mode = mode
         self.client = client
+        if argument_encoding not in ("source-ref", "math-expression/v1"):
+            raise ValueError("unknown Method argument encoding")
+        self.argument_encoding = argument_encoding
         self.payload_builder = payload_builder or StrategyPayloadBuilder()
         self.prompt_renderer = prompt_renderer or StrategyPromptRenderer()
         self.functional_plan_fixture_dir = (
@@ -302,6 +306,19 @@ class StrategyPlanner:
             planner_state_context,
             problem_binding_catalog,
         ) = self._prepare_scope_native_problem_authority(inputs)
+        math_resolver = None
+        payload_builder = self.payload_builder
+        if self.argument_encoding == "math-expression/v1":
+            from .functional_plan_capabilities import FunctionalCapabilityCatalog
+            from .method_math_arguments import MethodMathArgumentResolver
+            from .method_math_prompt import MathStrategyPayloadBuilder
+
+            math_resolver = MethodMathArgumentResolver(
+                self.problem_authority.bundle, self.problem_authority.planning_context,
+                problem_binding_catalog,
+                FunctionalCapabilityCatalog.from_family_spec(inputs.family_spec, inputs.method_specs),
+            )
+            payload_builder = MathStrategyPayloadBuilder(self.payload_builder, math_resolver)
         if self.mode == "recorded":
             client: LLMPlannerClient = _RecordedScopedFunctionalClient(
                 self._recorded_scoped_content(inputs)
@@ -319,7 +336,7 @@ class StrategyPlanner:
 
         run_result = ScopedFunctionalScopeRetryService(
             client,
-            payload_builder=self.payload_builder,
+            payload_builder=payload_builder,
             prompt_renderer=self.prompt_renderer,
         ).run(
             inputs=inputs,
@@ -331,6 +348,7 @@ class StrategyPlanner:
             problem_payload=problem_payload,
             max_attempts=max_attempts,
             attempt_observer=attempt_observer,
+            math_argument_resolver=math_resolver,
         )
         representative = run_result.attempts[-1] if run_result.attempts else None
         replay = (
@@ -367,6 +385,9 @@ class StrategyPlanner:
         return run_result
 
     def _recorded_scoped_content(self, inputs: PlannerInputs) -> str:
+        if self.argument_encoding == "math-expression/v1":
+            return (self.scoped_functional_plan_fixture_dir
+                    / f"{inputs.problem_id}.functional-plan-content.json").read_text(encoding="utf-8")
         path = (
             self.scoped_functional_plan_fixture_dir
             / f"{inputs.problem_id}.functional-plan.json"
@@ -736,6 +757,7 @@ def strategy_planner_provider(
     scoped_functional_plan_fixture_dir: Path | str | None = None,
     allow_same_problem_few_shot: bool = True,
     functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None,
+    argument_encoding: str = "math-expression/v1",
 ) -> "Callable[..., StrategyPlanner]":
     """构造 Orchestrator 可用的单一 Strategy provider。"""
     from collections.abc import Callable
@@ -760,6 +782,7 @@ def strategy_planner_provider(
             problem_authority=problem_authority,
             mode=mode,
             client=client,
+            argument_encoding=argument_encoding,
             payload_builder=payload_builder,
             functional_plan_fixture_dir=functional_plan_fixture_dir,
             scoped_functional_plan_fixture_dir=(

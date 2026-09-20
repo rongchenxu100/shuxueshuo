@@ -1,0 +1,141 @@
+[
+  {
+    "label": "attempt-1-point",
+    "origin_semantic_attempt": 1,
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+        "before": [
+          "A=(-1,0)"
+        ],
+        "after": [
+          "A"
+        ]
+      },
+      {
+        "path": "$.goal_plans.iii.b.steps[0].args.curve_points",
+        "before": [
+          "A=(-1,0)"
+        ],
+        "after": [
+          "A"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "errors": [
+      "functional.math_argument_invalid at $.goal_plans.ii.D.steps[2].args.right_angle_equal_length: notation.expected: expected ∈, got ="
+    ]
+  },
+  {
+    "label": "attempt-1-angle",
+    "origin_semantic_attempt": 1,
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD=90°, AC=AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "status": "blocked",
+    "errors": [
+      "functional.math_argument_unresolved at $.goal_plans.ii.D.steps[0].args.curve_points[0]: quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+    ]
+  },
+  {
+    "label": "attempt-1-point-and-angle",
+    "origin_semantic_attempt": 1,
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+        "before": [
+          "A=(-1,0)"
+        ],
+        "after": [
+          "A"
+        ]
+      },
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD=90°, AC=AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      },
+      {
+        "path": "$.goal_plans.iii.b.steps[0].args.curve_points",
+        "before": [
+          "A=(-1,0)"
+        ],
+        "after": [
+          "A"
+        ]
+      }
+    ],
+    "status": "accepted",
+    "errors": [],
+    "expected_answers_match": true
+  },
+  {
+    "label": "attempt-2-angle",
+    "origin_semantic_attempt": 2,
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD = 90°, AC = AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "status": "accepted",
+    "errors": [],
+    "expected_answers_match": true
+  },
+  {
+    "label": "attempt-3-angle",
+    "origin_semantic_attempt": 3,
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "D ∈ {X | ∠CAX=90°, AX=AC}",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "status": "blocked",
+    "errors": [
+      "functional.plan_content_schema_invalid at $['goal_plans']['ii.D']['steps'][1]['args']: Undeclared fields are not allowed."
+    ]
+  },
+  {
+    "label": "attempt-3-angle-and-argument-name",
+    "origin_semantic_attempt": 3,
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[1].args",
+        "before": {
+          "parabola": "Γ"
+        },
+        "after": {
+          "quadratic": "Γ"
+        }
+      },
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "D ∈ {X | ∠CAX=90°, AX=AC}",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "status": "accepted",
+    "errors": [],
+    "expected_answers_match": true
+  }
+]

@@ -1,0 +1,188 @@
+{
+  "schema_version": "explanation-snapshot/v3",
+  "problem_id": "synthetic-equal_length_ray_point",
+  "family_id": "lesson_capability_synthetic",
+  "problem_revision": "synthetic:equal_length_ray_point:v1",
+  "problem_semantic_hash": "7c5430fa842cd254cc866635b3db5ebc321770bc6df417ebfcd028475fa8a535",
+  "canonical_plan_hash": "8cbaf361e8d3845030ade0943578fabbb573c95ea1102ca80fd4e9f1c02fd376",
+  "verified_execution_hash": "c73a6eef7377697726736f72562484d9b57e3e2e87ce2ba3a70a201d93048fe2",
+  "problem": {
+    "original_text": [
+      "在射线 AC 上作点 D，使 AD=AB。"
+    ],
+    "scopes": [
+      {
+        "scope_id": "problem",
+        "label": "合成验收"
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:problem.D",
+        "scope_id": "problem",
+        "answer_key": "D",
+        "value_type": "Point",
+        "target_handle": "point:problem:D"
+      }
+    ],
+    "entities": [
+      {
+        "handle": "point:problem:A",
+        "entity_type": "point",
+        "name": "A",
+        "scope_id": "problem",
+        "coordinate": [
+          "0",
+          "0"
+        ],
+        "definition": "given_point"
+      },
+      {
+        "handle": "point:problem:B",
+        "entity_type": "point",
+        "name": "B",
+        "scope_id": "problem",
+        "coordinate": [
+          "0",
+          "3"
+        ],
+        "definition": "given_point"
+      },
+      {
+        "handle": "point:problem:C",
+        "entity_type": "point",
+        "name": "C",
+        "scope_id": "problem",
+        "coordinate": [
+          "2",
+          "0"
+        ],
+        "definition": "given_point"
+      },
+      {
+        "handle": "point:problem:D",
+        "entity_type": "point",
+        "name": "D",
+        "scope_id": "problem",
+        "definition": "derived_point"
+      }
+    ],
+    "facts": []
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {
+      "problem.D": {
+        "steps": [
+          {
+            "step_id": "synthetic_equal_length_ray_point",
+            "capability_id": "equal_length_ray_point",
+            "intent": "在射线 AC 上作点 D，使 AD=AB。",
+            "inputs": {
+              "anchor": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:A"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "0",
+                    "0"
+                  ],
+                  "display": "A(0,0)"
+                }
+              ],
+              "reference_point": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:B"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "0",
+                    "3"
+                  ],
+                  "display": "B(0,3)"
+                }
+              ],
+              "ray_point": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:C"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "2",
+                    "0"
+                  ],
+                  "display": "C(2,0)"
+                }
+              ],
+              "target": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "point:problem:D"
+                  },
+                  "runtime_type": "PointRef",
+                  "value": {
+                    "entity_type": "point",
+                    "name": "D",
+                    "description": "D"
+                  },
+                  "display": "D"
+                }
+              ]
+            },
+            "output_targets": {
+              "point": "point:problem:D"
+            },
+            "outputs": {
+              "point": {
+                "runtime_type": "Point",
+                "value": [
+                  "3",
+                  "0"
+                ],
+                "display": "D(3,0)"
+              }
+            },
+            "calculations": [],
+            "checks": [
+              {
+                "check_id": "equal_lengths",
+                "kind": "runtime_method_check",
+                "passed": true,
+                "detail": "D 到 anchor 的距离等于参考线段长度"
+              },
+              {
+                "check_id": "point_on_ray_line",
+                "kind": "runtime_method_check",
+                "passed": true,
+                "detail": "D 在指定射线所在直线上"
+              }
+            ]
+          }
+        ],
+        "answer_from": {
+          "step_id": "synthetic_equal_length_ray_point",
+          "return": "point"
+        }
+      }
+    },
+    "children": []
+  },
+  "evidence": {},
+  "answers": {
+    "problem": {
+      "D": [
+        "3",
+        "0"
+      ]
+    }
+  }
+}

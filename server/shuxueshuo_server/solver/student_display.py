@@ -237,6 +237,11 @@ def _plain_sympy_display(
 
 def _compact_math_text(text: str, *, fullwidth_operators: bool) -> str:
     text = text.strip().replace(" ", "")
+    # Runtime expressions use CAS-style min/max calls. Keep the expression
+    # readable in student-facing material without leaking those internal
+    # function names into the lesson projection.
+    text = re.sub(r"(?<![A-Za-z0-9_])min\s*\(", "最小值(", text, flags=re.IGNORECASE)
+    text = re.sub(r"(?<![A-Za-z0-9_])max\s*\(", "最大值(", text, flags=re.IGNORECASE)
     text = re.sub(r"Abs\(([^()]+)\)", r"|\1|", text)
     text = text.replace("**3", "³").replace("**2", "²")
     text = text.replace("sqrt", "√")

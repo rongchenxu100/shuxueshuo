@@ -1,6 +1,8 @@
 """Image-led source review. OCR discrepancies request review, never rewrite facts."""
 from __future__ import annotations
 
+from .problem_domain_prompt_rules import REPRESENTATION_RULES
+
 from copy import deepcopy
 from dataclasses import replace
 import fcntl
@@ -102,15 +104,7 @@ def build_review_request(draft, pack, reader, differences, response_format_mode)
                       for k, v in draft.unit_registry.items()},
             "auxiliary_differences": differences,
             "observations": pack.prompt_payload(), "schema": SCHEMA,
-            "representation_rules": "当前候选已经经过代码规范化；复核对象是数学题意，非生成格式或冗余表达。"
-                "symbol.role是内部用途标签：quadratic_coefficient、primary_parameter、parameter均表示函数系数或参数，"
-                "quadratic_coefficient在本系统不专指x²项；实际函数系数以function_expression为准。"
-                "minimum_value_given和minimum_target同时出现合法：代码从前者自动物化后者，禁止把它当成题意错误。"
-                "代码也会为多个子问共享的最值表达式在共同父scope物化minimum_target，这不扩大局部条件作用域。"
-                "minimum_target声明待求的表达式，并非题面给定的数值条件；共享表达式可位于父scope，"
-                "各子问的minimum_value_given与其他局部数值仍只在子scope生效。"
-                "同样，根据原文已给出的x_range展开符号范围、规范化坐标原点，以及由square_center展开对角线成员关系，"
-                "属于表示等价展开，不应仅因原图没有逐字写出这些内部primitive而要求删除。"}
+            "representation_rules": REPRESENTATION_RULES}
     return replace(request, contract_version=CONTRACT, contract_schema=SCHEMA,
         response_format=schema_format if response_format_mode == "json_schema" else {"type": "json_object"},
         prompt=MultimodalExtractionPrompt(
@@ -240,13 +234,17 @@ class SourceReviewer:
             # three semantic outcomes. model_status preserves its raw decision.
             review = {"schema_version": CONTRACT, "status": "failed", "binding": key}
             phase = "request"
+            invoked = False
             try:
                 if not provider.supports_images:
                     raise ValueError("source review requires an image-capable provider")
                 request = build_review_request(draft, pack, reader, differences, provider.response_format_mode)
+                from .multimodal_provider import prepare_provider_request
+                request = prepare_provider_request(provider, request)
                 artifacts.append(self.store.put_json(kind="problem_source_review_request", payload=request.redacted_payload()))
                 # The product journal may have completed before this file was
                 # committed. Recovery is read-only; never reissue a paid call.
+                invoked = True
                 response = provider.restore_source_review(request) if recovering else provider.complete(request)
                 if response is None:
                     raise ValueError("previous review outcome is unknown")
@@ -266,6 +264,13 @@ class SourceReviewer:
                 artifacts.append(self.store.put_json(kind="problem_source_review_result", payload=parsed))
                 review.update(parsed)
             except Exception as exc:
+                if invoked and phase == "request":
+                    review["usage"] = {"provider": getattr(provider, "provider_name", None),
+                        "request_model": getattr(provider, "model", None),
+                        "response_model": getattr(provider, "last_response_model", None),
+                        "provider_attempts": list(getattr(provider, "last_provider_attempts", ())),
+                        "usage": getattr(provider, "last_usage", None),
+                        "thinking_mode": request.thinking_mode, "reasoning_effort": request.reasoning_effort}
                 # SDK exception strings can contain sensitive request data.
                 review["error"] = "source review failed: " + type(exc).__name__
                 review["status"] = "failed"

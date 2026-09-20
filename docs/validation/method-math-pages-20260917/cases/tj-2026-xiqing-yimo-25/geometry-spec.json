@@ -1,0 +1,147 @@
+{
+  "version": 1,
+  "id": "tj-2026-xiqing-yimo-25",
+  "domain": {
+    "minX": -2.8,
+    "maxX": 6.8,
+    "minY": -5.55,
+    "maxY": 10.8
+  },
+  "movingParam": "b",
+  "expressionEnv": [],
+  "fixedPoints": {
+    "curve_i_parabola_vertex": [
+      "2",
+      "9"
+    ],
+    "point_A_problem": [
+      "-1",
+      "0"
+    ]
+  },
+  "movingPoints": {
+    "curve_ii_parabola_vertex": [
+      "b/2",
+      "(b*b)/4+b+1"
+    ],
+    "point_B_ii": [
+      "b+1",
+      "0"
+    ],
+    "point_C_ii": [
+      "0",
+      "b+1"
+    ],
+    "point_D_ii": [
+      "b+2",
+      "-b-3"
+    ],
+    "point_M_ii_2": [
+      "-sqrt(3)*b/3+b-sqrt(3)+2",
+      "0"
+    ],
+    "point_Q_ii_2": [
+      "3*m/4-1/4",
+      "sqrt(3)*(m+1)/4"
+    ]
+  },
+  "pointMeta": {
+    "curve_i_parabola_vertex": {
+      "label": "",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_i_parabola",
+      "display": "(2, 9)",
+      "visualOnly": true
+    },
+    "curve_ii_parabola_vertex": {
+      "label": "",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_ii_parabola",
+      "display": "(b/2, b²/4＋b＋1)",
+      "visualOnly": true
+    },
+    "point_A_problem": {
+      "label": "A",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:A"
+    },
+    "point_B_ii": {
+      "label": "B",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_x_intercept_B_ii"
+      ]
+    },
+    "point_C_ii": {
+      "label": "C",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_y_intercept_C_ii"
+      ]
+    },
+    "point_D_ii": {
+      "label": "D",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_curve_point_D_ii"
+      ]
+    },
+    "point_M_ii_2": {
+      "label": "M",
+      "scopeId": "ii_2",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_weighted_minimum_ii"
+      ]
+    },
+    "point_Q_ii_2": {
+      "label": "Q",
+      "scopeId": "ii_2",
+      "scopeRoot": "ii",
+      "definition": "visual_auxiliary_parameterized_point",
+      "sourceStepIds": [
+        "derive_weighted_minimum_ii"
+      ]
+    }
+  },
+  "curves": [
+    {
+      "id": "curve_i_parabola",
+      "type": "parabola",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "sourceHandle": "fact:i:derive_parabola_i_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 0,
+      "a": "-1",
+      "b": "4",
+      "c": "5"
+    },
+    {
+      "id": "curve_ii_parabola",
+      "type": "parabola",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "sourceHandle": "fact:ii:derive_parametric_parabola_ii_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 2,
+      "a": "-1",
+      "b": "b",
+      "c": "b+1"
+    }
+  ],
+  "derivedIntersections": []
+}

@@ -1,0 +1,816 @@
+{
+  "problem": {
+    "original_text": [
+      "Γ: y = -x^2 + b*x + c",
+      "b > 0",
+      "A = (-1,0)",
+      "A ∈ Γ",
+      "Γ ∩ x_axis = {A, B}",
+      "Γ ∩ y_axis = {C}",
+      "b = 4",
+      "D = (b+2, y_D)",
+      "D ∈ Γ",
+      "AD = 2*BC",
+      "M = (m,0)",
+      "m > 0",
+      "min(2*DM + AM) = 5 + 5*sqrt(3)"
+    ],
+    "scope_labels": {
+      "problem": "题目",
+      "i": "(1)",
+      "ii": "(2)",
+      "ii_1": "①",
+      "ii_2": "②"
+    }
+  },
+  "answers": {
+    "i.vertex": {
+      "type": "Point",
+      "value": [
+        "2",
+        "9"
+      ],
+      "display": "vertex(2,9)"
+    },
+    "ii_1.b": {
+      "type": "ParameterValue",
+      "value": "1",
+      "display": "1"
+    },
+    "ii_2.b": {
+      "type": "ParameterValue",
+      "value": "2",
+      "display": "2"
+    }
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "children": [
+      {
+        "scope_ref": "i",
+        "goals": {
+          "i.vertex": [
+            {
+              "inputs": {
+                "curve_point": [
+                  {
+                    "type": "Point",
+                    "value": [
+                      "-1",
+                      "0"
+                    ],
+                    "display": "A(-1,0)"
+                  }
+                ],
+                "known_coefficients": [
+                  {
+                    "type": "ParameterValue",
+                    "value": "4",
+                    "display": "4"
+                  }
+                ]
+              },
+              "outputs": {
+                "coefficients": {
+                  "type": "Coefficients",
+                  "value": {
+                    "b": "4",
+                    "c": "5"
+                  },
+                  "display": "{\"b\": \"4\", \"c\": \"5\"}"
+                },
+                "parabola": {
+                  "type": "Parabola",
+                  "value": "-x**2 + 4*x + 5",
+                  "display": "-x²+4x+5"
+                }
+              },
+              "materials": [
+                {
+                  "step_ref": "s1",
+                  "title": "求函数解析式",
+                  "nav_title": "求解析式",
+                  "goal": "代入当前问给出的约束，确定二次函数解析式。",
+                  "derive": [
+                    "∵ 题设还给出 b＝4",
+                    "∵ A(－1,0) 在 y＝－x²＋bx＋c 上",
+                    "∴ 代入 A 点坐标，得 0＝－1－4＋c＝c－5",
+                    "计算 化简上述方程，得 b＝4，c＝5",
+                    "∴ y＝－x²＋4x＋5＝－(x－2)²＋9"
+                  ],
+                  "conclusions": [
+                    "y＝－x²＋4x＋5"
+                  ]
+                }
+              ]
+            },
+            {
+              "inputs": {
+                "parabola": [
+                  {
+                    "type": "Parabola",
+                    "value": "-x**2 + 4*x + 5",
+                    "display": "-x²+4x+5"
+                  }
+                ]
+              },
+              "outputs": {
+                "point": {
+                  "type": "Point",
+                  "value": [
+                    "2",
+                    "9"
+                  ],
+                  "display": "vertex(2,9)"
+                }
+              },
+              "materials": [
+                {
+                  "step_ref": "s2",
+                  "title": "求二次函数顶点",
+                  "nav_title": "求顶点",
+                  "goal": "把二次函数整理成顶点式，读出顶点坐标。",
+                  "derive": [
+                    "∵ 抛物线为 y＝－x²＋4x＋5",
+                    "计算 配方，得 y＝－(x－2)²＋9",
+                    "∴ 顶点为 (2,9)"
+                  ],
+                  "conclusions": [
+                    "(2,9)"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "scope_ref": "ii",
+        "steps": [
+          {
+            "inputs": {
+              "curve_point": [
+                {
+                  "type": "Point",
+                  "value": [
+                    "-1",
+                    "0"
+                  ],
+                  "display": "A(-1,0)"
+                }
+              ],
+              "free_parameters": [
+                {
+                  "type": "ParameterValue",
+                  "value": "b",
+                  "display": "b"
+                }
+              ]
+            },
+            "outputs": {
+              "coefficients": {
+                "type": "Coefficients",
+                "value": {
+                  "c": "b + 1"
+                },
+                "display": "{\"c\": \"b + 1\"}"
+              },
+              "parabola": {
+                "type": "Parabola",
+                "value": "b*x + b - x**2 + 1",
+                "display": "bx+b-x²+1"
+              }
+            },
+            "materials": [
+              {
+                "step_ref": "s1",
+                "title": "化简函数解析式",
+                "nav_title": "化简解析式",
+                "goal": "代入当前问给出的约束，确定二次函数解析式。",
+                "derive": [
+                  "∵ A(－1,0) 在 y＝－x²＋bx＋c 上",
+                  "∴ 代入 A 点坐标，得 0＝－1－b＋c＝－b＋c－1",
+                  "∵ b＞0",
+                  "计算 化简上述方程，得 c＝b＋1",
+                  "∴ y＝－x²＋bx＋b＋1"
+                ],
+                "conclusions": [
+                  "y＝－x²＋bx＋b＋1"
+                ]
+              }
+            ]
+          },
+          {
+            "inputs": {
+              "parabola": [
+                {
+                  "type": "Parabola",
+                  "value": "b*x + b - x**2 + 1",
+                  "display": "bx+b-x²+1"
+                }
+              ]
+            },
+            "outputs": {
+              "point": {
+                "type": "Point",
+                "value": [
+                  "b + 2",
+                  "-b - 3"
+                ],
+                "display": "D(b+2,-b-3)"
+              }
+            },
+            "materials": [
+              {
+                "step_ref": "s2",
+                "title": "由横坐标求抛物线上点",
+                "nav_title": "代入横坐标",
+                "goal": "把指定横坐标代入抛物线解析式，求出对应点坐标。",
+                "derive": [
+                  "∵ D 在 y＝－x²＋bx＋b＋1 上，且 x＝b＋2",
+                  "计算 代入横坐标，y＝－(b＋2)²＋b(b＋2)＋b＋1＝－b－3",
+                  "∴ D(b＋2,－b－3)"
+                ],
+                "conclusions": [
+                  "D(b＋2,－b－3)"
+                ]
+              }
+            ]
+          },
+          {
+            "inputs": {
+              "known_point": [
+                {
+                  "type": "Point",
+                  "value": [
+                    "-1",
+                    "0"
+                  ],
+                  "display": "A(-1,0)"
+                }
+              ],
+              "parabola": [
+                {
+                  "type": "Parabola",
+                  "value": "b*x + b - x**2 + 1",
+                  "display": "bx+b-x²+1"
+                }
+              ]
+            },
+            "outputs": {
+              "point": {
+                "type": "Point",
+                "value": [
+                  "b + 1",
+                  "0"
+                ],
+                "display": "B(b+1,0)"
+              }
+            },
+            "materials": [
+              {
+                "step_ref": "s3",
+                "title": "求抛物线与 x 轴交点",
+                "nav_title": "求 x 轴交点",
+                "goal": "令 y＝0，求出指定的 x 轴交点。",
+                "derive": [
+                  "∵ x 轴交点满足 y＝0，即 －x²＋bx＋b＋1＝0",
+                  "计算 x＝－1 或 x＝b＋1",
+                  "∵ 结合B的定义，取 x＝b＋1",
+                  "∴ B(b＋1,0)"
+                ],
+                "conclusions": [
+                  "B(b＋1,0)"
+                ]
+              }
+            ]
+          },
+          {
+            "inputs": {
+              "quadratic": [
+                {
+                  "type": "Parabola",
+                  "value": "b*x + b - x**2 + 1",
+                  "display": "bx+b-x²+1"
+                }
+              ]
+            },
+            "outputs": {
+              "point": {
+                "type": "Point",
+                "value": [
+                  "0",
+                  "b + 1"
+                ],
+                "display": "C(0,b+1)"
+              }
+            },
+            "materials": [
+              {
+                "step_ref": "s4",
+                "title": "求抛物线与 y 轴交点",
+                "nav_title": "求 y 轴交点",
+                "goal": "令 x＝0，求抛物线与 y 轴的交点。",
+                "derive": [
+                  "∵ y 轴上的点满足 x＝0",
+                  "计算 代入 x＝0，得 y＝－(0)²＋b(0)＋b＋1＝b＋1",
+                  "∴ C(0,b＋1)"
+                ],
+                "conclusions": [
+                  "C(0,b＋1)"
+                ]
+              }
+            ]
+          }
+        ],
+        "children": [
+          {
+            "scope_ref": "ii_1",
+            "goals": {
+              "ii_1.b": [
+                {
+                  "inputs": {
+                    "length_squared": [
+                      {
+                        "type": "segment_length_relation",
+                        "value": {
+                          "description": "length relation",
+                          "left_segment": "AD",
+                          "right_segment": "BC",
+                          "scale": "2",
+                          "type": "segment_length_relation"
+                        },
+                        "display": "lengthrelation"
+                      }
+                    ],
+                    "p1": [
+                      {
+                        "type": "Point",
+                        "value": [
+                          "-1",
+                          "0"
+                        ],
+                        "display": "A(-1,0)"
+                      }
+                    ],
+                    "p2": [
+                      {
+                        "type": "Point",
+                        "value": [
+                          "b + 2",
+                          "-b - 3"
+                        ],
+                        "display": "D(b+2,-b-3)"
+                      }
+                    ],
+                    "reference_p1": [
+                      {
+                        "type": "Point",
+                        "value": [
+                          "b + 1",
+                          "0"
+                        ],
+                        "display": "B(b+1,0)"
+                      }
+                    ],
+                    "reference_p2": [
+                      {
+                        "type": "Point",
+                        "value": [
+                          "0",
+                          "b + 1"
+                        ],
+                        "display": "C(0,b+1)"
+                      }
+                    ]
+                  },
+                  "outputs": {
+                    "parameter_value": {
+                      "type": "ParameterValue",
+                      "value": "1",
+                      "display": "1"
+                    }
+                  },
+                  "calculations": [
+                    {
+                      "kind": "equation_system",
+                      "value": {
+                        "equations": [
+                          "Eq(2*(b + 3)**2, 8*(b + 1)**2)"
+                        ],
+                        "sources": [
+                          "p1",
+                          "p2",
+                          "reference_p1",
+                          "reference_p2",
+                          "condition"
+                        ]
+                      },
+                      "display": [
+                        "2(b+3)²＝8(b+1)²"
+                      ]
+                    },
+                    {
+                      "kind": "substitution",
+                      "value": {
+                        "values": [
+                          {
+                            "symbol": "b",
+                            "value": "1"
+                          }
+                        ]
+                      },
+                      "display": [
+                        "b＝1"
+                      ]
+                    },
+                    {
+                      "kind": "solution",
+                      "value": {
+                        "target": "b",
+                        "value": "1"
+                      },
+                      "display": [
+                        "b＝1"
+                      ]
+                    }
+                  ],
+                  "materials": [
+                    {
+                      "step_ref": "s1",
+                      "title": "由线段长度关系求参数",
+                      "nav_title": "由长度求参数",
+                      "goal": "把端点坐标代入长度关系，解参数并按题设条件筛选。",
+                      "derive": [
+                        "∵ 目标线段端点为 A(－1,0)、D(b＋2,－b－3)",
+                        "∵ 题设长度条件为 AD＝2BC",
+                        "计算 由距离公式建立方程 2(b＋3)²＝8(b＋1)²",
+                        "计算 解方程，得 b＝－5/3 或 b＝1",
+                        "∵ 根据 b＞0，保留 b＝1",
+                        "∴ b＝1"
+                      ],
+                      "conclusions": [
+                        "b＝1"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "scope_ref": "ii_2",
+            "goals": {
+              "ii_2.b": [
+                {
+                  "inputs": {
+                    "path_minimum_target": [
+                      {
+                        "type": "path_minimum_target",
+                        "value": {
+                          "description": "minimum target",
+                          "path": "2*DM+AM",
+                          "terms": [
+                            {
+                              "scale": "2",
+                              "segment": [
+                                "D",
+                                "M"
+                              ]
+                            },
+                            [
+                              "A",
+                              "M"
+                            ]
+                          ],
+                          "type": "path_minimum_target"
+                        },
+                        "display": "2DM+AM"
+                      }
+                    ]
+                  },
+                  "outputs": {
+                    "minimum_expression": {
+                      "type": "MinimumExpression",
+                      "value": "b + sqrt(3)*(b + 3) + 3",
+                      "display": "b+√3(b+3)+3"
+                    }
+                  },
+                  "calculations": [
+                    {
+                      "kind": "equivalence_chain",
+                      "value": {
+                        "statements": [
+                          "已验证的辅助直角三角形给出斜边与辅助直角边的倍率关系",
+                          "按同一倍率把原目标化为两段普通线段之和"
+                        ],
+                        "result": "2*DM+AM=2×（两段普通线段之和）"
+                      },
+                      "display": [
+                        "已验证的辅助直角三角形给出斜边与辅助直角边的倍率关系",
+                        "按同一倍率把原目标化为两段普通线段之和",
+                        "2*DM+AM=2×（两段普通线段之和）"
+                      ]
+                    },
+                    {
+                      "kind": "weighted_right_triangle",
+                      "value": {
+                        "facts": {
+                          "auxiliary_locus": "1*(x-(-1))-sqrt(3)*y=0",
+                          "auxiliary_locus_kind": "ray",
+                          "auxiliary_point_formula": [
+                            "3*m/4 - 1/4",
+                            "sqrt(3)*(m + 1)/4"
+                          ],
+                          "axis_projection_geometry": {
+                            "attainment_condition": "True",
+                            "auxiliary_to_moving_length": "(3 - sqrt(3))*(b + 3)/6",
+                            "boundary_curve_distance_squared": "2*b**2 + 10*b + 13",
+                            "boundary_fixed_length": "1",
+                            "boundary_minimum_expression": null,
+                            "boundary_point": [
+                              "0",
+                              "0"
+                            ],
+                            "curve_point": [
+                              "b + 2",
+                              "-b - 3"
+                            ],
+                            "curve_to_moving_length": "2*sqrt(3)*(b + 3)/3",
+                            "curve_to_moving_length_squared": "4*(b + 3)**2/3",
+                            "dynamic_constraint": {
+                              "operator": ">",
+                              "value": "0"
+                            },
+                            "dynamic_parameter": "m",
+                            "fixed_moving_decomposition": "projection_minus_horizontal",
+                            "fixed_point": [
+                              "-1",
+                              "0"
+                            ],
+                            "fixed_to_moving_length": "(3 - sqrt(3))*(b + 3)/3",
+                            "fixed_to_projection_length": "b + 3",
+                            "horizontal_leg_length": "sqrt(3)*(b + 3)/3",
+                            "interior_moving_point": [
+                              "-sqrt(3)*b/3 + b - sqrt(3) + 2",
+                              "0"
+                            ],
+                            "kind": "axis_projection_geometric_minimum",
+                            "locus_direction": [
+                              "sqrt(3)",
+                              "1"
+                            ],
+                            "locus_reference_point": [
+                              "0",
+                              "sqrt(3)/3"
+                            ],
+                            "locus_start_point": [
+                              "-1",
+                              "0"
+                            ],
+                            "moving_point_formula": [
+                              "m",
+                              "0"
+                            ],
+                            "parameter": "b",
+                            "parameter_constraint": {
+                              "operator": ">",
+                              "value": "0"
+                            },
+                            "projection_point": [
+                              "b + 2",
+                              "0"
+                            ],
+                            "projection_triangle_relation": {
+                              "kind": "vertical_squared_multiple_of_horizontal",
+                              "multiplier": "3"
+                            },
+                            "scaled_interior_minimum": "b + sqrt(3)*b + 3 + 3*sqrt(3)",
+                            "straightened_length": "(1 + sqrt(3))*(b + 3)/2",
+                            "vertical_leg_length": "b + 3",
+                            "student_projection_point": {
+                              "label": "H",
+                              "coordinates": [
+                                "b + 2",
+                                "0"
+                              ]
+                            },
+                            "student_boundary_point": {
+                              "label": "O",
+                              "coordinates": [
+                                "0",
+                                "0"
+                              ]
+                            }
+                          },
+                          "kind": "weighted_right_triangle",
+                          "orientation_sign": 1,
+                          "path_equivalence": {
+                            "auxiliary_segment": [
+                              "Q",
+                              "M"
+                            ],
+                            "scale": "2",
+                            "unit_segment": [
+                              "A",
+                              "M"
+                            ],
+                            "weighted_segment": [
+                              "D",
+                              "M"
+                            ]
+                          },
+                          "triangle_geometry": {
+                            "height_factor": "sqrt(3)/4",
+                            "hypotenuse_role": "AM",
+                            "hypotenuse_to_leg_scale": "2",
+                            "kind": "weighted_right_triangle",
+                            "leg_factor": "3/4",
+                            "locus_direction": [
+                              "sqrt(3)",
+                              "1"
+                            ],
+                            "right_angle_vertex_role": "Q",
+                            "scaled_leg_role": "QM"
+                          },
+                          "weight": "2",
+                          "student_auxiliary_point": {
+                            "label": "Q",
+                            "coordinates": [
+                              "3*m/4 - 1/4",
+                              "sqrt(3)*(m + 1)/4"
+                            ]
+                          }
+                        }
+                      },
+                      "display": [
+                        "{\"facts\":{\"auxiliary_locus\":\"1*(x-(-1))-sqrt(3)*y=0\",\"auxiliary_locus_kind\":\"ray\",\"auxiliary_point_formula\":[\"3*m/4 - 1/4\",\"sqrt(3)*(m + 1)/4\"],\"axis_projection_geometry\":{\"attainment_condition\":\"True\",\"auxiliary_to_moving_length\":\"(3 - sqrt(3))*(b + 3)/6\",\"boundary_curve_distance_squared\":\"2*b**2 + 10*b + 13\",\"boundary_fixed_length\":\"1\",\"boundary_minimum_expression\":null,\"boundary_point\":[\"0\",\"0\"],\"curve_point\":[\"b + 2\",\"-b - 3\"],\"curve_to_moving_length\":\"2*sqrt(3)*(b + 3)/3\",\"curve_to_moving_length_squared\":\"4*(b + 3)**2/3\",\"dynamic_constraint\":{\"operator\":\">\",\"value\":\"0\"},\"dynamic_parameter\":\"m\",\"fixed_moving_decomposition\":\"projection_minus_horizontal\",\"fixed_point\":[\"-1\",\"0\"],\"fixed_to_moving_length\":\"(3 - sqrt(3))*(b + 3)/3\",\"fixed_to_projection_length\":\"b + 3\",\"horizontal_leg_length\":\"sqrt(3)*(b + 3)/3\",\"interior_moving_point\":[\"-sqrt(3)*b/3 + b - sqrt(3) + 2\",\"0\"],\"kind\":\"axis_projection_geometric_minimum\",\"locus_direction\":[\"sqrt(3)\",\"1\"],\"locus_reference_point\":[\"0\",\"sqrt(3)/3\"],\"locus_start_point\":[\"-1\",\"0\"],\"moving_point_formula\":[\"m\",\"0\"],\"parameter\":\"b\",\"parameter_constraint\":{\"operator\":\">\",\"value\":\"0\"},\"projection_point\":[\"b + 2\",\"0\"],\"projection_triangle_relation\":{\"kind\":\"vertical_squared_multiple_of_horizontal\",\"multiplier\":\"3\"},\"scaled_interior_minimum\":\"b + sqrt(3)*b + 3 + 3*sqrt(3)\",\"straightened_length\":\"(1 + sqrt(3))*(b + 3)/2\",\"vertical_leg_length\":\"b + 3\",\"student_projection_point\":{\"label\":\"H\",\"coordinates\":[\"b + 2\",\"0\"]},\"student_boundary_point\":{\"label\":\"O\",\"coordinates\":[\"0\",\"0\"]}},\"kind\":\"weighted_right_triangle\",\"orientation_sign\":1,\"path_equivalence\":{\"auxiliary_segment\":[\"Q\",\"M\"],\"scale\":\"2\",\"unit_segment\":[\"A\",\"M\"],\"weighted_segment\":[\"D\",\"M\"]},\"triangle_geometry\":{\"height_factor\":\"sqrt(3)/4\",\"hypotenuse_role\":\"AM\",\"hypotenuse_to_leg_scale\":\"2\",\"kind\":\"weighted_right_triangle\",\"leg_factor\":\"3/4\",\"locus_direction\":[\"sqrt(3)\",\"1\"],\"right_angle_vertex_role\":\"Q\",\"scaled_leg_role\":\"QM\"},\"weight\":\"2\",\"student_auxiliary_point\":{\"label\":\"Q\",\"coordinates\":[\"3*m/4 - 1/4\",\"sqrt(3)*(m + 1)/4\"]}}}"
+                      ]
+                    },
+                    {
+                      "kind": "minimum",
+                      "value": {
+                        "strategy": "weighted_triangle_then_reachable_straightening",
+                        "expression": "b + sqrt(3)*(b + 3) + 3"
+                      },
+                      "display": [
+                        "最小值为b+√3(b+3)+3"
+                      ]
+                    },
+                    {
+                      "kind": "attainment",
+                      "value": {
+                        "points": {
+                          "M": [
+                            "-sqrt(3)*b/3 + b - sqrt(3) + 2",
+                            "0"
+                          ]
+                        }
+                      },
+                      "display": [
+                        "取等点为M(-√3b/3+b-√3+2,0)"
+                      ]
+                    }
+                  ],
+                  "materials": [
+                    {
+                      "step_ref": "s1",
+                      "title": "构造辅助直角三角形消去路径权重",
+                      "nav_title": "消去路径权重",
+                      "goal": "把加权线段转化为同倍率普通线段，得到等价折线路径。",
+                      "derive": [
+                        "作 在 x 轴上方作 Rt△AQM，使 ∠AQM＝90°，∠QAM＝30°",
+                        "∵ 在 Rt△AQM 中，30° 角所对的边为 QM",
+                        "∴ AM＝2·QM",
+                        "∴ 2DM＋AM＝2DM＋2QM",
+                        "∴ 2DM＋AM＝2(DM＋QM)",
+                        "∵ M 在 x 轴上运动",
+                        "∴ Q 在过 A 且经过 y 轴正半轴点 (0,√3/3) 的 30° 固定射线 y＝√3(x＋1)/3 上运动"
+                      ],
+                      "conclusions": [
+                        "2DM＋AM＝2(DM＋QM)"
+                      ]
+                    },
+                    {
+                      "step_ref": "s2",
+                      "title": "拉直折线求路径最小值",
+                      "nav_title": "几何求最值",
+                      "goal": "把普通折线拉直，由图中的最短路径直接得到最小值，并说明取等条件。",
+                      "derive": [
+                        "∵ 两点之间线段最短",
+                        "∴ DM＋MQ≥DQ",
+                        "∴ 当 D、M、Q 三点共线时，折线最短",
+                        "∵ Q 在过 A 且经过 y 轴正半轴点 (0,√3/3) 的 30° 固定射线 y＝√3(x＋1)/3 上运动",
+                        "∴ 最短时 DQ⊥AQ",
+                        "∵ 取等时 M((－√3b＋3b－3√3＋6)/3,0)，且 M 在 x 轴正半轴上",
+                        "∴ 取等状态在定义域内恒成立",
+                        "∴ 此时 2DM＋AM 的最小值为 b＋√3b＋3＋3√3"
+                      ],
+                      "conclusions": [
+                        "最小值为 b＋√3b＋3＋3√3"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "inputs": {
+                    "expression": [
+                      {
+                        "type": "MinimumExpression",
+                        "value": "b + sqrt(3)*(b + 3) + 3",
+                        "display": "b+√3(b+3)+3"
+                      }
+                    ],
+                    "minimum_value": [
+                      {
+                        "type": "minimum_value",
+                        "value": {
+                          "description": "minimum value given",
+                          "path": "2*DM+AM",
+                          "type": "minimum_value",
+                          "value": "5 + 5*sqrt(3)"
+                        },
+                        "display": "2DM+AM=5+5√3"
+                      }
+                    ],
+                    "parameter": [
+                      {
+                        "type": "ParameterValue",
+                        "value": "b",
+                        "display": "b"
+                      }
+                    ]
+                  },
+                  "outputs": {
+                    "parameter_value": {
+                      "type": "ParameterValue",
+                      "value": "2",
+                      "display": "2"
+                    }
+                  },
+                  "calculations": [
+                    {
+                      "kind": "equation_system",
+                      "value": {
+                        "equations": [
+                          "Eq(b + sqrt(3)*(b + 3) + 3, 5 + 5*sqrt(3))"
+                        ],
+                        "sources": [
+                          "expression",
+                          "condition"
+                        ]
+                      },
+                      "display": [
+                        "b+√3(b+3)+3＝5+5√3"
+                      ]
+                    },
+                    {
+                      "kind": "substitution",
+                      "value": {
+                        "values": [
+                          {
+                            "symbol": "b",
+                            "value": "2"
+                          }
+                        ]
+                      },
+                      "display": [
+                        "b＝2"
+                      ]
+                    },
+                    {
+                      "kind": "solution",
+                      "value": {
+                        "target": "b",
+                        "value": "2"
+                      },
+                      "display": [
+                        "b＝2"
+                      ]
+                    }
+                  ],
+                  "materials": [
+                    {
+                      "step_ref": "s3",
+                      "title": "由表达式取值反求参数",
+                      "nav_title": "反求参数",
+                      "goal": "把题设给定值代入已得到的表达式，解出参数并筛选合法分支。",
+                      "derive": [
+                        "∵ 题设要求 b＋√3(b＋3)＋3＝5＋5√3",
+                        "计算 解方程，得 b＝2",
+                        "∴ b＝2"
+                      ],
+                      "conclusions": [
+                        "b＝2"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

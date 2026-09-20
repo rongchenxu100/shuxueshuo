@@ -1,0 +1,28 @@
+{
+  "implementation_files": {
+    "__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+    "algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+    "authoring.py": "39eb52e27fa9b797bc230bddf005aeb14dd7478e8e854fedd8cc180eaa86b611",
+    "comparison.py": "e0c66d1ff17160e2e09665c67a8262167cc5d35be47f7e462e40552f5b1995cc",
+    "contracts.py": "8260b605391f7ba58ae6a5092393f86294e34fe9879a8b18fe9634be47f9803f",
+    "identity.py": "928775ee9a74fd4113141f4f606a6f9b740be39d62d77b26e43b91159ab06ed8",
+    "measure.py": "d0695b65cc5fd31d9deaf98cd78cb36b5b4e61c71fd5518e0daf7e1850215e99",
+    "prompt.py": "5abd8e7fb654fde7203edbaf4e216ab192698c0cb274ae4ad8937a9cda47569b",
+    "service.py": "71a58ff4896850870e85ba5ffbf454f6850629729d3ab22c5ca6c25e032bab38",
+    "smoke.py": "f3ec81e04d458a6240e82e374cd8b441ec7888a99da55822693bf51eaa26fa84",
+    "validation.py": "d9dde956603e698294c74abb30336b8cdf227694302bb61cdffd69151abc98f8"
+  },
+  "authoring_policy": "problem-ir-authoring/v6",
+  "authoring_schema_hash": "fd6c1b08b0fbf26aabffdf4091dafdcf3dd0bce7d923c3589d338e083903d17e",
+  "system_prompt_hash": "0acb3cf748dda77dae8cc8d9a553b7410de933f9b43282659767437ac4bc12b5",
+  "contracts": {
+    "problem-domain/v2": "0958a249348abbd9c3608f60b69df2eb83ec89c1197faec4d4ed76c325c92e66"
+  },
+  "request_hash": "0be377860420225e7920db8a904f83ee53fda14f5a535d8ac2f22200f03976c5",
+  "gold_sha256": "cb7cb8e1ee816ba01e1693ededdaf51c7fc9593fbe8748d2b0f044a803c622ae",
+  "image_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+  "semantic_budget": 1,
+  "network_budget": 2,
+  "sdk_retries": 0,
+  "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+}

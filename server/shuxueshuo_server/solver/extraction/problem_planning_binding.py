@@ -21,7 +21,7 @@ from shuxueshuo_server.solver.extraction.problem_domain_projection import (
 )
 from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
     ProblemBundleAuthorityToken,
-    VerifiedSolverProblemBundle,
+    SolverProblemBundle,
 )
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.runtime.functional_plan_models import (
@@ -1705,7 +1705,7 @@ class ProblemPlanningBindingCatalogBuilder:
 
     def build(
         self,
-        bundle: VerifiedSolverProblemBundle,
+        bundle: SolverProblemBundle,
         planning_context: ProblemPlanningContext,
         planner_state_context: PlannerStateContext,
         handle_registry: CanonicalHandleRegistry,
@@ -2513,7 +2513,7 @@ def build_functional_problem_binding_context(
 
 
 def _audit_authority_inputs(
-    bundle: VerifiedSolverProblemBundle,
+    bundle: SolverProblemBundle,
     planning_context: ProblemPlanningContext,
     planner_state_context: PlannerStateContext,
     handle_registry: CanonicalHandleRegistry,
@@ -2533,7 +2533,7 @@ def _audit_authority_inputs(
             "planning Context was not derived from this bundle",
         )
     if (
-        planning_context.problem_id != bundle.verified_problem.graph.problem_id
+        planning_context.problem_id != bundle.problem_id
         or planner_state_context.manifest.problem_id != planning_context.problem_id
     ):
         raise _error(
@@ -2542,7 +2542,7 @@ def _audit_authority_inputs(
             "problem identity differs across binding authorities",
         )
     if (
-        planning_context.family_id != bundle.verified_problem.family_id
+        planning_context.family_id != bundle.family_id
         or planner_state_context.manifest.family_id != planning_context.family_id
     ):
         raise _error(
@@ -2839,13 +2839,13 @@ def _pinned_source_version_id(
 
 
 def _goal_target_handles(
-    bundle: VerifiedSolverProblemBundle,
+    bundle: SolverProblemBundle,
 ) -> dict[str, str]:
     """Resolve source Goal targets without extending canonical Solver wire."""
 
-    index = ProblemDomainIndex(bundle.verified_problem.graph)
+    index = ProblemDomainIndex(bundle.source_graph)
     result: dict[str, str] = {}
-    for scope in bundle.verified_problem.graph.root_scope.iter_scopes():
+    for scope in bundle.source_graph.root_scope.iter_scopes():
         for goal in scope.goals:
             target = goal.attributes.get("target")
             if not isinstance(target, str):

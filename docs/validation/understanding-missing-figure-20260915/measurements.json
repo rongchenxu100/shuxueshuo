@@ -1,0 +1,24 @@
+{
+  "policy": "Unicode characters; compact JSON ensure_ascii=False; image base64 excluded",
+  "schema_characters": 15054,
+  "canonical_schema_characters": 21133,
+  "ocr_auxiliary_characters": 955,
+  "original_observation_characters": 29629,
+  "example_characters": 555,
+  "organization_example_characters": 1189,
+  "system_characters": 1471,
+  "registry_characters": 2455,
+  "prompt_text_characters": 21826,
+  "gold_output_characters": 5418,
+  "schema_hash": "fd6c1b08b0fbf26aabffdf4091dafdcf3dd0bce7d923c3589d338e083903d17e",
+  "historical_schema_characters": [
+    18599,
+    32838,
+    21389
+  ],
+  "schema_reduction_percent": {
+    "18599": 19.06,
+    "32838": 54.16,
+    "21389": 29.62
+  }
+}

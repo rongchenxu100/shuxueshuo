@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>synthetic-line_intersection_point | 数学说</title>
+  <meta name="description" content="本题数学综合：综合解题。" />
+  <meta property="og:title" content="synthetic-line_intersection_point | 数学说" />
+  <meta property="og:description" content="本题数学综合：综合解题。" />
+  <meta property="og:image" content="../../../../../site/assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../../site/assets/css/interactive-geometry-page.css?v=40" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../../site/index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../../site/nav/index.html">题库导航</a>
+    <span class="lesson-title">synthetic-line_intersection_point</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>已知直线 AB 与 CD 相交于 H，求 H 的坐标。</span><span class="answer-chip" id="answer_problem_H">H(2, 2)</span></div>
+          </div>
+        </section>
+
+        
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../../site/assets/js/baidu-stats.js"></script>
+  <script src="../../../../../site/assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../../site/assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../../site/assets/js/lesson-page-runtime.js?v=50"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"teach:synthetic_line_intersection_point","section":"合成验收","title":"第1步：求两直线交点","t":0.75,"derive":[["∵","第一条直线经过 A(0,0)、B(4,4)，其方程为 y＝x"],["∵","第二条直线经过 C(0,4)、D(4,0)，其方程为 y＝－x＋4"],["计算","联立 y＝x 与 y＝－x＋4，解得 x＝2，y＝2"],["∴","交点为 H(2,2)"]],"box":["H(2,2)"]}];
+    var STEP_LABELS = {"teach:synthetic_line_intersection_point":"1 求交点"};
+    var POLICIES   = {"teach:synthetic_line_intersection_point":{"movable":false,"range":[0.75,0.75]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"version":1,"id":"synthetic-line_intersection_point","domain":{"minX":-0.8,"maxX":4.8,"minY":-0.8,"maxY":4.8},"movingParam":"t","expressionEnv":[],"fixedPoints":{"point_A_problem":["0","0"],"point_B_problem":["4","4"],"point_C_problem":["0","4"],"point_D_problem":["4","0"],"point_H_problem":["2","2"]},"movingPoints":{},"pointMeta":{"point_A_problem":{"label":"A","scopeId":"problem","scopeRoot":"problem","definition":"given_point","sourceRef":"point:problem:A"},"point_B_problem":{"label":"B","scopeId":"problem","scopeRoot":"problem","definition":"given_point","sourceRef":"point:problem:B"},"point_C_problem":{"label":"C","scopeId":"problem","scopeRoot":"problem","definition":"given_point","sourceRef":"point:problem:C"},"point_D_problem":{"label":"D","scopeId":"problem","scopeRoot":"problem","definition":"given_point","sourceRef":"point:problem:D"},"point_H_problem":{"label":"H","scopeId":"problem","scopeRoot":"problem","definition":"runtime_point_output","sourceStepIds":["synthetic_line_intersection_point"]}},"curves":[],"derivedIntersections":[]}</script>
+<script src="../../../../../site/assets/js/geometry-engine.js"></script>
+<script src="../../../../../site/assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"steps":{"teach:synthetic_line_intersection_point":{"visualMode":"scene","visualFrames":[{"id":"frame:teach:synthetic_line_intersection_point:1","caption":"求交点","teachingUnitKeys":["line_intersection_point/solve_intersection"],"domain":{"minX":-0.72,"maxX":4.72,"minY":-2.08,"maxY":6.08},"add":[{"type":"grid"},{"from":"point_A_problem","to":"point_B_problem","color":"#0f766e","width":2,"dash":"","type":"coloredLine"},{"at":"point_A_problem","labelText":"A","color":"#64748b","dx":14,"dy":-18,"type":"point","opacity":0.58},{"at":"point_B_problem","labelText":"B","color":"#64748b","dx":14,"dy":-18,"type":"point","opacity":0.58},{"from":"point_C_problem","to":"point_D_problem","color":"#0f766e","width":2,"dash":"","type":"coloredLine"},{"at":"point_C_problem","labelText":"C","color":"#64748b","dx":14,"dy":-18,"type":"point","opacity":0.58},{"at":"point_D_problem","labelText":"D","color":"#64748b","dx":14,"dy":-18,"type":"point","opacity":0.58},{"at":"point_H_problem","labelText":"H","color":"#b45309","dx":14,"dy":-18,"showLabel":false,"type":"point"},{"at":"point_H_problem","text":"H(2,2)","dx":14,"dy":-30,"type":"coordinateLabel"}]}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"problem":"合成验收","合成验收":"合成验收"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var diagramMarkupForVisualFrame = renderer.diagramMarkupForVisualFrame;
+  var visualFramesFor = renderer.visualFramesFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      diagramMarkupForVisualFrame: typeof diagramMarkupForVisualFrame === "function" ? diagramMarkupForVisualFrame : undefined,
+      visualFramesFor: typeof visualFramesFor === "function" ? visualFramesFor : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "t=",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

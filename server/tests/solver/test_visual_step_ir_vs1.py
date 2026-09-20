@@ -132,6 +132,8 @@ def test_visual_sympy_pair_uses_shared_axis_parameter_and_power_normalization() 
 
 
 def test_visual_specs_dispatch_only_through_component_registries() -> None:
+    from shuxueshuo_server.solver.visual.text_builder import TEXT_VISUAL_BINDERS
+
     methods = MethodSpecRegistry.load_from_code()
     recipes = RecipeSpecRegistry.load_from_code()
     method_components = {
@@ -139,6 +141,14 @@ def test_visual_specs_dispatch_only_through_component_registries() -> None:
         for spec in methods.specs.values()
         if spec.visual is not None
         for template in spec.visual.scene_templates
+        if "component" in template
+    }
+    text_components = {
+        (str(template.get("kind") or ""), spec.visual.role_binder_id)
+        for spec in methods.specs.values()
+        if spec.visual is not None
+        for template in spec.visual.scene_templates
+        if "component" not in template
     }
     recipe_components = {
         str(template.get("component") or "")
@@ -149,6 +159,7 @@ def test_visual_specs_dispatch_only_through_component_registries() -> None:
     }
 
     assert method_components <= set(visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS)
+    assert text_components <= {(kind, kind) for kind in TEXT_VISUAL_BINDERS}
     assert recipe_components <= set(visual_builder._RECIPE_VISUAL_TEMPLATE_RENDERERS)
     assert "CurvePointCandidateMarker" in visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS
     assert "LineParabolaIntersectionMarker" in visual_builder._METHOD_VISUAL_TEMPLATE_RENDERERS
@@ -814,6 +825,72 @@ def test_role_binder_resolves_same_label_by_current_branch(
     assert binder.geometry_point_name("B", "i_2") == "point_B_i_2"
     assert binder.geometry_point_name("B", "ii") == "point_B_ii"
     assert binder.geometry_point_name("O", "ii") == "O"
+
+
+def test_typed_relation_prefers_parent_scope_point_over_evaluated_duplicate() -> None:
+    geometry = {
+        "fixedPoints": {"point_D_ii": ["1", "0"]},
+        "movingPoints": {
+            "point_M_ii_1": ["m", "1"],
+            "point_M_ii_2": ["8", "1"],
+        },
+        "pointMeta": {
+            "point_D_ii": {"label": "D", "scopeId": "ii", "scopeRoot": "ii"},
+            "point_M_ii_1": {
+                "label": "M",
+                "scopeId": "ii_1",
+                "scopeRoot": "ii",
+                "definition": "runtime_point_output",
+            },
+            "point_M_ii_2": {
+                "label": "M",
+                "scopeId": "ii_2",
+                "scopeRoot": "ii",
+                "definition": "runtime_point_output",
+            },
+        },
+        "curves": [],
+    }
+    problem = {
+        "entities": [
+            {
+                "entity_type": "point",
+                "handle": "point:ii:M",
+                "name": "M",
+                "coordinate": ["m", "1"],
+                "scope_id": "ii",
+            }
+        ],
+        "facts": [],
+    }
+    binder = VisualRoleBinderRegistry.default(geometry, problem)
+    source = TeachingSource(
+        source_step_id="solve_N",
+        capability_id="right_angle_equal_length_construct_and_select",
+        inputs={
+            "right_angle_equal_length": (
+                {
+                    "runtime_type": "right_angle_equal_length",
+                    "value": {"angle": ["M", "D", "N"]},
+                },
+            )
+        },
+        outputs={"selected_target_point": {"runtime_type": "Point"}},
+        output_targets={"selected_target_point": "N"},
+    )
+    roles = binder._typed_relation_input_roles(
+        {
+            "right_angle_equal_length": [
+                {
+                    "runtime_type": "right_angle_equal_length",
+                    "value": {"angle": ["M", "D", "N"]},
+                }
+            ]
+        },
+        source=source,
+        scope_id="ii",
+    )
+    assert roles["reference"][0]["geometry_ref"] == "point_M_ii_1"
 
 
 def test_compiler_uses_only_frame_local_scene_payloads(

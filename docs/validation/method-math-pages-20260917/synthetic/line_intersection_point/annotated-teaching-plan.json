@@ -1,0 +1,109 @@
+{
+  "problem": {
+    "original_text": [
+      "已知直线 AB 与 CD 相交于 H，求 H 的坐标。"
+    ],
+    "scope_labels": {
+      "problem": "合成验收"
+    }
+  },
+  "answers": {
+    "problem.H": {
+      "type": "Point",
+      "value": [
+        "2",
+        "2"
+      ],
+      "display": "H(2,2)"
+    }
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": {
+      "problem.H": [
+        {
+          "inputs": {
+            "line1_p1": [
+              {
+                "type": "Point",
+                "value": [
+                  "0",
+                  "0"
+                ],
+                "display": "A(0,0)"
+              }
+            ],
+            "line1_p2": [
+              {
+                "type": "Point",
+                "value": [
+                  "4",
+                  "4"
+                ],
+                "display": "B(4,4)"
+              }
+            ],
+            "line2_p1": [
+              {
+                "type": "Point",
+                "value": [
+                  "0",
+                  "4"
+                ],
+                "display": "C(0,4)"
+              }
+            ],
+            "line2_p2": [
+              {
+                "type": "Point",
+                "value": [
+                  "4",
+                  "0"
+                ],
+                "display": "D(4,0)"
+              }
+            ],
+            "target": [
+              {
+                "type": "PointRef",
+                "value": {
+                  "entity_type": "point",
+                  "name": "H",
+                  "description": "H"
+                },
+                "display": "H"
+              }
+            ]
+          },
+          "outputs": {
+            "intersection": {
+              "type": "Point",
+              "value": [
+                "2",
+                "2"
+              ],
+              "display": "H(2,2)"
+            }
+          },
+          "materials": [
+            {
+              "step_ref": "s1",
+              "title": "求两直线交点",
+              "nav_title": "求交点",
+              "goal": "分别建立两条直线的方程并联立，求出公共交点。",
+              "derive": [
+                "∵ 第一条直线经过 A(0,0)、B(4,4)，其方程为 y＝x",
+                "∵ 第二条直线经过 C(0,4)、D(4,0)，其方程为 y＝－x＋4",
+                "计算 联立 y＝x 与 y＝－x＋4，解得 x＝2，y＝2",
+                "∴ 交点为 H(2,2)"
+              ],
+              "conclusions": [
+                "H(2,2)"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

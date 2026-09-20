@@ -5,9 +5,12 @@ import pytest
 
 from shuxueshuo_server.review.dependencies import collect, spec_parts, manifest, changes, INPUTS, KEYS
 
-CONFIG = SimpleNamespace(doubao_model='extract', doubao_base_url='url', llm_model=None,
+CONFIG = SimpleNamespace(problem_vision_provider='deepseek', deepseek_vision_model='deepseek-flash',
+                         deepseek_vision_base_url='https://api.deepseek.com', deepseek_vision_timeout=300,
+                         deepseek_vision_max_tokens=16384, llm_model=None,
                          deepseek_model='solve', deepseek_base_url='url', max_llm_attempts=3,
-                         functional_few_shot_mode='strict_test')
+                         functional_few_shot_mode='strict_test',
+                         argument_encoding='source-ref')
 
 
 def put(root, path, text):
@@ -60,6 +63,15 @@ def test_ignore_outputs_and_config(tmp_path):
     assert [s for s in KEYS if before['stages'][s] != after['stages'][s]] == ['solver', 'lesson']
 
 
+def test_independent_understanding_workflow_has_its_own_dependency_owner(tmp_path):
+    before = collect(tmp_path, CONFIG)
+    put(tmp_path, 'server/shuxueshuo_server/problem_understanding/runtime_binding.py', 'pass')
+    # Runtime binding is a projection/runtime dependency.  It must not
+    # invalidate the extraction owner, but it does invalidate projection.
+    after = collect(tmp_path, CONFIG)
+    assert [s for s in KEYS if before['stages'][s] != after['stages'][s]] == ['projection']
+
+
 def test_input_edges_are_distinct_from_audit_edges(tmp_path):
     snapshot = collect(tmp_path, CONFIG)
     artifacts = [{'stage': s, 'name': n, 'sha256': 'hash', 'dependencies': ['unrelated']} for deps in INPUTS.values() for s, n in deps]
@@ -90,3 +102,10 @@ def test_product_persistence_is_not_a_review_math_dependency(tmp_path):
     put(tmp_path, 'server/shuxueshuo_server/product/services.py', '# independent PostgreSQL service')
     after = collect(tmp_path, CONFIG)
     assert before == after
+
+
+@pytest.mark.parametrize('field,value', [('deepseek_vision_timeout', 200), ('deepseek_vision_max_tokens', 12000), ('deepseek_vision_base_url', 'https://vision.example')])
+def test_vision_config_changes_only_extraction_fingerprint(tmp_path, field, value):
+    before = collect(tmp_path, CONFIG)
+    after = collect(tmp_path, SimpleNamespace(**{**vars(CONFIG), field: value}))
+    assert [s for s in KEYS if before['stages'][s] != after['stages'][s]] == ['extraction']

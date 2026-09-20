@@ -1,0 +1,273 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "tj-2026-heping-yimo-25",
+    "source_sha256": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "match": {
+      "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+      "match_status": "matched",
+      "match_reason": "题面包含二次函数抛物线、射线 CD 上的动点 N、等长条件 CN=CM，且等长条件参与 OM+BN 路径最小值的等价替换，符合 QuadraticEqualLengthRayPathMinimumSolver 的 use_when。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": false,
+      "issues": [
+        {
+          "path": "r.definitions[0]",
+          "source": "抛物线 y = a*x^2 + b*x - 3（a,b为常数，a>0）",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.definitions[1]",
+          "source": "A = (-1,0)，B 为抛物线与x轴的另一交点",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.definitions[2]",
+          "source": "C 为抛物线与y轴的交点",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.definitions[4]",
+          "source": "线段BC",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.facts[0]",
+          "source": "A ∈ 抛物线",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 3:  抛物线"
+        },
+        {
+          "path": "r.facts[1]",
+          "source": "B ∈ 抛物线 ∩ x_axis",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 3:  抛物线 ∩ x_axi"
+        },
+        {
+          "path": "r.facts[2]",
+          "source": "C ∈ 抛物线 ∩ y_axis",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 3:  抛物线 ∩ y_axi"
+        },
+        {
+          "path": "r.definitions[3]",
+          "source": "D = C + (2,0)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:C"
+        },
+        {
+          "path": "r.facts[3]",
+          "source": "D = C + (2,0)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:C"
+        },
+        {
+          "path": "r.c0.facts[0]",
+          "source": "D ∈ 抛物线",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 3:  抛物线"
+        },
+        {
+          "path": "r.c0.c0.goals[0]",
+          "source": {
+            "kind": "find_equation",
+            "object": "该抛物线"
+          },
+          "code": "notation.goal",
+          "message": "notation.unrecognized_token at 0: 该抛物线"
+        },
+        {
+          "path": "r.c0.c1.definitions[0]",
+          "source": "E 为抛物线上的点，横坐标为 m",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c0.c1.facts[0]",
+          "source": "x(E) = m",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:E"
+        },
+        {
+          "path": "r.c0.c1.facts[2]",
+          "source": "∠CBE + ∠ACO = 45°",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:C"
+        },
+        {
+          "path": "r.c0.c1.goals[0]",
+          "source": {
+            "kind": "find_coordinates",
+            "object": "E"
+          },
+          "code": "notation.goal",
+          "message": "binding.unknown_or_invisible:E"
+        },
+        {
+          "path": "r.c1.definitions[0]",
+          "source": "M 为线段 BC 上一动点",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c1.definitions[1]",
+          "source": "N 为射线 CD 上一动点",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c1.facts[0]",
+          "source": "M ∈ segment(B,C)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:B"
+        },
+        {
+          "path": "r.c1.facts[1]",
+          "source": "N ∈ ray(C,D)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:C"
+        },
+        {
+          "path": "r.c1.facts[2]",
+          "source": "CN = CM",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:C"
+        },
+        {
+          "path": "r.c1.facts[3]",
+          "source": "min(OM + BN) = √34",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:O"
+        },
+        {
+          "path": "r.c1.goals[0]",
+          "source": {
+            "kind": "find_value",
+            "expression": "a",
+            "at": "OM+BN取得最小值 √34 时"
+          },
+          "code": "notation.goal",
+          "message": "notation.unrecognized_token at 5: 取得最小值 √34 时"
+        }
+      ],
+      "defaults": [
+        {
+          "ref": "r.c0.c1:scalar:m",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c1:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r"
+        },
+        {
+          "ref": "r.c0.c1:scalar:m",
+          "name": "m",
+          "kind": "scalar",
+          "scope": "r.c0.c1"
+        },
+        {
+          "ref": "r.c1:point:M",
+          "name": "M",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:N",
+          "name": "N",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r.c1"
+        }
+      ],
+      "well_definedness_obligations": []
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:3aeaff814ca4268fbc05539353f4246f731eef082434ba95ef1ce4b19e447f98",
+      "kind": "notation_raw",
+      "sha256": "3aeaff814ca4268fbc05539353f4246f731eef082434ba95ef1ce4b19e447f98",
+      "media_type": "text/plain",
+      "byte_size": 2211,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-heping-yimo-25/artifacts/3a/3aeaff814ca4268fbc05539353f4246f731eef082434ba95ef1ce4b19e447f98.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:cc5c07cf704aa8e16cae90d8909b991a981747a855ee59f2ac1744e1c7700aae",
+      "kind": "notation_candidate",
+      "sha256": "cc5c07cf704aa8e16cae90d8909b991a981747a855ee59f2ac1744e1c7700aae",
+      "media_type": "application/json",
+      "byte_size": 1388,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-heping-yimo-25/artifacts/cc/cc5c07cf704aa8e16cae90d8909b991a981747a855ee59f2ac1744e1c7700aae.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:8ffeef3e4b0d3c5b4adae71fbd26a9c6f99dda7d83032d1dcf5ff509362e22aa",
+      "kind": "notation_normalized",
+      "sha256": "8ffeef3e4b0d3c5b4adae71fbd26a9c6f99dda7d83032d1dcf5ff509362e22aa",
+      "media_type": "application/json",
+      "byte_size": 1573,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-heping-yimo-25/artifacts/8f/8ffeef3e4b0d3c5b4adae71fbd26a9c6f99dda7d83032d1dcf5ff509362e22aa.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:57377da08ab074914203abaaaf88a452981195556770b84a9f7ab2020258c2b9",
+      "kind": "notation_compiled",
+      "sha256": "57377da08ab074914203abaaaf88a452981195556770b84a9f7ab2020258c2b9",
+      "media_type": "application/json",
+      "byte_size": 1226,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-heping-yimo-25/artifacts/57/57377da08ab074914203abaaaf88a452981195556770b84a9f7ab2020258c2b9.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f",
+      "kind": "notation_continuation",
+      "sha256": "167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f",
+      "media_type": "application/json",
+      "byte_size": 45,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-heping-yimo-25/artifacts/16/167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:8db65c3251bfbf847cd8378fceee163691162ceec2f406fbf8e2122337cf78a3",
+      "kind": "notation_validation",
+      "sha256": "8db65c3251bfbf847cd8378fceee163691162ceec2f406fbf8e2122337cf78a3",
+      "media_type": "application/json",
+      "byte_size": 3613,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-heping-yimo-25/artifacts/8d/8db65c3251bfbf847cd8378fceee163691162ceec2f406fbf8e2122337cf78a3.json"
+    }
+  },
+  "contract_valid": false,
+  "continuation": {
+    "status": "invalid_candidate",
+    "blocked": true
+  },
+  "revision": "cc5c07cf704aa8e16cae90d8909b991a981747a855ee59f2ac1744e1c7700aae"
+}

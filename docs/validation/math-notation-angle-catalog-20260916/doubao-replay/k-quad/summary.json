@@ -1,0 +1,48 @@
+{
+  "offline_replay_only": true,
+  "live_passed": false,
+  "replay_passed": false,
+  "json_schema_valid": true,
+  "match_correct": true,
+  "original_parse_issues": 1,
+  "replay_parse_issues": 0,
+  "continuation": {
+    "status": "needs_confirmation",
+    "blocked": true,
+    "error_code": "extraction.missing_figure",
+    "user_action": "supplement_image",
+    "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+    "missing_figures": [
+      {
+        "scope": "r.c0.c0",
+        "label": "图1",
+        "text": "题面引用图1，本次输入未提供该几何示意图。"
+      },
+      {
+        "scope": "r.c0.c1",
+        "label": "图2",
+        "text": "题面引用图2，本次输入未提供该几何示意图。"
+      },
+      {
+        "scope": "r.c1",
+        "label": "(2)",
+        "text": "题面引用图3，本次输入未提供该几何示意图。"
+      },
+      {
+        "scope": "r.c2",
+        "label": "(3)",
+        "text": "题面引用图4，本次输入未提供该几何示意图。"
+      }
+    ]
+  },
+  "elapsed_seconds": 86.199,
+  "usage": {
+    "completion_tokens": 5272,
+    "prompt_tokens": 11146,
+    "total_tokens": 16418
+  },
+  "finish_reason": "stop",
+  "raw_response_sha256": "e7699fbfa4130e1c939ab767601e3ecadaf80a036cd220c440976d516457b7ff",
+  "frozen_request_sha256": "216cdd49986cc738719c59b41db0d26203cb1632d21ce2fd9ccf126514444823",
+  "request_contract": "problem-math-notation/v1"
+}

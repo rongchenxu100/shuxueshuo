@@ -1,0 +1,344 @@
+[
+  {
+    "id": "positive_axis_omission",
+    "source": "点P在y轴正半轴上。",
+    "candidate": {
+      "root": {
+        "facts": [
+          "P ∈ y_axis"
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "点P在y轴正半轴上。"
+    },
+    "review": {
+      "status": "correction_required",
+      "findings": [
+        {
+          "path": "/root",
+          "kind": "missing_condition",
+          "source_excerpt": "点P在y轴正半轴上",
+          "message": "候选只保留轴归属，漏掉严格的正半轴范围。"
+        }
+      ]
+    }
+  },
+  {
+    "id": "ratio_object",
+    "source": "直线UV平分线段PQ，交点将UV截得的两段之比为r（未指定方向）。",
+    "candidate": {
+      "root": {
+        "facts": [
+          "bisects(UV,PQ)",
+          "cut_ratio(PQ,UV)=r ∨ cut_ratio(PQ,UV)=1/r"
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "直线UV平分线段PQ，交点将UV截得的两段之比为r（未指定方向）。"
+    },
+    "review": {
+      "status": "correction_required",
+      "findings": [
+        {
+          "path": "/root/facts/1",
+          "kind": "wrong_expression",
+          "source_excerpt": "UV截得的两段之比",
+          "message": "候选取比对象是PQ，原题取比对象是UV；不能仅交换两条线的参数。"
+        }
+      ]
+    }
+  },
+  {
+    "id": "local_condition",
+    "source": "参数s。第一问求s+2；第二问当s=3时求s^2。",
+    "candidate": {
+      "root": {
+        "facts": [
+          "s=3"
+        ],
+        "children": [
+          {
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "s+2"
+              }
+            ]
+          },
+          {
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "s^2"
+              }
+            ]
+          }
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "参数s。第一问求s+2；第二问当s=3时求s^2。"
+    },
+    "review": {
+      "status": "correction_required",
+      "findings": [
+        {
+          "path": "/root",
+          "kind": "wrong_scope",
+          "source_excerpt": "第二问当s=3时",
+          "message": "局部条件被放到公共根节点，错误地作用于第一问。"
+        }
+      ]
+    }
+  },
+  {
+    "id": "equivalent_radical",
+    "source": "函数h(t)=根号(t+5)，求h(2)。",
+    "candidate": {
+      "root": {
+        "definitions": [
+          "h(t)=√(t+5)"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "h(2)"
+          }
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "函数h(t)=根号(t+5)，求h(2)。"
+    },
+    "review": {
+      "status": "confirmed",
+      "findings": []
+    }
+  },
+  {
+    "id": "inherited_condition",
+    "source": "点Q在x轴正半轴。第一问求Q的坐标。",
+    "candidate": {
+      "root": {
+        "facts": [
+          "Q∈x_axis",
+          "x(Q)>0"
+        ],
+        "children": [
+          {
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "Q"
+              }
+            ]
+          }
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "点Q在x轴正半轴。第一问求Q的坐标。"
+    },
+    "review": {
+      "status": "confirmed",
+      "findings": []
+    }
+  },
+  {
+    "id": "reported_missing_figure",
+    "source": "如图乙，点R在线段ST上，求RS。本示例图片只有文字，未提供图乙。",
+    "candidate": {
+      "root": {
+        "facts": [
+          "R∈segment(S,T)"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "RS"
+          }
+        ],
+        "uncertainties": [
+          {
+            "kind": "missing_figure",
+            "text": "引用图乙，但本次图片未提供。"
+          }
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "如图乙，点R在线段ST上，求RS。"
+    },
+    "review": {
+      "status": "confirmed",
+      "findings": []
+    }
+  },
+  {
+    "id": "unreadable_relation",
+    "source": "模拟可读性情境：印刷文字为“参数r [模糊关系符号] 2”，回看仍无法区分 > 与 ≥，其他位置没有说明。",
+    "candidate": {
+      "root": {
+        "facts": [
+          "r>2"
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "参数r [无法辨认] 2。"
+    },
+    "review": {
+      "status": "uncertain",
+      "findings": [
+        {
+          "path": "/root/facts/0",
+          "kind": "unreadable",
+          "source_excerpt": "参数r [关系符号模糊] 2",
+          "message": "无法从原图区分严格或非严格不等式；候选合法或常见题型都不能证明应读作 >。"
+        }
+      ]
+    }
+  },
+  {
+    "id": "readable_relation_control",
+    "source": "模拟可读性情境：印刷文字“参数r≥2”中的 ≥ 清晰可辨。",
+    "candidate": {
+      "root": {
+        "facts": [
+          "r>=2"
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "参数r≥2。"
+    },
+    "review": {
+      "status": "confirmed",
+      "findings": []
+    }
+  },
+  {
+    "id": "local_state_scope",
+    "source": "点P(t,t²)，求y(P)的最小值，并求取得最小值时P的坐标。",
+    "candidate": {
+      "root": {
+        "facts": [
+          "P=(t,t^2)"
+        ],
+        "goals": [
+          {
+            "kind": "find_minimum",
+            "expression": "y(P)"
+          }
+        ],
+        "children": [
+          {
+            "facts": [
+              "y(P)=min(y(P))"
+            ],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "P"
+              }
+            ]
+          }
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "点P(t,t²)，求y(P)的最小值，并求取得最小值时P的坐标。"
+    },
+    "review": {
+      "status": "confirmed",
+      "findings": []
+    }
+  },
+  {
+    "id": "promoted_state_scope",
+    "source": "点P(t,t²)，求y(P)的最小值，并求取得最小值时P的坐标。",
+    "candidate": {
+      "root": {
+        "facts": [
+          "P=(t,t^2)",
+          "y(P)=min(y(P))"
+        ],
+        "goals": [
+          {
+            "kind": "find_minimum",
+            "expression": "y(P)"
+          }
+        ],
+        "children": [
+          {
+            "facts": [],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "P"
+              }
+            ]
+          }
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立机制例",
+      "original_text": "点P(t,t²)，求y(P)的最小值，并求取得最小值时P的坐标。"
+    },
+    "review": {
+      "status": "correction_required",
+      "findings": [
+        {
+          "path": "/root",
+          "kind": "wrong_scope",
+          "source_excerpt": "求y(P)的最小值，并求取得最小值时P的坐标",
+          "message": "取得最小值的状态只限定坐标目标，应放入该目标所在子节点；不能将它作为父节点求最小值的共同前提。"
+        }
+      ]
+    }
+  },
+  {
+    "id": "transcription_preserves_source_wording",
+    "source": "已知实数u为常数，u>2，求u的取值范围。",
+    "candidate": {
+      "original_text": "u>2，find_range(u)。",
+      "root": {
+        "facts": [
+          "u>2"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "u"
+          }
+        ]
+      },
+      "match_status": "unmatched",
+      "family_id": null,
+      "match_reason": "独立转录例"
+    },
+    "review": {
+      "status": "correction_required",
+      "findings": [
+        {
+          "path": "/original_text",
+          "kind": "wrong_transcription",
+          "source_excerpt": "已知实数u为常数，u>2，求u的取值范围。",
+          "message": "数学候选已表达条件和所求，但题干原文被改写为数学候选片段，须按原图恢复完整叙述。"
+        }
+      ]
+    }
+  }
+]

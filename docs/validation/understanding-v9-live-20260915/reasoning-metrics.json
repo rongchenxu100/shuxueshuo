@@ -1,0 +1,117 @@
+{
+  "method": "Usage values from provider; Unicode character counts; JSONDecoder identifies complete parseable objects only, not all draft-like prose. Character spans are zero-based and do not measure causal time allocation.",
+  "attempts": [
+    {
+      "version": "v8",
+      "attempt": 1,
+      "reasoning_tokens": 16384,
+      "completion_tokens": 16384,
+      "reasoning_characters": 35246,
+      "visible_characters": 0,
+      "finish_reason": "length",
+      "latency_ms": 76420,
+      "full_ir_drafts_in_reasoning": [
+        {
+          "start_character": 29583,
+          "characters": 5319
+        }
+      ],
+      "scope_json_fragments": [
+        {
+          "start_character": 29766,
+          "characters": 5134,
+          "label": "整题"
+        },
+        {
+          "start_character": 29990,
+          "characters": 2455,
+          "label": "(1)"
+        },
+        {
+          "start_character": 30141,
+          "characters": 1121,
+          "label": "图1"
+        },
+        {
+          "start_character": 31274,
+          "characters": 1124,
+          "label": "图2"
+        },
+        {
+          "start_character": 32453,
+          "characters": 1140,
+          "label": "(2)"
+        },
+        {
+          "start_character": 33601,
+          "characters": 1264,
+          "label": "(3)"
+        }
+      ]
+    },
+    {
+      "version": "v8",
+      "attempt": 2,
+      "reasoning_tokens": 11405,
+      "completion_tokens": 12590,
+      "reasoning_characters": 22283,
+      "visible_characters": 3249,
+      "finish_reason": "stop",
+      "latency_ms": 64201,
+      "full_ir_drafts_in_reasoning": [],
+      "scope_json_fragments": []
+    },
+    {
+      "version": "v9",
+      "attempt": 1,
+      "reasoning_tokens": 16384,
+      "completion_tokens": 16384,
+      "reasoning_characters": 35162,
+      "visible_characters": 0,
+      "finish_reason": "length",
+      "latency_ms": 75448,
+      "full_ir_drafts_in_reasoning": [],
+      "scope_json_fragments": []
+    },
+    {
+      "version": "v9",
+      "attempt": 2,
+      "reasoning_tokens": 13856,
+      "completion_tokens": 15835,
+      "reasoning_characters": 28763,
+      "visible_characters": 6464,
+      "finish_reason": "stop",
+      "latency_ms": 68939,
+      "full_ir_drafts_in_reasoning": [],
+      "scope_json_fragments": [
+        {
+          "start_character": 23798,
+          "characters": 1500,
+          "label": "图1"
+        },
+        {
+          "start_character": 25307,
+          "characters": 819,
+          "label": "图2"
+        },
+        {
+          "start_character": 26138,
+          "characters": 918,
+          "label": "(2)"
+        },
+        {
+          "start_character": 27068,
+          "characters": 1079,
+          "label": "(3)"
+        }
+      ]
+    }
+  ],
+  "diagnostic_only_wrong_cut": {
+    "change": "In a working copy of v9 final response, replace question (3) cut_ratio segment/by with AC/BD while retaining BD bisects AC and ratio 2:1 or 1:2.",
+    "domain_validator_ok": true,
+    "gold_acceptance_ok": false,
+    "model_output_changed": false,
+    "new_model_calls": 0
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "measurement": "Unicode characters in text message content; excludes image encoding, not tokenizer output",
+  "real_model_calls": 0,
+  "new_reasoning_tokens": null,
+  "new_latency_seconds": null,
+  "baseline_batch": "math-notation-review-repair-20260916-222053",
+  "cases": [
+    {
+      "case": "function-quantifiers",
+      "old_request_text_chars": 12768,
+      "new_request_text_chars": 15836,
+      "difference": 3068,
+      "difference_percent": 24.03,
+      "old_request_sha256": "b7728ba153ae91037435f45ab539ad09b9cd83af8d1f09eed9fe4d8aefddadc9",
+      "candidate_revision": "5f146b78a10e0ed8564f938a5327b76047c79e37ea5cba482f26d99d2ad73c3c",
+      "image_sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138",
+      "new_payload_fields_chars": {
+        "response_schema": 1313,
+        "math_expression_catalog": 5147,
+        "registered_families": 2455,
+        "candidate": 414,
+        "candidate_contract": 1417,
+        "code_validation": 277,
+        "few_shots": 2713
+      }
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "old_request_text_chars": 13164,
+      "new_request_text_chars": 16232,
+      "difference": 3068,
+      "difference_percent": 23.31,
+      "old_request_sha256": "449f3ac72377237f71dea8b6cc03c7e67788676c9e948b3ac0565da7be0387fc",
+      "candidate_revision": "ad5b8e76c7a917d1b6e9794d5987b87c4502352b6d2101687a829925f93c3731",
+      "image_sha256": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+      "new_payload_fields_chars": {
+        "response_schema": 1313,
+        "math_expression_catalog": 5147,
+        "registered_families": 2455,
+        "candidate": 810,
+        "candidate_contract": 1417,
+        "code_validation": 277,
+        "few_shots": 2713
+      }
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "old_request_text_chars": 13063,
+      "new_request_text_chars": 16131,
+      "difference": 3068,
+      "difference_percent": 23.49,
+      "old_request_sha256": "b9411bdf04f4a6483b4cb89d593021ea1f2538817b56ff129f3103b78049a551",
+      "candidate_revision": "bb727575ef36ca23469d338a410fa5c515d4ae0614f75a0081338954f13442d0",
+      "image_sha256": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+      "new_payload_fields_chars": {
+        "response_schema": 1313,
+        "math_expression_catalog": 5147,
+        "registered_families": 2455,
+        "candidate": 709,
+        "candidate_contract": 1417,
+        "code_validation": 277,
+        "few_shots": 2713
+      }
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "old_request_text_chars": 13103,
+      "new_request_text_chars": 16171,
+      "difference": 3068,
+      "difference_percent": 23.41,
+      "old_request_sha256": "457af4724d338ca4eb8986bc80042ef9b2e3f49e9303b712341acae346a0235a",
+      "candidate_revision": "ec1ba10555ed31b3b3db3a605255fbd9404d0802db3c7b36cdf79ba43aa86e6c",
+      "image_sha256": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "new_payload_fields_chars": {
+        "response_schema": 1313,
+        "math_expression_catalog": 5147,
+        "registered_families": 2455,
+        "candidate": 749,
+        "candidate_contract": 1417,
+        "code_validation": 277,
+        "few_shots": 2713
+      }
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "old_request_text_chars": 13303,
+      "new_request_text_chars": 16371,
+      "difference": 3068,
+      "difference_percent": 23.06,
+      "old_request_sha256": "0c9b1754542c2bfea264fa997fa463bcfb7eb0b6365f72359d9cd763df935160",
+      "candidate_revision": "0ae2f6b88b18ebd5694737acb51fdf00dbfe0206a6862de269cde8f2096fa99f",
+      "image_sha256": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "new_payload_fields_chars": {
+        "response_schema": 1313,
+        "math_expression_catalog": 5147,
+        "registered_families": 2455,
+        "candidate": 949,
+        "candidate_contract": 1417,
+        "code_validation": 277,
+        "few_shots": 2713
+      }
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "old_request_text_chars": 13035,
+      "new_request_text_chars": 16103,
+      "difference": 3068,
+      "difference_percent": 23.54,
+      "old_request_sha256": "6c4417c18063affe6a28ad3a98d618cac2ab2d04f714040ef24fb01a2a3c9359",
+      "candidate_revision": "96f9bee22fea594930517e889b87a2c2c851ec360a6a627dec7b001ce4b7a815",
+      "image_sha256": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+      "new_payload_fields_chars": {
+        "response_schema": 1313,
+        "math_expression_catalog": 5147,
+        "registered_families": 2455,
+        "candidate": 681,
+        "candidate_contract": 1417,
+        "code_validation": 277,
+        "few_shots": 2713
+      }
+    }
+  ],
+  "templates": {
+    "internal/llm-prompts/problem-math-notation-system.md": "21fa5c588b6c208c25f6f6025e9801a152eeb873654d086fe9f7a875ae257556",
+    "internal/llm-prompts/problem-math-notation-user.md": "e4065b81b1bdd3bccf2f7f6fc6cfd3d4179d3dac84dd58dd9824a3e7266f8e67",
+    "internal/schemas/problem-math-notation-v1.schema.json": "b0492741f6eb1993e8829cad9f126eb52196ce51c5afa3c449d6e0fb958b24b6",
+    "internal/llm-prompts/problem-math-notation-expressions.json": "36f72dfd76f6f6a99f610ec2dd6d76db9417160fc06858971a94861d441f17e2",
+    "internal/llm-prompts/problem-math-notation-repair.md": "ca0826031b703a18f50d42b0b191eeafcc95bcb46ef55ff501fe2f6c484ce213",
+    "internal/llm-prompts/problem-math-notation-review.md": "00c26ca1919ad9a1afdc1cc3f258093a3a54839e6d2f02506e36062d695a0d7c",
+    "internal/llm-prompts/problem-math-notation-review-few-shots.json": "785a0862a010178b55c535f92eec00ed9edbc1ef4be04f93193f189f01e5ff5c",
+    "internal/schemas/problem-math-source-review-v1.schema.json": "eac3b5077411ce5daf378bc30c0f5e2d502765ab8e7b7d9678a119d408776986"
+  },
+  "implementation": {
+    "server/shuxueshuo_server/problem_understanding/review_contract.py": "c8f19e0de30766a5377bda89a3f793e223fd29d3256128a3a4dcbb9ec9920906",
+    "server/shuxueshuo_server/problem_understanding/workflow.py": "6e71956a8db67c0231c5558c3dc791713dfd10d5d21f178badd778f36aefdc12"
+  },
+  "offline_tests": {
+    "passed": 512,
+    "deselected": 7,
+    "seconds": 9.18
+  }
+}

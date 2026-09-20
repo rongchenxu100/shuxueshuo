@@ -1,0 +1,67 @@
+{
+  "root": {
+    "definitions": [
+      "Γ: y = a*x^2+b*x-3"
+    ],
+    "facts": [
+      "a > 0",
+      "A = (-1,0)",
+      "Γ ∩ x_axis = {A,B}",
+      "Γ ∩ y_axis = {C}",
+      "D = C+(2,0)",
+      "O = (0,0)"
+    ],
+    "children": [
+      {
+        "label": "(Ⅰ)",
+        "facts": [
+          "D ∈ Γ"
+        ],
+        "children": [
+          {
+            "label": "①",
+            "goals": [
+              {
+                "kind": "find_equation",
+                "object": "Γ"
+              }
+            ]
+          },
+          {
+            "label": "②",
+            "facts": [
+              "E ∈ Γ",
+              "x(E) = m",
+              "-1 < m < 0",
+              "∠CBE + ∠ACO = 45°"
+            ],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "E"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "(Ⅱ)",
+        "facts": [
+          "M ∈ segment(B,C)",
+          "N ∈ ray(C,D)",
+          "CN = CM",
+          "min(OM+BN) = sqrt(34)"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "a"
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+  "match_reason": "题面(Ⅱ)包含二次函数、射线CD上的动点N、等长条件CN=CM，以及路径和OM+BN的最小值，符合二次函数等长射线路径最值题型。"
+}

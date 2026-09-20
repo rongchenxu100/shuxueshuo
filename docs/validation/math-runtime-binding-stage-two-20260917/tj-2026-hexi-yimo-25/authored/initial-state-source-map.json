@@ -1,0 +1,598 @@
+{
+  "source_identity": {
+    "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+    "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+    "problem_id": "tj-2026-hexi-yimo-25",
+    "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+    "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+  },
+  "entries": [
+    {
+      "kind": "state",
+      "id": "answer:i.P.coordinate@i:Point",
+      "rule": "canonical_projection",
+      "scope_id": "i",
+      "source_unit_ids": [
+        "notation-unit:7510cfd8ec5a32dadbecb2dbb76884c6904ed20278a466f0ee2f3d6b3ac5cf08"
+      ],
+      "source_paths": [
+        "/root/children/0/goals/0"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "answer:ii.D.coordinate@ii:Point",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:22ea880fc3a464b1faffca31f9dda4627e683d9aee36a9fb16ed177bd23b9fb5"
+      ],
+      "source_paths": [
+        "/root/children/1/goals/0"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "answer:iii.b.value@iii:ParameterValue",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:d4843a0d6b23e64a9a782d45d3314397e1abe0779f050208e7c3abb8ada53773"
+      ],
+      "source_paths": [
+        "/root/children/2/goals/0"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "function:problem:parabola.expression@problem:Expression",
+      "rule": "canonical_projection",
+      "scope_id": "problem",
+      "source_unit_ids": [
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+        "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+      ],
+      "source_paths": [
+        "/root/definitions/0"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "point:ii:A.coordinate@ii:Point",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:29b0ce81c9e03288cd5996fbf00e3a389470d9c9ed32a4df422ea641ccdd92c1"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/1"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "point:iii:A.coordinate@iii:Point",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:a31400e67a98599603f0fd43363a13d352c0c0be61f02027b7e08e4eda2d7ff1"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/1"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "point:iii:N.coordinate@iii:Point",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:770325063cf92675b99a6312e2de0b124bf05c24a10c257186ff6ca601b11382"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/5"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "symbol:problem:a.value@i:ParameterValue",
+      "rule": "canonical_projection",
+      "scope_id": "i",
+      "source_unit_ids": [
+        "notation-unit:b3188026a7e90a1c0e24faf6487e8b65d428b91148b5e89b816deccec23a168f"
+      ],
+      "source_paths": [
+        "/root/children/0/facts/0"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "symbol:problem:a.value@ii:ParameterValue",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:3f44fe36dc8561548c8a4a3531e9cc8d771a4edd074060de9e132b418b6574f0"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/0"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "symbol:problem:a.value@iii:ParameterValue",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:152cb8570887769b15060798f34bb1730a266f660208f0e3e5daae2a1f996083"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/0"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "symbol:problem:b.value@i:ParameterValue",
+      "rule": "canonical_projection",
+      "scope_id": "i",
+      "source_unit_ids": [
+        "notation-unit:54fb367bb8dfd4fbf2733cd5b480b22ccb03e4b6b0a7d649cb20d24bf9f26da8"
+      ],
+      "source_paths": [
+        "/root/children/0/facts/1"
+      ]
+    },
+    {
+      "kind": "state",
+      "id": "symbol:problem:c.value@i:ParameterValue",
+      "rule": "canonical_projection",
+      "scope_id": "i",
+      "source_unit_ids": [
+        "notation-unit:fa068689685f30099eb9bcddd06dec32d493ec6272486c0d7d9f99fa87da16e6"
+      ],
+      "source_paths": [
+        "/root/children/0/facts/2"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_060ee9b2552a@i",
+      "rule": "canonical_projection",
+      "scope_id": "i",
+      "source_unit_ids": [
+        "notation-unit:060ee9b2552ac89ea09ffea75eafc324197a0ab6512969c3d4e80e48c2fd8b79"
+      ],
+      "source_paths": [
+        "/root/children/0/facts/1"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_12533ba403b7@i",
+      "rule": "canonical_projection",
+      "scope_id": "i",
+      "source_unit_ids": [
+        "notation-unit:12533ba403b772f473090abb6ddbd1a3be303a82f2ec7c9e421b932de54db3b3"
+      ],
+      "source_paths": [
+        "/root/children/0/facts/0"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_1fc5f6bd723b@i",
+      "rule": "canonical_projection",
+      "scope_id": "i",
+      "source_unit_ids": [
+        "notation-unit:1fc5f6bd723ba3ebfd1fc06247c706c0154f04e38d2e8510204e2fbefeeb8059"
+      ],
+      "source_paths": [
+        "/root/children/0/facts/3"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_2e3275b55e0d@i",
+      "rule": "canonical_projection",
+      "scope_id": "i",
+      "source_unit_ids": [
+        "notation-unit:2e3275b55e0d8fdeea70a772ad4e91028e8a9b222069464f2189d157e7d50dfc"
+      ],
+      "source_paths": [
+        "/root/children/0/facts/2"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_09f33145bfad@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:09f33145bfad0d8a2c78cb08a18db63d81d89b117a6f7eb49670eb2c54f9c526"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/4"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_0b14456dd17f@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:0b14456dd17fdba9a401a3b0dbe178fa377b0d72ba0146c2b4336c220bb3e1ed"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/5"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_4db729da3b98@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:4db729da3b98474d4a3aea043b089585dda83023be5879d946f5a272f73c32d0"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/6"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_658a9df1feda@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:658a9df1feda7fa941ce73a9d689c9e2e569224aacaea66eb06476c811d14e5b"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/0"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_ba7f2bf8facd@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:ba7f2bf8facd162920ea3359019eeb5a2e52c0a93cd7584cacaf8c68a1f7de06"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/1"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_c551417f9013@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:c551417f901382c652ac6f070c23aef6c488961b3b9468a9e6d589f5de73a9cf"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/3"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_d213a78c1807@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:d213a78c1807c88fbec26abe0699bd076896a2b6e11a4a55a75b76f093f4380d"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/2"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:point_on_curve_4a57721ebf44@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:4a57721ebf447cbb9fd682ca7e7712aa6df3bbb2dd2d95b93b0e46d247356998"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/2"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:point_on_curve_e2363b3483c9@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:e2363b3483c9271b5d24825eaf178384fdd093d065e8b5a384922e7fbe8a7750"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/3"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:right_angle_equal_length_0afd65e7d047@ii",
+      "rule": "canonical_projection",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:7c447666876b9d9b08c4a3d2f7b9dd4e4ee73a78aee9724a7160153d80e99205",
+        "notation-unit:c6349138a40f5ea3d04c7a40efdc17e72114797665a5caecc113c47684a00260"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/5",
+        "/root/children/1/facts/6"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_00130a204065@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:00130a2040653af3c0566d9b6db498710d96f7e7d5af1d82f6c338c66fd85a5e"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/0"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_08486540f77a@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:08486540f77a783c0c8e42f81ea1a036b4976c21944539985143079d8425d23d"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/3"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_28f270cfdfe9@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:28f270cfdfe946db29ec8322934b7340012e67b66b39e159bcffb8f778aa003a"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/7"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_351e912768d1@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:351e912768d180956e5948c3192ad25fb2796f9b6ff5825caef89c09f28ce062"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/2"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_37921c63d5e7@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:37921c63d5e78f391ac9142c7751fd9dd4b8e71ae0d8c56ee937d02dc8e5bf1b"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/4"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_7b3677ffb028@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:7b3677ffb028c249146ef566d923e30ca0e328028c5060fc133371613794fd63"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/6"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_992399ea3eae@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:992399ea3eaef1b4157955b40c73219d5e5d2caacf1ff46a7d5e753b4d3ee1da"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/1"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_d74a3ef681dc@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:d74a3ef681dcdcfee842a944f25d31a93f0f9f1eaadf4bfd3a0300c2fc5e7f56"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/5"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:minimum_target_7f5bdbc7f207@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:7f5bdbc7f2073006712d2f8477f5b1169827249ba9345680cc03d66962481a90"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/7"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:minimum_value_given_c41a184aa053@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:c41a184aa05346cdee380f06fcb8c047b1ae362cb8cf6175a5eea003140ebfd5"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/7"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:point_construction_a1876c6135d8@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:a1876c6135d8b7e5a61c1b2ab421733c13c10b3c07da241cb76d83359588d28c"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/4"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:point_on_curve_0d300105ade1@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:0d300105ade12476f04665f1160201480862709cbeb05bcb984aad2020a10ccd"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/3"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:point_on_curve_427555236168@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:427555236168809ac8f6c12256e194532366d6ac6650e083460713e6caa1821b"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/2"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:symbol_constraint_4daf9fc476b5@iii",
+      "rule": "canonical_projection",
+      "scope_id": "iii",
+      "source_unit_ids": [
+        "notation-unit:4daf9fc476b58878c017fe92ed2d2de5d1449eeacdbf2f4ddfdd1fbabe89f36c"
+      ],
+      "source_paths": [
+        "/root/children/2/facts/6"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_2d4c46b549ef@problem",
+      "rule": "canonical_projection",
+      "scope_id": "problem",
+      "source_unit_ids": [
+        "notation-unit:2d4c46b549ef720634672d08766a87c3454db03ec0b858434b5a52f7af24f778"
+      ],
+      "source_paths": [
+        "/root/facts/1"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_6b96980796c6@problem",
+      "rule": "canonical_projection",
+      "scope_id": "problem",
+      "source_unit_ids": [
+        "notation-unit:6b96980796c6a1d3409a8ce719c6c96fe51c7ee5862b0537e3955c2d4efb4d99"
+      ],
+      "source_paths": [
+        "/root/facts/0"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_a46402d1bbab@problem",
+      "rule": "canonical_projection",
+      "scope_id": "problem",
+      "source_unit_ids": [
+        "notation-unit:a46402d1bbab23498278d88ac5af46a9535b04348a35fd7146e30532e54838af"
+      ],
+      "source_paths": [
+        "/root/facts/0"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_aad9fb6cd452@problem",
+      "rule": "canonical_projection",
+      "scope_id": "problem",
+      "source_unit_ids": [
+        "notation-unit:aad9fb6cd45279001d62456e9c9102dda99b342e464c9081450050b0f5c5f5a5"
+      ],
+      "source_paths": [
+        "/root/definitions/0"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:math_assertion_e2aace50df63@problem",
+      "rule": "canonical_projection",
+      "scope_id": "problem",
+      "source_unit_ids": [
+        "notation-unit:e2aace50df63625197af30546fb0312d09663fbd92f3651fe1e37873402a0efe"
+      ],
+      "source_paths": [
+        "/root/facts/0"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:symbol_constraint_ccf0fc8f46d6@problem",
+      "rule": "canonical_projection",
+      "scope_id": "problem",
+      "source_unit_ids": [
+        "notation-unit:ccf0fc8f46d6450989c576ca7eebd1b10107ffe99bf1f9d794655e16c2041024"
+      ],
+      "source_paths": [
+        "/root/facts/1"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:derived_point_on_curve_33b2f2e478c95670@i",
+      "rule": "point_definition_implies_curve_membership",
+      "scope_id": "i",
+      "source_unit_ids": [
+        "notation-unit:2553f5fb8ce9d94fc40fc6c5f83fb22326abfe4e8a53acea35039e4de937acf2",
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+        "notation-unit:e8ddfe1da97dd9915bb97f02f1e208640369c2bcfd3f7d8c0377b74a93e39e67",
+        "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+      ],
+      "source_paths": [
+        "/root/children/0/facts/3",
+        "/root/definitions/0"
+      ]
+    },
+    {
+      "kind": "condition",
+      "id": "condition:derived_point_on_curve_d44f5db8d542a4c7@ii",
+      "rule": "point_definition_implies_curve_membership",
+      "scope_id": "ii",
+      "source_unit_ids": [
+        "notation-unit:3a1fdf3669f838addbd6ad91c3da22412e00a2126b0c41d2ad9623350e11a30b",
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4",
+        "notation-unit:efafd16f3dc587df9319fcea787a75f98fdb6b76575f9cea600288b10bce7f12",
+        "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df"
+      ],
+      "source_paths": [
+        "/root/children/1/facts/4",
+        "/root/definitions/0"
+      ]
+    }
+  ]
+}

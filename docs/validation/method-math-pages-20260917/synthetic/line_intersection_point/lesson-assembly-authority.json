@@ -1,0 +1,24 @@
+{
+  "schema_version": "lesson-assembly-authority/v1",
+  "snapshot_hash": "7cb1cc72d436ada218de0dddac971feb98b38d7ad6869d9286f0b9dd8b369734",
+  "annotated_plan_hash": "1e8f2b7a5d4e6a53f2b7680ca09edc3d64152dd11ca04801cce3a0808cb1e0f6",
+  "lesson_ir_hash": "d98b5900d159d2de08476fc0e21a123eefca6682e44b93c8ecf49309bae9aad2",
+  "lesson_steps": {
+    "teach:synthetic_line_intersection_point": {
+      "container_ref": "goal:problem.H",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "synthetic_line_intersection_point"
+      ],
+      "capability_ids": [
+        "line_intersection_point"
+      ],
+      "unit_keys": [
+        "line_intersection_point/solve_intersection"
+      ],
+      "evidence_refs": []
+    }
+  }
+}

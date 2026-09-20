@@ -100,7 +100,8 @@ def test_direct_problem_ir_prompt_is_compact_and_omits_student_work_text(tmp_pat
         if item.origin == "handwritten" and item.text
     }
 
-    assert len(prompt.user_debug.encode("utf-8")) <= 12_500
+    # Includes the existing source-equivalence and state-fact extraction rules.
+    assert len(prompt.user_debug.encode("utf-8")) <= 13_500
     assert all(text not in prompt.user_debug for text in handwritten_text)
 
 
@@ -186,6 +187,77 @@ def test_missing_selection_crop_fails_loud(tmp_path) -> None:
         )
 
     assert error.value.code == "extraction.multimodal_full_image_missing"
+
+
+def test_empty_selected_observations_fail_without_fast_pass(tmp_path) -> None:
+    from shuxueshuo_server.solver.extraction.observations import SourceObservation
+
+    _, result, context, store, _ = make_f3_fixture(tmp_path)
+    empty = SourceObservation.create(
+        source=context.source,
+        selection=context.selection,
+        dependency_hash=context.dependency.dependency_hash,
+        providers=result.observation.providers,
+        pages=result.observation.pages,
+        layout_blocks=result.observation.layout_blocks,
+        text_spans=result.observation.text_spans,
+        formulas=result.observation.formulas,
+        ink_origins=result.observation.ink_origins,
+        occlusions=result.observation.occlusions,
+        proposals=result.observation.proposals,
+        selected_observation_ids=(),
+        issues=result.observation.issues,
+    )
+    quality = dict(context.to_payload()["quality"])
+    quality["source_observation_hash"] = empty.observation_hash
+
+    with pytest.raises(ProblemExtractionContextError) as error:
+        MultimodalEvidencePackBuilder().build(
+            replace(context, quality=quality),
+            artifact_reader=store,
+            observation=empty,
+        )
+
+    assert error.value.code == "extraction.multimodal_evidence_pack_invalid"
+    assert "no observations" in error.value.message
+
+
+def test_empty_selected_observations_allowed_for_fast_pass(tmp_path) -> None:
+    from shuxueshuo_server.solver.extraction.observations import SourceObservation
+
+    _, result, context, store, _ = make_f3_fixture(tmp_path)
+    empty = SourceObservation.create(
+        source=context.source,
+        selection=context.selection,
+        dependency_hash=context.dependency.dependency_hash,
+        providers=result.observation.providers,
+        pages=result.observation.pages,
+        layout_blocks=result.observation.layout_blocks,
+        text_spans=result.observation.text_spans,
+        formulas=result.observation.formulas,
+        ink_origins=result.observation.ink_origins,
+        occlusions=result.observation.occlusions,
+        proposals=result.observation.proposals,
+        selected_observation_ids=(),
+        issues=result.observation.issues,
+    )
+    quality = dict(context.to_payload()["quality"])
+    quality["source_observation_hash"] = empty.observation_hash
+    quality["ocr_status"] = "skipped_fast_pass"
+
+    pack = MultimodalEvidencePackBuilder().build(
+        replace(context, quality=quality),
+        artifact_reader=store,
+        observation=empty,
+    )
+
+    assert len(pack.images) == 1
+    assert pack.images[0].artifact.kind == "selection_crop"
+    assert pack.printed_text == ()
+    assert pack.recognized_formulas == ()
+    assert len(pack.region_index) == 1
+    assert pack.region_index[0].kind == "selection"
+    assert pack.region_index[0].origin == "unknown"
 
 
 def test_nonprinted_math_is_a_work_item_not_printed_prompt_evidence(tmp_path) -> None:

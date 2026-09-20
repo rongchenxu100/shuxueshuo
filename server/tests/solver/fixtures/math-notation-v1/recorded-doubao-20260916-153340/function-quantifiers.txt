@@ -1,0 +1,40 @@
+{
+  "root": {
+    "definitions": [
+      "f(x) = x^2 + b*x + c",
+      "g(x) = 2*x - 1"
+    ],
+    "children": [
+      {
+        "label": "(1)",
+        "facts": [
+          "∀x∈ℝ: f(x) ≥ g(x)"
+        ],
+        "goals": [
+          {
+            "kind": "find_minimum",
+            "expression": "b^2 + c^2"
+          }
+        ]
+      },
+      {
+        "label": "(2)",
+        "facts": [
+          "∃x_0∈[1,3]: f(x_0) ≤ g(x_0)"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "b",
+            "in_terms_of": [
+              "c"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "unmatched",
+  "family_id": null,
+  "match_reason": "题面给出二次函数与一次函数的恒成立、存在性不等式条件，分别求代数式最小值与参数取值范围，未涉及路径/距离最值、射线动点等长替换、正方形反射或加权路径目标，不符合本次注册的任何题型。"
+}

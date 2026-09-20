@@ -1,0 +1,65 @@
+{
+  "ok": false,
+  "strict": {
+    "ok": false,
+    "classification": "invalid_notation",
+    "expected_issues": [],
+    "actual_issues": [
+      {
+        "path": "r.c0.c0.facts[1]",
+        "source": "AC ∩ BD = {O}",
+        "code": "notation.bind",
+        "message": "type.intersection"
+      },
+      {
+        "path": "r.c0.c1.facts[0]",
+        "source": "bisects(BD,AC)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c0.c1.facts[1]",
+        "source": "cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c0.c1.goals[0]",
+        "source": {
+          "kind": "find_value",
+          "expression": "area(△ACD)/area(△ACB)",
+          "in_terms_of": [
+            "k"
+          ]
+        },
+        "code": "notation.goal",
+        "message": "binding.unknown_or_invisible:A"
+      },
+      {
+        "path": "r.c1.facts[0]",
+        "source": "bisects(BD,AC)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c1.facts[1]",
+        "source": "cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c1.facts[3]",
+        "source": "angle(B,D,C) = 2*angle(A,B,D)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      },
+      {
+        "path": "r.c1.facts[4]",
+        "source": "BD = 4*CD",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:B"
+      }
+    ]
+  },
+  "accepted_omissions": []
+}

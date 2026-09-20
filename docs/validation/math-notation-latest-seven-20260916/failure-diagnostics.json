@@ -1,0 +1,286 @@
+{
+  "offline_only": true,
+  "model_calls": 0,
+  "live_results_unchanged": true,
+  "cases": {
+    "tj-2026-heping-ermo-25": [
+      {
+        "stage": "original",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": false,
+        "classification": "not_proven_equivalent",
+        "remaining_paths": [
+          "/root/children/1/facts",
+          "/root/facts"
+        ]
+      },
+      {
+        "stage": "M intersection notation aligned in diagnostic copy",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": false,
+        "classification": "not_proven_equivalent",
+        "remaining_paths": [
+          "/root/children/1/facts"
+        ]
+      },
+      {
+        "stage": "H intersection notation also aligned in diagnostic copy",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": true,
+        "classification": "equivalent",
+        "remaining_paths": []
+      }
+    ],
+    "tj-2026-hexi-yimo-25": [
+      {
+        "stage": "original",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": false,
+        "classification": "not_proven_equivalent",
+        "remaining_paths": [
+          "/root/children/2/facts"
+        ]
+      },
+      {
+        "stage": "M coordinate notation aligned in diagnostic copy",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": true,
+        "classification": "equivalent",
+        "remaining_paths": []
+      }
+    ],
+    "tj-2026-nankai-yimo-25": [
+      {
+        "stage": "original",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": false,
+        "classification": "not_proven_equivalent",
+        "remaining_paths": [
+          "/root/children/1/children/1/goals",
+          "/root/facts"
+        ]
+      },
+      {
+        "stage": "D intersection notation aligned in diagnostic copy",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": false,
+        "classification": "not_proven_equivalent",
+        "remaining_paths": [
+          "/root/children/1/children/1/goals"
+        ]
+      },
+      {
+        "stage": "equation-goal at removed in diagnostic copy, not a correctness ruling",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": true,
+        "classification": "equivalent",
+        "remaining_paths": []
+      }
+    ],
+    "tj-2026-xiqing-yimo-25": [
+      {
+        "stage": "original",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": false,
+        "classification": "not_proven_equivalent",
+        "remaining_paths": [
+          "/root/children/1/facts",
+          "/root/facts"
+        ]
+      },
+      {
+        "stage": "D coordinate notation aligned in diagnostic copy",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": false,
+        "classification": "not_proven_equivalent",
+        "remaining_paths": [
+          "/root/facts"
+        ]
+      },
+      {
+        "stage": "redundant membership also removed in diagnostic copy",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": true,
+        "classification": "equivalent",
+        "remaining_paths": []
+      }
+    ],
+    "k-quad": [
+      {
+        "stage": "original",
+        "diagnostic_only": true,
+        "valid": false,
+        "parse_issue_count": 8,
+        "parse_issues": [
+          {
+            "path": "r.c0.c0.facts[1]",
+            "source": "AC ∩ BD = {O}",
+            "code": "notation.bind",
+            "message": "type.intersection"
+          },
+          {
+            "path": "r.c0.c1.facts[0]",
+            "source": "bisects(BD,AC)",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c0.c1.facts[1]",
+            "source": "cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c0.c1.goals[0]",
+            "source": {
+              "kind": "find_value",
+              "expression": "area(△ACD)/area(△ACB)",
+              "in_terms_of": [
+                "k"
+              ]
+            },
+            "code": "notation.goal",
+            "message": "binding.unknown_or_invisible:A"
+          },
+          {
+            "path": "r.c1.facts[0]",
+            "source": "bisects(BD,AC)",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c1.facts[1]",
+            "source": "cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c1.facts[3]",
+            "source": "angle(B,D,C) = 2*angle(A,B,D)",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c1.facts[4]",
+            "source": "BD = 4*CD",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          }
+        ],
+        "comparison_ok": false,
+        "classification": "invalid_notation",
+        "remaining_paths": []
+      },
+      {
+        "stage": "explicit segment operands substituted in diagnostic copy",
+        "diagnostic_only": true,
+        "valid": false,
+        "parse_issue_count": 7,
+        "parse_issues": [
+          {
+            "path": "r.c0.c1.facts[0]",
+            "source": "bisects(BD,AC)",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c0.c1.facts[1]",
+            "source": "cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c0.c1.goals[0]",
+            "source": {
+              "kind": "find_value",
+              "expression": "area(△ACD)/area(△ACB)",
+              "in_terms_of": [
+                "k"
+              ]
+            },
+            "code": "notation.goal",
+            "message": "binding.unknown_or_invisible:A"
+          },
+          {
+            "path": "r.c1.facts[0]",
+            "source": "bisects(BD,AC)",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c1.facts[1]",
+            "source": "cut_ratio(BD,AC) = k ∨ cut_ratio(BD,AC) = 1/k",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c1.facts[3]",
+            "source": "angle(B,D,C) = 2*angle(A,B,D)",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          },
+          {
+            "path": "r.c1.facts[4]",
+            "source": "BD = 4*CD",
+            "code": "notation.bind",
+            "message": "binding.unknown_or_invisible:B"
+          }
+        ],
+        "comparison_ok": false,
+        "classification": "invalid_notation",
+        "remaining_paths": []
+      },
+      {
+        "stage": "two explicit quadrilateral relations restored in diagnostic copy",
+        "diagnostic_only": true,
+        "valid": true,
+        "parse_issue_count": 0,
+        "parse_issues": [],
+        "comparison_ok": false,
+        "classification": "not_proven_equivalent",
+        "remaining_paths": [
+          "/root/children/0/children/0/facts",
+          "/root/children/0/children/0/uncertainties",
+          "/root/children/0/children/1/uncertainties",
+          "/root/children/1/uncertainties",
+          "/root/children/2/facts",
+          "/root/children/2/uncertainties",
+          "/well_definedness"
+        ]
+      }
+    ]
+  }
+}

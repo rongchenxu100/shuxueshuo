@@ -1,0 +1,274 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "tj-2026-nankai-yimo-25",
+    "source_sha256": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "match": {
+      "family_id": "QuadraticPathMinimumSolver",
+      "match_status": "matched",
+      "match_reason": "题面以二次函数为背景，核心目标为普通路径 EG+FG 的最小值；虽有等长 DE=sqrt(2)*NG 和中点、直角条件，但路径本身不含非1权重，也不依赖射线或正方形反射，故匹配 QuadraticPathMinimumSolver。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": false,
+      "issues": [
+        {
+          "path": "r.definitions[0]",
+          "source": "Γ: y = a*x^2 + b*x + c（a,b,c为常数，a>0）",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 21: 为常数,a>0)"
+        },
+        {
+          "path": "r.definitions[1]",
+          "source": "C为Γ与y轴的交点",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.definitions[2]",
+          "source": "D为Γ的对称轴与x轴的交点",
+          "code": "notation.parse",
+          "message": "notation.unsupported_declaration"
+        },
+        {
+          "path": "r.c0.goals[0]",
+          "source": {
+            "kind": "find_coordinates",
+            "object": "D"
+          },
+          "code": "notation.goal",
+          "message": "binding.unknown_or_invisible:D"
+        },
+        {
+          "path": "r.c0.goals[1]",
+          "source": {
+            "kind": "find_equation",
+            "object": "Γ: y = a*x^2 + b*x + c"
+          },
+          "code": "notation.goal",
+          "message": "notation.trailing_token :"
+        },
+        {
+          "path": "r.c1.facts[3]",
+          "source": "N 在第四象限",
+          "code": "notation.parse",
+          "message": "notation.unrecognized_token at 1:  在第四象限"
+        },
+        {
+          "path": "r.c1.facts[0]",
+          "source": "M(m, 1) ∈ Γ",
+          "code": "notation.bind",
+          "message": "binding.unknown_function:M"
+        },
+        {
+          "path": "r.c1.facts[1]",
+          "source": "N ∈ Γ",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:Γ"
+        },
+        {
+          "path": "r.c1.facts[4]",
+          "source": "∠MDN = 90°",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:M"
+        },
+        {
+          "path": "r.c1.facts[5]",
+          "source": "DM = DN",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:D"
+        },
+        {
+          "path": "r.c1.facts[6]",
+          "source": "E ∈ segment(D,M)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:D"
+        },
+        {
+          "path": "r.c1.facts[7]",
+          "source": "G ∈ segment(M,N)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:M"
+        },
+        {
+          "path": "r.c1.facts[8]",
+          "source": "F = midpoint(D,N)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:D"
+        },
+        {
+          "path": "r.c1.facts[9]",
+          "source": "DE = sqrt(2) * NG",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:D"
+        },
+        {
+          "path": "r.c1.c0.facts[0]",
+          "source": "MN = sqrt(10)",
+          "code": "notation.bind",
+          "message": "binding.unknown_or_invisible:M"
+        },
+        {
+          "path": "r.c1.c0.goals[0]",
+          "source": {
+            "kind": "find_equation",
+            "object": "Γ: y = a*x^2 + b*x + c"
+          },
+          "code": "notation.goal",
+          "message": "notation.trailing_token :"
+        },
+        {
+          "path": "r.c1.c1.goals[0]",
+          "source": {
+            "kind": "find_equation",
+            "object": "Γ: y = a*x^2 + b*x + c",
+            "at": "EG + FG = 5*sqrt(10)/2"
+          },
+          "code": "notation.goal",
+          "message": "notation.trailing_token :"
+        }
+      ],
+      "defaults": [
+        {
+          "ref": "r:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c0:scalar:c",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c1:scalar:m",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r.c0:scalar:c",
+          "name": "c",
+          "kind": "scalar",
+          "scope": "r.c0"
+        },
+        {
+          "ref": "r.c1:point:N",
+          "name": "N",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:E",
+          "name": "E",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:G",
+          "name": "G",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:F",
+          "name": "F",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:scalar:m",
+          "name": "m",
+          "kind": "scalar",
+          "scope": "r.c1"
+        }
+      ],
+      "well_definedness_obligations": []
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:2e672e55db86cf96eac8106ee45f5dc7ae79bcf4cb529887cc76b3110e21a9e4",
+      "kind": "notation_raw",
+      "sha256": "2e672e55db86cf96eac8106ee45f5dc7ae79bcf4cb529887cc76b3110e21a9e4",
+      "media_type": "text/plain",
+      "byte_size": 2153,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-nankai-yimo-25/artifacts/2e/2e672e55db86cf96eac8106ee45f5dc7ae79bcf4cb529887cc76b3110e21a9e4.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:a65903d452c1ac8f11923bd47b34731bf002d15c469293f51a0e1facd63a158f",
+      "kind": "notation_candidate",
+      "sha256": "a65903d452c1ac8f11923bd47b34731bf002d15c469293f51a0e1facd63a158f",
+      "media_type": "application/json",
+      "byte_size": 1242,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-nankai-yimo-25/artifacts/a6/a65903d452c1ac8f11923bd47b34731bf002d15c469293f51a0e1facd63a158f.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:0aba6d74505c18bdc9c993738b9ea4d29f803cbf708ad883f79b8a7b76bd79ba",
+      "kind": "notation_normalized",
+      "sha256": "0aba6d74505c18bdc9c993738b9ea4d29f803cbf708ad883f79b8a7b76bd79ba",
+      "media_type": "application/json",
+      "byte_size": 1480,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-nankai-yimo-25/artifacts/0a/0aba6d74505c18bdc9c993738b9ea4d29f803cbf708ad883f79b8a7b76bd79ba.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:e42224bdc4a68089d853bd8e66a766d3a37b2d886cfa271d95ce33620b346fa8",
+      "kind": "notation_compiled",
+      "sha256": "e42224bdc4a68089d853bd8e66a766d3a37b2d886cfa271d95ce33620b346fa8",
+      "media_type": "application/json",
+      "byte_size": 2033,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-nankai-yimo-25/artifacts/e4/e42224bdc4a68089d853bd8e66a766d3a37b2d886cfa271d95ce33620b346fa8.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f",
+      "kind": "notation_continuation",
+      "sha256": "167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f",
+      "media_type": "application/json",
+      "byte_size": 45,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-nankai-yimo-25/artifacts/16/167bb25d9ece8045fe328b5ce206825cdb7e6238668db960351c9b29d7e1410f.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:fed293f58284195df1888bbdf439c397ff30da653625de88e31de5afc5de0d89",
+      "kind": "notation_validation",
+      "sha256": "fed293f58284195df1888bbdf439c397ff30da653625de88e31de5afc5de0d89",
+      "media_type": "application/json",
+      "byte_size": 3163,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-deepseek-20260916/offline-replay/tj-2026-nankai-yimo-25/artifacts/fe/fed293f58284195df1888bbdf439c397ff30da653625de88e31de5afc5de0d89.json"
+    }
+  },
+  "contract_valid": false,
+  "continuation": {
+    "status": "invalid_candidate",
+    "blocked": true
+  },
+  "revision": "a65903d452c1ac8f11923bd47b34731bf002d15c469293f51a0e1facd63a158f"
+}

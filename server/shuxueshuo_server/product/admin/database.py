@@ -18,13 +18,16 @@ from ..storage import LocalArtifactStorage
 
 MUTABLE = {
     'batches': 'name updated_at', 'batch_items': 'initial_build_id', 'sources': 'normalized_artifact_id',
-    'problems': 'title visibility current_revision_id latest_build_id current_page_build_id lock_version updated_at',
+    'problems': 'title visibility current_revision_id latest_build_id current_page_build_id lock_version updated_at current_source_version_id current_candidate_id latest_extraction_run_id understanding_generation latest_runtime_binding_run_id',
     'problem_sources': 'matched_revision_id', 'builds': 'resolved_revision_id status started_at finished_at error_code',
     'jobs': 'status execution_epoch active_execution_id lease_expires_at cancel_requested_at delivery_count',
     'job_executions': 'status heartbeat_at finished_at failure_code', 'build_stages': 'status accepted_attempt_id summary',
     'stage_attempts': 'status finished_at manifest_json manifest_artifact_id manifest_sha256 checkpoint_artifact_id',
     'artifacts': 'availability', 'event_streams': 'last_seq min_retained_seq',
     'outbox_messages': 'status attempt_count available_at locked_until publisher_token published_at last_error',
+    'runtime_binding_runs': 'status result_json finished_at error_code',
+    'extraction_runs': 'status workflow_binding result_json candidate_id finished_at error_code',
+    'extraction_call_reservations': 'status response_artifact_id model_call_id details',
 }
 
 

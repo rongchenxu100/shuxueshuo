@@ -16,8 +16,9 @@ from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemUnitRecord,
 )
 from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+    ProblemBundleAuthorityError,
     ProblemBundleAuthorityToken,
-    VerifiedSolverProblemBundle,
+    SolverProblemBundle,
 )
 from shuxueshuo_server.solver.extraction.source_identity import (
     FrozenJson,
@@ -827,7 +828,7 @@ class ProblemPlanningContextProjector:
 
     def project(
         self,
-        bundle: VerifiedSolverProblemBundle,
+        bundle: SolverProblemBundle,
         *,
         expected_token: ProblemBundleAuthorityToken | None = None,
     ) -> ProblemPlanningContext:
@@ -838,7 +839,7 @@ class ProblemPlanningContextProjector:
                 "problem bundle differs from the expected authority token",
             )
 
-        graph = bundle.verified_problem.graph
+        graph = bundle.source_graph
         records = _unit_records(bundle)
         scope_records = _scope_records(graph.root_scope, bundle)
         scope_by_runtime_id = {
@@ -1008,24 +1009,18 @@ class _GoalRecord:
     answer_key: str
 
 
-def _unit_records(bundle: VerifiedSolverProblemBundle) -> dict[str, ProblemUnitRecord]:
-    payload = bundle.verified_problem.to_payload()
-    result = {
-        str(item["unit_id"]): ProblemUnitRecord.from_payload(item)
-        for item in payload["unit_registry"]
-    }
-    if len(result) != len(payload["unit_registry"]):
+def _unit_records(bundle: SolverProblemBundle) -> dict[str, ProblemUnitRecord]:
+    try:
+        return dict(bundle.source_unit_registry)
+    except ProblemBundleAuthorityError as error:
         raise _error(
-            "planner.problem_planning_projection_drift",
-            "$.verified_problem.unit_registry",
-            "source unit registry contains duplicate ids",
-        )
-    return result
+            "planner.problem_planning_projection_drift", error.path, error.message
+        ) from error
 
 
 def _scope_records(
     root: ProblemScope,
-    bundle: VerifiedSolverProblemBundle,
+    bundle: SolverProblemBundle,
 ) -> tuple[_ScopeRecord, ...]:
     result: list[_ScopeRecord] = []
     for scope in root.iter_scopes():
@@ -1039,7 +1034,7 @@ def _scope_records(
         parent_scope_id = None
         if len(scope.path) > 1:
             parent_path = "/".join(scope.path[:-1])
-            parent = bundle.verified_problem.graph.scope_by_path.get(parent_path)
+            parent = bundle.source_graph.scope_by_path.get(parent_path)
             if parent is None:
                 raise _error(
                     "planner.problem_scope_visibility_drift",
@@ -1092,7 +1087,7 @@ def _runtime_scope_paths(
 def _goal_records(
     root: ProblemScope,
     scope_records: Sequence[_ScopeRecord],
-    bundle: VerifiedSolverProblemBundle,
+    bundle: SolverProblemBundle,
     runtime_nodes: Mapping[str, _RuntimeNode],
 ) -> tuple[_GoalRecord, ...]:
     scope_id_by_unit = {
@@ -1173,7 +1168,7 @@ def _validate_goal_ownership(
 
 
 def _canonical_runtime_nodes(
-    bundle: VerifiedSolverProblemBundle,
+    bundle: SolverProblemBundle,
 ) -> dict[str, _RuntimeNode]:
     payload = bundle.canonical_solver_input
     result: dict[str, _RuntimeNode] = {}
@@ -1214,7 +1209,7 @@ def _insert_runtime_node(
 
 
 def _audit_runtime_coverage(
-    bundle: VerifiedSolverProblemBundle,
+    bundle: SolverProblemBundle,
     runtime_nodes: Mapping[str, _RuntimeNode],
     records: Mapping[str, ProblemUnitRecord],
     scope_records: Sequence[_ScopeRecord],
@@ -1293,7 +1288,7 @@ def _audit_runtime_coverage(
 
 
 def _ref_candidates(
-    bundle: VerifiedSolverProblemBundle,
+    bundle: SolverProblemBundle,
     runtime_nodes: Mapping[str, _RuntimeNode],
     records: Mapping[str, ProblemUnitRecord],
     scope_paths: Mapping[str, tuple[str, ...]],
@@ -1346,6 +1341,8 @@ def _ref_candidates(
                 names.append(fact_base(reference, visiting | {runtime_id}))
         fact_type = _semantic_name(str(node.payload.get("type", "fact")))
         value = "_".join(_unique_ordered((fact_type, *names)))
+        if fact_type == "math_assertion":
+            value = "math_assertion_" + stable_hash([node.owner_scope_id, node.payload.get("expression")])[:12]
         fact_base_cache[runtime_id] = value
         return value
 
@@ -1367,7 +1364,7 @@ def _ref_candidates(
 
     goal_by_unit = {
         goal.unit_id: (scope, goal)
-        for scope in bundle.verified_problem.graph.root_scope.iter_scopes()
+        for scope in bundle.source_graph.root_scope.iter_scopes()
         for goal in scope.goals
     }
     for goal_unit_id, runtime_id in sorted(
@@ -1428,7 +1425,7 @@ def _ref_candidates(
 def _canonical_prompt_source_payloads(
     root: ProblemScope,
     *,
-    bundle: VerifiedSolverProblemBundle,
+    bundle: SolverProblemBundle,
     runtime_nodes: Mapping[str, _RuntimeNode],
     authorities: Mapping[ScopedSourceRefKey, PlanningReadAuthority],
 ) -> Mapping[str, Mapping[str, Any]]:
@@ -1845,7 +1842,7 @@ def _audit_prompt_payload(
 
 
 def _internal_authority_values(
-    bundle: VerifiedSolverProblemBundle,
+    bundle: SolverProblemBundle,
     records: Mapping[str, ProblemUnitRecord],
     runtime_nodes: Mapping[str, _RuntimeNode],
 ) -> set[str]:
@@ -1859,10 +1856,7 @@ def _internal_authority_values(
         token.problem_semantic_hash,
         token.bundle_id,
     }
-    for payload in bundle.artifact_refs.authority_payload().values():
-        artifact_id = payload.get("artifact_id")
-        if isinstance(artifact_id, str):
-            result.add(artifact_id)
+    result.update(bundle.source_artifact_ids)
     return result
 
 

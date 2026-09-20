@@ -1,0 +1,95 @@
+{
+  "root": {
+    "definitions": [
+      "k 倍四边形：若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为 k (k ≥ 1)，则称该四边形为“k 倍四边形”。"
+    ],
+    "facts": [],
+    "children": [
+      {
+        "label": "(1)",
+        "children": [
+          {
+            "label": "如图1",
+            "definitions": [],
+            "facts": [
+              "quadrilateral(A,B,C,D) 为平行四边形（□ABCD）",
+              "AC ∩ BD = {O}",
+              "E = midpoint(O,B)",
+              "四边形 AECD 为 k 倍四边形"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "k"
+              }
+            ]
+          },
+          {
+            "label": "如图2",
+            "definitions": [],
+            "facts": [
+              "quadrilateral(A,B,C,D) 为 k 倍四边形",
+              "bisects(BD, AC)"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "area(△ACD)/area(△ACB)",
+                "in_terms_of": ["k"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "(2)",
+        "definitions": [],
+        "facts": [
+          "quadrilateral(A,B,C,D) 为 k 倍四边形",
+          "bisects(BD, AC)",
+          "∠BDC = 2∠ABD",
+          "BD = 4*CD"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "k"
+          }
+        ]
+      },
+      {
+        "label": "(3)",
+        "definitions": [],
+        "facts": [
+          "A, B 为定点",
+          "AB ⊥ BM",
+          "C ∈ ray(B,M)",
+          "D 为平面内一点",
+          "quadrilateral(A,B,C,D)",
+          "bisects(BD, AC)",
+          "∠BAC = ∠DAC",
+          "quadrilateral(A,B,C,D) 为 2 倍四边形"
+        ],
+        "goals": [
+          {
+            "kind": "find_value",
+            "expression": "tan(∠ACD)"
+          }
+        ]
+      }
+    ],
+    "uncertainties": [
+      {
+        "kind": "missing_figure",
+        "text": "题面引用的图1、图2、图3、图4未在提供的图片中显示。"
+      },
+      {
+        "kind": "ambiguous_symbol",
+        "text": "题面出现 BM，但未定义 M 点；可能依赖图形。"
+      }
+    ]
+  },
+  "match_status": "unmatched",
+  "family_id": null,
+  "match_reason": "题面为四边形新定义与几何求值问题，不涉及二次函数、路径最值或加权路径等注册题型特征。"
+}

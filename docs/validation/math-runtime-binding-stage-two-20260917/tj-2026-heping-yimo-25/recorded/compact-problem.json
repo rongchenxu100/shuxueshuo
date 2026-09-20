@@ -1,0 +1,69 @@
+{
+  "problem_id": "tj-2026-heping-yimo-25",
+  "planning_scope": "all",
+  "scope_policy": "ancestors_only",
+  "solution_policy": "all",
+  "known_results": [],
+  "root": {
+    "children": [
+      {
+        "children": [
+          {
+            "goals": [
+              {
+                "kind": "find_equation",
+                "object": "Γ"
+              }
+            ],
+            "label": "①"
+          },
+          {
+            "facts": [
+              "E ∈ Γ",
+              "x(E) = m",
+              "-1 < m ∧ m < 0",
+              "angle(C,B,E) + angle(A,C,O) = 45°"
+            ],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "E"
+              }
+            ],
+            "label": "②"
+          }
+        ],
+        "facts": [
+          "D ∈ Γ"
+        ],
+        "label": "（I）"
+      },
+      {
+        "facts": [
+          "M ∈ segment(B,C)",
+          "N ∈ ray(C,D)",
+          "CN = CM",
+          "min(OM+BN) = √34"
+        ],
+        "goals": [
+          {
+            "expression": "a",
+            "kind": "find_value"
+          }
+        ],
+        "label": "（II）"
+      }
+    ],
+    "definitions": [
+      "Γ: y = a*x^2+b*x-3"
+    ],
+    "facts": [
+      "a > 0",
+      "A = (-1,0)",
+      "Γ ∩ x_axis = {A,B}",
+      "Γ ∩ y_axis = {C}",
+      "D = C+(2,0)",
+      "O = (0,0)"
+    ]
+  }
+}

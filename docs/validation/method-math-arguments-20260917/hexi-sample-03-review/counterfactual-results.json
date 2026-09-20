@@ -1,0 +1,351 @@
+[
+  {
+    "sample": 3,
+    "attempt": 1,
+    "mode": "add-c-state",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "argument_encoding": "math-expression/v1",
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+        "before": "∠CAD = 90°, AC = AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      },
+      {
+        "path": "$.goal_plans.ii.D.steps[1]",
+        "operation": "insert",
+        "after": {
+          "step_id": "review_materialize_C",
+          "capability_id": "quadratic_y_axis_intercept_point",
+          "args": {
+            "quadratic": "Γ"
+          },
+          "output_targets": {
+            "point": "C"
+          },
+          "return_expectations": {
+            "point": "open_state"
+          }
+        }
+      }
+    ],
+    "evidence": "offline-probes/attempt-1-add-c-state",
+    "status": "accepted",
+    "errors": [],
+    "expected_answers_match": true
+  },
+  {
+    "sample": 3,
+    "attempt": 1,
+    "mode": "expression-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+        "before": "∠CAD = 90°, AC = AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "evidence": "offline-probes/attempt-1-expression-only",
+    "status": "blocked",
+    "errors": [
+      [
+        "candidates_D_ii",
+        {
+          "schema_version": "functional-prompt-diagnostic/v1",
+          "code": "functional.condition_role_state_unavailable",
+          "category": "input",
+          "stage": "reconciliation_binding",
+          "retryability": "planner_repairable",
+          "subjects": [
+            {
+              "ref": "C",
+              "role": "reference",
+              "expected_type": "Point"
+            }
+          ],
+          "expected": {
+            "accepted_types": [
+              "Point"
+            ]
+          },
+          "observed": {},
+          "repair_action": "provide_visible_state_producer",
+          "repair_call_ids": [],
+          "message": "Add or repair a visible producer for the required object state.",
+          "scope_id": "ii",
+          "step_id": "candidates_D_ii"
+        }
+      ]
+    ]
+  },
+  {
+    "sample": 3,
+    "attempt": 1,
+    "mode": "source-ref",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "argument_encoding": "source-ref",
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[1].args.right_angle_equal_length",
+        "before": "∠CAD = 90°, AC = AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "evidence": "offline-probes/attempt-1-source-ref",
+    "status": "blocked",
+    "errors": [
+      [
+        "candidates_D_ii",
+        {
+          "schema_version": "functional-prompt-diagnostic/v1",
+          "code": "functional.condition_role_state_unavailable",
+          "category": "input",
+          "stage": "reconciliation_binding",
+          "retryability": "planner_repairable",
+          "subjects": [
+            {
+              "ref": "C",
+              "role": "reference",
+              "expected_type": "Point"
+            }
+          ],
+          "expected": {
+            "accepted_types": [
+              "Point"
+            ]
+          },
+          "observed": {},
+          "repair_action": "provide_visible_state_producer",
+          "repair_call_ids": [],
+          "message": "Add or repair a visible producer for the required object state.",
+          "scope_id": "ii",
+          "step_id": "candidates_D_ii"
+        }
+      ]
+    ]
+  },
+  {
+    "sample": 3,
+    "attempt": 2,
+    "mode": "angle-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "argument_encoding": "math-expression/v1",
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD=90°,AC=AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "evidence": "offline-probes/attempt-2-angle-only",
+    "status": "blocked",
+    "errors": [
+      "functional.math_argument_unresolved at $.goal_plans.ii.D.steps[0].args.curve_points: quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+    ]
+  },
+  {
+    "sample": 3,
+    "attempt": 2,
+    "mode": "expression-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+        "before": "A=(-1,0)",
+        "after": "A"
+      },
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD=90°,AC=AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      },
+      {
+        "path": "$.goal_plans.iii.b.steps[0].args.curve_points",
+        "before": "A=(-1,0)",
+        "after": "A"
+      }
+    ],
+    "evidence": "offline-probes/attempt-2-expression-only",
+    "status": "accepted",
+    "errors": [],
+    "expected_answers_match": true
+  },
+  {
+    "sample": 3,
+    "attempt": 2,
+    "mode": "point-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "argument_encoding": "math-expression/v1",
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+        "before": "A=(-1,0)",
+        "after": "A"
+      },
+      {
+        "path": "$.goal_plans.iii.b.steps[0].args.curve_points",
+        "before": "A=(-1,0)",
+        "after": "A"
+      }
+    ],
+    "evidence": "offline-probes/attempt-2-point-only",
+    "status": "blocked",
+    "errors": [
+      "functional.math_argument_invalid at $.goal_plans.ii.D.steps[2].args.right_angle_equal_length: notation.expected: expected ∈, got ="
+    ]
+  },
+  {
+    "sample": 3,
+    "attempt": 3,
+    "mode": "add-i-state",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "argument_encoding": "math-expression/v1",
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD = 90°, AC = AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      },
+      {
+        "path": "$.goal_plans.i.P.steps[0]",
+        "operation": "insert",
+        "after": {
+          "step_id": "review_materialize_parabola_i",
+          "capability_id": "quadratic_from_constraints",
+          "args": {
+            "known_coefficients": [
+              "a=1",
+              "b=2",
+              "c=3"
+            ],
+            "free_parameters": []
+          },
+          "output_targets": {
+            "parabola": "Γ"
+          },
+          "return_expectations": {
+            "parabola": "closed_state"
+          }
+        }
+      }
+    ],
+    "evidence": "offline-probes/attempt-3-add-i-state",
+    "status": "accepted",
+    "errors": [],
+    "expected_answers_match": true
+  },
+  {
+    "sample": 3,
+    "attempt": 3,
+    "mode": "expression-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "argument_encoding": "math-expression/v1",
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD = 90°, AC = AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "evidence": "offline-probes/attempt-3-expression-only",
+    "status": "execution_exception",
+    "error_type": "FunctionalBindingContextError",
+    "error": "planner_configuration_error: planner.functional_arg_version_drift: materialized arg i_vertex.parabola[0] has no StateVersionId",
+    "exception_attributes": {
+      "code": "planner.functional_arg_version_drift",
+      "detail": "materialized arg i_vertex.parabola[0] has no StateVersionId",
+      "retryable": false,
+      "step_id": null,
+      "arg_name": null,
+      "expected": {},
+      "observed": {},
+      "repair_action": "fix_runtime_contract"
+    },
+    "binding_failure_frame": {
+      "call_id": "i_vertex",
+      "capability_id": "quadratic_vertex_point",
+      "arg_name": "parabola",
+      "item_index": 0,
+      "force_exact_source_versions": true,
+      "debug_materialized_value": false,
+      "source": {
+        "kind": "math_object",
+        "math_object_id": {
+          "value": "function:problem:parabola",
+          "kind": "function",
+          "origin_scope_id": "problem"
+        }
+      },
+      "requires_materialized_state": true,
+      "resolved_value": {
+        "handle": "function:problem:parabola",
+        "runtime_type": "Function",
+        "materialized_runtime_type": "Parabola",
+        "valid_scope": "problem",
+        "source_kind": null
+      }
+    }
+  },
+  {
+    "sample": 3,
+    "attempt": 3,
+    "mode": "source-ref",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "argument_encoding": "source-ref",
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD = 90°, AC = AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "evidence": "offline-probes/attempt-3-source-ref",
+    "status": "execution_exception",
+    "error_type": "FunctionalBindingContextError",
+    "error": "planner_configuration_error: planner.functional_arg_version_drift: materialized arg i_vertex.parabola[0] has no StateVersionId",
+    "exception_attributes": {
+      "code": "planner.functional_arg_version_drift",
+      "detail": "materialized arg i_vertex.parabola[0] has no StateVersionId",
+      "retryable": false,
+      "step_id": null,
+      "arg_name": null,
+      "expected": {},
+      "observed": {},
+      "repair_action": "fix_runtime_contract"
+    },
+    "binding_failure_frame": {
+      "call_id": "i_vertex",
+      "capability_id": "quadratic_vertex_point",
+      "arg_name": "parabola",
+      "item_index": 0,
+      "force_exact_source_versions": true,
+      "debug_materialized_value": false,
+      "source": {
+        "kind": "math_object",
+        "math_object_id": {
+          "value": "function:problem:parabola",
+          "kind": "function",
+          "origin_scope_id": "problem"
+        }
+      },
+      "requires_materialized_state": true,
+      "resolved_value": {
+        "handle": "function:problem:parabola",
+        "runtime_type": "Function",
+        "materialized_runtime_type": "Parabola",
+        "valid_scope": "problem",
+        "source_kind": null
+      }
+    }
+  }
+]

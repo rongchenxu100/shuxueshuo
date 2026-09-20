@@ -17,6 +17,9 @@ from shuxueshuo_server.solver.runtime.functional_goal_execution import (
     ScopedFunctionalGoalExecutionService,
     _public_runtime_result_value,
 )
+from shuxueshuo_server.solver.runtime.functional_binding_context import (
+    FunctionalBindingContextError,
+)
 from shuxueshuo_server.solver.runtime.functional_scope_retry import (
     FUNCTIONAL_ANNOTATED_PLAN_CONTRACT,
     FunctionalAnnotatedPlanProjector,
@@ -25,6 +28,8 @@ from shuxueshuo_server.solver.runtime.functional_scope_retry import (
     FunctionalScopeRetryAuthorityProjector,
     FunctionalScopeRetryError,
     ScopedFunctionalScopeRetryService,
+    _final_contract_retry_feedback,
+    _retry_parent_state_rewrite_issue,
     build_scope_retry_restore_seed,
     functional_annotated_plan_schema,
     functional_scope_repair_schema,
@@ -40,7 +45,9 @@ from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
     rebase_restored_call_seed,
 )
 from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
+    ScopedFunctionalPlan,
     ScopedFunctionalPlanError,
+    ScopedFunctionalScope,
     ScopedFunctionalPlanValidator,
     ScopedFunctionalStep,
     ScopedStepResultRef,
@@ -95,6 +102,70 @@ def _walk_annotated(scope):
     yield scope
     for child in scope.children:
         yield from _walk_annotated(child)
+
+
+def _parent_with_descendant_consumer(*, parent_args, parent_targets):
+    producer = ScopedFunctionalStep(
+        step_id="build_parabola",
+        capability_id="quadratic_from_constraints",
+        args=parent_args,
+        output_targets=parent_targets,
+        return_expectations={},
+    )
+    consumer = ScopedFunctionalStep(
+        step_id="read_parabola",
+        capability_id="quadratic_vertex_point",
+        args={"parabola": ("parabola",)},
+        output_targets={},
+        return_expectations={},
+    )
+    return ScopedFunctionalPlan(
+        root_scope=ScopedFunctionalScope(
+            scope_ref="root",
+            steps=(producer,),
+            children=(ScopedFunctionalScope(scope_ref="child", steps=(consumer,)),),
+        )
+    )
+
+
+def test_parent_state_guard_allows_shared_producer_argument_repair() -> None:
+    base = _parent_with_descendant_consumer(
+        parent_args={"constraints": ("old",)},
+        parent_targets={"parabola": "parabola"},
+    )
+    candidate = _parent_with_descendant_consumer(
+        parent_args={"constraints": ("repaired",)},
+        parent_targets={"parabola": "parabola"},
+    )
+
+    assert (
+        _retry_parent_state_rewrite_issue(
+            base_plan=base,
+            candidate=candidate,
+            editable_scope_refs=("root",),
+        )
+        is None
+    )
+
+
+def test_parent_state_guard_rejects_changed_output_identity() -> None:
+    base = _parent_with_descendant_consumer(
+        parent_args={"constraints": ("old",)},
+        parent_targets={"parabola": "parabola"},
+    )
+    candidate = _parent_with_descendant_consumer(
+        parent_args={"constraints": ("old",)},
+        parent_targets={"coordinate": "parabola"},
+    )
+
+    issue = _retry_parent_state_rewrite_issue(
+        base_plan=base,
+        candidate=candidate,
+        editable_scope_refs=("root",),
+    )
+
+    assert issue is not None
+    assert issue["code"] == "functional.retry_parent_state_rewrite"
 
 
 def _replace_execution_step(scope, step_id, transform):
@@ -616,6 +687,62 @@ def test_scope_authority_opens_scope_for_unbound_goal_root_diagnostic(
     assert not scopes["problem"].diagnostics
 
 
+def test_final_contract_goal_failure_is_forwarded_to_next_repair_prompt() -> None:
+    feedback = _final_contract_retry_feedback(
+        (
+            {
+                "code": "functional.required_goal_unbound",
+                "path": "$.goal_plans.iii.b",
+                "message": (
+                    "required answer answer:iii.b has no reachable producer"
+                ),
+                "details": {"answer_handle": "answer:iii.b"},
+                "stage": "validation",
+                "retryability": "planner_repairable",
+            },
+            {
+                "code": "functional.final_plan_contract_drift",
+                "path": "$",
+                "message": "canonical Plan changed while round-tripping",
+                "stage": "validation",
+            },
+        )
+    )
+
+    assert feedback == {
+        "code": "functional.required_goal_unbound",
+        "path": "$.goal_plans.iii.b",
+        "message": "required answer answer:iii.b has no reachable producer",
+        "details": {
+            "answer_handle": "answer:iii.b",
+            "diagnostics": [
+                {
+                    "code": "functional.required_goal_unbound",
+                    "path": "$.goal_plans.iii.b",
+                    "message": (
+                        "required answer answer:iii.b has no reachable producer"
+                    ),
+                    "details": {"answer_handle": "answer:iii.b"},
+                    "stage": "validation",
+                    "retryability": "planner_repairable",
+                },
+                {
+                    "code": "functional.final_plan_contract_drift",
+                    "path": "$",
+                    "message": "canonical Plan changed while round-tripping",
+                    "stage": "validation",
+                },
+            ],
+        },
+        "stage": "validation",
+        "suggestion": (
+            "Add the complete executable producer chain for the required "
+            "answer in this Scope, then point answer_from to the final "
+            "producer return."
+        ),
+    }
+
+
 def test_scope_authority_opens_cross_scope_exact_result_consumer(
     tmp_path,
 ) -> None:
@@ -723,6 +850,27 @@ def test_structural_repair_parser_allows_refs_before_merged_plan_normalization(
         "return": "point",
     }
     assert not tuple(Draft202012Validator(schema).iter_errors(payload))
+
+
+def test_scope_repair_parser_discards_dsml_trailer_like_content(tmp_path) -> None:
+    fixture = goal_retry_fixture(tmp_path)
+    authority = FunctionalScopeRetryAuthorityProjector().project(
+        plan=fixture.failed_plan,
+        execution=fixture.execution,
+    )
+    payload = _scope_repair_payload(fixture.failed_plan, "ii")
+
+    repair = FunctionalScopeRepairCompiler().parse_json(
+        json.dumps(payload, ensure_ascii=False)
+        + "</｜｜DSML｜｜ parameter>\n</｜｜DSML｜｜ invoke>",
+        authority=authority,
+        capability_catalog=fixture.capability_catalog,
+    )
+
+    assert repair.scope_replacements["ii"].goals["ii.a"].answer_from
+    assert [item.code for item in repair.normalizations] == [
+        "functional.trailing_non_json_discarded"
+    ]
 
 
 def test_scope_repair_normalizes_optional_empty_capability_args(tmp_path) -> None:
@@ -1607,6 +1755,95 @@ def test_audit_survives_execution_crash_with_received_and_compiled_evidence(tmp_
     assert index['artifacts']['checkpoint']['status'] == 'not_available'
     assert index['phase'] == 'execution_failed'
     assert json.loads((debug / 'attempt-1.blockers.json').read_text())['first_reported']['code'] == 'functional.execution_unexpected_failure'
+
+
+def test_retryable_binding_failure_reissues_full_plan_without_checkpoint(tmp_path):
+    """A latest-state dependency failure must trigger a second planner call."""
+
+    fixture = goal_retry_fixture(tmp_path)
+    plan, report = ScopedFunctionalPlanValidator().validate_payload_with_report(
+        fixture.correct_payload
+    )
+    assert report.ok and plan is not None
+    frame = FunctionalPlanAuthorityFrame.from_planning_context(
+        fixture.planning_context
+    )
+    raw_plan = json.dumps(
+        functional_plan_content_from_plan(plan, frame=frame).to_payload(),
+        ensure_ascii=False,
+    )
+
+    class Client:
+        provider_name = "recorded-test"
+
+        def __init__(self):
+            self.requests = []
+
+        def complete(self, request):
+            self.requests.append(request)
+            return raw_plan
+
+    class ExecutionService:
+        def __init__(self):
+            self.calls = 0
+            self.delegate = ScopedFunctionalGoalExecutionService()
+
+        def execute_raw_json(self, raw_response, **kwargs):
+            self.calls += 1
+            if self.calls == 1:
+                raise FunctionalBindingContextError(
+                    "planner.method_input_view_authority_missing",
+                    "angle_sum_step.x_axis_point requires latest state B",
+                    # The low-level binding service keeps this false; the
+                    # planner boundary upgrades candidate dependency errors
+                    # into semantic retry feedback.
+                    retryable=False,
+                    step_id="angle_sum_step",
+                    arg_name="x_axis_point",
+                    expected={"source": "latest_state", "ref": "B"},
+                    observed={"available": ()},
+                    repair_action="materialize_required_input_before_consuming",
+                )
+            return self.delegate.execute_raw_json(raw_response, **kwargs)
+
+    client = Client()
+    execution_service = ExecutionService()
+    result = ScopedFunctionalScopeRetryService(
+        client,
+        payload_builder=StrategyPayloadBuilder(
+            scoped_functional_few_shot_examples=[]
+        ),
+        execution_service=execution_service,
+    ).run(
+        inputs=fixture.inputs,
+        planning_context=fixture.planning_context,
+        problem_binding_catalog=fixture.binding_catalog,
+        handle_registry=fixture.handle_registry,
+        runtime_context=ContextBuilder().build(fixture.problem),
+        planner_state_context=fixture.planner_state_context,
+        problem_payload=fixture.problem_payload,
+        max_attempts=2,
+    )
+
+    assert result.status == "accepted"
+    assert execution_service.calls == 2
+    assert len(client.requests) == 2
+    assert [
+        request["planner_protocol"] for request in client.requests
+    ] == [
+        "functional-plan-content/v2",
+        "functional-plan-content/v2",
+    ]
+    assert result.attempts[0].error is not None
+    assert result.attempts[0].error.code == (
+        "planner.method_input_view_authority_missing"
+    )
+    assert result.attempts[0].error.retryable is True
+    feedback = client.requests[1]["planner_payload"]["authoring_feedback"]
+    assert feedback[0]["code"] == "planner.method_input_view_authority_missing"
+    assert feedback[0]["details"]["repair_action"] == (
+        "materialize_required_input_before_consuming"
+    )
 
 
 def test_transport_failure_keeps_proven_current_provider_evidence(tmp_path):

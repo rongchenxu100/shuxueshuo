@@ -1,0 +1,2649 @@
+{
+  "schema_version": "explanation-snapshot/v3",
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "family_id": "QuadraticPathMinimumSolver",
+  "problem_revision": "problem-revision:6e26853e4dfaf4c574a746be524bf6bd863d3543f4379c8ff892f1cfe739007e",
+  "problem_semantic_hash": "14bd4b773caf23011fbc77d0efe1ce7db9a8286ed1f25a69eec274a043e7386e",
+  "canonical_plan_hash": "eb7bee859c9682a642666bd4ac8c0285800e7e6e3874c7832295faf5190868cb",
+  "verified_execution_hash": "e818b830dc23e5c513aeee8f5001d62dac8985e8044c2d53a388c33b74d3f6eb",
+  "problem": {
+    "problem_id": "tj-2026-nankai-yimo-25",
+    "pattern": "path-minimum",
+    "problem_type": "quadratic_path_minimum",
+    "purpose": "llm_strategy_planner_prompt",
+    "title": "tj-2026-nankai-yimo-25",
+    "display": {},
+    "original_text": [
+      "Γ: y = a*x^2+b*x+c",
+      "a > 0",
+      "2*a+b = 0",
+      "Γ ∩ y_axis = {C}",
+      "axis(Γ) ∩ x_axis = {D}",
+      "a = 2",
+      "c = -5",
+      "M = (m,1)",
+      "M ∈ Γ",
+      "N ∈ Γ",
+      "m > 2",
+      "x(N) > 0 ∧ y(N) < 0",
+      "angle(M,D,N) = 90°",
+      "DM = DN",
+      "E ∈ segment(D,M)",
+      "G ∈ segment(M,N)",
+      "F = midpoint(D,N)",
+      "DE = sqrt(2)*NG",
+      "MN = sqrt(10)",
+      "min(EG+FG) = 5*sqrt(10)/2",
+      "EG+FG = min(EG+FG)"
+    ],
+    "scopes": [
+      {
+        "label": "题目",
+        "parent": null,
+        "scope_id": "problem"
+      },
+      {
+        "asks": [
+          "D",
+          "parabola"
+        ],
+        "label": "（I）",
+        "parent": "problem",
+        "scope_id": "i"
+      },
+      {
+        "label": "（II）",
+        "parent": "problem",
+        "scope_id": "ii"
+      },
+      {
+        "asks": [
+          "parabola",
+          "min_value"
+        ],
+        "label": "①",
+        "parent": "ii",
+        "scope_id": "ii_1"
+      },
+      {
+        "asks": [
+          "parabola",
+          "G"
+        ],
+        "label": "②",
+        "parent": "ii",
+        "scope_id": "ii_2"
+      }
+    ],
+    "entities": [
+      {
+        "coefficient_relation": "2*a + b = 0",
+        "description": "Γ",
+        "entity_type": "function",
+        "expression": "a*x**2 + b*x + c",
+        "function_type": "quadratic",
+        "handle": "function:problem:parabola",
+        "name": "parabola",
+        "scope_id": "problem"
+      },
+      {
+        "definition": "y_axis_intercept",
+        "description": "C",
+        "entity_type": "point",
+        "handle": "point:problem:C",
+        "name": "C",
+        "of": "function:problem:parabola",
+        "scope_id": "problem"
+      },
+      {
+        "definition": "axis_x_intercept",
+        "description": "D",
+        "entity_type": "point",
+        "handle": "point:problem:D",
+        "name": "D",
+        "of": "function:problem:parabola",
+        "scope_id": "problem"
+      },
+      {
+        "description": "a",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:a",
+        "name": "a",
+        "role": "quadratic_coefficient",
+        "scope_id": "problem"
+      },
+      {
+        "description": "b",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:b",
+        "name": "b",
+        "role": "quadratic_coefficient",
+        "scope_id": "problem"
+      },
+      {
+        "description": "c",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:c",
+        "name": "c",
+        "role": "quadratic_coefficient",
+        "scope_id": "problem"
+      },
+      {
+        "description": "x",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:x",
+        "name": "x",
+        "role": "function_variable",
+        "scope_id": "problem"
+      },
+      {
+        "coordinate": [
+          "m",
+          "1"
+        ],
+        "description": "M",
+        "entity_type": "point",
+        "handle": "point:ii:M",
+        "name": "M",
+        "scope_id": "ii"
+      },
+      {
+        "description": "N",
+        "entity_type": "point",
+        "handle": "point:ii:N",
+        "name": "N",
+        "scope_id": "ii"
+      },
+      {
+        "definition": "point_on_segment",
+        "description": "E",
+        "entity_type": "point",
+        "handle": "point:ii:E",
+        "name": "E",
+        "scope_id": "ii"
+      },
+      {
+        "definition": "point_on_segment",
+        "description": "G",
+        "entity_type": "point",
+        "handle": "point:ii:G",
+        "name": "G",
+        "scope_id": "ii"
+      },
+      {
+        "definition": "midpoint",
+        "description": "F",
+        "entity_type": "point",
+        "handle": "point:ii:F",
+        "name": "F",
+        "of": [
+          "point:problem:D",
+          "point:ii:N"
+        ],
+        "scope_id": "ii"
+      },
+      {
+        "description": "m",
+        "entity_type": "symbol",
+        "handle": "symbol:ii:m",
+        "name": "m",
+        "role": "dynamic_parameter",
+        "scope_id": "ii"
+      },
+      {
+        "description": "线段 DM",
+        "endpoints": [
+          "point:problem:D",
+          "point:ii:M"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:ii:DM",
+        "name": "DM",
+        "scope_id": "ii"
+      },
+      {
+        "description": "线段 DN",
+        "endpoints": [
+          "point:problem:D",
+          "point:ii:N"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:ii:DN",
+        "name": "DN",
+        "scope_id": "ii"
+      },
+      {
+        "description": "线段 MN",
+        "endpoints": [
+          "point:ii:M",
+          "point:ii:N"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:ii:MN",
+        "name": "MN",
+        "scope_id": "ii"
+      },
+      {
+        "description": "线段 DE",
+        "endpoints": [
+          "point:problem:D",
+          "point:ii:E"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:ii:DE",
+        "name": "DE",
+        "scope_id": "ii"
+      },
+      {
+        "description": "线段 NG",
+        "endpoints": [
+          "point:ii:N",
+          "point:ii:G"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:ii:NG",
+        "name": "NG",
+        "scope_id": "ii"
+      }
+    ],
+    "facts": [
+      {
+        "description": "math assertion",
+        "expression": "Γ: y = a*x^2+b*x+c",
+        "handle": "fact:problem:math_assertion_082fc43440f5",
+        "scope_id": "problem",
+        "subjects": [
+          "symbol:problem:a",
+          "symbol:problem:b",
+          "symbol:problem:c",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "problem"
+      },
+      {
+        "description": "math assertion",
+        "expression": "a > 0",
+        "handle": "fact:problem:math_assertion_a37eeec1f8b2",
+        "scope_id": "problem",
+        "subjects": [
+          "symbol:problem:a"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "problem"
+      },
+      {
+        "description": "math assertion",
+        "expression": "2*a+b = 0",
+        "handle": "fact:problem:math_assertion_860186735df9",
+        "scope_id": "problem",
+        "subjects": [
+          "symbol:problem:a",
+          "symbol:problem:b"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "problem"
+      },
+      {
+        "description": "math assertion",
+        "expression": "Γ ∩ y_axis = {C}",
+        "handle": "fact:problem:math_assertion_5c2d109d318d",
+        "scope_id": "problem",
+        "subjects": [
+          "point:problem:C",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "problem"
+      },
+      {
+        "description": "math assertion",
+        "expression": "axis(Γ) ∩ x_axis = {D}",
+        "handle": "fact:problem:math_assertion_b136bf6d334c",
+        "scope_id": "problem",
+        "subjects": [
+          "point:problem:D",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "problem"
+      },
+      {
+        "description": "symbol constraint",
+        "handle": "fact:problem:symbol_constraint_1c521a445476",
+        "operator": ">",
+        "scope_id": "problem",
+        "subject": "symbol:problem:a",
+        "type": "symbol_constraint",
+        "valid_scope": "problem",
+        "value": "0"
+      },
+      {
+        "description": "equation",
+        "equation": "2*a + b = 0",
+        "handle": "fact:problem:equation_563238a9ae14",
+        "scope_id": "problem",
+        "subjects": [
+          "symbol:problem:a",
+          "symbol:problem:b"
+        ],
+        "type": "coefficient_relation",
+        "valid_scope": "problem"
+      },
+      {
+        "description": "math assertion",
+        "expression": "a = 2",
+        "handle": "fact:i:math_assertion_86e0422ff0e9",
+        "scope_id": "i",
+        "subjects": [
+          "symbol:problem:a"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "i"
+      },
+      {
+        "description": "math assertion",
+        "expression": "c = -5",
+        "handle": "fact:i:math_assertion_6ef85b4d76e0",
+        "scope_id": "i",
+        "subjects": [
+          "symbol:problem:c"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "i"
+      },
+      {
+        "description": "symbol value",
+        "handle": "fact:i:symbol_value_6f3931f2fb41",
+        "scope_id": "i",
+        "subject": "symbol:problem:a",
+        "type": "symbol_value",
+        "valid_scope": "i",
+        "value": "2"
+      },
+      {
+        "description": "symbol value",
+        "handle": "fact:i:symbol_value_6db3cdaff47f",
+        "scope_id": "i",
+        "subject": "symbol:problem:c",
+        "type": "symbol_value",
+        "valid_scope": "i",
+        "value": "-5"
+      },
+      {
+        "angle": [
+          "point:ii:M",
+          "point:problem:D",
+          "point:ii:N"
+        ],
+        "description": "直角与等长条件",
+        "equal_segments": [
+          "segment:ii:DM",
+          "segment:ii:DN"
+        ],
+        "handle": "fact:ii:right_angle_equal_length_2aed1a66cde3",
+        "scope_id": "ii",
+        "type": "right_angle_equal_length",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "M = (m,1)",
+        "handle": "fact:ii:math_assertion_e2e16d0cd516",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:M",
+          "symbol:ii:m"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "M ∈ Γ",
+        "handle": "fact:ii:math_assertion_ecf7e27e8333",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:M",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "N ∈ Γ",
+        "handle": "fact:ii:math_assertion_c222142492da",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:N",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "m > 2",
+        "handle": "fact:ii:math_assertion_5ec8c54e33b8",
+        "scope_id": "ii",
+        "subjects": [
+          "symbol:ii:m"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "x(N) > 0 ∧ y(N) < 0",
+        "handle": "fact:ii:math_assertion_3dcc6c5447dd",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:N"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "angle(M,D,N) = 90°",
+        "handle": "fact:ii:math_assertion_73e8c02c4fff",
+        "scope_id": "ii",
+        "subjects": [
+          "point:problem:D",
+          "point:ii:M",
+          "point:ii:N"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "DM = DN",
+        "handle": "fact:ii:math_assertion_585b722f346c",
+        "scope_id": "ii",
+        "subjects": [
+          "point:problem:D",
+          "point:ii:M",
+          "point:ii:N"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "E ∈ segment(D,M)",
+        "handle": "fact:ii:math_assertion_1a0b15dd06d0",
+        "scope_id": "ii",
+        "subjects": [
+          "point:problem:D",
+          "point:ii:E",
+          "point:ii:M"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "G ∈ segment(M,N)",
+        "handle": "fact:ii:math_assertion_dd4881cab6b3",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:G",
+          "point:ii:M",
+          "point:ii:N"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "F = midpoint(D,N)",
+        "handle": "fact:ii:math_assertion_47e27d277b9b",
+        "scope_id": "ii",
+        "subjects": [
+          "point:problem:D",
+          "point:ii:F",
+          "point:ii:N"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "DE = sqrt(2)*NG",
+        "handle": "fact:ii:math_assertion_ca0b92b7673c",
+        "scope_id": "ii",
+        "subjects": [
+          "point:problem:D",
+          "point:ii:E",
+          "point:ii:G",
+          "point:ii:N"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "point coordinate",
+        "handle": "fact:ii:point_coordinate_b92db4801371",
+        "scope_id": "ii",
+        "subject": "point:ii:M",
+        "type": "point_coordinate",
+        "valid_scope": "ii",
+        "value": [
+          "m",
+          "1"
+        ]
+      },
+      {
+        "curve": "function:problem:parabola",
+        "description": "point on curve",
+        "handle": "fact:ii:point_on_curve_aca91a007c96",
+        "point": "point:ii:M",
+        "scope_id": "ii",
+        "type": "point_on_curve",
+        "valid_scope": "ii"
+      },
+      {
+        "curve": "function:problem:parabola",
+        "description": "point on curve",
+        "handle": "fact:ii:point_on_curve_42b9b5d08b43",
+        "point": "point:ii:N",
+        "scope_id": "ii",
+        "type": "point_on_curve",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "symbol constraint",
+        "handle": "fact:ii:symbol_constraint_088d48c925c5",
+        "operator": ">",
+        "scope_id": "ii",
+        "subject": "symbol:ii:m",
+        "type": "symbol_constraint",
+        "valid_scope": "ii",
+        "value": "2"
+      },
+      {
+        "description": "point on segment",
+        "handle": "fact:ii:point_on_segment_4cd75b795d3c",
+        "point": "point:ii:E",
+        "scope_id": "ii",
+        "segment": "segment:ii:DM",
+        "type": "point_on_segment",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "point on segment",
+        "handle": "fact:ii:point_on_segment_1dbe4acca743",
+        "point": "point:ii:G",
+        "scope_id": "ii",
+        "segment": "segment:ii:MN",
+        "type": "point_on_segment",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "midpoint",
+        "handle": "fact:ii:midpoint_f1e57ffc0641",
+        "of": [
+          "point:problem:D",
+          "point:ii:N"
+        ],
+        "point": "point:ii:F",
+        "scope_id": "ii",
+        "type": "midpoint_definition",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "length relation",
+        "handle": "fact:ii:length_relation_a60b9756e688",
+        "left_segment": "segment:ii:DE",
+        "right_segment": "segment:ii:NG",
+        "scale": "sqrt(2)",
+        "scope_id": "ii",
+        "type": "segment_length_relation",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "quadrant membership",
+        "handle": "fact:ii:quadrant_membership_229f8b2b65d2",
+        "quadrant": "IV",
+        "scope_id": "ii",
+        "subject": "point:ii:N",
+        "type": "orientation_constraint",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "MN = sqrt(10)",
+        "handle": "fact:ii_1:math_assertion_3914b21db86f",
+        "scope_id": "ii_1",
+        "subjects": [
+          "point:ii:M",
+          "point:ii:N"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii_1"
+      },
+      {
+        "description": "length value",
+        "handle": "fact:ii_1:length_value_30201c18bf0c",
+        "scope_id": "ii_1",
+        "segment": "segment:ii:MN",
+        "type": "length_squared",
+        "valid_scope": "ii_1",
+        "value": "10"
+      },
+      {
+        "description": "minimum target",
+        "handle": "fact:ii_1:minimum_target_a45950ef1bd4",
+        "path": "EG+FG",
+        "scope_id": "ii_1",
+        "terms": [
+          [
+            "point:ii:E",
+            "point:ii:G"
+          ],
+          [
+            "point:ii:F",
+            "point:ii:G"
+          ]
+        ],
+        "type": "path_minimum_target",
+        "valid_scope": "ii_1"
+      },
+      {
+        "description": "math assertion",
+        "expression": "min(EG+FG) = 5*sqrt(10)/2",
+        "handle": "fact:ii_2:math_assertion_0ebb78763196",
+        "scope_id": "ii_2",
+        "subjects": [
+          "point:ii:E",
+          "point:ii:F",
+          "point:ii:G"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii_2"
+      },
+      {
+        "description": "math assertion",
+        "expression": "EG+FG = min(EG+FG)",
+        "handle": "fact:ii_2:math_assertion_b25727dc7a85",
+        "scope_id": "ii_2",
+        "subjects": [
+          "point:ii:E",
+          "point:ii:F",
+          "point:ii:G"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii_2"
+      },
+      {
+        "description": "minimum target",
+        "handle": "fact:ii_2:minimum_target_5fd0c4b2daa0",
+        "path": "EG+FG",
+        "scope_id": "ii_2",
+        "terms": [
+          [
+            "point:ii:E",
+            "point:ii:G"
+          ],
+          [
+            "point:ii:F",
+            "point:ii:G"
+          ]
+        ],
+        "type": "path_minimum_target",
+        "valid_scope": "ii_2"
+      },
+      {
+        "description": "minimum value given",
+        "handle": "fact:ii_2:minimum_value_given_ab81c394dec1",
+        "path": "EG+FG",
+        "scope_id": "ii_2",
+        "type": "minimum_value",
+        "valid_scope": "ii_2",
+        "value": "5*sqrt(10)/2"
+      },
+      {
+        "description": "minimum attained",
+        "handle": "fact:ii_2:minimum_attained_f4e8931a9932",
+        "path": "EG+FG",
+        "scope_id": "ii_2",
+        "subjects": [
+          "point:ii:E",
+          "point:ii:F",
+          "point:ii:G"
+        ],
+        "type": "minimum_attained",
+        "valid_scope": "ii_2"
+      }
+    ],
+    "question_goals": [
+      {
+        "answer_key": "D",
+        "description": "（I）输出D",
+        "handle": "answer:i.D",
+        "required": true,
+        "scope_id": "i",
+        "target_handle": "point:problem:D",
+        "value_type": "Point"
+      },
+      {
+        "answer_key": "parabola",
+        "description": "（I）输出parabola",
+        "handle": "answer:i.parabola",
+        "required": true,
+        "scope_id": "i",
+        "value_type": "Parabola"
+      },
+      {
+        "answer_key": "parabola",
+        "description": "①输出parabola",
+        "handle": "answer:ii_1.parabola",
+        "required": true,
+        "scope_id": "ii_1",
+        "value_type": "Parabola"
+      },
+      {
+        "answer_key": "min_value",
+        "description": "①输出 EG+FG 的最小值",
+        "handle": "answer:ii_1.min_value",
+        "required": true,
+        "scope_id": "ii_1",
+        "value_type": "MinimumExpression"
+      },
+      {
+        "answer_key": "parabola",
+        "description": "②输出parabola",
+        "handle": "answer:ii_2.parabola",
+        "required": true,
+        "scope_id": "ii_2",
+        "value_type": "Parabola"
+      },
+      {
+        "answer_key": "G",
+        "description": "②输出G",
+        "handle": "answer:ii_2.G",
+        "required": true,
+        "scope_id": "ii_2",
+        "target_handle": "point:ii:G",
+        "value_type": "Point"
+      }
+    ]
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [
+      {
+        "step_id": "i_derive_D",
+        "capability_id": "quadratic_axis_from_relation",
+        "intent": "由系数关系确定对称轴与 x 轴的交点。",
+        "inputs": {
+          "coefficient_relation": [
+            {
+              "ref": {
+                "kind": "source",
+                "ref": "coefficient_relation_a_b"
+              },
+              "runtime_type": "coefficient_relation",
+              "value": {
+                "description": "equation",
+                "equation": "2*a + b = 0",
+                "subjects": [
+                  "a",
+                  "b"
+                ],
+                "type": "coefficient_relation"
+              },
+              "display": "2a+b=0"
+            }
+          ]
+        },
+        "output_targets": {},
+        "outputs": {
+          "axis_point": {
+            "runtime_type": "Point",
+            "value": [
+              "1",
+              "0"
+            ],
+            "display": "D(1,0)"
+          }
+        },
+        "calculations": [],
+        "checks": [
+          {
+            "check_id": "axis_point_on_x_axis",
+            "kind": "runtime_method_check",
+            "passed": true,
+            "detail": "D 在 x 轴上"
+          }
+        ]
+      }
+    ],
+    "goals": {},
+    "children": [
+      {
+        "scope_ref": "i",
+        "steps": [],
+        "goals": {
+          "i.D": {
+            "steps": [],
+            "answer_from": {
+              "step_id": "i_derive_D",
+              "return": "axis_point"
+            }
+          },
+          "i.parabola": {
+            "steps": [
+              {
+                "step_id": "i_derive_parabola",
+                "capability_id": "quadratic_from_constraints",
+                "intent": "代入已知系数并利用系数关系确定二次函数解析式。",
+                "inputs": {
+                  "coefficient_relation": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "coefficient_relation_a_b"
+                      },
+                      "runtime_type": "coefficient_relation",
+                      "value": {
+                        "description": "equation",
+                        "equation": "2*a + b = 0",
+                        "subjects": [
+                          "a",
+                          "b"
+                        ],
+                        "type": "coefficient_relation"
+                      },
+                      "display": "2a+b=0"
+                    }
+                  ],
+                  "known_coefficients": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "symbol_value_a"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "2",
+                      "display": "2"
+                    },
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "symbol_value_c"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "-5",
+                      "display": "-5"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "coefficients": {
+                    "runtime_type": "Coefficients",
+                    "value": {
+                      "a": "2",
+                      "b": "-4",
+                      "c": "-5"
+                    },
+                    "display": "{\"a\": \"2\", \"b\": \"-4\", \"c\": \"-5\"}"
+                  },
+                  "parabola": {
+                    "runtime_type": "Parabola",
+                    "value": "2*x**2 - 4*x - 5",
+                    "display": "2x²-4x-5"
+                  }
+                },
+                "calculations": [],
+                "checks": [
+                  {
+                    "check_id": "known_coefficients_preserved",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "已知系数被保留"
+                  },
+                  {
+                    "check_id": "extra_equation_0_satisfied",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "额外方程约束成立"
+                  }
+                ]
+              }
+            ],
+            "answer_from": {
+              "step_id": "i_derive_parabola",
+              "return": "parabola"
+            }
+          }
+        },
+        "children": []
+      },
+      {
+        "scope_ref": "ii",
+        "steps": [
+          {
+            "step_id": "ii_construct_N",
+            "capability_id": "right_angle_equal_length_construct_and_select",
+            "intent": "利用直角、等长和象限条件确定点 N 的含参坐标。",
+            "inputs": {
+              "right_angle_equal_length": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "right_angle_equal_length_m_d_n_dm_dn"
+                  },
+                  "runtime_type": "right_angle_equal_length",
+                  "value": {
+                    "angle": [
+                      "M",
+                      "D",
+                      "N"
+                    ],
+                    "description": "直角与等长条件",
+                    "equal_segments": [
+                      "DM",
+                      "DN"
+                    ],
+                    "type": "right_angle_equal_length"
+                  },
+                  "display": "直角与等长条件"
+                }
+              ]
+            },
+            "output_targets": {
+              "selected_target_point": "N"
+            },
+            "outputs": {
+              "selected_target_point": {
+                "runtime_type": "Point",
+                "value": [
+                  "2",
+                  "1 - m"
+                ],
+                "display": "N(2,1-m)"
+              }
+            },
+            "calculations": [
+              {
+                "calculation_id": "right_angle_rotation_candidates",
+                "kind": "candidate_construction",
+                "candidates": [
+                  [
+                    "2",
+                    "1 - m"
+                  ],
+                  [
+                    "0",
+                    "m - 1"
+                  ]
+                ],
+                "verified_relations": [
+                  "候选位置 N(2, 1 - m) 与已知直角边等长",
+                  "候选位置 N(2, 1 - m) 与已知直角边垂直",
+                  "候选位置 N(0, m - 1) 与已知直角边等长",
+                  "候选位置 N(0, m - 1) 与已知直角边垂直"
+                ],
+                "geometry": {
+                  "anchor": [
+                    "1",
+                    "0"
+                  ],
+                  "axis": "x",
+                  "candidate_branches": [
+                    {
+                      "lengths": {
+                        "anchor_to_projection": "1",
+                        "candidate_to_projection": "m - 1"
+                      },
+                      "point": [
+                        "2",
+                        "1 - m"
+                      ],
+                      "projection": [
+                        "2",
+                        "0"
+                      ],
+                      "student_projection": {
+                        "label": "V",
+                        "coordinates": [
+                          "2",
+                          "0"
+                        ]
+                      }
+                    },
+                    {
+                      "lengths": {
+                        "anchor_to_projection": "1",
+                        "candidate_to_projection": "m - 1"
+                      },
+                      "point": [
+                        "0",
+                        "m - 1"
+                      ],
+                      "projection": [
+                        "0",
+                        "0"
+                      ],
+                      "student_projection": {
+                        "label": "W",
+                        "coordinates": [
+                          "0",
+                          "0"
+                        ]
+                      }
+                    }
+                  ],
+                  "kind": "axis_projection_candidate_construction",
+                  "projection_line": {
+                    "axis": "x",
+                    "kind": "coordinate_axis",
+                    "offset": "0"
+                  },
+                  "reference": [
+                    "m",
+                    "1"
+                  ],
+                  "reference_lengths": {
+                    "anchor_to_projection": "m - 1",
+                    "reference_to_projection": "1"
+                  },
+                  "reference_projection": [
+                    "m",
+                    "0"
+                  ],
+                  "student_reference_projection": {
+                    "label": "U",
+                    "coordinates": [
+                      "m",
+                      "0"
+                    ]
+                  }
+                }
+              },
+              {
+                "calculation_id": "right_angle_candidate_selection",
+                "kind": "candidate_selection",
+                "condition": "N 在IV，且 m>2",
+                "decisions": [
+                  "候选点 (2, 1 - m)：保留",
+                  "候选点 (0, m - 1)：排除"
+                ],
+                "result": [
+                  "2",
+                  "1 - m"
+                ]
+              }
+            ],
+            "checks": [
+              {
+                "check_id": "right_angle_selection_unique",
+                "kind": "unique_candidate",
+                "passed": true,
+                "display": "题设条件筛选出唯一合法候选点"
+              }
+            ]
+          },
+          {
+            "step_id": "ii_derive_parabola",
+            "capability_id": "quadratic_from_constraints",
+            "intent": "利用 M、N 在抛物线上及系数关系，建立关于参数 m 的抛物线。",
+            "inputs": {
+              "coefficient_relation": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "coefficient_relation_a_b"
+                  },
+                  "runtime_type": "coefficient_relation",
+                  "value": {
+                    "description": "equation",
+                    "equation": "2*a + b = 0",
+                    "subjects": [
+                      "a",
+                      "b"
+                    ],
+                    "type": "coefficient_relation"
+                  },
+                  "display": "2a+b=0"
+                }
+              ],
+              "curve_points": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "M"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "m",
+                    "1"
+                  ],
+                  "display": "M(m,1)"
+                },
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "N"
+                  },
+                  "runtime_type": "Point",
+                  "value": [
+                    "2",
+                    "1 - m"
+                  ],
+                  "display": "N(2,1-m)",
+                  "resolved_from": {
+                    "kind": "step_result",
+                    "step_id": "ii_construct_N",
+                    "return": "selected_target_point"
+                  }
+                }
+              ],
+              "free_parameters": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "m"
+                  },
+                  "runtime_type": "Symbol",
+                  "value": "m",
+                  "display": "m"
+                }
+              ]
+            },
+            "output_targets": {
+              "parabola": "parabola"
+            },
+            "outputs": {
+              "coefficients": {
+                "runtime_type": "Coefficients",
+                "value": {
+                  "a": "1/(m - 2)",
+                  "b": "-2/(m - 2)",
+                  "c": "1 - m"
+                },
+                "display": "{\"a\": \"1/(m - 2)\", \"b\": \"-2/(m - 2)\", \"c\": \"1 - m\"}"
+              },
+              "parabola": {
+                "runtime_type": "Parabola",
+                "value": "(x**2 - 2*x + (1 - m)*(m - 2))/(m - 2)",
+                "display": "(x²-2x+(1-m)(m-2))/(m-2)"
+              }
+            },
+            "calculations": [],
+            "checks": [
+              {
+                "check_id": "known_coefficients_preserved",
+                "kind": "runtime_method_check",
+                "passed": true,
+                "detail": "已知系数被保留"
+              },
+              {
+                "check_id": "curve_point_0_on_parabola",
+                "kind": "runtime_method_check",
+                "passed": true,
+                "detail": "曲线点满足求得的抛物线"
+              },
+              {
+                "check_id": "curve_point_1_on_parabola",
+                "kind": "runtime_method_check",
+                "passed": true,
+                "detail": "曲线点满足求得的抛物线"
+              }
+            ]
+          },
+          {
+            "step_id": "ii_compute_F",
+            "capability_id": "midpoint_point",
+            "intent": "由中点定义计算路径变换所需固定端点的坐标。",
+            "inputs": {
+              "midpoint_definition": [
+                {
+                  "ref": {
+                    "kind": "source",
+                    "ref": "midpoint_definition_d_n_f"
+                  },
+                  "runtime_type": "midpoint_definition",
+                  "value": {
+                    "description": "midpoint",
+                    "of": [
+                      "D",
+                      "N"
+                    ],
+                    "point": "F",
+                    "type": "midpoint_definition"
+                  },
+                  "display": "midpoint"
+                }
+              ]
+            },
+            "output_targets": {
+              "midpoint": "F"
+            },
+            "outputs": {
+              "midpoint": {
+                "runtime_type": "Point",
+                "value": [
+                  "3/2",
+                  "1/2 - m/2"
+                ],
+                "display": "F(3/2,1/2-m/2)"
+              }
+            },
+            "calculations": [],
+            "checks": [
+              {
+                "check_id": "midpoint_average",
+                "kind": "runtime_method_check",
+                "passed": true,
+                "detail": "F 的坐标为端点坐标平均值"
+              }
+            ]
+          }
+        ],
+        "goals": {},
+        "children": [
+          {
+            "scope_ref": "ii_1",
+            "steps": [
+              {
+                "step_id": "ii_path_minimum__ii_1",
+                "capability_id": "coupled_segment_endpoint_replacement_path_minimum",
+                "intent": "利用题设线段关系原子完成端点替换和折线拉直，得到最小值表达式与动点 G 的取等状态。",
+                "inputs": {
+                  "path_minimum_target": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "path_minimum_target_e_g_f"
+                      },
+                      "runtime_type": "path_minimum_target",
+                      "value": {
+                        "description": "minimum target",
+                        "path": "EG+FG",
+                        "terms": [
+                          [
+                            "E",
+                            "G"
+                          ],
+                          [
+                            "F",
+                            "G"
+                          ]
+                        ],
+                        "type": "path_minimum_target"
+                      },
+                      "display": "EG+FG"
+                    }
+                  ],
+                  "segment_binding_relation": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "segment_length_relation_de_ng"
+                      },
+                      "runtime_type": "segment_length_relation",
+                      "value": {
+                        "description": "length relation",
+                        "left_segment": "DE",
+                        "right_segment": "NG",
+                        "scale": "sqrt(2)",
+                        "type": "segment_length_relation"
+                      },
+                      "display": "lengthrelation"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "minimum_expression": {
+                    "runtime_type": "MinimumExpression",
+                    "value": "5/2",
+                    "display": "5/2"
+                  },
+                  "attainment_point": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "7/3",
+                      "-1"
+                    ],
+                    "display": "(7/3,-1)"
+                  }
+                },
+                "calculations": [
+                  {
+                    "calculation_id": "path_equivalence",
+                    "kind": "equivalence_chain",
+                    "statements": [
+                      "EG=DG"
+                    ],
+                    "result": "EG+FG=DG+FG"
+                  },
+                  {
+                    "calculation_id": "path_construction_1",
+                    "kind": "existing_fixed_endpoint_replacement",
+                    "facts": {
+                      "geometry_certificate": {
+                        "binding": {
+                          "left_segment": [
+                            "D",
+                            "E"
+                          ],
+                          "right_segment": [
+                            "N",
+                            "G"
+                          ],
+                          "scale": "sqrt(2)"
+                        },
+                        "first_leg": [
+                          "D",
+                          "M"
+                        ],
+                        "hypotenuse": [
+                          "M",
+                          "N"
+                        ],
+                        "kind": "right_isosceles_perpendicular_bisector",
+                        "replacement": {
+                          "left_segment": [
+                            "E",
+                            "G"
+                          ],
+                          "right_segment": [
+                            "D",
+                            "G"
+                          ]
+                        },
+                        "roles": {
+                          "first_leg_moving_point": "E",
+                          "first_leg_vertex": "M",
+                          "hypotenuse_moving_point": "G",
+                          "right_vertex": "D",
+                          "second_leg_vertex": "N"
+                        },
+                        "second_leg": [
+                          "D",
+                          "N"
+                        ],
+                        "verified_relations": [
+                          "right_isosceles_frame",
+                          "hypotenuse_projection_isosceles",
+                          "projection_rectangle",
+                          "first_projection_is_binding_midpoint",
+                          "perpendicular_bisector",
+                          "endpoint_distances_equal"
+                        ],
+                        "student_second_leg_projection": {
+                          "label": "H"
+                        },
+                        "student_first_leg_projection": {
+                          "label": "K"
+                        }
+                      },
+                      "kind": "existing_fixed_endpoint_replacement",
+                      "moving_locus": "线段MN",
+                      "segment_equality": "EG=DG"
+                    }
+                  },
+                  {
+                    "calculation_id": "path_construction_2",
+                    "kind": "line_reflection",
+                    "facts": {
+                      "kind": "line_reflection",
+                      "minimum_segment": "D_primeF",
+                      "moving_point": "G",
+                      "other_fixed_point": "F",
+                      "reflect_source": "D",
+                      "reflected_point": [
+                        "4",
+                        "-1"
+                      ],
+                      "reflected_point_name": "D_prime",
+                      "straightened_path": "D_primeG+FG",
+                      "transformed_path": "DG+FG"
+                    }
+                  },
+                  {
+                    "calculation_id": "path_minimum",
+                    "kind": "minimum",
+                    "strategy": "reflection",
+                    "expression": "5/2"
+                  },
+                  {
+                    "calculation_id": "path_attainment",
+                    "kind": "attainment",
+                    "points": {
+                      "G": [
+                        "7/3",
+                        "-1"
+                      ]
+                    }
+                  }
+                ],
+                "checks": [
+                  {
+                    "check_id": "path_attainment_1_1",
+                    "kind": "point_on_moving_segment",
+                    "passed": true
+                  },
+                  {
+                    "check_id": "path_attainment_1_2",
+                    "kind": "point_on_minimum_segment",
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "step_id": "ii_1_solve_m",
+                "capability_id": "parameter_from_segment_length",
+                "intent": "由 MN 的长度条件求参数 m。",
+                "inputs": {
+                  "length_squared": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "length_squared_mn"
+                      },
+                      "runtime_type": "length_squared",
+                      "value": {
+                        "description": "length value",
+                        "segment": "MN",
+                        "type": "length_squared",
+                        "value": "10"
+                      },
+                      "display": "lengthvalue"
+                    }
+                  ],
+                  "p1": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "M"
+                      },
+                      "runtime_type": "Point",
+                      "value": [
+                        "m",
+                        "1"
+                      ],
+                      "display": "M(m,1)"
+                    }
+                  ],
+                  "p2": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "N"
+                      },
+                      "runtime_type": "Point",
+                      "value": [
+                        "2",
+                        "1 - m"
+                      ],
+                      "display": "N(2,1-m)",
+                      "resolved_from": {
+                        "kind": "step_result",
+                        "step_id": "ii_construct_N",
+                        "return": "selected_target_point"
+                      }
+                    }
+                  ]
+                },
+                "output_targets": {
+                  "parameter_value": "m"
+                },
+                "outputs": {
+                  "parameter_value": {
+                    "runtime_type": "ParameterValue",
+                    "value": "3",
+                    "display": "3"
+                  }
+                },
+                "calculations": [
+                  {
+                    "calculation_id": "symbolic_equations",
+                    "kind": "equation_system",
+                    "equations": [
+                      "Eq(m**2 + (m - 2)**2, 10)"
+                    ],
+                    "sources": [
+                      "p1",
+                      "p2",
+                      "condition"
+                    ]
+                  },
+                  {
+                    "calculation_id": "symbolic_substitutions",
+                    "kind": "substitution",
+                    "values": [
+                      {
+                        "symbol": "m",
+                        "value": "3"
+                      }
+                    ]
+                  },
+                  {
+                    "calculation_id": "symbolic_solution",
+                    "kind": "solution",
+                    "target": "m",
+                    "value": "3"
+                  }
+                ],
+                "checks": [
+                  {
+                    "check_id": "parameter_domain",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "参数满足定义域"
+                  },
+                  {
+                    "check_id": "length_condition_matches",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "距离条件成立"
+                  },
+                  {
+                    "check_id": "closure_parameter_value_matches",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "参数值输出与 symbolic closure 一致"
+                  },
+                  {
+                    "check_id": "closure_equation_0_satisfied",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "参数值满足 symbolic closure 方程"
+                  },
+                  {
+                    "check_id": "symbolic_unique_branch",
+                    "kind": "unique_solution_branch",
+                    "passed": true,
+                    "branch_count": 1,
+                    "residual_symbols": []
+                  },
+                  {
+                    "check_id": "symbolic_constraint_filter",
+                    "kind": "constraint_filter",
+                    "passed": true,
+                    "summary": "题设约束已用于筛选唯一合法分支"
+                  }
+                ]
+              }
+            ],
+            "goals": {
+              "ii_1.min_value": {
+                "steps": [
+                  {
+                    "step_id": "ii_1_evaluate_minimum",
+                    "capability_id": "evaluate_expression_at_parameter",
+                    "intent": "把参数值代入共享的路径最小值表达式。",
+                    "inputs": {
+                      "expression": [
+                        {
+                          "ref": {
+                            "kind": "step_result",
+                            "step_id": "ii_path_minimum__ii_1",
+                            "return": "minimum_expression"
+                          },
+                          "runtime_type": "MinimumExpression",
+                          "value": "5/2",
+                          "display": "5/2"
+                        }
+                      ],
+                      "parameter_value": [
+                        {
+                          "ref": {
+                            "kind": "source",
+                            "ref": "m"
+                          },
+                          "runtime_type": "ParameterValue",
+                          "value": "3",
+                          "display": "3",
+                          "resolved_from": {
+                            "kind": "step_result",
+                            "step_id": "ii_1_solve_m",
+                            "return": "parameter_value"
+                          }
+                        }
+                      ]
+                    },
+                    "output_targets": {},
+                    "outputs": {
+                      "evaluated_minimum_expression": {
+                        "runtime_type": "MinimumExpression",
+                        "value": "5/2",
+                        "display": "5/2"
+                      }
+                    },
+                    "calculations": [],
+                    "checks": [
+                      {
+                        "check_id": "expression_parameter_substituted",
+                        "kind": "runtime_method_check",
+                        "passed": true,
+                        "detail": "参数已代入表达式"
+                      }
+                    ]
+                  }
+                ],
+                "answer_from": {
+                  "step_id": "ii_1_evaluate_minimum",
+                  "return": "evaluated_minimum_expression"
+                }
+              },
+              "ii_1.parabola": {
+                "steps": [
+                  {
+                    "step_id": "ii_1_specialize_parabola",
+                    "capability_id": "evaluate_expression_at_parameter",
+                    "intent": "把本小问求得的 m 代入共享含参抛物线。",
+                    "inputs": {
+                      "expression": [
+                        {
+                          "ref": {
+                            "kind": "source",
+                            "ref": "parabola"
+                          },
+                          "runtime_type": "Parabola",
+                          "value": "(x**2 - 2*x + (1 - m)*(m - 2))/(m - 2)",
+                          "display": "(x²-2x+(1-m)(m-2))/(m-2)",
+                          "resolved_from": {
+                            "kind": "step_result",
+                            "step_id": "ii_derive_parabola",
+                            "return": "parabola"
+                          }
+                        }
+                      ],
+                      "parameter_value": [
+                        {
+                          "ref": {
+                            "kind": "source",
+                            "ref": "m"
+                          },
+                          "runtime_type": "ParameterValue",
+                          "value": "3",
+                          "display": "3",
+                          "resolved_from": {
+                            "kind": "step_result",
+                            "step_id": "ii_1_solve_m",
+                            "return": "parameter_value"
+                          }
+                        }
+                      ]
+                    },
+                    "output_targets": {},
+                    "outputs": {
+                      "evaluated_parabola": {
+                        "runtime_type": "Parabola",
+                        "value": "x**2 - 2*x - 2",
+                        "display": "x²-2x-2"
+                      }
+                    },
+                    "calculations": [],
+                    "checks": [
+                      {
+                        "check_id": "expression_parameter_substituted",
+                        "kind": "runtime_method_check",
+                        "passed": true,
+                        "detail": "参数已代入表达式"
+                      }
+                    ]
+                  }
+                ],
+                "answer_from": {
+                  "step_id": "ii_1_specialize_parabola",
+                  "return": "evaluated_parabola"
+                }
+              }
+            },
+            "children": []
+          },
+          {
+            "scope_ref": "ii_2",
+            "steps": [
+              {
+                "step_id": "ii_path_minimum__ii_2",
+                "capability_id": "coupled_segment_endpoint_replacement_path_minimum",
+                "intent": "利用题设线段关系原子完成端点替换和折线拉直，得到最小值表达式与动点 G 的取等状态。",
+                "inputs": {
+                  "path_minimum_target": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "path_minimum_target_e_g_f"
+                      },
+                      "runtime_type": "path_minimum_target",
+                      "value": {
+                        "description": "minimum target",
+                        "path": "EG+FG",
+                        "terms": [
+                          [
+                            "E",
+                            "G"
+                          ],
+                          [
+                            "F",
+                            "G"
+                          ]
+                        ],
+                        "type": "path_minimum_target"
+                      },
+                      "display": "EG+FG"
+                    }
+                  ],
+                  "segment_binding_relation": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "segment_length_relation_de_ng"
+                      },
+                      "runtime_type": "segment_length_relation",
+                      "value": {
+                        "description": "length relation",
+                        "left_segment": "DE",
+                        "right_segment": "NG",
+                        "scale": "sqrt(2)",
+                        "type": "segment_length_relation"
+                      },
+                      "display": "lengthrelation"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "minimum_expression": {
+                    "runtime_type": "MinimumExpression",
+                    "value": "sqrt(5*m**2 - 10*m + 10)/2",
+                    "display": "√(5m²-10m+10)/2"
+                  },
+                  "attainment_point": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "m/3 + 4/3",
+                      "1 - 2*m/3"
+                    ],
+                    "display": "(m/3+4/3,1-2m/3)"
+                  }
+                },
+                "calculations": [
+                  {
+                    "calculation_id": "path_equivalence",
+                    "kind": "equivalence_chain",
+                    "statements": [
+                      "EG=DG"
+                    ],
+                    "result": "EG+FG=DG+FG"
+                  },
+                  {
+                    "calculation_id": "path_construction_1",
+                    "kind": "existing_fixed_endpoint_replacement",
+                    "facts": {
+                      "geometry_certificate": {
+                        "binding": {
+                          "left_segment": [
+                            "D",
+                            "E"
+                          ],
+                          "right_segment": [
+                            "N",
+                            "G"
+                          ],
+                          "scale": "sqrt(2)"
+                        },
+                        "first_leg": [
+                          "D",
+                          "M"
+                        ],
+                        "hypotenuse": [
+                          "M",
+                          "N"
+                        ],
+                        "kind": "right_isosceles_perpendicular_bisector",
+                        "replacement": {
+                          "left_segment": [
+                            "E",
+                            "G"
+                          ],
+                          "right_segment": [
+                            "D",
+                            "G"
+                          ]
+                        },
+                        "roles": {
+                          "first_leg_moving_point": "E",
+                          "first_leg_vertex": "M",
+                          "hypotenuse_moving_point": "G",
+                          "right_vertex": "D",
+                          "second_leg_vertex": "N"
+                        },
+                        "second_leg": [
+                          "D",
+                          "N"
+                        ],
+                        "verified_relations": [
+                          "right_isosceles_frame",
+                          "hypotenuse_projection_isosceles",
+                          "projection_rectangle",
+                          "first_projection_is_binding_midpoint",
+                          "perpendicular_bisector",
+                          "endpoint_distances_equal"
+                        ],
+                        "student_second_leg_projection": {
+                          "label": "H"
+                        },
+                        "student_first_leg_projection": {
+                          "label": "K"
+                        }
+                      },
+                      "kind": "existing_fixed_endpoint_replacement",
+                      "moving_locus": "线段MN",
+                      "segment_equality": "EG=DG"
+                    }
+                  },
+                  {
+                    "calculation_id": "path_construction_2",
+                    "kind": "line_reflection",
+                    "facts": {
+                      "kind": "line_reflection",
+                      "minimum_segment": "D_primeF",
+                      "moving_point": "G",
+                      "other_fixed_point": "F",
+                      "reflect_source": "D",
+                      "reflected_point": [
+                        "m + 1",
+                        "2 - m"
+                      ],
+                      "reflected_point_name": "D_prime",
+                      "straightened_path": "D_primeG+FG",
+                      "transformed_path": "DG+FG"
+                    }
+                  },
+                  {
+                    "calculation_id": "path_minimum",
+                    "kind": "minimum",
+                    "strategy": "reflection",
+                    "expression": "sqrt(5*m**2 - 10*m + 10)/2"
+                  },
+                  {
+                    "calculation_id": "path_attainment",
+                    "kind": "attainment",
+                    "points": {
+                      "G": [
+                        "m/3 + 4/3",
+                        "1 - 2*m/3"
+                      ]
+                    }
+                  }
+                ],
+                "checks": [
+                  {
+                    "check_id": "path_attainment_1_1",
+                    "kind": "point_on_moving_segment",
+                    "passed": true
+                  },
+                  {
+                    "check_id": "path_attainment_1_2",
+                    "kind": "point_on_minimum_segment",
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "step_id": "ii_2_solve_m",
+                "capability_id": "parameter_from_minimum_value",
+                "intent": "由给定最小值和共享最小值表达式反求参数 m。",
+                "inputs": {
+                  "minimum_expression": [
+                    {
+                      "ref": {
+                        "kind": "step_result",
+                        "step_id": "ii_path_minimum__ii_2",
+                        "return": "minimum_expression"
+                      },
+                      "runtime_type": "MinimumExpression",
+                      "value": "sqrt(5*m**2 - 10*m + 10)/2",
+                      "display": "√(5m²-10m+10)/2"
+                    }
+                  ],
+                  "minimum_value": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "minimum_value"
+                      },
+                      "runtime_type": "minimum_value",
+                      "value": {
+                        "description": "minimum value given",
+                        "path": "EG+FG",
+                        "type": "minimum_value",
+                        "value": "5*sqrt(10)/2"
+                      },
+                      "display": "EG+FG=5√10/2"
+                    }
+                  ]
+                },
+                "output_targets": {
+                  "parameter_value": "m"
+                },
+                "outputs": {
+                  "parameter_value": {
+                    "runtime_type": "ParameterValue",
+                    "value": "8",
+                    "display": "8"
+                  }
+                },
+                "calculations": [
+                  {
+                    "calculation_id": "symbolic_equations",
+                    "kind": "equation_system",
+                    "equations": [
+                      "Eq(sqrt(5*m**2 - 10*m + 10)/2, 5*sqrt(10)/2)"
+                    ],
+                    "sources": [
+                      "minimum_expression",
+                      "condition"
+                    ]
+                  },
+                  {
+                    "calculation_id": "symbolic_substitutions",
+                    "kind": "substitution",
+                    "values": [
+                      {
+                        "symbol": "m",
+                        "value": "8"
+                      }
+                    ]
+                  },
+                  {
+                    "calculation_id": "symbolic_solution",
+                    "kind": "solution",
+                    "target": "m",
+                    "value": "8"
+                  }
+                ],
+                "checks": [
+                  {
+                    "check_id": "minimum_parameter_domain",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "参数满足定义域"
+                  },
+                  {
+                    "check_id": "minimum_value_matches",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "最小值匹配题设"
+                  },
+                  {
+                    "check_id": "closure_parameter_value_matches",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "参数值输出与 symbolic closure 一致"
+                  },
+                  {
+                    "check_id": "closure_equation_0_satisfied",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "参数值满足 symbolic closure 方程"
+                  },
+                  {
+                    "check_id": "symbolic_unique_branch",
+                    "kind": "unique_solution_branch",
+                    "passed": true,
+                    "branch_count": 1,
+                    "residual_symbols": []
+                  },
+                  {
+                    "check_id": "symbolic_constraint_filter",
+                    "kind": "constraint_filter",
+                    "passed": true,
+                    "summary": "题设约束已用于筛选唯一合法分支"
+                  }
+                ]
+              }
+            ],
+            "goals": {
+              "ii_2.G": {
+                "steps": [
+                  {
+                    "step_id": "ii_2_evaluate_G",
+                    "capability_id": "evaluate_point_at_parameter",
+                    "intent": "把反求的参数值代入 Macro 返回的动点 G 取等状态。",
+                    "inputs": {
+                      "parameter_value": [
+                        {
+                          "ref": {
+                            "kind": "source",
+                            "ref": "m"
+                          },
+                          "runtime_type": "ParameterValue",
+                          "value": "8",
+                          "display": "8",
+                          "resolved_from": {
+                            "kind": "step_result",
+                            "step_id": "ii_2_solve_m",
+                            "return": "parameter_value"
+                          }
+                        }
+                      ],
+                      "point": [
+                        {
+                          "ref": {
+                            "kind": "step_result",
+                            "step_id": "ii_path_minimum__ii_2",
+                            "return": "attainment_point"
+                          },
+                          "runtime_type": "Point",
+                          "value": [
+                            "m/3 + 4/3",
+                            "1 - 2*m/3"
+                          ],
+                          "display": "(m/3+4/3,1-2m/3)"
+                        }
+                      ]
+                    },
+                    "output_targets": {},
+                    "outputs": {
+                      "evaluated_point": {
+                        "runtime_type": "Point",
+                        "value": [
+                          "4",
+                          "-13/3"
+                        ],
+                        "display": "G(4,-13/3)"
+                      }
+                    },
+                    "calculations": [],
+                    "checks": [
+                      {
+                        "check_id": "point_parameter_substituted",
+                        "kind": "runtime_method_check",
+                        "passed": true,
+                        "detail": "参数已代入点坐标"
+                      }
+                    ]
+                  }
+                ],
+                "answer_from": {
+                  "step_id": "ii_2_evaluate_G",
+                  "return": "evaluated_point"
+                }
+              },
+              "ii_2.parabola": {
+                "steps": [
+                  {
+                    "step_id": "ii_2_specialize_parabola",
+                    "capability_id": "evaluate_expression_at_parameter",
+                    "intent": "把本小问求得的 m 代入共享含参抛物线。",
+                    "inputs": {
+                      "expression": [
+                        {
+                          "ref": {
+                            "kind": "source",
+                            "ref": "parabola"
+                          },
+                          "runtime_type": "Parabola",
+                          "value": "(x**2 - 2*x + (1 - m)*(m - 2))/(m - 2)",
+                          "display": "(x²-2x+(1-m)(m-2))/(m-2)",
+                          "resolved_from": {
+                            "kind": "step_result",
+                            "step_id": "ii_derive_parabola",
+                            "return": "parabola"
+                          }
+                        }
+                      ],
+                      "parameter_value": [
+                        {
+                          "ref": {
+                            "kind": "source",
+                            "ref": "m"
+                          },
+                          "runtime_type": "ParameterValue",
+                          "value": "8",
+                          "display": "8",
+                          "resolved_from": {
+                            "kind": "step_result",
+                            "step_id": "ii_2_solve_m",
+                            "return": "parameter_value"
+                          }
+                        }
+                      ]
+                    },
+                    "output_targets": {},
+                    "outputs": {
+                      "evaluated_parabola": {
+                        "runtime_type": "Parabola",
+                        "value": "x**2/6 - x/3 - 7",
+                        "display": "x²/6-x/3-7"
+                      }
+                    },
+                    "calculations": [],
+                    "checks": [
+                      {
+                        "check_id": "expression_parameter_substituted",
+                        "kind": "runtime_method_check",
+                        "passed": true,
+                        "detail": "参数已代入表达式"
+                      }
+                    ]
+                  }
+                ],
+                "answer_from": {
+                  "step_id": "ii_2_specialize_parabola",
+                  "return": "evaluated_parabola"
+                }
+              }
+            },
+            "children": []
+          }
+        ]
+      }
+    ]
+  },
+  "evidence": {
+    "right-angle-construct-select:ff6e3688ccba6a44dfb64952c229e465ef8e882fe630e1b68ce9374a23bd8f5e": {
+      "schema_version": "right-angle-construct-select-teaching-evidence/v1",
+      "step_id": "ii_construct_N",
+      "macro_id": "right_angle_equal_length_construct_and_select",
+      "candidates": [
+        [
+          "2",
+          "1 - m"
+        ],
+        [
+          "0",
+          "m - 1"
+        ]
+      ],
+      "selected_point": [
+        "2",
+        "1 - m"
+      ],
+      "construction_checks": [
+        "候选位置 N(2, 1 - m) 与已知直角边等长",
+        "候选位置 N(2, 1 - m) 与已知直角边垂直",
+        "候选位置 N(0, m - 1) 与已知直角边等长",
+        "候选位置 N(0, m - 1) 与已知直角边垂直"
+      ],
+      "selection_condition": "N 在IV，且 m>2",
+      "candidate_decisions": [
+        "候选点 (2, 1 - m)：保留",
+        "候选点 (0, m - 1)：排除"
+      ],
+      "construction_geometry": {
+        "anchor": [
+          "1",
+          "0"
+        ],
+        "axis": "x",
+        "candidate_branches": [
+          {
+            "lengths": {
+              "anchor_to_projection": "1",
+              "candidate_to_projection": "m - 1"
+            },
+            "point": [
+              "2",
+              "1 - m"
+            ],
+            "projection": [
+              "2",
+              "0"
+            ],
+            "student_projection": {
+              "label": "V",
+              "coordinates": [
+                "2",
+                "0"
+              ]
+            }
+          },
+          {
+            "lengths": {
+              "anchor_to_projection": "1",
+              "candidate_to_projection": "m - 1"
+            },
+            "point": [
+              "0",
+              "m - 1"
+            ],
+            "projection": [
+              "0",
+              "0"
+            ],
+            "student_projection": {
+              "label": "W",
+              "coordinates": [
+                "0",
+                "0"
+              ]
+            }
+          }
+        ],
+        "kind": "axis_projection_candidate_construction",
+        "projection_line": {
+          "axis": "x",
+          "kind": "coordinate_axis",
+          "offset": "0"
+        },
+        "reference": [
+          "m",
+          "1"
+        ],
+        "reference_lengths": {
+          "anchor_to_projection": "m - 1",
+          "reference_to_projection": "1"
+        },
+        "reference_projection": [
+          "m",
+          "0"
+        ],
+        "student_reference_projection": {
+          "label": "U",
+          "coordinates": [
+            "m",
+            "0"
+          ]
+        }
+      }
+    },
+    "path-minimum:dc5c9147730d5037a7374e365ff2dd0b6671c757970a61965a38d127daca38bb": {
+      "schema_version": "path-minimum-prompt-witness/v1",
+      "step_id": "ii_path_minimum__ii_1",
+      "macro_id": "coupled_segment_endpoint_replacement_path_minimum",
+      "original_objective": "EG+FG",
+      "reduced_objective": "DG+FG",
+      "role_resolutions": [
+        {
+          "authored_ref": null,
+          "chosen_ref": "point_on_segment_e_dm",
+          "corrected": false,
+          "role": "first_membership"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "point_on_segment_g_mn",
+          "corrected": false,
+          "role": "second_membership"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "D",
+          "corrected": false,
+          "role": "first_segment_start"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "M",
+          "corrected": false,
+          "role": "joint_point"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "N",
+          "corrected": false,
+          "role": "second_segment_end"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "F",
+          "corrected": false,
+          "role": "transformed_fixed_endpoint"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "G",
+          "corrected": false,
+          "role": "moving_point"
+        }
+      ],
+      "constructions": [
+        {
+          "geometry_certificate": {
+            "binding": {
+              "left_segment": [
+                "D",
+                "E"
+              ],
+              "right_segment": [
+                "N",
+                "G"
+              ],
+              "scale": "sqrt(2)"
+            },
+            "first_leg": [
+              "D",
+              "M"
+            ],
+            "hypotenuse": [
+              "M",
+              "N"
+            ],
+            "kind": "right_isosceles_perpendicular_bisector",
+            "replacement": {
+              "left_segment": [
+                "E",
+                "G"
+              ],
+              "right_segment": [
+                "D",
+                "G"
+              ]
+            },
+            "roles": {
+              "first_leg_moving_point": "E",
+              "first_leg_vertex": "M",
+              "hypotenuse_moving_point": "G",
+              "right_vertex": "D",
+              "second_leg_vertex": "N"
+            },
+            "second_leg": [
+              "D",
+              "N"
+            ],
+            "verified_relations": [
+              "right_isosceles_frame",
+              "hypotenuse_projection_isosceles",
+              "projection_rectangle",
+              "first_projection_is_binding_midpoint",
+              "perpendicular_bisector",
+              "endpoint_distances_equal"
+            ],
+            "student_second_leg_projection": {
+              "label": "H"
+            },
+            "student_first_leg_projection": {
+              "label": "K"
+            }
+          },
+          "kind": "existing_fixed_endpoint_replacement",
+          "moving_locus": "线段MN",
+          "segment_equality": "EG=DG"
+        },
+        {
+          "kind": "line_reflection",
+          "minimum_segment": "D_primeF",
+          "moving_point": "G",
+          "other_fixed_point": "F",
+          "reflect_source": "D",
+          "reflected_point": [
+            "4",
+            "-1"
+          ],
+          "reflected_point_name": "D_prime",
+          "straightened_path": "D_primeG+FG",
+          "transformed_path": "DG+FG"
+        }
+      ],
+      "equivalence_proof": [
+        "EG=DG"
+      ],
+      "legal_domain": [
+        "所选路径、线段关系与相连的动点范围在当前步骤中均已确定",
+        "题设线段关系证明了已有固定端点替换，无需引入新的公开辅助点"
+      ],
+      "minimum_strategy": "reflection",
+      "minimum_expression": "5/2",
+      "minimizing_points": {
+        "G": [
+          "7/3",
+          "-1"
+        ]
+      },
+      "attainment_checks": [
+        {
+          "checks": [
+            {
+              "check": "point_on_moving_segment",
+              "passed": true
+            },
+            {
+              "check": "point_on_minimum_segment",
+              "passed": true
+            }
+          ],
+          "expression": "5/2",
+          "feasible": true,
+          "strategy": "reflection"
+        }
+      ],
+      "repair_action": "reuse_verified_path_witness"
+    },
+    "symbolic-closure:961efe9a56538b375b933ecbc12b4e4281b58f5f34447414ea41f29cb6a56beb": {
+      "schema_version": "symbolic-closure-teaching-evidence/v1",
+      "step_id": "ii_1_solve_m",
+      "target": "m",
+      "target_value": "3",
+      "equations": [
+        "Eq(m**2 + (m - 2)**2, 10)"
+      ],
+      "equation_sources": [
+        "p1",
+        "p2",
+        "condition"
+      ],
+      "substitutions": [
+        {
+          "symbol": "m",
+          "value": "3"
+        }
+      ],
+      "branch_count": 1,
+      "residual_symbols": [],
+      "affected_returns": [
+        "parameter_value"
+      ],
+      "constraint_summary": "题设约束已用于筛选唯一合法分支"
+    },
+    "path-minimum:3ebef687ce0bfdaad5157db2ab288e9e0b9588bcf67cb451bf78992fce4b9cc2": {
+      "schema_version": "path-minimum-prompt-witness/v1",
+      "step_id": "ii_path_minimum__ii_2",
+      "macro_id": "coupled_segment_endpoint_replacement_path_minimum",
+      "original_objective": "EG+FG",
+      "reduced_objective": "DG+FG",
+      "role_resolutions": [
+        {
+          "authored_ref": null,
+          "chosen_ref": "point_on_segment_e_dm",
+          "corrected": false,
+          "role": "first_membership"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "point_on_segment_g_mn",
+          "corrected": false,
+          "role": "second_membership"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "D",
+          "corrected": false,
+          "role": "first_segment_start"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "M",
+          "corrected": false,
+          "role": "joint_point"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "N",
+          "corrected": false,
+          "role": "second_segment_end"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "F",
+          "corrected": false,
+          "role": "transformed_fixed_endpoint"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "G",
+          "corrected": false,
+          "role": "moving_point"
+        }
+      ],
+      "constructions": [
+        {
+          "geometry_certificate": {
+            "binding": {
+              "left_segment": [
+                "D",
+                "E"
+              ],
+              "right_segment": [
+                "N",
+                "G"
+              ],
+              "scale": "sqrt(2)"
+            },
+            "first_leg": [
+              "D",
+              "M"
+            ],
+            "hypotenuse": [
+              "M",
+              "N"
+            ],
+            "kind": "right_isosceles_perpendicular_bisector",
+            "replacement": {
+              "left_segment": [
+                "E",
+                "G"
+              ],
+              "right_segment": [
+                "D",
+                "G"
+              ]
+            },
+            "roles": {
+              "first_leg_moving_point": "E",
+              "first_leg_vertex": "M",
+              "hypotenuse_moving_point": "G",
+              "right_vertex": "D",
+              "second_leg_vertex": "N"
+            },
+            "second_leg": [
+              "D",
+              "N"
+            ],
+            "verified_relations": [
+              "right_isosceles_frame",
+              "hypotenuse_projection_isosceles",
+              "projection_rectangle",
+              "first_projection_is_binding_midpoint",
+              "perpendicular_bisector",
+              "endpoint_distances_equal"
+            ],
+            "student_second_leg_projection": {
+              "label": "H"
+            },
+            "student_first_leg_projection": {
+              "label": "K"
+            }
+          },
+          "kind": "existing_fixed_endpoint_replacement",
+          "moving_locus": "线段MN",
+          "segment_equality": "EG=DG"
+        },
+        {
+          "kind": "line_reflection",
+          "minimum_segment": "D_primeF",
+          "moving_point": "G",
+          "other_fixed_point": "F",
+          "reflect_source": "D",
+          "reflected_point": [
+            "m + 1",
+            "2 - m"
+          ],
+          "reflected_point_name": "D_prime",
+          "straightened_path": "D_primeG+FG",
+          "transformed_path": "DG+FG"
+        }
+      ],
+      "equivalence_proof": [
+        "EG=DG"
+      ],
+      "legal_domain": [
+        "所选路径、线段关系与相连的动点范围在当前步骤中均已确定",
+        "题设线段关系证明了已有固定端点替换，无需引入新的公开辅助点"
+      ],
+      "minimum_strategy": "reflection",
+      "minimum_expression": "sqrt(5*m**2 - 10*m + 10)/2",
+      "minimizing_points": {
+        "G": [
+          "m/3 + 4/3",
+          "1 - 2*m/3"
+        ]
+      },
+      "attainment_checks": [
+        {
+          "checks": [
+            {
+              "check": "point_on_moving_segment",
+              "passed": true
+            },
+            {
+              "check": "point_on_minimum_segment",
+              "passed": true
+            }
+          ],
+          "expression": "sqrt(5*m**2 - 10*m + 10)/2",
+          "feasible": true,
+          "strategy": "reflection"
+        }
+      ],
+      "repair_action": "reuse_verified_path_witness"
+    },
+    "symbolic-closure:cc81fe79544cb6a59c4f0c48c70107236ac0a23f1e3a1bea4eb2607d74b1efac": {
+      "schema_version": "symbolic-closure-teaching-evidence/v1",
+      "step_id": "ii_2_solve_m",
+      "target": "m",
+      "target_value": "8",
+      "equations": [
+        "Eq(sqrt(5*m**2 - 10*m + 10)/2, 5*sqrt(10)/2)"
+      ],
+      "equation_sources": [
+        "minimum_expression",
+        "condition"
+      ],
+      "substitutions": [
+        {
+          "symbol": "m",
+          "value": "8"
+        }
+      ],
+      "branch_count": 1,
+      "residual_symbols": [],
+      "affected_returns": [
+        "parameter_value"
+      ],
+      "constraint_summary": "题设约束已用于筛选唯一合法分支"
+    }
+  },
+  "answers": {
+    "i": {
+      "D": [
+        "1",
+        "0"
+      ],
+      "parabola": "2*x**2 - 4*x - 5"
+    },
+    "ii_1": {
+      "parabola": "x**2 - 2*x - 2",
+      "min_value": "5/2"
+    },
+    "ii_2": {
+      "parabola": "x**2/6 - x/3 - 7",
+      "G": [
+        "4",
+        "-13/3"
+      ]
+    }
+  }
+}

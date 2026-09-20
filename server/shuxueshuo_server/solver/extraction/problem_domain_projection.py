@@ -979,6 +979,14 @@ class ProblemDomainProjector:
             "description": fact.kind.replace("_", " "),
         }
         kind = fact.kind
+        if kind == "math_assertion":
+            return {**base, "type": kind, "expression": attrs["expression"],
+                    "subjects": [index.resolve(scope.path_id, name).handle for name in attrs["subjects"]]}
+        if kind == "minimum_attained":
+            return {**base, "type": kind,
+                    "path": _length_sum_name(segments, scope, attrs["expression"]),
+                    "subjects": sorted({handle for term in attrs["expression"]["terms"]
+                        for handle in _segment_endpoint_handles(index, scope.path_id, term["segment"])})}
         if kind == "equation":
             return {
                 **base,
@@ -1777,12 +1785,23 @@ def _source_goal_selector_matches(
         index.canonical_scope_ids[path] for path in index.ancestor_paths(scope_path)
     }
     squares = [item for item in facts if item.get("type") == "square"]
+    # An axis intercept is already fixed by the curve. Its explicit membership
+    # (e.g. expanded from Γ∩x_axis={A,B}) is not an extra square-candidate
+    # constraint. Only an independently constrained vertex selects candidates.
+    curve_defined_points = {
+        index.resolve(path, str(fact.attributes["point"])).handle
+        for path in index.ancestor_paths(scope_path)
+        for fact in index.scope_by_path[path].facts
+        if fact.kind == "point_construction"
+        and fact.attributes.get("construction") in {"x_axis_intercept", "y_axis_intercept", "vertex"}
+    }
     visible_curve_points = {
         str(item.get("point", ""))
         for item in facts
         if item.get("type") == "point_on_curve"
         and item.get("scope_id") in visible_scope_ids
         and item.get("point") != target_handle
+        and item.get("point") not in curve_defined_points
     }
     return any(
         target_handle in set(square.get("vertices", ()))

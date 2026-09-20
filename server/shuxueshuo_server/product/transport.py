@@ -28,7 +28,8 @@ from .runtime_status import pulse
 
 
 def deployment(service):
-    return dependencies({'sha256': ''}, None, service.registry.get('problem_lesson', CURRENT_PIPELINE_VERSION))['deployment_version']
+    from .application import deployment_version
+    return deployment_version()
 
 
 def queue_for(version): return 'product.build.' + version
@@ -68,9 +69,19 @@ def supervise(runtime, version, message):
             build = row(c, m.builds, id=build_id)
             if not job or not build or job['build_id'] != build_id: raise Reject('product.unknown_job', requeue=False)
             ctx = context_for(c, build)
-        try: execution = a.service.acquire_execution(ctx, job_id, f'local:{os.getpid()}', deployment_version=version, lease_seconds=90)
+        try:
+            execution = a.service.acquire_execution(
+                ctx,
+                job_id,
+                f'local:{os.getpid()}',
+                deployment_version=version,
+                lease_seconds=90,
+                enforce_environment=not _local_dev_for(a),
+            )
         except Conflict as exc:
             if str(exc) in ('execution.already_owned', 'job.terminal'): return
+            if str(exc) == 'execution.capacity':
+                raise Reject('execution.capacity', requeue=True) from None
             if str(exc) == 'execution.incompatible_environment':
                 a.service.fail_incompatible_deployment(ctx, build_id)
                 return
@@ -125,8 +136,23 @@ def recover_expired(a):
         return len(expired)
 
 
+def _local_dev():
+    """Whether this process belongs to the local development instance."""
+    return os.environ.get('PRODUCT_MODE', 'local') != 'server'
+
+
+def _local_dev_for(application):
+    settings = getattr(application, 'settings', None)
+    mode = getattr(settings, 'mode', None) if settings is not None else None
+    if mode in {'local', 'server'}:
+        return mode == 'local'
+    return _local_dev()
+
+
 def fail_stale_deployments(a, current_version):
-    """Fail builds frozen to a retired deployment instead of publishing into dead queues."""
+    """Fail builds frozen to a retired deployment in the server environment."""
+    if _local_dev_for(a):
+        return 0
     with transaction(a.db) as c:
         builds = c.execute(select(m.builds).where(
             m.builds.c.deployment_version != current_version,
@@ -150,14 +176,16 @@ def publish_once(a, client, current_version=None):
                 try: acknowledge(c, message['id'], message['publisher_token'], confirmed=True, error=None)
                 except Conflict: pass
             continue
-        if build['deployment_version'] != current_version:
+        if not _local_dev_for(a) and build['deployment_version'] != current_version:
+            # reserve() returns the pre-increment count; the row already advanced by one.
             a.service.fail_incompatible_deployment(UserContext(build['workspace_id'], owner), build['id'])
             with transaction(a.db) as c:
                 try: acknowledge(c, message['id'], message['publisher_token'], confirmed=True, error=None)
                 except Conflict: pass
             continue
         try:
-            queue = queue_for(build['deployment_version'])
+            queue_version = current_version if _local_dev_for(a) else build['deployment_version']
+            queue = queue_for(queue_version)
             client.send_task('product.execute', args=[{'protocol_version': message['protocol_version'], **message['payload']}],
                 task_id=str(message['id']), queue=Queue(queue, Exchange('product', durable=True), routing_key=queue,
                 durable=True, queue_arguments={'x-queue-type': 'classic'}), routing_key=queue, retry=False)

@@ -1,0 +1,151 @@
+{
+  "mode": "offline_replay_and_generic_mutation",
+  "live_calls": 0,
+  "source_run": "../internal/solver-runs/understanding-v9-definition-single-20260915",
+  "source_revision": "69c4e9f2b0b2161a7562222e4926e79614213a3ad646cdbbb44c5eaf9ce56368",
+  "recorded_ir_valid": true,
+  "acceptance_classification": "accepted_with_omissions",
+  "strict_equivalence": false,
+  "mutated_q3_report": {
+    "ok": false,
+    "issues": [
+      {
+        "code": "constraint.bisection_ratio_conflict",
+        "scope": "r.c2",
+        "unit_ids": [
+          "r.c2.facts3",
+          "r.c2.facts5"
+        ],
+        "check_version": "geometry-consistency/v1",
+        "message": "同一中点两侧长度相等，与给出的不等比例冲突；所有逻辑分支均存在该冲突。",
+        "repair_action": "核对平分对象、截线对象和比例；仅修正与题面不符的授权事实，不删除题设以绕过校验。",
+        "alternatives": [
+          {
+            "alternative": 0,
+            "unit_ids": [
+              "r.c2.facts3",
+              "r.c2.facts5"
+            ],
+            "equal_halves": [
+              [
+                "AutoIntersection1",
+                "r.c2.e0"
+              ],
+              [
+                "AutoIntersection1",
+                "r.c2.e2"
+              ]
+            ],
+            "given_ratio": [
+              "2",
+              "1"
+            ],
+            "required_coefficient_difference": "0",
+            "actual_coefficient_difference": "1"
+          },
+          {
+            "alternative": 1,
+            "unit_ids": [
+              "r.c2.facts3",
+              "r.c2.facts5"
+            ],
+            "equal_halves": [
+              [
+                "AutoIntersection1",
+                "r.c2.e0"
+              ],
+              [
+                "AutoIntersection1",
+                "r.c2.e2"
+              ]
+            ],
+            "given_ratio": [
+              "1",
+              "2"
+            ],
+            "required_coefficient_difference": "0",
+            "actual_coefficient_difference": "-1"
+          }
+        ]
+      }
+    ],
+    "well_definedness_obligations": [
+      {
+        "scope": "r.c0.c1",
+        "code": "nonzero_denominator",
+        "expression": "area_r_c0_c1_e0_r_c0_c1_e1_r_c0_c1_e2"
+      },
+      {
+        "scope": "r.c2",
+        "code": "cos_angle_nonzero",
+        "expression": "angle_r_c2_e0_r_c2_e2_r_c2_e3"
+      }
+    ],
+    "constructed_objects": [
+      {
+        "scope": "r.c0.c0",
+        "point": "O",
+        "lines": [
+          [
+            "E",
+            "D"
+          ],
+          [
+            "A",
+            "C"
+          ]
+        ],
+        "origin": "source_reference",
+        "existence": "given_by_relation_not_independently_proved"
+      },
+      {
+        "scope": "r.c0.c1",
+        "point": "AutoIntersection1",
+        "lines": [
+          [
+            "B",
+            "D"
+          ],
+          [
+            "A",
+            "C"
+          ]
+        ],
+        "origin": "code_constructed",
+        "existence": "given_by_relation_not_independently_proved"
+      },
+      {
+        "scope": "r.c1",
+        "point": "AutoIntersection1",
+        "lines": [
+          [
+            "B",
+            "D"
+          ],
+          [
+            "A",
+            "C"
+          ]
+        ],
+        "origin": "code_constructed",
+        "existence": "given_by_relation_not_independently_proved"
+      },
+      {
+        "scope": "r.c2",
+        "point": "AutoIntersection1",
+        "lines": [
+          [
+            "A",
+            "C"
+          ],
+          [
+            "B",
+            "D"
+          ]
+        ],
+        "origin": "code_constructed",
+        "existence": "given_by_relation_not_independently_proved"
+      }
+    ]
+  }
+}

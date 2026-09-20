@@ -184,3 +184,73 @@ PRODUCT_TEST_DATA_DIR='/absolute/path/p1-test' PRODUCT_TEST_INSTANCE=p1-test uv 
 Git 只允许提交无真实凭据的 `.env.example` 或 `*.env.example` 模板；密码、API key、cookie 等字段留空。不要使用 `git add -f` 绕过环境文件忽略规则。普通不含秘密的代码配置和发布清单可以提交。
 
 Review 文档可以记录环境变量名、公开模型 endpoint、本地端口和不可用于认证的运行 ID；不得记录真实凭据、认证请求头、带凭据的连接串或未脱敏的私有配置输出。
+
+### 题意抽取：服务器 `server/.env` 检查清单
+
+路径（勿提交）：`$HOME/code/shuxueshuo/server/.env`（可用 `PRODUCT_REPO_HOST` 覆盖）。  
+Compose 中 api / worker / publisher **只读挂载**该文件。改完后必须 `services-stop` / `services-start`，仅保存文件不会让已运行进程重载。
+
+**必填（视觉抽取：首轮 / 修复 / 复核）**
+
+| 变量 | 期望值 | 说明 |
+| --- | --- | --- |
+| `DEEPSEEK_API_KEY` | 非空 | 缺失会 `configuration.extraction_key_missing`；与文本 Solver 共用密钥 |
+| `PROBLEM_VISION_PROVIDER` | `deepseek` | 其它值直接拒绝，无 Doubao 自动回退 |
+| `DEEPSEEK_VISION_MODEL` | `deepseek-flash` | 实现写死校验；勿写成 `deepseek-v4-flash` |
+| `DEEPSEEK_VISION_BASE_URL` | `https://api.deepseek.com` | 进入依赖指纹；改 endpoint 会使旧构建需重建 |
+| `DEEPSEEK_VISION_TIMEOUT` | `300` | 秒；原图 + high detail，过短易超时 |
+| `DEEPSEEK_VISION_MAX_TOKENS` | `16384` | 输出上限 |
+
+**推荐模板（可直接粘贴后填密钥）**
+
+```dotenv
+PROBLEM_VISION_PROVIDER=deepseek
+DEEPSEEK_VISION_MODEL=deepseek-flash
+DEEPSEEK_VISION_BASE_URL=https://api.deepseek.com
+DEEPSEEK_VISION_TIMEOUT=300
+DEEPSEEK_VISION_MAX_TOKENS=16384
+DEEPSEEK_API_KEY=
+
+# 下游文本 Solver / lesson（非视觉）
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-v4-flash
+```
+
+**可空 / 不再用于产品抽取**
+
+- `DOUBAO_API_KEY` / `DOUBAO_*`：仅 legacy/debug；产品 extraction **不读**豆包。
+- 策略固定为 thinking `enabled` + `reasoning_effort=low`、非流式 `json_object`、`image_detail=high`、SDK retries=0；**不要**在 `.env` 里试图改 thinking。
+- 预算仍由构建有效配置固化：草稿 3 / 复核 3 / 语义 6 / 网络 12。
+
+**上线前在服务器自检（不打印密钥值）**
+
+```bash
+ENV="$HOME/code/shuxueshuo/server/.env"
+test -f "$ENV" && stat -c '%a %n' "$ENV" 2>/dev/null || stat -f '%Lp %N' "$ENV"
+# 权限建议 600
+
+# 键是否存在且非空（只输出 ok/missing）
+for key in DEEPSEEK_API_KEY PROBLEM_VISION_PROVIDER DEEPSEEK_VISION_MODEL \
+           DEEPSEEK_VISION_BASE_URL DEEPSEEK_VISION_TIMEOUT DEEPSEEK_VISION_MAX_TOKENS; do
+  if grep -Eq "^${key}=.+" "$ENV"; then echo "ok  $key"; else echo "MISSING $key"; fi
+done
+
+grep -E '^(PROBLEM_VISION_PROVIDER|DEEPSEEK_VISION_MODEL|DEEPSEEK_VISION_BASE_URL|DEEPSEEK_VISION_TIMEOUT|DEEPSEEK_VISION_MAX_TOKENS)=' "$ENV"
+# 期望：deepseek / deepseek-flash / https://api.deepseek.com / 300 / 16384
+```
+
+改 `.env` 后：
+
+```bash
+RELEASE=$(cat /srv/shuxueshuo/config/release-path)
+"$RELEASE/scripts/manage.sh" --mode server --data-dir /srv/shuxueshuo \
+  --release "$RELEASE" services-stop
+"$RELEASE/scripts/manage.sh" --mode server --data-dir /srv/shuxueshuo \
+  --release "$RELEASE" services-start
+"$RELEASE/scripts/manage.sh" --mode server --data-dir /srv/shuxueshuo \
+  --release "$RELEASE" services-doctor
+```
+
+若同时升级了抽取代码，仍须打**新产品包**再 `services-start`；只改密钥可只重启。视觉字段进入依赖指纹，旧 Doubao / 旧模型冻结构建会要求重建。
+
+首轮、修复与独立视觉复核固定为 thinking enabled / reasoning_effort low、非流式 JSON object。`DEEPSEEK_MODEL` / `DEEPSEEK_BASE_URL` 继续只控制下游 Solver 等文本路径。

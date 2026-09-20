@@ -1,0 +1,17 @@
+{
+  "ok": false,
+  "strict": {
+    "ok": false,
+    "classification": "invalid_notation",
+    "expected_issues": [],
+    "actual_issues": [
+      {
+        "path": "r.c0.c0.facts[1]",
+        "source": "AC ∩ BD = {O}",
+        "code": "notation.bind",
+        "message": "type.intersection"
+      }
+    ]
+  },
+  "accepted_omissions": []
+}

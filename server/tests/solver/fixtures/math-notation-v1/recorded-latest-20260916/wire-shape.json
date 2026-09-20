@@ -1,0 +1,322 @@
+{
+  "source": "internal/solver-runs/math-notation-remaining-six-20260916-120805/k-quad/request.json",
+  "source_schema_sha256": "785063279b29ef8ceeab10b690e726a0bf291678dc12e9d8b8ce7a2e80b406e6",
+  "shape": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [
+      "root",
+      "match_status",
+      "family_id",
+      "match_reason"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "root": {
+        "$ref": "#/$defs/Scope"
+      },
+      "match_status": {
+        "enum": [
+          "matched",
+          "unmatched"
+        ]
+      },
+      "family_id": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "match_reason": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      }
+    },
+    "$defs": {
+      "Scope": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          },
+          "definitions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "maxItems": 128
+          },
+          "facts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "maxItems": 128
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "expression"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_value"
+                    },
+                    "expression": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "maxItems": 128
+                    },
+                    "at": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "object"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_coordinates"
+                    },
+                    "object": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "at": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "maxItems": 128
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "object"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_equation"
+                    },
+                    "object": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "at": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "maxItems": 128
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "expression"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_minimum"
+                    },
+                    "expression": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "variables": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "maxItems": 128
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "maxItems": 128
+                    },
+                    "at": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "expression"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_maximum"
+                    },
+                    "expression": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "variables": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "maxItems": 128
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "maxItems": 128
+                    },
+                    "at": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "symbol"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_range"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "maxItems": 128
+                    },
+                    "at": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "maxItems": 128
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Scope"
+            },
+            "maxItems": 128
+          },
+          "uncertainties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "text"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "missing_figure",
+                    "ambiguous_symbol",
+                    "unreadable",
+                    "occluded",
+                    "unstructured",
+                    "ambiguous_reuse"
+                  ]
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                }
+              }
+            },
+            "maxItems": 128
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "lesson-capability-case-audit/v1",
+  "problem_id": "synthetic-line_intersection_point",
+  "snapshot_hash": "7cb1cc72d436ada218de0dddac971feb98b38d7ad6869d9286f0b9dd8b369734",
+  "annotated_plan_hash": "1e8f2b7a5d4e6a53f2b7680ca09edc3d64152dd11ca04801cce3a0808cb1e0f6",
+  "lesson_ir_hash": "d98b5900d159d2de08476fc0e21a123eefca6682e44b93c8ecf49309bae9aad2",
+  "visual_step_ir_hash": "91272081f1e8b5d3265be3273f01a110e9bcd49d3d960b96fb2faae4cdd11e82",
+  "source_step_count": 1,
+  "lesson_step_count": 1,
+  "visual_frame_count": 1,
+  "source_steps": [
+    "synthetic_line_intersection_point"
+  ],
+  "diagnostics": []
+}

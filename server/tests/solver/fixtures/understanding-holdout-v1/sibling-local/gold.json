@@ -1,0 +1,247 @@
+{
+  "schema_version": "problem-domain/v1",
+  "problem_id": "holdout-sibling-local",
+  "family_id": "QuadraticPathMinimumSolver",
+  "source": {
+    "question_number": "1",
+    "score": null
+  },
+  "root": {
+    "id": "problem",
+    "label": "整题",
+    "source_text": [
+      "抛物线 y=2*x^2-1 经过点 U(-2,7)，点 V(5,4) 为定点。"
+    ],
+    "entities": [
+      {
+        "id": "curve",
+        "kind": "quadratic_function",
+        "label": "抛物线"
+      },
+      {
+        "id": "x",
+        "kind": "symbol",
+        "label": "x",
+        "role": "function_variable"
+      },
+      {
+        "id": "U",
+        "kind": "point",
+        "label": "U"
+      },
+      {
+        "id": "V",
+        "kind": "point",
+        "label": "V"
+      }
+    ],
+    "facts": [
+      {
+        "kind": "function_expression",
+        "function": "curve",
+        "variable": "x",
+        "expression": "2*x**2-1"
+      },
+      {
+        "kind": "point_coordinate",
+        "point": "U",
+        "value": [
+          "-2",
+          "7"
+        ]
+      },
+      {
+        "kind": "point_on_curve",
+        "point": "U",
+        "curve": "curve"
+      },
+      {
+        "kind": "point_coordinate",
+        "point": "V",
+        "value": [
+          "5",
+          "4"
+        ]
+      }
+    ],
+    "goals": [],
+    "children": [
+      {
+        "id": "part1",
+        "label": "第（1）问",
+        "source_text": [
+          "动点 R(r,0) 在 x 轴上，r>0。",
+          "求 UR+RV 的最小值。"
+        ],
+        "entities": [
+          {
+            "id": "R",
+            "kind": "point",
+            "label": "R"
+          },
+          {
+            "id": "r",
+            "kind": "symbol",
+            "label": "r",
+            "role": "dynamic_parameter"
+          }
+        ],
+        "facts": [
+          {
+            "kind": "point_coordinate",
+            "point": "R",
+            "value": [
+              "r",
+              "0"
+            ]
+          },
+          {
+            "kind": "point_on_axis",
+            "point": "R",
+            "axis": "x"
+          },
+          {
+            "kind": "symbol_constraint",
+            "symbol": "r",
+            "operator": ">",
+            "value": "0"
+          },
+          {
+            "kind": "minimum_target",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "U",
+                    "end": "R"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "R",
+                    "end": "V"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "goals": [
+          {
+            "kind": "minimum_value",
+            "answer_key": "minimum",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "U",
+                    "end": "R"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "R",
+                    "end": "V"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "children": []
+      },
+      {
+        "id": "part2",
+        "label": "第（2）问",
+        "source_text": [
+          "动点 R(r,0) 在 x 轴上，r<4。",
+          "求 UR+RV 的最小值。"
+        ],
+        "entities": [
+          {
+            "id": "R",
+            "kind": "point",
+            "label": "R"
+          },
+          {
+            "id": "r",
+            "kind": "symbol",
+            "label": "r",
+            "role": "dynamic_parameter"
+          }
+        ],
+        "facts": [
+          {
+            "kind": "point_coordinate",
+            "point": "R",
+            "value": [
+              "r",
+              "0"
+            ]
+          },
+          {
+            "kind": "point_on_axis",
+            "point": "R",
+            "axis": "x"
+          },
+          {
+            "kind": "symbol_constraint",
+            "symbol": "r",
+            "operator": "<",
+            "value": "4"
+          },
+          {
+            "kind": "minimum_target",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "U",
+                    "end": "R"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "R",
+                    "end": "V"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "goals": [
+          {
+            "kind": "minimum_value",
+            "answer_key": "minimum",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "U",
+                    "end": "R"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "start": "R",
+                    "end": "V"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "children": []
+      }
+    ]
+  }
+}

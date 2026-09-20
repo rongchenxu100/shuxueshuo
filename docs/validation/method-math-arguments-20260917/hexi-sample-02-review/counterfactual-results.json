@@ -1,0 +1,127 @@
+[
+  {
+    "sample": 2,
+    "attempt": 1,
+    "mode": "expression-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD = 90°, AC = AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "evidence": "offline-probes/attempt-1-expression-only",
+    "status": "accepted",
+    "errors": [],
+    "expected_answers_match": true
+  },
+  {
+    "sample": 2,
+    "attempt": 2,
+    "mode": "expression-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD=90°, AC=AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "evidence": "offline-probes/attempt-2-expression-only",
+    "status": "accepted",
+    "errors": [],
+    "expected_answers_match": true
+  },
+  {
+    "sample": 2,
+    "attempt": 3,
+    "mode": "angle-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "argument_encoding": "math-expression/v1",
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD∈90°, AC=AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      }
+    ],
+    "evidence": "offline-probes/attempt-3-angle-only",
+    "status": "blocked",
+    "errors": [
+      "functional.math_argument_unresolved at $.goal_plans.ii.D.steps[0].args.curve_points[0]: quadratic_from_constraints.curve_points: 'A=(-1,0)' matches 0 visible typed sources."
+    ]
+  },
+  {
+    "sample": 2,
+    "attempt": 3,
+    "mode": "expression-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+        "before": [
+          "A=(-1,0)"
+        ],
+        "after": [
+          "A"
+        ]
+      },
+      {
+        "path": "$.goal_plans.ii.D.steps[2].args.right_angle_equal_length",
+        "before": "∠CAD∈90°, AC=AD",
+        "after": "∠CAD=90° ∧ AC=AD"
+      },
+      {
+        "path": "$.goal_plans.iii.b.steps[0].args.curve_points",
+        "before": [
+          "A=(-1,0)"
+        ],
+        "after": [
+          "A"
+        ]
+      }
+    ],
+    "evidence": "offline-probes/attempt-3-expression-only",
+    "status": "accepted",
+    "errors": [],
+    "expected_answers_match": true
+  },
+  {
+    "sample": 2,
+    "attempt": 3,
+    "mode": "point-only",
+    "kind": "offline_counterfactual_not_live_result",
+    "model_calls": 0,
+    "argument_encoding": "math-expression/v1",
+    "changes": [
+      {
+        "path": "$.goal_plans.ii.D.steps[0].args.curve_points",
+        "before": [
+          "A=(-1,0)"
+        ],
+        "after": [
+          "A"
+        ]
+      },
+      {
+        "path": "$.goal_plans.iii.b.steps[0].args.curve_points",
+        "before": [
+          "A=(-1,0)"
+        ],
+        "after": [
+          "A"
+        ]
+      }
+    ],
+    "evidence": "offline-probes/attempt-3-point-only",
+    "status": "blocked",
+    "errors": [
+      "functional.math_argument_invalid at $.goal_plans.ii.D.steps[2].args.right_angle_equal_length: notation.expected: expected ∈, got ="
+    ]
+  }
+]

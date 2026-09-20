@@ -1,0 +1,238 @@
+{
+  "batch": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219",
+  "new_llm_calls": 0,
+  "audit_working_directory": "server",
+  "cases": [
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "candidate_sha256": "e7eb1e5c92396133c34d730fec0aa95fde5d10bec412071b623826641f5395af",
+      "candidate_bytes_match_audit": true,
+      "review_status": "confirmed",
+      "review_revision_matches": true,
+      "workflow_result_matches": true,
+      "source_reviewed_in_recorded_batch": true,
+      "frozen_gold_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "current_authored_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "image": {
+        "path": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-nankai-yimo-25/input-fixture/source.png",
+        "sha256": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+        "matches_provenance": true
+      },
+      "evidence": {
+        "review": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-nankai-yimo-25/workflow/latest-review.json",
+          "sha256": "98ea85651439907b80dd37080cb28659bfd34012c52ca609330a011ca2e01a51"
+        },
+        "acceptance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-nankai-yimo-25/final-acceptance.json",
+          "sha256": "0b52609639d7e212913ee6901d1790c6c5321d39365e96196fb178e0faee58d8"
+        },
+        "gold": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-nankai-yimo-25/input-fixture/gold.json",
+          "sha256": "53ec8bce5362f2483a8d9220f35b5f6d0fe4229e4bf74757d7cd9810bbc4bb08"
+        },
+        "provenance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-nankai-yimo-25/input-fixture/provenance.json",
+          "sha256": "2551ee9992387be1aaf879dbd301da6c18d1146eddf926be72dc1f8bba7066fc"
+        },
+        "frozen_workflow": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-nankai-yimo-25/frozen-workflow.json",
+          "sha256": "fb9df6adb4a44b155f49ab0b9854b864b874f9c91955f2a578a792cfcd53e767"
+        }
+      }
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "candidate_sha256": "53991aee5a1890ac9739954c6aa6507ce9ce174939f6c9379ab45a6e53f5908d",
+      "candidate_bytes_match_audit": true,
+      "review_status": "confirmed",
+      "review_revision_matches": true,
+      "workflow_result_matches": true,
+      "source_reviewed_in_recorded_batch": true,
+      "frozen_gold_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "current_authored_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "image": {
+        "path": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-ermo-25/input-fixture/source.png",
+        "sha256": "d82010cc1eebf10e8ccb6d9266a228e410517e9f625cee635b68b07b71698abd",
+        "matches_provenance": true
+      },
+      "evidence": {
+        "review": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-ermo-25/workflow/latest-review.json",
+          "sha256": "1ad88d0a387720f37ef840f14b37ce9e4f624941614a21f4fb454f1c5981c103"
+        },
+        "acceptance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-ermo-25/final-acceptance.json",
+          "sha256": "0b52609639d7e212913ee6901d1790c6c5321d39365e96196fb178e0faee58d8"
+        },
+        "gold": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-ermo-25/input-fixture/gold.json",
+          "sha256": "efc60bcacb7a890da30765f3af2a53bd09886e02b1ccc9d2d3065e603e043c5c"
+        },
+        "provenance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-ermo-25/input-fixture/provenance.json",
+          "sha256": "b8c43dffb3f3ce59b430b985911006b51d8ff079f179aaead624692b1ec96f00"
+        },
+        "frozen_workflow": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-ermo-25/frozen-workflow.json",
+          "sha256": "75e350f54ffa4910facf578411f14b2d5f62e0bcb9c3014973774085b9155f77"
+        }
+      }
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "candidate_sha256": "f07671d168643b12725fdb511afe5382c1cc7a022b9c4c9e29d9bb7226511a41",
+      "candidate_bytes_match_audit": true,
+      "review_status": "confirmed",
+      "review_revision_matches": true,
+      "workflow_result_matches": true,
+      "source_reviewed_in_recorded_batch": true,
+      "frozen_gold_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "current_authored_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "image": {
+        "path": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-yimo-25/input-fixture/source.png",
+        "sha256": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+        "matches_provenance": true
+      },
+      "evidence": {
+        "review": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-yimo-25/workflow/latest-review.json",
+          "sha256": "72697df43fcaf1e84418576350e691cec2113461e9d46cea349d70fbb880dead"
+        },
+        "acceptance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-yimo-25/final-acceptance.json",
+          "sha256": "0b52609639d7e212913ee6901d1790c6c5321d39365e96196fb178e0faee58d8"
+        },
+        "gold": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-yimo-25/input-fixture/gold.json",
+          "sha256": "5205e27496e8169ee280ebf2afaf0126c5c03248df87869e543e3779550ab7c0"
+        },
+        "provenance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-yimo-25/input-fixture/provenance.json",
+          "sha256": "9eb89674b70cc80fb138e683c55eb09757a8275b392da19d2eead4c1793f9ab9"
+        },
+        "frozen_workflow": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-yimo-25/frozen-workflow.json",
+          "sha256": "7bd6f3bbd742e55ed2a8918810216c77fa47327223ecddafedde61e46ed8b861"
+        }
+      }
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "candidate_sha256": "cbc31242b6673721532f7c533580617d644bff8f0074cb71cfb8ca8c78e7d891",
+      "candidate_bytes_match_audit": true,
+      "review_status": "confirmed",
+      "review_revision_matches": true,
+      "workflow_result_matches": true,
+      "source_reviewed_in_recorded_batch": true,
+      "frozen_gold_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "current_authored_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "image": {
+        "path": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-hexi-yimo-25/input-fixture/source.png",
+        "sha256": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+        "matches_provenance": true
+      },
+      "evidence": {
+        "review": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-hexi-yimo-25/workflow/latest-review.json",
+          "sha256": "b7b3e1afd9717f3e35b4fe616e9abee3c1a920bebf1c02d5c12a56f37a995d39"
+        },
+        "acceptance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-hexi-yimo-25/final-acceptance.json",
+          "sha256": "0b52609639d7e212913ee6901d1790c6c5321d39365e96196fb178e0faee58d8"
+        },
+        "gold": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-hexi-yimo-25/input-fixture/gold.json",
+          "sha256": "af68c5c8929471bb291fc0ee92584114dc2c8cc9b9ef55930e6cfb0dde2b2038"
+        },
+        "provenance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-hexi-yimo-25/input-fixture/provenance.json",
+          "sha256": "9e3f870e0af4ff55e9500bada6fe4b35eee455c9a02261bba0f808c214fc04c8"
+        },
+        "frozen_workflow": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-hexi-yimo-25/frozen-workflow.json",
+          "sha256": "de56e7095ec68b3f19ca33511daf7bcda0ca90d0526dedf0a51a8253b9afb428"
+        }
+      }
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "candidate_sha256": "e3b1c1053e82fe983238a3e65709b81505e6a1ebb675d13d0324be90ce0ab071",
+      "candidate_bytes_match_audit": true,
+      "review_status": "confirmed",
+      "review_revision_matches": true,
+      "workflow_result_matches": true,
+      "source_reviewed_in_recorded_batch": true,
+      "frozen_gold_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "current_authored_comparison": {
+        "ok": true,
+        "classification": "equivalent",
+        "differences": []
+      },
+      "image": {
+        "path": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-xiqing-yimo-25/input-fixture/source.png",
+        "sha256": "83dd7ec7fd11075e037ecf705860d3eb8215aff6873b12bd619ac4bd6b2c4e57",
+        "matches_provenance": true
+      },
+      "evidence": {
+        "review": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-xiqing-yimo-25/workflow/latest-review.json",
+          "sha256": "4e350d3a2c0ab14e565c9273c513bf1bddd00e97bd4423a3f2c08ae20fefddc6"
+        },
+        "acceptance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-xiqing-yimo-25/final-acceptance.json",
+          "sha256": "0b52609639d7e212913ee6901d1790c6c5321d39365e96196fb178e0faee58d8"
+        },
+        "gold": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-xiqing-yimo-25/input-fixture/gold.json",
+          "sha256": "56448536f0cb317318597d41df2d191df4e65da6f7cccbf982469f85cb1809f2"
+        },
+        "provenance": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-xiqing-yimo-25/input-fixture/provenance.json",
+          "sha256": "eaeee812f37e3752397669b6be1356e7282bef483ed77bd1954f97784ae43dd3"
+        },
+        "frozen_workflow": {
+          "source": "internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-xiqing-yimo-25/frozen-workflow.json",
+          "sha256": "061d605d8358be80415c01e29580e5989724f393eb89b7c726f18e47897201c6"
+        }
+      }
+    }
+  ],
+  "source_stable": true
+}

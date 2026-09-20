@@ -1,0 +1,68 @@
+{
+  "problem_id": "tj-2026-xiqing-yimo-25",
+  "planning_scope": "all",
+  "scope_policy": "ancestors_only",
+  "solution_policy": "all",
+  "known_results": [],
+  "root": {
+    "children": [
+      {
+        "facts": [
+          "b = 4"
+        ],
+        "goals": [
+          {
+            "kind": "find_coordinates",
+            "object": "vertex(Γ)"
+          }
+        ],
+        "label": "(1)"
+      },
+      {
+        "children": [
+          {
+            "facts": [
+              "AD = 2*BC"
+            ],
+            "goals": [
+              {
+                "expression": "b",
+                "kind": "find_value"
+              }
+            ],
+            "label": "①"
+          },
+          {
+            "facts": [
+              "M = (m,0)",
+              "m > 0",
+              "min(2*DM + AM) = 5 + 5*sqrt(3)"
+            ],
+            "goals": [
+              {
+                "expression": "b",
+                "kind": "find_value"
+              }
+            ],
+            "label": "②"
+          }
+        ],
+        "facts": [
+          "D = (b+2, y_D)",
+          "D ∈ Γ"
+        ],
+        "label": "(2)"
+      }
+    ],
+    "definitions": [
+      "Γ: y = -x^2 + b*x + c"
+    ],
+    "facts": [
+      "b > 0",
+      "A = (-1,0)",
+      "A ∈ Γ",
+      "Γ ∩ x_axis = {A, B}",
+      "Γ ∩ y_axis = {C}"
+    ]
+  }
+}

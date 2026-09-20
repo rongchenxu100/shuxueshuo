@@ -58,12 +58,25 @@ def archive_source(store, doc, stage):
 
 
 def availability(store, doc):
+    notation = find(doc, 'extraction', 'problem-math-workflow.json') is not None or any(
+        stage.get('stage_key') == 'extraction' and stage.get('contract_version') == 'problem-math-notation/v1'
+        for stage in doc.get('pipeline_snapshot', {}).get('stages', [])
+    )
     result = {}
     for stage in KEYS:
         before = KEYS[:KEYS.index(stage)]
-        missing = [name for owner, name in REQUIRED[stage] if not find(doc, owner, name)]
+        required = REQUIRED[stage]
+        if notation:
+            required = {
+                'extraction': (('extraction', 'problem-math-workflow.json'),),
+                'projection': (('projection', 'binding-result.json'), ('projection', 'solver-authority.json')),
+                'solver': (),
+                'evidence': (('solver', EVIDENCE), ('solver', 'VerifiedFunctionalPlanExecution')),
+            }.get(stage, required)
+        missing = [name for owner, name in required if not find(doc, owner, name)]
         if stage in {"projection", "solver", "evidence"}:
-            missing += [name for owner, name in REQUIRED["extraction"] if not find(doc, owner, name)]
+            extraction_required = (('extraction', 'problem-math-workflow.json'),) if notation else REQUIRED["extraction"]
+            missing += [name for owner, name in extraction_required if not find(doc, owner, name)]
         reason = ""
         if doc["status"] not in TERMINAL:
             reason = "请等待当前运行结束"
@@ -71,7 +84,7 @@ def availability(store, doc):
             reason = "此前阶段尚未全部成功，请从更早的阶段重跑"
         elif missing:
             reason = "缺少恢复材料：" + "、".join(missing)
-        elif stage in {"extraction", "projection", "solver", "evidence"}:
+        elif stage in {"extraction", "projection", "solver", "evidence"} and not notation:
             owner = "observation" if stage == "extraction" else "extraction"
             if not archive_source(store, doc, owner):
                 reason = "缺少抽取产物库，需从 OCR 阶段重跑"

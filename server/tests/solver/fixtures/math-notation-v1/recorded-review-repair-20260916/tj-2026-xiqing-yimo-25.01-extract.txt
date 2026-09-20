@@ -1,0 +1,68 @@
+{
+  "root": {
+    "definitions": [
+      "Γ: y = -x^2+b*x+c"
+    ],
+    "facts": [
+      "b > 0",
+      "A = (-1,0)",
+      "A ∈ Γ",
+      "Γ ∩ x_axis = {A,B}",
+      "Γ ∩ y_axis = {C}"
+    ],
+    "children": [
+      {
+        "label": "(1)",
+        "facts": [
+          "b = 4",
+          "V = vertex(Γ)"
+        ],
+        "goals": [
+          {
+            "kind": "find_coordinates",
+            "object": "V"
+          }
+        ]
+      },
+      {
+        "label": "(2)",
+        "facts": [
+          "D = (b+2, y_D)",
+          "D ∈ Γ"
+        ],
+        "children": [
+          {
+            "label": "①",
+            "facts": [
+              "AD = 2*BC"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "b"
+              }
+            ]
+          },
+          {
+            "label": "②",
+            "facts": [
+              "M = (m,0)",
+              "m > 0",
+              "min(2*DM+AM) = 5 + 5*sqrt(3)"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "b",
+                "at": "2*DM+AM = min(2*DM+AM)"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "match_reason": "题面包含二次函数抛物线、带权路径 2DM+AM 及其最小值条件，符合二次函数加权路径最值题型。"
+}

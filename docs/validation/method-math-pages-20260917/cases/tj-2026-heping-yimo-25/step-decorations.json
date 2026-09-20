@@ -1,0 +1,2676 @@
+{
+  "steps": {
+    "teach:derive_y_intercept_C_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_y_intercept_C_i:1",
+          "caption": "求 y 轴交点",
+          "teachingUnitKeys": [
+            "quadratic_y_axis_intercept_point/solve_intercept"
+          ],
+          "domain": {
+            "minX": -2.72,
+            "maxX": 2.72,
+            "minY": -7.08,
+            "maxY": 1.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel"
+            }
+          ]
+        }
+      ]
+    },
+    "teach:derive_translated_D_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_translated_D_i:1",
+          "caption": "平移求点",
+          "teachingUnitKeys": [
+            "translated_point/apply_translation"
+          ],
+          "domain": {
+            "minX": -1.72,
+            "maxX": 3.72,
+            "minY": -7.08,
+            "maxY": 1.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "dashedLine",
+              "from": "point_C_problem",
+              "to": "point_D_problem",
+              "color": "#0f766e",
+              "width": 1.8,
+              "dash": "5 5"
+            },
+            {
+              "type": "coordinateLabel",
+              "at": "point_D_problem",
+              "text": "+2",
+              "dx": 16,
+              "dy": -10
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel"
+            }
+          ],
+          "animation": {
+            "mode": "manual_then_interactive",
+            "trigger": {
+              "label": "播放演示"
+            },
+            "beats": [
+              {
+                "id": "teach:derive_translated_D_i:translation-0-source",
+                "duration_ms": 1000,
+                "caption": "C(0,-3)",
+                "derive": [
+                  [
+                    "∵",
+                    "C(0,-3)"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_C_problem",
+                      "labelText": "C",
+                      "color": "#0f766e",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "fade",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {}
+                }
+              },
+              {
+                "id": "teach:derive_translated_D_i:translation-0-move",
+                "duration_ms": 1000,
+                "caption": "C → D",
+                "derive": [
+                  [
+                    "∵",
+                    "D 是 C 平移 +2 得到"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_C_problem",
+                      "labelText": "C",
+                      "color": "#0f766e",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "type": "dashedLine",
+                      "from": "point_C_problem",
+                      "to": "point_D_problem",
+                      "color": "#0f766e",
+                      "width": 1.8,
+                      "dash": "5 5"
+                    },
+                    {
+                      "type": "coordinateLabel",
+                      "at": "point_D_problem",
+                      "text": "+2",
+                      "dx": 16,
+                      "dy": -10
+                    },
+                    {
+                      "from": "point_C_problem",
+                      "to": "point_D_problem",
+                      "labelText": "",
+                      "showLabel": false,
+                      "color": "#b45309",
+                      "r": 6.2,
+                      "type": "movingPoint"
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "tween",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {}
+                }
+              },
+              {
+                "id": "teach:derive_translated_D_i:translation-0-target",
+                "duration_ms": 1000,
+                "caption": "D(2,-3)",
+                "derive": [
+                  [
+                    "∴",
+                    "D(2,-3)"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_C_problem",
+                      "labelText": "C",
+                      "color": "#0f766e",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_D_problem",
+                      "labelText": "D",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "type": "dashedLine",
+                      "from": "point_C_problem",
+                      "to": "point_D_problem",
+                      "color": "#0f766e",
+                      "width": 1.8,
+                      "dash": "5 5"
+                    },
+                    {
+                      "type": "coordinateLabel",
+                      "at": "point_D_problem",
+                      "text": "+2",
+                      "dx": 16,
+                      "dy": -10
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "fade_draw",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {}
+                }
+              }
+            ],
+            "on_complete": {
+              "enable_interactions": false
+            }
+          }
+        }
+      ]
+    },
+    "teach:derive_parabola_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_parabola_i:1",
+          "caption": "求解析式",
+          "teachingUnitKeys": [
+            "quadratic_from_constraints/derive_function"
+          ],
+          "domain": {
+            "minX": -1.72,
+            "maxX": 3.72,
+            "minY": -6.08,
+            "maxY": 2.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#2563eb",
+              "width": 2.4,
+              "type": "parabola"
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ]
+        }
+      ]
+    },
+    "teach:derive_x_intercept_B_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_x_intercept_B_i:1",
+          "caption": "求 x 轴交点",
+          "teachingUnitKeys": [
+            "quadratic_x_axis_intercept_point/solve_intercept"
+          ],
+          "domain": {
+            "minX": -1.72,
+            "maxX": 3.72,
+            "minY": -6.08,
+            "maxY": 2.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_i_2",
+              "labelText": "B",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_B_i_2",
+              "text": "B(3,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel"
+            }
+          ]
+        }
+      ]
+    },
+    "teach:derive_equal_angle_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_equal_angle_i:1",
+          "caption": "推出等角关系",
+          "teachingUnitKeys": [
+            "angle_sum_equal_angle_candidates/derive_equal_angle"
+          ],
+          "domain": {
+            "minX": -1.72,
+            "maxX": 3.72,
+            "minY": -6.08,
+            "maxY": 2.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_i_2",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_i_2",
+              "text": "B(3,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "dashedLine",
+              "from": "point_B_i_2",
+              "to": "point_E_i_2",
+              "color": "#64748b",
+              "width": 1.25,
+              "dash": "4 7",
+              "opacity": 0.58
+            },
+            {
+              "type": "dashedLine",
+              "from": "point_C_problem",
+              "to": "point_A_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "dash": "4 7",
+              "opacity": 0.58
+            },
+            {
+              "type": "angleArc",
+              "vertex": "point_B_i_2",
+              "rayA": "O",
+              "rayB": "point_E_i_2",
+              "color": "#64748b",
+              "radius": 34,
+              "label": "α",
+              "labelRadius": 48,
+              "opacity": 0.58
+            },
+            {
+              "type": "angleArc",
+              "vertex": "point_C_problem",
+              "rayA": "point_A_problem",
+              "rayB": "O",
+              "color": "#64748b",
+              "radius": 34,
+              "label": "α",
+              "labelRadius": 48,
+              "opacity": 0.58
+            },
+            {
+              "vertices": [
+                "point_C_problem",
+                "point_B_i_2",
+                "O"
+              ],
+              "fill": "rgba(100, 116, 139, 0.08)",
+              "color": "#64748b",
+              "width": 1.8,
+              "dash": "",
+              "type": "outlineRegion",
+              "opacity": 0.58
+            },
+            {
+              "vertex": "point_B_i_2",
+              "rayA": "point_C_problem",
+              "rayB": "O",
+              "color": "#0f766e",
+              "radius": 43,
+              "label": "45°",
+              "labelRadius": 60,
+              "type": "angleArc"
+            },
+            {
+              "at": "point_E_i_2",
+              "labelText": "E",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "from": "point_B_i_2",
+              "to": "point_C_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_B_i_2",
+              "to": "O",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            }
+          ]
+        }
+      ]
+    },
+    "teach:derive_axis_intercept_F_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_axis_intercept_F_i:1",
+          "caption": "等角求截点",
+          "teachingUnitKeys": [
+            "axis_intercept_from_equal_acute_angles/solve_intercept"
+          ],
+          "domain": {
+            "minX": -1.72,
+            "maxX": 3.72,
+            "minY": -5.58,
+            "maxY": 2.58
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_i_2",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_i_2",
+              "text": "B(3,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_B_i_2",
+              "to": "point_E_i_2",
+              "color": "#64748b",
+              "width": 1.25,
+              "dash": "4 7",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_A_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "dash": "4 7",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "vertex": "point_B_i_2",
+              "rayA": "point_C_problem",
+              "rayB": "O",
+              "color": "#64748b",
+              "radius": 43,
+              "label": "45°",
+              "labelRadius": 60,
+              "type": "angleArc",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_E_i_2",
+              "labelText": "E",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_B_i_2",
+              "to": "point_C_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_B_i_2",
+              "to": "O",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "type": "outlineRegion",
+              "vertices": [
+                "point_B_i_2",
+                "O",
+                "point_F_i_2"
+              ],
+              "fill": "rgba(124, 58, 237, 0.10)",
+              "color": "rgba(124, 58, 237, 0.28)",
+              "width": 1.0,
+              "dash": ""
+            },
+            {
+              "type": "outlineRegion",
+              "vertices": [
+                "point_A_problem",
+                "O",
+                "point_C_problem"
+              ],
+              "fill": "rgba(124, 58, 237, 0.10)",
+              "color": "rgba(124, 58, 237, 0.28)",
+              "width": 1.0,
+              "dash": ""
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_B_i_2",
+              "to": "point_F_i_2",
+              "color": "#dc2626",
+              "width": 2.2
+            },
+            {
+              "type": "coloredLine",
+              "from": "O",
+              "to": "point_A_problem",
+              "color": "#64748b",
+              "width": 1.25
+            },
+            {
+              "type": "coloredLine",
+              "from": "O",
+              "to": "point_C_problem",
+              "color": "#64748b",
+              "width": 1.25
+            },
+            {
+              "type": "coloredLine",
+              "from": "O",
+              "to": "point_F_i_2",
+              "color": "#64748b",
+              "width": 1.25
+            },
+            {
+              "at": "point_F_i_2",
+              "labelText": "F",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_F_i_2",
+              "text": "F(0,－1)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel"
+            }
+          ]
+        }
+      ]
+    },
+    "teach:derive_curve_intersection_E_i": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_curve_intersection_E_i:1",
+          "caption": "联立求交点",
+          "teachingUnitKeys": [
+            "line_parabola_second_intersection_point/solve_intersection"
+          ],
+          "domain": {
+            "minX": -1.72,
+            "maxX": 3.72,
+            "minY": -6.08,
+            "maxY": 2.08
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_i_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_i_2",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_i_2",
+              "text": "B(3,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "point_B_i_2",
+              "to": "point_E_i_2",
+              "color": "#64748b",
+              "width": 1.25,
+              "dash": "4 7",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_A_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "dash": "4 7",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "vertex": "point_B_i_2",
+              "rayA": "point_C_problem",
+              "rayB": "O",
+              "color": "#64748b",
+              "radius": 43,
+              "label": "45°",
+              "labelRadius": 60,
+              "type": "angleArc",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_E_i_2",
+              "labelText": "E",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "from": "point_B_i_2",
+              "to": "point_C_problem",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_B_i_2",
+              "to": "O",
+              "color": "#64748b",
+              "width": 1.25,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_i_2",
+              "labelText": "F",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_F_i_2",
+              "text": "F(0,－1)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_result_cacd6058724bef7ef049cff3",
+              "labelText": "H",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_E_i_2",
+              "text": "E(－2/3,－11/9)",
+              "dx": 14,
+              "dy": -28,
+              "type": "coordinateLabel"
+            }
+          ]
+        }
+      ]
+    },
+    "teach:derive_parametric_parabola_ii": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_parametric_parabola_ii:1",
+          "caption": "化简解析式",
+          "teachingUnitKeys": [
+            "quadratic_from_constraints/derive_function"
+          ],
+          "domain": {
+            "minX": -2.5057,
+            "maxX": 2.9343,
+            "minY": -5.6282,
+            "maxY": 2.5318
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#2563eb",
+              "width": 2.4,
+              "type": "parabola"
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "a": 2.1
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "a"
+            }
+          }
+        }
+      ]
+    },
+    "teach:derive_x_intercept_B_ii": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:derive_x_intercept_B_ii:1",
+          "caption": "求 x 轴交点",
+          "teachingUnitKeys": [
+            "quadratic_x_axis_intercept_point/solve_intercept"
+          ],
+          "domain": {
+            "minX": -2.5057,
+            "maxX": 2.9343,
+            "minY": -5.6282,
+            "maxY": 2.5318
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_ii",
+              "labelText": "B",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point"
+            },
+            {
+              "at": "point_B_ii",
+              "text": "B(3/a,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel"
+            }
+          ],
+          "localValues": {
+            "a": 2.1
+          },
+          "pointOverrides": {
+            "point_B_ii": [
+              "3/a",
+              "0"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "a"
+            }
+          }
+        }
+      ]
+    },
+    "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction:1",
+          "caption": "两动点转化",
+          "teachingUnitKeys": [
+            "equal_length_ray_path_reduction/path_reduction"
+          ],
+          "domain": {
+            "minX": -1.7781,
+            "maxX": 4.1009,
+            "minY": -5.6282,
+            "maxY": 2.5318
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_ii",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_ii",
+              "text": "B(3/a,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "type": "outlineRegion",
+              "vertices": [
+                "point_B_ii",
+                "point_C_problem",
+                "point_N_ii"
+              ],
+              "fill": "rgba(100, 116, 139, 0.08)",
+              "color": "#64748b",
+              "width": 1.0,
+              "dash": "",
+              "opacity": 0.58
+            },
+            {
+              "type": "outlineRegion",
+              "vertices": [
+                "point_G_ii",
+                "point_C_problem",
+                "point_M_ii"
+              ],
+              "fill": "rgba(100, 116, 139, 0.08)",
+              "color": "#64748b",
+              "width": 1.0,
+              "dash": "",
+              "opacity": 0.58
+            },
+            {
+              "from": "O",
+              "to": "point_M_ii",
+              "color": "#7c3aed",
+              "width": 2.2,
+              "type": "coloredLine"
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_M_ii",
+              "color": "#64748b",
+              "width": 1.35,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_N_ii",
+              "color": "#64748b",
+              "width": 1.35,
+              "dash": "5 6",
+              "type": "dashedLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_G_ii",
+              "color": "#0f766e",
+              "width": 2.0,
+              "dash": "5 6",
+              "type": "coloredLine"
+            },
+            {
+              "at": "point_M_ii",
+              "labelText": "M",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#dc2626",
+              "dx": 14,
+              "dy": -18,
+              "type": "point"
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": 18,
+              "type": "point"
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_B_ii",
+              "to": "point_N_ii",
+              "color": "#dc2626",
+              "width": 2.25
+            },
+            {
+              "type": "segment",
+              "from": "point_B_ii",
+              "to": "point_N_ii",
+              "label": "BN",
+              "color": "#dc2626",
+              "width": 1.6,
+              "offsetPx": 18,
+              "style": "dimension",
+              "rotateWithLine": false,
+              "extraNormal": 8
+            },
+            {
+              "type": "coloredLine",
+              "from": "point_M_ii",
+              "to": "point_G_ii",
+              "color": "#dc2626",
+              "width": 2.25
+            },
+            {
+              "type": "segment",
+              "from": "point_M_ii",
+              "to": "point_G_ii",
+              "label": "MG",
+              "color": "#dc2626",
+              "width": 1.6,
+              "offsetPx": -18,
+              "style": "dimension",
+              "rotateWithLine": false,
+              "extraNormal": 8
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_B_ii",
+              "color": "#0f766e",
+              "width": 1.8,
+              "dash": "",
+              "type": "coloredLine"
+            }
+          ],
+          "localValues": {
+            "a": 2.1,
+            "u": 0.699333
+          },
+          "pointOverrides": {
+            "point_B_ii": [
+              "3/a",
+              "0"
+            ],
+            "point_N_ii": [
+              "3*u*sqrt((a*a)+1)/abs(a)",
+              "-3"
+            ],
+            "point_G_ii": [
+              "3*sqrt((a*a)+1)/abs(a)",
+              "-3"
+            ],
+            "point_M_ii": [
+              "3*u/a",
+              "3*u-3"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "u"
+            }
+          },
+          "animation": {
+            "mode": "manual_then_interactive",
+            "trigger": {
+              "label": "播放演示"
+            },
+            "beats": [
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction:equal-length-extend-carrier",
+                "duration_ms": 1000,
+                "caption": "extend carrier",
+                "derive": [
+                  [
+                    "作",
+                    "沿CD所在方向作辅助线"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_N_ii",
+                      "labelText": "N",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "from": "point_C_problem",
+                      "to": "point_G_ii",
+                      "color": "#64748b",
+                      "width": 1.6,
+                      "dash": "5 6",
+                      "type": "dashedLine"
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": [],
+                  "replace_add": true
+                },
+                "transition": {
+                  "type": "fade_draw",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "from": 0.6993,
+                      "to": 0.6993
+                    }
+                  }
+                }
+              },
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction:equal-length-transfer",
+                "duration_ms": 1000,
+                "caption": "transfer length",
+                "derive": [
+                  [
+                    "作",
+                    "取点G，使CG=CB"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_N_ii",
+                      "labelText": "N",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "from": "point_C_problem",
+                      "to": "point_G_ii",
+                      "color": "#64748b",
+                      "width": 1.6,
+                      "dash": "5 6",
+                      "type": "dashedLine"
+                    },
+                    {
+                      "type": "segment",
+                      "from": "point_C_problem",
+                      "to": "point_B_ii",
+                      "label": "CB",
+                      "color": "#0f766e",
+                      "width": 2.6,
+                      "offsetPx": 18
+                    },
+                    {
+                      "type": "segment",
+                      "from": "point_C_problem",
+                      "to": "point_G_ii",
+                      "label": "CG",
+                      "color": "#0f766e",
+                      "width": 2.6,
+                      "offsetPx": 18
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "fade_draw",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "from": 0.6993,
+                      "to": 0.6993
+                    }
+                  }
+                }
+              },
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction:congruent-triangle-1",
+                "duration_ms": 1000,
+                "caption": "congruent triangles",
+                "derive": [],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_N_ii",
+                      "labelText": "N",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "type": "outlineRegion",
+                      "vertices": [
+                        "point_B_ii",
+                        "point_C_problem",
+                        "point_N_ii"
+                      ],
+                      "fill": "rgba(14, 165, 233, 0.14)",
+                      "color": "rgba(14, 165, 233, 0.42)",
+                      "width": 1.0,
+                      "dash": ""
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "fade",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "from": 0.6993,
+                      "to": 0.6993
+                    }
+                  }
+                }
+              },
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction:congruent-triangle-2",
+                "duration_ms": 1000,
+                "caption": "congruent triangles",
+                "derive": [
+                  [
+                    "∵",
+                    "CN=CM，CG=CB"
+                  ],
+                  [
+                    "∴",
+                    "△BCN≅△GCM（SAS）"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_N_ii",
+                      "labelText": "N",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "type": "outlineRegion",
+                      "vertices": [
+                        "point_B_ii",
+                        "point_C_problem",
+                        "point_N_ii"
+                      ],
+                      "fill": "rgba(14, 165, 233, 0.14)",
+                      "color": "rgba(14, 165, 233, 0.42)",
+                      "width": 1.0,
+                      "dash": ""
+                    },
+                    {
+                      "type": "outlineRegion",
+                      "vertices": [
+                        "point_G_ii",
+                        "point_C_problem",
+                        "point_M_ii"
+                      ],
+                      "fill": "rgba(14, 165, 233, 0.14)",
+                      "color": "rgba(14, 165, 233, 0.42)",
+                      "width": 1.0,
+                      "dash": ""
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "fade",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "from": 0.6993,
+                      "to": 0.6993
+                    }
+                  }
+                }
+              },
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction:equivalent-segment-emphasis",
+                "duration_ms": 1000,
+                "caption": "equivalent segments",
+                "derive": [
+                  [
+                    "∴",
+                    "BN=MG"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_N_ii",
+                      "labelText": "N",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "type": "coloredLine",
+                      "from": "point_B_ii",
+                      "to": "point_N_ii",
+                      "color": "#dc2626",
+                      "width": 2.4
+                    },
+                    {
+                      "type": "segment",
+                      "from": "point_B_ii",
+                      "to": "point_N_ii",
+                      "label": "BN",
+                      "color": "#dc2626",
+                      "width": 1.6,
+                      "offsetPx": 18,
+                      "style": "dimension",
+                      "rotateWithLine": false,
+                      "extraNormal": 8
+                    },
+                    {
+                      "type": "coloredLine",
+                      "from": "point_M_ii",
+                      "to": "point_G_ii",
+                      "color": "#dc2626",
+                      "width": 2.4
+                    },
+                    {
+                      "type": "segment",
+                      "from": "point_M_ii",
+                      "to": "point_G_ii",
+                      "label": "MG",
+                      "color": "#dc2626",
+                      "width": 1.6,
+                      "offsetPx": -18,
+                      "style": "dimension",
+                      "rotateWithLine": false,
+                      "extraNormal": 8
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "fade_draw",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "from": 0.6993,
+                      "to": 0.6993
+                    }
+                  }
+                }
+              },
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction:path-replacement-reveal",
+                "duration_ms": 1000,
+                "caption": "path replacement",
+                "derive": [
+                  [
+                    "∴",
+                    "OM+BN=OM+MG，转化为单动点路径"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_N_ii",
+                      "labelText": "N",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "from": "O",
+                      "to": "point_M_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    },
+                    {
+                      "from": "point_M_ii",
+                      "to": "point_G_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "fade_draw",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "from": 0.6993,
+                      "to": 0.6993
+                    }
+                  }
+                }
+              },
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/path_reduction:path-replacement-sweep",
+                "duration_ms": 2800,
+                "caption": "sweep converted path",
+                "derive": [],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_N_ii",
+                      "labelText": "N",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "from": "O",
+                      "to": "point_M_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    },
+                    {
+                      "from": "point_M_ii",
+                      "to": "point_G_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    }
+                  ],
+                  "hide": [],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "tween",
+                  "duration_ms": 2600,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "keyframes": [
+                        {
+                          "at": 0.0,
+                          "value": 0.6993
+                        },
+                        {
+                          "at": 0.3333,
+                          "value": 0.9158
+                        },
+                        {
+                          "at": 0.6667,
+                          "value": 0.25
+                        },
+                        {
+                          "at": 1.0,
+                          "value": 0.6993
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ],
+            "on_complete": {
+              "enable_interactions": true
+            }
+          }
+        }
+      ]
+    },
+    "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/minimum_by_segment": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/minimum_by_segment:1",
+          "caption": "单动点路径最值",
+          "teachingUnitKeys": [
+            "equal_length_ray_path_reduction/minimum_by_segment"
+          ],
+          "domain": {
+            "minX": -1.0586,
+            "maxX": 4.3814,
+            "minY": -5.58,
+            "maxY": 2.58
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_ii",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_ii",
+              "text": "B(3/a,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "O",
+              "to": "point_M_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_G_ii",
+              "color": "#0f766e",
+              "width": 2.0,
+              "dash": "5 6",
+              "type": "coloredLine"
+            },
+            {
+              "at": "point_M_ii",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#b45309",
+              "dx": 14,
+              "dy": 18,
+              "type": "point"
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_B_ii",
+              "color": "#0f766e",
+              "width": 1.8,
+              "dash": "",
+              "type": "coloredLine"
+            },
+            {
+              "vertices": [
+                "O",
+                "point_M_ii",
+                "point_G_ii"
+              ],
+              "fill": "rgba(180, 83, 9, 0.10)",
+              "color": "rgba(180, 83, 9, 0.25)",
+              "width": 1.0,
+              "dash": "",
+              "type": "outlineRegion"
+            },
+            {
+              "from": "O",
+              "to": "point_G_ii",
+              "color": "#b45309",
+              "width": 2.8,
+              "type": "coloredLine"
+            },
+            {
+              "type": "segment",
+              "from": "O",
+              "to": "point_G_ii",
+              "label": "OG",
+              "color": "#b45309",
+              "width": 2.8,
+              "offsetPx": 16
+            }
+          ],
+          "localValues": {
+            "a": 2.1,
+            "u": 0.6993331814234481
+          },
+          "pointOverrides": {
+            "point_B_ii": [
+              "3/a",
+              "0"
+            ],
+            "point_M_ii": [
+              "3*u/a",
+              "3*u-3"
+            ],
+            "point_G_ii": [
+              "3*sqrt((a*a)+1)/abs(a)",
+              "-3"
+            ],
+            "point_N_ii": [
+              "3*u*sqrt((a*a)+1)/abs(a)",
+              "-3"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "u"
+            }
+          },
+          "animation": {
+            "mode": "manual_then_interactive",
+            "trigger": {
+              "label": "播放演示"
+            },
+            "beats": [
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/minimum_by_segment:path-minimum-reduced-path",
+                "duration_ms": 1000,
+                "caption": "reduced path",
+                "derive": [
+                  [
+                    "∵",
+                    "OM+BN=OM+MG"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "from": "O",
+                      "to": "point_M_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    },
+                    {
+                      "from": "point_M_ii",
+                      "to": "point_G_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    }
+                  ],
+                  "hide": [
+                    "line:O:point_G_ii",
+                    "line:point_G_ii:O",
+                    "distance:O:point_G_ii:OG",
+                    "distance:point_G_ii:O:OG"
+                  ],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "fade_draw",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "from": 0.6993,
+                      "to": 0.6993
+                    }
+                  }
+                }
+              },
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/minimum_by_segment:path-minimum-sweep",
+                "duration_ms": 3200,
+                "caption": "sweep moving point",
+                "derive": [
+                  [
+                    "∵",
+                    "M在CB上运动，G为固定点"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "from": "O",
+                      "to": "point_M_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    },
+                    {
+                      "from": "point_M_ii",
+                      "to": "point_G_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    }
+                  ],
+                  "hide": [
+                    "line:O:point_G_ii",
+                    "line:point_G_ii:O",
+                    "distance:O:point_G_ii:OG",
+                    "distance:point_G_ii:O:OG"
+                  ],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "tween",
+                  "duration_ms": 3000,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "keyframes": [
+                        {
+                          "at": 0.0,
+                          "value": 0.6993
+                        },
+                        {
+                          "at": 0.3333,
+                          "value": 0.9158
+                        },
+                        {
+                          "at": 0.6667,
+                          "value": 0.25
+                        },
+                        {
+                          "at": 1.0,
+                          "value": 0.6993
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/minimum_by_segment:path-minimum-return",
+                "duration_ms": 1000,
+                "caption": "return to minimum",
+                "derive": [
+                  [
+                    "∴",
+                    "当O、M、G共线时路径最短"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "from": "O",
+                      "to": "point_M_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    },
+                    {
+                      "from": "point_M_ii",
+                      "to": "point_G_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    },
+                    {
+                      "vertices": [
+                        "O",
+                        "point_M_ii",
+                        "point_G_ii"
+                      ],
+                      "fill": "rgba(180, 83, 9, 0.12)",
+                      "color": "rgba(180, 83, 9, 0.34)",
+                      "type": "outlineRegion"
+                    }
+                  ],
+                  "hide": [
+                    "line:O:point_G_ii",
+                    "line:point_G_ii:O",
+                    "distance:O:point_G_ii:OG",
+                    "distance:point_G_ii:O:OG"
+                  ],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "tween",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "from": 0.6993,
+                      "to": 0.6993
+                    }
+                  }
+                }
+              },
+              {
+                "id": "teach:reduce_equal_length_ray_path_ii:equal_length_ray_path_reduction/minimum_by_segment:path-minimum-result",
+                "duration_ms": 1000,
+                "caption": "minimum segment",
+                "derive": [
+                  [
+                    "∴",
+                    "最小值 = OG"
+                  ]
+                ],
+                "scene_patch": {
+                  "add": [
+                    {
+                      "at": "point_M_ii",
+                      "labelText": "M",
+                      "color": "#dc2626",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "at": "point_G_ii",
+                      "labelText": "G",
+                      "color": "#b45309",
+                      "dx": 12,
+                      "dy": -14,
+                      "type": "point"
+                    },
+                    {
+                      "from": "O",
+                      "to": "point_M_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    },
+                    {
+                      "from": "point_M_ii",
+                      "to": "point_G_ii",
+                      "color": "#7c3aed",
+                      "width": 2.2,
+                      "dash": "",
+                      "type": "coloredLine"
+                    },
+                    {
+                      "vertices": [
+                        "O",
+                        "point_M_ii",
+                        "point_G_ii"
+                      ],
+                      "fill": "rgba(180, 83, 9, 0.12)",
+                      "color": "rgba(180, 83, 9, 0.34)",
+                      "type": "outlineRegion"
+                    },
+                    {
+                      "type": "segment",
+                      "from": "O",
+                      "to": "point_G_ii",
+                      "label": "OG",
+                      "color": "#b45309",
+                      "width": 2.6,
+                      "offsetPx": 18
+                    }
+                  ],
+                  "hide": [
+                    "line:O:point_G_ii",
+                    "line:point_G_ii:O",
+                    "distance:O:point_G_ii:OG",
+                    "distance:point_G_ii:O:OG"
+                  ],
+                  "state_overrides": []
+                },
+                "transition": {
+                  "type": "fade_draw",
+                  "duration_ms": 700,
+                  "easing": "easeInOutCubic",
+                  "local_vars": {
+                    "u": {
+                      "from": 0.6993,
+                      "to": 0.6993
+                    }
+                  }
+                }
+              }
+            ],
+            "on_complete": {
+              "enable_interactions": true
+            }
+          }
+        }
+      ]
+    },
+    "teach:solve_parameter_from_minimum_ii": {
+      "visualMode": "scene",
+      "visualFrames": [
+        {
+          "id": "frame:teach:solve_parameter_from_minimum_ii:1",
+          "caption": "反求参数",
+          "teachingUnitKeys": [
+            "parameter_from_expression_value/solve_parameter"
+          ],
+          "domain": {
+            "minX": -2.08,
+            "maxX": 6.08,
+            "minY": -5.58,
+            "maxY": 2.58
+          },
+          "add": [
+            {
+              "type": "grid"
+            },
+            {
+              "at": "point_C_problem",
+              "labelText": "C",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_C_problem",
+              "text": "C(0,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "at": "point_D_problem",
+              "labelText": "D",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_D_problem",
+              "text": "D(2,－3)",
+              "dx": 14,
+              "dy": -30,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "curveId": "curve_ii_parabola",
+              "color": "#64748b",
+              "width": 2.4,
+              "type": "parabola",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_A_problem",
+              "labelText": "A",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_ii",
+              "labelText": "B",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "showLabel": false,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_B_ii",
+              "text": "B(4,0)",
+              "dx": 14,
+              "dy": -24,
+              "type": "coordinateLabel",
+              "opacity": 0.58,
+              "color": "#64748b"
+            },
+            {
+              "from": "O",
+              "to": "point_M_ii",
+              "color": "#64748b",
+              "width": 2.2,
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.0,
+              "dash": "5 6",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_M_ii",
+              "labelText": "M",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_N_ii",
+              "labelText": "N",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": -18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "at": "point_G_ii",
+              "labelText": "G",
+              "color": "#64748b",
+              "dx": 14,
+              "dy": 18,
+              "type": "point",
+              "opacity": 0.58
+            },
+            {
+              "from": "point_C_problem",
+              "to": "point_B_ii",
+              "color": "#64748b",
+              "width": 1.8,
+              "dash": "",
+              "type": "coloredLine",
+              "opacity": 0.58
+            },
+            {
+              "from": "O",
+              "to": "point_G_ii",
+              "color": "#64748b",
+              "width": 2.8,
+              "type": "coloredLine",
+              "opacity": 0.58
+            }
+          ],
+          "localValues": {
+            "a": 0.75,
+            "u": 0.5555555555555556
+          },
+          "pointOverrides": {
+            "point_M_ii": [
+              "3*u/a",
+              "3*u-3"
+            ],
+            "point_N_ii": [
+              "3*u*sqrt((a*a)+1)/abs(a)",
+              "-3"
+            ]
+          },
+          "curveOverrides": {
+            "curve_ii_parabola": {
+              "parameter": "u"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

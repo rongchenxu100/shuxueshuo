@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "origin": "recorded",
+      "status": "passed",
+      "canonical_plan_sha256": "eb7bee859c9682a642666bd4ac8c0285800e7e6e3874c7832295faf5190868cb",
+      "execution_audit_sha256": "d2b104855fa227e9bc3e39f82cd507c29826fa24b8e4a4f04ebc9799774fcfed",
+      "bindings": 29
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "origin": "authored",
+      "status": "passed",
+      "canonical_plan_sha256": "eb7bee859c9682a642666bd4ac8c0285800e7e6e3874c7832295faf5190868cb",
+      "execution_audit_sha256": "46f0ce51ccad285ef157c6237fb8afcff64609200dade94aaeecb76d195a5a47",
+      "bindings": 29
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "origin": "recorded",
+      "status": "passed",
+      "canonical_plan_sha256": "9160942486db66fe06b1c29baa129047690fa8a0495e2da72b32dcbaec7add97",
+      "execution_audit_sha256": "87e70eacc4fad47ffd858135456ce8572f68ce33cd247bf7490595fc0dd27a82",
+      "bindings": 30
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "origin": "authored",
+      "status": "passed",
+      "canonical_plan_sha256": "9160942486db66fe06b1c29baa129047690fa8a0495e2da72b32dcbaec7add97",
+      "execution_audit_sha256": "d75ac86bb708492a416bb0136dc7ee59e8ac92d269c297c09942b459f521c7b1",
+      "bindings": 30
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "origin": "recorded",
+      "status": "passed",
+      "canonical_plan_sha256": "35485da6a942b141004f226e0c148e5a3d98545b1d49ec3d04ce8ef0d3a02b59",
+      "execution_audit_sha256": "a7960725af7936ef607c5f4140fff7182c5688111831ebd4f2679e25545ec810",
+      "bindings": 24
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "origin": "authored",
+      "status": "passed",
+      "canonical_plan_sha256": "35485da6a942b141004f226e0c148e5a3d98545b1d49ec3d04ce8ef0d3a02b59",
+      "execution_audit_sha256": "ba8b446d5546d7284aa7f6da4f7f7eb2aa5df080a9fdf3bba4649fe5a84ed482",
+      "bindings": 24
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "origin": "recorded",
+      "status": "passed",
+      "canonical_plan_sha256": "e74f7cf78a5b9bd37f972aa5556f5bdd861491b09c0ea5e65dd6f217a3252159",
+      "execution_audit_sha256": "69d2c434b6ee5672b027e4a523bc91aec3fab2d1e4e30d7b7420f4e921beae8f",
+      "bindings": 23
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "origin": "authored",
+      "status": "passed",
+      "canonical_plan_sha256": "e74f7cf78a5b9bd37f972aa5556f5bdd861491b09c0ea5e65dd6f217a3252159",
+      "execution_audit_sha256": "9f6872763351f6301b439f5d27e4be709756cd053e3cdf418eb7ce1ab605e116",
+      "bindings": 23
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "origin": "recorded",
+      "status": "passed",
+      "canonical_plan_sha256": "92d5d0efbf3567569277329e1e61f09d77e396d20161092db2407335e9bdd2b8",
+      "execution_audit_sha256": "454fb4258fc6d5e087e20364201e4a1641e9dcf3b13b8fcd7902af470783b940",
+      "bindings": 20
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "origin": "authored",
+      "status": "passed",
+      "canonical_plan_sha256": "92d5d0efbf3567569277329e1e61f09d77e396d20161092db2407335e9bdd2b8",
+      "execution_audit_sha256": "0e6b5ed5c059c1aaae08e180b9dec7d971cae4633093b65b3ede1cdeb8b2fb25",
+      "bindings": 20
+    }
+  ],
+  "status": "passed",
+  "model_calls": 0,
+  "code_fingerprint": "cd76f58bee7d64a812fb514fe9343d88742c81c8b2fd4e2aa8d59aa1430205b6",
+  "current_product_admission": false
+}

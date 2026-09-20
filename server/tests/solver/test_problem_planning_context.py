@@ -30,6 +30,7 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
     planner_problem_view_schema,
 )
 from shuxueshuo_server.solver.extraction.problem_solver_bundle import (
+    ProblemBundleAuthorityError,
     ProblemBundleAuthorityToken,
     RuntimeProjectionIndex,
     VerifiedSolverProblemBundle,
@@ -617,6 +618,31 @@ def test_missing_goal_mapping_fails_loud(tmp_path) -> None:
         )
 
     assert error.value.code == "planner.problem_planning_projection_drift"
+
+
+@pytest.mark.parametrize("conflicting", [False, True])
+def test_duplicate_source_unit_ids_fail_before_mapping_conversion(
+    tmp_path, monkeypatch, conflicting
+) -> None:
+    bundle, _ = _planning_fixture(tmp_path)
+    verified_type = type(bundle.verified_problem)
+    original = verified_type.to_payload
+
+    def duplicated(verified):
+        payload = original(verified)
+        record = dict(payload["unit_registry"][0])
+        if conflicting:
+            record["scope_path"] = "/sibling"
+        payload["unit_registry"].append(record)
+        return payload
+
+    monkeypatch.setattr(verified_type, "to_payload", duplicated)
+    with pytest.raises(ProblemBundleAuthorityError, match="duplicate ids"):
+        _ = bundle.source_unit_registry
+    with pytest.raises(ProblemPlanningContextError) as error:
+        ProblemPlanningContextProjector().project(bundle)
+    assert error.value.code == "planner.problem_planning_projection_drift"
+    assert error.value.path == "$.verified_problem.unit_registry"
 
 
 def test_missing_runtime_node_mapping_fails_loud(tmp_path) -> None:

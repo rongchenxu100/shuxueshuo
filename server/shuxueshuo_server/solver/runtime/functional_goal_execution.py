@@ -65,6 +65,7 @@ from shuxueshuo_server.solver.runtime.scoped_functional_plan import (
     ScopedFunctionalPlanValidator,
     ScopedFunctionalScope,
     ScopedStepResultRef,
+    _iter_scopes,
     scoped_entity_state_dependencies,
     scoped_functional_plan_id,
     scoped_functional_plan_schema,
@@ -2406,6 +2407,12 @@ class ScopedFunctionalGoalExecutionService:
                 runtime_context=context,
                 finalized_authority=finalized,
                 restored_seed=restored_seed,
+                blocked_answer_handles=(
+                    _blocked_answer_handles_from_scoped_plan(
+                        canonical_plan,
+                        excluded_step_ids=excluded,
+                    )
+                ),
             )
             transaction = replay.transactional_attempt_result
             runtime_aliases = (
@@ -3262,6 +3269,34 @@ def _build_checkpoint(
         forbidden_values=forbidden_prompt_values,
     )
     return checkpoint
+
+
+def _blocked_answer_handles_from_scoped_plan(
+    plan: ScopedFunctionalPlan,
+    *,
+    excluded_step_ids: frozenset[str] | set[str],
+) -> frozenset[str]:
+    """Identify authored answers whose producer was removed by authority.
+
+    The scoped executor lowers only the executable subset before transactional
+    replay.  Preserve the answer identity from the authored Goal so the goal
+    verifier can distinguish a blocked producer from a missing producer.
+    """
+
+    handles: set[str] = set()
+    excluded = frozenset(excluded_step_ids)
+    for scope in _iter_scopes(plan.root_scope):
+        for goal in scope.goals:
+            if goal.answer_from.step_id not in excluded:
+                continue
+            goal_ref = str(goal.goal_ref).strip()
+            if goal_ref:
+                handles.add(
+                    goal_ref
+                    if goal_ref.startswith("answer:")
+                    else f"answer:{goal_ref}"
+                )
+    return frozenset(handles)
 
 
 def _prompt_safe_inputs(

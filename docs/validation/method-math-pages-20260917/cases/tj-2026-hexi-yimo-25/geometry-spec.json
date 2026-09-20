@@ -1,0 +1,277 @@
+{
+  "version": 1,
+  "id": "tj-2026-hexi-yimo-25",
+  "domain": {
+    "minX": -4.798,
+    "maxX": 2.798,
+    "minY": -3.868,
+    "maxY": 4.048
+  },
+  "movingParam": "b",
+  "expressionEnv": [],
+  "fixedPoints": {
+    "curve_i_parabola_vertex": [
+      "1",
+      "2"
+    ],
+    "curve_ii_solved_parabola_vertex": [
+      "-1/4+sqrt(2)/4",
+      "-11/8-3*sqrt(2)/4"
+    ],
+    "point_A_ii": [
+      "-1",
+      "0"
+    ],
+    "point_A_iii": [
+      "-1",
+      "0"
+    ],
+    "point_D_ii": [
+      "sqrt(2)",
+      "1"
+    ],
+    "point_P_i": [
+      "1",
+      "2"
+    ]
+  },
+  "movingPoints": {
+    "curve_ii_parabola_vertex": [
+      "b/4",
+      "-(b*b)/8-b-2"
+    ],
+    "curve_iii_parabola_vertex": [
+      "b/2",
+      "-(b*b)/4-b-1"
+    ],
+    "point_C_ii": [
+      "0",
+      "-b-2"
+    ],
+    "point_M_iii": [
+      "b+1/2",
+      "-b/2-3/4"
+    ],
+    "point_N_iii": [
+      "b/2-1/4",
+      "0"
+    ],
+    "point_candidate_derive_right_angle_candidates_ii_1_1_ii": [
+      "-b-3",
+      "-1"
+    ],
+    "point_candidate_derive_right_angle_candidates_ii_1_2_ii": [
+      "b+1",
+      "1"
+    ],
+    "point_candidate_select_curve_candidate_ii_1_1_ii": [
+      "-b-3",
+      "-1"
+    ],
+    "point_candidate_select_curve_candidate_ii_1_2_ii": [
+      "b+1",
+      "1"
+    ],
+    "point_Q_iii": [
+      "n/2-1/2",
+      "n/2+1/2"
+    ]
+  },
+  "pointMeta": {
+    "curve_i_parabola_vertex": {
+      "label": "",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_i_parabola",
+      "display": "(1, 2)",
+      "visualOnly": true
+    },
+    "curve_ii_parabola_vertex": {
+      "label": "",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_ii_parabola",
+      "display": "(b/4, －b²/8－b－2)",
+      "visualOnly": true
+    },
+    "curve_ii_solved_parabola_vertex": {
+      "label": "",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_ii_solved_parabola",
+      "display": "(－1/4＋√2/4, －11/8－3√2/4)",
+      "visualOnly": true
+    },
+    "curve_iii_parabola_vertex": {
+      "label": "",
+      "scopeId": "iii",
+      "scopeRoot": "iii",
+      "definition": "curve_vertex_feature",
+      "sourceCurveId": "curve_iii_parabola",
+      "display": "(b/2, －b²/4－b－1)",
+      "visualOnly": true
+    },
+    "point_A_ii": {
+      "label": "A",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "given_point",
+      "sourceRef": "point:ii:A"
+    },
+    "point_A_iii": {
+      "label": "A",
+      "scopeId": "iii",
+      "scopeRoot": "iii",
+      "definition": "given_point",
+      "sourceRef": "point:iii:A"
+    },
+    "point_C_ii": {
+      "label": "C",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_y_intercept_ii"
+      ]
+    },
+    "point_D_ii": {
+      "label": "D",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "select_curve_candidate_ii"
+      ]
+    },
+    "point_M_iii": {
+      "label": "M",
+      "scopeId": "iii",
+      "scopeRoot": "iii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_curve_point_iii"
+      ]
+    },
+    "point_N_iii": {
+      "label": "N",
+      "scopeId": "iii",
+      "scopeRoot": "iii",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_weighted_minimum_iii"
+      ]
+    },
+    "point_P_i": {
+      "label": "P",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "derive_vertex_i"
+      ]
+    },
+    "point_candidate_derive_right_angle_candidates_ii_1_1_ii": {
+      "label": "D₁",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "public_candidate",
+      "sourceStepId": "derive_right_angle_candidates_ii",
+      "candidateGroup": 1,
+      "candidateIndex": 1,
+      "visualOnly": true
+    },
+    "point_candidate_derive_right_angle_candidates_ii_1_2_ii": {
+      "label": "D₂",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "public_candidate",
+      "sourceStepId": "derive_right_angle_candidates_ii",
+      "candidateGroup": 1,
+      "candidateIndex": 2,
+      "visualOnly": true
+    },
+    "point_candidate_select_curve_candidate_ii_1_1_ii": {
+      "label": "D₁",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "public_candidate",
+      "sourceStepId": "select_curve_candidate_ii",
+      "candidateGroup": 1,
+      "candidateIndex": 1,
+      "visualOnly": true
+    },
+    "point_candidate_select_curve_candidate_ii_1_2_ii": {
+      "label": "D₂",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "definition": "public_candidate",
+      "sourceStepId": "select_curve_candidate_ii",
+      "candidateGroup": 1,
+      "candidateIndex": 2,
+      "visualOnly": true
+    },
+    "point_Q_iii": {
+      "label": "Q",
+      "scopeId": "iii",
+      "scopeRoot": "iii",
+      "definition": "visual_auxiliary_parameterized_point",
+      "sourceStepIds": [
+        "derive_weighted_minimum_iii"
+      ]
+    }
+  },
+  "curves": [
+    {
+      "id": "curve_i_parabola",
+      "type": "parabola",
+      "scopeId": "i",
+      "scopeRoot": "i",
+      "sourceHandle": "fact:i:derive_parabola_i_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 0,
+      "a": "1",
+      "b": "-2",
+      "c": "3"
+    },
+    {
+      "id": "curve_ii_parabola",
+      "type": "parabola",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "sourceHandle": "fact:ii:derive_parametric_parabola_ii_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 2,
+      "a": "2",
+      "b": "-b",
+      "c": "-b-2"
+    },
+    {
+      "id": "curve_ii_solved_parabola",
+      "type": "parabola",
+      "scopeId": "ii",
+      "scopeRoot": "ii",
+      "sourceHandle": "fact:ii:select_curve_candidate_ii_solved_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 5,
+      "a": "2",
+      "b": "1-sqrt(2)",
+      "c": "-sqrt(2)-1"
+    },
+    {
+      "id": "curve_iii_parabola",
+      "type": "parabola",
+      "scopeId": "iii",
+      "scopeRoot": "iii",
+      "sourceHandle": "fact:iii:derive_parametric_parabola_iii_parabola",
+      "objectRef": "function:problem:parabola",
+      "stateRevision": 6,
+      "a": "1",
+      "b": "-b",
+      "c": "-b-1"
+    }
+  ],
+  "derivedIntersections": []
+}

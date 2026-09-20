@@ -1,0 +1,146 @@
+{
+  "schema_version": "problem-domain/v1",
+  "problem_id": "holdout-open-boundary",
+  "family_id": "QuadraticPathMinimumSolver",
+  "source": {
+    "question_number": "1",
+    "score": null
+  },
+  "root": {
+    "id": "problem",
+    "label": "整题",
+    "source_text": [
+      "抛物线 y=x^2-4 经过点 P(-3,5)，点 Q(4,3) 为定点。",
+      "动点 T(t,0) 在 x 轴上，t>0。",
+      "求 PT+TQ 的最小值。"
+    ],
+    "entities": [
+      {
+        "id": "curve",
+        "kind": "quadratic_function",
+        "label": "抛物线"
+      },
+      {
+        "id": "x",
+        "kind": "symbol",
+        "label": "x",
+        "role": "function_variable"
+      },
+      {
+        "id": "P",
+        "kind": "point",
+        "label": "P"
+      },
+      {
+        "id": "Q",
+        "kind": "point",
+        "label": "Q"
+      },
+      {
+        "id": "T",
+        "kind": "point",
+        "label": "T"
+      },
+      {
+        "id": "t",
+        "kind": "symbol",
+        "label": "t",
+        "role": "dynamic_parameter"
+      }
+    ],
+    "facts": [
+      {
+        "kind": "function_expression",
+        "function": "curve",
+        "variable": "x",
+        "expression": "x**2-4"
+      },
+      {
+        "kind": "point_coordinate",
+        "point": "P",
+        "value": [
+          "-3",
+          "5"
+        ]
+      },
+      {
+        "kind": "point_on_curve",
+        "point": "P",
+        "curve": "curve"
+      },
+      {
+        "kind": "point_coordinate",
+        "point": "Q",
+        "value": [
+          "4",
+          "3"
+        ]
+      },
+      {
+        "kind": "point_coordinate",
+        "point": "T",
+        "value": [
+          "t",
+          "0"
+        ]
+      },
+      {
+        "kind": "point_on_axis",
+        "point": "T",
+        "axis": "x"
+      },
+      {
+        "kind": "symbol_constraint",
+        "symbol": "t",
+        "operator": ">",
+        "value": "0"
+      },
+      {
+        "kind": "minimum_target",
+        "expression": {
+          "terms": [
+            {
+              "scale": "1",
+              "segment": {
+                "start": "P",
+                "end": "T"
+              }
+            },
+            {
+              "scale": "1",
+              "segment": {
+                "start": "T",
+                "end": "Q"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "goals": [
+      {
+        "kind": "minimum_value",
+        "answer_key": "minimum",
+        "expression": {
+          "terms": [
+            {
+              "scale": "1",
+              "segment": {
+                "start": "P",
+                "end": "T"
+              }
+            },
+            {
+              "scale": "1",
+              "segment": {
+                "start": "T",
+                "end": "Q"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "children": []
+  }
+}

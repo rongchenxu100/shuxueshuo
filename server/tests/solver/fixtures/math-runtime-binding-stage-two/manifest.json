@@ -1,0 +1,56 @@
+{
+  "evidence_kind": "frozen_inputs_only",
+  "current_review": false,
+  "files": [
+    {
+      "path": "tj-2026-nankai-yimo-25.authored.json",
+      "origin": "docs/validation/math-object-tree-state-facts-20260917/authored/tj-2026-nankai-yimo-25/input-notation.json",
+      "sha256": "53ec8bce5362f2483a8d9220f35b5f6d0fe4229e4bf74757d7cd9810bbc4bb08"
+    },
+    {
+      "path": "tj-2026-nankai-yimo-25.recorded.json",
+      "origin": "server/tests/product/fixtures/math-notation-state-facts-seven-20260917/tj-2026-nankai-yimo-25.01-extract.txt",
+      "sha256": "e7eb1e5c92396133c34d730fec0aa95fde5d10bec412071b623826641f5395af"
+    },
+    {
+      "path": "tj-2026-heping-ermo-25.authored.json",
+      "origin": "docs/validation/math-object-tree-state-facts-20260917/authored/tj-2026-heping-ermo-25/input-notation.json",
+      "sha256": "efc60bcacb7a890da30765f3af2a53bd09886e02b1ccc9d2d3065e603e043c5c"
+    },
+    {
+      "path": "tj-2026-heping-ermo-25.recorded.json",
+      "origin": "server/tests/product/fixtures/math-notation-state-facts-seven-20260917/tj-2026-heping-ermo-25.01-extract.txt",
+      "sha256": "27f737644ac28d2a03c497fd84d06a33fe95ce46755d7d7bc6028107cb369a9c"
+    },
+    {
+      "path": "tj-2026-heping-yimo-25.authored.json",
+      "origin": "docs/validation/math-object-tree-state-facts-20260917/authored/tj-2026-heping-yimo-25/input-notation.json",
+      "sha256": "5205e27496e8169ee280ebf2afaf0126c5c03248df87869e543e3779550ab7c0"
+    },
+    {
+      "path": "tj-2026-heping-yimo-25.recorded.json",
+      "origin": "server/tests/product/fixtures/math-notation-state-facts-seven-20260917/tj-2026-heping-yimo-25.01-extract.txt",
+      "sha256": "f07671d168643b12725fdb511afe5382c1cc7a022b9c4c9e29d9bb7226511a41"
+    },
+    {
+      "path": "tj-2026-hexi-yimo-25.authored.json",
+      "origin": "docs/validation/math-object-tree-state-facts-20260917/authored/tj-2026-hexi-yimo-25/input-notation.json",
+      "sha256": "af68c5c8929471bb291fc0ee92584114dc2c8cc9b9ef55930e6cfb0dde2b2038"
+    },
+    {
+      "path": "tj-2026-hexi-yimo-25.recorded.json",
+      "origin": "server/tests/product/fixtures/math-notation-state-facts-seven-20260917/tj-2026-hexi-yimo-25.01-extract.txt",
+      "sha256": "5281e8835c6854280a007140e4e8afb0f728d7b583841da6c460677bb20a03c5"
+    },
+    {
+      "path": "tj-2026-xiqing-yimo-25.authored.json",
+      "origin": "docs/validation/math-object-tree-state-facts-20260917/authored/tj-2026-xiqing-yimo-25/input-notation.json",
+      "sha256": "56448536f0cb317318597d41df2d191df4e65da6f7cccbf982469f85cb1809f2"
+    },
+    {
+      "path": "tj-2026-xiqing-yimo-25.recorded.json",
+      "origin": "server/tests/product/fixtures/math-notation-state-facts-seven-20260917/tj-2026-xiqing-yimo-25.01-extract.txt",
+      "sha256": "607ea37088206f217dcf39f09a44557eb1e72a27fe50ccd49d9d9b069989de7b"
+    }
+  ]
+}

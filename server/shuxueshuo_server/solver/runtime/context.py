@@ -1078,9 +1078,11 @@ def _parse_constraint(
     kernel: SympyKernel,
     symbols: Mapping[str, sp.Symbol],
 ) -> dict[str, sp.Expr | str]:
-    """把 ``>0``、``>2`` 这类简单约束解析成结构化形式。"""
-    if raw.startswith(">"):
-        return {"operator": ">", "value": kernel.expr(raw[1:].strip(), dict(symbols))}
+    """按最长运算符优先解析约束，保留严格与非严格边界。"""
+    raw = raw.strip()
+    for operator in (">=", "<=", "!=", ">", "<", "="):
+        if raw.startswith(operator):
+            return {"operator": operator, "value": kernel.expr(raw[len(operator):].strip(), dict(symbols))}
     return {"operator": str(raw), "value": str(raw)}
 
 
@@ -1134,7 +1136,7 @@ def _parameter_lower_bound(context: RuntimeContext) -> sp.Expr | None:
         return None
     raw = context.problem.constraints.get(symbol.name)
     if raw and raw.startswith(">"):
-        return context.kernel.expr(raw[1:].strip(), context.symbols)
+        return context.kernel.expr(raw[2 if raw.startswith(">=") else 1:].strip(), context.symbols)
     return None
 
 

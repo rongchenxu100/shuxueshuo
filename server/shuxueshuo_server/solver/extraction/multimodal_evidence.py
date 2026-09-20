@@ -400,30 +400,33 @@ class MultimodalEvidencePackBuilder:
             for item in observation.spatial_observations
             if item.observation_id in selected_ids
         )
-        if not selected:
+        image_only = context.quality.get("ocr_status") == "skipped_fast_pass"
+        if not selected and not image_only:
             raise _error(
                 "extraction.multimodal_evidence_pack_invalid",
                 "$.selected_observation_ids",
                 "the selected question has no observations",
             )
-        observed_regions = tuple(
-            ObservationRegionIndexEntry(
-                region_id=item.observation_id,
-                evidence_id=item.observation_id,
-                page_id=item.page_id,
-                polygon=tuple(item.polygon),
-                kind=_observation_kind(item),
-                origin=_prompt_origin(item),
-                confidence=item.confidence,
-                reading_order=item.reading_order,
-                source_artifact_id=item.source_artifact_id,
+        if selected:
+            regions = tuple(
+                ObservationRegionIndexEntry(
+                    region_id=item.observation_id,
+                    evidence_id=item.observation_id,
+                    page_id=item.page_id,
+                    polygon=tuple(item.polygon),
+                    kind=_observation_kind(item),
+                    origin=_prompt_origin(item),
+                    confidence=item.confidence,
+                    reading_order=item.reading_order,
+                    source_artifact_id=item.source_artifact_id,
+                )
+                for item in sorted(
+                    selected,
+                    key=lambda item: (item.page_id, item.reading_order, item.observation_id),
+                )
             )
-            for item in sorted(
-                selected,
-                key=lambda item: (item.page_id, item.reading_order, item.observation_id),
-            )
-        )
-        regions = observed_regions
+        else:
+            regions = _selection_region_index(context, images)
         printed_text = tuple(
             PrintedTextEvidence(
                 item.observation_id,
@@ -590,6 +593,41 @@ class MultimodalEvidencePackBuilder:
                 "at least one complete selection image is required",
             )
         return tuple(images)
+
+
+def _selection_region_index(
+    context: ProblemExtractionContext,
+    images: Sequence[MultimodalImageInput],
+) -> tuple[ObservationRegionIndexEntry, ...]:
+    """Materialize the confirmed selection as the only region when OCR was skipped."""
+
+    image_by_page = {item.page_id: item for item in images}
+    regions: list[ObservationRegionIndexEntry] = []
+    for reading_order, region in enumerate(context.selection.regions):
+        image = image_by_page.get(region.page_id)
+        if image is None:
+            continue
+        region_id = f"selection:{region.region_id}"
+        regions.append(
+            ObservationRegionIndexEntry(
+                region_id=region_id,
+                evidence_id=region_id,
+                page_id=region.page_id,
+                polygon=tuple(region.polygon),
+                kind="selection",
+                origin="unknown",
+                confidence=1.0,
+                reading_order=reading_order,
+                source_artifact_id=image.artifact.artifact_id,
+            )
+        )
+    if not regions:
+        raise _error(
+            "extraction.multimodal_evidence_pack_invalid",
+            "$.selection.regions",
+            "image-only evidence requires at least one selection region",
+        )
+    return tuple(regions)
 
 
 def _selection_canvas(

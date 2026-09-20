@@ -2,17 +2,21 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
 from support.generated_gate_profiles import (
     assert_complete_partition,
     coverage_first_sample,
     select_shard,
     stable_bucket,
 )
+
 from tools.run_solver_tests import pytest_commands, sanitized_environment
 from tools.solver_test_profiles import (
     LIVE_LLM_TEST_FILES,
     PROFILE_MARKERS,
     marker_for_test_file,
+)
+from tools.solver_test_profiles import (
     tests_for_changed_paths as _tests_for_changed_paths,
 )
 
@@ -57,9 +61,7 @@ def test_affected_profile_runs_selected_tests_without_xdist() -> None:
     assert len(commands) == 1
     assert "tests/solver/test_state_identity.py" in commands[0]
     assert "-n" not in commands[0]
-    marker_index = max(
-        index for index, item in enumerate(commands[0]) if item == "-m"
-    )
+    marker_index = max(index for index, item in enumerate(commands[0]) if item == "-m")
     assert commands[0][marker_index + 1] == "not solver_full and not live_llm"
 
 
@@ -79,9 +81,7 @@ def test_offline_environment_removes_provider_authority(monkeypatch) -> None:
 
 def test_affected_ownership_maps_goal_runtime_to_contract_tests() -> None:
     selected, unmapped = _tests_for_changed_paths(
-        (
-            "server/shuxueshuo_server/solver/runtime/functional_scope_retry.py",
-        )
+        ("server/shuxueshuo_server/solver/runtime/functional_scope_retry.py",)
     )
 
     assert not unmapped
@@ -90,11 +90,29 @@ def test_affected_ownership_maps_goal_runtime_to_contract_tests() -> None:
     assert "tests/solver/test_functional_goal_checkpoint_v3.py" in selected
 
 
+@pytest.mark.parametrize(
+    "path",
+    [
+        "server/shuxueshuo_server/problem_understanding/runtime_binding.py",
+        "server/shuxueshuo_server/problem_understanding/compact_planner_input.py",
+        "server/shuxueshuo_server/solver/runtime/capability_math_signatures.py",
+        "server/tests/solver/fixtures/math-runtime-binding-stage-two/candidate.json",
+    ],
+)
+def test_affected_ownership_includes_notation_runtime_binding(path):
+    selected, unmapped = _tests_for_changed_paths((path,))
+    assert not unmapped
+    assert "tests/solver/test_math_runtime_binding.py" in selected
+    assert "tests/solver/test_math_compact_planner_input.py" in selected
+
+
 def test_affected_ownership_maps_private_path_helpers_to_atomic_macro_tests() -> None:
     selected, unmapped = _tests_for_changed_paths(
         (
-            "server/shuxueshuo_server/solver/runtime/methods/"
-            "_internal/path/square_path_dimension_reduction.py",
+            (
+                "server/shuxueshuo_server/solver/runtime/methods/"
+                "_internal/path/square_path_dimension_reduction.py"
+            ),
         )
     )
 
@@ -109,10 +127,8 @@ def test_affected_ownership_maps_private_path_helpers_to_atomic_macro_tests() ->
 def test_affected_ownership_maps_b2_projection_and_review_to_b2_gates() -> None:
     selected, unmapped = _tests_for_changed_paths(
         (
-            "server/shuxueshuo_server/solver/explanation/"
-            "annotated_teaching.py",
-            "server/shuxueshuo_server/solver/"
-            "lesson_annotated_teaching_review.py",
+            "server/shuxueshuo_server/solver/explanation/annotated_teaching.py",
+            "server/shuxueshuo_server/solver/lesson_annotated_teaching_review.py",
             "internal/schemas/functional-annotated-teaching-plan.schema.json",
         )
     )
@@ -139,12 +155,54 @@ def test_affected_ownership_maps_b3_service_and_harness_to_b3_gates() -> None:
 
 
 def test_affected_ownership_ignores_docs_only_changes() -> None:
-    selected, unmapped = _tests_for_changed_paths(
-        ("docs/solver-test-strategy.md",)
-    )
+    selected, unmapped = _tests_for_changed_paths(("docs/solver-test-strategy.md",))
 
     assert selected == ()
     assert unmapped == ()
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "server/shuxueshuo_server/problem_understanding/notation_normalization.py",
+        "server/shuxueshuo_server/problem_understanding/review_contract.py",
+        "server/shuxueshuo_server/problem_understanding/workflow_diagnostics.py",
+        "server/shuxueshuo_server/problem_understanding/repair_guard.py",
+        "server/shuxueshuo_server/solver/extraction/deepseek_files.py",
+        "server/shuxueshuo_server/solver/extraction/multimodal_provider.py",
+        "server/shuxueshuo_server/problem_understanding/notation_geometry_proofs.py",
+        "server/shuxueshuo_server/problem_understanding/notation_implication.py",
+        "server/shuxueshuo_server/problem_understanding/proof_budget.py",
+        "internal/llm-prompts/problem-math-notation-expressions.json",
+        "internal/llm-prompts/problem-math-notation-review-families.json",
+        "internal/llm-prompts/problem-math-notation-system.md",
+        "internal/schemas/problem-math-notation-v1.schema.json",
+        "internal/schemas/problem-math-source-review-v1.schema.json",
+        "server/tools/report_math_notation_workflow.py",
+        "server/tests/solver/fixtures/math-notation-v1/example.json",
+        "server/tests/solver/fixtures/math-notation-v1/future-recorded-batch/example.txt",
+    ],
+)
+def test_math_notation_changes_select_generated_and_recorded_gates(path):
+    selected, unmapped = _tests_for_changed_paths([path])
+    assert not unmapped
+    assert "tests/solver/test_math_notation_normalization.py" in selected
+    assert "tests/solver/test_math_notation_state_proofs.py" in selected
+    assert "tests/solver/test_math_notation_state_scope.py" in selected
+    assert "tests/solver/test_math_notation_recorded.py" in selected
+    assert "tests/solver/test_math_notation_extraction_rules.py" in selected
+    assert "tests/solver/test_math_notation_redundancy.py" in selected
+    assert "tests/solver/test_math_notation_geometry_proofs.py" in selected
+    assert "tests/solver/test_math_notation_intersection_definition.py" in selected
+    assert "tests/solver/test_math_notation_angle_catalog.py" in selected
+    assert "tests/solver/test_math_notation_workflow.py" in selected
+    assert "tests/solver/test_math_notation_repair_authority.py" in selected
+    assert "tests/solver/test_math_notation_diagnostic_routes.py" in selected
+    assert "tests/solver/test_math_notation_transport_accounting.py" in selected
+    assert "tests/solver/test_math_notation_review_families.py" in selected
+    assert "tests/solver/test_deepseek_files.py" in selected
+    assert "tests/solver/test_deepseek_vision.py" in selected
+    assert "tests/solver/test_math_notation_cleanup.py" in selected
 
 
 def test_changed_solver_test_selects_itself() -> None:
@@ -162,9 +220,7 @@ def test_unknown_solver_subsystem_fails_loud() -> None:
     )
 
     assert selected
-    assert unmapped == (
-        "server/shuxueshuo_server/solver/new_subsystem/engine.py",
-    )
+    assert unmapped == ("server/shuxueshuo_server/solver/new_subsystem/engine.py",)
 
 
 def test_current_solver_sources_have_an_ownership_rule() -> None:
@@ -219,6 +275,4 @@ def test_quick_sample_preserves_pinned_cases_and_dimension_values() -> None:
 
     assert len(sample) == 32
     assert {item["id"] for item in sample} >= {"scenario:2", "scenario:101"}
-    assert {item["kind"] for item in sample} == {
-        f"kind-{index}" for index in range(7)
-    }
+    assert {item["kind"] for item in sample} == {f"kind-{index}" for index in range(7)}

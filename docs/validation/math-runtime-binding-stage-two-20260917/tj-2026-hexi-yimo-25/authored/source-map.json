@@ -1,0 +1,1063 @@
+{
+  "notation-unit:00130a2040653af3c0566d9b6db498710d96f7e7d5af1d82f6c338c66fd85a5e": {
+    "path": "/root/children/2/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:060ee9b2552ac89ea09ffea75eafc324197a0ab6512969c3d4e80e48c2fd8b79": {
+    "path": "/root/children/0/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:08486540f77a783c0c8e42f81ea1a036b4976c21944539985143079d8425d23d": {
+    "path": "/root/children/2/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:09f33145bfad0d8a2c78cb08a18db63d81d89b117a6f7eb49670eb2c54f9c526": {
+    "path": "/root/children/1/facts/4",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:0b14456dd17fdba9a401a3b0dbe178fa377b0d72ba0146c2b4336c220bb3e1ed": {
+    "path": "/root/children/1/facts/5",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:0d300105ade12476f04665f1160201480862709cbeb05bcb984aad2020a10ccd": {
+    "path": "/root/children/2/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:12533ba403b772f473090abb6ddbd1a3be303a82f2ec7c9e421b932de54db3b3": {
+    "path": "/root/children/0/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:152cb8570887769b15060798f34bb1730a266f660208f0e3e5daae2a1f996083": {
+    "path": "/root/children/2/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:1fc5f6bd723ba3ebfd1fc06247c706c0154f04e38d2e8510204e2fbefeeb8059": {
+    "path": "/root/children/0/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:2294b43ae811e550d9458939d79f476b661323fe1aa2782e976e11b899d301bc": {
+    "path": "/root",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:22ea880fc3a464b1faffca31f9dda4627e683d9aee36a9fb16ed177bd23b9fb5": {
+    "path": "/root/children/1/goals/0",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:2553f5fb8ce9d94fc40fc6c5f83fb22326abfe4e8a53acea35039e4de937acf2": {
+    "path": "/root/children/0/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:28f270cfdfe946db29ec8322934b7340012e67b66b39e159bcffb8f778aa003a": {
+    "path": "/root/children/2/facts/7",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:29b0ce81c9e03288cd5996fbf00e3a389470d9c9ed32a4df422ea641ccdd92c1": {
+    "path": "/root/children/1/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:2d4c46b549ef720634672d08766a87c3454db03ec0b858434b5a52f7af24f778": {
+    "path": "/root/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:2e3275b55e0d8fdeea70a772ad4e91028e8a9b222069464f2189d157e7d50dfc": {
+    "path": "/root/children/0/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:351e912768d180956e5948c3192ad25fb2796f9b6ff5825caef89c09f28ce062": {
+    "path": "/root/children/2/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:36062ca5c528cf9160d8d97e7d7580c336404e1092a29b5ca892cfbf3e377a63": {
+    "path": "/root/children/1/facts/3",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:3637b0bb9d2c96772e64da868384979fe5ab117c627e6e4e0698eb7e89c64279": {
+    "path": "/root/children/1/facts/1",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:37921c63d5e78f391ac9142c7751fd9dd4b8e71ae0d8c56ee937d02dc8e5bf1b": {
+    "path": "/root/children/2/facts/4",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:3a1fdf3669f838addbd6ad91c3da22412e00a2126b0c41d2ad9623350e11a30b": {
+    "path": "/root/children/1/facts/4",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:3f44fe36dc8561548c8a4a3531e9cc8d771a4edd074060de9e132b418b6574f0": {
+    "path": "/root/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:408668ba95cb12a0d0a67117bee08f27946a218ce1f6722063ed7a7d14ec77cc": {
+    "path": "/root/children/2/facts/5",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:427555236168809ac8f6c12256e194532366d6ac6650e083460713e6caa1821b": {
+    "path": "/root/children/2/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:44d3e38a53577e2604b492f61f08898105219e33074541d1dda844bc5f7760e0": {
+    "path": "/root/children/0",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:4a57721ebf447cbb9fd682ca7e7712aa6df3bbb2dd2d95b93b0e46d247356998": {
+    "path": "/root/children/1/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:4daf9fc476b58878c017fe92ed2d2de5d1449eeacdbf2f4ddfdd1fbabe89f36c": {
+    "path": "/root/children/2/facts/6",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:4db729da3b98474d4a3aea043b089585dda83023be5879d946f5a272f73c32d0": {
+    "path": "/root/children/1/facts/6",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:54fb367bb8dfd4fbf2733cd5b480b22ccb03e4b6b0a7d649cb20d24bf9f26da8": {
+    "path": "/root/children/0/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:59323558b2033c6ee0a68ff071a72740934eadd2a5e1e22b4062cfd67ef2f32e": {
+    "path": "/root/children/2/facts/1",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:594623b1a993325533de9b70dd4ed5d36f5e0a9a71c29c52602780cee2da66d1": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:658a9df1feda7fa941ce73a9d689c9e2e569224aacaea66eb06476c811d14e5b": {
+    "path": "/root/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:6b96980796c6a1d3409a8ce719c6c96fe51c7ee5862b0537e3955c2d4efb4d99": {
+    "path": "/root/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:7510cfd8ec5a32dadbecb2dbb76884c6904ed20278a466f0ee2f3d6b3ac5cf08": {
+    "path": "/root/children/0/goals/0",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:770325063cf92675b99a6312e2de0b124bf05c24a10c257186ff6ca601b11382": {
+    "path": "/root/children/2/facts/5",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:775528d37d67d87c9062c0ffaf3127340ca719cac644a46a52b41eae26c0ff31": {
+    "path": "/root/children/2/facts/5",
+    "premises": [],
+    "rule": "zero_ordinate",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:7b3677ffb028c249146ef566d923e30ca0e328028c5060fc133371613794fd63": {
+    "path": "/root/children/2/facts/6",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:7c447666876b9d9b08c4a3d2f7b9dd4e4ee73a78aee9724a7160153d80e99205": {
+    "path": "/root/children/1/facts/6",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:7f5bdbc7f2073006712d2f8477f5b1169827249ba9345680cc03d66962481a90": {
+    "path": "/root/children/2/facts/7",
+    "premises": [],
+    "rule": "minimum_path",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:8a0fd41d369dc5dad114a0cbc4853c73a0fd023a38c29117e9d99821c662cb05": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:93fc886b71a3525b8327b8554a001420c40a0eada7f0f442c39a60de5028aaf9": {
+    "path": "/root/children/2/facts/5",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:992399ea3eaef1b4157955b40c73219d5e5d2caacf1ff46a7d5e753b4d3ee1da": {
+    "path": "/root/children/2/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "curve_coordinate_variable",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:a09f06ddad1711c292730cf09070bda38fa1a4117dab0ee6118bc64955fb6538": {
+    "path": "/root/children/2",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:a1876c6135d8b7e5a61c1b2ab421733c13c10b3c07da241cb76d83359588d28c": {
+    "path": "/root/children/2/facts/4",
+    "premises": [
+      "/root/children/2/facts/3"
+    ],
+    "rule": "coordinate_on_curve",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:a31400e67a98599603f0fd43363a13d352c0c0be61f02027b7e08e4eda2d7ff1": {
+    "path": "/root/children/2/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:a46402d1bbab23498278d88ac5af46a9535b04348a35fd7146e30532e54838af": {
+    "path": "/root/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:aad9fb6cd45279001d62456e9c9102dda99b342e464c9081450050b0f5c5f5a5": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:b3188026a7e90a1c0e24faf6487e8b65d428b91148b5e89b816deccec23a168f": {
+    "path": "/root/children/0/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:ba7f2bf8facd162920ea3359019eeb5a2e52c0a93cd7584cacaf8c68a1f7de06": {
+    "path": "/root/children/1/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:c20787782318db488cd3b92d4ca9f9f77387bbaeeda45142743a8145c4d3b7ed": {
+    "path": "/root/children/2/facts/3",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:c41a184aa05346cdee380f06fcb8c047b1ae362cb8cf6175a5eea003140ebfd5": {
+    "path": "/root/children/2/facts/7",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:c551417f901382c652ac6f070c23aef6c488961b3b9468a9e6d589f5de73a9cf": {
+    "path": "/root/children/1/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:c6349138a40f5ea3d04c7a40efdc17e72114797665a5caecc113c47684a00260": {
+    "path": "/root/children/1/facts/5",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:ccf0fc8f46d6450989c576ca7eebd1b10107ffe99bf1f9d794655e16c2041024": {
+    "path": "/root/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:d213a78c1807c88fbec26abe0699bd076896a2b6e11a4a55a75b76f093f4380d": {
+    "path": "/root/children/1/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:d4843a0d6b23e64a9a782d45d3314397e1abe0779f050208e7c3abb8ada53773": {
+    "path": "/root/children/2/goals/0",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:d74a3ef681dcdcfee842a944f25d31a93f0f9f1eaadf4bfd3a0300c2fc5e7f56": {
+    "path": "/root/children/2/facts/5",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c2"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:e2363b3483c9271b5d24825eaf178384fdd093d065e8b5a384922e7fbe8a7750": {
+    "path": "/root/children/1/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:e2aace50df63625197af30546fb0312d09663fbd92f3651fe1e37873402a0efe": {
+    "path": "/root/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:e8bf8da2e80210d3b4d3e3b5195d7ba2c05e4047a7b9cd4659a046d379e3d65f": {
+    "path": "/root/children/1",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:e8ddfe1da97dd9915bb97f02f1e208640369c2bcfd3f7d8c0377b74a93e39e67": {
+    "path": "/root/children/0/facts/3",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:efafd16f3dc587df9319fcea787a75f98fdb6b76575f9cea600288b10bce7f12": {
+    "path": "/root/children/1/facts/4",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:fa068689685f30099eb9bcddd06dec32d493ec6272486c0d7d9f99fa87da16e6": {
+    "path": "/root/children/0/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  },
+  "notation-unit:fdadf698ae755a12c932d0792686e241acd428beaea1da42a5266eac0df380df": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "candidate_id": "offline:082de15c3ddf0b61bbae52c42711c85ed1c9c47d96ce22f3752a1f4fc5af34e4",
+      "problem_id": "tj-2026-hexi-yimo-25",
+      "source_hash": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+      "source_version_id": "frozen:tj-2026-hexi-yimo-25.png"
+    }
+  }
+}

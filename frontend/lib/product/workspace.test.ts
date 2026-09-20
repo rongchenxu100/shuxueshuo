@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { continueUpload, fileFingerprint, previewPage, stageLabel, problemTitle, processing, unreadResult, markResultRead, ReadResultsSchema, type PendingUpload } from './workspace';
+import { continueUpload, fileFingerprint, previewPage, stageLabel, problemTitle, problemStatus, problemIntervention, processing, unreadResult, markResultRead, ReadResultsSchema, type PendingUpload } from './workspace';
 import type { ProductBuild } from './client';
 
 afterEach(() => vi.unstubAllGlobals());
@@ -13,10 +13,65 @@ const uploaded = { status: 'created' as const, item: { id: itemId, problem_id: p
 const initial = (): PendingUpload => ({ key: '66666666-6666-4666-8666-666666666666', filename: 'question.png', sha256: 'original' });
 const reply = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
-it('uses source wording and filename fallbacks, never a product UUID as the student title', () => {
+it('uses source wording, never filenames or UUIDs as the student title', () => {
   expect(problemTitle({ ...problem, statement_text: '已知抛物线\n（1）求顶点' })).toBe('已知抛物线 （1）求顶点');
-  expect(problemTitle({ ...problem, source_filename: '数学作业.png' })).toBe('数学作业.png');
+  expect(problemTitle({ ...problem, source_filename: '数学作业.png' })).toBe('新上传的题目');
   expect(problemTitle(problem)).toBe('新上传的题目');
+});
+
+it('uses the latest presentation for titles, outcomes, progress and unread results', () => {
+  const value = { ...problem, statement_text: '旧题干', latest_build_status: 'succeeded', current_page_build_id: buildId,
+    presentation: { title: '已知函数f(x)=x²+bx+c，g(x)=2x−1。', title_kind: 'source_text' as const, image_source_id: sourceId,
+      phase: 'understanding' as const, status: 'unsupported', reason: null, result_id: itemId } };
+  expect(problemTitle(value)).toBe(value.presentation.title);
+  expect(problemStatus(value)).toBe('暂不支持题型');
+  expect(unreadResult(value, { [problemId]: buildId })).toBe(true);
+  const read = markResultRead(value, {});
+  expect(read[problemId]).toBe(itemId);
+  expect(unreadResult(value, read)).toBe(false);
+  const running = { ...value, presentation: { ...value.presentation, status: 'running', result_id: null } };
+  expect(processing(running)).toBe(true);
+  expect(unreadResult(running, {})).toBe(false);
+  expect(problemStatus(running)).toBe('正在提取题目');
+  expect(problemStatus({ ...value, presentation: { ...value.presentation, status: 'needs_confirmation', reason: 'missing_figure' } }))
+    .toBe('题目缺少图片');
+  expect(problemStatus({ ...value, presentation: { ...value.presentation, status: 'needs_review', reason: 'stale' } }))
+    .toBe('题目需要确认');
+  expect(problemStatus({ ...value, presentation: { ...value.presentation, status: 'needs_revision' } }))
+    .toBe('题目需要确认');
+  expect(problemStatus({ ...value, presentation: { ...value.presentation, phase: 'generation', status: 'ready' } }))
+    .toBe('已完成');
+  expect(problemStatus({
+    ...value,
+    latest_build_status: 'running',
+    presentation: { ...value.presentation, phase: 'understanding', status: 'ready' },
+  })).toBe('正在解答');
+  expect(processing({
+    ...value,
+    latest_build_status: 'running',
+    presentation: { ...value.presentation, phase: 'understanding', status: 'ready' },
+  })).toBe(true);
+  expect(unreadResult({
+    ...value,
+    latest_build_status: 'running',
+    presentation: { ...value.presentation, phase: 'understanding', status: 'ready' },
+  }, {})).toBe(false);
+  expect(problemStatus({ ...value, latest_build_status: 'failed', presentation: { ...value.presentation, status: 'ready' } }))
+    .toBe('解答失败（系统错误）');
+  expect(problemStatus({ ...value, presentation: { ...value.presentation, phase: 'generation', status: 'running' } }))
+    .toBe('正在解答');
+  expect(problemStatus({ ...value, presentation: { ...value.presentation, phase: 'understanding', status: 'queued' } }))
+    .toBe('正在提取题目');
+  expect(problemStatus({ ...value, presentation: { ...value.presentation, phase: 'understanding', status: 'failed' } }))
+    .toBe('提取题目失败（系统错误）');
+  expect(problemStatus({ ...value, presentation: { ...value.presentation, phase: 'generation', status: 'failed' } }))
+    .toBe('解答失败（系统错误）');
+  expect(problemIntervention({ ...value, presentation: { ...value.presentation, status: 'needs_confirmation', reason: 'missing_figure' } }))
+    .toBe('missing_figure');
+  expect(problemIntervention({ ...value, presentation: { ...value.presentation, status: 'needs_revision' } }))
+    .toBe('confirmation');
+  expect(problemIntervention({ ...value, presentation: { ...value.presentation, status: 'code_gap' } }))
+    .toBe('unsupported');
 });
 
 it('marks only completed results as read and alerts again for a different generated page', () => {
@@ -136,6 +191,8 @@ it('shows only the selected successful current page and keeps unknown stage titl
   const build = { status: 'succeeded', page_current: true, page_id: buildId } as ProductBuild;
   expect(previewPage(build)).toBe(buildId);
   expect(previewPage({ ...build, status: 'failed' })).toBeNull();
+  expect(previewPage({ ...build, status: 'failed' }, sourceId)).toBe(sourceId);
   expect(previewPage({ ...build, page_current: false })).toBeNull();
+  expect(previewPage({ ...build, status: 'running' }, sourceId)).toBeNull();
   expect(stageLabel({ stage_key: 'new_stage', title: '新流程步骤' } as ProductBuild['stages'][number])).toBe('新流程步骤');
 });

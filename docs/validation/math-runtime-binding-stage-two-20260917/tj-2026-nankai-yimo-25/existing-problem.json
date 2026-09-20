@@ -1,0 +1,437 @@
+{
+  "schema_version": "planner-problem-view/v2",
+  "problem_id": "tj-2026-nankai-yimo-25",
+  "family_id": "QuadraticPathMinimumSolver",
+  "source": {
+    "question_number": "25",
+    "score": "10"
+  },
+  "root_scope": {
+    "id": "problem",
+    "text": [
+      "抛物线 y＝ax²＋bx＋c（a，b，c 为常数，a＞0）与 y 轴相交于点 C，且 2a＋b＝0，对称轴与 x 轴相交于点 D。"
+    ],
+    "entities": [
+      {
+        "ref": "parabola",
+        "kind": "function",
+        "owner_scope": "problem",
+        "definition": {
+          "expression": "a*x**2 + b*x + c",
+          "variable": "x"
+        }
+      },
+      {
+        "ref": "C",
+        "kind": "point",
+        "owner_scope": "problem",
+        "definition": {
+          "construction": "y_axis_intercept",
+          "owner": "parabola"
+        }
+      },
+      {
+        "ref": "D",
+        "kind": "point",
+        "owner_scope": "problem",
+        "definition": {
+          "construction": "axis_x_intercept",
+          "owner": "parabola"
+        }
+      },
+      {
+        "ref": "a",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "ref": "b",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "ref": "c",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "ref": "x",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "function_variable"
+      }
+    ],
+    "facts": [
+      {
+        "ref": "coefficient_relation_a_b",
+        "kind": "coefficient_relation",
+        "owner_scope": "problem",
+        "expression": "2*a + b = 0",
+        "symbols": [
+          "a",
+          "b"
+        ]
+      },
+      {
+        "ref": "symbol_constraint_a",
+        "kind": "symbol_constraint",
+        "owner_scope": "problem",
+        "operator": ">",
+        "symbol": "a",
+        "value": "0"
+      }
+    ],
+    "children": [
+      {
+        "id": "i",
+        "text": [
+          "（Ⅰ）当 a＝2，c＝−5 时，直接写出点 D 的坐标和抛物线的解析式；"
+        ],
+        "facts": [
+          {
+            "ref": "symbol_value_a",
+            "kind": "symbol_value",
+            "owner_scope": "i",
+            "symbol": "a",
+            "value": "2"
+          },
+          {
+            "ref": "symbol_value_c",
+            "kind": "symbol_value",
+            "owner_scope": "i",
+            "symbol": "c",
+            "value": "-5"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "point_coordinate",
+            "target_ref": "D",
+            "goal_ref": "i.D",
+            "answer_type": "Point"
+          },
+          {
+            "kind": "quadratic_equation",
+            "target_ref": "parabola",
+            "goal_ref": "i.parabola",
+            "answer_type": "Parabola"
+          }
+        ]
+      },
+      {
+        "id": "ii",
+        "text": [
+          "（Ⅱ）若点 M(m,1) 和点 N 均在抛物线上，其中 m＞2，且点 N 在第四象限，∠MDN＝90°，DM＝DN。点 E 和点 G 分别是线段 DM 和线段 MN 上的动点，点 F 为线段 DN 的中点，且 DE＝√2 NG。"
+        ],
+        "entities": [
+          {
+            "ref": "E",
+            "kind": "point",
+            "owner_scope": "ii"
+          },
+          {
+            "ref": "F",
+            "kind": "point",
+            "owner_scope": "ii"
+          },
+          {
+            "ref": "G",
+            "kind": "point",
+            "owner_scope": "ii"
+          },
+          {
+            "ref": "M",
+            "kind": "point",
+            "owner_scope": "ii"
+          },
+          {
+            "ref": "N",
+            "kind": "point",
+            "owner_scope": "ii"
+          },
+          {
+            "ref": "DE",
+            "kind": "segment",
+            "owner_scope": "ii",
+            "start": "D",
+            "end": "E"
+          },
+          {
+            "ref": "DM",
+            "kind": "segment",
+            "owner_scope": "ii",
+            "start": "D",
+            "end": "M"
+          },
+          {
+            "ref": "DN",
+            "kind": "segment",
+            "owner_scope": "ii",
+            "start": "D",
+            "end": "N"
+          },
+          {
+            "ref": "MN",
+            "kind": "segment",
+            "owner_scope": "ii",
+            "start": "M",
+            "end": "N"
+          },
+          {
+            "ref": "NG",
+            "kind": "segment",
+            "owner_scope": "ii",
+            "start": "N",
+            "end": "G"
+          },
+          {
+            "ref": "m",
+            "kind": "symbol",
+            "owner_scope": "ii",
+            "role": "dynamic_parameter"
+          }
+        ],
+        "facts": [
+          {
+            "ref": "midpoint_definition_d_n_f",
+            "kind": "midpoint_definition",
+            "owner_scope": "ii",
+            "point": "F",
+            "segment": {
+              "end": "N",
+              "start": "D"
+            }
+          },
+          {
+            "ref": "orientation_constraint_n",
+            "kind": "orientation_constraint",
+            "owner_scope": "ii",
+            "point": "N",
+            "quadrant": "第四象限"
+          },
+          {
+            "ref": "path_minimum_target_e_g_f",
+            "kind": "path_minimum_target",
+            "owner_scope": "ii",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "G",
+                    "start": "E"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "G",
+                    "start": "F"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "ref": "point_coordinate_m",
+            "kind": "point_coordinate",
+            "owner_scope": "ii",
+            "point": "M",
+            "value": [
+              "m",
+              "1"
+            ]
+          },
+          {
+            "ref": "point_on_curve_parabola_m",
+            "kind": "point_on_curve",
+            "owner_scope": "ii",
+            "curve": "parabola",
+            "point": "M"
+          },
+          {
+            "ref": "point_on_curve_parabola_n",
+            "kind": "point_on_curve",
+            "owner_scope": "ii",
+            "curve": "parabola",
+            "point": "N"
+          },
+          {
+            "ref": "point_on_segment_e_dm",
+            "kind": "point_on_segment",
+            "owner_scope": "ii",
+            "point": "E",
+            "segment": {
+              "end": "M",
+              "start": "D"
+            }
+          },
+          {
+            "ref": "point_on_segment_g_mn",
+            "kind": "point_on_segment",
+            "owner_scope": "ii",
+            "point": "G",
+            "segment": {
+              "end": "N",
+              "start": "M"
+            }
+          },
+          {
+            "ref": "right_angle_equal_length_m_d_n_dm_dn",
+            "kind": "right_angle_equal_length",
+            "owner_scope": "ii",
+            "components": [
+              {
+                "kind": "equal_length",
+                "left": {
+                  "end": "M",
+                  "start": "D"
+                },
+                "right": {
+                  "end": "N",
+                  "start": "D"
+                }
+              },
+              {
+                "angle": {
+                  "end": "N",
+                  "start": "M",
+                  "vertex": "D"
+                },
+                "kind": "right_angle"
+              }
+            ]
+          },
+          {
+            "ref": "segment_length_relation_de_ng",
+            "kind": "segment_length_relation",
+            "owner_scope": "ii",
+            "left": {
+              "scale": "1",
+              "segment": {
+                "end": "E",
+                "start": "D"
+              }
+            },
+            "right": {
+              "scale": "sqrt(2)",
+              "segment": {
+                "end": "G",
+                "start": "N"
+              }
+            }
+          },
+          {
+            "ref": "symbol_constraint_m",
+            "kind": "symbol_constraint",
+            "owner_scope": "ii",
+            "operator": ">",
+            "symbol": "m",
+            "value": "2"
+          }
+        ],
+        "children": [
+          {
+            "id": "ii_1",
+            "text": [
+              "① 当 MN＝√10 时，求抛物线的解析式，并直接写出 EG＋FG 的最小值；"
+            ],
+            "facts": [
+              {
+                "ref": "length_squared_mn",
+                "kind": "length_squared",
+                "owner_scope": "ii_1",
+                "power": 1,
+                "segment": {
+                  "end": "N",
+                  "start": "M"
+                },
+                "value": "sqrt(10)"
+              }
+            ],
+            "goals": [
+              {
+                "kind": "minimum_value",
+                "expression": {
+                  "terms": [
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "end": "G",
+                        "start": "E"
+                      }
+                    },
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "end": "G",
+                        "start": "F"
+                      }
+                    }
+                  ]
+                },
+                "goal_ref": "ii_1.min_value",
+                "answer_type": "MinimumExpression"
+              },
+              {
+                "kind": "quadratic_equation",
+                "target_ref": "parabola",
+                "goal_ref": "ii_1.parabola",
+                "answer_type": "Parabola"
+              }
+            ]
+          },
+          {
+            "id": "ii_2",
+            "text": [
+              "② 当 EG＋FG 取得最小值为 5√10/2 时，直接写出此时抛物线的解析式和点 G 的坐标。"
+            ],
+            "facts": [
+              {
+                "ref": "minimum_value",
+                "kind": "minimum_value",
+                "owner_scope": "ii_2",
+                "expression": {
+                  "terms": [
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "end": "G",
+                        "start": "E"
+                      }
+                    },
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "end": "G",
+                        "start": "F"
+                      }
+                    }
+                  ]
+                },
+                "value": "5*sqrt(10)/2"
+              }
+            ],
+            "goals": [
+              {
+                "kind": "point_coordinate",
+                "target_ref": "G",
+                "goal_ref": "ii_2.G",
+                "answer_type": "Point"
+              },
+              {
+                "kind": "quadratic_equation",
+                "target_ref": "parabola",
+                "goal_ref": "ii_2.parabola",
+                "answer_type": "Parabola"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

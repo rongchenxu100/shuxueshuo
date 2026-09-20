@@ -149,8 +149,9 @@ def _parabola_read(*, semantic_role: str | None = None) -> StateSlotPattern:
         input_closure_policy="closed_or_single_free",
         description=(
             "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖"
-            "一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见"
-            "系数值确定性物化到该边界时可直接引用。"
+            "一个独立自由参数的 open_state。输入必须来自此前 Method 产生的"
+            " materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面"
+            "约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
         ),
     )
 
@@ -427,8 +428,10 @@ QUADRATIC_CORE_CONTRACTS = (
                 object_kind="function",
                 semantic_role="quadratic",
                 description=(
-                    "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，"
-                    "因此不要求先闭合与常数项无关的其它系数。"
+                    "读取此前 Method 产生的二次函数表达式状态（latest state）。"
+                    "参数名必须是 quadratic。本能力只取 x=0，因此不要求先闭合与"
+                    "常数项无关的其它系数；输出坐标至多保留一个独立参数。"
+                    "题面 Function 模板不能直接充当该输入。"
                 ),
             ),
         ),

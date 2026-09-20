@@ -1,0 +1,2423 @@
+{
+  "schema_version": "problem-planning-binding-catalog/v1",
+  "planning_context_id": "problem-planning-context:79e76d5f49b1f1d17e7711e28ca46a35f6b04f99f79859250b20793c35e5b410",
+  "bundle_authority_token": {
+    "extraction_context_id": "notation-binding:f1952e921ca5375d48a4c2c581401c65bbd1999bd4ea00c83787243945d6f10e",
+    "dependency_hash": "f1952e921ca5375d48a4c2c581401c65bbd1999bd4ea00c83787243945d6f10e",
+    "problem_revision_id": "problem-revision:f1952e921ca5375d48a4c2c581401c65bbd1999bd4ea00c83787243945d6f10e",
+    "problem_semantic_hash": "e1b313d7cb86de8d0bf92f47ad2e4d3fb6b7b4c64c4d008255b62be29db53379",
+    "bundle_id": "notation-bundle:977c5a0e7bdc97ef19d58f6f838e82accd6cf3bc0ffdf4cf570c6e05eefe6693"
+  },
+  "planner_state_context_id": "ctx_planner_tj-2026-heping-ermo-25_attempt_0",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+  "bindings": [
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_6c9314ecb10c",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:i:math_assertion_04d5eaa69fae",
+      "source_unit_ids": [
+        "notation-unit:04d5eaa69faeb29e68173121749f7a71d86555b402741ea64cd5ad8fe7ceaa77"
+      ],
+      "owner_scope_id": "i",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_04d5eaa69fae@i"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_a4b228e02fa3",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:i:math_assertion_92d724373f14",
+      "source_unit_ids": [
+        "notation-unit:92d724373f147e52a84f48f072f8612c4b7175bc8771fc719852579d12ee2dd5"
+      ],
+      "owner_scope_id": "i",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_92d724373f14@i"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "symbol_value_b",
+        "kind": "fact",
+        "value_type": "symbol_value"
+      },
+      "runtime_node_id": "fact:i:symbol_value_ba4773b02924",
+      "source_unit_ids": [
+        "notation-unit:ba4773b02924920206502f13267dd80e540b0ff388e35b774da8e248a6963f03"
+      ],
+      "owner_scope_id": "i",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "state_version",
+          "runtime_type": "ParameterValue",
+          "math_object_id": {
+            "value": "symbol:problem:b",
+            "kind": "symbol",
+            "origin_scope_id": "problem"
+          },
+          "state_version_id": {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "symbol:problem:b",
+                  "kind": "symbol",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "value",
+                "runtime_type": "ParameterValue"
+              },
+              "storage_scope_id": "i"
+            },
+            "ordinal": 0
+          },
+          "state_slot_id": "symbol:problem:b.value@i:ParameterValue"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "symbol_value_c",
+        "kind": "fact",
+        "value_type": "symbol_value"
+      },
+      "runtime_node_id": "fact:i:symbol_value_7dbeddc70e13",
+      "source_unit_ids": [
+        "notation-unit:7dbeddc70e132e82af941718cf5cc974fc02d063f9ecabb581c9bd4331070c45"
+      ],
+      "owner_scope_id": "i",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "state_version",
+          "runtime_type": "ParameterValue",
+          "math_object_id": {
+            "value": "symbol:problem:c",
+            "kind": "symbol",
+            "origin_scope_id": "problem"
+          },
+          "state_version_id": {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "symbol:problem:c",
+                  "kind": "symbol",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "value",
+                "runtime_type": "ParameterValue"
+              },
+              "storage_scope_id": "i"
+            },
+            "ordinal": 0
+          },
+          "state_slot_id": "symbol:problem:c.value@i:ParameterValue"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "i_1.A",
+        "kind": "answer",
+        "value_type": "Point"
+      },
+      "runtime_node_id": "answer:i_1.A",
+      "source_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d"
+      ],
+      "owner_scope_id": "i_1",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d"
+      ],
+      "usage": "answer",
+      "typed_sources": [
+        {
+          "kind": "answer_target",
+          "math_object_id": {
+            "value": "point:problem:A",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "i_1.P",
+        "kind": "answer",
+        "value_type": "Point"
+      },
+      "runtime_node_id": "answer:i_1.P",
+      "source_unit_ids": [
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c"
+      ],
+      "owner_scope_id": "i_1",
+      "visible_goal_unit_ids": [
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c"
+      ],
+      "usage": "answer",
+      "typed_sources": [
+        {
+          "kind": "answer_target",
+          "math_object_id": {
+            "value": "point:problem:P",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "i_2.E",
+        "kind": "answer",
+        "value_type": "PointList"
+      },
+      "runtime_node_id": "answer:i_2.E",
+      "source_unit_ids": [
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "answer",
+      "typed_sources": [
+        {
+          "kind": "answer_target",
+          "math_object_id": {
+            "value": "point:problem:E",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_88ea03b0b4a1",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:i_2:math_assertion_6cbabb1bf582",
+      "source_unit_ids": [
+        "notation-unit:6cbabb1bf5829a66aae23dc0027b56fa12590849b55dfc61a447768ff3231845"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_6cbabb1bf582@i_2"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_curve_parabola_g",
+        "kind": "fact",
+        "value_type": "point_on_curve"
+      },
+      "runtime_node_id": "fact:i_2:point_on_curve_f7e0f503a3f7",
+      "source_unit_ids": [
+        "notation-unit:f7e0f503a3f70f84b79eaef8caf3bb76d06dbe6b870a27b3a239d6ad2dab8cbf"
+      ],
+      "owner_scope_id": "i_2",
+      "visible_goal_unit_ids": [
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "point_on_curve",
+          "condition_id": "condition:point_on_curve_f7e0f503a3f7@i_2"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "AK",
+        "kind": "segment"
+      },
+      "runtime_node_id": "segment:ii:AK",
+      "source_unit_ids": [
+        "notation-unit:784a5b965b1326edc63c5085e0a19c96ec2ada371f3b96dcb605d3f845e2a432"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "segment:ii:AK",
+            "kind": "segment",
+            "origin_scope_id": "ii"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "EG",
+        "kind": "segment"
+      },
+      "runtime_node_id": "segment:ii:EG",
+      "source_unit_ids": [
+        "notation-unit:188c27d4e027d832016ba963a31cc6f77d734210c5227cc32621fa0126d499bd"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "segment:ii:EG",
+            "kind": "segment",
+            "origin_scope_id": "ii"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "F",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:ii:F",
+      "source_unit_ids": [
+        "notation-unit:68db85d54e4c1e2d82915ccbf697152f67d36b112bab90e5641e58745536b0e5",
+        "notation-unit:834ab01721af7dfe2ceab5282783dd28aabfa5a41be4f35d67b30a73238b4dd2"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:ii:F",
+            "kind": "point",
+            "origin_scope_id": "ii"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "H",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:ii:H",
+      "source_unit_ids": [
+        "notation-unit:2c85881e94eb1c887d09f6413b42ff0895315454dda853fc627483dfbbf0dea2",
+        "notation-unit:cbec108a48799e259ecf9eb2bb6c17bd512df4b4540c9b9c03b9c58d4a9fb2d3"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:ii:H",
+            "kind": "point",
+            "origin_scope_id": "ii"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "ii.E",
+        "kind": "answer",
+        "value_type": "Point"
+      },
+      "runtime_node_id": "answer:ii.E",
+      "source_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "answer",
+      "typed_sources": [
+        {
+          "kind": "answer_target",
+          "math_object_id": {
+            "value": "point:problem:E",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_05a0cf861239",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:ii:math_assertion_0996d80db4d0",
+      "source_unit_ids": [
+        "notation-unit:0996d80db4d0ab5a271ac1aa909617368109bc752a7794106d30829297ecb619"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_0996d80db4d0@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_0ce032cd938e",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:ii:math_assertion_6a77df5e3005",
+      "source_unit_ids": [
+        "notation-unit:6a77df5e30050422c06c508da9c4e8c63b7d942c83a32cd40bf077c95e954601"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_6a77df5e3005@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_456228f1369b",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:ii:math_assertion_f2d0f7a451a7",
+      "source_unit_ids": [
+        "notation-unit:f2d0f7a451a79b6df8ce245954261390ebac892e4742365227fd353225d710aa"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_f2d0f7a451a7@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_cc590267bd5e",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:ii:math_assertion_6a6782b9ac2d",
+      "source_unit_ids": [
+        "notation-unit:6a6782b9ac2d78df96b34d6734def4eaf231d77069ee420e2fcbb9c506b8bc35"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_6a6782b9ac2d@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_d147e8090e34",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:ii:math_assertion_93a474f1253f",
+      "source_unit_ids": [
+        "notation-unit:93a474f1253f6be53525e3118f4a2a398396f25e31b51517d6999584196bf2de"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_93a474f1253f@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "midpoint_definition_a_e_f",
+        "kind": "fact",
+        "value_type": "midpoint_definition"
+      },
+      "runtime_node_id": "fact:ii:midpoint_834ab01721af",
+      "source_unit_ids": [
+        "notation-unit:834ab01721af7dfe2ceab5282783dd28aabfa5a41be4f35d67b30a73238b4dd2"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "midpoint_definition",
+          "condition_id": "condition:midpoint_834ab01721af@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "minimum_attained_f_h_g_m",
+        "kind": "fact",
+        "value_type": "minimum_attained"
+      },
+      "runtime_node_id": "fact:ii:minimum_attained_ce299883e18d",
+      "source_unit_ids": [
+        "notation-unit:ce299883e18d92c17c466f1ab3db10654ade8a34e41e1b470a464ab3ae8fc9c9"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "minimum_attained",
+          "condition_id": "condition:minimum_attained_ce299883e18d@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "minimum_value",
+        "kind": "fact",
+        "value_type": "minimum_value"
+      },
+      "runtime_node_id": "fact:ii:minimum_value_given_ca53a00929e3",
+      "source_unit_ids": [
+        "notation-unit:ca53a00929e33a9ef55acbe598ba6662e54657ab0d56497b7acb697b6f9f221c"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "minimum_value",
+          "condition_id": "condition:minimum_value_given_ca53a00929e3@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "path_minimum_target_h_f_m_g",
+        "kind": "fact",
+        "value_type": "path_minimum_target"
+      },
+      "runtime_node_id": "fact:ii:minimum_target_81c51fd9e9ce",
+      "source_unit_ids": [
+        "notation-unit:81c51fd9e9ce3fc2e40c49df7e9372414876c7ce46db1e9c89df9b3820ea83ce"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "path_minimum_target",
+          "condition_id": "condition:minimum_target_81c51fd9e9ce@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_coordinate_a",
+        "kind": "fact",
+        "value_type": "point_coordinate"
+      },
+      "runtime_node_id": "fact:ii:point_coordinate_ec45619221b2",
+      "source_unit_ids": [
+        "notation-unit:ec45619221b21e03a42678bc28d3ffa274f7f8dcfdd311a6637d421a14383199"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "state_version",
+          "runtime_type": "Point",
+          "math_object_id": {
+            "value": "point:problem:A",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          },
+          "state_version_id": {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "point:problem:A",
+                  "kind": "point",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "coordinate",
+                "runtime_type": "Point"
+              },
+              "storage_scope_id": "ii"
+            },
+            "ordinal": 0
+          },
+          "state_slot_id": "point:problem:A.coordinate@ii:Point"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_segment_h_ak",
+        "kind": "fact",
+        "value_type": "point_on_segment"
+      },
+      "runtime_node_id": "fact:ii:point_on_segment_784a5b965b13",
+      "source_unit_ids": [
+        "notation-unit:784a5b965b1326edc63c5085e0a19c96ec2ada371f3b96dcb605d3f845e2a432"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "point_on_segment",
+          "condition_id": "condition:point_on_segment_784a5b965b13@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_segment_h_eg",
+        "kind": "fact",
+        "value_type": "point_on_segment"
+      },
+      "runtime_node_id": "fact:ii:point_on_segment_188c27d4e027",
+      "source_unit_ids": [
+        "notation-unit:188c27d4e027d832016ba963a31cc6f77d734210c5227cc32621fa0126d499bd"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "point_on_segment",
+          "condition_id": "condition:point_on_segment_188c27d4e027@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "square_center_h_square_ae_a_e_k_g",
+        "kind": "fact",
+        "value_type": "square_center"
+      },
+      "runtime_node_id": "fact:ii:square_center_2c85881e94eb",
+      "source_unit_ids": [
+        "notation-unit:2c85881e94eb1c887d09f6413b42ff0895315454dda853fc627483dfbbf0dea2"
+      ],
+      "owner_scope_id": "ii",
+      "visible_goal_unit_ids": [
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "square_center",
+          "condition_id": "condition:square_center_2c85881e94eb@ii"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "A",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:A",
+      "source_unit_ids": [
+        "notation-unit:19067968633bc287c13eb09481eead45034b189b17f5ff86cf38c490886e0940",
+        "notation-unit:89daea2619fa1f06692595ea18c320bb6053d739629a61ed2ad5bb07f2908c42"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:problem:A",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        },
+        {
+          "kind": "state_version",
+          "runtime_type": "Point",
+          "math_object_id": {
+            "value": "point:problem:A",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          },
+          "state_version_id": {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "point:problem:A",
+                  "kind": "point",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "coordinate",
+                "runtime_type": "Point"
+              },
+              "storage_scope_id": "ii"
+            },
+            "ordinal": 0
+          },
+          "state_slot_id": "point:problem:A.coordinate@ii:Point"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "AE",
+        "kind": "segment"
+      },
+      "runtime_node_id": "segment:problem:AE",
+      "source_unit_ids": [
+        "notation-unit:5631f43c35e3dff1737ac13d0a55da6e8593406bb2fbdba9b577369f15feb098"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "segment:problem:AE",
+            "kind": "segment",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "AEKG",
+        "kind": "polygon"
+      },
+      "runtime_node_id": "polygon:problem:AEKG",
+      "source_unit_ids": [
+        "notation-unit:50f54e7d5a83f96ff767d557def66753ea5a4e97a54489a6826c4929fdd1f2a6"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "polygon:problem:AEKG",
+            "kind": "polygon",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "B",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:B",
+      "source_unit_ids": [
+        "notation-unit:9239eac014868bcf027070000a3f55d835414a8bac3bdc7562a038b1f30c23c7",
+        "notation-unit:d1312cb9b72ed250ad0b580c8fa30f49d3fde5ea096007b4850363844f0b2dcb"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:problem:B",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "C",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:C",
+      "source_unit_ids": [
+        "notation-unit:72b68332b1379dd55521f270d5f3e205de27e962c5fe843fe9b8c32f106d6ef4",
+        "notation-unit:d727563a997c5a8f11669ca719b53aaa5fa603828e5bbf1e3dd269d1b672ae6a"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:problem:C",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        },
+        {
+          "kind": "condition",
+          "runtime_type": "point_on_curve",
+          "condition_id": "condition:derived_point_on_curve_3ad21c3dbfedf3c5@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "E",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:E",
+      "source_unit_ids": [
+        "notation-unit:3cf525ec6ff32057cd70eb3b2e23019ec1407103cda9f56db36cc57cc4ad2dd5",
+        "notation-unit:62defed74cf987a043646d94bb376ea7e9e72c52a689ae9c7aa37c3c025174a6"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:problem:E",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "G",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:G",
+      "source_unit_ids": [
+        "notation-unit:47bd97a74849af73dd2e90df5a76a2f38e6daa3a2945ca8f083ece97818de3a6",
+        "notation-unit:5631f43c35e3dff1737ac13d0a55da6e8593406bb2fbdba9b577369f15feb098"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:problem:G",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "K",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:K",
+      "source_unit_ids": [
+        "notation-unit:277dd884a717190bd75b6ed2e02cf8e13cd908ce52a983b0b3dc7727dee5df9c"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:problem:K",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "M",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:M",
+      "source_unit_ids": [
+        "notation-unit:01b4555d3b0ebfc73178af5cb8486b823ff743497b6dc9c920b13e8a76e831d8",
+        "notation-unit:f3084c168899e17d4df3df4aee9d88157209261c13a45baa80852492527bf357"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:problem:M",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "P",
+        "kind": "point"
+      },
+      "runtime_node_id": "point:problem:P",
+      "source_unit_ids": [
+        "notation-unit:fdae8434f2ea29c645b8dfe5789bef333d04b8d6a9fb1ae453c075b780304b69",
+        "notation-unit:fe0125a06f6f381a3813f0c42cffb11495d73d52853eda419cf22a50cf89d742"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "point:problem:P",
+            "kind": "point",
+            "origin_scope_id": "problem"
+          }
+        },
+        {
+          "kind": "condition",
+          "runtime_type": "point_on_curve",
+          "condition_id": "condition:derived_point_on_curve_0978ce10db5ef2f0@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "axis_membership_parabola_e",
+        "kind": "fact",
+        "value_type": "axis_membership"
+      },
+      "runtime_node_id": "fact:problem:point_on_axis_3cf525ec6ff3",
+      "source_unit_ids": [
+        "notation-unit:3cf525ec6ff32057cd70eb3b2e23019ec1407103cda9f56db36cc57cc4ad2dd5"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "axis_membership",
+          "condition_id": "condition:point_on_axis_3cf525ec6ff3@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "b",
+        "kind": "symbol"
+      },
+      "runtime_node_id": "symbol:problem:b",
+      "source_unit_ids": [
+        "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "symbol:problem:b",
+            "kind": "symbol",
+            "origin_scope_id": "problem"
+          }
+        },
+        {
+          "kind": "state_version",
+          "runtime_type": "ParameterValue",
+          "math_object_id": {
+            "value": "symbol:problem:b",
+            "kind": "symbol",
+            "origin_scope_id": "problem"
+          },
+          "state_version_id": {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "symbol:problem:b",
+                  "kind": "symbol",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "value",
+                "runtime_type": "ParameterValue"
+              },
+              "storage_scope_id": "i"
+            },
+            "ordinal": 0
+          },
+          "state_slot_id": "symbol:problem:b.value@i:ParameterValue"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "c",
+        "kind": "symbol"
+      },
+      "runtime_node_id": "symbol:problem:c",
+      "source_unit_ids": [
+        "notation-unit:594623b1a993325533de9b70dd4ed5d36f5e0a9a71c29c52602780cee2da66d1"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "symbol:problem:c",
+            "kind": "symbol",
+            "origin_scope_id": "problem"
+          }
+        },
+        {
+          "kind": "state_version",
+          "runtime_type": "ParameterValue",
+          "math_object_id": {
+            "value": "symbol:problem:c",
+            "kind": "symbol",
+            "origin_scope_id": "problem"
+          },
+          "state_version_id": {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "symbol:problem:c",
+                  "kind": "symbol",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "value",
+                "runtime_type": "ParameterValue"
+              },
+              "storage_scope_id": "i"
+            },
+            "ordinal": 0
+          },
+          "state_slot_id": "symbol:problem:c.value@i:ParameterValue"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_05aa3690bbff",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_53cbfdf5f007",
+      "source_unit_ids": [
+        "notation-unit:53cbfdf5f00736564249ddd4a3b39ad5877a37e8bb76b68245ed1cf7048ced17"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_53cbfdf5f007@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_1a9aa24bc1f2",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_6bdbfc2aa331",
+      "source_unit_ids": [
+        "notation-unit:6bdbfc2aa331350c13f0821a58b46342665dcdf7ea9802e913fa5e9f897b892f"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_6bdbfc2aa331@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_1b3b4f8ad9c0",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_c68fba312559",
+      "source_unit_ids": [
+        "notation-unit:c68fba31255992ab80a4a17be05a7350abe0cc21e74cbea13fdaf717412c8473"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_c68fba312559@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_2b834cf2c22f",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_b2e388207cd0",
+      "source_unit_ids": [
+        "notation-unit:b2e388207cd0f40c93d6eccf995838f61093004a850ebacfa257b9f94960113a"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_b2e388207cd0@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_419aced2919c",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_a34631483bcd",
+      "source_unit_ids": [
+        "notation-unit:a34631483bcd693bdd905667a29b923aa67f30304b651ede56ad40ac0d1c0b11"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_a34631483bcd@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_4cfe1b635738",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_e84487bab1a9",
+      "source_unit_ids": [
+        "notation-unit:e84487bab1a9eb114bc62ea18490277e05449d09aa302ec6c8ae3d64ad7d65e9"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_e84487bab1a9@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_9ca802c55eec",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_a949dfaedc2b",
+      "source_unit_ids": [
+        "notation-unit:a949dfaedc2b04a9aba4ef8ce3917455dfb86340789a51dc6feffabaf6a5cbcc"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_a949dfaedc2b@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_bab3e6317fde",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_24f1b9adc107",
+      "source_unit_ids": [
+        "notation-unit:24f1b9adc1076d96715c6dfc99b9a005ceee79f2bf86d3a55befdd93132431fa"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_24f1b9adc107@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_c4d59a1ed2f9",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_fa058127afec",
+      "source_unit_ids": [
+        "notation-unit:fa058127afec0c45451f2987b27aa5f179da6809a21e20f7e8a2c2de4ae1217e"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_fa058127afec@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "math_assertion_c9e64d90483d",
+        "kind": "fact",
+        "value_type": "math_assertion"
+      },
+      "runtime_node_id": "fact:problem:math_assertion_3af19c5bf4e1",
+      "source_unit_ids": [
+        "notation-unit:3af19c5bf4e103394c583d27f9d5f7d90f981c2c84d811b2ea8ee33735c65093"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "math_assertion",
+          "condition_id": "condition:math_assertion_3af19c5bf4e1@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "parabola",
+        "kind": "function"
+      },
+      "runtime_node_id": "function:problem:parabola",
+      "source_unit_ids": [
+        "notation-unit:d1d0186976dfbe6d30ddc190c39853acfc5c8839ece48e61ad79e3c185189581",
+        "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "function:problem:parabola",
+            "kind": "function",
+            "origin_scope_id": "problem"
+          }
+        },
+        {
+          "kind": "state_version",
+          "runtime_type": "Expression",
+          "math_object_id": {
+            "value": "function:problem:parabola",
+            "kind": "function",
+            "origin_scope_id": "problem"
+          },
+          "state_version_id": {
+            "slot_id": {
+              "logical_key": {
+                "object_id": {
+                  "value": "function:problem:parabola",
+                  "kind": "function",
+                  "origin_scope_id": "problem"
+                },
+                "state_kind": "expression",
+                "runtime_type": "Expression"
+              },
+              "storage_scope_id": "problem"
+            },
+            "ordinal": 0
+          },
+          "state_slot_id": "function:problem:parabola.expression@problem:Expression"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_curve_parabola_a",
+        "kind": "fact",
+        "value_type": "point_on_curve"
+      },
+      "runtime_node_id": "fact:problem:point_on_curve_715b95a77dd6",
+      "source_unit_ids": [
+        "notation-unit:715b95a77dd6b28b2c2802ddb6a1677be0b836018d456ce2cb9bf2f74f3212f7"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "point_on_curve",
+          "condition_id": "condition:point_on_curve_715b95a77dd6@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "point_on_curve_parabola_b",
+        "kind": "fact",
+        "value_type": "point_on_curve"
+      },
+      "runtime_node_id": "fact:problem:point_on_curve_ea3acb664f8e",
+      "source_unit_ids": [
+        "notation-unit:ea3acb664f8e8127c6600f78b1a18049e13a3eeaa86fe217655b9422f54100d7"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "point_on_curve",
+          "condition_id": "condition:point_on_curve_ea3acb664f8e@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "square_ae_a_e_k_g",
+        "kind": "fact",
+        "value_type": "square"
+      },
+      "runtime_node_id": "fact:problem:square_5631f43c35e3",
+      "source_unit_ids": [
+        "notation-unit:5631f43c35e3dff1737ac13d0a55da6e8593406bb2fbdba9b577369f15feb098"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "square",
+          "condition_id": "condition:square_5631f43c35e3@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "symbol_constraint_c",
+        "kind": "fact",
+        "value_type": "symbol_constraint"
+      },
+      "runtime_node_id": "fact:problem:symbol_constraint_9954de16b3d1",
+      "source_unit_ids": [
+        "notation-unit:9954de16b3d1914ed0018ca4213dc51a5a27fcd8edc4be57c722e70eb470bba9"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "condition",
+          "runtime_type": "symbol_constraint",
+          "condition_id": "condition:symbol_constraint_9954de16b3d1@problem"
+        }
+      ]
+    },
+    {
+      "semantic_ref": {
+        "ref": "x",
+        "kind": "symbol"
+      },
+      "runtime_node_id": "symbol:problem:x",
+      "source_unit_ids": [
+        "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717"
+      ],
+      "owner_scope_id": "problem",
+      "visible_goal_unit_ids": [
+        "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d",
+        "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c",
+        "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc",
+        "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d"
+      ],
+      "usage": "input",
+      "typed_sources": [
+        {
+          "kind": "math_object",
+          "math_object_id": {
+            "value": "symbol:problem:x",
+            "kind": "symbol",
+            "origin_scope_id": "problem"
+          }
+        }
+      ]
+    }
+  ],
+  "goal_input_refs": {
+    "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d": [
+      {
+        "owner_scope_id": "i",
+        "local_ref": "math_assertion_6c9314ecb10c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i",
+        "local_ref": "math_assertion_a4b228e02fa3",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i",
+        "local_ref": "symbol_value_b",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i",
+        "local_ref": "symbol_value_c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "A",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "AE",
+        "kind": "segment"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "AEKG",
+        "kind": "polygon"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "B",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "C",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "E",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "G",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "K",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "M",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "P",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "axis_membership_parabola_e",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "b",
+        "kind": "symbol"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "c",
+        "kind": "symbol"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_05aa3690bbff",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_1a9aa24bc1f2",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_1b3b4f8ad9c0",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_2b834cf2c22f",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_419aced2919c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_4cfe1b635738",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_9ca802c55eec",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_bab3e6317fde",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_c4d59a1ed2f9",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_c9e64d90483d",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "parabola",
+        "kind": "function"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "point_on_curve_parabola_a",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "point_on_curve_parabola_b",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "square_ae_a_e_k_g",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "symbol_constraint_c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "x",
+        "kind": "symbol"
+      }
+    ],
+    "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c": [
+      {
+        "owner_scope_id": "i",
+        "local_ref": "math_assertion_6c9314ecb10c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i",
+        "local_ref": "math_assertion_a4b228e02fa3",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i",
+        "local_ref": "symbol_value_b",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i",
+        "local_ref": "symbol_value_c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "A",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "AE",
+        "kind": "segment"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "AEKG",
+        "kind": "polygon"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "B",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "C",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "E",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "G",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "K",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "M",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "P",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "axis_membership_parabola_e",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "b",
+        "kind": "symbol"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "c",
+        "kind": "symbol"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_05aa3690bbff",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_1a9aa24bc1f2",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_1b3b4f8ad9c0",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_2b834cf2c22f",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_419aced2919c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_4cfe1b635738",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_9ca802c55eec",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_bab3e6317fde",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_c4d59a1ed2f9",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_c9e64d90483d",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "parabola",
+        "kind": "function"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "point_on_curve_parabola_a",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "point_on_curve_parabola_b",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "square_ae_a_e_k_g",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "symbol_constraint_c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "x",
+        "kind": "symbol"
+      }
+    ],
+    "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc": [
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "AK",
+        "kind": "segment"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "EG",
+        "kind": "segment"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "F",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "H",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "math_assertion_05a0cf861239",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "math_assertion_0ce032cd938e",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "math_assertion_456228f1369b",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "math_assertion_cc590267bd5e",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "math_assertion_d147e8090e34",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "midpoint_definition_a_e_f",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "minimum_attained_f_h_g_m",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "minimum_value",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "path_minimum_target_h_f_m_g",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "point_coordinate_a",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "point_on_segment_h_ak",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "point_on_segment_h_eg",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "ii",
+        "local_ref": "square_center_h_square_ae_a_e_k_g",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "A",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "AE",
+        "kind": "segment"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "AEKG",
+        "kind": "polygon"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "B",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "C",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "E",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "G",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "K",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "M",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "P",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "axis_membership_parabola_e",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "b",
+        "kind": "symbol"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "c",
+        "kind": "symbol"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_05aa3690bbff",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_1a9aa24bc1f2",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_1b3b4f8ad9c0",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_2b834cf2c22f",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_419aced2919c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_4cfe1b635738",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_9ca802c55eec",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_bab3e6317fde",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_c4d59a1ed2f9",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_c9e64d90483d",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "parabola",
+        "kind": "function"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "point_on_curve_parabola_a",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "point_on_curve_parabola_b",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "square_ae_a_e_k_g",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "symbol_constraint_c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "x",
+        "kind": "symbol"
+      }
+    ],
+    "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d": [
+      {
+        "owner_scope_id": "i",
+        "local_ref": "math_assertion_6c9314ecb10c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i",
+        "local_ref": "math_assertion_a4b228e02fa3",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i",
+        "local_ref": "symbol_value_b",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i",
+        "local_ref": "symbol_value_c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i_2",
+        "local_ref": "math_assertion_88ea03b0b4a1",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "i_2",
+        "local_ref": "point_on_curve_parabola_g",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "A",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "AE",
+        "kind": "segment"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "AEKG",
+        "kind": "polygon"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "B",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "C",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "E",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "G",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "K",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "M",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "P",
+        "kind": "point"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "axis_membership_parabola_e",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "b",
+        "kind": "symbol"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "c",
+        "kind": "symbol"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_05aa3690bbff",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_1a9aa24bc1f2",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_1b3b4f8ad9c0",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_2b834cf2c22f",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_419aced2919c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_4cfe1b635738",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_9ca802c55eec",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_bab3e6317fde",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_c4d59a1ed2f9",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "math_assertion_c9e64d90483d",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "parabola",
+        "kind": "function"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "point_on_curve_parabola_a",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "point_on_curve_parabola_b",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "square_ae_a_e_k_g",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "symbol_constraint_c",
+        "kind": "fact"
+      },
+      {
+        "owner_scope_id": "problem",
+        "local_ref": "x",
+        "kind": "symbol"
+      }
+    ]
+  },
+  "goal_answer_refs": {
+    "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d": {
+      "owner_scope_id": "i_1",
+      "local_ref": "i_1.A",
+      "kind": "answer"
+    },
+    "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c": {
+      "owner_scope_id": "i_1",
+      "local_ref": "i_1.P",
+      "kind": "answer"
+    },
+    "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc": {
+      "owner_scope_id": "ii",
+      "local_ref": "ii.E",
+      "kind": "answer"
+    },
+    "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d": {
+      "owner_scope_id": "i_2",
+      "local_ref": "i_2.E",
+      "kind": "answer"
+    }
+  },
+  "goal_visible_scope_ids": {
+    "notation-unit:193c163f62accca47dfdbb1bfc691447fea14754dc5f98d327ff4bcbe235240d": [
+      "problem",
+      "i",
+      "i_1"
+    ],
+    "notation-unit:4f04ca65d68dab5af7205e6564583aa6344cd867fba1284fe30dc7e6c24f917c": [
+      "problem",
+      "i",
+      "i_1"
+    ],
+    "notation-unit:daed7218a1591d72e609db380c40365272d314e39b40d65e375d02205de46dcc": [
+      "problem",
+      "ii"
+    ],
+    "notation-unit:fdd4d1e8f86d256246ebf028ea68342336ec58c4c9bef2ffc05ceda88765172d": [
+      "problem",
+      "i",
+      "i_2"
+    ]
+  },
+  "scope_parent_ids": {
+    "i": "problem",
+    "i_1": "i",
+    "i_2": "i",
+    "ii": "problem",
+    "problem": null
+  },
+  "binding_signature": "a5283b788825a0797189d571757b1287c087717c23698f94d8570a3a63f2e621"
+}

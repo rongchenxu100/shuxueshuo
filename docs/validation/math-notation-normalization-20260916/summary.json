@@ -1,0 +1,431 @@
+{
+  "offline_replay_only": true,
+  "network_calls": 0,
+  "original_live_passed": 2,
+  "current_offline_passed": 5,
+  "total": 7,
+  "results": {
+    "tj-2026-heping-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 35.952,
+      "usage": {
+        "completion_tokens": 7393,
+        "prompt_tokens": 8511,
+        "total_tokens": 15904,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 8511
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "f29c9ca2d2e5533afd46a05dcafb3164299e53e5b448eb2ec110c5eeca76a6d1",
+      "frozen_request_sha256": "06793e037cfa46bbf0fd5d2556ad377521df0ba05b2fd67535188b90fd27dc7e",
+      "request_contract": "problem-math-notation/v1",
+      "report_path": "heping-yimo/tj-2026-heping-yimo-25",
+      "normalization_rules": [
+        "coordinate_symbol_binding",
+        "point_coordinate_components"
+      ],
+      "coordinate_bindings": [
+        {
+          "scope": "r.c0.c1",
+          "symbol_ref": "r.c0.c1:scalar:m",
+          "coordinate": [
+            "call",
+            "x",
+            [
+              "ref",
+              "r.c0.c1:point:E",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c0.c1:point:E",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c0.c1:scalar:m",
+              "scalar"
+            ]
+          ]
+        }
+      ]
+    },
+    "tj-2026-heping-ermo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 31.567,
+      "usage": {
+        "completion_tokens": 6383,
+        "prompt_tokens": 8385,
+        "total_tokens": 14768,
+        "prompt_cache_hit_tokens": 7680,
+        "prompt_cache_miss_tokens": 705
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "52dc2ef05adae379e236124aa5f2855b2f624fa76add92d0f02d015cba92ada6",
+      "frozen_request_sha256": "8b2f81789fcfc4a76853800e99082413e2118eb57bfcf5bf7ea96ec37145447f",
+      "request_contract": "problem-math-notation/v1",
+      "report_path": "remaining-six/tj-2026-heping-ermo-25",
+      "normalization_rules": [
+        "nondegenerate_parallelogram_diagonals",
+        "point_coordinate_components",
+        "quadratic_axis_unique"
+      ],
+      "coordinate_bindings": []
+    },
+    "tj-2026-hexi-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 29.364,
+      "usage": {
+        "completion_tokens": 5961,
+        "prompt_tokens": 8322,
+        "total_tokens": 14283,
+        "prompt_cache_hit_tokens": 7680,
+        "prompt_cache_miss_tokens": 642
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "8acc708862c2720899af002c0f396861e659b95926b975fcd4a2e153fdf4959e",
+      "frozen_request_sha256": "a7bb0ae5aff5740d320fbed45fdebbc8acdd17ab137eba4cea176e0cd1db31d5",
+      "request_contract": "problem-math-notation/v1",
+      "report_path": "remaining-six/tj-2026-hexi-yimo-25",
+      "normalization_rules": [
+        "coordinate_symbol_binding",
+        "point_coordinate_components"
+      ],
+      "coordinate_bindings": [
+        {
+          "scope": "r.c2",
+          "symbol_ref": "r.c2:scalar:n",
+          "coordinate": [
+            "call",
+            "x",
+            [
+              "ref",
+              "r.c2:point:N",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c2:point:N",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c2:scalar:n",
+              "scalar"
+            ]
+          ]
+        },
+        {
+          "scope": "r.c2",
+          "symbol_ref": "r.c2:scalar:y_M",
+          "coordinate": [
+            "call",
+            "y",
+            [
+              "ref",
+              "r.c2:point:M",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "y",
+              [
+                "ref",
+                "r.c2:point:M",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c2:scalar:y_M",
+              "scalar"
+            ]
+          ]
+        }
+      ]
+    },
+    "tj-2026-nankai-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 37.685,
+      "usage": {
+        "completion_tokens": 7969,
+        "prompt_tokens": 8415,
+        "total_tokens": 16384,
+        "prompt_cache_hit_tokens": 7680,
+        "prompt_cache_miss_tokens": 735
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "38cf98c5f6045a1d975c0f918ee689304b9c4f950185fcdb684dd1292204e371",
+      "frozen_request_sha256": "e0232c8fa1c03baad633da30823e3db09bf7345b1e3c57ff22d0efa1fd38d3b8",
+      "request_contract": "problem-math-notation/v1",
+      "report_path": "remaining-six/tj-2026-nankai-yimo-25",
+      "normalization_rules": [
+        "coordinate_symbol_binding",
+        "point_coordinate_components",
+        "quadratic_axis_unique"
+      ],
+      "coordinate_bindings": [
+        {
+          "scope": "r.c1",
+          "symbol_ref": "r.c1:scalar:m",
+          "coordinate": [
+            "call",
+            "x",
+            [
+              "ref",
+              "r.c1:point:M",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c1:point:M",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c1:scalar:m",
+              "scalar"
+            ]
+          ]
+        }
+      ]
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 20.883,
+      "usage": {
+        "completion_tokens": 4443,
+        "prompt_tokens": 8250,
+        "total_tokens": 12693,
+        "prompt_cache_hit_tokens": 7680,
+        "prompt_cache_miss_tokens": 570
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "59652596e11d71fb12241b353aa85aa89147dacad6f1c4369a27408fed7e4a31",
+      "frozen_request_sha256": "a094c7617eef1f746c9cb7bbae9ac767154114d6a4cb636c44b4cb7a3de825b9",
+      "request_contract": "problem-math-notation/v1",
+      "report_path": "remaining-six/tj-2026-xiqing-yimo-25",
+      "normalization_rules": [
+        "coordinate_symbol_binding",
+        "finite_set_membership_redundancy",
+        "point_coordinate_components"
+      ],
+      "coordinate_bindings": [
+        {
+          "scope": "r.c1",
+          "symbol_ref": "r.c1:scalar:y_D",
+          "coordinate": [
+            "call",
+            "y",
+            [
+              "ref",
+              "r.c1:point:D",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "y",
+              [
+                "ref",
+                "r.c1:point:D",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c1:scalar:y_D",
+              "scalar"
+            ]
+          ]
+        },
+        {
+          "scope": "r.c1.c1",
+          "symbol_ref": "r.c1.c1:scalar:m",
+          "coordinate": [
+            "call",
+            "x",
+            [
+              "ref",
+              "r.c1.c1:point:M",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c1.c1:point:M",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c1.c1:scalar:m",
+              "scalar"
+            ]
+          ]
+        }
+      ]
+    },
+    "k-quad": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 8,
+      "replay_parse_issues": 8,
+      "continuation": {
+        "status": "invalid_candidate",
+        "blocked": true
+      },
+      "elapsed_seconds": 62.267,
+      "usage": {
+        "completion_tokens": 13879,
+        "prompt_tokens": 8496,
+        "total_tokens": 22375,
+        "prompt_cache_hit_tokens": 7680,
+        "prompt_cache_miss_tokens": 816
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "fc97329cc21410b4e333ef28dbdba8777ae378a6feefdf5435e9da243f217860",
+      "frozen_request_sha256": "529be282f4791be91692736451646a5bdce9ba362896d8be87378baff48cce49",
+      "request_contract": "problem-math-notation/v1",
+      "report_path": "remaining-six/k-quad",
+      "normalization_rules": [],
+      "coordinate_bindings": []
+    },
+    "function-quantifiers": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 2.591,
+      "usage": {
+        "completion_tokens": 414,
+        "prompt_tokens": 8121,
+        "total_tokens": 8535,
+        "prompt_cache_hit_tokens": 7680,
+        "prompt_cache_miss_tokens": 441
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "23992ef6804d503a7f18be3fd88ce9ca4c7cc154bb83dc6979ae0db4a26a3cc7",
+      "frozen_request_sha256": "7c808108b84ea921575456d3a95ef9a0db5d53f227f4cd98146064af64a654b1",
+      "request_contract": "problem-math-notation/v1",
+      "report_path": "remaining-six/function-quantifiers",
+      "normalization_rules": [],
+      "coordinate_bindings": []
+    }
+  }
+}

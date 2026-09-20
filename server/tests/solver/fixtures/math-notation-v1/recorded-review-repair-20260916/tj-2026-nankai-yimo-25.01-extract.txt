@@ -1,0 +1,58 @@
+{
+  "root": {
+    "definitions": ["Γ: y = a*x^2 + b*x + c"],
+    "facts": [
+      "a > 0",
+      "2*a + b = 0",
+      "Γ ∩ y_axis = {C}",
+      "axis(Γ) ∩ x_axis = {D}"
+    ],
+    "children": [
+      {
+        "label": "(I)",
+        "facts": ["a = 2", "c = -5"],
+        "goals": [
+          {"kind": "find_coordinates", "object": "D"},
+          {"kind": "find_equation", "object": "Γ"}
+        ]
+      },
+      {
+        "label": "(II)",
+        "facts": [
+          "M = (m,1)",
+          "m > 2",
+          "M ∈ Γ",
+          "N ∈ Γ",
+          "x(N) > 0 ∧ y(N) < 0",
+          "∠MDN = 90°",
+          "DM = DN",
+          "E ∈ segment(D,M)",
+          "G ∈ segment(M,N)",
+          "F = midpoint(D,N)",
+          "DE = sqrt(2)*NG"
+        ],
+        "children": [
+          {
+            "label": "①",
+            "facts": ["MN = sqrt(10)"],
+            "goals": [
+              {"kind": "find_equation", "object": "Γ"},
+              {"kind": "find_minimum", "expression": "EG+FG"}
+            ]
+          },
+          {
+            "label": "②",
+            "facts": ["min(EG+FG) = 5*sqrt(10)/2"],
+            "goals": [
+              {"kind": "find_equation", "object": "Γ", "at": "EG+FG = min(EG+FG)"},
+              {"kind": "find_coordinates", "object": "G", "at": "EG+FG = min(EG+FG)"}
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticPathMinimumSolver",
+  "match_reason": "题面给出二次函数抛物线，并求线段上动点构成的普通路径 EG+FG 的最小值，无射线等长构造、正方形或非1权重，符合普通二次函数路径最值题型。"
+}

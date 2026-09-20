@@ -1,0 +1,192 @@
+{
+  "schema_version": "math-tree-audit-run/v1",
+  "input_class": "recorded_workflow_candidate",
+  "source_hashes": {
+    "server/shuxueshuo_server/problem_understanding/__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+    "server/shuxueshuo_server/problem_understanding/algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+    "server/shuxueshuo_server/problem_understanding/batch_smoke.py": "787483234b829558e9ab706183b118d2f649b5b4e13010c053681b7a3cfca533",
+    "server/shuxueshuo_server/problem_understanding/candidate_common.py": "bf0f3e0371e47809b19800cc0ad091e5f6452851d26c40851270fd6dc3c329e3",
+    "server/shuxueshuo_server/problem_understanding/comparison_provider.py": "24b12606f368f460a9b82b46327d5abc4052548779bff27ddc1f48cbf21cd688",
+    "server/shuxueshuo_server/problem_understanding/identity.py": "a52c7273ed8945df8a958a0667d7ea7ab702fc6587baa4d2f2926010deb1db5b",
+    "server/shuxueshuo_server/problem_understanding/legacy_math_tree.py": "0a66aad35003567957443087944fe43047fb5d15659c34a336dddc41c7798e67",
+    "server/shuxueshuo_server/problem_understanding/math_tree_audit.py": "44891b7f5dcb0537e410c900de22bdeddb8bae4cb7999d0d824abf4e459de444",
+    "server/shuxueshuo_server/problem_understanding/notation_compile.py": "b0a25bc8c31dca5bbca7b0796ab71bea05e7514bcf44deec0169180c5da6ccd1",
+    "server/shuxueshuo_server/problem_understanding/notation_contract.py": "72b7c8adc0ef2b0fb6d7357242958a961b8810a85866d71eaf88ec0bb3ffc2c0",
+    "server/shuxueshuo_server/problem_understanding/notation_geometry_proofs.py": "b373845d9c33de8ec1d36f45b8ae31c376d8389e4b67f9dd64e753fce7a6b24c",
+    "server/shuxueshuo_server/problem_understanding/notation_implication.py": "20a298eb044e769a0573ba3939bb97589c6c950eaf5c3dac39e0f7d21a3288e3",
+    "server/shuxueshuo_server/problem_understanding/notation_normalization.py": "a9073052c2287f7184a42e7acb51ba602eff6aaa253e9a395ad5c46cbfc1386f",
+    "server/shuxueshuo_server/problem_understanding/notation_parser.py": "bf661433bf14b96c8174eb108e183435a34eb36c36b9c135dad92039bddbdf64",
+    "server/shuxueshuo_server/problem_understanding/notation_replay.py": "40ba9163a1236f39af67b0ba91f63dcd0edb78273469306101614896e8bda892",
+    "server/shuxueshuo_server/problem_understanding/notation_semantics.py": "e177186bc41594cc362403fc7dc9d8dece8cd57246096ee5780639fd68267ee4",
+    "server/shuxueshuo_server/problem_understanding/notation_service.py": "edf1935b519114a1922a75de5d86f1da9aca5dfae11f5d13b6af5953612b2c56",
+    "server/shuxueshuo_server/problem_understanding/notation_state_proofs.py": "b613c3b57169611f9b0c91993fd05658681cabfdd6cc264cda5fe7f4210fc1e8",
+    "server/shuxueshuo_server/problem_understanding/observation.py": "30ea92ea9f0cf668dbc62c0aba568329c7f05b7c02d917073fbc97380600e366",
+    "server/shuxueshuo_server/problem_understanding/proof_budget.py": "2fc9ad97ac90584263a6c67783e5c86f6cd1fadd33c6d929d1084cd47297b87d",
+    "server/shuxueshuo_server/problem_understanding/repair_guard.py": "d5952a969e4ca1b04c1a0dabb67a66fd70dc7e41bde7f65c0641a41a2d0d7a99",
+    "server/shuxueshuo_server/problem_understanding/review_contract.py": "04f0d78b4d94639ee9ebed0437e8fc84232ad49befe91b5ad13b9fc973b82422",
+    "server/shuxueshuo_server/problem_understanding/smoke.py": "713c20cf89c3a79a7926bcb6e020a87eeab2c54adb73071f2c6f4ec343d2b365",
+    "server/shuxueshuo_server/problem_understanding/wire.py": "153a5089f7767e48f3bbe66b7e9154f7b64d72c0f142cb9399457f1ef1b55775",
+    "server/shuxueshuo_server/problem_understanding/workflow.py": "7621e4371962ff669f555a12b773053b49ece5d31a6fba814ca103fd67b43e56",
+    "server/shuxueshuo_server/problem_understanding/workflow_diagnostics.py": "febaac9cb2b1201e06627f6ec0ee1b369d8674988bdd9ee09834b03db9ecb387",
+    "server/shuxueshuo_server/problem_understanding/workflow_ledger.py": "70c1a83d1ffaaa42828c4ad5ec628980ee3e32da52a619cfca1e45fa9a368fad",
+    "server/shuxueshuo_server/problem_understanding/workflow_smoke.py": "bdfd448d88a1925fabda5c3cb87513802211656f5271d4315253099b5a7485fa",
+    "server/shuxueshuo_server/problem_understanding/workflow_usage.py": "b8d7600ad09de15e06f6fc26f85afaabc2f9cb96bdbacbbc2f405d21bc2d8c8a",
+    "server/tools/compare_problem_math_trees.py": "2cc850ff5d91632dc0e84ec3181b891e6a199bc5a84641f90b3f39f93ef5c5f2",
+    "internal/llm-prompts/problem-math-notation-system.md": "9d8d9ba3fedcdae18d73d7cc77bf2df2369dd5c606e83b9f1bd738930e98b708",
+    "internal/llm-prompts/problem-math-notation-user.md": "e4065b81b1bdd3bccf2f7f6fc6cfd3d4179d3dac84dd58dd9824a3e7266f8e67",
+    "internal/schemas/problem-math-notation-v1.schema.json": "200a6434fb82c4e6d0019c06f94ebd12baf6248562876cf6aecdc50413607a5e",
+    "internal/llm-prompts/problem-math-notation-expressions.json": "79e6a0d2ab19482f4a9ed6760fcc9a850cfb3c66979ab36a692b9284eaebb43f"
+  },
+  "cases": [
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "inputs": {
+        "legacy": {
+          "path": "internal/problem-domain-fixtures/tj-2026-nankai-yimo-25.json",
+          "sha256": "c3b6a6853f1a07c3713b4a0f807c4c637bb639f42bbe4e3cb6cd48696fdc4178"
+        },
+        "notation": {
+          "path": "../internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-nankai-yimo-25/workflow/candidate.json",
+          "sha256": "e7eb1e5c92396133c34d730fec0aa95fde5d10bec412071b623826641f5395af"
+        },
+        "solver": {
+          "path": "internal/solver-fixtures/tj-2026-nankai-yimo-25.json",
+          "sha256": "a9a3075ca532d01e452750be08ee9da5bf528c47f112eca91b12ebf7c5ecc6a9"
+        }
+      },
+      "status": "needs_review",
+      "parse_valid": true,
+      "object_scope_equal": true,
+      "bounded_semantic_equivalence": false,
+      "difference_categories": {
+        "state_conditions": 1,
+        "facts": 1
+      },
+      "legacy_runtime_comparison": {
+        "domain_objects": 24,
+        "fixture_objects": 22,
+        "exact_snapshot_equal": false
+      }
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "inputs": {
+        "legacy": {
+          "path": "internal/problem-domain-fixtures/tj-2026-heping-ermo-25.json",
+          "sha256": "3be1976f4bb3203775f9f1e5063172d77e12b89f8c1207c68ca51cbcee9b909b"
+        },
+        "notation": {
+          "path": "../internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-ermo-25/workflow/candidate.json",
+          "sha256": "53991aee5a1890ac9739954c6aa6507ce9ce174939f6c9379ab45a6e53f5908d"
+        },
+        "solver": {
+          "path": "internal/solver-fixtures/tj-2026-heping-ermo-25.json",
+          "sha256": "3eb5a99ddfd321741622b0e0ff8b9a236402f27a62f13ffbe218b55e8bac1191"
+        }
+      },
+      "status": "needs_review",
+      "parse_valid": true,
+      "object_scope_equal": true,
+      "bounded_semantic_equivalence": false,
+      "difference_categories": {
+        "state_conditions": 1,
+        "facts": 1
+      },
+      "legacy_runtime_comparison": {
+        "domain_objects": 22,
+        "fixture_objects": 27,
+        "exact_snapshot_equal": false
+      }
+    },
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "inputs": {
+        "legacy": {
+          "path": "internal/problem-domain-fixtures/tj-2026-heping-yimo-25.json",
+          "sha256": "72aab49d8e937a45d011474e8ea180952de209b1dbb957edac160e9127998ea3"
+        },
+        "notation": {
+          "path": "../internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-heping-yimo-25/workflow/candidate.json",
+          "sha256": "f07671d168643b12725fdb511afe5382c1cc7a022b9c4c9e29d9bb7226511a41"
+        },
+        "solver": {
+          "path": "internal/solver-fixtures/tj-2026-heping-yimo-25.json",
+          "sha256": "e23f36928f13c71500bddf789ee4310b9edc53e82d2a7428bd0ba581c83a9581"
+        }
+      },
+      "status": "needs_review",
+      "parse_valid": true,
+      "object_scope_equal": true,
+      "bounded_semantic_equivalence": false,
+      "difference_categories": {
+        "facts": 1
+      },
+      "legacy_runtime_comparison": {
+        "domain_objects": 18,
+        "fixture_objects": 21,
+        "exact_snapshot_equal": false
+      }
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "inputs": {
+        "legacy": {
+          "path": "internal/problem-domain-fixtures/tj-2026-hexi-yimo-25.json",
+          "sha256": "ab0b196c10d87e874f6133e819606303cbb1d2f3e2b4342b28d99f0c2dafbcf7"
+        },
+        "notation": {
+          "path": "../internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-hexi-yimo-25/workflow/candidate.json",
+          "sha256": "cbc31242b6673721532f7c533580617d644bff8f0074cb71cfb8ca8c78e7d891"
+        },
+        "solver": {
+          "path": "internal/solver-fixtures/tj-2026-hexi-yimo-25.json",
+          "sha256": "bdf3c2c82ded5cdde406d6ac2a3f5c2d3525ea034b44dca52a68f275812e19c4"
+        }
+      },
+      "status": "equivalent",
+      "parse_valid": true,
+      "object_scope_equal": true,
+      "bounded_semantic_equivalence": true,
+      "difference_categories": {},
+      "legacy_runtime_comparison": {
+        "domain_objects": 18,
+        "fixture_objects": 19,
+        "exact_snapshot_equal": false
+      }
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "inputs": {
+        "legacy": {
+          "path": "internal/problem-domain-fixtures/tj-2026-xiqing-yimo-25.json",
+          "sha256": "c37e64993ca5ab11f43b3fcdc4d2921bbe75afa1c5c904e5bfe61bd2c8c539c9"
+        },
+        "notation": {
+          "path": "../internal/solver-runs/math-notation-state-facts-seven-20260917-094219/tj-2026-xiqing-yimo-25/workflow/candidate.json",
+          "sha256": "e3b1c1053e82fe983238a3e65709b81505e6a1ebb675d13d0324be90ce0ab071"
+        },
+        "solver": {
+          "path": "internal/solver-fixtures/tj-2026-xiqing-yimo-25.json",
+          "sha256": "1a2218d98b6bac0ddca2ee1ab64acc1f391b27bfc6a73432ef72ecd01a6229ea"
+        }
+      },
+      "status": "needs_review",
+      "parse_valid": true,
+      "object_scope_equal": true,
+      "bounded_semantic_equivalence": false,
+      "difference_categories": {
+        "facts": 1
+      },
+      "legacy_runtime_comparison": {
+        "domain_objects": 16,
+        "fixture_objects": 18,
+        "exact_snapshot_equal": false
+      }
+    }
+  ],
+  "llm_calls": 0,
+  "new_runtime_bound": false,
+  "source_correctness": "not_established",
+  "source_stable": true,
+  "complete": true
+}

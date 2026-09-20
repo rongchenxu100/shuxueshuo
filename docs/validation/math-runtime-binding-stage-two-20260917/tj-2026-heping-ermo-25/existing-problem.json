@@ -1,0 +1,375 @@
+{
+  "schema_version": "planner-problem-view/v2",
+  "problem_id": "tj-2026-heping-ermo-25",
+  "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+  "source": {
+    "question_number": "25",
+    "score": "10"
+  },
+  "root_scope": {
+    "id": "problem",
+    "text": [
+      "已知抛物线 y=-x²+bx+c（b，c 为常数，c>1）的顶点为 P，与 x 轴相交于 A，B 两点（点 A 在点 B 的左侧），与 y 轴相交于点 C，对称轴与 x 轴相交于点 M。点 E 在对称轴上，以 AE 为边的正方形 AEKG 的顶点 G 在 x 轴下方。"
+    ],
+    "entities": [
+      {
+        "ref": "parabola",
+        "kind": "function",
+        "owner_scope": "problem",
+        "definition": {
+          "expression": "-x**2 + b*x + c",
+          "variable": "x"
+        }
+      },
+      {
+        "ref": "A",
+        "kind": "point",
+        "owner_scope": "problem",
+        "definition": {
+          "construction": "x_axis_intercept",
+          "owner": "parabola",
+          "side": "left"
+        }
+      },
+      {
+        "ref": "B",
+        "kind": "point",
+        "owner_scope": "problem",
+        "definition": {
+          "construction": "x_axis_intercept",
+          "owner": "parabola",
+          "side": "right"
+        }
+      },
+      {
+        "ref": "C",
+        "kind": "point",
+        "owner_scope": "problem",
+        "definition": {
+          "construction": "y_axis_intercept",
+          "owner": "parabola"
+        }
+      },
+      {
+        "ref": "E",
+        "kind": "point",
+        "owner_scope": "problem"
+      },
+      {
+        "ref": "G",
+        "kind": "point",
+        "owner_scope": "problem"
+      },
+      {
+        "ref": "K",
+        "kind": "point",
+        "owner_scope": "problem"
+      },
+      {
+        "ref": "M",
+        "kind": "point",
+        "owner_scope": "problem",
+        "definition": {
+          "construction": "axis_x_intercept",
+          "owner": "parabola"
+        }
+      },
+      {
+        "ref": "P",
+        "kind": "point",
+        "owner_scope": "problem",
+        "definition": {
+          "construction": "vertex",
+          "owner": "parabola"
+        }
+      },
+      {
+        "ref": "AEKG",
+        "kind": "polygon",
+        "owner_scope": "problem",
+        "vertices": [
+          "A",
+          "E",
+          "K",
+          "G"
+        ]
+      },
+      {
+        "ref": "AE",
+        "kind": "segment",
+        "owner_scope": "problem",
+        "start": "A",
+        "end": "E"
+      },
+      {
+        "ref": "b",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "ref": "c",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "primary_parameter"
+      },
+      {
+        "ref": "x",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "function_variable"
+      }
+    ],
+    "facts": [
+      {
+        "ref": "axis_membership_parabola_e",
+        "kind": "axis_membership",
+        "owner_scope": "problem",
+        "axis": "symmetry",
+        "curve": "parabola",
+        "point": "E"
+      },
+      {
+        "ref": "square_ae_a_e_k_g",
+        "kind": "square",
+        "owner_scope": "problem",
+        "orientation": {
+          "point": "G",
+          "relation": "below_x_axis"
+        },
+        "polygon": "AEKG",
+        "side": {
+          "end": "E",
+          "start": "A"
+        }
+      },
+      {
+        "ref": "symbol_constraint_c",
+        "kind": "symbol_constraint",
+        "owner_scope": "problem",
+        "operator": ">",
+        "symbol": "c",
+        "value": "1"
+      }
+    ],
+    "children": [
+      {
+        "id": "i",
+        "text": [
+          "（Ⅰ）若 b=-2，c=3。"
+        ],
+        "facts": [
+          {
+            "ref": "symbol_value_b",
+            "kind": "symbol_value",
+            "owner_scope": "i",
+            "symbol": "b",
+            "value": "-2"
+          },
+          {
+            "ref": "symbol_value_c",
+            "kind": "symbol_value",
+            "owner_scope": "i",
+            "symbol": "c",
+            "value": "3"
+          }
+        ],
+        "children": [
+          {
+            "id": "i_1",
+            "text": [
+              "① 求点 P 和点 A 的坐标；"
+            ],
+            "goals": [
+              {
+                "kind": "point_coordinate",
+                "target_ref": "A",
+                "goal_ref": "i_1.A",
+                "answer_type": "Point"
+              },
+              {
+                "kind": "point_coordinate",
+                "target_ref": "P",
+                "goal_ref": "i_1.P",
+                "answer_type": "Point"
+              }
+            ]
+          },
+          {
+            "id": "i_2",
+            "text": [
+              "② 当点 G 在抛物线上时，求点 E 的坐标；"
+            ],
+            "facts": [
+              {
+                "ref": "point_on_curve_parabola_g",
+                "kind": "point_on_curve",
+                "owner_scope": "i_2",
+                "curve": "parabola",
+                "point": "G"
+              }
+            ],
+            "goals": [
+              {
+                "kind": "point_coordinate",
+                "target_ref": "E",
+                "goal_ref": "i_2.E",
+                "answer_type": "PointList"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "ii",
+        "text": [
+          "（Ⅱ）若点 A 的坐标为（-c，0），点 F 是 AE 的中点，对角线 AK 和 EG 相交于点 H，当 HF+FM+MG 取得最小值为 3√5 时，求点 E 的坐标。"
+        ],
+        "entities": [
+          {
+            "ref": "F",
+            "kind": "point",
+            "owner_scope": "ii"
+          },
+          {
+            "ref": "H",
+            "kind": "point",
+            "owner_scope": "ii"
+          },
+          {
+            "ref": "AK",
+            "kind": "segment",
+            "owner_scope": "ii",
+            "start": "A",
+            "end": "K"
+          },
+          {
+            "ref": "EG",
+            "kind": "segment",
+            "owner_scope": "ii",
+            "start": "E",
+            "end": "G"
+          }
+        ],
+        "facts": [
+          {
+            "ref": "midpoint_definition_a_e_f",
+            "kind": "midpoint_definition",
+            "owner_scope": "ii",
+            "point": "F",
+            "segment": {
+              "end": "E",
+              "start": "A"
+            }
+          },
+          {
+            "ref": "minimum_value",
+            "kind": "minimum_value",
+            "owner_scope": "ii",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "F",
+                    "start": "H"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "M",
+                    "start": "F"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "G",
+                    "start": "M"
+                  }
+                }
+              ]
+            },
+            "value": "3*sqrt(5)"
+          },
+          {
+            "ref": "path_minimum_target_h_f_m_g",
+            "kind": "path_minimum_target",
+            "owner_scope": "ii",
+            "expression": {
+              "terms": [
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "F",
+                    "start": "H"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "M",
+                    "start": "F"
+                  }
+                },
+                {
+                  "scale": "1",
+                  "segment": {
+                    "end": "G",
+                    "start": "M"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "ref": "point_coordinate_a",
+            "kind": "point_coordinate",
+            "owner_scope": "ii",
+            "point": "A",
+            "value": [
+              "-c",
+              "0"
+            ]
+          },
+          {
+            "ref": "point_on_segment_h_ak",
+            "kind": "point_on_segment",
+            "owner_scope": "ii",
+            "point": "H",
+            "segment": {
+              "end": "K",
+              "start": "A"
+            }
+          },
+          {
+            "ref": "point_on_segment_h_eg",
+            "kind": "point_on_segment",
+            "owner_scope": "ii",
+            "point": "H",
+            "segment": {
+              "end": "G",
+              "start": "E"
+            }
+          },
+          {
+            "ref": "square_center_h_square_ae_a_e_k_g",
+            "kind": "square_center",
+            "owner_scope": "ii",
+            "point": "H",
+            "square": "AEKG"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "point_coordinate",
+            "target_ref": "E",
+            "goal_ref": "ii.E",
+            "answer_type": "Point"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,871 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "tj-2026-hexi-yimo-25",
+    "source_sha256": "78cb9372c90964ae5555bc680cd78cb9fc15c90c9f91b3c270e919c3c7e12379",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "definitions": [
+          "Γ: y = a*x^2 - b*x + c"
+        ],
+        "facts": [
+          "b > 0"
+        ],
+        "children": [
+          {
+            "label": "（I）",
+            "facts": [
+              "a = 1",
+              "b = 2",
+              "c = 3",
+              "P = vertex(Γ)"
+            ],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "P"
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          },
+          {
+            "label": "（II）",
+            "facts": [
+              "a = 2",
+              "A = (-1,0)",
+              "A ∈ Γ",
+              "D ∈ Γ",
+              "Γ ∩ y_axis = {C}",
+              "∠CAD = 90°",
+              "AC = AD"
+            ],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "D"
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          },
+          {
+            "label": "（III）",
+            "facts": [
+              "a = 1",
+              "A = (-1,0)",
+              "A ∈ Γ",
+              "M = (b+1/2, y_M)",
+              "M ∈ Γ",
+              "N = (n,0)",
+              "n > 0",
+              "N为动点",
+              "min(sqrt(2)*MN + AN) = 21/4"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "b"
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          }
+        ],
+        "label": "题目",
+        "goals": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": "QuadraticWeightedPathMinimumSolver",
+      "match_status": "matched",
+      "match_reason": "第(III)问要求含权路径 sqrt(2)*MN + AN 的最小值为定值，符合二次函数加权路径最值题型；题面含二次函数和路径最小值条件。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:c",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c2:scalar:y_M",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c2:scalar:n",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:curve:Γ",
+          "name": "Γ",
+          "kind": "curve",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:c",
+          "name": "c",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r.c0:point:P",
+          "name": "P",
+          "kind": "point",
+          "scope": "r.c0"
+        },
+        {
+          "ref": "r.c1:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:C",
+          "name": "C",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c2:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:M",
+          "name": "M",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:point:N",
+          "name": "N",
+          "kind": "point",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:scalar:y_M",
+          "name": "y_M",
+          "kind": "scalar",
+          "scope": "r.c2"
+        },
+        {
+          "ref": "r.c2:scalar:n",
+          "name": "n",
+          "kind": "scalar",
+          "scope": "r.c2"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [
+        {
+          "scope": "r.c2",
+          "symbol_ref": "r.c2:scalar:n",
+          "coordinate": [
+            "call",
+            "x",
+            [
+              "ref",
+              "r.c2:point:N",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c2:point:N",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c2:scalar:n",
+              "scalar"
+            ]
+          ]
+        },
+        {
+          "scope": "r.c2",
+          "symbol_ref": "r.c2:scalar:y_M",
+          "coordinate": [
+            "call",
+            "y",
+            [
+              "ref",
+              "r.c2:point:M",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "y",
+              [
+                "ref",
+                "r.c2:point:M",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c2:scalar:y_M",
+              "scalar"
+            ]
+          ]
+        }
+      ],
+      "normalization_proofs": [
+        {
+          "rule": "point_coordinate_components",
+          "scope": "r.c1",
+          "before": [
+            "=",
+            [
+              "ref",
+              "r.c1:point:A",
+              "point"
+            ],
+            [
+              "tuple",
+              [
+                "neg",
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "after": [
+            "and",
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r.c1:point:A",
+                  "point"
+                ]
+              ],
+              [
+                "neg",
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "call",
+                "y",
+                [
+                  "ref",
+                  "r.c1:point:A",
+                  "point"
+                ]
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "premises": []
+        },
+        {
+          "rule": "point_coordinate_components",
+          "scope": "r.c2",
+          "before": [
+            "=",
+            [
+              "ref",
+              "r.c2:point:A",
+              "point"
+            ],
+            [
+              "tuple",
+              [
+                "neg",
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "after": [
+            "and",
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r.c2:point:A",
+                  "point"
+                ]
+              ],
+              [
+                "neg",
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "call",
+                "y",
+                [
+                  "ref",
+                  "r.c2:point:A",
+                  "point"
+                ]
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "premises": []
+        },
+        {
+          "rule": "point_coordinate_components",
+          "scope": "r.c2",
+          "before": [
+            "=",
+            [
+              "ref",
+              "r.c2:point:M",
+              "point"
+            ],
+            [
+              "tuple",
+              [
+                "+",
+                [
+                  "ref",
+                  "r:scalar:b",
+                  "scalar"
+                ],
+                [
+                  "/",
+                  [
+                    "number",
+                    "1"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ],
+              [
+                "ref",
+                "r.c2:scalar:y_M",
+                "scalar"
+              ]
+            ]
+          ],
+          "after": [
+            "and",
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r.c2:point:M",
+                  "point"
+                ]
+              ],
+              [
+                "+",
+                [
+                  "ref",
+                  "r:scalar:b",
+                  "scalar"
+                ],
+                [
+                  "/",
+                  [
+                    "number",
+                    "1"
+                  ],
+                  [
+                    "number",
+                    "2"
+                  ]
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "call",
+                "y",
+                [
+                  "ref",
+                  "r.c2:point:M",
+                  "point"
+                ]
+              ],
+              [
+                "ref",
+                "r.c2:scalar:y_M",
+                "scalar"
+              ]
+            ]
+          ],
+          "premises": []
+        },
+        {
+          "rule": "point_coordinate_components",
+          "scope": "r.c2",
+          "before": [
+            "=",
+            [
+              "ref",
+              "r.c2:point:N",
+              "point"
+            ],
+            [
+              "tuple",
+              [
+                "ref",
+                "r.c2:scalar:n",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "after": [
+            "and",
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r.c2:point:N",
+                  "point"
+                ]
+              ],
+              [
+                "ref",
+                "r.c2:scalar:n",
+                "scalar"
+              ]
+            ],
+            [
+              "=",
+              [
+                "call",
+                "y",
+                [
+                  "ref",
+                  "r.c2:point:N",
+                  "point"
+                ]
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "premises": []
+        },
+        {
+          "rule": "coordinate_symbol_binding",
+          "scope": "r.c2",
+          "before": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c2:point:N",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c2:scalar:n",
+              "scalar"
+            ]
+          ],
+          "after": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c2:point:N",
+                "point"
+              ]
+            ],
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c2:point:N",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r.c2:point:N",
+                  "point"
+                ]
+              ],
+              [
+                "ref",
+                "r.c2:scalar:n",
+                "scalar"
+              ]
+            ]
+          ]
+        },
+        {
+          "rule": "coordinate_symbol_binding",
+          "scope": "r.c2",
+          "before": [
+            "=",
+            [
+              "call",
+              "y",
+              [
+                "ref",
+                "r.c2:point:M",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c2:scalar:y_M",
+              "scalar"
+            ]
+          ],
+          "after": [
+            "=",
+            [
+              "call",
+              "y",
+              [
+                "ref",
+                "r.c2:point:M",
+                "point"
+              ]
+            ],
+            [
+              "call",
+              "y",
+              [
+                "ref",
+                "r.c2:point:M",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "=",
+              [
+                "call",
+                "y",
+                [
+                  "ref",
+                  "r.c2:point:M",
+                  "point"
+                ]
+              ],
+              [
+                "ref",
+                "r.c2:scalar:y_M",
+                "scalar"
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:8acc708862c2720899af002c0f396861e659b95926b975fcd4a2e153fdf4959e",
+      "kind": "notation_raw",
+      "sha256": "8acc708862c2720899af002c0f396861e659b95926b975fcd4a2e153fdf4959e",
+      "media_type": "text/plain",
+      "byte_size": 1462,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-extraction-rules-20260916/replay/tj-2026-hexi-yimo-25/artifacts/8a/8acc708862c2720899af002c0f396861e659b95926b975fcd4a2e153fdf4959e.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:70596e74a054e0b539f4ee1d412a90439b659b05fb6bcc373c0fc4135fb79fce",
+      "kind": "notation_candidate",
+      "sha256": "70596e74a054e0b539f4ee1d412a90439b659b05fb6bcc373c0fc4135fb79fce",
+      "media_type": "application/json",
+      "byte_size": 839,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-extraction-rules-20260916/replay/tj-2026-hexi-yimo-25/artifacts/70/70596e74a054e0b539f4ee1d412a90439b659b05fb6bcc373c0fc4135fb79fce.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:316139034f702183897ee783423e93bb1a97f08acebf06eb7619f477434f098d",
+      "kind": "notation_canonical",
+      "sha256": "316139034f702183897ee783423e93bb1a97f08acebf06eb7619f477434f098d",
+      "media_type": "application/json",
+      "byte_size": 3887,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-extraction-rules-20260916/replay/tj-2026-hexi-yimo-25/artifacts/31/316139034f702183897ee783423e93bb1a97f08acebf06eb7619f477434f098d.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:3ffffefff74c70645d3664eb43e79ab0167bd7b14c1dd2bc1a32fb00a1edbee1",
+      "kind": "notation_normalized",
+      "sha256": "3ffffefff74c70645d3664eb43e79ab0167bd7b14c1dd2bc1a32fb00a1edbee1",
+      "media_type": "application/json",
+      "byte_size": 1036,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-extraction-rules-20260916/replay/tj-2026-hexi-yimo-25/artifacts/3f/3ffffefff74c70645d3664eb43e79ab0167bd7b14c1dd2bc1a32fb00a1edbee1.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:a522daba50820264ca86f3f630c068be50cabae4dbdb9d1ce922d0992211d46d",
+      "kind": "notation_compiled",
+      "sha256": "a522daba50820264ca86f3f630c068be50cabae4dbdb9d1ce922d0992211d46d",
+      "media_type": "application/json",
+      "byte_size": 9807,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-extraction-rules-20260916/replay/tj-2026-hexi-yimo-25/artifacts/a5/a522daba50820264ca86f3f630c068be50cabae4dbdb9d1ce922d0992211d46d.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-extraction-rules-20260916/replay/tj-2026-hexi-yimo-25/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:e6d93bdd0e54b90dc7bc2ef8bfb777d878884f6eb60fb4099e0d80b28cc9e286",
+      "kind": "notation_ir",
+      "sha256": "e6d93bdd0e54b90dc7bc2ef8bfb777d878884f6eb60fb4099e0d80b28cc9e286",
+      "media_type": "application/json",
+      "byte_size": 781,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-extraction-rules-20260916/replay/tj-2026-hexi-yimo-25/artifacts/e6/e6d93bdd0e54b90dc7bc2ef8bfb777d878884f6eb60fb4099e0d80b28cc9e286.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:3698f8a0ebbfa2ede90091dbcecebcfd8071941265295224da679ad5dccf81c3",
+      "kind": "notation_validation",
+      "sha256": "3698f8a0ebbfa2ede90091dbcecebcfd8071941265295224da679ad5dccf81c3",
+      "media_type": "application/json",
+      "byte_size": 3819,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-extraction-rules-20260916/replay/tj-2026-hexi-yimo-25/artifacts/36/3698f8a0ebbfa2ede90091dbcecebcfd8071941265295224da679ad5dccf81c3.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "70596e74a054e0b539f4ee1d412a90439b659b05fb6bcc373c0fc4135fb79fce",
+  "semantic_revision": "316139034f702183897ee783423e93bb1a97f08acebf06eb7619f477434f098d",
+  "units": {
+    "r.definitions[0]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 0
+    },
+    "r.facts[0]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c0.facts[0]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c0.facts[1]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c0.facts[2]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.c0.facts[3]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.c1.facts[0]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c1.facts[1]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c1.facts[2]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.c1.facts[3]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.c1.facts[4]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 4
+    },
+    "r.c1.facts[5]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 5
+    },
+    "r.c1.facts[6]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 6
+    },
+    "r.c2.facts[0]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c2.facts[1]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c2.facts[2]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.c2.facts[3]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.c2.facts[4]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 4
+    },
+    "r.c2.facts[5]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 5
+    },
+    "r.c2.facts[6]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 6
+    },
+    "r.c2.facts[7]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 7
+    },
+    "r.c2.facts[8]": {
+      "scope": "r.c2",
+      "collection": "facts",
+      "index": 8
+    }
+  }
+}

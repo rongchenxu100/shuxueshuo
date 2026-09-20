@@ -75,6 +75,11 @@ class FunctionalGoalVerificationContext:
     goal_producers: Mapping[str, FunctionalGoalProducer] = field(
         default_factory=dict
     )
+    # Answer producers can be deliberately omitted from the executable graph
+    # when an earlier authoritative step is invalid.  Keep those answer
+    # handles distinct from genuinely unbound goals so the latter still
+    # produce a planner diagnostic.
+    blocked_answer_handles: frozenset[str] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -169,8 +174,25 @@ class AnswerGoalVerifier:
                 continue
             step = functional_context.goal_producers.get(goal_handle)
             if step is None:
+                if goal_handle in functional_context.blocked_answer_handles:
+                    results.append(
+                        AnswerGoalVerificationItem(
+                            goal_handle,
+                            "not_executed",
+                        )
+                    )
+                    continue
                 results.append(
-                    AnswerGoalVerificationItem(goal_handle, "unbound")
+                    AnswerGoalVerificationItem(
+                        goal_handle,
+                        "unbound",
+                        issues=(
+                            _unreachable_goal_issue(
+                                goal_handle,
+                                handle_registry=handle_registry,
+                            ),
+                        ),
+                    )
                 )
                 continue
             if accepted_step_ids is not None and step.step_id not in accepted_step_ids:
@@ -240,6 +262,60 @@ class AnswerGoalVerifier:
                 )
             )
         return AnswerGoalVerificationReport(tuple(results))
+
+
+def _unreachable_goal_issue(
+    goal_handle: str,
+    *,
+    handle_registry: CanonicalHandleRegistry,
+) -> PlannerRetryIssue:
+    """Turn a missing answer producer into a retry-routable diagnostic.
+
+    A Goal with an ``answer_from`` declaration is still unusable when the
+    reconciled execution graph contains no producer for its answer handle.  In
+    the past this was represented only as ``status=unbound``; retry therefore
+    had no Scope locator and could not repair the missing chain.  The answer
+    handle carries the owning Scope, so we can route the diagnostic without
+    guessing a producer or changing retry authority rules.
+    """
+
+    scope_id: str | None = None
+    if goal_handle.startswith("answer:"):
+        # Answer handles are QuestionGoal paths (``answer:<scope>.<key>``),
+        # rather than canonical Entity/Fact handles accepted by ``_handle_scope``.
+        # Use the registry to avoid routing a malformed legacy handle by guesswork.
+        answer_path = goal_handle.removeprefix("answer:")
+        candidate_scope, separator, _ = answer_path.partition(".")
+        if separator and candidate_scope in handle_registry.scope_ids:
+            scope_id = candidate_scope
+    if scope_id is None:
+        try:
+            scope_id = _handle_scope(goal_handle)
+        except (TypeError, ValueError, StrategyDraftValidationError):
+            # Keep the diagnostic useful even for a malformed/legacy answer
+            # handle; existing plan validation remains responsible for it.
+            scope_id = None
+    return PlannerRetryIssue(
+        layer="goal_verification",
+        code="functional.required_goal_unbound",
+        scope_id=scope_id,
+        repair_target=goal_handle,
+        preserve_policy="preserve_graph",
+        message=(
+            f"required answer {goal_handle} has no reachable producer in the "
+            "compiled Functional execution graph"
+        ),
+        hints=(
+            "Add the complete producer chain in the owning Scope.",
+            "Do not satisfy answer_from with a declaration that has no executable steps.",
+        ),
+        related_handles=(goal_handle,),
+        details={
+            "answer_handle": goal_handle,
+            "candidate_producer_call_ids": [],
+            "repair_call_ids": [],
+        },
+    )
 
 
 def _unresolved_answer_symbol_issue(

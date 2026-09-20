@@ -1,0 +1,29 @@
+{
+  "offline_replay_only": true,
+  "live_passed": true,
+  "replay_passed": true,
+  "json_schema_valid": true,
+  "match_correct": true,
+  "original_parse_issues": 0,
+  "replay_parse_issues": 0,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "elapsed_seconds": 19.262,
+  "usage": {
+    "completion_tokens": 3775,
+    "prompt_tokens": 3457,
+    "total_tokens": 7232,
+    "prompt_cache_hit_tokens": 3072,
+    "prompt_cache_miss_tokens": 385
+  },
+  "finish_reason": "stop",
+  "raw_response_sha256": "e6f793ea0e7df2615a8c3a65b283f25432af9df6d3fd956de245204c66ba33b6",
+  "frozen_request_sha256": "b05e59343409301cd6dfb4636cdc2be16bc49c5056231e4e1289a2977bb93b8c",
+  "request_contract": null
+}

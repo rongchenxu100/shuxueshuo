@@ -1,0 +1,53 @@
+{
+  "schema_version": "lesson-ir/v2",
+  "problem_id": "synthetic-equal_length_ray_point",
+  "problem_revision": "synthetic:equal_length_ray_point:v1",
+  "source_snapshot_hash": "cced031fbfe90289b1a2063f2799fbd603b93660ccd667fe401796522507986e",
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {
+      "problem.D": {
+        "steps": [
+          {
+            "lesson_step_id": "teach:synthetic_equal_length_ray_point",
+            "source_step_ids": [
+              "synthetic_equal_length_ray_point"
+            ],
+            "capability_ids": [
+              "equal_length_ray_point"
+            ],
+            "teaching_unit_keys": [
+              "equal_length_ray_point/construct_point"
+            ],
+            "title": "在射线上作等长点",
+            "nav_title": "作等长点",
+            "goal": "沿指定射线构造一点，使所得线段与参考线段等长。",
+            "derive": [
+              [
+                "∵",
+                "射线 AC 由 A(0,0)、C(2,0) 确定"
+              ],
+              [
+                "计算",
+                "参考线段 AB＝3"
+              ],
+              [
+                "作",
+                "在射线 AC 上截取 AD＝AB"
+              ],
+              [
+                "∴",
+                "D(3,0)"
+              ]
+            ],
+            "box": [
+              "D(3,0)"
+            ]
+          }
+        ]
+      }
+    },
+    "children": []
+  }
+}

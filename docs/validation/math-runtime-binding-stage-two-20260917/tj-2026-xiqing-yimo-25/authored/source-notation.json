@@ -1,0 +1,67 @@
+{
+  "root": {
+    "label": "第25题",
+    "definitions": [
+      "Γ: y = -x^2+b*x+c"
+    ],
+    "facts": [
+      "b,c ∈ ℝ",
+      "b > 0",
+      "A = (-1,0)",
+      "Γ ∩ x_axis = {A,B}",
+      "Γ ∩ y_axis = {C}"
+    ],
+    "children": [
+      {
+        "label": "（I）",
+        "facts": [
+          "b = 4"
+        ],
+        "goals": [
+          {
+            "kind": "find_coordinates",
+            "object": "vertex(Γ)"
+          }
+        ]
+      },
+      {
+        "label": "（II）",
+        "facts": [
+          "D ∈ Γ",
+          "x(D) = b+2"
+        ],
+        "children": [
+          {
+            "label": "①",
+            "facts": [
+              "AD = 2*BC"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "b"
+              }
+            ]
+          },
+          {
+            "label": "②",
+            "facts": [
+              "M = (m,0)",
+              "m > 0",
+              "min_{m}(2*DM+AM) = 5+5*sqrt(3)"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "b"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "match_reason": "抛物线上的点与长度倍数条件，以及正半轴动点的加权距离最小值。"
+}

@@ -18,6 +18,8 @@ import unicodedata
 
 from jsonschema import Draft202012Validator
 
+from .expression_normalization import normalize_expression_spelling
+
 from shuxueshuo_server.solver.extraction.source_identity import (
     FrozenJson,
     freeze_json,
@@ -2051,7 +2053,7 @@ def _graph_semantic_equivalence_payload(graph: ProblemGraph) -> dict[str, Any]:
                 str(entity.label),
                 result,
             )
-        return re.sub(r"\s+", "", result)
+        return normalize_expression_spelling(result)
 
     def symbol_ref(scope_path: str, source_name: str) -> str | None:
         direct = resolve(scope_path, source_name)

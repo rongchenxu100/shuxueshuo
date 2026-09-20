@@ -1,11 +1,17 @@
 import { z } from 'zod';
-import { api, post, type ProductBuild } from './client';
+import { api, label, post, type ProductBuild } from './client';
+
+const PresentationSchema = z.object({
+  title: z.string(), title_kind: z.enum(['source_text', 'image']), image_source_id: z.string().uuid(),
+  phase: z.enum(['understanding', 'generation', 'upload']), status: z.string(), reason: z.string().nullable(), result_id: z.string().uuid().nullable(),
+});
 
 export const ProblemSchema = z.object({
   id: z.string().uuid(), title: z.string().nullable(), latest_build_id: z.string().uuid().nullable(),
   current_page_build_id: z.string().uuid().nullable(), updated_at: z.string(),
   statement_text: z.string().nullable().optional(), source_filename: z.string().nullable().optional(),
   latest_build_status: z.string().nullable().optional(),
+  presentation: PresentationSchema.optional(),
 });
 export type WorkspaceProblem = z.infer<typeof ProblemSchema>;
 export const ProblemListSchema = z.object({ problems: z.array(ProblemSchema) });
@@ -23,16 +29,53 @@ export const pendingUploadKey = 'product.workspace.upload.v1';
 export const readResultsKey = 'product.workspace.read-results.v1';
 export const ReadResultsSchema = z.record(z.string().uuid(), z.string().uuid());
 export type ReadResults = z.infer<typeof ReadResultsSchema>;
-export const processing = (problem: WorkspaceProblem) => ['queued', 'running'].includes(problem.latest_build_status ?? '');
+export const processing = (problem: WorkspaceProblem) => (
+  ['queued', 'running'].includes(problem.latest_build_status ?? '')
+  || ['queued', 'running'].includes(problem.presentation?.status ?? '')
+);
 export function problemTitle(problem: WorkspaceProblem) {
-  return problem.statement_text?.replace(/\s+/g, ' ').trim() || problem.title || problem.source_filename || '新上传的题目';
+  return (problem.presentation?.title ?? problem.statement_text)?.replace(/\s+/g, ' ').trim() || problem.title || '新上传的题目';
+}
+export type ProblemIntervention = 'missing_figure' | 'confirmation' | 'unsupported';
+export function problemIntervention(problem: WorkspaceProblem): ProblemIntervention | null {
+  const p = problem.presentation;
+  if (!p) return null;
+  if (p.status === 'needs_confirmation') return p.reason === 'missing_figure' ? 'missing_figure' : 'confirmation';
+  if (p.status === 'needs_review' || p.status === 'needs_revision') return 'confirmation';
+  if (p.status === 'unsupported' || p.status === 'code_gap') return 'unsupported';
+  return null;
+}
+export function problemStatus(problem: WorkspaceProblem) {
+  const p = problem.presentation;
+  const build = problem.latest_build_status;
+  // Candidate readiness is independent of the lesson build. While a build is
+  // still active — or after it fails — prefer the build status over a `ready`
+  // extraction presentation that would otherwise claim the whole run finished.
+  if (build === 'failed' && (!p || p.status === 'ready')) return '解答失败（系统错误）';
+  if (build === 'queued' || build === 'running') {
+    if (p?.status === 'queued' || p?.status === 'running') {
+      return p.phase === 'understanding' ? '正在提取题目' : '正在解答';
+    }
+    return '正在解答';
+  }
+  if (!p) return label(build ?? 'unbuilt');
+  if (p.status === 'ready') return '已完成';
+  if (p.status === 'unsupported' || p.status === 'code_gap') return '暂不支持题型';
+  if (p.status === 'needs_confirmation') return p.reason === 'missing_figure' ? '题目缺少图片' : '题目需要确认';
+  if (p.status === 'needs_review' || p.status === 'needs_revision') return '题目需要确认';
+  if (p.status === 'not_started') return '已上传 · 待提取';
+  if (p.status === 'queued' || p.status === 'running') return p.phase === 'understanding' ? '正在提取题目' : '正在解答';
+  if (p.status === 'failed') return p.phase === 'understanding' ? '提取题目失败（系统错误）' : '解答失败（系统错误）';
+  return label(p.status);
 }
 export function unreadResult(problem: WorkspaceProblem, read: ReadResults) {
+  if (['queued', 'running'].includes(problem.latest_build_status ?? '')) return false;
+  if (problem.presentation) return !!problem.presentation.result_id && read[problem.id] !== problem.presentation.result_id;
   return problem.latest_build_status === 'succeeded' && !!problem.current_page_build_id &&
     read[problem.id] !== problem.current_page_build_id;
 }
 export function markResultRead(problem: WorkspaceProblem, read: ReadResults): ReadResults {
-  return unreadResult(problem, read) ? { ...read, [problem.id]: problem.current_page_build_id! } : read;
+  return unreadResult(problem, read) ? { ...read, [problem.id]: problem.presentation?.result_id ?? problem.current_page_build_id! } : read;
 }
 
 export async function fileFingerprint(file: File) {
@@ -41,7 +84,7 @@ export async function fileFingerprint(file: File) {
 }
 
 // Persist each accepted boundary before continuing. Network retries retain the same keys.
-export async function continueUpload(pending: PendingUpload, file: File | null, save: (value: PendingUpload) => void) {
+export async function continueUpload(pending: PendingUpload, file: File | null, save: (value: PendingUpload) => void, generate = true) {
   let state = { ...pending };
   const persist = () => save({ ...state });
   if (!state.batch_id) {
@@ -72,7 +115,7 @@ export async function continueUpload(pending: PendingUpload, file: File | null, 
     !['succeeded', 'queued', 'running'].includes(latest ?? '');
   let buildId: string | null = null;
   let reusedIdle = false;
-  if (needsBuild) {
+  if (needsBuild && generate) {
     const build = z.object({ build_id: z.string().uuid() }).parse(await post(`/problems/${upload.item.problem_id}/builds`, {
       source_id: upload.item.source_id, batch_item_id: upload.item.id,
     }, `${state.key}-build`));
@@ -87,8 +130,18 @@ export async function continueUpload(pending: PendingUpload, file: File | null, 
   };
 }
 
-export function previewPage(build: ProductBuild | null) {
-  return build?.status === 'succeeded' && build.page_current ? build.page_id : null;
+export function previewPage(build: ProductBuild | null, fallbackPageId?: string | null) {
+  if (build?.status === 'succeeded' && build.page_current) return build.page_id;
+  // After a failed/cancelled v3 rebuild the latest build has no page, but the
+  // API still synthesizes current_page_build_id from the last succeeded page.
+  if (
+    fallbackPageId
+    && build
+    && ['failed', 'cancelled', 'interrupted'].includes(build.status)
+  ) {
+    return fallbackPageId;
+  }
+  return null;
 }
 
 export function stageLabel(stage: ProductBuild['stages'][number]) {

@@ -18,6 +18,13 @@ from .repositories import ArtifactRepository, UserContext, insert, row, member, 
 from .storage import parts
 
 
+# Separate pools keep code-only binding checks from consuming model-work slots.
+EXECUTION_POOLS = {
+    'problem_understanding': ('understanding.execution_slots', 3),
+    'problem_runtime_binding': ('runtime_binding.execution_slots', 3),
+}
+
+
 def clean_config(value):
     if isinstance(value, dict):
         public_fields = {'stage_key', 'pipeline_key', 'artifact_key', 'max_tokens', 'input_tokens', 'output_tokens',
@@ -235,6 +242,48 @@ class ProductService:
             .values(matched_revision_id=revision_id))
         append_event(c, ctx.workspace_id, 'build', build['id'], 'build.revision_bound', {'revision_id': str(revision_id)})
 
+    def bind_notation_revision(self, ctx, build_id, execution_id, epoch, *, graph, semantic_hash, authority):
+        """Register page lineage for an admitted notation bundle.
+
+        The notation workflow does not produce a legacy ``VerifiedProblem``
+        revision. ``page_builds`` still has a required revision foreign key,
+        so keep a build-local extracted envelope for page/review lineage while
+        leaving the problem's current domain revision untouched.
+        """
+        with transaction(self.db) as c:
+            build, _ = self._guard(c, ctx, build_id, execution_id, epoch)
+            if build['resolved_revision_id'] is not None:
+                return dict(row(c, m.problem_revisions, id=build['resolved_revision_id']))
+            p = problem(c, ctx, build['problem_id'], write=True, lock=True)
+            revision_no = c.scalar(select(func.coalesce(func.max(m.problem_revisions.c.revision_no), 0)).where(
+                m.problem_revisions.c.problem_id == build['problem_id'])) + 1
+            graph = dict(graph)
+            graph.setdefault('schema_version', 'problem-domain/v1')
+            verified = {'graph': graph, 'semantic_hash': semantic_hash,
+                        'revision_id': authority.get('problem_revision_id') if isinstance(authority, dict) else None,
+                        'notation_authority': authority}
+            revision = insert(c, m.problem_revisions, workspace_id=ctx.workspace_id,
+                problem_id=build['problem_id'], revision_no=revision_no, parent_revision_id=p['current_revision_id'],
+                kind='extracted', domain_json=graph, verified_json=verified, semantic_hash=semantic_hash,
+                schema_version=graph['schema_version'], human_diff=None, created_by_user_id=ctx.user_id,
+                origin_build_id=build_id)
+            update(c, m.builds, build_id, resolved_revision_id=revision['id'])
+            append_event(c, ctx.workspace_id, 'build', build_id, 'build.notation_revision_bound',
+                         {'revision_id': str(revision['id'])})
+            return dict(revision)
+
+    def bind_existing_revision(self, ctx, build_id, execution_id, epoch, revision_id):
+        """Carry a notation page-lineage revision into a checkpoint rebuild."""
+        with transaction(self.db) as c:
+            build, _ = self._guard(c, ctx, build_id, execution_id, epoch)
+            revision = scoped(c, m.problem_revisions, ctx, revision_id)
+            if revision['problem_id'] != build['problem_id']:
+                raise Conflict('revision.wrong_build')
+            if build['resolved_revision_id'] not in (None, revision_id):
+                raise Conflict('build.revision_already_bound')
+            update(c, m.builds, build_id, resolved_revision_id=revision_id)
+            return dict(revision)
+
     def bind_requested_revision(self, ctx, build_id, execution_id, epoch):
         """Explicitly accept the frozen revision when extraction is skipped/reused."""
         with transaction(self.db) as c:
@@ -256,6 +305,13 @@ class ProductService:
         if not deployment_version or not isinstance(dependencies, dict):
             raise ProductError('build.frozen_inputs_required')
         config = clean_config(config)
+        stage_keys = [stage['stage_key'] for stage in snapshot['stages']]
+        reuse_notation_extraction = (
+            pipeline_key == 'problem_lesson'
+            and pipeline_version == CURRENT_PIPELINE_VERSION
+            and 'extraction' in stage_keys
+            and stage_keys.index(from_stage) > stage_keys.index('extraction')
+        )
         request = dict(problem_id=str(problem_id), source_id=str(source_id), base_revision_id=str(base_revision_id),
             dependencies=dependencies, config=config, deployment_version=deployment_version, from_stage=from_stage,
             pipeline_key=pipeline_key, pipeline_version=pipeline_version, parent_build_id=str(parent_build_id),
@@ -314,14 +370,57 @@ class ProductService:
             if type(budget.get('deliveries')) is not int or budget['deliveries'] < 1:
                 raise ProductError('job.invalid_budget')
             job = insert(c, m.jobs, workspace_id=ctx.workspace_id, build_id=build['id'], status='queued', retry_budget=budget)
+            if pipeline_key == 'problem_lesson' and pipeline_version == CURRENT_PIPELINE_VERSION:
+                # v3 owns a notation workflow row so its durable ledger and
+                # candidate history are attached to the same nine-stage build.
+                # A suffix rebuild starts after extraction and keeps the
+                # parent row authoritative instead of creating a new pending
+                # understanding run.
+                from .understanding import registry as notation_registry
+                from .understanding_runtime import configuration as notation_configuration
+                if not reuse_notation_extraction:
+                    current_source = row(c, m.problem_source_versions, id=p['current_source_version_id']) if p['current_source_version_id'] else None
+                    source_hash = digest([{'source_id': str(source['id']), 'sha256': self.artifacts.verified(c, ctx, source['original_artifact_id'])['sha256']}])
+                    for active in c.execute(select(m.extraction_runs).where(
+                            m.extraction_runs.c.problem_id == problem_id,
+                            m.extraction_runs.c.status.in_(['queued', 'running']))).mappings():
+                        update(c, m.extraction_runs, active['id'], status='superseded', finished_at=now(c))
+                    if current_source and current_source['source_hash'] == source_hash and any(
+                            image.get('source_id') == str(source['id']) for image in current_source['images']):
+                        source_version = current_source
+                        generation = p['understanding_generation']
+                        update(c, m.problems, problem_id, current_candidate_id=None, latest_extraction_run_id=None,
+                               updated_at=now(c))
+                    else:
+                        original = self.artifacts.verified(c, ctx, source['original_artifact_id'])
+                        meta = source['metadata'] or {}
+                        source_version = insert(c, m.problem_source_versions, workspace_id=ctx.workspace_id,
+                            problem_id=problem_id, parent_version_id=p['current_source_version_id'],
+                            images=[{'source_id': str(source['id']), 'artifact_id': str(original['id']),
+                                     'sha256': original['sha256'], 'filename': source['filename'],
+                                     'media_type': original['content_type'], **meta}],
+                            source_hash=source_hash, created_by_user_id=ctx.user_id)
+                        generation = p['understanding_generation'] + 1
+                        update(c, m.problems, problem_id, current_source_version_id=source_version['id'],
+                               current_candidate_id=None, latest_extraction_run_id=None,
+                               understanding_generation=generation, updated_at=now(c))
+                    frozen = notation_configuration()
+                    frozen['registry'] = notation_registry()
+                    frozen['source_review_contract'] = 'problem-math-source-review/v1'
+                    run = insert(c, m.extraction_runs, workspace_id=ctx.workspace_id, problem_id=problem_id,
+                        source_version_id=source_version['id'], base_candidate_id=None, candidate_id=None,
+                        generation=generation, mode='extract', status='queued', frozen=frozen, build_id=build['id'])
+                    update(c, m.problems, problem_id, latest_extraction_run_id=run['id'],
+                           understanding_generation=generation, updated_at=now(c))
             current_page_id = p['current_page_build_id']
-            if current_page_id:
+            if current_page_id and pipeline_key not in ('problem_understanding', 'problem_runtime_binding'):
                 page = row(c, m.page_builds, id=current_page_id)
                 page_build = row(c, m.builds, id=page['build_id'])
                 if page_build['target_fingerprint'] != build['target_fingerprint']:
                     current_page_id = None
-            update(c, m.problems, problem_id, latest_build_id=build['id'], current_page_build_id=current_page_id,
-                   lock_version=p['lock_version'] + 1, updated_at=now(c))
+            if pipeline_key not in ('problem_understanding', 'problem_runtime_binding'):
+                update(c, m.problems, problem_id, latest_build_id=build['id'], current_page_build_id=current_page_id,
+                       lock_version=p['lock_version'] + 1, updated_at=now(c))
             if batch_item_id:
                 item = scoped(c, m.batch_items, ctx, batch_item_id, lock=True)
                 batch = scoped(c, m.batches, ctx, item['batch_id'])
@@ -338,7 +437,7 @@ class ProductService:
 
     def _guard(self, c, ctx, build_id, execution_id, epoch):
         build = scoped(c, m.builds, ctx, build_id)
-        problem(c, ctx, build['problem_id'], write=True)
+        problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
         job = c.execute(select(m.jobs).where(m.jobs.c.build_id == build_id).with_for_update()).mappings().one()
         if job['status'] != 'running' or job['cancel_requested_at'] or job['active_execution_id'] != execution_id or job['execution_epoch'] != epoch or not job['lease_expires_at'] or job['lease_expires_at'] <= now(c):
             raise Conflict('execution.fenced')
@@ -348,20 +447,36 @@ class ProductService:
         # A competing binding may have committed while this transaction waited for the job lock.
         return scoped(c, m.builds, ctx, build_id), job
 
-    def acquire_execution(self, ctx, job_id, worker_id, *, deployment_version, lease_seconds=60):
+    def acquire_execution(self, ctx, job_id, worker_id, *, deployment_version,
+                          lease_seconds=60, enforce_environment=True):
         if not 1 <= lease_seconds <= 3600:
             raise ProductError('execution.lease')
         with transaction(self.db) as c:
-            job = scoped(c, m.jobs, ctx, job_id, lock=True)
+            job = scoped(c, m.jobs, ctx, job_id)
             build = scoped(c, m.builds, ctx, job['build_id'])
-            problem(c, ctx, build['problem_id'], write=True)
-            if build['deployment_version'] != deployment_version or self.registry.get(build['pipeline_key'], build['pipeline_version']) != build['pipeline_snapshot']:
+            pool = EXECUTION_POOLS.get(build['pipeline_key'])
+            if pool:
+                # Serialize this pipeline's slot reservation, without blocking lesson jobs.
+                lock(c, pool[0])
+            problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
+            job = scoped(c, m.jobs, ctx, job_id, lock=True)
+            if enforce_environment and (
+                build['deployment_version'] != deployment_version
+                or self.registry.get(build['pipeline_key'], build['pipeline_version'])
+                != build['pipeline_snapshot']
+            ):
                 raise Conflict('execution.incompatible_environment')
             timestamp = now(c)
             if job['status'] not in ('queued', 'running', 'interrupted') or job['cancel_requested_at']:
                 raise Conflict('job.terminal')
             if job['status'] == 'running' and job['lease_expires_at'] > timestamp:
                 raise Conflict('execution.already_owned')
+            if pool:
+                count = c.scalar(select(func.count()).select_from(m.jobs.join(m.builds, m.jobs.c.build_id == m.builds.c.id)).where(
+                    m.builds.c.pipeline_key == build['pipeline_key'], m.jobs.c.id != job_id,
+                    m.jobs.c.status == 'running', m.jobs.c.lease_expires_at > timestamp))
+                if count >= pool[1]:
+                    raise Conflict('execution.capacity')
             if job['delivery_count'] >= job['retry_budget']['deliveries']:
                 if job['active_execution_id']:
                     update(c, m.job_executions, job['active_execution_id'], status='interrupted', finished_at=timestamp, failure_code='job.budget_exhausted')
@@ -369,6 +484,10 @@ class ProductService:
                         m.stage_attempts.c.status == 'running').values(status='interrupted', finished_at=timestamp))
                 update(c, m.jobs, job_id, status='failed', lease_expires_at=None)
                 update(c, m.builds, build['id'], status='failed', finished_at=timestamp, error_code='job.budget_exhausted')
+                c.execute(m.extraction_runs.update().where(m.extraction_runs.c.build_id == build['id'],
+                    m.extraction_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code='job.budget_exhausted', finished_at=timestamp))
+                c.execute(m.runtime_binding_runs.update().where(m.runtime_binding_runs.c.build_id == build['id'],
+                    m.runtime_binding_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code='job.budget_exhausted', finished_at=timestamp))
                 c.execute(m.build_stages.update().where(m.build_stages.c.build_id == build['id'],
                     m.build_stages.c.status != 'succeeded').values(status='failed'))
                 append_event(c, ctx.workspace_id, 'build', build['id'], 'build.failed', {'code': 'job.budget_exhausted'})
@@ -399,13 +518,17 @@ class ProductService:
     def cancel(self, ctx, build_id):
         with transaction(self.db) as c:
             build = scoped(c, m.builds, ctx, build_id)
-            problem(c, ctx, build['problem_id'], write=True)
+            problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
             job = c.execute(select(m.jobs).where(m.jobs.c.build_id == build_id).with_for_update()).mappings().one()
             if job['status'] in ('succeeded', 'failed', 'cancelled'):
                 return
             timestamp = now(c)
             update(c, m.jobs, job['id'], status='cancelled', cancel_requested_at=timestamp, lease_expires_at=None)
             update(c, m.builds, build_id, status='cancelled', finished_at=timestamp)
+            c.execute(m.extraction_runs.update().where(m.extraction_runs.c.build_id == build_id,
+                m.extraction_runs.c.status.in_(['queued', 'running'])).values(status='cancelled', finished_at=timestamp))
+            c.execute(m.runtime_binding_runs.update().where(m.runtime_binding_runs.c.build_id == build_id,
+                m.runtime_binding_runs.c.status.in_(['queued', 'running'])).values(status='cancelled', finished_at=timestamp))
             if job['active_execution_id']:
                 update(c, m.job_executions, job['active_execution_id'], status='cancelled', finished_at=timestamp)
                 c.execute(m.stage_attempts.update().where(m.stage_attempts.c.execution_id == job['active_execution_id'],
@@ -420,6 +543,11 @@ class ProductService:
             status = 'interrupted' if interrupted else 'failed'
             update(c, m.jobs, job['id'], status=status, lease_expires_at=None)
             update(c, m.builds, build_id, status=status, error_code=code, finished_at=now(c))
+            if not interrupted:
+                c.execute(m.extraction_runs.update().where(m.extraction_runs.c.build_id == build_id,
+                    m.extraction_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code=code, finished_at=now(c)))
+                c.execute(m.runtime_binding_runs.update().where(m.runtime_binding_runs.c.build_id == build_id,
+                    m.runtime_binding_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code=code, finished_at=now(c)))
             update(c, m.job_executions, execution_id, status=status, failure_code=code, finished_at=now(c))
             c.execute(m.stage_attempts.update().where(m.stage_attempts.c.execution_id == execution_id,
                 m.stage_attempts.c.status == 'running').values(status=status, finished_at=now(c)))
@@ -431,7 +559,7 @@ class ProductService:
         """Fail queued/running builds that a restarted deployment can no longer execute."""
         with transaction(self.db) as c:
             build = scoped(c, m.builds, ctx, build_id)
-            problem(c, ctx, build['problem_id'], write=True)
+            problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
             job = c.execute(select(m.jobs).where(m.jobs.c.build_id == build_id).with_for_update()).mappings().one()
             if job['status'] in ('succeeded', 'failed', 'cancelled'):
                 return dict(job)
@@ -442,6 +570,10 @@ class ProductService:
                     m.stage_attempts.c.status == 'running').values(status='failed', finished_at=timestamp))
             update(c, m.jobs, job['id'], status='failed', lease_expires_at=None)
             update(c, m.builds, build_id, status='failed', error_code=code, finished_at=timestamp)
+            c.execute(m.extraction_runs.update().where(m.extraction_runs.c.build_id == build_id,
+                m.extraction_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code=code, finished_at=timestamp))
+            c.execute(m.runtime_binding_runs.update().where(m.runtime_binding_runs.c.build_id == build_id,
+                m.runtime_binding_runs.c.status.in_(['queued', 'running'])).values(status='failed', error_code=code, finished_at=timestamp))
             c.execute(m.build_stages.update().where(m.build_stages.c.build_id == build_id,
                 m.build_stages.c.status != 'succeeded').values(status='failed'))
             append_event(c, ctx.workspace_id, 'build', build_id, 'build.failed', {'code': code})
@@ -680,6 +812,11 @@ class ProductService:
             update(c, m.builds, build_id, status='succeeded', finished_at=now(c))
             update(c, m.jobs, job['id'], status='succeeded', lease_expires_at=None)
             update(c, m.job_executions, execution_id, status='succeeded', finished_at=now(c))
+            # A notation build owns a build-local page lineage revision.  It
+            # must not promote that extracted projection to the problem's
+            # legacy current_revision_id; the database trigger consequently
+            # only permits advancing current_page_build_id when both point to
+            # the same formal revision.
             if p['latest_build_id'] == build_id and p['current_revision_id'] == build['resolved_revision_id']:
                 update(c, m.problems, p['id'], current_page_build_id=page['id'], lock_version=p['lock_version'] + 1, updated_at=now(c))
             append_event(c, ctx.workspace_id, 'build', build_id, 'build.succeeded', {'page_build_id': str(page['id'])})

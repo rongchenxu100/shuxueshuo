@@ -1,0 +1,181 @@
+{
+  "schema_version": "visual-step-ir/v2",
+  "problem_id": "synthetic-distance_between_points",
+  "source_snapshot_hash": "dc7eaca3a67b24fef3a1f252fd04b14b185da082ef8c5a2ec0e333d2dd2aa560",
+  "source_lesson_hash": "5ed665319504ba0b86fd326b275a249a93bc5aa748fc4fd8ee042798c6fce964",
+  "geometry_registry": {
+    "version": 1,
+    "id": "synthetic-distance_between_points",
+    "domain": {
+      "minX": -0.8,
+      "maxX": 3.8,
+      "minY": -0.8,
+      "maxY": 4.8
+    },
+    "movingParam": "t",
+    "expressionEnv": [],
+    "fixedPoints": {
+      "point_A_problem": [
+        "0",
+        "0"
+      ],
+      "point_B_problem": [
+        "3",
+        "4"
+      ]
+    },
+    "movingPoints": {},
+    "pointMeta": {
+      "point_A_problem": {
+        "label": "A",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:A"
+      },
+      "point_B_problem": {
+        "label": "B",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:B"
+      }
+    },
+    "curves": [],
+    "derivedIntersections": []
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {
+      "problem.distance": {
+        "steps": [
+          {
+            "visual_step_id": "visual:teach:synthetic_distance_between_points",
+            "lesson_step_id": "teach:synthetic_distance_between_points",
+            "visual_mode": "scene",
+            "frames": [
+              {
+                "frame_id": "frame:teach:synthetic_distance_between_points:1",
+                "teaching_unit_keys": [
+                  "distance_between_points/compute_distance"
+                ],
+                "viewport": {
+                  "minX": -1.22,
+                  "maxX": 4.22,
+                  "minY": -2.08,
+                  "maxY": 6.08
+                },
+                "objects": [
+                  {
+                    "visual_object_id": "visual:coloredline:ba8067174d34060a",
+                    "component": "ColoredLine",
+                    "role": "distance:target",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_distance_between_points"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem",
+                      "point_B_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "role": "distance:target",
+                      "from": "point_A_problem",
+                      "to": "point_B_problem",
+                      "color": "#b45309",
+                      "width": 2.6,
+                      "dash": ""
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:distancemarker:c4b9a1e28f3a481a",
+                    "component": "DistanceMarker",
+                    "role": "distance",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_distance_between_points"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem",
+                      "point_B_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "from": "point_A_problem",
+                      "to": "point_B_problem",
+                      "label": "5",
+                      "color": "#b45309",
+                      "width": 2.6,
+                      "offsetPx": 16
+                    },
+                    "display_label": "5"
+                  },
+                  {
+                    "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                    "component": "Point",
+                    "role": "point:A",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_distance_between_points"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_A_problem",
+                      "labelText": "A",
+                      "color": "#dc2626",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "A"
+                  },
+                  {
+                    "visual_object_id": "visual:point:b0dface9ac4ac702",
+                    "component": "Point",
+                    "role": "point:B",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_distance_between_points"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_B_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_B_problem",
+                      "labelText": "B",
+                      "color": "#dc2626",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "B"
+                  }
+                ],
+                "local_parameters": [],
+                "caption": "计算距离"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "children": []
+  },
+  "metadata": {
+    "source": "recursive_visual_step_builder",
+    "base_source": "generated",
+    "scene_model": "recursive_complete_frames"
+  }
+}

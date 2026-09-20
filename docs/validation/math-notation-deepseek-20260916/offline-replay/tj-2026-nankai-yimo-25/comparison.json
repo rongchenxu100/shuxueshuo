@@ -1,0 +1,126 @@
+{
+  "ok": false,
+  "strict": {
+    "ok": false,
+    "classification": "invalid_notation",
+    "expected_issues": [],
+    "actual_issues": [
+      {
+        "path": "r.definitions[0]",
+        "source": "Γ: y = a*x^2 + b*x + c（a,b,c为常数，a>0）",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 21: 为常数,a>0)"
+      },
+      {
+        "path": "r.definitions[1]",
+        "source": "C为Γ与y轴的交点",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.definitions[2]",
+        "source": "D为Γ的对称轴与x轴的交点",
+        "code": "notation.parse",
+        "message": "notation.unsupported_declaration"
+      },
+      {
+        "path": "r.c0.goals[0]",
+        "source": {
+          "kind": "find_coordinates",
+          "object": "D"
+        },
+        "code": "notation.goal",
+        "message": "binding.unknown_or_invisible:D"
+      },
+      {
+        "path": "r.c0.goals[1]",
+        "source": {
+          "kind": "find_equation",
+          "object": "Γ: y = a*x^2 + b*x + c"
+        },
+        "code": "notation.goal",
+        "message": "notation.trailing_token :"
+      },
+      {
+        "path": "r.c1.facts[3]",
+        "source": "N 在第四象限",
+        "code": "notation.parse",
+        "message": "notation.unrecognized_token at 1:  在第四象限"
+      },
+      {
+        "path": "r.c1.facts[0]",
+        "source": "M(m, 1) ∈ Γ",
+        "code": "notation.bind",
+        "message": "binding.unknown_function:M"
+      },
+      {
+        "path": "r.c1.facts[1]",
+        "source": "N ∈ Γ",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:Γ"
+      },
+      {
+        "path": "r.c1.facts[4]",
+        "source": "∠MDN = 90°",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:M"
+      },
+      {
+        "path": "r.c1.facts[5]",
+        "source": "DM = DN",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:D"
+      },
+      {
+        "path": "r.c1.facts[6]",
+        "source": "E ∈ segment(D,M)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:D"
+      },
+      {
+        "path": "r.c1.facts[7]",
+        "source": "G ∈ segment(M,N)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:M"
+      },
+      {
+        "path": "r.c1.facts[8]",
+        "source": "F = midpoint(D,N)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:D"
+      },
+      {
+        "path": "r.c1.facts[9]",
+        "source": "DE = sqrt(2) * NG",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:D"
+      },
+      {
+        "path": "r.c1.c0.facts[0]",
+        "source": "MN = sqrt(10)",
+        "code": "notation.bind",
+        "message": "binding.unknown_or_invisible:M"
+      },
+      {
+        "path": "r.c1.c0.goals[0]",
+        "source": {
+          "kind": "find_equation",
+          "object": "Γ: y = a*x^2 + b*x + c"
+        },
+        "code": "notation.goal",
+        "message": "notation.trailing_token :"
+      },
+      {
+        "path": "r.c1.c1.goals[0]",
+        "source": {
+          "kind": "find_equation",
+          "object": "Γ: y = a*x^2 + b*x + c",
+          "at": "EG + FG = 5*sqrt(10)/2"
+        },
+        "code": "notation.goal",
+        "message": "notation.trailing_token :"
+      }
+    ]
+  },
+  "accepted_omissions": []
+}

@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status",
+    "findings"
+  ],
+  "properties": {
+    "status": {
+      "enum": [
+        "confirmed",
+        "correction_required",
+        "uncertain"
+      ],
+      "description": "一致、需要来源纠错、无法确认。confirmed 不解除缺图阻断。"
+    },
+    "findings": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "kind",
+          "source_excerpt",
+          "message"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4096,
+            "description": "当前candidate中已有位置的JSON Pointer。纠错定位到具体数学字符串、目标或字段；遗漏指向所属分问或容器。分问迁移指向含原位置与目标位置的最小公共分问容器，整题分问容器为/root，不是空路径。仅wrong_transcription且candidate缺少original_text时可以使用空字符串，服务端只授权补充/original_text；其他kind禁止空路径。original_text已存在时，转录错误必须指向/original_text。"
+          },
+          "kind": {
+            "enum": [
+              "missing_condition",
+              "wrong_expression",
+              "wrong_scope",
+              "wrong_goal",
+              "unsupported_addition",
+              "missing_figure",
+              "unreadable",
+              "ambiguous",
+              "wrong_transcription"
+            ],
+            "description": "missing_condition=遗漏条件；wrong_expression=数字/符号/比例对象/方向/逻辑/量词/区间等数学表达错误；wrong_scope=分问条件归属或层次错误；wrong_goal=所求错误；unsupported_addition=非题设新增；missing_figure=缺图；unreadable=不可辨认；ambiguous=歧义。状态关系也是facts：遗漏、误写、错放、擅自新增分别使用missing_condition、wrong_expression、wrong_scope、unsupported_addition。 wrong_transcription=题干原文original_text的遗漏、误抄或改写，仅授权修订该字段，不改变root数学内容。"
+          },
+          "source_excerpt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "支持判断的原图短文字或明确图示标记描述，不填解法。"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "原图与候选的具体差异或无法确认的原因。"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": { "path": { "const": "" } }
+            },
+            "then": {
+              "properties": { "kind": { "const": "wrong_transcription" } }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "confirmed"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "findings": {
+            "maxItems": 0
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "findings": {
+            "minItems": 1
+          }
+        }
+      }
+    }
+  ]
+}

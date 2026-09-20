@@ -1,0 +1,1959 @@
+{
+  "schema_version": "explanation-snapshot/v3",
+  "problem_id": "tj-2026-hexi-yimo-25",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "problem_revision": "problem-revision:b823f7f33bd52776a172aad620013d802e0cf57e71a3742988abf90f33d7edd7",
+  "problem_semantic_hash": "0623a22675e36358752e68fc701c73e95f5790e6eb67cc37ea880e9a4f875329",
+  "canonical_plan_hash": "e74f7cf78a5b9bd37f972aa5556f5bdd861491b09c0ea5e65dd6f217a3252159",
+  "verified_execution_hash": "63c02f533bb47e7eba4c6c69a6149df8a553aa913b08b3d8e084c85086206400",
+  "problem": {
+    "problem_id": "tj-2026-hexi-yimo-25",
+    "pattern": "weighted-path-minimum",
+    "problem_type": "quadratic_weighted_path_minimum",
+    "purpose": "llm_strategy_planner_prompt",
+    "title": "tj-2026-hexi-yimo-25",
+    "display": {},
+    "original_text": [
+      "Γ: y = a*x^2 - b*x + c",
+      "b > 0",
+      "a = 1",
+      "b = 2",
+      "c = 3",
+      "P = vertex(Γ)",
+      "a = 2",
+      "A = (-1,0)",
+      "A ∈ Γ",
+      "D ∈ Γ",
+      "Γ ∩ y_axis = {C}",
+      "∠CAD = 90°",
+      "AC = AD",
+      "a = 1",
+      "A = (-1,0)",
+      "A ∈ Γ",
+      "M = (b + 1/2, y_M)",
+      "M ∈ Γ",
+      "N = (n,0)",
+      "n > 0",
+      "min(sqrt(2)*MN + AN) = 21/4"
+    ],
+    "scopes": [
+      {
+        "label": "题目",
+        "parent": null,
+        "scope_id": "problem"
+      },
+      {
+        "asks": [
+          "P"
+        ],
+        "label": "(I)",
+        "parent": "problem",
+        "scope_id": "i"
+      },
+      {
+        "asks": [
+          "D"
+        ],
+        "label": "(II)",
+        "parent": "problem",
+        "scope_id": "ii"
+      },
+      {
+        "asks": [
+          "b"
+        ],
+        "label": "(III)",
+        "parent": "problem",
+        "scope_id": "iii"
+      }
+    ],
+    "entities": [
+      {
+        "description": "Γ",
+        "entity_type": "function",
+        "expression": "a*x**2 - b*x + c",
+        "function_type": "quadratic",
+        "handle": "function:problem:parabola",
+        "name": "parabola",
+        "scope_id": "problem"
+      },
+      {
+        "description": "a",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:a",
+        "name": "a",
+        "role": "quadratic_coefficient",
+        "scope_id": "problem"
+      },
+      {
+        "description": "b",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:b",
+        "name": "b",
+        "role": "quadratic_coefficient",
+        "scope_id": "problem"
+      },
+      {
+        "description": "c",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:c",
+        "name": "c",
+        "role": "quadratic_coefficient",
+        "scope_id": "problem"
+      },
+      {
+        "description": "x",
+        "entity_type": "symbol",
+        "handle": "symbol:problem:x",
+        "name": "x",
+        "role": "function_variable",
+        "scope_id": "problem"
+      },
+      {
+        "definition": "vertex",
+        "description": "P",
+        "entity_type": "point",
+        "handle": "point:i:P",
+        "name": "P",
+        "of": "function:problem:parabola",
+        "scope_id": "i"
+      },
+      {
+        "coordinate": [
+          "-1",
+          "0"
+        ],
+        "description": "A",
+        "entity_type": "point",
+        "handle": "point:ii:A",
+        "name": "A",
+        "scope_id": "ii"
+      },
+      {
+        "description": "D",
+        "entity_type": "point",
+        "handle": "point:ii:D",
+        "name": "D",
+        "scope_id": "ii"
+      },
+      {
+        "definition": "y_axis_intercept",
+        "description": "C",
+        "entity_type": "point",
+        "handle": "point:ii:C",
+        "name": "C",
+        "of": "function:problem:parabola",
+        "scope_id": "ii"
+      },
+      {
+        "coordinate": [
+          "-1",
+          "0"
+        ],
+        "description": "A",
+        "entity_type": "point",
+        "handle": "point:iii:A",
+        "name": "A",
+        "scope_id": "iii"
+      },
+      {
+        "definition": "point_on_parabola_at_x",
+        "description": "M",
+        "entity_type": "point",
+        "handle": "point:iii:M",
+        "name": "M",
+        "of": "function:problem:parabola",
+        "scope_id": "iii",
+        "x": "b + 1/2"
+      },
+      {
+        "coordinate": [
+          "n",
+          "0"
+        ],
+        "definition": "point_on_axis",
+        "description": "N",
+        "entity_type": "point",
+        "handle": "point:iii:N",
+        "name": "N",
+        "scope_id": "iii"
+      },
+      {
+        "description": "y_M",
+        "entity_type": "symbol",
+        "handle": "symbol:iii:y_M",
+        "name": "y_M",
+        "role": "coordinate_alias",
+        "scope_id": "iii"
+      },
+      {
+        "description": "n",
+        "entity_type": "symbol",
+        "handle": "symbol:iii:n",
+        "name": "n",
+        "role": "dynamic_parameter",
+        "scope_id": "iii"
+      },
+      {
+        "description": "线段 AC",
+        "endpoints": [
+          "point:ii:A",
+          "point:ii:C"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:ii:AC",
+        "name": "AC",
+        "scope_id": "ii"
+      },
+      {
+        "description": "线段 AD",
+        "endpoints": [
+          "point:ii:A",
+          "point:ii:D"
+        ],
+        "entity_type": "segment",
+        "handle": "segment:ii:AD",
+        "name": "AD",
+        "scope_id": "ii"
+      }
+    ],
+    "facts": [
+      {
+        "description": "math assertion",
+        "expression": "Γ: y = a*x^2 - b*x + c",
+        "handle": "fact:problem:math_assertion_efb8733c1b6d",
+        "scope_id": "problem",
+        "subjects": [
+          "symbol:problem:a",
+          "symbol:problem:b",
+          "symbol:problem:c",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "problem"
+      },
+      {
+        "description": "math assertion",
+        "expression": "b > 0",
+        "handle": "fact:problem:math_assertion_83b5720a4886",
+        "scope_id": "problem",
+        "subjects": [
+          "symbol:problem:b"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "problem"
+      },
+      {
+        "description": "symbol constraint",
+        "handle": "fact:problem:symbol_constraint_a9eb81f4f4c8",
+        "operator": ">",
+        "scope_id": "problem",
+        "subject": "symbol:problem:b",
+        "type": "symbol_constraint",
+        "valid_scope": "problem",
+        "value": "0"
+      },
+      {
+        "description": "math assertion",
+        "expression": "a = 1",
+        "handle": "fact:i:math_assertion_12533ba403b7",
+        "scope_id": "i",
+        "subjects": [
+          "symbol:problem:a"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "i"
+      },
+      {
+        "description": "math assertion",
+        "expression": "b = 2",
+        "handle": "fact:i:math_assertion_060ee9b2552a",
+        "scope_id": "i",
+        "subjects": [
+          "symbol:problem:b"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "i"
+      },
+      {
+        "description": "math assertion",
+        "expression": "c = 3",
+        "handle": "fact:i:math_assertion_2e3275b55e0d",
+        "scope_id": "i",
+        "subjects": [
+          "symbol:problem:c"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "i"
+      },
+      {
+        "description": "math assertion",
+        "expression": "P = vertex(Γ)",
+        "handle": "fact:i:math_assertion_1fc5f6bd723b",
+        "scope_id": "i",
+        "subjects": [
+          "point:i:P",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "i"
+      },
+      {
+        "description": "symbol value",
+        "handle": "fact:i:symbol_value_b3188026a7e9",
+        "scope_id": "i",
+        "subject": "symbol:problem:a",
+        "type": "symbol_value",
+        "valid_scope": "i",
+        "value": "1"
+      },
+      {
+        "description": "symbol value",
+        "handle": "fact:i:symbol_value_54fb367bb8df",
+        "scope_id": "i",
+        "subject": "symbol:problem:b",
+        "type": "symbol_value",
+        "valid_scope": "i",
+        "value": "2"
+      },
+      {
+        "description": "symbol value",
+        "handle": "fact:i:symbol_value_fa068689685f",
+        "scope_id": "i",
+        "subject": "symbol:problem:c",
+        "type": "symbol_value",
+        "valid_scope": "i",
+        "value": "3"
+      },
+      {
+        "angle": [
+          "point:ii:C",
+          "point:ii:A",
+          "point:ii:D"
+        ],
+        "description": "直角与等长条件",
+        "equal_segments": [
+          "segment:ii:AC",
+          "segment:ii:AD"
+        ],
+        "handle": "fact:ii:right_angle_equal_length_0afd65e7d047",
+        "scope_id": "ii",
+        "type": "right_angle_equal_length",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "a = 2",
+        "handle": "fact:ii:math_assertion_658a9df1feda",
+        "scope_id": "ii",
+        "subjects": [
+          "symbol:problem:a"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "A = (-1,0)",
+        "handle": "fact:ii:math_assertion_ba7f2bf8facd",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:A"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "A ∈ Γ",
+        "handle": "fact:ii:math_assertion_d213a78c1807",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:A",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "D ∈ Γ",
+        "handle": "fact:ii:math_assertion_c551417f9013",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:D",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "Γ ∩ y_axis = {C}",
+        "handle": "fact:ii:math_assertion_09f33145bfad",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:C",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "∠CAD = 90°",
+        "handle": "fact:ii:math_assertion_0b14456dd17f",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:A",
+          "point:ii:C",
+          "point:ii:D"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "AC = AD",
+        "handle": "fact:ii:math_assertion_4db729da3b98",
+        "scope_id": "ii",
+        "subjects": [
+          "point:ii:A",
+          "point:ii:C",
+          "point:ii:D"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "symbol value",
+        "handle": "fact:ii:symbol_value_3f44fe36dc85",
+        "scope_id": "ii",
+        "subject": "symbol:problem:a",
+        "type": "symbol_value",
+        "valid_scope": "ii",
+        "value": "2"
+      },
+      {
+        "description": "point coordinate",
+        "handle": "fact:ii:point_coordinate_29b0ce81c9e0",
+        "scope_id": "ii",
+        "subject": "point:ii:A",
+        "type": "point_coordinate",
+        "valid_scope": "ii",
+        "value": [
+          "-1",
+          "0"
+        ]
+      },
+      {
+        "curve": "function:problem:parabola",
+        "description": "point on curve",
+        "handle": "fact:ii:point_on_curve_4a57721ebf44",
+        "point": "point:ii:A",
+        "scope_id": "ii",
+        "type": "point_on_curve",
+        "valid_scope": "ii"
+      },
+      {
+        "curve": "function:problem:parabola",
+        "description": "point on curve",
+        "handle": "fact:ii:point_on_curve_e2363b3483c9",
+        "point": "point:ii:D",
+        "scope_id": "ii",
+        "type": "point_on_curve",
+        "valid_scope": "ii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "a = 1",
+        "handle": "fact:iii:math_assertion_00130a204065",
+        "scope_id": "iii",
+        "subjects": [
+          "symbol:problem:a"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "A = (-1,0)",
+        "handle": "fact:iii:math_assertion_992399ea3eae",
+        "scope_id": "iii",
+        "subjects": [
+          "point:iii:A"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "A ∈ Γ",
+        "handle": "fact:iii:math_assertion_351e912768d1",
+        "scope_id": "iii",
+        "subjects": [
+          "point:iii:A",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "M = (b + 1/2, y_M)",
+        "handle": "fact:iii:math_assertion_7f74ee97a63d",
+        "scope_id": "iii",
+        "subjects": [
+          "point:iii:M",
+          "symbol:problem:b",
+          "symbol:iii:y_M"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "M ∈ Γ",
+        "handle": "fact:iii:math_assertion_223f8dc05370",
+        "scope_id": "iii",
+        "subjects": [
+          "point:iii:M",
+          "function:problem:parabola"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "N = (n,0)",
+        "handle": "fact:iii:math_assertion_d74a3ef681dc",
+        "scope_id": "iii",
+        "subjects": [
+          "point:iii:N",
+          "symbol:iii:n"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "n > 0",
+        "handle": "fact:iii:math_assertion_7b3677ffb028",
+        "scope_id": "iii",
+        "subjects": [
+          "symbol:iii:n"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "math assertion",
+        "expression": "min(sqrt(2)*MN + AN) = 21/4",
+        "handle": "fact:iii:math_assertion_3e639ab89897",
+        "scope_id": "iii",
+        "subjects": [
+          "point:iii:A",
+          "point:iii:M",
+          "point:iii:N"
+        ],
+        "type": "math_assertion",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "symbol value",
+        "handle": "fact:iii:symbol_value_152cb8570887",
+        "scope_id": "iii",
+        "subject": "symbol:problem:a",
+        "type": "symbol_value",
+        "valid_scope": "iii",
+        "value": "1"
+      },
+      {
+        "description": "point coordinate",
+        "handle": "fact:iii:point_coordinate_a31400e67a98",
+        "scope_id": "iii",
+        "subject": "point:iii:A",
+        "type": "point_coordinate",
+        "valid_scope": "iii",
+        "value": [
+          "-1",
+          "0"
+        ]
+      },
+      {
+        "curve": "function:problem:parabola",
+        "description": "point on curve",
+        "handle": "fact:iii:point_on_curve_427555236168",
+        "point": "point:iii:A",
+        "scope_id": "iii",
+        "type": "point_on_curve",
+        "valid_scope": "iii"
+      },
+      {
+        "curve": "function:problem:parabola",
+        "description": "point construction",
+        "handle": "fact:iii:point_construction_0b53057e6b55",
+        "point": "point:iii:M",
+        "scope_id": "iii",
+        "type": "point_on_curve",
+        "valid_scope": "iii"
+      },
+      {
+        "curve": "function:problem:parabola",
+        "description": "point on curve",
+        "handle": "fact:iii:point_on_curve_ca8279eeb97e",
+        "point": "point:iii:M",
+        "scope_id": "iii",
+        "type": "point_on_curve",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "point coordinate",
+        "handle": "fact:iii:point_coordinate_770325063cf9",
+        "scope_id": "iii",
+        "subject": "point:iii:N",
+        "type": "point_coordinate",
+        "valid_scope": "iii",
+        "value": [
+          "n",
+          "0"
+        ]
+      },
+      {
+        "description": "symbol constraint",
+        "handle": "fact:iii:symbol_constraint_4daf9fc476b5",
+        "operator": ">",
+        "scope_id": "iii",
+        "subject": "symbol:iii:n",
+        "type": "symbol_constraint",
+        "valid_scope": "iii",
+        "value": "0"
+      },
+      {
+        "description": "minimum target",
+        "handle": "fact:iii:minimum_target_7f5bdbc7f207",
+        "path": "sqrt(2)*MN+AN",
+        "scope_id": "iii",
+        "terms": [
+          {
+            "scale": "sqrt(2)",
+            "segment": [
+              "point:iii:M",
+              "point:iii:N"
+            ]
+          },
+          [
+            "point:iii:A",
+            "point:iii:N"
+          ]
+        ],
+        "type": "path_minimum_target",
+        "valid_scope": "iii"
+      },
+      {
+        "description": "minimum value given",
+        "handle": "fact:iii:minimum_value_given_c41a184aa053",
+        "path": "sqrt(2)*MN+AN",
+        "scope_id": "iii",
+        "type": "minimum_value",
+        "valid_scope": "iii",
+        "value": "21/4"
+      }
+    ],
+    "question_goals": [
+      {
+        "answer_key": "P",
+        "description": "(I)输出P",
+        "handle": "answer:i.P",
+        "required": true,
+        "scope_id": "i",
+        "target_handle": "point:i:P",
+        "value_type": "Point"
+      },
+      {
+        "answer_key": "D",
+        "description": "(II)输出D",
+        "handle": "answer:ii.D",
+        "required": true,
+        "scope_id": "ii",
+        "target_handle": "point:ii:D",
+        "value_type": "Point"
+      },
+      {
+        "answer_key": "b",
+        "description": "(III)输出 由 sqrt(2)*MN+AN 的最小值求 b 的值",
+        "handle": "answer:iii.b",
+        "required": true,
+        "scope_id": "iii",
+        "value_type": "ParameterValue"
+      }
+    ]
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {},
+    "children": [
+      {
+        "scope_ref": "i",
+        "steps": [],
+        "goals": {
+          "i.P": {
+            "steps": [
+              {
+                "step_id": "derive_parabola_i",
+                "capability_id": "quadratic_from_constraints",
+                "intent": "代入本问给定的三个系数确定抛物线。",
+                "inputs": {
+                  "known_coefficients": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "symbol_value_a"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "1",
+                      "display": "1"
+                    },
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "symbol_value_b"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "2",
+                      "display": "2"
+                    },
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "symbol_value_c"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "3",
+                      "display": "3"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "coefficients": {
+                    "runtime_type": "Coefficients",
+                    "value": {
+                      "a": "1",
+                      "b": "2",
+                      "c": "3"
+                    },
+                    "display": "{\"a\": \"1\", \"b\": \"2\", \"c\": \"3\"}"
+                  },
+                  "parabola": {
+                    "runtime_type": "Parabola",
+                    "value": "x**2 - 2*x + 3",
+                    "display": "x²-2x+3"
+                  }
+                },
+                "calculations": [],
+                "checks": [
+                  {
+                    "check_id": "known_coefficients_preserved",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "已知系数被保留"
+                  }
+                ]
+              },
+              {
+                "step_id": "derive_vertex_i",
+                "capability_id": "quadratic_vertex_point",
+                "intent": "由抛物线解析式求顶点坐标。",
+                "inputs": {
+                  "parabola": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "parabola"
+                      },
+                      "runtime_type": "Parabola",
+                      "value": "x**2 - 2*x + 3",
+                      "display": "x²-2x+3",
+                      "resolved_from": {
+                        "kind": "step_result",
+                        "step_id": "derive_parabola_i",
+                        "return": "parabola"
+                      }
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "point": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "1",
+                      "2"
+                    ],
+                    "display": "P(1,2)"
+                  }
+                },
+                "calculations": [],
+                "checks": [
+                  {
+                    "check_id": "vertex_x_derivative_zero",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "顶点横坐标使一阶导数为 0"
+                  }
+                ]
+              }
+            ],
+            "answer_from": {
+              "step_id": "derive_vertex_i",
+              "return": "point"
+            }
+          }
+        },
+        "children": []
+      },
+      {
+        "scope_ref": "ii",
+        "steps": [],
+        "goals": {
+          "ii.D": {
+            "steps": [
+              {
+                "step_id": "derive_parametric_parabola_ii",
+                "capability_id": "quadratic_from_constraints",
+                "intent": "代入已知系数和曲线点，把抛物线化为单参数形式。",
+                "inputs": {
+                  "curve_point": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "A"
+                      },
+                      "runtime_type": "Point",
+                      "value": [
+                        "-1",
+                        "0"
+                      ],
+                      "display": "A(-1,0)"
+                    }
+                  ],
+                  "free_parameters": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "b"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "b",
+                      "display": "b"
+                    }
+                  ],
+                  "known_coefficients": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "symbol_value_a"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "2",
+                      "display": "2"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "coefficients": {
+                    "runtime_type": "Coefficients",
+                    "value": {
+                      "a": "2",
+                      "c": "-b - 2"
+                    },
+                    "display": "{\"a\": \"2\", \"c\": \"-b - 2\"}"
+                  },
+                  "parabola": {
+                    "runtime_type": "Parabola",
+                    "value": "-b*x - b + 2*x**2 - 2",
+                    "display": "-bx-b+2x²-2"
+                  }
+                },
+                "calculations": [],
+                "checks": [
+                  {
+                    "check_id": "known_coefficients_preserved",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "已知系数被保留"
+                  },
+                  {
+                    "check_id": "curve_point_0_on_parabola",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "曲线点满足求得的抛物线"
+                  }
+                ]
+              },
+              {
+                "step_id": "derive_y_intercept_ii",
+                "capability_id": "quadratic_y_axis_intercept_point",
+                "intent": "求当前抛物线与纵轴的交点。",
+                "inputs": {
+                  "quadratic": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "parabola"
+                      },
+                      "runtime_type": "Parabola",
+                      "value": "-b*x - b + 2*x**2 - 2",
+                      "display": "-bx-b+2x²-2",
+                      "resolved_from": {
+                        "kind": "step_result",
+                        "step_id": "derive_parametric_parabola_ii",
+                        "return": "parabola"
+                      }
+                    }
+                  ]
+                },
+                "output_targets": {
+                  "point": "C"
+                },
+                "outputs": {
+                  "point": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "0",
+                      "-b - 2"
+                    ],
+                    "display": "C(0,-b-2)"
+                  }
+                },
+                "calculations": [],
+                "checks": [
+                  {
+                    "check_id": "y_axis_x_is_zero",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "y 轴交点的横坐标为 0"
+                  }
+                ]
+              },
+              {
+                "step_id": "derive_right_angle_candidates_ii",
+                "capability_id": "right_angle_equal_length_candidates",
+                "intent": "围绕直角顶点旋转已知端点得到两个候选点。",
+                "inputs": {
+                  "right_angle_equal_length": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "right_angle_equal_length_c_a_d_ac_ad"
+                      },
+                      "runtime_type": "right_angle_equal_length",
+                      "value": {
+                        "angle": [
+                          "C",
+                          "A",
+                          "D"
+                        ],
+                        "description": "直角与等长条件",
+                        "equal_segments": [
+                          "AC",
+                          "AD"
+                        ],
+                        "type": "right_angle_equal_length"
+                      },
+                      "display": "直角与等长条件"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "D"
+                      },
+                      "runtime_type": "Point",
+                      "value": {
+                        "description": "D",
+                        "entity_type": "point",
+                        "name": "D"
+                      },
+                      "display": "D"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "candidates": {
+                    "runtime_type": "PointList",
+                    "value": [
+                      [
+                        "-b - 3",
+                        "-1"
+                      ],
+                      [
+                        "b + 1",
+                        "1"
+                      ]
+                    ],
+                    "display": "(-b-3,-1)，(b+1,1)"
+                  }
+                },
+                "calculations": [],
+                "checks": [
+                  {
+                    "check_id": "candidate_1_right_equal_length",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "候选位置 D(-b - 3, -1) 与已知直角边等长"
+                  },
+                  {
+                    "check_id": "candidate_1_right_angle",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "候选位置 D(-b - 3, -1) 与已知直角边垂直"
+                  },
+                  {
+                    "check_id": "candidate_2_right_equal_length",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "候选位置 D(b + 1, 1) 与已知直角边等长"
+                  },
+                  {
+                    "check_id": "candidate_2_right_angle",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "候选位置 D(b + 1, 1) 与已知直角边垂直"
+                  }
+                ]
+              },
+              {
+                "step_id": "select_curve_candidate_ii",
+                "capability_id": "curve_candidate_parameter_solve",
+                "intent": "用曲线条件和参数范围筛选候选点并反求参数。",
+                "inputs": {
+                  "candidates": [
+                    {
+                      "ref": {
+                        "kind": "step_result",
+                        "step_id": "derive_right_angle_candidates_ii",
+                        "return": "candidates"
+                      },
+                      "runtime_type": "PointList",
+                      "value": [
+                        [
+                          "-b - 3",
+                          "-1"
+                        ],
+                        [
+                          "b + 1",
+                          "1"
+                        ]
+                      ],
+                      "display": "(-b-3,-1)，(b+1,1)"
+                    }
+                  ],
+                  "parabola": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "parabola"
+                      },
+                      "runtime_type": "Parabola",
+                      "value": "-b*x - b + 2*x**2 - 2",
+                      "display": "-bx-b+2x²-2",
+                      "resolved_from": {
+                        "kind": "step_result",
+                        "step_id": "derive_parametric_parabola_ii",
+                        "return": "parabola"
+                      }
+                    }
+                  ],
+                  "point_on_curve": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "point_on_curve_parabola_d"
+                      },
+                      "runtime_type": "point_on_curve",
+                      "value": {
+                        "curve": "parabola",
+                        "description": "point on curve",
+                        "point": "D",
+                        "type": "point_on_curve"
+                      },
+                      "display": "pointoncurve"
+                    }
+                  ],
+                  "symbol_constraint": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "symbol_constraint_b"
+                      },
+                      "runtime_type": "symbol_constraint",
+                      "value": {
+                        "description": "symbol constraint",
+                        "operator": ">",
+                        "subject": "b",
+                        "type": "symbol_constraint",
+                        "value": "0"
+                      },
+                      "display": "symbolconstraint"
+                    }
+                  ],
+                  "target_point": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "D"
+                      },
+                      "runtime_type": "Point",
+                      "value": {
+                        "description": "D",
+                        "entity_type": "point",
+                        "name": "D"
+                      },
+                      "display": "D"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "selected_curve_point": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "sqrt(2)",
+                      "1"
+                    ],
+                    "display": "D(√2,1)"
+                  },
+                  "solved_parabola": {
+                    "runtime_type": "Parabola",
+                    "value": "2*x**2 + x*(1 - sqrt(2)) - sqrt(2) - 1",
+                    "display": "2x²+x(1-√2)-√2-1"
+                  }
+                },
+                "calculations": [
+                  {
+                    "calculation_id": "curve_candidate_filter",
+                    "kind": "candidate_filter",
+                    "candidates": [
+                      [
+                        "-b - 3",
+                        "-1"
+                      ],
+                      [
+                        "b + 1",
+                        "1"
+                      ]
+                    ],
+                    "equations": [
+                      "Eq(3*b**2 + 14*b, -17)",
+                      "Eq(b**2 + 2*b, 1)"
+                    ],
+                    "decisions": [
+                      "候选点 (-b - 3, -1)：排除",
+                      "候选点 (b + 1, 1)：保留"
+                    ]
+                  },
+                  {
+                    "calculation_id": "curve_parameter_solution",
+                    "kind": "parameter_solution",
+                    "equation": "Eq(b**2 + 2*b, 1)",
+                    "parameter": "b",
+                    "value": "-1 + sqrt(2)",
+                    "point": [
+                      "sqrt(2)",
+                      "1"
+                    ],
+                    "curve": "2*x**2 - sqrt(2)*x + x - sqrt(2) - 1"
+                  }
+                ],
+                "checks": [
+                  {
+                    "check_id": "curve_candidate_unique",
+                    "kind": "unique_candidate",
+                    "passed": true,
+                    "display": "曲线条件与参数约束筛选出唯一合法候选点"
+                  }
+                ]
+              }
+            ],
+            "answer_from": {
+              "step_id": "select_curve_candidate_ii",
+              "return": "selected_curve_point"
+            }
+          }
+        },
+        "children": []
+      },
+      {
+        "scope_ref": "iii",
+        "steps": [],
+        "goals": {
+          "iii.b": {
+            "steps": [
+              {
+                "step_id": "derive_parametric_parabola_iii",
+                "capability_id": "quadratic_from_constraints",
+                "intent": "由已知系数和曲线点得到当前问含参抛物线。",
+                "inputs": {
+                  "curve_point": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "A"
+                      },
+                      "runtime_type": "Point",
+                      "value": [
+                        "-1",
+                        "0"
+                      ],
+                      "display": "A(-1,0)"
+                    }
+                  ],
+                  "free_parameters": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "b"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "b",
+                      "display": "b"
+                    }
+                  ],
+                  "known_coefficients": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "symbol_value_a"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "1",
+                      "display": "1"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "coefficients": {
+                    "runtime_type": "Coefficients",
+                    "value": {
+                      "a": "1",
+                      "c": "-b - 1"
+                    },
+                    "display": "{\"a\": \"1\", \"c\": \"-b - 1\"}"
+                  },
+                  "parabola": {
+                    "runtime_type": "Parabola",
+                    "value": "-b*x - b + x**2 - 1",
+                    "display": "-bx-b+x²-1"
+                  }
+                },
+                "calculations": [],
+                "checks": [
+                  {
+                    "check_id": "known_coefficients_preserved",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "已知系数被保留"
+                  },
+                  {
+                    "check_id": "curve_point_0_on_parabola",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "曲线点满足求得的抛物线"
+                  }
+                ]
+              },
+              {
+                "step_id": "derive_curve_point_iii",
+                "capability_id": "point_on_parabola_at_x",
+                "intent": "将题面给定的横坐标代入当前抛物线。",
+                "inputs": {
+                  "parabola": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "parabola"
+                      },
+                      "runtime_type": "Parabola",
+                      "value": "-b*x - b + x**2 - 1",
+                      "display": "-bx-b+x²-1",
+                      "resolved_from": {
+                        "kind": "step_result",
+                        "step_id": "derive_parametric_parabola_iii",
+                        "return": "parabola"
+                      }
+                    }
+                  ]
+                },
+                "output_targets": {
+                  "point": "M"
+                },
+                "outputs": {
+                  "point": {
+                    "runtime_type": "Point",
+                    "value": [
+                      "b + 1/2",
+                      "-b/2 - 3/4"
+                    ],
+                    "display": "M(b+1/2,-b/2-3/4)"
+                  }
+                },
+                "calculations": [],
+                "checks": [
+                  {
+                    "check_id": "point_on_parabola",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "点坐标满足抛物线解析式"
+                  }
+                ]
+              },
+              {
+                "step_id": "derive_weighted_minimum_iii",
+                "capability_id": "weighted_axis_path_minimum",
+                "intent": "原子完成加权三角形、折线拉直和定义域验证，得到完整最小值表达式。",
+                "inputs": {
+                  "path_minimum_target": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "path_minimum_target_m_n_a"
+                      },
+                      "runtime_type": "path_minimum_target",
+                      "value": {
+                        "description": "minimum target",
+                        "path": "sqrt(2)*MN+AN",
+                        "terms": [
+                          {
+                            "scale": "sqrt(2)",
+                            "segment": [
+                              "M",
+                              "N"
+                            ]
+                          },
+                          [
+                            "A",
+                            "N"
+                          ]
+                        ],
+                        "type": "path_minimum_target"
+                      },
+                      "display": "√2MN+AN"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "minimum_expression": {
+                    "runtime_type": "MinimumExpression",
+                    "value": "Piecewise((3*b/2 + 9/4, b > 1/2), (nan, True))",
+                    "display": "当 b＞1/2 时为 3b/2+9/4"
+                  }
+                },
+                "calculations": [
+                  {
+                    "calculation_id": "path_equivalence",
+                    "kind": "equivalence_chain",
+                    "statements": [
+                      "已验证的辅助直角三角形给出斜边与辅助直角边的倍率关系",
+                      "按同一倍率把原目标化为两段普通线段之和"
+                    ],
+                    "result": "sqrt(2)*MN+AN=sqrt(2)×（两段普通线段之和）"
+                  },
+                  {
+                    "calculation_id": "path_construction_1",
+                    "kind": "weighted_right_triangle",
+                    "facts": {
+                      "auxiliary_locus": "1*(x-(-1))-1*y=0",
+                      "auxiliary_locus_kind": "ray",
+                      "auxiliary_point_formula": [
+                        "n/2 - 1/2",
+                        "n/2 + 1/2"
+                      ],
+                      "axis_projection_geometry": {
+                        "attainment_condition": "b > 1/2",
+                        "auxiliary_to_moving_length": "sqrt(2)*(2*b + 3)/8",
+                        "boundary_curve_distance_squared": "5*b**2/4 + 7*b/4 + 13/16",
+                        "boundary_fixed_length": "1",
+                        "boundary_minimum_expression": null,
+                        "boundary_point": [
+                          "0",
+                          "0"
+                        ],
+                        "curve_point": [
+                          "b + 1/2",
+                          "-b/2 - 3/4"
+                        ],
+                        "curve_to_moving_length": "sqrt(2)*(2*b + 3)/4",
+                        "curve_to_moving_length_squared": "(2*b + 3)**2/8",
+                        "dynamic_constraint": {
+                          "operator": ">",
+                          "value": "0"
+                        },
+                        "dynamic_parameter": "n",
+                        "fixed_moving_decomposition": "projection_minus_horizontal",
+                        "fixed_point": [
+                          "-1",
+                          "0"
+                        ],
+                        "fixed_to_moving_length": "b/2 + 3/4",
+                        "fixed_to_projection_length": "b + 3/2",
+                        "horizontal_leg_length": "b/2 + 3/4",
+                        "interior_moving_point": [
+                          "b/2 - 1/4",
+                          "0"
+                        ],
+                        "kind": "axis_projection_geometric_minimum",
+                        "locus_direction": [
+                          "1",
+                          "1"
+                        ],
+                        "locus_reference_point": [
+                          "0",
+                          "1"
+                        ],
+                        "locus_start_point": [
+                          "-1",
+                          "0"
+                        ],
+                        "moving_point_formula": [
+                          "n",
+                          "0"
+                        ],
+                        "parameter": "b",
+                        "parameter_constraint": {
+                          "operator": ">",
+                          "value": "0"
+                        },
+                        "projection_point": [
+                          "b + 1/2",
+                          "0"
+                        ],
+                        "projection_triangle_relation": {
+                          "kind": "equal_legs"
+                        },
+                        "scaled_interior_minimum": "3*b/2 + 9/4",
+                        "straightened_length": "3*sqrt(2)*(2*b + 3)/8",
+                        "vertical_leg_length": "b/2 + 3/4",
+                        "student_projection_point": {
+                          "label": "H",
+                          "coordinates": [
+                            "b + 1/2",
+                            "0"
+                          ]
+                        },
+                        "student_boundary_point": {
+                          "label": "O",
+                          "coordinates": [
+                            "0",
+                            "0"
+                          ]
+                        }
+                      },
+                      "kind": "weighted_right_triangle",
+                      "orientation_sign": 1,
+                      "path_equivalence": {
+                        "auxiliary_segment": [
+                          "Q",
+                          "N"
+                        ],
+                        "scale": "sqrt(2)",
+                        "unit_segment": [
+                          "A",
+                          "N"
+                        ],
+                        "weighted_segment": [
+                          "M",
+                          "N"
+                        ]
+                      },
+                      "triangle_geometry": {
+                        "height_factor": "1/2",
+                        "hypotenuse_role": "AN",
+                        "hypotenuse_to_leg_scale": "sqrt(2)",
+                        "kind": "weighted_right_triangle",
+                        "leg_factor": "1/2",
+                        "locus_direction": [
+                          "1",
+                          "1"
+                        ],
+                        "right_angle_vertex_role": "Q",
+                        "scaled_leg_role": "QN"
+                      },
+                      "weight": "sqrt(2)",
+                      "student_auxiliary_point": {
+                        "label": "Q",
+                        "coordinates": [
+                          "n/2 - 1/2",
+                          "n/2 + 1/2"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "calculation_id": "path_minimum",
+                    "kind": "minimum",
+                    "strategy": "weighted_triangle_then_reachable_straightening",
+                    "expression": "Piecewise((3*b/2 + 9/4, b > 1/2), (nan, True))"
+                  },
+                  {
+                    "calculation_id": "path_attainment",
+                    "kind": "attainment",
+                    "points": {
+                      "N": [
+                        "b/2 - 1/4",
+                        "0"
+                      ]
+                    }
+                  }
+                ],
+                "checks": [
+                  {
+                    "check_id": "path_attainment_1_1",
+                    "kind": "auxiliary_point_on_declared_ray",
+                    "passed": true
+                  },
+                  {
+                    "check_id": "path_attainment_1_2",
+                    "kind": "moving_point_on_straightening_segment",
+                    "passed": true
+                  },
+                  {
+                    "check_id": "path_attainment_1_3",
+                    "kind": "dynamic_domain_branch_represented",
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "step_id": "solve_parameter_iii",
+                "capability_id": "parameter_from_expression_value",
+                "intent": "令最小值表达式等于题设值并按参数范围取解。",
+                "inputs": {
+                  "expression": [
+                    {
+                      "ref": {
+                        "kind": "step_result",
+                        "step_id": "derive_weighted_minimum_iii",
+                        "return": "minimum_expression"
+                      },
+                      "runtime_type": "MinimumExpression",
+                      "value": "Piecewise((3*b/2 + 9/4, b > 1/2), (nan, True))",
+                      "display": "当 b＞1/2 时为 3b/2+9/4"
+                    }
+                  ],
+                  "minimum_value": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "minimum_value"
+                      },
+                      "runtime_type": "minimum_value",
+                      "value": {
+                        "description": "minimum value given",
+                        "path": "sqrt(2)*MN+AN",
+                        "type": "minimum_value",
+                        "value": "21/4"
+                      },
+                      "display": "√2MN+AN=21/4"
+                    }
+                  ],
+                  "parameter": [
+                    {
+                      "ref": {
+                        "kind": "source",
+                        "ref": "b"
+                      },
+                      "runtime_type": "ParameterValue",
+                      "value": "b",
+                      "display": "b"
+                    }
+                  ]
+                },
+                "output_targets": {},
+                "outputs": {
+                  "parameter_value": {
+                    "runtime_type": "ParameterValue",
+                    "value": "2",
+                    "display": "2"
+                  }
+                },
+                "calculations": [
+                  {
+                    "calculation_id": "symbolic_equations",
+                    "kind": "equation_system",
+                    "equations": [
+                      "Eq(Piecewise((3*b/2 + 9/4, b > 1/2)), 21/4)"
+                    ],
+                    "sources": [
+                      "expression",
+                      "condition"
+                    ]
+                  },
+                  {
+                    "calculation_id": "symbolic_substitutions",
+                    "kind": "substitution",
+                    "values": [
+                      {
+                        "symbol": "b",
+                        "value": "2"
+                      }
+                    ]
+                  },
+                  {
+                    "calculation_id": "symbolic_solution",
+                    "kind": "solution",
+                    "target": "b",
+                    "value": "2"
+                  }
+                ],
+                "checks": [
+                  {
+                    "check_id": "parameter_domain",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "参数满足定义域"
+                  },
+                  {
+                    "check_id": "expression_value_matches",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "表达式取值匹配题设"
+                  },
+                  {
+                    "check_id": "closure_parameter_value_matches",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "参数值输出与 symbolic closure 一致"
+                  },
+                  {
+                    "check_id": "closure_equation_0_satisfied",
+                    "kind": "runtime_method_check",
+                    "passed": true,
+                    "detail": "参数值满足 symbolic closure 方程"
+                  },
+                  {
+                    "check_id": "symbolic_unique_branch",
+                    "kind": "unique_solution_branch",
+                    "passed": true,
+                    "branch_count": 1,
+                    "residual_symbols": []
+                  },
+                  {
+                    "check_id": "symbolic_constraint_filter",
+                    "kind": "constraint_filter",
+                    "passed": true,
+                    "summary": "题设约束已用于筛选唯一合法分支"
+                  }
+                ]
+              }
+            ],
+            "answer_from": {
+              "step_id": "solve_parameter_iii",
+              "return": "parameter_value"
+            }
+          }
+        },
+        "children": []
+      }
+    ]
+  },
+  "evidence": {
+    "curve-candidate-parameter:267430dfbac6ed8f6c803a409123aa155e3e3141e914f8338e9cae7e67a0164f": {
+      "schema_version": "curve-candidate-parameter-teaching-evidence/v1",
+      "step_id": "select_curve_candidate_ii",
+      "macro_id": "curve_candidate_parameter_solve",
+      "candidates": [
+        [
+          "-b - 3",
+          "-1"
+        ],
+        [
+          "b + 1",
+          "1"
+        ]
+      ],
+      "candidate_equations": [
+        "Eq(3*b**2 + 14*b, -17)",
+        "Eq(b**2 + 2*b, 1)"
+      ],
+      "candidate_decisions": [
+        "候选点 (-b - 3, -1)：排除",
+        "候选点 (b + 1, 1)：保留"
+      ],
+      "selected_point": [
+        "sqrt(2)",
+        "1"
+      ],
+      "parameter_name": "b",
+      "parameter_equation": "Eq(b**2 + 2*b, 1)",
+      "parameter_value": "-1 + sqrt(2)",
+      "solved_curve": "2*x**2 - sqrt(2)*x + x - sqrt(2) - 1"
+    },
+    "path-minimum:8c82d57f6290bc1f8a802dd98a8ad1cab09209790de9b85bd44ca8e307558401": {
+      "schema_version": "path-minimum-prompt-witness/v1",
+      "step_id": "derive_weighted_minimum_iii",
+      "macro_id": "weighted_axis_path_minimum",
+      "original_objective": "sqrt(2)*MN+AN",
+      "reduced_objective": "sqrt(2)×（两段普通线段之和）",
+      "role_resolutions": [
+        {
+          "authored_ref": null,
+          "chosen_ref": "A",
+          "corrected": false,
+          "role": "fixed_point"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "M",
+          "corrected": false,
+          "role": "curve_point"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "N",
+          "corrected": false,
+          "role": "moving_point"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "b",
+          "corrected": false,
+          "role": "parameter"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "n",
+          "corrected": false,
+          "role": "dynamic_parameter"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "symbol_constraint_b",
+          "corrected": false,
+          "role": "parameter_constraint"
+        },
+        {
+          "authored_ref": null,
+          "chosen_ref": "symbol_constraint_n",
+          "corrected": false,
+          "role": "dynamic_constraint"
+        }
+      ],
+      "constructions": [
+        {
+          "auxiliary_locus": "1*(x-(-1))-1*y=0",
+          "auxiliary_locus_kind": "ray",
+          "auxiliary_point_formula": [
+            "n/2 - 1/2",
+            "n/2 + 1/2"
+          ],
+          "axis_projection_geometry": {
+            "attainment_condition": "b > 1/2",
+            "auxiliary_to_moving_length": "sqrt(2)*(2*b + 3)/8",
+            "boundary_curve_distance_squared": "5*b**2/4 + 7*b/4 + 13/16",
+            "boundary_fixed_length": "1",
+            "boundary_minimum_expression": null,
+            "boundary_point": [
+              "0",
+              "0"
+            ],
+            "curve_point": [
+              "b + 1/2",
+              "-b/2 - 3/4"
+            ],
+            "curve_to_moving_length": "sqrt(2)*(2*b + 3)/4",
+            "curve_to_moving_length_squared": "(2*b + 3)**2/8",
+            "dynamic_constraint": {
+              "operator": ">",
+              "value": "0"
+            },
+            "dynamic_parameter": "n",
+            "fixed_moving_decomposition": "projection_minus_horizontal",
+            "fixed_point": [
+              "-1",
+              "0"
+            ],
+            "fixed_to_moving_length": "b/2 + 3/4",
+            "fixed_to_projection_length": "b + 3/2",
+            "horizontal_leg_length": "b/2 + 3/4",
+            "interior_moving_point": [
+              "b/2 - 1/4",
+              "0"
+            ],
+            "kind": "axis_projection_geometric_minimum",
+            "locus_direction": [
+              "1",
+              "1"
+            ],
+            "locus_reference_point": [
+              "0",
+              "1"
+            ],
+            "locus_start_point": [
+              "-1",
+              "0"
+            ],
+            "moving_point_formula": [
+              "n",
+              "0"
+            ],
+            "parameter": "b",
+            "parameter_constraint": {
+              "operator": ">",
+              "value": "0"
+            },
+            "projection_point": [
+              "b + 1/2",
+              "0"
+            ],
+            "projection_triangle_relation": {
+              "kind": "equal_legs"
+            },
+            "scaled_interior_minimum": "3*b/2 + 9/4",
+            "straightened_length": "3*sqrt(2)*(2*b + 3)/8",
+            "vertical_leg_length": "b/2 + 3/4",
+            "student_projection_point": {
+              "label": "H",
+              "coordinates": [
+                "b + 1/2",
+                "0"
+              ]
+            },
+            "student_boundary_point": {
+              "label": "O",
+              "coordinates": [
+                "0",
+                "0"
+              ]
+            }
+          },
+          "kind": "weighted_right_triangle",
+          "orientation_sign": 1,
+          "path_equivalence": {
+            "auxiliary_segment": [
+              "Q",
+              "N"
+            ],
+            "scale": "sqrt(2)",
+            "unit_segment": [
+              "A",
+              "N"
+            ],
+            "weighted_segment": [
+              "M",
+              "N"
+            ]
+          },
+          "triangle_geometry": {
+            "height_factor": "1/2",
+            "hypotenuse_role": "AN",
+            "hypotenuse_to_leg_scale": "sqrt(2)",
+            "kind": "weighted_right_triangle",
+            "leg_factor": "1/2",
+            "locus_direction": [
+              "1",
+              "1"
+            ],
+            "right_angle_vertex_role": "Q",
+            "scaled_leg_role": "QN"
+          },
+          "weight": "sqrt(2)",
+          "student_auxiliary_point": {
+            "label": "Q",
+            "coordinates": [
+              "n/2 - 1/2",
+              "n/2 + 1/2"
+            ]
+          }
+        }
+      ],
+      "equivalence_proof": [
+        "已验证的辅助直角三角形给出斜边与辅助直角边的倍率关系",
+        "按同一倍率把原目标化为两段普通线段之和"
+      ],
+      "legal_domain": [
+        "题设路径含一个带权项和一个单位权重项，且共享同一个轴上动点",
+        "取等条件：b > 1/2"
+      ],
+      "minimum_strategy": "weighted_triangle_then_reachable_straightening",
+      "minimum_expression": "Piecewise((3*b/2 + 9/4, b > 1/2), (nan, True))",
+      "minimizing_points": {
+        "N": [
+          "b/2 - 1/4",
+          "0"
+        ]
+      },
+      "attainment_checks": [
+        {
+          "checks": [
+            {
+              "check": "auxiliary_point_on_declared_ray",
+              "passed": true
+            },
+            {
+              "check": "moving_point_on_straightening_segment",
+              "passed": true
+            },
+            {
+              "check": "dynamic_domain_branch_represented",
+              "passed": true
+            }
+          ],
+          "expression": "Piecewise((3*b/2 + 9/4, b > 1/2), (nan, True))",
+          "feasible": true,
+          "strategy": "weighted_triangle_then_reachable_straightening"
+        }
+      ],
+      "repair_action": "reuse_verified_path_witness"
+    },
+    "symbolic-closure:35fc1ac29454de05d3bbded28871e1d431840414d4460902e34fe37706eb9306": {
+      "schema_version": "symbolic-closure-teaching-evidence/v1",
+      "step_id": "solve_parameter_iii",
+      "target": "b",
+      "target_value": "2",
+      "equations": [
+        "Eq(Piecewise((3*b/2 + 9/4, b > 1/2)), 21/4)"
+      ],
+      "equation_sources": [
+        "expression",
+        "condition"
+      ],
+      "substitutions": [
+        {
+          "symbol": "b",
+          "value": "2"
+        }
+      ],
+      "branch_count": 1,
+      "residual_symbols": [],
+      "affected_returns": [
+        "parameter_value"
+      ],
+      "constraint_summary": "题设约束已用于筛选唯一合法分支"
+    }
+  },
+  "answers": {
+    "i": {
+      "P": [
+        "1",
+        "2"
+      ]
+    },
+    "ii": {
+      "D": [
+        "sqrt(2)",
+        "1"
+      ]
+    },
+    "iii": {
+      "b": "2"
+    }
+  }
+}

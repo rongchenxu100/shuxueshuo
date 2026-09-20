@@ -1,0 +1,1125 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>七题数学字符串抽取：实际输出</title><style>body{font:16px/1.65 system-ui;max-width:980px;margin:40px auto;padding:0 24px;color:#17243a}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:18px;border-radius:8px}section{border-top:2px solid #ddd;margin:32px 0}summary{cursor:pointer}</style><h1>七题 DeepSeek 实际输出</h1><p>真实批次 1/7 通过。以下展示保存的完整返回及后续离线校验，不含新的模型调用。候选尚未接入 Solver。</p><section><h2>tj-2026-heping-yimo-25</h2><p>真实批次：失败；离线回放：失败；耗时：51.677 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;label&quot;: &quot;第(25)题&quot;,
+    &quot;definitions&quot;: [
+      &quot;抛物线 y = a*x^2 + b*x - 3（a,b为常数，a&gt;0）&quot;,
+      &quot;A = (-1,0)，B 为抛物线与x轴的另一交点&quot;,
+      &quot;C 为抛物线与y轴的交点&quot;,
+      &quot;D = C + (2,0)&quot;,
+      &quot;线段BC&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;A ∈ 抛物线&quot;,
+      &quot;B ∈ 抛物线 ∩ x_axis&quot;,
+      &quot;C ∈ 抛物线 ∩ y_axis&quot;,
+      &quot;D = C + (2,0)&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(I)&quot;,
+        &quot;facts&quot;: [
+          &quot;D ∈ 抛物线&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;该抛物线&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;definitions&quot;: [
+              &quot;E 为抛物线上的点，横坐标为 m&quot;
+            ],
+            &quot;facts&quot;: [
+              &quot;x(E) = m&quot;,
+              &quot;-1 &lt; m &lt; 0&quot;,
+              &quot;∠CBE + ∠ACO = 45°&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;E&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(II)&quot;,
+        &quot;definitions&quot;: [
+          &quot;M 为线段 BC 上一动点&quot;,
+          &quot;N 为射线 CD 上一动点&quot;
+        ],
+        &quot;facts&quot;: [
+          &quot;M ∈ segment(B,C)&quot;,
+          &quot;N ∈ ray(C,D)&quot;,
+          &quot;CN = CM&quot;,
+          &quot;min(OM + BN) = √34&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;a&quot;,
+            &quot;at&quot;: &quot;OM+BN取得最小值 √34 时&quot;
+          }
+        ]
+      }
+    ],
+    &quot;uncertainties&quot;: [
+      {
+        &quot;kind&quot;: &quot;ambiguous_symbol&quot;,
+        &quot;text&quot;: &quot;题面中 &#x27;O&#x27;（出现在 ∠ACO 和 OM 中）未明确说明其定义；可能指坐标原点，但题面未明示。&quot;
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticEqualLengthRayPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面包含二次函数抛物线、射线 CD 上的动点 N、等长条件 CN=CM，且等长条件参与 OM+BN 路径最小值的等价替换，符合 QuadraticEqualLengthRayPathMinimumSolver 的 use_when。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[
+  {
+    &quot;path&quot;: &quot;r.definitions[0]&quot;,
+    &quot;source&quot;: &quot;抛物线 y = a*x^2 + b*x - 3（a,b为常数，a&gt;0）&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[1]&quot;,
+    &quot;source&quot;: &quot;A = (-1,0)，B 为抛物线与x轴的另一交点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[2]&quot;,
+    &quot;source&quot;: &quot;C 为抛物线与y轴的交点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[4]&quot;,
+    &quot;source&quot;: &quot;线段BC&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.facts[0]&quot;,
+    &quot;source&quot;: &quot;A ∈ 抛物线&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 3:  抛物线&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.facts[1]&quot;,
+    &quot;source&quot;: &quot;B ∈ 抛物线 ∩ x_axis&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 3:  抛物线 ∩ x_axi&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.facts[2]&quot;,
+    &quot;source&quot;: &quot;C ∈ 抛物线 ∩ y_axis&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 3:  抛物线 ∩ y_axi&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[3]&quot;,
+    &quot;source&quot;: &quot;D = C + (2,0)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:C&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.facts[3]&quot;,
+    &quot;source&quot;: &quot;D = C + (2,0)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:C&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.facts[0]&quot;,
+    &quot;source&quot;: &quot;D ∈ 抛物线&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 3:  抛物线&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c0.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_equation&quot;,
+      &quot;object&quot;: &quot;该抛物线&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 0: 该抛物线&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.definitions[0]&quot;,
+    &quot;source&quot;: &quot;E 为抛物线上的点，横坐标为 m&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;x(E) = m&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:E&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.facts[2]&quot;,
+    &quot;source&quot;: &quot;∠CBE + ∠ACO = 45°&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:C&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_coordinates&quot;,
+      &quot;object&quot;: &quot;E&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:E&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.definitions[0]&quot;,
+    &quot;source&quot;: &quot;M 为线段 BC 上一动点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.definitions[1]&quot;,
+    &quot;source&quot;: &quot;N 为射线 CD 上一动点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;M ∈ segment(B,C)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[1]&quot;,
+    &quot;source&quot;: &quot;N ∈ ray(C,D)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:C&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[2]&quot;,
+    &quot;source&quot;: &quot;CN = CM&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:C&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[3]&quot;,
+    &quot;source&quot;: &quot;min(OM + BN) = √34&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:O&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_value&quot;,
+      &quot;expression&quot;: &quot;a&quot;,
+      &quot;at&quot;: &quot;OM+BN取得最小值 √34 时&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 5: 取得最小值 √34 时&quot;
+  }
+]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;invalid_candidate&quot;,
+  &quot;blocked&quot;: true
+}</pre></details></section><section><h2>tj-2026-heping-ermo-25</h2><p>真实批次：失败；离线回放：失败；耗时：37.776 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;label&quot;: &quot;（25）&quot;,
+    &quot;definitions&quot;: [
+      &quot;Γ: y = -x^2 + b*x + c (b, c为常数，c &gt; 1)&quot;,
+      &quot;P = vertex(Γ)&quot;,
+      &quot;A, B = Γ ∩ x_axis，A在B的左侧&quot;,
+      &quot;C = Γ ∩ y_axis&quot;,
+      &quot;M = symmetry_axis(Γ) ∩ x_axis&quot;,
+      &quot;E ∈ symmetry_axis(Γ)&quot;,
+      &quot;square(A, E, K, G)，顶点G在x轴下方&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;A在B的左侧&quot;,
+      &quot;c &gt; 1&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;（I）若b = -2，c = 3&quot;,
+        &quot;facts&quot;: [
+          &quot;b = -2&quot;,
+          &quot;c = 3&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;P&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;A&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②当点G在抛物线上时&quot;,
+            &quot;facts&quot;: [
+              &quot;G ∈ Γ&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;E&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（II）若点A的坐标为(-c,0)，点F是AE的中点，对角线AK和EG相交于点H，当HF+FM+MG取得最小值为3√5时，求点E的坐标&quot;,
+        &quot;definitions&quot;: [
+          &quot;F = midpoint(A, E)&quot;,
+          &quot;H = intersection(line(A,K), line(E,G))&quot;
+        ],
+        &quot;facts&quot;: [
+          &quot;A = (-c, 0)&quot;,
+          &quot;min(HF + FM + MG) = 3*sqrt(5)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;E&quot;,
+            &quot;at&quot;: &quot;HF + FM + MG = min(HF + FM + MG)&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticSquareReflectionPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面包含二次函数（抛物线）、正方形，以及路径最值目标HF+FM+MG，正方形的中点F和中心H参与路径的等价变换。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[
+  {
+    &quot;path&quot;: &quot;r.definitions[0]&quot;,
+    &quot;source&quot;: &quot;Γ: y = -x^2 + b*x + c (b, c为常数，c &gt; 1)&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 20: 为常数,c &gt; 1)&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[2]&quot;,
+    &quot;source&quot;: &quot;A, B = Γ ∩ x_axis，A在B的左侧&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[6]&quot;,
+    &quot;source&quot;: &quot;square(A, E, K, G)，顶点G在x轴下方&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.facts[0]&quot;,
+    &quot;source&quot;: &quot;A在B的左侧&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 1: 在B的左侧&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[1]&quot;,
+    &quot;source&quot;: &quot;P = vertex(Γ)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:Γ&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[3]&quot;,
+    &quot;source&quot;: &quot;C = Γ ∩ y_axis&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:C&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[4]&quot;,
+    &quot;source&quot;: &quot;M = symmetry_axis(Γ) ∩ x_axis&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:M&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[5]&quot;,
+    &quot;source&quot;: &quot;E ∈ symmetry_axis(Γ)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_function:symmetry_axis&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c0.goals[1]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_coordinates&quot;,
+      &quot;object&quot;: &quot;A&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:A&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;G ∈ Γ&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:Γ&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.definitions[1]&quot;,
+    &quot;source&quot;: &quot;H = intersection(line(A,K), line(E,G))&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:H&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[1]&quot;,
+    &quot;source&quot;: &quot;min(HF + FM + MG) = 3*sqrt(5)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:H&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_coordinates&quot;,
+      &quot;object&quot;: &quot;E&quot;,
+      &quot;at&quot;: &quot;HF + FM + MG = min(HF + FM + MG)&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:H&quot;
+  }
+]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;invalid_candidate&quot;,
+  &quot;blocked&quot;: true
+}</pre></details></section><section><h2>tj-2026-hexi-yimo-25</h2><p>真实批次：失败；离线回放：失败；耗时：43.361 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;label&quot;: &quot;第25题&quot;,
+    &quot;definitions&quot;: [
+      &quot;抛物线 Γ: y = a*x^2 - b*x + c，其中a, b, c为常数，b &gt; 0&quot;
+    ],
+    &quot;facts&quot;: [],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;（I）&quot;,
+        &quot;definitions&quot;: [
+          &quot;a = 1&quot;,
+          &quot;b = 2&quot;,
+          &quot;c = 3&quot;,
+          &quot;P为抛物线Γ的顶点&quot;
+        ],
+        &quot;facts&quot;: [],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;P&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（II）&quot;,
+        &quot;definitions&quot;: [
+          &quot;a = 2&quot;,
+          &quot;A = (-1,0)&quot;,
+          &quot;A ∈ Γ&quot;,
+          &quot;D ∈ Γ&quot;,
+          &quot;C = Γ ∩ y_axis&quot;
+        ],
+        &quot;facts&quot;: [
+          &quot;∠CAD = 90°&quot;,
+          &quot;AC = AD&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;D&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（III）&quot;,
+        &quot;definitions&quot;: [
+          &quot;a = 1&quot;,
+          &quot;A = (-1,0)&quot;,
+          &quot;A ∈ Γ&quot;,
+          &quot;M = (b + 1/2, y_M)，M ∈ Γ&quot;,
+          &quot;N = (n,0)，N是x轴正半轴上的动点&quot;
+        ],
+        &quot;facts&quot;: [
+          &quot;min_N(√2*MN + AN) = 21/4&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;b&quot;
+          }
+        ]
+      }
+    ],
+    &quot;uncertainties&quot;: []
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;第(III)问含带权路径 √2 MN + AN（k=√2≠1）的最小值为21/4，且路径由二次函数与动点N给出，符合加权路径最值题型。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[
+  {
+    &quot;path&quot;: &quot;r.definitions[0]&quot;,
+    &quot;source&quot;: &quot;抛物线 Γ: y = a*x^2 - b*x + c，其中a, b, c为常数，b &gt; 0&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.definitions[3]&quot;,
+    &quot;source&quot;: &quot;P为抛物线Γ的顶点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_coordinates&quot;,
+      &quot;object&quot;: &quot;P&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:P&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.definitions[2]&quot;,
+    &quot;source&quot;: &quot;A ∈ Γ&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:Γ&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.definitions[3]&quot;,
+    &quot;source&quot;: &quot;D ∈ Γ&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:Γ&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.definitions[4]&quot;,
+    &quot;source&quot;: &quot;C = Γ ∩ y_axis&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:C&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;∠CAD = 90°&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:C&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[1]&quot;,
+    &quot;source&quot;: &quot;AC = AD&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:C&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c2.definitions[4]&quot;,
+    &quot;source&quot;: &quot;N = (n,0)，N是x轴正半轴上的动点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c2.definitions[2]&quot;,
+    &quot;source&quot;: &quot;A ∈ Γ&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:Γ&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c2.definitions[3]&quot;,
+    &quot;source&quot;: &quot;M = (b + 1/2, y_M)，M ∈ Γ&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:Γ&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c2.facts[0]&quot;,
+    &quot;source&quot;: &quot;min_N(√2*MN + AN) = 21/4&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:N&quot;
+  }
+]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;invalid_candidate&quot;,
+  &quot;blocked&quot;: true
+}</pre></details></section><section><h2>tj-2026-nankai-yimo-25</h2><p>真实批次：失败；离线回放：失败；耗时：40.023 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;label&quot;: &quot;(25) 本题共10分&quot;,
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2 + b*x + c（a,b,c为常数，a&gt;0）&quot;,
+      &quot;C为Γ与y轴的交点&quot;,
+      &quot;D为Γ的对称轴与x轴的交点&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;2a + b = 0&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(I)&quot;,
+        &quot;facts&quot;: [
+          &quot;a = 2&quot;,
+          &quot;c = -5&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;D&quot;
+          },
+          {
+            &quot;kind&quot;: &quot;find_equation&quot;,
+            &quot;object&quot;: &quot;Γ: y = a*x^2 + b*x + c&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(II)&quot;,
+        &quot;facts&quot;: [
+          &quot;M(m, 1) ∈ Γ&quot;,
+          &quot;N ∈ Γ&quot;,
+          &quot;m &gt; 2&quot;,
+          &quot;N 在第四象限&quot;,
+          &quot;∠MDN = 90°&quot;,
+          &quot;DM = DN&quot;,
+          &quot;E ∈ segment(D,M)&quot;,
+          &quot;G ∈ segment(M,N)&quot;,
+          &quot;F = midpoint(D,N)&quot;,
+          &quot;DE = sqrt(2) * NG&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;facts&quot;: [
+              &quot;MN = sqrt(10)&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ: y = a*x^2 + b*x + c&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_minimum&quot;,
+                &quot;expression&quot;: &quot;EG + FG&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ: y = a*x^2 + b*x + c&quot;,
+                &quot;at&quot;: &quot;EG + FG = 5*sqrt(10)/2&quot;
+              },
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;G&quot;,
+                &quot;at&quot;: &quot;EG + FG = 5*sqrt(10)/2&quot;
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面以二次函数为背景，核心目标为普通路径 EG+FG 的最小值；虽有等长 DE=sqrt(2)*NG 和中点、直角条件，但路径本身不含非1权重，也不依赖射线或正方形反射，故匹配 QuadraticPathMinimumSolver。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[
+  {
+    &quot;path&quot;: &quot;r.definitions[0]&quot;,
+    &quot;source&quot;: &quot;Γ: y = a*x^2 + b*x + c（a,b,c为常数，a&gt;0）&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 21: 为常数,a&gt;0)&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[1]&quot;,
+    &quot;source&quot;: &quot;C为Γ与y轴的交点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[2]&quot;,
+    &quot;source&quot;: &quot;D为Γ的对称轴与x轴的交点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_coordinates&quot;,
+      &quot;object&quot;: &quot;D&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:D&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.goals[1]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_equation&quot;,
+      &quot;object&quot;: &quot;Γ: y = a*x^2 + b*x + c&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;notation.trailing_token :&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[3]&quot;,
+    &quot;source&quot;: &quot;N 在第四象限&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 1:  在第四象限&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;M(m, 1) ∈ Γ&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_function:M&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[1]&quot;,
+    &quot;source&quot;: &quot;N ∈ Γ&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:Γ&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[4]&quot;,
+    &quot;source&quot;: &quot;∠MDN = 90°&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:M&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[5]&quot;,
+    &quot;source&quot;: &quot;DM = DN&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:D&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[6]&quot;,
+    &quot;source&quot;: &quot;E ∈ segment(D,M)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:D&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[7]&quot;,
+    &quot;source&quot;: &quot;G ∈ segment(M,N)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:M&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[8]&quot;,
+    &quot;source&quot;: &quot;F = midpoint(D,N)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:D&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[9]&quot;,
+    &quot;source&quot;: &quot;DE = sqrt(2) * NG&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:D&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.c0.facts[0]&quot;,
+    &quot;source&quot;: &quot;MN = sqrt(10)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:M&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.c0.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_equation&quot;,
+      &quot;object&quot;: &quot;Γ: y = a*x^2 + b*x + c&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;notation.trailing_token :&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.c1.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_equation&quot;,
+      &quot;object&quot;: &quot;Γ: y = a*x^2 + b*x + c&quot;,
+      &quot;at&quot;: &quot;EG + FG = 5*sqrt(10)/2&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;notation.trailing_token :&quot;
+  }
+]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;invalid_candidate&quot;,
+  &quot;blocked&quot;: true
+}</pre></details></section><section><h2>tj-2026-xiqing-yimo-25</h2><p>真实批次：失败；离线回放：失败；耗时：44.629 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;label&quot;: &quot;25&quot;,
+    &quot;definitions&quot;: [
+      &quot;Γ: y = -x^2 + b*x + c，其中 b,c 为常数&quot;,
+      &quot;A = (-1,0)，且 A 在 Γ 上&quot;,
+      &quot;B: Γ 与 x 轴的另一交点（不同于 A）&quot;,
+      &quot;C: Γ 与 y 轴的交点，C = (0,c)&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;b &gt; 0&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;facts&quot;: [
+          &quot;b = 4&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_coordinates&quot;,
+            &quot;object&quot;: &quot;vertex(Γ)&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;definitions&quot;: [
+          &quot;D = (b+2, y_D)，且 D 在 Γ 上&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;(2)①&quot;,
+            &quot;facts&quot;: [
+              &quot;AD = 2*BC&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;b&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;(2)②&quot;,
+            &quot;definitions&quot;: [
+              &quot;M = (m,0)，m &gt; 0，M 是 x 轴正半轴上的动点&quot;
+            ],
+            &quot;facts&quot;: [
+              &quot;min_{M}(2*DM + AM) = 5 + 5*sqrt(3)&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;b&quot;
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticWeightedPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面包含二次函数 Γ: y=-x^2+bx+c，路径目标 2DM+AM 带有非1权重2，并直接给出最小值 5+5√3，符合 QuadraticWeightedPathMinimumSolver 的 use_when。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[
+  {
+    &quot;path&quot;: &quot;r.definitions[0]&quot;,
+    &quot;source&quot;: &quot;Γ: y = -x^2 + b*x + c，其中 b,c 为常数&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 15: 其中 b,c 为常数&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[1]&quot;,
+    &quot;source&quot;: &quot;A = (-1,0)，且 A 在 Γ 上&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[2]&quot;,
+    &quot;source&quot;: &quot;B: Γ 与 x 轴的另一交点（不同于 A）&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.definitions[3]&quot;,
+    &quot;source&quot;: &quot;C: Γ 与 y 轴的交点，C = (0,c)&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_coordinates&quot;,
+      &quot;object&quot;: &quot;vertex(Γ)&quot;
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:Γ&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.definitions[0]&quot;,
+    &quot;source&quot;: &quot;D = (b+2, y_D)，且 D 在 Γ 上&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.c0.facts[0]&quot;,
+    &quot;source&quot;: &quot;AD = 2*BC&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:A&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.c1.definitions[0]&quot;,
+    &quot;source&quot;: &quot;M = (m,0)，m &gt; 0，M 是 x 轴正半轴上的动点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unsupported_declaration&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;min_{M}(2*DM + AM) = 5 + 5*sqrt(3)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:D&quot;
+  }
+]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;invalid_candidate&quot;,
+  &quot;blocked&quot;: true
+}</pre></details></section><section><h2>k-quad</h2><p>真实批次：失败；离线回放：失败；耗时：35.394 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;k 倍四边形：若四边形的一条对角线被另一条对角线平分，且另一条对角线被交点分成的两条线段长度之比为 k (k ≥ 1)，则称该四边形为“k 倍四边形”。&quot;
+    ],
+    &quot;facts&quot;: [],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;如图1&quot;,
+            &quot;definitions&quot;: [],
+            &quot;facts&quot;: [
+              &quot;quadrilateral(A,B,C,D) 为平行四边形（□ABCD）&quot;,
+              &quot;AC ∩ BD = {O}&quot;,
+              &quot;E = midpoint(O,B)&quot;,
+              &quot;四边形 AECD 为 k 倍四边形&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;k&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;如图2&quot;,
+            &quot;definitions&quot;: [],
+            &quot;facts&quot;: [
+              &quot;quadrilateral(A,B,C,D) 为 k 倍四边形&quot;,
+              &quot;bisects(BD, AC)&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_value&quot;,
+                &quot;expression&quot;: &quot;area(△ACD)/area(△ACB)&quot;,
+                &quot;in_terms_of&quot;: [
+                  &quot;k&quot;
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;definitions&quot;: [],
+        &quot;facts&quot;: [
+          &quot;quadrilateral(A,B,C,D) 为 k 倍四边形&quot;,
+          &quot;bisects(BD, AC)&quot;,
+          &quot;∠BDC = 2∠ABD&quot;,
+          &quot;BD = 4*CD&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;k&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(3)&quot;,
+        &quot;definitions&quot;: [],
+        &quot;facts&quot;: [
+          &quot;A, B 为定点&quot;,
+          &quot;AB ⊥ BM&quot;,
+          &quot;C ∈ ray(B,M)&quot;,
+          &quot;D 为平面内一点&quot;,
+          &quot;quadrilateral(A,B,C,D)&quot;,
+          &quot;bisects(BD, AC)&quot;,
+          &quot;∠BAC = ∠DAC&quot;,
+          &quot;quadrilateral(A,B,C,D) 为 2 倍四边形&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;tan(∠ACD)&quot;
+          }
+        ]
+      }
+    ],
+    &quot;uncertainties&quot;: [
+      {
+        &quot;kind&quot;: &quot;missing_figure&quot;,
+        &quot;text&quot;: &quot;题面引用的图1、图2、图3、图4未在提供的图片中显示。&quot;
+      },
+      {
+        &quot;kind&quot;: &quot;ambiguous_symbol&quot;,
+        &quot;text&quot;: &quot;题面出现 BM，但未定义 M 点；可能依赖图形。&quot;
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;unmatched&quot;,
+  &quot;family_id&quot;: null,
+  &quot;match_reason&quot;: &quot;题面为四边形新定义与几何求值问题，不涉及二次函数、路径最值或加权路径等注册题型特征。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[
+  {
+    &quot;path&quot;: &quot;r.c0.c0.facts[0]&quot;,
+    &quot;source&quot;: &quot;quadrilateral(A,B,C,D) 为平行四边形（□ABCD）&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 22:  为平行四边形(□ABC&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c0.facts[3]&quot;,
+    &quot;source&quot;: &quot;四边形 AECD 为 k 倍四边形&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 0: 四边形 AECD 为 k&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c0.facts[1]&quot;,
+    &quot;source&quot;: &quot;AC ∩ BD = {O}&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:A&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c0.facts[2]&quot;,
+    &quot;source&quot;: &quot;E = midpoint(O,B)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;quadrilateral(A,B,C,D) 为 k 倍四边形&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 22:  为 k 倍四边形&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.facts[1]&quot;,
+    &quot;source&quot;: &quot;bisects(BD, AC)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c0.c1.goals[0]&quot;,
+    &quot;source&quot;: {
+      &quot;kind&quot;: &quot;find_value&quot;,
+      &quot;expression&quot;: &quot;area(△ACD)/area(△ACB)&quot;,
+      &quot;in_terms_of&quot;: [
+        &quot;k&quot;
+      ]
+    },
+    &quot;code&quot;: &quot;notation.goal&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:A&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[0]&quot;,
+    &quot;source&quot;: &quot;quadrilateral(A,B,C,D) 为 k 倍四边形&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 22:  为 k 倍四边形&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[1]&quot;,
+    &quot;source&quot;: &quot;bisects(BD, AC)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[2]&quot;,
+    &quot;source&quot;: &quot;∠BDC = 2∠ABD&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c1.facts[3]&quot;,
+    &quot;source&quot;: &quot;BD = 4*CD&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:B&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c2.facts[0]&quot;,
+    &quot;source&quot;: &quot;A, B 为定点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 4:  为定点&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c2.facts[3]&quot;,
+    &quot;source&quot;: &quot;D 为平面内一点&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 1:  为平面内一点&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c2.facts[7]&quot;,
+    &quot;source&quot;: &quot;quadrilateral(A,B,C,D) 为 2 倍四边形&quot;,
+    &quot;code&quot;: &quot;notation.parse&quot;,
+    &quot;message&quot;: &quot;notation.unrecognized_token at 22:  为 2 倍四边形&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c2.facts[1]&quot;,
+    &quot;source&quot;: &quot;AB ⊥ BM&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:M&quot;
+  },
+  {
+    &quot;path&quot;: &quot;r.c2.facts[2]&quot;,
+    &quot;source&quot;: &quot;C ∈ ray(B,M)&quot;,
+    &quot;code&quot;: &quot;notation.bind&quot;,
+    &quot;message&quot;: &quot;binding.unknown_or_invisible:M&quot;
+  }
+]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;needs_confirmation&quot;,
+  &quot;blocked&quot;: true,
+  &quot;error_code&quot;: &quot;extraction.missing_figure&quot;,
+  &quot;user_action&quot;: &quot;supplement_image&quot;,
+  &quot;message&quot;: &quot;题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。&quot;,
+  &quot;missing_figures&quot;: [
+    {
+      &quot;scope&quot;: &quot;r&quot;,
+      &quot;label&quot;: &quot;题目&quot;,
+      &quot;text&quot;: &quot;题面引用的图1、图2、图3、图4未在提供的图片中显示。&quot;
+    }
+  ]
+}</pre></details></section><section><h2>function-quantifiers</h2><p>真实批次：通过；离线回放：通过；耗时：19.262 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;f(x)=x^2+b*x+c&quot;,
+      &quot;g(x)=2*x-1&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;(1)&quot;,
+        &quot;facts&quot;: [
+          &quot;∀x∈ℝ: f(x) ≥ g(x)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_minimum&quot;,
+            &quot;expression&quot;: &quot;b^2+c^2&quot;
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;(2)&quot;,
+        &quot;facts&quot;: [
+          &quot;∃x0∈[1,3]: f(x0) ≤ g(x0)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_range&quot;,
+            &quot;symbol&quot;: &quot;b&quot;,
+            &quot;in_terms_of&quot;: [
+              &quot;c&quot;
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;unmatched&quot;,
+  &quot;family_id&quot;: null,
+  &quot;match_reason&quot;: &quot;题面为二次函数在恒成立/存在性条件下求参数最值与取值范围，不属于已注册的路径最值题型。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;candidate_only&quot;,
+  &quot;blocked&quot;: false,
+  &quot;error_code&quot;: null,
+  &quot;user_action&quot;: null,
+  &quot;message&quot;: null,
+  &quot;missing_figures&quot;: []
+}</pre></details></section></html>

@@ -1,0 +1,14 @@
+{
+  "case": "tj-2026-heping-ermo-25",
+  "problem": {
+    "old_characters": 4413,
+    "new_characters": 795
+  },
+  "methods": {
+    "old_characters": 20082,
+    "new_characters": 7477
+  },
+  "token_count": null,
+  "token_reason": "No matching DeepSeek tokenizer; no model call.",
+  "scope": "JSON problem and method sections measured separately; not a full request ratio."
+}

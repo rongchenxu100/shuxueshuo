@@ -1,0 +1,15 @@
+{
+  "schema_version": "lesson-capability-case-audit/v1",
+  "problem_id": "synthetic-equal_length_ray_point",
+  "snapshot_hash": "cced031fbfe90289b1a2063f2799fbd603b93660ccd667fe401796522507986e",
+  "annotated_plan_hash": "a484ec58761b8ecc80b0b14a03eea64357c614335a24dea484af8b55b988fc4a",
+  "lesson_ir_hash": "aec54ad92ca2787707f3f0141a68c6faa611763f6da5ff847e0609bfd0fb07b4",
+  "visual_step_ir_hash": "3cb29aff3298ac321033e8f000620305388b6ed7e3c18a7883a7397df7861403",
+  "source_step_count": 1,
+  "lesson_step_count": 1,
+  "visual_frame_count": 1,
+  "source_steps": [
+    "synthetic_equal_length_ray_point"
+  ],
+  "diagnostics": []
+}

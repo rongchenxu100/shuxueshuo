@@ -1,0 +1,579 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "tj-2026-heping-yimo-25",
+    "source_sha256": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "definitions": [
+          "Γ: y = a*x^2+b*x-3"
+        ],
+        "facts": [
+          "a > 0",
+          "A = (-1,0)",
+          "Γ ∩ x_axis = {A,B}",
+          "Γ ∩ y_axis = {C}",
+          "D = C+(2,0)",
+          "O = (0,0)"
+        ],
+        "children": [
+          {
+            "label": "(Ⅰ)",
+            "facts": [
+              "D ∈ Γ"
+            ],
+            "children": [
+              {
+                "label": "①",
+                "goals": [
+                  {
+                    "kind": "find_equation",
+                    "object": "Γ"
+                  }
+                ],
+                "definitions": [],
+                "facts": [],
+                "children": [],
+                "uncertainties": []
+              },
+              {
+                "label": "②",
+                "facts": [
+                  "E ∈ Γ",
+                  "x(E) = m",
+                  "-1 < m < 0",
+                  "∠CBE + ∠ACO = 45°"
+                ],
+                "goals": [
+                  {
+                    "kind": "find_coordinates",
+                    "object": "E"
+                  }
+                ],
+                "definitions": [],
+                "children": [],
+                "uncertainties": []
+              }
+            ],
+            "definitions": [],
+            "goals": [],
+            "uncertainties": []
+          },
+          {
+            "label": "(Ⅱ)",
+            "facts": [
+              "M ∈ segment(B,C)",
+              "N ∈ ray(C,D)",
+              "CN = CM",
+              "min(OM+BN) = sqrt(34)"
+            ],
+            "goals": [
+              {
+                "kind": "find_value",
+                "expression": "a"
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          }
+        ],
+        "label": "题目",
+        "goals": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+      "match_status": "matched",
+      "match_reason": "题面(Ⅱ)包含二次函数、射线CD上的动点N、等长条件CN=CM，以及路径和OM+BN的最小值，符合二次函数等长射线路径最值题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r.c0.c1:scalar:m",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:curve:Γ",
+          "name": "Γ",
+          "kind": "curve",
+          "scope": "r"
+        },
+        {
+          "ref": "r:point:A",
+          "name": "A",
+          "kind": "point",
+          "scope": "r"
+        },
+        {
+          "ref": "r:point:B",
+          "name": "B",
+          "kind": "point",
+          "scope": "r"
+        },
+        {
+          "ref": "r:point:C",
+          "name": "C",
+          "kind": "point",
+          "scope": "r"
+        },
+        {
+          "ref": "r:point:D",
+          "name": "D",
+          "kind": "point",
+          "scope": "r"
+        },
+        {
+          "ref": "r:point:O",
+          "name": "O",
+          "kind": "point",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r.c0.c1:point:E",
+          "name": "E",
+          "kind": "point",
+          "scope": "r.c0.c1"
+        },
+        {
+          "ref": "r.c0.c1:scalar:m",
+          "name": "m",
+          "kind": "scalar",
+          "scope": "r.c0.c1"
+        },
+        {
+          "ref": "r.c1:point:M",
+          "name": "M",
+          "kind": "point",
+          "scope": "r.c1"
+        },
+        {
+          "ref": "r.c1:point:N",
+          "name": "N",
+          "kind": "point",
+          "scope": "r.c1"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [
+        {
+          "scope": "r.c0.c1",
+          "symbol_ref": "r.c0.c1:scalar:m",
+          "coordinate": [
+            "call",
+            "x",
+            [
+              "ref",
+              "r.c0.c1:point:E",
+              "point"
+            ]
+          ],
+          "definition": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c0.c1:point:E",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c0.c1:scalar:m",
+              "scalar"
+            ]
+          ]
+        }
+      ],
+      "normalization_proofs": [
+        {
+          "rule": "point_coordinate_components",
+          "scope": "r",
+          "before": [
+            "=",
+            [
+              "ref",
+              "r:point:A",
+              "point"
+            ],
+            [
+              "tuple",
+              [
+                "neg",
+                [
+                  "number",
+                  "1"
+                ]
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "after": [
+            "and",
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r:point:A",
+                  "point"
+                ]
+              ],
+              [
+                "neg",
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            [
+              "=",
+              [
+                "call",
+                "y",
+                [
+                  "ref",
+                  "r:point:A",
+                  "point"
+                ]
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "premises": []
+        },
+        {
+          "rule": "point_coordinate_components",
+          "scope": "r",
+          "before": [
+            "=",
+            [
+              "ref",
+              "r:point:O",
+              "point"
+            ],
+            [
+              "tuple",
+              [
+                "number",
+                "0"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "after": [
+            "and",
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r:point:O",
+                  "point"
+                ]
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ],
+            [
+              "=",
+              [
+                "call",
+                "y",
+                [
+                  "ref",
+                  "r:point:O",
+                  "point"
+                ]
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          ],
+          "premises": []
+        },
+        {
+          "rule": "coordinate_symbol_binding",
+          "scope": "r.c0.c1",
+          "before": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c0.c1:point:E",
+                "point"
+              ]
+            ],
+            [
+              "ref",
+              "r.c0.c1:scalar:m",
+              "scalar"
+            ]
+          ],
+          "after": [
+            "=",
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c0.c1:point:E",
+                "point"
+              ]
+            ],
+            [
+              "call",
+              "x",
+              [
+                "ref",
+                "r.c0.c1:point:E",
+                "point"
+              ]
+            ]
+          ],
+          "premises": [
+            [
+              "=",
+              [
+                "call",
+                "x",
+                [
+                  "ref",
+                  "r.c0.c1:point:E",
+                  "point"
+                ]
+              ],
+              [
+                "ref",
+                "r.c0.c1:scalar:m",
+                "scalar"
+              ]
+            ]
+          ]
+        }
+      ]
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:867413355271995c0a863cfd5e9a22e90ffc2b030f7d67438c1b13fd11b9a8a5",
+      "kind": "notation_raw",
+      "sha256": "867413355271995c0a863cfd5e9a22e90ffc2b030f7d67438c1b13fd11b9a8a5",
+      "media_type": "text/plain",
+      "byte_size": 1503,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/deepseek-replay/tj-2026-heping-yimo-25/artifacts/86/867413355271995c0a863cfd5e9a22e90ffc2b030f7d67438c1b13fd11b9a8a5.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:b106f346fdc8a8822ae78ed1ab0b86c24a99009446ca2439d144ee630744bdd3",
+      "kind": "notation_candidate",
+      "sha256": "b106f346fdc8a8822ae78ed1ab0b86c24a99009446ca2439d144ee630744bdd3",
+      "media_type": "application/json",
+      "byte_size": 827,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/deepseek-replay/tj-2026-heping-yimo-25/artifacts/b1/b106f346fdc8a8822ae78ed1ab0b86c24a99009446ca2439d144ee630744bdd3.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:a12a7056caad731a6ed7a791ef9efaea147e099082a6c5880c7b18386fc1bdc9",
+      "kind": "notation_canonical",
+      "sha256": "a12a7056caad731a6ed7a791ef9efaea147e099082a6c5880c7b18386fc1bdc9",
+      "media_type": "application/json",
+      "byte_size": 3375,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/deepseek-replay/tj-2026-heping-yimo-25/artifacts/a1/a12a7056caad731a6ed7a791ef9efaea147e099082a6c5880c7b18386fc1bdc9.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:06d4edb1c89460457883a0844ba5224c42facac2b82891733f4c937a81eae5a3",
+      "kind": "notation_normalized",
+      "sha256": "06d4edb1c89460457883a0844ba5224c42facac2b82891733f4c937a81eae5a3",
+      "media_type": "application/json",
+      "byte_size": 1082,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/deepseek-replay/tj-2026-heping-yimo-25/artifacts/06/06d4edb1c89460457883a0844ba5224c42facac2b82891733f4c937a81eae5a3.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:38c89ccae2bbccfd98cbef98b0bac392e4dcfdf7b50ae453bf93efe7bd827180",
+      "kind": "notation_compiled",
+      "sha256": "38c89ccae2bbccfd98cbef98b0bac392e4dcfdf7b50ae453bf93efe7bd827180",
+      "media_type": "application/json",
+      "byte_size": 8100,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/deepseek-replay/tj-2026-heping-yimo-25/artifacts/38/38c89ccae2bbccfd98cbef98b0bac392e4dcfdf7b50ae453bf93efe7bd827180.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/deepseek-replay/tj-2026-heping-yimo-25/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:286f85be95992ae091e91e345574f090cae91aa3214d289d0de6b168a702be78",
+      "kind": "notation_ir",
+      "sha256": "286f85be95992ae091e91e345574f090cae91aa3214d289d0de6b168a702be78",
+      "media_type": "application/json",
+      "byte_size": 822,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/deepseek-replay/tj-2026-heping-yimo-25/artifacts/28/286f85be95992ae091e91e345574f090cae91aa3214d289d0de6b168a702be78.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:9f45d471372d1a4f61fa6cf1eadae0a5368b6ad776026d8a1e2ff4c65bce39fa",
+      "kind": "notation_validation",
+      "sha256": "9f45d471372d1a4f61fa6cf1eadae0a5368b6ad776026d8a1e2ff4c65bce39fa",
+      "media_type": "application/json",
+      "byte_size": 2268,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/deepseek-replay/tj-2026-heping-yimo-25/artifacts/9f/9f45d471372d1a4f61fa6cf1eadae0a5368b6ad776026d8a1e2ff4c65bce39fa.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "b106f346fdc8a8822ae78ed1ab0b86c24a99009446ca2439d144ee630744bdd3",
+  "semantic_revision": "a12a7056caad731a6ed7a791ef9efaea147e099082a6c5880c7b18386fc1bdc9",
+  "units": {
+    "r.definitions[0]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 0
+    },
+    "r.facts[0]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.facts[1]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.facts[2]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.facts[3]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.facts[4]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 4
+    },
+    "r.facts[5]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 5
+    },
+    "r.c0.facts[0]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c0.c1.facts[0]": {
+      "scope": "r.c0.c1",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c0.c1.facts[1]": {
+      "scope": "r.c0.c1",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c0.c1.facts[2]": {
+      "scope": "r.c0.c1",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.c0.c1.facts[3]": {
+      "scope": "r.c0.c1",
+      "collection": "facts",
+      "index": 3
+    },
+    "r.c1.facts[0]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c1.facts[1]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.c1.facts[2]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 2
+    },
+    "r.c1.facts[3]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 3
+    }
+  }
+}

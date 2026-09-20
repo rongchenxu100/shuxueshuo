@@ -6,8 +6,9 @@ from uuid import uuid4
 import pytest
 from sqlalchemy import select
 
-from shuxueshuo_server.product import transport, models as m
-from shuxueshuo_server.product.db import transaction
+from shuxueshuo_server.product import models as m
+from shuxueshuo_server.product import transport
+from shuxueshuo_server.product.db import lock, transaction
 from shuxueshuo_server.product.errors import Conflict
 
 
@@ -58,7 +59,7 @@ def test_celery_thread_worker_starts_second_task_while_first_is_waiting(monkeypa
 
 def test_two_builds_execute_concurrently_but_duplicate_delivery_and_cancel_are_fenced(setup):
     """Actual PostgreSQL leases and distinct execution IDs, no model calls."""
-    from test_postgres import upload, submit
+    from test_postgres import submit, upload
     service, ctx, _ = setup
     item = upload(service, ctx)
     builds = [submit(service, ctx, item) for _ in range(2)]
@@ -90,3 +91,25 @@ def test_two_builds_execute_concurrently_but_duplicate_delivery_and_cancel_are_f
             release.set()
             for b in builds: service.cancel(ctx, b['build_id'])
         for f in futures: f.result(timeout=10)
+
+
+@pytest.mark.parametrize('pool_lock', ['understanding.execution_slots', 'runtime_binding.execution_slots'])
+def test_lesson_acquisition_does_not_wait_for_understanding_capacity_lock(setup, pool_lock):
+    """Hold the actual PostgreSQL advisory lock on another connection, not a mock."""
+    from test_postgres import submit, upload
+    service, ctx, _ = setup
+    build = submit(service, ctx, upload(service, ctx))
+    started = Event()
+    def acquire():
+        started.set()
+        return service.acquire_execution(ctx, build['job_id'], 'lesson-test', deployment_version='test-v1')
+    try:
+        with ThreadPoolExecutor(1) as pool, transaction(service.db) as c:
+            lock(c, pool_lock)
+            future = pool.submit(acquire)
+            assert started.wait(5)
+            # This must finish while the understanding lock is still held.
+            execution = future.result(timeout=5)
+            assert execution['status'] == 'running'
+    finally:
+        service.cancel(ctx, build['build_id'])

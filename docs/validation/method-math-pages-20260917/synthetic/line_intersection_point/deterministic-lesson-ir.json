@@ -1,0 +1,53 @@
+{
+  "schema_version": "lesson-ir/v2",
+  "problem_id": "synthetic-line_intersection_point",
+  "problem_revision": "synthetic:line_intersection_point:v1",
+  "source_snapshot_hash": "7cb1cc72d436ada218de0dddac971feb98b38d7ad6869d9286f0b9dd8b369734",
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {
+      "problem.H": {
+        "steps": [
+          {
+            "lesson_step_id": "teach:synthetic_line_intersection_point",
+            "source_step_ids": [
+              "synthetic_line_intersection_point"
+            ],
+            "capability_ids": [
+              "line_intersection_point"
+            ],
+            "teaching_unit_keys": [
+              "line_intersection_point/solve_intersection"
+            ],
+            "title": "求两直线交点",
+            "nav_title": "求交点",
+            "goal": "分别建立两条直线的方程并联立，求出公共交点。",
+            "derive": [
+              [
+                "∵",
+                "第一条直线经过 A(0,0)、B(4,4)，其方程为 y＝x"
+              ],
+              [
+                "∵",
+                "第二条直线经过 C(0,4)、D(4,0)，其方程为 y＝－x＋4"
+              ],
+              [
+                "计算",
+                "联立 y＝x 与 y＝－x＋4，解得 x＝2，y＝2"
+              ],
+              [
+                "∴",
+                "交点为 H(2,2)"
+              ]
+            ],
+            "box": [
+              "H(2,2)"
+            ]
+          }
+        ]
+      }
+    },
+    "children": []
+  }
+}

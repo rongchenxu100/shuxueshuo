@@ -1,0 +1,51 @@
+{
+  "new_model_calls": 0,
+  "acceptance_policy": {
+    "schema_version": "extraction-acceptance/v1",
+    "expected_revision": "963f29dd0d8281f1507456073a402469581e94727b2e0df4045a6fbd3cadb379",
+    "allowed_omissions": [
+      {
+        "scope": [
+          0,
+          0
+        ],
+        "fact": {
+          "kind": "scalar_constraint",
+          "symbol": "k",
+          "operator": ">=",
+          "value": "1"
+        },
+        "reason": "用户明确接受本题此局部参数下界遗漏；保留严格语义差异，不宣称等价。"
+      },
+      {
+        "scope": [
+          0,
+          1
+        ],
+        "fact": {
+          "kind": "scalar_constraint",
+          "symbol": "k",
+          "operator": ">=",
+          "value": "1"
+        },
+        "reason": "用户明确接受本题此局部参数下界遗漏；保留严格语义差异，不宣称等价。"
+      },
+      {
+        "scope": [
+          1
+        ],
+        "fact": {
+          "kind": "scalar_constraint",
+          "symbol": "k",
+          "operator": ">=",
+          "value": "1"
+        },
+        "reason": "用户明确接受本题此局部参数下界遗漏；保留严格语义差异，不宣称等价。"
+      }
+    ]
+  },
+  "accepted": false,
+  "strict_semantics_passed": false,
+  "classification": "rejected",
+  "accepted_omissions": []
+}

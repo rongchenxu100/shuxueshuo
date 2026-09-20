@@ -1,0 +1,384 @@
+{
+  "batch": "math-notation-review-repair-20260916-222053",
+  "network_calls_during_audit": 0,
+  "scope": "Saved third-party DeepSeek review reasoning and actual image-only requests; no reruns or runtime edits.",
+  "limitations": [
+    "Reasoning is self-reported behavior, not a correctness proof or reliable attention map.",
+    "All six reviewed candidates pass current gold semantics; no controlled erroneous candidate was reviewed in this batch.",
+    "K missing-figure case was blocked before review.",
+    "Lexical occurrence counts are not distinct checks or measured wasted-token percentages."
+  ],
+  "totals": {
+    "seconds": 205.625,
+    "input_tokens": 35538,
+    "output_tokens": 41798,
+    "reasoning_tokens": 41732,
+    "visible_output_tokens": 66,
+    "review_share_of_batch_tokens_percent": 40.02,
+    "review_share_of_cumulative_model_seconds_percent": 51.13
+  },
+  "cases": [
+    {
+      "case": "tj-2026-heping-yimo-25",
+      "response_file": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-heping-yimo-25/workflow/calls/02-review/response.json",
+      "response_sha256": "680452f80f0d9d3a8fc1ad2fd6e15ff6ddd2785e3aa7fca9fcb49fc36616f591",
+      "reasoning_sha256": "b1e1902e55d02e683497f7c1d1bc758366548a826066859abebd24d8d561d789",
+      "reasoning_chars": 16396,
+      "reasoning_lines": 309,
+      "seconds": 50.302,
+      "input_tokens": 6095,
+      "output_tokens": 9731,
+      "reasoning_tokens": 9720,
+      "reasoning_effort": "low",
+      "review_input_fields": [
+        "response_schema",
+        "math_expression_catalog",
+        "registered_families",
+        "candidate",
+        "few_shots"
+      ],
+      "has_candidate_schema": false,
+      "final_response": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "lexical_occurrences": {
+        "连接BC": 60,
+        "常数": 33,
+        "实数": 0,
+        "DM—DN": 0
+      },
+      "evidence_excerpts": [
+        {
+          "line": 24,
+          "text": "（I）当点D落在这条抛物线上时，候选将 \"D ∈ Γ\" 放在（I）子节点，正确，因为局部条件，属于I。①求解析式。②点E在抛物线上，横坐标为m，且-1<m<0，若∠CBE+∠ACO=45°，求E坐标。候选 facts 包含 E ∈ Γ, x(E)=m, -1<m<0, angle(C,B,E)+angle(A,C,O)=45°，正确。注意原图写“抛物线上的点E的横坐标为m”，候选 E∈Γ，x(E)=m，正确。角度：∠CBE 顶点B，候选 angle(C,B,E) = 45? 正确；∠ACO 顶点C，候选 angle(A,C,O)，正确。"
+        },
+        {
+          "line": 26,
+          "text": "（II）点M是线段BC上一动点，连接OM。点N是射线CD上一动点，且满足 CN=CM，连接BN。当OM+BN的最小值为√34时，求a的值。候选 facts: M ∈ segment(B,C), N ∈ ray(C,D), CN = CM, min(OM+BN) = sqrt(34)，goals find_value a。正确。注意“点N是射线CD上一动点” 候选 N ∈ ray(C,D)，射线起点C经过D，正确。CN=CM 长度相等，候选 CN = CM，正确。路径 OM+BN 的最小值为√34，候选 min(OM+BN) = sqrt(34)，正确。目标求 a 的值，候选 goals find_value expression \"a\"，正确。"
+        },
+        {
+          "line": 87,
+          "text": "可能候选错：原题“当点D落在这条抛物线上时” 是（I）的条件，但在（II）中没有“当点D落在抛物线上”这个条件吗？原图（I）开头“当点D落在这条抛物线上时” 只属于（I）？还是全局？通常“当...时”是整个第（I）问的条件，第（II）问是独立情境，不受此限制。候选将 D∈Γ 放在（I）下，正确。但（II）中 D 是否在抛物线上？原题（II）没有这个条件，所以候选没有把 D∈Γ 提升到根，正确。但原题（II）中 N是射线CD上一动点，CD包含C和D，D由C平移得到，D不一定在抛物线上。候选只在（I）有 D∈Γ，正确。"
+        },
+        {
+          "line": 103,
+          "text": "可能问题：候选的（II）facts \"min(OM+BN) = sqrt(34)\"，原图“当OM+BN的最小值为√34时”可以表达为 min(OM+BN)=√34，正确。但原题“当...时”要求的是在这个条件下求a，候选 goals 没有 at 修饰？goals 是 find_value expression \"a\"，没有 at 字段。原题“当OM+BN的最小值为√34时，求a的值” 目标求a，确实在最小值条件下，但 goal 是求a，可以。如果要求最值状态时共同修饰，可能不需要 at，因为目标只是a的值，而条件已经在 facts 中。可以。"
+        },
+        {
+          "line": 179,
+          "text": "7. 非题设混入：候选没有手写答案等。O=(0,0) 可能是默认，不算混入？手写荧光笔没有影响。"
+        },
+        {
+          "line": 181,
+          "text": "8. 图像完整性：原图是一张带手写绿笔的图片，但题面文字完整，没有引用其他图。候选没有标记 missing_figure，可以。"
+        },
+        {
+          "line": 275,
+          "text": "再检查原图手写：图片右下角有绿色笔迹，可能写了什么？原图有绿色手写，可能是解题答案或批注，不是题设。候选没有包含，OK。"
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-heping-ermo-25",
+      "response_file": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-heping-ermo-25/workflow/calls/02-review/response.json",
+      "response_sha256": "1cd603ef701520b0ccf4b8ae2dd335b3599031309a807cf94959b8e32cce7e1c",
+      "reasoning_sha256": "02049e5cab95d85a9ec0b30852ab035556d499c981476ee0ba10fd6803e8255c",
+      "reasoning_chars": 9420,
+      "reasoning_lines": 230,
+      "seconds": 24.551,
+      "input_tokens": 5997,
+      "output_tokens": 5310,
+      "reasoning_tokens": 5299,
+      "reasoning_effort": "low",
+      "review_input_fields": [
+        "response_schema",
+        "math_expression_catalog",
+        "registered_families",
+        "candidate",
+        "few_shots"
+      ],
+      "has_candidate_schema": false,
+      "final_response": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "lexical_occurrences": {
+        "连接BC": 0,
+        "常数": 15,
+        "实数": 0,
+        "DM—DN": 0
+      },
+      "evidence_excerpts": [
+        {
+          "line": 25,
+          "text": "2. 与x轴相交于A，B两点（A在B左侧）。候选 Γ∩x_axis={A,B}, x(A)<x(B)，OK。"
+        },
+        {
+          "line": 29,
+          "text": "6. 以AE为边的正方形AEKG的顶点G在x轴下方。候选 square(A,E,K,G)，y(G) < 0。OK。"
+        },
+        {
+          "line": 35,
+          "text": "12. 对角线AK和EG相交于点H。候选 segment(A,K) ∩ segment(E,G) = {H}。原图说“对角线AK和EG相交于点H”，正方形AEKG的对角线是AK和EG？是的，正方形AEKG顶点顺序 A-E-K-G，对角线是 A-K 和 E-G。候选用 segment(A,K) ∩ segment(E,G) = {H}，OK。不过“对角线AK和EG”可以表示为 line? 但段线段相交得到H，一般对角线线段；OK。"
+        },
+        {
+          "line": 36,
+          "text": "13. 当HF+FM+MG取得最小值为3√5时，求E坐标。候选 min(HF+FM+MG) = 3*sqrt(5)，goal find_coordinates E, at: HF+FM+MG = min(HF+FM+MG)。OK。注意“取得最小值为3√5时”共同修饰求E坐标；候选 at 正确。"
+        },
+        {
+          "line": 87,
+          "text": "可能问题：候选在 (I) 中 facts 有 b=-2,c=3，但原图 (I) 是条件“若b=-2,c=3”，然后①；候选放在 (I) facts，作用于①和②，正确。"
+        },
+        {
+          "line": 89,
+          "text": "可能问题：候选在 (II) 中 facts \"A = (-c,0)\" 是条件，但原图 (II) 一开始说“若点A的坐标为(-c,0)”，这是 (II) 条件，候选放在 (II) facts，正确。但注意 (I) 和 (II) 是并列分问，条件不互通；(II) 的 A=(-c,0) 不能提升到根，候选放在 (II) 下，正确。"
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-hexi-yimo-25",
+      "response_file": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-hexi-yimo-25/workflow/calls/02-review/response.json",
+      "response_sha256": "bba76d5a04f2b39219195e0e05f4ca9b9813eed82fc8cabf10d7f362f4765f20",
+      "reasoning_sha256": "4b1556e16d3eb84bdf83a0f89986aaa19fd7a273ec8c02fe4e51e1ce7ce7eaf8",
+      "reasoning_chars": 14687,
+      "reasoning_lines": 193,
+      "seconds": 41.614,
+      "input_tokens": 5938,
+      "output_tokens": 8805,
+      "reasoning_tokens": 8794,
+      "reasoning_effort": "low",
+      "review_input_fields": [
+        "response_schema",
+        "math_expression_catalog",
+        "registered_families",
+        "candidate",
+        "few_shots"
+      ],
+      "has_candidate_schema": false,
+      "final_response": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "lexical_occurrences": {
+        "连接BC": 0,
+        "常数": 34,
+        "实数": 2,
+        "DM—DN": 0
+      },
+      "evidence_excerpts": [
+        {
+          "line": 28,
+          "text": "候选 (III) 中 \"M = (b + 1/2, y_M)\" 注意原图横坐标是 b + 1/2，不是 (b+1)/2。候选 b+1/2 数学中通常理解为 b + 0.5，即 b + 1/2，正确。但若按数学优先级，b+1/2 是 b+(1/2)，正确。原题图片为 b+\\frac12。候选 \"b + 1/2\" 正确。"
+        },
+        {
+          "line": 29,
+          "text": "候选 (III) 中 min(sqrt(2)*MN + AN) = 21/4。原图是 \\sqrt{2} MN + AN 最小值 21/4。候选 sqrt(2)*MN + AN，正确。AN 是长度，sqrt(2)*MN 中 MN 长度。候选 MN 未显式定义为 length(M,N)，但上下文中有 M,N点，通常 MN 是长度。可接受。"
+        },
+        {
+          "line": 30,
+          "text": "目标 at：原题“当√2MN+AN的最小值为21/4时，求b的值”。候选 goals at 写 \"sqrt(2)*MN + AN = min(sqrt(2)*MN + AN)\"。这个 at 表达式不是原题明确写出的“此时”？但原题说“当...的最小值为...时”，求 b，at 应该修饰 b 的取值，候选 at 是路径等于其最小值，等价。按照 catalog goal_at，在求 b 时可选。需要检查是否遗漏 at 修饰？候选 goal 的 at 正确。"
+        },
+        {
+          "line": 70,
+          "text": "4 分问归属："
+        },
+        {
+          "line": 71,
+          "text": "- 候选 (III) 有 a=1，但全局没有 a 限制； (I) a=1,b=2,c=3； (II) a=2；局部正确。没有提升到全局。"
+        },
+        {
+          "line": 74,
+          "text": "- 原题 (II) 中 C 为抛物线与 y轴交点，该 condition 局部 (II)，候选放在 (II)。正确；不能继承到 (III)？但 (III) 中不需要 C，候选没有。正确。"
+        },
+        {
+          "line": 154,
+          "text": "候选 (III) 中，原题“点A(-1,0)在该抛物线上” 和 (II) 的条件“点A(-1,0)和点D在该抛物线上”是并列分问，不互通。候选将 A∈Γ 放在 (III)，好；因为 a=1 不同于 a=2。好。"
+        },
+        {
+          "line": 167,
+          "text": "- 候选 (III) 中，goal at 表达式 \"sqrt(2)*MN + AN = min(sqrt(2)*MN + AN)\" 可能错误：原题“当√2MN+AN的最小值为21/4时，求b的值” 不是求路径最小值，而是求 b。在 goals 中 at 用于表示此时求 b，但 at 的表达式应写什么？catalog goal_at 例子 \"AP+PQ = min(AP+PQ)\"。所以正确。"
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-nankai-yimo-25",
+      "response_file": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-nankai-yimo-25/workflow/calls/02-review/response.json",
+      "response_sha256": "19a32c910628d7e32b6458e94a5a3f734ecdc148c829940f9272543d4175785c",
+      "reasoning_sha256": "11bd677017248b5dce545a4e97b1e35aa9f03a76a5bc8a4147d306cbf56972b6",
+      "reasoning_chars": 17508,
+      "reasoning_lines": 308,
+      "seconds": 48.102,
+      "input_tokens": 6091,
+      "output_tokens": 9695,
+      "reasoning_tokens": 9684,
+      "reasoning_effort": "low",
+      "review_input_fields": [
+        "response_schema",
+        "math_expression_catalog",
+        "registered_families",
+        "candidate",
+        "few_shots"
+      ],
+      "has_candidate_schema": false,
+      "final_response": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "lexical_occurrences": {
+        "连接BC": 0,
+        "常数": 22,
+        "实数": 0,
+        "DM—DN": 33
+      },
+      "evidence_excerpts": [
+        {
+          "line": 13,
+          "text": "（II）若点 M(m, 1) 和点 N 均在抛物线上，其中 m > 2，且点 N 在第四象限，∠MDN = 90°，DM = DN（题面是 DM—DN? 看起来 \"DM—DN\" 可能是 DM=DN 漏印? 图中写 \"DM—DN\" 但上下文通常 DM=DN？仔细看图片：有 \"DM—DN\" 中间一横，可能是等号印刷成破折号？但原句：\"∠MDN=90°，DM—DN．\" 看起来可能是“DM=DN”的等号变形，因为后面 \"且 DE=√2 NG\" 明确等号。需要辨认可辨？在图中 \"DM—DN\" 有一点像 \"DM=DN\"，但可能是一横。我们看截图文字：\"∠MDN=90°，DM—DN．\" 中间的横线可能是一字线？但题目条件应当 DM=DN 才合理（等腰直角三角形）。候选写 \"DM = DN\"，如果原图确实写 DM=DN，则 OK；如果原图写 DM—DN 非数学关系？无法作为条件？但一般不会写 DM—DN。需要确认。图中 \"DM—DN\" 的横线比等号长吗？像是一个破折号或减号？印刷体可能等号被压缩？但此处有空格：DM—DN 可能表示 DM=DN 的等号印迹不清。题目通常：DM=DN。候选写 DM = DN，合理。如果原图是 \"DM=DN\"，没问题。如果原图是 \"DM-DN\" 表示差？不可能。所以可以接受。"
+        },
+        {
+          "line": 74,
+          "text": "原题 ② \"当 EG+FG 取得最小值为 5√10/2 时，直接写出此时抛物线的解析式和点 G 的坐标.\" 候选 (II)② facts [\"min(EG+FG) = 5*sqrt(10)/2\"]，goals: find_equation Γ at \"EG+FG = min(EG+FG)\", find_coordinates G at same at。这看起来不错。但需要注意 \"此时\" 修饰范围：原句 \"直接写出此时抛物线的解析式和点 G 的坐标\" 指在 EG+FG 取得最小值时，所以两个目标都要 at 最小值条件。候选已经给两个目标都加了 at。OK。"
+        },
+        {
+          "line": 124,
+          "text": "原题 \"∠MDN=90°，DM—DN\" 候选有 ∠MDN=90°，DM=DN。但符号 \"DM—DN\" 如果不是等号，候选增加 DM=DN 可能 unsupported_addition？需要判断。图片中 \"DM—DN\" 可能是指 \"DM=DN\" 等号被识别为一横。但若严格按可视文字，原图有一个长横线，但很可能等号。题目中如果 ∠MDN=90° 且 DM=DN，那么 M,N 到 D 等距，D 在 MN 垂直平分线上？其实 D 在对称轴上，M在抛物线上，可能有特定。如果不加 DM=DN，题目无法确定？但原题确实应有。候选没有凭空增加；可以接受。若无法确认？但原图 \"DM—DN\" 一横，我们作为复核者应认为是等号还是减号？中文数学题若写 \"DM—DN\" 不是标准关系，肯定是等号，识别为 \"=\"。不应报告 unsupported_addition。"
+        },
+        {
+          "line": 132,
+          "text": "\"DE = √2 NG\"：候选 DE = sqrt(2)*NG，OK。根号覆盖 2 还是 2 NG？原题 \"√2 NG\" 表示 √2 乘以 NG，候选 sqrt(2)*NG，OK。"
+        },
+        {
+          "line": 170,
+          "text": "是否存在 sibling 条件串入？例如 II① facts MN=√10 不应影响 II②；候选 II② facts 没有 MN=√10。OK。"
+        },
+        {
+          "line": 220,
+          "text": "现在，我们考虑是否应为 correction_required 还是 confirmed。原图有些文字可能不清晰：\"DM—DN\" 可能不是等号；如果候选标记 DM = DN，也许需要确认。但这一般是等号。不能确认时 uncertain。不过题目显然需要 DM=DN，所以可接受。"
+        },
+        {
+          "line": 272,
+          "text": "现在，我们是否需要报告候选中 \"DM = DN\" 但原图 \"DM—DN\" 可能不是等号？如果无法辨认，应 uncertain? 但题目完整图显示 \"DM—DN\" 中间横线，可能等号；我不想报告错误。如果报告，会错误。应 confirmed。"
+        },
+        {
+          "line": 292,
+          "text": "现在，可能有一个微小问题：原题 II① 的目标 \"EG+FG 的最小值\" 是直接写出最小值，但候选 goal 有 \"find_minimum\" 而不是 \"find_value\"/\"min_value\"? 目录 goals 示例用 find_value 或 find_equation；没有 find_minimum 的官方定义，但 schema 候选已用 find_minimum。如果这个 kind 不是标准？但输出只需符合 schema? 没有严格枚举 goal kind? schema 没有对 goals kind 的枚举？candidate 的 goals 是数组，items 可能任意。但是我们的复核应依据数学内容；不是问题。"
+        }
+      ]
+    },
+    {
+      "case": "tj-2026-xiqing-yimo-25",
+      "response_file": "internal/solver-runs/math-notation-review-repair-20260916-222053/tj-2026-xiqing-yimo-25/workflow/calls/02-review/response.json",
+      "response_sha256": "23c9217fe3ce0144a79ebee938fe9bcae1cc1fd9ad93dbd6be74984536a9aa23",
+      "reasoning_sha256": "345c93c7e9f479319217987e0678de286a10e913e9acb0c230aeea452465acc3",
+      "reasoning_chars": 11767,
+      "reasoning_lines": 220,
+      "seconds": 33.362,
+      "input_tokens": 5825,
+      "output_tokens": 6799,
+      "reasoning_tokens": 6788,
+      "reasoning_effort": "low",
+      "review_input_fields": [
+        "response_schema",
+        "math_expression_catalog",
+        "registered_families",
+        "candidate",
+        "few_shots"
+      ],
+      "has_candidate_schema": false,
+      "final_response": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "lexical_occurrences": {
+        "连接BC": 0,
+        "常数": 52,
+        "实数": 1,
+        "DM—DN": 0
+      },
+      "evidence_excerpts": [
+        {
+          "line": 32,
+          "text": "- M(m,0) 是 x 轴正半轴上的动点：候选 M=(m,0), m>0。x轴正半轴包括原点？正半轴通常 x>0，所以 m>0。正确。如果严格正半轴一般 x>0。候选 m>0。"
+        },
+        {
+          "line": 38,
+          "text": "- 原图“已知抛物线 y=-x^2+b x+c（b, c 为常数，b>0）”候选定义 Γ: y = -x^2+b*x+c，但 facts 中没有 c 为常数。通常 c 在定义中作为参数自动是常数？数学表达式 catalog 中 curve_definition 可以包含参数。b>0 有。c 没有显式声明为常数，可能不需要？原题明确 b,c为常数，候选定义使用 b,c，但没有写 c 为常数。这算遗漏吗？候选 definitions 中 Γ: y = -x^2+b*x+c 隐含 b,c 是参数；fact 有 b>0。c 没有范围，没有说 c 常数。但 c 是系数，一般默认常数。不过原图明确“b,c为常数”。候选没有单独 fact c ∈ R 或 c为常数。是否需要报告 missing_condition？根据要求，条件完整性：构型、参数范围、正半轴、明确图示条件等遗漏。这里的“b,c为常数”可能不是必须？但它是对参数的说明，没有范围。候选定义了函数包含 c，但没有声明 c 是常数。这可能会影响求解？但通常不需要。然而“b>0”有，c没有范围，可以省略？但“b,c为常数”是题设，候选缺失 c 为常数。不过 c 出现在函数中，作为参数，在数学表达中通常隐含常数。是否需要报错？可能不。再看“b > 0”候选有。c 未给范围。原题“b, c为常数，b>0”只对 b 有范围，c 只是常数。候选定义中 c 是自由参数，没有说 c 是常数，但作为函数参数它确实是常数。可能不算实际差异。但严格说，definitions 数组可以包含 \"Γ: y = -x^2+b*x+c\" 意味着 b,c 是系数，通常被视为常数。可以不报。"
+        },
+        {
+          "line": 50,
+          "text": "- ② M(m,0) x轴正半轴上的动点，候选 M=(m,0), m>0。正确。但是否需要声明“动点”角色？原图“点 M(m,0) 是 x 轴正半轴上的动点”，候选没有明确“动点”的声明，只有坐标和 m>0。在几何中，M 坐标参数 m，通常就是动点；但原题明确“动点”，候选没有 point_role_declaration。不过 catalog 有 point_role_declaration 可表达“C为动点”。这里没有写“M为动点”，但 m 是变量，且目标是最小值，可以推断动点。这算遗漏吗？可能需要保留“动点”角色？但数学上，M=(m,0), m>0 已经表示 m 是变量，动点。catalog 说“点的取值范围及关联条件仍用数学式保留”，不要求额外补动点标签。所以不要求。"
+        },
+        {
+          "line": 54,
+          "text": "- 注意候选 (2) ① 和 ② 的 facts 归属：候选把 D 放在 (2) 父问 facts，然后 ① 有 AD=2BC，② 有 M...。原图 (2) 点D是抛物线上任意一点，D 的条件适用于 ① 和 ②，所以放在父问正确。① 和 ② 各自条件局部。正确。"
+        },
+        {
+          "line": 80,
+          "text": "- 检查候选 goal ② 的 at 表达式可能不准确：原题“当 2DM+AM 的最小值为 5+5√3 时，求 b 的值。”这里的“此时”修饰的是“b 的值”，即要求 b 值，这个 b 值是在最小值条件下成立的。候选 goal at \"2*DM+AM = min(2*DM+AM)\" 表示在路径和等于最小值时求 b。但实际这个 at 可能应放在 goal 的 at 字段，表示最优状态。原题并没有另外要求“2DM+AM 的最小值”这个值？但 facts 有 min = ...。goal at 条件重复，可以。但是否应写为 goal at \"min(2*DM+AM) = 5+5*sqrt(3)\" 而不是 \"2*DM+AM = min(2*DM+AM)\"？根据 catalog goal_at：表达式 = min(表达式) 用于 goals.at，表达题面明确的“取得最值时/此时”。原题“当 2DM+AM 的最小值为 ... 时” 可以理解为“2DM+AM = min(2DM+AM) 且 min = ...”，目标 b 是在此状态。候选 at \"2*DM+AM = min(2*DM+AM)\" 正确，因为最小值已由事实给出。可以。"
+        },
+        {
+          "line": 120,
+          "text": "- 候选 family match_reason 提到“0次函数抛物线”，无伤。"
+        },
+        {
+          "line": 156,
+          "text": "- 可能候选 match_reason 中说“0次函数”笔误，不影响。"
+        }
+      ]
+    },
+    {
+      "case": "function-quantifiers",
+      "response_file": "internal/solver-runs/math-notation-review-repair-20260916-222053/function-quantifiers/workflow/calls/02-review/response.json",
+      "response_sha256": "1790213d8d6d33d7197d8119e0e5cfd3c09f9d99d0de114ee062568738f6e75a",
+      "reasoning_sha256": "ab6185b0c341edfe4c3011570f24f42d231e8def69bfa1d9a9d2eb78c22f556d",
+      "reasoning_chars": 2773,
+      "reasoning_lines": 49,
+      "seconds": 7.694,
+      "input_tokens": 5592,
+      "output_tokens": 1458,
+      "reasoning_tokens": 1447,
+      "reasoning_effort": "low",
+      "review_input_fields": [
+        "response_schema",
+        "math_expression_catalog",
+        "registered_families",
+        "candidate",
+        "few_shots"
+      ],
+      "has_candidate_schema": false,
+      "final_response": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "lexical_occurrences": {
+        "连接BC": 0,
+        "常数": 1,
+        "实数": 34,
+        "DM—DN": 0
+      },
+      "evidence_excerpts": [
+        {
+          "line": 14,
+          "text": "- 第一问条件：对任意 x∈R，f(x)≥g(x)，候选有。"
+        },
+        {
+          "line": 16,
+          "text": "- 第二问：存在 x0∈[1,3]，使得 f(x0)≤g(x0)，求实数 b 的取值范围（用 c 表示）。候选 facts ∃x0∈[1,3]: f(x0) ≤ g(x0)，目标 find_range symbol b in_terms_of [c]。正确。注意“实数 b 的取值范围（用 c 表示）”，候选没有写实数域，但 b 是实数可以默认？原题说实数 b，候选 symbol b，in_terms_of c，没写 b∈ℝ，但这可能是默认实数范围。通常不要求补？但是“实数 b”是明确条件，也许应保留 b 为实数？不过候选目标 find_range symbol b，通常 b 视为实数变量，in_terms_of c。不需要额外条件？从来源条件完整性来说，“实数 b”是明确文字，但数学中参数默认实数？可能可以等价。但按照要求重点检查，可能遗漏“实数”吗？见原题：“求实数 b 的取值范围（用 c 表示）”。候选 goal find_range symbol b，没有明确实数，但函数定义中 b,c 系数通常实数？原题没写 b,c 实数，但第一问求最小值，第二问实数 b。候选是否应保留 b∈ℝ？目标字段没有范围限制，find_range 隐含实数范围？应该可以。类似示例中“求实数 b 的取值范围”可能用 find_range symbol b。不认为错误。"
+        },
+        {
+          "line": 24,
+          "text": "3. 第二问 fact 是 \"∃x0∈[1,3]: f(x0) ≤ g(x0)\"，正确。"
+        },
+        {
+          "line": 30,
+          "text": "第二问事实 \"∃x0∈[1,3]: f(x0) ≤ g(x0)\"，原题“若存在 x0∈[1,3]，使得 f(x0)≤g(x0)”。正确。量词作用范围在 [1,3]。"
+        },
+        {
+          "line": 31,
+          "text": "候选有没有把第一问条件错误地应用于第二问？没有，根 definitions 只定义函数，第一问 fact 在子问中，第二问 fact 在子问中。根没有公共 fact。正确。"
+        }
+      ]
+    }
+  ]
+}

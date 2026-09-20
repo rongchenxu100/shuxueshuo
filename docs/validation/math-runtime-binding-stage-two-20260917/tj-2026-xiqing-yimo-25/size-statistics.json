@@ -1,0 +1,14 @@
+{
+  "case": "tj-2026-xiqing-yimo-25",
+  "problem": {
+    "old_characters": 3542,
+    "new_characters": 647
+  },
+  "methods": {
+    "old_characters": 18820,
+    "new_characters": 7958
+  },
+  "token_count": null,
+  "token_reason": "No matching DeepSeek tokenizer; no model call.",
+  "scope": "JSON problem and method sections measured separately; not a full request ratio."
+}

@@ -1,0 +1,16 @@
+{
+  "model_calls": 0,
+  "same_exception_under_both_encodings": true,
+  "checks": [
+    {
+      "encoding": "source-ref",
+      "error_type": "FunctionalBindingContextError",
+      "error": "planner_configuration_error: planner.functional_arg_version_drift: materialized arg intercept_A.parabola[0] has no StateVersionId"
+    },
+    {
+      "encoding": "math-expression/v1",
+      "error_type": "FunctionalBindingContextError",
+      "error": "planner_configuration_error: planner.functional_arg_version_drift: materialized arg intercept_A.parabola[0] has no StateVersionId"
+    }
+  ]
+}

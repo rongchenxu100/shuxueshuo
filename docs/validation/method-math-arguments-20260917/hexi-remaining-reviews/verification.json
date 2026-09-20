@@ -1,0 +1,99 @@
+{
+  "reviewed_at": "2026-09-18T00:14:20.796846+08:00",
+  "model_calls": 0,
+  "samples": [
+    {
+      "sample": 2,
+      "original_attempts": 3,
+      "original_artifact_hashes_verified": 48,
+      "original_step_count": 30,
+      "original_executed_steps": 0,
+      "report_mermaid_diagrams": 9,
+      "report_step_nodes": 30,
+      "offline_probes": 5,
+      "offline_outcomes": {
+        "accepted": 3,
+        "blocked": 2
+      }
+    },
+    {
+      "sample": 3,
+      "original_attempts": 3,
+      "original_artifact_hashes_verified": 48,
+      "original_step_count": 28,
+      "original_executed_steps": 0,
+      "report_mermaid_diagrams": 9,
+      "report_step_nodes": 28,
+      "offline_probes": 9,
+      "offline_outcomes": {
+        "accepted": 3,
+        "blocked": 4,
+        "execution_exception": 2
+      }
+    }
+  ],
+  "encoding_controls": [
+    {
+      "attempt": 1,
+      "canonical_plan_equal": true,
+      "canonical_plan_sha256": "79bac8bdde90a85cab654ff0063fdf7ce13090bb19c6e9c581ae039f2c69f0e7",
+      "same_failure": true
+    },
+    {
+      "attempt": 3,
+      "canonical_plan_equal": true,
+      "canonical_plan_sha256": "29b270639069fa5bcc8612532f481b8c5f31092104be5f45231f56660d3557ad",
+      "same_failure": true
+    }
+  ],
+  "visualization": {
+    "path": "/Users/haorong/.codex/visualizations/2026/09/17/01a0af4d-0f94-7eb0-8705-8ea68da9f3c3/hexi-remaining-samples.html",
+    "bytes": 504831,
+    "sha256": "513b0018e7f98fa62605b15e5f2628cd6e21cc74be81887cdd7b78daf387d2f0",
+    "browser": "Codex in-app browser",
+    "verified_sample_attempt_states": {
+      "2": [
+        1,
+        2,
+        3
+      ],
+      "3": [
+        1,
+        2,
+        3
+      ]
+    },
+    "observed_plan_node_counts": {
+      "2": [
+        10,
+        10,
+        10
+      ],
+      "3": [
+        9,
+        10,
+        9
+      ]
+    },
+    "step_selection_updates_json_and_selected_node": true,
+    "viewport_checks": [
+      {
+        "viewport_width": 736,
+        "content_width": 704,
+        "content_scroll_width": 704
+      },
+      {
+        "viewport_width": 320,
+        "content_width": 288,
+        "content_scroll_width": 288
+      }
+    ],
+    "narrow_diagram_labels_outside_viewport": 0,
+    "console_errors": []
+  },
+  "verified_report_links": {
+    "hexi-sample-02-review": 56,
+    "hexi-sample-03-review": 65,
+    "hexi-remaining-reviews": 11
+  }
+}

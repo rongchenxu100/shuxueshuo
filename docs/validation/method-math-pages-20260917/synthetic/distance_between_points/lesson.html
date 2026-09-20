@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>synthetic-distance_between_points | 数学说</title>
+  <meta name="description" content="本题数学综合：综合解题。" />
+  <meta property="og:title" content="synthetic-distance_between_points | 数学说" />
+  <meta property="og:description" content="本题数学综合：综合解题。" />
+  <meta property="og:image" content="../../../../../site/assets/images/share-default.png" />
+  <meta property="og:type" content="article" />
+  <link rel="stylesheet" href="../../../../../site/assets/css/interactive-geometry-page.css?v=40" />
+</head>
+<body>
+  <header class="lesson-topbar" role="navigation" aria-label="页面导航">
+    <a href="../../../../../site/index.html">首页</a>
+    <span aria-hidden="true">·</span>
+    <a href="../../../../../site/nav/index.html">题库导航</a>
+    <span class="lesson-title">synthetic-distance_between_points</span>
+  </header>
+
+  <main class="page page-with-rail" id="main">
+    <div class="lesson-layout">
+      <div class="lesson-flow">
+        <section class="card problem" id="problemCard">
+          <button id="problemToggle" class="problem-toggle" type="button">收起完整题目</button>
+          <div class="problem-full">
+            <div class="problem-line"><span>已知 A(0,0)，B(3,4)，求线段 AB 的长度。</span><span class="answer-chip" id="answer_problem_distance">最小值＝5</span></div>
+          </div>
+        </section>
+
+        
+
+        <section class="all-steps" id="stepCards" aria-label="完整解题步骤"></section>
+      </div>
+
+      <aside class="card lesson-rail" aria-label="步骤导航">
+        <div class="rail-kicker">STEP MAP</div>
+        <h2 class="rail-title">步骤导航</h2>
+        <div class="rail-progress">
+          <span id="railProgressText">1 / 1</span>
+          <span class="rail-progress-bar" aria-hidden="true"><span class="rail-progress-fill" id="railProgressFill"></span></span>
+        </div>
+        <div class="step-nav" id="stepNav"></div>
+      </aside>
+    </div>
+
+    <div class="mobile-step-dock" id="mobileStepDock">
+      <div class="mobile-step-current">
+        <span class="mobile-step-count" id="mobileStepCount">步骤 1 / 1</span>
+        <span class="mobile-step-name" id="mobileStepName">步骤</span>
+      </div>
+      <button class="mobile-step-toggle" id="mobileStepToggle" type="button">目录</button>
+    </div>
+
+    <div class="mobile-step-sheet" id="mobileStepSheet" aria-hidden="true">
+      <div class="mobile-step-panel" role="dialog" aria-modal="true" aria-label="快速跳转">
+        <div class="mobile-sheet-handle" aria-hidden="true"></div>
+        <div class="mobile-sheet-head">
+          <h2>快速跳转</h2>
+          <button class="secondary" id="mobileStepClose" type="button">关闭</button>
+        </div>
+        <div class="step-nav" id="mobileStepNav"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../../../../../site/assets/js/baidu-stats.js"></script>
+  <script src="../../../../../site/assets/js/geometry-label-layout.js"></script>
+  <script src="../../../../../site/assets/js/interactive-lesson-ui.js"></script>
+  <script src="../../../../../site/assets/js/lesson-page-runtime.js?v=50"></script>
+
+  <!-- 第一段：页面数据（var 声明，跨脚本块全局可见） -->
+  <script>
+    var STEPS      = [{"id":"teach:synthetic_distance_between_points","section":"合成验收","title":"第1步：用距离公式计算线段长度","t":0.75,"derive":[["∵","两端点为 A(0,0) 与 B(3,4)"],["计算","由两点距离公式，AB＝√[(3－(0))²＋(4－(0))²]＝5"],["∴","AB＝5"]],"box":["5"]}];
+    var STEP_LABELS = {"teach:synthetic_distance_between_points":"1 计算距离"};
+    var POLICIES   = {"teach:synthetic_distance_between_points":{"movable":false,"range":[0.75,0.75]}};
+    /** 图例 HTML；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值，默认空字符串 */
+    var __LESSON_LEGEND_HTML__ = "";
+    /** 滑块主参数与派生参数的联动文案格式化器 */
+    var __LESSON_PARAM_LABEL_FORMATTER__;
+    /** 步骤渲染后的回调；由 GEOMETRY_SCRIPT 中的脚本块覆盖赋值 */
+    var __AFTER_RENDER_ALL_STEPS__;
+    // diagramMarkupFor / drawMini / groupTitle 由下方 GEOMETRY_SCRIPT 提供
+  </script>
+
+  <!-- 第二段：几何引擎 + 渲染器（可含多个 <script> 标签，不能嵌在上面的块里） -->
+  <script type="application/json" id="geometrySpec">{"version":1,"id":"synthetic-distance_between_points","domain":{"minX":-0.8,"maxX":3.8,"minY":-0.8,"maxY":4.8},"movingParam":"t","expressionEnv":[],"fixedPoints":{"point_A_problem":["0","0"],"point_B_problem":["3","4"]},"movingPoints":{},"pointMeta":{"point_A_problem":{"label":"A","scopeId":"problem","scopeRoot":"problem","definition":"given_point","sourceRef":"point:problem:A"},"point_B_problem":{"label":"B","scopeId":"problem","scopeRoot":"problem","definition":"given_point","sourceRef":"point:problem:B"}},"curves":[],"derivedIntersections":[]}</script>
+<script src="../../../../../site/assets/js/geometry-engine.js"></script>
+<script src="../../../../../site/assets/js/geometry-lesson-from-spec.js"></script>
+
+<script>
+  const __GEOMETRY_SPEC__ = JSON.parse(document.getElementById('geometrySpec').textContent);
+  const __STEP_DECORATIONS__ = {"steps":{"teach:synthetic_distance_between_points":{"visualMode":"scene","visualFrames":[{"id":"frame:teach:synthetic_distance_between_points:1","caption":"计算距离","teachingUnitKeys":["distance_between_points/compute_distance"],"domain":{"minX":-1.22,"maxX":4.22,"minY":-2.08,"maxY":6.08},"add":[{"type":"grid"},{"from":"point_A_problem","to":"point_B_problem","color":"#b45309","width":2.6,"dash":"","type":"coloredLine"},{"type":"segment","from":"point_A_problem","to":"point_B_problem","label":"5","color":"#b45309","width":2.6,"offsetPx":16},{"at":"point_A_problem","labelText":"A","color":"#dc2626","dx":14,"dy":-18,"type":"point"},{"at":"point_B_problem","labelText":"B","color":"#dc2626","dx":14,"dy":-18,"type":"point"}]}]}}};
+  const renderer = GeometryLessonFromSpec.createSpecRenderer(__GEOMETRY_SPEC__, __STEP_DECORATIONS__, STEPS, POLICIES);
+  function groupTitle(section) {
+    const map = {"problem":"合成验收","合成验收":"合成验收"};
+    return map[section] || section;
+  }
+  var diagramMarkupFor = renderer.diagramMarkupFor;
+  var diagramMarkupForFrame = renderer.diagramMarkupForFrame;
+  var diagramMarkupForVisualFrame = renderer.diagramMarkupForVisualFrame;
+  var visualFramesFor = renderer.visualFramesFor;
+  var drawMini = renderer.drawMini;
+  var __LESSON_LEGEND_HTML__ = "";
+  // 原题图形渲染：由 renderer 负责（可选）
+  var __AFTER_RENDER_ALL_STEPS__ = renderer.renderOriginalFigures;
+</script>
+
+  <!-- 第三段：初始化运行时 -->
+  <script>
+    LessonPageRuntime.init({
+      afterRenderAllSteps: typeof __AFTER_RENDER_ALL_STEPS__ === "function" ? __AFTER_RENDER_ALL_STEPS__ : undefined,
+      STEPS,
+      POLICIES,
+      STEP_LABELS,
+      diagramMarkupFor,
+      diagramMarkupForFrame: typeof diagramMarkupForFrame === "function" ? diagramMarkupForFrame : undefined,
+      diagramMarkupForVisualFrame: typeof diagramMarkupForVisualFrame === "function" ? diagramMarkupForVisualFrame : undefined,
+      visualFramesFor: typeof visualFramesFor === "function" ? visualFramesFor : undefined,
+      drawMini,
+      groupTitle: typeof groupTitle === "function" ? groupTitle : undefined,
+      legendHtml: __LESSON_LEGEND_HTML__,
+      sliderLabel: "参数",
+      paramLabelPrefix: "t=",
+      paramLabelFormatter: typeof __LESSON_PARAM_LABEL_FORMATTER__ === "function" ? __LESSON_PARAM_LABEL_FORMATTER__ : undefined,
+      goToProblemMode: "doubleScroll"
+    });
+  </script>
+</body>
+</html>

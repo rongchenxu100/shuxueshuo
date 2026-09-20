@@ -1,0 +1,93 @@
+{
+  "passed": false,
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "semantic_calls": 1,
+  "network_attempts": 2,
+  "error_type": "MultimodalProviderError",
+  "error_code": "extraction.multimodal_provider_empty_response",
+  "elapsed_seconds": 121.902,
+  "attempts": [
+    {
+      "provider_attempt": 1,
+      "status": "completed",
+      "response_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 16384,
+        "prompt_tokens": 25844,
+        "total_tokens": 42228,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 16384,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 0
+        },
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 25844
+      },
+      "finish_reason": "length",
+      "visible_content": false,
+      "latency_ms": 58743,
+      "error_code": null
+    },
+    {
+      "provider_attempt": 2,
+      "status": "completed",
+      "response_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 16384,
+        "prompt_tokens": 25844,
+        "total_tokens": 42228,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 16384,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 25600
+        },
+        "prompt_cache_hit_tokens": 25600,
+        "prompt_cache_miss_tokens": 244
+      },
+      "finish_reason": "length",
+      "visible_content": false,
+      "latency_ms": 62896,
+      "error_code": null
+    }
+  ],
+  "total_usage": {
+    "prompt_tokens": 51688,
+    "completion_tokens": 32768,
+    "total_tokens": 84456
+  },
+  "reason": "Both transport attempts exhausted all 16384 completion tokens on reasoning; message.content was empty and finish_reason was length. No business JSON, contract/gold/source-review/adoption gate passed.",
+  "artifacts": {
+    "request.json": {
+      "sha256": "05a1319659de231d94ef8d0540a730def3afa8726d72482beb2a5aabb1daffe6",
+      "bytes": 163329
+    },
+    "failed-attempts.json": {
+      "sha256": "7e12177f1c3184a781b01d27f0d87707bce9574d7f3f88b2e2e6aaa5d9392f4e",
+      "bytes": 130128
+    },
+    "summary.json": {
+      "sha256": "6ab96cde735ca5d80edbb45760e8248b3530d82f4979c38b94f7669ef590cab7",
+      "bytes": 287
+    },
+    "frozen.json": {
+      "sha256": "7854bf5cae1ef8b9c01834e05b1f95c6a625d85d27d828db19082b02e72b931d",
+      "bytes": 924
+    },
+    "semantic-call-reserved.json": {
+      "sha256": "3b9be17f927b43cb160acf15a69a9fd68bdfddde2e2167eba0bc4e6b6561b7a9",
+      "bytes": 923
+    }
+  }
+}

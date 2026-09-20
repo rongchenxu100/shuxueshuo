@@ -1,0 +1,216 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "function-quantifiers",
+    "source_sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "definitions": [
+          "f(x) = x^2 + b*x + c",
+          "g(x) = 2*x - 1"
+        ],
+        "children": [
+          {
+            "label": "(1)",
+            "facts": [
+              "∀x∈ℝ: f(x) ≥ g(x)"
+            ],
+            "goals": [
+              {
+                "kind": "find_minimum",
+                "expression": "b^2 + c^2"
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          },
+          {
+            "label": "(2)",
+            "facts": [
+              "∃x_0∈[1,3]: f(x_0) ≤ g(x_0)"
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "symbol": "b",
+                "in_terms_of": [
+                  "c"
+                ]
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          }
+        ],
+        "label": "题目",
+        "facts": [],
+        "goals": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": null,
+      "match_status": "unmatched",
+      "match_reason": "题面给出二次函数与一次函数的恒成立、存在性不等式条件，分别求代数式最小值与参数取值范围，未涉及路径/距离最值、射线动点等长替换、正方形反射或加权路径目标，不符合本次注册的任何题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:c",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:function:g",
+          "name": "g",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:c",
+          "name": "c",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "normalization_proofs": []
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:2375b3af0d112aab405cdebdcb58cf7d62c93cf757d10dd344e047ca8512c3da",
+      "kind": "notation_raw",
+      "sha256": "2375b3af0d112aab405cdebdcb58cf7d62c93cf757d10dd344e047ca8512c3da",
+      "media_type": "text/plain",
+      "byte_size": 993,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/doubao-replay/function-quantifiers/artifacts/23/2375b3af0d112aab405cdebdcb58cf7d62c93cf757d10dd344e047ca8512c3da.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:16479bdda402a666488032a50aaa2d7631dbb53b6054a1a6058cafe285dc3e72",
+      "kind": "notation_candidate",
+      "sha256": "16479bdda402a666488032a50aaa2d7631dbb53b6054a1a6058cafe285dc3e72",
+      "media_type": "application/json",
+      "byte_size": 649,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/doubao-replay/function-quantifiers/artifacts/16/16479bdda402a666488032a50aaa2d7631dbb53b6054a1a6058cafe285dc3e72.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334",
+      "kind": "notation_canonical",
+      "sha256": "6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334",
+      "media_type": "application/json",
+      "byte_size": 2455,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/doubao-replay/function-quantifiers/artifacts/6e/6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:4f9dd0716f6349d4f1acd3e1545ad9b7802d9488a14a47f6e80504cc1edb5843",
+      "kind": "notation_normalized",
+      "sha256": "4f9dd0716f6349d4f1acd3e1545ad9b7802d9488a14a47f6e80504cc1edb5843",
+      "media_type": "application/json",
+      "byte_size": 807,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/doubao-replay/function-quantifiers/artifacts/4f/4f9dd0716f6349d4f1acd3e1545ad9b7802d9488a14a47f6e80504cc1edb5843.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:9937740409537ceb5746262ad29f9a4808db318ab5e18e92c20609d2c719c203",
+      "kind": "notation_compiled",
+      "sha256": "9937740409537ceb5746262ad29f9a4808db318ab5e18e92c20609d2c719c203",
+      "media_type": "application/json",
+      "byte_size": 3383,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/doubao-replay/function-quantifiers/artifacts/99/9937740409537ceb5746262ad29f9a4808db318ab5e18e92c20609d2c719c203.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/doubao-replay/function-quantifiers/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:d31aa5c41ed02bf3582b2f799a8f23e0fa2132064fff3590eb4ad6538e3767ca",
+      "kind": "notation_ir",
+      "sha256": "d31aa5c41ed02bf3582b2f799a8f23e0fa2132064fff3590eb4ad6538e3767ca",
+      "media_type": "application/json",
+      "byte_size": 477,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/doubao-replay/function-quantifiers/artifacts/d3/d31aa5c41ed02bf3582b2f799a8f23e0fa2132064fff3590eb4ad6538e3767ca.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:168b7065be6794077d9feee35c8ebe35daece8b59e48a663f367701e8448ded1",
+      "kind": "notation_validation",
+      "sha256": "168b7065be6794077d9feee35c8ebe35daece8b59e48a663f367701e8448ded1",
+      "media_type": "application/json",
+      "byte_size": 542,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-intersection-definition-20260916/doubao-replay/function-quantifiers/artifacts/16/168b7065be6794077d9feee35c8ebe35daece8b59e48a663f367701e8448ded1.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "16479bdda402a666488032a50aaa2d7631dbb53b6054a1a6058cafe285dc3e72",
+  "semantic_revision": "6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334",
+  "units": {
+    "r.definitions[0]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 0
+    },
+    "r.definitions[1]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 1
+    },
+    "r.c0.facts[0]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c1.facts[0]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 0
+    }
+  }
+}

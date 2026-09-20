@@ -61,10 +61,14 @@ def inventory(root=REPO):
 
 def resource_owner(path):
     """Every resource has an explicit consumer or a conservative fallback."""
-    # Product persistence/admin is not consumed by the existing Review solver pipeline.
-    # P2's product pipeline freezes its own deployment and dependency definition.
+    # The product pipeline freezes its notation workflow and runtime lowering
+    # separately; keep those files visible to the corresponding stage owners.
     if path.startswith('server/shuxueshuo_server/product/'):
         return None, False
+    if path.startswith('server/shuxueshuo_server/problem_understanding/'):
+        if Path(path).stem in {'runtime_binding', 'runtime_lowering', 'compact_planner_input'}:
+            return 'projection', False
+        return 'extraction', False
     if path.startswith(('tools/', 'internal/templates/', 'internal/config/', 'site/assets/', 'frontend/')):
         return 'page', False
     if path.startswith(('internal/functional-plan-', 'internal/functional-few-shot')):
@@ -149,10 +153,19 @@ def collect(root=REPO, config=None):
     if inventory(root) != observed:
         raise ValueError('build.source_changed: 依赖探测期间文件变化')
     settings = {key: {} for key in KEYS}
-    settings['observation'] = {'python': os.environ.get('REVIEW_OCR_PYTHON', str(root / 'server/.venv-ocr/bin/python'))}
-    settings['extraction'] = {'model': config.doubao_model, 'endpoint_hash': digest(config.doubao_base_url), 'attempts': 3}
+    settings['observation'] = {
+        'mode': 'fast-pass',
+        'python': os.environ.get('REVIEW_OCR_PYTHON', str(root / 'server/.venv-ocr/bin/python')),
+    }
+    from shuxueshuo_server.solver.extraction.multimodal_provider import vision_effective_config
+    settings['extraction'] = {**vision_effective_config(config), 'attempts': 3}
     model = config.llm_model or config.deepseek_model
-    settings['solver'] = {'model': model, 'endpoint_hash': digest(config.deepseek_base_url), 'thinking': 'low', 'max_attempts': config.max_llm_attempts, 'few_shot_mode': config.functional_few_shot_mode}
+    settings['solver'] = {
+        'model': model, 'endpoint_hash': digest(config.deepseek_base_url),
+        'thinking': 'low', 'max_attempts': config.max_llm_attempts,
+        'few_shot_mode': config.functional_few_shot_mode,
+        'argument_encoding': config.argument_encoding,
+    }
     settings['lesson'] = {'model': model, 'endpoint_hash': digest(config.deepseek_base_url), 'thinking': 'disabled'}
     stages = {key: {'resources': resources[key], 'config': settings[key]} for key in KEYS}
     return {'schema_version': 'review-dependency-snapshot/v1', 'stages': stages, 'fingerprint': digest(stages), 'unclassified_resources': unknown}

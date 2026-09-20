@@ -1,0 +1,1092 @@
+{
+  "notation-unit:0088da81007159d7687212ce375f217381f873a939e249d932df992f0fa23781": {
+    "path": "/root/children/1/children/1/goals/1",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:06d226f514f4be336cd7c34ec2593c969c2252516c53da15638b688a422b0836": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:082fc43440f5f7e2bbead07abd3e1aeaf17c29f33345923f2463b5815954a084": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:088d48c925c52359154ea76e1e5a1c0432c68a83b33ea65fb9dff14a5a63165b": {
+    "path": "/root/children/1/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:093522d92371c6f33af9ad422264ec823e231d09be3bc65fc0adefa09b7594b5": {
+    "path": "/root/children/1/facts/6",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:0b832f6297fe56a1209f7743c69fe603df02c55cb61a245313dfe37e83a7204a": {
+    "path": "/root/children/1/facts/9",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:0d356d49ebc48e520010d13eda1bd399f2adf2331329f767344e4184be8bc40b": {
+    "path": "/root/children/0/goals/1",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:0ebb78763196d01d5af055abc2cf0431163403d9338474d8842c62e89dc98d3e": {
+    "path": "/root/children/1/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:1a0b15dd06d0f1bed308ba65e61e4a0e828188e2ccd57229a2ffefbe82eee3a9": {
+    "path": "/root/children/1/facts/7",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:1c521a445476a61b81f18ee3bca57b1e0572a85d2e71386370b7c9797dd18449": {
+    "path": "/root/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:1dbe4acca743bb01c034f46fca07e0c9b9dfb8229b69260d19e147688963b1f5": {
+    "path": "/root/children/1/facts/8",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:201030f153f47f0be39f496dd969916efdac5f8c7058cd4e2dca8a8a019e14c2": {
+    "path": "/root/children/0/goals/0",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:2294b43ae811e550d9458939d79f476b661323fe1aa2782e976e11b899d301bc": {
+    "path": "/root",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:229f8b2b65d2fb54280a342e8ddfaa29cdf1ecb5f57b75aeb3c06d9961a1cb6b": {
+    "path": "/root/children/1/facts/4",
+    "premises": [
+      "/root/children/1/facts/4"
+    ],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:30201c18bf0c0060bb6856d505b54ed4ad5626a67414cd02fc43f589bf8cec2b": {
+    "path": "/root/children/1/children/0/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:347a2ef77de60a61ed63ebf2a5d855705f8fcf1c8324323be36dda34a8e941f9": {
+    "path": "/root/children/1/facts/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:383208d63aa7a43188470fd8bdec0c74569d70aaf0db7eaed335d5d7a4dc5aef": {
+    "path": "/root/children/1/facts/8",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:3914b21db86f1353ecdd1ac9ae265b1f4bc9e88e57ece910b34297eb5ac158e8": {
+    "path": "/root/children/1/children/0/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:3dcc6c5447dd3ea799c8a958814afa09d760520219bfb95198ac2a8c940a3b36": {
+    "path": "/root/children/1/facts/4",
+    "premises": [
+      "/root/children/1/facts/4"
+    ],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:3ece61765130df6d2c6d3cee798a17b2806e27d1f6888d2ff217408af6ea79b7": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:42b9b5d08b4381873150e65c25f37e5102b418d6961ca490b1ea7310dbe7bdaa": {
+    "path": "/root/children/1/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:44d3e38a53577e2604b492f61f08898105219e33074541d1dda844bc5f7760e0": {
+    "path": "/root/children/0",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:47e27d277b9b8fc4d3928ff5338354f75171281b84c57c5d497bcf3a4c94ccf2": {
+    "path": "/root/children/1/facts/9",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:4a3a334039bc0660cd3c1b055b16f9094038ddf4153747df40a332d84e4d7e70": {
+    "path": "/root/children/1/children/0/goals/1",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:4cd75b795d3c02f92b9a51d8862b51504bde572d55ff465e345fd3f3fa7ef0dc": {
+    "path": "/root/children/1/facts/7",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:53140f832d9b7a1680784f7b8f968322b8f753a2243a98232236e8be99e9d2e2": {
+    "path": "/root/children/1/facts/5",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:563238a9ae145c91fdffb3d4a59aaa0efbf7024c9b257a4bba72ae216a4eea72": {
+    "path": "/root/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:585b722f346cf09988db4338528a65a8901af98c1eba8fa3c68a95d882eeec2f": {
+    "path": "/root/children/1/facts/6",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:594623b1a993325533de9b70dd4ed5d36f5e0a9a71c29c52602780cee2da66d1": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:5a86349b65dd6664953c5c7a1ad62efb2dd4a367b7e097342f5ac17b88850070": {
+    "path": "/root/children/1/facts/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:5c2d109d318df5348d80c0b1175ddb9756d1828a54114e11f397983c345d580b": {
+    "path": "/root/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:5ec8c54e33b8a9b167d16499bdbab9e96bd0b781416abbdba96a87939c2c03b6": {
+    "path": "/root/children/1/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:5fd0c4b2daa0cded7cd9453b5ba6693b4026a4838e6259e524d36833aaacb7bc": {
+    "path": "/root/children/1/children/1/facts/0",
+    "premises": [
+      "/root/children/1/children/1/facts/1"
+    ],
+    "rule": "minimum_path",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:6281023307427468677d14d8c8ce975000f39800b60f2b3e1591d407a83b6ed4": {
+    "path": "/root/children/1/facts/2",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:668d7ff1f3f9f8951540ac5ce236e3cd4f1e3cfdf472e38652eee5a4aff818fc": {
+    "path": "/root/children/1/children/1",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:6db3cdaff47fff07163cf9acc9b01d9df8ba722583310a528815ed2fd6293126": {
+    "path": "/root/children/0/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:6ef85b4d76e06d8e2d8f8801f257c0485608865fbd6d9fbdcfd010e1b003d969": {
+    "path": "/root/children/0/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:6f0bd6652537f6482e054f0614f8cc808a03ab5c9235dca095ae333ce615e3ea": {
+    "path": "/root/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:6f3931f2fb41291d34f91c3f489c1794399de6efcac80be8297202dd15e4950d": {
+    "path": "/root/children/0/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:73e8c02c4fffee889b2a63de09886639f2465bab76a1dc38813b61be24bcd908": {
+    "path": "/root/children/1/facts/5",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:7b7505f988a79c1edf66a2a0332241332189aa0e626c70dfd8306af73b1595ad": {
+    "path": "/root/facts/3",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:7f4db7bebe4abeb6ba3a9d374fb650c070164b1bd302743cc869ccd270cfbc75": {
+    "path": "/root/facts/2",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:860186735df967335921b22790fc5229539d6073b825262f81926f74ecc37c14": {
+    "path": "/root/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:86e0422ff0e936cfec8abb3db5567c80ac52c9ef5f0c8605e2e9b06a6b496eaa": {
+    "path": "/root/children/0/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:8a0fd41d369dc5dad114a0cbc4853c73a0fd023a38c29117e9d99821c662cb05": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:9c4c1761b4d704bc206900cc89076e5495b5c4fcb98ada9c5956dc87888bd717": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "curve_coordinate_variable",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:a37eeec1f8b2c01abd4eb1056e0207bea7d000802f1ac2e363a76a3e0f8665cf": {
+    "path": "/root/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:a45950ef1bd49bd6fe6f1fdd5ef7770418b364e8d3ff6a1adb23c08c4c4b2188": {
+    "path": "/root/children/1/children/0/goals/1",
+    "premises": [],
+    "rule": "goal_minimum",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:a60b9756e688b3e6bffe558d845ac059f25bfeb41e1da07d946cec9812f0a4cf": {
+    "path": "/root/children/1/facts/10",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:ab81c394dec1a06ce5ae5fa3f6783c70fe7b62ccd7004506f0ad44c369d8d877": {
+    "path": "/root/children/1/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:aca91a007c9617ad705f9ccf807f1f2fdfa18a8d007ea3119865032c34d8eba3": {
+    "path": "/root/children/1/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:ae9d5196cb995bef12c235f99c5577f88e3059ebce5f1f55798a2ccc42ac3d11": {
+    "path": "/root/children/1/children/0",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:b136bf6d334c0edaa9e70af864bda62ca009e86c806755c270dff33ff75f9101": {
+    "path": "/root/facts/3",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:b1a82ce24e9ef31e0736b2fe451b89ae588e9c9184a9f88497ec12e0edfa9623": {
+    "path": "/root/children/1/children/1/goals/0",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:b25727dc7a85819335f6c32448950a944b7e94c6325482696906e45445cd07db": {
+    "path": "/root/children/1/children/1/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:b92db48013713468dcaf12c229bc30c36f93ae307c0d4b807e3f709ad86c6412": {
+    "path": "/root/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:bc84cff4bd164bda65f374fb48b4d3d661cfc1b19dc043aef054b224107c811d": {
+    "path": "/root/children/1/children/0/goals/0",
+    "premises": [],
+    "rule": "goal",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c0"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:c222142492da0caae070f7dd97f6c1435bfe4f46e2c0a7045fd27365383d024c": {
+    "path": "/root/children/1/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:ca0b92b7673c1fed54382611233b5dd4bbe3c1f3707e432b1b6d2c609893d61d": {
+    "path": "/root/children/1/facts/10",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:d888ea30e9a72db094556e92a899569337c295699d995f8cd755125ec560cc13": {
+    "path": "/root/facts/2",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:dc5e1e9bf60f3d8201f37e9def1d1fa8313e0a56f5237b282dccf98931adbaf4": {
+    "path": "/root/definitions/0",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:dd4881cab6b3e674d123cf8912ea4334bf85528ee0c53d59da331ef6a6282892": {
+    "path": "/root/children/1/facts/8",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:e2e16d0cd5166c4b1a5d0adf5e46a938f709b8d3fa6221daaac3ec937d57c742": {
+    "path": "/root/children/1/facts/0",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:e8bf8da2e80210d3b4d3e3b5195d7ba2c05e4047a7b9cd4659a046d379e3d65f": {
+    "path": "/root/children/1",
+    "premises": [],
+    "rule": "scope",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:ebc03835150a8d8e3fc3db121d5c272cd8b6ed493451df103fa8352ad7945fec": {
+    "path": "/root/children/1/facts/7",
+    "premises": [],
+    "rule": "object_declaration",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:ecf7e27e8333e39e9fa9a565cfdb2188639d1f30d3e69944899dca452bf3ae48": {
+    "path": "/root/children/1/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:f1e57ffc0641c5aa6f698e58cc0e6f35b0f4debdebac12f086bfbdc0c0327945": {
+    "path": "/root/children/1/facts/9",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  },
+  "notation-unit:f4e8931a9932cfad6f35667bd215d080ab664fcf1a5eb4ad8dd37dd35d77a23c": {
+    "path": "/root/children/1/children/1/facts/1",
+    "premises": [],
+    "rule": "typed_relation",
+    "scope_path": [
+      "problem",
+      "c1",
+      "c1"
+    ],
+    "source_identity": {
+      "candidate_hash": "cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "candidate_id": "offline:cd3129a684254c59376e2f87059345f6eba6b6507ba1bdded0b002526c9957db",
+      "problem_id": "tj-2026-nankai-yimo-25",
+      "source_hash": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+      "source_version_id": "frozen:tj-2026-nankai-yimo-25.png"
+    }
+  }
+}

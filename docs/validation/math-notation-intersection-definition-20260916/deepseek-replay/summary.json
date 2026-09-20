@@ -1,0 +1,254 @@
+{
+  "offline_replay_only": true,
+  "network_calls": 0,
+  "source_batch": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/math-notation-provider-comparison-20260916-153340/deepseek",
+  "live_passed": 6,
+  "replay_passed": 6,
+  "implementation_files": {
+    "__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+    "algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+    "batch_smoke.py": "e59fc9098b2ebb0b385f0d7d9dd186cdd1b2438f0baf39c678b423d17fd2f10d",
+    "candidate_common.py": "bf0f3e0371e47809b19800cc0ad091e5f6452851d26c40851270fd6dc3c329e3",
+    "comparison_provider.py": "24b12606f368f460a9b82b46327d5abc4052548779bff27ddc1f48cbf21cd688",
+    "identity.py": "a52c7273ed8945df8a958a0667d7ea7ab702fc6587baa4d2f2926010deb1db5b",
+    "notation_compile.py": "97e0520b44e119cb3841e3e4717f3b6e25070a0b740411d729a5795292ba0f35",
+    "notation_contract.py": "72b7c8adc0ef2b0fb6d7357242958a961b8810a85866d71eaf88ec0bb3ffc2c0",
+    "notation_geometry_proofs.py": "b373845d9c33de8ec1d36f45b8ae31c376d8389e4b67f9dd64e753fce7a6b24c",
+    "notation_implication.py": "20a298eb044e769a0573ba3939bb97589c6c950eaf5c3dac39e0f7d21a3288e3",
+    "notation_normalization.py": "28bf7c52ba7dadbf81927bd24ccdd4fc707f347246b17b7de6550a8f17b809ad",
+    "notation_parser.py": "25a04621c204efb1cc113e7fb6dbaf01c95729e8ae45eb5910dd4129128e6e5e",
+    "notation_replay.py": "40ba9163a1236f39af67b0ba91f63dcd0edb78273469306101614896e8bda892",
+    "notation_semantics.py": "454aba8a2e4d9da755a4c51f6fb1550824d3661a58fbe1f2559f1a594eb57955",
+    "notation_service.py": "edf1935b519114a1922a75de5d86f1da9aca5dfae11f5d13b6af5953612b2c56",
+    "observation.py": "30ea92ea9f0cf668dbc62c0aba568329c7f05b7c02d917073fbc97380600e366",
+    "proof_budget.py": "2fc9ad97ac90584263a6c67783e5c86f6cd1fadd33c6d929d1084cd47297b87d",
+    "smoke.py": "4641bf9ad5fac54afc4bc7fc5b65ebb01e5b7882053e430c1b686be707c3edc4",
+    "wire.py": "153a5089f7767e48f3bbe66b7e9154f7b64d72c0f142cb9399457f1ef1b55775"
+  },
+  "results": {
+    "tj-2026-heping-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 33.148,
+      "usage": {
+        "completion_tokens": 6540,
+        "prompt_tokens": 10162,
+        "total_tokens": 16702,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 9138
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "867413355271995c0a863cfd5e9a22e90ffc2b030f7d67438c1b13fd11b9a8a5",
+      "frozen_request_sha256": "52e7e20765cdeba6ccdab7bc5ca061cd34483119ba89f7dbe81cf674df86346a",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "tj-2026-heping-ermo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 26.856,
+      "usage": {
+        "completion_tokens": 5810,
+        "prompt_tokens": 10036,
+        "total_tokens": 15846,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 9012
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "0ce0fe1fbc7f11181db257d8022e418a3882ef103ae128d35a0d8dd4c4dfbcf7",
+      "frozen_request_sha256": "cda5f8509e80e5b141ac000db548dd2f9a778c257a8c13f6e96225d51eab6b09",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "tj-2026-hexi-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 27.531,
+      "usage": {
+        "completion_tokens": 5820,
+        "prompt_tokens": 9973,
+        "total_tokens": 15793,
+        "prompt_cache_hit_tokens": 1024,
+        "prompt_cache_miss_tokens": 8949
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "ec3c5a5be2eb29237d1319495ff90dcb2bd07e74c0b416930c6cb19af54e1e8a",
+      "frozen_request_sha256": "f0cebc0e0ec8208d4756773bf24745e3da4b22b8f25d8ab0e7c5878c23ea50a2",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "tj-2026-nankai-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 26.518,
+      "usage": {
+        "completion_tokens": 5984,
+        "prompt_tokens": 10066,
+        "total_tokens": 16050,
+        "prompt_cache_hit_tokens": 9344,
+        "prompt_cache_miss_tokens": 722
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "f300a8ef6e2bbdd0a3a85ba57b7e48c62e92ee1b477a8e7526b25086a05a8e3c",
+      "frozen_request_sha256": "2dee5ea9f9964de8c55143b2e8fcfb29386b4d09b03ff7736680b5fc0d3d9c70",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "tj-2026-xiqing-yimo-25": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 6.226,
+      "usage": {
+        "completion_tokens": 1323,
+        "prompt_tokens": 9901,
+        "total_tokens": 11224,
+        "prompt_cache_hit_tokens": 9344,
+        "prompt_cache_miss_tokens": 557
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "d2d40ce9f2b89da81329ebed4d0da7ecb44f41a7c18fc97f41a26155a32ab087",
+      "frozen_request_sha256": "8184c8558155d86beb13f82f902af08120963fce0cd8aed8d2d654263b05f3aa",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "k-quad": {
+      "offline_replay_only": true,
+      "live_passed": false,
+      "replay_passed": false,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 2,
+      "replay_parse_issues": 2,
+      "continuation": {
+        "status": "needs_confirmation",
+        "blocked": true,
+        "error_code": "extraction.missing_figure",
+        "user_action": "supplement_image",
+        "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+        "missing_figures": [
+          {
+            "scope": "r.c0.c0",
+            "label": "①",
+            "text": "题面引用图1，但输入图片未提供该图。"
+          },
+          {
+            "scope": "r.c0.c1",
+            "label": "②",
+            "text": "题面引用图2，但输入图片未提供该图。"
+          },
+          {
+            "scope": "r.c1",
+            "label": "(2)",
+            "text": "题面引用图3，但输入图片未提供该图。"
+          },
+          {
+            "scope": "r.c2",
+            "label": "(3)",
+            "text": "题面引用图4，但输入图片未提供该图。"
+          }
+        ]
+      },
+      "elapsed_seconds": 60.144,
+      "usage": {
+        "completion_tokens": 13347,
+        "prompt_tokens": 10147,
+        "total_tokens": 23494,
+        "prompt_cache_hit_tokens": 9344,
+        "prompt_cache_miss_tokens": 803
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "743971129831f900dfada96fdc17faff26699b9aec8ad55f45a6332212d975d9",
+      "frozen_request_sha256": "65c9f314c9697e017c4a99029aa4c34aad0123316546d89bbf78ff2be32f4d0a",
+      "request_contract": "problem-math-notation/v1"
+    },
+    "function-quantifiers": {
+      "offline_replay_only": true,
+      "live_passed": true,
+      "replay_passed": true,
+      "json_schema_valid": true,
+      "match_correct": true,
+      "original_parse_issues": 0,
+      "replay_parse_issues": 0,
+      "continuation": {
+        "status": "candidate_only",
+        "blocked": false,
+        "error_code": null,
+        "user_action": null,
+        "message": null,
+        "missing_figures": []
+      },
+      "elapsed_seconds": 7.516,
+      "usage": {
+        "completion_tokens": 1589,
+        "prompt_tokens": 9772,
+        "total_tokens": 11361,
+        "prompt_cache_hit_tokens": 9344,
+        "prompt_cache_miss_tokens": 428
+      },
+      "finish_reason": "stop",
+      "raw_response_sha256": "f589189b356f8ef3e9331e41cf3129db1ca0ceb93f3a7275cd7bc06251caa39a",
+      "frozen_request_sha256": "d8a0de2ea03b5d2da753448e7e49e41f3ce737156b7f0fdbe9dcab72ad8fae3b",
+      "request_contract": "problem-math-notation/v1"
+    }
+  }
+}

@@ -1,0 +1,1107 @@
+{
+  "schema_version": "source-observation/v1",
+  "source_id": "source:6c3a33a96cdfd656bf7d16f9f4e6a85ffcbc9ef02e0920e9a7465486bf99fae3",
+  "source_revision_hash": "190380b26f77806ebde8096c39551792efe92e9901e3e80f99a32a5f864ac954",
+  "selection_id": "selection:228cfff1656d630ecca5bf9d80fa36f96bd9cbcaab949ca6f0240e52c230ac4b",
+  "dependency_hash": "138d3cfaec85f3c7920e962e4ff7f7cd91407756dbaf802a27ad8461efc39813",
+  "providers": [
+    {
+      "provider_id": "provider:2737a646fe6396f8e17db99004dfac753be1d42b65182e44728ab4d6e19c2d67",
+      "provider": "paddle_local_cpu",
+      "component": "layout",
+      "model_name": "PP-DocLayout-S",
+      "model_revision": "sha256:1a2d83f686bab1b27795179048a6bc6267d59fd37add200dc65ab4a54b8d6047",
+      "software_versions": {
+        "paddleocr": "3.7.0",
+        "paddlepaddle": "3.3.0",
+        "paddlex": "3.7.2"
+      },
+      "config": {
+        "canonical_input": "exif_transposed_rgb",
+        "device": "cpu",
+        "formula_confidence": "provider_score_or_fixed_0.5",
+        "model_source": "bos"
+      }
+    },
+    {
+      "provider_id": "provider:8f8b9a4495d11c2668c0b91cc4624e43990bffe3811d5583f71cc10caefd9cf4",
+      "provider": "paddle_local_cpu",
+      "component": "formula_ocr",
+      "model_name": "PP-FormulaNet_plus-M",
+      "model_revision": "sha256:3d1a3713f6d678ef4d2e60ae83983a4f1edd568a7fcaefa3ec6a2ae15625c797",
+      "software_versions": {
+        "paddleocr": "3.7.0",
+        "paddlepaddle": "3.3.0",
+        "paddlex": "3.7.2"
+      },
+      "config": {
+        "canonical_input": "exif_transposed_rgb",
+        "device": "cpu",
+        "formula_confidence": "provider_score_or_fixed_0.5",
+        "model_source": "bos"
+      }
+    },
+    {
+      "provider_id": "provider:9a1cfaf0e85f07240df007d9bddf7d5351d4d155b99a6987983522b5a3c07bb3",
+      "provider": "local_cv",
+      "component": "ink_origin",
+      "model_name": "conservative_local_ink",
+      "model_revision": "v2",
+      "software_versions": {
+        "Pillow": "12.3.0"
+      },
+      "config": {
+        "candidate_minimum_chroma": 48,
+        "max_dimension": 960,
+        "min_tile_pixels": 4,
+        "minimum_seed_pixels": 20,
+        "minimum_seed_ratio": 0.06,
+        "neutral_authority": "unknown_or_mixed_only",
+        "neutral_dark_maximum": 150,
+        "neutral_maximum_chroma": 35,
+        "neutral_minimum_seed_pixels": 16,
+        "neutral_minimum_seed_ratio": 0.08,
+        "seed_minimum_chroma": 70,
+        "seed_minimum_relative_saturation": 0.45
+      }
+    },
+    {
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "provider": "paddle_local_cpu",
+      "component": "text_ocr",
+      "model_name": "PP-OCRv6_medium_det+PP-OCRv6_medium_rec",
+      "model_revision": "sha256:eb40f6666e61ebd27ec7436116c8b3a04c3b76cc810ad76b91a44ad55d7e8f45",
+      "software_versions": {
+        "paddleocr": "3.7.0",
+        "paddlepaddle": "3.3.0",
+        "paddlex": "3.7.2"
+      },
+      "config": {
+        "canonical_input": "exif_transposed_rgb",
+        "device": "cpu",
+        "formula_confidence": "provider_score_or_fixed_0.5",
+        "model_source": "bos"
+      }
+    }
+  ],
+  "pages": [
+    {
+      "page_id": "page-1",
+      "width": 1308,
+      "height": 675,
+      "orientation_degrees": 0,
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "layout_block_ids": [
+        "observation:layout:0b6d2207b9733a3127f0854350df67382d147d610312302b4147f909cd5054ba",
+        "observation:layout:7f53140ddcb1059a397a365ba535552a9e984c7934ab54c0e36229770e50e3af",
+        "observation:layout:b8dc81bddf07bb7a76f926d8e409b88a5cf5f08088cf54ecd2a77c86f12f02de",
+        "observation:layout:2f9664595d3cce9fc378de0db517dc2d53f181d8d7fa28c970e6c3570c0183d5",
+        "observation:layout:c8891f5742b56a1845e28b6260bbc08cccb8f8e3f7cde8d4fc0aea7117b86c09",
+        "observation:layout:8ca482eb378df5e3187a8a4bd90db462f4764809458b24a69372699fdc154823"
+      ],
+      "reading_order": [
+        "observation:formula:7d35edf1e96b39064ed72e17c7ab6abe0ac8d24904f5b750e89ccd107655f830",
+        "observation:layout:0b6d2207b9733a3127f0854350df67382d147d610312302b4147f909cd5054ba",
+        "observation:text:cc8df12c4705ef38803c45fcb1724a6e22e4b18e34aef5456b8cec3e2086b872",
+        "observation:formula:8399013a013e4bed0f22599204ad8b37c96c7349d333d9f57b3e8fb1ced2f2a2",
+        "observation:layout:7f53140ddcb1059a397a365ba535552a9e984c7934ab54c0e36229770e50e3af",
+        "observation:text:c6cf522e370f0e79bc32f4192bb5516028d59b6a842f346a2e952443361b171e",
+        "observation:formula:6c220477ffdd225c59b0eab5e0eeb8db2d530703ca1646fd45fda5d558dcef2b",
+        "observation:layout:b8dc81bddf07bb7a76f926d8e409b88a5cf5f08088cf54ecd2a77c86f12f02de",
+        "observation:text:123438720bc4d666a2359628ec6f6c10cbd703e2402f0af499684f266733d698",
+        "observation:formula:83b7bb676a2774abdbf988579bda46230f7d551bb90b5d994a492040c77f1d65",
+        "observation:layout:2f9664595d3cce9fc378de0db517dc2d53f181d8d7fa28c970e6c3570c0183d5",
+        "observation:text:8831772ba33ff22ed9f18b9320365f6711ee6a1167ce44d65a8f52b7699abb54",
+        "observation:formula:31089cb1a67d4e75fbe48cfdde008353c601f689df0a00e93a865c2a75de949c",
+        "observation:layout:c8891f5742b56a1845e28b6260bbc08cccb8f8e3f7cde8d4fc0aea7117b86c09",
+        "observation:text:bb62452719276c17a60b5e2dedcebcb26243e5916176037c0f729215be753d27",
+        "observation:formula:6729de563a2084a782fcde7202b43a6fc4040aad7e1a768f61ceda2065ea69e5",
+        "observation:layout:8ca482eb378df5e3187a8a4bd90db462f4764809458b24a69372699fdc154823",
+        "observation:text:a1eac228bae9ca9cb04b6d0038b55bfb5745fc632f37127e5ac2a7ee55ee1d2d",
+        "observation:formula:b42645855ad7af4458574a0adf1f3b35673eb7da0a62a990d9400fab5635792c",
+        "observation:text:8bcebac5429a5a7e1457e79a8edd787fd0a9b175ccf26afbba1eb0517e015826",
+        "observation:text:9be0d31f4aaab7b2e5ed877080fbda98d83a9a2399cd3f4a177baaf842ebff70",
+        "observation:text:9004d0ec189340e6c621956c56fe03be4bb8d6bc65732e5494eaffd30e299e6d",
+        "observation:text:32a32bc455fe43cc84562c1d49f7cf276fd0ccee1fe0af63a32dd5eb9dba3650",
+        "observation:text:b214f397465e1b374a8b4b7f7323324b95a9eb5f02d784a18b0cd4fbb7553b57",
+        "observation:text:6b56d2fb5974cda47e9d52be68711ce2b1b19c137035541b16686d661574a6e8",
+        "observation:text:79068b7aeb25191b7115dbc92a041ff82e80a46dc52d8b7e5f5e0036db67dc09",
+        "observation:text:1cfec73b8081553ea8a84c32069226076508489754c7764183d85a45b455e0aa"
+      ]
+    }
+  ],
+  "layout_blocks": [
+    {
+      "observation_id": "observation:layout:0b6d2207b9733a3127f0854350df67382d147d610312302b4147f909cd5054ba",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.035759,
+          0.036395
+        ],
+        [
+          0.035759,
+          0.146122
+        ],
+        [
+          0.960152,
+          0.146122
+        ],
+        [
+          0.960152,
+          0.036395
+        ]
+      ],
+      "confidence": 0.743734,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:2737a646fe6396f8e17db99004dfac753be1d42b65182e44728ab4d6e19c2d67",
+      "reading_order": 0,
+      "kind": "text",
+      "provider_label": "text"
+    },
+    {
+      "observation_id": "observation:layout:7f53140ddcb1059a397a365ba535552a9e984c7934ab54c0e36229770e50e3af",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.00602,
+          0.314106
+        ],
+        [
+          0.00602,
+          0.525052
+        ],
+        [
+          0.95698,
+          0.525052
+        ],
+        [
+          0.95698,
+          0.314106
+        ]
+      ],
+      "confidence": 0.845119,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:2737a646fe6396f8e17db99004dfac753be1d42b65182e44728ab4d6e19c2d67",
+      "reading_order": 1,
+      "kind": "text",
+      "provider_label": "text"
+    },
+    {
+      "observation_id": "observation:layout:b8dc81bddf07bb7a76f926d8e409b88a5cf5f08088cf54ecd2a77c86f12f02de",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.78104,
+          0.605622
+        ],
+        [
+          0.78104,
+          0.645061
+        ],
+        [
+          0.887085,
+          0.645061
+        ],
+        [
+          0.887085,
+          0.605622
+        ]
+      ],
+      "confidence": 0.53117,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:2737a646fe6396f8e17db99004dfac753be1d42b65182e44728ab4d6e19c2d67",
+      "reading_order": 2,
+      "kind": "formula",
+      "provider_label": "formula"
+    },
+    {
+      "observation_id": "observation:layout:2f9664595d3cce9fc378de0db517dc2d53f181d8d7fa28c970e6c3570c0183d5",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.008266,
+          0.604269
+        ],
+        [
+          0.008266,
+          0.715271
+        ],
+        [
+          0.889537,
+          0.715271
+        ],
+        [
+          0.889537,
+          0.604269
+        ]
+      ],
+      "confidence": 0.859452,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:2737a646fe6396f8e17db99004dfac753be1d42b65182e44728ab4d6e19c2d67",
+      "reading_order": 3,
+      "kind": "text",
+      "provider_label": "text"
+    },
+    {
+      "observation_id": "observation:layout:c8891f5742b56a1845e28b6260bbc08cccb8f8e3f7cde8d4fc0aea7117b86c09",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.12467,
+          0.672585
+        ],
+        [
+          0.12467,
+          0.714521
+        ],
+        [
+          0.251768,
+          0.714521
+        ],
+        [
+          0.251768,
+          0.672585
+        ]
+      ],
+      "confidence": 0.504718,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:2737a646fe6396f8e17db99004dfac753be1d42b65182e44728ab4d6e19c2d67",
+      "reading_order": 4,
+      "kind": "formula",
+      "provider_label": "formula"
+    },
+    {
+      "observation_id": "observation:layout:8ca482eb378df5e3187a8a4bd90db462f4764809458b24a69372699fdc154823",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.007216,
+          0.780253
+        ],
+        [
+          0.007216,
+          0.960223
+        ],
+        [
+          0.956247,
+          0.960223
+        ],
+        [
+          0.956247,
+          0.780253
+        ]
+      ],
+      "confidence": 0.826079,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:2737a646fe6396f8e17db99004dfac753be1d42b65182e44728ab4d6e19c2d67",
+      "reading_order": 5,
+      "kind": "text",
+      "provider_label": "text"
+    }
+  ],
+  "text_spans": [
+    {
+      "observation_id": "observation:text:cc8df12c4705ef38803c45fcb1724a6e22e4b18e34aef5456b8cec3e2086b872",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.017584,
+          0.038519
+        ],
+        [
+          0.017584,
+          0.078519
+        ],
+        [
+          0.966361,
+          0.078519
+        ],
+        [
+          0.966361,
+          0.038519
+        ]
+      ],
+      "confidence": 0.993649,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 0,
+      "text": "定义:若四边形的一条对角线被另一条对角线平分,且另一条对角线被交点分成的两条线段长度之比为k(",
+      "block_id": "observation:layout:0b6d2207b9733a3127f0854350df67382d147d610312302b4147f909cd5054ba"
+    },
+    {
+      "observation_id": "observation:text:c6cf522e370f0e79bc32f4192bb5516028d59b6a842f346a2e952443361b171e",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.01682,
+          0.103704
+        ],
+        [
+          0.01682,
+          0.148148
+        ],
+        [
+          0.415138,
+          0.148148
+        ],
+        [
+          0.415138,
+          0.103704
+        ]
+      ],
+      "confidence": 0.982117,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 1,
+      "text": "k≥1),则称该四边形为“k倍四边形”12。",
+      "block_id": "observation:layout:0b6d2207b9733a3127f0854350df67382d147d610312302b4147f909cd5054ba"
+    },
+    {
+      "observation_id": "observation:text:123438720bc4d666a2359628ec6f6c10cbd703e2402f0af499684f266733d698",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.012997,
+          0.208889
+        ],
+        [
+          0.012997,
+          0.262222
+        ],
+        [
+          0.075688,
+          0.262222
+        ],
+        [
+          0.075688,
+          0.208889
+        ]
+      ],
+      "confidence": 0.99617,
+      "origin": "unknown",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 2,
+      "text": "问题:",
+      "block_id": null
+    },
+    {
+      "observation_id": "observation:text:8831772ba33ff22ed9f18b9320365f6711ee6a1167ce44d65a8f52b7699abb54",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.018349,
+          0.321481
+        ],
+        [
+          0.018349,
+          0.361481
+        ],
+        [
+          0.960245,
+          0.361481
+        ],
+        [
+          0.960245,
+          0.321481
+        ]
+      ],
+      "confidence": 0.952077,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 3,
+      "text": "(1)如图1,在□ABCD 中,对角线AC与BD交于点 O,点E为 OB 中点。若四边形AECD 为k",
+      "block_id": "observation:layout:7f53140ddcb1059a397a365ba535552a9e984c7934ab54c0e36229770e50e3af"
+    },
+    {
+      "observation_id": "observation:text:bb62452719276c17a60b5e2dedcebcb26243e5916176037c0f729215be753d27",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.017584,
+          0.391111
+        ],
+        [
+          0.017584,
+          0.431111
+        ],
+        [
+          0.2263,
+          0.431111
+        ],
+        [
+          0.2263,
+          0.391111
+        ]
+      ],
+      "confidence": 0.999829,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 4,
+      "text": "倍四边形,则k的值为",
+      "block_id": "observation:layout:7f53140ddcb1059a397a365ba535552a9e984c7934ab54c0e36229770e50e3af"
+    },
+    {
+      "observation_id": "observation:text:a1eac228bae9ca9cb04b6d0038b55bfb5745fc632f37127e5ac2a7ee55ee1d2d",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.215596,
+          0.391111
+        ],
+        [
+          0.215596,
+          0.431111
+        ],
+        [
+          0.909021,
+          0.431111
+        ],
+        [
+          0.909021,
+          0.391111
+        ]
+      ],
+      "confidence": 0.943159,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 5,
+      "text": "_____;如图2,在k倍四边形 ABCD中,若对角线 AC被 BD平分,则",
+      "block_id": "observation:layout:7f53140ddcb1059a397a365ba535552a9e984c7934ab54c0e36229770e50e3af"
+    },
+    {
+      "observation_id": "observation:text:8bcebac5429a5a7e1457e79a8edd787fd0a9b175ccf26afbba1eb0517e015826",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.014526,
+          0.491852
+        ],
+        [
+          0.016055,
+          0.431111
+        ],
+        [
+          0.095566,
+          0.438519
+        ],
+        [
+          0.094037,
+          0.499259
+        ]
+      ],
+      "confidence": 0.993458,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 6,
+      "text": "S△ACD",
+      "block_id": "observation:layout:7f53140ddcb1059a397a365ba535552a9e984c7934ab54c0e36229770e50e3af"
+    },
+    {
+      "observation_id": "observation:text:9be0d31f4aaab7b2e5ed877080fbda98d83a9a2399cd3f4a177baaf842ebff70",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.016055,
+          0.56
+        ],
+        [
+          0.01682,
+          0.494815
+        ],
+        [
+          0.094801,
+          0.499259
+        ],
+        [
+          0.094037,
+          0.564444
+        ]
+      ],
+      "confidence": 0.990167,
+      "origin": "unknown",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 7,
+      "text": "S△ACB",
+      "block_id": null
+    },
+    {
+      "observation_id": "observation:text:9004d0ec189340e6c621956c56fe03be4bb8d6bc65732e5494eaffd30e299e6d",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.189602,
+          0.471111
+        ],
+        [
+          0.189602,
+          0.517037
+        ],
+        [
+          0.448777,
+          0.517037
+        ],
+        [
+          0.448777,
+          0.471111
+        ]
+      ],
+      "confidence": 0.988149,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 8,
+      "text": "(用含k的代数式表示)12。",
+      "block_id": "observation:layout:7f53140ddcb1059a397a365ba535552a9e984c7934ab54c0e36229770e50e3af"
+    },
+    {
+      "observation_id": "observation:text:32a32bc455fe43cc84562c1d49f7cf276fd0ccee1fe0af63a32dd5eb9dba3650",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.01682,
+          0.605926
+        ],
+        [
+          0.01682,
+          0.65037
+        ],
+        [
+          0.885321,
+          0.648889
+        ],
+        [
+          0.885321,
+          0.604444
+        ]
+      ],
+      "confidence": 0.952926,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 9,
+      "text": "(2) 如图3,四边形 ABCD 为 k 倍四边形,其对角线 BD 平分对角线 AC,且满足 ∠BDC =",
+      "block_id": "observation:layout:2f9664595d3cce9fc378de0db517dc2d53f181d8d7fa28c970e6c3570c0183d5"
+    },
+    {
+      "observation_id": "observation:text:b214f397465e1b374a8b4b7f7323324b95a9eb5f02d784a18b0cd4fbb7553b57",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.017584,
+          0.674074
+        ],
+        [
+          0.017584,
+          0.718519
+        ],
+        [
+          0.397554,
+          0.718519
+        ],
+        [
+          0.397554,
+          0.674074
+        ]
+      ],
+      "confidence": 0.986269,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 10,
+      "text": "2∠ABD,BD=4CD,求k的值12。",
+      "block_id": "observation:layout:2f9664595d3cce9fc378de0db517dc2d53f181d8d7fa28c970e6c3570c0183d5"
+    },
+    {
+      "observation_id": "observation:text:6b56d2fb5974cda47e9d52be68711ce2b1b19c137035541b16686d661574a6e8",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.017584,
+          0.782222
+        ],
+        [
+          0.017584,
+          0.826667
+        ],
+        [
+          0.953364,
+          0.826667
+        ],
+        [
+          0.953364,
+          0.782222
+        ]
+      ],
+      "confidence": 0.933402,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 11,
+      "text": "(3) 如图4,已知定点 A、B,且 AB⊥BM,点 C为射线 BM 上一动点,点 D 为平面内一点,连接",
+      "block_id": "observation:layout:8ca482eb378df5e3187a8a4bd90db462f4764809458b24a69372699fdc154823"
+    },
+    {
+      "observation_id": "observation:text:79068b7aeb25191b7115dbc92a041ff82e80a46dc52d8b7e5f5e0036db67dc09",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.018349,
+          0.851852
+        ],
+        [
+          0.018349,
+          0.896296
+        ],
+        [
+          0.957951,
+          0.896296
+        ],
+        [
+          0.957951,
+          0.851852
+        ]
+      ],
+      "confidence": 0.999238,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 12,
+      "text": "A、B、C、D构成四边形ABCD。若BD平分AC,∠BAC=∠DAC,四边形ABCD为2倍",
+      "block_id": "observation:layout:8ca482eb378df5e3187a8a4bd90db462f4764809458b24a69372699fdc154823"
+    },
+    {
+      "observation_id": "observation:text:1cfec73b8081553ea8a84c32069226076508489754c7764183d85a45b455e0aa",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.01682,
+          0.918519
+        ],
+        [
+          0.01682,
+          0.964444
+        ],
+        [
+          0.326453,
+          0.962963
+        ],
+        [
+          0.326453,
+          0.917037
+        ]
+      ],
+      "confidence": 0.99954,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:c059130015f03bd3068235e36339ac737325a30ed6bda53068ec990890008846",
+      "reading_order": 13,
+      "text": "四边形,求tan∠ACD的值12。",
+      "block_id": "observation:layout:8ca482eb378df5e3187a8a4bd90db462f4764809458b24a69372699fdc154823"
+    }
+  ],
+  "formulas": [
+    {
+      "observation_id": "observation:formula:7d35edf1e96b39064ed72e17c7ab6abe0ac8d24904f5b750e89ccd107655f830",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.01682,
+          0.100148
+        ],
+        [
+          0.01682,
+          0.151704
+        ],
+        [
+          0.072295,
+          0.151704
+        ],
+        [
+          0.072295,
+          0.100148
+        ]
+      ],
+      "confidence": 0.5,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:8f8b9a4495d11c2668c0b91cc4624e43990bffe3811d5583f71cc10caefd9cf4",
+      "reading_order": 0,
+      "latex": "k\\geq1",
+      "status": "unresolved",
+      "source_observation_ids": [
+        "observation:text:c6cf522e370f0e79bc32f4192bb5516028d59b6a842f346a2e952443361b171e"
+      ],
+      "formula_request_id": "formula-request:97009b99036bdba750e9c98e3e6783dcd6872e69e6619815b67030a7b3285992",
+      "source_text_hint": "k≥1",
+      "crop_artifact_id": "artifact:formula_crop:50a9512e104ffb71ec75d350e2c1948a3f93b128d2a54ae75f47f918e0f91f0a"
+    },
+    {
+      "observation_id": "observation:formula:8399013a013e4bed0f22599204ad8b37c96c7349d333d9f57b3e8fb1ced2f2a2",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.017584,
+          0.670518
+        ],
+        [
+          0.017584,
+          0.722075
+        ],
+        [
+          0.235399,
+          0.722075
+        ],
+        [
+          0.235399,
+          0.670518
+        ]
+      ],
+      "confidence": 0.5,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:8f8b9a4495d11c2668c0b91cc4624e43990bffe3811d5583f71cc10caefd9cf4",
+      "reading_order": 1,
+      "latex": "2\\angle ABD,BD=4C,",
+      "status": "unresolved",
+      "source_observation_ids": [
+        "observation:text:b214f397465e1b374a8b4b7f7323324b95a9eb5f02d784a18b0cd4fbb7553b57"
+      ],
+      "formula_request_id": "formula-request:ba9a0fb8fc45b19acfd9000d37601e13b90db708a605a220a8532670acd18eae",
+      "source_text_hint": "2∠ABD,BD=4CD",
+      "crop_artifact_id": "artifact:formula_crop:1feadb3502626e7f7c03edd0029bf9538bc9db326322f62805952e8951cb6fb9"
+    },
+    {
+      "observation_id": "observation:formula:6c220477ffdd225c59b0eab5e0eeb8db2d530703ca1646fd45fda5d558dcef2b",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.12467,
+          0.672585
+        ],
+        [
+          0.12467,
+          0.714521
+        ],
+        [
+          0.251768,
+          0.714521
+        ],
+        [
+          0.251768,
+          0.672585
+        ]
+      ],
+      "confidence": 0.5,
+      "origin": "unknown",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:8f8b9a4495d11c2668c0b91cc4624e43990bffe3811d5583f71cc10caefd9cf4",
+      "reading_order": 2,
+      "latex": "BD=4CD",
+      "status": "unresolved",
+      "source_observation_ids": [
+        "observation:layout:c8891f5742b56a1845e28b6260bbc08cccb8f8e3f7cde8d4fc0aea7117b86c09"
+      ],
+      "formula_request_id": "formula-request:d0e0498bb9f07b87d5e471f7dce12cb07e6534eed80f706c0a055933e7265691",
+      "source_text_hint": null,
+      "crop_artifact_id": "artifact:formula_crop:895b2034b49ec4cd7a5405fb4d301ff7d4747f7ed9af8ee13824d740aa294cc7"
+    },
+    {
+      "observation_id": "observation:formula:83b7bb676a2774abdbf988579bda46230f7d551bb90b5d994a492040c77f1d65",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.110943,
+          0.913244
+        ],
+        [
+          0.110943,
+          0.968237
+        ],
+        [
+          0.238494,
+          0.968237
+        ],
+        [
+          0.238494,
+          0.913244
+        ]
+      ],
+      "confidence": 0.5,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:8f8b9a4495d11c2668c0b91cc4624e43990bffe3811d5583f71cc10caefd9cf4",
+      "reading_order": 3,
+      "latex": "\\bar{x}\\tan\\angle ACD",
+      "status": "unresolved",
+      "source_observation_ids": [
+        "observation:text:1cfec73b8081553ea8a84c32069226076508489754c7764183d85a45b455e0aa"
+      ],
+      "formula_request_id": "formula-request:056a55f43b15e9470a09b7b8b7e977730b433e406a2e6e332116b826c69ec24e",
+      "source_text_hint": "tan∠ACD",
+      "crop_artifact_id": "artifact:formula_crop:44590ddc5b1c89add7757637660571acc93bc03122bcf84fa0ec15afec134037"
+    },
+    {
+      "observation_id": "observation:formula:31089cb1a67d4e75fbe48cfdde008353c601f689df0a00e93a865c2a75de949c",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.78104,
+          0.605622
+        ],
+        [
+          0.78104,
+          0.645061
+        ],
+        [
+          0.887085,
+          0.645061
+        ],
+        [
+          0.887085,
+          0.605622
+        ]
+      ],
+      "confidence": 0.5,
+      "origin": "unknown",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:8f8b9a4495d11c2668c0b91cc4624e43990bffe3811d5583f71cc10caefd9cf4",
+      "reading_order": 4,
+      "latex": "\\angle BDC=",
+      "status": "unresolved",
+      "source_observation_ids": [
+        "observation:layout:b8dc81bddf07bb7a76f926d8e409b88a5cf5f08088cf54ecd2a77c86f12f02de"
+      ],
+      "formula_request_id": "formula-request:58efd0a0d927c99d406290ae97fc10812cdfd7afff23852e2d3ae77ed9ae2cba",
+      "source_text_hint": null,
+      "crop_artifact_id": "artifact:formula_crop:59516d9e4a017ab279688bdce56cca1175eb068248c6d5ef3cb00e50ae75970a"
+    },
+    {
+      "observation_id": "observation:formula:6729de563a2084a782fcde7202b43a6fc4040aad7e1a768f61ceda2065ea69e5",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.789627,
+          0.60077
+        ],
+        [
+          0.789627,
+          0.654044
+        ],
+        [
+          0.885321,
+          0.654044
+        ],
+        [
+          0.885321,
+          0.60077
+        ]
+      ],
+      "confidence": 0.5,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:8f8b9a4495d11c2668c0b91cc4624e43990bffe3811d5583f71cc10caefd9cf4",
+      "reading_order": 5,
+      "latex": "\\angle BDC=",
+      "status": "recognized",
+      "source_observation_ids": [
+        "observation:text:32a32bc455fe43cc84562c1d49f7cf276fd0ccee1fe0af63a32dd5eb9dba3650"
+      ],
+      "formula_request_id": "formula-request:69de971997e0d9e5c60287a80948d63520b1345812792e29e553a70d925bbd3b",
+      "source_text_hint": "∠BDC =",
+      "crop_artifact_id": "artifact:formula_crop:a731aceef717d6fdc10d3e70a217e88cf0f46d8ed36057ee4dab9336c7c1eca6"
+    },
+    {
+      "observation_id": "observation:formula:b42645855ad7af4458574a0adf1f3b35673eb7da0a62a990d9400fab5635792c",
+      "page_id": "page-1",
+      "polygon": [
+        [
+          0.501231,
+          0.848296
+        ],
+        [
+          0.501231,
+          0.899852
+        ],
+        [
+          0.738915,
+          0.899852
+        ],
+        [
+          0.738915,
+          0.848296
+        ]
+      ],
+      "confidence": 0.5,
+      "origin": "printed",
+      "source_artifact_id": "artifact:canonical_source_page:2ab7d8c05adc2acc3ca1879b8b16a8939a481890c790807e2210d28817c0d6e9",
+      "provider_id": "provider:8f8b9a4495d11c2668c0b91cc4624e43990bffe3811d5583f71cc10caefd9cf4",
+      "reading_order": 6,
+      "latex": "\\angle C,\\angle BAC=\\angle DAC,",
+      "status": "unresolved",
+      "source_observation_ids": [
+        "observation:text:79068b7aeb25191b7115dbc92a041ff82e80a46dc52d8b7e5f5e0036db67dc09"
+      ],
+      "formula_request_id": "formula-request:280bafb044a884191956174f9c1f9a3152efad3c13713bbb4a9cbd0cb55a859e",
+      "source_text_hint": "AC,∠BAC=∠DAC",
+      "crop_artifact_id": "artifact:formula_crop:0c7c54202cb6dd94009212ed5f0f05f54390cffbcd1221307c16922889908467"
+    }
+  ],
+  "ink_origins": [],
+  "occlusions": [],
+  "proposals": [],
+  "selected_observation_ids": [
+    "observation:formula:31089cb1a67d4e75fbe48cfdde008353c601f689df0a00e93a865c2a75de949c",
+    "observation:formula:6729de563a2084a782fcde7202b43a6fc4040aad7e1a768f61ceda2065ea69e5",
+    "observation:formula:6c220477ffdd225c59b0eab5e0eeb8db2d530703ca1646fd45fda5d558dcef2b",
+    "observation:formula:7d35edf1e96b39064ed72e17c7ab6abe0ac8d24904f5b750e89ccd107655f830",
+    "observation:formula:8399013a013e4bed0f22599204ad8b37c96c7349d333d9f57b3e8fb1ced2f2a2",
+    "observation:formula:83b7bb676a2774abdbf988579bda46230f7d551bb90b5d994a492040c77f1d65",
+    "observation:formula:b42645855ad7af4458574a0adf1f3b35673eb7da0a62a990d9400fab5635792c",
+    "observation:layout:0b6d2207b9733a3127f0854350df67382d147d610312302b4147f909cd5054ba",
+    "observation:layout:2f9664595d3cce9fc378de0db517dc2d53f181d8d7fa28c970e6c3570c0183d5",
+    "observation:layout:7f53140ddcb1059a397a365ba535552a9e984c7934ab54c0e36229770e50e3af",
+    "observation:layout:8ca482eb378df5e3187a8a4bd90db462f4764809458b24a69372699fdc154823",
+    "observation:layout:b8dc81bddf07bb7a76f926d8e409b88a5cf5f08088cf54ecd2a77c86f12f02de",
+    "observation:layout:c8891f5742b56a1845e28b6260bbc08cccb8f8e3f7cde8d4fc0aea7117b86c09",
+    "observation:text:123438720bc4d666a2359628ec6f6c10cbd703e2402f0af499684f266733d698",
+    "observation:text:1cfec73b8081553ea8a84c32069226076508489754c7764183d85a45b455e0aa",
+    "observation:text:32a32bc455fe43cc84562c1d49f7cf276fd0ccee1fe0af63a32dd5eb9dba3650",
+    "observation:text:6b56d2fb5974cda47e9d52be68711ce2b1b19c137035541b16686d661574a6e8",
+    "observation:text:79068b7aeb25191b7115dbc92a041ff82e80a46dc52d8b7e5f5e0036db67dc09",
+    "observation:text:8831772ba33ff22ed9f18b9320365f6711ee6a1167ce44d65a8f52b7699abb54",
+    "observation:text:8bcebac5429a5a7e1457e79a8edd787fd0a9b175ccf26afbba1eb0517e015826",
+    "observation:text:9004d0ec189340e6c621956c56fe03be4bb8d6bc65732e5494eaffd30e299e6d",
+    "observation:text:9be0d31f4aaab7b2e5ed877080fbda98d83a9a2399cd3f4a177baaf842ebff70",
+    "observation:text:a1eac228bae9ca9cb04b6d0038b55bfb5745fc632f37127e5ac2a7ee55ee1d2d",
+    "observation:text:b214f397465e1b374a8b4b7f7323324b95a9eb5f02d784a18b0cd4fbb7553b57",
+    "observation:text:bb62452719276c17a60b5e2dedcebcb26243e5916176037c0f729215be753d27",
+    "observation:text:c6cf522e370f0e79bc32f4192bb5516028d59b6a842f346a2e952443361b171e",
+    "observation:text:cc8df12c4705ef38803c45fcb1724a6e22e4b18e34aef5456b8cec3e2086b872"
+  ],
+  "issues": [
+    {
+      "issue_id": "observation-issue:0b25701abc51bb573c00b9853bc7a2cc2d5784a25f39ae69b7aab6582283d3c5",
+      "code": "extraction.formula_observation_unresolved",
+      "blocking": false,
+      "retryable": true,
+      "observation_ids": [
+        "observation:text:79068b7aeb25191b7115dbc92a041ff82e80a46dc52d8b7e5f5e0036db67dc09"
+      ],
+      "details": {
+        "expected_math_fragments": [
+          "AC,∠BAC=∠DAC"
+        ],
+        "formula_observation_id": "observation:formula:b42645855ad7af4458574a0adf1f3b35673eb7da0a62a990d9400fab5635792c",
+        "formula_request_id": "formula-request:280bafb044a884191956174f9c1f9a3152efad3c13713bbb4a9cbd0cb55a859e",
+        "reason": "formula_output_incomplete"
+      }
+    },
+    {
+      "issue_id": "observation-issue:0d9fed08220c5cd41107b7dcfd8bcf94a8f5bbb15bf54e154e2a751e5b6d0d1d",
+      "code": "extraction.formula_observation_unresolved",
+      "blocking": false,
+      "retryable": true,
+      "observation_ids": [
+        "observation:text:1cfec73b8081553ea8a84c32069226076508489754c7764183d85a45b455e0aa"
+      ],
+      "details": {
+        "expected_math_fragments": [
+          "tan∠ACD"
+        ],
+        "formula_observation_id": "observation:formula:83b7bb676a2774abdbf988579bda46230f7d551bb90b5d994a492040c77f1d65",
+        "formula_request_id": "formula-request:056a55f43b15e9470a09b7b8b7e977730b433e406a2e6e332116b826c69ec24e",
+        "reason": "formula_output_contains_unexpected_content"
+      }
+    },
+    {
+      "issue_id": "observation-issue:163422e5fd795d8283dae642513761f625e5dac645dafc8c88489c7ff854fb65",
+      "code": "extraction.formula_observation_unresolved",
+      "blocking": false,
+      "retryable": true,
+      "observation_ids": [
+        "observation:text:b214f397465e1b374a8b4b7f7323324b95a9eb5f02d784a18b0cd4fbb7553b57"
+      ],
+      "details": {
+        "expected_math_fragments": [
+          "2∠ABD,BD=4CD"
+        ],
+        "formula_observation_id": "observation:formula:8399013a013e4bed0f22599204ad8b37c96c7349d333d9f57b3e8fb1ced2f2a2",
+        "formula_request_id": "formula-request:ba9a0fb8fc45b19acfd9000d37601e13b90db708a605a220a8532670acd18eae",
+        "reason": "formula_output_incomplete"
+      }
+    },
+    {
+      "issue_id": "observation-issue:7900a195b1e7b18ea707639894849faab8eb32c7990af66d7c7db7aa52202c0d",
+      "code": "extraction.formula_observation_unresolved",
+      "blocking": false,
+      "retryable": true,
+      "observation_ids": [
+        "observation:layout:b8dc81bddf07bb7a76f926d8e409b88a5cf5f08088cf54ecd2a77c86f12f02de"
+      ],
+      "details": {
+        "expected_math_fragments": [],
+        "formula_observation_id": "observation:formula:31089cb1a67d4e75fbe48cfdde008353c601f689df0a00e93a865c2a75de949c",
+        "formula_request_id": "formula-request:58efd0a0d927c99d406290ae97fc10812cdfd7afff23852e2d3ae77ed9ae2cba",
+        "reason": "formula_origin_not_printed"
+      }
+    },
+    {
+      "issue_id": "observation-issue:ad6381429086d1f3096bd257136c85cff2081804de7585b3b42f3253ef340345",
+      "code": "extraction.formula_observation_unresolved",
+      "blocking": false,
+      "retryable": true,
+      "observation_ids": [
+        "observation:text:c6cf522e370f0e79bc32f4192bb5516028d59b6a842f346a2e952443361b171e"
+      ],
+      "details": {
+        "expected_math_fragments": [
+          "k≥1"
+        ],
+        "formula_observation_id": "observation:formula:7d35edf1e96b39064ed72e17c7ab6abe0ac8d24904f5b750e89ccd107655f830",
+        "formula_request_id": "formula-request:97009b99036bdba750e9c98e3e6783dcd6872e69e6619815b67030a7b3285992",
+        "reason": "formula_output_incomplete"
+      }
+    },
+    {
+      "issue_id": "observation-issue:b1f7df0ac90959fa2ce9db4d682187894d76e8f19d18b58c0dfa84d1e7c6bce6",
+      "code": "extraction.problem_region_incomplete",
+      "blocking": true,
+      "retryable": false,
+      "observation_ids": [],
+      "details": {
+        "reason": "no_question_label_detected"
+      }
+    },
+    {
+      "issue_id": "observation-issue:e02adaca23764109bac268e76779b49d131f95b1ee0bda4ea2a0475ca41a6ec9",
+      "code": "extraction.formula_observation_unresolved",
+      "blocking": false,
+      "retryable": true,
+      "observation_ids": [
+        "observation:layout:c8891f5742b56a1845e28b6260bbc08cccb8f8e3f7cde8d4fc0aea7117b86c09"
+      ],
+      "details": {
+        "expected_math_fragments": [],
+        "formula_observation_id": "observation:formula:6c220477ffdd225c59b0eab5e0eeb8db2d530703ca1646fd45fda5d558dcef2b",
+        "formula_request_id": "formula-request:d0e0498bb9f07b87d5e471f7dce12cb07e6534eed80f706c0a055933e7265691",
+        "reason": "formula_origin_not_printed"
+      }
+    }
+  ],
+  "observation_hash": "81f83012897d0c5fc7f812d93fbb16675af0366696a93d547dc30be3980d666c"
+}

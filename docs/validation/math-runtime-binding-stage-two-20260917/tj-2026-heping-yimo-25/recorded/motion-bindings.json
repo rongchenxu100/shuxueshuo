@@ -1,0 +1,44 @@
+[
+  {
+    "expression": [
+      "+",
+      [
+        "call",
+        "length",
+        [
+          "ref",
+          "r:point:O",
+          "point"
+        ],
+        [
+          "ref",
+          "r.c1:point:M",
+          "point"
+        ]
+      ],
+      [
+        "call",
+        "length",
+        [
+          "ref",
+          "r:point:B",
+          "point"
+        ],
+        [
+          "ref",
+          "r.c1:point:N",
+          "point"
+        ]
+      ]
+    ],
+    "path": "/root/children/1/facts/3",
+    "premises": [
+      "/root/children/1/facts/0",
+      "/root/children/1/facts/1"
+    ],
+    "variables": [
+      "r.c1:point:M",
+      "r.c1:point:N"
+    ]
+  }
+]

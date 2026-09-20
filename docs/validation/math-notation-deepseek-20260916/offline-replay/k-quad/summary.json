@@ -1,0 +1,35 @@
+{
+  "offline_replay_only": true,
+  "live_passed": false,
+  "replay_passed": false,
+  "json_schema_valid": true,
+  "match_correct": true,
+  "original_parse_issues": 17,
+  "replay_parse_issues": 16,
+  "continuation": {
+    "status": "needs_confirmation",
+    "blocked": true,
+    "error_code": "extraction.missing_figure",
+    "user_action": "supplement_image",
+    "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+    "missing_figures": [
+      {
+        "scope": "r",
+        "label": "题目",
+        "text": "题面引用的图1、图2、图3、图4未在提供的图片中显示。"
+      }
+    ]
+  },
+  "elapsed_seconds": 35.394,
+  "usage": {
+    "completion_tokens": 8283,
+    "prompt_tokens": 3832,
+    "total_tokens": 12115,
+    "prompt_cache_hit_tokens": 3072,
+    "prompt_cache_miss_tokens": 760
+  },
+  "finish_reason": "stop",
+  "raw_response_sha256": "dbe8b03fc34d7c3f89c518af340d95fb170783d0ced04aad6b57cee036e4fe98",
+  "frozen_request_sha256": "b007cdf6001053034f2b9a7317b47fc18b91b129cd31eaf59eb9427544382fea",
+  "request_contract": null
+}

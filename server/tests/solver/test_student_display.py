@@ -26,6 +26,12 @@ def test_student_math_display_can_use_fullwidth_operators() -> None:
     assert student_math_display("x>=0", fullwidth_operators=True) == "x≥0"
 
 
+def test_student_math_display_localizes_min_max_calls() -> None:
+    value = student_math_display("min(2*DM+AM)", fullwidth_operators=True)
+    assert value == "最小值(2DM＋AM)"
+    assert find_internal_math_tokens(value) == []
+
+
 def test_student_math_display_renders_structured_sympy_as_student_math() -> None:
     assert student_math_display("Eq(x**2, 4)") == "x²＝4"
     assert student_math_display("True") == "恒成立"

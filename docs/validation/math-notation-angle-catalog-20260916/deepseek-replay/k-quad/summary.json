@@ -1,0 +1,50 @@
+{
+  "offline_replay_only": true,
+  "live_passed": false,
+  "replay_passed": false,
+  "json_schema_valid": true,
+  "match_correct": true,
+  "original_parse_issues": 2,
+  "replay_parse_issues": 0,
+  "continuation": {
+    "status": "needs_confirmation",
+    "blocked": true,
+    "error_code": "extraction.missing_figure",
+    "user_action": "supplement_image",
+    "message": "题目引用的图形未提供或尚不能确认，已保留提取的题意并停止后续处理。请确认图片是否包含对应图形，必要时补充完整题目图片。",
+    "missing_figures": [
+      {
+        "scope": "r.c0.c0",
+        "label": "①",
+        "text": "题面引用图1，但输入图片未提供该图。"
+      },
+      {
+        "scope": "r.c0.c1",
+        "label": "②",
+        "text": "题面引用图2，但输入图片未提供该图。"
+      },
+      {
+        "scope": "r.c1",
+        "label": "(2)",
+        "text": "题面引用图3，但输入图片未提供该图。"
+      },
+      {
+        "scope": "r.c2",
+        "label": "(3)",
+        "text": "题面引用图4，但输入图片未提供该图。"
+      }
+    ]
+  },
+  "elapsed_seconds": 60.144,
+  "usage": {
+    "completion_tokens": 13347,
+    "prompt_tokens": 10147,
+    "total_tokens": 23494,
+    "prompt_cache_hit_tokens": 9344,
+    "prompt_cache_miss_tokens": 803
+  },
+  "finish_reason": "stop",
+  "raw_response_sha256": "743971129831f900dfada96fdc17faff26699b9aec8ad55f45a6332212d975d9",
+  "frozen_request_sha256": "65c9f314c9697e017c4a99029aa4c34aad0123316546d89bbf78ff2be32f4d0a",
+  "request_contract": "problem-math-notation/v1"
+}

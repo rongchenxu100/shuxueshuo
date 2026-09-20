@@ -18,6 +18,8 @@ from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDomainError,
     ProblemValidationReport,
     VerifiedProblem,
+    ProblemGraph,
+    ProblemUnitRecord,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_projection import (
     RuntimeProjectionManifest,
@@ -120,6 +122,29 @@ class RuntimeProjectionIndex:
         )
 
 
+class SolverProblemBundle(Protocol):
+    """Shared source authority, independent of the extraction representation."""
+
+    authority_token: ProblemBundleAuthorityToken
+    canonical_solver_input: Mapping[str, Any]
+    projection_manifest: RuntimeProjectionManifest
+    projection_index: RuntimeProjectionIndex
+
+    @property
+    def source_graph(self) -> ProblemGraph: ...
+    @property
+    def source_unit_registry(self) -> Mapping[str, ProblemUnitRecord]: ...
+    @property
+    def problem_id(self) -> str: ...
+    @property
+    def family_id(self) -> str: ...
+    @property
+    def source_artifact_ids(self) -> tuple[str, ...]: ...
+    def assert_solver_ready(self) -> None: ...
+    def build_solver_problem(self) -> ProblemIR: ...
+    def authority_payload(self) -> dict[str, Any]: ...
+
+
 @dataclass(frozen=True)
 class VerifiedSolverProblemBundle:
     authority_token: ProblemBundleAuthorityToken
@@ -129,6 +154,30 @@ class VerifiedSolverProblemBundle:
     projection_manifest: RuntimeProjectionManifest
     projection_index: RuntimeProjectionIndex
     artifact_refs: ProblemBundleArtifactRefs
+
+    def assert_solver_ready(self) -> None:
+        # The legacy loader has already authenticated its accepted extraction.
+        return None
+
+    @property
+    def source_graph(self) -> ProblemGraph:
+        return self.verified_problem.graph
+
+    @property
+    def source_unit_registry(self) -> Mapping[str, ProblemUnitRecord]:
+        return _verified_source_unit_registry(self.verified_problem)
+
+    @property
+    def problem_id(self) -> str:
+        return self.source_graph.problem_id
+
+    @property
+    def family_id(self) -> str:
+        return self.source_graph.family_id
+
+    @property
+    def source_artifact_ids(self) -> tuple[str, ...]:
+        return tuple(item["artifact_id"] for item in self.artifact_refs.authority_payload().values())
 
     def __post_init__(self) -> None:
         frozen = freeze_json(self.canonical_solver_input)
@@ -455,10 +504,37 @@ class VerifiedSolverProblemBundleLoader:
             )
 
 
+def _verified_source_unit_registry(
+    verified: VerifiedProblem,
+) -> dict[str, ProblemUnitRecord]:
+    records: dict[str, ProblemUnitRecord] = {}
+    for item in verified.to_payload()["unit_registry"]:
+        unit_id = str(item["unit_id"])
+        if unit_id in records:
+            raise _error(
+                "planner.problem_bundle_invalid",
+                "$.verified_problem.unit_registry",
+                "source unit registry contains duplicate ids",
+            )
+        records[unit_id] = ProblemUnitRecord.from_payload(item)
+    return records
+
+
 def _audit_projection_manifest(
     verified: VerifiedProblem,
     projection: SolverProblemProjection,
 ) -> RuntimeProjectionIndex:
+    return audit_runtime_projection(projection, {
+        key: record.to_payload()
+        for key, record in _verified_source_unit_registry(verified).items()
+    })
+
+
+def audit_runtime_projection(
+    projection: SolverProblemProjection,
+    unit_registry: Mapping[str, Mapping[str, Any]],
+) -> RuntimeProjectionIndex:
+    """Audit code-owned source units for either authenticated input contract."""
     canonical = projection.canonical_input
     manifest = projection.manifest
     runtime_nodes: dict[str, tuple[str, Mapping[str, Any]]] = {}
@@ -489,14 +565,6 @@ def _audit_projection_manifest(
             "manifest runtime node set differs from canonical input: " + detail,
         )
 
-    verified_payload = verified.to_payload()
-    unit_registry = {
-        str(item["unit_id"]): item
-        for item in _mapping_sequence(
-            verified_payload.get("unit_registry"),
-            "$.verified_problem.unit_registry",
-        )
-    }
     required_unit_ids = {
         unit_id
         for unit_id, record in unit_registry.items()

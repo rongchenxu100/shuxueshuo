@@ -1,0 +1,23 @@
+{
+  "schema_version": "lesson-capability-case-audit/v1",
+  "problem_id": "tj-2026-xiqing-yimo-25",
+  "snapshot_hash": "287ae083871f0dbe7618e00f5dfef154518100c87571fd2517790bea4117533a",
+  "annotated_plan_hash": "9cd66eba844d12b85d66b87ad19f0f4a2411b71fc26ab93dea2dbfd58046be90",
+  "lesson_ir_hash": "ae0c8bc49a0576e72f952a1a848216fb98943a1ae06d605472c850cdf8e25d3c",
+  "visual_step_ir_hash": "9a29f604c953a4b054c1d63a3a109f876f9ff5f1e3300fa0d6de2690e5cd36f6",
+  "source_step_count": 9,
+  "lesson_step_count": 10,
+  "visual_frame_count": 10,
+  "source_steps": [
+    "derive_curve_point_D_ii",
+    "derive_parabola_i",
+    "derive_parametric_parabola_ii",
+    "derive_vertex_i",
+    "derive_weighted_minimum_ii",
+    "derive_x_intercept_B_ii",
+    "derive_y_intercept_C_ii",
+    "solve_parameter_from_minimum_ii",
+    "solve_parameter_from_segment_relation_ii"
+  ],
+  "diagnostics": []
+}

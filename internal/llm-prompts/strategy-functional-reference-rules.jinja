@@ -5,8 +5,13 @@
   只为单个Goal答案服务的步骤放该Goal。不得靠重复step或跨Scope引用代替合法归属。
 - 共享题面数学实体不等于共享当前数学状态。兄弟scope若使用不同局部条件、参数值或自由参数基，
   必须各自生成局部状态，不能将局部条件提升到共同祖先。
-- 普通具名Entity默认使用字符串SourceRef；代码按capability读取身份或当前scope最近可见状态，并建立依赖。
-  匿名中间结果，以及catalog声明`reference_mode=exact_result`的return，使用较早、可见的
+{% if math_arguments | default(false) %}- args中的普通具名Entity使用数学表达式字符串（如`Γ`、`vertex(Γ)`、`b`）；Fact使用当前scope可见的题设数学条件。
+  `path_minimum_target` 直接写要最小化的路径表达式（如`EG+FG`、`sqrt(2)*MN+AN`），不要写`min(...)`，也不要拆成数组；只有 `minimum_value` 等值条件才写`min(S)=k`。
+  参数名、必填性、单值/集合基数保持Catalog原约定，例如`"free_parameters":"b"`。禁止自造条件或直接填写计算答案。
+  数学表达式仅用于关联原有对象/条件；代码仍按capability读取身份或当前scope最近可见状态，并建立依赖。
+  `output_targets`如需绑定已有对象，也使用其数学表达式；绑定身份和exact-result禁用target的规则不变。
+{% else %}- 普通具名Entity默认使用字符串SourceRef；代码按capability读取身份或当前scope最近可见状态，并建立依赖。
+{% endif %}  匿名中间结果，以及catalog声明`reference_mode=exact_result`的return，使用较早、可见的
   `{"step_id":"...","return":"..."}`，且consumer参数必须接受该返回类型。
   exact-result即使携带已有Entity身份也不得改写成SourceRef。跨Goal不改变引用形式规则。
 - 跨Goal与跨Scope不同：只有在上述引用契约允许StepResultRef、producer Scope对consumer可见，
@@ -15,4 +20,6 @@
 - 子孙可读取祖先Scope的共享步骤；兄弟Scope、子到父的状态引用非法。改用StepResultRef不授予权限。
   `answer_from`只选择本Goal或可见祖先Scope步骤的答案，不会发布状态到父Scope。
 - `step_id`全题唯一，按依赖顺序输出，禁止forward reference和循环。
-  SourceRef只能复制当前scope或祖先可见的Entity/Fact ref及Goal target_ref；禁止自造ref、scope前缀或把goal_ref当作输入。
+{% if math_arguments | default(false) %}  数学参数只能关联当前scope或祖先可见的Entity/Fact；禁止引用兄弟问条件、自造对象或把goal_ref当作数学参数。
+  数学条件和最值取等状态不同：`min(S)=k`仅引用已有最值题设，取等点/状态必须读取对应Method的精确结果。
+{% else %}  SourceRef只能复制当前scope或祖先可见的Entity/Fact ref及Goal target_ref；禁止自造ref、scope前缀或把goal_ref当作输入。{% endif %}

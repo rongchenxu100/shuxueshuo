@@ -46,6 +46,8 @@ export DEPLOY_SSH='<user>@<ecs-host>'   # 例：deploy@ecs.example.internal
 | OCR 镜像 | `shuxueshuo-ocr:3.3.0` |
 | 模型密钥 | 服务器 `$HOME/code/shuxueshuo/server/.env`（Git 忽略，勿提交） |
 
+题意抽取已切到 DeepSeek 视觉（首轮 / 修复 / 复核，`enabled`/`low`）。上线或换钥前按 [product/README.md](product/README.md) 中 **「题意抽取：服务器 server/.env 检查清单」** 核对；改 `.env` 后需重启受管服务，代码变更仍须新产品包。
+
 发布包要求：**干净 Git 工作树**（先 commit/push）。构建机需 Docker Desktop / buildx。
 
 ---

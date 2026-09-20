@@ -1,0 +1,347 @@
+{
+  "schema_version": "visual-step-ir/v2",
+  "problem_id": "synthetic-equal_length_ray_point",
+  "source_snapshot_hash": "cced031fbfe90289b1a2063f2799fbd603b93660ccd667fe401796522507986e",
+  "source_lesson_hash": "aec54ad92ca2787707f3f0141a68c6faa611763f6da5ff847e0609bfd0fb07b4",
+  "geometry_registry": {
+    "version": 1,
+    "id": "synthetic-equal_length_ray_point",
+    "domain": {
+      "minX": -0.8,
+      "maxX": 3.8,
+      "minY": -0.8,
+      "maxY": 3.8
+    },
+    "movingParam": "t",
+    "expressionEnv": [],
+    "fixedPoints": {
+      "point_A_problem": [
+        "0",
+        "0"
+      ],
+      "point_B_problem": [
+        "0",
+        "3"
+      ],
+      "point_C_problem": [
+        "2",
+        "0"
+      ],
+      "point_D_problem": [
+        "3",
+        "0"
+      ]
+    },
+    "movingPoints": {},
+    "pointMeta": {
+      "point_A_problem": {
+        "label": "A",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:A"
+      },
+      "point_B_problem": {
+        "label": "B",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:B"
+      },
+      "point_C_problem": {
+        "label": "C",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "given_point",
+        "sourceRef": "point:problem:C"
+      },
+      "point_D_problem": {
+        "label": "D",
+        "scopeId": "problem",
+        "scopeRoot": "problem",
+        "definition": "runtime_point_output",
+        "sourceStepIds": [
+          "synthetic_equal_length_ray_point"
+        ]
+      }
+    },
+    "curves": [],
+    "derivedIntersections": []
+  },
+  "root_scope": {
+    "scope_ref": "problem",
+    "steps": [],
+    "goals": {
+      "problem.D": {
+        "steps": [
+          {
+            "visual_step_id": "visual:teach:synthetic_equal_length_ray_point",
+            "lesson_step_id": "teach:synthetic_equal_length_ray_point",
+            "visual_mode": "scene",
+            "frames": [
+              {
+                "frame_id": "frame:teach:synthetic_equal_length_ray_point:1",
+                "teaching_unit_keys": [
+                  "equal_length_ray_point/construct_point"
+                ],
+                "viewport": {
+                  "minX": -1.22,
+                  "maxX": 4.22,
+                  "minY": -2.58,
+                  "maxY": 5.58
+                },
+                "objects": [
+                  {
+                    "visual_object_id": "visual:dashedline:48a31a8ddc5a3786",
+                    "component": "DashedLine",
+                    "role": "equal_ray:direction",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem",
+                      "point_C_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "role": "equal_ray:direction",
+                      "from": "point_A_problem",
+                      "to": "point_C_problem",
+                      "color": "#64748b",
+                      "width": 2.2,
+                      "dash": "5 6"
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:coloredline:1d9b35e2ae70354c",
+                    "component": "ColoredLine",
+                    "role": "equal_ray:reference",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem",
+                      "point_B_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "role": "equal_ray:reference",
+                      "from": "point_A_problem",
+                      "to": "point_B_problem",
+                      "color": "#0f766e",
+                      "width": 2.2,
+                      "dash": ""
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:coloredline:f8b198c3fe102013",
+                    "component": "ColoredLine",
+                    "role": "equal_ray:result",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem",
+                      "point_D_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "role": "equal_ray:result",
+                      "from": "point_A_problem",
+                      "to": "point_D_problem",
+                      "color": "#b45309",
+                      "width": 2.2,
+                      "dash": ""
+                    }
+                  },
+                  {
+                    "visual_object_id": "visual:point:6b2e8c225f903c3b",
+                    "component": "Point",
+                    "role": "point:A",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_A_problem",
+                      "labelText": "A",
+                      "color": "#dc2626",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "A"
+                  },
+                  {
+                    "visual_object_id": "visual:point:c00eaaeae2b8bfc3",
+                    "component": "Point",
+                    "role": "point:C",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_C_problem"
+                    ],
+                    "state": "context",
+                    "component_payload": {
+                      "at": "point_C_problem",
+                      "labelText": "C",
+                      "color": "#64748b",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "C"
+                  },
+                  {
+                    "visual_object_id": "visual:point:b0dface9ac4ac702",
+                    "component": "Point",
+                    "role": "point:B",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_B_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_B_problem",
+                      "labelText": "B",
+                      "color": "#0f766e",
+                      "dx": 14,
+                      "dy": -18
+                    },
+                    "display_label": "B"
+                  },
+                  {
+                    "visual_object_id": "visual:point:6ca25e871fae983b",
+                    "component": "Point",
+                    "role": "point:D",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_D_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_D_problem",
+                      "labelText": "D",
+                      "color": "#b45309",
+                      "dx": 14,
+                      "dy": -18,
+                      "showLabel": false
+                    },
+                    "display_label": "D"
+                  },
+                  {
+                    "visual_object_id": "visual:coordinatelabel:6730cc3eaefbe81d",
+                    "component": "CoordinateLabel",
+                    "role": "coordinate:point_D_problem",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_D_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "at": "point_D_problem",
+                      "text": "D(3,0)",
+                      "dx": 14,
+                      "dy": -30
+                    },
+                    "display_label": "D(3,0)"
+                  },
+                  {
+                    "visual_object_id": "visual:distancemarker:c4b9a1e28f3a481a",
+                    "component": "DistanceMarker",
+                    "role": "distance",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem",
+                      "point_B_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "from": "point_A_problem",
+                      "to": "point_B_problem",
+                      "label": "=",
+                      "color": "#b45309",
+                      "width": 2.0,
+                      "offsetPx": 14
+                    },
+                    "display_label": "="
+                  },
+                  {
+                    "visual_object_id": "visual:distancemarker:6c475fd7f132a2ff",
+                    "component": "DistanceMarker",
+                    "role": "distance",
+                    "source_refs": [
+                      {
+                        "kind": "functional_step",
+                        "step_id": "synthetic_equal_length_ray_point"
+                      }
+                    ],
+                    "geometry_refs": [
+                      "point_A_problem",
+                      "point_D_problem"
+                    ],
+                    "state": "focus",
+                    "component_payload": {
+                      "from": "point_A_problem",
+                      "to": "point_D_problem",
+                      "label": "=",
+                      "color": "#b45309",
+                      "width": 2.0,
+                      "offsetPx": 14
+                    },
+                    "display_label": "="
+                  }
+                ],
+                "local_parameters": [],
+                "caption": "作等长点"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "children": []
+  },
+  "metadata": {
+    "source": "recursive_visual_step_builder",
+    "base_source": "generated",
+    "scene_model": "recursive_complete_frames"
+  }
+}

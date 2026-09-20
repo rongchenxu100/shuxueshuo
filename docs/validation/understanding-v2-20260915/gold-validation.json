@@ -1,0 +1,1113 @@
+{
+  "schema_version": "problem-understanding-validation/v1",
+  "ok": true,
+  "issues": [],
+  "well_definedness_obligations": [
+    {
+      "code": "simple_nondegenerate_polygon",
+      "unit": "q1.fig1.ABCD",
+      "expression": [
+        "q1.fig1.A",
+        "q1.fig1.B",
+        "q1.fig1.C",
+        "q1.fig1.D"
+      ],
+      "status": "unproved"
+    },
+    {
+      "code": "simple_nondegenerate_polygon",
+      "unit": "q1.fig1.AECD",
+      "expression": [
+        "q1.fig1.A",
+        "q1.fig1.E",
+        "q1.fig1.C",
+        "q1.fig1.D"
+      ],
+      "status": "unproved"
+    },
+    {
+      "code": "simple_nondegenerate_polygon",
+      "unit": "q1.fig2.ABCD",
+      "expression": [
+        "q1.fig2.A",
+        "q1.fig2.B",
+        "q1.fig2.C",
+        "q1.fig2.D"
+      ],
+      "status": "unproved"
+    },
+    {
+      "code": "nondegenerate_triangle_area",
+      "unit": "q1.fig2.answer",
+      "expression": {
+        "kind": "triangle_area",
+        "vertices": [
+          "q1.fig2.A",
+          "q1.fig2.C",
+          "q1.fig2.D"
+        ],
+        "convention": "unsigned"
+      },
+      "status": "unproved"
+    },
+    {
+      "code": "nondegenerate_triangle_area",
+      "unit": "q1.fig2.answer",
+      "expression": {
+        "kind": "triangle_area",
+        "vertices": [
+          "q1.fig2.A",
+          "q1.fig2.C",
+          "q1.fig2.B"
+        ],
+        "convention": "unsigned"
+      },
+      "status": "unproved"
+    },
+    {
+      "code": "nonzero_denominator",
+      "unit": "q1.fig2.answer",
+      "expression": {
+        "kind": "triangle_area",
+        "vertices": [
+          "q1.fig2.A",
+          "q1.fig2.C",
+          "q1.fig2.B"
+        ],
+        "convention": "unsigned"
+      },
+      "status": "unproved"
+    },
+    {
+      "code": "simple_nondegenerate_polygon",
+      "unit": "q2.ABCD",
+      "expression": [
+        "q2.A",
+        "q2.B",
+        "q2.C",
+        "q2.D"
+      ],
+      "status": "unproved"
+    },
+    {
+      "code": "nondegenerate_angle_measure",
+      "unit": "q2.angle.fact",
+      "expression": {
+        "kind": "angle_measure",
+        "angle": [
+          "q2.B",
+          "q2.D",
+          "q2.C"
+        ],
+        "unit": "degree"
+      },
+      "status": "unproved"
+    },
+    {
+      "code": "nondegenerate_angle_measure",
+      "unit": "q2.angle.fact",
+      "expression": {
+        "kind": "angle_measure",
+        "angle": [
+          "q2.A",
+          "q2.B",
+          "q2.D"
+        ],
+        "unit": "degree"
+      },
+      "status": "unproved"
+    },
+    {
+      "code": "simple_nondegenerate_polygon",
+      "unit": "q3.ABCD",
+      "expression": [
+        "q3.A",
+        "q3.B",
+        "q3.C",
+        "q3.D"
+      ],
+      "status": "unproved"
+    },
+    {
+      "code": "nondegenerate_angle_measure",
+      "unit": "q3.angle.fact",
+      "expression": {
+        "kind": "angle_measure",
+        "angle": [
+          "q3.B",
+          "q3.A",
+          "q3.C"
+        ],
+        "unit": "degree"
+      },
+      "status": "unproved"
+    },
+    {
+      "code": "nondegenerate_angle_measure",
+      "unit": "q3.angle.fact",
+      "expression": {
+        "kind": "angle_measure",
+        "angle": [
+          "q3.D",
+          "q3.A",
+          "q3.C"
+        ],
+        "unit": "degree"
+      },
+      "status": "unproved"
+    },
+    {
+      "code": "nondegenerate_angle_measure",
+      "unit": "q3.answer",
+      "expression": {
+        "kind": "angle_measure",
+        "angle": [
+          "q3.A",
+          "q3.C",
+          "q3.D"
+        ],
+        "unit": "degree"
+      },
+      "status": "unproved"
+    },
+    {
+      "code": "tangent_defined",
+      "unit": "q3.answer",
+      "expression": {
+        "kind": "angle_measure",
+        "angle": [
+          "q3.A",
+          "q3.C",
+          "q3.D"
+        ],
+        "unit": "degree"
+      },
+      "status": "unproved"
+    }
+  ],
+  "coverage": [
+    {
+      "source_unit_id": "definition.text",
+      "domain_unit_ids": [
+        "KQuad"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q1.fig1.given",
+      "domain_unit_ids": [
+        "q1.fig1.A",
+        "q1.fig1.B",
+        "q1.fig1.C",
+        "q1.fig1.D",
+        "q1.fig1.O",
+        "q1.fig1.E",
+        "q1.fig1.k",
+        "q1.fig1.ABCD",
+        "q1.fig1.intersection",
+        "q1.fig1.midpoint"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q1.fig1.instance",
+      "domain_unit_ids": [
+        "q1.fig1.AECD",
+        "q1.fig1.use"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q1.fig1.goal",
+      "domain_unit_ids": [
+        "q1.fig1.answer"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q1.fig2.given",
+      "domain_unit_ids": [
+        "q1.fig2.A",
+        "q1.fig2.B",
+        "q1.fig2.C",
+        "q1.fig2.D",
+        "q1.fig2.k",
+        "q1.fig2.ABCD",
+        "q1.fig2.bisects",
+        "q1.fig2.use"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q1.fig2.goal",
+      "domain_unit_ids": [
+        "q1.fig2.answer"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q2.given",
+      "domain_unit_ids": [
+        "q2.A",
+        "q2.B",
+        "q2.C",
+        "q2.D",
+        "q2.k",
+        "q2.ABCD",
+        "q2.bisects",
+        "q2.use"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q2.angle",
+      "domain_unit_ids": [
+        "q2.angle.fact"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q2.length",
+      "domain_unit_ids": [
+        "q2.length.fact"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q2.goal",
+      "domain_unit_ids": [
+        "q2.answer"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q3.points",
+      "domain_unit_ids": [
+        "q3.A",
+        "q3.B",
+        "q3.C",
+        "q3.D",
+        "q3.M",
+        "q3.ABCD"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q3.perpendicular",
+      "domain_unit_ids": [
+        "q3.perp.fact"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q3.ray",
+      "domain_unit_ids": [
+        "q3.BM",
+        "q3.ray.fact"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q3.bisect",
+      "domain_unit_ids": [
+        "q3.bisects"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q3.angle",
+      "domain_unit_ids": [
+        "q3.angle.fact"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q3.instance",
+      "domain_unit_ids": [
+        "q3.use"
+      ],
+      "gap_id": null
+    },
+    {
+      "source_unit_id": "q3.goal",
+      "domain_unit_ids": [
+        "q3.answer"
+      ],
+      "gap_id": null
+    }
+  ],
+  "expanded_instances": [
+    {
+      "instance_id": "q1.fig1.use.instance1",
+      "definition_id": "KQuad",
+      "domain_unit_id": "q1.fig1.use",
+      "source_unit_ids": [
+        "q1.fig1.instance"
+      ],
+      "definition_source_unit_ids": [
+        "definition.text"
+      ],
+      "witnesses": [
+        "q1.fig1.use.instance1.X"
+      ],
+      "body": {
+        "kind": "all",
+        "terms": [
+          {
+            "kind": "quantity_relation",
+            "operator": ">=",
+            "left": {
+              "kind": "scalar",
+              "symbol_ref": "q1.fig1.k"
+            },
+            "right": {
+              "kind": "number",
+              "value": "1"
+            }
+          },
+          {
+            "kind": "intersection",
+            "point": "q1.fig1.use.instance1.X",
+            "first": [
+              "q1.fig1.A",
+              "q1.fig1.C"
+            ],
+            "second": [
+              "q1.fig1.E",
+              "q1.fig1.D"
+            ],
+            "interior": true
+          },
+          {
+            "kind": "any",
+            "terms": [
+              {
+                "kind": "all",
+                "terms": [
+                  {
+                    "kind": "midpoint",
+                    "point": "q1.fig1.use.instance1.X",
+                    "segment": [
+                      "q1.fig1.A",
+                      "q1.fig1.C"
+                    ]
+                  },
+                  {
+                    "kind": "any",
+                    "terms": [
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q1.fig1.E",
+                            "q1.fig1.use.instance1.X"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q1.fig1.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q1.fig1.use.instance1.X",
+                                "q1.fig1.D"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q1.fig1.use.instance1.X",
+                            "q1.fig1.D"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q1.fig1.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q1.fig1.E",
+                                "q1.fig1.use.instance1.X"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "all",
+                "terms": [
+                  {
+                    "kind": "midpoint",
+                    "point": "q1.fig1.use.instance1.X",
+                    "segment": [
+                      "q1.fig1.E",
+                      "q1.fig1.D"
+                    ]
+                  },
+                  {
+                    "kind": "any",
+                    "terms": [
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q1.fig1.A",
+                            "q1.fig1.use.instance1.X"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q1.fig1.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q1.fig1.use.instance1.X",
+                                "q1.fig1.C"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q1.fig1.use.instance1.X",
+                            "q1.fig1.C"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q1.fig1.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q1.fig1.A",
+                                "q1.fig1.use.instance1.X"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance_id": "q1.fig2.use.instance2",
+      "definition_id": "KQuad",
+      "domain_unit_id": "q1.fig2.use",
+      "source_unit_ids": [
+        "q1.fig2.given"
+      ],
+      "definition_source_unit_ids": [
+        "definition.text"
+      ],
+      "witnesses": [
+        "q1.fig2.use.instance2.X"
+      ],
+      "body": {
+        "kind": "all",
+        "terms": [
+          {
+            "kind": "quantity_relation",
+            "operator": ">=",
+            "left": {
+              "kind": "scalar",
+              "symbol_ref": "q1.fig2.k"
+            },
+            "right": {
+              "kind": "number",
+              "value": "1"
+            }
+          },
+          {
+            "kind": "intersection",
+            "point": "q1.fig2.use.instance2.X",
+            "first": [
+              "q1.fig2.A",
+              "q1.fig2.C"
+            ],
+            "second": [
+              "q1.fig2.B",
+              "q1.fig2.D"
+            ],
+            "interior": true
+          },
+          {
+            "kind": "any",
+            "terms": [
+              {
+                "kind": "all",
+                "terms": [
+                  {
+                    "kind": "midpoint",
+                    "point": "q1.fig2.use.instance2.X",
+                    "segment": [
+                      "q1.fig2.A",
+                      "q1.fig2.C"
+                    ]
+                  },
+                  {
+                    "kind": "any",
+                    "terms": [
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q1.fig2.B",
+                            "q1.fig2.use.instance2.X"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q1.fig2.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q1.fig2.use.instance2.X",
+                                "q1.fig2.D"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q1.fig2.use.instance2.X",
+                            "q1.fig2.D"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q1.fig2.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q1.fig2.B",
+                                "q1.fig2.use.instance2.X"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "all",
+                "terms": [
+                  {
+                    "kind": "midpoint",
+                    "point": "q1.fig2.use.instance2.X",
+                    "segment": [
+                      "q1.fig2.B",
+                      "q1.fig2.D"
+                    ]
+                  },
+                  {
+                    "kind": "any",
+                    "terms": [
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q1.fig2.A",
+                            "q1.fig2.use.instance2.X"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q1.fig2.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q1.fig2.use.instance2.X",
+                                "q1.fig2.C"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q1.fig2.use.instance2.X",
+                            "q1.fig2.C"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q1.fig2.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q1.fig2.A",
+                                "q1.fig2.use.instance2.X"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance_id": "q2.use.instance3",
+      "definition_id": "KQuad",
+      "domain_unit_id": "q2.use",
+      "source_unit_ids": [
+        "q2.given"
+      ],
+      "definition_source_unit_ids": [
+        "definition.text"
+      ],
+      "witnesses": [
+        "q2.use.instance3.X"
+      ],
+      "body": {
+        "kind": "all",
+        "terms": [
+          {
+            "kind": "quantity_relation",
+            "operator": ">=",
+            "left": {
+              "kind": "scalar",
+              "symbol_ref": "q2.k"
+            },
+            "right": {
+              "kind": "number",
+              "value": "1"
+            }
+          },
+          {
+            "kind": "intersection",
+            "point": "q2.use.instance3.X",
+            "first": [
+              "q2.A",
+              "q2.C"
+            ],
+            "second": [
+              "q2.B",
+              "q2.D"
+            ],
+            "interior": true
+          },
+          {
+            "kind": "any",
+            "terms": [
+              {
+                "kind": "all",
+                "terms": [
+                  {
+                    "kind": "midpoint",
+                    "point": "q2.use.instance3.X",
+                    "segment": [
+                      "q2.A",
+                      "q2.C"
+                    ]
+                  },
+                  {
+                    "kind": "any",
+                    "terms": [
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q2.B",
+                            "q2.use.instance3.X"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q2.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q2.use.instance3.X",
+                                "q2.D"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q2.use.instance3.X",
+                            "q2.D"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q2.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q2.B",
+                                "q2.use.instance3.X"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "all",
+                "terms": [
+                  {
+                    "kind": "midpoint",
+                    "point": "q2.use.instance3.X",
+                    "segment": [
+                      "q2.B",
+                      "q2.D"
+                    ]
+                  },
+                  {
+                    "kind": "any",
+                    "terms": [
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q2.A",
+                            "q2.use.instance3.X"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q2.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q2.use.instance3.X",
+                                "q2.C"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q2.use.instance3.X",
+                            "q2.C"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "scalar",
+                              "symbol_ref": "q2.k"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q2.A",
+                                "q2.use.instance3.X"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "instance_id": "q3.use.instance4",
+      "definition_id": "KQuad",
+      "domain_unit_id": "q3.use",
+      "source_unit_ids": [
+        "q3.instance"
+      ],
+      "definition_source_unit_ids": [
+        "definition.text"
+      ],
+      "witnesses": [
+        "q3.use.instance4.X"
+      ],
+      "body": {
+        "kind": "all",
+        "terms": [
+          {
+            "kind": "quantity_relation",
+            "operator": ">=",
+            "left": {
+              "kind": "number",
+              "value": "2"
+            },
+            "right": {
+              "kind": "number",
+              "value": "1"
+            }
+          },
+          {
+            "kind": "intersection",
+            "point": "q3.use.instance4.X",
+            "first": [
+              "q3.A",
+              "q3.C"
+            ],
+            "second": [
+              "q3.B",
+              "q3.D"
+            ],
+            "interior": true
+          },
+          {
+            "kind": "any",
+            "terms": [
+              {
+                "kind": "all",
+                "terms": [
+                  {
+                    "kind": "midpoint",
+                    "point": "q3.use.instance4.X",
+                    "segment": [
+                      "q3.A",
+                      "q3.C"
+                    ]
+                  },
+                  {
+                    "kind": "any",
+                    "terms": [
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q3.B",
+                            "q3.use.instance4.X"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "number",
+                              "value": "2"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q3.use.instance4.X",
+                                "q3.D"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q3.use.instance4.X",
+                            "q3.D"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "number",
+                              "value": "2"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q3.B",
+                                "q3.use.instance4.X"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "all",
+                "terms": [
+                  {
+                    "kind": "midpoint",
+                    "point": "q3.use.instance4.X",
+                    "segment": [
+                      "q3.B",
+                      "q3.D"
+                    ]
+                  },
+                  {
+                    "kind": "any",
+                    "terms": [
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q3.A",
+                            "q3.use.instance4.X"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "number",
+                              "value": "2"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q3.use.instance4.X",
+                                "q3.C"
+                              ]
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "kind": "quantity_relation",
+                        "operator": "=",
+                        "left": {
+                          "kind": "segment_length",
+                          "segment": [
+                            "q3.use.instance4.X",
+                            "q3.C"
+                          ]
+                        },
+                        "right": {
+                          "kind": "multiply",
+                          "terms": [
+                            {
+                              "kind": "number",
+                              "value": "2"
+                            },
+                            {
+                              "kind": "segment_length",
+                              "segment": [
+                                "q3.A",
+                                "q3.use.instance4.X"
+                              ]
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

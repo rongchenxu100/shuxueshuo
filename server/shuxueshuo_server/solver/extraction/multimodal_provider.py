@@ -1,15 +1,23 @@
-"""Doubao multimodal provider contract for F3 problem extraction."""
+"""Image extraction transports, request policies, and auditable provider outcomes."""
 
 from __future__ import annotations
 
 import base64
 import json
 import time
-from dataclasses import dataclass, field
+from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass, field, replace
+from pathlib import Path
 from time import perf_counter
-from typing import Any, Callable, ClassVar, Literal, Mapping, Protocol, Sequence
+from typing import Any, ClassVar, Literal, Protocol
 
 from shuxueshuo_server.solver.extraction.context import ExtractionArtifactRef
+from shuxueshuo_server.solver.extraction.deepseek_files import (
+    DeepSeekFileCache,
+    rejected_file_ids,
+    save_json,
+    valid_file_id,
+)
 from shuxueshuo_server.solver.extraction.multimodal_evidence import (
     ExtractionArtifactReader,
     MultimodalEvidencePack,
@@ -28,6 +36,7 @@ from shuxueshuo_server.solver.runtime.config import (
     DEFAULT_DOUBAO_MODEL,
 )
 
+from .problem_domain_prompt_rules import DOMAIN_RULES
 
 MULTIMODAL_PROVIDER_NAME = "doubao"
 DEEPSEEK_TEXT_PROVIDER_NAME = "deepseek"
@@ -55,23 +64,6 @@ REPAIR_SYSTEM_PROMPT = """你修复一个已建立的数学题 ProblemDraft。
 replacement 保持 unit kind 和 owner scope；addition 写入指定 scope；removal 只能针对当前 issue 授权的单元。
 family 只能用 unit_id=family 的 replacement 修改，代码不会自动换 family。"""
 
-DOMAIN_RULES = """领域约束：
-1. 根 scope 通常为 problem；每个 scope 保存对应印刷 source_text，children 保持题面顺序。
-2. scope/entity id 由模型给出；Fact/Goal 不输出 id，代码分配稳定 unit id。
-3. 表达式使用显式 * 和 **，其中自由符号写题面标签（如 x、a），并确保该标签对应当前 scope 或祖先中唯一可见的 Symbol。独立范围写 {"kind":"symbol_constraint","symbol":"实体id","operator":">","value":"0"}；链式区间拆成多条。若 point_on_curve_with_x 已写严格 x_range，则不重复写有限端约束，代码会等价展开；不得输出 n<+inf 或 n>-inf 这类恒真约束。比较符号只能放在 operator 字段，禁止 operator=in 或把 ">" 当字段名。
-4. 仅当题面文字、Fact 或 Goal 实际引用坐标原点 O 时，才在根 scope 声明一次 point O 并写 point_construction(origin)，所有子问复用；不得仅因出现坐标系或抛物线而补 O。
-5. 同一公共抛物线只声明一次；子问给定系数使用 local symbol_value，不复制闭合函数。
-6. point_construction 按 schema 提供 owner/vector/x_expression。vertex、各类 intercept 和 curve_at_x 已包含其构造归属，不再重复 point_on_curve；“抛物线对称轴与 x 轴的交点”直接写 axis_x_intercept，不拆成两个 point_on_axis。只有题面另行声明的曲线、轴、线段或射线成员关系才写对应 Fact。
-7. minimum_target 保存完整带权 LengthSum；题面直接给出该最小值时写 minimum_value_given。同一 scope 通过该条件反求 parameter_value 时，或已输出 minimum_value goal 时，代码会为同一 expression 等价补出 minimum_target，禁止重复抄写。
-8. source_text 忠实转录印刷题面，不概括，不加入学生书写或推导结果。
-9. 每个表达式自由符号都必须有可见 Symbol；结构字段优先引用 local id，表达式直接使用题面符号标签。
-10. 父 scope 已有相同 kind+label 的实体时，子 scope 必须复用祖先 local id；各子问不同的取值或约束只写在本 scope 的 Fact 中，不复制 Entity。此规则不跨 sibling 合并局部对象。
-11. 每个 Entity 必须被另一个 Entity、Fact、Goal 或表达式引用。OM、BN、BC 这类仅作为长度或成员关系出现的线段直接写 SegmentTerm，不声明 named_line；named_line 只用于题面明确称为“直线”的独立对象。
-12. Symbol role：自变量用 function_variable；抛物线系数通常用 quadratic_coefficient；动点坐标参数用 dynamic_parameter；明确作为本题主反求参数时可用 primary_parameter；不要把普通系数泛写成 parameter，也不要为函数等号左侧的 y 单独建 Symbol。
-13. sibling 各自重新给出同名点（例如两问分别写 A(-1,0)）时，在每个 sibling 分别声明 A；只有题面在共同父级先引入对象时才由 children 共享。
-14. 题面写 M(f(t),y_M) 且只说明 M 在曲线上时，用 curve_at_x 表达；若 y_M 后续未参与任何关系，不为这个占位纵坐标创建 Symbol。题面写 N(n,0) 是 x 轴或其正半轴上的点时，写 point_coordinate、point_on_axis 和有限端 symbol_constraint；除非题面明确另说 N 在曲线上，否则不得写 point_on_curve_with_x。
-15. named_ray 只用于题面明确出现“射线”，named_line 只用于题面明确出现“直线”。普通 DM、MN、BC 一律使用 SegmentTerm。正方形方位使用结构化 orientation，例如 {"point":"G","relation":"below_x_axis"}；不要再重复写 quadrant_membership。square_center 已完整表达中心位于两条对角线，代码会物化对应 point_on_segment，不要重复输出。
-16. polygon 必须按题面顺序填写 vertices，例如正方形 AEKG 写 ["A","E","K","G"]；不得只输出 id、kind 和 label。"""
 
 
 def problem_domain_family_catalog() -> tuple[dict[str, object], ...]:
@@ -161,13 +153,24 @@ class MultimodalProviderRequest:
     evidence_pack: MultimodalEvidencePack
     prompt: MultimodalExtractionPrompt
     images: tuple[MultimodalProviderImage, ...]
-    contract_version: Literal["problem-domain/v1", "problem-repair/v1", "problem-source-review/v1"]
+    contract_version: Literal["problem-domain/v1", "problem-repair/v1", "problem-source-review/v1", "problem-domain/v2", "problem-math-notation/v1", "problem-math-source-review/v1"]
     contract_schema: Mapping[str, Any]
     response_format: Mapping[str, Any]
     thinking_mode: Literal["disabled", "enabled"] = (
         MULTIMODAL_PASS1_THINKING_MODE
     )
     reasoning_effort: Literal["low"] | None = None
+    stream: bool = True
+    max_tokens: int = MULTIMODAL_MAX_OUTPUT_TOKENS
+    timeout: float | None = None
+    image_detail: str | None = None
+    model: str | None = None
+    image_transport: Literal["base64", "files"] = "base64"
+    image_file_scope: str | None = None
+    image_file_lifetime_seconds: int | None = None
+    image_file_ids: tuple[str, ...] = ()
+    # Local audit destination, deliberately excluded from logical request identity.
+    transport_audit_directory: str | None = None
 
     def thinking_payload(self) -> dict[str, Any]:
         return {"thinking": {"type": self.thinking_mode}}
@@ -184,7 +187,8 @@ class MultimodalProviderRequest:
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": f"artifact://{item.artifact.artifact_id}"
+                                    "url": f"artifact://{item.artifact.artifact_id}",
+                                    **({"detail": self.image_detail} if self.image_detail else {})
                                 },
                                 "image": item.redacted_payload(),
                             }
@@ -198,11 +202,33 @@ class MultimodalProviderRequest:
             "response_format": dict(self.response_format),
             "contract_schema": dict(self.contract_schema),
             **self.thinking_payload(),
-            "stream": True,
-            "stream_options": {"include_usage": True},
+            "stream": self.stream,
             "tools": [],
-            "max_tokens": MULTIMODAL_MAX_OUTPUT_TOKENS,
+            "max_tokens": self.max_tokens,
         }
+        if self.image_transport == "files":
+            payload["image_transport"] = {
+                "mode": "files", "scope": self.image_file_scope,
+                "lifetime_seconds": self.image_file_lifetime_seconds,
+            }
+            payload["messages"][1]["content"] = [
+                {"type": "text", "text": self.prompt.user_prefix},
+                *[
+                    {"type": "file", "image": item.redacted_payload(),
+                     **({"file_id": self.image_file_ids[index]} if self.image_file_ids
+                        else {"pending_upload": True})}
+                    for index, item in enumerate(self.images)
+                ],
+                {"type": "text", "text": self.prompt.user_suffix},
+            ]
+        if self.model is not None:
+            payload["model"] = self.model
+        if self.stream:
+            payload["stream_options"] = {"include_usage": True}
+        if self.timeout is not None:
+            payload["timeout"] = self.timeout
+        if self.thinking_mode == "enabled" and not self.stream:
+            payload.pop("temperature", None)
         if self.reasoning_effort is not None:
             payload["reasoning_effort"] = self.reasoning_effort
         return payload
@@ -217,17 +243,25 @@ class MultimodalProviderRequest:
                 },
             ]
         image_parts = []
-        for item in self.images:
-            media_type = item.artifact.media_type or "image/png"
-            encoded = base64.b64encode(item.content).decode("ascii")
-            image_parts.append(
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:{media_type};base64,{encoded}",
-                    },
-                }
-            )
+        if self.image_transport == "files":
+            if len(self.image_file_ids) != len(self.images) or not all(
+                valid_file_id(file_id) for file_id in self.image_file_ids
+            ):
+                raise ValueError("deepseek.files_unresolved_images")
+            image_parts = [{"type": "file", "file_id": file_id} for file_id in self.image_file_ids]
+        else:
+            for item in self.images:
+                media_type = item.artifact.media_type or "image/png"
+                encoded = base64.b64encode(item.content).decode("ascii")
+                image_parts.append(
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:{media_type};base64,{encoded}",
+                            **({"detail": self.image_detail} if self.image_detail else {}),
+                        },
+                    }
+                )
         return [
             {"role": "system", "content": self.prompt.system},
             {
@@ -252,6 +286,7 @@ class ProviderSubAttempt:
     latency_ms: int
     error_code: str | None = None
     error_message: str | None = None
+    raw_payload: Mapping[str, Any] | None = None
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -264,6 +299,7 @@ class ProviderSubAttempt:
             "latency_ms": self.latency_ms,
             "error_code": self.error_code,
             "error_message": self.error_message,
+            **({"raw_payload": dict(self.raw_payload)} if self.raw_payload is not None else {}),
         }
 
 
@@ -281,6 +317,7 @@ class MultimodalProviderResponse:
     reasoning_effort: Literal["low"] | None
     contract_version: str = PROBLEM_DOMAIN_CONTRACT
     provider_name: str = MULTIMODAL_PROVIDER_NAME
+    transport: Mapping[str, Any] = field(default_factory=dict)
 
     def metadata_payload(self) -> dict[str, Any]:
         stream_terminated_at_json = bool(
@@ -291,7 +328,7 @@ class MultimodalProviderResponse:
             "request_model": self.request_model,
             "response_model": self.response_model,
             "usage": dict(self.usage) if self.usage is not None else None,
-            "usage_complete": self.usage is not None,
+            "usage_complete": self.usage is not None and all(a.usage is not None for a in self.provider_attempts),
             "finish_reason": self.finish_reason,
             "stream_terminated_at_json": stream_terminated_at_json,
             "received_output_characters": len(self.text),
@@ -300,6 +337,7 @@ class MultimodalProviderResponse:
             "response_format": self.contract_version,
             "temperature": 0,
             "max_output_tokens": MULTIMODAL_MAX_OUTPUT_TOKENS,
+            **dict(self.transport),
             "provider_attempts": [
                 item.to_payload() for item in self.provider_attempts
             ],
@@ -679,8 +717,8 @@ class DoubaoMultimodalExtractionProvider:
 
 
 @dataclass
-class DeepSeekTextProblemDomainProvider:
-    """Text-only comparison provider using trusted F2 OCR and JSON Output."""
+class _DeepSeekChatProvider:
+    """Shared non-streaming transport; subclasses own the input contract."""
 
     provider_name: ClassVar[str] = DEEPSEEK_TEXT_PROVIDER_NAME
     supports_images: ClassVar[bool] = False
@@ -698,6 +736,7 @@ class DeepSeekTextProblemDomainProvider:
     )
     last_usage: dict[str, Any] | None = field(default=None, init=False)
     last_response_model: str | None = field(default=None, init=False)
+    last_completion_started: bool = field(default=False, init=False)
 
     def __post_init__(self) -> None:
         if not self.api_key or not self.base_url or not self.model:
@@ -717,23 +756,23 @@ class DeepSeekTextProblemDomainProvider:
         self,
         request: MultimodalProviderRequest,
     ) -> MultimodalProviderResponse:
-        if request.images:
-            raise MultimodalProviderError(
-                "extraction.multimodal_provider_contract_unsupported",
-                "DeepSeek text baseline must not receive image inputs",
-                result="failed",
-            )
+        self._remember(())
+        self.last_completion_started = False
+        self._begin_transport()
+        request = self.prepare_request(request)
         attempts: list[ProviderSubAttempt] = []
         started = perf_counter()
         for provider_attempt in range(1, 3):
+            # Uploads are separate file operations, never counted as inference retries.
+            messages = self._messages_for_attempt(request, provider_attempt)
             attempt_started = perf_counter()
             try:
                 options: dict[str, Any] = {
                     "model": self.model,
-                    "messages": request.provider_messages(),
+                    "messages": messages,
                     "response_format": {"type": "json_object"},
                     "extra_body": request.thinking_payload(),
-                    "max_tokens": MULTIMODAL_MAX_OUTPUT_TOKENS,
+                    "max_tokens": request.max_tokens,
                     "stream": False,
                     "timeout": self.request_timeout,
                 }
@@ -741,6 +780,7 @@ class DeepSeekTextProblemDomainProvider:
                     options["temperature"] = 0
                 if request.reasoning_effort is not None:
                     options["reasoning_effort"] = request.reasoning_effort
+                self.last_completion_started = True
                 response = self._client.chat.completions.create(**options)
             except Exception as exc:  # provider SDK exceptions vary by version
                 error_code, result, retryable = _classify_provider_exception(exc)
@@ -758,7 +798,7 @@ class DeepSeekTextProblemDomainProvider:
                     )
                 )
                 self._remember(attempts)
-                if retryable and provider_attempt == 1:
+                if provider_attempt == 1 and (self._retry_file_failure(exc) or retryable):
                     self.sleeper(0.25)
                     continue
                 raise MultimodalProviderError(
@@ -768,8 +808,8 @@ class DeepSeekTextProblemDomainProvider:
                     provider_attempts=attempts,
                 ) from exc
             raw_payload = _provider_payload(response)
-            choice = response.choices[0]
-            content = choice.message.content
+            choice = response.choices[0] if response.choices else None
+            content = choice.message.content if choice is not None else None
             text = "" if content is None else str(content)
             usage = _usage_payload(getattr(response, "usage", None))
             response_model = _optional_string(getattr(response, "model", None))
@@ -781,6 +821,7 @@ class DeepSeekTextProblemDomainProvider:
                     response_model=response_model,
                     usage=usage,
                     finish_reason=finish_reason,
+                    raw_payload=raw_payload,
                     visible_content=bool(text.strip()),
                     latency_ms=_elapsed_ms(attempt_started),
                 )
@@ -809,8 +850,24 @@ class DeepSeekTextProblemDomainProvider:
                 reasoning_effort=request.reasoning_effort,
                 contract_version=request.contract_version,
                 provider_name=self.provider_name,
+                transport={"max_output_tokens": request.max_tokens, "timeout": self.request_timeout,
+                           "stream": False, "temperature": None if request.thinking_mode == "enabled" else 0,
+                           "transport_response_format": "json_object", "image_detail": request.image_detail,
+                           **self._transport_metadata()},
             )
         raise AssertionError("provider retry loop exhausted")
+
+    def _begin_transport(self):
+        pass
+
+    def _messages_for_attempt(self, request, attempt):
+        return request.provider_messages()
+
+    def _retry_file_failure(self, exc):
+        return False
+
+    def _transport_metadata(self):
+        return {}
 
     def _remember(self, attempts: Sequence[ProviderSubAttempt]) -> None:
         self.last_provider_attempts = tuple(item.to_payload() for item in attempts)
@@ -823,6 +880,183 @@ class DeepSeekTextProblemDomainProvider:
             ),
             None,
         )
+
+
+@dataclass
+class DeepSeekTextProblemDomainProvider(_DeepSeekChatProvider):
+    """Explicit text-only comparison baseline; never selected by the vision factory."""
+
+    def prepare_request(self, request):
+        if request.images:
+            raise MultimodalProviderError(
+                "extraction.multimodal_provider_contract_unsupported",
+                "DeepSeek text baseline must not receive image inputs", result="failed")
+        return replace(request, stream=False, timeout=self.request_timeout)
+
+
+@dataclass
+class DeepSeekMultimodalExtractionProvider(_DeepSeekChatProvider):
+    """DeepSeek vision, with identical policy for draft, patch and source review."""
+
+    supports_images: ClassVar[bool] = True
+    preserve_original_images: ClassVar[bool] = True
+    model: str = "deepseek-flash"
+    max_output_tokens: int = 16_384
+    file_cache_dir: Path | None = None
+    file_lifetime_seconds: int = 86_400
+
+    def __post_init__(self):
+        if self.model != "deepseek-flash" or self.request_timeout <= 0 or self.max_output_tokens < 1:
+            raise MultimodalProviderError("extraction.multimodal_provider_config_invalid",
+                "vision requires deepseek-flash and positive timeout/token limits", result="failed")
+        super().__post_init__()
+        self._file_cache = (
+            DeepSeekFileCache(self.file_cache_dir, api_key=self.api_key, base_url=self.base_url,
+                              lifetime=self.file_lifetime_seconds)
+            if self.file_cache_dir is not None else None
+        )
+        self._begin_transport()
+
+    def _begin_transport(self):
+        self.last_file_operations = []
+        self._file_bindings = []
+        self._resolved_request = None
+
+    def _save_file_operations(self, request):
+        if request.transport_audit_directory:
+            save_json(Path(request.transport_audit_directory) / "file-operations.json",
+                      self.last_file_operations)
+
+    def _messages_for_attempt(self, request, attempt):
+        if self._file_cache is None:
+            return super()._messages_for_attempt(request, attempt)
+        self._file_bindings = []
+        try:
+            for item in request.images:
+                binding = self._file_cache.resolve(
+                    item, self._client, self.last_file_operations,
+                    timeout=min(60, self.request_timeout),
+                    minimum_remaining=2 * self.request_timeout + 30,
+                    persist_events=lambda: self._save_file_operations(request),
+                )
+                self._file_bindings.append({"image_id": item.image_id, **binding})
+        finally:
+            self._save_file_operations(request)
+        resolved = replace(request, image_file_ids=tuple(b["file_id"] for b in self._file_bindings))
+        self._resolved_request = resolved
+        if request.transport_audit_directory:
+            save_json(Path(request.transport_audit_directory) / "provider-attempts" / f"{attempt:02d}-request.json",
+                      resolved.redacted_payload())
+        return resolved.provider_messages()
+
+    def _retry_file_failure(self, exc):
+        if self._file_cache is None or self._resolved_request is None:
+            return False
+        missing = rejected_file_ids(exc, self._resolved_request.image_file_ids)
+        for binding in self._file_bindings:
+            if binding["file_id"] in missing:
+                self._file_cache.invalidate(binding["sha256"], binding["file_id"], self.last_file_operations)
+        self._save_file_operations(self._resolved_request)
+        return bool(missing)
+
+    def _transport_metadata(self):
+        if self._file_cache is None:
+            return {}
+        return {"image_transport": "files", "image_files": self._file_bindings,
+                "file_operations": self.last_file_operations,
+                "file_api_calls": sum(e["api_calls"] for e in self.last_file_operations)}
+
+    def prepare_request(self, request):
+        from hashlib import sha256
+        from io import BytesIO
+
+        from PIL import Image
+
+        # Doubao's isolated comparison provider also shares this image preflight.
+        file_cache = getattr(self, "_file_cache", None)
+
+        def reject(reason):
+            raise MultimodalProviderError("extraction.multimodal_image_invalid", reason, result="failed")
+
+        if not request.images or not any(i.role == "primary" for i in request.images):
+            reject("vision requires the complete question image")
+        expected = [(i.page_id, i.artifact.sha256) for i in request.evidence_pack.images]
+        actual = [(i.page_id, i.artifact.sha256) for i in request.images if i.role == "primary"]
+        if actual != expected:
+            reject("complete primary images must match evidence hashes and page order")
+        if len(request.images) > 600:
+            reject("too many images")
+        for item in request.images:
+            limit = 64 if file_cache is not None else 32
+            if not item.content or len(item.content) > limit * 1024**2:
+                reject(f"empty image or image exceeds {limit} MiB")
+            if sha256(item.content).hexdigest() != item.artifact.sha256:
+                reject("image artifact hash mismatch")
+            try:
+                with Image.open(BytesIO(item.content)) as decoded:
+                    width, height = decoded.size
+                    mime = Image.MIME.get(decoded.format)
+                    decoded.verify()
+            except Exception:
+                reject("image cannot be decoded")
+            if mime != item.artifact.media_type or mime not in {"image/png", "image/jpeg", "image/webp"}:
+                reject("unsupported or mismatched image media type")
+            if (width, height) != (item.width, item.height):
+                reject("image dimensions do not match artifact metadata")
+            if max(width, height) > (4096 if len(request.images) >= 15 else 8192):
+                reject("image dimensions exceed vision limit")
+            try:
+                with Image.open(BytesIO(item.content)) as decoded:
+                    decoded.load()
+            except Exception:
+                reject("image pixel data cannot be decoded")
+        prepared = replace(request, thinking_mode="enabled", reasoning_effort="low",
+            response_format={"type": "json_object"}, stream=False, max_tokens=self.max_output_tokens,
+            timeout=self.request_timeout, image_detail="high", model=self.model,
+            image_transport="base64", image_file_scope=None, image_file_lifetime_seconds=None,
+            image_file_ids=())
+        if file_cache is not None:
+            prepared = replace(prepared, image_transport="files", image_detail=None,
+                image_file_scope=file_cache.scope,
+                image_file_lifetime_seconds=file_cache.lifetime)
+            # Pure preflight: use placeholders only for size estimation, never upload here.
+            estimated = replace(prepared, image_file_ids=("file-api-" + "x" * 119,) * len(prepared.images))
+            total = len(json.dumps(estimated.provider_messages(), ensure_ascii=False).encode())
+            if total + sum(len(item.content) for item in prepared.images) > 200 * 1024**2 - 1024:
+                reject("request including file contents exceeds 200 MiB")
+            return prepared
+        # Check the encoded request, not only the compressed source file size.
+        if len(json.dumps(prepared.provider_messages(), ensure_ascii=False).encode()) > 48 * 1024**2 - 1024:
+            reject("encoded request exceeds 48 MiB")
+        return prepared
+
+
+def vision_effective_config(config):
+    """Non-secret frozen transport policy, also used in dependency fingerprints."""
+    if config.problem_vision_provider != "deepseek":
+        raise ValueError("PROBLEM_VISION_PROVIDER must be deepseek; no automatic fallback")
+    return {"provider": "deepseek", "model": config.deepseek_vision_model,
+        "base_url": config.deepseek_vision_base_url, "thinking": {"type": "enabled"},
+        "reasoning_effort": "low", "response_format": {"type": "json_object"},
+        "stream": False, "max_tokens": config.deepseek_vision_max_tokens,
+        "timeout": config.deepseek_vision_timeout, "image_detail": "high", "sdk_retries": 0}
+
+
+def create_vision_provider(config, *, frozen_config=None, **kwargs):
+    policy = frozen_config if frozen_config is not None else vision_effective_config(config)
+    if (policy.get("provider") != "deepseek" or policy.get("thinking") != {"type": "enabled"}
+        or policy.get("reasoning_effort") != "low" or policy.get("stream") is not False
+        or policy.get("response_format") != {"type": "json_object"}
+        or policy.get("sdk_retries") != 0 or policy.get("image_detail") != "high"):
+        raise ValueError("extraction.rebuild_required: invalid frozen vision policy")
+    return DeepSeekMultimodalExtractionProvider(api_key=config.deepseek_api_key or "",
+        base_url=policy["base_url"], model=policy["model"], request_timeout=policy["timeout"],
+        max_output_tokens=policy["max_tokens"], **kwargs)
+
+
+def prepare_provider_request(provider, request):
+    prepare = getattr(provider, "prepare_request", None)
+    return prepare(request) if prepare is not None else request
 
 
 def _consume_first_json_object(stream: Any, *, deadline: float) -> _StreamCompletion:
@@ -946,9 +1180,9 @@ def _provider_payload(response: Any) -> Mapping[str, Any]:
         "choices": [
             {
                 "finish_reason": _optional_string(
-                    getattr(response.choices[0], "finish_reason", None)
+                    getattr(response.choices[0], "finish_reason", None) if response.choices else None
                 ),
-                "content": _optional_string(response.choices[0].message.content),
+                "content": _optional_string(response.choices[0].message.content) if response.choices else None,
             }
         ],
         "usage": _usage_payload(getattr(response, "usage", None)),

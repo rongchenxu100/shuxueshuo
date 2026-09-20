@@ -1,0 +1,216 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "function-quantifiers",
+    "source_sha256": "4f894c94bd3a5ce3981a97d8827413378dd26daba6ed994eeab5b094accfc138",
+    "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "definitions": [
+          "f(x) = x^2+b*x+c",
+          "g(x) = 2*x-1"
+        ],
+        "children": [
+          {
+            "label": "(1)",
+            "facts": [
+              "∀x∈ℝ: f(x) ≥ g(x)"
+            ],
+            "goals": [
+              {
+                "kind": "find_minimum",
+                "expression": "b^2+c^2"
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          },
+          {
+            "label": "(2)",
+            "facts": [
+              "∃x0∈[1,3]: f(x0) ≤ g(x0)"
+            ],
+            "goals": [
+              {
+                "kind": "find_range",
+                "symbol": "b",
+                "in_terms_of": [
+                  "c"
+                ]
+              }
+            ],
+            "definitions": [],
+            "children": [],
+            "uncertainties": []
+          }
+        ],
+        "label": "题目",
+        "facts": [],
+        "goals": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": null,
+      "match_status": "unmatched",
+      "match_reason": "题面为二次函数的恒成立与存在性求参数最值/范围，不涉及路径最值、射线等长、正方形反射或加权路径等注册题型特征。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:c",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:function:f",
+          "name": "f",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:function:g",
+          "name": "g",
+          "kind": "function",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:c",
+          "name": "c",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "normalization_proofs": []
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:f589189b356f8ef3e9331e41cf3129db1ca0ceb93f3a7275cd7bc06251caa39a",
+      "kind": "notation_raw",
+      "sha256": "f589189b356f8ef3e9331e41cf3129db1ca0ceb93f3a7275cd7bc06251caa39a",
+      "media_type": "text/plain",
+      "byte_size": 849,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/function-quantifiers/artifacts/f5/f589189b356f8ef3e9331e41cf3129db1ca0ceb93f3a7275cd7bc06251caa39a.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:984f38e6906e8e0e79d7a576cfd29774c83ab51b61e96e956a23c0c09ce376ec",
+      "kind": "notation_candidate",
+      "sha256": "984f38e6906e8e0e79d7a576cfd29774c83ab51b61e96e956a23c0c09ce376ec",
+      "media_type": "application/json",
+      "byte_size": 533,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/function-quantifiers/artifacts/98/984f38e6906e8e0e79d7a576cfd29774c83ab51b61e96e956a23c0c09ce376ec.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334",
+      "kind": "notation_canonical",
+      "sha256": "6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334",
+      "media_type": "application/json",
+      "byte_size": 2455,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/function-quantifiers/artifacts/6e/6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:80c77087869828997f66a105b5a9885bef272e9772365f98091b97e1964586d0",
+      "kind": "notation_normalized",
+      "sha256": "80c77087869828997f66a105b5a9885bef272e9772365f98091b97e1964586d0",
+      "media_type": "application/json",
+      "byte_size": 691,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/function-quantifiers/artifacts/80/80c77087869828997f66a105b5a9885bef272e9772365f98091b97e1964586d0.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:9937740409537ceb5746262ad29f9a4808db318ab5e18e92c20609d2c719c203",
+      "kind": "notation_compiled",
+      "sha256": "9937740409537ceb5746262ad29f9a4808db318ab5e18e92c20609d2c719c203",
+      "media_type": "application/json",
+      "byte_size": 3383,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/function-quantifiers/artifacts/99/9937740409537ceb5746262ad29f9a4808db318ab5e18e92c20609d2c719c203.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/function-quantifiers/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:2fe1ac9e10a812d0fe99e19754b771f1caf264240743e724a0099b413454ec24",
+      "kind": "notation_ir",
+      "sha256": "2fe1ac9e10a812d0fe99e19754b771f1caf264240743e724a0099b413454ec24",
+      "media_type": "application/json",
+      "byte_size": 466,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/function-quantifiers/artifacts/2f/2fe1ac9e10a812d0fe99e19754b771f1caf264240743e724a0099b413454ec24.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:168b7065be6794077d9feee35c8ebe35daece8b59e48a663f367701e8448ded1",
+      "kind": "notation_validation",
+      "sha256": "168b7065be6794077d9feee35c8ebe35daece8b59e48a663f367701e8448ded1",
+      "media_type": "application/json",
+      "byte_size": 542,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/docs/validation/math-notation-angle-catalog-20260916/deepseek-replay/function-quantifiers/artifacts/16/168b7065be6794077d9feee35c8ebe35daece8b59e48a663f367701e8448ded1.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "984f38e6906e8e0e79d7a576cfd29774c83ab51b61e96e956a23c0c09ce376ec",
+  "semantic_revision": "6efe9545b121035d41453721766a246202b42fafa68f16e7dbf6cb143a2cf334",
+  "units": {
+    "r.definitions[0]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 0
+    },
+    "r.definitions[1]": {
+      "scope": "r",
+      "collection": "definitions",
+      "index": 1
+    },
+    "r.c0.facts[0]": {
+      "scope": "r.c0",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.c1.facts[0]": {
+      "scope": "r.c1",
+      "collection": "facts",
+      "index": 0
+    }
+  }
+}

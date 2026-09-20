@@ -1,0 +1,699 @@
+{
+  "meta": {
+    "id": "tj-2026-heping-ermo-25",
+    "outputPath": "/Users/haorong/projects/code/shuxueshuo/docs/validation/method-math-pages-20260917/math-encoded/tj-2026-heping-ermo-25/lesson.html",
+    "pageTitle": "tj-2026-heping-ermo-25（二次函数综合）",
+    "pageDescription": "本题二次函数综合：综合解题。",
+    "breadcrumbTitle": "tj-2026-heping-ermo-25",
+    "defaultT": 0.75,
+    "classification": {
+      "pattern": "path-minimum",
+      "methods": [
+        "evaluate_point_at_parameter",
+        "parameter_from_expression_value",
+        "point_candidates_from_curve_point_condition",
+        "quadratic_axis_parameterized_point",
+        "quadratic_from_constraints",
+        "quadratic_square_path_minimum",
+        "quadratic_vertex_point",
+        "quadratic_x_axis_intercept_point",
+        "square_adjacent_vertex_from_side"
+      ]
+    }
+  },
+  "problem": {
+    "summary": "本题二次函数综合：综合解题。",
+    "lines": [
+      {
+        "text": "Γ: y = -x^2+b*x+c"
+      },
+      {
+        "text": "c > 1"
+      },
+      {
+        "text": "P = vertex(Γ)"
+      },
+      {
+        "text": "Γ ∩ x_axis = {A,B}"
+      },
+      {
+        "text": "x(A) < x(B)"
+      },
+      {
+        "text": "Γ ∩ y_axis = {C}"
+      },
+      {
+        "text": "M = axis(Γ) ∩ x_axis"
+      },
+      {
+        "text": "E ∈ axis(Γ)"
+      },
+      {
+        "text": "square(A,E,K,G)"
+      },
+      {
+        "text": "y(G) < 0"
+      },
+      {
+        "text": "b = -2"
+      },
+      {
+        "text": "c = 3"
+      },
+      {
+        "text": "①"
+      },
+      {
+        "text": "G ∈ Γ"
+      },
+      {
+        "text": "A = (-c,0)"
+      },
+      {
+        "text": "F = midpoint(A,E)"
+      },
+      {
+        "text": "segment(A,K) ∩ segment(E,G) = {H}",
+        "answerId": "answer_i_1",
+        "answer": "P(－1, 4)，A(－3, 0)"
+      },
+      {
+        "text": "min(HF+FM+MG) = 3*sqrt(5)",
+        "answerId": "answer_i_2_E",
+        "answer": "E(－1, 2＋√6) 或 E(－1, 2－√6)"
+      },
+      {
+        "text": "HF+FM+MG = min(HF+FM+MG)",
+        "answerId": "answer_ii_E",
+        "answer": "E(－2, 3/2)"
+      }
+    ]
+  },
+  "ui": {
+    "sliderLabel": "参数",
+    "paramLabelPrefix": "c=",
+    "goToProblemMode": "doubleScroll",
+    "groupTitles": {
+      "i": "第（Ⅰ）问：公共推导",
+      "i_1": "第（Ⅰ）①问：求顶点",
+      "i_2": "第（Ⅰ）②问：设参数点",
+      "ii": "第（Ⅱ）问：化简解析式",
+      "第（Ⅰ）问：公共推导": "第（Ⅰ）问：公共推导",
+      "第（Ⅰ）①问：求顶点": "第（Ⅰ）①问：求顶点",
+      "第（Ⅰ）②问：设参数点": "第（Ⅰ）②问：设参数点",
+      "第（Ⅱ）问：化简解析式": "第（Ⅱ）问：化简解析式"
+    },
+    "defaultT": 0.75
+  },
+  "steps": [
+    {
+      "id": "teach:derive_parabola_i",
+      "section": "第（Ⅰ）问：公共推导",
+      "title": "第1步：求函数解析式",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "已知系数条件为 b＝－2，c＝3"
+        ],
+        [
+          "计算",
+          "代入 y＝－x²＋bx＋c，得 y＝－x²－2x＋3"
+        ],
+        [
+          "∴",
+          "y＝－x²－2x＋3＝－(x＋1)²＋4"
+        ]
+      ],
+      "box": [
+        "y＝－x²－2x＋3"
+      ]
+    },
+    {
+      "id": "teach:derive_x_intercept_A_i",
+      "section": "第（Ⅰ）问：公共推导",
+      "title": "第2步：求抛物线与 x 轴交点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "x 轴交点满足 y＝0，即 －x²－2x＋3＝0"
+        ],
+        [
+          "计算",
+          "x＝－3 或 x＝1"
+        ],
+        [
+          "∵",
+          "A 定义为左侧交点，取较小根 x＝－3"
+        ],
+        [
+          "∴",
+          "A(－3,0)"
+        ]
+      ],
+      "box": [
+        "A(－3,0)"
+      ]
+    },
+    {
+      "id": "teach:derive_vertex_P_i",
+      "section": "第（Ⅰ）①问：求顶点",
+      "title": "第1步：求二次函数顶点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "抛物线为 y＝－x²－2x＋3"
+        ],
+        [
+          "计算",
+          "配方，得 y＝－(x＋1)²＋4"
+        ],
+        [
+          "∴",
+          "顶点为 P(－1,4)"
+        ]
+      ],
+      "box": [
+        "P(－1,4)"
+      ]
+    },
+    {
+      "id": "teach:parameterize_axis_point_E_i",
+      "section": "第（Ⅰ）②问：设参数点",
+      "title": "第1步：设对称轴上的参数点",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "E 在对称轴 x＝－1 上"
+        ],
+        [
+          "设",
+          "E(－1,t)"
+        ]
+      ],
+      "box": [
+        "E(－1,t)"
+      ],
+      "localControls": {
+        "values": {
+          "t": 0.0
+        },
+        "controls": [
+          {
+            "var": "t",
+            "label": "参数 t（示意）",
+            "min": -4.0,
+            "max": 4.0,
+            "step": 0.05,
+            "scale": 1,
+            "precision": 2
+          }
+        ],
+        "note": "拖动仅用于观察当前步骤中的参数变化，不改变数学定义域。"
+      }
+    },
+    {
+      "id": "teach:derive_square_vertex_G_i",
+      "section": "第（Ⅰ）②问：设参数点",
+      "title": "第2步：由正方形求相邻顶点G",
+      "t": 0.75,
+      "derive": [
+        [
+          "作",
+          "GQ⊥x轴于 Q"
+        ],
+        [
+          "∵",
+          "四边形 AEKG 是正方形"
+        ],
+        [
+          "∴",
+          "AE＝AG，∠EAG＝90°"
+        ],
+        [
+          "∵",
+          "∠EMA＝∠GQA＝90°"
+        ],
+        [
+          "∴",
+          "∠EAM＝∠AGQ"
+        ],
+        [
+          "∴",
+          "Rt△AEM≌Rt△GAQ"
+        ],
+        [
+          "∴",
+          "AQ＝ME＝t，GQ＝AM＝2"
+        ],
+        [
+          "∵",
+          "G 在 x 轴下方"
+        ],
+        [
+          "∴",
+          "G(t－3,－2)"
+        ]
+      ],
+      "box": [
+        "G(t－3,－2)"
+      ],
+      "localControls": {
+        "values": {
+          "t": 0.0
+        },
+        "controls": [
+          {
+            "var": "t",
+            "label": "参数 t（示意）",
+            "min": -4.0,
+            "max": 4.0,
+            "step": 0.05,
+            "scale": 1,
+            "precision": 2
+          }
+        ],
+        "note": "拖动仅用于观察当前步骤中的参数变化，不改变数学定义域。"
+      }
+    },
+    {
+      "id": "teach:solve_axis_point_candidates_i",
+      "section": "第（Ⅰ）②问：设参数点",
+      "title": "第3步：代入抛物线求点E候选",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "E(－1,t) 与 G(t－3,－2) 都由同一参数 t 表示"
+        ],
+        [
+          "∵",
+          "G(t－3,－2) 在 y＝－x²－2x＋3 上"
+        ],
+        [
+          "∴",
+          "代入曲线点坐标，得 －2＝－(t－3)²－2(t－3)＋3"
+        ],
+        [
+          "计算",
+          "整理为 (t－3)²＋2(t－3)－5＝0"
+        ],
+        [
+          "计算",
+          "解得 t＝2±√6"
+        ],
+        [
+          "∴",
+          "把参数值代回 E(－1,t)，得 E(－1,2＋√6) 或 E(－1,2－√6)"
+        ]
+      ],
+      "box": [
+        "E(－1,2＋√6) 或 E(－1,2－√6)"
+      ],
+      "localControls": {
+        "values": {
+          "t": 0.0
+        },
+        "controls": [
+          {
+            "var": "t",
+            "label": "参数 t（示意）",
+            "min": -4.0,
+            "max": 4.787469,
+            "step": 0.05,
+            "scale": 1,
+            "precision": 2,
+            "landmarks": [
+              {
+                "value": 4.449489742783178,
+                "display": "2+√6",
+                "epsilon": 0.025
+              },
+              {
+                "value": -0.4494897427831781,
+                "display": "2-√6",
+                "epsilon": 0.025
+              }
+            ]
+          }
+        ],
+        "note": "拖动仅用于观察当前步骤中的参数变化，不改变数学定义域。"
+      }
+    },
+    {
+      "id": "teach:derive_parametric_parabola_ii",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第1步：化简函数解析式",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "A(－c,0) 在 y＝－x²＋bx＋c 上"
+        ],
+        [
+          "∴",
+          "代入 A 点坐标，得 0＝－c²－bc＋c＝－c(b＋c－1)"
+        ],
+        [
+          "∵",
+          "c＞1"
+        ],
+        [
+          "计算",
+          "化简上述方程，得 b＝1－c"
+        ],
+        [
+          "∴",
+          "y＝－x²＋(1－c)x＋c"
+        ]
+      ],
+      "box": [
+        "y＝－x²＋(1－c)x＋c"
+      ]
+    },
+    {
+      "id": "teach:derive_path_minimum_ii:quadratic_square_path_minimum/path_reduction",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第2步：利用正方形关系化简路径",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "FM=AE/2，HF=AG/2，AE=AG"
+        ],
+        [
+          "∴",
+          "HF+FM=AG"
+        ],
+        [
+          "∴",
+          "HF+FM+MG＝AG+MG"
+        ]
+      ],
+      "box": [
+        "HF+FM+MG＝AG+MG"
+      ],
+      "localControls": {
+        "values": {
+          "u": 0.35
+        },
+        "controls": [
+          {
+            "var": "u",
+            "label": "动点 G：ME/AM",
+            "min": -1.25,
+            "max": 1.25,
+            "step": 0.01,
+            "scale": 1,
+            "precision": 2
+          }
+        ],
+        "note": "拖动 E，观察正方形与动点 G 的联动关系。"
+      }
+    },
+    {
+      "id": "teach:derive_path_minimum_ii:quadratic_square_path_minimum/reflection_minimum",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第3步：确定G的轨迹并用反射求最短路径",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "G 的轨迹为 y=-c/2-1/2"
+        ],
+        [
+          "作",
+          "关于该轨迹构造 A′(-c,-c-1)"
+        ],
+        [
+          "∵",
+          "AG=A′G"
+        ],
+        [
+          "∴",
+          "AG+MG＝A′G+MG≥A′M"
+        ],
+        [
+          "∴",
+          "最小值为 √5|c+1|/2"
+        ],
+        [
+          "∴",
+          "在 G(1/4-3c/4,-c/2-1/2) 处取得"
+        ]
+      ],
+      "box": [
+        "最小值为 √5|c+1|/2",
+        "取等点为 G(1/4-3c/4,-c/2-1/2)"
+      ],
+      "localControls": {
+        "values": {
+          "u": 0.35
+        },
+        "controls": [
+          {
+            "var": "u",
+            "label": "动点 G：ME/AM",
+            "min": -1.25,
+            "max": 1.25,
+            "step": 0.01,
+            "scale": 1,
+            "precision": 2
+          }
+        ],
+        "note": "拖动 E，观察正方形与动点 G 的联动关系。"
+      }
+    },
+    {
+      "id": "teach:solve_parameter_c_ii",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第4步：由表达式取值反求参数",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "题设要求 √5|c＋1|/2＝3√5"
+        ],
+        [
+          "计算",
+          "解方程，得 c＝－7 或 c＝5"
+        ],
+        [
+          "∵",
+          "根据 c＞1，保留 c＝5"
+        ],
+        [
+          "∴",
+          "c＝5"
+        ]
+      ],
+      "box": [
+        "c＝5"
+      ]
+    },
+    {
+      "id": "teach:evaluate_point_A_ii",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第5步：代入参数求点坐标",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "A(-c,0)，c＝5"
+        ],
+        [
+          "计算",
+          "将 c＝5 代入：x_A＝－c＝－5，y_A＝0＝0"
+        ],
+        [
+          "∴",
+          "A(-5,0)"
+        ]
+      ],
+      "box": [
+        "A(-5,0)"
+      ]
+    },
+    {
+      "id": "teach:evaluate_minimum_point_G_ii",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第6步：代入参数求点坐标",
+      "t": 0.75,
+      "derive": [
+        [
+          "∵",
+          "G(1/4-3c/4,-c/2-1/2)，c＝5"
+        ],
+        [
+          "计算",
+          "将 c＝5 代入：x_G＝1/4－3c/4＝－7/2，y_G＝－c/2－1/2＝－3"
+        ],
+        [
+          "∴",
+          "G(-7/2,-3)"
+        ]
+      ],
+      "box": [
+        "G(-7/2,-3)"
+      ]
+    },
+    {
+      "id": "teach:recover_target_point_E_ii",
+      "section": "第（Ⅱ）问：化简解析式",
+      "title": "第7步：由正方形求相邻顶点E",
+      "t": 0.75,
+      "derive": [
+        [
+          "作",
+          "GQ⊥x轴于 Q"
+        ],
+        [
+          "∵",
+          "四边形 AEKG 是正方形"
+        ],
+        [
+          "∴",
+          "AG＝AE，∠GAE＝90°"
+        ],
+        [
+          "∵",
+          "∠GQA＝∠EMA＝90°"
+        ],
+        [
+          "∴",
+          "∠GAQ＝∠AEM"
+        ],
+        [
+          "∴",
+          "Rt△AGQ≌Rt△EAM"
+        ],
+        [
+          "∴",
+          "AM＝QG＝3，EM＝AQ＝3/2"
+        ],
+        [
+          "∵",
+          "按正方形顶点顺序选取 E"
+        ],
+        [
+          "∴",
+          "E(－2,3/2)"
+        ]
+      ],
+      "box": [
+        "E(－2,3/2)"
+      ]
+    }
+  ],
+  "policies": {
+    "teach:derive_parabola_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_x_intercept_A_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_vertex_P_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:parameterize_axis_point_E_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_square_vertex_G_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:solve_axis_point_candidates_i": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_parametric_parabola_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/path_reduction": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/reflection_minimum": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:solve_parameter_c_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:evaluate_point_A_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:evaluate_minimum_point_G_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    },
+    "teach:recover_target_point_E_ii": {
+      "movable": false,
+      "range": [
+        0.75,
+        0.75
+      ]
+    }
+  },
+  "stepLabels": {
+    "teach:derive_parabola_i": "1 求解析式",
+    "teach:derive_x_intercept_A_i": "2 求 x 轴交点",
+    "teach:derive_vertex_P_i": "1 求顶点",
+    "teach:parameterize_axis_point_E_i": "1 设参数点",
+    "teach:derive_square_vertex_G_i": "2 正方形求顶点G",
+    "teach:solve_axis_point_candidates_i": "3 求点E候选",
+    "teach:derive_parametric_parabola_ii": "1 化简解析式",
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/path_reduction": "2 化简路径",
+    "teach:derive_path_minimum_ii:quadratic_square_path_minimum/reflection_minimum": "3 轨迹与反射",
+    "teach:solve_parameter_c_ii": "4 反求参数",
+    "teach:evaluate_point_A_ii": "5 代入求点",
+    "teach:evaluate_minimum_point_G_ii": "6 代入求点",
+    "teach:recover_target_point_E_ii": "7 正方形求顶点E"
+  }
+}

@@ -75,8 +75,7 @@ RUN_LLM_INTEGRATION=0 uv run pytest -q tests/solver/test_problem_domain_*.py tes
 # PRODUCT_TEST_DATA_DIR 必须指向独立安装的测试实例
 PRODUCT_TEST_DATA_DIR=/private/tmp/shuxueshuo-source-review-20260913 PRODUCT_TEST_INSTANCE=source-review-test RUN_LLM_INTEGRATION=0 uv run pytest -q tests/product -m 'not live_llm'
 
-RUN_LLM_INTEGRATION=1 uv run pytest -q tests/solver/test_problem_source_review_live.py
-RUN_LLM_INTEGRATION=1 uv run python -m shuxueshuo_server.solver.extraction.problem_domain_smoke --case all --samples-per-case 1 --concurrency 5 --batch-id UNIQUE_BATCH_ID
+# v3 九阶段真实验收（math-notation extraction + binding）
 PRODUCT_TEST_DATA_DIR=/private/tmp/shuxueshuo-source-review-20260913 PRODUCT_TEST_INSTANCE=source-review-test RUN_LLM_INTEGRATION=1 uv run pytest -q tests/product/test_source_review_live.py
 ```
 

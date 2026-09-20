@@ -95,6 +95,7 @@ def test_product_dependencies_keep_inputs_and_live_ocr_outside_cache(release, mo
     monkeypatch.setattr(dependency_cache, 'REPO', root)
     monkeypatch.setattr(dependency_cache, '_CACHE', ReleaseDependencyCache())
     monkeypatch.setenv('PRODUCT_OCR_URL', 'http://recorded-ocr')
+    monkeypatch.setenv('PRODUCT_OBSERVATION_MODE', 'ocr')
     calls, ocr_calls = [], []
     def discover():
         calls.append(1)
@@ -105,7 +106,15 @@ def test_product_dependencies_keep_inputs_and_live_ocr_outside_cache(release, mo
         ocr_calls.append(1)
         return BytesIO(json.dumps({'providers': providers}).encode())
     monkeypatch.setattr(application.urllib.request, 'urlopen', manifests)
-    pipeline = {'stages': [{'stage_key': k, 'depends_on': []} for k in KEYS]}
+    # The production pipeline snapshot now authenticates every stage's
+    # contract.  This cache test does not exercise contract selection, so use
+    # a uniform synthetic contract while preserving the stage graph.
+    pipeline = {
+        'stages': [
+            {'stage_key': k, 'contract_version': 'v1', 'depends_on': []}
+            for k in KEYS
+        ]
+    }
     first = application.dependencies({'sha256': 'image1'}, 'revision1', pipeline)
     second = application.dependencies({'sha256': 'image2'}, 'revision2', pipeline)
     assert first['deployment_version'] == second['deployment_version']

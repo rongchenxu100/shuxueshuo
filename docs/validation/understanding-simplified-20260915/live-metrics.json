@@ -1,0 +1,25 @@
+{
+  "finish_reason": "length",
+  "usage": {
+    "completion_tokens": 16384,
+    "prompt_tokens": 7601,
+    "total_tokens": 23985,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": null,
+      "audio_tokens": null,
+      "reasoning_tokens": 14399,
+      "rejected_prediction_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": null,
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 7601
+  },
+  "actual_final_response_characters": 5628,
+  "reasoning_characters": 31349,
+  "candidate_parsed": false,
+  "gold_comparison_executed": false,
+  "passed": false
+}

@@ -1,0 +1,398 @@
+{
+  "scope": "two new live review calls, same frozen images/candidates, no new extraction or repair",
+  "cases": {
+    "tj-2026-heping-yimo-25": {
+      "metrics": {
+        "input_tokens": {
+          "before": 6095,
+          "after": 7367,
+          "change_percent": 20.87
+        },
+        "output_tokens": {
+          "before": 9731,
+          "after": 2128,
+          "change_percent": -78.13
+        },
+        "reasoning_tokens": {
+          "before": 9720,
+          "after": 2117,
+          "change_percent": -78.22
+        },
+        "visible_output_tokens": {
+          "before": 11,
+          "after": 11,
+          "change_percent": 0.0
+        },
+        "seconds": {
+          "before": 50.302,
+          "after": 12.941,
+          "change_percent": -74.27
+        },
+        "total_tokens": {
+          "before": 15826,
+          "after": 9495,
+          "change_percent": -40.0
+        }
+      },
+      "review": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "semantic_calls": 1,
+      "network_attempts": 1,
+      "new_model": "deepseek-flash",
+      "baseline_model": "deepseek-flash",
+      "cache_tokens": {
+        "before": 0,
+        "after": 0
+      },
+      "reasoning": {
+        "before_chars": 16396,
+        "after_chars": 3691,
+        "before_lines": 309,
+        "after_lines": 113,
+        "literal_counts": {
+          "连接BC": {
+            "before": 60,
+            "after": 9
+          },
+          "常数": {
+            "before": 33,
+            "after": 3
+          },
+          "原点": {
+            "before": 35,
+            "after": 16
+          },
+          "DM=DN": {
+            "before": 0,
+            "after": 0
+          },
+          "confirmed": {
+            "before": 10,
+            "after": 8
+          }
+        },
+        "count_note": "Literal occurrences, not independent checks or a measured wasted-token fraction"
+      },
+      "evidence": {
+        "source_checks": [
+          {
+            "line": 19,
+            "text": "（Ⅰ）facts: D ∈ Γ——这是“当点D落在该抛物线上时”的条件。正确。"
+          },
+          {
+            "line": 21,
+            "text": "②facts: E ∈ Γ，x(E)=m，-1<m<0，angle(C,B,E)+angle(A,C,O)=45°。goals: find_coordinates E。正确。"
+          },
+          {
+            "line": 26,
+            "text": "- “点M是线段BC上一动点”——M ∈ segment(B,C) ✓"
+          },
+          {
+            "line": 27,
+            "text": "- “点N是射线CD上一动点”——N ∈ ray(C,D) ✓"
+          },
+          {
+            "line": 29,
+            "text": "- “当OM+BN的最小值为√34时”——min(OM+BN)=sqrt(34) ✓"
+          },
+          {
+            "line": 55,
+            "text": "检查 ② 中的 angle(C,B,E)：∠CBE 的顶点是 B。angle(C,B,E) 的中间点 B 是顶点 ✓。还有 angle(A,C,O)：∠ACO，顶点 C ✓。数值 45° ✓。"
+          },
+          {
+            "line": 59,
+            "text": "嗯，让我再仔细检查一下：图片底部的绿色笔迹是学生标记，与题面无关。没问题。"
+          },
+          {
+            "line": 87,
+            "text": "再仔细检查有没有任何数字错误：y = a*x^2+b*x-3 ✓，A(-1,0) ✓，2个单位 → +2 ✓，45° ✓，√34 ✓。"
+          }
+        ],
+        "origin_repetition": [
+          {
+            "line": 17,
+            "text": "等等，O=(0,0) 是原点。题面中出现 ∠ACO 和 OM，所以 O 是原点。但原图在（25）这道题中并没有显式定义 O 为原点……等等，∠ACO 用到了 O，OM 也用到了 O。标准约定下 O 是原点，题面隐含这点。嗯，但这是否需要明确标注？原图里用到了 O 但未定义。这是教科书里的常见约定——坐标原点记作 O。候选添加 O=(0,0) 是合理的。嗯，不过有“unsupported_addition”的风险。但 O 在题面中出现（∠ACO、OM），所以 O 必须指代某个点——也就是原点。这是可接受的。"
+          },
+          {
+            "line": 43,
+            "text": "O = (0,0)——嗯，O 是原点。题面未显式定义，但为坐标原点做标准约定。这是可接受的补充吗？可能算作可接受的记法约定，因为整个坐标系中 O 就是原点。我倾向于接受。"
+          },
+          {
+            "line": 69,
+            "text": "检查 O=(0,0)——是作为根节点事实添加的。这算不受支持的新增吗？O 出现在 ∠ACO 和 OM 中。如果没有定义，O 是未定义的。原图从未定义 O，但按惯例它就是原点。嗯，这是个边界情况。在许多教材中，O 是原点。候选添加 O=(0,0) 在数学上是必要的，且符合惯例。我会接受它。"
+          },
+          {
+            "line": 71,
+            "text": "其实，等等。O 真的需要被定义吗？∠ACO 和 OM 都用到 O。如果 O 未定义，题目就不可解。O 作为原点是一个标准约定。所以添加 O=(0,0) 是合理且数学上必要的。可接受。"
+          },
+          {
+            "line": 83,
+            "text": "还有一点：在根 facts 中，候选写了“O = (0,0)”。如果认为 O 是原点……原图用了 O 但未定义。这是教科书题的常见做法。我会保留它。"
+          },
+          {
+            "line": 101,
+            "text": "其实，让我再重新考虑一下关于 O 的潜在问题。原题中，“∠ACO”在 ② 中使用，“OM”在（Ⅱ）中使用。O 从未被定义。但 O 作为原点在坐标系中是一个标准隐含约定。这能算“非题设混入”吗？它带有的信息是原题隐含给出的（坐标原点 O）。大多数阅卷者会接受 O 是原点。这是一个标准数学约定，不是虚构的补充。我会认为这是可接受的。"
+          }
+        ],
+        "connection_repetition": [
+          {
+            "line": 32,
+            "text": "根节点：连接BC——题面说连接BC。候选没有显式记录 segment(B,C) 或 BC。嗯，“连接BC”是构造步骤。在（Ⅱ）中 M ∈ segment(B,C) 已隐含。根节点的“连接BC”是一条构造线段。按约定，“连接UV”若被相关几何关系引用，则不需要独立的线段声明。这里 BC 被 segment(B,C) 引用，所以没问题。"
+          },
+          {
+            "line": 51,
+            "text": "现在，再检查一下候选是否遗漏了什么，比如“连接BC”（构造）。按约定，“连接UV”若被引用就不需要独立声明。M ∈ segment(B,C) 引用了 BC，所以没问题。"
+          },
+          {
+            "line": 53,
+            "text": "等等，但“连接BC”是否被引用？M ∈ segment(B,C) 是引用的。OK。"
+          },
+          {
+            "line": 81,
+            "text": "但等等，让我再仔细检查一下“连接BC”——它应该在根 facts 中吗？候选在（Ⅱ）中写了 M ∈ segment(B,C)，这已经覆盖了 BC 线段的存在。根节点的“连接BC”只是一个作图步骤。没问题。"
+          }
+        ]
+      },
+      "sha256": {
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-heping-yimo-25/candidate.json": "2136889ecc4f6e688de7b95fcdb46bd8bd2b7d928b4a28991f937952cde82dc0",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-heping-yimo-25/source-1.png": "ee27bd669ca741fe90cd42438f4a78db86f433e42a1432e42a819df0ae2c514d",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-heping-yimo-25/thinking.txt": "e58f5c3dd46a1f11da82adfddec8d930ec3f515d487f0ffaf82fb70068061270",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-heping-yimo-25/baseline-thinking.txt": "b1e1902e55d02e683497f7c1d1bc758366548a826066859abebd24d8d561d789",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-heping-yimo-25/workflow/calls/01-review/request.json": "3a25e3e9e2aa69dd2aa43a1b8cd3b5a65ffba105fd8c3ee401ca52709331ba77",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-heping-yimo-25/workflow/calls/01-review/response.json": "dfdc58be7bd995b63ff924e633af465a9aee079777afa188ba1600a1c0a76416"
+      }
+    },
+    "tj-2026-nankai-yimo-25": {
+      "metrics": {
+        "input_tokens": {
+          "before": 6091,
+          "after": 7369,
+          "change_percent": 20.98
+        },
+        "output_tokens": {
+          "before": 9695,
+          "after": 8998,
+          "change_percent": -7.19
+        },
+        "reasoning_tokens": {
+          "before": 9684,
+          "after": 8987,
+          "change_percent": -7.2
+        },
+        "visible_output_tokens": {
+          "before": 11,
+          "after": 11,
+          "change_percent": 0.0
+        },
+        "seconds": {
+          "before": 48.102,
+          "after": 43.418,
+          "change_percent": -9.74
+        },
+        "total_tokens": {
+          "before": 15786,
+          "after": 16367,
+          "change_percent": 3.68
+        }
+      },
+      "review": {
+        "status": "confirmed",
+        "findings": []
+      },
+      "semantic_calls": 1,
+      "network_attempts": 1,
+      "new_model": "deepseek-flash",
+      "baseline_model": "deepseek-flash",
+      "cache_tokens": {
+        "before": 4224,
+        "after": 0
+      },
+      "reasoning": {
+        "before_chars": 17508,
+        "after_chars": 15994,
+        "before_lines": 308,
+        "after_lines": 340,
+        "literal_counts": {
+          "连接BC": {
+            "before": 0,
+            "after": 0
+          },
+          "常数": {
+            "before": 22,
+            "after": 15
+          },
+          "原点": {
+            "before": 0,
+            "after": 0
+          },
+          "DM=DN": {
+            "before": 28,
+            "after": 16
+          },
+          "confirmed": {
+            "before": 12,
+            "after": 7
+          }
+        },
+        "count_note": "Literal occurrences, not independent checks or a measured wasted-token fraction"
+      },
+      "evidence": {
+        "source_checks": [
+          {
+            "line": 38,
+            "text": "- (I) 当 a=2, c=-5 时，直接写出点D坐标和抛物线解析式。候选 (I) facts [\"a=2\",\"c=-5\"], goals find_coordinates D, find_equation Γ。正确。注意 a=2,c=-5 是局部条件，放在 (I) 下，好。"
+          },
+          {
+            "line": 44,
+            "text": "- 点N在第四象限：x(N)>0 ∧ y(N)<0。第四象限横坐标>0,纵坐标<0，正确。"
+          },
+          {
+            "line": 49,
+            "text": "- DE=√2 NG，候选 DE = sqrt(2)*NG，正确。NG 应该是线段 NG？候选写作 NG，按 length 记法无向长度，可以。"
+          },
+          {
+            "line": 60,
+            "text": "检查：原句“当 EG+FG 取得最小值为 5√10/2 时，直接写出此时抛物线的解析式和点 G 的坐标。” 这里“此时”修饰两个并列目标：抛物线的解析式和点 G 的坐标。候选两个 goals 都带 at \"EG+FG = min(EG+FG)\"，正确。facts 中 min(EG+FG)=5√10/2 作为条件，正确。注意原图“直接写出”不是求最小值，是已知最小值，直接写出解析式和G坐标。候选用 facts 而不是 goal，好。"
+          },
+          {
+            "line": 168,
+            "text": "现在需要检查 candidate_contract 中 goal 类型与候选结构："
+          },
+          {
+            "line": 177,
+            "text": "可能的问题：候选 (II) facts 中 \"E ∈ segment(D,M)\" 和 \"G ∈ segment(M,N)\" 缺少“动点”的“动”标记？但成员关系已表达。约定“不要求额外补动点标签；点的取值范围及关联条件仍用数学式保留。” 所以可以。"
+          },
+          {
+            "line": 226,
+            "text": "现在考虑是否有“分问归属”错误：候选把 \"M=(m,1)\" 等放在 (II) 下，正确；把 \"MN=√10\" 放在①下，正确；把 \"min(EG+FG)=5√10/2\" 放在②下，正确。没有提升到父问。好。"
+          }
+        ],
+        "motion_repetition": [
+          {
+            "line": 47,
+            "text": "- E和G分别是线段DM和MN上的动点，候选 E ∈ segment(D,M), G ∈ segment(M,N)，正确。动点？未明确“动点”标签，但有了成员关系即可。可接受。"
+          },
+          {
+            "line": 74,
+            "text": "6. 原图“E和G分别是线段DM和线段MN上的动点”，候选 E∈segment(D,M), G∈segment(M,N)。是否遗漏了“动点”导致 E/G 是否在端点？成员关系包括端点，但动点可包括端点；可以。没有额外约束如E和G不重合，不需。"
+          },
+          {
+            "line": 84,
+            "text": "潜在问题：候选 facts 在 (II) 中有 \"E ∈ segment(D,M)\" 和 \"G ∈ segment(M,N)\"，但没有明确 E、G 是“动点”。应该没问题，因为题设说动点，候选成员关系足以表达动点位置。但可能要考虑“点E和点G分别是线段DM和线段MN上的动点”与“DE=√2 NG”等。好。"
+          },
+          {
+            "line": 177,
+            "text": "可能的问题：候选 (II) facts 中 \"E ∈ segment(D,M)\" 和 \"G ∈ segment(M,N)\" 缺少“动点”的“动”标记？但成员关系已表达。约定“不要求额外补动点标签；点的取值范围及关联条件仍用数学式保留。” 所以可以。"
+          },
+          {
+            "line": 264,
+            "text": "候选在 (II) 中没有写 \"点E和点G分别是线段DM和线段MN上的动点\" 的“动点”是否意味着 E、G 可以取端点？原题说线段上的动点，通常包括端点，候选成员关系包括。可以。"
+          },
+          {
+            "line": 312,
+            "text": "候选的 (II) facts 没有 \"E ∈ segment(D,M)\" 和 \"G ∈ segment(M,N)\" 中的“动点”导致 E 和 G 是否可能在端点？题面说动点，通常在线段上包括端点，可以。好。"
+          },
+          {
+            "line": 320,
+            "text": "但有一个微妙点：原题“点E和点G分别是线段DM和线段MN上的动点” 中的“动点”可能意味着 E、G 不是固定点，而候选只写 E ∈ segment(D,M), G ∈ segment(M,N)，这已足够。但是否需要额外声明 E、G 是动点？根据约定“不要求额外补动点标签；点的取值范围及关联条件仍用数学式保留。” 所以无需。"
+          }
+        ],
+        "intersection_repetition": [
+          {
+            "line": 64,
+            "text": "1. 候选 root facts 中 \"Γ ∩ y_axis = {C}\" 和 \"axis(Γ) ∩ x_axis = {D}\"。原图“与y轴相交于点C”，但候选的 Γ ∩ y_axis = {C} 表示抛物线Γ与y轴交集是点集{C}。可以。但注意 C 点没有在候选其他位置出现？可以的。点D坐标在(I)求，D在root定义。好。"
+          },
+          {
+            "line": 152,
+            "text": "可能的问题：候选 root 的 facts 中有 \"Γ ∩ y_axis = {C}\"，但原题“与y轴相交于点C”可能暗示 C 是唯一交点？抛物线 y=ax^2+bx+c 与y轴交点确实是 (0,c)，唯一。所以表示点集 {C} 没问题。"
+          },
+          {
+            "line": 210,
+            "text": "可能有一个问题：候选 root facts 用 \"Γ ∩ y_axis = {C}\"，但原题“与y轴相交于点C”没有说交点唯一？但抛物线是函数，与y轴最多一个交点，所以唯一。可以。"
+          },
+          {
+            "line": 292,
+            "text": "另一个疑点：候选的 root facts 有 \"Γ ∩ y_axis = {C}\"，但原题“与 y 轴相交于点 C” 可能只是说 C 是一个交点，而不是说整个交集是 {C}？抛物线是函数，与y轴最多一个交点，所以可以。好。"
+          }
+        ],
+        "at_repetition": [
+          {
+            "line": 60,
+            "text": "检查：原句“当 EG+FG 取得最小值为 5√10/2 时，直接写出此时抛物线的解析式和点 G 的坐标。” 这里“此时”修饰两个并列目标：抛物线的解析式和点 G 的坐标。候选两个 goals 都带 at \"EG+FG = min(EG+FG)\"，正确。facts 中 min(EG+FG)=5√10/2 作为条件，正确。注意原图“直接写出”不是求最小值，是已知最小值，直接写出解析式和G坐标。候选用 facts 而不是 goal，好。"
+          },
+          {
+            "line": 146,
+            "text": "可能的问题：原图②“当 EG+FG 取得最小值为 5√10/2 时，直接写出此时抛物线的解析式和点G的坐标。” 这里“取得最小值”其实是一个已知最小值，而不是求最小值。候选 facts min(EG+FG)=... 正确。但 goals 中的 at 表达式 \"EG+FG = min(EG+FG)\" 是否合适？ Schema 的 goal_at 示例：表达式 = min(表达式)。可以。它表达“此时”，即取最小值时。正确。"
+          },
+          {
+            "line": 230,
+            "text": "考虑“目标与状态”：候选② goals 带 at。原句“此时”修饰两个目标，候选两个都带 at。正确。但注意① 原句“并直接写出 EG+FG 的最小值”没有“此时”限定，所以①求最小值，候选 find_minimum。正确。② 原句“当 EG+FG 取得最小值为...时，直接写出此时抛物线的解析式和点G的坐标”是已知最小值求解析式和G坐标，候选 facts min(...)=... 和 goals at。正确。"
+          },
+          {
+            "line": 234,
+            "text": "可能有一个小问题：候选② goals 中 find_equation Γ 带有 at \"EG+FG = min(EG+FG)\"。原句“此时抛物线的解析式” 确实是在 EG+FG 取得最小值时，所以解析式也只在这个特定状态下？实际上，抛物线的解析式是确定的（由条件），但“此时”可能修饰的是“写出”这个动作，表示在求得最小值的情况下写出解析式；解析式本身不随 E/G 动点变化，但如果最小值条件可能确定参数，所以“此时”修饰解析式？原句“直接写出此时抛物线的解析式和点G的坐标”中“此时”指 EG+FG 取得最小值的状态。解析式当然是在该最小值条件下求出的解析式。候选给 find_equation Γ 也加 at，符合修饰范围。好。"
+          },
+          {
+            "line": 330,
+            "text": "另一个微妙点：原题“直接写出此时抛物线的解析式和点G的坐标” 候选 goals 都带 at。好。"
+          }
+        ],
+        "visual_claim": [
+          {
+            "line": 98,
+            "text": "视觉不确定性：没有模糊字符？整体清晰。候选可能在某些地方有歧义？例如 \"∠MDN=90°\" 原图清晰。 \"DM=DN\" 是等号还是减号？原图是“DM=DN”，等号。 \"DE=√2 NG\" 清晰。 \"MN=√10\" 清晰。 \"5√10/2\" 清晰。好。"
+          }
+        ]
+      },
+      "sha256": {
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-nankai-yimo-25/candidate.json": "089d64eafd52589be34560133a5f0d4ec14cc64ea8a585403448b981a29bf98f",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-nankai-yimo-25/source-1.png": "2c1da7a089896462aeef0a15f3f96863f3598370b10ac5666f62bda916a0be64",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-nankai-yimo-25/thinking.txt": "bd78da11240d7651da7607d4bdf67d2fa015d58a762e6952e2a8c778ccdbe80e",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-nankai-yimo-25/baseline-thinking.txt": "11bd677017248b5dce545a4e97b1e35aa9f03a76a5bc8a4147d306cbf56972b6",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-nankai-yimo-25/workflow/calls/01-review/request.json": "c84c74fd9c095393214b5d45db4945afc579fdc7279af94f1e6a6d5d05f74a6d",
+        "internal/solver-runs/math-notation-review-two-20260917-065500/tj-2026-nankai-yimo-25/workflow/calls/01-review/response.json": "9622e9b46a2737120794353c5f29a4c29ce903fc4456e4b63ef0d0e138f48c06"
+      }
+    }
+  },
+  "aggregate": {
+    "input_tokens": {
+      "before": 12186,
+      "after": 14736,
+      "change_percent": 20.93
+    },
+    "output_tokens": {
+      "before": 19426,
+      "after": 11126,
+      "change_percent": -42.73
+    },
+    "reasoning_tokens": {
+      "before": 19404,
+      "after": 11104,
+      "change_percent": -42.77
+    },
+    "visible_output_tokens": {
+      "before": 22,
+      "after": 22,
+      "change_percent": 0.0
+    },
+    "seconds": {
+      "before": 98.404,
+      "after": 56.359,
+      "change_percent": -42.73
+    },
+    "total_tokens": {
+      "before": 31612,
+      "after": 25862,
+      "change_percent": -18.19
+    }
+  },
+  "wall_seconds": 43.439,
+  "caveats": [
+    "one historical and one new sample per case, not a randomized replicated experiment",
+    "correct candidate controls, not an error-detection benchmark",
+    "reasoning is model self-report, not a verified image-evidence certificate",
+    "reported token counts are not a monetary cost estimate"
+  ]
+}

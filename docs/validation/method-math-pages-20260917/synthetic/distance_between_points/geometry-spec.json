@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "id": "synthetic-distance_between_points",
+  "domain": {
+    "minX": -0.8,
+    "maxX": 3.8,
+    "minY": -0.8,
+    "maxY": 4.8
+  },
+  "movingParam": "t",
+  "expressionEnv": [],
+  "fixedPoints": {
+    "point_A_problem": [
+      "0",
+      "0"
+    ],
+    "point_B_problem": [
+      "3",
+      "4"
+    ]
+  },
+  "movingPoints": {},
+  "pointMeta": {
+    "point_A_problem": {
+      "label": "A",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:A"
+    },
+    "point_B_problem": {
+      "label": "B",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:B"
+    }
+  },
+  "curves": [],
+  "derivedIntersections": []
+}

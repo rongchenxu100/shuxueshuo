@@ -2,7 +2,9 @@
 
 ## Problem Planning Context
 
-Entity和Fact的`ref`以及Goal的`target_ref`是题面输入。Fact属于它所在的嵌套scope，只在该scope及其子孙scope可见；“可用”始终指对当前step的写入scope可见，不是全局可见。例如全局Entity `D`的存在，不会把子scope中的`D∈parabola` Fact提升到根scope。
+{% if payload.get("argument_encoding") == "math-expression/v1" %}题意使用数学表达式；scope_ref和goal_ref仍为原Plan Authority Frame中的标识。args和output_targets用数学表达式关联可见题设对象或条件；其他字段和结果引用形式不变。
+条件只在所属scope及子孙scope可见；全局对象的存在不会把子scope条件提升到根scope。
+{% else %}Entity和Fact的`ref`以及Goal的`target_ref`是题面输入。Fact属于它所在的嵌套scope，只在该scope及其子孙scope可见；“可用”始终指对当前step的写入scope可见，不是全局可见。例如全局Entity `D`的存在，不会把子scope中的`D∈parabola` Fact提升到根scope。{% endif %}
 
 {{ payload.problem_planning_context | compact_json }}
 

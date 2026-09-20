@@ -1,0 +1,73 @@
+{
+  "root": {
+    "definitions": [
+      "Γ: y = -x^2 + b*x + c"
+    ],
+    "facts": [
+      "c > 1",
+      "P = vertex(Γ)",
+      "Γ ∩ x_axis = {A,B}",
+      "x(A) < x(B)",
+      "Γ ∩ y_axis = {C}",
+      "axis(Γ) ∩ x_axis = {M}",
+      "E ∈ axis(Γ)",
+      "square(A,E,K,G)",
+      "y(G) < 0"
+    ],
+    "children": [
+      {
+        "label": "（Ⅰ）",
+        "facts": [
+          "b = -2",
+          "c = 3"
+        ],
+        "children": [
+          {
+            "label": "①",
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "P"
+              },
+              {
+                "kind": "find_coordinates",
+                "object": "A"
+              }
+            ]
+          },
+          {
+            "label": "②",
+            "facts": [
+              "G ∈ Γ"
+            ],
+            "goals": [
+              {
+                "kind": "find_coordinates",
+                "object": "E"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "（Ⅱ）",
+        "facts": [
+          "A = (-c, 0)",
+          "F = midpoint(A,E)",
+          "segment(A,K) ∩ segment(E,G) = {H}",
+          "min(HF+FM+MG) = 3*sqrt(5)"
+        ],
+        "goals": [
+          {
+            "kind": "find_coordinates",
+            "object": "E",
+            "at": "HF+FM+MG = min(HF+FM+MG)"
+          }
+        ]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+  "match_reason": "题面包含二次函数、正方形AEKG，且路径HF+FM+MG的最小值依赖于正方形中点F和中心H等关系，符合正方形路径最值题型。"
+}

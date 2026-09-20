@@ -1,0 +1,117 @@
+{
+  "summary": {
+    "passed": false,
+    "candidate_only": true,
+    "source_reviewed": false,
+    "solver_ready": false,
+    "semantic_calls": 1,
+    "network_attempts": 2,
+    "continuation": {
+      "status": "candidate_only",
+      "blocked": false,
+      "error_code": null,
+      "user_action": null,
+      "message": null,
+      "missing_figures": []
+    },
+    "contract_valid": true,
+    "elapsed_seconds": 141.131
+  },
+  "attempts": [
+    {
+      "attempt": 1,
+      "finish_reason": "length",
+      "elapsed_ms": 76420,
+      "prompt_tokens": 8574,
+      "completion_tokens": 16384,
+      "reasoning_tokens": 16384,
+      "reasoning_characters": 35246,
+      "visible_characters": 0
+    },
+    {
+      "attempt": 2,
+      "finish_reason": "stop",
+      "elapsed_ms": 64201,
+      "prompt_tokens": 8574,
+      "completion_tokens": 12590,
+      "reasoning_tokens": 11405,
+      "reasoning_characters": 22283,
+      "visible_characters": 3249
+    }
+  ],
+  "aggregate_usage": {
+    "completion_tokens": 28974,
+    "prompt_tokens": 17148,
+    "total_tokens": 46122,
+    "prompt_cache_hit_tokens": 8320,
+    "prompt_cache_miss_tokens": 8828
+  },
+  "scope_diagnostics": [
+    {
+      "scene": "图1",
+      "diagnostic_only": true,
+      "added_in_working_copy": [
+        "expected uncertainties",
+        "k>=1 if k declared"
+      ],
+      "equivalent_after_these_additions": false
+    },
+    {
+      "scene": "图2",
+      "diagnostic_only": true,
+      "added_in_working_copy": [
+        "expected uncertainties",
+        "k>=1 if k declared"
+      ],
+      "equivalent_after_these_additions": true
+    },
+    {
+      "scene": "（2）",
+      "diagnostic_only": true,
+      "added_in_working_copy": [
+        "expected uncertainties",
+        "k>=1 if k declared"
+      ],
+      "equivalent_after_these_additions": true
+    },
+    {
+      "scene": "（3）",
+      "diagnostic_only": true,
+      "added_in_working_copy": [
+        "expected uncertainties",
+        "k>=1 if k declared"
+      ],
+      "equivalent_after_these_additions": true
+    }
+  ],
+  "actual_model_point_labels": [
+    [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "O"
+    ],
+    [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    [
+      "A",
+      "B",
+      "M",
+      "C",
+      "D"
+    ]
+  ],
+  "changes_after_live_call": false
+}

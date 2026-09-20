@@ -1,0 +1,210 @@
+{
+  "schema_version": "lesson-assembly-authority/v1",
+  "snapshot_hash": "9cef30f7a264939790824a1e5d59c1719b1c88abd9c33c047b3a5f91aaae74fe",
+  "annotated_plan_hash": "ffb66c54a48b1adb7c76385f439fc33d4713be018966238c350bbb2337cd074c",
+  "lesson_ir_hash": "d9b4dc4017733be7bbb6a2d42d6ab4a71683eb008bc663d35884ec0d0e7c9276",
+  "lesson_steps": {
+    "teach:derive_parabola_i": {
+      "container_ref": "goal:i.P",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "derive_parabola_i"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints"
+      ],
+      "unit_keys": [
+        "quadratic_from_constraints/derive_function"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_vertex_i": {
+      "container_ref": "goal:i.P",
+      "material_positions": [
+        1
+      ],
+      "source_step_ids": [
+        "derive_vertex_i"
+      ],
+      "capability_ids": [
+        "quadratic_vertex_point"
+      ],
+      "unit_keys": [
+        "quadratic_vertex_point/read_vertex"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_parametric_parabola_ii": {
+      "container_ref": "goal:ii.D",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "derive_parametric_parabola_ii"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints"
+      ],
+      "unit_keys": [
+        "quadratic_from_constraints/derive_function"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_y_intercept_ii": {
+      "container_ref": "goal:ii.D",
+      "material_positions": [
+        1
+      ],
+      "source_step_ids": [
+        "derive_y_intercept_ii"
+      ],
+      "capability_ids": [
+        "quadratic_y_axis_intercept_point"
+      ],
+      "unit_keys": [
+        "quadratic_y_axis_intercept_point/solve_intercept"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_right_angle_candidates_ii": {
+      "container_ref": "goal:ii.D",
+      "material_positions": [
+        2
+      ],
+      "source_step_ids": [
+        "derive_right_angle_candidates_ii"
+      ],
+      "capability_ids": [
+        "right_angle_equal_length_candidates"
+      ],
+      "unit_keys": [
+        "right_angle_equal_length_candidates/construct_candidates"
+      ],
+      "evidence_refs": []
+    },
+    "teach:select_curve_candidate_ii:curve_candidate_parameter_solve/filter_candidates": {
+      "container_ref": "goal:ii.D",
+      "material_positions": [
+        3
+      ],
+      "source_step_ids": [
+        "select_curve_candidate_ii"
+      ],
+      "capability_ids": [
+        "curve_candidate_parameter_solve"
+      ],
+      "unit_keys": [
+        "curve_candidate_parameter_solve/filter_candidates"
+      ],
+      "evidence_refs": [
+        "curve-candidate-parameter:267430dfbac6ed8f6c803a409123aa155e3e3141e914f8338e9cae7e67a0164f"
+      ]
+    },
+    "teach:select_curve_candidate_ii:curve_candidate_parameter_solve/solve_parameter_and_curve": {
+      "container_ref": "goal:ii.D",
+      "material_positions": [
+        4
+      ],
+      "source_step_ids": [
+        "select_curve_candidate_ii"
+      ],
+      "capability_ids": [
+        "curve_candidate_parameter_solve"
+      ],
+      "unit_keys": [
+        "curve_candidate_parameter_solve/solve_parameter_and_curve"
+      ],
+      "evidence_refs": [
+        "curve-candidate-parameter:267430dfbac6ed8f6c803a409123aa155e3e3141e914f8338e9cae7e67a0164f"
+      ]
+    },
+    "teach:derive_parametric_parabola_iii": {
+      "container_ref": "goal:iii.b",
+      "material_positions": [
+        0
+      ],
+      "source_step_ids": [
+        "derive_parametric_parabola_iii"
+      ],
+      "capability_ids": [
+        "quadratic_from_constraints"
+      ],
+      "unit_keys": [
+        "quadratic_from_constraints/derive_function"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_curve_point_iii": {
+      "container_ref": "goal:iii.b",
+      "material_positions": [
+        1
+      ],
+      "source_step_ids": [
+        "derive_curve_point_iii"
+      ],
+      "capability_ids": [
+        "point_on_parabola_at_x"
+      ],
+      "unit_keys": [
+        "point_on_parabola_at_x/substitute_x"
+      ],
+      "evidence_refs": []
+    },
+    "teach:derive_weighted_minimum_iii:weighted_axis_path_minimum/weighted_reduction": {
+      "container_ref": "goal:iii.b",
+      "material_positions": [
+        2
+      ],
+      "source_step_ids": [
+        "derive_weighted_minimum_iii"
+      ],
+      "capability_ids": [
+        "weighted_axis_path_minimum"
+      ],
+      "unit_keys": [
+        "weighted_axis_path_minimum/weighted_reduction"
+      ],
+      "evidence_refs": [
+        "path-minimum:09be29c720f55407c74bae737ff7237b23a595b573aeba071c7d63e20df5dd55"
+      ]
+    },
+    "teach:derive_weighted_minimum_iii:weighted_axis_path_minimum/domain_minimum": {
+      "container_ref": "goal:iii.b",
+      "material_positions": [
+        3
+      ],
+      "source_step_ids": [
+        "derive_weighted_minimum_iii"
+      ],
+      "capability_ids": [
+        "weighted_axis_path_minimum"
+      ],
+      "unit_keys": [
+        "weighted_axis_path_minimum/domain_minimum"
+      ],
+      "evidence_refs": [
+        "path-minimum:09be29c720f55407c74bae737ff7237b23a595b573aeba071c7d63e20df5dd55"
+      ]
+    },
+    "teach:solve_parameter_iii": {
+      "container_ref": "goal:iii.b",
+      "material_positions": [
+        4
+      ],
+      "source_step_ids": [
+        "solve_parameter_iii"
+      ],
+      "capability_ids": [
+        "parameter_from_expression_value"
+      ],
+      "unit_keys": [
+        "parameter_from_expression_value/solve_parameter"
+      ],
+      "evidence_refs": [
+        "symbolic-closure:35fc1ac29454de05d3bbded28871e1d431840414d4460902e34fe37706eb9306"
+      ]
+    }
+  }
+}

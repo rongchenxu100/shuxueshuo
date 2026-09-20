@@ -5045,6 +5045,7 @@ def _prepare_runtime_search_macro(
                 working=shadow_working,
                 object_registry=object_registry,
                 execution_scope_id=candidate_prepared.execution_scope_id,
+                method_specs=inputs.method_specs,
             )
             compiled = _stamp_method_input_read_authorities(
                 compiled,
@@ -6198,6 +6199,7 @@ class FunctionalTransactionalInterpreter:
                     working=working,
                     object_registry=object_registry,
                     execution_scope_id=prepared.execution_scope_id,
+                    method_specs=inputs.method_specs,
                 )
                 compiled = _stamp_method_input_read_authorities(
                     compiled,
@@ -6857,6 +6859,7 @@ class FunctionalTransactionalInterpreter:
         handle_registry: CanonicalHandleRegistry,
         problem_payload: Mapping[str, Any],
         restored_seed: FunctionalRestoredCallSeed | None = None,
+        blocked_answer_handles: frozenset[str] = frozenset(),
     ) -> FunctionalTransactionalAttemptResult:
         """Execute C2 and derive goal, output and retry facts from runtime."""
         report = self.execute(
@@ -6950,6 +6953,13 @@ class FunctionalTransactionalInterpreter:
                     inputs.method_specs,
                 ),
                 state_writes=state_writes,
+            ),
+            blocked_answer_handles=(
+                blocked_answer_handles
+                | _blocked_answer_handles(
+                    raw_plan,
+                    reconciliation=reconciliation,
+                )
             ),
         )
         goal_report = AnswerGoalVerifier().verify_report(
@@ -7376,6 +7386,7 @@ def _materialize_compiled_parameter_inputs(
     working: WorkingPlannerState,
     object_registry: MathObjectRegistry,
     execution_scope_id: str,
+    method_specs: Any,
 ) -> tuple[CompiledFunctionalCall, PreparedFunctionalCall]:
     """Close call-result and other physical inputs before method execution."""
 
@@ -7452,58 +7463,83 @@ def _materialize_compiled_parameter_inputs(
     )
     for plan in compiled.plans:
         for invocation in plan.invocations:
-            paths = (
-                path
-                for raw in invocation.inputs.values()
-                for path in ((raw,) if isinstance(raw, str) else raw)
-            )
-            for path in paths:
-                if path in rewrites:
-                    continue
-                try:
-                    runtime_value = branch.read_path(
-                        path,
-                        from_scope_id=plan.scope,
+            for input_name, raw in invocation.inputs.items():
+                paths = (raw,) if isinstance(raw, str) else raw
+                authorities = invocation.input_read_authorities.get(
+                    input_name, ()
+                )
+                input_spec = method_specs.require(invocation.method_id).inputs.get(
+                    input_name
+                )
+                for item_index, path in enumerate(paths):
+                    expected_type = (
+                        authorities[item_index].runtime_type
+                        if item_index < len(authorities)
+                        else (
+                            input_spec.runtime_type
+                            if input_spec is not None
+                            else None
+                        )
                     )
-                except (KeyError, PermissionError, TypeError, ValueError):
-                    # A path produced by an earlier invocation in this same
-                    # compiled call does not exist until execution begins.
-                    continue
-                closure = _materialize_runtime_parameter_closure(
-                    runtime_value,
-                    consumer_scope_id=execution_scope_id,
-                    working=working,
-                    runtime_context=branch,
-                    object_registry=object_registry,
-                    declared_runtime_symbols=declared,
-                    ignored_parameter_ids=ignored_parameter_ids,
-                )
-                if not closure.parameter_versions:
-                    continue
-                snapshot_path = _transaction_snapshot_path(
-                    branch,
-                    scope_id=execution_scope_id,
-                    call_id=f"{compiled.call_id}_parameter_closure",
-                    item_index=next_index,
-                )
-                next_index += 1
-                branch.write_path(
-                    snapshot_path,
-                    closure.runtime_value,
-                    from_scope_id=execution_scope_id,
-                    allow_overwrite=True,
-                )
-                rewrites[path] = snapshot_path
-                materialized_values[path] = closure.runtime_value
-                source_version_id = exact_source_version(path)
-                if source_version_id is not None:
-                    materialized_state_sources[snapshot_path] = (
-                        source_version_id
+                    if path in rewrites:
+                        continue
+                    try:
+                        runtime_value = branch.read_path(
+                            path,
+                            from_scope_id=plan.scope,
+                        )
+                    except (KeyError, PermissionError, TypeError, ValueError):
+                        # A path produced by an earlier invocation in this same
+                        # compiled call does not exist until execution begins.
+                        continue
+                    original_runtime_value = runtime_value
+                    runtime_value = _coerce_compiled_input_runtime_type(
+                        runtime_value,
+                        expected_type=expected_type,
                     )
-                parameter_versions.update(
-                    (item.version_id, item)
-                    for item in closure.parameter_versions
-                )
+                    closure = _materialize_runtime_parameter_closure(
+                        runtime_value,
+                        consumer_scope_id=execution_scope_id,
+                        working=working,
+                        runtime_context=branch,
+                        object_registry=object_registry,
+                        declared_runtime_symbols=declared,
+                        ignored_parameter_ids=ignored_parameter_ids,
+                    )
+                    if not closure.parameter_versions:
+                        if runtime_value.type != original_runtime_value.type:
+                            branch.write_path(
+                                path,
+                                runtime_value,
+                                from_scope_id=plan.scope,
+                                allow_overwrite=True,
+                            )
+                            materialized_values[path] = runtime_value
+                        continue
+                    snapshot_path = _transaction_snapshot_path(
+                        branch,
+                        scope_id=execution_scope_id,
+                        call_id=f"{compiled.call_id}_parameter_closure",
+                        item_index=next_index,
+                    )
+                    next_index += 1
+                    branch.write_path(
+                        snapshot_path,
+                        closure.runtime_value,
+                        from_scope_id=execution_scope_id,
+                        allow_overwrite=True,
+                    )
+                    rewrites[path] = snapshot_path
+                    materialized_values[path] = closure.runtime_value
+                    source_version_id = exact_source_version(path)
+                    if source_version_id is not None:
+                        materialized_state_sources[snapshot_path] = (
+                            source_version_id
+                        )
+                    parameter_versions.update(
+                        (item.version_id, item)
+                        for item in closure.parameter_versions
+                    )
 
     extra_reads = _implicit_parameter_reads(
         tuple(parameter_versions.values()),
@@ -7569,6 +7605,27 @@ def _materialize_compiled_parameter_inputs(
         ),
     )
     return compiled, prepared
+
+
+def _coerce_compiled_input_runtime_type(
+    runtime_value: TypedValue,
+    *,
+    expected_type: str | None,
+) -> TypedValue:
+    """Project a function expression into the typed Parabola input view.
+
+    Functional reconciliation may prove that a visible Function template is
+    the unique source for a Parabola input. Both values are represented by a
+    SymPy expression at runtime, but the Method contract still requires the
+    Parabola tag. Preserve the expression and change only that typed view; the
+    compiler has already authenticated the source and scope.
+    """
+    if expected_type == "Parabola" and runtime_value.type in {
+        "Expression",
+        "Function",
+    }:
+        return replace(runtime_value, type="Parabola")
+    return runtime_value
 
 
 def _implicit_parameter_reads(
@@ -10142,6 +10199,36 @@ def _functional_goal_producers(
             produces=produces,
         )
     return result
+
+
+def _blocked_answer_handles(
+    raw_plan: FunctionalPlan,
+    *,
+    reconciliation: FunctionalPlanReconciliationResult,
+) -> frozenset[str]:
+    """Return answer handles whose authored producer is absent from replay.
+
+    Scoped authority removes an invalid step and its dependent suffix before
+    the transactional interpreter builds its logical graph.  An answer
+    producer removed for that reason is *blocked*, not an unbound answer.  We
+    identify it from the typed answer return binding on the authored call and
+    the reconciled call ids; no problem-specific step names or scopes are
+    involved.
+    """
+
+    reconciled_call_ids = {item.call_id for item in reconciliation.calls}
+    handles: set[str] = set()
+    for call in raw_plan.calls:
+        if call.call_id in reconciled_call_ids:
+            continue
+        for binding in call.return_bindings.values():
+            if binding.kind != "answer":
+                continue
+            ref = str(binding.ref).strip()
+            if not ref:
+                continue
+            handles.add(ref if ref.startswith("answer:") else f"answer:{ref}")
+    return frozenset(handles)
 
 
 def _issue(

@@ -1,6 +1,6 @@
 {
   "schema_version": "lesson-capability-coverage/v1",
-  "registry_fingerprint": "855559dc97c8a75db7d8d1aad3096d85e480c6dc400d0170e225c92f41fff215",
+  "registry_fingerprint": "a3d67907c53a34bd8d4d34982b36dc3e7871cde7abfa7124348e323ac5d41b5e",
   "summary": {
     "public_capability_count": 29,
     "public_function_count": 23,
@@ -1630,7 +1630,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "line_p1",
@@ -1696,7 +1696,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "line_p1",
@@ -1762,7 +1762,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "line_p1",
@@ -1828,7 +1828,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "line_p1",
@@ -2550,7 +2550,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "parameter",
@@ -2611,7 +2611,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             }
           ],
           "returns": [
@@ -2659,7 +2659,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             }
           ],
           "returns": [
@@ -2707,7 +2707,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             }
           ],
           "returns": [
@@ -2755,7 +2755,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             }
           ],
           "returns": [
@@ -2893,7 +2893,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             }
           ],
           "returns": [
@@ -3517,7 +3517,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "path_minimum_target",
@@ -3618,7 +3618,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             }
           ],
           "returns": [
@@ -3645,7 +3645,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             }
           ],
           "returns": [
@@ -3672,7 +3672,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             }
           ],
           "returns": [
@@ -3699,7 +3699,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             }
           ],
           "returns": [
@@ -3770,7 +3770,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "known_point",
@@ -3809,7 +3809,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "known_point",
@@ -3848,7 +3848,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "known_point",
@@ -3887,7 +3887,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state；题面 Function 模板仅在代码能由可见系数值确定性物化到该边界时可直接引用。"
+              "role": "读取当前函数对象已计算出的抛物线状态。允许 closed_state，或只依赖一个独立自由参数的 open_state。输入必须来自此前 Method 产生的 materialized Parabola 状态，或由当前能力声明的 prep 规则从受信题面约束生成；题面 Function 模板不能跳过这些绑定规则直接充当最终状态。"
             },
             {
               "name": "known_point",
@@ -3976,7 +3976,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+              "role": "读取此前 Method 产生的二次函数表达式状态（latest state）。参数名必须是 quadratic。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数；输出坐标至多保留一个独立参数。题面 Function 模板不能直接充当该输入。"
             }
           ],
           "returns": [
@@ -4004,7 +4004,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+              "role": "读取此前 Method 产生的二次函数表达式状态（latest state）。参数名必须是 quadratic。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数；输出坐标至多保留一个独立参数。题面 Function 模板不能直接充当该输入。"
             }
           ],
           "returns": [
@@ -4032,7 +4032,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+              "role": "读取此前 Method 产生的二次函数表达式状态（latest state）。参数名必须是 quadratic。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数；输出坐标至多保留一个独立参数。题面 Function 模板不能直接充当该输入。"
             }
           ],
           "returns": [
@@ -4060,7 +4060,7 @@
               "domain_type": "QuadraticFunction",
               "required": true,
               "cardinality": "one",
-              "role": "读取题面函数模板或当前抛物线表达式。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数。"
+              "role": "读取此前 Method 产生的二次函数表达式状态（latest state）。参数名必须是 quadratic。本能力只取 x=0，因此不要求先闭合与常数项无关的其它系数；输出坐标至多保留一个独立参数。题面 Function 模板不能直接充当该输入。"
             }
           ],
           "returns": [
@@ -4586,6 +4586,11 @@
     },
     {
       "method_id": "filter_point_candidates_by_quadratic_curve",
+      "public": false,
+      "teaching_source_allowed": false
+    },
+    {
+      "method_id": "organize_expressions",
       "public": false,
       "teaching_source_allowed": false
     },

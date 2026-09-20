@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "id": "synthetic-equal_length_ray_point",
+  "domain": {
+    "minX": -0.8,
+    "maxX": 3.8,
+    "minY": -0.8,
+    "maxY": 3.8
+  },
+  "movingParam": "t",
+  "expressionEnv": [],
+  "fixedPoints": {
+    "point_A_problem": [
+      "0",
+      "0"
+    ],
+    "point_B_problem": [
+      "0",
+      "3"
+    ],
+    "point_C_problem": [
+      "2",
+      "0"
+    ],
+    "point_D_problem": [
+      "3",
+      "0"
+    ]
+  },
+  "movingPoints": {},
+  "pointMeta": {
+    "point_A_problem": {
+      "label": "A",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:A"
+    },
+    "point_B_problem": {
+      "label": "B",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:B"
+    },
+    "point_C_problem": {
+      "label": "C",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "given_point",
+      "sourceRef": "point:problem:C"
+    },
+    "point_D_problem": {
+      "label": "D",
+      "scopeId": "problem",
+      "scopeRoot": "problem",
+      "definition": "runtime_point_output",
+      "sourceStepIds": [
+        "synthetic_equal_length_ray_point"
+      ]
+    }
+  },
+  "curves": [],
+  "derivedIntersections": []
+}

@@ -230,8 +230,10 @@ def _failed_provider_metadata(
         "thinking_mode": attempt.request.thinking_mode,
         "reasoning_effort": attempt.request.reasoning_effort,
         "response_format": attempt.request.contract_version,
-        "temperature": 0,
-        "max_output_tokens": MULTIMODAL_MAX_OUTPUT_TOKENS,
+        "temperature": None if attempt.request.thinking_mode == "enabled" and not attempt.request.stream else 0,
+        "max_output_tokens": attempt.request.max_tokens,
+        "stream": attempt.request.stream,
+        "timeout": attempt.request.timeout,
         "provider_attempts": (
             thaw_json(provider_attempts)
             if isinstance(provider_attempts, (list, tuple))

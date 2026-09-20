@@ -1,0 +1,107 @@
+[
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/acceptance.py",
+    "sha256": "e2e285f1a66367c33b9daef40d694651826c236efe6f096a9daa13b63905bb75",
+    "lines": 56
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/authoring.py",
+    "sha256": "bb5981090d28218fa982e89d99deb92430505ace1f71e0858173ab41a3837118",
+    "lines": 118
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/comparison.py",
+    "sha256": "810533225c514427673471e8995432a2ab9962169b060696eebe57cf29ca635e",
+    "lines": 161
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/contracts.py",
+    "sha256": "cb45ad8b122498ec8aa4ff9a95db5ec1f80a99c2ff3370ca06bcb3dce675d0c7",
+    "lines": 269
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/equivalence.py",
+    "sha256": "5da9410a55b7b85acf23fffa5cb8db3916766acf4abaad45a9f1932e7d8d3a11",
+    "lines": 146
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/geometry_consistency.py",
+    "sha256": "32b45934d947782fbef6284fce8d36e0322693187e3cb5cb520d2207c64fd88b",
+    "lines": 197
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/intersections.py",
+    "sha256": "77cf88ca0c36f7f729af3eebfef99c2705e667cb7478e99406c1d99f4d79d0eb",
+    "lines": 255
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/measure.py",
+    "sha256": "ee594ab69b48fe81e063dcb60d1185848b45c52c7f11e4278049316e001a812b",
+    "lines": 81
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/normalization.py",
+    "sha256": "e24f157ce67b7c65510b3ac4e08c4936e6fa1ae49d22acab7dfdcc733c38ffa4",
+    "lines": 127
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/prompt.py",
+    "sha256": "92d3bcc01b4014299a55afff50f1b5b01131d3ce8d31cbe3fcb5a9a48980d627",
+    "lines": 126
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/service.py",
+    "sha256": "f9e3a2a6b426493756e0882ed9fa3f91ab068c0e6a33b60a904aa98451822e5c",
+    "lines": 215
+  },
+  {
+    "path": "server/shuxueshuo_server/problem_understanding/validation.py",
+    "sha256": "88eac906b043f4a1c7646a02aefa89584b94e5c69fee64fd0707af4f0cd6c46a",
+    "lines": 769
+  },
+  {
+    "path": "server/tests/solver/test_understanding_acceptance.py",
+    "sha256": "14f2cf53a739b44e0afd7a4f1e1d6deb36989ece85c5fe5bcf0703ead7314421",
+    "lines": 66
+  },
+  {
+    "path": "server/tests/solver/test_understanding_authoring.py",
+    "sha256": "8f38580596e3bf1b2c68dd343e931ff963991a9a8b4997b9a10ca486361be80d",
+    "lines": 494
+  },
+  {
+    "path": "server/tests/solver/test_understanding_cut_ratio.py",
+    "sha256": "44697194315df5b596fe42e766e618067fe22611b570dfc606903391548c82ea",
+    "lines": 240
+  },
+  {
+    "path": "server/tests/solver/test_understanding_doubao_comparison.py",
+    "sha256": "4736669ccbdfb5ef6c2be0348a310edf1376be97a3f6bf5379ff7584febb2e45",
+    "lines": 57
+  },
+  {
+    "path": "server/tests/solver/test_understanding_equivalence.py",
+    "sha256": "8b2af72a1ba63cb71626f0d487200ca543c0e6ca62dbde67c8be1f168f279cec",
+    "lines": 156
+  },
+  {
+    "path": "server/tests/solver/test_understanding_function_quantifiers.py",
+    "sha256": "8935a1ea864501699b48fd56ca886fb81728d31e6c6dbfe98f1b8c941e22e0ca",
+    "lines": 98
+  },
+  {
+    "path": "server/tests/solver/test_understanding_geometry_consistency.py",
+    "sha256": "8065c43696c0e19ed2cd6ed595df6d051c8459689bf13308be298f9367356fba",
+    "lines": 207
+  },
+  {
+    "path": "server/tests/solver/test_understanding_seven_live.py",
+    "sha256": "36928c121d65d49e2b981ab13bcadb4048925f75a6e8fe85180b05d4966be827",
+    "lines": 104
+  },
+  {
+    "path": "server/tests/solver/test_understanding_v2.py",
+    "sha256": "a0e202938c156726f9eebd321d0082409356c20d7a684522d6d2a9d36f4c61cf",
+    "lines": 714
+  }
+]

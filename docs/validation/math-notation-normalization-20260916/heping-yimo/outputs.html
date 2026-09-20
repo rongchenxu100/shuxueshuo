@@ -1,0 +1,74 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>七题数学字符串抽取：实际输出</title><style>body{font:16px/1.65 system-ui;max-width:980px;margin:40px auto;padding:0 24px;color:#17243a}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f4f6f8;padding:18px;border-radius:8px}section{border-top:2px solid #ddd;margin:32px 0}summary{cursor:pointer}</style><h1>DeepSeek 实际输出与离线回放</h1><p>真实批次 1/1 通过；当前离线回放 1/1 通过。以下展示保存的完整返回及后续离线校验，不含新的模型调用。候选尚未接入 Solver。</p><section><h2>tj-2026-heping-yimo-25</h2><p>真实批次：通过；离线回放：通过；耗时：35.952 秒</p><h3>模型实际输出</h3><pre>{
+  &quot;root&quot;: {
+    &quot;definitions&quot;: [
+      &quot;Γ: y = a*x^2+b*x-3&quot;
+    ],
+    &quot;facts&quot;: [
+      &quot;a &gt; 0&quot;,
+      &quot;A = (-1,0)&quot;,
+      &quot;Γ ∩ x_axis = {A,B}&quot;,
+      &quot;Γ ∩ y_axis = {C}&quot;,
+      &quot;D = C+(2,0)&quot;,
+      &quot;O = (0,0)&quot;
+    ],
+    &quot;children&quot;: [
+      {
+        &quot;label&quot;: &quot;（I）&quot;,
+        &quot;facts&quot;: [
+          &quot;D ∈ Γ&quot;
+        ],
+        &quot;children&quot;: [
+          {
+            &quot;label&quot;: &quot;①&quot;,
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_equation&quot;,
+                &quot;object&quot;: &quot;Γ&quot;
+              }
+            ]
+          },
+          {
+            &quot;label&quot;: &quot;②&quot;,
+            &quot;facts&quot;: [
+              &quot;E ∈ Γ&quot;,
+              &quot;x(E) = m&quot;,
+              &quot;m &gt; -1 ∧ m &lt; 0&quot;,
+              &quot;∠CBE + ∠ACO = 45°&quot;
+            ],
+            &quot;goals&quot;: [
+              {
+                &quot;kind&quot;: &quot;find_coordinates&quot;,
+                &quot;object&quot;: &quot;E&quot;
+              }
+            ]
+          }
+        ]
+      },
+      {
+        &quot;label&quot;: &quot;（II）&quot;,
+        &quot;facts&quot;: [
+          &quot;M ∈ segment(B,C)&quot;,
+          &quot;N ∈ ray(C,D)&quot;,
+          &quot;CN = CM&quot;,
+          &quot;min(OM+BN) = sqrt(34)&quot;
+        ],
+        &quot;goals&quot;: [
+          {
+            &quot;kind&quot;: &quot;find_value&quot;,
+            &quot;expression&quot;: &quot;a&quot;
+          }
+        ]
+      }
+    ]
+  },
+  &quot;match_status&quot;: &quot;matched&quot;,
+  &quot;family_id&quot;: &quot;QuadraticEqualLengthRayPathMinimumSolver&quot;,
+  &quot;match_reason&quot;: &quot;题面包含抛物线 Γ、射线CD、射线上的动点 N 以及等长条件 CN=CM，用于路径 OM+BN 的最小值，符合该题型。&quot;
+}</pre><details><summary>当前解析问题</summary><pre>[]</pre></details><details><summary>阻断状态</summary><pre>{
+  &quot;status&quot;: &quot;candidate_only&quot;,
+  &quot;blocked&quot;: false,
+  &quot;error_code&quot;: null,
+  &quot;user_action&quot;: null,
+  &quot;message&quot;: null,
+  &quot;missing_figures&quot;: []
+}</pre></details></section></html>

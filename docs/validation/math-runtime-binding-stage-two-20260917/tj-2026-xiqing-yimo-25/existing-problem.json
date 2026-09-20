@@ -1,0 +1,306 @@
+{
+  "schema_version": "planner-problem-view/v2",
+  "problem_id": "tj-2026-xiqing-yimo-25",
+  "family_id": "QuadraticWeightedPathMinimumSolver",
+  "source": {
+    "question_number": "25",
+    "score": "10"
+  },
+  "root_scope": {
+    "id": "problem",
+    "text": [
+      "已知抛物线 y=-x²+bx+c（b，c 为常数，b＞0）经过点 A(-1,0)，与 x 轴交于点 B，与 y 轴交于点 C。"
+    ],
+    "entities": [
+      {
+        "ref": "parabola",
+        "kind": "function",
+        "owner_scope": "problem",
+        "definition": {
+          "expression": "-x**2 + b*x + c",
+          "variable": "x"
+        }
+      },
+      {
+        "ref": "A",
+        "kind": "point",
+        "owner_scope": "problem"
+      },
+      {
+        "ref": "B",
+        "kind": "point",
+        "owner_scope": "problem",
+        "definition": {
+          "construction": "x_axis_intercept",
+          "exclude_point": "A",
+          "owner": "parabola"
+        }
+      },
+      {
+        "ref": "C",
+        "kind": "point",
+        "owner_scope": "problem",
+        "definition": {
+          "construction": "y_axis_intercept",
+          "owner": "parabola"
+        }
+      },
+      {
+        "ref": "b",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "ref": "c",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "quadratic_coefficient"
+      },
+      {
+        "ref": "x",
+        "kind": "symbol",
+        "owner_scope": "problem",
+        "role": "function_variable"
+      }
+    ],
+    "facts": [
+      {
+        "ref": "point_coordinate_a",
+        "kind": "point_coordinate",
+        "owner_scope": "problem",
+        "point": "A",
+        "value": [
+          "-1",
+          "0"
+        ]
+      },
+      {
+        "ref": "point_on_curve_parabola_a",
+        "kind": "point_on_curve",
+        "owner_scope": "problem",
+        "curve": "parabola",
+        "point": "A"
+      },
+      {
+        "ref": "symbol_constraint_b",
+        "kind": "symbol_constraint",
+        "owner_scope": "problem",
+        "operator": ">",
+        "symbol": "b",
+        "value": "0"
+      }
+    ],
+    "children": [
+      {
+        "id": "i",
+        "text": [
+          "（Ⅰ）当 b=4 时，求抛物线的顶点坐标；"
+        ],
+        "entities": [
+          {
+            "ref": "vertex",
+            "kind": "point",
+            "owner_scope": "i",
+            "label": "顶点",
+            "definition": {
+              "construction": "vertex",
+              "owner": "parabola"
+            }
+          }
+        ],
+        "facts": [
+          {
+            "ref": "symbol_value_b",
+            "kind": "symbol_value",
+            "owner_scope": "i",
+            "symbol": "b",
+            "value": "4"
+          }
+        ],
+        "goals": [
+          {
+            "kind": "point_coordinate",
+            "target_ref": "vertex",
+            "goal_ref": "i.vertex",
+            "answer_type": "Point"
+          }
+        ]
+      },
+      {
+        "id": "ii",
+        "text": [
+          "（Ⅱ）点 D(b+2,y_D) 是抛物线上任意一点。"
+        ],
+        "entities": [
+          {
+            "ref": "D",
+            "kind": "point",
+            "owner_scope": "ii"
+          }
+        ],
+        "facts": [
+          {
+            "ref": "point_on_curve_parabola_d",
+            "kind": "point_on_curve",
+            "owner_scope": "ii",
+            "construction": "curve_at_x",
+            "owner": "parabola",
+            "point": "D",
+            "x_expression": "b + 2"
+          }
+        ],
+        "children": [
+          {
+            "id": "ii_1",
+            "text": [
+              "① 当 AD=2BC 时，求 b 的值；"
+            ],
+            "entities": [
+              {
+                "ref": "AD",
+                "kind": "segment",
+                "owner_scope": "ii_1",
+                "start": "A",
+                "end": "D"
+              },
+              {
+                "ref": "BC",
+                "kind": "segment",
+                "owner_scope": "ii_1",
+                "start": "B",
+                "end": "C"
+              }
+            ],
+            "facts": [
+              {
+                "ref": "segment_length_relation_ad_bc",
+                "kind": "segment_length_relation",
+                "owner_scope": "ii_1",
+                "left": {
+                  "scale": "1",
+                  "segment": {
+                    "end": "D",
+                    "start": "A"
+                  }
+                },
+                "right": {
+                  "scale": "2",
+                  "segment": {
+                    "end": "C",
+                    "start": "B"
+                  }
+                }
+              }
+            ],
+            "goals": [
+              {
+                "kind": "parameter_value",
+                "target_ref": "b",
+                "goal_ref": "ii_1.b",
+                "answer_type": "ParameterValue"
+              }
+            ]
+          },
+          {
+            "id": "ii_2",
+            "text": [
+              "② 若点 M(m,0) 是 x 轴正半轴上的动点，当 2DM+AM 的最小值为 5+5√3 时，求 b 的值。"
+            ],
+            "entities": [
+              {
+                "ref": "M",
+                "kind": "point",
+                "owner_scope": "ii_2",
+                "definition": {
+                  "axis": "x"
+                }
+              },
+              {
+                "ref": "m",
+                "kind": "symbol",
+                "owner_scope": "ii_2",
+                "role": "dynamic_parameter"
+              }
+            ],
+            "facts": [
+              {
+                "ref": "minimum_value",
+                "kind": "minimum_value",
+                "owner_scope": "ii_2",
+                "expression": {
+                  "terms": [
+                    {
+                      "scale": "2",
+                      "segment": {
+                        "end": "M",
+                        "start": "D"
+                      }
+                    },
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "end": "M",
+                        "start": "A"
+                      }
+                    }
+                  ]
+                },
+                "value": "5+5*sqrt(3)"
+              },
+              {
+                "ref": "path_minimum_target_d_m_a",
+                "kind": "path_minimum_target",
+                "owner_scope": "ii_2",
+                "expression": {
+                  "terms": [
+                    {
+                      "scale": "2",
+                      "segment": {
+                        "end": "M",
+                        "start": "D"
+                      }
+                    },
+                    {
+                      "scale": "1",
+                      "segment": {
+                        "end": "M",
+                        "start": "A"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "ref": "point_coordinate_m",
+                "kind": "point_coordinate",
+                "owner_scope": "ii_2",
+                "point": "M",
+                "value": [
+                  "m",
+                  "0"
+                ]
+              },
+              {
+                "ref": "symbol_constraint_m",
+                "kind": "symbol_constraint",
+                "owner_scope": "ii_2",
+                "operator": ">",
+                "symbol": "m",
+                "value": "0"
+              }
+            ],
+            "goals": [
+              {
+                "kind": "parameter_value",
+                "target_ref": "b",
+                "goal_ref": "ii_2.b",
+                "answer_type": "ParameterValue"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

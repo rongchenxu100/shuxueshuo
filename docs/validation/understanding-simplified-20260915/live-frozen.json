@@ -1,0 +1,28 @@
+{
+  "implementation_files": {
+    "__init__.py": "4a8efd84cd885810eb085fca1675fd953e04f2bb073e94adf22e4059eb0647a6",
+    "algebra.py": "f45d59579ef7d380ffaeb22e8bca88961bd938872716681ded00d2780a248d4e",
+    "authoring.py": "5ab020b1a865e1b2dc175773392b829c3fd34b995f0026da34f544c27c6d75d2",
+    "comparison.py": "53115f1a80d40cc2bcce2bc62ce7f55e1e4603563d87a78ce3abe598b884cc54",
+    "contracts.py": "8457b069594aa891c8934632184d628ac7b7613edc21a48766b6f0aa642ff6e9",
+    "identity.py": "928775ee9a74fd4113141f4f606a6f9b740be39d62d77b26e43b91159ab06ed8",
+    "measure.py": "c9d2b6ce1db74a26696f316195e2eba51ffd8aa313b9f10dd10b1a5f673a7eed",
+    "prompt.py": "bfcd6f02c51265f2cd793e85eca72af1d0f89f3238fa0a4ff94d9ff467f6b7fb",
+    "service.py": "b19ad6a88b1f57fe016d570031cfa9ddb94a4b5026f42196996e9a3faf3c6365",
+    "smoke.py": "db251fdad0c1bd88f68a98c83808f0652e195b4ba48fcb6a2a8ef667ff5ee834",
+    "validation.py": "2f709e45799d2a6259bc85f8b73af5d6f64e39b5988ff96b37fe1af4d7ac69b4"
+  },
+  "authoring_policy": "problem-ir-authoring/v3",
+  "authoring_schema_hash": "9d7b85284582b1e5ab1dec7b3964d139a1613e4e825f65dfd03d6fa65197c059",
+  "system_prompt_hash": "5bb6ca059933151cde873df12d564fefe6d39e1bfee68ef32c4bc57c4c4b0993",
+  "contracts": {
+    "problem-domain/v2": "b1b7eef5d54d7a5a1c52942010a6ea9be838e2c179ac9484ceda48f381c02d24"
+  },
+  "request_hash": "f82bd54316ba8565764adc5a4c4a151896a58ca6688cc363c07f3055ea3b3abb",
+  "gold_sha256": "956dedcb91f256627b456c06b03c99cf49dea1f6e938c806783afdc6aa296c1d",
+  "image_sha256": "7986e2751c53a4097599eb448623a9c87456179b2c0ce7e678f15623502d1038",
+  "semantic_budget": 1,
+  "network_budget": 2,
+  "sdk_retries": 0,
+  "registry_snapshot": "7c5f529d0573f82a18b7d805760546d075997ee538fc09b9c850ebd4fa4f7889"
+}
