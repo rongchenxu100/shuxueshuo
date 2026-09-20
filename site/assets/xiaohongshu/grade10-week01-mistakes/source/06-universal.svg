@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+<style>text{font-family:"PingFang SC","Hiragino Sans GB","Arial Unicode MS",sans-serif}path{stroke-linecap:round;stroke-linejoin:round}</style>
+<defs><pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#247f76" stroke-opacity=".04" stroke-width="1"/></pattern></defs>
+<rect width="1080" height="1440" fill="#fffdf7"/><rect width="1080" height="1440" fill="url(#grid)"/>
+<text xml:space="preserve" x="72" y="92" font-size="26" fill="#087e77" font-weight="600" text-anchor="start">数学说  /  高一第一周错题复盘</text>
+<text xml:space="preserve" x="1008" y="92" font-size="26" fill="#5b6b70" font-weight="400" text-anchor="end">06 / 09</text>
+<text xml:space="preserve" x="72" y="164" font-size="48" fill="#123d43" font-weight="700" text-anchor="start">“任意”指所有对象</text>
+<text xml:space="preserve" x="72" y="222" font-size="48" fill="#123d43" font-weight="700" text-anchor="start">都要满足条件</text>
+<text xml:space="preserve" x="72" y="269" font-size="25" fill="#5b6b70" font-weight="400" text-anchor="start">特训一 · 第15题第1问</text>
+<path d="M72 1340 L1008 1340" fill="none" stroke="#d7e1d9" stroke-width="2"/>
+<text xml:space="preserve" x="72" y="1384" font-size="24" fill="#5b6b70" font-weight="400" text-anchor="start">每类一道代表题 · 集合与常用逻辑用语</text>
+<text xml:space="preserve" x="1008" y="1384" font-size="26" fill="#087e77" font-weight="700" text-anchor="end">数学说</text>
+<rect x="72" y="290" width="936" height="222" rx="24" fill="#fffdf7" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="332" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">S 为至少含2个正实数的有限集。任意不同的</text>
+<text xml:space="preserve" x="96" y="380" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">a,b∈S，若 aᵇ、bᵃ 至少一个属于 S，称为</text>
+<text xml:space="preserve" x="96" y="428" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">“好集”，否则为“坏集”。判断：</text>
+<text xml:space="preserve" x="96" y="476" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">A={1,3,9}，B={1,1/2,1/4}。</text>
+<rect x="72" y="532" width="936" height="102" rx="16" fill="#fbefea" stroke="#efd5cb" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="572" font-size="29" fill="#c54f44" font-weight="400" text-anchor="start">原解：A 找到反例；B 只检查了 1/2、1/4。</text>
+<text xml:space="preserve" x="96" y="614" font-size="29" fill="#c54f44" font-weight="400" text-anchor="start">原结论对，但证明 B 为好集还不完整。</text>
+<rect x="72" y="672" width="458" height="410" rx="24" fill="#e9f3ef" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="97" y="724" font-size="30" fill="#087e77" font-weight="700" text-anchor="start">好集：每一对都满足</text>
+<rect x="550" y="672" width="458" height="410" rx="24" fill="#fbefea" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="575" y="724" font-size="30" fill="#c54f44" font-weight="700" text-anchor="start">坏集：一对反例即可</text>
+<rect x="96" y="749" width="410" height="80" rx="12" fill="#fffdf7" stroke="#c9ddd3" stroke-width="2"/>
+<text xml:space="preserve" x="112" y="780" font-size="26" fill="#087e77" font-weight="600" text-anchor="start">1 与 1/2</text>
+<text xml:space="preserve" x="112" y="815" font-size="27" fill="#123d43" font-weight="400" text-anchor="start">1¹ᐟ²=1∈B</text>
+<text xml:space="preserve" x="480" y="799" font-size="37" fill="#087e77" font-weight="700" text-anchor="middle">✓</text>
+<rect x="96" y="841" width="410" height="80" rx="12" fill="#fffdf7" stroke="#c9ddd3" stroke-width="2"/>
+<text xml:space="preserve" x="112" y="872" font-size="26" fill="#087e77" font-weight="600" text-anchor="start">1 与 1/4</text>
+<text xml:space="preserve" x="112" y="907" font-size="27" fill="#123d43" font-weight="400" text-anchor="start">1¹ᐟ⁴=1∈B</text>
+<text xml:space="preserve" x="480" y="891" font-size="37" fill="#087e77" font-weight="700" text-anchor="middle">✓</text>
+<rect x="96" y="933" width="410" height="80" rx="12" fill="#fffdf7" stroke="#c9ddd3" stroke-width="2"/>
+<text xml:space="preserve" x="112" y="964" font-size="26" fill="#087e77" font-weight="600" text-anchor="start">1/2 与 1/4</text>
+<text xml:space="preserve" x="112" y="999" font-size="27" fill="#123d43" font-weight="400" text-anchor="start">(1/4)¹ᐟ²=1/2∈B</text>
+<text xml:space="preserve" x="480" y="983" font-size="37" fill="#087e77" font-weight="700" text-anchor="middle">✓</text>
+<text xml:space="preserve" x="300" y="1049" font-size="34" fill="#087e77" font-weight="700" text-anchor="middle">全部通过 ✓</text>
+<text xml:space="preserve" x="578" y="788" font-size="28" fill="#123d43" font-weight="400" text-anchor="start">检查 A 中的 3、9：</text>
+<text xml:space="preserve" x="578" y="837" font-size="28" fill="#123d43" font-weight="400" text-anchor="start">3⁹&gt;9，所以 3⁹∉A</text>
+<text xml:space="preserve" x="578" y="886" font-size="28" fill="#123d43" font-weight="400" text-anchor="start">9³&gt;9，所以 9³∉A</text>
+<text xml:space="preserve" x="578" y="935" font-size="28" fill="#123d43" font-weight="400" text-anchor="start">这一对的两个幂</text>
+<text xml:space="preserve" x="578" y="984" font-size="28" fill="#123d43" font-weight="400" text-anchor="start">都不属于 A。</text>
+<text xml:space="preserve" x="779" y="1049" font-size="31" fill="#c54f44" font-weight="700" text-anchor="middle">一对就能否定 ✕</text>
+<rect x="72" y="1104" width="936" height="78" rx="18" fill="#123d43" stroke="#123d43" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="1153" font-size="26" fill="#9ed5c5" font-weight="600" text-anchor="start">正确结论</text>
+<text xml:space="preserve" x="976" y="1155" font-size="38" fill="#fffdf7" font-weight="700" text-anchor="end">A 是坏集，B 是好集</text>
+<rect x="72" y="1192" width="936" height="116" rx="20" fill="#e9f3ef" stroke="#c9ddd3" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="1230" font-size="25" fill="#087e77" font-weight="700" text-anchor="start">带走这个方法</text>
+<text xml:space="preserve" x="96" y="1272" font-size="30" fill="#123d43" font-weight="600" text-anchor="start">成立要覆盖全部；否定只需一个反例。</text>
+</svg>

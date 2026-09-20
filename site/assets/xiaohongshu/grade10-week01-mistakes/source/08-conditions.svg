@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+<style>text{font-family:"PingFang SC","Hiragino Sans GB","Arial Unicode MS",sans-serif}path{stroke-linecap:round;stroke-linejoin:round}</style>
+<defs><pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#247f76" stroke-opacity=".04" stroke-width="1"/></pattern></defs>
+<rect width="1080" height="1440" fill="#fffdf7"/><rect width="1080" height="1440" fill="url(#grid)"/>
+<text xml:space="preserve" x="72" y="92" font-size="26" fill="#087e77" font-weight="600" text-anchor="start">数学说  /  高一第一周错题复盘</text>
+<text xml:space="preserve" x="1008" y="92" font-size="26" fill="#5b6b70" font-weight="400" text-anchor="end">08 / 09</text>
+<text xml:space="preserve" x="72" y="164" font-size="48" fill="#123d43" font-weight="700" text-anchor="start">充分、必要条件</text>
+<text xml:space="preserve" x="72" y="222" font-size="48" fill="#123d43" font-weight="700" text-anchor="start">要转成集合包含关系</text>
+<text xml:space="preserve" x="72" y="269" font-size="25" fill="#5b6b70" font-weight="400" text-anchor="start">特训五 · 第9题</text>
+<path d="M72 1340 L1008 1340" fill="none" stroke="#d7e1d9" stroke-width="2"/>
+<text xml:space="preserve" x="72" y="1384" font-size="24" fill="#5b6b70" font-weight="400" text-anchor="start">每类一道代表题 · 集合与常用逻辑用语</text>
+<text xml:space="preserve" x="1008" y="1384" font-size="26" fill="#087e77" font-weight="700" text-anchor="end">数学说</text>
+<rect x="72" y="290" width="936" height="207" rx="24" fill="#fffdf7" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="336" font-size="32" fill="#123d43" font-weight="400" text-anchor="start">p：x&lt;−2 或 x&gt;10，</text>
+<text xml:space="preserve" x="96" y="394" font-size="32" fill="#123d43" font-weight="400" text-anchor="start">q：x&lt;1+a 或 x&gt;1−a（a&lt;0）。</text>
+<text xml:space="preserve" x="96" y="452" font-size="32" fill="#123d43" font-weight="400" text-anchor="start">若 p 是 q 的必要条件，求 a 的范围。</text>
+<rect x="72" y="520" width="936" height="60" rx="16" fill="#fbefea" stroke="#efd5cb" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="560" font-size="29" fill="#c54f44" font-weight="400" text-anchor="start">原答案：a&lt;0，只保留了题目给定的限制。</text>
+<rect x="72" y="609" width="936" height="106" rx="24" fill="#e9f3ef" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="540" y="652" font-size="32" fill="#087e77" font-weight="700" text-anchor="middle">p 是 q 的必要条件</text>
+<text xml:space="preserve" x="540" y="697" font-size="36" fill="#123d43" font-weight="700" text-anchor="middle">q ⇒ p  ⇔  Q⊆P</text>
+<text xml:space="preserve" x="96" y="775" font-size="34" fill="#123d43" font-weight="400" text-anchor="start">左段包含：1+a≤−2  →  a≤−3</text>
+<text xml:space="preserve" x="96" y="833" font-size="34" fill="#123d43" font-weight="400" text-anchor="start">右段包含：1−a≥10  →  a≤−9</text>
+<text xml:space="preserve" x="96" y="900" font-size="29" fill="#5b6b70" font-weight="400" text-anchor="start">代入 a=−9 验证：Q 的每个元素都在 P 内</text>
+<path d="M191 951 L917 951" fill="none" stroke="#b6c4c2" stroke-width="2"/>
+<text xml:space="preserve" x="163" y="961" font-size="29" fill="#123d43" font-weight="600" text-anchor="end">P</text>
+<path d="M191 951 L470.2307692307692 951" fill="none" stroke="#5b6b70" stroke-width="7"/>
+<path d="M210 951 L191 951" fill="none" stroke="#5b6b70" stroke-width="4"/>
+<polygon points="191.00,951.00 204.30,944.07 204.30,957.93" fill="#5b6b70"/>
+<circle cx="470.2307692307692" cy="951" r="8" fill="#fffdf7" stroke="#5b6b70" stroke-width="3"/>
+<path d="M805.3076923076923 951 L917 951" fill="none" stroke="#5b6b70" stroke-width="7"/>
+<circle cx="805.3076923076923" cy="951" r="8" fill="#fffdf7" stroke="#5b6b70" stroke-width="3"/>
+<path d="M898 951 L917 951" fill="none" stroke="#5b6b70" stroke-width="4"/>
+<polygon points="917.00,951.00 903.70,957.93 903.70,944.07" fill="#5b6b70"/>
+<text xml:space="preserve" x="470.2307692307692" y="996" font-size="26" fill="#5b6b70" font-weight="400" text-anchor="middle">−2</text>
+<text xml:space="preserve" x="805.3076923076923" y="996" font-size="26" fill="#5b6b70" font-weight="400" text-anchor="middle">10</text>
+<path d="M191 1054 L917 1054" fill="none" stroke="#b6c4c2" stroke-width="2"/>
+<text xml:space="preserve" x="163" y="1064" font-size="29" fill="#123d43" font-weight="600" text-anchor="end">Q</text>
+<path d="M191 1054 L302.6923076923077 1054" fill="none" stroke="#087e77" stroke-width="7"/>
+<path d="M210 1054 L191 1054" fill="none" stroke="#087e77" stroke-width="4"/>
+<polygon points="191.00,1054.00 204.30,1047.07 204.30,1060.93" fill="#087e77"/>
+<circle cx="302.6923076923077" cy="1054" r="8" fill="#fffdf7" stroke="#087e77" stroke-width="3"/>
+<path d="M805.3076923076923 1054 L917 1054" fill="none" stroke="#087e77" stroke-width="7"/>
+<circle cx="805.3076923076923" cy="1054" r="8" fill="#fffdf7" stroke="#087e77" stroke-width="3"/>
+<path d="M898 1054 L917 1054" fill="none" stroke="#087e77" stroke-width="4"/>
+<polygon points="917.00,1054.00 903.70,1060.93 903.70,1047.07" fill="#087e77"/>
+<text xml:space="preserve" x="302.6923076923077" y="1099" font-size="26" fill="#5b6b70" font-weight="400" text-anchor="middle">−8</text>
+<text xml:space="preserve" x="805.3076923076923" y="1099" font-size="26" fill="#5b6b70" font-weight="400" text-anchor="middle">10</text>
+<rect x="72" y="1124" width="936" height="78" rx="18" fill="#123d43" stroke="#123d43" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="1173" font-size="26" fill="#9ed5c5" font-weight="600" text-anchor="start">正确结论</text>
+<text xml:space="preserve" x="976" y="1175" font-size="38" fill="#fffdf7" font-weight="700" text-anchor="end">a≤−9</text>
+<text xml:space="preserve" x="96" y="1280" font-size="32" fill="#087e77" font-weight="700" text-anchor="start">必要条件：从 q 推出 p，别把方向写反。</text>
+</svg>

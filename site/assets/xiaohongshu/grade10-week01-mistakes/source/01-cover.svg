@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+<style>text{font-family:"PingFang SC","Hiragino Sans GB","Arial Unicode MS",sans-serif}path{stroke-linecap:round;stroke-linejoin:round}</style>
+<defs><pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#247f76" stroke-opacity=".04" stroke-width="1"/></pattern></defs>
+<rect width="1080" height="1440" fill="#f7f0df"/><rect width="1080" height="1440" fill="url(#grid)"/>
+<path d="M78 70L487 54L492 109L80 120Z" fill="#e4cfa0" opacity=".58"/>
+<text xml:space="preserve" x="100" y="98" font-size="29" fill="#7a664c" font-weight="500" text-anchor="start">陪孩子一起复盘 · 开学记录</text>
+<text xml:space="preserve" x="84" y="198" font-size="70" fill="#123d43" font-weight="700" text-anchor="start">高一第一周</text>
+<text xml:space="preserve" x="84" y="292" font-size="84" fill="#123d43" font-weight="700" text-anchor="start">荣同学的错题本</text>
+<path d="M88 314 Q345 331 675 315" fill="none" stroke="#c69b56" stroke-width="5"/>
+<text xml:space="preserve" x="86" y="363" font-size="33" fill="#087e77" font-weight="600" text-anchor="start">8种错误类型，每类选1题分享</text>
+<rect x="64" y="398" width="952" height="819" rx="18" fill="#fffdf8" stroke="#dfd6c4" stroke-width="2"/>
+<text xml:space="preserve" x="94" y="443" font-size="29" fill="#786f5f" font-weight="500" text-anchor="start">这8类在原错题本中的分布 · 共17题</text>
+<text xml:space="preserve" x="94" y="494" font-size="26" fill="#aa946e" font-weight="600" text-anchor="start">01</text>
+<text xml:space="preserve" x="143" y="494" font-size="29" fill="#123d43" font-weight="600" text-anchor="start">检查二次项系数是否为0</text>
+<rect x="143" y="510" width="708" height="16" rx="8" fill="#f0ede4"/>
+<rect x="143" y="510" width="472.0" height="16" rx="8" fill="#8badb1"/>
+<text xml:space="preserve" x="931" y="529" font-size="28" fill="#087e77" font-weight="600" text-anchor="end">2题</text>
+<text xml:space="preserve" x="94" y="582" font-size="26" fill="#aa946e" font-weight="600" text-anchor="start">02</text>
+<text xml:space="preserve" x="143" y="582" font-size="29" fill="#123d43" font-weight="600" text-anchor="start">描述法表示集合先看集合元素是什么</text>
+<rect x="143" y="598" width="708" height="16" rx="8" fill="#f0ede4"/>
+<rect x="143" y="598" width="472.0" height="16" rx="8" fill="#8badb1"/>
+<text xml:space="preserve" x="931" y="617" font-size="28" fill="#087e77" font-weight="600" text-anchor="end">2题</text>
+<text xml:space="preserve" x="94" y="670" font-size="26" fill="#aa946e" font-weight="600" text-anchor="start">03</text>
+<text xml:space="preserve" x="143" y="670" font-size="29" fill="#123d43" font-weight="600" text-anchor="start">边界值一定要代入原集合验证关系</text>
+<rect x="143" y="686" width="708" height="16" rx="8" fill="#f0ede4"/>
+<rect x="143" y="686" width="708.0" height="16" rx="8" fill="#c4a166"/>
+<text xml:space="preserve" x="931" y="705" font-size="28" fill="#087e77" font-weight="600" text-anchor="end">3题</text>
+<text xml:space="preserve" x="94" y="758" font-size="26" fill="#aa946e" font-weight="600" text-anchor="start">04</text>
+<text xml:space="preserve" x="143" y="758" font-size="29" fill="#123d43" font-weight="600" text-anchor="start">集合关系要画维恩图</text>
+<rect x="143" y="774" width="708" height="16" rx="8" fill="#f0ede4"/>
+<rect x="143" y="774" width="472.0" height="16" rx="8" fill="#8badb1"/>
+<text xml:space="preserve" x="931" y="793" font-size="28" fill="#087e77" font-weight="600" text-anchor="end">2题</text>
+<text xml:space="preserve" x="94" y="846" font-size="26" fill="#aa946e" font-weight="600" text-anchor="start">05</text>
+<text xml:space="preserve" x="143" y="846" font-size="29" fill="#123d43" font-weight="600" text-anchor="start">“任意”指所有对象都要满足条件</text>
+<rect x="143" y="862" width="708" height="16" rx="8" fill="#f0ede4"/>
+<rect x="143" y="862" width="236.0" height="16" rx="8" fill="#81ada0"/>
+<text xml:space="preserve" x="931" y="881" font-size="28" fill="#087e77" font-weight="600" text-anchor="end">1题</text>
+<text xml:space="preserve" x="94" y="934" font-size="26" fill="#aa946e" font-weight="600" text-anchor="start">06</text>
+<text xml:space="preserve" x="143" y="934" font-size="29" fill="#123d43" font-weight="600" text-anchor="start">讨论集合包含关系不能忘记空集</text>
+<rect x="143" y="950" width="708" height="16" rx="8" fill="#f0ede4"/>
+<rect x="143" y="950" width="236.0" height="16" rx="8" fill="#81ada0"/>
+<text xml:space="preserve" x="931" y="969" font-size="28" fill="#087e77" font-weight="600" text-anchor="end">1题</text>
+<text xml:space="preserve" x="94" y="1022" font-size="26" fill="#aa946e" font-weight="600" text-anchor="start">07</text>
+<text xml:space="preserve" x="143" y="1022" font-size="29" fill="#123d43" font-weight="600" text-anchor="start">充分、必要条件要转成集合包含关系</text>
+<rect x="143" y="1038" width="708" height="16" rx="8" fill="#f0ede4"/>
+<rect x="143" y="1038" width="708.0" height="16" rx="8" fill="#c4a166"/>
+<text xml:space="preserve" x="931" y="1057" font-size="28" fill="#087e77" font-weight="600" text-anchor="end">3题</text>
+<text xml:space="preserve" x="94" y="1110" font-size="26" fill="#aa946e" font-weight="600" text-anchor="start">08</text>
+<text xml:space="preserve" x="143" y="1110" font-size="29" fill="#123d43" font-weight="600" text-anchor="start">先理解条件的含义，再明确题目要求的推导方向</text>
+<rect x="143" y="1126" width="708" height="16" rx="8" fill="#f0ede4"/>
+<rect x="143" y="1126" width="708.0" height="16" rx="8" fill="#c4a166"/>
+<text xml:space="preserve" x="931" y="1145" font-size="28" fill="#087e77" font-weight="600" text-anchor="end">3题</text>
+<text xml:space="preserve" x="94" y="1190" font-size="25" fill="#786f5f" font-weight="400" text-anchor="start">每条柱长代表题数；后面每类只放一道代表题。</text>
+<text xml:space="preserve" x="86" y="1294" font-size="40" fill="#123d43" font-weight="600" text-anchor="start">荣同学，加油。我们一起慢慢来。</text>
+<text xml:space="preserve" x="86" y="1354" font-size="30" fill="#827460" font-weight="400" text-anchor="start">把不会的，一点点变成会的。</text>
+<path d="M937 1266L944 1288L967 1289L949 1303L955 1326L936 1312L917 1326L923 1303L905 1289L930 1288Z" fill="#e5c585" stroke="#ba9557" stroke-width="2"/>
+</svg>

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+<style>text{font-family:"PingFang SC","Hiragino Sans GB","Arial Unicode MS",sans-serif}path{stroke-linecap:round;stroke-linejoin:round}</style>
+<defs><pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#247f76" stroke-opacity=".04" stroke-width="1"/></pattern></defs>
+<rect width="1080" height="1440" fill="#fffdf7"/><rect width="1080" height="1440" fill="url(#grid)"/>
+<text xml:space="preserve" x="72" y="92" font-size="26" fill="#087e77" font-weight="600" text-anchor="start">数学说  /  高一第一周错题复盘</text>
+<text xml:space="preserve" x="1008" y="92" font-size="26" fill="#5b6b70" font-weight="400" text-anchor="end">03 / 09</text>
+<text xml:space="preserve" x="72" y="164" font-size="48" fill="#123d43" font-weight="700" text-anchor="start">描述法表示集合</text>
+<text xml:space="preserve" x="72" y="222" font-size="48" fill="#123d43" font-weight="700" text-anchor="start">先看集合元素是什么</text>
+<text xml:space="preserve" x="72" y="269" font-size="25" fill="#5b6b70" font-weight="400" text-anchor="start">特训二 · 第7题</text>
+<path d="M72 1340 L1008 1340" fill="none" stroke="#d7e1d9" stroke-width="2"/>
+<text xml:space="preserve" x="72" y="1384" font-size="24" fill="#5b6b70" font-weight="400" text-anchor="start">每类一道代表题 · 集合与常用逻辑用语</text>
+<text xml:space="preserve" x="1008" y="1384" font-size="26" fill="#087e77" font-weight="700" text-anchor="end">数学说</text>
+<rect x="72" y="290" width="936" height="234" rx="24" fill="#fffdf7" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="337" font-size="31" fill="#123d43" font-weight="400" text-anchor="start">A={x｜y=x²−4}，B={y｜y=x²−4}，</text>
+<text xml:space="preserve" x="96" y="385" font-size="31" fill="#123d43" font-weight="400" text-anchor="start">C={(x,y)｜y=x²−4}。正确关系是：</text>
+<text xml:space="preserve" x="96" y="447" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">A. A=B      B. B⊆A</text>
+<text xml:space="preserve" x="96" y="496" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">C. A⊆C     D. 2∈C</text>
+<rect x="72" y="548" width="936" height="60" rx="16" fill="#fbefea" stroke="#efd5cb" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="588" font-size="29" fill="#c54f44" font-weight="400" text-anchor="start">原答案：A（判断 A=B）</text>
+<text xml:space="preserve" x="72" y="659" font-size="34" fill="#087e77" font-weight="700" text-anchor="start">同一个条件，收集的对象不同</text>
+<rect x="72" y="688" width="300" height="350" rx="24" fill="#e9f3ef" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="222" y="747" font-size="44" fill="#087e77" font-weight="700" text-anchor="middle">x</text>
+<text xml:space="preserve" x="222" y="793" font-size="28" fill="#123d43" font-weight="400" text-anchor="middle">横坐标</text>
+<path d="M107 890 L337 890" fill="none" stroke="#087e77" stroke-width="4"/>
+<polygon points="337.00,890.00 323.70,896.93 323.70,883.07" fill="#087e77"/>
+<path d="M132 890 L107 890" fill="none" stroke="#087e77" stroke-width="4"/>
+<polygon points="107.00,890.00 120.30,883.07 120.30,896.93" fill="#087e77"/>
+<text xml:space="preserve" x="222" y="945" font-size="28" fill="#5b6b70" font-weight="400" text-anchor="middle">任意实数</text>
+<text xml:space="preserve" x="222" y="1011" font-size="30" fill="#123d43" font-weight="600" text-anchor="middle">A=ℝ</text>
+<rect x="390" y="688" width="300" height="350" rx="24" fill="#e9f3ef" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="540" y="747" font-size="44" fill="#087e77" font-weight="700" text-anchor="middle">y</text>
+<text xml:space="preserve" x="540" y="793" font-size="28" fill="#123d43" font-weight="400" text-anchor="middle">纵坐标</text>
+<path d="M423 890 L655 890" fill="none" stroke="#b6c4c2" stroke-width="2"/>
+<text xml:space="preserve" x="395" y="900" font-size="29" fill="#123d43" font-weight="600" text-anchor="end"></text>
+<path d="M465.1818181818182 890 L655 890" fill="none" stroke="#087e77" stroke-width="7"/>
+<circle cx="465.1818181818182" cy="890" r="8" fill="#087e77" stroke="#087e77" stroke-width="3"/>
+<path d="M636 890 L655 890" fill="none" stroke="#087e77" stroke-width="4"/>
+<polygon points="655.00,890.00 641.70,896.93 641.70,883.07" fill="#087e77"/>
+<text xml:space="preserve" x="465.1818181818182" y="935" font-size="26" fill="#5b6b70" font-weight="400" text-anchor="middle">−4</text>
+<text xml:space="preserve" x="540" y="1011" font-size="30" fill="#123d43" font-weight="600" text-anchor="middle">B=[−4,+∞)</text>
+<rect x="708" y="688" width="300" height="350" rx="24" fill="#fffdf7" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="858" y="747" font-size="44" fill="#087e77" font-weight="700" text-anchor="middle">(x,y)</text>
+<text xml:space="preserve" x="858" y="793" font-size="28" fill="#123d43" font-weight="400" text-anchor="middle">平面上的点</text>
+<path d="M753.6 900 L962.4 900" fill="none" stroke="#8a9c9a" stroke-width="4"/>
+<polygon points="962.40,900.00 949.10,906.93 949.10,893.07" fill="#8a9c9a"/>
+<path d="M858 972.0 L858 836" fill="none" stroke="#8a9c9a" stroke-width="4"/>
+<polygon points="858.00,836.00 864.93,849.30 851.07,849.30" fill="#8a9c9a"/>
+<polyline points="760.8,847.4 761.5,849.1 762.2,850.8 763.0,852.5 763.7,854.2 764.4,855.8 765.1,857.5 765.8,859.1 766.6,860.8 767.3,862.4 768.0,864.0 768.7,865.6 769.4,867.2 770.2,868.7 770.9,870.3 771.6,871.8 772.3,873.4 773.0,874.9 773.8,876.4 774.5,877.9 775.2,879.4 775.9,880.8 776.6,882.3 777.4,883.7 778.1,885.1 778.8,886.6 779.5,888.0 780.2,889.4 781.0,890.7 781.7,892.1 782.4,893.4 783.1,894.8 783.8,896.1 784.6,897.4 785.3,898.7 786.0,900.0 786.7,901.3 787.4,902.5 788.2,903.8 788.9,905.0 789.6,906.2 790.3,907.4 791.0,908.6 791.8,909.8 792.5,911.0 793.2,912.2 793.9,913.3 794.6,914.4 795.4,915.6 796.1,916.7 796.8,917.8 797.5,918.8 798.2,919.9 799.0,921.0 799.7,922.0 800.4,923.0 801.1,924.1 801.8,925.1 802.6,926.1 803.3,927.0 804.0,928.0 804.7,929.0 805.4,929.9 806.2,930.8 806.9,931.7 807.6,932.6 808.3,933.5 809.0,934.4 809.8,935.3 810.5,936.1 811.2,937.0 811.9,937.8 812.6,938.6 813.4,939.4 814.1,940.2 814.8,941.0 815.5,941.7 816.2,942.5 817.0,943.2 817.7,943.9 818.4,944.6 819.1,945.3 819.8,946.0 820.6,946.7 821.3,947.4 822.0,948.0 822.7,948.6 823.4,949.3 824.2,949.9 824.9,950.5 825.6,951.0 826.3,951.6 827.0,952.2 827.8,952.7 828.5,953.2 829.2,953.8 829.9,954.3 830.6,954.8 831.4,955.2 832.1,955.7 832.8,956.2 833.5,956.6 834.2,957.0 835.0,957.4 835.7,957.8 836.4,958.2 837.1,958.6 837.8,959.0 838.6,959.3 839.3,959.7 840.0,960.0 840.7,960.3 841.4,960.6 842.2,960.9 842.9,961.2 843.6,961.4 844.3,961.7 845.0,961.9 845.8,962.2 846.5,962.4 847.2,962.6 847.9,962.7 848.6,962.9 849.4,963.1 850.1,963.2 850.8,963.4 851.5,963.5 852.2,963.6 853.0,963.7 853.7,963.8 854.4,963.8 855.1,963.9 855.8,963.9 856.6,964.0 857.3,964.0 858.0,964.0 858.7,964.0 859.4,964.0 860.2,963.9 860.9,963.9 861.6,963.8 862.3,963.8 863.0,963.7 863.8,963.6 864.5,963.5 865.2,963.4 865.9,963.2 866.6,963.1 867.4,962.9 868.1,962.7 868.8,962.6 869.5,962.4 870.2,962.2 871.0,961.9 871.7,961.7 872.4,961.4 873.1,961.2 873.8,960.9 874.6,960.6 875.3,960.3 876.0,960.0 876.7,959.7 877.4,959.3 878.2,959.0 878.9,958.6 879.6,958.2 880.3,957.8 881.0,957.4 881.8,957.0 882.5,956.6 883.2,956.2 883.9,955.7 884.6,955.2 885.4,954.8 886.1,954.3 886.8,953.8 887.5,953.2 888.2,952.7 889.0,952.2 889.7,951.6 890.4,951.0 891.1,950.5 891.8,949.9 892.6,949.3 893.3,948.6 894.0,948.0 894.7,947.4 895.4,946.7 896.2,946.0 896.9,945.3 897.6,944.6 898.3,943.9 899.0,943.2 899.8,942.5 900.5,941.7 901.2,941.0 901.9,940.2 902.6,939.4 903.4,938.6 904.1,937.8 904.8,937.0 905.5,936.1 906.2,935.3 907.0,934.4 907.7,933.5 908.4,932.6 909.1,931.7 909.8,930.8 910.6,929.9 911.3,929.0 912.0,928.0 912.7,927.0 913.4,926.1 914.2,925.1 914.9,924.1 915.6,923.0 916.3,922.0 917.0,921.0 917.8,919.9 918.5,918.8 919.2,917.8 919.9,916.7 920.6,915.6 921.4,914.4 922.1,913.3 922.8,912.2 923.5,911.0 924.2,909.8 925.0,908.6 925.7,907.4 926.4,906.2 927.1,905.0 927.8,903.8 928.6,902.5 929.3,901.3 930.0,900.0 930.7,898.7 931.4,897.4 932.2,896.1 932.9,894.8 933.6,893.4 934.3,892.1 935.0,890.7 935.8,889.4 936.5,888.0 937.2,886.6 937.9,885.1 938.6,883.7 939.4,882.3 940.1,880.8 940.8,879.4 941.5,877.9 942.2,876.4 943.0,874.9 943.7,873.4 944.4,871.8 945.1,870.3 945.8,868.7 946.6,867.2 947.3,865.6 948.0,864.0 948.7,862.4 949.4,860.8 950.2,859.1 950.9,857.5 951.6,855.8 952.3,854.2 953.0,852.5 953.8,850.8 954.5,849.1 955.2,847.4" fill="none" stroke="#087e77" stroke-width="4"/>
+<text xml:space="preserve" x="848" y="890" font-size="21" fill="#5b6b70" font-weight="400" text-anchor="end">O</text>
+<text xml:space="preserve" x="858" y="1011" font-size="30" fill="#123d43" font-weight="600" text-anchor="middle">C 是点集</text>
+<rect x="72" y="1080" width="936" height="78" rx="18" fill="#123d43" stroke="#123d43" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="1129" font-size="26" fill="#9ed5c5" font-weight="600" text-anchor="start">正确结论</text>
+<text xml:space="preserve" x="976" y="1131" font-size="38" fill="#fffdf7" font-weight="700" text-anchor="end">B：B⊆A</text>
+<rect x="72" y="1192" width="936" height="116" rx="20" fill="#e9f3ef" stroke="#c9ddd3" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="1230" font-size="25" fill="#087e77" font-weight="700" text-anchor="start">带走这个方法</text>
+<text xml:space="preserve" x="96" y="1272" font-size="30" fill="#123d43" font-weight="600" text-anchor="start">先看竖线前的元素，再读竖线后的条件。</text>
+</svg>

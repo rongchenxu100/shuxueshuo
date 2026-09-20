@@ -16,8 +16,9 @@
 ## Solver 与 LLM
 
 - `method-solver-architecture.md`：当前 FunctionalPlan 到 runtime 的生产链。
-- `functional-method-dsl-authoring-guide.md`：把 FunctionalPlan 视为 DSL 时，新增 Method 的语义边界、代码契约、诊断与测试规范。
-- `capability-authoring-guide.md`：新增 Function、Macro、binding、return 与 closure contract 的规范。
+- `functional-method-dsl-authoring-guide.md`：把 FunctionalPlan 视为 DSL 时，新增 Method 的语义边界、代码契约、诊断与测试规范；**§3 规定优先采用 `organize_expressions` 验证型范式，并给出防无限打补丁清单**。
+- `capability-authoring-guide.md`：新增 Function、Macro、binding、return 与 closure contract 的规范；§1.1 与上条交叉引用。
+- `organize-expressions-q08-design.md`：验证型 Method 参考实现（LLM 填式链、代码验等价）。
 - `llm-context-model-design.md`：Context version、dependency、stale/rebase 规范。
 - `llm-planner-reliability-engineering.md`：失败归因、指标和候选选择原则。
 - `llm-sample-failure-review-guide.md`：逐 sample 检查 prompt、thinking、Plan、runtime 与 retry 的证据流程；包含输出超长专项和逐轮图示规范。
@@ -30,12 +31,15 @@
 
 ## 课程页与交互
 
+- [错题本构建规范](mistake-book-authoring-guide.md)：原解保留、三步内容结构、错误分类、可视化、双视图浏览和新增题目检查规范。
+
 - [工作台首版设计](workspace-product-design.md)：最新收敛范围，上传单题图片、中栏生成进度、右栏解析网页；批量、框选与其他功能后续重新讨论。
 - `teaching-scope-student-visual-animation-design.md`：F5-F5 Canonical Scope 教学投影、学生步骤、VisualStepIR 与动画 timeline 的统一规范。
 - `lesson-scope-llm-authoring-vnext-design.md`：F5-F5B 一次 Scope Lesson LLM、完整计算输入、recursive LessonIR、组件选择，以及和平二模纵向冒烟的分阶段实现计划。
 - `explanation-builder-design.md`：verified solver artifact 到 LessonIR。
 - `visual-step-ir-design.md`：LessonIR 到声明式视觉状态。
 - `inequality-visual-component-refactor-design.md`：不等式 KnowledgePoint、Family、Problem 知识图谱以及 Method/Recipe 与共享视觉组件的确定性绑定协议。
+- [基本不等式 Method 与讲解设计](basic-inequality-method-discussion.md)：8 个 Method、31 题调用链、Family 讲解规则与 Lesson LLM 边界；设计已确认，扩展能力待实现验证。
 - `basic-inequality-minimal-learning-space.md`：基本不等式最小学习空间（Hasse 前提、向下闭包、差分补齐）与对称结构用 \(s,p\) 替换的实质。
 - `frontend-parallel-development-with-mock-api-plan.md`：工作台真实接入与 API/事件测试合同，Mock 仅用于测试和显式开发。
 - `student-tutor-chat-system-design.md`：受控教学状态图、学习证据和学生长期知识图谱设计；后续学生端阶段实施。

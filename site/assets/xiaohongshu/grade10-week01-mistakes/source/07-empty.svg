@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1440" viewBox="0 0 1080 1440">
+<style>text{font-family:"PingFang SC","Hiragino Sans GB","Arial Unicode MS",sans-serif}path{stroke-linecap:round;stroke-linejoin:round}</style>
+<defs><pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#247f76" stroke-opacity=".04" stroke-width="1"/></pattern></defs>
+<rect width="1080" height="1440" fill="#fffdf7"/><rect width="1080" height="1440" fill="url(#grid)"/>
+<text xml:space="preserve" x="72" y="92" font-size="26" fill="#087e77" font-weight="600" text-anchor="start">数学说  /  高一第一周错题复盘</text>
+<text xml:space="preserve" x="1008" y="92" font-size="26" fill="#5b6b70" font-weight="400" text-anchor="end">07 / 09</text>
+<text xml:space="preserve" x="72" y="164" font-size="48" fill="#123d43" font-weight="700" text-anchor="start">讨论集合包含关系</text>
+<text xml:space="preserve" x="72" y="222" font-size="48" fill="#123d43" font-weight="700" text-anchor="start">不能忘记空集</text>
+<text xml:space="preserve" x="72" y="269" font-size="25" fill="#5b6b70" font-weight="400" text-anchor="start">特训二 · 第5题</text>
+<path d="M72 1340 L1008 1340" fill="none" stroke="#d7e1d9" stroke-width="2"/>
+<text xml:space="preserve" x="72" y="1384" font-size="24" fill="#5b6b70" font-weight="400" text-anchor="start">每类一道代表题 · 集合与常用逻辑用语</text>
+<text xml:space="preserve" x="1008" y="1384" font-size="26" fill="#087e77" font-weight="700" text-anchor="end">数学说</text>
+<rect x="72" y="290" width="936" height="209" rx="24" fill="#fffdf7" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="334" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">A=[−1,1]，B={x｜a−1≤x≤2a−1}。</text>
+<text xml:space="preserve" x="96" y="395" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">若 B⊆A，a 的取值范围是：</text>
+<text xml:space="preserve" x="96" y="456" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">A. a≤1     B. a&lt;1     C. 0≤a≤1     D. 0&lt;a&lt;1</text>
+<rect x="72" y="522" width="936" height="60" rx="16" fill="#fbefea" stroke="#efd5cb" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="562" font-size="29" fill="#c54f44" font-weight="400" text-anchor="start">原解：−1≤a−1≤2a−1≤1，选 C。</text>
+<text xml:space="preserve" x="540" y="630" font-size="36" fill="#123d43" font-weight="700" text-anchor="middle">B⊆A，先问 B 有没有元素</text>
+<path d="M540 650 L540 680" fill="none" stroke="#087e77" stroke-width="4"/>
+<polygon points="540.00,680.00 533.07,666.70 546.93,666.70" fill="#087e77"/>
+<path d="M306 680 L774 680" fill="none" stroke="#087e77" stroke-width="4"/>
+<path d="M306 680 L306 710" fill="none" stroke="#087e77" stroke-width="4"/>
+<polygon points="306.00,710.00 299.07,696.70 312.93,696.70" fill="#087e77"/>
+<path d="M774 680 L774 710" fill="none" stroke="#087e77" stroke-width="4"/>
+<polygon points="774.00,710.00 767.07,696.70 780.93,696.70" fill="#087e77"/>
+<rect x="72" y="730" width="458" height="295" rx="24" fill="#fbefea" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="100" y="794" font-size="43" fill="#c54f44" font-weight="700" text-anchor="start">B=∅</text>
+<text xml:space="preserve" x="100" y="854" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">a−1&gt;2a−1</text>
+<text xml:space="preserve" x="100" y="916" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">得到 a&lt;0</text>
+<text xml:space="preserve" x="100" y="978" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">∅⊆A，全部保留</text>
+<rect x="550" y="730" width="458" height="295" rx="24" fill="#e9f3ef" stroke="#ccdcd5" stroke-width="2"/>
+<text xml:space="preserve" x="578" y="794" font-size="43" fill="#087e77" font-weight="700" text-anchor="start">B≠∅</text>
+<text xml:space="preserve" x="578" y="854" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">a≥0，再比较端点</text>
+<text xml:space="preserve" x="578" y="916" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">a−1≥−1，2a−1≤1</text>
+<text xml:space="preserve" x="578" y="978" font-size="30" fill="#123d43" font-weight="400" text-anchor="start">得到 0≤a≤1</text>
+<rect x="72" y="1080" width="936" height="78" rx="18" fill="#123d43" stroke="#123d43" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="1129" font-size="26" fill="#9ed5c5" font-weight="600" text-anchor="start">正确结论</text>
+<text xml:space="preserve" x="976" y="1131" font-size="38" fill="#fffdf7" font-weight="700" text-anchor="end">A：a≤1</text>
+<rect x="72" y="1192" width="936" height="116" rx="20" fill="#e9f3ef" stroke="#c9ddd3" stroke-width="2"/>
+<text xml:space="preserve" x="96" y="1230" font-size="25" fill="#087e77" font-weight="700" text-anchor="start">带走这个方法</text>
+<text xml:space="preserve" x="96" y="1272" font-size="30" fill="#123d43" font-weight="600" text-anchor="start">空集分支的参数，也要并入最终答案。</text>
+</svg>
