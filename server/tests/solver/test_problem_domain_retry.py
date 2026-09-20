@@ -27,8 +27,6 @@ from shuxueshuo_server.solver.extraction.multimodal_provider import (
 from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDomainError,
     ProblemDraft,
-    ProblemRepairPatch,
-    ProblemRepairService,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_service import (
     PROBLEM_DOMAIN_PRIMARY_IMAGE_MAX_EDGE,
@@ -331,198 +329,12 @@ def test_first_pass_canonicalizes_origin_and_ancestor_symbol_before_validation(
     )
 
 
-def test_invalid_family_is_repaired_locally_and_retry_keeps_full_image(tmp_path) -> None:
-    fixture, _, context, store, _ = make_f3_fixture(tmp_path)
-    invalid = _domain_payload()
-    expected_family = invalid["family_id"]
-    invalid["family_id"] = "QuadraticWeightedPathMinimumSolver"
-    invalid_draft = ProblemDraft.create(invalid)
-
-    def repair(_: MultimodalProviderRequest) -> str:
-        return json.dumps(
-            {
-                "schema_version": "problem-repair/v1",
-                "base_revision_id": invalid_draft.revision_id,
-                "replacements": [
-                    {
-                        "unit_id": "family",
-                        "value": {"family_id": expected_family},
-                    }
-                ],
-                "additions": [],
-                "removals": [],
-            },
-            ensure_ascii=False,
-        )
-
-    provider = _SequenceProvider(
-        [json.dumps(invalid, ensure_ascii=False), repair]
-    )
-
-    result = _service(tmp_path, store, provider).run(
-        context,
-        attempt_ledger=ExtractionAttemptLedger.for_context(context),
-        ancestor_contexts=(fixture.context,),
-    )
-
-    assert result.accepted
-    assert len(result.attempts) == 2
-    assert result.attempts[0].resulting_draft is not None
-    assert result.attempts[0].report.issues
-    assert result.attempts[1].patch is not None
-    assert provider.requests[1].contract_version == "problem-repair/v1"
-    assert provider.requests[1].thinking_mode == "enabled"
-    assert provider.requests[1].reasoning_effort == "low"
-    assert any(image.role == "primary" for image in provider.requests[1].images)
-    assert result.verified_problem is not None
-    assert result.verified_problem.family_id == expected_family
-    patch_bytes = len(
-        json.dumps(result.attempts[1].patch.to_payload(), separators=(",", ":")).encode()
-    )
-    draft_bytes = len(
-        json.dumps(
-            result.attempts[0].resulting_draft.to_payload(),
-            ensure_ascii=False,
-            separators=(",", ":"),
-        ).encode()
-    )
-    assert patch_bytes <= draft_bytes * 0.30
 
 
-def test_ungrounded_mechanism_is_removed_without_rewriting_valid_math() -> None:
-    payload = _domain_payload("tj-2026-nankai-yimo-25")
-    scope = next(item for item in payload["root"]["children"] if item["id"] == "ii")
-    scope["entities"].append(
-        {
-            "id": "ray_DM",
-            "kind": "named_ray",
-            "label": "射线DM",
-            "origin": "D",
-            "through": "M",
-        }
-    )
-    scope["facts"].append(
-        {"kind": "point_on_ray", "point": "E", "ray": "ray_DM"}
-    )
-    invalid = ProblemDomainValidator().validate(ProblemDraft.create(payload)).draft
-    ray = next(
-        entity for entity in invalid.graph.scope_by_path["problem/ii"].entities
-        if entity.local_id == "ray_DM"
-    )
-    membership = next(
-        fact for fact in invalid.graph.scope_by_path["problem/ii"].facts
-        if fact.kind == "point_on_ray"
-    )
-    patch = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": invalid.revision_id,
-            "replacements": [],
-            "additions": [],
-            "removals": [membership.unit_id, ray.unit_id],
-        }
-    )
-
-    repaired = ProblemRepairService().apply(invalid, patch)
-    result = ProblemDomainValidator().validate(repaired)
-
-    assert result.report.ok, result.report.to_payload()
-    assert all(
-        fact.kind != "point_on_ray"
-        for fact in result.draft.graph.scope_by_path["problem/ii"].facts
-    )
-    assert any(
-        fact.kind == "equal_length"
-        for fact in result.draft.graph.scope_by_path["problem/ii"].facts
-    )
 
 
-def test_sibling_entity_can_be_relocated_to_common_ancestor_atomically() -> None:
-    payload = _domain_payload("tj-2026-heping-yimo-25")
-    root = payload["root"]
-    origin = next(item for item in root["entities"] if item["id"] == "O")
-    origin_fact = next(
-        item
-        for item in root["facts"]
-        if item["kind"] == "point_construction"
-        and item["construction"] == "origin"
-    )
-    root["entities"].remove(origin)
-    root["facts"].remove(origin_fact)
-    part_ii = next(item for item in root["children"] if item["id"] == "ii")
-    part_ii["entities"].append(origin)
-    part_ii["facts"].insert(0, origin_fact)
-    invalid = ProblemDomainValidator().validate(ProblemDraft.create(payload)).draft
-    misplaced = next(
-        entity
-        for entity in invalid.graph.scope_by_path["problem/ii"].entities
-        if entity.local_id == "O"
-    )
-    companion = next(
-        fact
-        for fact in invalid.graph.scope_by_path["problem/ii"].facts
-        if fact.kind == "point_construction"
-        and fact.attributes.get("construction") == "origin"
-    )
-    patch = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": invalid.revision_id,
-            "replacements": [],
-            "additions": [
-                {
-                    "scope_path": "problem",
-                    "collection": "entity",
-                    "value": origin,
-                },
-                {
-                    "scope_path": "problem",
-                    "collection": "fact",
-                    "value": origin_fact,
-                }
-            ],
-            "removals": [misplaced.unit_id, companion.unit_id],
-        }
-    )
-
-    repaired = ProblemRepairService().apply(invalid, patch)
-    result = ProblemDomainValidator().validate(repaired)
-
-    assert result.report.ok, result.report.to_payload()
-    assert any(
-        entity.local_id == "O" for entity in result.draft.graph.root_scope.entities
-    )
-    assert all(
-        entity.local_id != "O"
-        for entity in result.draft.graph.scope_by_path["problem/ii"].entities
-    )
 
 
-def test_once_a_draft_exists_full_replacement_is_rejected_and_never_committed(tmp_path) -> None:
-    fixture, _, context, store, _ = make_f3_fixture(tmp_path)
-    invalid = _domain_payload()
-    invalid["family_id"] = "QuadraticWeightedPathMinimumSolver"
-    full_replacement = json.dumps(_domain_payload(), ensure_ascii=False)
-    provider = _SequenceProvider(
-        [json.dumps(invalid, ensure_ascii=False), full_replacement]
-    )
-
-    result = _service(tmp_path, store, provider).run(
-        context,
-        attempt_ledger=ExtractionAttemptLedger.for_context(context),
-        max_attempts=2,
-        ancestor_contexts=(fixture.context,),
-    )
-
-    assert result.blocked
-    assert result.verified_problem is None
-    assert result.final_context.projection.verified_problem_artifact_id is None
-    assert result.final_context.projection.solver_problem_ir_artifact_id is None
-    assert result.attempts[1].request.contract_version == "problem-repair/v1"
-    assert result.attempts[1].patch is None
-    assert result.attempts[1].report.issues[0].code == (
-        "extraction.problem_repair_schema_invalid"
-    )
 
 
 def test_wire_failure_may_retry_one_complete_domain_before_a_draft_exists(
@@ -589,44 +401,6 @@ def test_repeated_transport_timeout_does_not_trigger_semantic_no_progress(
     ]
 
 
-def test_repeated_no_progress_patch_blocks_deterministically(tmp_path) -> None:
-    fixture, _, context, store, _ = make_f3_fixture(tmp_path)
-    invalid = _domain_payload()
-    invalid["family_id"] = "QuadraticWeightedPathMinimumSolver"
-    invalid_draft = ProblemDraft.create(invalid)
-    no_progress = json.dumps(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": invalid_draft.revision_id,
-            "replacements": [
-                {
-                    "unit_id": "family",
-                    "value": {"family_id": "QuadraticWeightedPathMinimumSolver"},
-                }
-            ],
-            "additions": [],
-            "removals": [],
-        },
-        ensure_ascii=False,
-    )
-    provider = _SequenceProvider(
-        [json.dumps(invalid, ensure_ascii=False), no_progress, no_progress]
-    )
-
-    result = _service(tmp_path, store, provider).run(
-        context,
-        attempt_ledger=ExtractionAttemptLedger.for_context(context),
-        max_attempts=3,
-        ancestor_contexts=(fixture.context,),
-    )
-
-    assert result.blocked
-    assert result.blocked_reason == "extraction.problem_retry_no_progress"
-    assert len(result.attempts) == 3
-    assert result.final_context.retry.status == "blocked"
-    assert "extraction.problem_retry_no_progress" in (
-        result.final_context.retry.work_item_ids
-    )
 
 
 def test_attempt_limit_produces_explicit_retry_exhausted_context(tmp_path) -> None:
@@ -677,39 +451,3 @@ def test_persisted_attempt_ledger_prevents_reusing_an_empty_budget_view(tmp_path
 
     assert error.value.code == "extraction.attempt_ledger_mismatch"
     assert len(provider.requests) == 1
-
-
-def test_frozen_unit_outside_repair_cone_cannot_be_mutated() -> None:
-    validation = _SourceIndependentValidator().validate(
-        ProblemDraft.create(_domain_payload())
-    )
-    assert validation.report.ok
-    frozen = next(
-        unit_id
-        for unit_id in validation.draft.frozen_unit_ids
-        if validation.draft.unit_registry[unit_id].unit_kind == "entity"
-    )
-    record = validation.draft.unit_registry[frozen]
-    entity = next(
-        item
-        for scope in validation.draft.graph.root_scope.iter_scopes()
-        for item in scope.entities
-        if item.unit_id == frozen
-    )
-    replacement = entity.wire_payload()
-    replacement["label"] = replacement["label"] + " changed"
-    patch = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": validation.draft.revision_id,
-            "replacements": [{"unit_id": frozen, "value": replacement}],
-            "additions": [],
-            "removals": [],
-        }
-    )
-
-    assert record.scope_path
-    with pytest.raises(ProblemDomainError) as error:
-        ProblemRepairService().apply(validation.draft, patch)
-
-    assert error.value.code == "extraction.problem_frozen_unit_mutation"

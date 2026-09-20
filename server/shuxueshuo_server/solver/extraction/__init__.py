@@ -55,13 +55,9 @@ from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDraft,
     ProblemGraph,
     ProblemPromotionService,
-    ProblemRepairPatch,
-    ProblemRepairService,
     VerifiedProblem,
     problem_domain_response_format,
     problem_domain_schema,
-    problem_repair_response_format,
-    problem_repair_schema,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_context import (
     ProblemDomainContextTransitionService,
@@ -170,8 +166,6 @@ __all__ = [
     "PlanningReadAuthority",
     "PLANNER_PROBLEM_VIEW_CONTRACT",
     "PROBLEM_PLANNING_CONTEXT_CONTRACT",
-    "ProblemRepairPatch",
-    "ProblemRepairService",
     "RuntimeProjectionIndex",
     "SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND",
     "ProblemRegionProposer",
@@ -195,7 +189,5 @@ __all__ = [
     "render_gold_overlays",
     "problem_domain_response_format",
     "problem_domain_schema",
-    "problem_repair_response_format",
-    "problem_repair_schema",
     "solver_problem_projection_schema",
 ]

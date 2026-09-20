@@ -7,7 +7,6 @@ from pathlib import Path
 
 from shuxueshuo_server.solver.extraction.problem_domain import (
     problem_domain_schema,
-    problem_repair_schema,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_projection import (
     solver_problem_projection_schema,
@@ -24,7 +23,6 @@ def main() -> None:
     destination = ROOT / "internal/schemas"
     schemas = {
         "problem-domain.schema.json": problem_domain_schema(),
-        "problem-repair.schema.json": problem_repair_schema(),
         "solver-problem-projection.schema.json": solver_problem_projection_schema(),
         "planner-problem-view.schema.json": planner_problem_view_schema(),
     }

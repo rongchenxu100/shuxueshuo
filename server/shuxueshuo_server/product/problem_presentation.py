@@ -9,14 +9,38 @@ from . import models as m
 from .understanding import candidate_state
 
 
+# These admission failures mean the candidate cannot enter a registered Solver
+# family. Source-review and unresolved-source failures remain user-review
+# interventions and must not hide a missing-figure/confirmation presentation.
+UNSUPPORTED_ADMISSION_CODES = frozenset({
+    'admission.family_unmatched',
+    'admission.adapter_missing',
+    'admission.family_mismatch',
+    'admission.family_source_missing',
+})
+
+
 def original_text_excerpt(candidate):
     """Display only a transcription; never synthesize source wording from IR."""
     excerpt = ' '.join(candidate.get('original_text', '').split())
     return (excerpt[:240] + '…') if len(excerpt) > 240 else excerpt
 
 
-def overlay_active_build(presentation, build_status):
-    """Extraction can finish while the lesson build is still projecting/solving."""
+def overlay_active_build(presentation, build_status, build_error_code=None):
+    """Extraction can finish while the lesson build is still projecting/solving.
+
+    Admission refusals (unsupported family / missing adapter) are expected
+    product outcomes, not infrastructure failures.
+    """
+    if (
+        build_status == 'failed'
+        and build_error_code in UNSUPPORTED_ADMISSION_CODES
+    ):
+        return {
+            **presentation,
+            'status': 'unsupported',
+            'reason': build_error_code,
+        }
     if presentation['status'] == 'ready' and build_status in ('queued', 'running'):
         return {
             **presentation,
@@ -90,19 +114,27 @@ def problem_presentations(c, records, legacy, *, local=False):
             presentations[p['id']] = overlay_active_build(
                 understanding_presentation(p, source, candidate, run, config, local=local),
                 details['status'],
+                details.get('error_code'),
             )
         else:
             from .application import statement_text
             statement = statement_text(details['domain_json'])
             status = details['status'] or 'not_started'
+            reason = details.get('error_code')
             if status == 'succeeded':
                 status = 'ready'
+                reason = None
+            elif (
+                status == 'failed'
+                and reason in UNSUPPORTED_ADMISSION_CODES
+            ):
+                status = 'unsupported'
             presentations[p['id']] = {
                 'title': statement or p['title'] or '待提取题目',
                 'title_kind': 'source_text' if statement else 'image',
                 'image_source_id': str(p['primary_source_id']),
                 'phase': 'generation' if p['latest_build_id'] else 'upload',
-                'status': status, 'reason': None,
+                'status': status, 'reason': reason,
                 'result_id': str(p['current_page_build_id']) if status == 'ready' and p['current_page_build_id'] else None,
             }
     return presentations

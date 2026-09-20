@@ -149,9 +149,6 @@ def generate(store, run_id):
     from shuxueshuo_server.solver.runtime.orchestrator import RuntimeOrchestrator
     from shuxueshuo_server.solver.runtime.strategy_runtime_planner import strategy_planner_provider
     from shuxueshuo_server.solver.extraction.artifacts import ExtractionArtifactStore
-    from shuxueshuo_server.solver.extraction.context import ProblemExtractionContext, ExtractionAttemptLedger
-    from shuxueshuo_server.solver.extraction.problem_domain_service import ProblemDomainExtractionService
-    from shuxueshuo_server.solver.extraction.multimodal_provider import create_vision_provider
     from shuxueshuo_server.solver.extraction.problem_solver_bundle import VerifiedSolverProblemBundleLoader
     from shuxueshuo_server.solver.extraction.problem_planner_authority import VerifiedPlannerProblemAuthority
     from shuxueshuo_server.solver.explanation.snapshot import ExplanationSnapshotBuilder
@@ -233,26 +230,10 @@ def generate(store, run_id):
         install(store, run_id, problem_revision, context, (initial,), extraction_store)
         done("extraction", "人工题意通过完整校验；未调用抽取模型")
     elif runs("extraction"):
-        start("extraction", "真实多模态题意抽取与数学合同校验")
-        add("extraction", "input", "输入 Observation Context", context)
-        provider = AuditedClient(create_vision_provider(config), store, run_id, "extraction")
-        service = ProblemDomainExtractionService(input_artifact_reader=extraction_store,
-            output_artifact_store=extraction_store, provider=provider)
-        extraction = service.run(context, attempt_ledger=ExtractionAttemptLedger.for_context(context),
-                                 ancestor_contexts=(initial,), max_attempts=3)
-        for attempt in extraction.attempts:
-            add("extraction", "validation", f"attempt {attempt.attempt_number} 校验与采用情况", attempt)
-            if attempt.resulting_draft:
-                add("extraction", "output", f"attempt {attempt.attempt_number} 题意草稿", attempt.resulting_draft)
-            if attempt.patch:
-                add("extraction", "output", f"attempt {attempt.attempt_number} 修复", attempt.patch)
-        add("extraction", "output", "Extraction Context", extraction.final_context)
-        if not extraction.accepted:
-            raise ValueError(f"extraction.blocked: {extraction.blocked_reason}")
-        add("extraction", "output", "VerifiedProblem", extraction.verified_problem)
-        done("extraction", f"题意通过校验 · {len(extraction.attempts)} 次尝试")
-
-        save_archive(store, run_id, "extraction")
+        raise ValueError(
+            "extraction.unsupported_contract: 旧 review runner 已移除 problem-domain 抽取；"
+            "请使用 problem-math-notation/v1 题意提取 pipeline"
+        )
     if position <= KEYS.index("evidence"):
         final_context, ancestors = load_contexts(store, run_id)
         bundle = VerifiedSolverProblemBundleLoader().load(final_context, extraction_store, ancestor_contexts=ancestors)

@@ -30,7 +30,6 @@ from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 
 
 PROBLEM_DOMAIN_CONTRACT = "problem-domain/v1"
-PROBLEM_REPAIR_CONTRACT = "problem-repair/v1"
 PROBLEM_DRAFT_CONTRACT = "problem-draft/v1"
 VERIFIED_PROBLEM_CONTRACT = "verified-problem/v1"
 PROBLEM_DOMAIN_PROVIDER_MAX_SCOPE_DEPTH = 4
@@ -42,11 +41,9 @@ PROBLEM_DOMAIN_MAX_FACTS_PER_SCOPE = 48
 PROBLEM_DOMAIN_MAX_GOALS_PER_SCOPE = 12
 PROBLEM_DOMAIN_MAX_CHILDREN_PER_SCOPE = 8
 PROBLEM_DOMAIN_MAX_VALUE_TERMS = 16
-PROBLEM_REPAIR_MAX_OPERATIONS = 32
 
 UnitStatus = Literal["verified", "invalid", "dependent"]
 UnitKind = Literal["family", "scope", "entity", "fact", "goal"]
-RepairCollection = Literal["scope", "entity", "fact", "goal"]
 
 _LOCAL_ID_PATTERN = r"^[A-Za-z][A-Za-z0-9_]*$"
 _EXPRESSION_PATTERN = r"^[^\x00-\x1f\x7f]+$"
@@ -709,200 +706,6 @@ class ProblemPromotionService:
         return VerifiedProblem._create(draft, proof=proof, token=_PROMOTION_TOKEN)
 
 
-@dataclass(frozen=True)
-class ProblemReplacement:
-    unit_id: str
-    value: Mapping[str, FrozenJson]
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, "value", freeze_json(self.value))
-
-
-@dataclass(frozen=True)
-class ProblemAddition:
-    scope_path: str
-    collection: RepairCollection
-    value: Mapping[str, FrozenJson]
-
-    def __post_init__(self) -> None:
-        object.__setattr__(self, "value", freeze_json(self.value))
-
-
-@dataclass(frozen=True)
-class ProblemRepairPatch:
-    base_revision_id: str
-    replacements: tuple[ProblemReplacement, ...]
-    additions: tuple[ProblemAddition, ...]
-    removals: tuple[str, ...]
-    patch_id: str
-
-    @classmethod
-    def create(cls, payload: Mapping[str, Any] | str) -> "ProblemRepairPatch":
-        raw = _load_json_object(payload, "extraction.problem_repair_invalid_json")
-        _validate_schema(raw, _repair_validator(), "extraction.problem_repair_schema_invalid")
-        identity = stable_hash(raw)
-        return cls(
-            base_revision_id=str(raw["base_revision_id"]),
-            replacements=tuple(
-                ProblemReplacement(str(item["unit_id"]), item["value"])
-                for item in raw["replacements"]
-            ),
-            additions=tuple(
-                ProblemAddition(
-                    str(item["scope_path"]),
-                    str(item["collection"]),  # type: ignore[arg-type]
-                    item["value"],
-                )
-                for item in raw["additions"]
-            ),
-            removals=tuple(str(item) for item in raw["removals"]),
-            patch_id=f"problem-patch:{identity}",
-        )
-
-    def to_payload(self) -> dict[str, Any]:
-        return {
-            "schema_version": PROBLEM_REPAIR_CONTRACT,
-            "base_revision_id": self.base_revision_id,
-            "replacements": [
-                {"unit_id": item.unit_id, "value": thaw_json(item.value)}
-                for item in self.replacements
-            ],
-            "additions": [
-                {
-                    "scope_path": item.scope_path,
-                    "collection": item.collection,
-                    "value": thaw_json(item.value),
-                }
-                for item in self.additions
-            ],
-            "removals": list(self.removals),
-        }
-
-
-class ProblemRepairService:
-    """Apply one authorized repair atomically and preserve stable unit identity."""
-
-    def apply(self, draft: ProblemDraft, patch: ProblemRepairPatch) -> ProblemDraft:
-        if patch.base_revision_id != draft.revision_id:
-            raise ProblemDomainError(
-                "extraction.problem_patch_base_mismatch",
-                "$.base_revision_id",
-                "repair patch does not target the current Draft revision",
-            )
-        replacement_ids = [item.unit_id for item in patch.replacements]
-        changed_ids = (*replacement_ids, *patch.removals)
-        if len(set(changed_ids)) != len(changed_ids):
-            raise ProblemDomainError(
-                "extraction.problem_repair_schema_invalid",
-                "$",
-                "a unit may be changed at most once per patch",
-            )
-        repairable = set(draft.repairable_unit_ids)
-        removable = {
-            unit_id
-            for issue in draft.validation_report.issues
-            for unit_id in issue.unit_ids
-            if unit_id in draft.unit_registry
-        }
-        for unit_id in changed_ids:
-            if unit_id not in draft.unit_registry:
-                raise ProblemDomainError(
-                    "extraction.problem_repair_unit_unresolved",
-                    "$.replacements",
-                    f"unknown unit {unit_id!r}",
-                )
-            if unit_id in draft.frozen_unit_ids and unit_id not in repairable:
-                raise ProblemDomainError(
-                    "extraction.problem_frozen_unit_mutation",
-                    "$.replacements",
-                    f"verified unit {unit_id!r} is outside the repair cone",
-                )
-            if unit_id not in repairable:
-                raise ProblemDomainError(
-                    "extraction.problem_repair_unauthorized",
-                    "$.replacements",
-                    f"unit {unit_id!r} is not authorized by a blocking issue",
-                )
-        for unit_id in patch.removals:
-            if unit_id not in removable:
-                raise ProblemDomainError(
-                    "extraction.problem_repair_unauthorized",
-                    "$.removals",
-                    f"removal of {unit_id!r} was not directly authorized by a blocking issue",
-                )
-
-        graph = draft.graph
-        for item in patch.replacements:
-            graph = _replace_graph_unit(graph, item.unit_id, thaw_json(item.value))
-        for unit_id in patch.removals:
-            graph = _remove_graph_unit(graph, unit_id)
-        for operation_index, item in enumerate(patch.additions):
-            if not _scope_addition_authorized(draft, item.scope_path):
-                raise ProblemDomainError(
-                    "extraction.problem_repair_unauthorized",
-                    "$.additions",
-                    f"scope {item.scope_path!r} is outside the repair cone",
-                )
-            graph = _add_graph_unit(
-                graph,
-                item,
-                unit_id=(
-                    f"{item.collection}:added:"
-                    + stable_hash(
-                        {
-                            "parent_revision_id": draft.revision_id,
-                            "patch_id": patch.patch_id,
-                            "operation_index": operation_index,
-                        }
-                    )
-                ),
-            )
-        previous_registry = draft.unit_registry
-        next_registry = _unit_registry(graph)
-        implicit_changes = {
-            unit_id
-            for unit_id in set(previous_registry).intersection(next_registry)
-            if previous_registry[unit_id].semantic_signature
-            != next_registry[unit_id].semantic_signature
-        } | (set(previous_registry) - set(next_registry))
-        unauthorized_implicit = sorted(implicit_changes - set(changed_ids))
-        if unauthorized_implicit:
-            raise ProblemDomainError(
-                "extraction.problem_frozen_unit_mutation",
-                "$.replacements",
-                "repair changed an untargeted unit; first drifted unit "
-                f"{unauthorized_implicit[0]!r}",
-            )
-        source_correction = any(
-            issue.code == "extraction.problem_source_correction_required"
-            for issue in draft.validation_report.issues
-        )
-        # A source review may remove an unsupported annotation that the solver's
-        # equivalence hash deliberately ignores. It is still a real draft edit,
-        # subject to the same repair cone, and must receive a fresh image review.
-        literal_progress = source_correction and graph.semantic_payload() != draft.graph.semantic_payload()
-        if graph.semantic_hash == draft.graph.semantic_hash and not literal_progress:
-            raise ProblemDomainError(
-                "extraction.problem_retry_no_progress",
-                "$",
-                "repair patch did not change problem semantics",
-            )
-        next_draft = ProblemDraft.from_graph(
-            graph,
-            parent_revision_id=draft.revision_id,
-        )
-        # Reuse stamps only for unchanged units with unchanged dependency authority.
-        reusable = {
-            unit_id: stamp
-            for unit_id, stamp in draft.verification_stamps.items()
-            if unit_id in next_draft.unit_registry
-            and unit_id in draft.unit_registry
-            and next_draft.unit_registry[unit_id].semantic_signature
-            == draft.unit_registry[unit_id].semantic_signature
-        }
-        return replace(next_draft, verification_stamps=reusable)
-
-
 def problem_domain_response_format() -> dict[str, Any]:
     return {
         "type": "json_schema",
@@ -910,17 +713,6 @@ def problem_domain_response_format() -> dict[str, Any]:
             "name": "problem_domain_v1",
             "strict": True,
             "schema": problem_domain_provider_schema(),
-        },
-    }
-
-
-def problem_repair_response_format() -> dict[str, Any]:
-    return {
-        "type": "json_schema",
-        "json_schema": {
-            "name": "problem_repair_v1",
-            "strict": True,
-            "schema": problem_repair_provider_schema(),
         },
     }
 
@@ -1047,98 +839,6 @@ def problem_domain_provider_schema() -> dict[str, Any]:
     """Return the provider schema with Scope recursion expanded to four levels."""
 
     return _finite_scope_provider_schema(problem_domain_schema())
-
-
-@lru_cache(maxsize=1)
-def problem_repair_schema() -> dict[str, Any]:
-    family_ids = sorted(family.family_id for family in DEFAULT_FAMILY_REGISTRY.families)
-    domain_defs = {
-        **problem_domain_schema()["$defs"],
-        "family_selection": _object_schema(
-            {"family_id": {"type": "string", "enum": family_ids}},
-            ("family_id",),
-        ),
-        "scope_replacement": _object_schema(
-            {
-                "id": _id_schema(),
-                "label": _text_schema(),
-                "source_text": _array_schema(
-                    _text_schema(),
-                    min_items=1,
-                    max_items=PROBLEM_DOMAIN_MAX_SOURCE_LINES_PER_SCOPE,
-                ),
-            },
-            ("id", "label", "source_text"),
-        ),
-    }
-    replacement_value = {
-        "oneOf": [
-            {"$ref": "#/$defs/family_selection"},
-            {"$ref": "#/$defs/entity"},
-            {"$ref": "#/$defs/fact"},
-            {"$ref": "#/$defs/goal"},
-            {"$ref": "#/$defs/scope_replacement"},
-        ]
-    }
-    addition_value = {
-        "oneOf": [
-            {"$ref": "#/$defs/entity"},
-            {"$ref": "#/$defs/fact"},
-            {"$ref": "#/$defs/goal"},
-            {"$ref": "#/$defs/scope"},
-        ]
-    }
-    return {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "additionalProperties": False,
-        "required": [
-            "schema_version",
-            "base_revision_id",
-            "replacements",
-            "additions",
-            "removals",
-        ],
-        "properties": {
-            "schema_version": {"const": PROBLEM_REPAIR_CONTRACT},
-            "base_revision_id": {
-                "type": "string",
-                "pattern": r"^problem-revision:[a-f0-9]{64}$",
-            },
-            "replacements": _array_schema(
-                _object_schema(
-                    {"unit_id": _text_schema(), "value": replacement_value},
-                    ("unit_id", "value"),
-                ),
-                max_items=PROBLEM_REPAIR_MAX_OPERATIONS,
-            ),
-            "additions": _array_schema(
-                _object_schema(
-                    {
-                        "scope_path": _text_schema(),
-                        "collection": {
-                            "type": "string",
-                            "enum": ["scope", "entity", "fact", "goal"],
-                        },
-                        "value": addition_value,
-                    },
-                    ("scope_path", "collection", "value"),
-                ),
-                max_items=PROBLEM_REPAIR_MAX_OPERATIONS,
-            ),
-            "removals": _array_schema(
-                _text_schema(), max_items=PROBLEM_REPAIR_MAX_OPERATIONS
-            ),
-        },
-        "$defs": domain_defs,
-    }
-
-
-@lru_cache(maxsize=1)
-def problem_repair_provider_schema() -> dict[str, Any]:
-    """Return the repair provider schema without recursive Scope references."""
-
-    return _finite_scope_provider_schema(problem_repair_schema())
 
 
 def _finite_scope_provider_schema(schema: Mapping[str, Any]) -> dict[str, Any]:
@@ -1605,220 +1305,6 @@ def _unit_registry(graph: ProblemGraph) -> dict[str, ProblemUnitRecord]:
     return result
 
 
-def _replace_graph_unit(
-    graph: ProblemGraph,
-    unit_id: str,
-    value: Mapping[str, Any],
-) -> ProblemGraph:
-    record = _unit_registry(graph)[unit_id]
-    if record.unit_kind == "family":
-        family_id = value.get("family_id")
-        if not isinstance(family_id, str) or set(value) != {"family_id"}:
-            raise ProblemDomainError(
-                "extraction.problem_repair_kind_drift",
-                "$.replacements",
-                "family replacement must contain only family_id",
-            )
-        return replace(graph, family_id=family_id)
-    _validate_repair_unit_value(value, record.unit_kind, "$.replacements.value")
-    if record.unit_kind == "scope":
-        local_id = str(value["id"])
-        if local_id != record.local_id:
-            raise ProblemDomainError(
-                "extraction.problem_repair_scope_drift", "$.replacements", "scope id cannot change"
-            )
-        existing = graph.scope_by_path[record.scope_path]
-        replacement = replace(
-            existing,
-            label=str(value["label"]),
-            source_text=tuple(str(item) for item in value["source_text"]),
-        )
-        return replace(
-            graph,
-            root_scope=_map_scope(graph.root_scope, unit_id, replacement),
-        )
-    scope = graph.scope_by_path[record.scope_path]
-    if record.unit_kind == "entity":
-        parsed: Any = _parse_entity(value, scope.path, forced_unit_id=unit_id)
-    elif record.unit_kind == "fact":
-        parsed = _parse_fact(value, scope.path, forced_unit_id=unit_id)
-    else:
-        parsed = _parse_goal(value, scope.path, forced_unit_id=unit_id)
-    if record.unit_kind != _unit_kind_of(parsed):
-        raise ProblemDomainError(
-            "extraction.problem_repair_kind_drift", "$.replacements", "unit kind cannot change"
-        )
-    return replace(graph, root_scope=_replace_in_scope(graph.root_scope, unit_id, parsed))
-
-
-def _remove_graph_unit(graph: ProblemGraph, unit_id: str) -> ProblemGraph:
-    record = _unit_registry(graph)[unit_id]
-    if record.unit_kind in {"family", "scope"}:
-        raise ProblemDomainError(
-            "extraction.problem_repair_kind_drift",
-            "$.removals",
-            "family and scope removal must use an authorized scope addition/restructure",
-        )
-    return replace(graph, root_scope=_remove_from_scope(graph.root_scope, unit_id))
-
-
-def _add_graph_unit(
-    graph: ProblemGraph,
-    addition: ProblemAddition,
-    *,
-    unit_id: str,
-) -> ProblemGraph:
-    scope = graph.scope_by_path.get(addition.scope_path)
-    if scope is None:
-        raise ProblemDomainError(
-            "extraction.problem_repair_scope_unresolved",
-            "$.additions.scope_path",
-            f"unknown scope {addition.scope_path!r}",
-        )
-    value = thaw_json(addition.value)
-    _validate_repair_unit_value(
-        value,
-        addition.collection,
-        "$.additions.value",
-        addition=True,
-    )
-    if addition.collection == "scope":
-        parsed: Any = _parse_scope(value, path=scope.path, forced_unit_id=unit_id)
-    elif addition.collection == "entity":
-        parsed = _parse_entity(value, scope.path, forced_unit_id=unit_id)
-    elif addition.collection == "fact":
-        parsed = _parse_fact(value, scope.path, forced_unit_id=unit_id)
-    else:
-        parsed = _parse_goal(value, scope.path, forced_unit_id=unit_id)
-    return replace(
-        graph,
-        root_scope=_append_to_scope(graph.root_scope, addition.scope_path, addition.collection, parsed),
-    )
-
-
-def _map_scope(scope: ProblemScope, unit_id: str, replacement_scope: ProblemScope) -> ProblemScope:
-    if scope.unit_id == unit_id:
-        return replacement_scope
-    return replace(
-        scope,
-        children=tuple(_map_scope(child, unit_id, replacement_scope) for child in scope.children),
-    )
-
-
-def _replace_in_scope(scope: ProblemScope, unit_id: str, replacement_unit: Any) -> ProblemScope:
-    def mapped(items: Sequence[Any]) -> tuple[Any, ...]:
-        return tuple(replacement_unit if item.unit_id == unit_id else item for item in items)
-
-    return replace(
-        scope,
-        entities=mapped(scope.entities),
-        facts=mapped(scope.facts),
-        goals=mapped(scope.goals),
-        children=tuple(_replace_in_scope(child, unit_id, replacement_unit) for child in scope.children),
-    )
-
-
-def _remove_from_scope(scope: ProblemScope, unit_id: str) -> ProblemScope:
-    return replace(
-        scope,
-        entities=tuple(item for item in scope.entities if item.unit_id != unit_id),
-        facts=tuple(item for item in scope.facts if item.unit_id != unit_id),
-        goals=tuple(item for item in scope.goals if item.unit_id != unit_id),
-        children=tuple(_remove_from_scope(child, unit_id) for child in scope.children),
-    )
-
-
-def _append_to_scope(
-    scope: ProblemScope,
-    scope_path: str,
-    collection: RepairCollection,
-    value: Any,
-) -> ProblemScope:
-    if scope.path_id == scope_path:
-        if collection == "scope":
-            return replace(scope, children=(*scope.children, value))
-        if collection == "entity":
-            return replace(scope, entities=(*scope.entities, value))
-        if collection == "fact":
-            return replace(scope, facts=(*scope.facts, value))
-        return replace(scope, goals=(*scope.goals, value))
-    return replace(
-        scope,
-        children=tuple(
-            _append_to_scope(child, scope_path, collection, value)
-            for child in scope.children
-        ),
-    )
-
-
-def _scope_addition_authorized(draft: ProblemDraft, scope_path: str) -> bool:
-    if f"scope:{scope_path}" in draft.repairable_unit_ids:
-        return True
-    return any(
-        draft.unit_registry.get(unit_id, ProblemUnitRecord("", "scope", "", "")).scope_path
-        == scope_path
-        for unit_id in draft.repairable_unit_ids
-    )
-
-
-@lru_cache(maxsize=8)
-def _repair_unit_validator(
-    unit_kind: str,
-    *,
-    addition: bool,
-) -> Draft202012Validator:
-    if unit_kind not in {"scope", "entity", "fact", "goal"}:
-        raise ValueError(f"unsupported repair unit kind {unit_kind!r}")
-    schema = problem_repair_schema()
-    definition = (
-        "scope_replacement"
-        if unit_kind == "scope" and not addition
-        else unit_kind
-    )
-    return Draft202012Validator(
-        {
-            "$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$ref": f"#/$defs/{definition}",
-            "$defs": schema["$defs"],
-        }
-    )
-
-
-def _validate_repair_unit_value(
-    value: Mapping[str, Any],
-    unit_kind: str,
-    path: str,
-    *,
-    addition: bool = False,
-) -> None:
-    errors = tuple(
-        sorted(
-            _repair_unit_validator(unit_kind, addition=addition).iter_errors(value),
-            key=lambda item: tuple(str(part) for part in item.absolute_path),
-        )
-    )
-    if errors:
-        first = errors[0]
-        suffix = "".join(f"[{part!r}]" for part in first.absolute_path)
-        raise ProblemDomainError(
-            "extraction.problem_repair_kind_drift",
-            path + suffix,
-            f"replacement must remain a {unit_kind}: {first.message}",
-        )
-
-
-def _unit_kind_of(value: Any) -> UnitKind:
-    if isinstance(value, ProblemEntity):
-        return "entity"
-    if isinstance(value, ProblemFact):
-        return "fact"
-    if isinstance(value, ProblemGoal):
-        return "goal"
-    if isinstance(value, ProblemScope):
-        return "scope"
-    raise TypeError(type(value))
-
-
 def _validate_stamps(draft: ProblemDraft) -> None:
     for unit_id, stamp in draft.verification_stamps.items():
         record = draft.unit_registry.get(unit_id)
@@ -1907,11 +1393,6 @@ def _specific_union_error(error: Any) -> Any:
 @lru_cache(maxsize=1)
 def _domain_validator() -> Draft202012Validator:
     return Draft202012Validator(problem_domain_schema())
-
-
-@lru_cache(maxsize=1)
-def _repair_validator() -> Draft202012Validator:
-    return Draft202012Validator(problem_repair_schema())
 
 
 def _object_schema(
@@ -2355,9 +1836,7 @@ def _mapping_sequence(value: Any, path: str) -> tuple[Mapping[str, Any], ...]:
 __all__ = [
     "PROBLEM_DOMAIN_CONTRACT",
     "PROBLEM_DRAFT_CONTRACT",
-    "PROBLEM_REPAIR_CONTRACT",
     "VERIFIED_PROBLEM_CONTRACT",
-    "ProblemAddition",
     "ProblemDomainError",
     "ProblemDraft",
     "ProblemEntity",
@@ -2365,9 +1844,6 @@ __all__ = [
     "ProblemGoal",
     "ProblemGraph",
     "ProblemPromotionService",
-    "ProblemRepairPatch",
-    "ProblemRepairService",
-    "ProblemReplacement",
     "ProblemScope",
     "ProblemSource",
     "ProblemUnitRecord",
@@ -2377,6 +1853,4 @@ __all__ = [
     "VerifiedProblem",
     "problem_domain_response_format",
     "problem_domain_schema",
-    "problem_repair_response_format",
-    "problem_repair_schema",
 ]

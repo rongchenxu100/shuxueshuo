@@ -192,7 +192,6 @@ def request_for(
     candidate,
     registry,
     diagnostics=(),
-    allowed=(),
     feedback=(),
     *,
     validation=None,
@@ -222,7 +221,6 @@ def request_for(
             registered_families=registry,
             base_candidate=candidate,
             diagnostics=list(diagnostics),
-            allowed_changes=list(allowed),
             repair_feedback=list(feedback),
         )
     return replace(

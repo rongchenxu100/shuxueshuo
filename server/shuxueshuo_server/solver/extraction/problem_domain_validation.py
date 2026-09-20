@@ -1,4 +1,4 @@
-"""Domain validation, verification stamps, and repair-cone construction."""
+"""Domain validation and verification stamps."""
 
 from __future__ import annotations
 

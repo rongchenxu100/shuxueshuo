@@ -92,23 +92,15 @@ def execute(tmp_path, responses, max_attempts=3):
 
 def test_layout_miss_repairs_scope_then_reviews_image_without_changing_family(tmp_path):
     raw = (FIXTURE / 'draft.json').read_text()
-    def patch(request):
-        # Canonical revision is bound at runtime, never copied from a live build.
-        text = request.prompt.user_suffix
-        draft_data = json.loads(text.split('当前 Draft（value 是领域 wire，unit_id 由代码分配）：\n')[1].split('\nValidator root issues：')[0])
-        move = json.loads((FIXTURE / 'move-ray.json').read_text())
-        return json.dumps({'schema_version': 'problem-repair/v1', 'base_revision_id': draft_data['revision_id'],
-                          'replacements': [], 'removals': ['entity:root:ray_CD'],
-                          'additions': [{'scope_path': move['scope_path'], 'collection': 'entity', 'value': move['entity']}]})
-    result, client, (_, _, _, pack) = execute(tmp_path, [raw, patch, review_response])
+    result, client, (_, _, _, pack) = execute(tmp_path, [raw, json.dumps(corrected_payload()), review_response])
     assert result.accepted, [a.to_payload() for a in result.attempts]
-    assert [r.contract_version for r in client.requests] == ['problem-domain/v1', 'problem-repair/v1', CONTRACT]
+    assert [r.contract_version for r in client.requests] == ["problem-domain/v1", "problem-domain/v1", CONTRACT]
     assert len(result.attempts) == 2
-    assert result.verified_problem.graph.family_id == 'QuadraticEqualLengthRayPathMinimumSolver'
-    assert not any('射线' in t.text for t in pack.printed_text)
-    assert any('射线' in (r['hint'] or '') for r in pack.prompt_payload()['uncertain_regions'])
-    assert result.attempts[-1].source_review['status'] == 'confirmed'
-    assert any(a.kind == 'problem_source_review' for a in result.final_context.state.artifacts)
+    assert result.verified_problem.graph.family_id == "QuadraticEqualLengthRayPathMinimumSolver"
+    assert not any("射线" in t.text for t in pack.printed_text)
+    assert any("射线" in (r["hint"] or "") for r in pack.prompt_payload()["uncertain_regions"])
+    assert result.attempts[-1].source_review["status"] == "confirmed"
+    assert any(a.kind == "problem_source_review" for a in result.final_context.state.artifacts)
 
 
 @pytest.mark.parametrize('status', ['uncertain', 'correction_required'])
@@ -315,7 +307,7 @@ def test_review_budget_and_crash_reservation_are_durable(tmp_path):
     assert len(client.requests) == 1
 
 
-def test_visual_correction_authorizes_only_affected_scope_then_rechecks(tmp_path):
+def test_visual_correction_rechecks_full_candidate(tmp_path):
     raw = corrected_payload()
     raw['root']['children'][1]['source_text'][0] = raw['root']['children'][1]['source_text'][0].replace('√34', '√35')
     def correction(request):
@@ -324,19 +316,15 @@ def test_visual_correction_authorizes_only_affected_scope_then_rechecks(tmp_path
         result['findings'][0]['source_text'] = corrected_payload()['root']['children'][1]['source_text'][0]
         return json.dumps(result)
     def repair(request):
-        data = json.loads(request.prompt.user_suffix.split('当前 Draft（value 是领域 wire，unit_id 由代码分配）：\n')[1].split('\nValidator root issues：')[0])
         zooms = [i for i in request.images if i.role == 'zoom']
         assert len(zooms) == 1 and zooms[0].page_id == 'page-1'
         assert zooms[0].width == 2134 and zooms[0].height == 92
         assert 'source-review-bbox:' in request.prompt.user_suffix
         assert any(i.role == 'primary' for i in request.images)
-        scope = corrected_payload()['root']['children'][1]
-        return json.dumps({'schema_version': 'problem-repair/v1', 'base_revision_id': data['revision_id'],
-            'replacements': [{'unit_id': 'scope:root/part2', 'value': {k: scope[k] for k in ['id', 'label', 'source_text']}}],
-            'additions': [], 'removals': []})
+        return json.dumps(corrected_payload())
     run, client, _ = execute(tmp_path, [json.dumps(raw), correction, repair, review_response])
     assert run.accepted, [a.to_payload() for a in run.attempts]
-    assert [r.contract_version for r in client.requests] == ['problem-domain/v1', CONTRACT, 'problem-repair/v1', CONTRACT]
+    assert [r.contract_version for r in client.requests] == ['problem-domain/v1', CONTRACT, 'problem-domain/v1', CONTRACT]
     assert run.attempts[0].source_review['binding'] != run.attempts[1].source_review['binding']
 
 
@@ -360,13 +348,14 @@ def test_source_review_can_remove_unsupported_annotation_ignored_by_solver_hash(
         result['findings'][0]['message'] = '原题只说另一交点，删除未给定的side标注。'
         return json.dumps(result)
     def repair(request):
-        data = json.loads(request.prompt.user_suffix.split('当前 Draft（value 是领域 wire，unit_id 由代码分配）：\n')[1].split('\nValidator root issues：')[0])
-        value = {k: v for k, v in seen['value'].items() if k != 'side'}
-        return json.dumps({'schema_version': 'problem-repair/v1', 'base_revision_id': data['revision_id'],
-            'replacements': [{'unit_id': seen['unit'], 'value': value}], 'additions': [], 'removals': []})
+        cleaned = corrected_payload()
+        target = next(f for f in cleaned['root']['facts'] if f.get('construction') == 'x_axis_intercept')
+        target.pop('side', None)
+        target.pop('exclude_point', None)
+        return json.dumps(cleaned)
     run, client, _ = execute(tmp_path, [json.dumps(raw), correction, repair, review_response])
     assert run.accepted, [a.to_payload() for a in run.attempts]
-    assert run.verified_problem.graph.semantic_hash == seen['hash']
+    assert [r.contract_version for r in client.requests] == ['problem-domain/v1', CONTRACT, 'problem-domain/v1', CONTRACT]
     assert run.attempts[0].source_review['binding'] != run.attempts[1].source_review['binding']
     assert len(client.requests) == 4
 

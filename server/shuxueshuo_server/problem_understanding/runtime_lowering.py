@@ -274,19 +274,51 @@ class NotationRuntimeLowerer:
 
     def scope(self, tree, raw, path, pointer, inherited):
         self.pointer = pointer
-        entries = []
         source_strings = [
             (f"{pointer}/{k}/{i}", text)
             for k in ("definitions", "facts")
             for i, text in enumerate(raw.get(k, []))
         ]
-        if len(source_strings) != len(tree["facts"]):
+        origin_defaults = {
+            item.get("ref")
+            for item in self.report.defaults
+            if item.get("domain") == "origin" and item.get("origin") == "code_default"
+        }
+        source_entries = []
+        source_index = 0
+        for ast in tree["facts"]:
+            is_origin_default = (
+                isinstance(ast, list)
+                and len(ast) >= 3
+                and ast[0] == "="
+                and isinstance(ast[1], list)
+                and len(ast[1]) >= 2
+                and ast[1][0] == "ref"
+                and ast[1][1] in origin_defaults
+            )
+            if is_origin_default:
+                source_entries.append((
+                    ast,
+                    f"{pointer}/__defaults__/origin",
+                    "O=(0,0)（代码默认）",
+                ))
+                continue
+            if source_index >= len(source_strings):
+                raise BindingError(
+                    "binding.source_alignment",
+                    pointer,
+                    "compiled facts differ from source units",
+                )
+            source_entries.append((ast, *source_strings[source_index]))
+            source_index += 1
+        if source_index != len(source_strings):
             raise BindingError(
                 "binding.source_alignment",
                 pointer,
                 "compiled facts differ from source units",
             )
-        for ast, (source, text) in zip(tree["facts"], source_strings):
+        entries = []
+        for ast, source, text in source_entries:
             for a in conjuncts([ast]):
                 # Equivalent comparison direction must select the same branch.
                 if a[0] == ">" and call(a[1], "x") and call(a[2], "x"):

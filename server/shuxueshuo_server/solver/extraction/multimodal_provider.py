@@ -24,11 +24,9 @@ from shuxueshuo_server.solver.extraction.multimodal_evidence import (
 )
 from shuxueshuo_server.solver.extraction.problem_domain import (
     PROBLEM_DOMAIN_CONTRACT,
-    PROBLEM_REPAIR_CONTRACT,
     ProblemDraft,
     ProblemValidationIssue,
     problem_domain_response_format,
-    problem_repair_response_format,
 )
 from shuxueshuo_server.solver.family import DEFAULT_FAMILY_REGISTRY
 from shuxueshuo_server.solver.runtime.config import (
@@ -58,11 +56,9 @@ family_id 由你选择；必须满足 family_catalog 的 use_when、required_sou
 problem_id 必须逐字复制请求值。"""
 
 REPAIR_SYSTEM_PROMPT = """你修复一个已建立的数学题 ProblemDraft。
-完整题图仍是语义权威。只输出严格匹配 response_format 的 problem-repair/v1 JSON。
-顶层形状固定为 {"schema_version":"problem-repair/v1","base_revision_id":"...","replacements":[],"additions":[],"removals":[]}；完整 operation 字段和 value union 以 response_format JSON Schema 为准。
-只能修改 repair cone：verified/frozen 单元只读；禁止输出整题、JSON Patch、答案、解法或解释。
-replacement 保持 unit kind 和 owner scope；addition 写入指定 scope；removal 只能针对当前 issue 授权的单元。
-family 只能用 unit_id=family 的 replacement 修改，代码不会自动换 family。"""
+完整题图仍是语义权威。只输出严格匹配 response_format 的完整 problem-domain/v1 JSON。
+顶层形状、字段和嵌套 scope 以 response_format JSON Schema 为准。基于当前 Draft 和校验问题，重新输出整道题的完整题意；不要输出补丁、局部片段、答案、解法或解释。
+保留原题中没有问题的条件、目标和分问，修正原图确认的错误，并确保输出能独立通过 problem-domain/v1 校验。"""
 
 
 
@@ -153,7 +149,7 @@ class MultimodalProviderRequest:
     evidence_pack: MultimodalEvidencePack
     prompt: MultimodalExtractionPrompt
     images: tuple[MultimodalProviderImage, ...]
-    contract_version: Literal["problem-domain/v1", "problem-repair/v1", "problem-source-review/v1", "problem-domain/v2", "problem-math-notation/v1", "problem-math-source-review/v1"]
+    contract_version: Literal["problem-domain/v1", "problem-source-review/v1", "problem-domain/v2", "problem-math-notation/v1", "problem-math-source-review/v1"]
     contract_schema: Mapping[str, Any]
     response_format: Mapping[str, Any]
     thinking_mode: Literal["disabled", "enabled"] = (
@@ -416,16 +412,8 @@ def build_multimodal_provider_request(
             "retry images must have role=zoom",
             result="failed",
         )
-    contract_version = (
-        PROBLEM_REPAIR_CONTRACT
-        if current_draft is not None
-        else PROBLEM_DOMAIN_CONTRACT
-    )
-    schema_response_format = (
-        problem_repair_response_format()
-        if current_draft is not None
-        else problem_domain_response_format()
-    )
+    contract_version = PROBLEM_DOMAIN_CONTRACT
+    schema_response_format = problem_domain_response_format()
     if response_format_mode == "json_schema":
         response_format = schema_response_format
         schema_for_prompt: Mapping[str, Any] | None = None
@@ -490,8 +478,8 @@ def build_multimodal_prompt(
             separators=(",", ":"),
         )
     if current_draft is not None:
-        user_suffix += "\n\n当前 Draft（value 是领域 wire，unit_id 由代码分配）：\n" + json.dumps(
-            _compact_draft_for_repair(current_draft),
+        user_suffix += "\n\n当前完整题目候选：\n" + json.dumps(
+            current_draft.graph.wire_payload(),
             ensure_ascii=False,
             sort_keys=True,
             separators=(",", ":"),
@@ -502,11 +490,7 @@ def build_multimodal_prompt(
             separators=(",", ":"),
         )
     return MultimodalExtractionPrompt(
-        system=(
-            REPAIR_SYSTEM_PROMPT
-            if current_draft is not None
-            else PASS1_SYSTEM_PROMPT
-        ),
+        system=REPAIR_SYSTEM_PROMPT if current_draft is not None else PASS1_SYSTEM_PROMPT,
         user_prefix=(
             (
                 "请按 page order 阅读下面的完整题目图片。图片覆盖全部题干和小问；"
@@ -531,39 +515,6 @@ def _compact_retry_issue(item: ProblemValidationIssue) -> dict[str, Any]:
         "message": item.message,
         "repair_action": item.repair_action,
         "region_refs": list(item.region_refs),
-    }
-
-
-def _compact_draft_for_repair(draft: ProblemDraft) -> dict[str, Any]:
-    def scope_payload(scope: Any) -> dict[str, Any]:
-        return {
-            "unit_id": scope.unit_id,
-            "value": {
-                "id": scope.local_id,
-                "label": scope.label,
-                "source_text": list(scope.source_text),
-            },
-            "entities": [
-                {"unit_id": item.unit_id, "value": item.wire_payload()}
-                for item in scope.entities
-            ],
-            "facts": [
-                {"unit_id": item.unit_id, "value": item.wire_payload()}
-                for item in scope.facts
-            ],
-            "goals": [
-                {"unit_id": item.unit_id, "value": item.wire_payload()}
-                for item in scope.goals
-            ],
-            "children": [scope_payload(item) for item in scope.children],
-        }
-
-    return {
-        "revision_id": draft.revision_id,
-        "family": {"unit_id": "family", "value": {"family_id": draft.graph.family_id}},
-        "root": scope_payload(draft.graph.root_scope),
-        "frozen_unit_ids": list(draft.frozen_unit_ids),
-        "repairable_unit_ids": list(draft.repairable_unit_ids),
     }
 
 
@@ -896,7 +847,7 @@ class DeepSeekTextProblemDomainProvider(_DeepSeekChatProvider):
 
 @dataclass
 class DeepSeekMultimodalExtractionProvider(_DeepSeekChatProvider):
-    """DeepSeek vision, with identical policy for draft, patch and source review."""
+    """DeepSeek vision provider for complete domain candidates and source review."""
 
     supports_images: ClassVar[bool] = True
     preserve_original_images: ClassVar[bool] = True

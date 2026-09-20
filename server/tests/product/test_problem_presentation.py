@@ -126,3 +126,19 @@ def test_ready_candidate_defers_to_active_lesson_build(current):
     }
     assert overlay_active_build(ready, 'succeeded') is ready
     assert overlay_active_build(ready, 'failed') is ready
+    unsupported = overlay_active_build(ready, 'failed', 'admission.family_unmatched')
+    assert unsupported['status'] == 'unsupported'
+    assert unsupported['reason'] == 'admission.family_unmatched'
+
+
+def test_source_review_admission_keeps_missing_figure_intervention(current):
+    from shuxueshuo_server.product.problem_presentation import overlay_active_build
+
+    p, source, candidate, run, config = current
+    candidate['candidate_json']['root']['children'] = [
+        {'uncertainties': [{'kind': 'missing_figure', 'text': '配图缺失'}]}
+    ]
+    presentation = understanding_presentation(p, source, candidate, run, config)
+    assert presentation['status'] == 'needs_confirmation'
+    assert overlay_active_build(presentation, 'failed', 'admission.source_review_required') == presentation
+    assert overlay_active_build(presentation, 'failed', 'admission.unresolved_source') == presentation

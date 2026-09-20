@@ -19,7 +19,7 @@ from .config import REPO
 from .db import transaction
 from . import models as m
 from .errors import Conflict, IntegrityFailure, ProductError
-from .execution import ExecutionContext, AuditedClient, require_source_review_config
+from .execution import ExecutionContext, AuditedClient
 from .repositories import row
 from .runtime_config import load_runtime
 from .services import now
@@ -181,56 +181,7 @@ class StageRunner:
         extraction_contract = next(s['contract_version'] for s in x.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction')
         if extraction_contract == 'problem-math-notation/v1':
             return self.math_notation_extraction()
-        from shuxueshuo_server.solver.extraction.context import ExtractionAttemptLedger, SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND
-        from shuxueshuo_server.solver.extraction.problem_domain_service import ProblemDomainExtractionService
-        from shuxueshuo_server.solver.extraction.problem_source_review import SOURCE_REVIEW_BLOCKING_CODES
-        from shuxueshuo_server.solver.extraction.multimodal_provider import create_vision_provider
-        from shuxueshuo_server.review.replay import archive_bytes, ARCHIVE, extraction_store
-        initial, observation, _ = x.contexts()
-        store = extraction_store(x.work / 'extraction-artifacts')
-        with transaction(x.service.db) as c:
-            revision = row(c, m.problem_revisions, id=x.build['requested_revision_id']) if x.build['requested_revision_id'] else None
-        if revision and revision['kind'] == 'manual':
-            from shuxueshuo_server.review.problem_edit import validate
-            from shuxueshuo_server.solver.extraction.problem_domain_context import ProblemDomainContextTransitionService
-            with transaction(x.service.db) as c:
-                base = row(c, m.problem_revisions, id=revision['parent_revision_id'])
-            checked, verified = validate(revision['domain_json'], {'domain': base['domain_json'], 'verified': base['verified_json']})
-            x.add('人工修订完整校验', checked.report.to_payload(), role='validation')
-            if not verified: raise ProductError('revision.revalidation_failed')
-            put = lambda kind, value: store.put_json(kind=kind, payload=value)
-            final = ProblemDomainContextTransitionService().accepted(observation,
-                verified_problem=verified, solver_projection=checked.projection,
-                verified_artifact=put('verified_problem', verified.to_payload()),
-                solver_problem_projection_artifact=put(SOLVER_PROBLEM_PROJECTION_ARTIFACT_KIND, checked.projection.to_payload()),
-                validation_artifact=put('problem_validation_report', checked.report.to_payload()),
-                attempt_ledger=ExtractionAttemptLedger.for_context(observation), ancestor_contexts=(initial,), producer='product_human_revision')
-            x.add('Extraction Context ancestry', [initial.to_payload(), observation.to_payload()])
-            x.service.bind_requested_revision(*x.args)
-        else:
-            require_source_review_config(x.build)
-            if not x.config.deepseek_api_key: raise ProductError('configuration.extraction_key_missing')
-            provider = AuditedClient(create_vision_provider(x.config, frozen_config=x.build['effective_config']['extraction']), x)
-            result = ProblemDomainExtractionService(input_artifact_reader=store, output_artifact_store=store, provider=provider).run(
-                observation, attempt_ledger=ExtractionAttemptLedger.for_context(observation), ancestor_contexts=(initial,), max_attempts=3)
-            for attempt in result.attempts:
-                x.add(f'attempt {attempt.attempt_number} 校验与采用情况', attempt, role='validation')
-                if attempt.source_review:
-                    x.add(f'attempt {attempt.attempt_number} 原图复核报告', {
-                        'schema_version': 'problem-source-review-audit/v1',
-                        'review': attempt.source_review, 'adopted': attempt.ok},
-                        role='validation', kind='problem_source_review', schema='problem-source-review-audit/v1')
-            if not result.accepted:
-                x.add(ARCHIVE, archive_bytes(x.work / 'extraction-artifacts'), mime='application/zip')
-                raise ProductError(result.blocked_reason if result.blocked_reason in SOURCE_REVIEW_BLOCKING_CODES else 'extraction.blocked')
-            final, verified = result.final_context, result.verified_problem
-            # Revision binding and accepting the extraction checkpoint commit together.
-            x.pending_revision = verified.to_payload()['graph']
-        x.add('Extraction Context', final)
-        x.add('VerifiedProblem', verified)
-        x.add(ARCHIVE, archive_bytes(x.work / 'extraction-artifacts'), mime='application/zip')
-        x.bundle()
-        return '题意通过正式校验并绑定修订'
+        raise ProductError('extraction.unsupported_contract')
 
     def math_notation_extraction(self):
         """Run the notation workflow inside this build's extraction attempt."""
@@ -322,10 +273,25 @@ class StageRunner:
                 authority=authority.bundle.authority_payload(),
             )
         except Exception as exc:
-            code = getattr(exc, 'code', 'binding.failed')
+            from shuxueshuo_server.problem_understanding.runtime_lowering import BindingError
+            # ProductError stores the machine code in the message; its class
+            # attribute .code is only the generic fallback "product.invalid".
+            if isinstance(exc, BindingError):
+                code = exc.code
+            elif isinstance(exc, ProductError):
+                code = str(exc) or 'product.invalid'
+            else:
+                code = getattr(exc, 'code', None) or 'binding.failed'
+            if not isinstance(code, str) or not code:
+                code = 'binding.failed'
             x.add('binding-diagnostic.json', {
                 'schema_version': 'math-runtime-binding/v1', 'code': code,
-                'message': str(exc), 'stage': 'projection'}, role='validation')
+                'message': str(exc), 'stage': 'projection',
+                'path': getattr(exc, 'path', None),
+            }, role='validation')
+            # Admission refusals are expected product outcomes (unsupported /
+            # incomplete source). Preserve the admission.* code so Studio can
+            # show「暂不支持题型」instead of a generic system failure.
             raise ProductError(code) from exc
         for name, value in binding.artifacts().items():
             x.add('math-runtime-binding/' + name, value, role='output')

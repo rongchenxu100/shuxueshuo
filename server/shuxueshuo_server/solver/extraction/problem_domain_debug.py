@@ -1,4 +1,4 @@
-"""Human-readable debug artifacts for Problem domain extraction and repair."""
+"""Human-readable debug artifacts for Problem domain extraction."""
 
 from __future__ import annotations
 
@@ -12,7 +12,6 @@ from shuxueshuo_server.solver.extraction.multimodal_provider import (
 )
 from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDraft,
-    ProblemRepairPatch,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_service import (
     ProblemDomainExtractionAttemptResult,
@@ -83,10 +82,6 @@ class ProblemDomainDebugWriter:
                 ),
             )
             _write_json(
-                root / f"{prefix}.problem-repair.json",
-                attempt.patch.to_payload() if attempt.patch is not None else None,
-            )
-            _write_json(
                 root / f"{prefix}.problem-draft.json",
                 (
                     attempt.resulting_draft.to_payload()
@@ -99,12 +94,8 @@ class ProblemDomainDebugWriter:
                 attempt.report.to_payload(),
             )
             _write_json(
-                root / f"{prefix}.repair-cone.json",
-                _repair_cone_payload(attempt.resulting_draft),
-            )
-            _write_json(
                 root / f"{prefix}.semantic-diff.json",
-                _draft_diff(previous_draft, attempt.resulting_draft, attempt.patch),
+                _draft_diff(previous_draft, attempt.resulting_draft),
             )
             _write_json(
                 root / f"{prefix}.solver-projection.json",
@@ -172,31 +163,9 @@ class ProblemDomainDebugWriter:
         )
 
 
-def _repair_cone_payload(draft: ProblemDraft | None) -> dict[str, Any] | None:
-    if draft is None:
-        return None
-    return {
-        "revision_id": draft.revision_id,
-        "frozen_unit_ids": list(draft.frozen_unit_ids),
-        "repairable_unit_ids": list(draft.repairable_unit_ids),
-        "units": [
-            {
-                **draft.unit_registry[unit_id].to_payload(),
-                "status": draft.verification_stamps[unit_id].status,
-                "dependency_signatures": list(
-                    draft.verification_stamps[unit_id].dependency_signatures
-                ),
-            }
-            for unit_id in sorted(draft.verification_stamps)
-        ],
-        "issues": [item.to_payload() for item in draft.validation_report.issues],
-    }
-
-
 def _draft_diff(
     before: ProblemDraft | None,
     after: ProblemDraft | None,
-    patch: ProblemRepairPatch | None,
 ) -> dict[str, Any]:
     before_units = before.unit_registry if before is not None else {}
     after_units = after.unit_registry if after is not None else {}
@@ -209,7 +178,6 @@ def _draft_diff(
     return {
         "before_revision_id": before.revision_id if before is not None else None,
         "after_revision_id": after.revision_id if after is not None else None,
-        "patch_id": patch.patch_id if patch is not None else None,
         "added_unit_ids": sorted(set(after_units) - set(before_units)),
         "removed_unit_ids": sorted(set(before_units) - set(after_units)),
         "changed_unit_ids": changed,
@@ -281,9 +249,7 @@ def _review_html(
             if attempt.resulting_draft is not None
             else None
         )
-        patch_payload = attempt.patch.to_payload() if attempt.patch is not None else None
-        cone = _repair_cone_payload(attempt.resulting_draft)
-        diff = _draft_diff(previous, attempt.resulting_draft, attempt.patch)
+        diff = _draft_diff(previous, attempt.resulting_draft)
         response_format = dict(attempt.request.response_format)
         json_schema = response_format.get("json_schema", {})
         schema_name = (
@@ -303,9 +269,8 @@ def _review_html(
             <details><summary>Response schema · {escape(schema_summary)}</summary><pre>{escape(json.dumps({'transport_response_format': response_format, 'schema': dict(attempt.request.contract_schema)}, ensure_ascii=False, indent=2))}</pre></details>
             <details><summary>System prompt</summary><pre>{escape(attempt.request.prompt.system)}</pre></details>
             <details><summary>User prompt</summary><pre>{escape(attempt.request.prompt.user_debug)}</pre></details>
-            <h3>模型输出</h3><pre>{escape(json.dumps(patch_payload or draft_payload, ensure_ascii=False, indent=2))}</pre>
-            <h3>Patch 前后差异</h3><pre>{escape(json.dumps(diff, ensure_ascii=False, indent=2))}</pre>
-            <h3>冻结单元与 repair cone</h3><pre>{escape(json.dumps(cone, ensure_ascii=False, indent=2))}</pre></section>"""
+            <h3>模型输出</h3><pre>{escape(json.dumps(draft_payload, ensure_ascii=False, indent=2))}</pre>
+            <h3>前后差异</h3><pre>{escape(json.dumps(diff, ensure_ascii=False, indent=2))}</pre></section>"""
         )
         if attempt.resulting_draft is not None:
             previous = attempt.resulting_draft
@@ -316,7 +281,7 @@ def _review_html(
     section{{border-top:1px solid #ccd4df;padding:22px 0}} .images{{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}}
     img{{max-width:100%;border:1px solid #aeb9c8}} pre{{white-space:pre-wrap;overflow-wrap:anywhere;background:#f5f7fa;padding:12px}}
     </style></head><body><h1>Problem Domain Extraction · {status}</h1>
-    <p>完整题图、领域树、冻结单元、局部 patch 和 validator 结果按轮次展示。</p>{''.join(sections)}</body></html>"""
+    <p>完整题图、完整领域候选和 validator 结果按轮次展示。</p>{''.join(sections)}</body></html>"""
 
 
 def _write_json(path: Path, payload: Any) -> None:

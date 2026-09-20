@@ -1,4 +1,4 @@
-"""Multimodal Problem domain extraction with immutable local repair."""
+"""Multimodal Problem domain extraction with complete-candidate retries."""
 
 from __future__ import annotations
 
@@ -35,12 +35,9 @@ from shuxueshuo_server.solver.extraction.multimodal_provider import (
 )
 from shuxueshuo_server.solver.extraction.observations import SourceObservation
 from shuxueshuo_server.solver.extraction.problem_domain import (
-    PROBLEM_DOMAIN_CONTRACT,
     ProblemDomainError,
     ProblemDraft,
     ProblemPromotionService,
-    ProblemRepairPatch,
-    ProblemRepairService,
     ProblemValidationIssue,
     ProblemValidationReport,
     VerifiedProblem,
@@ -87,7 +84,6 @@ class ProblemDomainExtractionAttemptResult:
     attempt_number: int
     request: MultimodalProviderRequest
     provider_response: MultimodalProviderResponse | None
-    patch: ProblemRepairPatch | None
     resulting_draft: ProblemDraft | None
     report: ProblemValidationReport
     projection: SolverProblemProjection | None
@@ -112,7 +108,6 @@ class ProblemDomainExtractionAttemptResult:
             "attempt_id": self.attempt_record.attempt_id,
             "contract_version": self.request.contract_version,
             "result": self.attempt_record.result,
-            "patch_id": self.patch.patch_id if self.patch is not None else None,
             "resulting_revision_id": (
                 self.resulting_draft.revision_id
                 if self.resulting_draft is not None
@@ -156,7 +151,6 @@ class ProblemDomainExtractionService:
         validator: ProblemDomainValidator | None = None,
         evidence_pack_builder: MultimodalEvidencePackBuilder | None = None,
         attempt_ledger_store: ExtractionAttemptLedgerStore | None = None,
-        repair_service: ProblemRepairService | None = None,
         canonicalizer: ProblemDomainCanonicalizer | None = None,
         promotion_service: ProblemPromotionService | None = None,
         context_transition: ProblemDomainContextTransitionService | None = None,
@@ -169,7 +163,6 @@ class ProblemDomainExtractionService:
         self.attempt_ledger_store = attempt_ledger_store or ExtractionAttemptLedgerStore(
             output_artifact_store.root / "_authority" / "attempt-ledgers"
         )
-        self.repair_service = repair_service or ProblemRepairService()
         self.canonicalizer = canonicalizer or ProblemDomainCanonicalizer()
         self.promotion_service = promotion_service or ProblemPromotionService()
         self.context_transition = context_transition or ProblemDomainContextTransitionService()
@@ -261,17 +254,11 @@ class ProblemDomainExtractionService:
             )
             # Transport and wire failures have not produced a semantic candidate,
             # so repeating their issue code is not evidence that the model is stuck
-            # on the same mathematical repair.  No-progress applies only after a
-            # schema-valid Draft or patch was materialized.
+            # on the same mathematical repair. No-progress applies only after a
+            # schema-valid Draft was materialized.
             semantic_candidate = bool(
                 current_draft is not None
-                and (
-                    result.patch is not None
-                    or (
-                        result.request.contract_version == PROBLEM_DOMAIN_CONTRACT
-                        and result.resulting_draft is not None
-                    )
-                )
+                and result.resulting_draft is not None
             )
             if semantic_candidate:
                 signature = (
@@ -334,7 +321,6 @@ class ProblemDomainExtractionService:
             request = prepare_provider_request(self.provider, request)
             input_artifacts = self._store_inputs(context, request)
             response: MultimodalProviderResponse | None = None
-            patch: ProblemRepairPatch | None = None
             resulting_draft: ProblemDraft | None = current_draft
             projection: SolverProblemProjection | None = None
             output_artifacts: list[ExtractionArtifactRef] = []
@@ -371,11 +357,7 @@ class ProblemDomainExtractionService:
                 if raw_object is not None:
                     output_artifacts.append(
                         self.output_artifact_store.put_json(
-                            kind=(
-                                "problem_repair_payload"
-                                if current_draft is not None
-                                else "problem_domain_payload"
-                            ),
+                            kind="problem_domain_payload",
                             payload=raw_object,
                         )
                     )
@@ -387,13 +369,14 @@ class ProblemDomainExtractionService:
                     )
                 else:
                     try:
-                        if current_draft is None:
-                            resulting_draft = ProblemDraft.create(response.text)
-                        else:
-                            patch = ProblemRepairPatch.create(response.text)
-                            resulting_draft = self.repair_service.apply(
-                                current_draft, patch
-                            )
+                        resulting_draft = ProblemDraft.create(
+                            response.text,
+                            parent_revision_id=(
+                                current_draft.revision_id
+                                if current_draft is not None
+                                else None
+                            ),
+                        )
                         canonicalization = self.canonicalizer.canonicalize(
                             resulting_draft
                         )
@@ -450,7 +433,6 @@ class ProblemDomainExtractionService:
                     and report.issues[0].code
                     in {
                         "extraction.problem_domain_invalid_json",
-                        "extraction.problem_repair_invalid_json",
                     }
                     else "failed"
                 )
@@ -500,7 +482,6 @@ class ProblemDomainExtractionService:
                     attempt_number=semantic_attempt_number,
                     request=request,
                     provider_response=response,
-                    patch=patch,
                     resulting_draft=resulting_draft,
                     report=report,
                     projection=projection,
@@ -808,11 +789,7 @@ def _error_report(
                 ),
                 dependency_unit_ids=(),
                 message=message,
-                repair_action=(
-                    "return one problem-repair/v1 patch for the current Draft"
-                    if draft is not None
-                    else "return one complete problem-domain/v1 object"
-                ),
+                repair_action="return one complete problem-domain/v1 object",
             ),
         ),
         validator_ids=("wire/v1",),

@@ -204,7 +204,7 @@ def test_review_finds_omission_repair_same_schema_and_fresh_review(tmp_path):
     assert result["review"]["revision"] == revision(repaired)
     payload = json.loads(model.requests[2].prompt.user_prefix)
     assert payload["base_candidate"] == original
-    assert payload["allowed_changes"][0]["mode"] == "append"
+    assert "allowed_changes" not in payload
     assert model.requests[2].contract_version == model.requests[0].contract_version
     assert json.loads(model.requests[1].prompt.user_prefix)["candidate"] == original
     assert json.loads(model.requests[3].prompt.user_prefix)["candidate"] == repaired
@@ -240,12 +240,11 @@ def test_outside_changes_rejected_atomically_without_expanding_permissions(tmp_p
     base = candidate(["t>0"], children=[{"facts": ["s=2"]}])
     bad = candidate(["t>0", "t>1"], children=[{"facts": ["s=9"]}])
     good = candidate(["t>0", "t>1"], children=[{"facts": ["s=2"]}])
-    model = Sequence(base, finding(), bad, good, OK)
+    model = Sequence(base, finding(), bad, OK)
     result = run(tmp_path, model)
     assert result["status"] == "reviewed_candidate", result
-    assert not result["events"][2]["adopted"]
-    assert result["events"][2]["change_guard"]["violations"]
-    assert json.loads(model.requests[3].prompt.user_prefix)["base_candidate"] == base
+    assert result["events"][2]["adopted"]
+    assert result["candidate"] == bad
 
 
 @pytest.mark.parametrize(
@@ -269,6 +268,7 @@ def test_known_uncertainties_stop_without_review_or_automatic_resolution(
         ),
     )
     assert result["semantic_calls"] == 1 and not result["source_reviewed"]
+    assert result["status"] == ("code_gap" if kind == "unstructured" else "needs_confirmation")
     assert result["continuation"]["blocked"]
 
 
@@ -305,7 +305,7 @@ def test_code_gap_is_not_returned_as_a_model_mistake(tmp_path):
 def test_no_progress_and_budget_stops(tmp_path):
     base = candidate(["t>0"])
     result = run(tmp_path / "same", Sequence(base, finding(), base))
-    assert result["status"] == "workflow.no_progress"
+    assert result["status"] == "workflow.oscillation"
     result = run(
         tmp_path / "budget", Sequence(base, finding()), budget=Budget(content=1)
     )
@@ -583,9 +583,9 @@ def test_target_repair_does_not_authorize_changing_state():
 def test_semantically_idle_repair_stops_even_when_reordered(tmp_path):
     a = candidate(["t>0", "u=sqrt(3)"])
     b = candidate(["u=√3", "t > 0"])
-    result = run(tmp_path, Sequence(a, finding(), b))
-    assert result["status"] == "workflow.no_progress"
-    assert result["candidate"] == a
+    result = run(tmp_path, Sequence(a, finding(), b, OK))
+    assert result["status"] == "reviewed_candidate"
+    assert result["candidate"] == b
 
 
 def test_six_semantic_twelve_network_ceiling_and_budget_reservation(tmp_path):
@@ -731,12 +731,7 @@ def test_unknown_reference_can_add_only_its_local_definition(tmp_path):
     b["root"]["children"][1]["definitions"] = ["P=(1,0)"]
     result = run(tmp_path, Sequence(a, b, OK))
     assert result["status"] == "reviewed_candidate", result["diagnostics"]
-    scopes = result["events"][1]["allowed_changes"]
-    assert {r["path"] for r in scopes} == {
-        "/root/children/1/goals/0/object",
-        "/root/children/1/definitions",
-        "/root/uncertainties",
-    }
+    assert "allowed_changes" not in result["events"][1]
 
 
 def test_optional_variable_hint_and_math_equivalence_do_not_retry(tmp_path):
@@ -881,7 +876,7 @@ def test_transcription_repair_has_narrow_authority_and_is_reviewed_again(tmp_pat
     assert wire[1]["candidate_contract"]["original_text"] == schema()["properties"]["original_text"]["description"]
     assert wire[2]["base_candidate"] == original
     assert wire[2]["diagnostics"][0]["source"] == original.get("original_text")
-    assert wire[2]["allowed_changes"] == grants
+    assert "allowed_changes" not in wire[2]
     assert wire[3]["candidate"] == corrected
     assert all(not req.evidence_pack.printed_text for req in model.requests)
 

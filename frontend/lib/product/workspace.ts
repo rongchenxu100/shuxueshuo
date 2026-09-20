@@ -51,6 +51,8 @@ export function problemStatus(problem: WorkspaceProblem) {
   // Candidate readiness is independent of the lesson build. While a build is
   // still active — or after it fails — prefer the build status over a `ready`
   // extraction presentation that would otherwise claim the whole run finished.
+  // Admission refusals are expected unsupported outcomes, not system errors.
+  if (p?.status === 'unsupported' || p?.status === 'code_gap') return '暂不支持题型';
   if (build === 'failed' && (!p || p.status === 'ready')) return '解答失败（系统错误）';
   if (build === 'queued' || build === 'running') {
     if (p?.status === 'queued' || p?.status === 'running') {
@@ -60,7 +62,6 @@ export function problemStatus(problem: WorkspaceProblem) {
   }
   if (!p) return label(build ?? 'unbuilt');
   if (p.status === 'ready') return '已完成';
-  if (p.status === 'unsupported' || p.status === 'code_gap') return '暂不支持题型';
   if (p.status === 'needs_confirmation') return p.reason === 'missing_figure' ? '题目缺少图片' : '题目需要确认';
   if (p.status === 'needs_review' || p.status === 'needs_revision') return '题目需要确认';
   if (p.status === 'not_started') return '已上传 · 待提取';

@@ -95,18 +95,7 @@ def test_missing_state_is_repaired_as_fact_then_reviewed_again(tmp_path):
     assert result["source_reviewed"] and result["candidate"] == complete
     assert result["content_calls"] == result["review_calls"] == 2
     payload = json.loads(model.requests[2].prompt.user_prefix)
-    assert payload["allowed_changes"] == [
-        {
-            "path": "/root/children/0/facts",
-            "mode": "append",
-            "reason": "missing_condition",
-        },
-        {
-            "path": "/root/uncertainties",
-            "mode": "append",
-            "reason": "source_stop_diagnostic",
-        },
-    ]
+    assert "allowed_changes" not in payload
     for request in model.requests:
         assert '"at"' not in request.prompt.user_prefix
     review_request = model.requests[-1]
@@ -149,5 +138,4 @@ def test_review_examples_accept_local_scope_and_repair_promoted_state(tmp_path):
     result = run(tmp_path, model)
     assert result["source_reviewed"] and result["candidate"] == correct["candidate"]
     assert result["content_calls"] == result["review_calls"] == 2
-    rules = json.loads(model.requests[2].prompt.user_prefix)["allowed_changes"]
-    assert rules[0] == {"path": "/root", "mode": "subtree", "reason": "wrong_scope"}
+    assert "allowed_changes" not in json.loads(model.requests[2].prompt.user_prefix)

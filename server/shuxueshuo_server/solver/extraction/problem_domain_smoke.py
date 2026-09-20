@@ -37,7 +37,6 @@ from shuxueshuo_server.solver.extraction.multimodal_provider import (
 from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDraft,
     problem_domain_provider_schema,
-    problem_repair_provider_schema,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_debug import (
     ProblemDomainDebugWriter,
@@ -70,7 +69,7 @@ class ProblemDomainSmokeSampleResult:
     provider: str
     source_input_complete: bool
     full_question_image_input: bool
-    retry_patch_only: bool
+    retry_full_candidate: bool
     family_ok: bool
     domain_semantic_diff_ok: bool
     solver_projection_diff_ok: bool
@@ -100,7 +99,7 @@ class ProblemDomainSmokeSampleResult:
             "provider": self.provider,
             "source_input_complete": self.source_input_complete,
             "full_question_image_input": self.full_question_image_input,
-            "retry_patch_only": self.retry_patch_only,
+            "retry_full_candidate": self.retry_full_candidate,
             "family_ok": self.family_ok,
             "domain_semantic_diff_ok": self.domain_semantic_diff_ok,
             "solver_projection_diff_ok": self.solver_projection_diff_ok,
@@ -171,7 +170,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "reasoning_effort": MULTIMODAL_RETRY_REASONING_EFFORT,
             },
         },
-        "response_formats": ["problem-domain/v1", "problem-repair/v1"],
+        "response_formats": ["problem-domain/v1"],
         "transport_response_format": (
             "json_schema" if args.provider == "doubao" else "json_object"
         ),
@@ -184,7 +183,6 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "pass1_system": PASS1_SYSTEM_PROMPT,
                 "repair_system": REPAIR_SYSTEM_PROMPT,
                 "domain_schema": problem_domain_provider_schema(),
-                "repair_schema": problem_repair_provider_schema(),
                 "family_catalog": problem_domain_family_catalog(),
             }
         ),
@@ -232,7 +230,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                     provider=args.provider,
                     source_input_complete=False,
                     full_question_image_input=False,
-                    retry_patch_only=False,
+                    retry_full_candidate=False,
                     family_ok=False,
                     domain_semantic_diff_ok=False,
                     solver_projection_diff_ok=False,
@@ -328,7 +326,7 @@ def _run_sample(
     networks = sum(len(a.provider_response.provider_attempts) if a.provider_response else
                    len(a.attempt_record.usage.get("provider_attempts", [])) for a in run.attempts)
     networks += sum(len(r.get("usage", {}).get("provider_attempts", [])) for r in reviews)
-    retry_patch_only = _uses_patch_after_first_draft(run.attempts)
+    retry_full_candidate = _uses_full_candidate_after_first_draft(run.attempts)
     final_issue = _final_issue(run)
     failures: list[str] = []
     if len(run.attempts) > 3 or len(reviews) > 3 or len(run.attempts) + len(reviews) > 6 or networks > 12:
@@ -347,8 +345,8 @@ def _run_sample(
         failures.append(final_issue or "not_accepted")
     if not source_input_complete:
         failures.append("source_input_incomplete")
-    if not retry_patch_only:
-        failures.append("semantic_retry_not_patch")
+    if not retry_full_candidate:
+        failures.append("semantic_retry_not_full_candidate")
     if not family_ok:
         failures.append("family_mismatch")
     if not domain_ok:
@@ -364,7 +362,7 @@ def _run_sample(
         provider=provider_name,
         source_input_complete=source_input_complete,
         full_question_image_input=full_image,
-        retry_patch_only=retry_patch_only,
+        retry_full_candidate=retry_full_candidate,
         family_ok=family_ok,
         domain_semantic_diff_ok=domain_ok,
         solver_projection_diff_ok=projection_ok,
@@ -385,20 +383,14 @@ def _run_sample(
     return item
 
 
-def _uses_patch_after_first_draft(
+def _uses_full_candidate_after_first_draft(
     attempts: Sequence[ProblemDomainExtractionAttemptResult],
 ) -> bool:
-    """Require patch retries only after a schema-valid Draft exists."""
+    """Require full problem-domain candidates on every semantic attempt."""
 
-    draft_exists = False
     for attempt in attempts:
-        if draft_exists and (
-            attempt.request.contract_version != "problem-repair/v1"
-            or attempt.patch is None
-        ):
+        if attempt.request.contract_version != "problem-domain/v1":
             return False
-        if attempt.resulting_draft is not None:
-            draft_exists = True
     return True
 
 
@@ -487,8 +479,8 @@ def _batch_summary(
             if total
             else 0.0
         ),
-        "semantic_retry_patch_output_rate": (
-            round(sum(item.retry_patch_only for item in results) / total, 6)
+        "semantic_retry_full_candidate_rate": (
+            round(sum(item.retry_full_candidate for item in results) / total, 6)
             if total
             else 0.0
         ),

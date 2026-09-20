@@ -14,7 +14,7 @@ from shuxueshuo_server.solver.extraction.problem_domain_validation import (
     ProblemDomainValidator,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_smoke import (
-    _uses_patch_after_first_draft,
+    _uses_full_candidate_after_first_draft,
 )
 
 from _problem_extraction_f3_support import make_f3_fixture
@@ -61,7 +61,7 @@ def test_pass1_uses_strict_domain_schema_and_no_runtime_authoring_vocabulary(tmp
     assert request.redacted_payload()["max_tokens"] == 4_096
     assert request.redacted_payload()["stream"] is True
     assert request.redacted_payload()["stream_options"] == {"include_usage": True}
-    assert '"schema_version":"problem-domain/v1"' in request.prompt.system
+    assert "problem-domain/v1" in request.prompt.system
     prompt = request.prompt.user_debug
     from shuxueshuo_server.solver.extraction.problem_domain_prompt_rules import DOMAIN_RULES
     assert DOMAIN_RULES in prompt
@@ -188,7 +188,7 @@ def test_doubao_stream_stops_at_first_complete_json_object(tmp_path) -> None:
     assert client.create_kwargs["max_tokens"] == 4_096
 
 
-def test_retry_uses_patch_schema_low_thinking_and_projects_frozen_units(tmp_path) -> None:
+def test_retry_uses_full_domain_schema_and_complete_candidate_context(tmp_path) -> None:
     _, _, _, store, pack = make_f3_fixture(tmp_path)
     payload = _domain_payload()
     payload["family_id"] = "QuadraticWeightedPathMinimumSolver"
@@ -203,22 +203,19 @@ def test_retry_uses_patch_schema_low_thinking_and_projects_frozen_units(tmp_path
         semantic_attempt_number=2,
     )
 
-    assert request.contract_version == "problem-repair/v1"
+    assert request.contract_version == "problem-domain/v1"
     assert request.response_format["json_schema"]["schema"]["properties"][
         "schema_version"
-    ]["const"] == "problem-repair/v1"
+    ]["const"] == "problem-domain/v1"
     repair_schema = request.response_format["json_schema"]["schema"]
-    assert "scope" not in repair_schema["$defs"]
     assert '"$ref":"#/$defs/scope"' not in json.dumps(
         repair_schema, ensure_ascii=False, separators=(",", ":")
     )
     assert request.thinking_mode == "enabled"
     assert request.reasoning_effort == "low"
-    assert '"schema_version":"problem-repair/v1"' in request.prompt.system
-    assert validated.revision_id in request.prompt.user_debug
-    assert '"unit_id":"family"' in request.prompt.user_debug
-    assert "frozen_unit_ids" in request.prompt.user_debug
-    assert "repairable_unit_ids" in request.prompt.user_debug
+    assert "problem-domain/v1" in request.prompt.system
+    assert '"family_id"' in request.prompt.user_debug
+    assert "repairable_unit_ids" not in request.prompt.user_debug
     assert all(image.role == "primary" for image in request.images)
 
 
@@ -264,18 +261,16 @@ def test_deepseek_text_baseline_uses_json_object_and_embeds_finite_schema(
     assert "image_url" not in str(messages)
 
 
-def test_smoke_requires_patch_only_after_a_schema_valid_draft_exists() -> None:
+def test_smoke_requires_full_candidate_after_a_schema_valid_draft_exists() -> None:
     complete = lambda draft=None: SimpleNamespace(
         request=SimpleNamespace(contract_version="problem-domain/v1"),
-        patch=None,
         resulting_draft=draft,
     )
-    repair = lambda draft=None: SimpleNamespace(
-        request=SimpleNamespace(contract_version="problem-repair/v1"),
-        patch=object(),
+    other = lambda draft=None: SimpleNamespace(
+        request=SimpleNamespace(contract_version="other"),
         resulting_draft=draft,
     )
     draft = object()
 
-    assert _uses_patch_after_first_draft((complete(), complete(draft), repair(draft)))
-    assert not _uses_patch_after_first_draft((complete(draft), complete(draft)))
+    assert _uses_full_candidate_after_first_draft((complete(), complete(draft), complete(draft)))
+    assert not _uses_full_candidate_after_first_draft((complete(draft), other(draft)))

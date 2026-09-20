@@ -250,7 +250,7 @@ class Application:
         joined = m.problems.outerjoin(m.problem_revisions, m.problems.c.current_revision_id == m.problem_revisions.c.id).outerjoin(
             m.sources, m.problems.c.primary_source_id == m.sources.c.id).outerjoin(m.builds, m.problems.c.latest_build_id == m.builds.c.id)
         details = {r['id']: r for r in c.execute(select(m.problems.c.id, m.problem_revisions.c.domain_json,
-            m.sources.c.filename, m.builds.c.status, m.builds.c.created_at.label('build_created_at')).select_from(joined).where(
+            m.sources.c.filename, m.builds.c.status, m.builds.c.error_code, m.builds.c.created_at.label('build_created_at')).select_from(joined).where(
             m.problems.c.workspace_id == self.ctx.workspace_id, m.problems.c.id.in_([p['id'] for p in records]))).mappings()}
         presentations = problem_presentations(c, records, details, local=self.settings.mode == 'local')
         summaries = []

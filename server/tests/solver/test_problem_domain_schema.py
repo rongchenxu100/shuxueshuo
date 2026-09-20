@@ -14,7 +14,6 @@ from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDomainError,
     ProblemDraft,
     problem_domain_schema,
-    problem_repair_schema,
 )
 
 
@@ -77,10 +76,7 @@ def test_problem_domain_schema_is_compact_and_round_trips() -> None:
 
 @pytest.mark.parametrize(
     ("filename", "runtime_schema"),
-    (
-        ("problem-domain.schema.json", problem_domain_schema),
-        ("problem-repair.schema.json", problem_repair_schema),
-    ),
+    (("problem-domain.schema.json", problem_domain_schema),),
 )
 def test_checked_in_schema_snapshot_matches_runtime_authority(
     filename,

@@ -10,7 +10,6 @@ from .candidate_common import strict_json
 from .identity import revision
 from .notation_contract import CONTRACT, ROOT, schema
 from .notation_service import parse_candidate
-from .repair_guard import guard_changes
 from .review_contract import (
     FILES,
     ReviewFamilyCatalogError,
@@ -20,7 +19,6 @@ from .review_contract import (
 )
 from .workflow_diagnostics import (
     diagnose,
-    repair_permissions,
     review_diagnostics,
     uncertainty_diagnostics,
 )
@@ -86,7 +84,7 @@ def run_workflow(request, provider, output, registry, *, problem_id, budget=None
 
 def _run(request, provider, storage, registry, problem_id, ledger, budget, initial_candidate, mode):
     current, parsed, first = None, None, None
-    stage, diagnostics, allowed, feedback = "extract", [], [], []
+    stage, diagnostics, feedback = "extract", [], []
     source_status, source_reviewed, status = "not_reviewed", False, "in_progress"
     seen, events = set(), []
     first_response, last_review = None, None
@@ -115,10 +113,7 @@ def _run(request, provider, storage, registry, problem_id, ledger, budget, initi
             elif any(d['action'] == 'needs_confirmation' for d in diagnostics):
                 status = 'needs_confirmation'
             elif diagnostics:
-                allowed = repair_permissions(current, diagnostics)
                 stage = 'repair'
-                if not allowed:
-                    status = 'code_gap'
             else:
                 stage = 'review'
         while True:
@@ -136,7 +131,6 @@ def _run(request, provider, storage, registry, problem_id, ledger, budget, initi
                     current,
                     registry,
                     diagnostics,
-                    allowed,
                     feedback,
                     validation=parsed,
                 )
@@ -147,7 +141,6 @@ def _run(request, provider, storage, registry, problem_id, ledger, budget, initi
                 "call": ledger.position,
                 "stage": stage,
                 "base_revision": base_revision,
-                "allowed_changes": allowed,
                 "diagnostics": diagnostics,
                 "adopted": False,
             }
@@ -181,7 +174,6 @@ def _run(request, provider, storage, registry, problem_id, ledger, budget, initi
                 if any(d["action"] == "needs_confirmation" for d in diagnostics):
                     status = "needs_confirmation"
                     break
-                allowed = repair_permissions(current, diagnostics)
                 feedback = []
                 stage = "repair"
                 continue
@@ -207,7 +199,6 @@ def _run(request, provider, storage, registry, problem_id, ledger, budget, initi
                             "message": "上一轮输出截断，按原图输出完整简洁 JSON。",
                         }
                     ]
-                    allowed = [{"path": "", "mode": "reextract"}]
                 feedback = [{"code": "response.truncated"}]
                 stage = "repair"
                 continue
@@ -225,29 +216,15 @@ def _run(request, provider, storage, registry, problem_id, ledger, budget, initi
                 new_diagnostics = diagnose(proposed_parse, proposed)
                 if current is None:
                     diagnostics = new_diagnostics
-                    allowed = [{"path": "", "mode": "reextract"}]
                 feedback = new_diagnostics
                 stage = "repair"
                 continue
             storage.proposed(proposed, proposed_parse, ledger.position)
-            if current is not None:
-                guard = guard_changes(current, proposed, allowed)
-                event["change_guard"] = guard
-                if not guard["ok"]:
-                    feedback = guard["violations"]
-                    signature = revision({"proposal": proposed, "violations": feedback})
-                    if signature in seen:
-                        raise WorkflowStop("workflow.no_progress")
-                    seen.add(signature)
-                    stage = "repair"
-                    continue
-                if guard_changes(current, proposed, [])["ok"]:
-                    raise WorkflowStop("workflow.no_progress")
             exact = revision(proposed)
             if exact in seen:
                 raise WorkflowStop("workflow.oscillation")
             seen.add(exact)
-            # Atomic adoption only after both shape and change-authority checks.
+            # Atomic adoption follows schema and semantic review checks.
             storage.adopt(proposed, proposed_parse, ledger.position)
             current, parsed = proposed, proposed_parse
             source_status, source_reviewed = "not_reviewed", False
@@ -266,14 +243,20 @@ def _run(request, provider, storage, registry, problem_id, ledger, budget, initi
                 break
             diagnostics = [*source_diagnostics, *diagnose(parsed, current)]
             event["diagnostics"] = diagnostics
+            # A code gap is an unsupported or unprovable construct, not a
+            # candidate-edit request. With no repair authority for it, asking
+            # the model for another candidate only repeats the same failure
+            # and can incorrectly turn a deterministic code gap into a repair
+            # loop.
+            if diagnostics and all(
+                diagnostic.get("action") == "code_gap"
+                for diagnostic in diagnostics
+            ):
+                status = "code_gap"
+                break
             if diagnostics:
-                allowed = repair_permissions(current, diagnostics)
-                if not allowed:
-                    status = "code_gap"
-                    break
                 stage = "repair"
             else:
-                allowed = []
                 stage = "review"
             feedback = []
     except WorkflowStop as exc:

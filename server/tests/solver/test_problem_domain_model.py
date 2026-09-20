@@ -9,8 +9,6 @@ import pytest
 from shuxueshuo_server.solver.extraction.problem_domain import (
     ProblemDomainError,
     ProblemDraft,
-    ProblemRepairPatch,
-    ProblemRepairService,
     ProblemPromotionService,
     ProblemValidationIssue,
     ProblemValidationReport,
@@ -177,68 +175,6 @@ def test_display_labels_answer_keys_and_source_name_wrappers_are_not_math_drift(
     assert second.semantic_hash == first.semantic_hash
 
 
-def test_patch_preserves_replaced_unit_id_and_assigns_deterministic_addition_id() -> None:
-    draft = ProblemDraft.create(_payload())
-    fact = draft.graph.root_scope.facts[1]
-    stamps = {
-        unit_id: ProblemVerificationStamp(
-            unit_id,
-            record.semantic_signature,
-            ("shape",),
-            (),
-            "verified" if unit_id != fact.unit_id else "invalid",
-        )
-        for unit_id, record in draft.unit_registry.items()
-    }
-    draft = draft.with_validation(
-        ProblemValidationReport(), stamps, (fact.unit_id, "scope:problem")
-    )
-    patch_payload = {
-        "schema_version": "problem-repair/v1",
-        "base_revision_id": draft.revision_id,
-        "replacements": [
-            {
-                "unit_id": fact.unit_id,
-                "value": {"kind": "point_on_curve", "point": "A", "curve": "parabola"},
-            }
-        ],
-        "additions": [
-            {
-                "scope_path": "problem",
-                "collection": "fact",
-                "value": {"kind": "symbol_constraint", "symbol": "a", "operator": ">", "value": "0"},
-            }
-        ],
-        "removals": [],
-    }
-    # The original is identical, so first prove no-progress is rejected.
-    no_progress = deepcopy(patch_payload)
-    no_progress["additions"] = []
-    with pytest.raises(ProblemDomainError, match="retry_no_progress"):
-        ProblemRepairService().apply(draft, ProblemRepairPatch.create(no_progress))
-
-    patch_payload["replacements"][0]["value"] = {
-        "kind": "point_coordinate",
-        "point": "A",
-        "value": ["0", "0"],
-    }
-    next_draft = ProblemRepairService().apply(
-        draft, ProblemRepairPatch.create(patch_payload)
-    )
-    assert any(item.unit_id == fact.unit_id for item in next_draft.graph.root_scope.facts)
-    added = [item.unit_id for item in next_draft.graph.root_scope.facts if ":added:" in item.unit_id]
-    assert len(added) == 1
-    replay = ProblemRepairService().apply(draft, ProblemRepairPatch.create(patch_payload))
-    assert replay.revision_id == next_draft.revision_id
-    assert [item.unit_id for item in replay.graph.root_scope.facts] == [
-        item.unit_id for item in next_draft.graph.root_scope.facts
-    ]
-
-    restored = ProblemDraft.from_payload(next_draft.to_payload())
-    assert restored.to_payload() == next_draft.to_payload()
-    assert [item.unit_id for item in restored.graph.root_scope.facts] == [
-        item.unit_id for item in next_draft.graph.root_scope.facts
-    ]
 
 
 def test_verified_problem_round_trip_preserves_internal_unit_identity() -> None:
@@ -288,84 +224,10 @@ def test_problem_draft_registries_are_truly_immutable() -> None:
         )
 
 
-def test_frozen_unit_outside_repair_cone_cannot_change() -> None:
-    draft = ProblemDraft.create(_payload())
-    entity = draft.graph.root_scope.entities[0]
-    stamp = ProblemVerificationStamp(
-        entity.unit_id,
-        entity.semantic_signature,
-        ("shape",),
-        (),
-        "verified",
-    )
-    draft = draft.with_validation(ProblemValidationReport(), {entity.unit_id: stamp}, ())
-    patch = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": draft.revision_id,
-            "replacements": [
-                {
-                    "unit_id": entity.unit_id,
-                    "value": {"id": "x", "kind": "symbol", "label": "x", "role": "parameter"},
-                }
-            ],
-            "additions": [],
-            "removals": [],
-        }
-    )
-    with pytest.raises(ProblemDomainError) as error:
-        ProblemRepairService().apply(draft, patch)
-    assert error.value.code == "extraction.problem_frozen_unit_mutation"
 
 
-def test_family_is_an_explicit_replace_only_repair_unit() -> None:
-    draft = ProblemDraft.create(_payload()).with_validation(
-        ProblemValidationReport(), {}, ("family",)
-    )
-    patch = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": draft.revision_id,
-            "replacements": [
-                {
-                    "unit_id": "family",
-                    "value": {"family_id": "QuadraticWeightedPathMinimumSolver"},
-                }
-            ],
-            "additions": [],
-            "removals": [],
-        }
-    )
-
-    repaired = ProblemRepairService().apply(draft, patch)
-
-    assert repaired.graph.family_id == "QuadraticWeightedPathMinimumSolver"
-    assert repaired.parent_revision_id == draft.revision_id
 
 
-def test_repair_patch_must_target_the_exact_draft_revision() -> None:
-    draft = ProblemDraft.create(_payload()).with_validation(
-        ProblemValidationReport(), {}, ("family",)
-    )
-    patch = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": "problem-revision:" + "0" * 64,
-            "replacements": [
-                {
-                    "unit_id": "family",
-                    "value": {"family_id": "QuadraticWeightedPathMinimumSolver"},
-                }
-            ],
-            "additions": [],
-            "removals": [],
-        }
-    )
-
-    with pytest.raises(ProblemDomainError) as error:
-        ProblemRepairService().apply(draft, patch)
-
-    assert error.value.code == "extraction.problem_patch_base_mismatch"
 
 
 def _repairable_draft(
@@ -386,160 +248,14 @@ def _repairable_draft(
     return draft.with_validation(report, {}, repairable)
 
 
-def test_replacement_value_must_match_the_existing_unit_kind() -> None:
-    draft = ProblemDraft.create(_payload())
-    fact = draft.graph.root_scope.facts[0]
-    draft = _repairable_draft(unit_ids=(fact.unit_id,))
-    patch = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": draft.revision_id,
-            "replacements": [
-                {
-                    "unit_id": fact.unit_id,
-                    "value": {
-                        "id": "not_a_fact",
-                        "kind": "point",
-                        "label": "not a fact",
-                    },
-                }
-            ],
-            "additions": [],
-            "removals": [],
-        }
-    )
-
-    with pytest.raises(ProblemDomainError) as error:
-        ProblemRepairService().apply(draft, patch)
-
-    assert error.value.code == "extraction.problem_repair_kind_drift"
 
 
-def test_addition_collection_must_match_its_value_kind() -> None:
-    draft = _repairable_draft(
-        unit_ids=(ProblemDraft.create(_payload()).graph.root_scope.facts[0].unit_id,)
-    )
-    patch = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": draft.revision_id,
-            "replacements": [],
-            "additions": [
-                {
-                    "scope_path": "problem",
-                    "collection": "fact",
-                    "value": {
-                        "id": "not_a_fact",
-                        "kind": "point",
-                        "label": "not a fact",
-                    },
-                }
-            ],
-            "removals": [],
-        }
-    )
-
-    with pytest.raises(ProblemDomainError) as error:
-        ProblemRepairService().apply(draft, patch)
-
-    assert error.value.code == "extraction.problem_repair_kind_drift"
 
 
-def test_scope_replacement_changes_only_scope_metadata_and_preserves_children() -> None:
-    draft = _repairable_draft(unit_ids=("scope:problem",))
-    original_children = {
-        unit_id: record.semantic_signature
-        for unit_id, record in draft.unit_registry.items()
-        if unit_id != "scope:problem"
-    }
-    patch = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": draft.revision_id,
-            "replacements": [
-                {
-                    "unit_id": "scope:problem",
-                    "value": {
-                        "id": "problem",
-                        "label": "整题",
-                        "source_text": ["已知抛物线 y=ax^2+bx+c，且 a>0。"],
-                    },
-                }
-            ],
-            "additions": [],
-            "removals": [],
-        }
-    )
-
-    repaired = ProblemRepairService().apply(draft, patch)
-
-    assert repaired.graph.root_scope.source_text == (
-        "已知抛物线 y=ax^2+bx+c，且 a>0。",
-    )
-    assert {
-        unit_id: record.semantic_signature
-        for unit_id, record in repaired.unit_registry.items()
-        if unit_id != "scope:problem"
-    } == original_children
 
 
-def test_scope_replacement_schema_rejects_resending_the_whole_subtree() -> None:
-    draft = _repairable_draft(unit_ids=("scope:problem",))
-
-    with pytest.raises(ProblemDomainError) as error:
-        ProblemRepairPatch.create(
-            {
-                "schema_version": "problem-repair/v1",
-                "base_revision_id": draft.revision_id,
-                "replacements": [
-                    {
-                        "unit_id": "scope:problem",
-                        "value": draft.graph.root_scope.wire_payload(),
-                    }
-                ],
-                "additions": [],
-                "removals": [],
-            }
-        )
-
-    assert error.value.code == "extraction.problem_repair_schema_invalid"
 
 
-def test_only_a_directly_invalid_unit_may_be_removed() -> None:
-    base = ProblemDraft.create(_payload())
-    invalid = base.graph.root_scope.facts[0]
-    dependent = base.graph.root_scope.facts[1]
-    draft = _repairable_draft(
-        unit_ids=(invalid.unit_id,),
-        dependency_unit_ids=(dependent.unit_id,),
-    )
-    unauthorized = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": draft.revision_id,
-            "replacements": [],
-            "additions": [],
-            "removals": [dependent.unit_id],
-        }
-    )
-
-    with pytest.raises(ProblemDomainError) as error:
-        ProblemRepairService().apply(draft, unauthorized)
-    assert error.value.code == "extraction.problem_repair_unauthorized"
-
-    authorized = ProblemRepairPatch.create(
-        {
-            "schema_version": "problem-repair/v1",
-            "base_revision_id": draft.revision_id,
-            "replacements": [],
-            "additions": [],
-            "removals": [invalid.unit_id],
-        }
-    )
-    repaired = ProblemRepairService().apply(draft, authorized)
-
-    assert invalid.unit_id not in repaired.unit_registry
-    assert dependent.unit_id in repaired.unit_registry
 
 
 def test_semantic_hash_strips_only_the_root_header_not_its_body() -> None:

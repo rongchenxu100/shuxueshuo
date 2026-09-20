@@ -39,7 +39,7 @@ from shuxueshuo_server.solver.extraction.problem_domain_smoke import (
     _repo_root,
     _resolve_repo_path,
     _selected_cases,
-    _uses_patch_after_first_draft,
+    _uses_full_candidate_after_first_draft,
 )
 from shuxueshuo_server.solver.extraction.problem_domain_validation import (
     ProblemDomainValidator,
@@ -66,7 +66,7 @@ class ColdPathSmokeSampleResult:
     extraction_attempt_count: int
     planner_attempt_count: int
     full_question_image_input: bool
-    retry_patch_only: bool
+    retry_full_candidate: bool
     domain_semantic_diff_ok: bool
     solver_projection_diff_ok: bool
     answer_ok: bool
@@ -95,7 +95,7 @@ class ColdPathSmokeSampleResult:
             "extraction_attempt_count": self.extraction_attempt_count,
             "planner_attempt_count": self.planner_attempt_count,
             "full_question_image_input": self.full_question_image_input,
-            "retry_patch_only": self.retry_patch_only,
+            "retry_full_candidate": self.retry_full_candidate,
             "domain_semantic_diff_ok": self.domain_semantic_diff_ok,
             "solver_projection_diff_ok": self.solver_projection_diff_ok,
             "answer_ok": self.answer_ok,
@@ -304,7 +304,7 @@ def _run_sample(
         any(image.role == "primary" for image in attempt.request.images)
         for attempt in cold.extraction.attempts
     )
-    patch_only = _uses_patch_after_first_draft(cold.extraction.attempts)
+    full_candidate = _uses_full_candidate_after_first_draft(cold.extraction.attempts)
     expected_answers = load_expected_answers(
         _repo_root()
         / "server/tests/solver/expected"
@@ -357,7 +357,7 @@ def _run_sample(
         (cold.accepted, "extraction_not_accepted"),
         (cold.solved, "solver_failed"),
         (full_image, "full_question_image_missing"),
-        (patch_only, "semantic_retry_not_patch"),
+        (full_candidate, "semantic_retry_not_full_candidate"),
         (domain_ok, "domain_semantic_diff"),
         (projection_ok, "solver_projection_diff"),
         (answer_ok, "answer_mismatch"),
@@ -376,7 +376,7 @@ def _run_sample(
         extraction_attempt_count=len(cold.extraction.attempts),
         planner_attempt_count=planner_attempt_count,
         full_question_image_input=full_image,
-        retry_patch_only=patch_only,
+        retry_full_candidate=full_candidate,
         domain_semantic_diff_ok=domain_ok,
         solver_projection_diff_ok=projection_ok,
         answer_ok=answer_ok,
@@ -442,7 +442,7 @@ def _failed_sample(
         extraction_attempt_count=0,
         planner_attempt_count=0,
         full_question_image_input=False,
-        retry_patch_only=False,
+        retry_full_candidate=False,
         domain_semantic_diff_ok=False,
         solver_projection_diff_ok=False,
         answer_ok=False,

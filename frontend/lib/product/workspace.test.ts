@@ -58,6 +58,15 @@ it('uses the latest presentation for titles, outcomes, progress and unread resul
   }, {})).toBe(false);
   expect(problemStatus({ ...value, latest_build_status: 'failed', presentation: { ...value.presentation, status: 'ready' } }))
     .toBe('解答失败（系统错误）');
+  expect(problemStatus({
+    ...value,
+    latest_build_status: 'failed',
+    presentation: { ...value.presentation, status: 'unsupported', reason: 'admission.family_unmatched' },
+  })).toBe('暂不支持题型');
+  expect(problemIntervention({
+    ...value,
+    presentation: { ...value.presentation, status: 'unsupported', reason: 'admission.family_unmatched' },
+  })).toBe('unsupported');
   expect(problemStatus({ ...value, presentation: { ...value.presentation, phase: 'generation', status: 'running' } }))
     .toBe('正在解答');
   expect(problemStatus({ ...value, presentation: { ...value.presentation, phase: 'understanding', status: 'queued' } }))

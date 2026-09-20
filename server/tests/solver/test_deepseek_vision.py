@@ -46,17 +46,14 @@ def request_fixture(tmp_path):
         expected_problem_id='synthetic-f2', response_format_mode='json_object')
 
 
-@pytest.mark.parametrize('contract', ['problem-domain/v1', 'problem-repair/v1', 'problem-source-review/v1'])
+@pytest.mark.parametrize('contract', ['problem-domain/v1', 'problem-source-review/v1'])
 def test_actual_image_transport_and_audit_agree(tmp_path, contract):
     store, req = request_fixture(tmp_path)
     if contract != 'problem-domain/v1':
         from shuxueshuo_server.solver.extraction.problem_domain import ProblemDraft
         from test_problem_domain_retry import _domain_payload
         draft = ProblemDraft.create(_domain_payload())
-        if contract == 'problem-repair/v1':
-            req = build_multimodal_provider_request(req.evidence_pack, artifact_reader=store,
-                expected_problem_id='synthetic-f2', current_draft=draft, response_format_mode='json_object')
-        else:
+        if contract == 'problem-source-review/v1':
             from shuxueshuo_server.solver.extraction.problem_source_review import build_review_request
             req = build_review_request(draft, req.evidence_pack, store, {"differences": []}, 'json_object')
     assert req.contract_version == contract
