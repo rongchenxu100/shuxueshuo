@@ -39,7 +39,8 @@
 - `explanation-builder-design.md`：verified solver artifact 到 LessonIR。
 - `visual-step-ir-design.md`：LessonIR 到声明式视觉状态。
 - `inequality-visual-component-refactor-design.md`：不等式 KnowledgePoint、Family、Problem 知识图谱以及 Method/Recipe 与共享视觉组件的确定性绑定协议。
-- [基本不等式 Method 与讲解设计](basic-inequality-method-discussion.md)：8 个 Method、31 题调用链、Family 讲解规则与 Lesson LLM 边界；设计已确认，扩展能力待实现验证。
+- [基本不等式 Method 与讲解设计](basic-inequality-method-discussion.md)：8 个 Method 统一采用表达式优先协议，包含 M11 局部不等式识别、31 题网页生成目标、代表性集成测试集、Family 讲解规则与 Lesson LLM 边界；扩展能力待实现验证。
+- [基本不等式表达式优先 Method 实施计划](basic-inequality-expression-method-implementation-plan.md)：Parser、证明内核、8 个 Method、31 题网页生成、代表性集成测试和切换门禁的分阶段计划。
 - `basic-inequality-minimal-learning-space.md`：基本不等式最小学习空间（Hasse 前提、向下闭包、差分补齐）与对称结构用 \(s,p\) 替换的实质。
 - `frontend-parallel-development-with-mock-api-plan.md`：工作台真实接入与 API/事件测试合同，Mock 仅用于测试和显式开发。
 - `student-tutor-chat-system-design.md`：受控教学状态图、学习证据和学生长期知识图谱设计；后续学生端阶段实施。
