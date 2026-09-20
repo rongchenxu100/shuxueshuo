@@ -6,6 +6,7 @@ import pytest
 
 from shuxueshuo_server.product.problem_presentation import (
     original_text_excerpt,
+    problem_presentations,
     understanding_presentation,
 )
 from shuxueshuo_server.product.understanding import candidate_state
@@ -129,6 +130,90 @@ def test_ready_candidate_defers_to_active_lesson_build(current):
     unsupported = overlay_active_build(ready, 'failed', 'admission.family_unmatched')
     assert unsupported['status'] == 'unsupported'
     assert unsupported['reason'] == 'admission.family_unmatched'
+
+
+def test_completed_current_page_overrides_stale_understanding_intervention(current):
+    from shuxueshuo_server.product.problem_presentation import overlay_active_build
+
+    stale = {
+        'title': '题目',
+        'title_kind': 'source_text',
+        'image_source_id': str(uuid4()),
+        'phase': 'understanding',
+        'status': 'needs_confirmation',
+        'reason': 'missing_figure',
+        'result_id': str(current[3]['id']),
+    }
+    page_id = uuid4()
+    result = overlay_active_build(
+        stale,
+        'succeeded',
+        current_page_build=True,
+        page_id=page_id,
+    )
+    assert result == {
+        **stale,
+        'phase': 'generation',
+        'status': 'ready',
+        'reason': None,
+        'result_id': str(page_id),
+    }
+
+
+def test_latest_build_page_overrides_stale_intervention_without_current_pointer(current):
+    """Notation pages may exist while problems.current_page_build_id is null."""
+    p, source, candidate, run, config = current
+    problem_id, build_id, page_id = uuid4(), uuid4(), uuid4()
+    created_at = datetime.now(UTC)
+    source = {**source, 'created_at': created_at}
+    candidate = {**candidate, 'candidate_json': {
+        **candidate['candidate_json'], 'match_status': 'matched', 'family_id': 'parabola',
+    }, 'created_at': created_at}
+    run = {**run, 'result_json': {'status': 'needs_confirmation'}, 'frozen': config, 'created_at': created_at}
+    record = {
+        **p,
+        'id': problem_id,
+        'current_source_version_id': source['id'],
+        'current_candidate_id': candidate['id'],
+        'latest_extraction_run_id': run['id'],
+        'understanding_generation': 1,
+        'latest_build_id': build_id,
+        'current_page_build_id': None,
+        'primary_source_id': source['id'],
+    }
+    legacy = {problem_id: {
+        'id': problem_id,
+        'domain_json': {},
+        'filename': 'question.png',
+        'status': 'succeeded',
+        'error_code': None,
+        'build_created_at': created_at,
+    }}
+
+    class Result:
+        def __init__(self, rows):
+            self.rows = rows
+
+        def mappings(self):
+            return self
+
+        def __iter__(self):
+            return iter(self.rows)
+
+    class Connection:
+        def __init__(self, responses):
+            self.responses = iter(responses)
+
+        def execute(self, _statement):
+            return Result(next(self.responses))
+
+    result = problem_presentations(Connection([
+        [source], [candidate], [run], [{'id': page_id, 'build_id': build_id}],
+    ]), [record], legacy)
+
+    assert result[problem_id]['status'] == 'ready'
+    assert result[problem_id]['phase'] == 'generation'
+    assert result[problem_id]['result_id'] == str(page_id)
 
 
 def test_source_review_admission_keeps_missing_figure_intervention(current):

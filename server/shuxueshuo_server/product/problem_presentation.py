@@ -26,7 +26,14 @@ def original_text_excerpt(candidate):
     return (excerpt[:240] + '…') if len(excerpt) > 240 else excerpt
 
 
-def overlay_active_build(presentation, build_status, build_error_code=None):
+def overlay_active_build(
+    presentation,
+    build_status,
+    build_error_code=None,
+    *,
+    current_page_build=False,
+    page_id=None,
+):
     """Extraction can finish while the lesson build is still projecting/solving.
 
     Admission refusals (unsupported family / missing adapter) are expected
@@ -40,6 +47,17 @@ def overlay_active_build(presentation, build_status, build_error_code=None):
             **presentation,
             'status': 'unsupported',
             'reason': build_error_code,
+        }
+    # A completed lesson page is the authoritative result of the current
+    # build. A reused/stale extraction presentation must not keep the workspace
+    # in an older needs_confirmation state after that page has been published.
+    if build_status == 'succeeded' and current_page_build:
+        return {
+            **presentation,
+            'phase': 'generation',
+            'status': 'ready',
+            'reason': None,
+            'result_id': str(page_id) if page_id else presentation['result_id'],
         }
     if presentation['status'] == 'ready' and build_status in ('queued', 'running'):
         return {
@@ -94,6 +112,10 @@ def problem_presentations(c, records, legacy, *, local=False):
     sources = indexed(m.problem_source_versions, 'current_source_version_id')
     candidates = indexed(m.problem_candidates, 'current_candidate_id')
     runs = indexed(m.extraction_runs, 'latest_extraction_run_id')
+    latest_build_ids = [p['latest_build_id'] for p in records if p['latest_build_id']]
+    pages = ({r['build_id']: r for r in c.execute(
+        select(m.page_builds).where(m.page_builds.c.build_id.in_(latest_build_ids))
+    ).mappings()} if latest_build_ids else {})
     config = None
     if sources:
         from .understanding_runtime import configuration
@@ -109,12 +131,21 @@ def problem_presentations(c, records, legacy, *, local=False):
             candidate = None
         if run and (run['source_version_id'] != p['current_source_version_id'] or run['generation'] != p['understanding_generation']):
             run = None
+        # v3 notation builds can publish a page without advancing the formal
+        # current_page_build_id pointer (their build-local revision cannot be
+        # attached to the problem revision). The latest build's page row is
+        # therefore the authoritative current page for presentation purposes.
+        page = pages.get(p['latest_build_id']) if p['latest_build_id'] else None
+        current_page_build = bool(page and details['status'] == 'succeeded')
+        page_id = page['id'] if page else p['current_page_build_id']
         activity_time = max(item['created_at'] for item in (source, candidate, run) if item) if source else None
         if source and (not details['build_created_at'] or activity_time >= details['build_created_at']):
             presentations[p['id']] = overlay_active_build(
                 understanding_presentation(p, source, candidate, run, config, local=local),
                 details['status'],
                 details.get('error_code'),
+                current_page_build=current_page_build,
+                page_id=page_id,
             )
         else:
             from .application import statement_text
@@ -135,6 +166,6 @@ def problem_presentations(c, records, legacy, *, local=False):
                 'image_source_id': str(p['primary_source_id']),
                 'phase': 'generation' if p['latest_build_id'] else 'upload',
                 'status': status, 'reason': reason,
-                'result_id': str(p['current_page_build_id']) if status == 'ready' and p['current_page_build_id'] else None,
+                'result_id': str(page_id) if status == 'ready' and page_id else None,
             }
     return presentations
