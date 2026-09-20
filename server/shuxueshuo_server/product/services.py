@@ -460,12 +460,8 @@ class ProductService:
                 lock(c, pool[0])
             problem(c, ctx, build['problem_id'], write=True, lock=build['pipeline_key'] in ('problem_understanding', 'problem_runtime_binding'))
             job = scoped(c, m.jobs, ctx, job_id, lock=True)
-            if enforce_environment and (
-                build['deployment_version'] != deployment_version
-                or self.registry.get(build['pipeline_key'], build['pipeline_version'])
-                != build['pipeline_snapshot']
-            ):
-                raise Conflict('execution.incompatible_environment')
+            # deployment_version / enforce_environment kept for call-site compatibility;
+            # fingerprint mismatch no longer refuses acquisition.
             timestamp = now(c)
             if job['status'] not in ('queued', 'running', 'interrupted') or job['cancel_requested_at']:
                 raise Conflict('job.terminal')

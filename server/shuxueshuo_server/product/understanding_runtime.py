@@ -22,7 +22,7 @@ from shuxueshuo_server.solver.extraction.multimodal_provider import (
 
 from . import models as m
 from .db import digest, transaction
-from .errors import Conflict, IntegrityFailure, ProductError
+from .errors import IntegrityFailure, ProductError
 from .repositories import row, scoped
 from .services import append_event, now, update
 from .understanding import registry
@@ -87,11 +87,6 @@ def run_product(x, provider=None):
         run = dict(row(c, m.extraction_runs, build_id=x.build['id']))
         source = dict(scoped(c, m.problem_source_versions, x.ctx, run['source_version_id']))
         candidate = row(c, m.problem_candidates, id=run['base_candidate_id']) if run['base_candidate_id'] else None
-    # Local development deliberately keeps queued runs usable across code/config
-    # edits.  The server still requires the frozen understanding configuration
-    # to match the worker's current deployment.
-    if x.app.settings.mode != 'local' and run['frozen'] != configuration():
-        raise Conflict('understanding.environment_changed')
     # Completed stage restoration remains available after process recovery.
     with transaction(x.service.db) as c:
         stage = row(c, m.build_stages, build_id=x.build['id'], stage_key='source')

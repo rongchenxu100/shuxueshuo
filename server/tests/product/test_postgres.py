@@ -551,9 +551,8 @@ def test_fail_incompatible_deployment_closes_queued_build(setup):
     assert s.fail_incompatible_deployment(ctx, build['build_id'])['status'] == 'failed'
 
 
-def test_publish_once_fails_retired_deployment_instead_of_routing(setup, monkeypatch):
+def test_publish_once_routes_retired_deployment_to_current_queue(setup, monkeypatch):
     from shuxueshuo_server.product import transport
-    from shuxueshuo_server.product.outbox import acknowledge
     from shuxueshuo_server.product.services import now
     from datetime import timedelta
     from uuid import uuid4
@@ -575,14 +574,13 @@ def test_publish_once_fails_retired_deployment_instead_of_routing(setup, monkeyp
     class Client:
         def send_task(self, *args, **kwargs):
             sent.append(kwargs)
-            raise AssertionError('retired deployments must not be published')
     class App:
         db = s.db
         service = s
     assert transport.publish_once(App(), Client(), current_version='current-v1') == 1
-    assert sent == []
+    assert len(sent) == 1
+    assert sent[0]['routing_key'] == 'product.build.current-v1'
     snapshot = s.build_snapshot(ctx, build['build_id'])
-    assert snapshot['build']['status'] == 'failed'
-    assert snapshot['build']['error_code'] == 'execution.incompatible_environment'
+    assert snapshot['build']['status'] == 'queued'
     with transaction(s.db) as c:
         assert row(c, m.outbox_messages, id=target['id'])['status'] == 'published'

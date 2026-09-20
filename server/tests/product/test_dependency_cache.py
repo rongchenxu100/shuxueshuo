@@ -125,21 +125,9 @@ def test_product_dependencies_keep_inputs_and_live_ocr_outside_cache(release, mo
     assert len(calls) == 1 and len(ocr_calls) == 3
 
 
-def test_guard_still_fences_cancellation_and_changed_release_with_cached_discovery(run_context, release, monkeypatch):
-    from test_runner import offline_discover
-    root, code = release
+def test_guard_still_fences_cancellation(run_context):
     app, x, _, _, _ = run_context
-    cache, calls = ReleaseDependencyCache(), []
-    def discover(): calls.append(1); return inventory(root)
-    first = cache.get(root, discover)
-    def dependencies(*args):
-        current = cache.get(root, discover)
-        return {**offline_discover(*args), 'deployment_version': 'offline-runner-v1' if current == first else 'changed'}
-    monkeypatch.setattr('shuxueshuo_server.product.execution.dependencies', dependencies)
-    x.guard(); x.guard()
-    assert len(calls) == 1
-    code.write_text('value = 2')
-    with pytest.raises(Conflict, match='environment_changed'): x.guard()
+    x.guard()
     app.service.cancel(app.ctx, x.build['id'])
     with pytest.raises(Conflict): x.guard(code=False)
 

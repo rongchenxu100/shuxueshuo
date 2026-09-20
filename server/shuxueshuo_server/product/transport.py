@@ -76,15 +76,12 @@ def supervise(runtime, version, message):
                 f'local:{os.getpid()}',
                 deployment_version=version,
                 lease_seconds=90,
-                enforce_environment=not _local_dev_for(a),
+                enforce_environment=False,
             )
         except Conflict as exc:
             if str(exc) in ('execution.already_owned', 'job.terminal'): return
             if str(exc) == 'execution.capacity':
                 raise Reject('execution.capacity', requeue=True) from None
-            if str(exc) == 'execution.incompatible_environment':
-                a.service.fail_incompatible_deployment(ctx, build_id)
-                return
             raise Reject('product.incompatible_worker', requeue=False) from None
         if execution['status'] == 'failed': return
         args = (ctx, build_id, execution['id'], execution['epoch'])
@@ -150,18 +147,8 @@ def _local_dev_for(application):
 
 
 def fail_stale_deployments(a, current_version):
-    """Fail builds frozen to a retired deployment in the server environment."""
-    if _local_dev_for(a):
-        return 0
-    with transaction(a.db) as c:
-        builds = c.execute(select(m.builds).where(
-            m.builds.c.deployment_version != current_version,
-            m.builds.c.id.in_(select(m.jobs.c.build_id).where(m.jobs.c.status.in_(('queued', 'running', 'interrupted')))),
-        ).limit(50)).mappings().all()
-        targets = [(dict(build), row(c, m.problems, id=build['problem_id'])['owner_user_id']) for build in builds]
-    for build, owner_user_id in targets:
-        a.service.fail_incompatible_deployment(UserContext(build['workspace_id'], owner_user_id), build['id'])
-    return len(targets)
+    """No-op: deployment fingerprints are not enforced."""
+    return 0
 
 
 def publish_once(a, client, current_version=None):
@@ -170,22 +157,14 @@ def publish_once(a, client, current_version=None):
     for message in messages:
         with transaction(a.db) as c:
             build = row(c, m.builds, id=UUID(message['payload']['build_id']))
-            owner = row(c, m.problems, id=build['problem_id'])['owner_user_id'] if build else None
         if not build:
             with transaction(a.db) as c:
                 try: acknowledge(c, message['id'], message['publisher_token'], confirmed=True, error=None)
                 except Conflict: pass
             continue
-        if not _local_dev_for(a) and build['deployment_version'] != current_version:
-            # reserve() returns the pre-increment count; the row already advanced by one.
-            a.service.fail_incompatible_deployment(UserContext(build['workspace_id'], owner), build['id'])
-            with transaction(a.db) as c:
-                try: acknowledge(c, message['id'], message['publisher_token'], confirmed=True, error=None)
-                except Conflict: pass
-            continue
         try:
-            queue_version = current_version if _local_dev_for(a) else build['deployment_version']
-            queue = queue_for(queue_version)
+            # Always route to the live worker queue; do not fail on stamped fingerprint.
+            queue = queue_for(current_version)
             client.send_task('product.execute', args=[{'protocol_version': message['protocol_version'], **message['payload']}],
                 task_id=str(message['id']), queue=Queue(queue, Exchange('product', durable=True), routing_key=queue,
                 durable=True, queue_arguments={'x-queue-type': 'classic'}), routing_key=queue, retry=False)

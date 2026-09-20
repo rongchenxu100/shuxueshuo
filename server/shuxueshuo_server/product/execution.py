@@ -13,7 +13,6 @@ from collections.abc import Mapping
 from sqlalchemy import select, func
 
 from . import models as m
-from .application import dependencies
 from .db import transaction, digest
 from .errors import Conflict, IntegrityFailure, ProductError
 from .repositories import row, scoped
@@ -65,37 +64,14 @@ class ExecutionContext:
     def guard(self, *, code=True):
         with transaction(self.service.db) as c: self.service._guard(c, *self.args)
         if code:
-            local_development = self.app.settings.mode == 'local'
-            if self.build['pipeline_key'] == 'problem_runtime_binding':
-                from .runtime_binding import configuration
-                if not local_development and self.build['effective_config']['binding'] != configuration():
-                    raise Conflict('build.environment_changed')
-                return
-            if self.build['pipeline_key'] == 'problem_understanding':
-                from .understanding_runtime import configuration, target_dependencies
-                with transaction(self.service.db) as c:
-                    run = row(c, m.extraction_runs, build_id=self.build['id'])
-                    source = row(c, m.problem_source_versions, id=run['source_version_id'])
-                if not local_development and run['frozen'] != configuration():
-                    raise Conflict('build.environment_changed')
-                target = target_dependencies(source, run['base_candidate_id'], run['frozen'])
-                if not local_development and target['deployment_version'] != self.build['deployment_version']:
-                    raise Conflict('build.environment_changed')
+            if self.build['pipeline_key'] in ('problem_runtime_binding', 'problem_understanding'):
                 return
             extraction = next((s for s in self.build['pipeline_snapshot']['stages'] if s['stage_key'] == 'extraction'), None)
             if (self.build['pipeline_version'] in ('v1', 'v2')
                     or (self.build['pipeline_version'] == 'v3' and extraction and extraction['contract_version'] != 'problem-math-notation/v1')
                     or (self.build['pipeline_version'] not in ('v1', 'v2', 'v3') and extraction and extraction['contract_version'] not in ('v2', 'problem-math-notation/v1'))):
                 raise Conflict('extraction.rebuild_required')
-            target = dependencies(self.source, self.build['requested_revision_id'], self.build['pipeline_snapshot'])
-            if (
-                not local_development
-                and (
-                    target['deployment_version'] != self.build['deployment_version']
-                    or target['config'] != self.build['effective_config']
-                )
-            ):
-                raise Conflict('build.environment_changed')
+            # Deployment fingerprints are no longer compared; frozen build config runs as-is.
 
     def begin(self, stage_key):
         self.guard()
