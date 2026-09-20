@@ -147,11 +147,14 @@ def dependencies(source, revision_id, snapshot):
             'semantic_budget': 0,
             'network_budget': 0,
         }
-    resources = {k: v['resources'] for k, v in discovered['stages'].items()}
+    # Fingerprint must match worker/publisher deployment_version(), which hashes
+    # discovered stage resources without the per-build product_runtime stamp.
+    # Copy resource dicts before mutating so the cached discovery stays clean.
+    version = deployment_version(discovered)
+    resources = {k: dict(v['resources']) for k, v in discovered['stages'].items()}
     runtime = {str(p.relative_to(REPO)): sha256(p.read_bytes()).hexdigest()
                for p in sorted((REPO / 'server/shuxueshuo_server/product').rglob('*.py'))}
     resources['source']['product_runtime'] = digest(runtime)
-    version = deployment_version(discovered)
     target, upstream = {}, {}
     for index, stage in enumerate(snapshot['stages']):
         key = stage['stage_key']
