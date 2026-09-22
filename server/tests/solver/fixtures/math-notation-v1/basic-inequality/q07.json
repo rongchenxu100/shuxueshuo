@@ -1,0 +1,14 @@
+{
+  "original_text": "3. 若 a>0，b>0，则 1/a+a/b^2+b 的最小值为____。",
+  "root": {
+    "label": "q07",
+    "facts": ["a > 0", "b > 0"],
+    "goals": [{"kind": "find_minimum", "expression": "1/a+a/b^2+b"}],
+    "children": [],
+    "definitions": [],
+    "uncertainties": []
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出两个正项变量并求代数式的最小值。"
+}

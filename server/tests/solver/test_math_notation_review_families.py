@@ -24,10 +24,18 @@ def test_current_families_all_have_source_review_guidance():
     registry = list(problem_domain_family_catalog())
     source = json.loads(FAMILIES_PATH.read_text())
     context = review_family_context(registry)
-    assert {f["family_id"] for f in source["families"]} == {
+    # The review catalog may contain notation-only families that are not yet
+    # executable in DEFAULT_FAMILY_REGISTRY. Every runtime family still needs
+    # guidance, while the extra entries are selected only when notation asks
+    # for them.
+    assert {f["family_id"] for f in source["families"]} >= {
         f["family_id"] for f in registry
     }
-    assert context["registered_families"] == source["families"]
+    assert context["registered_families"] == [
+        family for family in source["families"] if family["family_id"] in {
+            item["family_id"] for item in registry
+        }
+    ]
     assert context["family_review_scope"] == source["review_scope"]
     # A regression to the old authoring catalog is not a harmless prompt change.
     text = json.dumps(context, ensure_ascii=False)

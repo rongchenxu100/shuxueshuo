@@ -9,6 +9,7 @@ SYSTEM_PATH = ROOT / "internal/llm-prompts/problem-math-notation-system.md"
 USER_PATH = ROOT / "internal/llm-prompts/problem-math-notation-user.md"
 SCHEMA_PATH = ROOT / "internal/schemas/problem-math-notation-v1.schema.json"
 EXPRESSIONS_PATH = ROOT / "internal/llm-prompts/problem-math-notation-expressions.json"
+FAMILY_CATALOG_PATH = ROOT / "internal/llm-prompts/problem-math-notation-families.json"
 TEMPLATE_FILES = (SYSTEM_PATH, USER_PATH, SCHEMA_PATH, EXPRESSIONS_PATH)
 
 

@@ -22,7 +22,7 @@
 
 必须遵守以下原则：
 
-1. **数学表达式优先。** LLM 输出 `a+b≥2√(ab)`、`u=x²`、`x=±√u` 和完整等价式链，不输出内部 AST、Fact ID、`term1`、`term2` 或操作标签。
+1. **数学表达式优先。** LLM 输出 `a+b≥2√(ab)`、`u:=x²`、`x=±√u` 和完整等价式链；逻辑关系首轮只使用数学符号 `∵`、`∴`，不输出自然语言、内部 AST、Fact ID、`term1`、`term2` 或操作标签。
 2. **8 个 Method 统一协议。** M01、M07、M08、M09、M11、M12、M13、M14 都接收直接数学表达式；有的验证候选，有的根据已验证表达式计算唯一结果。
 3. **候选与事实分离。** LLM 输出在 Parser 和 Runtime 验证前只是候选，不能直接写入 StateVersion、Canonical Fact 或答案。
 4. **来源表达式保留。** 保存原始数学字符串、source path、表达式树节点、规范 AST、前提、proof 和规则集 hash；规范化不能覆盖原文。
@@ -41,6 +41,7 @@
 当前差距：
 
 - Parser 还不能完整处理 `√`、一般函数、直接不等式关系和带 source span 的关系 AST；
+- 设计文档已经确定唯一的 `basic_inequality` Family，但代码注册表尚未注册该 Family；
 - 还没有统一的正性、分母符号、根式定义域和不等式方向证明器；
 - M07、M08、M09、M11、M12、M13、M14 仍主要停留在设计协议，尚未形成完整 runtime 能力；
 - M11 尚不能从完整不等式的左右表达式差异中恢复两个正项；
@@ -51,7 +52,7 @@
 
 ### 3.1 最小公共表达式协议
 
-公开调用保留现有 `step_id`、`capability_id` 和 `args` 外壳。所有表达式型 Method 的 LLM-facing 候选只使用 `math` 或 `steps[].math`。题设条件、变量域、前提选择、目标角色和已验证中间事实由编译器从当前 Scope 绑定或从表达式链推导，不要求 LLM 填写语义角色字段。
+公开调用保留现有 `step_id`、`capability_id` 和 `args` 外壳。所有表达式型 Method 的 LLM-facing 候选只使用 `math` 或 `steps[].math`；M01 等多步 Method 使用 `steps[]`。题设条件、变量域、前提选择、目标角色和已验证中间事实由编译器从当前 Scope 绑定或从表达式链推导，不要求 LLM 填写语义角色字段。
 
 例如，M11 可以只提交：
 
@@ -72,7 +73,35 @@
 - `bound_fact_id`、`method_output_key`、`rule_id`；
 - 由代码才能确定的根、区间、正项身份和 Canonical Fact。
 
-因此，公共协议不再强行定义一个包含 `math`、`using`、`equality`、`restore` 的“大而全”对象，而是采用“必需的 `math` + 按 Method 增加的可选表达式字段”。
+因此，公共协议不再强行定义一个包含 `math`、`using`、`equality`、`restore` 的“大而全”对象，而是采用“直接数学表达式 `math` + 编译器推导内部关系”的形式。
+
+### 3.1.1 受控逻辑符号
+
+首轮只引入两个因果符号：
+
+```text
+∵ 前提表达式₁，前提表达式₂
+∴ 结论表达式
+```
+
+例如：
+
+```json
+{
+  "steps": [
+    {"math": "u:=x²"},
+    {"math": "v:=y²"},
+    {"math": "∵ 5x²y²+y⁴=1"},
+    {"math": "∴ 5uv+v²=1"},
+    {"math": "∵ a>0，b>0"},
+    {"math": "∴ a+b+1≥2√(ab)+1"}
+  ]
+}
+```
+
+换元不使用“设”字段；`u:=x²`、`u≔x²`表示定义，首选 `:=`。`=`保留为普通等式，`≡`表示恒等关系，不作为首轮换元定义符号。
+
+Parser 只识别 `∵`、`∴`、`:=`、`≔` 和数学关系本身，生成内部的 premise/conclusion/definition 标记；这些标记不由 LLM 填写。`∵` 行只允许顶层逗号分隔的并列前提，逗号表示前提合取；`∴` 行只允许一个结论关系。前提行和结论行按相邻顺序配对，必要时由代码记录明确的步骤范围。若缺少 `∵` 或 `∴`，可以按单纯数学表达式处理；若符号前后的关系无法验证，返回步骤级诊断。首轮不引入“因为、所以、由、得、利用、应用基本不等式”等自然语言关键词。
 
 字段定义明确如下：
 
@@ -80,10 +109,10 @@
 |---|---|---:|---|
 | `step_id` | 调用外壳 | 是 | 本次公开步骤的稳定标识；不是数学事实。 |
 | `capability_id` | 调用外壳 | 是 | LLM 选择的公开能力；不是内部 `method_id` 或 AST 类型。 |
-| `args` | 调用外壳 | 是 | 当前 Scope 已绑定的输入，例如目标 Expression 和可见条件集合。 |
+| `args` | Runtime 调用外壳 | 是（内部） | 当前 Scope 已绑定的输入，例如目标 Expression 和可见条件集合；LLM-facing 输出通常省略，由编译器注入。 |
 | `parameters` | 调用外壳 | 视 Method | 当前 Method 的数学候选；其中的值必须是直接数学表达式。 |
 | `math` | Method 参数 | 单关系 Method 必填 | 一条完整等式或不等式；M11、M14 使用此字段。 |
-| `steps` | Method 参数 | Method-specific | 有序数学表达式数组；每项只有 `math`。M01 使用它保留等价链。 |
+| `steps` | Method 参数 | Method-specific | 有序数学表达式数组；每项只有 `math`，可在表达式内部使用 `∵`、`∴` 或 `:=`。 |
 | `using` | Runtime 内部 | 不输出 | 编译器从表达式差异和可见条件推导实际使用的前提。 |
 | `definition` | Runtime 内部 | 不输出 | 从换元或和积表达式中识别出的定义关系。 |
 | `transformed_target` | Runtime 内部 | 不输出 | 从输入目标和表达式链推导出的目标状态。 |
@@ -93,20 +122,20 @@
 | `equality` / `equalities` | Runtime 内部 | 不输出 | 从不等式模板、平方项或闭合表达式生成的取等候选。 |
 | `domain` | Runtime 内部 | 不输出 | 从当前 Scope 和表达式 free symbols 推导的变量域。 |
 
-因此，典型调用是：
+因此，LLM-facing 的典型输出是：
 
 ```json
 {
-  "step_id": "bound_1",
   "capability_id": "apply_two_term_amgm",
-  "args": {"expression": "current_expression"},
   "parameters": {
     "math": "a+b+1≥2√(ab)+1"
   }
 }
 ```
 
-这里题设条件 `a>0`、`b>0` 通过 `current_expression` 所属 Scope 自动可见；`parameters.math` 是 LLM 提交的候选不等式。标准 AM-GM 不需要 `using` 或 `equality`。
+这里 `parameters.math` 是 LLM 提交的候选不等式。当前表达式、题设条件和前一步 Method 输出由编译器从 Scope 自动绑定；`step_id`、内部 `args.expression` 和 StateVersion 由编译器/runtime 注入，不属于模型需要填写的数学内容。标准 AM-GM 不需要 `using` 或 `equality`。
+
+`args.expression` 如果出现在内部 Method contract 中，表示“本次 Method 要读取的当前 Expression 状态”，不是字符串值 `current_expression`，也不是 LLM 要构造的字段。
 
 ### 3.2.1 统一的表达式链输入
 
@@ -125,7 +154,7 @@
 }
 ```
 
-每一行只有完整数学表达式。Method contract 根据输入对象、表达式关系和预期输出类型判断哪一行是定义、目标改写、前提改写或还原关系。M11/M14 只有一条关系时可使用 `math` 简写；M01 使用 `steps` 保留完整等价链。必要的前提绑定由代码尝试从当前 Scope 的可见条件中证明：先尝试单个条件，再尝试有界的条件组合；唯一成功时记录内部 provenance，多解时返回 `premise_ambiguous`，无解时返回 `premise_unresolved`。
+每一行都是完整数学表达式，可在表达式内部使用 `∵`、`∴` 或 `:=`。Method contract 根据输入对象、表达式关系和预期输出类型判断哪一行是定义、目标改写、前提改写或还原关系。M11/M14 只有一条关系时可使用 `math` 简写；M01 使用 `steps` 保留完整等价链。必要的前提绑定由代码尝试从当前 Scope 的可见条件中证明：先尝试单个条件，再尝试有界的条件组合；唯一成功时记录内部 provenance，多解时返回 `premise_ambiguous`，无解时返回 `premise_unresolved`。
 
 如果推断失败，Runtime 不要求 LLM 填写 `using`、`transformed_target` 或其他角色字段，而是返回可直接执行的数学诊断。诊断至少包含失败步骤号、原始表达式、前后表达式、期望关系类型、缺失的前提或证明、当前可见候选条件，以及建议补充的直接数学步骤。LLM 只需在原 Scope 内补充或改写数学表达式；补充内容仍须经过同一 Parser、证明内核和 Method contract 验证。
 
@@ -151,12 +180,12 @@ Repair Prompt 应要求模型补充 `x+1>0` 这样的直接数学表达式，不
 | M07 `introduce_semantic_substitution` | `steps[].math`：换元、改写和还原表达式 | 映射、可行域、非一一分支和还原 | substitution Fact 与新表达式状态 |
 | M08 `eliminate_by_constraint` | `steps[].math`：消元、代入和范围表达式 | 除法前提、等价代入和范围 | elimination Fact 与降维状态 |
 | M09 `reduce_symmetric_sum_product` | `steps[].math`：和积定义、转换和还原式 | 对称性、判别式、实根和正根条件 | sum-product Fact 与可行域 |
-| M11 `apply_two_term_amgm` | 一条完整 `math` 不等式 | 从 Scope 取得前提，完成正项识别、模板匹配、方向和目标对应 | `amgm_bound` Fact 与等号条件 |
+| M11 `apply_two_term_amgm` | `steps[].math` 的 `∵` 前提行 + `∴` 结论行；前提已在 Scope 时可省略 | 完成正项识别、模板匹配、方向和目标对应 | `amgm_bound` Fact 与等号条件 |
 | M12 `bound_univariate_quadratic` | `steps[].math`：配方式和下界关系 | 平方非负、参数域、界可达性 | `quadratic_bound` Fact |
 | M13 `close_equality_and_restore` | `steps[].math`：取等、分支还原和原题代回 | 联立、分支、可达性和原题验算 | extremal witness 或完整可达性证据 |
 | M14 `solve_univariate_inequality` | 一条完整 `math` 不等式；变量域从 Scope 读取 | 代码计算精确解集 | interval solution；LLM 不填根和区间答案 |
 
-M13 可以在公开能力层保持为 Family closure/Macro；如果内部保留 kernel，也不能要求 LLM 了解其内部 wiring。
+M13 可以在公开能力层保持为 Family closure/Macro；如果内部保留 kernel，也不能要求 LLM 了解其内部 wiring。M11 的前提和结论默认分两行，只有当全部前提都能从 Scope 唯一证明时，才允许用单行 `math` 简写。
 
 ## 4. 分阶段实施
 
@@ -164,22 +193,76 @@ M13 可以在公开能力层保持为 Family closure/Macro；如果内部保留 
 
 任务：
 
-- 在基本不等式主设计中维护 8 个 Method 的表达式优先协议；
-- 为每个 Method 建立公开 capability、参数 schema、输出 contract 和错误分类；
-- 从 31 道题中挑选覆盖不同题意结构的代表性例题，建立 DeepSeek 题意提取集成测试；
-- 测试真实的图片/题面输入、抽取 Prompt、直接数学表达式输出、条件、目标、问题类型和子问边界；
-- 为每个代表性测试保存原始输入、模型响应、规范化表达式、抽取诊断和人工确认的 expected extraction；
-- 先验证抽取结果，再冻结通过测试的抽取产物；
-- 将 `angle(...)` 类内部记法排除在所有 Prompt 示例和 repair 建议之外。
+- 只验证 `problem-math-notation/v1` 的“图片 → 数学记法候选”链路，不调用 Method、ProblemIR、Runtime binding 或网页生成；
+- 使用 `server/shuxueshuo_server/problem_understanding/notation_family_catalog.py` 和 `internal/llm-prompts/problem-math-notation-families.json` 作为数学记法专用 Family catalog。它包含既有四个几何来源 Family 与 `basic_inequality`，不导入 `DEFAULT_FAMILY_REGISTRY`；
+- 把 `basic_inequality` 的来源匹配限制为正项、等式/不等式、最大值、最小值、范围和参数目标；Family 只作为抽取上下文，不授予 Runtime 执行能力；
+- Prompt 和表达式目录只要求直接数学表达式：`a > 0`、`a+b = 2`、`max(ab)`、`min(x+4/(x+1))`、`x+y`。不要求 `term1`、`using`、`transformed_target`、`right_angle` 或任何内部 AST；直角仍写 `∠ABC = 90°`；
+- 冻结 q01、q03、q07、q08、q12、q17、q20、q25、q30、q31 的单图 image-only fixture、图片 SHA-256/尺寸/来源、数学记法金标和原始题面；q25 的 condition/objective 已按题面顺序合成为一张 `source.png`；
+- 使用 `server/shuxueshuo_server/problem_understanding/basic_inequality_smoke.py` 执行批次。每题必须运行两个独立样本；每个样本保存 request、raw response、parsed、normalized/canonical、comparison、call metadata 和 frozen metadata；
+- 离线回放使用 `server/tests/solver/test_basic_inequality_math_notation.py`，校验 Schema、Parser/Typecheck、semantic canonicalization、Family、直接表达式禁门和图片 hash；live 门禁位于 `test_basic_inequality_math_notation_live.py`，默认跳过；
+- 失败样本只保留诊断，不写入冻结金标。修复 Prompt、表达式目录或诊断协议后重新运行；不以 unmatched 或手工 ProblemIR 绕过门禁。
 
-完成标准：代表性 DeepSeek 提取集成测试稳定通过，输出只使用直接数学表达式；未通过的样例先修复抽取 Prompt、表达式目录或诊断协议，不进入 ProblemIR 建设。
+完成标准：离线 10 题金标全部可回放并通过 `NotationValidator` 和 canonicalization；设置 `RUN_LLM_INTEGRATION=1` 后，以下命令的 20/20 样本通过，并且每个样本可离线回放：
 
-### 阶段 1：根据通过的提取结果建立 ProblemIR
+```bash
+cd server
+RUN_LLM_INTEGRATION=1 uv run pytest -q tests/solver/test_basic_inequality_math_notation_live.py -m live_llm
+```
+
+阶段 0 结束时冻结 `server/tests/solver/fixtures/math-notation-v1/basic-inequality/` 下的图片、金标和批次元数据。阶段 1 只能消费这些通过的候选建立 q01–q31 ProblemIR。
+
+实现状态（2026-09-21）：Family catalog、Prompt/表达式目录、10 题离线 fixture、gold replay 和 live 测试入口已实现；尚未执行真实 DeepSeek 20 次调用，因此阶段 0 尚未宣称完成。
+
+### 阶段 0.5：定义基本不等式 Family 契约和注册骨架
+
+这一阶段专门定义 Family，不实现具体题目的求解路线。Family 是题型级能力边界，不能由 q01–q31 的题号或某一道题的答案反推。
+
+任务：
+
+- 新增 `basic_inequality` Family 规格，固定 `family_id`、`pattern`、`problem_type`、常见目标类型、来源要求和 `do_not_use_when`；
+- 向 LLM 提供一个 `strategy_overview` 和六个规划方法定义：直接应用基本不等式、找对称结构、配齐次式、多次应用基本不等式、换元法、条件消元法；它们只用于生成 plan step 的数学路线，不是 `method_id`、`capability_id` 或代码路由；
+- 在后续可执行 Family 规格中声明 8 个 Runtime Method：M01、M07、M08、M09、M11、M12、M13、M14；LLM 参考六种思路，从这些可执行 Method 中选择 plan 的能力；代码依据能力契约验证表达式并关联实现，不按思路名称 dispatch；
+- 声明 Family 可引用的 capability pack、Method binding 规则、标准 recipe 和讲解 rule ID；
+- 创建 Family 注册骨架，建议实现文件为 `server/shuxueshuo_server/solver/family/basic_inequality.py`；
+- 此时只完成规格校验和 registry contract，不把尚未实现的 Method 宣称为可执行能力；
+- Family 匹配只使用结构化 `pattern/problem_type`。LLM 提供的 family 标签只能作为候选，不能绕过 `FamilyRegistry` 的唯一匹配和 contract 校验。
+
+LLM 规划输入的唯一总体路线字段是 `strategy_overview`，六个方法定义作为同一参考块提供。不要恢复 `strategy_principles` 数组，也不要把六个规划方法写入 Runtime capability catalog。六种思路可以嵌套、重复或对应多个步骤；LLM 参考它们后，从 Capability Catalog 中选择已有 `capability_id`，用直接数学表达式填写各 Method 契约允许的数学内容。若当前 plan 协议已有 `strategy`、`intent` 或方法说明字段，可以记录所采用的思路，但不能用思路名称替代 `capability_id`、`recipe_hint`，也不允许代码从自然语言推断方法调用。
+
+参考内容见[主设计 §1.1](basic-inequality-method-discussion.md#family-rules)与 [`basic-inequality-strategy.json`](../internal/llm-prompts/basic-inequality-strategy.json)。目前已提供仅在 `basic_inequality` 上下文启用的 planner/repair Prompt 注入入口；Family 尚未注册到生产 Runtime，不代表该题型的 plan 已可执行。题意抽取 Prompt 不接收这些求解参考。
+
+建议的最小匹配声明为：
+
+```python
+SolverFamilySpec(
+    family_id="basic_inequality",
+    match=FamilyMatchRule(
+        patterns=("basic-inequality",),
+        problem_types=("basic_inequality",),
+    ),
+    method_ids=(
+        "organize_expressions",
+        "introduce_semantic_substitution",
+        "eliminate_by_constraint",
+        "reduce_symmetric_sum_product",
+        "apply_two_term_amgm",
+        "bound_univariate_quadratic",
+        "close_equality_and_restore",
+        "solve_univariate_inequality",
+    ),
+)
+```
+
+完成标准：FamilySpec 可以通过 authoring guidance、source requirement、Method allowlist 和唯一匹配校验；但在 capability 尚未实现前，不能进入生产 Runtime 的可执行 registry。
+
+### 阶段 1：根据通过的提取结果建立 ProblemIR，并验证 Family 匹配
 
 任务：
 
 - 只使用阶段 0 已通过并冻结的抽取结果建立 ProblemIR；
 - 为 q01–q31 建立目标表达式、条件表达式、变量域、问题类型、子问边界和预期答案 fixture；
+- 将基本不等式题的结构化路由字段固定为 `pattern="basic-inequality"`、`problem_type="basic_inequality"`，由 `FamilyRegistry` 验证其唯一匹配；
+- ProblemIR 可以保存 `family_id` 作为经过验证的投影结果，但不能把未验证的 LLM family 字符串直接当作执行授权；
 - 保留每道题的原始抽取、规范表达式、source path、抽取版本和人工确认记录；
 - 为每题保存允许路线、Method 链、页面步骤数量和必须出现的数学证据；
 - 抽取结果无法唯一确定时，不猜测 ProblemIR，先回到 DeepSeek 提取测试修复。
@@ -307,10 +390,13 @@ s∈R
 
 代码计算精确区间、开闭端点、单点、空集或全域。LLM 不能填写根、符号表或最终区间作为事实。
 
-### 阶段 6：实现 M13、Canonical Fact 和 Runtime binding
+### 阶段 6：实现 M13、Canonical Fact、Family Runtime 注册和 binding
 
 任务：
 
+- 完成 `basic_inequality.py` 的 Family 实际注册，并将其加入 `DEFAULT_FAMILY_REGISTRY`；
+- 将已实现的 8 个 Method capability contract、binding rule 和 recipe 通过 capability pack 展开到该 Family；
+- 在 Runtime preflight 中检查 Family 已注册、Method 属于 Family allowlist、输入 Scope 和 Goal contract 完整；
 - 将 M11/M12/M14 的结果统一绑定为可消费的 Canonical Fact；
 - 保存原始表达式、规范 AST、premises、proof、equality conditions 和 source path；
 - 在 StateVersion 中区分等价更新和不等式下界，不把下界覆盖为原目标；
@@ -319,7 +405,7 @@ s∈R
 - 将 rule hash、semantic hash、provenance 写入 binding artifact；
 - Runtime 只消费 Canonical Fact，不要求 LLM 暴露内部 AST。
 
-完成标准：q12、q17、q18、q21、q25、q30、q31 的多阶段关系可以提交、回滚和重放。
+完成标准：`basic_inequality` 能通过生产 `DEFAULT_FAMILY_REGISTRY` 唯一匹配；8 个 Method 的已实现子集能够通过 capability contract、binding、Canonical Fact 和 Runtime preflight；q12、q17、q18、q21、q25、q30、q31 的多阶段关系可以提交、回滚和重放。
 
 ### 阶段 7：讲解规则、LessonIR 和网页生成
 

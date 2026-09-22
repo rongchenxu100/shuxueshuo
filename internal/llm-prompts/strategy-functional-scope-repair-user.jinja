@@ -1,4 +1,4 @@
-请根据以下四部分数据输出完整的 `functional-scope-repair/v1` JSON；协议规则以 system message 和 Output JSON Schema 为准。
+请根据以下数据输出完整的 `functional-scope-repair/v1` JSON；协议规则以 system message 和 Output JSON Schema 为准。
 
 ## Problem Planning Context
 
@@ -7,6 +7,10 @@
 ## Annotated Previous Plan
 
 {{ payload.annotated_previous_plan | compact_json }}
+
+{% if payload.get("strategy_overview") %}
+{% include "strategy-planning-reference.jinja" %}
+{% endif %}
 
 ## Functional Capability Catalog
 

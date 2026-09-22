@@ -59,6 +59,9 @@ BUILTINS = {
     "cut_ratio",
     "x",
     "y",
+    # Keep x/y here so x(P)/y(P) are recognized as coordinate calls. The
+    # compiler separately permits bare x/y as scalar variables for algebraic
+    # notation.
     "axis",
     "vertex",
     "min",

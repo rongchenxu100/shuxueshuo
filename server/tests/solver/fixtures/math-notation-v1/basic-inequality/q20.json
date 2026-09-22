@@ -1,0 +1,14 @@
+{
+  "original_text": "已知 x>0，y>0，且 (x-y)^2=(x*y)^3，求 1/x+1/y 的最小值。",
+  "root": {
+    "label": "q20",
+    "facts": ["x > 0", "y > 0", "(x-y)^2 = (x*y)^3"],
+    "goals": [{"kind": "find_minimum", "expression": "1/x+1/y"}],
+    "children": [],
+    "definitions": [],
+    "uncertainties": []
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出正性和代数约束，并求倒数和的最小值。"
+}

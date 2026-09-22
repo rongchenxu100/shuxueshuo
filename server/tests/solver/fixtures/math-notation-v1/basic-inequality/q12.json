@@ -1,0 +1,14 @@
+{
+  "original_text": "已知 5x^2*y^2+y^4=1（x，y∈R），则 x^2+y^2 的最小值是____。",
+  "root": {
+    "label": "q12",
+    "facts": ["5*x^2*y^2+y^4 = 1", "x ∈ ℝ", "y ∈ ℝ"],
+    "goals": [{"kind": "find_minimum", "expression": "x^2+y^2"}],
+    "children": [],
+    "definitions": [],
+    "uncertainties": []
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出二元代数约束和最小值目标，保留实数域与原式结构。"
+}

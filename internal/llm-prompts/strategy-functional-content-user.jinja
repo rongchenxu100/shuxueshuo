@@ -14,9 +14,13 @@
 
 {{ payload.plan_authority_frame | compact_json }}
 
+{% if payload.get("strategy_overview") %}
+{% include "strategy-planning-reference.jinja" %}
+{% else %}
 ## Strategy Principles
 
 {{ payload.strategy_principles | compact_json }}
+{% endif %}
 
 ## Functional Capability Catalog
 

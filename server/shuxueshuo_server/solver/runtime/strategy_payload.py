@@ -102,6 +102,32 @@ class PlannerStateContextDebugSource(ContextSemanticReadSource, Protocol):
         """Return context event payload."""
 
 
+def _basic_inequality_strategy_reference() -> dict[str, Any]:
+    """Load the LLM-only planning vocabulary for basic inequalities.
+
+    The six names in this asset describe mathematical routes for the planner.
+    They are deliberately kept outside ``SolverFamilySpec.method_ids`` and the
+    runtime capability catalog: a planner may mention or compose them without
+    turning a natural-language route into a code dispatch key.
+    """
+
+    path = repo_root() / "internal/llm-prompts/basic-inequality-strategy.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("basic inequality strategy reference must be an object")
+    if payload.get("family_id") != "basic_inequality":
+        raise ValueError("basic inequality strategy reference has wrong family_id")
+    if (
+        not isinstance(payload.get("strategy_overview"), str)
+        or not payload["strategy_overview"].strip()
+    ):
+        raise ValueError("basic inequality strategy reference needs strategy_overview")
+    methods = payload.get("methods")
+    if not isinstance(methods, list) or len(methods) != 6:
+        raise ValueError("basic inequality strategy reference must define six methods")
+    return payload
+
+
 def _prompt_capability_catalog(
     inputs: PlannerInputs,
     payload: Mapping[str, Any],
@@ -254,11 +280,20 @@ class StrategyPayloadBuilder:
             if isinstance(retry_problem_context, dict)
             else problem_planning_context.to_prompt_payload()
         )
-        return {
+        strategy_reference = (
+            _basic_inequality_strategy_reference()
+            if inputs.family_spec.family_id == "basic_inequality"
+            else None
+        )
+        result = {
             "planner_protocol": "functional_plan/v1",
             "problem_id": inputs.problem_id,
             "family_id": inputs.family_spec.family_id,
             "problem_planning_context": prompt_problem_context,
+            # Legacy families continue to expose their existing planner
+            # context. Basic inequality replaces it with the LLM-only route
+            # vocabulary below, so the model receives one overview rather
+            # than a second strategy-principles channel.
             "strategy_principles": list(inputs.family_spec.strategy_principles),
             "functional_capability_catalog": (
                 functional_catalog.to_prompt_payload()
@@ -268,6 +303,11 @@ class StrategyPayloadBuilder:
             "previous_attempt_state": previous_attempt_state,
             "output_json_schema": FUNCTIONAL_PLAN_JSON_SCHEMA,
         }
+        if strategy_reference is not None:
+            result.pop("strategy_principles", None)
+            result["strategy_overview"] = strategy_reference["strategy_overview"]
+            result["planning_methods"] = strategy_reference.get("methods", [])
+        return result
 
     def build_scoped(
         self,
@@ -357,6 +397,11 @@ class StrategyPayloadBuilder:
             "planner_protocol": FUNCTIONAL_SCOPE_REPAIR_CONTRACT,
             "problem_id": inputs.problem_id,
             "family_id": inputs.family_spec.family_id,
+            **{
+                key: base[key]
+                for key in ("strategy_overview", "planning_methods")
+                if key in base
+            },
             "problem_planning_context": (
                 problem_planning_context.to_prompt_payload()
             ),
@@ -1203,6 +1248,8 @@ def write_strategy_debug_artifacts(
         "problem_planning_context",
         "plan_authority_frame",
         "strategy_principles",
+        "strategy_overview",
+        "planning_methods",
         "functional_capability_catalog",
         "few_shot_examples",
         "functional_few_shot_selection",

@@ -6,9 +6,13 @@ scope 采用嵌套结构。每个 Goal 只能使用其所属 scope 及祖先 sco
 
 {{ payload.problem_planning_context | compact_json }}
 
+{% if payload.get("strategy_overview") %}
+{% include "strategy-planning-reference.jinja" %}
+{% else %}
 ## Strategy Principles
 
 {{ payload.strategy_principles | compact_json }}
+{% endif %}
 
 ## Functional Capability Catalog
 

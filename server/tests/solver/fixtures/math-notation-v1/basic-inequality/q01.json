@@ -1,0 +1,14 @@
+{
+  "original_text": "1. 设正实数 m，n 满足 m+n=2，则 mn 的最大值为____。",
+  "root": {
+    "label": "q01",
+    "facts": ["m > 0", "n > 0", "m+n = 2"],
+    "goals": [{"kind": "find_maximum", "expression": "m*n"}],
+    "children": [],
+    "definitions": [],
+    "uncertainties": []
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出正实数条件、定和条件，并求积的最大值。"
+}

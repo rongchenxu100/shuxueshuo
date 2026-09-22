@@ -39,13 +39,28 @@
 
 {{ payload.family_spec | pretty_json }}
 
+{% if payload.get("strategy_overview") %}
+## Strategy Overview
+
+{{ payload.strategy_overview }}
+
+## LLM Planning Methods
+
+{{ payload.planning_methods | pretty_json }}
+{% endif %}
+
 ## Recipe Catalog
 
 Recipe 是当前题型优先推荐的标准解题动作。`recipe_hint` 优先从这里选择。
 如果某个 method 出现在 recipe 的 `method_ids` 中，且你的 step 想完成这个完整动作，
 请优先选择对应的 `recipe_id`，不要只选择 recipe 内部的某个 method。
 带有 `priority: "preferred"` 的 recipe 是本题型特别推荐的路径。
+{% if payload.get("strategy_overview") %}
+请结合 FamilySpec 的唯一 `strategy_overview` 和下面的 LLM 规划方法定义拆解步骤；
+这些方法只描述数学路线，不是 runtime capability_id 或代码路由。
+{% else %}
 请结合 FamilySpec 的 `strategy_principles` 和下面每个 recipe 的 description 拆解步骤；
+{% endif %}
 不要把多个 recipe 的职责混在同一个 step 里。
 在输出任何 `recipe_hint: null` 的 step 之前，必须先重新检查 Recipe Catalog 和 Method
 Catalog：只有两张 catalog 都没有对应能力时才允许 null。null 表示“系统缺能力/需要 gap”，

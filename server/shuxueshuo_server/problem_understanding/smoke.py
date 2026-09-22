@@ -9,7 +9,7 @@ from time import perf_counter
 
 from .candidate_common import validate_match
 from .identity import revision
-from .notation_contract import CONTRACT
+from .notation_contract import CONTRACT, EXPRESSIONS_PATH, FAMILY_CATALOG_PATH
 from .observation import observation_view
 from .wire import components
 
@@ -175,6 +175,12 @@ def run(fixture, output, provider, registry):
         "network_budget": 2,
         "sdk_retries": 0,
         "registry_snapshot": revision(registry),
+        "notation_family_catalog_hash": sha256(
+            FAMILY_CATALOG_PATH.read_bytes()
+        ).hexdigest(),
+        "expression_catalog_hash": sha256(
+            EXPRESSIONS_PATH.read_bytes()
+        ).hexdigest(),
         "case_id": case_id,
         "provenance_sha256": sha256(
             (fixture / "provenance.json").read_bytes()

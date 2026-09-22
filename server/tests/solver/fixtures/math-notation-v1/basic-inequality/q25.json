@@ -1,0 +1,14 @@
+{
+  "original_text": "已知 a，b>0，且 1/a+1/b=1，求 4a/(a-1)+9b/(b-1) 的最小值。",
+  "root": {
+    "label": "q25",
+    "facts": ["a > 0", "b > 0", "1/a+1/b = 1"],
+    "goals": [{"kind": "find_minimum", "expression": "4*a/(a-1)+9*b/(b-1)"}],
+    "children": [],
+    "definitions": [],
+    "uncertainties": []
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出正项、分式等式约束和分式最小值目标，直接保留两个图块的题意。"
+}

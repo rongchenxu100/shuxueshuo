@@ -12,6 +12,7 @@ from time import perf_counter
 from .candidate_common import validate_match
 from .identity import revision
 from .notation_contract import CONTRACT
+from .notation_family_catalog import notation_family_catalog
 from .smoke import build_request, run
 from .transport_accounting import transport_cohorts
 from .wire import components
@@ -266,10 +267,6 @@ def live_provider_factory(provider_name="deepseek", *, image_transport=None):
 
 
 def main():
-    from shuxueshuo_server.solver.extraction.multimodal_provider import (
-        problem_domain_family_catalog,
-    )
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--case", choices=("all", *CASES), default="all")
     parser.add_argument(
@@ -292,7 +289,7 @@ def main():
         args.output,
         cases,
         live_provider_factory(args.provider, image_transport=args.image_transport),
-        list(problem_domain_family_catalog()),
+        list(notation_family_catalog()),
         args.concurrency,
         contract=args.contract,
         workflow=args.workflow,

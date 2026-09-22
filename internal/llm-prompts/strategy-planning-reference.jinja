@@ -1,0 +1,14 @@
+## Strategy Overview
+
+{{ payload.strategy_overview }}
+
+## LLM Planning Methods
+
+以下六种解题思路仅供你观察结构、组合路线；可相互嵌套，也可多次使用。
+参考它们选择 Functional Capability Catalog 中的可执行 Method，按当前协议生成步骤。
+六种思路的名称不是 capability_id；如果当前 plan 协议已有 `strategy`、`intent` 或方法说明字段，
+可以在该字段说明采用的思路，但不能用思路名称替代可执行 capability_id 或 recipe_hint。
+不要把这些方法定义复制到响应中，也不要把某个方法名称当作数学成立的依据。
+输出仍严格遵循当前 JSON Schema；数学内容使用直接数学表达式。
+
+{{ payload.planning_methods | compact_json }}

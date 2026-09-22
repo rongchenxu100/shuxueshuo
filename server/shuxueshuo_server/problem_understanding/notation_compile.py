@@ -302,7 +302,9 @@ class Scope:
         return self.parent.lookup(name) if self.parent else None
 
     def declare(self, name, kind, *, local=False):
-        if name in ("x_axis", "y_axis") or name in BUILTINS:
+        if name in ("x_axis", "y_axis") or (
+            name in BUILTINS and name not in ("x", "y")
+        ):
             raise NotationError("binding.reserved_name", name)
         existing = self.local.get(name) if local else self.lookup(name)
         if existing:
@@ -409,6 +411,8 @@ class Scope:
                     "call", "length", *[self.reference(p, "point") for p in name]
                 )
             if name[0].islower() and name not in BUILTINS:
+                return self.reference(name, "scalar", introduce=True)
+            if name in ("x", "y"):
                 return self.reference(name, "scalar", introduce=True)
             raise NotationError("binding.unknown_or_invisible", name)
         if kind == "role":

@@ -1,0 +1,14 @@
+{
+  "original_text": "4. 已知 a>0，b>0，且 ab=1，则 1/(2a)+1/(2b)+8/(a+b) 的最小值为____。",
+  "root": {
+    "label": "q08",
+    "facts": ["a > 0", "b > 0", "a*b = 1"],
+    "goals": [{"kind": "find_minimum", "expression": "1/(2*a)+1/(2*b)+8/(a+b)"}],
+    "children": [],
+    "definitions": [],
+    "uncertainties": []
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出正项、定积条件，并求分式代数式的最小值。"
+}

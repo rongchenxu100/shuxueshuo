@@ -1,0 +1,34 @@
+{
+  "schema_version": "basic-inequality-math-notation-fixtures/v1",
+  "contract": "problem-math-notation/v1",
+  "cases": ["q01", "q03", "q07", "q08", "q12", "q17", "q20", "q25", "q30", "q31"],
+  "image_only": true,
+  "gold_review": {
+    "status": "human_confirmed",
+    "source": "题面直接转录；不含答案、推导、取等条件或隐含正性。"
+  },
+  "gold_sha256": {
+    "q01": "e82207d4f361c0410f6982ce77149b2f8d1d686f67b91a0e15e5c333b342f711",
+    "q03": "128e3a0500a32d69428605c1638711d9b6520b25d7fab186f2f214fe6990d044",
+    "q07": "79daf62e28e567a8742e4b35fb1d0f76f31423f464a06b21645c8aeccf14096e",
+    "q08": "6a5c0df245806333be3822daed350f5bf15dc0112df86d686272cc69c40a6eb4",
+    "q12": "c9d59120c0e780f3ee6b23c2ca125fc5fd2b93b98f74766cf382e25821a3c1ba",
+    "q17": "859a7d797b3e2b91cda7ec3d84e50eff7c3e7e7860e6ca0205748dd30400f859",
+    "q20": "98873287cd260677a4042abc0ac3625bfb9d3e596445b5afd1b3273bad5e9425",
+    "q25": "94de0177d03dd6cfca917309e1d28363c2e8851d299be0b3c329fee3f0a25540",
+    "q30": "179b1a6627fbb29303295f511de27d72b3d3fb82340ec5c54edcc11e6f8055ee",
+    "q31": "06e9468f4dd03d3a8b1c6c68f818994301d7c1d2c5b041dcaa1ac1f55f171591"
+  },
+  "images": {
+    "q01": {"file": "images/q01.png", "sha256": "697a3e9009a295a8477adcdb77cc26ccfaa6cc2c1645237c249947d5a95458ad", "size": [1120, 210], "source": "教材页52练习8第1题裁剪"},
+    "q03": {"file": "images/q03.png", "sha256": "5c893bdd219402d580ed148b83d1d87916599eae109255cf351439591bde04d3", "size": [1120, 230], "source": "教材页52练习8第3题裁剪"},
+    "q07": {"file": "images/q07.png", "sha256": "f7c2885ffe86921490acba051b5fc46cb460b29564542eec09cf3c5551538cf8", "size": [1800, 420], "source": "五年高考页基本不等式第3题裁剪"},
+    "q08": {"file": "images/q08.png", "sha256": "121ea73d3f22b7c4027cc4778082e6bac998fd2f0a2be9a31a0a6a727989feba", "size": [1800, 520], "source": "五年高考页基本不等式第4题裁剪"},
+    "q12": {"file": "images/q12.png", "sha256": "896b5df8e36ee27b9ec009b02fb915be9bcbc32f10a5c0a25fa6ac9e5b4e8fdc", "size": [1850, 700], "source": "五年高考页基本不等式第2题裁剪"},
+    "q17": {"file": "images/q17.png", "sha256": "66ed95f801fb890c3e79faab60b3425bd05bbdede92f4b609b2287ef067a94df", "size": [2268, 194], "source": "独立题图"},
+    "q20": {"file": "images/q20.png", "sha256": "48d7f0be01f7dbe0cf6ba4cd911a0a761567eaf79929bfb9f31e9d4fcd197454", "size": [2014, 208], "source": "独立题图"},
+    "q25": {"file": "images/q25.png", "sha256": "8e8d6b5374408c0bdad48effa67530fe47f8845bf985a073f672f6b5c801e0c6", "size": [900, 530], "source": "condition/objective 两张题图按题面顺序合成"},
+    "q30": {"file": "images/q30.png", "sha256": "2406fe8c17cd88ed1cc1574775df619d8f87723ae997e3fcb46e83cd87eac54a", "size": [1914, 192], "source": "独立题图"},
+    "q31": {"file": "images/q31.png", "sha256": "88d347822c840b4c6836fa1be794e1963199400f262510d8b811e7d33f01bcbb", "size": [2430, 232], "source": "独立题图"}
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "families": [
+    {
+      "family_id": "QuadraticEqualLengthRayPathMinimumSolver",
+      "title": "二次函数等长射线路径最值",
+      "use_when": "题面给出二次函数、射线上的点，以及路径或距离和的最值条件。",
+      "required_source_primitives": ["二次函数", "射线上的点", "路径最值"],
+      "conditional_source_requirements": [],
+      "do_not_use_when": ["题面没有二次函数", "题面没有路径或距离和的最值目标"]
+    },
+    {
+      "family_id": "QuadraticPathMinimumSolver",
+      "title": "普通二次函数路径最值",
+      "use_when": "题面给出二次函数和普通距离和或折线路径的最值目标。",
+      "required_source_primitives": ["二次函数", "普通距离和或折线路径", "最值目标"],
+      "conditional_source_requirements": [],
+      "do_not_use_when": ["路径表达式含明确的非1权重", "题面没有二次函数"]
+    },
+    {
+      "family_id": "QuadraticSquareReflectionPathMinimumSolver",
+      "title": "二次函数正方形路径最值",
+      "use_when": "题面明确给出二次函数、正方形，以及正方形顶点或相关路径的最值目标。",
+      "required_source_primitives": ["二次函数", "正方形", "路径最值"],
+      "conditional_source_requirements": [],
+      "do_not_use_when": ["原图没有明确的正方形条件", "题面没有二次函数"]
+    },
+    {
+      "family_id": "QuadraticWeightedPathMinimumSolver",
+      "title": "二次函数加权路径最值",
+      "use_when": "题面给出二次函数和带非1权重的距离和最值目标。",
+      "required_source_primitives": ["二次函数", "带权距离和", "最值目标"],
+      "conditional_source_requirements": [],
+      "do_not_use_when": ["路径各段系数均为1", "题面没有二次函数"]
+    },
+    {
+      "family_id": "basic_inequality",
+      "title": "基本不等式",
+      "use_when": "题面以正项、等式或不等式条件为基础，要求求代数式的最大值、最小值、取值范围或参数值；条件和目标应直接保留为数学表达式。",
+      "required_source_primitives": ["正项或变量条件", "等式或不等式条件", "最大值、最小值、取值范围或参数目标"],
+      "conditional_source_requirements": [],
+      "do_not_use_when": ["题面没有代数条件或目标", "需要依赖图形推断而题面未给出相应数学关系"]
+    }
+  ]
+}
