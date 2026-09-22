@@ -38,6 +38,9 @@ from shuxueshuo_server.solver.family.models import (
 from shuxueshuo_server.solver.family.capability_packs import (
     DEFAULT_CAPABILITY_PACK_REGISTRY,
 )
+from shuxueshuo_server.solver.family.basic_inequality import (
+    BASIC_INEQUALITY_FAMILY,
+)
 from shuxueshuo_server.solver.family.quadratic_path_minimum import (
     QUADRATIC_PATH_MINIMUM_FAMILY,
 )
@@ -51,6 +54,7 @@ from shuxueshuo_server.solver.family.quadratic_weighted_path_minimum import (
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
 )
 
+# BASIC_INEQUALITY_FAMILY is authoring-only until its runtime contracts are ready.
 DEFAULT_FAMILY_REGISTRY = FamilyRegistry((
     QUADRATIC_PATH_MINIMUM_FAMILY,
     QUADRATIC_WEIGHTED_PATH_MINIMUM_FAMILY,
@@ -59,6 +63,7 @@ DEFAULT_FAMILY_REGISTRY = FamilyRegistry((
 ))
 
 __all__ = [
+    "BASIC_INEQUALITY_FAMILY",
     "DEFAULT_FAMILY_REGISTRY",
     "DEFAULT_CAPABILITY_PACK_REGISTRY",
     "CapabilityContractSpec",

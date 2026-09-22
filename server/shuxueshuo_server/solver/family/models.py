@@ -7,7 +7,7 @@ Phase 4 后，FamilySpec 只作为 RuntimeOrchestrator 和 Planner 的题型上�
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Literal
 
 from shuxueshuo_server.solver.contracts import (
@@ -1034,6 +1034,31 @@ class SolverFamilySpec:
     capability_contracts: tuple[CapabilityContractSpec, ...] = ()
     goal_evidence_policies: tuple[GoalEvidencePolicySpec, ...] = ()
 
+    # Reserved teaching-rule references; declaring them does not enable a rule.
+    explanation_rule_ids: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        prefix = f"{self.family_id}."
+        if any(
+            not isinstance(rule_id, str)
+            or not rule_id.startswith(prefix)
+            or not rule_id.removeprefix(prefix)
+            or any(char.isspace() for char in rule_id)
+            for rule_id in self.explanation_rule_ids
+        ):
+            raise ValueError(
+                "family explanation rule IDs must be non-empty "
+                f"{prefix}* IDs"
+            )
+        if len(set(self.explanation_rule_ids)) != len(self.explanation_rule_ids):
+            raise ValueError("family explanation rule IDs must be unique")
+
+    def to_payload(self) -> dict[str, object]:
+        """Return a detached, JSON-serializable declaration, not a prompt catalog."""
+        payload = asdict(self)
+        payload["explanation_rule_ids"] = list(self.explanation_rule_ids)
+        return payload
+
     def supports(self, problem: ProblemIR) -> bool:
         """判断当前 spec 是否在结构上支持某个 ProblemIR。"""
         return self.match.matches(problem)
@@ -1083,6 +1108,7 @@ class SolverFamilySpec:
                 item.to_payload() for item in self.source_goal_contracts
             ],
             "do_not_use_when": list(self.do_not_use_when),
+            "explanation_rule_ids": list(self.explanation_rule_ids),
         }
 
 
@@ -1172,6 +1198,7 @@ def expand_family_spec(
         method_binding_rules=method_binding_rules,
         capability_contracts=capability_contracts,
         goal_evidence_policies=goal_evidence_policies,
+        explanation_rule_ids=family.explanation_rule_ids,
     )
 
 

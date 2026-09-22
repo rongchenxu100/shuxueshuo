@@ -399,11 +399,15 @@ class FunctionSpecRegistry:
         }
         specs: dict[str, FunctionSpec] = {}
         for method_id in family_spec.method_ids:
+            contract = contracts.get(method_id)
+            # A declaration must remain non-callable even when another family
+            # already implements the same method (or it is implemented later).
+            if contract is not None and contract.execution_status == "catalog_only":
+                continue
             try:
                 method_spec = method_specs.require(method_id)
             except KeyError:
                 continue
-            contract = contracts.get(method_id)
             adapter = GENERIC_FUNCTION_ADAPTERS.get(method_id)
             projection_adapter = adapter
             if projection_adapter is None and method_id in family_binding_rules:

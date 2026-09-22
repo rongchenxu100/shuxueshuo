@@ -210,6 +210,8 @@ OWNERSHIP_RULES = (
         ("server/shuxueshuo_server/solver/family/*.py",),
         (
             "tests/solver/test_family_spec.py",
+            "tests/solver/test_basic_inequality_family.py",
+            "tests/solver/test_basic_inequality_strategy_reference.py",
             "tests/solver/test_strategy_planner_function_specs.py",
             "tests/solver/test_strategy_planner_macro_specs.py",
             "tests/solver/test_equal_length_ray_path_macro.py",

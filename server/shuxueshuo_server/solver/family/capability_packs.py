@@ -1127,7 +1127,77 @@ COUPLED_SEGMENT_ENDPOINT_REPLACEMENT_PATH_MINIMUM = StepRecipeSpec(
 )
 
 
+BASIC_INEQUALITY_METHOD_IDS = (
+    "organize_expressions",
+    "introduce_semantic_substitution",
+    "eliminate_by_constraint",
+    "reduce_symmetric_sum_product",
+    "apply_two_term_amgm",
+    "bound_univariate_quadratic",
+    "close_equality_and_restore",
+    "solve_univariate_inequality",
+)
+
+# Family-level recipe declarations only. No execution sequence or binding is
+# promised until the underlying expression contracts have been implemented.
+BASIC_INEQUALITY_RECIPES = (
+    StepRecipeSpec(
+        recipe_id="basic_inequality_substitute_reduce",
+        goal_type="reduce_expression",
+        title="换元与降维",
+        description="同步改写条件、目标与可行域，保留原变量还原关系。",
+        method_ids=(
+            "introduce_semantic_substitution",
+            "eliminate_by_constraint",
+            "reduce_symmetric_sum_product",
+        ),
+        do_not_use_when=("缺少合法换元或消元依据，或无法保留原可行域。",),
+    ),
+    StepRecipeSpec(
+        recipe_id="basic_inequality_bound_and_restore",
+        goal_type="derive_extremum",
+        title="求界与取等还原",
+        description="验证界及其方向，再联立取等条件并回到原题验算。",
+        method_ids=(
+            "apply_two_term_amgm",
+            "bound_univariate_quadratic",
+            "close_equality_and_restore",
+        ),
+        do_not_use_when=("尚未证明求界前提，或只凭中间取等断言原题最值。",),
+    ),
+    StepRecipeSpec(
+        recipe_id="basic_inequality_univariate_range",
+        goal_type="derive_range",
+        title="一元范围与可达性",
+        description="求解已验证的一元不等式，并检验整个候选范围的可达性。",
+        method_ids=("solve_univariate_inequality", "close_equality_and_restore"),
+        do_not_use_when=("不等式超出支持范围，或仅验证端点而未验证全范围可达性。",),
+    ),
+)
+
+BASIC_INEQUALITY_CORE_PACK = CapabilityPackSpec(
+    pack_id="basic_inequality_core",
+    kind="mechanism",
+    method_ids=BASIC_INEQUALITY_METHOD_IDS,
+    step_recipes=BASIC_INEQUALITY_RECIPES,
+    contracts=tuple(
+        CapabilityContractSpec(
+            capability_id=capability_id,
+            kind=kind,
+            execution_status="catalog_only",
+            exposes_to_llm=False,
+            complete=False,
+        )
+        for capability_id, kind in (
+            *((method_id, "method") for method_id in BASIC_INEQUALITY_METHOD_IDS),
+            *((recipe.recipe_id, "recipe") for recipe in BASIC_INEQUALITY_RECIPES),
+        )
+    ),
+)
+
+
 DEFAULT_CAPABILITY_PACK_REGISTRY = CapabilityPackRegistry((
+    BASIC_INEQUALITY_CORE_PACK,
     CapabilityPackSpec(
         pack_id="rational_expression_rewrite", kind="base",
         method_ids=("organize_expressions",),
