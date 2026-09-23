@@ -1,0 +1,1 @@
+{"original_text":"(2022新高考Ⅱ卷) x²+y²-xy=1，求x+y的取值范围.","root":{"facts":["x^2+y^2-x*y = 1"],"goals":[{"kind":"find_range","symbol":"x+y"}]},"match_status":"matched","family_id":"basic_inequality","match_reason":"题面给出等式条件 x²+y²-x*y=1，求 x+y 的取值范围，符合基本不等式题型的等式条件与范围目标。"}

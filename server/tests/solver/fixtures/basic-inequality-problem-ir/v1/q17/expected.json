@@ -1,5 +1,24 @@
 {
   "problem_id": "q17",
   "answer": "[-2,2]",
-  "equality": "x=y=±1 at endpoints"
+  "equality": "x=y=±1 at endpoints",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "equality_branches": [
+    {
+      "x": "1",
+      "y": "1"
+    },
+    {
+      "x": "-1",
+      "y": "-1"
+    }
+  ],
+  "range_attainment": {
+    "parameter": "s",
+    "interval": "[-2,2]",
+    "Delta": "(4-s^2)/3",
+    "x": "(s+sqrt(Delta))/2",
+    "y": "(s-sqrt(Delta))/2",
+    "equality_branches_meaning": "range endpoints only; the parameterization covers the whole interval"
+  }
 }

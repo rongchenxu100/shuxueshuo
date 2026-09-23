@@ -1,11 +1,29 @@
 {
   "problem_id": "q17",
-  "methods": [
-    "organize_expressions",
-    "bound_univariate_quadratic",
-    "solve_univariate_inequality",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "reduce_symmetric_sum_product",
+      "eliminate_by_constraint",
+      "solve_univariate_inequality",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 4,
+    "titles": [
+      "观察",
+      "和积换元",
+      "消元与实数可行性求解",
+      "还原"
+    ],
+    "source": "docs/basic-inequality-method-discussion.md §4"
+  },
+  "required_evidence": [
+    "s=x+y,p=x*y",
+    "p=(s^2-1)/3",
+    "Delta=(4-s^2)/3>=0",
+    "对每个s∈[-2,2]，x=(s+sqrt(Delta))/2,y=(s-sqrt(Delta))/2满足原条件"
+  ]
 }

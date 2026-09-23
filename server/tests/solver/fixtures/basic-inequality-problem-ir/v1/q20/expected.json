@@ -1,5 +1,16 @@
 {
   "problem_id": "q20",
   "answer": "2",
-  "equality": "x,y=2±√2"
+  "equality": "x,y=2±√2",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "equality_branches": [
+    {
+      "x": "2+sqrt(2)",
+      "y": "2-sqrt(2)"
+    },
+    {
+      "x": "2-sqrt(2)",
+      "y": "2+sqrt(2)"
+    }
+  ]
 }

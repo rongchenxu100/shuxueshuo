@@ -1,10 +1,27 @@
 {
   "problem_id": "q03",
-  "methods": [
-    "organize_expressions",
-    "apply_two_term_amgm",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "organize_expressions",
+      "apply_two_term_amgm",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 4,
+    "titles": [
+      "观察次数",
+      "配齐次",
+      "应用",
+      "取等"
+    ],
+    "source": "docs/basic-inequality-method-discussion.md §4"
+  },
+  "required_evidence": [
+    "(x+4*y)*(1/x+1/y)=5+x/y+4*y/x",
+    "(x/y)*(4*y/x)=4",
+    "x/y=4*y/x与原条件共同成立"
+  ]
 }

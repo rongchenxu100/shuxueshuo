@@ -1,0 +1,118 @@
+{
+  "provider": "deepseek",
+  "request_model": "deepseek-flash",
+  "response_model": "deepseek-flash",
+  "usage": {
+    "completion_tokens": 463,
+    "prompt_tokens": 11541,
+    "total_tokens": 12004,
+    "prompt_cache_hit_tokens": 10496,
+    "prompt_cache_miss_tokens": 1045
+  },
+  "usage_complete": true,
+  "finish_reason": "stop",
+  "stream_terminated_at_json": false,
+  "received_output_characters": 350,
+  "thinking_mode": "enabled",
+  "reasoning_effort": "low",
+  "response_format": "problem-math-notation/v1",
+  "temperature": null,
+  "max_output_tokens": 16384,
+  "timeout": 300,
+  "stream": false,
+  "transport_response_format": "json_object",
+  "image_detail": null,
+  "image_transport": "files",
+  "image_files": [
+    {
+      "image_id": "primary",
+      "file_id": "file-api-7c11776a-0485-42ca-96ed-d06ba33736b6",
+      "sha256": "896b5df8e36ee27b9ec009b02fb915be9bcbc32f10a5c0a25fa6ac9e5b4e8fdc",
+      "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+      "bytes": 984401,
+      "expires_at": 1790177602,
+      "uploaded_at": 1790091202.265964
+    }
+  ],
+  "file_operations": [
+    {
+      "operation": "cache_hit",
+      "sha256": "896b5df8e36ee27b9ec009b02fb915be9bcbc32f10a5c0a25fa6ac9e5b4e8fdc",
+      "file_id": "file-api-7c11776a-0485-42ca-96ed-d06ba33736b6",
+      "api_calls": 0
+    }
+  ],
+  "file_api_calls": 0,
+  "provider_attempts": [
+    {
+      "provider_attempt": 1,
+      "status": "completed",
+      "response_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 463,
+        "prompt_tokens": 11541,
+        "total_tokens": 12004,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 297,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 10496
+        },
+        "prompt_cache_hit_tokens": 10496,
+        "prompt_cache_miss_tokens": 1045
+      },
+      "finish_reason": "stop",
+      "visible_content": true,
+      "latency_ms": 2455,
+      "error_code": null,
+      "error_message": null,
+      "raw_payload": {
+        "id": "8230b0c9-d2fb-4312-89a0-a758cab5eddf",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "{\"original_text\":\"考点2 基本不等式\\n★★★(2020江苏，12，5分)已知 5x²y²+y⁴=1(x，y∈R)，则 x²+y² 的最小值是______。\",\"root\":{\"facts\":[\"5*x^2*y^2 + y^4 = 1\",\"x ∈ ℝ\",\"y ∈ ℝ\"],\"goals\":[{\"kind\":\"find_minimum\",\"expression\":\"x^2+y^2\"}]},\"match_status\":\"matched\",\"family_id\":\"basic_inequality\",\"match_reason\":\"题面给出实数范围内的等式约束 5*x^2*y^2+y^4=1，并要求求 x^2+y^2 的最小值，符合基本不等式题型以代数条件求最小值目标的结构。\"}",
+              "refusal": null,
+              "role": "assistant",
+              "annotations": null,
+              "audio": null,
+              "function_call": null,
+              "tool_calls": null,
+              "reasoning_content": "题目：已知 $5x^2y^2+y^4=1$ ($x,y\\in\\mathbb{R}$)，求 $x^2+y^2$ 的最小值。\n\n提取条件：$5x^2y^2 + y^4 = 1$，$x,y\\in\\mathbb{R}$。目标：$\\min(x^2+y^2)$。\n\n注意：$5x^2y^2$ 需要写成 $5*x^2*y^2$。$y^4$ 保留。$x^2+y^2$ 中不涉及两个独立变量乘积，所以用 $x^2+y^2$ 即可。\n\n题型：basic_inequality，匹配。\n\noriginal_text: \"考点2 基本不等式\\n★★★(2020江苏，12,5分)已知 $5x^2y^2+y^4=1$ ($x,y\\in\\mathbb{R}$)，则 $x^2+y^2$ 的最小值是______。\"\n\ndefinitions: 无。\n\nfacts: [\"5*x^2*y^2 + y^4 = 1\", \"x ∈ ℝ\", \"y ∈ ℝ\"]。\n\ngoals: [{\"kind\":\"find_minimum\",\"expression\":\"x^2+y^2\"}]。\n\nmatch_status: matched, family_id: basic_inequality。\n\nreason: 题面给出正项或实数条件下的等式约束，要求表达式的最小值。"
+            }
+          }
+        ],
+        "created": 1790134310,
+        "model": "deepseek-flash",
+        "object": "chat.completion",
+        "service_tier": null,
+        "system_fingerprint": "aeb56401ca74e127821c4f9126dcb669",
+        "usage": {
+          "completion_tokens": 463,
+          "prompt_tokens": 11541,
+          "total_tokens": 12004,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": null,
+            "audio_tokens": null,
+            "reasoning_tokens": 297,
+            "rejected_prediction_tokens": null
+          },
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 10496
+          },
+          "prompt_cache_hit_tokens": 10496,
+          "prompt_cache_miss_tokens": 1045
+        }
+      }
+    }
+  ],
+  "latency_ms": 2457
+}

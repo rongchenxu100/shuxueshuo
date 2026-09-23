@@ -1,0 +1,256 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "q07",
+    "source_sha256": "f7c2885ffe86921490acba051b5fc46cb460b29564542eec09cf3c5551538cf8",
+    "registry_snapshot": "b27a0a18b7ee49ee2caab2919319c02c2ceca39e90ae27c300be9b21ec7ac1f2"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "facts": [
+          "a > 0",
+          "b > 0"
+        ],
+        "goals": [
+          {
+            "kind": "find_minimum",
+            "expression": "1/a+a/b^2+b"
+          }
+        ],
+        "label": "题目",
+        "definitions": [],
+        "children": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": "basic_inequality",
+      "match_status": "matched",
+      "match_reason": "题面给出正项条件 a>0、b>0，并要求代数式的最小值，符合基本不等式题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:a",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:b",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:scalar:a",
+          "name": "a",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:b",
+          "name": "b",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [
+        {
+          "code": "algebra_domain",
+          "condition": [
+            "nonzero_denominator",
+            "Pow(Symbol('n_22ac74eea43fff9c83c763256f712450de5a373562269f3c2f4528dd5b48c71b', real=True), Integer(2))"
+          ]
+        },
+        {
+          "code": "algebra_domain",
+          "condition": [
+            "nonzero_denominator",
+            "Symbol('n_2cf8e1740c837a771de3ca471b036e6a1ac5a3974cf7e4fc7d35eaa6566f64a9', real=True)"
+          ]
+        }
+      ],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:a",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:a",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:da905d39a14eab91813c701489d36f7ee992519456a9635b85eac478eb377082",
+      "kind": "notation_raw",
+      "sha256": "da905d39a14eab91813c701489d36f7ee992519456a9635b85eac478eb377082",
+      "media_type": "text/plain",
+      "byte_size": 379,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-01/run/artifacts/da/da905d39a14eab91813c701489d36f7ee992519456a9635b85eac478eb377082.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:83ecb7ce4f2ee6c0256724c52a577a262c833da51d35edd29d5df3c47a9953e7",
+      "kind": "notation_candidate",
+      "sha256": "83ecb7ce4f2ee6c0256724c52a577a262c833da51d35edd29d5df3c47a9953e7",
+      "media_type": "application/json",
+      "byte_size": 379,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-01/run/artifacts/83/83ecb7ce4f2ee6c0256724c52a577a262c833da51d35edd29d5df3c47a9953e7.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:89f35ef99383b48582b83f0ec1f883a523001a414823c4b8e64823e9e73952ee",
+      "kind": "notation_canonical",
+      "sha256": "89f35ef99383b48582b83f0ec1f883a523001a414823c4b8e64823e9e73952ee",
+      "media_type": "application/json",
+      "byte_size": 1029,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-01/run/artifacts/89/89f35ef99383b48582b83f0ec1f883a523001a414823c4b8e64823e9e73952ee.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:a52a4bd8782294f9836f513eb0bfe5ddfcd167e4e4e67923e6bcb288963dbe92",
+      "kind": "notation_normalized",
+      "sha256": "a52a4bd8782294f9836f513eb0bfe5ddfcd167e4e4e67923e6bcb288963dbe92",
+      "media_type": "application/json",
+      "byte_size": 446,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-01/run/artifacts/a5/a52a4bd8782294f9836f513eb0bfe5ddfcd167e4e4e67923e6bcb288963dbe92.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:dc4abaa77f35e24cf688664a3f21ef3becade318ab815aa88247cb0ccd61c251",
+      "kind": "notation_compiled",
+      "sha256": "dc4abaa77f35e24cf688664a3f21ef3becade318ab815aa88247cb0ccd61c251",
+      "media_type": "application/json",
+      "byte_size": 2282,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-01/run/artifacts/dc/dc4abaa77f35e24cf688664a3f21ef3becade318ab815aa88247cb0ccd61c251.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-01/run/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:f25e46c4b825677da3e68f875e7d5cf6b71bf74da22ea56a07cb6fc426bb3996",
+      "kind": "notation_ir",
+      "sha256": "f25e46c4b825677da3e68f875e7d5cf6b71bf74da22ea56a07cb6fc426bb3996",
+      "media_type": "application/json",
+      "byte_size": 164,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-01/run/artifacts/f2/f25e46c4b825677da3e68f875e7d5cf6b71bf74da22ea56a07cb6fc426bb3996.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:33df047db6171002e06c535e98561890106ce8442aa2d73a1978aa8386a9e0ce",
+      "kind": "notation_validation",
+      "sha256": "33df047db6171002e06c535e98561890106ce8442aa2d73a1978aa8386a9e0ce",
+      "media_type": "application/json",
+      "byte_size": 1308,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-01/run/artifacts/33/33df047db6171002e06c535e98561890106ce8442aa2d73a1978aa8386a9e0ce.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "83ecb7ce4f2ee6c0256724c52a577a262c833da51d35edd29d5df3c47a9953e7",
+  "semantic_revision": "89f35ef99383b48582b83f0ec1f883a523001a414823c4b8e64823e9e73952ee",
+  "units": {
+    "r.facts[0]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.facts[1]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 1
+    }
+  }
+}

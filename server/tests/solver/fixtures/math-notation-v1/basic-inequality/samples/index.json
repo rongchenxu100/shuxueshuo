@@ -1,0 +1,373 @@
+{
+  "schema_version": "basic-inequality-frozen-samples/v1",
+  "cases": [
+    "q01",
+    "q03",
+    "q07",
+    "q08",
+    "q12",
+    "q17",
+    "q20",
+    "q25",
+    "q30",
+    "q31"
+  ],
+  "samples": {
+    "q01": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q01/sample-01/run",
+        "files": {
+          "request.json": "76248eb417ad6ddde4371a9f5759bc4b4ca0a6e2c4775eb67c49370db0eed13c",
+          "raw-response.txt": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6",
+          "parsed.json": "d5285a7753f5c480f11997b382d61724012d389a5579de56290fd2645d9a5727",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "ad70186d389612552dccfa8cd077220bba15e6974173f9c35f392c6b86cda546",
+          "call.json": "4bf98b88d5a41ad4e0610461cd8a3b7f49bfd0b136b674afb32ce9ccc2b0a2e2",
+          "frozen.json": "0272af42693639804417456393eadde0580372e2e12187698051217f63978b61",
+          "normalized.json": "ca081fad409704c6bda8b1d5cd324fe725bfbcfa1a2b2ff26bc6f22364c16b91",
+          "canonical.json": "b653be8733c19fef3a6e5f123f7e2a010b67e945f7d432b9910dcd67cd51a0b9"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q01/sample-02/run",
+        "files": {
+          "request.json": "76248eb417ad6ddde4371a9f5759bc4b4ca0a6e2c4775eb67c49370db0eed13c",
+          "raw-response.txt": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1",
+          "parsed.json": "ce4021437817e05e1949b4efc3e15a0214959437d8f8365211e29a0206981193",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "cbb6a968ea71a9c93f31b2fb9e672607c7bc3b50d07ae2cae693191cf926e723",
+          "call.json": "7eb97e840ea62d2aecbcf45856540a91fff5f9febeaea12f573c2b512329b323",
+          "frozen.json": "0272af42693639804417456393eadde0580372e2e12187698051217f63978b61",
+          "normalized.json": "a6c2e1430e0c960d04908fc00c0d99bd8e7629eddbe017c63926577de6750065",
+          "canonical.json": "b653be8733c19fef3a6e5f123f7e2a010b67e945f7d432b9910dcd67cd51a0b9"
+        }
+      }
+    ],
+    "q03": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "29c26c08-a9aa-4027-9830-ddbb77ebb603",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-01/run",
+        "files": {
+          "request.json": "088db5ad4c5575b65b7a0cbe998a0484cdc150de542f0b89dc1dc69e57669d02",
+          "raw-response.txt": "772d6326478f84d716b70542038c8084af99def60877091257e521ff1b7f257f",
+          "parsed.json": "3932f658be0e574ce36ed8dfc5c237c144417ef922535978d70dd91460f2c273",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "8b9ffc7a8215520cf5b061a8d8b66f6beaba6ca62f1654607ccdd5d4c35c8025",
+          "call.json": "14a289f24d29c0f9fce43e1051dc0d8d91440b20dccc6e047fb8f1edaded5a35",
+          "frozen.json": "1ea96e4dedfa7a73b5de84847dacb2a92fa5b01a4acb2218fb0b2749c5db6a88",
+          "normalized.json": "871203fb2a7bac0b5ade8cf12f5f51b934d8be661b82d7e870129c33b744c39b",
+          "canonical.json": "c5b77fb5a7f5638bf157ecddbccdd5f1dc70d875855bcb652827ac75dd4341a6"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "fc223dec-cd25-4e61-9ed9-052f3c074294",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-02/run",
+        "files": {
+          "request.json": "088db5ad4c5575b65b7a0cbe998a0484cdc150de542f0b89dc1dc69e57669d02",
+          "raw-response.txt": "6db8516da7b8e9c516e5927bd7ece59573ff6e85ccdae1290f19111e0fee5a33",
+          "parsed.json": "54c007097b0177797fdbfa229de60554f1f12fe6fb4ee86cca524dad2d9aae6f",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "018835d942fa30269d1c141bc571b7b6dafc530e1d4ebe9e2dfd4737d134a4d6",
+          "call.json": "4763a58eb6f3c19640b8cd7337aff9f8cfac108a7fefbbed59b663e0cc731077",
+          "frozen.json": "1ea96e4dedfa7a73b5de84847dacb2a92fa5b01a4acb2218fb0b2749c5db6a88",
+          "normalized.json": "8cd3969822757d64755d6bee5f59b7240ab098f0c026f827ea4564c759ea7007",
+          "canonical.json": "c5b77fb5a7f5638bf157ecddbccdd5f1dc70d875855bcb652827ac75dd4341a6"
+        }
+      }
+    ],
+    "q07": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "6224964a-4837-45b6-a463-fe7b9a0325bb",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-01/run",
+        "files": {
+          "request.json": "a1db81cc8004c03720c511ee0f1a100147b2eb4b4e7f3e2fc409001ed7a2a14e",
+          "raw-response.txt": "da905d39a14eab91813c701489d36f7ee992519456a9635b85eac478eb377082",
+          "parsed.json": "881e73d9ef7bb47799a926702e1555fc516fda3d91065d076981b92602e80d5c",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "afb2846c8ff93b83dec398bc55efccccfdeccccf4b521562d56200abebfbd65d",
+          "call.json": "d9cf7d61c76196ba6f9d3273e3207d3b2a1dd407612e559149b0440991e915fa",
+          "frozen.json": "a2ed6807d0f32db7a4f994e60076e308c6d6e440daf4c61e6ec7372f695290e7",
+          "normalized.json": "a52a4bd8782294f9836f513eb0bfe5ddfcd167e4e4e67923e6bcb288963dbe92",
+          "canonical.json": "89f35ef99383b48582b83f0ec1f883a523001a414823c4b8e64823e9e73952ee"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "ea5b9d0b-56da-422e-9664-ddf259b25624",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q07/sample-02/run",
+        "files": {
+          "request.json": "a1db81cc8004c03720c511ee0f1a100147b2eb4b4e7f3e2fc409001ed7a2a14e",
+          "raw-response.txt": "f74fb8ec781f5faa7a2ba9922336fd0115812b466c40d9e65cac3d01cd73b5e6",
+          "parsed.json": "78132523c53822344f1e08597291397b3d8467eab89235f5223e6f29e9cfa505",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "75942fb9f8bfa84483b457187367bba18760a5b171c4af2eba574b35a46c2ff9",
+          "call.json": "0645a8dc56088bb348709bb03e40555f82ad4d2a42b5479625a8975072fb830f",
+          "frozen.json": "a2ed6807d0f32db7a4f994e60076e308c6d6e440daf4c61e6ec7372f695290e7",
+          "normalized.json": "bb96204178c430cbd745a36582f35f0fe71a615cea7b936f04ac420b9d8523ca",
+          "canonical.json": "89f35ef99383b48582b83f0ec1f883a523001a414823c4b8e64823e9e73952ee"
+        }
+      }
+    ],
+    "q08": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q08/sample-01/run",
+        "files": {
+          "request.json": "a3e0374191b4df19903f488302ec104756e589d8bfbcc7c2657e8343fdfbbc8c",
+          "raw-response.txt": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792",
+          "parsed.json": "b324709956097ea768f87d0858853ac42b89de4aafb5dabd462d579cac113061",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "f0db75d330339c24ace2090fbad720eda5033aad0a4cf8331c8927959f081d91",
+          "call.json": "d5a88789f6427e02a163ab5dbbcd05ec3f352694a06e0463ec03a1a874903d84",
+          "frozen.json": "f651a002155ada65936db9aeadb651e69a5ec87c3ff586f637965d11ea10b4a6",
+          "normalized.json": "45fce4df0bd497181fab47efd5965cc1c561f571b48d911528ea93d3f692dc29",
+          "canonical.json": "f19659d0eeb4c729fca6929d6408915008fc6f6065f9fcd472f20fb92fc4d2ab"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q08/sample-02/run",
+        "files": {
+          "request.json": "a3e0374191b4df19903f488302ec104756e589d8bfbcc7c2657e8343fdfbbc8c",
+          "raw-response.txt": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646",
+          "parsed.json": "364563dacd2af3a5dcbe06a623ecdddf07fd6f33da866a30793e979d023497e9",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "9160a0cf6944f78aba44a0ba52d1edaba1adb6a449b331924b3325d5246023c6",
+          "call.json": "f9a47aade17d73a90cd8bc073bbc3ffdb06ee8a8b037e6fc44ef1915a3a97ecf",
+          "frozen.json": "f651a002155ada65936db9aeadb651e69a5ec87c3ff586f637965d11ea10b4a6",
+          "normalized.json": "0f7e103445fc48efd7e88b39a808f8ee8532d0a8a6fc7fcc24df4708c39c1688",
+          "canonical.json": "f19659d0eeb4c729fca6929d6408915008fc6f6065f9fcd472f20fb92fc4d2ab"
+        }
+      }
+    ],
+    "q12": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "8230b0c9-d2fb-4312-89a0-a758cab5eddf",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-01/run",
+        "files": {
+          "request.json": "db44572fae640f81fa9b947904d3bc99285aeae39b59ae0b4a9a6ff00de137e8",
+          "raw-response.txt": "bef9eff7d08d7669e4a34d9765a4be32101b5fb808968af90ae80625380ce644",
+          "parsed.json": "79017bcdc19f55a87c427acc094420110c36749479018ab57b70d51785cd5e16",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "1839914d083c9e126b3d32e58e6d91dd092bc2ae29356ffcba67dd2ebce33418",
+          "call.json": "588cc4070ffeabaab584c4afe353c71156d570a92a3a030ad3e96c36f1a16977",
+          "frozen.json": "5d23af9bdef89584f32d0f3ef0339c566bc9e86f3fd5adb10b0a285ba5e46de3",
+          "normalized.json": "50ecdfbc8d82b1065f78ca20685514986b5d00a6c8bf8f0271c68e1f04f53e60",
+          "canonical.json": "35cfa8abcab75638c82f7ba3aebbf26b7b282d03c6470dd35a8f9a6051020647"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "c6d4ff2c-ef30-4a12-960b-a7568aa3d7cf",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-02/run",
+        "files": {
+          "request.json": "db44572fae640f81fa9b947904d3bc99285aeae39b59ae0b4a9a6ff00de137e8",
+          "raw-response.txt": "9e4fd7d2e233e0643c56c4122cd7281bb05966143510729225ed098b27f99563",
+          "parsed.json": "0cda2d5fd4f913813f08883b2979b9b7d481d44667ae236ecf8b53fc9f386c6b",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "5d14950d6e41c2c710267349a838713c8854ff4a50a0f5420cc26ea46bf25e9e",
+          "call.json": "3f5a703556ad0b72c55e07b6cd1f356511a5cf8d936c46b2aac2716469710972",
+          "frozen.json": "5d23af9bdef89584f32d0f3ef0339c566bc9e86f3fd5adb10b0a285ba5e46de3",
+          "normalized.json": "edbb0d4e8b9a5f86a3ba22a5d80dd2b9b53da546682c5d645efd11151ec27876",
+          "canonical.json": "35cfa8abcab75638c82f7ba3aebbf26b7b282d03c6470dd35a8f9a6051020647"
+        }
+      }
+    ],
+    "q17": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "b2a05a33-14a3-4b00-ba9a-123fc1bc6bed",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-01/run",
+        "files": {
+          "request.json": "cf35d9d9a1e6b29aa4a6005167a61d981f7f9b2a54c233148ce1446966ee3a16",
+          "raw-response.txt": "1de95c7388ec5b3f4f1a669fb5ca83ea6e60b420d7b3d7de55e67484b5ecd840",
+          "parsed.json": "7dee116b3a86f478a2df0790ace288fdb43588958a4490e382d99eb93d98804d",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "2880142eda0560ac523f7bea6503914acba2d63cf6e71382674b41773c4d1e1e",
+          "call.json": "56fcd61a999465a322da28c88bf74ad8477d97cd87069a65f85ab54f08ca1072",
+          "frozen.json": "8c6f24c923a3c6d28751e8505abd89e12240db51877e73ca9a30ddeee2e605fa",
+          "normalized.json": "6edda5eda8f50c6d7116d928ee77f4d40b45321560273e3376de787d42163bf0",
+          "canonical.json": "1aad0c23c22db743e3dfa0a47d6fc5b16af4701f0dfc9584c701196dfe0e059f"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "3e708319-1fe3-4538-a6ff-7b1b6c9bc45b",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-02/run",
+        "files": {
+          "request.json": "cf35d9d9a1e6b29aa4a6005167a61d981f7f9b2a54c233148ce1446966ee3a16",
+          "raw-response.txt": "31f0b96cc041f7dd64e249866eb250854d698e84e4eb72d1026f9ee4c08eb70b",
+          "parsed.json": "340f8be4187990a6c0e9b7fa5bce28a76d0785fd27298a863557ede3a76ebf60",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "ac16a34f93f300cde5471507aca30d77e7671785667ea35dd4d2b064ac062e7b",
+          "call.json": "411886695f9cb297d8fd2e69a5b3e1578f9842ec2a1a06394c503fcc6c96f426",
+          "frozen.json": "8c6f24c923a3c6d28751e8505abd89e12240db51877e73ca9a30ddeee2e605fa",
+          "normalized.json": "6e0dabd749ef5b8cfc7d598617f6d573dfc83b7c6b7016839b832f236b9a29b3",
+          "canonical.json": "1aad0c23c22db743e3dfa0a47d6fc5b16af4701f0dfc9584c701196dfe0e059f"
+        }
+      }
+    ],
+    "q20": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "0cd7655b-b13b-4d48-be8d-dc45957fade1",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q20/sample-01/run",
+        "files": {
+          "request.json": "cc484d7b472ee62e33fa414542cc519b3c72fd52a926d1e9ba83d94150e61a12",
+          "raw-response.txt": "bd81b46fdb489b3d405c705eacd0c1b9522659fb8638127488f8a474b1164abc",
+          "parsed.json": "bbc6948eae3c81dbef07bbdab7bbdbc551d8f3d75dbacda5d7bd9fef5673602f",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "98f4d191f205076300322ccadc7d1bf8bb5eda36a88712999fc890cc3e15525c",
+          "call.json": "12332be3c8cea4236c325ccee3ff206e48c5fe36f88c53b69b07ad7d2cf3c015",
+          "frozen.json": "939f7869cb51f2b48fe4a5c184bd12a2a323b16e4bd3cdf7e6bf2869b9dc9c7c",
+          "normalized.json": "63b7e86f3f81382d15f2f7af3cbe30104eaa76ddb8ed6ed36404f9546d0943d4",
+          "canonical.json": "1f5f142cd4baa82f1e52ef85848c26f621ea9439e3a1a41544b79847c688362d"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "dd502f89-cc4d-4195-b4c3-63cc0f688924",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q20/sample-02/run",
+        "files": {
+          "request.json": "cc484d7b472ee62e33fa414542cc519b3c72fd52a926d1e9ba83d94150e61a12",
+          "raw-response.txt": "c46603032073073e91e3e3341a5898f7c204ae1a580cd370bd22bcc8367b3d68",
+          "parsed.json": "924c63e72fee04e50f282b89b46d014bfc9f918c5da4bcfc3dc5cd2d6f80fc55",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "66fbdff7a103087cd6b27cd6866b660702626faf25102d3cb71055df7d2e4329",
+          "call.json": "9b37ff96f5eacfc8dd40d492ff2d741ce6ad1457a4171b6672d75e95e3ec9b24",
+          "frozen.json": "939f7869cb51f2b48fe4a5c184bd12a2a323b16e4bd3cdf7e6bf2869b9dc9c7c",
+          "normalized.json": "c0fa40b9283fff5702116e504b883c04b9072aaff6e7df12666ead65a414c8dd",
+          "canonical.json": "1f5f142cd4baa82f1e52ef85848c26f621ea9439e3a1a41544b79847c688362d"
+        }
+      }
+    ],
+    "q25": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "88d686fb-12a1-4350-b608-7b5e29af3ba4",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q25/sample-01/run",
+        "files": {
+          "request.json": "4e5d0d56966e3dcb479962913de87a6e612a273e88bc2d31fbb44eeb8dbc3edb",
+          "raw-response.txt": "c06577c264d80b567dc692ce6b9d6d59aab8eb81e19b4d7df846ad16b60f8ffe",
+          "parsed.json": "8b3d6237bc9a1b6531ab06af7009cac22085355f3b3cd6c720b63a54afeb6626",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "9140d5eb7f754e48f56415cf7e1723d477c646c63df5f0cad8f1f5da0912a4c3",
+          "call.json": "7b2bc826336ba3ca7d72a3d67ba6093987cda4284656e5425e04c103bdf26ab3",
+          "frozen.json": "746d6c2a08eb19b7c7c78eba36c9d02f4bfcec40b36db5620d51a65e086949e5",
+          "normalized.json": "3cb18c142ad6bb5c73bd32a0f1908c6001e2c6b05287a6dc443ea00de81a64ed",
+          "canonical.json": "7e38dc83417eed5ba84bf2aa7e44d5c02b50d66835b54ea9f7db79382365b996"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "5a2634aa-2d88-47c1-8930-dd0650915d1f",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q25/sample-02/run",
+        "files": {
+          "request.json": "4e5d0d56966e3dcb479962913de87a6e612a273e88bc2d31fbb44eeb8dbc3edb",
+          "raw-response.txt": "3d1cf55d93b9e30bfb703f5b60240de0e0e042bff307d8a29d092a3c89cdc3f4",
+          "parsed.json": "ca67fddce55918e840b3634d7c70c1f0146e4cda685526bd6b7be32b3c197ada",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "99db9a962a7af236eada7eecca046b7447af1d86fcd72c8c149c18560275957b",
+          "call.json": "6bf7b1e73799ba5be2ad1460a738be590d4f63cf827a3f9174543ab22389e287",
+          "frozen.json": "746d6c2a08eb19b7c7c78eba36c9d02f4bfcec40b36db5620d51a65e086949e5",
+          "normalized.json": "97c73173d7f59363c5da5409234337e0f8a11916bc614504a02d47dbf829da88",
+          "canonical.json": "7e38dc83417eed5ba84bf2aa7e44d5c02b50d66835b54ea9f7db79382365b996"
+        }
+      }
+    ],
+    "q30": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q30/sample-01/run",
+        "files": {
+          "request.json": "4e0e60837b5251ba30a9b7fb6fd4ae52470df9b459ae1a31b68d5ad6a2036370",
+          "raw-response.txt": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71",
+          "parsed.json": "59a005e78143419699fe822deeacb4445cb0c8966eefbd19baea472e574d3b44",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "ddf03f0739a1274e3ba0903c0534cc01e912ffe791cf36a21b41895207b2b7ae",
+          "call.json": "d79ddc392e0778f0b5c96a31ebdc02ae91c5fd5aef427eb40fb2cd0f9040d0ce",
+          "frozen.json": "7a9047e10500344cbd519e9379212ec594c301637d45eff9d4c7dc64419c5b36",
+          "normalized.json": "5a74844ac6b38ec4c8adbbf45c5f46d360f010a689feae0616e7ba187fd2d9ab",
+          "canonical.json": "e9db3071268599dcf5884f93537403616c42afbf16902dcb79d1d302f06123ec"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q30/sample-02/run",
+        "files": {
+          "request.json": "4e0e60837b5251ba30a9b7fb6fd4ae52470df9b459ae1a31b68d5ad6a2036370",
+          "raw-response.txt": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba",
+          "parsed.json": "facb8e43659820ffd87512c885c15834f6a3195be94d33d6f12036da05f9e0d1",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "6eff046219e86e4aa87403ffc4670d3828d93d6346f2c81b60d24c0ee5bc3f8a",
+          "call.json": "5dfba6f1011e580bb969546648eeabaefc43cc499ac23aeda0609deacde6d641",
+          "frozen.json": "332565aec819b4f91040b420b235b6eb271bad33c34a4d56f099cddb5251ea2c",
+          "normalized.json": "c9ac504fb0839cc6355d8a234c0b4e8ab64f82c312d88d6325b09acd89d37a1f",
+          "canonical.json": "e9db3071268599dcf5884f93537403616c42afbf16902dcb79d1d302f06123ec"
+        }
+      }
+    ],
+    "q31": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "2b39df80-a00b-4af6-9a19-8e72910763a6",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q31/sample-01/run",
+        "files": {
+          "request.json": "14835920a6d11372b188d6d10303c5018a2065625ac314ff43a42f6d545093af",
+          "raw-response.txt": "aa47dc3951504c8e76496e7c7fc0cc0996c86dd061c7cea28df35927db16b939",
+          "parsed.json": "280b2d41c4a21bb173afd82b351c7a26d2669c6e722d5dd2e102db6345b3d6bc",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "8eaf95bee47138dd4deaa7580c87b30bd4fcfea12dc2a9283596f8dc78ff6bea",
+          "call.json": "fec663995249f1ad424ffd9200d2f6ccd3ef161af51a99e419ca1e0859179211",
+          "frozen.json": "6ac53595198a9132dda6492bdfbcfec5defcaeac83b828f78199c0d22a3d763f",
+          "normalized.json": "e159e8bf3d1c113ac7242f9585b9484310742ebd296899d974e8056e7c42a3f2",
+          "canonical.json": "0ee95ab07f9db47e484a21bbc8ba4a591223d5c8916d0c2986955254ade40054"
+        }
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "c2d93a27-4a43-497e-a622-2ce122faafb7",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q31/sample-02/run",
+        "files": {
+          "request.json": "14835920a6d11372b188d6d10303c5018a2065625ac314ff43a42f6d545093af",
+          "raw-response.txt": "14af5f6ae659c1d3e0a7057ff5a068a1d6224ca290cb93c361991361e1595f43",
+          "parsed.json": "4778b81c8f10e8c81ff072f3d9172ef601414b41e700998c3caf4bfcf3f3a0f1",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "a7a3ab7864e6eab4f194ddc4cbafcf82f4918c049cb1b3e1ce86fb8c40451ea2",
+          "call.json": "6b7106f908c48197b2cad163b1a88ae78bc45dff143014d6130fba180276746e",
+          "frozen.json": "6ac53595198a9132dda6492bdfbcfec5defcaeac83b828f78199c0d22a3d763f",
+          "normalized.json": "b6ff288985f4e1258e358c1198c37364ab31890db97fdd4f3f916ecc1339d81c",
+          "canonical.json": "0ee95ab07f9db47e484a21bbc8ba4a591223d5c8916d0c2986955254ade40054"
+        }
+      }
+    ]
+  },
+  "baseline": {
+    "template_files": {
+      "internal/llm-prompts/problem-math-notation-system.md": "0a1a97fe3657855013fa63d0df88adb7665c7a3bc9f09a232d2d381244a2424f",
+      "internal/llm-prompts/problem-math-notation-user.md": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e",
+      "internal/schemas/problem-math-notation-v1.schema.json": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+      "internal/llm-prompts/problem-math-notation-expressions.json": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97"
+    },
+    "system_prompt_hash": "344f852f20c2afbbc11430d5eed65ef638748ad8b01e9893fe03274f6c49602e",
+    "authoring_schema_hash": "938b41fb09df02cb8b5b50b90f4a06a73ba344c535d76f4b73964c137f5330a0",
+    "registry_snapshot": "b27a0a18b7ee49ee2caab2919319c02c2ceca39e90ae27c300be9b21ec7ac1f2",
+    "notation_family_catalog_hash": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994",
+    "expression_catalog_hash": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97",
+    "output_contract": "problem-math-notation/v1",
+    "wire_catalog_sha256": "18f0da3ec9ccab0eb3704486e49a642c263cbc2734a0ec0c9730e96a4b9fbc1d",
+    "user_suffix_sha256": "4dc9740492d72f00017bcea7ca83184ba1bca9c5e8f9496348de5858b4f53714"
+  }
+}

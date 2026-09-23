@@ -1,11 +1,29 @@
 {
   "problem_id": "q12",
-  "methods": [
-    "introduce_semantic_substitution",
-    "eliminate_by_constraint",
-    "apply_two_term_amgm",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "introduce_semantic_substitution",
+      "eliminate_by_constraint",
+      "apply_two_term_amgm",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 4,
+    "titles": [
+      "平方换元",
+      "消元并识别",
+      "应用",
+      "还原取等"
+    ],
+    "source": "docs/basic-inequality-method-discussion.md §4"
+  },
+  "required_evidence": [
+    "u=x^2,v=y^2",
+    "0<v<=1,u=(1-v^2)/(5*v)",
+    "T=1/(5*v)+4*v/5>=4/5",
+    "平方换元四组正负分支均还原验证"
+  ]
 }

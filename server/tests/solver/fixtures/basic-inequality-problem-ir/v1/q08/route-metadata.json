@@ -1,10 +1,26 @@
 {
   "problem_id": "q08",
-  "methods": [
-    "organize_expressions",
-    "apply_two_term_amgm",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "organize_expressions",
+      "apply_two_term_amgm",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 3,
+    "titles": [
+      "观察结构",
+      "应用",
+      "取等"
+    ],
+    "source": "docs/basic-inequality-method-discussion.md §4"
+  },
+  "required_evidence": [
+    "1/(2*a)+1/(2*b)=(a+b)/2",
+    "T=(a+b)/2+8/(a+b)>=4",
+    "a+b=4与a*b=1联立，还原两组解"
+  ]
 }

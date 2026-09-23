@@ -1,6 +1,5 @@
 {
   "schema_version": "basic-inequality-problem-ir/v1",
-  "problem_id": "q30",
   "meta": {
     "problem_id": "q30",
     "title": "若 a>b>c>0，则 2a^2+1/(a*b)+1/(a*(a-b))-10ac+25c^2 的最小值是（ ）。"
@@ -14,7 +13,7 @@
       "summary": "若 a>b>c>0，则 2a^2+1/(a*b)+1/(a*(a-b))-10ac+25c^2 的最小值是（ ）。"
     },
     "original_text": {
-      "source": "basic-inequality frozen notation gold",
+      "source": "frozen notation",
       "number": "q30",
       "lines": [
         "若 a>b>c>0，则 2a^2+1/(a*b)+1/(a*(a-b))-10ac+25c^2 的最小值是（ ）。"
@@ -22,7 +21,7 @@
     },
     "scopes": [
       {
-        "scope_id": "scope_q30_root",
+        "scope_id": "s0",
         "label": "q30",
         "parent": null,
         "source_path": "/root"
@@ -30,120 +29,500 @@
     ],
     "entities": [
       {
-        "handle": "symbol:q30_root:a",
+        "handle": "symbol:s0:a",
         "entity_type": "symbol",
         "name": "a",
-        "scope_id": "scope_q30_root",
+        "scope_id": "s0",
         "description": "代数符号 a",
+        "notation_ref": "r:scalar:a",
         "source_path": "/root/facts/0",
         "source_text": "a > b",
-        "normalized_expression": "a",
-        "sample_hashes": [
-          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
-          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        "normalized_expression": "(a>b)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+            "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+            "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+          }
+        ],
+        "source_occurrences": [
+          {
+            "source_path": "/root/facts/0",
+            "source_text": "a > b",
+            "normalized_expression": "(a>b)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+                "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+                "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/goals/0/expression",
+            "source_text": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
+            "normalized_expression": "(((((2*(a^2))+(1/(a*b)))+(1/(a*(a-b))))-((10*a)*c))+(25*(c^2)))",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+                "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+                "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+              }
+            ]
+          }
         ]
       },
       {
-        "handle": "symbol:q30_root:b",
+        "handle": "symbol:s0:b",
         "entity_type": "symbol",
         "name": "b",
-        "scope_id": "scope_q30_root",
+        "scope_id": "s0",
         "description": "代数符号 b",
+        "notation_ref": "r:scalar:b",
         "source_path": "/root/facts/0",
         "source_text": "a > b",
-        "normalized_expression": "b",
-        "sample_hashes": [
-          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
-          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        "normalized_expression": "(a>b)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+            "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+            "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+          }
+        ],
+        "source_occurrences": [
+          {
+            "source_path": "/root/facts/0",
+            "source_text": "a > b",
+            "normalized_expression": "(a>b)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+                "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+                "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/facts/1",
+            "source_text": "b > c",
+            "normalized_expression": "(b>c)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+                "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+                "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/goals/0/expression",
+            "source_text": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
+            "normalized_expression": "(((((2*(a^2))+(1/(a*b)))+(1/(a*(a-b))))-((10*a)*c))+(25*(c^2)))",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+                "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+                "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+              }
+            ]
+          }
         ]
       },
       {
-        "handle": "symbol:q30_root:c",
+        "handle": "symbol:s0:c",
         "entity_type": "symbol",
         "name": "c",
-        "scope_id": "scope_q30_root",
+        "scope_id": "s0",
         "description": "代数符号 c",
+        "notation_ref": "r:scalar:c",
         "source_path": "/root/facts/1",
         "source_text": "b > c",
-        "normalized_expression": "c",
-        "sample_hashes": [
-          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
-          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        "normalized_expression": "(b>c)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+            "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+            "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+          }
+        ],
+        "source_occurrences": [
+          {
+            "source_path": "/root/facts/1",
+            "source_text": "b > c",
+            "normalized_expression": "(b>c)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+                "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+                "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/facts/2",
+            "source_text": "c > 0",
+            "normalized_expression": "(c>0)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+                "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+                "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/goals/0/expression",
+            "source_text": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
+            "normalized_expression": "(((((2*(a^2))+(1/(a*b)))+(1/(a*(a-b))))-((10*a)*c))+(25*(c^2)))",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+                "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+                "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+              }
+            ]
+          }
         ]
       }
     ],
     "facts": [
       {
-        "handle": "fact:q30_root:f0_0",
+        "handle": "fact:s0:f0",
         "type": "symbol_constraint",
-        "scope_id": "scope_q30_root",
-        "valid_scope": "scope_q30_root",
+        "scope_id": "s0",
+        "valid_scope": "s0",
         "description": "a > b",
+        "expression": "(a>b)",
+        "relation_operator": ">",
+        "bound_expression": [
+          ">",
+          [
+            "ref",
+            "r:scalar:a",
+            "scalar"
+          ],
+          [
+            "ref",
+            "r:scalar:b",
+            "scalar"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:a",
+          "symbol:s0:b"
+        ],
+        "domain_obligations": [],
         "source_path": "/root/facts/0",
         "source_text": "a > b",
-        "normalized_expression": "a > b",
-        "entity_handles": [
-          "symbol:q30_root:a",
-          "symbol:q30_root:b"
-        ],
-        "sample_hashes": [
-          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
-          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        "normalized_expression": "(a>b)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+            "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+            "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+          }
         ]
       },
       {
-        "handle": "fact:q30_root:f1_0",
+        "handle": "fact:s0:f1",
         "type": "symbol_constraint",
-        "scope_id": "scope_q30_root",
-        "valid_scope": "scope_q30_root",
+        "scope_id": "s0",
+        "valid_scope": "s0",
         "description": "b > c",
+        "expression": "(b>c)",
+        "relation_operator": ">",
+        "bound_expression": [
+          ">",
+          [
+            "ref",
+            "r:scalar:b",
+            "scalar"
+          ],
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:b",
+          "symbol:s0:c"
+        ],
+        "domain_obligations": [],
         "source_path": "/root/facts/1",
         "source_text": "b > c",
-        "normalized_expression": "b > c",
-        "entity_handles": [
-          "symbol:q30_root:b",
-          "symbol:q30_root:c"
-        ],
-        "sample_hashes": [
-          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
-          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        "normalized_expression": "(b>c)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+            "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+            "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+          }
         ]
       },
       {
-        "handle": "fact:q30_root:f2_0",
+        "handle": "fact:s0:f2",
         "type": "symbol_constraint",
-        "scope_id": "scope_q30_root",
-        "valid_scope": "scope_q30_root",
+        "scope_id": "s0",
+        "valid_scope": "s0",
         "description": "c > 0",
+        "expression": "(c>0)",
+        "relation_operator": ">",
+        "bound_expression": [
+          ">",
+          [
+            "ref",
+            "r:scalar:c",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:c"
+        ],
+        "domain_obligations": [],
         "source_path": "/root/facts/2",
         "source_text": "c > 0",
-        "normalized_expression": "c > 0",
-        "entity_handles": [
-          "symbol:q30_root:c"
-        ],
-        "sample_hashes": [
-          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
-          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        "normalized_expression": "(c>0)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+            "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+            "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+          }
         ]
       }
     ],
     "question_goals": [
       {
-        "handle": "answer:q30_root_g0",
-        "scope_id": "scope_q30_root",
-        "valid_scope": "scope_q30_root",
-        "answer_key": "q30_g0",
+        "handle": "answer:s0.g0",
+        "scope_id": "s0",
+        "valid_scope": "s0",
+        "answer_key": "s0_g0",
         "value_type": "MinimumExpression",
         "required": true,
         "description": "find_minimum: 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
         "goal_kind": "find_minimum",
         "target_expression": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
-        "source_path": "/root/goals/0",
+        "bound_expression": [
+          "+",
+          [
+            "-",
+            [
+              "+",
+              [
+                "+",
+                [
+                  "*",
+                  [
+                    "number",
+                    "2"
+                  ],
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "/",
+                  [
+                    "number",
+                    "1"
+                  ],
+                  [
+                    "*",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:b",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              ],
+              [
+                "/",
+                [
+                  "number",
+                  "1"
+                ],
+                [
+                  "*",
+                  [
+                    "ref",
+                    "r:scalar:a",
+                    "scalar"
+                  ],
+                  [
+                    "-",
+                    [
+                      "ref",
+                      "r:scalar:a",
+                      "scalar"
+                    ],
+                    [
+                      "ref",
+                      "r:scalar:b",
+                      "scalar"
+                    ]
+                  ]
+                ]
+              ]
+            ],
+            [
+              "*",
+              [
+                "*",
+                [
+                  "number",
+                  "10"
+                ],
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              ],
+              [
+                "ref",
+                "r:scalar:c",
+                "scalar"
+              ]
+            ]
+          ],
+          [
+            "*",
+            [
+              "number",
+              "25"
+            ],
+            [
+              "^",
+              [
+                "ref",
+                "r:scalar:c",
+                "scalar"
+              ],
+              [
+                "number",
+                "2"
+              ]
+            ]
+          ]
+        ],
+        "variables": [],
+        "in_terms_of": [],
+        "domain_obligations": [
+          {
+            "expression": "(a*b) != 0",
+            "status": "unverified",
+            "origin": "expression_domain"
+          },
+          {
+            "expression": "(a*(a-b)) != 0",
+            "status": "unverified",
+            "origin": "expression_domain"
+          }
+        ],
+        "source_path": "/root/goals/0/expression",
         "source_text": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
-        "normalized_expression": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
-        "sample_hashes": [
-          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
-          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        "normalized_expression": "(((((2*(a^2))+(1/(a*b)))+(1/(a*(a-b))))-((10*a)*c))+(25*(c^2)))",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+            "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+            "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+          }
         ]
       }
     ]
@@ -153,32 +532,76 @@
     "matched_by": [
       "pattern",
       "problem_type"
-    ]
+    ],
+    "source_requirements_verified": true,
+    "authoring_only": true
   },
   "provenance": {
-    "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q30.json",
-    "gold_sha256": "c3e45acd76516fbc4cf51aa175f6508c29478cdafe2f82333fed34b43ffe313f",
-    "sample_ids": [
-      "sample-01",
-      "sample-02"
-    ],
-    "sample_hashes": [
-      "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
-      "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
-    ],
-    "required_sample_count": 2,
-    "image_path": "math-notation-v1/basic-inequality/images/q30.png",
-    "notation_contract": "problem-math-notation/v1",
-    "prompt_hashes": {
-      "system": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
-      "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+    "asset_root": "math-notation-v1/basic-inequality",
+    "gold_path": "q30.json",
+    "gold_sha256": "179b1a6627fbb29303295f511de27d72b3d3fb82340ec5c54edcc11e6f8055ee",
+    "gold_semantic_sha256": "e9db3071268599dcf5884f93537403616c42afbf16902dcb79d1d302f06123ec",
+    "image_path": "images/q30.png",
+    "image_sha256": "2406fe8c17cd88ed1cc1574775df619d8f87723ae997e3fcb46e83cd87eac54a",
+    "gold_review": {
+      "status": "human_confirmed",
+      "source": "题面直接转录；不含答案、推导、取等条件或隐含正性。"
     },
-    "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
-    "catalog_hashes": {
-      "expressions": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e",
-      "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    "samples": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "4085f860-4a66-4579-bee1-51702a098785",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q30/sample-01/run",
+        "files": {
+          "request.json": "4e0e60837b5251ba30a9b7fb6fd4ae52470df9b459ae1a31b68d5ad6a2036370",
+          "raw-response.txt": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71",
+          "parsed.json": "59a005e78143419699fe822deeacb4445cb0c8966eefbd19baea472e574d3b44",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "ddf03f0739a1274e3ba0903c0534cc01e912ffe791cf36a21b41895207b2b7ae",
+          "call.json": "d79ddc392e0778f0b5c96a31ebdc02ae91c5fd5aef427eb40fb2cd0f9040d0ce",
+          "frozen.json": "7a9047e10500344cbd519e9379212ec594c301637d45eff9d4c7dc64419c5b36",
+          "normalized.json": "5a74844ac6b38ec4c8adbbf45c5f46d360f010a689feae0616e7ba187fd2d9ab",
+          "canonical.json": "e9db3071268599dcf5884f93537403616c42afbf16902dcb79d1d302f06123ec"
+        },
+        "path": "samples/q30/sample-01",
+        "raw_sha256": "f43b14518871ba4045601c8d309fae387105d958246e9517478d9ed99b2f9c71"
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "c776274d-c910-466b-bee6-ab22b98c6556",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q30/sample-02/run",
+        "files": {
+          "request.json": "4e0e60837b5251ba30a9b7fb6fd4ae52470df9b459ae1a31b68d5ad6a2036370",
+          "raw-response.txt": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba",
+          "parsed.json": "facb8e43659820ffd87512c885c15834f6a3195be94d33d6f12036da05f9e0d1",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "6eff046219e86e4aa87403ffc4670d3828d93d6346f2c81b60d24c0ee5bc3f8a",
+          "call.json": "5dfba6f1011e580bb969546648eeabaefc43cc499ac23aeda0609deacde6d641",
+          "frozen.json": "332565aec819b4f91040b420b235b6eb271bad33c34a4d56f099cddb5251ea2c",
+          "normalized.json": "c9ac504fb0839cc6355d8a234c0b4e8ab64f82c312d88d6325b09acd89d37a1f",
+          "canonical.json": "e9db3071268599dcf5884f93537403616c42afbf16902dcb79d1d302f06123ec"
+        },
+        "path": "samples/q30/sample-02",
+        "raw_sha256": "ed3addeba20109d4d99167088e595a796e15d9bf44801225e7463209defd56ba"
+      }
+    ],
+    "baseline": {
+      "template_files": {
+        "internal/llm-prompts/problem-math-notation-system.md": "0a1a97fe3657855013fa63d0df88adb7665c7a3bc9f09a232d2d381244a2424f",
+        "internal/llm-prompts/problem-math-notation-user.md": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e",
+        "internal/schemas/problem-math-notation-v1.schema.json": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+        "internal/llm-prompts/problem-math-notation-expressions.json": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97"
+      },
+      "system_prompt_hash": "344f852f20c2afbbc11430d5eed65ef638748ad8b01e9893fe03274f6c49602e",
+      "authoring_schema_hash": "938b41fb09df02cb8b5b50b90f4a06a73ba344c535d76f4b73964c137f5330a0",
+      "registry_snapshot": "b27a0a18b7ee49ee2caab2919319c02c2ceca39e90ae27c300be9b21ec7ac1f2",
+      "notation_family_catalog_hash": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994",
+      "expression_catalog_hash": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97",
+      "output_contract": "problem-math-notation/v1",
+      "wire_catalog_sha256": "18f0da3ec9ccab0eb3704486e49a642c263cbc2734a0ec0c9730e96a4b9fbc1d",
+      "user_suffix_sha256": "4dc9740492d72f00017bcea7ca83184ba1bca9c5e8f9496348de5858b4f53714"
     },
-    "canonical_hash": "963b43222f0195fea5559e2419bd8d6ddb55486947f7b7cf314a1129f9608537",
-    "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+    "sample_index_sha256": "7609647ce1f9d923699b801a0e69a405ed1ec62f9e8995e0e5e030c8c00286ca",
+    "input_semantic_sha256": "e15a154367dc625384782336296be72f2f7d4708cd5d1e401c3b3c189a6c38c9"
   }
 }

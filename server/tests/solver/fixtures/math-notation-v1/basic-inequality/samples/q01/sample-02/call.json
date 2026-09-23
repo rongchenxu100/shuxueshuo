@@ -1,0 +1,118 @@
+{
+  "provider": "deepseek",
+  "request_model": "deepseek-flash",
+  "response_model": "deepseek-flash",
+  "usage": {
+    "completion_tokens": 1372,
+    "prompt_tokens": 10945,
+    "total_tokens": 12317,
+    "prompt_cache_hit_tokens": 10752,
+    "prompt_cache_miss_tokens": 193
+  },
+  "usage_complete": true,
+  "finish_reason": "stop",
+  "stream_terminated_at_json": false,
+  "received_output_characters": 403,
+  "thinking_mode": "enabled",
+  "reasoning_effort": "low",
+  "response_format": "problem-math-notation/v1",
+  "temperature": null,
+  "max_output_tokens": 16384,
+  "timeout": 300,
+  "stream": false,
+  "transport_response_format": "json_object",
+  "image_detail": null,
+  "image_transport": "files",
+  "image_files": [
+    {
+      "image_id": "primary",
+      "file_id": "file-api-52ae5121-a63d-40fd-8cf2-7256b00fc522",
+      "sha256": "697a3e9009a295a8477adcdb77cc26ccfaa6cc2c1645237c249947d5a95458ad",
+      "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+      "bytes": 144295,
+      "expires_at": 1790177550,
+      "uploaded_at": 1790091150.9128268
+    }
+  ],
+  "file_operations": [
+    {
+      "operation": "cache_hit",
+      "sha256": "697a3e9009a295a8477adcdb77cc26ccfaa6cc2c1645237c249947d5a95458ad",
+      "file_id": "file-api-52ae5121-a63d-40fd-8cf2-7256b00fc522",
+      "api_calls": 0
+    }
+  ],
+  "file_api_calls": 0,
+  "provider_attempts": [
+    {
+      "provider_attempt": 1,
+      "status": "completed",
+      "response_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 1372,
+        "prompt_tokens": 10945,
+        "total_tokens": 12317,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 1212,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 10752
+        },
+        "prompt_cache_hit_tokens": 10752,
+        "prompt_cache_miss_tokens": 193
+      },
+      "finish_reason": "stop",
+      "visible_content": true,
+      "latency_ms": 6978,
+      "error_code": null,
+      "error_message": null,
+      "raw_payload": {
+        "id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "{\n  \"original_text\": \"1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ____ .\",\n  \"root\": {\n    \"facts\": [\n      \"m > 0\",\n      \"n > 0\",\n      \"m + n = 2\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_maximum\",\n        \"expression\": \"m*n\",\n        \"variables\": [\"m\", \"n\"]\n      }\n    ]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出正实数m、n及等式m+n=2，求mn的最大值，符合基本不等式题型。\"\n}",
+              "refusal": null,
+              "role": "assistant",
+              "annotations": null,
+              "audio": null,
+              "function_call": null,
+              "tool_calls": null,
+              "reasoning_content": "我们需要从图片中提取题意。图片显示：\n\n例题精讲\n练习8\n1. 设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ____ .\n\n我们需要输出 JSON。包含 original_text 和 root 等。registered_families 有 basic_inequality 匹配。题目是基本不等式：正实数 m,n，满足 m+n=2，求 mn 的最大值。所以 match_status: matched, family_id: \"basic_inequality\"。\n\noriginal_text 应完整转录：可能包括标题？只转录题干。图片顶部有“例题精讲”“练习8”，然后题目。应该转录：“1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ____ .” 或者包含“练习8”？一般只题干即可，但按原文完整转录，可以写“1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ____ .”。注意原题中“正实数 m, n” 逗号。还有空格。求“mn 的最大值”。这题是求最大值的填空。\n\nroot:\ndefinitions: 没有曲线或函数定义。不需要。\nfacts: 应包含正实数条件：m > 0, n > 0；等式 m + n = 2。注意乘法显式写 *：mn 写 m*n？题面写 mn，表示乘积。按照规则：“题面表示乘法时必须显式写 *：两个独立变量的乘积 xy 写成 x*y”。所以 facts 或者 goals 中表达式应写 m*n。但 facts 里条件 m+n=2 不涉及乘法。goals 里求最大值，表达式应该写 m*n。题面“mn”是乘积，所以应该写 m*n。注意 math_expression_catalog 中 arithmetic 说数学候选中乘法必须显式写*。所以 goal 用 find_maximum expression \"m*n\"。\n\nfacts: [\"m > 0\", \"n > 0\", \"m + n = 2\"]。是否需要包含“正实数”？m>0, n>0 即可。\n\ngoals: [{\"kind\":\"find_maximum\", \"expression\":\"m*n\"}]。variables 可以省略或填 [\"m\",\"n\"]？它说可选的优化变量提示，只填写题面明确的点名或参数名。题面明确 m,n 是变量，可以填 [\"m\",\"n\"] 但也可以省略。我们保留 variables 吗？可以，但不是必须。为了完整，填 [\"m\",\"n\"] 或者省略。示例中基本不等式没有特别。可以省略，但填上也无害。我选择填 variables: [\"m\",\"n\"]。\n\nmatch_reason: 题面以正项、等式条件求乘积最大值，符合基本不等式题型。\n\noriginal_text 中公式：m+n=2，mn 最大值为 ____。可能书写空格。注意图片中“1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 _______ .” 下划线很长。可以写“____”。但不要写答案。原文写“正实数 m, n” 中间有空格。转录可以保留。\n\n输出 JSON。顶层必须包含 root, match_status, family_id, match_reason, original_text。original_text 是可选但新抽取须填写。我们填写。\n\nroot 是对象，包含 definitions, facts, goals。可以省略 definitions。但要符合 schema，root 的 definitions 可省略。facts 和 goals 可以省略？有 facts 和 goals。\n\n没有 uncertainties。\n\n需要确保 JSON 有效。输出只有 JSON，不能有 markdown。使用转义？中文不必转义。\n\n最终 JSON：\n\n{\n  \"original_text\": \"1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ____ .\",\n  \"root\": {\n    \"facts\": [\"m > 0\", \"n > 0\", \"m + n = 2\"],\n    \"goals\": [\n      {\"kind\": \"find_maximum\", \"expression\": \"m*n\", \"variables\": [\"m\", \"n\"]}\n    ]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出正实数m、n及等式m+n=2，求mn的最大值，符合基本不等式题型。\"\n}\n\n但需要注意：facts 里 m+n=2 用空格还是不用？可以写 \"m + n = 2\"。题面是 m+n=2。可以。m*n 是表达式。find_maximum 的 expression 不套 max。正确。\n\n有没有定义？没有曲线/函数定义。所以 definitions 省略，或空数组？根据 schema 可以省略。\n\n检查 original_text 是否包含“练习8”？图片有“练习8”，但题干是“1.设正实数...”。一般只转录题目内容。但“练习8”可能是标题，不是题干，可以不转录。但“完整转录原图题干”最好只题干。如果包含“练习8”也可以，但不影响。我倾向于只转录第1题。原图还有“例题精讲”标题，不是题干。所以只转录题目。\n\n是否需要将“正实数”写为 facts 中的 m>0, n>0？题面“正实数”说明 m,n 为正。是。\n\n目标中是否要包含“最大值”已经由 kind 表示。好。\n\nmatch_status matched, family_id basic_inequality。\n\n注意：注册表中有 basic_inequality 标题“基本不等式”。匹配。\n\n输出 JSON。确保没有多余换行？可以格式化。但必须严格遵守 JSON。可以带空格。\n\n还需不要包含 schema_version 等。没有。\n\n完成。"
+            }
+          }
+        ],
+        "created": 1790134280,
+        "model": "deepseek-flash",
+        "object": "chat.completion",
+        "service_tier": null,
+        "system_fingerprint": "aeb56401ca74e127821c4f9126dcb669",
+        "usage": {
+          "completion_tokens": 1372,
+          "prompt_tokens": 10945,
+          "total_tokens": 12317,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": null,
+            "audio_tokens": null,
+            "reasoning_tokens": 1212,
+            "rejected_prediction_tokens": null
+          },
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 10752
+          },
+          "prompt_cache_hit_tokens": 10752,
+          "prompt_cache_miss_tokens": 193
+        }
+      }
+    }
+  ],
+  "latency_ms": 6979
+}

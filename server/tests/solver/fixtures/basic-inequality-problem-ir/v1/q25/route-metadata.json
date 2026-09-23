@@ -1,11 +1,30 @@
 {
   "problem_id": "q25",
-  "methods": [
-    "introduce_semantic_substitution",
-    "organize_expressions",
-    "apply_two_term_amgm",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "introduce_semantic_substitution",
+      "organize_expressions",
+      "apply_two_term_amgm",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 5,
+    "titles": [
+      "观察整块",
+      "换元",
+      "观察新结构",
+      "应用",
+      "还原"
+    ],
+    "source": "docs/basic-inequality-method-discussion.md §4"
+  },
+  "required_evidence": [
+    "先证明a,b>1，验证分母非零",
+    "x=a-1,y=b-1>0,x*y=1",
+    "T=13+4/x+9/y>=25",
+    "还原a=5/3,b=5/2并回代原题"
+  ]
 }

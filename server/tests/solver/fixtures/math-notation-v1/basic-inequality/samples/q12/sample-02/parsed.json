@@ -1,0 +1,355 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "q12",
+    "source_sha256": "896b5df8e36ee27b9ec009b02fb915be9bcbc32f10a5c0a25fa6ac9e5b4e8fdc",
+    "registry_snapshot": "b27a0a18b7ee49ee2caab2919319c02c2ceca39e90ae27c300be9b21ec7ac1f2"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "facts": [
+          "x ∈ ℝ",
+          "y ∈ ℝ",
+          "5*x^2*y^2 + y^4 = 1"
+        ],
+        "goals": [
+          {
+            "kind": "find_minimum",
+            "expression": "x^2 + y^2"
+          }
+        ],
+        "label": "题目",
+        "definitions": [],
+        "children": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": "basic_inequality",
+      "match_status": "matched",
+      "match_reason": "题面给出实数变量条件与等式条件，要求求代数式 x²+y² 的最小值，符合基本不等式题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:x",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:y",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:scalar:x",
+          "name": "x",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:y",
+          "name": "y",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "default_domain",
+              [
+                "ref",
+                "r:scalar:x",
+                "scalar"
+              ],
+              "real"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "default_domain",
+              [
+                "ref",
+                "r:scalar:y",
+                "scalar"
+              ],
+              "real"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "=",
+              [
+                "+",
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "number",
+                      "5"
+                    ],
+                    [
+                      "^",
+                      [
+                        "ref",
+                        "r:scalar:x",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:y",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "^",
+                  [
+                    "ref",
+                    "r:scalar:y",
+                    "scalar"
+                  ],
+                  [
+                    "number",
+                    "4"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "default_domain",
+              [
+                "ref",
+                "r:scalar:x",
+                "scalar"
+              ],
+              "real"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              "default_domain",
+              [
+                "ref",
+                "r:scalar:y",
+                "scalar"
+              ],
+              "real"
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "=",
+              [
+                "+",
+                [
+                  "*",
+                  [
+                    "*",
+                    [
+                      "number",
+                      "5"
+                    ],
+                    [
+                      "^",
+                      [
+                        "ref",
+                        "r:scalar:x",
+                        "scalar"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ]
+                  ],
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:y",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "^",
+                  [
+                    "ref",
+                    "r:scalar:y",
+                    "scalar"
+                  ],
+                  [
+                    "number",
+                    "4"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:9e4fd7d2e233e0643c56c4122cd7281bb05966143510729225ed098b27f99563",
+      "kind": "notation_raw",
+      "sha256": "9e4fd7d2e233e0643c56c4122cd7281bb05966143510729225ed098b27f99563",
+      "media_type": "text/plain",
+      "byte_size": 457,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-02/run/artifacts/9e/9e4fd7d2e233e0643c56c4122cd7281bb05966143510729225ed098b27f99563.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:296a4f4e41e11a25f866e66c37967e470db9c7ef314ee081f5446ce50f1b8ed5",
+      "kind": "notation_candidate",
+      "sha256": "296a4f4e41e11a25f866e66c37967e470db9c7ef314ee081f5446ce50f1b8ed5",
+      "media_type": "application/json",
+      "byte_size": 457,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-02/run/artifacts/29/296a4f4e41e11a25f866e66c37967e470db9c7ef314ee081f5446ce50f1b8ed5.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:35cfa8abcab75638c82f7ba3aebbf26b7b282d03c6470dd35a8f9a6051020647",
+      "kind": "notation_canonical",
+      "sha256": "35cfa8abcab75638c82f7ba3aebbf26b7b282d03c6470dd35a8f9a6051020647",
+      "media_type": "application/json",
+      "byte_size": 739,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-02/run/artifacts/35/35cfa8abcab75638c82f7ba3aebbf26b7b282d03c6470dd35a8f9a6051020647.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:edbb0d4e8b9a5f86a3ba22a5d80dd2b9b53da546682c5d645efd11151ec27876",
+      "kind": "notation_normalized",
+      "sha256": "edbb0d4e8b9a5f86a3ba22a5d80dd2b9b53da546682c5d645efd11151ec27876",
+      "media_type": "application/json",
+      "byte_size": 524,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-02/run/artifacts/ed/edbb0d4e8b9a5f86a3ba22a5d80dd2b9b53da546682c5d645efd11151ec27876.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:156c57f54519115f068dee4b1fdd8ca6adba138737fdbfbf48019bee26fe95fa",
+      "kind": "notation_compiled",
+      "sha256": "156c57f54519115f068dee4b1fdd8ca6adba138737fdbfbf48019bee26fe95fa",
+      "media_type": "application/json",
+      "byte_size": 2748,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-02/run/artifacts/15/156c57f54519115f068dee4b1fdd8ca6adba138737fdbfbf48019bee26fe95fa.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-02/run/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:b3c5ce2476f4ba43822e572436a9b648cde6e82db073315e8c89c9bb36274935",
+      "kind": "notation_ir",
+      "sha256": "b3c5ce2476f4ba43822e572436a9b648cde6e82db073315e8c89c9bb36274935",
+      "media_type": "application/json",
+      "byte_size": 192,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-02/run/artifacts/b3/b3c5ce2476f4ba43822e572436a9b648cde6e82db073315e8c89c9bb36274935.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:e6e3cd1216f2b3d6b330e9e450f64163c202147637f8e2e3ac79e134e20b2c34",
+      "kind": "notation_validation",
+      "sha256": "e6e3cd1216f2b3d6b330e9e450f64163c202147637f8e2e3ac79e134e20b2c34",
+      "media_type": "application/json",
+      "byte_size": 1484,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q12/sample-02/run/artifacts/e6/e6e3cd1216f2b3d6b330e9e450f64163c202147637f8e2e3ac79e134e20b2c34.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "296a4f4e41e11a25f866e66c37967e470db9c7ef314ee081f5446ce50f1b8ed5",
+  "semantic_revision": "35cfa8abcab75638c82f7ba3aebbf26b7b282d03c6470dd35a8f9a6051020647",
+  "units": {
+    "r.facts[0]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.facts[1]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.facts[2]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 2
+    }
+  }
+}

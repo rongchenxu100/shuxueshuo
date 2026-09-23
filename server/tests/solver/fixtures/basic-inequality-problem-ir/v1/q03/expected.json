@@ -1,5 +1,12 @@
 {
   "problem_id": "q03",
   "answer": "9",
-  "equality": "x=3,y=3/2"
+  "equality": "x=3,y=3/2",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "equality_branches": [
+    {
+      "x": "3",
+      "y": "3/2"
+    }
+  ]
 }

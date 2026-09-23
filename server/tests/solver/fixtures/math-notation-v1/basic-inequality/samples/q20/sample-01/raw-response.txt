@@ -1,0 +1,19 @@
+{
+  "original_text": "x,y>0，(x-y)^2=(xy)^3，求 1/x+1/y 的最小值",
+  "root": {
+    "facts": [
+      "x > 0",
+      "y > 0",
+      "(x-y)^2 = (x*y)^3"
+    ],
+    "goals": [
+      {
+        "kind": "find_minimum",
+        "expression": "1/x+1/y"
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出正项条件 x>0、y>0 和等式条件 (x-y)^2=(xy)^3，并求 1/x+1/y 的最小值，符合基本不等式题型的条件与目标。"
+}

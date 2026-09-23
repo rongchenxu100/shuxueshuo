@@ -1,26 +1,68 @@
 {
-  "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q25.json",
-  "gold_sha256": "c3830c1ec6ff25e14dad62bd95755ff2d93211e3fcbdc6959f6a9be1fca7aebc",
-  "sample_ids": [
-    "sample-01",
-    "sample-02"
-  ],
-  "sample_hashes": [
-    "5631bb3e4b520859f6c374038272a460f43e52a570423312611f4253347603c9",
-    "b541961eff662949ca7d9f713a468d615049b0c8bd8916837f9b98b51904e6c5"
-  ],
-  "required_sample_count": 2,
-  "image_path": "math-notation-v1/basic-inequality/images/q25.png",
-  "notation_contract": "problem-math-notation/v1",
-  "prompt_hashes": {
-    "system": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
-    "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+  "asset_root": "math-notation-v1/basic-inequality",
+  "gold_path": "q25.json",
+  "gold_sha256": "94de0177d03dd6cfca917309e1d28363c2e8851d299be0b3c329fee3f0a25540",
+  "gold_semantic_sha256": "7e38dc83417eed5ba84bf2aa7e44d5c02b50d66835b54ea9f7db79382365b996",
+  "image_path": "images/q25.png",
+  "image_sha256": "8e8d6b5374408c0bdad48effa67530fe47f8845bf985a073f672f6b5c801e0c6",
+  "gold_review": {
+    "status": "human_confirmed",
+    "source": "题面直接转录；不含答案、推导、取等条件或隐含正性。"
   },
-  "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
-  "catalog_hashes": {
-    "expressions": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e",
-    "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+  "samples": [
+    {
+      "sample_id": "sample-01",
+      "response_id": "88d686fb-12a1-4350-b608-7b5e29af3ba4",
+      "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q25/sample-01/run",
+      "files": {
+        "request.json": "4e5d0d56966e3dcb479962913de87a6e612a273e88bc2d31fbb44eeb8dbc3edb",
+        "raw-response.txt": "c06577c264d80b567dc692ce6b9d6d59aab8eb81e19b4d7df846ad16b60f8ffe",
+        "parsed.json": "8b3d6237bc9a1b6531ab06af7009cac22085355f3b3cd6c720b63a54afeb6626",
+        "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+        "summary.json": "9140d5eb7f754e48f56415cf7e1723d477c646c63df5f0cad8f1f5da0912a4c3",
+        "call.json": "7b2bc826336ba3ca7d72a3d67ba6093987cda4284656e5425e04c103bdf26ab3",
+        "frozen.json": "746d6c2a08eb19b7c7c78eba36c9d02f4bfcec40b36db5620d51a65e086949e5",
+        "normalized.json": "3cb18c142ad6bb5c73bd32a0f1908c6001e2c6b05287a6dc443ea00de81a64ed",
+        "canonical.json": "7e38dc83417eed5ba84bf2aa7e44d5c02b50d66835b54ea9f7db79382365b996"
+      },
+      "path": "samples/q25/sample-01",
+      "raw_sha256": "c06577c264d80b567dc692ce6b9d6d59aab8eb81e19b4d7df846ad16b60f8ffe"
+    },
+    {
+      "sample_id": "sample-02",
+      "response_id": "5a2634aa-2d88-47c1-8930-dd0650915d1f",
+      "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q25/sample-02/run",
+      "files": {
+        "request.json": "4e5d0d56966e3dcb479962913de87a6e612a273e88bc2d31fbb44eeb8dbc3edb",
+        "raw-response.txt": "3d1cf55d93b9e30bfb703f5b60240de0e0e042bff307d8a29d092a3c89cdc3f4",
+        "parsed.json": "ca67fddce55918e840b3634d7c70c1f0146e4cda685526bd6b7be32b3c197ada",
+        "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+        "summary.json": "99db9a962a7af236eada7eecca046b7447af1d86fcd72c8c149c18560275957b",
+        "call.json": "6bf7b1e73799ba5be2ad1460a738be590d4f63cf827a3f9174543ab22389e287",
+        "frozen.json": "746d6c2a08eb19b7c7c78eba36c9d02f4bfcec40b36db5620d51a65e086949e5",
+        "normalized.json": "97c73173d7f59363c5da5409234337e0f8a11916bc614504a02d47dbf829da88",
+        "canonical.json": "7e38dc83417eed5ba84bf2aa7e44d5c02b50d66835b54ea9f7db79382365b996"
+      },
+      "path": "samples/q25/sample-02",
+      "raw_sha256": "3d1cf55d93b9e30bfb703f5b60240de0e0e042bff307d8a29d092a3c89cdc3f4"
+    }
+  ],
+  "baseline": {
+    "template_files": {
+      "internal/llm-prompts/problem-math-notation-system.md": "0a1a97fe3657855013fa63d0df88adb7665c7a3bc9f09a232d2d381244a2424f",
+      "internal/llm-prompts/problem-math-notation-user.md": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e",
+      "internal/schemas/problem-math-notation-v1.schema.json": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+      "internal/llm-prompts/problem-math-notation-expressions.json": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97"
+    },
+    "system_prompt_hash": "344f852f20c2afbbc11430d5eed65ef638748ad8b01e9893fe03274f6c49602e",
+    "authoring_schema_hash": "938b41fb09df02cb8b5b50b90f4a06a73ba344c535d76f4b73964c137f5330a0",
+    "registry_snapshot": "b27a0a18b7ee49ee2caab2919319c02c2ceca39e90ae27c300be9b21ec7ac1f2",
+    "notation_family_catalog_hash": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994",
+    "expression_catalog_hash": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97",
+    "output_contract": "problem-math-notation/v1",
+    "wire_catalog_sha256": "18f0da3ec9ccab0eb3704486e49a642c263cbc2734a0ec0c9730e96a4b9fbc1d",
+    "user_suffix_sha256": "4dc9740492d72f00017bcea7ca83184ba1bca9c5e8f9496348de5858b4f53714"
   },
-  "canonical_hash": "195ffdce0b618daa1f7f1864062ce8e5f12b99960665e1438b59d7fac8ba3880",
-  "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+  "sample_index_sha256": "7609647ce1f9d923699b801a0e69a405ed1ec62f9e8995e0e5e030c8c00286ca",
+  "input_semantic_sha256": "28d0e5f0e6db587924e8eacbdf193c98685a8fc0598b3296ad26d71be67f88f9"
 }

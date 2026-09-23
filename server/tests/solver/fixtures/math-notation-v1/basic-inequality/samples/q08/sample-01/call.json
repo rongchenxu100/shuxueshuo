@@ -1,0 +1,118 @@
+{
+  "provider": "deepseek",
+  "request_model": "deepseek-flash",
+  "response_model": "deepseek-flash",
+  "usage": {
+    "completion_tokens": 358,
+    "prompt_tokens": 11331,
+    "total_tokens": 11689,
+    "prompt_cache_hit_tokens": 10496,
+    "prompt_cache_miss_tokens": 835
+  },
+  "usage_complete": true,
+  "finish_reason": "stop",
+  "stream_terminated_at_json": false,
+  "received_output_characters": 379,
+  "thinking_mode": "enabled",
+  "reasoning_effort": "low",
+  "response_format": "problem-math-notation/v1",
+  "temperature": null,
+  "max_output_tokens": 16384,
+  "timeout": 300,
+  "stream": false,
+  "transport_response_format": "json_object",
+  "image_detail": null,
+  "image_transport": "files",
+  "image_files": [
+    {
+      "image_id": "primary",
+      "file_id": "file-api-6888e27d-f105-483c-bcb6-d637301c7a75",
+      "sha256": "121ea73d3f22b7c4027cc4778082e6bac998fd2f0a2be9a31a0a6a727989feba",
+      "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+      "bytes": 819616,
+      "expires_at": 1790177581,
+      "uploaded_at": 1790091181.5365918
+    }
+  ],
+  "file_operations": [
+    {
+      "operation": "cache_hit",
+      "sha256": "121ea73d3f22b7c4027cc4778082e6bac998fd2f0a2be9a31a0a6a727989feba",
+      "file_id": "file-api-6888e27d-f105-483c-bcb6-d637301c7a75",
+      "api_calls": 0
+    }
+  ],
+  "file_api_calls": 0,
+  "provider_attempts": [
+    {
+      "provider_attempt": 1,
+      "status": "completed",
+      "response_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 358,
+        "prompt_tokens": 11331,
+        "total_tokens": 11689,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 170,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 10496
+        },
+        "prompt_cache_hit_tokens": 10496,
+        "prompt_cache_miss_tokens": 835
+      },
+      "finish_reason": "stop",
+      "visible_content": true,
+      "latency_ms": 2096,
+      "error_code": null,
+      "error_message": null,
+      "raw_payload": {
+        "id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "{\n  \"original_text\": \"4.（2020 天津，14，5 分）已知 a>0，b>0，且 ab=1，则 1/(2a) + 1/(2b) + 8/(a+b) 的最小值为________。\",\n  \"root\": {\n    \"facts\": [\"a > 0\", \"b > 0\", \"a*b = 1\"],\n    \"goals\": [{\"kind\": \"find_minimum\", \"expression\": \"1/(2*a)+1/(2*b)+8/(a+b)\"}]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出正项条件 a>0、b>0 与等式 ab=1，要求分式代数式的最小值，符合基本不等式题型。\"\n}",
+              "refusal": null,
+              "role": "assistant",
+              "annotations": null,
+              "audio": null,
+              "function_call": null,
+              "tool_calls": null,
+              "reasoning_content": "题目：已知 $a>0, b>0$，且 $ab=1$，则 $\\frac{1}{2a}+\\frac{1}{2b}+\\frac{8}{a+b}$ 的最小值为_______。\n\n这是基本不等式题。匹配 family_id: basic_inequality。\n\ndefinitions: 无曲线、无函数定义。\n\nfacts: [\"a > 0\", \"b > 0\", \"a*b = 1\"]\n\ngoals: find_minimum expression: \"1/(2*a)+1/(2*b)+8/(a+b)\"\n\noriginal_text: 完整转录。\n\n注意原题是填空题，可能有题号 \"4. (2020 天津,14,5分)\"。\n\nSchema 输出顶层字段：original_text, root, match_status, family_id, match_reason。"
+            }
+          }
+        ],
+        "created": 1790134306,
+        "model": "deepseek-flash",
+        "object": "chat.completion",
+        "service_tier": null,
+        "system_fingerprint": "aeb56401ca74e127821c4f9126dcb669",
+        "usage": {
+          "completion_tokens": 358,
+          "prompt_tokens": 11331,
+          "total_tokens": 11689,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": null,
+            "audio_tokens": null,
+            "reasoning_tokens": 170,
+            "rejected_prediction_tokens": null
+          },
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 10496
+          },
+          "prompt_cache_hit_tokens": 10496,
+          "prompt_cache_miss_tokens": 835
+        }
+      }
+    }
+  ],
+  "latency_ms": 2098
+}

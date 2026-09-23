@@ -1,6 +1,5 @@
 {
   "schema_version": "basic-inequality-problem-ir/v1",
-  "problem_id": "q08",
   "meta": {
     "problem_id": "q08",
     "title": "4. 已知 a>0，b>0，且 ab=1，则 1/(2a)+1/(2b)+8/(a+b) 的最小值为____。"
@@ -14,7 +13,7 @@
       "summary": "4. 已知 a>0，b>0，且 ab=1，则 1/(2a)+1/(2b)+8/(a+b) 的最小值为____。"
     },
     "original_text": {
-      "source": "basic-inequality frozen notation gold",
+      "source": "frozen notation",
       "number": "q08",
       "lines": [
         "4. 已知 a>0，b>0，且 ab=1，则 1/(2a)+1/(2b)+8/(a+b) 的最小值为____。"
@@ -22,7 +21,7 @@
     },
     "scopes": [
       {
-        "scope_id": "scope_q08_root",
+        "scope_id": "s0",
         "label": "q08",
         "parent": null,
         "source_path": "/root"
@@ -30,105 +29,397 @@
     ],
     "entities": [
       {
-        "handle": "symbol:q08_root:a",
+        "handle": "symbol:s0:a",
         "entity_type": "symbol",
         "name": "a",
-        "scope_id": "scope_q08_root",
+        "scope_id": "s0",
         "description": "代数符号 a",
+        "notation_ref": "r:scalar:a",
         "source_path": "/root/facts/0",
         "source_text": "a > 0",
-        "normalized_expression": "a",
-        "sample_hashes": [
-          "8cb02f87d4154ac1c408797f06f8ea99244890cc28255b3978868bd52cc30803",
-          "b51d331b8461a81c7b05cf088caccd7a649ea24f77d75f1dec90ef5a8e2ac9ff"
+        "normalized_expression": "(a>0)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+            "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+            "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+          }
+        ],
+        "source_occurrences": [
+          {
+            "source_path": "/root/facts/0",
+            "source_text": "a > 0",
+            "normalized_expression": "(a>0)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+                "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+                "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/facts/2",
+            "source_text": "a*b = 1",
+            "normalized_expression": "((a*b)=1)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+                "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+                "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/goals/0/expression",
+            "source_text": "1/(2*a)+1/(2*b)+8/(a+b)",
+            "normalized_expression": "(((1/(2*a))+(1/(2*b)))+(8/(a+b)))",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+                "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+                "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+              }
+            ]
+          }
         ]
       },
       {
-        "handle": "symbol:q08_root:b",
+        "handle": "symbol:s0:b",
         "entity_type": "symbol",
         "name": "b",
-        "scope_id": "scope_q08_root",
+        "scope_id": "s0",
         "description": "代数符号 b",
+        "notation_ref": "r:scalar:b",
         "source_path": "/root/facts/1",
         "source_text": "b > 0",
-        "normalized_expression": "b",
-        "sample_hashes": [
-          "8cb02f87d4154ac1c408797f06f8ea99244890cc28255b3978868bd52cc30803",
-          "b51d331b8461a81c7b05cf088caccd7a649ea24f77d75f1dec90ef5a8e2ac9ff"
+        "normalized_expression": "(b>0)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+            "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+            "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+          }
+        ],
+        "source_occurrences": [
+          {
+            "source_path": "/root/facts/1",
+            "source_text": "b > 0",
+            "normalized_expression": "(b>0)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+                "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+                "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/facts/2",
+            "source_text": "a*b = 1",
+            "normalized_expression": "((a*b)=1)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+                "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+                "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/goals/0/expression",
+            "source_text": "1/(2*a)+1/(2*b)+8/(a+b)",
+            "normalized_expression": "(((1/(2*a))+(1/(2*b)))+(8/(a+b)))",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+                "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+                "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+              }
+            ]
+          }
         ]
       }
     ],
     "facts": [
       {
-        "handle": "fact:q08_root:f0_0",
+        "handle": "fact:s0:f0",
         "type": "symbol_constraint",
-        "scope_id": "scope_q08_root",
-        "valid_scope": "scope_q08_root",
+        "scope_id": "s0",
+        "valid_scope": "s0",
         "description": "a > 0",
+        "expression": "(a>0)",
+        "relation_operator": ">",
+        "bound_expression": [
+          ">",
+          [
+            "ref",
+            "r:scalar:a",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:a"
+        ],
+        "domain_obligations": [],
         "source_path": "/root/facts/0",
         "source_text": "a > 0",
-        "normalized_expression": "a > 0",
-        "entity_handles": [
-          "symbol:q08_root:a"
-        ],
-        "sample_hashes": [
-          "8cb02f87d4154ac1c408797f06f8ea99244890cc28255b3978868bd52cc30803",
-          "b51d331b8461a81c7b05cf088caccd7a649ea24f77d75f1dec90ef5a8e2ac9ff"
+        "normalized_expression": "(a>0)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+            "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+            "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+          }
         ]
       },
       {
-        "handle": "fact:q08_root:f1_0",
+        "handle": "fact:s0:f1",
         "type": "symbol_constraint",
-        "scope_id": "scope_q08_root",
-        "valid_scope": "scope_q08_root",
+        "scope_id": "s0",
+        "valid_scope": "s0",
         "description": "b > 0",
+        "expression": "(b>0)",
+        "relation_operator": ">",
+        "bound_expression": [
+          ">",
+          [
+            "ref",
+            "r:scalar:b",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:b"
+        ],
+        "domain_obligations": [],
         "source_path": "/root/facts/1",
         "source_text": "b > 0",
-        "normalized_expression": "b > 0",
-        "entity_handles": [
-          "symbol:q08_root:b"
-        ],
-        "sample_hashes": [
-          "8cb02f87d4154ac1c408797f06f8ea99244890cc28255b3978868bd52cc30803",
-          "b51d331b8461a81c7b05cf088caccd7a649ea24f77d75f1dec90ef5a8e2ac9ff"
+        "normalized_expression": "(b>0)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+            "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+            "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+          }
         ]
       },
       {
-        "handle": "fact:q08_root:f2_0",
+        "handle": "fact:s0:f2",
         "type": "equation",
-        "scope_id": "scope_q08_root",
-        "valid_scope": "scope_q08_root",
+        "scope_id": "s0",
+        "valid_scope": "s0",
         "description": "a*b = 1",
+        "expression": "((a*b)=1)",
+        "relation_operator": "=",
+        "bound_expression": [
+          "=",
+          [
+            "*",
+            [
+              "ref",
+              "r:scalar:a",
+              "scalar"
+            ],
+            [
+              "ref",
+              "r:scalar:b",
+              "scalar"
+            ]
+          ],
+          [
+            "number",
+            "1"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:a",
+          "symbol:s0:b"
+        ],
+        "domain_obligations": [],
         "source_path": "/root/facts/2",
         "source_text": "a*b = 1",
-        "normalized_expression": "a*b = 1",
-        "entity_handles": [
-          "symbol:q08_root:a",
-          "symbol:q08_root:b"
-        ],
-        "sample_hashes": [
-          "8cb02f87d4154ac1c408797f06f8ea99244890cc28255b3978868bd52cc30803",
-          "b51d331b8461a81c7b05cf088caccd7a649ea24f77d75f1dec90ef5a8e2ac9ff"
+        "normalized_expression": "((a*b)=1)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+            "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+            "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+          }
         ]
       }
     ],
     "question_goals": [
       {
-        "handle": "answer:q08_root_g0",
-        "scope_id": "scope_q08_root",
-        "valid_scope": "scope_q08_root",
-        "answer_key": "q08_g0",
+        "handle": "answer:s0.g0",
+        "scope_id": "s0",
+        "valid_scope": "s0",
+        "answer_key": "s0_g0",
         "value_type": "MinimumExpression",
         "required": true,
         "description": "find_minimum: 1/(2*a)+1/(2*b)+8/(a+b)",
         "goal_kind": "find_minimum",
         "target_expression": "1/(2*a)+1/(2*b)+8/(a+b)",
-        "source_path": "/root/goals/0",
+        "bound_expression": [
+          "+",
+          [
+            "+",
+            [
+              "/",
+              [
+                "number",
+                "1"
+              ],
+              [
+                "*",
+                [
+                  "number",
+                  "2"
+                ],
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ]
+              ]
+            ],
+            [
+              "/",
+              [
+                "number",
+                "1"
+              ],
+              [
+                "*",
+                [
+                  "number",
+                  "2"
+                ],
+                [
+                  "ref",
+                  "r:scalar:b",
+                  "scalar"
+                ]
+              ]
+            ]
+          ],
+          [
+            "/",
+            [
+              "number",
+              "8"
+            ],
+            [
+              "+",
+              [
+                "ref",
+                "r:scalar:a",
+                "scalar"
+              ],
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ]
+            ]
+          ]
+        ],
+        "variables": [],
+        "in_terms_of": [],
+        "domain_obligations": [
+          {
+            "expression": "(2*a) != 0",
+            "status": "unverified",
+            "origin": "expression_domain"
+          },
+          {
+            "expression": "(2*b) != 0",
+            "status": "unverified",
+            "origin": "expression_domain"
+          },
+          {
+            "expression": "(a+b) != 0",
+            "status": "unverified",
+            "origin": "expression_domain"
+          }
+        ],
+        "source_path": "/root/goals/0/expression",
         "source_text": "1/(2*a)+1/(2*b)+8/(a+b)",
-        "normalized_expression": "1/(2*a)+1/(2*b)+8/(a+b)",
-        "sample_hashes": [
-          "8cb02f87d4154ac1c408797f06f8ea99244890cc28255b3978868bd52cc30803",
-          "b51d331b8461a81c7b05cf088caccd7a649ea24f77d75f1dec90ef5a8e2ac9ff"
+        "normalized_expression": "(((1/(2*a))+(1/(2*b)))+(8/(a+b)))",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+            "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+            "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+          }
         ]
       }
     ]
@@ -138,32 +429,76 @@
     "matched_by": [
       "pattern",
       "problem_type"
-    ]
+    ],
+    "source_requirements_verified": true,
+    "authoring_only": true
   },
   "provenance": {
-    "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q08.json",
-    "gold_sha256": "dedacaa129b1372ea44ed26740ecf330b4cc93acfababd7089344b2c027ecc9b",
-    "sample_ids": [
-      "sample-01",
-      "sample-02"
-    ],
-    "sample_hashes": [
-      "8cb02f87d4154ac1c408797f06f8ea99244890cc28255b3978868bd52cc30803",
-      "b51d331b8461a81c7b05cf088caccd7a649ea24f77d75f1dec90ef5a8e2ac9ff"
-    ],
-    "required_sample_count": 2,
-    "image_path": "math-notation-v1/basic-inequality/images/q08.png",
-    "notation_contract": "problem-math-notation/v1",
-    "prompt_hashes": {
-      "system": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
-      "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+    "asset_root": "math-notation-v1/basic-inequality",
+    "gold_path": "q08.json",
+    "gold_sha256": "6a5c0df245806333be3822daed350f5bf15dc0112df86d686272cc69c40a6eb4",
+    "gold_semantic_sha256": "f19659d0eeb4c729fca6929d6408915008fc6f6065f9fcd472f20fb92fc4d2ab",
+    "image_path": "images/q08.png",
+    "image_sha256": "121ea73d3f22b7c4027cc4778082e6bac998fd2f0a2be9a31a0a6a727989feba",
+    "gold_review": {
+      "status": "human_confirmed",
+      "source": "题面直接转录；不含答案、推导、取等条件或隐含正性。"
     },
-    "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
-    "catalog_hashes": {
-      "expressions": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e",
-      "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    "samples": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "48a3a396-c76b-4975-9509-c2d2984203fc",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q08/sample-01/run",
+        "files": {
+          "request.json": "a3e0374191b4df19903f488302ec104756e589d8bfbcc7c2657e8343fdfbbc8c",
+          "raw-response.txt": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792",
+          "parsed.json": "b324709956097ea768f87d0858853ac42b89de4aafb5dabd462d579cac113061",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "f0db75d330339c24ace2090fbad720eda5033aad0a4cf8331c8927959f081d91",
+          "call.json": "d5a88789f6427e02a163ab5dbbcd05ec3f352694a06e0463ec03a1a874903d84",
+          "frozen.json": "f651a002155ada65936db9aeadb651e69a5ec87c3ff586f637965d11ea10b4a6",
+          "normalized.json": "45fce4df0bd497181fab47efd5965cc1c561f571b48d911528ea93d3f692dc29",
+          "canonical.json": "f19659d0eeb4c729fca6929d6408915008fc6f6065f9fcd472f20fb92fc4d2ab"
+        },
+        "path": "samples/q08/sample-01",
+        "raw_sha256": "a5dc2d401e0027d603de343058fb30a3e83e475357f50bf6fdc775762e35f792"
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "9c889ab3-07f9-4c8a-9fd7-d3512dc9a607",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q08/sample-02/run",
+        "files": {
+          "request.json": "a3e0374191b4df19903f488302ec104756e589d8bfbcc7c2657e8343fdfbbc8c",
+          "raw-response.txt": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646",
+          "parsed.json": "364563dacd2af3a5dcbe06a623ecdddf07fd6f33da866a30793e979d023497e9",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "9160a0cf6944f78aba44a0ba52d1edaba1adb6a449b331924b3325d5246023c6",
+          "call.json": "f9a47aade17d73a90cd8bc073bbc3ffdb06ee8a8b037e6fc44ef1915a3a97ecf",
+          "frozen.json": "f651a002155ada65936db9aeadb651e69a5ec87c3ff586f637965d11ea10b4a6",
+          "normalized.json": "0f7e103445fc48efd7e88b39a808f8ee8532d0a8a6fc7fcc24df4708c39c1688",
+          "canonical.json": "f19659d0eeb4c729fca6929d6408915008fc6f6065f9fcd472f20fb92fc4d2ab"
+        },
+        "path": "samples/q08/sample-02",
+        "raw_sha256": "dcbb6a7ab2fc535aad9f06c11c46916314503e0bce737df17bb7c2c40d97f646"
+      }
+    ],
+    "baseline": {
+      "template_files": {
+        "internal/llm-prompts/problem-math-notation-system.md": "0a1a97fe3657855013fa63d0df88adb7665c7a3bc9f09a232d2d381244a2424f",
+        "internal/llm-prompts/problem-math-notation-user.md": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e",
+        "internal/schemas/problem-math-notation-v1.schema.json": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+        "internal/llm-prompts/problem-math-notation-expressions.json": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97"
+      },
+      "system_prompt_hash": "344f852f20c2afbbc11430d5eed65ef638748ad8b01e9893fe03274f6c49602e",
+      "authoring_schema_hash": "938b41fb09df02cb8b5b50b90f4a06a73ba344c535d76f4b73964c137f5330a0",
+      "registry_snapshot": "b27a0a18b7ee49ee2caab2919319c02c2ceca39e90ae27c300be9b21ec7ac1f2",
+      "notation_family_catalog_hash": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994",
+      "expression_catalog_hash": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97",
+      "output_contract": "problem-math-notation/v1",
+      "wire_catalog_sha256": "18f0da3ec9ccab0eb3704486e49a642c263cbc2734a0ec0c9730e96a4b9fbc1d",
+      "user_suffix_sha256": "4dc9740492d72f00017bcea7ca83184ba1bca9c5e8f9496348de5858b4f53714"
     },
-    "canonical_hash": "ea0566ee79ba97b85ccab5cd8299843e9f480da9740310285374ae57f0cbc567",
-    "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+    "sample_index_sha256": "7609647ce1f9d923699b801a0e69a405ed1ec62f9e8995e0e5e030c8c00286ca",
+    "input_semantic_sha256": "ed6546b8f2ef9e850ad637329523ea919f67fc55352fb931e5bb4db3983e7212"
   }
 }

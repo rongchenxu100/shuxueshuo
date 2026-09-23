@@ -1,5 +1,12 @@
 {
   "problem_id": "q07",
   "answer": "2√2",
-  "equality": "a=b=√2"
+  "equality": "a=b=√2",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "equality_branches": [
+    {
+      "a": "sqrt(2)",
+      "b": "sqrt(2)"
+    }
+  ]
 }

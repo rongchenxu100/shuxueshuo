@@ -1,10 +1,27 @@
 {
   "problem_id": "q07",
-  "methods": [
-    "apply_two_term_amgm",
-    "apply_two_term_amgm",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "apply_two_term_amgm",
+      "apply_two_term_amgm",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 4,
+    "titles": [
+      "路线观察",
+      "第一次应用",
+      "第二次应用",
+      "共同取等"
+    ],
+    "source": "docs/basic-inequality-method-discussion.md §4"
+  },
+  "required_evidence": [
+    "1/a+a/b^2>=2/b",
+    "2/b+b>=2*sqrt(2)",
+    "两轮取等同时成立：a=b=sqrt(2)"
+  ]
 }

@@ -1,5 +1,12 @@
 {
   "problem_id": "q25",
   "answer": "25",
-  "equality": "a=5/3,b=5/2"
+  "equality": "a=5/3,b=5/2",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "equality_branches": [
+    {
+      "a": "5/3",
+      "b": "5/2"
+    }
+  ]
 }

@@ -1,0 +1,12 @@
+{
+  "original_text": "3. (2021 天津, 13, 5 分) 若 a>0, b>0, 则 1/a + a/b^2 + b 的最小值为 ______.",
+  "root": {
+    "facts": ["a > 0", "b > 0"],
+    "goals": [
+      {"kind": "find_minimum", "expression": "1/a+a/b^2+b"}
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出正项条件 a>0、b>0，并求代数式 1/a+a/b^2+b 的最小值，符合基本不等式题型的正项条件与最小值目标。"
+}

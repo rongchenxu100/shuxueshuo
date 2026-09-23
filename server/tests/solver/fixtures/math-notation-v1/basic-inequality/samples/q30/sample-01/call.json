@@ -1,0 +1,118 @@
+{
+  "provider": "deepseek",
+  "request_model": "deepseek-flash",
+  "response_model": "deepseek-flash",
+  "usage": {
+    "completion_tokens": 521,
+    "prompt_tokens": 10994,
+    "total_tokens": 11515,
+    "prompt_cache_hit_tokens": 10496,
+    "prompt_cache_miss_tokens": 498
+  },
+  "usage_complete": true,
+  "finish_reason": "stop",
+  "stream_terminated_at_json": false,
+  "received_output_characters": 355,
+  "thinking_mode": "enabled",
+  "reasoning_effort": "low",
+  "response_format": "problem-math-notation/v1",
+  "temperature": null,
+  "max_output_tokens": 16384,
+  "timeout": 300,
+  "stream": false,
+  "transport_response_format": "json_object",
+  "image_detail": null,
+  "image_transport": "files",
+  "image_files": [
+    {
+      "image_id": "primary",
+      "file_id": "file-api-175c7db7-cc8a-43bb-9fe4-b2f956c3f0d3",
+      "sha256": "2406fe8c17cd88ed1cc1574775df619d8f87723ae997e3fcb46e83cd87eac54a",
+      "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+      "bytes": 125937,
+      "expires_at": 1790177670,
+      "uploaded_at": 1790091270.284054
+    }
+  ],
+  "file_operations": [
+    {
+      "operation": "cache_hit",
+      "sha256": "2406fe8c17cd88ed1cc1574775df619d8f87723ae997e3fcb46e83cd87eac54a",
+      "file_id": "file-api-175c7db7-cc8a-43bb-9fe4-b2f956c3f0d3",
+      "api_calls": 0
+    }
+  ],
+  "file_api_calls": 0,
+  "provider_attempts": [
+    {
+      "provider_attempt": 1,
+      "status": "completed",
+      "response_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 521,
+        "prompt_tokens": 10994,
+        "total_tokens": 11515,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 358,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 10496
+        },
+        "prompt_cache_hit_tokens": 10496,
+        "prompt_cache_miss_tokens": 498
+      },
+      "finish_reason": "stop",
+      "visible_content": true,
+      "latency_ms": 2875,
+      "error_code": null,
+      "error_message": null,
+      "raw_payload": {
+        "id": "4085f860-4a66-4579-bee1-51702a098785",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "{\"original_text\":\"设a>b>c>0，则 2a² + 1/(ab) + 1/(a(a-b)) - 10ac + 25c² 的最小值是（ ）\",\"root\":{\"facts\":[\"a > b\",\"b > c\",\"c > 0\"],\"goals\":[{\"kind\":\"find_minimum\",\"expression\":\"2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\",\"variables\":[\"a\",\"b\",\"c\"]}]},\"match_status\":\"matched\",\"family_id\":\"basic_inequality\",\"match_reason\":\"题面给出正项不等式条件 a>b>c>0，要求含分式的代数式的最小值，符合基本不等式题型。\"}",
+              "refusal": null,
+              "role": "assistant",
+              "annotations": null,
+              "audio": null,
+              "function_call": null,
+              "tool_calls": null,
+              "reasoning_content": "题目：设 a>b>c>0，则 2a^2 + 1/(ab) + 1/(a(a-b)) - 10ac + 25c^2 的最小值是（ ）\n\n需按基本不等式题型匹配：registered_families 有 basic_inequality。题面以正项、不等式条件为基础，求代数式最小值。匹配。\n\nfacts: a>b, b>c, c>0。注意 a>b>c>0 意味着 a>b ∧ b>c ∧ c>0。也可写 a > b > c > 0？目录支持 comparison，一般不链式。拆成三条：a>b、b>c、c>0。或者写 a > b, b > c, c > 0。\n\ngoals: find_minimum expression \"2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\"。注意乘号：2a^2 题面是 2a²，写成 2*a^2。a(a-b) 写成 a*(a-b)。10ac 写成 10*a*c。25c^2 写成 25*c^2。分母 ab 写成 a*b。\n\noriginal_text：忠实转录：\"设a>b>c>0，则2a²+1/(ab)+1/(a(a-b))-10ac+25c²的最小值是（ ）\"\n\n注意原题中有括号填空。写\"（ ）\"。\n\nmatch_status matched, family_id \"basic_inequality\"。\n\nmatch_reason: 题面以正项 a>b>c>0 为条件，要求代数式的最小值，符合基本不等式题型。"
+            }
+          }
+        ],
+        "created": 1790134371,
+        "model": "deepseek-flash",
+        "object": "chat.completion",
+        "service_tier": null,
+        "system_fingerprint": "aeb56401ca74e127821c4f9126dcb669",
+        "usage": {
+          "completion_tokens": 521,
+          "prompt_tokens": 10994,
+          "total_tokens": 11515,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": null,
+            "audio_tokens": null,
+            "reasoning_tokens": 358,
+            "rejected_prediction_tokens": null
+          },
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 10496
+          },
+          "prompt_cache_hit_tokens": 10496,
+          "prompt_cache_miss_tokens": 498
+        }
+      }
+    }
+  ],
+  "latency_ms": 2876
+}

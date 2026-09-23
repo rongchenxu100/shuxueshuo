@@ -1,0 +1,20 @@
+{
+  "original_text": "1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ____ .",
+  "root": {
+    "facts": [
+      "m > 0",
+      "n > 0",
+      "m + n = 2"
+    ],
+    "goals": [
+      {
+        "kind": "find_maximum",
+        "expression": "m*n",
+        "variables": ["m", "n"]
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出正实数m、n及等式m+n=2，求mn的最大值，符合基本不等式题型。"
+}

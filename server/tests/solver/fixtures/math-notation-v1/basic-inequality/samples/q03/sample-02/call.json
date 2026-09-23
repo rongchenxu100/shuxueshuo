@@ -1,0 +1,118 @@
+{
+  "provider": "deepseek",
+  "request_model": "deepseek-flash",
+  "response_model": "deepseek-flash",
+  "usage": {
+    "completion_tokens": 547,
+    "prompt_tokens": 10939,
+    "total_tokens": 11486,
+    "prompt_cache_hit_tokens": 10752,
+    "prompt_cache_miss_tokens": 187
+  },
+  "usage_complete": true,
+  "finish_reason": "stop",
+  "stream_terminated_at_json": false,
+  "received_output_characters": 385,
+  "thinking_mode": "enabled",
+  "reasoning_effort": "low",
+  "response_format": "problem-math-notation/v1",
+  "temperature": null,
+  "max_output_tokens": 16384,
+  "timeout": 300,
+  "stream": false,
+  "transport_response_format": "json_object",
+  "image_detail": null,
+  "image_transport": "files",
+  "image_files": [
+    {
+      "image_id": "primary",
+      "file_id": "file-api-977cfb38-946a-468d-a32f-d4cf8bfc666b",
+      "sha256": "5c893bdd219402d580ed148b83d1d87916599eae109255cf351439591bde04d3",
+      "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+      "bytes": 251947,
+      "expires_at": 1790177566,
+      "uploaded_at": 1790091166.907541
+    }
+  ],
+  "file_operations": [
+    {
+      "operation": "cache_hit",
+      "sha256": "5c893bdd219402d580ed148b83d1d87916599eae109255cf351439591bde04d3",
+      "file_id": "file-api-977cfb38-946a-468d-a32f-d4cf8bfc666b",
+      "api_calls": 0
+    }
+  ],
+  "file_api_calls": 0,
+  "provider_attempts": [
+    {
+      "provider_attempt": 1,
+      "status": "completed",
+      "response_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 547,
+        "prompt_tokens": 10939,
+        "total_tokens": 11486,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 387,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 10752
+        },
+        "prompt_cache_hit_tokens": 10752,
+        "prompt_cache_miss_tokens": 187
+      },
+      "finish_reason": "stop",
+      "visible_content": true,
+      "latency_ms": 3023,
+      "error_code": null,
+      "error_message": null,
+      "raw_payload": {
+        "id": "fc223dec-cd25-4e61-9ed9-052f3c074294",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "{\n  \"original_text\": \"3.已知正实数 x，y 满足 1/x + 1/y = 1，则 x+4y 最小值为 ______ 。\",\n  \"root\": {\n    \"facts\": [\n      \"x > 0\",\n      \"y > 0\",\n      \"1/x + 1/y = 1\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_minimum\",\n        \"expression\": \"x+4*y\"\n      }\n    ]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出正实数条件与等式约束，要求代数式的最小值，符合基本不等式题型。\"\n}",
+              "refusal": null,
+              "role": "assistant",
+              "annotations": null,
+              "audio": null,
+              "function_call": null,
+              "tool_calls": null,
+              "reasoning_content": "我们需要从图片提取题意。图片中文字：手写解答在图上，需要忽略。原题文字：3. 已知正实数 x, y 满足 1/x + 1/y = 1，则 x+4y 最小值为 ______ 。 注意手写有解答。我们只转写题干。正实数 x, y 满足 1/x + 1/y = 1，求 x+4y 最小值。这是一个基本不等式题。registered_families 有 basic_inequality，匹配？题面以正项、等式条件求代数式最小值，符合。需要输出 match_status matched, family_id \"basic_inequality\", match_reason。root definitions? 没有曲线函数定义。facts: x > 0, y > 0, 1/x + 1/y = 1。goals: find_minimum expression \"x+4*y\"（显式乘号）。注意题面是 x+4y，要写成 x+4*y。original_text: 完整题干原文：\"3.已知正实数 x，y 满足 1/x + 1/y = 1，则 x+4y 最小值为 ______ 。\" 可以保留空格？按原文。 忽略手写。没有图。没有 uncertainties。 输出 JSON。 确保 schema 满足：必须包含 root, match_status, family_id, match_reason。original_text 可选但应填。root 内有 facts goals。 注意 facts 中正实数条件可写 \"x > 0\", \"y > 0\"，等式写 \"1/x + 1/y = 1\"。goals 一个 {kind:\"find_minimum\", expression:\"x+4*y\"}。 match_status matched, family_id \"basic_inequality\", match_reason 简短。 没有 children。 OK."
+            }
+          }
+        ],
+        "created": 1790134296,
+        "model": "deepseek-flash",
+        "object": "chat.completion",
+        "service_tier": null,
+        "system_fingerprint": "aeb56401ca74e127821c4f9126dcb669",
+        "usage": {
+          "completion_tokens": 547,
+          "prompt_tokens": 10939,
+          "total_tokens": 11486,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": null,
+            "audio_tokens": null,
+            "reasoning_tokens": 387,
+            "rejected_prediction_tokens": null
+          },
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 10752
+          },
+          "prompt_cache_hit_tokens": 10752,
+          "prompt_cache_miss_tokens": 187
+        }
+      }
+    }
+  ],
+  "latency_ms": 3024
+}

@@ -1,0 +1,33 @@
+{
+  "case_id": "q31",
+  "image_transport": "files",
+  "passed": true,
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "semantic_calls": 1,
+  "network_attempts": 1,
+  "file_api_calls": 0,
+  "usage": {
+    "input_tokens": 11113,
+    "output_tokens": 381,
+    "reasoning_tokens": 180,
+    "visible_output_tokens": 201,
+    "usage_available": true
+  },
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_correct": true,
+  "strict_semantics_passed": true,
+  "accepted_omissions": [],
+  "contract_valid": true,
+  "elapsed_seconds": 2.071
+}

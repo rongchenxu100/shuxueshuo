@@ -1,0 +1,1 @@
+{"family_id":"basic_inequality","match_reason":"题面以正项条件、等式条件为基础，目标求代数式的最小值，符合基本不等式题型。","match_status":"matched","original_text":"x, y > 0，(x-y)^2 = (xy)^3，求 1/x + 1/y 的最小值。","root":{"children":[],"definitions":[],"facts":["x > 0","y > 0","(x-y)^2 = (x*y)^3"],"goals":[{"expression":"1/x + 1/y","kind":"find_minimum"}],"label":"题目","uncertainties":[]}}

@@ -1,0 +1,118 @@
+{
+  "provider": "deepseek",
+  "request_model": "deepseek-flash",
+  "response_model": "deepseek-flash",
+  "usage": {
+    "completion_tokens": 369,
+    "prompt_tokens": 11199,
+    "total_tokens": 11568,
+    "prompt_cache_hit_tokens": 11008,
+    "prompt_cache_miss_tokens": 191
+  },
+  "usage_complete": true,
+  "finish_reason": "stop",
+  "stream_terminated_at_json": false,
+  "received_output_characters": 368,
+  "thinking_mode": "enabled",
+  "reasoning_effort": "low",
+  "response_format": "problem-math-notation/v1",
+  "temperature": null,
+  "max_output_tokens": 16384,
+  "timeout": 300,
+  "stream": false,
+  "transport_response_format": "json_object",
+  "image_detail": null,
+  "image_transport": "files",
+  "image_files": [
+    {
+      "image_id": "primary",
+      "file_id": "file-api-714d485c-6ca6-44d8-af66-f5fc5e23bdea",
+      "sha256": "f7c2885ffe86921490acba051b5fc46cb460b29564542eec09cf3c5551538cf8",
+      "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+      "bytes": 705306,
+      "expires_at": 1790177576,
+      "uploaded_at": 1790091176.1878378
+    }
+  ],
+  "file_operations": [
+    {
+      "operation": "cache_hit",
+      "sha256": "f7c2885ffe86921490acba051b5fc46cb460b29564542eec09cf3c5551538cf8",
+      "file_id": "file-api-714d485c-6ca6-44d8-af66-f5fc5e23bdea",
+      "api_calls": 0
+    }
+  ],
+  "file_api_calls": 0,
+  "provider_attempts": [
+    {
+      "provider_attempt": 1,
+      "status": "completed",
+      "response_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 369,
+        "prompt_tokens": 11199,
+        "total_tokens": 11568,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 196,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 11008
+        },
+        "prompt_cache_hit_tokens": 11008,
+        "prompt_cache_miss_tokens": 191
+      },
+      "finish_reason": "stop",
+      "visible_content": true,
+      "latency_ms": 2254,
+      "error_code": null,
+      "error_message": null,
+      "raw_payload": {
+        "id": "ea5b9d0b-56da-422e-9664-ddf259b25624",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "{\n  \"original_text\": \"3. (2021 天津, 13, 5 分) 若 a>0, b>0, 则 1/a + a/b^2 + b 的最小值为 ______.\",\n  \"root\": {\n    \"facts\": [\"a > 0\", \"b > 0\"],\n    \"goals\": [\n      {\"kind\": \"find_minimum\", \"expression\": \"1/a+a/b^2+b\"}\n    ]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出正项条件 a>0、b>0，并求代数式 1/a+a/b^2+b 的最小值，符合基本不等式题型的正项条件与最小值目标。\"\n}",
+              "refusal": null,
+              "role": "assistant",
+              "annotations": null,
+              "audio": null,
+              "function_call": null,
+              "tool_calls": null,
+              "reasoning_content": "题目：若 a>0, b>0, 则 1/a + a/b^2 + b 的最小值为 ____。\n\n需要提取 original_text 和 root。\n\ndefinitions：无曲线/函数定义。\nfacts：[\"a > 0\", \"b > 0\"]\ngoals：find_minimum expression \"1/a+a/b^2+b\"\n\nmatch_status：basic_inequality 匹配（正项条件，最小值目标）。family_id: \"basic_inequality\"\n\n注意乘法显式乘号：无乘积歧义，1/a + a/b^2 + b 保持。\n\noriginal_text 转录：注意题目可能有手写勾号，忽略。顶部黑色涂抹数字，忽略。\n\n写：\n\"3. (2021 天津, 13, 5 分) 若 a>0, b>0, 则 1/a + a/b^2 + b 的最小值为 ______.\"\n\n输出 JSON。"
+            }
+          }
+        ],
+        "created": 1790134304,
+        "model": "deepseek-flash",
+        "object": "chat.completion",
+        "service_tier": null,
+        "system_fingerprint": "aeb56401ca74e127821c4f9126dcb669",
+        "usage": {
+          "completion_tokens": 369,
+          "prompt_tokens": 11199,
+          "total_tokens": 11568,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": null,
+            "audio_tokens": null,
+            "reasoning_tokens": 196,
+            "rejected_prediction_tokens": null
+          },
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 11008
+          },
+          "prompt_cache_hit_tokens": 11008,
+          "prompt_cache_miss_tokens": 191
+        }
+      }
+    }
+  ],
+  "latency_ms": 2256
+}

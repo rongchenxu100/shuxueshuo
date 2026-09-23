@@ -1,10 +1,27 @@
 {
   "problem_id": "q20",
-  "methods": [
-    "organize_expressions",
-    "apply_two_term_amgm",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "organize_expressions",
+      "apply_two_term_amgm",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 3,
+    "titles": [
+      "观察结构",
+      "应用",
+      "取等"
+    ],
+    "source": "docs/basic-inequality-method-discussion.md §4"
+  },
+  "required_evidence": [
+    "T=(x+y)/(x*y)>0",
+    "T=sqrt(x*y+4/(x*y))",
+    "根内表达式>=4，主值平方根保持下界",
+    "x*y=2与原条件联立并验证两组解"
+  ]
 }

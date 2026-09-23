@@ -1,0 +1,1 @@
+{"original_text":"考点2 基本不等式\n(2020 江苏，12，5分)已知 5x²y²+y⁴=1(x,y∈R)，则 x²+y² 的最小值是______。","root":{"facts":["x ∈ ℝ","y ∈ ℝ","5*x^2*y^2 + y^4 = 1"],"goals":[{"kind":"find_minimum","expression":"x^2 + y^2"}]},"match_status":"matched","family_id":"basic_inequality","match_reason":"题面给出实数变量条件与等式条件，要求求代数式 x²+y² 的最小值，符合基本不等式题型。"}

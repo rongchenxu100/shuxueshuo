@@ -1,0 +1,279 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "q17",
+    "source_sha256": "66ed95f801fb890c3e79faab60b3425bd05bbdede92f4b609b2287ef067a94df",
+    "registry_snapshot": "b27a0a18b7ee49ee2caab2919319c02c2ceca39e90ae27c300be9b21ec7ac1f2"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "facts": [
+          "x^2+y^2-x*y = 1"
+        ],
+        "goals": [
+          {
+            "kind": "find_range",
+            "symbol": "x+y"
+          }
+        ],
+        "label": "题目",
+        "definitions": [],
+        "children": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": "basic_inequality",
+      "match_status": "matched",
+      "match_reason": "题面给出等式 x^2+y^2-x*y=1，要求 x+y 的取值范围，符合基本不等式题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:x",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:y",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:scalar:x",
+          "name": "x",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:y",
+          "name": "y",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "=",
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:x",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:y",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "ref",
+                    "r:scalar:x",
+                    "scalar"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:y",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              "=",
+              [
+                "-",
+                [
+                  "+",
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:x",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "^",
+                    [
+                      "ref",
+                      "r:scalar:y",
+                      "scalar"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ]
+                ],
+                [
+                  "*",
+                  [
+                    "ref",
+                    "r:scalar:x",
+                    "scalar"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:y",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:31f0b96cc041f7dd64e249866eb250854d698e84e4eb72d1026f9ee4c08eb70b",
+      "kind": "notation_raw",
+      "sha256": "31f0b96cc041f7dd64e249866eb250854d698e84e4eb72d1026f9ee4c08eb70b",
+      "media_type": "text/plain",
+      "byte_size": 331,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-02/run/artifacts/31/31f0b96cc041f7dd64e249866eb250854d698e84e4eb72d1026f9ee4c08eb70b.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:ba5468eb96bfd6a19138c4d411e9d1627276af5a5d673221be2c2646b5938a63",
+      "kind": "notation_candidate",
+      "sha256": "ba5468eb96bfd6a19138c4d411e9d1627276af5a5d673221be2c2646b5938a63",
+      "media_type": "application/json",
+      "byte_size": 331,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-02/run/artifacts/ba/ba5468eb96bfd6a19138c4d411e9d1627276af5a5d673221be2c2646b5938a63.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:1aad0c23c22db743e3dfa0a47d6fc5b16af4701f0dfc9584c701196dfe0e059f",
+      "kind": "notation_canonical",
+      "sha256": "1aad0c23c22db743e3dfa0a47d6fc5b16af4701f0dfc9584c701196dfe0e059f",
+      "media_type": "application/json",
+      "byte_size": 768,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-02/run/artifacts/1a/1aad0c23c22db743e3dfa0a47d6fc5b16af4701f0dfc9584c701196dfe0e059f.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:6e0dabd749ef5b8cfc7d598617f6d573dfc83b7c6b7016839b832f236b9a29b3",
+      "kind": "notation_normalized",
+      "sha256": "6e0dabd749ef5b8cfc7d598617f6d573dfc83b7c6b7016839b832f236b9a29b3",
+      "media_type": "application/json",
+      "byte_size": 398,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-02/run/artifacts/6e/6e0dabd749ef5b8cfc7d598617f6d573dfc83b7c6b7016839b832f236b9a29b3.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:3b58f9c40e393a3f3439992f9d0804bfa1163b8f7cd226e87caf254775b9e685",
+      "kind": "notation_compiled",
+      "sha256": "3b58f9c40e393a3f3439992f9d0804bfa1163b8f7cd226e87caf254775b9e685",
+      "media_type": "application/json",
+      "byte_size": 2064,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-02/run/artifacts/3b/3b58f9c40e393a3f3439992f9d0804bfa1163b8f7cd226e87caf254775b9e685.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-02/run/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:2c79205f54feaffc732583f6ffe0e75ec1224c1c1015d50882915d908f42f8e0",
+      "kind": "notation_ir",
+      "sha256": "2c79205f54feaffc732583f6ffe0e75ec1224c1c1015d50882915d908f42f8e0",
+      "media_type": "application/json",
+      "byte_size": 152,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-02/run/artifacts/2c/2c79205f54feaffc732583f6ffe0e75ec1224c1c1015d50882915d908f42f8e0.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:714df9b3c49def5bc686f8240331fc815b767d1436d5cf492e38559a0e8044e7",
+      "kind": "notation_validation",
+      "sha256": "714df9b3c49def5bc686f8240331fc815b767d1436d5cf492e38559a0e8044e7",
+      "media_type": "application/json",
+      "byte_size": 1124,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q17/sample-02/run/artifacts/71/714df9b3c49def5bc686f8240331fc815b767d1436d5cf492e38559a0e8044e7.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "ba5468eb96bfd6a19138c4d411e9d1627276af5a5d673221be2c2646b5938a63",
+  "semantic_revision": "1aad0c23c22db743e3dfa0a47d6fc5b16af4701f0dfc9584c701196dfe0e059f",
+  "units": {
+    "r.facts[0]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 0
+    }
+  }
+}

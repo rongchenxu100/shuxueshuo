@@ -1,5 +1,18 @@
 {
   "problem_id": "q31",
   "answer": "4√3−2",
-  "equality": "a=1/3,b=2/3,c=±√(√3−1)"
+  "equality": "a=1/3,b=2/3,c=±√(√3−1)",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "equality_branches": [
+    {
+      "a": "1/3",
+      "b": "2/3",
+      "c": "sqrt(sqrt(3)-1)"
+    },
+    {
+      "a": "1/3",
+      "b": "2/3",
+      "c": "-sqrt(sqrt(3)-1)"
+    }
+  ]
 }

@@ -1,0 +1,20 @@
+{
+  "original_text": "已知正数 a，b 满足 a+b=1，c∈R，则 3a/(bc^2+b)+1/(abc^2+ab)+2c^2 的最小值为________。",
+  "root": {
+    "facts": [
+      "a > 0",
+      "b > 0",
+      "a + b = 1",
+      "c ∈ ℝ"
+    ],
+    "goals": [
+      {
+        "kind": "find_minimum",
+        "expression": "3*a/(b*c^2+b)+1/(a*b*c^2+a*b)+2*c^2"
+      }
+    ]
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "题面给出正数a,b满足a+b=1及c∈R，求含a,b,c的代数式最小值，符合基本不等式题型。"
+}

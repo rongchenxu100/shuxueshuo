@@ -1,12 +1,34 @@
 {
   "problem_id": "q31",
-  "methods": [
-    "organize_expressions",
-    "apply_two_term_amgm",
-    "organize_expressions",
-    "apply_two_term_amgm",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "organize_expressions",
+      "apply_two_term_amgm",
+      "organize_expressions",
+      "apply_two_term_amgm",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 7,
+    "titles": [
+      "路线观察",
+      "提取整体",
+      "观察局部次数",
+      "局部配齐次",
+      "第一次估计",
+      "整理并第二次估计",
+      "共同取等"
+    ],
+    "source": "docs/basic-inequality-method-discussion.md §4"
+  },
+  "required_evidence": [
+    "提取1+c^2",
+    "3*a/b+1/(a*b)=4*a/b+b/a+2",
+    "4*a/b+b/a>=4",
+    "T>=6/(1+c^2)+2*c^2=2*(1+c^2)+6/(1+c^2)-2",
+    "共同取等a=1/3,b=2/3,c=±sqrt(sqrt(3)-1)，保留两分支"
+  ]
 }

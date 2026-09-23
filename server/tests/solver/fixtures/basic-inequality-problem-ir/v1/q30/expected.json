@@ -1,5 +1,13 @@
 {
   "problem_id": "q30",
   "answer": "4",
-  "equality": "a=√2,b=√2/2,c=√2/5"
+  "equality": "a=√2,b=√2/2,c=√2/5",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "equality_branches": [
+    {
+      "a": "sqrt(2)",
+      "b": "sqrt(2)/2",
+      "c": "sqrt(2)/5"
+    }
+  ]
 }

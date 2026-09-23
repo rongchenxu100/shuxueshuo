@@ -1,5 +1,16 @@
 {
   "problem_id": "q08",
   "answer": "4",
-  "equality": "a,b=2±√3"
+  "equality": "a,b=2±√3",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "equality_branches": [
+    {
+      "a": "2+sqrt(3)",
+      "b": "2-sqrt(3)"
+    },
+    {
+      "a": "2-sqrt(3)",
+      "b": "2+sqrt(3)"
+    }
+  ]
 }

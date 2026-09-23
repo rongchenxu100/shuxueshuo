@@ -1,6 +1,5 @@
 {
   "schema_version": "basic-inequality-problem-ir/v1",
-  "problem_id": "q01",
   "meta": {
     "problem_id": "q01",
     "title": "1. 设正实数 m，n 满足 m+n=2，则 mn 的最大值为____。"
@@ -14,7 +13,7 @@
       "summary": "1. 设正实数 m，n 满足 m+n=2，则 mn 的最大值为____。"
     },
     "original_text": {
-      "source": "basic-inequality frozen notation gold",
+      "source": "frozen notation",
       "number": "q01",
       "lines": [
         "1. 设正实数 m，n 满足 m+n=2，则 mn 的最大值为____。"
@@ -22,7 +21,7 @@
     },
     "scopes": [
       {
-        "scope_id": "scope_q01_root",
+        "scope_id": "s0",
         "label": "q01",
         "parent": null,
         "source_path": "/root"
@@ -30,105 +29,330 @@
     ],
     "entities": [
       {
-        "handle": "symbol:q01_root:m",
+        "handle": "symbol:s0:m",
         "entity_type": "symbol",
         "name": "m",
-        "scope_id": "scope_q01_root",
+        "scope_id": "s0",
         "description": "代数符号 m",
+        "notation_ref": "r:scalar:m",
         "source_path": "/root/facts/0",
         "source_text": "m > 0",
-        "normalized_expression": "m",
-        "sample_hashes": [
-          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
-          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        "normalized_expression": "(m>0)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+            "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+            "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+          }
+        ],
+        "source_occurrences": [
+          {
+            "source_path": "/root/facts/0",
+            "source_text": "m > 0",
+            "normalized_expression": "(m>0)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+                "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+                "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/facts/2",
+            "source_text": "m+n = 2",
+            "normalized_expression": "((m+n)=2)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+                "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+                "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/goals/0/expression",
+            "source_text": "m*n",
+            "normalized_expression": "(m*n)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+                "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+                "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+              }
+            ]
+          }
         ]
       },
       {
-        "handle": "symbol:q01_root:n",
+        "handle": "symbol:s0:n",
         "entity_type": "symbol",
         "name": "n",
-        "scope_id": "scope_q01_root",
+        "scope_id": "s0",
         "description": "代数符号 n",
+        "notation_ref": "r:scalar:n",
         "source_path": "/root/facts/1",
         "source_text": "n > 0",
-        "normalized_expression": "n",
-        "sample_hashes": [
-          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
-          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        "normalized_expression": "(n>0)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+            "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+            "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+          }
+        ],
+        "source_occurrences": [
+          {
+            "source_path": "/root/facts/1",
+            "source_text": "n > 0",
+            "normalized_expression": "(n>0)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+                "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+                "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/facts/2",
+            "source_text": "m+n = 2",
+            "normalized_expression": "((m+n)=2)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+                "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+                "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+              }
+            ]
+          },
+          {
+            "source_path": "/root/goals/0/expression",
+            "source_text": "m*n",
+            "normalized_expression": "(m*n)",
+            "sample_refs": [
+              {
+                "sample_id": "sample-01",
+                "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+                "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+              },
+              {
+                "sample_id": "sample-02",
+                "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+                "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+              }
+            ]
+          }
         ]
       }
     ],
     "facts": [
       {
-        "handle": "fact:q01_root:f0_0",
+        "handle": "fact:s0:f0",
         "type": "symbol_constraint",
-        "scope_id": "scope_q01_root",
-        "valid_scope": "scope_q01_root",
+        "scope_id": "s0",
+        "valid_scope": "s0",
         "description": "m > 0",
+        "expression": "(m>0)",
+        "relation_operator": ">",
+        "bound_expression": [
+          ">",
+          [
+            "ref",
+            "r:scalar:m",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:m"
+        ],
+        "domain_obligations": [],
         "source_path": "/root/facts/0",
         "source_text": "m > 0",
-        "normalized_expression": "m > 0",
-        "entity_handles": [
-          "symbol:q01_root:m"
-        ],
-        "sample_hashes": [
-          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
-          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        "normalized_expression": "(m>0)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+            "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+            "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+          }
         ]
       },
       {
-        "handle": "fact:q01_root:f1_0",
+        "handle": "fact:s0:f1",
         "type": "symbol_constraint",
-        "scope_id": "scope_q01_root",
-        "valid_scope": "scope_q01_root",
+        "scope_id": "s0",
+        "valid_scope": "s0",
         "description": "n > 0",
+        "expression": "(n>0)",
+        "relation_operator": ">",
+        "bound_expression": [
+          ">",
+          [
+            "ref",
+            "r:scalar:n",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:n"
+        ],
+        "domain_obligations": [],
         "source_path": "/root/facts/1",
         "source_text": "n > 0",
-        "normalized_expression": "n > 0",
-        "entity_handles": [
-          "symbol:q01_root:n"
-        ],
-        "sample_hashes": [
-          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
-          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        "normalized_expression": "(n>0)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+            "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+            "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+          }
         ]
       },
       {
-        "handle": "fact:q01_root:f2_0",
+        "handle": "fact:s0:f2",
         "type": "equation",
-        "scope_id": "scope_q01_root",
-        "valid_scope": "scope_q01_root",
+        "scope_id": "s0",
+        "valid_scope": "s0",
         "description": "m+n = 2",
+        "expression": "((m+n)=2)",
+        "relation_operator": "=",
+        "bound_expression": [
+          "=",
+          [
+            "+",
+            [
+              "ref",
+              "r:scalar:m",
+              "scalar"
+            ],
+            [
+              "ref",
+              "r:scalar:n",
+              "scalar"
+            ]
+          ],
+          [
+            "number",
+            "2"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:m",
+          "symbol:s0:n"
+        ],
+        "domain_obligations": [],
         "source_path": "/root/facts/2",
         "source_text": "m+n = 2",
-        "normalized_expression": "m+n = 2",
-        "entity_handles": [
-          "symbol:q01_root:m",
-          "symbol:q01_root:n"
-        ],
-        "sample_hashes": [
-          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
-          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        "normalized_expression": "((m+n)=2)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+            "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+            "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+          }
         ]
       }
     ],
     "question_goals": [
       {
-        "handle": "answer:q01_root_g0",
-        "scope_id": "scope_q01_root",
-        "valid_scope": "scope_q01_root",
-        "answer_key": "q01_g0",
+        "handle": "answer:s0.g0",
+        "scope_id": "s0",
+        "valid_scope": "s0",
+        "answer_key": "s0_g0",
         "value_type": "MaximumExpression",
         "required": true,
         "description": "find_maximum: m*n",
         "goal_kind": "find_maximum",
         "target_expression": "m*n",
-        "source_path": "/root/goals/0",
+        "bound_expression": [
+          "*",
+          [
+            "ref",
+            "r:scalar:m",
+            "scalar"
+          ],
+          [
+            "ref",
+            "r:scalar:n",
+            "scalar"
+          ]
+        ],
+        "variables": [],
+        "in_terms_of": [],
+        "domain_obligations": [],
+        "source_path": "/root/goals/0/expression",
         "source_text": "m*n",
-        "normalized_expression": "m*n",
-        "sample_hashes": [
-          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
-          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        "normalized_expression": "(m*n)",
+        "sample_refs": [
+          {
+            "sample_id": "sample-01",
+            "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+            "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+          },
+          {
+            "sample_id": "sample-02",
+            "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+            "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+          }
         ]
       }
     ]
@@ -138,32 +362,76 @@
     "matched_by": [
       "pattern",
       "problem_type"
-    ]
+    ],
+    "source_requirements_verified": true,
+    "authoring_only": true
   },
   "provenance": {
-    "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q01.json",
-    "gold_sha256": "0aed5d57132546caa434be5b0a8ae66cff448722a0ed89feaecb3142670ca2b0",
-    "sample_ids": [
-      "sample-01",
-      "sample-02"
-    ],
-    "sample_hashes": [
-      "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
-      "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
-    ],
-    "required_sample_count": 2,
-    "image_path": "math-notation-v1/basic-inequality/images/q01.png",
-    "notation_contract": "problem-math-notation/v1",
-    "prompt_hashes": {
-      "system": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
-      "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+    "asset_root": "math-notation-v1/basic-inequality",
+    "gold_path": "q01.json",
+    "gold_sha256": "e82207d4f361c0410f6982ce77149b2f8d1d686f67b91a0e15e5c333b342f711",
+    "gold_semantic_sha256": "b653be8733c19fef3a6e5f123f7e2a010b67e945f7d432b9910dcd67cd51a0b9",
+    "image_path": "images/q01.png",
+    "image_sha256": "697a3e9009a295a8477adcdb77cc26ccfaa6cc2c1645237c249947d5a95458ad",
+    "gold_review": {
+      "status": "human_confirmed",
+      "source": "题面直接转录；不含答案、推导、取等条件或隐含正性。"
     },
-    "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
-    "catalog_hashes": {
-      "expressions": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e",
-      "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    "samples": [
+      {
+        "sample_id": "sample-01",
+        "response_id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q01/sample-01/run",
+        "files": {
+          "request.json": "76248eb417ad6ddde4371a9f5759bc4b4ca0a6e2c4775eb67c49370db0eed13c",
+          "raw-response.txt": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6",
+          "parsed.json": "d5285a7753f5c480f11997b382d61724012d389a5579de56290fd2645d9a5727",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "ad70186d389612552dccfa8cd077220bba15e6974173f9c35f392c6b86cda546",
+          "call.json": "4bf98b88d5a41ad4e0610461cd8a3b7f49bfd0b136b674afb32ce9ccc2b0a2e2",
+          "frozen.json": "0272af42693639804417456393eadde0580372e2e12187698051217f63978b61",
+          "normalized.json": "ca081fad409704c6bda8b1d5cd324fe725bfbcfa1a2b2ff26bc6f22364c16b91",
+          "canonical.json": "b653be8733c19fef3a6e5f123f7e2a010b67e945f7d432b9910dcd67cd51a0b9"
+        },
+        "path": "samples/q01/sample-01",
+        "raw_sha256": "0c31565db35b01698872bc0c4fffd3d433469fc9647d0e2a427894f9bef9b9f6"
+      },
+      {
+        "sample_id": "sample-02",
+        "response_id": "d9246837-6134-4dd6-bd4b-ce0a6ce36140",
+        "source_run": "internal/solver-runs/basic-inequality-stage1-unified-20260923/q01/sample-02/run",
+        "files": {
+          "request.json": "76248eb417ad6ddde4371a9f5759bc4b4ca0a6e2c4775eb67c49370db0eed13c",
+          "raw-response.txt": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1",
+          "parsed.json": "ce4021437817e05e1949b4efc3e15a0214959437d8f8365211e29a0206981193",
+          "diff.json": "ea6043f88bc4908eff9d4a04fcdc2fbd6840848f33043829a3fd6d2be03c0621",
+          "summary.json": "cbb6a968ea71a9c93f31b2fb9e672607c7bc3b50d07ae2cae693191cf926e723",
+          "call.json": "7eb97e840ea62d2aecbcf45856540a91fff5f9febeaea12f573c2b512329b323",
+          "frozen.json": "0272af42693639804417456393eadde0580372e2e12187698051217f63978b61",
+          "normalized.json": "a6c2e1430e0c960d04908fc00c0d99bd8e7629eddbe017c63926577de6750065",
+          "canonical.json": "b653be8733c19fef3a6e5f123f7e2a010b67e945f7d432b9910dcd67cd51a0b9"
+        },
+        "path": "samples/q01/sample-02",
+        "raw_sha256": "89b832f2122fc6782d52fbabeea430c583a71bcc1922910e30f04a394bb279e1"
+      }
+    ],
+    "baseline": {
+      "template_files": {
+        "internal/llm-prompts/problem-math-notation-system.md": "0a1a97fe3657855013fa63d0df88adb7665c7a3bc9f09a232d2d381244a2424f",
+        "internal/llm-prompts/problem-math-notation-user.md": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e",
+        "internal/schemas/problem-math-notation-v1.schema.json": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+        "internal/llm-prompts/problem-math-notation-expressions.json": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97"
+      },
+      "system_prompt_hash": "344f852f20c2afbbc11430d5eed65ef638748ad8b01e9893fe03274f6c49602e",
+      "authoring_schema_hash": "938b41fb09df02cb8b5b50b90f4a06a73ba344c535d76f4b73964c137f5330a0",
+      "registry_snapshot": "b27a0a18b7ee49ee2caab2919319c02c2ceca39e90ae27c300be9b21ec7ac1f2",
+      "notation_family_catalog_hash": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994",
+      "expression_catalog_hash": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97",
+      "output_contract": "problem-math-notation/v1",
+      "wire_catalog_sha256": "18f0da3ec9ccab0eb3704486e49a642c263cbc2734a0ec0c9730e96a4b9fbc1d",
+      "user_suffix_sha256": "4dc9740492d72f00017bcea7ca83184ba1bca9c5e8f9496348de5858b4f53714"
     },
-    "canonical_hash": "e1ca489942f2c1b55254efc3dba78014255bc55aaebabe990ded15c7bf242cf2",
-    "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+    "sample_index_sha256": "7609647ce1f9d923699b801a0e69a405ed1ec62f9e8995e0e5e030c8c00286ca",
+    "input_semantic_sha256": "47b703e7d775e8dc76edb0c7d07177a1643522180248195cd837f75a2a5ac81f"
   }
 }

@@ -1,9 +1,26 @@
 {
   "problem_id": "q01",
-  "methods": [
-    "apply_two_term_amgm",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "apply_two_term_amgm",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 3,
+    "titles": [
+      "观察结构",
+      "应用基本不等式",
+      "取等"
+    ],
+    "source": "internal/senior-high/lesson-specs/inequality-basic-q01/lesson-data.json"
+  },
+  "required_evidence": [
+    "m>0,n>0,m+n=2",
+    "m+n>=2*sqrt(m*n)",
+    "m*n<=1",
+    "m=n=1满足原条件"
+  ]
 }

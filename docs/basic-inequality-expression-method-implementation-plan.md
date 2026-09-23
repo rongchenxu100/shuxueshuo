@@ -209,9 +209,9 @@ cd server
 RUN_LLM_INTEGRATION=1 uv run pytest -q tests/solver/test_basic_inequality_math_notation_live.py -m live_llm
 ```
 
-阶段 0 结束时冻结 `server/tests/solver/fixtures/math-notation-v1/basic-inequality/` 下的图片、金标和批次元数据。阶段 1 只能消费这些通过的候选建立 q01–q31 ProblemIR。
+阶段 0 结束时冻结 `server/tests/solver/fixtures/math-notation-v1/basic-inequality/` 下的图片、金标和双样本抽取记录。阶段 1 只消费 q01、q03、q07、q08、q12、q17、q20、q25、q30、q31 的通过候选建立 ProblemIR；剩余 21 题在代表题完整集成测试通过后通过页面验证泛化性，不预建阶段 1 提取 gold 或 ProblemIR。
 
-实现状态（2026-09-21）：Family catalog、Prompt/表达式目录、10 题离线 fixture、gold replay 和 live 测试入口已实现；尚未执行真实 DeepSeek 20 次调用，因此阶段 0 尚未宣称完成。
+实现状态（2026-09-23）：新版显式乘号 Prompt 的同一真实批次 20/20 样本通过；完整记录已冻结到 samples/，可验证原图、gold、请求版本及独立调用身份并离线回放。阶段 1 的代表 10 题 ProblemIR 已据此重建并通过 authoring-only Family 匹配，生产求解注册仍关闭。
 
 ### 阶段 0.5：定义基本不等式 Family 契约和注册骨架
 
@@ -255,19 +255,20 @@ SolverFamilySpec(
 
 完成标准：FamilySpec 可以通过 authoring guidance、source requirement、Method allowlist 和唯一匹配校验；但在 capability 尚未实现前，不能进入生产 Runtime 的可执行 registry。
 
-### 阶段 1：根据通过的提取结果建立 ProblemIR，并验证 Family 匹配
+### 阶段 1：为代表 10 题建立可追溯的 ProblemIR，并验证 Family 匹配
 
 任务：
 
-- 只使用阶段 0 已通过并冻结的抽取结果建立 ProblemIR；
-- 为 q01–q31 建立目标表达式、条件表达式、变量域、问题类型、子问边界和预期答案 fixture；
-- 将基本不等式题的结构化路由字段固定为 `pattern="basic-inequality"`、`problem_type="basic_inequality"`，由 `FamilyRegistry` 验证其唯一匹配；
-- ProblemIR 可以保存 `family_id` 作为经过验证的投影结果，但不能把未验证的 LLM family 字符串直接当作执行授权；
-- 保留每道题的原始抽取、规范表达式、source path、抽取版本和人工确认记录；
-- 为每题保存允许路线、Method 链、页面步骤数量和必须出现的数学证据；
-- 抽取结果无法唯一确定时，不猜测 ProblemIR，先回到 DeepSeek 提取测试修复。
+- 唯一集成输入集为 q01、q03、q07、q08、q12、q17、q20、q25、q30、q31，manifest 固定 representative-10、每题两份独立样本及其余 21 题的 deferred 范围；
+- 使用包含显式乘号规则的同版 Prompt/schema/catalog。每份通过样本冻结 request、raw response、parsed、normalized、canonical、comparison、call 与 frozen metadata；按字节 hash 校验图片、gold 和样本，保留真实 response ID，同题双样本通过严格语义回放；
+- 复用现有 notation 绑定结构转换符号、条件、域、目标和 Scope，不以正则猜变量或关系类型，不因解题路线补写条件、子问或取等信息；
+- entity、fact、goal 保留能定位 gold 原字段的 source path、原文、规范表达式和样本引用。表达式定义域要求作为未验证义务，不冒充已知事实；
+- 将结构化路由字段固定为 `pattern="basic-inequality"`、`problem_type="basic_inequality"`，由 authoring-only `FamilyRegistry((BASIC_INEQUALITY_FAMILY,))` 验证唯一匹配，并检查符号、等式/约束和支持的目标；
+- `basic-inequality-problem-ir/v1` 的 input 继续符合 canonical schema；family_match 和 provenance 为经过验证的投影，不构成执行授权，不修改生产 DEFAULT_FAMILY_REGISTRY；
+- 每题保存 problem-ir.json、provenance.json、expected.json、route-metadata.json。允许路线、Method 链、教学步骤数、数学证据、答案和取等分支均为独立测试数据，不进入 Solver 输入；
+- 来源不完整、过期、语义比较失败或存在 uncertainty 时拒绝生成 artifact。失败调用保留在独立目录，不覆盖记录或修改 gold 凑齐通过数。
 
-完成标准：每道题的 ProblemIR 都能追溯到已通过的提取测试产物，不依赖手工隐式补充或内部 Fact ID。
+完成标准：20/20 真实样本可离线回放，10/10 ProblemIR 可确定性重建并唯一匹配 Family，所有来源均可追溯；21 题没有被隐式读取或生成。不实现 Runtime Method、通用 Parser 扩展或网页生成。复现命令：在 server 下执行 `uv run python tools/build_basic_inequality_problem_ir.py --check`，测试资产及冻结方式见 `server/tests/solver/fixtures/basic-inequality-problem-ir/v1/README.md`。
 
 ### 阶段 2：扩展表达式 Parser 和关系 AST
 
@@ -426,11 +427,11 @@ s∈R
 
 1. 先运行代表性 DeepSeek 题意提取集成测试；
 2. 冻结通过测试的抽取响应和规范表达式；
-3. 根据冻结抽取结果建立 q01–q31 的 ProblemIR、离线表达式 fixture 和预期 Canonical Fact；
-4. 用确定性候选跑完整求解链；
-5. 生成 31 个 ExplanationSnapshot、LessonIR、VisualStepIR 和网页；
-6. 对 10 道代表性题执行完整求解与网页集成测试；
-7. 对其余 21 题执行离线 fixture、编译、Runtime 和页面回归；
+3. 根据冻结抽取结果建立代表 10 题的 ProblemIR、离线表达式 fixture 和预期 Canonical Fact；
+4. 用代表题的确定性候选跑完整求解链；
+5. 生成代表题的 ExplanationSnapshot、LessonIR、VisualStepIR 和网页；
+6. 对 10 道代表性题执行完整求解与网页集成测试并通过门禁；
+7. 对其余 21 题直接使用已有 lesson spec / 页面题面，经输入适配、同一 Family/Method 求解链及教学 IR 进入页面泛化测试，不要求先建立独立提取 gold 或阶段 1 ProblemIR fixture；
 8. 比较 semantic hash、provenance、页面公式和答案；
 9. 只有所有门禁通过后，才切换新的表达式优先协议。
 
@@ -531,7 +532,7 @@ q17, q20, q25, q30, q31
 - 取等解、范围或答案；
 - 失败分类和 retry 证据。
 
-其余 q02、q04–q06、q09–q11、q13–q16、q18–q19、q21–q24、q26–q29 先作为通过提取测试后的全量离线 fixture 和网页回归；如果代表集出现机制覆盖空洞，再补入求解集成集。
+其余 q02、q04–q06、q09–q11、q13–q16、q18–q19、q21–q24、q26–q29 在代表集完整集成测试通过后直接做页面泛化验证，不预建独立提取 gold、答案或阶段 1 ProblemIR fixture。页面必须消费原题条件和目标、经过同一已注册数学能力边界；不按题号新增求解分支，未实现能力须明确报告，失败时不生成伪造答案或教学步骤。
 
 ## 7. 验收门禁
 
@@ -541,10 +542,10 @@ q17, q20, q25, q30, q31
 - Parser、证明内核和 Method 不把未验证候选当作事实；
 - M11 能在代表性样例中从完整不等式恢复局部两个正项；
 - 代表性 DeepSeek 题意提取集成测试全部通过，并冻结抽取产物；
-- q01–q31 的 ProblemIR 全部可追溯到通过的提取产物；
+- 代表 10 题的 ProblemIR 全部可追溯到同版基线下的 20 份通过抽取产物；
 - q01–q31 全部成功生成可审计网页，或有明确结构化失败且不伪造结果；
 - 10 道代表性求解与网页集成测试全部通过；
-- 其余 21 题的离线 fixture、Runtime 和页面回归通过；
+- 其余 21 题通过页面输入适配、同一求解链及页面泛化回归，不以阶段 1 预建 fixture 作为前置条件；
 - 历史 `angle(...)` 等内部兼容输入仍可被代码读取，但新 Prompt 和 repair 不再生成；
 - semantic hash、ruleset hash、provenance、source expression 和错误分类全量稳定；
 - 页面公式全部来自 verified trace，不能出现内部 AST 记法；

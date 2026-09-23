@@ -1,255 +1,320 @@
-"""Authoring-only conversion from frozen basic-inequality notation to ProblemIR.
-
-This module deliberately stops at the canonical input boundary.  It does not import
-planner, method, binding, or proof code.  The resulting payload is suitable for
-fixture replay and family matching; ``expected_answers`` and ``route_metadata`` are
-kept beside the input and are never put into the solver input.
-"""
+"""Authoring-only lowering of bound scalar notation; no solving or dispatch."""
 
 from __future__ import annotations
 
-from hashlib import sha256
-import json
+from copy import deepcopy
+from fractions import Fraction
 from pathlib import Path
-import re
-from typing import Any, Mapping, Sequence
+
+from jsonschema import Draft202012Validator
 
 from shuxueshuo_server.solver.family import BASIC_INEQUALITY_FAMILY, FamilyRegistry
 from shuxueshuo_server.solver.problem_models import ProblemIR
 
-from .notation_compile import NotationValidator
-from .notation_contract import (
-    EXPRESSIONS_PATH,
-    ROOT as NOTATION_ROOT,
-    SCHEMA_PATH,
-    SYSTEM_PATH,
-    USER_PATH,
-)
-from .notation_semantics import canonical
-
+from .identity import revision
+from .notation_compile import NotationValidator, Report, normalize
+from .notation_contract import schema
+from .notation_parser import NotationError
 
 REPRESENTATIVE_CASES = (
-    "q01", "q03", "q07", "q08", "q12", "q17", "q20", "q25", "q30", "q31",
+    "q01",
+    "q03",
+    "q07",
+    "q08",
+    "q12",
+    "q17",
+    "q20",
+    "q25",
+    "q30",
+    "q31",
 )
 DEFERRED_CASES = "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
-REQUIRED_SAMPLE_COUNT = 2
-_IDENTIFIER = re.compile(r"(?<![A-Za-z0-9_])[A-Za-z][A-Za-z0-9_]*(?![A-Za-z0-9_])")
-_DOMAIN_NAMES = {"R", "N", "Z", "Q", "C"}
-_RELATION = re.compile(r"(:=|!=|>=|<=|[=≠≥≤><≔≡])")
-_EQUALITY_OPERATORS = {"=", ":=", "≔", "≡"}
-_RELATION_OPERATORS = _EQUALITY_OPERATORS | {"!=", "≠", ">=", "<=", "≥", "≤", ">", "<"}
-_GOAL_TYPES = {
+GOAL_TYPES = {
     "find_maximum": "MaximumExpression",
     "find_minimum": "MinimumExpression",
     "find_range": "Range",
-    "find_parameter": "ParameterValue",
-    "find_value": "ParameterValue",
 }
+SUPPORTED_GOALS = {*GOAL_TYPES.values(), "ParameterValue"}
 
 
 class BasicInequalityProblemIRError(ValueError):
-    """Raised when a frozen notation artifact cannot become a safe ProblemIR."""
+    """Unsupported, ambiguous or unauditable authoring input."""
 
 
-def _slug(value: str) -> str:
-    value = re.sub(r"[^A-Za-z0-9_]+", "_", value).strip("_")
-    return value or "item"
+def _walk(ast):
+    yield ast
+    for child in ast[1:]:
+        if isinstance(child, list):
+            yield from _walk(child)
 
 
-def _scope_id(case_id: str, path: str) -> str:
-    return f"scope_{_slug(case_id)}_{_slug(path.replace('/', '_'))}"
-
-
-def _scope_token(case_id: str, path: str) -> str:
-    return _slug(f"{case_id}_{path.replace('/', '_')}")
-
-
-def _source_hash(value: str) -> str:
-    return sha256(value.encode("utf-8")).hexdigest()
-
-
-def _iter_scopes(scope: Mapping[str, Any], *, path: str = "root", parent: str | None = None):
-    label = str(scope.get("label") or path)
-    yield scope, path, parent, label
-    for index, child in enumerate(scope.get("children", ())):
-        if not isinstance(child, Mapping):
-            raise BasicInequalityProblemIRError(f"invalid child scope at {path}/children/{index}")
-        yield from _iter_scopes(child, path=f"{path}/children/{index}", parent=path)
-
-
-def _expression_symbols(text: str) -> tuple[str, ...]:
-    symbols = []
-    for token in _IDENTIFIER.findall(text):
-        if token in _DOMAIN_NAMES or token in {"sqrt", "max", "min"}:
-            continue
-        if token not in symbols:
-            symbols.append(token)
-    return tuple(symbols)
-
-
-def _fact_parts(text: str) -> tuple[tuple[str, str], ...]:
-    """Return typed source facts without attempting algebraic interpretation."""
-    # This converter only lowers individual relations and comparison chains.
-    # Boolean structure cannot be flattened safely (especially disjunctions),
-    # and commas may separate relations, domains, tuples or function arguments.
-    # Reject before the domain shortcut or comparison split can lose structure.
-    if re.search(r"[∧∨,，]|\b(?:and|or)\b", text, flags=re.IGNORECASE):
-        raise BasicInequalityProblemIRError(
-            f"compound logic or comma-separated expressions are not supported: {text}"
+def _text(ast, names):
+    """Print existing bound syntax without algebraic rewriting."""
+    kind = ast[0]
+    if kind == "ref" and ast[2] == "scalar":
+        return names[ast[1]]
+    if kind == "number":
+        return ast[1]
+    if kind == "neg":
+        return f"(-{_text(ast[1], names)})"
+    if kind in {"+", "-", "*", "/", "^", "=", "!=", "<", "<=", ">", ">="}:
+        return f"({_text(ast[1], names)}{kind}{_text(ast[2], names)})"
+    if kind == "call" and ast[1] == "sqrt":
+        return f"sqrt({_text(ast[2], names)})"
+    if kind == "real":
+        return "ℝ"
+    if kind == "default_domain":
+        return f"{_text(ast[1], names)} ∈ ℝ"
+    if kind == "interval":
+        return (
+            ("[" if ast[1] else "(")
+            + _text(ast[3], names)
+            + ","
+            + _text(ast[4], names)
+            + ("]" if ast[2] else ")")
         )
-    for operator in re.findall(r"[!<>=≠≥≤≔≡:]+", text):
-        if operator != ":" and operator not in _RELATION_OPERATORS:
-            raise BasicInequalityProblemIRError(f"unsupported relation operator {operator!r}: {text}")
-    if "∈" in text:
-        return (("symbol_domain", text),)
-    pieces = [piece.strip() for piece in _RELATION.split(text)]
-    if len(pieces) == 1:
-        return (("statement", text),)
-    if any(not operand for operand in pieces[::2]):
-        raise BasicInequalityProblemIRError(f"relation has an empty operand: {text}")
-    # Split adjacent relations and normalize definition operators to equality.
-    # The caller keeps the untouched source text on every emitted fact.
-    result = []
-    for index in range(0, len(pieces) - 2, 2):
-        left, operator, right = pieces[index:index + 3]
-        fact_type = "equation" if operator in _EQUALITY_OPERATORS else "symbol_constraint"
-        operator = "=" if fact_type == "equation" else operator
-        result.append((fact_type, f"{left} {operator} {right}"))
-    return tuple(result)
+    if kind == "∈":
+        return f"{_text(ast[1], names)} ∈ {_text(ast[2], names)}"
+    raise BasicInequalityProblemIRError(f"unsupported scalar notation: {kind}")
 
 
-def _goal_expression(goal: Mapping[str, Any]) -> str:
-    for key in ("expression", "symbol", "object"):
-        value = goal.get(key)
-        if isinstance(value, str) and value.strip():
-            return value.strip()
-    raise BasicInequalityProblemIRError("goal has no expression, symbol, or object")
+def _relations(ast):
+    if ast[0] == "and":
+        for child in ast[1:]:
+            yield from _relations(child)
+    elif ast[0] in {"=", "!=", "<", "<=", ">", ">=", "default_domain", "∈"}:
+        yield ast
+    else:
+        # Disjunctions, quantifiers and prose are not silently flattened.
+        raise BasicInequalityProblemIRError(f"unsupported fact structure: {ast[0]}")
 
 
-def _canonical_input(gold: Mapping[str, Any], *, sample_hashes: Sequence[str]) -> dict[str, Any]:
-    case_id = str(gold.get("root", {}).get("label") or gold.get("problem_id") or "")
-    root = gold.get("root")
-    if not case_id or not isinstance(root, Mapping):
-        raise BasicInequalityProblemIRError("gold must contain root.label and root")
-    if case_id not in REPRESENTATIVE_CASES:
+def _constant_exponent(ast):
+    """Read literal rational exponents without evaluating symbolic expressions."""
+    if ast[0] == "number":
+        return Fraction(ast[1])
+    if ast[0] == "neg":
+        return -_constant_exponent(ast[1])
+    if ast[0] == "/":
+        numerator, denominator = map(_constant_exponent, ast[1:])
+        if denominator == 0:
+            raise BasicInequalityProblemIRError("zero denominator in rational exponent")
+        return numerator / denominator
+    raise BasicInequalityProblemIRError(
+        "unsupported exponent for domain obligations: expected a literal rational constant"
+    )
+
+
+def convert_notation(gold, *, problem_id, sample_refs=()):
+    """Pure syntax/binding projection. IDs never select mathematical behavior.
+
+    Schema validation and the existing lexical binder are reused without running
+    semantic normalization or equivalence proofs. This is also the unit-test
+    entrypoint; an audited artifact is only built by the frozen-file entrypoint.
+    """
+    errors = list(Draft202012Validator(schema()).iter_errors(gold))
+    if errors:
         raise BasicInequalityProblemIRError(
-            f"{case_id}: stage 1 only accepts representative cases "
-            + ",".join(REPRESENTATIVE_CASES)
+            f"invalid notation schema: {errors[0].message}"
         )
-    if gold.get("match_status") != "matched" or gold.get("family_id") != "basic_inequality":
-        raise BasicInequalityProblemIRError(f"{case_id}: frozen family match is not basic_inequality")
-    if any(scope.get("uncertainties") for scope, *_ in _iter_scopes(root)):
-        raise BasicInequalityProblemIRError(f"{case_id}: unresolved notation uncertainty")
+    if (
+        gold["match_status"] != "matched"
+        or gold["family_id"] != BASIC_INEQUALITY_FAMILY.family_id
+    ):
+        raise BasicInequalityProblemIRError("candidate family label mismatch")
+    source = normalize(gold)
+    report = Report()
+    try:
+        bound = NotationValidator().scope(source["root"], report, "r")
+    except (NotationError, ValueError, TypeError, RecursionError) as exc:
+        raise BasicInequalityProblemIRError("notation binding failed") from exc
+    if not report.ok:
+        raise BasicInequalityProblemIRError(f"notation binding failed: {report.issues}")
+    if any(obj["kind"] != "scalar" for obj in report.objects):
+        raise BasicInequalityProblemIRError("only scalar source objects are supported")
+    names = {obj["ref"]: obj["name"] for obj in report.objects}
+    handles = {}
+    scopes, facts, goals = [], [], []
+    occurrences = {ref: [] for ref in names}
+    scope_map = {}
 
-    scopes: list[dict[str, Any]] = []
-    scope_ids: dict[str, str] = {}
-    for scope, path, parent, label in _iter_scopes(root):
-        sid = _scope_id(case_id, path)
-        scope_ids[path] = sid
-        scopes.append({
-            "scope_id": sid,
-            "label": label,
-            "parent": scope_ids.get(parent) if parent else None,
-            "source_path": f"/root{path.removeprefix('root')}",
-        })
+    def evidence(path, text, ast):
+        data = {
+            "source_path": path,
+            "source_text": text,
+            "normalized_expression": _text(ast, names),
+            "sample_refs": list(sample_refs),
+        }
+        for ref in dict.fromkeys(n[1] for n in _walk(ast) if n[0] == "ref"):
+            occurrences[ref].append(deepcopy(data))
+        return data
 
-    entities: list[dict[str, Any]] = []
-    visible_entities: dict[str, dict[str, str]] = {}
-    for scope, path, parent, _label in _iter_scopes(root):
-        # Inherit ancestors only. A symbol first used in a child stays local;
-        # a sibling's symbol with the same spelling is a separate entity.
-        visible = dict(visible_entities[parent]) if parent else {}
-        sources: dict[str, tuple[str, str]] = {}
-        for field in ("definitions", "facts", "goals"):
-            for index, item in enumerate(scope.get(field, ())):
-                text = _goal_expression(item) if field == "goals" and isinstance(item, Mapping) else item
-                if isinstance(text, str):
-                    for symbol in _expression_symbols(text):
-                        sources.setdefault(symbol, (f"/root{path.removeprefix('root')}/{field}/{index}", text))
-        for symbol in sorted(sources):
-            if symbol in visible:
-                continue
-            handle = f"symbol:{_scope_token(case_id, path)}:{_slug(symbol)}"
-            source_path, source_text = sources[symbol]
-            entities.append({
-                "handle": handle,
-                "entity_type": "symbol",
-                "name": symbol,
-                "scope_id": scope_ids[path],
-                "description": f"代数符号 {symbol}",
-                "source_path": source_path,
-                "source_text": source_text,
-                "normalized_expression": symbol,
-                "sample_hashes": list(sample_hashes),
-            })
-            visible[symbol] = handle
-        visible_entities[path] = visible
-    if not entities:
-        raise BasicInequalityProblemIRError(f"{case_id}: no symbol entity")
+    def obligations(ast):
+        """Unverified local real-domain conditions, not a domain solver.
 
-    facts: list[dict[str, Any]] = []
-    goals: list[dict[str, Any]] = []
-    for scope, path, _parent, _label in _iter_scopes(root):
-        sid = scope_ids[path]
-        entity_by_name = visible_entities[path]
-        for source_field, prefix in (("definitions", "d"), ("facts", "f")):
-            for fact_index, original in enumerate(scope.get(source_field, ())):
-                if not isinstance(original, str) or not original.strip():
-                    continue
-                for part_index, (fact_type, expression) in enumerate(_fact_parts(original)):
-                    handle = f"fact:{_scope_token(case_id, path)}:{prefix}{fact_index}_{part_index}"
-                    referenced = [entity_by_name[name] for name in _expression_symbols(original) if name in entity_by_name]
-                    facts.append({
-                        "handle": handle,
+        Powers require literal rational exponents; unsupported exponent forms
+        fail closed instead of emitting an incomplete list of conditions.
+        """
+        result = []
+
+        def visit_expression(node):
+            target = None
+            op = "!="
+            if node[0] == "/":
+                target = node[2]
+            elif node[:2] == ["call", "sqrt"]:
+                target, op = node[2], ">="
+            elif node[0] == "^":
+                exponent = _constant_exponent(node[2])
+                if exponent.denominator % 2 == 0:
+                    target, op = node[1], ">" if exponent < 0 else ">="
+                elif exponent < 0:
+                    target = node[1]
+            if target is not None:
+                result.append(
+                    {
+                        "expression": f"{_text(target, names)} {op} 0",
+                        "status": "unverified",
+                        "origin": "expression_domain",
+                    }
+                )
+            # A rational exponent's '/' is part of the exponent literal, not
+            # an independent division in the expression's variable domain.
+            children = [node[1]] if node[0] == "^" else node[1:]
+            for child in children:
+                if isinstance(child, list):
+                    visit_expression(child)
+
+        visit_expression(ast)
+        return result
+
+    def visit(raw, compiled, path, parent=None):
+        if raw["uncertainties"]:
+            raise BasicInequalityProblemIRError(f"unresolved uncertainty at {path}")
+        sid = f"s{len(scopes)}"
+        scope_map[compiled["scope"]] = sid
+        scopes.append(
+            {
+                "scope_id": sid,
+                "label": raw["label"],
+                "parent": parent,
+                "source_path": path,
+            }
+        )
+        # Register local entities once their actual scope ID is assigned.
+        # Ancestor handles remain available to child facts; sibling symbols
+        # with the same name receive different scope segments.
+        for obj in report.objects:
+            if obj["scope"] == compiled["scope"]:
+                handles[obj["ref"]] = f"symbol:{sid}:{obj['name']}"
+        expressions = [
+            (f"{path}/{field}/{index}", text)
+            for field in ("definitions", "facts")
+            for index, text in enumerate(raw[field])
+        ]
+        if len(expressions) != len(compiled["facts"]):
+            raise BasicInequalityProblemIRError(
+                "source/bound fact cardinality mismatch"
+            )
+        for (location, original), ast in zip(
+            expressions, compiled["facts"], strict=True
+        ):
+            for relation in _relations(ast):
+                kind = relation[0]
+                fact_type = (
+                    "equation"
+                    if kind == "="
+                    else "symbol_domain"
+                    if kind in {"default_domain", "∈"}
+                    else "symbol_constraint"
+                )
+                if kind == "∈" and relation[2][0] not in {"interval", "real"}:
+                    raise BasicInequalityProblemIRError("unsupported source domain")
+                facts.append(
+                    {
+                        "handle": f"fact:{sid}:f{len(facts)}",
                         "type": fact_type,
                         "scope_id": sid,
                         "valid_scope": sid,
-                        "description": expression,
-                        "source_path": f"/root{path.removeprefix('root')}/{source_field}/{fact_index}",
-                        "source_text": original,
-                        "normalized_expression": expression,
-                        "entity_handles": referenced,
-                        "sample_hashes": list(sample_hashes),
-                    })
-        for goal_index, goal in enumerate(scope.get("goals", ())):
-            if not isinstance(goal, Mapping):
-                raise BasicInequalityProblemIRError(f"{case_id}: invalid goal at {path}/goals/{goal_index}")
-            kind = str(goal.get("kind") or "")
-            value_type = _GOAL_TYPES.get(kind)
-            if value_type is None:
-                raise BasicInequalityProblemIRError(f"{case_id}: unsupported goal kind {kind!r}")
-            expression = _goal_expression(goal)
-            goals.append({
-                "handle": f"answer:{_scope_token(case_id, path)}_g{goal_index}",
-                "scope_id": sid,
-                "valid_scope": sid,
-                "answer_key": f"{case_id}_g{goal_index}",
-                "value_type": value_type,
-                "required": True,
-                "description": f"{kind}: {expression}",
-                "goal_kind": kind,
-                "target_expression": expression,
-                "source_path": f"/root{path.removeprefix('root')}/goals/{goal_index}",
-                "source_text": expression,
-                "normalized_expression": expression,
-                "sample_hashes": list(sample_hashes),
-            })
+                        "description": original,
+                        "expression": _text(relation, names),
+                        "relation_operator": kind,
+                        "bound_expression": deepcopy(relation),
+                        "entity_handles": list(
+                            dict.fromkeys(
+                                handles[n[1]] for n in _walk(relation) if n[0] == "ref"
+                            )
+                        ),
+                        "domain_obligations": obligations(relation),
+                        **evidence(location, original, relation),
+                    }
+                )
+        for index, (goal, target) in enumerate(
+            zip(raw["goals"], compiled["goals"], strict=True)
+        ):
+            kind, ast = goal["kind"], target["target"]
+            typ = GOAL_TYPES.get(kind)
+            if kind == "find_value":
+                # A source request for the value of a single parameter is
+                # different from evaluating a general scalar expression.
+                typ = "ParameterValue" if ast[0] == "ref" else "ScalarExpression"
+            if typ is None:
+                raise BasicInequalityProblemIRError(f"unsupported goal: {kind}")
+            field = next(k for k in ("expression", "symbol", "object") if k in goal)
+            original = goal[field]
+            goals.append(
+                {
+                    "handle": f"answer:{sid}.g{index}",
+                    "scope_id": sid,
+                    "valid_scope": sid,
+                    "answer_key": f"{sid}_g{index}",
+                    "value_type": typ,
+                    "required": True,
+                    "description": f"{kind}: {original}",
+                    "goal_kind": kind,
+                    "target_expression": original,
+                    "bound_expression": deepcopy(ast),
+                    "variables": deepcopy(target.get("variables", [])),
+                    "in_terms_of": deepcopy(target.get("in_terms_of", [])),
+                    "domain_obligations": obligations(ast),
+                    **evidence(f"{path}/goals/{index}/{field}", original, ast),
+                }
+            )
+        for index, (child, compiled_child) in enumerate(
+            zip(raw["children"], compiled["children"], strict=True)
+        ):
+            visit(child, compiled_child, f"{path}/children/{index}", sid)
 
-    if not any(item["type"] in {"equation", "symbol_constraint"} for item in facts):
-        raise BasicInequalityProblemIRError(f"{case_id}: no equation or symbol_constraint fact")
-    if not any(item["value_type"] in {"MaximumExpression", "MinimumExpression", "Range", "ParameterValue"} for item in goals):
-        raise BasicInequalityProblemIRError(f"{case_id}: no supported extremum/range/parameter goal")
-
-    original_text = str(gold.get("original_text") or "").strip()
+    visit(source["root"], bound, "/root")
+    entities = []
+    for obj in report.objects:
+        locations = occurrences[obj["ref"]]
+        if not locations:
+            raise BasicInequalityProblemIRError("symbol has no source occurrence")
+        entities.append(
+            {
+                "handle": handles[obj["ref"]],
+                "entity_type": "symbol",
+                "name": obj["name"],
+                "scope_id": scope_map[obj["scope"]],
+                "description": f"代数符号 {obj['name']}",
+                "notation_ref": obj["ref"],
+                **locations[0],
+                "source_occurrences": locations,
+            }
+        )
+    original = gold.get("original_text", "").strip()
+    if not original:
+        raise BasicInequalityProblemIRError("source original_text is required")
     return {
-        "problem_id": case_id,
+        "problem_id": problem_id,
         "pattern": "basic-inequality",
         "problem_type": "basic_inequality",
-        "display": {"page_title": case_id, "summary": original_text},
+        "display": {"page_title": problem_id, "summary": original},
         "original_text": {
-            "source": "basic-inequality frozen notation gold",
-            "number": case_id,
-            "lines": [original_text],
+            "source": "frozen notation",
+            "number": problem_id,
+            "lines": [original],
         },
         "scopes": scopes,
         "entities": entities,
@@ -258,143 +323,63 @@ def _canonical_input(gold: Mapping[str, Any], *, sample_hashes: Sequence[str]) -
     }
 
 
-def validate_family_match(
-    canonical_input: Mapping[str, Any],
-    *,
-    candidate_family_id: str = "basic_inequality",
-) -> dict[str, Any]:
-    """Match through an authoring-only registry and enforce source primitives."""
-    if candidate_family_id != "basic_inequality":
-        raise BasicInequalityProblemIRError("candidate family label is not basic_inequality")
-    if canonical_input.get("pattern") != "basic-inequality" or canonical_input.get("problem_type") != "basic_inequality":
-        raise BasicInequalityProblemIRError("basic inequality requires its canonical pattern and problem_type")
-    entities = canonical_input.get("entities", ())
-    facts = canonical_input.get("facts", ())
-    goals = canonical_input.get("question_goals", ())
-    if not any(item.get("entity_type") == "symbol" for item in entities if isinstance(item, Mapping)):
-        raise BasicInequalityProblemIRError("family source requirement missing symbol entity")
-    if not any(item.get("type") in {"equation", "symbol_constraint"} for item in facts if isinstance(item, Mapping)):
-        raise BasicInequalityProblemIRError("family source requirement missing equation or symbol_constraint")
-    if not any(item.get("value_type") in {"MaximumExpression", "MinimumExpression", "Range", "ParameterValue"} for item in goals if isinstance(item, Mapping)):
-        raise BasicInequalityProblemIRError("family source requirement missing extremum/range/parameter goal")
+def validate_family_match(canonical_input, *, candidate_family_id, registry=None):
+    registry = registry or FamilyRegistry((BASIC_INEQUALITY_FAMILY,))
     problem = ProblemIR(
-        problem_id=str(canonical_input["problem_id"]),
-        pattern=str(canonical_input["pattern"]),
-        problem_type=str(canonical_input["problem_type"]),
-        symbols=[str(item["name"]) for item in entities if isinstance(item, Mapping) and item.get("entity_type") == "symbol"],
+        problem_id=canonical_input["problem_id"],
+        pattern=canonical_input["pattern"],
+        problem_type=canonical_input["problem_type"],
+        symbols=[
+            e["name"]
+            for e in canonical_input["entities"]
+            if e["entity_type"] == "symbol"
+        ],
     )
-    matched = FamilyRegistry((BASIC_INEQUALITY_FAMILY,)).match(problem)
+    matched = registry.match(problem)
     if matched is None or matched.family_id != "basic_inequality":
-        raise BasicInequalityProblemIRError("authoring-only family registry did not match basic_inequality")
-    return {"family_id": matched.family_id, "matched_by": ["pattern", "problem_type"]}
-
-
-def _sample_contract_hashes(
-    samples: Sequence[Mapping[str, Any]],
-    sample_ids: Sequence[str],
-    sample_hashes: Sequence[str],
-) -> dict[str, Any]:
-    """Use the extraction contract recorded by every sample, never today's files."""
-    if len(samples) != REQUIRED_SAMPLE_COUNT:
-        raise BasicInequalityProblemIRError("sample_provenance must contain exactly 2 sample records")
-    contracts = []
-    for sample, sample_id, sample_hash in zip(samples, sample_ids, sample_hashes, strict=True):
-        if not isinstance(sample, Mapping) or sample.get("sample_id") != sample_id or sample.get("sha256") != sample_hash:
-            raise BasicInequalityProblemIRError("sample_provenance must match sample_ids and sample_hashes in order")
-        templates = sample.get("template_files")
-        if not isinstance(templates, Mapping):
-            raise BasicInequalityProblemIRError("sample_provenance is missing template_files")
-        hashes = {
-            key: templates.get(str(path.relative_to(NOTATION_ROOT)))
-            for key, path in (("system", SYSTEM_PATH), ("user", USER_PATH), ("schema", SCHEMA_PATH), ("expressions", EXPRESSIONS_PATH))
-        }
-        hashes["families"] = sample.get("notation_family_catalog_hash")
-        if any(not isinstance(value, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", value) for value in hashes.values()):
-            raise BasicInequalityProblemIRError("sample_provenance requires recorded SHA-256 hashes for every prompt, schema and catalog")
-        contracts.append({
-            "prompt_hashes": {key: hashes[key] for key in ("system", "user")},
-            "schema_hash": hashes["schema"],
-            "catalog_hashes": {key: hashes[key] for key in ("expressions", "families")},
-        })
-    if contracts[0] != contracts[1]:
-        raise BasicInequalityProblemIRError("sample_provenance contract hashes must agree across all samples")
-    return contracts[0]
-
-
-def build_problem_ir_artifact(
-    gold: Mapping[str, Any],
-    *,
-    gold_path: str | Path = "",
-    image_path: str | Path = "",
-    sample_hashes: Sequence[str] = (),
-    sample_ids: Sequence[str] = ("sample-01", "sample-02"),
-    sample_provenance: Sequence[Mapping[str, Any]] = (),
-) -> dict[str, Any]:
-    """Build an audited artifact from two explicitly supplied sample hashes.
-
-    Hashes identify actual sample outputs, never the gold. Independent calls may
-    return identical output, so sample IDs must be distinct but hashes need not be.
-    Each sample's recorded extraction contract is required and must agree; current
-    workspace prompt files cannot stand in for historical sample provenance.
-    """
-    report = NotationValidator().validate(dict(gold))
-    if not report.ok:
-        raise BasicInequalityProblemIRError(f"notation gold is invalid: {report.payload()}")
-    if not canonical(report):
-        raise BasicInequalityProblemIRError("notation gold has no canonical semantic payload")
-    gold_bytes = json.dumps(gold, ensure_ascii=False, sort_keys=True).encode("utf-8")
-    gold_sha = sha256(gold_bytes).hexdigest()
-    if not (len(sample_hashes) == len(sample_ids) == REQUIRED_SAMPLE_COUNT):
-        raise BasicInequalityProblemIRError(
-            "sample_hashes and sample_ids must both contain exactly "
-            f"{REQUIRED_SAMPLE_COUNT} samples; explicit live sample hashes are required"
-        )
-    if any(not isinstance(item, str) or not item.strip() for item in sample_ids) or len(set(sample_ids)) != REQUIRED_SAMPLE_COUNT:
-        raise BasicInequalityProblemIRError("sample_ids must be non-empty and distinct")
-    if any(not isinstance(item, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", item) for item in sample_hashes):
-        raise BasicInequalityProblemIRError("sample_hashes must contain SHA-256 hex digests")
-    hashes = tuple(sample_hashes)
-    contract_hashes = _sample_contract_hashes(sample_provenance, sample_ids, hashes)
-    canonical_input = _canonical_input(gold, sample_hashes=hashes)
-    family_match = validate_family_match(canonical_input)
-    canonical_bytes = json.dumps(canonical_input, ensure_ascii=False, sort_keys=True).encode("utf-8")
+        raise BasicInequalityProblemIRError("no basic_inequality structural match")
+    if candidate_family_id != matched.family_id:
+        raise BasicInequalityProblemIRError("candidate family label mismatch")
+    if not problem.symbols:
+        raise BasicInequalityProblemIRError("missing symbol entity")
+    if not any(
+        f["type"] in {"equation", "symbol_constraint"} for f in canonical_input["facts"]
+    ):
+        raise BasicInequalityProblemIRError("missing equation or symbol_constraint")
+    goals = canonical_input["question_goals"]
+    if not goals:
+        raise BasicInequalityProblemIRError("missing supported goal")
+    if not all(g["value_type"] in SUPPORTED_GOALS for g in goals):
+        raise BasicInequalityProblemIRError("unsupported goal: all goals must be supported")
     return {
-        "schema_version": "basic-inequality-problem-ir/v1",
-        "problem_id": canonical_input["problem_id"],
-        "meta": {
-            "problem_id": canonical_input["problem_id"],
-            "title": (
-                canonical_input["original_text"]["lines"][0]
-                or canonical_input["problem_id"]
-            ),
-        },
-        "input": canonical_input,
-        "family_match": family_match,
-        "provenance": {
-            "gold_path": str(gold_path),
-            "gold_sha256": gold_sha,
-            "sample_ids": list(sample_ids),
-            "sample_hashes": list(hashes),
-            "required_sample_count": REQUIRED_SAMPLE_COUNT,
-            "image_path": str(image_path),
-            "notation_contract": "problem-math-notation/v1",
-            **contract_hashes,
-            "canonical_hash": sha256(canonical_bytes).hexdigest(),
-            "deferred_cases": DEFERRED_CASES,
-        },
+        "family_id": matched.family_id,
+        "matched_by": ["pattern", "problem_type"],
+        "source_requirements_verified": True,
+        "authoring_only": True,
     }
 
 
-def build_problem_ir_from_file(path: str | Path, **kwargs: Any) -> dict[str, Any]:
+def build_problem_ir_from_file(path):
+    """Validate frozen extraction evidence before lowering to an audited artifact."""
+    from .basic_inequality_frozen import load_verified_case
+
     path = Path(path)
-    return build_problem_ir_artifact(json.loads(path.read_text(encoding="utf-8")), gold_path=path, **kwargs)
-
-
-__all__ = [
-    "BasicInequalityProblemIRError",
-    "DEFERRED_CASES",
-    "REPRESENTATIVE_CASES",
-    "build_problem_ir_artifact",
-    "build_problem_ir_from_file",
-    "validate_family_match",
-]
+    verified = load_verified_case(path)
+    refs = [
+        {key: sample[key] for key in ("sample_id", "response_id", "raw_sha256")}
+        for sample in verified["provenance"]["samples"]
+    ]
+    payload = convert_notation(verified["gold"], problem_id=path.stem, sample_refs=refs)
+    match = validate_family_match(
+        payload, candidate_family_id=verified["gold"]["family_id"]
+    )
+    return {
+        "schema_version": "basic-inequality-problem-ir/v1",
+        "meta": {"problem_id": path.stem, "title": payload["display"]["summary"]},
+        "input": payload,
+        "family_match": match,
+        "provenance": {
+            **verified["provenance"],
+            "input_semantic_sha256": revision(payload),
+        },
+    }

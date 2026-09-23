@@ -1,0 +1,1 @@
+{"family_id":"basic_inequality","match_reason":"题面给出正实数 m,n 满足 m+n=2，求 mn 的最大值，符合基本不等式题型。","match_status":"matched","original_text":"例题精讲\n练习8\n1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ______。","root":{"children":[],"definitions":[],"facts":["m > 0","n > 0","m + n = 2"],"goals":[{"expression":"m*n","kind":"find_maximum"}],"label":"题目","uncertainties":[]}}

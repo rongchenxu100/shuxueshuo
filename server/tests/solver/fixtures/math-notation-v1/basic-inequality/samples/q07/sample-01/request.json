@@ -1,0 +1,398 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "从用户提供的题目图片中提取完整题意，按随请求提供的 JSON Schema 输出一个 JSON 对象。\n数学表达记法见同次请求的 math_expression_catalog；它列出语法、含义、参数顺序和边界。目录仅供表达时参考，definitions/facts仍输出字符串，不输出目录条目。\n只转写定义、条件、目标和分问，不解题，不给答案。忽略手写解答和批注。\n只返回 JSON，不返回 Markdown、解释或自检过程。\n\n## 原题文字与数学候选\n\n新抽取在顶层输出 original_text，完整转录原图题干；root 仍为独立的数学候选。original_text 供人阅读，不是题意摘要，不从 definitions/facts 反向生成。\n保留原题中文叙述、公式、题号和分问顺序、图号、参数说明（包括“为常数”）；按阅读顺序换行。公式允许等义的 Unicode 或 LaTeX 排版，但不化简、不换成自己引入的对象符号，不改写成“Γ: …；P∈Γ”等数学候选。\n多图按输入顺序衔接，重叠的题干只保留一次。忽略手写答案、批注和解题过程；不把图中推断出的关系编入题干原文。无法辨认处写[无法辨认]，并在对应节点的 uncertainties 保留诊断；缺图时仍转录可读文字。\noriginal_text 中的自然语言、原题明确的“为常数”等文字不受下方 definitions/facts 的简化规则限制。只在顶层保存这一份原文，不在各数学节点重复 source_text。\n\n## definitions 和 facts 分别写什么\n\n按下面的固定规则放置，不必判断一句话在数学上“算定义还是算条件”。\n\ndefinitions 只放以下三类：\n\n- 曲线：`Γ: y = x^2+u*x+v`。\n- 函数：`f(t) = t^2+1`。\n- 题内新概念的完整定义原文；使用该概念的关系仍须展开在 facts 中。\n\n其余题面给定的数学关系一律放 facts，包括：\n\n- 点坐标：`P = (1,2)`。\n- 构造关系：`W = midpoint(U,V)`、`R = P+(3,0)`。\n- 参数范围：`u > 0`。\n- 点在曲线上：`P ∈ Γ`。\n- 交点关系：`Γ ∩ y_axis = {Q}`。\n- 位置或大小：`x(P) < x(Q)`、`y(R) < 0`、`UV = 3*VW`。\n- 最值已知条件：`min(UV+VW) = 7`。\n- 题面明确的状态条件：`UV+VW = min(UV+VW)`。\n\n例如“W是UV的中点”固定写到 facts，无需因它引入W而改放 definitions。\n已经定义的函数，其取值条件如 `f(2) = 3` 放 facts；不要把它当成新的函数定义。\n两个数组是阅读组织方式，不是数学对象类型标签。代码根据数学式识别曲线、函数、点及关系；受支持的数学式偶尔放错数组，不单独判为题意错误。仍优先按上述规则输出，不重复抄写来规避分类。\n\n## 题面直观表达优先\n\n在数学表达目录支持的范围内，facts 尽量保留题面实际使用的直观表达，不为了提前适配某个执行器而改写等价关系。题面写“∠ABC=90°”或“∠ABC为直角”时，直接写 `∠ABC = 90°`（中间点 B 是顶点），不要构造解析器语法，也不要改写成 `line(A,B) ⟂ line(B,C)`；题面明确写“两直线垂直”或使用 `⊥` 时，才写垂直关系。角表达与垂直表达的等价转换由后续代码归一化层完成，抽取阶段不主动补写另一种表达。\n\n同样，保留题面给出的端点顺序、角的顶点、比例方向、线段/直线/射线类型和关系所在分问。不要仅凭图形外观或数学推断把角改成垂直、把垂直改成直角、补出未写出的边或生成另一条等价事实；无法确定对象时保留原表达并写入 uncertainties。\n\n基本不等式题也遵循数学表达式优先。正项、等式、不等式、参数范围、最大值、最小值和取值范围都直接照题面写入，例如 `a > 0`、`b > 0`、`a + b = 2`、`max(a*b)`、`min(x+4/(x+1))` 和 `x+y` 的范围目标。只转写题面条件和目标，不使用基本不等式求解、不补正性、不代入、不整理，也不输出 `term1`、`term2`、`using`、`transformed_target`、`right_angle`、`amgm_bound` 或其他内部字段。不要要求或推荐模型构造解析器内部的 angle 调用；题面直角仍直接写 `∠ABC = 90°`。\n\n每个字符串只写一条数学定义或关系；需要表示“且”“或”时使用 `∧`、`∨` 及括号。\n不要把“其中u,v为常数”“P在曲线上”等说明拼在公式后面。题面明确的数值、范围和关联条件拆到 facts；“为常数”不要求另行声明默认实数域。\n同一条内容不必在 definitions 和 facts 中重复。不需要填写的数组可以省略。\n\n## 用符号引用数学对象\n\n在 definitions、facts 和 goals 的数学候选中，题面表示乘法时必须显式写 `*`：两个独立变量的乘积 `xy` 写成 `x*y`，`(xy)^3` 写成 `(x*y)^3`，`a(x+1)` 写成 `a*(x+1)`，`2xy` 写成 `2*x*y`。这只是消除省略乘号的记法歧义，不展开、化简或引入新变量；original_text 保留原题排版。\n只有题面含义明确是乘法时才添加乘号。题面明确命名的完整变量 `xy`、`x_1` 不拆分；长度 `AB`、角 `∠ABC`、已定义函数调用 `f(x)` 均保留原记法。无法辨认是乘积还是完整对象名时，在对应节点的 uncertainties 中说明，不猜测拆分。\n\n题面已有名称时沿用原名称。未命名的曲线或函数，可用一个简短符号引入，并在可见作用域内始终使用同一个符号。\n例如先写 `Γ: y = x^2+u*x+v`，随后写 `P ∈ Γ`，求曲线方程时写 `{\"kind\":\"find_equation\",\"object\":\"Γ\"}`。\n不要用“抛物线”“该抛物线”“上述函数”“点P”“线段UV”等自然语言指代数学对象。\n不要把整条定义填入 goals.object。对象目标用符号，求值目标用数学表达式，参数范围目标用参数符号。\n没有命名的线段、直线、射线直接使用 `segment(U,V)`、`line(U,V)`、`ray(U,V)`；长度写 `UV`。\n例如 `UV = RS` 比较长度，`segment(U,V) ∩ segment(R,S) = {W}` 表示线段交点；不能写 `UV ∩ RS` 让代码猜线段或直线。\n基础操作的明确点参数由代码建立数学对象，无需另列点声明或类型；但题面给定的四边形、正方形等关系仍须保留，端点名称不能代替构型条件。\n不要自行发明 `symmetry_axis`、`intersection` 等记法；对称轴用 `axis(Γ)`，交集用 `∩`，其余记法以 math_expression_catalog 为准。Schema description 规定字段的用途和组织规则。\n题面没有命名的交点，使用 `bisects`、`cut_ratio` 等基础记法表达关系，不为它新起点名。\n\n## 中文原文的有限保留\n\ndefinitions 允许保留题内新概念的完整定义原文，作为解释材料；普通对象定义仍用受控数学式。\n使用新概念的小问须在 facts 中将它展开为基础数学关系，不能只写“UV为某种线段”“四边形PQRS满足某定义”。\n若定义有“或”分支，保留 `∨`，不要解题排除分支；定义的各项约束作用于对应小问。\n展开定义只替换本问的对象名称和题面给定的参数值；即使其他条件能够排除某一分支，也保留完整分支，不改写成推导出的中点、共线或比例关系。参数已代入具体数值时，无需再引入仅用于记录该代入的参数赋值；题面独立给出的参数条件仍须保留。\n允许的定点/动点短声明仅如 `A、B为定点；C为动点；D为平面内一点。`。无需额外补动点标签。\nlabel、match_reason、uncertainties.text 可用简短自然语言；definitions/facts 中的数学式仍须遵守上述规则。\n\n## 忠实保留题意与作用域\n\nroot/children 按原题分问组织；父条件向下继承，兄弟小问的局部条件不能串用。\nfacts 表达本节点及其子节点的条件，goals 只表达这些条件下求什么。若同一分问仅部分目标受一个局部条件限定，将条件与这些目标放到独立子节点，其余目标留在原节点；不虚构题目编号，也不将局部条件提升到父节点。\n同一编号分问含多个图景或子问时，保留该编号为父节点，再将各图景或子问放入它的 children；即使父节点没有独立条件，也保留这个容器。例如“(1)①如图甲……②如图乙……”组织为 root → (1) → ①、②，不将“(1)图甲”“(1)图乙”平铺为 root 的孩子。一个分问只引用一幅图时，无需额外增加图景层。\n保留严格或非严格不等式、线段或射线范围、比例方向、逻辑括号、量词及开闭区间。\n已定义函数可直接引用 `f(t)`，无需展开、转成判别式或推导答案。量词绑定变量无需另作全局声明。\n不补默认实数域或题面未给出的隐含非零条件，例如不因公式出现 `a*x^2` 就输出 `a != 0`。\n不输出 entities、source_text、schema_version、ID、fact 对象、运算树、内部类型或来源元数据。\n\n最值下标和 variables 均可省略；不分析动点依赖，不列固定参数，也不把所有出现的字母都当成优化变量。\n“最小值为7”必须保留为 `min(表达式) = 7`，不能改成普通等式 `表达式 = 7`。\n“取得最值时/此时”也是条件，写入对应节点facts，如 `UV+VW = min(UV+VW)`。不推导最优条件，也不把普通求参数目标擅自限定到最优状态。\n按原句确定作用范围：“求此时的曲线方程和P的坐标”让两个并列目标共用节点中的状态条件；“求最小值，并求取得最小值时P的坐标”则在父节点求最小值，在子节点放状态条件及坐标目标。无需判断曲线或参数是否依赖动点。最值表达式对应原题可行范围，不能因为新增取得最值状态而缩小原始优化范围。\n\n无法确定的信息写入对应节点的 uncertainties；题面引用的图形确实未提供时标为 missing_figure，不猜图。\n逐一核对题面引用的图与本次所有输入图片：提到图不代表已提供图；即使凭文字可能解答，引用的图未提供仍报告missing_figure。图已提供时不因未标图号或题型不熟悉而误报缺图；图模糊、遮挡分别使用unreadable、occluded。只在相关作用域报告，不输出额外图形清单。\n不同图分别判断：提供图甲不能代替题面引用的图乙；一个小问的图已提供，不代表其他小问的图也已提供。文字完整、可转写全部关系或可凭文字作图，都不能免除 missing_figure。缺图时仍提取可读文字给出的条件与目标，在受影响的子问节点报告缺图，不自行补画或猜测图中关系。\n题型匹配与题意提取独立；按 registered_families 判断，未匹配仍完整提取，match_status 为 unmatched，family_id 为 null。\n\n## 独立 few-shot 示例\n\n以下示例的 registered_families 均为空，所以输出 unmatched；实际任务必须使用实际注册表判断。\n示例只演示转写，没有求解或答案，不属于用户图片，不要将示例对象或条件加入实际输出。\n\n### 示例一：定义、条件与对象引用\n\n输入：曲线 y=x²+u*x+v，其中u,v为常数，u>0。点P(-2,0)在曲线上，曲线与y轴交于点Q。求u的值（用含v的式子表示），并求Q的坐标。\n\n输出：\n\n```json\n{\n  \"original_text\": \"曲线 y=x²+u*x+v，其中u,v为常数，u>0。点P(-2,0)在曲线上，曲线与y轴交于点Q。求u的值（用含v的式子表示），并求Q的坐标。\",\n  \"root\": {\n    \"definitions\": [\"Γ: y = x^2+u*x+v\"],\n    \"facts\": [\"P = (-2,0)\", \"u > 0\", \"P ∈ Γ\", \"Γ ∩ y_axis = {Q}\"],\n    \"goals\": [\n      {\"kind\": \"find_value\", \"expression\": \"u\", \"in_terms_of\": [\"v\"]},\n      {\"kind\": \"find_coordinates\", \"object\": \"Q\"}\n    ]\n  },\n  \"match_status\": \"unmatched\",\n  \"family_id\": null,\n  \"match_reason\": \"示例注册表为空。\"\n}\n```\n\n### 示例二：构造点、所在范围与“取得最值时”\n\n输入：正方形PQRS中，P(0,0)、Q(4,0)、S(0,4)，W是PS的中点，T是线段QR上的动点。求PT+TW的最小值，并求取得最小值时T的坐标。\n\n输出：\n\n```json\n{\n  \"original_text\": \"正方形PQRS中，P(0,0)、Q(4,0)、S(0,4)，W是PS的中点，T是线段QR上的动点。求PT+TW的最小值，并求取得最小值时T的坐标。\",\n  \"root\": {\n    \"facts\": [\"P = (0,0)\", \"Q = (4,0)\", \"S = (0,4)\", \"square(P,Q,R,S)\", \"W = midpoint(P,S)\", \"T ∈ segment(Q,R)\"],\n    \"goals\": [{\"kind\": \"find_minimum\", \"expression\": \"PT+TW\"}],\n    \"children\": [\n      {\n        \"facts\": [\"PT+TW = min(PT+TW)\"],\n        \"goals\": [{\"kind\": \"find_coordinates\", \"object\": \"T\"}]\n      }\n    ]\n  },\n  \"match_status\": \"unmatched\",\n  \"family_id\": null,\n  \"match_reason\": \"示例注册表为空。\"\n}\n```\n\n### 示例三：定义原文与定义的应用\n\n输入：若一条线段的长度等于2或5，则称它为“候选段”。已知U(0,0)、V(t,1)，UV>3，线段UV为候选段，求t的取值范围。\n\n输出：\n\n```json\n{\n  \"original_text\": \"若一条线段的长度等于2或5，则称它为“候选段”。已知U(0,0)、V(t,1)，UV>3，线段UV为候选段，求t的取值范围。\",\n  \"root\": {\n    \"definitions\": [\"若一条线段的长度等于2或5，则称它为‘候选段’。\"],\n    \"facts\": [\"U = (0,0)\", \"V = (t,1)\", \"UV > 3\", \"UV = 2 ∨ UV = 5\"],\n    \"goals\": [{\"kind\": \"find_range\", \"symbol\": \"t\"}]\n  },\n  \"match_status\": \"unmatched\",\n  \"family_id\": null,\n  \"match_reason\": \"示例注册表为空。\"\n}\n```\n\n### 示例四：此时修饰两个并列目标\n\n输入：曲线y=x²+u的顶点为R，P(-2,0)、Q(3,0)，点T在线段PQ上运动。当PT+TR的最小值为8时，求此时曲线的方程和T的坐标。\n\n输出：\n\n```json\n{\n  \"original_text\": \"曲线y=x²+u的顶点为R，P(-2,0)、Q(3,0)，点T在线段PQ上运动。当PT+TR的最小值为8时，求此时曲线的方程和T的坐标。\",\n  \"root\": {\n    \"definitions\": [\"Γ: y = x^2+u\"],\n    \"facts\": [\"R = vertex(Γ)\", \"P = (-2,0)\", \"Q = (3,0)\", \"T ∈ segment(P,Q)\", \"min(PT+TR) = 8\", \"PT+TR = min(PT+TR)\"],\n    \"goals\": [\n      {\"kind\":\"find_equation\",\"object\":\"Γ\"},\n      {\"kind\":\"find_coordinates\",\"object\":\"T\"}\n    ]\n  },\n  \"match_status\": \"unmatched\",\n  \"family_id\": null,\n  \"match_reason\": \"示例注册表为空。\"\n}\n```\n\n### 示例五：同一分问的两幅图，仅提供其中一幅\n\n输入：文字“(1)①如图甲，U(0,0)、V(6,0)，求UV的长。②如图乙，线段UV、RS交于W，UW=3，求VW的长。”输入提供了图甲的清晰线段示意图；检查全部输入图片，均没有图乙。\n\n输出：\n\n```json\n{\n  \"original_text\": \"(1)①如图甲，U(0,0)、V(6,0)，求UV的长。\\n②如图乙，线段UV、RS交于W，UW=3，求VW的长。\",\n  \"root\": {\n    \"children\": [{\n      \"label\": \"(1)\",\n      \"children\": [\n        {\n          \"label\": \"①\",\n          \"facts\": [\"U = (0,0)\", \"V = (6,0)\"],\n          \"goals\": [{\"kind\":\"find_value\",\"expression\":\"UV\"}]\n        },\n        {\n          \"label\": \"②\",\n          \"facts\": [\"segment(U,V) ∩ segment(R,S) = {W}\", \"UW = 3\"],\n          \"goals\": [{\"kind\":\"find_value\",\"expression\":\"VW\"}],\n          \"uncertainties\": [{\"kind\":\"missing_figure\",\"text\":\"题面引用图乙，全部输入图片均未提供。\"}]\n        }\n      ]\n    }]\n  },\n  \"match_status\": \"unmatched\",\n  \"family_id\": null,\n  \"match_reason\": \"示例注册表为空。\"\n}\n```\n\n### 示例六：图已提供\n\n输入：文字“如图甲，U(0,0)、V(6,0)，求UV的长。”随文字提供了清晰的对应线段示意图。\n\n输出：\n\n```json\n{\n  \"original_text\": \"如图甲，U(0,0)、V(6,0)，求UV的长。\",\n  \"root\": {\n    \"facts\": [\"U = (0,0)\", \"V = (6,0)\"],\n    \"goals\": [{\"kind\":\"find_value\",\"expression\":\"UV\"}]\n  },\n  \"match_status\": \"unmatched\",\n  \"family_id\": null,\n  \"match_reason\": \"示例注册表为空。\"\n}\n```\n\n### 示例七：代数乘积的显式乘号\n\n输入：已知正数u、v满足uv=6，求 (uv)²/(u+v)+u(v+1) 的最小值。\n\n输出：\n\n```json\n{\n  \"original_text\": \"已知正数u、v满足uv=6，求 (uv)²/(u+v)+u(v+1) 的最小值。\",\n  \"root\": {\n    \"facts\": [\"u > 0\", \"v > 0\", \"u*v = 6\"],\n    \"goals\": [{\"kind\":\"find_minimum\",\"expression\":\"(u*v)^2/(u+v)+u*(v+1)\"}]\n  },\n  \"match_status\": \"unmatched\",\n  \"family_id\": null,\n  \"match_reason\": \"示例注册表为空。\"\n}\n```"
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"registered_families\":[{\"family_id\":\"QuadraticEqualLengthRayPathMinimumSolver\",\"title\":\"二次函数等长射线路径最值\",\"use_when\":\"题面给出二次函数、射线上的点，以及路径或距离和的最值条件。\",\"required_source_primitives\":[\"二次函数\",\"射线上的点\",\"路径最值\"],\"conditional_source_requirements\":[],\"do_not_use_when\":[\"题面没有二次函数\",\"题面没有路径或距离和的最值目标\"]},{\"family_id\":\"QuadraticPathMinimumSolver\",\"title\":\"普通二次函数路径最值\",\"use_when\":\"题面给出二次函数和普通距离和或折线路径的最值目标。\",\"required_source_primitives\":[\"二次函数\",\"普通距离和或折线路径\",\"最值目标\"],\"conditional_source_requirements\":[],\"do_not_use_when\":[\"路径表达式含明确的非1权重\",\"题面没有二次函数\"]},{\"family_id\":\"QuadraticSquareReflectionPathMinimumSolver\",\"title\":\"二次函数正方形路径最值\",\"use_when\":\"题面明确给出二次函数、正方形，以及正方形顶点或相关路径的最值目标。\",\"required_source_primitives\":[\"二次函数\",\"正方形\",\"路径最值\"],\"conditional_source_requirements\":[],\"do_not_use_when\":[\"原图没有明确的正方形条件\",\"题面没有二次函数\"]},{\"family_id\":\"QuadraticWeightedPathMinimumSolver\",\"title\":\"二次函数加权路径最值\",\"use_when\":\"题面给出二次函数和带非1权重的距离和最值目标。\",\"required_source_primitives\":[\"二次函数\",\"带权距离和\",\"最值目标\"],\"conditional_source_requirements\":[],\"do_not_use_when\":[\"路径各段系数均为1\",\"题面没有二次函数\"]},{\"family_id\":\"basic_inequality\",\"title\":\"基本不等式\",\"use_when\":\"题面以正项、等式或不等式条件为基础，要求求代数式的最大值、最小值、取值范围或参数值；条件和目标应直接保留为数学表达式。\",\"required_source_primitives\":[\"正项或变量条件\",\"等式或不等式条件\",\"最大值、最小值、取值范围或参数目标\"],\"conditional_source_requirements\":[],\"do_not_use_when\":[\"题面没有代数条件或目标\",\"需要依赖图形推断而题面未给出相应数学关系\"]}],\"ocr_hints\":{\"pages\":[{\"page\":1,\"lines\":[],\"formula_candidates\":[],\"notes\":[]}]},\"auxiliary_text_origin\":\"image_only_no_ocr\",\"response_schema\":{\"$schema\":\"https://json-schema.org/draft/2020-12/schema\",\"type\":\"object\",\"required\":[\"root\",\"match_status\",\"family_id\",\"match_reason\"],\"additionalProperties\":false,\"properties\":{\"original_text\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":32768,\"pattern\":\"\\\\S\",\"description\":\"完整题干原文的忠实转录，供人阅读与页面展示；与root数学候选独立，不参与数学编译。新抽取须填写，历史候选未保存时可缺省。保留原有中文叙述、题号、分问、公式、参数说明和图号，按阅读顺序换行；公式可转为等义Unicode或LaTeX排版，但不得改写叙述、化简、替换题面符号或从root反向生成。多图按输入顺序衔接，重叠题干不重复；不抄手写答案、批注或解析，不将图形推测改写成原文。无法辨认处写[无法辨认]并在对应节点uncertainties说明；缺图仍转录可读题干，不能补造内容。\"},\"root\":{\"$ref\":\"#/$defs/Scope\",\"description\":\"整题根节点；共同条件放根节点，各小問按原层级放children。\"},\"match_status\":{\"enum\":[\"matched\",\"unmatched\"],\"description\":\"matched：题目符合本次registered_families中一个已注册题型，family_id填该条目的准确标识；unmatched：无适用注册题型，family_id必须为null。匹配与完整提取独立。\"},\"family_id\":{\"type\":[\"string\",\"null\"],\"description\":\"matched时只允许取本次请求registered_families中的family_id，不得自造、简称或根据示例照抄；unmatched时填null。注册表随请求提供，因此这里不硬编码静态题型枚举。\"},\"match_reason\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"简短说明匹配或未匹配的题面依据，不提供求解过程、答案或编造的能力。\"}},\"$defs\":{\"Scope\":{\"type\":\"object\",\"additionalProperties\":false,\"description\":\"整题及分问树。facts是本节点及其子节点适用的条件，goals是在这些条件下的所求；父条件向下继承，兄弟局部条件不互通。仅部分目标受“此时”等条件限定时，将条件及受限定的目标放入独立子节点，其他目标留在原节点；不虚构题目编号。空数组可以省略，无需标识对象ID。\",\"properties\":{\"label\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"题面分问或图景标签，如（1）、②；可省略。不作为对象ID，也不替代数学条件。\"},\"definitions\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"固定放置规则：仅曲线定义（Γ: y=x^2+u*x+v）、函数定义（f(t)=t^2）及题内新概念定义原文放这里。点坐标、中点、平移等其余题设关系均放facts，不因它们引入对象而改放此处。曲线/函数定义用稳定符号及受控数学式，不拼接中文说明。新概念原文作为解释材料，使用处仍须展开关系。数学式偶尔放错数组不单独判错，代码从表达式识别对象类型。\"},\"maxItems\":128,\"description\":\"可省略。仅曲线/函数定义及题内新概念原文优先放此处；其他题设关系优先放facts。\"},\"facts\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"使用同次请求math_expression_catalog列出的数学记法，按各条目的语法、参数顺序及边界组成一条数学字符串。目录同样适用于definitions和目标中的数学式。不要输出目录条目、专用fact对象或运算树；不要补写默认实数域或隐含非零条件。\"},\"maxItems\":128,\"description\":\"除曲线/函数定义及新概念原文之外的题设关系均放这里，包括P=(1,2)、W=midpoint(U,V)、R=P+(3,0)、点在线上、参数范围及函数取值条件。各项同时成立；每项一条受控数学关系，引用稳定符号，不夹带解释句、不重复definitions、不输出求解结果。受控短声明如“A、B为定点；C为动点；D为平面内一点。”也放这里；无需额外补动点标签。 最值条件min(UV+VW)=7与取得最值的状态UV+VW=min(UV+VW)均放facts，但含义不同，不能互相替代。状态仅在题面明确时保留，不推导最优位置或附加条件。\"},\"goals\":{\"type\":\"array\",\"items\":{\"oneOf\":[{\"type\":\"object\",\"required\":[\"kind\",\"expression\"],\"properties\":{\"kind\":{\"const\":\"find_value\",\"description\":\"求值\"},\"expression\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"所求数学表达式，如UV+VW；不写“求…的值”等自然语言或答案。\"},\"in_terms_of\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"题面明确要求保留的一个参数符号。\"},\"maxItems\":128,\"description\":\"题面要求“用含某参数的式子表示”时填写对应参数名，如[\\\"u\\\",\\\"v\\\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。\"}},\"additionalProperties\":false,\"description\":\"求参数或表达式的值。用expression标明所求，不输出算出的数值。\"},{\"type\":\"object\",\"required\":[\"kind\",\"object\"],\"properties\":{\"kind\":{\"const\":\"find_coordinates\",\"description\":\"求坐标\"},\"object\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"所求点的符号，如P；不填Γ、坐标答案、“点P”或其他自然语言。\"},\"in_terms_of\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"题面明确要求保留的一个参数符号。\"},\"maxItems\":128,\"description\":\"题面要求“用含某参数的式子表示”时填写对应参数名，如[\\\"u\\\",\\\"v\\\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。\"}},\"additionalProperties\":false,\"description\":\"求点的坐标。object必须引用点，不是曲线或整条定义。\"},{\"type\":\"object\",\"required\":[\"kind\",\"object\"],\"properties\":{\"kind\":{\"const\":\"find_equation\",\"description\":\"求方程\"},\"object\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"所求曲线或函数的符号，如Γ、f；不填点名、整条定义或“该抛物线”。\"},\"in_terms_of\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"题面明确要求保留的一个参数符号。\"},\"maxItems\":128,\"description\":\"题面要求“用含某参数的式子表示”时填写对应参数名，如[\\\"u\\\",\\\"v\\\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。\"}},\"additionalProperties\":false,\"description\":\"求曲线或函数的解析式/方程。object引用已定义的曲线或函数。\"},{\"type\":\"object\",\"required\":[\"kind\",\"expression\"],\"properties\":{\"kind\":{\"const\":\"find_minimum\",\"description\":\"求最小值\"},\"expression\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"所求数学表达式，如UV+VW；不写“求…的值”等自然语言或答案。\"},\"variables\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"一个可见的点名或参数名，如P或t，不是表达式或中文说明。\"},\"maxItems\":128,\"description\":\"可选的优化变量提示，只填写题面明确的点名或参数名，如[P,Q]。即使题面明确也可以省略；不分析依赖、不列固定参数、不把所有字母都当优化变量。\"},\"in_terms_of\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"题面明确要求保留的一个参数符号。\"},\"maxItems\":128,\"description\":\"题面要求“用含某参数的式子表示”时填写对应参数名，如[\\\"u\\\",\\\"v\\\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。\"}},\"additionalProperties\":false,\"description\":\"求表达式的最小值。expression填写原表达式，不再套min；variables可省略。\"},{\"type\":\"object\",\"required\":[\"kind\",\"expression\"],\"properties\":{\"kind\":{\"const\":\"find_maximum\",\"description\":\"求最大值\"},\"expression\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"所求数学表达式，如UV+VW；不写“求…的值”等自然语言或答案。\"},\"variables\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"一个可见的点名或参数名，如P或t，不是表达式或中文说明。\"},\"maxItems\":128,\"description\":\"可选的优化变量提示，只填写题面明确的点名或参数名，如[P,Q]。即使题面明确也可以省略；不分析依赖、不列固定参数、不把所有字母都当优化变量。\"},\"in_terms_of\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"题面明确要求保留的一个参数符号。\"},\"maxItems\":128,\"description\":\"题面要求“用含某参数的式子表示”时填写对应参数名，如[\\\"u\\\",\\\"v\\\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。\"}},\"additionalProperties\":false,\"description\":\"求表达式的最大值。expression填写原表达式，不再套max；variables可省略。\"},{\"type\":\"object\",\"required\":[\"kind\",\"symbol\"],\"properties\":{\"kind\":{\"const\":\"find_range\",\"description\":\"求范围\"},\"symbol\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"所求范围的参数符号，如t；不写中文名称或答案。\"},\"in_terms_of\":{\"type\":\"array\",\"items\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"题面明确要求保留的一个参数符号。\"},\"maxItems\":128,\"description\":\"题面要求“用含某参数的式子表示”时填写对应参数名，如[\\\"u\\\",\\\"v\\\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。\"}},\"additionalProperties\":false,\"description\":\"求一个参数的取值范围。symbol填写参数名，不输出解出的区间。\"}]},\"maxItems\":128,\"description\":\"在本节点及可见父节点条件下求什么。目标仅填写种类、对象或表达式及适用的答案形式/变量提示，不另带数学条件。\"},\"children\":{\"type\":\"array\",\"items\":{\"$ref\":\"#/$defs/Scope\"},\"maxItems\":128,\"description\":\"按原题分问组织；同问独立图景再分层。例如(1)含①图甲、②图乙时，保留(1)父节点，即使它没有独立条件；①、②放在它的children中，不平铺到root。仅引用一幅图的分问无需额外图景层。 同一分问仅部分目标有局部状态条件时，也可将这些目标与条件置于独立子节点；例如父节点求min(UV+VW)，子节点facts写UV+VW=min(UV+VW)，goals求V的坐标。\"},\"uncertainties\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"required\":[\"kind\",\"text\"],\"additionalProperties\":false,\"properties\":{\"kind\":{\"enum\":[\"missing_figure\",\"ambiguous_symbol\",\"unreadable\",\"occluded\",\"unstructured\",\"ambiguous_reuse\"],\"description\":\"missing_figure：检查本次全部输入图片，题面引用的对应图形未提供；不同图分别判断，一图已提供不代表其他图也提供，文字完整或可凭文字解答仍须报告缺图，在受影响的子问节点标记；ambiguous_symbol：符号指代或字符识别不确定；unreadable：文字或公式无法辨认；occluded：关键内容被遮挡；unstructured：能读到内容但当前受控记法无法可靠表达；ambiguous_reuse：同名对象在不同图景/分问中的复用归属不明确。只选实际存在的问题，不因题型unmatched就添加不确定性。\"},\"text\":{\"type\":\"string\",\"minLength\":1,\"maxLength\":4096,\"description\":\"说明对应位置、缺失内容或具体歧义；保留可读原文线索，不猜测未知条件或补写答案。\"}}},\"maxItems\":128,\"description\":\"可省略；没有不确定性时为空。问题放在对应作用域，整题共用的问题放root。missing_figure会阻断后续处理；不猜图，也不把定义/题型不熟悉误报为缺图。 核对所有输入图片；提到图不代表图已提供，即使文字足以推理也须报告被引用但未提供的图。图已提供不能误报；模糊或遮挡使用相应类型。\"}}}},\"description\":\"从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。\"},\"math_expression_catalog\":{\"purpose\":\"definitions/facts及目标字段共用的数学表达记法目录。只从这些基础记法组合表达题意，不自造操作名。\",\"output_rule\":\"目录中的id、syntax、meaning等字段仅供阅读，不是输出格式。模型的definitions/facts仍输出数学字符串数组，不输出表达对象、目录条目或运算树。优先按Schema中的字段放置规则组织；在目录支持的范围内保留题面直观表达，不为等价关系提前改写。\",\"expressions\":[{\"id\":\"curve_definition\",\"syntax\":\"Γ: y = 表达式\",\"meaning\":\"为曲线引入稳定符号；x、y是坐标变量。优先放definitions。\",\"examples\":[\"Γ: y = a*x^2+b*x+c\"]},{\"id\":\"function_definition_and_reference\",\"syntax\":\"f(t) = 表达式；f(t)\",\"meaning\":\"定义一元函数后可直接引用，不要求模型代入展开。函数定义优先放definitions，已有函数的取值条件放facts。\",\"examples\":[\"f(t) = t^2+1\",\"f(2) = 5\",\"f(x) ≥ g(x)\"]},{\"id\":\"point_coordinates\",\"syntax\":\"P = (横坐标,纵坐标)\",\"meaning\":\"题面给定的点坐标，优先放facts；不要在同一字符串后拼接中文说明。\",\"examples\":[\"P = (-2,0)\",\"Q = (t,1)\"]},{\"id\":\"length\",\"syntax\":\"AB；length(A1,B1)\",\"meaning\":\"无向长度。AB只适用于单字母点名；复杂点名使用length。AB不能在直线关系中代替line(A,B)。\",\"examples\":[\"AB = 3*CD\",\"length(A1,B1) = 2\"]},{\"id\":\"angle\",\"syntax\":\"∠BAC；45°\",\"meaning\":\"非定向内角，三点记法的中间点A是顶点；°表示角度。直接使用题面角记法，不构造解析器函数语法，也不改写为两直线垂直。\",\"examples\":[\"∠BAC = 2*∠DAC\",\"∠ABC = 45°\"]},{\"id\":\"area\",\"syntax\":\"area(△ABC)\",\"meaning\":\"三角形的无向面积；面积比必须保留分子、分母顺序。\",\"examples\":[\"area(△ACD)/area(△ACB) = r\"]},{\"id\":\"tangent\",\"syntax\":\"tan(∠ABC)\",\"meaning\":\"角B的正切。\",\"examples\":[\"tan(∠ABC)\"]},{\"id\":\"coordinate_access\",\"syntax\":\"x(P)；y(P)\",\"meaning\":\"分别取点P的横坐标、纵坐标。\",\"examples\":[\"x(P) < x(Q)\",\"y(P) < 0\"]},{\"id\":\"axes_and_vertex\",\"syntax\":\"x_axis；y_axis；axis(Γ)；vertex(Γ)\",\"meaning\":\"依次表示x轴、y轴、曲线Γ的对称轴、顶点。不要另造symmetry_axis等操作名。\",\"examples\":[\"P ∈ x_axis\",\"Q ∈ y_axis\",\"D ∈ axis(Γ)\",\"V = vertex(Γ)\"]},{\"id\":\"segment_line_ray\",\"syntax\":\"segment(A,B)；line(A,B)；ray(A,B)\",\"meaning\":\"依次表示含端点的线段AB、经过A和B的直线、以A为端点经过B的射线。射线参数顺序不能交换；三者范围不能混淆。\",\"examples\":[\"P ∈ segment(A,B)\",\"Q ∈ line(A,B)\",\"R ∈ ray(A,B)\"]},{\"id\":\"line_relations\",\"syntax\":\"line(A,B) ⟂ line(C,D)；line(A,B) ∥ line(C,D)\",\"meaning\":\"两条直线垂直或平行；操作数写直线，不写长度AB。只有题面明确给出垂直或平行时使用；不要把题面的直角表达主动改写为垂直。\",\"examples\":[\"line(A,B) ⟂ line(C,D)\",\"line(A,B) ∥ line(C,D)\"]},{\"id\":\"membership_intersection_and_point_set\",\"syntax\":\"∈；∩；{A,B}\",\"meaning\":\"成员关系、交集和点集。交点已有名称时沿用，不另起辅助点名。\",\"examples\":[\"P ∈ Γ\",\"Γ ∩ x_axis = {A,B}\",\"P ∈ line(A,B) ∩ line(C,D)\"]},{\"id\":\"midpoint\",\"syntax\":\"F = midpoint(D,N)\",\"meaning\":\"F是线段DN的中点；参数为两个端点。优先放facts。\",\"examples\":[\"F = midpoint(D,N)\"]},{\"id\":\"translation\",\"syntax\":\"D = C+(横向位移,纵向位移)\",\"meaning\":\"将点C按给定向量平移得到D。优先放facts。\",\"examples\":[\"D = C+(2,0)\"]},{\"id\":\"polygon\",\"syntax\":\"square(A,B,C,D)；parallelogram(A,B,C,D)；quadrilateral(A,B,C,D)\",\"meaning\":\"依次表示正方形、平行四边形、一般四边形，均按所列顶点顺序构图。不要额外写出推导性质。\",\"examples\":[\"square(A,B,C,D)\",\"parallelogram(A,B,C,D)\",\"quadrilateral(A,B,C,D)\"]},{\"id\":\"bisects\",\"syntax\":\"bisects(BD,AC)\",\"meaning\":\"第一参数BD所在直线经过第二参数AC的中点，不额外要求交点位于BD内部。两个参数的职责不同，不能交换。 参数中的端点由代码按点类型绑定，无需另列点或类型声明；不因此省略题面明确的四边形等构型条件。\",\"examples\":[\"bisects(BD,AC)\"]},{\"id\":\"cut_ratio\",\"syntax\":\"cut_ratio(BD,AC)\",\"meaning\":\"设两直线交点为X，表示无向长度比BX/XD。第一参数端点顺序决定分子分母；第二参数表示截线。X只用于说明，输出无需为其起名。不默认交点在线段内部。交点已有名称O时可直接写BO/OD。 参数中的端点由代码按点类型绑定，无需另列点或类型声明；不因此省略题面明确的四边形等构型条件。\",\"examples\":[\"cut_ratio(BD,AC) = r\",\"BO/OD = r\"],\"few_shots\":[{\"input\":\"直线UV经过线段PQ的中点；该交点将UV截成的两段长度比为r，未指定比例方向。\",\"output\":{\"facts\":[\"bisects(UV,PQ)\",\"cut_ratio(UV,PQ)=r ∨ cut_ratio(UV,PQ)=1/r\"]},\"explanation\":\"输出为节点片段。bisects第一参数UV是平分另一线段的直线，第二参数PQ是被平分的线段；cut_ratio第一参数UV是要取两段长度比的对象，第二参数PQ是截线。此处两式参数顺序相同。cut_ratio(PQ,UV)取的是PQ两段的比，不能代替UV的比。\"},{\"input\":\"直线PQ经过线段UV的中点；该交点将PQ截成的两段长度比为r，未指定比例方向。\",\"output\":{\"facts\":[\"bisects(PQ,UV)\",\"cut_ratio(PQ,UV)=r ∨ cut_ratio(PQ,UV)=1/r\"]},\"explanation\":\"与前例相比，题面交换了两条线的职责，因此两式同时交换参数。不能只交换其中一个操作的参数。\"},{\"input\":\"直线UV与PQ相交于已命名点T，UT/TV=r。\",\"output\":{\"facts\":[\"T ∈ line(U,V) ∩ line(P,Q)\",\"UT/TV=r\"]},\"explanation\":\"已有交点名时沿用。UT/TV与cut_ratio(UV,PQ)方向相同，TV/UT与cut_ratio(VU,PQ)方向相同；交换第一参数端点会取倒数，交换两条线则改变被取比的对象。题面没有平分条件，不添加bisects。\"}]},{\"id\":\"logic\",\"syntax\":\"∧；∨；括号\",\"meaning\":\"∧表示同时成立，∨表示至少一项成立。括号限定逻辑范围。定义未指定比例长短方向时保留两个分支，不通过解题排除分支。 仅按题面代入对象或具体参数值，即使其他条件可排除一支也保留完整定义分支。\",\"examples\":[\"a > 0 ∧ b < 1\",\"cut_ratio(UV,PQ)=r ∨ cut_ratio(UV,PQ)=1/r\"]},{\"id\":\"quantifier\",\"syntax\":\"∀变量∈定义域: 关系；∃变量∈定义域: 关系\",\"meaning\":\"分别表示对全部取值成立和存在取值成立；保留量词、定义域及冒号后的作用范围。量词变量仅在内部绑定，无需另作全局声明。\",\"examples\":[\"∀x∈ℝ: f(x) ≥ g(x)\",\"∃t∈[0,2]: f(t) ≤ 1\"]},{\"id\":\"domain_and_interval\",\"syntax\":\"ℝ；[a,b]；(a,b)；[a,b)；(a,b]\",\"meaning\":\"ℝ为实数域；方括号包含该端点，圆括号不包含该端点。区间在成员关系或量词定义域中使用，勿与点坐标混淆。不要补写题面未给出的默认实数域。\",\"examples\":[\"t ∈ [0,2]\",\"t ∈ (0,2)\",\"t ∈ [0,2)\",\"t ∈ (0,2]\",\"t ∈ ℝ\"]},{\"id\":\"extremum\",\"syntax\":\"min(表达式)；min_{P,Q}(表达式)；max同理\",\"meaning\":\"最值下标是可选提示；题面明确时可以填写，也可省略，不推断动点依赖或列固定参数。“最小值为7”必须保留min，不能改成普通值等于7。\",\"examples\":[\"min(AP+PQ) = 7\",\"min_{P,Q}(AP+PQ) = 7\",\"max(a+b) = 3\"]},{\"id\":\"attained_extremum\",\"syntax\":\"表达式 = min(表达式)\",\"meaning\":\"题面明确“取得最值时/此时”时，把状态关系放在对应节点facts。与最值数值条件min(AP+PQ)=7不同，不可互相替代。若状态只限定部分目标，将这些目标和状态关系放入独立子节点；其他目标不受该子节点条件限定。不自行增加最优状态或推导最优条件，也不分析动点依赖。\",\"examples\":[\"AP+PQ = min(AP+PQ)\"]},{\"id\":\"arithmetic\",\"syntax\":\"整数、有限小数、分数、参数、括号、+ - * / ^、sqrt(表达式)\",\"meaning\":\"数学候选中乘法必须显式写*：独立变量乘积xy写成x*y，(xy)^3写成(x*y)^3，a(x+1)写成a*(x+1)，2xy写成2*x*y。题面明确命名的完整变量xy、x_1，以及长度AB、角∠ABC、已定义函数调用f(x)不拆分；含义不明时报告uncertainties。根号首选sqrt(2)或sqrt(t+1)；也兼容√2和√(t+1)，不要猜根号覆盖范围。不补隐含非零条件。\",\"examples\":[\"2*a+b\",\"3/4\",\"0.5\",\"a^2+b^2\",\"sqrt(t+1)\",\"√2\",\"√(t+1)\"]},{\"id\":\"comparison\",\"syntax\":\"=；≠；<；≤；>；≥\",\"meaning\":\"等于、不等于、小于、不大于、大于、不小于。严格与非严格关系不能互换。\",\"examples\":[\"a = b\",\"a ≠ b\",\"a < b\",\"a ≤ b\",\"a > b\",\"a ≥ b\"]},{\"id\":\"point_role_declaration\",\"syntax\":\"A、B为定点；C为动点；D为平面内一点。\",\"meaning\":\"仅这类受控短声明可用中文表达点的角色，优先放facts。不要求额外补动点标签；点的取值范围及关联条件仍用数学式保留。\",\"examples\":[\"A、B为定点；C为动点；D为平面内一点。\"]},{\"id\":\"basic_inequality\",\"syntax\":\"正项条件、等式或不等式条件、max(表达式)、min(表达式)、范围目标\",\"meaning\":\"基本不等式题只保留题面直接给出的数学关系和目标。保留正性、参数范围、根式、分式、严格关系及多分问；不求解、不代入、不补充隐藏前提，不生成内部方法字段。\",\"examples\":[\"a > 0\",\"b > 0\",\"a + b = 2\",\"max(a*b)\",\"min(x+4/(x+1))\",\"x+y\"]}]}}"
+        },
+        {
+          "type": "file",
+          "image": {
+            "image_id": "primary",
+            "page_id": "page-1",
+            "role": "primary",
+            "artifact_id": "artifact:understanding_primary:f7c2885ffe86921490acba051b5fc46cb460b29564542eec09cf3c5551538cf8",
+            "sha256": "f7c2885ffe86921490acba051b5fc46cb460b29564542eec09cf3c5551538cf8",
+            "media_type": "image/png",
+            "byte_size": 705306,
+            "width": 1800,
+            "height": 420
+          },
+          "pending_upload": true
+        },
+        {
+          "type": "text",
+          "text": "请从本次提供的完整图片提取题意，按上述规则与 Schema 输出一个 JSON 对象，同时包含题干原文 original_text 和数学候选 root。"
+        }
+      ]
+    }
+  ],
+  "response_format": {
+    "type": "json_object"
+  },
+  "contract_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [
+      "root",
+      "match_status",
+      "family_id",
+      "match_reason"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "original_text": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 32768,
+        "pattern": "\\S",
+        "description": "完整题干原文的忠实转录，供人阅读与页面展示；与root数学候选独立，不参与数学编译。新抽取须填写，历史候选未保存时可缺省。保留原有中文叙述、题号、分问、公式、参数说明和图号，按阅读顺序换行；公式可转为等义Unicode或LaTeX排版，但不得改写叙述、化简、替换题面符号或从root反向生成。多图按输入顺序衔接，重叠题干不重复；不抄手写答案、批注或解析，不将图形推测改写成原文。无法辨认处写[无法辨认]并在对应节点uncertainties说明；缺图仍转录可读题干，不能补造内容。"
+      },
+      "root": {
+        "$ref": "#/$defs/Scope",
+        "description": "整题根节点；共同条件放根节点，各小問按原层级放children。"
+      },
+      "match_status": {
+        "enum": [
+          "matched",
+          "unmatched"
+        ],
+        "description": "matched：题目符合本次registered_families中一个已注册题型，family_id填该条目的准确标识；unmatched：无适用注册题型，family_id必须为null。匹配与完整提取独立。"
+      },
+      "family_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "description": "matched时只允许取本次请求registered_families中的family_id，不得自造、简称或根据示例照抄；unmatched时填null。注册表随请求提供，因此这里不硬编码静态题型枚举。"
+      },
+      "match_reason": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096,
+        "description": "简短说明匹配或未匹配的题面依据，不提供求解过程、答案或编造的能力。"
+      }
+    },
+    "$defs": {
+      "Scope": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "整题及分问树。facts是本节点及其子节点适用的条件，goals是在这些条件下的所求；父条件向下继承，兄弟局部条件不互通。仅部分目标受“此时”等条件限定时，将条件及受限定的目标放入独立子节点，其他目标留在原节点；不虚构题目编号。空数组可以省略，无需标识对象ID。",
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "题面分问或图景标签，如（1）、②；可省略。不作为对象ID，也不替代数学条件。"
+          },
+          "definitions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "description": "固定放置规则：仅曲线定义（Γ: y=x^2+u*x+v）、函数定义（f(t)=t^2）及题内新概念定义原文放这里。点坐标、中点、平移等其余题设关系均放facts，不因它们引入对象而改放此处。曲线/函数定义用稳定符号及受控数学式，不拼接中文说明。新概念原文作为解释材料，使用处仍须展开关系。数学式偶尔放错数组不单独判错，代码从表达式识别对象类型。"
+            },
+            "maxItems": 128,
+            "description": "可省略。仅曲线/函数定义及题内新概念原文优先放此处；其他题设关系优先放facts。"
+          },
+          "facts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "description": "使用同次请求math_expression_catalog列出的数学记法，按各条目的语法、参数顺序及边界组成一条数学字符串。目录同样适用于definitions和目标中的数学式。不要输出目录条目、专用fact对象或运算树；不要补写默认实数域或隐含非零条件。"
+            },
+            "maxItems": 128,
+            "description": "除曲线/函数定义及新概念原文之外的题设关系均放这里，包括P=(1,2)、W=midpoint(U,V)、R=P+(3,0)、点在线上、参数范围及函数取值条件。各项同时成立；每项一条受控数学关系，引用稳定符号，不夹带解释句、不重复definitions、不输出求解结果。受控短声明如“A、B为定点；C为动点；D为平面内一点。”也放这里；无需额外补动点标签。 最值条件min(UV+VW)=7与取得最值的状态UV+VW=min(UV+VW)均放facts，但含义不同，不能互相替代。状态仅在题面明确时保留，不推导最优位置或附加条件。"
+          },
+          "goals": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "expression"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_value",
+                      "description": "求值"
+                    },
+                    "expression": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "所求数学表达式，如UV+VW；不写“求…的值”等自然语言或答案。"
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "题面明确要求保留的一个参数符号。"
+                      },
+                      "maxItems": 128,
+                      "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "求参数或表达式的值。用expression标明所求，不输出算出的数值。"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "object"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_coordinates",
+                      "description": "求坐标"
+                    },
+                    "object": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "所求点的符号，如P；不填Γ、坐标答案、“点P”或其他自然语言。"
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "题面明确要求保留的一个参数符号。"
+                      },
+                      "maxItems": 128,
+                      "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "求点的坐标。object必须引用点，不是曲线或整条定义。"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "object"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_equation",
+                      "description": "求方程"
+                    },
+                    "object": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "所求曲线或函数的符号，如Γ、f；不填点名、整条定义或“该抛物线”。"
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "题面明确要求保留的一个参数符号。"
+                      },
+                      "maxItems": 128,
+                      "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "求曲线或函数的解析式/方程。object引用已定义的曲线或函数。"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "expression"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_minimum",
+                      "description": "求最小值"
+                    },
+                    "expression": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "所求数学表达式，如UV+VW；不写“求…的值”等自然语言或答案。"
+                    },
+                    "variables": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "一个可见的点名或参数名，如P或t，不是表达式或中文说明。"
+                      },
+                      "maxItems": 128,
+                      "description": "可选的优化变量提示，只填写题面明确的点名或参数名，如[P,Q]。即使题面明确也可以省略；不分析依赖、不列固定参数、不把所有字母都当优化变量。"
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "题面明确要求保留的一个参数符号。"
+                      },
+                      "maxItems": 128,
+                      "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "求表达式的最小值。expression填写原表达式，不再套min；variables可省略。"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "expression"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_maximum",
+                      "description": "求最大值"
+                    },
+                    "expression": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "所求数学表达式，如UV+VW；不写“求…的值”等自然语言或答案。"
+                    },
+                    "variables": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "一个可见的点名或参数名，如P或t，不是表达式或中文说明。"
+                      },
+                      "maxItems": 128,
+                      "description": "可选的优化变量提示，只填写题面明确的点名或参数名，如[P,Q]。即使题面明确也可以省略；不分析依赖、不列固定参数、不把所有字母都当优化变量。"
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "题面明确要求保留的一个参数符号。"
+                      },
+                      "maxItems": 128,
+                      "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "求表达式的最大值。expression填写原表达式，不再套max；variables可省略。"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "symbol"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "find_range",
+                      "description": "求范围"
+                    },
+                    "symbol": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096,
+                      "description": "所求范围的参数符号，如t；不写中文名称或答案。"
+                    },
+                    "in_terms_of": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096,
+                        "description": "题面明确要求保留的一个参数符号。"
+                      },
+                      "maxItems": 128,
+                      "description": "题面要求“用含某参数的式子表示”时填写对应参数名，如[\"u\",\"v\"]；未提出这种要求时可省略。它是答案形式要求，不是固定参数列表，也不同于variables提示。"
+                    }
+                  },
+                  "additionalProperties": false,
+                  "description": "求一个参数的取值范围。symbol填写参数名，不输出解出的区间。"
+                }
+              ]
+            },
+            "maxItems": 128,
+            "description": "在本节点及可见父节点条件下求什么。目标仅填写种类、对象或表达式及适用的答案形式/变量提示，不另带数学条件。"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Scope"
+            },
+            "maxItems": 128,
+            "description": "按原题分问组织；同问独立图景再分层。例如(1)含①图甲、②图乙时，保留(1)父节点，即使它没有独立条件；①、②放在它的children中，不平铺到root。仅引用一幅图的分问无需额外图景层。 同一分问仅部分目标有局部状态条件时，也可将这些目标与条件置于独立子节点；例如父节点求min(UV+VW)，子节点facts写UV+VW=min(UV+VW)，goals求V的坐标。"
+          },
+          "uncertainties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind",
+                "text"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "missing_figure",
+                    "ambiguous_symbol",
+                    "unreadable",
+                    "occluded",
+                    "unstructured",
+                    "ambiguous_reuse"
+                  ],
+                  "description": "missing_figure：检查本次全部输入图片，题面引用的对应图形未提供；不同图分别判断，一图已提供不代表其他图也提供，文字完整或可凭文字解答仍须报告缺图，在受影响的子问节点标记；ambiguous_symbol：符号指代或字符识别不确定；unreadable：文字或公式无法辨认；occluded：关键内容被遮挡；unstructured：能读到内容但当前受控记法无法可靠表达；ambiguous_reuse：同名对象在不同图景/分问中的复用归属不明确。只选实际存在的问题，不因题型unmatched就添加不确定性。"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096,
+                  "description": "说明对应位置、缺失内容或具体歧义；保留可读原文线索，不猜测未知条件或补写答案。"
+                }
+              }
+            },
+            "maxItems": 128,
+            "description": "可省略；没有不确定性时为空。问题放在对应作用域，整题共用的问题放root。missing_figure会阻断后续处理；不猜图，也不把定义/题型不熟悉误报为缺图。 核对所有输入图片；提到图不代表图已提供，即使文字足以推理也须报告被引用但未提供的图。图已提供不能误报；模糊或遮挡使用相应类型。"
+          }
+        }
+      }
+    },
+    "description": "从题目图片提取的简洁题意候选。只表达题设和所求，不解题。版本由请求管理，输出不得增加schema_version。字符串数学式按同次请求的math_expression_catalog书写；JSON Schema只约束外层结构，表达式合法性、对象绑定和题意等价由代码进一步校验。"
+  },
+  "thinking": {
+    "type": "enabled"
+  },
+  "stream": false,
+  "tools": [],
+  "max_tokens": 16384,
+  "image_transport": {
+    "mode": "files",
+    "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+    "lifetime_seconds": 86400
+  },
+  "model": "deepseek-flash",
+  "timeout": 300,
+  "reasoning_effort": "low"
+}

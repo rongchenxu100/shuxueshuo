@@ -1,471 +1,602 @@
-"""Stage 1 offline replay gates for the representative ten problems."""
+"""Real sample replay, source-preserving lowering and authoring-only admission."""
 
-from __future__ import annotations
-
+import ast
+import shutil
 from copy import deepcopy
-from hashlib import sha256
-import json
 from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator
 
+from shuxueshuo_server.problem_understanding.basic_inequality_frozen import (
+    FILES,
+    digest,
+    freeze_runs,
+    load_verified_case,
+    read_json,
+    write_json,
+)
 from shuxueshuo_server.problem_understanding.basic_inequality_problem_ir import (
     DEFERRED_CASES,
     REPRESENTATIVE_CASES,
     BasicInequalityProblemIRError,
-    _fact_parts,
-    build_problem_ir_artifact,
     build_problem_ir_from_file,
+    convert_notation,
     validate_family_match,
 )
+from shuxueshuo_server.problem_understanding.notation_compile import NotationValidator
 from shuxueshuo_server.solver.family import (
     BASIC_INEQUALITY_FAMILY,
     DEFAULT_FAMILY_REGISTRY,
     FamilyRegistry,
 )
-from shuxueshuo_server.solver.runtime.projection import problem_from_canonical_input
-from shuxueshuo_server.problem_understanding.notation_compile import NotationValidator
-
+from shuxueshuo_server.solver.runtime.projection import (
+    _runtime_path_from_handle,
+    problem_from_canonical_input,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 GOLD = ROOT / "tests/solver/fixtures/math-notation-v1/basic-inequality"
 FIXTURES = ROOT / "tests/solver/fixtures/basic-inequality-problem-ir/v1"
-SCHEMA = json.loads((ROOT.parent / "internal/schemas/solver-problem-ir.schema.json").read_text())
+SCHEMA = read_json(ROOT.parent / "internal/schemas/solver-problem-ir.schema.json")
 
 
-def _sample_evidence(case):
-    return json.loads((FIXTURES / case / "live-samples.json").read_text())["samples"]
+def pointer(document, path):
+    for segment in path.strip("/").split("/"):
+        document = (
+            document[int(segment)] if isinstance(document, list) else document[segment]
+        )
+    return document
 
 
-def _unit_samples(hashes=("a" * 64, "b" * 64)):
-    """Synthetic output hashes for converter unit tests, with a recorded contract."""
-    samples = _sample_evidence("q01")
-    for sample, digest in zip(samples, hashes, strict=True):
-        sample["sha256"] = digest
-    return samples
-
-
-@pytest.mark.parametrize("case", REPRESENTATIVE_CASES)
-def test_representative_gold_replays_and_produces_canonical_problem_ir(case):
-    gold = json.loads((GOLD / f"{case}.json").read_text(encoding="utf-8"))
-    report = NotationValidator().validate(gold)
-    assert report.ok, report.payload()
-    artifact = build_problem_ir_from_file(
-        GOLD / f"{case}.json",
-        image_path=f"math-notation-v1/basic-inequality/images/{case}.png",
-        sample_hashes=[sample["sha256"] for sample in _sample_evidence(case)],
-        sample_provenance=_sample_evidence(case),
-    )
-    Draft202012Validator(SCHEMA).validate({
-        "meta": {"problem_id": case, "title": case},
-        "input": artifact["input"],
-    })
-    assert artifact["problem_id"] == case
-    assert artifact["family_match"]["family_id"] == "basic_inequality"
-    assert artifact["provenance"]["required_sample_count"] == 2
-    assert artifact["provenance"]["sample_ids"] == ["sample-01", "sample-02"]
-    assert len(artifact["provenance"]["sample_hashes"]) == 2
-    assert artifact["provenance"]["gold_sha256"]
-    assert artifact["provenance"]["image_path"].endswith(f"/{case}.png")
-    frozen = json.loads((FIXTURES / case / "problem-ir.json").read_text())
-    assert artifact["input"] == frozen["input"]
-    for key in ("prompt_hashes", "schema_hash", "catalog_hashes"):
-        assert artifact["provenance"][key] == frozen["provenance"][key]
-    problem = problem_from_canonical_input(artifact["input"])
-    assert DEFAULT_FAMILY_REGISTRY.match(problem) is None
-    assert "expected_answers" not in artifact["input"]
-    assert "route_metadata" not in artifact["input"]
+def symbol_runtime_paths(payload):
+    parents = {scope["scope_id"]: scope["parent"] or "problem" for scope in payload["scopes"]}
+    names = {entity["handle"]: entity["name"] for entity in payload["entities"]}
+    assert len(names) == len(payload["entities"])
+    paths = {}
+    for entity in payload["entities"]:
+        assert entity["handle"] == f"symbol:{entity['scope_id']}:{entity['name']}"
+        paths[entity["handle"]] = _runtime_path_from_handle(
+            entity["handle"], parents, container="values", entity_names=names,
+        )
+    assert all(set(fact["entity_handles"]) <= names.keys() for fact in payload["facts"])
+    return paths
 
 
 @pytest.mark.parametrize("case", REPRESENTATIVE_CASES)
-def test_fixture_has_auditable_source_paths_hashes_and_route_sidecars(case):
-    artifact = json.loads((FIXTURES / case / "problem-ir.json").read_text())
-    provenance = json.loads((FIXTURES / case / "provenance.json").read_text())
-    expected = json.loads((FIXTURES / case / "expected.json").read_text())
-    route = json.loads((FIXTURES / case / "route-metadata.json").read_text())
-    assert artifact["schema_version"] == "basic-inequality-problem-ir/v1"
-    assert artifact["provenance"] == provenance
-    samples = _sample_evidence(case)
-    assert len(samples) == len(provenance["sample_ids"]) == len(provenance["sample_hashes"]) == provenance["required_sample_count"] == 2
-    assert len({sample["response_id"] for sample in samples}) == 2
-    assert len({sample["source_run"] for sample in samples}) == 2
-    for sample, sample_id, sample_hash in zip(samples, provenance["sample_ids"], provenance["sample_hashes"], strict=True):
-        assert sample["sample_id"] == sample_id
-        assert sha256(sample["raw_response"].encode("utf-8")).hexdigest() == sample["sha256"] == sample_hash
-        assert sample["gold_file_sha256"] == sha256((GOLD / f"{case}.json").read_bytes()).hexdigest()
-        assert sample["summary"]["passed"] is True
-        assert sample["summary"]["strict_semantics_passed"] is True
-        assert sample["summary"]["contract_valid"] is True
-        assert NotationValidator().validate(json.loads(sample["raw_response"])).ok
-        assert provenance["prompt_hashes"] == {
-            "system": sample["template_files"]["internal/llm-prompts/problem-math-notation-system.md"],
-            "user": sample["template_files"]["internal/llm-prompts/problem-math-notation-user.md"],
-        }
-        assert provenance["schema_hash"] == sample["template_files"]["internal/schemas/problem-math-notation-v1.schema.json"]
-        assert provenance["catalog_hashes"] == {
-            "expressions": sample["template_files"]["internal/llm-prompts/problem-math-notation-expressions.json"],
-            "families": sample["notation_family_catalog_hash"],
-        }
-    canonical_bytes = json.dumps(artifact["input"], ensure_ascii=False, sort_keys=True).encode("utf-8")
-    assert sha256(canonical_bytes).hexdigest() == provenance["canonical_hash"]
-    assert expected["problem_id"] == route["problem_id"] == case
-    assert route["catalog_only"] is True
-    assert route["methods"]
-    for table in (artifact["input"]["entities"], artifact["input"]["facts"], artifact["input"]["question_goals"]):
-        for item in table:
-            assert item["source_path"].startswith("/root")
-            assert item["source_text"]
-            assert item["normalized_expression"]
-            assert item["sample_hashes"] == provenance["sample_hashes"]
-
-
-def test_representative_scope_manifest_excludes_deferred_cases():
-    manifest = json.loads((GOLD / "manifest.json").read_text())
-    assert manifest["scope"] == "representative-10"
-    assert manifest["samples_per_case"] == 2
-    assert manifest["deferred_cases"] == DEFERRED_CASES
-    assert tuple(manifest["cases"]) == REPRESENTATIVE_CASES
-    assert not any((FIXTURES / case).exists() for case in DEFERRED_CASES.split(","))
-
-
-def test_converter_rejects_deferred_case_labels():
-    gold = json.loads((GOLD / "q01.json").read_text())
-    gold["root"]["label"] = "q02"
-    with pytest.raises(BasicInequalityProblemIRError, match="representative cases"):
-        build_problem_ir_artifact(gold, sample_hashes=("a" * 64, "b" * 64), sample_provenance=_unit_samples())
-
-
-def test_converter_preserves_caller_supplied_independent_sample_hashes():
-    artifact = build_problem_ir_from_file(
-        GOLD / "q01.json",
-        sample_ids=("sample-01", "sample-02"),
-        sample_hashes=("a" * 64, "b" * 64),
-        sample_provenance=_unit_samples(),
+def test_real_samples_replay_and_rebuild_exactly(case):
+    # This validates raw/schema/canonical/comparison, gold and image byte hashes,
+    # actual request baseline and two distinct successful provider response IDs.
+    artifact = build_problem_ir_from_file(GOLD / f"{case}.json")
+    assert artifact == read_json(FIXTURES / case / "problem-ir.json")
+    assert artifact["provenance"] == read_json(FIXTURES / case / "provenance.json")
+    Draft202012Validator(SCHEMA).validate(
+        {"meta": artifact["meta"], "input": artifact["input"]}
     )
-    assert artifact["provenance"]["sample_hashes"] == ["a" * 64, "b" * 64]
-    assert artifact["provenance"]["sample_ids"] == ["sample-01", "sample-02"]
-    assert all(
-        item["sample_hashes"] == ["a" * 64, "b" * 64]
-        for table in (artifact["input"]["entities"], artifact["input"]["facts"], artifact["input"]["question_goals"])
-        for item in table
+    samples = artifact["provenance"]["samples"]
+    assert len(samples) == 2
+    assert len({s["response_id"] for s in samples}) == 2
+    assert all(set(s["files"]) == set(FILES) for s in samples)
+    assert artifact["provenance"]["gold_sha256"] == digest(
+        (GOLD / f"{case}.json").read_bytes()
     )
-
-
-@pytest.mark.parametrize("sample_ids,sample_hashes", [
-    (("sample-01", "sample-02"), ()),
-    ((), ()),
-    (("sample-01", "sample-02"), ("a" * 64,)),
-    (("sample-01",), ("a" * 64,)),
-    (("sample-01",), ("a" * 64, "b" * 64)),
-    (("sample-01", "sample-02", "sample-03"), ("a" * 64,) * 3),
-])
-def test_converter_rejects_missing_or_incorrect_sample_counts(sample_ids, sample_hashes):
-    with pytest.raises(BasicInequalityProblemIRError, match="exactly 2 samples"):
-        build_problem_ir_from_file(GOLD / "q01.json", sample_ids=sample_ids, sample_hashes=sample_hashes)
-
-
-def test_converter_requires_explicit_sample_hashes():
-    with pytest.raises(BasicInequalityProblemIRError, match="explicit live sample hashes"):
-        build_problem_ir_from_file(GOLD / "q01.json")
-
-
-@pytest.mark.parametrize("sample_ids,sample_hashes,message", [
-    (("sample-01", "sample-01"), ("a" * 64,) * 2, "distinct"),
-    (("sample-01", ""), ("a" * 64,) * 2, "non-empty"),
-    (("sample-01", "sample-02"), ("", "b" * 64), "SHA-256"),
-    (("sample-01", "sample-02"), ("z" * 64, "b" * 64), "SHA-256"),
-])
-def test_converter_rejects_invalid_sample_evidence(sample_ids, sample_hashes, message):
-    with pytest.raises(BasicInequalityProblemIRError, match=message):
-        build_problem_ir_from_file(GOLD / "q01.json", sample_ids=sample_ids, sample_hashes=sample_hashes)
-
-
-def test_independent_samples_may_have_identical_output_hashes():
-    artifact = build_problem_ir_from_file(GOLD / "q01.json", sample_hashes=("a" * 64,) * 2, sample_provenance=_unit_samples(("a" * 64,) * 2))
-    assert artifact["provenance"]["sample_hashes"] == ["a" * 64] * 2
-
-
-@pytest.mark.parametrize("text,expected", [
-    (f"a {op} 0", (("symbol_constraint", f"a {op} 0"),))
-    for op in (">=", "<=", "≥", "≤", ">", "<", "!=", "≠")
-] + [
-    ("0<=a≤1", (("symbol_constraint", "0 <= a"), ("symbol_constraint", "a ≤ 1"))),
-    ("1≥a>0", (("symbol_constraint", "1 ≥ a"), ("symbol_constraint", "a > 0"))),
-    ("a = 0", (("equation", "a = 0"),)),
-    ("a ∈ R", (("symbol_domain", "a ∈ R"),)),
-    ("a is positive", (("statement", "a is positive"),)),
-])
-def test_fact_parts_classifies_and_splits_relations(text, expected):
-    assert _fact_parts(text) == expected
-
-
-@pytest.mark.parametrize("operator", (":=", "≔", "≡"))
-@pytest.mark.parametrize("field", ("definitions", "facts"))
-def test_definition_operators_produce_equations_and_preserve_source(operator, field):
-    source = f"u{operator}x^2"
-    assert _fact_parts(source) == (("equation", "u = x^2"),)
-    gold = json.loads((GOLD / "q01.json").read_text())
-    gold["root"]["definitions"] = []
-    gold["root"]["facts"] = []
-    gold["root"][field] = [source]
-    gold["root"]["goals"] = [{"kind": "find_minimum", "expression": "u"}]
-    assert NotationValidator().validate(gold).ok
-    artifact = build_problem_ir_artifact(gold, sample_hashes=("a" * 64, "b" * 64), sample_provenance=_unit_samples())
-    fact, = artifact["input"]["facts"]
-    assert fact["type"] == "equation"
-    assert fact["normalized_expression"] == "u = x^2"
-    assert fact["source_text"] == source
-    assert fact["source_path"] == f"/root/{field}/0"
-    assert validate_family_match(artifact["input"])["family_id"] == "basic_inequality"
-
-
-@pytest.mark.parametrize("text", ("a !== 0", "a === 0", "a >== 0", "a ! = 0", "a > = 0", "a <", "<= a", "u :== 1"))
-def test_malformed_relations_fail_closed(text):
-    with pytest.raises(BasicInequalityProblemIRError, match="relation"):
-        _fact_parts(text)
-    gold = json.loads((GOLD / "q01.json").read_text())
-    gold["root"]["facts"] = [text]
-    with pytest.raises(BasicInequalityProblemIRError):
-        build_problem_ir_artifact(gold, sample_hashes=("a" * 64, "b" * 64), sample_provenance=_unit_samples())
-
-
-def test_mixed_relation_chain_preserves_each_operator_type():
-    assert _fact_parts("a != b = c <= 1") == (
-        ("symbol_constraint", "a != b"),
-        ("equation", "b = c"),
-        ("symbol_constraint", "c <= 1"),
-    )
-
-
-@pytest.mark.parametrize("separator", ("∧", "∨", "and", "or", "AND", "OR", ",", "，"))
-def test_compound_relations_fail_closed_before_comparison_splitting(separator):
-    with pytest.raises(BasicInequalityProblemIRError, match="compound logic or comma-separated"):
-        _fact_parts(f"a > 0 {separator} b > 0")
-
-
-@pytest.mark.parametrize("text", (
-    "(a > 0 ∧ b > 0)",
-    "a ∈ R ∧ a > 0",
-    "a ∈ R ∨ b > 0",
-    "a,b ∈ R",
-    "a ∈ (0,1)",
-    "a = max(b,c)",
-))
-def test_compound_sources_do_not_bypass_rejection_through_domains_or_parentheses(text):
-    with pytest.raises(BasicInequalityProblemIRError, match="compound logic or comma-separated"):
-        _fact_parts(text)
-
-
-@pytest.mark.parametrize("name", ("candy", "origin", "and_value", "or_value"))
-def test_boolean_word_detection_preserves_identifier_substrings(name):
-    assert _fact_parts(f"{name} > 0") == (("symbol_constraint", f"{name} > 0"),)
-
-
-@pytest.mark.parametrize("relation", ("a > 0 ∧ b > 0", "a > 0 ∨ b > 0", "a ∈ ℝ ∧ b > 0", "a,b ∈ ℝ"))
-@pytest.mark.parametrize("field", ("definitions", "facts"))
-@pytest.mark.parametrize("nested", (False, True))
-def test_valid_notation_with_compound_logic_cannot_produce_partial_problem_ir(relation, field, nested):
-    gold = json.loads((GOLD / "q01.json").read_text())
-    # Keep the original root equation: family source checks alone would pass.
-    scope = gold["root"]
-    if nested:
-        scope["children"] = [{"label": "part 1"}]
-        scope = scope["children"][0]
-    scope.setdefault(field, []).append(relation)
-    report = NotationValidator().validate(gold)
-    assert report.ok, report.payload()
-    with pytest.raises(BasicInequalityProblemIRError, match="compound logic or comma-separated"):
-        build_problem_ir_artifact(gold, sample_hashes=("a" * 64, "b" * 64), sample_provenance=_unit_samples())
-
-
-@pytest.mark.parametrize("relation", ("0 <= a <= 1", "0 ≤ a ≤ 1", "1 >= a >= 0", "1 ≥ a ≥ 0"))
-def test_inequality_only_sources_satisfy_family_gate_and_preserve_source(relation):
-    gold = json.loads((GOLD / "q01.json").read_text())
-    gold["root"]["facts"] = [relation]
-    gold["root"]["goals"] = [{"kind": "find_maximum", "expression": "a"}]
-    artifact = build_problem_ir_artifact(gold, sample_hashes=("a" * 64, "b" * 64), sample_provenance=_unit_samples())
-    assert artifact["family_match"]["family_id"] == "basic_inequality"
-    facts = artifact["input"]["facts"]
-    assert len(facts) == 2
-    assert all(fact["type"] == "symbol_constraint" for fact in facts)
-    assert all(fact["source_text"] == relation for fact in facts)
-    assert all(fact["source_path"] == "/root/facts/0" for fact in facts)
-
-
-@pytest.mark.parametrize("relation", ("a != 0", "a ≠ 0"))
-@pytest.mark.parametrize("other_facts", ([], ["b = 1"]))
-def test_not_equal_is_a_constraint_with_or_without_other_equations(relation, other_facts):
-    gold = json.loads((GOLD / "q01.json").read_text())
-    gold["root"]["facts"] = [relation, *other_facts]
-    gold["root"]["goals"] = [{"kind": "find_minimum", "expression": "a^2"}]
-    artifact = build_problem_ir_artifact(gold, sample_hashes=("a" * 64, "b" * 64), sample_provenance=_unit_samples())
-    fact = artifact["input"]["facts"][0]
-    assert fact["type"] == "symbol_constraint"
-    assert fact["normalized_expression"] == fact["source_text"] == relation
-    assert validate_family_match(artifact["input"])["family_id"] == "basic_inequality"
-
-
-@pytest.mark.parametrize("nested", (False, True))
-def test_definitions_become_facts_in_their_source_scope(nested):
-    gold = json.loads((GOLD / "q01.json").read_text())
-    scope = gold["root"]
-    path = "/root"
-    if nested:
-        scope["children"] = [{"label": "part 1"}]
-        scope = scope["children"][0]
-        path += "/children/0"
-    scope["definitions"] = ["u = m+n", "0 < u <= 2"]
-    scope["facts"] = ["m > 0"]
-    scope["goals"] = [{"kind": "find_maximum", "expression": "u"}]
-    artifact = build_problem_ir_artifact(gold, sample_hashes=("a" * 64, "b" * 64), sample_provenance=_unit_samples())
-    data = artifact["input"]
-    facts = [fact for fact in data["facts"] if fact["source_path"].startswith(path + "/definitions/")]
-    assert [fact["type"] for fact in facts] == ["equation", "symbol_constraint", "symbol_constraint"]
-    assert [fact["normalized_expression"] for fact in facts] == ["u = m+n", "0 < u", "u <= 2"]
-    assert [fact["source_path"] for fact in facts] == [path + "/definitions/0", path + "/definitions/1", path + "/definitions/1"]
-    sid = next(item["scope_id"] for item in data["scopes"] if item["source_path"] == path)
-    assert all(fact["scope_id"] == fact["valid_scope"] == sid for fact in facts)
-    assert all(fact["sample_hashes"] == ["a" * 64, "b" * 64] for fact in facts)
-    assert set(facts[0]["entity_handles"]) == {item["handle"] for item in data["entities"] if item["name"] in {"u", "m", "n"}}
-    assert len({fact["handle"] for fact in data["facts"]}) == len(data["facts"])
-
-
-def test_symbols_are_local_to_first_visible_scope_and_siblings_do_not_leak():
-    gold = json.loads((GOLD / "q01.json").read_text())
-    gold["root"]["children"] = [
-        {
-            "label": "part 1",
-            "definitions": ["u := m+k"],
-            "facts": ["k > 0"],
-            "goals": [{"kind": "find_minimum", "expression": "u+v"}],
-            "children": [{"label": "part 1a", "facts": ["u > k", "v > 0", "t > 0"]}],
-        },
-        {
-            "label": "part 2",
-            "definitions": ["u ≔ n+k"],
-            "facts": ["k > 1"],
-            "goals": [{"kind": "find_minimum", "expression": "u"}],
-        },
-    ]
-    data = build_problem_ir_artifact(gold, sample_hashes=("a" * 64, "b" * 64), sample_provenance=_unit_samples())["input"]
-    scopes = {scope["source_path"]: scope["scope_id"] for scope in data["scopes"]}
-    entities = {(entity["scope_id"], entity["name"]): entity for entity in data["entities"]}
-    root, part1, part1a, part2 = [scopes[path] for path in ("/root", "/root/children/0", "/root/children/0/children/0", "/root/children/1")]
-    assert set(entities) == {(root, "m"), (root, "n"), (part1, "u"), (part1, "k"), (part1, "v"), (part1a, "t"), (part2, "u"), (part2, "k")}
-    assert entities[part1, "u"]["handle"] != entities[part2, "u"]["handle"]
-    assert entities[part1, "u"]["source_path"] == "/root/children/0/definitions/0"
-    assert entities[part1, "v"]["source_path"] == "/root/children/0/goals/0"
-    by_source = {fact["source_path"]: fact for fact in data["facts"]}
-    for path, bindings in (
-        ("/root/children/0/definitions/0", ((part1, "u"), (root, "m"), (part1, "k"))),
-        ("/root/children/1/definitions/0", ((part2, "u"), (root, "n"), (part2, "k"))),
-        ("/root/children/0/children/0/facts/0", ((part1, "u"), (part1, "k"))),
-        ("/root/children/0/children/0/facts/1", ((part1, "v"),)),
-        ("/root/children/0/children/0/facts/2", ((part1a, "t"),)),
-    ):
-        assert by_source[path]["entity_handles"] == [entities[binding]["handle"] for binding in bindings]
-    assert len({entity["handle"] for entity in data["entities"]}) == len(entities)
-    Draft202012Validator(SCHEMA).validate({"meta": {"problem_id": "q01", "title": "nested"}, "input": data})
-
-
-@pytest.mark.parametrize("field", (
-    "internal/llm-prompts/problem-math-notation-system.md",
-    "internal/llm-prompts/problem-math-notation-user.md",
-    "internal/schemas/problem-math-notation-v1.schema.json",
-    "internal/llm-prompts/problem-math-notation-expressions.json",
-    "notation_family_catalog_hash",
-))
-def test_converter_rejects_mixed_sample_contracts(field):
-    samples = _unit_samples()
-    target = samples[1] if field == "notation_family_catalog_hash" else samples[1]["template_files"]
-    target[field] = "0" * 64
-    with pytest.raises(BasicInequalityProblemIRError, match="must agree"):
-        build_problem_ir_from_file(GOLD / "q01.json", sample_hashes=("a" * 64, "b" * 64), sample_provenance=samples)
-
-
-@pytest.mark.parametrize("mutation,message", [
-    (lambda samples: samples.clear(), "exactly 2"),
-    (lambda samples: samples[0].update(sample_id="wrong"), "match sample_ids"),
-    (lambda samples: samples[0].update(sha256="c" * 64), "match sample_ids"),
-    (lambda samples: samples[0].pop("template_files"), "missing template_files"),
-    (lambda samples: samples[0]["template_files"].pop("internal/llm-prompts/problem-math-notation-system.md"), "recorded SHA-256"),
-    (lambda samples: samples[0].pop("notation_family_catalog_hash"), "recorded SHA-256"),
-])
-def test_converter_rejects_missing_or_misassociated_sample_provenance(mutation, message):
-    samples = _unit_samples()
-    mutation(samples)
-    with pytest.raises(BasicInequalityProblemIRError, match=message):
-        build_problem_ir_from_file(GOLD / "q01.json", sample_hashes=("a" * 64, "b" * 64), sample_provenance=samples)
-
-
-def test_converter_uses_historical_contract_even_if_workspace_files_change(monkeypatch):
-    samples = _unit_samples()
-    gold = json.loads((GOLD / "q01.json").read_text())
-    def unexpected_read(*args, **kwargs):
-        pytest.fail("converter must not read current prompt files for historical provenance")
-    monkeypatch.setattr(Path, "read_bytes", unexpected_read)
-    artifact = build_problem_ir_artifact(gold, sample_hashes=("a" * 64, "b" * 64), sample_provenance=samples)
-    assert artifact["provenance"]["prompt_hashes"]["system"] == samples[0]["template_files"]["internal/llm-prompts/problem-math-notation-system.md"]
-
-
-def test_family_match_uses_structure_and_fails_closed_for_labels_and_primitives():
-    base = json.loads((FIXTURES / "q01" / "problem-ir.json").read_text())["input"]
-    assert validate_family_match(base)["family_id"] == "basic_inequality"
-    with pytest.raises(BasicInequalityProblemIRError):
-        validate_family_match(base, candidate_family_id="quadratic_path_minimum")
-    for key, value in (("pattern", "other"), ("problem_type", "other")):
-        candidate = deepcopy(base)
-        candidate[key] = value
-        with pytest.raises(BasicInequalityProblemIRError):
-            validate_family_match(candidate)
-    mutations = (
-        ("no symbol", lambda item: item.update(entity_type="function") or None),
-        ("no equation", lambda item: item.update(type="statement") or None),
-        ("no supported goal", lambda item: item.update(value_type="Other") or None),
-    )
-    for label, mutate in mutations:
-        candidate = deepcopy(base)
-        if label == "no symbol":
-            for item in candidate["entities"]:
-                mutate(item)
-        elif label == "no equation":
-            for item in candidate["facts"]:
-                mutate(item)
-        else:
-            for item in candidate["question_goals"]:
-                mutate(item)
-        with pytest.raises(BasicInequalityProblemIRError):
-            validate_family_match(candidate)
-
-
-def test_basic_inequality_remains_out_of_production_registry():
-    assert all(family.family_id != "basic_inequality" for family in DEFAULT_FAMILY_REGISTRY.families)
-
-
-def test_problem_id_is_not_a_family_signal_and_duplicate_authoring_family_is_ambiguous():
-    base = json.loads((FIXTURES / "q01" / "problem-ir.json").read_text())["input"]
-    renamed = deepcopy(base)
-    renamed["problem_id"] = "unrelated-id"
-    assert validate_family_match(renamed)["family_id"] == "basic_inequality"
-    problem = problem_from_canonical_input(renamed)
-    with pytest.raises(ValueError, match="ambiguous solver family match"):
-        FamilyRegistry((BASIC_INEQUALITY_FAMILY, BASIC_INEQUALITY_FAMILY)).match(problem)
-
-
-def test_converter_has_no_runtime_or_planner_dependencies():
-    import ast
-
-    source = (
-        ROOT.parent / "server/shuxueshuo_server/problem_understanding/"
-        "basic_inequality_problem_ir.py"
-    ).read_text()
-    imports = [node for node in ast.walk(ast.parse(source)) if isinstance(node, (ast.Import, ast.ImportFrom))]
-    imported = {
-        alias.name
-        for node in imports
-        for alias in node.names
+    payload = artifact["input"]
+    assert symbol_runtime_paths(payload) == {
+        f"symbol:s0:{entity['name']}": f"$question.s0.values.{entity['name']}"
+        for entity in payload["entities"]
     }
-    assert not any(name.startswith("shuxueshuo_server.solver.runtime") for name in imported)
-    assert not any(name.startswith("shuxueshuo_server.solver.planner") for name in imported)
-    assert not any("method" in name or "proof" in name for name in imported)
+    problem = problem_from_canonical_input(payload)
+    assert DEFAULT_FAMILY_REGISTRY.match(problem) is None
+    assert artifact["family_match"]["authoring_only"] is True
+    assert {"expected_answers", "route_metadata", "family_id"}.isdisjoint(payload)
+    assert problem.expected_answers == {}
+    expected = read_json(FIXTURES / case / "expected.json")
+    route = read_json(FIXTURES / case / "route-metadata.json")
+    assert expected["problem_id"] == route["problem_id"] == case
+    assert expected["answer"] and expected["equality_branches"]
+    assert route["allowed_method_chains"] and route["required_evidence"]
+    assert route["expected_page_steps"]["count"] == len(
+        route["expected_page_steps"]["titles"]
+    )
+    assert all(
+        set(chain) <= set(BASIC_INEQUALITY_FAMILY.method_ids)
+        for chain in route["allowed_method_chains"]
+    )
+
+
+@pytest.mark.parametrize("case", REPRESENTATIVE_CASES)
+def test_every_source_location_is_real_and_no_fact_or_goal_is_lost(case):
+    gold = read_json(GOLD / f"{case}.json")
+    payload = read_json(FIXTURES / case / "problem-ir.json")["input"]
+    for table in ("entities", "facts", "question_goals"):
+        for item in payload[table]:
+            assert pointer(gold, item["source_path"]) == item["source_text"]
+            assert item["normalized_expression"] and len(item["sample_refs"]) == 2
+    assert len(payload["scopes"]) == 1  # All ten current golds are single questions.
+    assert {f["source_path"] for f in payload["facts"]} == {
+        f"/root/facts/{i}" for i in range(len(gold["root"]["facts"]))
+    }
+    assert payload["question_goals"][0]["target_expression"] == next(
+        gold["root"]["goals"][0][k]
+        for k in ("expression", "symbol")
+        if k in gold["root"]["goals"][0]
+    )
+
+
+@pytest.fixture
+def isolated(tmp_path):
+    root = tmp_path / "gold"
+    root.mkdir()
+    for name in ("manifest.json", "q01.json"):
+        shutil.copyfile(GOLD / name, root / name)
+    (root / "images").mkdir()
+    shutil.copyfile(GOLD / "images/q01.png", root / "images/q01.png")
+    (root / "samples").mkdir()
+    shutil.copyfile(GOLD / "samples/index.json", root / "samples/index.json")
+    shutil.copytree(GOLD / "samples/q01", root / "samples/q01")
+    return root
+
+
+def reseal(root, name, mutate, sample="sample-01"):
+    path = root / "samples/q01" / sample / name
+    data = read_json(path)
+    mutate(data)
+    write_json(path, data)
+    index = read_json(root / "samples/index.json")
+    next(row for row in index["samples"]["q01"] if row["sample_id"] == sample)["files"][
+        name
+    ] = digest(path.read_bytes())
+    write_json(root / "samples/index.json", index)
+
+
+@pytest.mark.parametrize("name", FILES)
+def test_missing_or_changed_sample_files_fail_closed(isolated, name):
+    path = isolated / "samples/q01/sample-01" / name
+    path.write_bytes(path.read_bytes() + b" ")
+    with pytest.raises(BasicInequalityProblemIRError, match="file hash mismatch"):
+        build_problem_ir_from_file(isolated / "q01.json")
+    path.unlink()
+    with pytest.raises(FileNotFoundError):
+        build_problem_ir_from_file(isolated / "q01.json")
+
+
+@pytest.mark.parametrize(
+    ("name", "mutate", "error"),
+    [
+        ("frozen.json", lambda x: x.update(gold_sha256="0" * 64), "stale gold"),
+        ("frozen.json", lambda x: x.update(system_prompt_hash="0" * 64), "baseline"),
+        ("summary.json", lambda x: x.update(passed=False), "stored gate"),
+        ("diff.json", lambda x: x.update(ok=False), "comparison replay"),
+        ("canonical.json", lambda x: x["root"].update(facts=[]), "canonical replay"),
+        ("parsed.json", lambda x: x.update(semantic_revision="bad"), "parsed replay"),
+        ("normalized.json", lambda x: x["root"].update(facts=[]), "normalized replay"),
+        ("call.json", lambda x: x.update(finish_reason="length"), "invalid live call"),
+        ("request.json", lambda x: x.update(model="different-model"), "request hash"),
+    ],
+)
+def test_semantic_and_version_checks_are_not_just_file_hashes(
+    isolated, name, mutate, error
+):
+    reseal(isolated, name, mutate)
+    with pytest.raises(BasicInequalityProblemIRError, match=error):
+        build_problem_ir_from_file(isolated / "q01.json")
+
+
+def test_reusing_one_call_with_two_sample_names_fails(isolated):
+    index = read_json(isolated / "samples/index.json")
+    first = index["samples"]["q01"][0]
+    second = deepcopy(first)
+    second["sample_id"] = "sample-02"
+    second["source_run"] = "different-looking-run"
+    index["samples"]["q01"][1] = second
+    for name in FILES:
+        shutil.copyfile(
+            isolated / "samples/q01/sample-01" / name,
+            isolated / "samples/q01/sample-02" / name,
+        )
+    write_json(isolated / "samples/index.json", index)
+    with pytest.raises(BasicInequalityProblemIRError, match="same provider call"):
+        load_verified_case(isolated / "q01.json")
+
+
+def test_insufficient_samples_fail(isolated):
+    index = read_json(isolated / "samples/index.json")
+    index["samples"]["q01"].pop()
+    write_json(isolated / "samples/index.json", index)
+    with pytest.raises(BasicInequalityProblemIRError, match="two frozen"):
+        load_verified_case(isolated / "q01.json")
+
+
+def test_identical_raw_content_is_allowed_for_distinct_provider_calls(isolated):
+    # Simulate identical model outputs while retaining the two real, distinct
+    # response IDs. This guards against treating raw hash equality as reuse.
+    index = read_json(isolated / "samples/index.json")
+    first, second = index["samples"]["q01"]
+    identity, source_run = second["response_id"], second["source_run"]
+    original_call = read_json(isolated / "samples/q01/sample-01/call.json")
+    for name in FILES:
+        shutil.copyfile(
+            isolated / "samples/q01/sample-01" / name,
+            isolated / "samples/q01/sample-02" / name,
+        )
+    original_call["provider_attempts"][0]["raw_payload"]["id"] = identity
+    write_json(isolated / "samples/q01/sample-02/call.json", original_call)
+    second.update(deepcopy(first))
+    second.update(sample_id="sample-02", response_id=identity, source_run=source_run)
+    second["files"]["call.json"] = digest(
+        (isolated / "samples/q01/sample-02/call.json").read_bytes()
+    )
+    write_json(isolated / "samples/index.json", index)
+    result = load_verified_case(isolated / "q01.json")
+    samples = result["provenance"]["samples"]
+    assert samples[0]["raw_sha256"] == samples[1]["raw_sha256"]
+    assert samples[0]["response_id"] != samples[1]["response_id"]
+
+
+@pytest.mark.parametrize("file", ["q01.json", "images/q01.png"])
+def test_gold_and_image_tampering_fails(isolated, file):
+    path = isolated / file
+    path.write_bytes(path.read_bytes() + b" ")
+    with pytest.raises(BasicInequalityProblemIRError, match="file hash mismatch"):
+        load_verified_case(isolated / "q01.json")
+
+
+def candidate(facts, goals=None, **scope):
+    return {
+        "original_text": "合成作用域边界测试",
+        "match_status": "matched",
+        "family_id": "basic_inequality",
+        "match_reason": "代数条件与目标",
+        "root": {"facts": facts, "goals": goals or [], **scope},
+    }
+
+
+@pytest.mark.parametrize(
+    ("operator", "normalized"),
+    [
+        ("=", "="),
+        ("!=", "!="),
+        ("≠", "!="),
+        (">=", ">="),
+        ("≥", ">="),
+        ("<=", "<="),
+        ("≤", "<="),
+        (">", ">"),
+        ("<", "<"),
+    ],
+)
+def test_relation_typing_uses_bound_operator(operator, normalized):
+    payload = convert_notation(candidate([f"x {operator} 1"]), problem_id="any-id")
+    fact = payload["facts"][0]
+    assert fact["relation_operator"] == normalized
+    assert fact["type"] == ("equation" if normalized == "=" else "symbol_constraint")
+
+
+def test_conjunction_and_chain_preserve_source_and_direction():
+    gold = candidate(["a > b > c", "x >= 0 ∧ y != 0"])
+    payload = convert_notation(gold, problem_id="no-case-number")
+    assert [f["relation_operator"] for f in payload["facts"]] == [">", ">", ">=", "!="]
+    assert [f["source_path"] for f in payload["facts"]] == [
+        "/root/facts/0",
+        "/root/facts/0",
+        "/root/facts/1",
+        "/root/facts/1",
+    ]
+
+
+def test_child_symbol_visibility_and_unique_goal_keys():
+    gold = candidate(
+        ["x > 0"],
+        children=[
+            {
+                "facts": ["t > 1"],
+                "goals": [{"kind": "find_minimum", "expression": "x+t"}],
+            },
+            {
+                "facts": ["t < -1"],
+                "goals": [{"kind": "find_maximum", "expression": "x-t"}],
+            },
+        ],
+    )
+    p = convert_notation(gold, problem_id="arbitrary")
+    entities = p["entities"]
+    assert len([e for e in entities if e["name"] == "x"]) == 1
+    t = [e for e in entities if e["name"] == "t"]
+    assert len(t) == 2 and t[0]["scope_id"] != t[1]["scope_id"]
+    assert [s["parent"] for s in p["scopes"]] == [None, "s0", "s0"]
+    assert len({g["answer_key"] for g in p["question_goals"]}) == 2
+    for g in p["question_goals"]:
+        assert pointer(gold, g["source_path"]) == g["target_expression"]
+
+
+@pytest.mark.parametrize("extra_root_symbol", (False, True))
+def test_entity_handles_project_by_declaring_scope_not_object_order(extra_root_symbol):
+    gold = candidate(
+        (["z > 0"] if extra_root_symbol else []) + ["x > 0", "y > 0"],
+        children=[
+            {
+                "facts": ["t > x+y", "u = t+x"],
+                "children": [{"facts": ["v = t+u+y"]}],
+            },
+            {"facts": ["t < x+y", "u = t+y"]},
+        ],
+    )
+    payload = convert_notation(gold, problem_id="scope-handles")
+    expected = {
+        "symbol:s0:x": "$question.s0.values.x",
+        "symbol:s0:y": "$question.s0.values.y",
+        "symbol:s1:t": "$subquestion.s1.values.t",
+        "symbol:s1:u": "$subquestion.s1.values.u",
+        "symbol:s2:v": "$subquestion.s2.values.v",
+        "symbol:s3:t": "$subquestion.s3.values.t",
+        "symbol:s3:u": "$subquestion.s3.values.u",
+    }
+    if extra_root_symbol:
+        expected["symbol:s0:z"] = "$question.s0.values.z"
+    assert symbol_runtime_paths(payload) == expected
+    facts = {fact["source_path"]: fact for fact in payload["facts"]}
+    assert facts["/root/children/0/facts/0"]["entity_handles"] == [
+        "symbol:s1:t", "symbol:s0:x", "symbol:s0:y",
+    ]
+    assert facts["/root/children/0/children/0/facts/0"]["entity_handles"] == [
+        "symbol:s2:v", "symbol:s1:t", "symbol:s1:u", "symbol:s0:y",
+    ]
+    assert facts["/root/children/1/facts/1"]["entity_handles"] == [
+        "symbol:s3:u", "symbol:s3:t", "symbol:s0:y",
+    ]
+
+
+def test_source_definitions_domains_and_expression_obligations():
+    gold = candidate(
+        ["x ∈ ℝ", "t ∈ (0,2]"],
+        definitions=["x^2+t^2 = 1"],
+        goals=[{"kind": "find_minimum", "expression": "sqrt(x)+1/t"}],
+    )
+    p = convert_notation(gold, problem_id="domain")
+    assert [f["type"] for f in p["facts"]] == [
+        "equation",
+        "symbol_domain",
+        "symbol_domain",
+    ]
+    assert p["facts"][0]["source_path"] == "/root/definitions/0"
+    assert len(p["question_goals"][0]["domain_obligations"]) == 2
+    assert all(
+        o["status"] == "unverified"
+        for o in p["question_goals"][0]["domain_obligations"]
+    )
+    assert len(p["facts"]) == 3  # no inferred positivity/default domain/nonzero facts
+
+
+@pytest.mark.parametrize(
+    ("expression", "expected"),
+    [
+        ("x^(1/2)", ["x >= 0"]),
+        ("(a+b)^(2/3)", []),
+        ("x^(-1/2)", ["x > 0"]),
+        ("x^(1/(-2))", ["x > 0"]),
+        ("x^(-2/3)", ["x != 0"]),
+        ("x^(2/4)", ["x >= 0"]),
+        ("x^(2/6)", []),
+        ("x^(4/2)", []),
+        ("x^(-4/2)", ["x != 0"]),
+        ("x^(-2)", ["x != 0"]),
+        ("x^0.5", ["x >= 0"]),
+        ("x^(-0.5)", ["x > 0"]),
+        ("(1/x)^(1/2)", ["(1/x) >= 0", "x != 0"]),
+        ("sqrt(x)^(-1/3)", ["sqrt(x) != 0", "x >= 0"]),
+        ("1/(x^(1/2))", ["(x^(1/2)) != 0", "x >= 0"]),
+        ("(x^(1/2))^(1/3)", ["x >= 0"]),
+    ],
+)
+@pytest.mark.parametrize("location", ("fact", "goal"))
+def test_rational_exponent_domains_respect_exponent_position(expression, expected, location):
+    gold = candidate(
+        [f"{expression} = 1"] if location == "fact" else ["x > 0"],
+        goals=[] if location == "fact" else [{"kind": "find_minimum", "expression": expression}],
+    )
+    p = convert_notation(gold, problem_id="rational-exponent")
+    item = p["facts" if location == "fact" else "question_goals"][0]
+    assert item["domain_obligations"] == [
+        {"expression": text, "status": "unverified", "origin": "expression_domain"}
+        for text in expected
+    ]
+    assert item["source_text"] == (f"{expression} = 1" if location == "fact" else expression)
+    assert len(p["facts"]) == 1  # domain requirements never become source facts
+
+
+@pytest.mark.parametrize("expression", ("x^(1/n)", "x^n", "x^(-n)", "x^(1+1)", "x^(1/0)"))
+@pytest.mark.parametrize("location", ("fact", "goal"))
+def test_unsupported_exponents_cannot_emit_incomplete_domain_obligations(expression, location):
+    gold = candidate(
+        [f"{expression} = 1"] if location == "fact" else ["x > 0"],
+        goals=[] if location == "fact" else [{"kind": "find_minimum", "expression": expression}],
+    )
+    with pytest.raises(BasicInequalityProblemIRError, match="exponent"):
+        convert_notation(gold, problem_id="unsupported-exponent")
+
+
+def test_parameter_value_is_not_general_expression_evaluation():
+    p = convert_notation(
+        candidate(
+            ["a > 0"],
+            goals=[
+                {"kind": "find_value", "expression": "a"},
+                {"kind": "find_value", "expression": "a+1"},
+            ],
+        ),
+        problem_id="parameter",
+    )
+    assert [g["value_type"] for g in p["question_goals"]] == [
+        "ParameterValue",
+        "ScalarExpression",
+    ]
+    with pytest.raises(BasicInequalityProblemIRError, match="supported goal"):
+        validate_family_match(p, candidate_family_id="basic_inequality")
+    p["question_goals"] = p["question_goals"][1:]
+    with pytest.raises(BasicInequalityProblemIRError, match="supported goal"):
+        validate_family_match(p, candidate_family_id="basic_inequality")
+
+
+@pytest.mark.parametrize("supported_kind", ("find_minimum", "find_value"))
+@pytest.mark.parametrize("nested", (False, True))
+@pytest.mark.parametrize("reverse", (False, True))
+def test_mixed_goals_fail_family_gate_and_frozen_file_entrypoint(monkeypatch, supported_kind, nested, reverse):
+    gold = candidate(
+        ["a > 0"],
+        goals=[{"kind": supported_kind, "expression": "a"}],
+    )
+    scope = gold["root"]
+    if nested:
+        scope["children"] = [{"goals": []}]
+        scope = scope["children"][0]
+    scope["goals"].append({"kind": "find_value", "expression": "a+1"})
+    if reverse:
+        scope["goals"].reverse()
+    p = convert_notation(gold, problem_id="mixed-goals")
+    with pytest.raises(BasicInequalityProblemIRError, match="all goals must be supported"):
+        validate_family_match(p, candidate_family_id="basic_inequality")
+    # Isolate admission after verified loading; evidence replay has its own tests.
+    monkeypatch.setattr(
+        "shuxueshuo_server.problem_understanding.basic_inequality_frozen.load_verified_case",
+        lambda path: {"gold": gold, "provenance": {"samples": []}},
+    )
+    with pytest.raises(BasicInequalityProblemIRError, match="all goals must be supported"):
+        build_problem_ir_from_file("mixed-goals.json")
+
+
+def test_family_gate_requires_nonempty_goals_and_accepts_all_supported_types():
+    p = convert_notation(candidate(["a > 0"]), problem_id="empty-goals")
+    with pytest.raises(BasicInequalityProblemIRError, match="missing supported goal"):
+        validate_family_match(p, candidate_family_id="basic_inequality")
+    p = convert_notation(
+        candidate(["a > 0"], goals=[
+            {"kind": kind, "symbol" if kind == "find_range" else "expression": "a"}
+            for kind in ("find_minimum", "find_maximum", "find_range", "find_value")
+        ]),
+        problem_id="supported-goals",
+    )
+    assert validate_family_match(p, candidate_family_id="basic_inequality")["source_requirements_verified"] is True
+
+
+@pytest.mark.parametrize(
+    "gold",
+    [
+        candidate(["a > 0 ∨ a < -1"]),
+        candidate(
+            ["a > 0"], uncertainties=[{"kind": "ambiguous_symbol", "text": "a不清晰"}]
+        ),
+        candidate(["a > 0"], definitions=["f(t) = t^2"]),
+    ],
+)
+def test_unsupported_or_ambiguous_source_fails_closed(gold):
+    with pytest.raises(BasicInequalityProblemIRError):
+        convert_notation(gold, problem_id="unsupported")
+
+
+def test_matching_is_structural_and_production_remains_closed():
+    p = convert_notation(read_json(GOLD / "q01.json"), problem_id="not-q01")
+    assert (
+        validate_family_match(p, candidate_family_id="basic_inequality")["family_id"]
+        == "basic_inequality"
+    )
+    assert DEFAULT_FAMILY_REGISTRY.match(problem_from_canonical_input(p)) is None
+    with pytest.raises(ValueError, match="ambiguous"):
+        validate_family_match(
+            p,
+            candidate_family_id="basic_inequality",
+            registry=FamilyRegistry((BASIC_INEQUALITY_FAMILY, BASIC_INEQUALITY_FAMILY)),
+        )
+    with pytest.raises(BasicInequalityProblemIRError, match="label"):
+        validate_family_match(p, candidate_family_id="forged")
+    for key, value in [
+        ("pattern", "other"),
+        ("problem_type", "other"),
+        ("entities", []),
+        ("facts", []),
+        ("question_goals", []),
+    ]:
+        broken = {**p, key: value}
+        with pytest.raises(BasicInequalityProblemIRError):
+            validate_family_match(broken, candidate_family_id="basic_inequality")
+
+
+def test_only_ten_cases_are_read_or_generated(monkeypatch):
+    manifest = read_json(GOLD / "manifest.json")
+    assert manifest["cases"] == list(REPRESENTATIVE_CASES)
+    assert manifest["deferred_cases"] == DEFERRED_CASES
+    assert {p.name for p in FIXTURES.iterdir() if p.is_dir()} == set(
+        REPRESENTATIVE_CASES
+    )
+    assert {p.name for p in (GOLD / "samples").iterdir() if p.is_dir()} == set(
+        REPRESENTATIVE_CASES
+    )
+    deferred = {f"q{i:02d}" for i in range(1, 32)} - set(REPRESENTATIVE_CASES)
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("deferred asset was read")
+
+    monkeypatch.setattr(Path, "read_bytes", forbidden)
+    for case in deferred:
+        with pytest.raises(BasicInequalityProblemIRError, match="outside"):
+            build_problem_ir_from_file(GOLD / f"{case}.json")
+    with pytest.raises(BasicInequalityProblemIRError, match="exactly representative"):
+        freeze_runs(GOLD, {"q02": []})
+
+
+def test_freezing_validates_all_samples_before_writing_and_replays(tmp_path):
+    root = tmp_path / "gold"
+    shutil.copytree(GOLD, root, ignore=shutil.ignore_patterns("samples"))
+    selections = {}
+    for case in REPRESENTATIVE_CASES:
+        selections[case] = []
+        for number in (1, 2):
+            sid = f"sample-{number:02d}"
+            run = tmp_path / "runs" / case / sid / "run"
+            shutil.copytree(GOLD / "samples" / case / sid, run)
+            parsed = read_json(run / "parsed.json")
+            for key in ("canonical", "normalized"):
+                checksum = parsed["artifacts"][key]["sha256"]
+                directory = run / "artifacts" / checksum[:2]
+                directory.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(run / f"{key}.json", directory / f"{checksum}.json")
+            selections[case].append(run)
+    duplicate = {**selections, "q31": [selections["q31"][0]] * 2}
+    with pytest.raises(BasicInequalityProblemIRError, match="same provider call"):
+        freeze_runs(root, duplicate)
+    assert not (root / "samples").exists()
+    freeze_runs(root, selections)
+    for case in REPRESENTATIVE_CASES:
+        assert (
+            len(load_verified_case(root / f"{case}.json")["provenance"]["samples"]) == 2
+        )
+    with pytest.raises(BasicInequalityProblemIRError, match="index already exists"):
+        freeze_runs(root, selections)
+
+
+def test_pure_lowering_never_runs_semantic_proofs_or_execution(monkeypatch):
+    import shuxueshuo_server.problem_understanding.notation_semantics as semantics
+
+    gold = read_json(GOLD / "q20.json")
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("proof/semantic compiler called during lowering")
+
+    monkeypatch.setattr(semantics, "canonical", forbidden)
+    monkeypatch.setattr(semantics, "compare", forbidden)
+    monkeypatch.setattr(NotationValidator, "validate", forbidden)
+    assert {
+        e["name"] for e in convert_notation(gold, problem_id="arbitrary")["entities"]
+    } == {"x", "y"}
+    module = (
+        ROOT / "shuxueshuo_server/problem_understanding/basic_inequality_problem_ir.py"
+    )
+    imports = [
+        node.module or ""
+        for node in ast.walk(ast.parse(module.read_text()))
+        if isinstance(node, ast.ImportFrom)
+    ]
+    assert not any(
+        token in name
+        for name in imports
+        for token in ("runtime", "planner", "solver.methods", "notation_semantics")
+    )

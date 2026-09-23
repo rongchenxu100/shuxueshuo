@@ -1,0 +1,1 @@
+{"original_text":"设a>b>c>0，则 2a² + 1/(ab) + 1/(a(a-b)) - 10ac + 25c² 的最小值是（ ）","root":{"facts":["a > b","b > c","c > 0"],"goals":[{"kind":"find_minimum","expression":"2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2","variables":["a","b","c"]}]},"match_status":"matched","family_id":"basic_inequality","match_reason":"题面给出正项不等式条件 a>b>c>0，要求含分式的代数式的最小值，符合基本不等式题型。"}

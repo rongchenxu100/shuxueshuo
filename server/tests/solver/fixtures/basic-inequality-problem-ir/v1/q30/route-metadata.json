@@ -1,12 +1,32 @@
 {
   "problem_id": "q30",
-  "methods": [
-    "organize_expressions",
-    "apply_two_term_amgm",
-    "bound_univariate_quadratic",
-    "apply_two_term_amgm",
-    "close_equality_and_restore"
+  "used_for": "integration assertions only",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "allowed_method_chains": [
+    [
+      "organize_expressions",
+      "apply_two_term_amgm",
+      "bound_univariate_quadratic",
+      "apply_two_term_amgm",
+      "close_equality_and_restore"
+    ]
   ],
-  "catalog_only": true,
-  "used_for": "integration assertions only"
+  "expected_page_steps": {
+    "count": 5,
+    "titles": [
+      "路线观察",
+      "合并分式并第一次估计",
+      "配方求界",
+      "第二次估计",
+      "共同取等"
+    ],
+    "source": "docs/basic-inequality-method-discussion.md §4"
+  },
+  "required_evidence": [
+    "1/(a*b)+1/(a*(a-b))=1/(b*(a-b))",
+    "b*(a-b)<=a^2/4",
+    "25*c^2-10*a*c+2*a^2+4/a^2=(a-5*c)^2+a^2+4/a^2",
+    "a^2+4/a^2>=4",
+    "b=a/2,c=a/5,a=sqrt(2)同时满足a>b>c>0"
+  ]
 }

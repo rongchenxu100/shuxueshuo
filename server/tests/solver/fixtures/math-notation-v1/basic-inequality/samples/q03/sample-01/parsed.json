@@ -1,0 +1,338 @@
+{
+  "schema_version": "problem-ir-candidate/v1",
+  "contract": "problem-math-notation/v1",
+  "candidate_only": true,
+  "source_reviewed": false,
+  "solver_ready": false,
+  "binding": {
+    "problem_id": "q03",
+    "source_sha256": "5c893bdd219402d580ed148b83d1d87916599eae109255cf351439591bde04d3",
+    "registry_snapshot": "b27a0a18b7ee49ee2caab2919319c02c2ceca39e90ae27c300be9b21ec7ac1f2"
+  },
+  "objects": {
+    "ir": {
+      "root": {
+        "facts": [
+          "x > 0",
+          "y > 0",
+          "1/x + 1/y = 1"
+        ],
+        "goals": [
+          {
+            "kind": "find_minimum",
+            "expression": "x+4*y"
+          }
+        ],
+        "label": "题目",
+        "definitions": [],
+        "children": [],
+        "uncertainties": []
+      }
+    },
+    "match": {
+      "family_id": "basic_inequality",
+      "match_status": "matched",
+      "match_reason": "题面含正实数条件、等式条件，目标是求 x+4y 的最小值，符合 basic_inequality 注册题型。"
+    }
+  },
+  "reports": {
+    "ir": {
+      "ok": true,
+      "issues": [],
+      "defaults": [
+        {
+          "ref": "r:scalar:x",
+          "domain": "real",
+          "origin": "code_default"
+        },
+        {
+          "ref": "r:scalar:y",
+          "domain": "real",
+          "origin": "code_default"
+        }
+      ],
+      "objects": [
+        {
+          "ref": "r:scalar:x",
+          "name": "x",
+          "kind": "scalar",
+          "scope": "r"
+        },
+        {
+          "ref": "r:scalar:y",
+          "name": "y",
+          "kind": "scalar",
+          "scope": "r"
+        }
+      ],
+      "well_definedness_obligations": [
+        {
+          "code": "algebra_domain",
+          "condition": [
+            "nonzero_denominator",
+            "Symbol('n_5e2df328e717dd6b0f6ff229af1539dcbbf0e495d04e3172d460960bd2447cd8', real=True)"
+          ]
+        },
+        {
+          "code": "algebra_domain",
+          "condition": [
+            "nonzero_denominator",
+            "Symbol('n_af9bbb5bffce56decede2978588f15df93dfd0314e978396ace18c455becd11c', real=True)"
+          ]
+        }
+      ],
+      "coordinate_bindings": [],
+      "object_bindings": [],
+      "normalization_proofs": [],
+      "normalization_report": {
+        "version": "semantic-equivalence/v1",
+        "ruleset_hash": "1cc78a3e65c127a29519a6464a7820c7ab107a73b33b111b5a45f9a780c71ed9",
+        "initial_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:x",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:y",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "=",
+              [
+                "+",
+                [
+                  "/",
+                  [
+                    "number",
+                    "1"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "/",
+                  [
+                    "number",
+                    "1"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:y",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "canonical_facts": [
+          {
+            "scope": "r",
+            "index": 0,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:x",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 1,
+            "fact": [
+              ">",
+              [
+                "ref",
+                "r:scalar:y",
+                "scalar"
+              ],
+              [
+                "number",
+                "0"
+              ]
+            ]
+          },
+          {
+            "scope": "r",
+            "index": 2,
+            "fact": [
+              "=",
+              [
+                "+",
+                [
+                  "/",
+                  [
+                    "number",
+                    "1"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:x",
+                    "scalar"
+                  ]
+                ],
+                [
+                  "/",
+                  [
+                    "number",
+                    "1"
+                  ],
+                  [
+                    "ref",
+                    "r:scalar:y",
+                    "scalar"
+                  ]
+                ]
+              ],
+              [
+                "number",
+                "1"
+              ]
+            ]
+          }
+        ],
+        "derived_facts": [],
+        "proofs": [],
+        "blocked": []
+      }
+    },
+    "match": {
+      "ok": true,
+      "issues": []
+    }
+  },
+  "artifacts": {
+    "raw": {
+      "artifact_id": "artifact:notation_raw:772d6326478f84d716b70542038c8084af99def60877091257e521ff1b7f257f",
+      "kind": "notation_raw",
+      "sha256": "772d6326478f84d716b70542038c8084af99def60877091257e521ff1b7f257f",
+      "media_type": "text/plain",
+      "byte_size": 494,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-01/run/artifacts/77/772d6326478f84d716b70542038c8084af99def60877091257e521ff1b7f257f.txt"
+    },
+    "candidate": {
+      "artifact_id": "artifact:notation_candidate:20879f97b3751dd63d48d6a57794f08aecaacc96a5a8b3db67c770a9dd7e2bf7",
+      "kind": "notation_candidate",
+      "sha256": "20879f97b3751dd63d48d6a57794f08aecaacc96a5a8b3db67c770a9dd7e2bf7",
+      "media_type": "application/json",
+      "byte_size": 393,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-01/run/artifacts/20/20879f97b3751dd63d48d6a57794f08aecaacc96a5a8b3db67c770a9dd7e2bf7.json"
+    },
+    "canonical": {
+      "artifact_id": "artifact:notation_canonical:c5b77fb5a7f5638bf157ecddbccdd5f1dc70d875855bcb652827ac75dd4341a6",
+      "kind": "notation_canonical",
+      "sha256": "c5b77fb5a7f5638bf157ecddbccdd5f1dc70d875855bcb652827ac75dd4341a6",
+      "media_type": "application/json",
+      "byte_size": 1060,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-01/run/artifacts/c5/c5b77fb5a7f5638bf157ecddbccdd5f1dc70d875855bcb652827ac75dd4341a6.json"
+    },
+    "normalized": {
+      "artifact_id": "artifact:notation_normalized:871203fb2a7bac0b5ade8cf12f5f51b934d8be661b82d7e870129c33b744c39b",
+      "kind": "notation_normalized",
+      "sha256": "871203fb2a7bac0b5ade8cf12f5f51b934d8be661b82d7e870129c33b744c39b",
+      "media_type": "application/json",
+      "byte_size": 460,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-01/run/artifacts/87/871203fb2a7bac0b5ade8cf12f5f51b934d8be661b82d7e870129c33b744c39b.json"
+    },
+    "compiled": {
+      "artifact_id": "artifact:notation_compiled:7b2f463c89e3c1ba3b0c567df2b81b6c79a5ccf07afb9e97dfb81f9f5437c767",
+      "kind": "notation_compiled",
+      "sha256": "7b2f463c89e3c1ba3b0c567df2b81b6c79a5ccf07afb9e97dfb81f9f5437c767",
+      "media_type": "application/json",
+      "byte_size": 2657,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-01/run/artifacts/7b/7b2f463c89e3c1ba3b0c567df2b81b6c79a5ccf07afb9e97dfb81f9f5437c767.json"
+    },
+    "continuation": {
+      "artifact_id": "artifact:notation_continuation:2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "kind": "notation_continuation",
+      "sha256": "2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa",
+      "media_type": "application/json",
+      "byte_size": 116,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-01/run/artifacts/2c/2c11362bffbe68bc4bc116acf89ac3aa97da6b3d45a00b1a960cfd3f5e93a9aa.json"
+    },
+    "ir": {
+      "artifact_id": "artifact:notation_ir:dbb75a8a9610653431d8f7bb5efdeaeb9e7fbe962e8d6c57450bd8b57876ccba",
+      "kind": "notation_ir",
+      "sha256": "dbb75a8a9610653431d8f7bb5efdeaeb9e7fbe962e8d6c57450bd8b57876ccba",
+      "media_type": "application/json",
+      "byte_size": 174,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-01/run/artifacts/db/dbb75a8a9610653431d8f7bb5efdeaeb9e7fbe962e8d6c57450bd8b57876ccba.json"
+    },
+    "validation": {
+      "artifact_id": "artifact:notation_validation:9c9a4ce2d05a5ff69f301b0cf7a521b9ed7650a67e9e296b54cb3f8eea75b4fc",
+      "kind": "notation_validation",
+      "sha256": "9c9a4ce2d05a5ff69f301b0cf7a521b9ed7650a67e9e296b54cb3f8eea75b4fc",
+      "media_type": "application/json",
+      "byte_size": 1611,
+      "locator": "/Users/haorong/projects/code/shuxueshuo/internal/solver-runs/basic-inequality-stage1-unified-20260923/q03/sample-01/run/artifacts/9c/9c9a4ce2d05a5ff69f301b0cf7a521b9ed7650a67e9e296b54cb3f8eea75b4fc.json"
+    }
+  },
+  "contract_valid": true,
+  "continuation": {
+    "status": "candidate_only",
+    "blocked": false,
+    "error_code": null,
+    "user_action": null,
+    "message": null,
+    "missing_figures": []
+  },
+  "revision": "20879f97b3751dd63d48d6a57794f08aecaacc96a5a8b3db67c770a9dd7e2bf7",
+  "semantic_revision": "c5b77fb5a7f5638bf157ecddbccdd5f1dc70d875855bcb652827ac75dd4341a6",
+  "units": {
+    "r.facts[0]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 0
+    },
+    "r.facts[1]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 1
+    },
+    "r.facts[2]": {
+      "scope": "r",
+      "collection": "facts",
+      "index": 2
+    }
+  }
+}

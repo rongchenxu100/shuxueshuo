@@ -1,5 +1,12 @@
 {
   "problem_id": "q01",
   "answer": "1",
-  "equality": "m=n=1"
+  "equality": "m=n=1",
+  "source": "docs/basic-inequality-method-discussion.md §3–5",
+  "equality_branches": [
+    {
+      "m": "1",
+      "n": "1"
+    }
+  ]
 }

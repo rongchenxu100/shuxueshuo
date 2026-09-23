@@ -1,0 +1,118 @@
+{
+  "provider": "deepseek",
+  "request_model": "deepseek-flash",
+  "response_model": "deepseek-flash",
+  "usage": {
+    "completion_tokens": 1487,
+    "prompt_tokens": 10945,
+    "total_tokens": 12432,
+    "prompt_cache_hit_tokens": 10496,
+    "prompt_cache_miss_tokens": 449
+  },
+  "usage_complete": true,
+  "finish_reason": "stop",
+  "stream_terminated_at_json": false,
+  "received_output_characters": 386,
+  "thinking_mode": "enabled",
+  "reasoning_effort": "low",
+  "response_format": "problem-math-notation/v1",
+  "temperature": null,
+  "max_output_tokens": 16384,
+  "timeout": 300,
+  "stream": false,
+  "transport_response_format": "json_object",
+  "image_detail": null,
+  "image_transport": "files",
+  "image_files": [
+    {
+      "image_id": "primary",
+      "file_id": "file-api-52ae5121-a63d-40fd-8cf2-7256b00fc522",
+      "sha256": "697a3e9009a295a8477adcdb77cc26ccfaa6cc2c1645237c249947d5a95458ad",
+      "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+      "bytes": 144295,
+      "expires_at": 1790177550,
+      "uploaded_at": 1790091150.9128268
+    }
+  ],
+  "file_operations": [
+    {
+      "operation": "cache_hit",
+      "sha256": "697a3e9009a295a8477adcdb77cc26ccfaa6cc2c1645237c249947d5a95458ad",
+      "file_id": "file-api-52ae5121-a63d-40fd-8cf2-7256b00fc522",
+      "api_calls": 0
+    }
+  ],
+  "file_api_calls": 0,
+  "provider_attempts": [
+    {
+      "provider_attempt": 1,
+      "status": "completed",
+      "response_model": "deepseek-flash",
+      "usage": {
+        "completion_tokens": 1487,
+        "prompt_tokens": 10945,
+        "total_tokens": 12432,
+        "completion_tokens_details": {
+          "accepted_prediction_tokens": null,
+          "audio_tokens": null,
+          "reasoning_tokens": 1330,
+          "rejected_prediction_tokens": null
+        },
+        "prompt_tokens_details": {
+          "audio_tokens": null,
+          "cached_tokens": 10496
+        },
+        "prompt_cache_hit_tokens": 10496,
+        "prompt_cache_miss_tokens": 449
+      },
+      "finish_reason": "stop",
+      "visible_content": true,
+      "latency_ms": 7698,
+      "error_code": null,
+      "error_message": null,
+      "raw_payload": {
+        "id": "17fd8c17-0b69-4bd7-be13-392604f6c4a5",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "logprobs": null,
+            "message": {
+              "content": "{\n  \"original_text\": \"例题精讲\\n练习8\\n1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ______。\",\n  \"root\": {\n    \"facts\": [\n      \"m > 0\",\n      \"n > 0\",\n      \"m + n = 2\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_maximum\",\n        \"expression\": \"m*n\"\n      }\n    ]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出正实数 m,n 满足 m+n=2，求 mn 的最大值，符合基本不等式题型。\"\n}",
+              "refusal": null,
+              "role": "assistant",
+              "annotations": null,
+              "audio": null,
+              "function_call": null,
+              "tool_calls": null,
+              "reasoning_content": "我们需要从图片中提取完整题意。图片显示：\n\n“例题精讲\n练习8\n1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ______。”\n\n忽略手写答案和批注。手写可能有答案，但忽略。只转写题目。\n\n注意：题面“设正实数 m, n” 说明 m>0, n>0。“满足 m+n=2”，求 mn 的最大值。\n\n这属于基本不等式题型。注册家族有 basic_inequality。题面以正项条件、等式条件、最大值目标，符合 basic_inequality。所以 match_status=matched, family_id=\"basic_inequality\"。\n\n需要输出 original_text 和 root。root 的 definitions/facts/goals。\n\ndefinitions: 没有曲线或函数定义，也没有新概念定义原文。可省略。\n\nfacts: 题面条件：m>0, n>0, m+n=2。注意“正实数”意味着 m>0, n>0。写成 facts: [\"m > 0\", \"n > 0\", \"m + n = 2\"]。乘号？m+n 是加法，没问题。目标 max(m*n) 需要显式乘号，因为 m 和 n 是独立变量乘积。题面写 mn，但数学候选应写 m*n。goals: [{\"kind\": \"find_maximum\", \"expression\": \"m*n\"}]。变量可省略。不要输出答案。\n\noriginal_text 是完整原文：“练习8\\n1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ______。” 可以按阅读顺序。注意原题可能有“例题精讲”标题？题干原文应包括题号和分问，我们保留“练习8”和“1.”。但“例题精讲”可能是页面标题，不是题目部分？一般应包含。不过原题文字可能只提取题目内容。按规则“完整转录原图题干”，包括题号。可以写：“练习8\\n1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ______。” 忽略“例题精讲”也许可以，但它是页面标题，不是题干？其实“例题精讲”是书本板块标题，可忽略。但为忠实，可保留？一般题干从“1.”开始。我会保留“练习8”和“1.”，因为“练习8”是题组标题，可能算题干一部分。但“例题精讲”不是题目内容，可忽略。按题目图片，顶部有“例题精讲”，然后“练习8”，然后“1.”。我会把“例题精讲”也放进 original_text？它可能不算题干，但无害。但规则说“完整题干原文”，也许包括标题。我写：“例题精讲\\n练习8\\n1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ______。” 这样很完整。但“例题精讲”可能不是题干，但保留也无妨。然而，有些系统可能期望题干只是题目。我选择保留可读文本。如果“例题精讲”被认为是书页标题，可以忽略。不过为了忠实，保留。\n\n空白横线 “______” 可以写为下划线。原题可能是填空，目标值是填空。\n\n数学表达：m,n 是变量，乘积 mn 应写 m*n。最大值 max(m*n)？goals 用 find_maximum, expression \"m*n\"。\n\nfacts 中 \"m > 0\", \"n > 0\", \"m + n = 2\"。\n\n根节点不需要 children，因为没有分问。\n\n无 uncertainties，因为图清晰。\n\nmatch_status: \"matched\", family_id: \"basic_inequality\", match_reason: \"题面给出正实数 m,n 满足 m+n=2，求 mn 的最大值，符合基本不等式题型条件。\"\n\n注意：是否需要 definitions？没有。可以省略 definitions 字段。Schema 中 root 的 properties 没有 required，所以可以只有 facts/goals。但为了完整，可写空数组？可省略。\n\noriginal_text 中“正实数”说明 m,n 为正，所以 facts m>0,n>0。题面未写“正实数”之外，无其他条件。\n\n检查注册表：basic_inequality required_source_primitives: 正项或变量条件，等式或不等式条件，最大值、最小值、取值范围或参数目标。都有。\n\n所以输出 JSON。\n\n注意：不要加其他字段如 schema_version 等。\n\n需要返回 JSON 对象，无 markdown。\n\n我写：\n\n{\n  \"original_text\": \"例题精讲\\n练习8\\n1.设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ______。\",\n  \"root\": {\n    \"facts\": [\"m > 0\", \"n > 0\", \"m + n = 2\"],\n    \"goals\": [\n      {\"kind\": \"find_maximum\", \"expression\": \"m*n\"}\n    ]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出正实数 m,n 满足 m+n=2，求 mn 的最大值，符合基本不等式题型。\"\n}\n\n但 original_text 中的 \"mn\" 需要保留原样还是改写？original_text 是题干原文，保留原题中文叙述和公式，公式可等义 LaTeX 或 Unicode。原题写 \"mn\"，不是 \"m*n\"，所以 original_text 中写 \"mn\" 没问题，不要改写成 \"m*n\"，因为原文就是 mn。数学候选才写 m*n。我把 original_text 写成 \"则 mn 的最大值为 ______\" 即可。\n\n检查：图片中“设正实数 m, n 满足 m+n=2，则 mn 的最大值为 ______ ．” 末尾有句点。我写“______。”即可。\n\n另外，“例题精讲”和“练习8”是否算题干？我会保留，因为它们是原图可读文字的一部分，且题目顺序。按规则“按阅读顺序换行”，我写多行。\n\n目标：find_maximum expression \"m*n\"，variables 可省略。\n\nfacts 中 m+n=2 不需要乘号。\n\n没有 definitions。\n\n完成。"
+            }
+          }
+        ],
+        "created": 1790134272,
+        "model": "deepseek-flash",
+        "object": "chat.completion",
+        "service_tier": null,
+        "system_fingerprint": "aeb56401ca74e127821c4f9126dcb669",
+        "usage": {
+          "completion_tokens": 1487,
+          "prompt_tokens": 10945,
+          "total_tokens": 12432,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": null,
+            "audio_tokens": null,
+            "reasoning_tokens": 1330,
+            "rejected_prediction_tokens": null
+          },
+          "prompt_tokens_details": {
+            "audio_tokens": null,
+            "cached_tokens": 10496
+          },
+          "prompt_cache_hit_tokens": 10496,
+          "prompt_cache_miss_tokens": 449
+        }
+      }
+    }
+  ],
+  "latency_ms": 7700
+}
