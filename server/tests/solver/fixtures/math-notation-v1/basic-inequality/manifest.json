@@ -1,6 +1,9 @@
 {
   "schema_version": "basic-inequality-math-notation-fixtures/v1",
   "contract": "problem-math-notation/v1",
+  "scope": "representative-10",
+  "samples_per_case": 2,
+  "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29",
   "cases": ["q01", "q03", "q07", "q08", "q12", "q17", "q20", "q25", "q30", "q31"],
   "image_only": true,
   "gold_review": {

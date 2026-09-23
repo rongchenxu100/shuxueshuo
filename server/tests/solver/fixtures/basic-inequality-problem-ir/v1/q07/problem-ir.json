@@ -1,0 +1,151 @@
+{
+  "schema_version": "basic-inequality-problem-ir/v1",
+  "problem_id": "q07",
+  "meta": {
+    "problem_id": "q07",
+    "title": "3. 若 a>0，b>0，则 1/a+a/b^2+b 的最小值为____。"
+  },
+  "input": {
+    "problem_id": "q07",
+    "pattern": "basic-inequality",
+    "problem_type": "basic_inequality",
+    "display": {
+      "page_title": "q07",
+      "summary": "3. 若 a>0，b>0，则 1/a+a/b^2+b 的最小值为____。"
+    },
+    "original_text": {
+      "source": "basic-inequality frozen notation gold",
+      "number": "q07",
+      "lines": [
+        "3. 若 a>0，b>0，则 1/a+a/b^2+b 的最小值为____。"
+      ]
+    },
+    "scopes": [
+      {
+        "scope_id": "scope_q07_root",
+        "label": "q07",
+        "parent": null,
+        "source_path": "/root"
+      }
+    ],
+    "entities": [
+      {
+        "handle": "symbol:q07_root:a",
+        "entity_type": "symbol",
+        "name": "a",
+        "scope_id": "scope_q07_root",
+        "description": "代数符号 a",
+        "source_path": "/root/facts/0",
+        "source_text": "a > 0",
+        "normalized_expression": "a",
+        "sample_hashes": [
+          "4a7c8970011cddbf235be2223f885fa27e426c2ba7b40f892544fe3ddaf2b075",
+          "56f35dbfe2390c3f53145c7f27eacecb33b5e3d9a8be5f9ec8f14e27fcff060f"
+        ]
+      },
+      {
+        "handle": "symbol:q07_root:b",
+        "entity_type": "symbol",
+        "name": "b",
+        "scope_id": "scope_q07_root",
+        "description": "代数符号 b",
+        "source_path": "/root/facts/1",
+        "source_text": "b > 0",
+        "normalized_expression": "b",
+        "sample_hashes": [
+          "4a7c8970011cddbf235be2223f885fa27e426c2ba7b40f892544fe3ddaf2b075",
+          "56f35dbfe2390c3f53145c7f27eacecb33b5e3d9a8be5f9ec8f14e27fcff060f"
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "handle": "fact:q07_root:f0_0",
+        "type": "symbol_constraint",
+        "scope_id": "scope_q07_root",
+        "valid_scope": "scope_q07_root",
+        "description": "a > 0",
+        "source_path": "/root/facts/0",
+        "source_text": "a > 0",
+        "normalized_expression": "a > 0",
+        "entity_handles": [
+          "symbol:q07_root:a"
+        ],
+        "sample_hashes": [
+          "4a7c8970011cddbf235be2223f885fa27e426c2ba7b40f892544fe3ddaf2b075",
+          "56f35dbfe2390c3f53145c7f27eacecb33b5e3d9a8be5f9ec8f14e27fcff060f"
+        ]
+      },
+      {
+        "handle": "fact:q07_root:f1_0",
+        "type": "symbol_constraint",
+        "scope_id": "scope_q07_root",
+        "valid_scope": "scope_q07_root",
+        "description": "b > 0",
+        "source_path": "/root/facts/1",
+        "source_text": "b > 0",
+        "normalized_expression": "b > 0",
+        "entity_handles": [
+          "symbol:q07_root:b"
+        ],
+        "sample_hashes": [
+          "4a7c8970011cddbf235be2223f885fa27e426c2ba7b40f892544fe3ddaf2b075",
+          "56f35dbfe2390c3f53145c7f27eacecb33b5e3d9a8be5f9ec8f14e27fcff060f"
+        ]
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:q07_root_g0",
+        "scope_id": "scope_q07_root",
+        "valid_scope": "scope_q07_root",
+        "answer_key": "q07_g0",
+        "value_type": "MinimumExpression",
+        "required": true,
+        "description": "find_minimum: 1/a+a/b^2+b",
+        "goal_kind": "find_minimum",
+        "target_expression": "1/a+a/b^2+b",
+        "source_path": "/root/goals/0",
+        "source_text": "1/a+a/b^2+b",
+        "normalized_expression": "1/a+a/b^2+b",
+        "sample_hashes": [
+          "4a7c8970011cddbf235be2223f885fa27e426c2ba7b40f892544fe3ddaf2b075",
+          "56f35dbfe2390c3f53145c7f27eacecb33b5e3d9a8be5f9ec8f14e27fcff060f"
+        ]
+      }
+    ]
+  },
+  "family_match": {
+    "family_id": "basic_inequality",
+    "matched_by": [
+      "pattern",
+      "problem_type"
+    ]
+  },
+  "provenance": {
+    "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q07.json",
+    "gold_sha256": "cf44c02758d1f4a0dd8f434dafc69b0b326a14c65b43c3756e5c679c476acacf",
+    "sample_ids": [
+      "sample-01",
+      "sample-02"
+    ],
+    "sample_hashes": [
+      "4a7c8970011cddbf235be2223f885fa27e426c2ba7b40f892544fe3ddaf2b075",
+      "56f35dbfe2390c3f53145c7f27eacecb33b5e3d9a8be5f9ec8f14e27fcff060f"
+    ],
+    "required_sample_count": 2,
+    "image_path": "math-notation-v1/basic-inequality/images/q07.png",
+    "notation_contract": "problem-math-notation/v1",
+    "prompt_hashes": {
+      "system": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
+      "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+    },
+    "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+    "catalog_hashes": {
+      "expressions": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e",
+      "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    },
+    "canonical_hash": "bb89f43e2c28b01c070c0bc3e0d1b1a90871f1299157e2e49b292896640e7096",
+    "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+  }
+}

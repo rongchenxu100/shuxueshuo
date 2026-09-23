@@ -1,0 +1,110 @@
+{
+  "schema_version": "basic-inequality-live-samples/v1",
+  "hash_source": "raw-response.txt UTF-8 bytes",
+  "samples": [
+    {
+      "sample_id": "sample-01",
+      "source_run": "internal/solver-runs/basic-inequality-stage1-live-20260922/test_basic_inequality_deepseek0/basic-inequality-stage-0/q12/sample-01/run",
+      "provider": "deepseek",
+      "response_id": "9d15961b-1274-49f5-9b01-e9de61c90d29",
+      "response_model": "deepseek-flash",
+      "response_created": 1790091202,
+      "raw_response": "{\n  \"original_text\": \"考点2 基本不等式\\n★★★(2020 江苏,12,5分) 已知 5x^2 y^2 + y^4 = 1 (x,y∈R)，则 x^2 + y^2 的最小值是______。\",\n  \"root\": {\n    \"facts\": [\n      \"5*x^2*y^2 + y^4 = 1\",\n      \"x ∈ ℝ\",\n      \"y ∈ ℝ\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_minimum\",\n        \"expression\": \"x^2+y^2\"\n      }\n    ]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出等式条件 5x^2y^2+y^4=1 及实数范围，求 x^2+y^2 的最小值，符合基本不等式题型。\"\n}",
+      "sha256": "58fc500369ce1a29e28791bde275f33d505d0d19bbcfdb8af693eee6472a3598",
+      "gold_file_sha256": "c9d59120c0e780f3ee6b23c2ca125fc5fd2b93b98f74766cf382e25821a3c1ba",
+      "image_sha256": "896b5df8e36ee27b9ec009b02fb915be9bcbc32f10a5c0a25fa6ac9e5b4e8fdc",
+      "template_files": {
+        "internal/llm-prompts/problem-math-notation-system.md": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
+        "internal/llm-prompts/problem-math-notation-user.md": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e",
+        "internal/schemas/problem-math-notation-v1.schema.json": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+        "internal/llm-prompts/problem-math-notation-expressions.json": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e"
+      },
+      "summary": {
+        "case_id": "q12",
+        "image_transport": "files",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "file_api_calls": 1,
+        "usage": {
+          "input_tokens": 11092,
+          "output_tokens": 2181,
+          "reasoning_tokens": 1974,
+          "visible_output_tokens": 207,
+          "usage_available": true
+        },
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "basic_inequality",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 10.013
+      },
+      "notation_family_catalog_hash": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    },
+    {
+      "sample_id": "sample-02",
+      "source_run": "internal/solver-runs/basic-inequality-stage1-live-20260922/test_basic_inequality_deepseek0/basic-inequality-stage-0/q12/sample-02/run",
+      "provider": "deepseek",
+      "response_id": "4259c9ce-fc30-459c-9bb1-f39e57b575f8",
+      "response_model": "deepseek-flash",
+      "response_created": 1790091211,
+      "raw_response": "{\n  \"original_text\": \"考点2 基本不等式\\n(2020 江苏,12,5分) 已知 5x^2y^2 + y^4 = 1 (x, y ∈ R)，则 x^2+y^2 的最小值是______。\",\n  \"root\": {\n    \"facts\": [\n      \"5*x^2*y^2 + y^4 = 1\",\n      \"x ∈ ℝ\",\n      \"y ∈ ℝ\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"find_minimum\",\n        \"expression\": \"x^2+y^2\"\n      }\n    ]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出等式条件并要求求代数式的最小值，符合基本不等式题型。\"\n}",
+      "sha256": "d94e7922a19fdc06fc2efb70d16a97972d1980455cf203e4de84df0bbb90efa4",
+      "gold_file_sha256": "c9d59120c0e780f3ee6b23c2ca125fc5fd2b93b98f74766cf382e25821a3c1ba",
+      "image_sha256": "896b5df8e36ee27b9ec009b02fb915be9bcbc32f10a5c0a25fa6ac9e5b4e8fdc",
+      "template_files": {
+        "internal/llm-prompts/problem-math-notation-system.md": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
+        "internal/llm-prompts/problem-math-notation-user.md": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e",
+        "internal/schemas/problem-math-notation-v1.schema.json": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+        "internal/llm-prompts/problem-math-notation-expressions.json": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e"
+      },
+      "summary": {
+        "case_id": "q12",
+        "image_transport": "files",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "file_api_calls": 0,
+        "usage": {
+          "input_tokens": 11092,
+          "output_tokens": 2071,
+          "reasoning_tokens": 1888,
+          "visible_output_tokens": 183,
+          "usage_available": true
+        },
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "basic_inequality",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 9.34
+      },
+      "notation_family_catalog_hash": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    }
+  ]
+}

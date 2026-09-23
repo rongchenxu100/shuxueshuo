@@ -1,0 +1,26 @@
+{
+  "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q20.json",
+  "gold_sha256": "f1d892d034951436b03e3cecdbe3af4c6a632d5d693fe5160d48b546c22d5954",
+  "sample_ids": [
+    "sample-01",
+    "sample-02"
+  ],
+  "sample_hashes": [
+    "76e172756b60e1945ca3075deaa03db6f3935caacc36e27da2befe70072d0904",
+    "afe8fdc7f482a28f4c35d278d29b55d76e2d9dc3e3d13f4eeab0b4b44e4fe7f6"
+  ],
+  "required_sample_count": 2,
+  "image_path": "math-notation-v1/basic-inequality/images/q20.png",
+  "notation_contract": "problem-math-notation/v1",
+  "prompt_hashes": {
+    "system": "0a1a97fe3657855013fa63d0df88adb7665c7a3bc9f09a232d2d381244a2424f",
+    "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+  },
+  "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+  "catalog_hashes": {
+    "expressions": "18af8b8e2f94afb6c2562c4b102578a7bf47160a88985fdc45f6ae0110714a97",
+    "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+  },
+  "canonical_hash": "240e8a508b103782ded79a5c8a287bdd230cfca44a900f919828c924945839a1",
+  "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+}

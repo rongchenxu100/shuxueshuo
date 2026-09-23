@@ -49,6 +49,9 @@ definitions 只放以下三类：
 
 ## 用符号引用数学对象
 
+在 definitions、facts 和 goals 的数学候选中，题面表示乘法时必须显式写 `*`：两个独立变量的乘积 `xy` 写成 `x*y`，`(xy)^3` 写成 `(x*y)^3`，`a(x+1)` 写成 `a*(x+1)`，`2xy` 写成 `2*x*y`。这只是消除省略乘号的记法歧义，不展开、化简或引入新变量；original_text 保留原题排版。
+只有题面含义明确是乘法时才添加乘号。题面明确命名的完整变量 `xy`、`x_1` 不拆分；长度 `AB`、角 `∠ABC`、已定义函数调用 `f(x)` 均保留原记法。无法辨认是乘积还是完整对象名时，在对应节点的 uncertainties 中说明，不猜测拆分。
+
 题面已有名称时沿用原名称。未命名的曲线或函数，可用一个简短符号引入，并在可见作用域内始终使用同一个符号。
 例如先写 `Γ: y = x^2+u*x+v`，随后写 `P ∈ Γ`，求曲线方程时写 `{"kind":"find_equation","object":"Γ"}`。
 不要用“抛物线”“该抛物线”“上述函数”“点P”“线段UV”等自然语言指代数学对象。
@@ -229,6 +232,25 @@ facts 表达本节点及其子节点的条件，goals 只表达这些条件下�
   "root": {
     "facts": ["U = (0,0)", "V = (6,0)"],
     "goals": [{"kind":"find_value","expression":"UV"}]
+  },
+  "match_status": "unmatched",
+  "family_id": null,
+  "match_reason": "示例注册表为空。"
+}
+```
+
+### 示例七：代数乘积的显式乘号
+
+输入：已知正数u、v满足uv=6，求 (uv)²/(u+v)+u(v+1) 的最小值。
+
+输出：
+
+```json
+{
+  "original_text": "已知正数u、v满足uv=6，求 (uv)²/(u+v)+u(v+1) 的最小值。",
+  "root": {
+    "facts": ["u > 0", "v > 0", "u*v = 6"],
+    "goals": [{"kind":"find_minimum","expression":"(u*v)^2/(u+v)+u*(v+1)"}]
   },
   "match_status": "unmatched",
   "family_id": null,

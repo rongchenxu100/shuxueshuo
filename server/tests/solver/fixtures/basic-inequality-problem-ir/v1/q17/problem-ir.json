@@ -1,0 +1,169 @@
+{
+  "schema_version": "basic-inequality-problem-ir/v1",
+  "problem_id": "q17",
+  "meta": {
+    "problem_id": "q17",
+    "title": "若实数 x，y 满足 x^2+y^2-x*y=1，求 x+y 的取值范围。"
+  },
+  "input": {
+    "problem_id": "q17",
+    "pattern": "basic-inequality",
+    "problem_type": "basic_inequality",
+    "display": {
+      "page_title": "q17",
+      "summary": "若实数 x，y 满足 x^2+y^2-x*y=1，求 x+y 的取值范围。"
+    },
+    "original_text": {
+      "source": "basic-inequality frozen notation gold",
+      "number": "q17",
+      "lines": [
+        "若实数 x，y 满足 x^2+y^2-x*y=1，求 x+y 的取值范围。"
+      ]
+    },
+    "scopes": [
+      {
+        "scope_id": "scope_q17_root",
+        "label": "q17",
+        "parent": null,
+        "source_path": "/root"
+      }
+    ],
+    "entities": [
+      {
+        "handle": "symbol:q17_root:x",
+        "entity_type": "symbol",
+        "name": "x",
+        "scope_id": "scope_q17_root",
+        "description": "代数符号 x",
+        "source_path": "/root/facts/0",
+        "source_text": "x^2+y^2-x*y = 1",
+        "normalized_expression": "x",
+        "sample_hashes": [
+          "e7b44fee84b98a901842e4cd63851928a5fff5cc406072ec71cebc1ff5e6ff5f",
+          "401be97a10ba3fb85c7bb4a71170eb6dad1eb6b582c99633d3e3d18d3bc7c7d2"
+        ]
+      },
+      {
+        "handle": "symbol:q17_root:y",
+        "entity_type": "symbol",
+        "name": "y",
+        "scope_id": "scope_q17_root",
+        "description": "代数符号 y",
+        "source_path": "/root/facts/0",
+        "source_text": "x^2+y^2-x*y = 1",
+        "normalized_expression": "y",
+        "sample_hashes": [
+          "e7b44fee84b98a901842e4cd63851928a5fff5cc406072ec71cebc1ff5e6ff5f",
+          "401be97a10ba3fb85c7bb4a71170eb6dad1eb6b582c99633d3e3d18d3bc7c7d2"
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "handle": "fact:q17_root:f0_0",
+        "type": "equation",
+        "scope_id": "scope_q17_root",
+        "valid_scope": "scope_q17_root",
+        "description": "x^2+y^2-x*y = 1",
+        "source_path": "/root/facts/0",
+        "source_text": "x^2+y^2-x*y = 1",
+        "normalized_expression": "x^2+y^2-x*y = 1",
+        "entity_handles": [
+          "symbol:q17_root:x",
+          "symbol:q17_root:y"
+        ],
+        "sample_hashes": [
+          "e7b44fee84b98a901842e4cd63851928a5fff5cc406072ec71cebc1ff5e6ff5f",
+          "401be97a10ba3fb85c7bb4a71170eb6dad1eb6b582c99633d3e3d18d3bc7c7d2"
+        ]
+      },
+      {
+        "handle": "fact:q17_root:f1_0",
+        "type": "symbol_domain",
+        "scope_id": "scope_q17_root",
+        "valid_scope": "scope_q17_root",
+        "description": "x ∈ ℝ",
+        "source_path": "/root/facts/1",
+        "source_text": "x ∈ ℝ",
+        "normalized_expression": "x ∈ ℝ",
+        "entity_handles": [
+          "symbol:q17_root:x"
+        ],
+        "sample_hashes": [
+          "e7b44fee84b98a901842e4cd63851928a5fff5cc406072ec71cebc1ff5e6ff5f",
+          "401be97a10ba3fb85c7bb4a71170eb6dad1eb6b582c99633d3e3d18d3bc7c7d2"
+        ]
+      },
+      {
+        "handle": "fact:q17_root:f2_0",
+        "type": "symbol_domain",
+        "scope_id": "scope_q17_root",
+        "valid_scope": "scope_q17_root",
+        "description": "y ∈ ℝ",
+        "source_path": "/root/facts/2",
+        "source_text": "y ∈ ℝ",
+        "normalized_expression": "y ∈ ℝ",
+        "entity_handles": [
+          "symbol:q17_root:y"
+        ],
+        "sample_hashes": [
+          "e7b44fee84b98a901842e4cd63851928a5fff5cc406072ec71cebc1ff5e6ff5f",
+          "401be97a10ba3fb85c7bb4a71170eb6dad1eb6b582c99633d3e3d18d3bc7c7d2"
+        ]
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:q17_root_g0",
+        "scope_id": "scope_q17_root",
+        "valid_scope": "scope_q17_root",
+        "answer_key": "q17_g0",
+        "value_type": "Range",
+        "required": true,
+        "description": "find_range: x+y",
+        "goal_kind": "find_range",
+        "target_expression": "x+y",
+        "source_path": "/root/goals/0",
+        "source_text": "x+y",
+        "normalized_expression": "x+y",
+        "sample_hashes": [
+          "e7b44fee84b98a901842e4cd63851928a5fff5cc406072ec71cebc1ff5e6ff5f",
+          "401be97a10ba3fb85c7bb4a71170eb6dad1eb6b582c99633d3e3d18d3bc7c7d2"
+        ]
+      }
+    ]
+  },
+  "family_match": {
+    "family_id": "basic_inequality",
+    "matched_by": [
+      "pattern",
+      "problem_type"
+    ]
+  },
+  "provenance": {
+    "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q17.json",
+    "gold_sha256": "8d2286de67f562cf307a410265b22d7734db544216728f9874da075903b889cd",
+    "sample_ids": [
+      "sample-01",
+      "sample-02"
+    ],
+    "sample_hashes": [
+      "e7b44fee84b98a901842e4cd63851928a5fff5cc406072ec71cebc1ff5e6ff5f",
+      "401be97a10ba3fb85c7bb4a71170eb6dad1eb6b582c99633d3e3d18d3bc7c7d2"
+    ],
+    "required_sample_count": 2,
+    "image_path": "math-notation-v1/basic-inequality/images/q17.png",
+    "notation_contract": "problem-math-notation/v1",
+    "prompt_hashes": {
+      "system": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
+      "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+    },
+    "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+    "catalog_hashes": {
+      "expressions": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e",
+      "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    },
+    "canonical_hash": "0d395b68808e4651be0037ad62ec636957e331a4b0852b0a88e010fde19a2076",
+    "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+  }
+}

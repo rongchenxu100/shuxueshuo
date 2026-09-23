@@ -1,0 +1,110 @@
+{
+  "schema_version": "basic-inequality-live-samples/v1",
+  "hash_source": "raw-response.txt UTF-8 bytes",
+  "samples": [
+    {
+      "sample_id": "sample-01",
+      "source_run": "internal/solver-runs/basic-inequality-stage1-live-20260922-retry/q31/q31/sample-01/run",
+      "provider": "deepseek",
+      "response_id": "044fd841-f1dc-41e7-9209-ce61d518494d",
+      "response_model": "deepseek-flash",
+      "response_created": 1790091550,
+      "raw_response": "{\"original_text\":\"已知正数a，b满足a+b=1，c∈R，则 (3a)/(bc^2+b)+1/(abc^2+ab)+2c^2 的最小值为______。\",\"root\":{\"facts\":[\"a > 0 ∧ b > 0\",\"a + b = 1\",\"c ∈ ℝ\"],\"goals\":[{\"kind\":\"find_minimum\",\"expression\":\"(3*a)/(b*c^2+b) + 1/(a*b*c^2+a*b) + 2*c^2\"}]},\"match_status\":\"matched\",\"family_id\":\"basic_inequality\",\"match_reason\":\"题面给出正数a、b，等式a+b=1，以及代数式最小值目标，符合基本不等式题型。\"}",
+      "sha256": "650a7c2440050fce2a65193424b285bb02ddafdae9ec6609e75993bd2ff64e0d",
+      "gold_file_sha256": "06e9468f4dd03d3a8b1c6c68f818994301d7c1d2c5b041dcaa1ac1f55f171591",
+      "image_sha256": "88d347822c840b4c6836fa1be794e1963199400f262510d8b811e7d33f01bcbb",
+      "template_files": {
+        "internal/llm-prompts/problem-math-notation-system.md": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
+        "internal/llm-prompts/problem-math-notation-user.md": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e",
+        "internal/schemas/problem-math-notation-v1.schema.json": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+        "internal/llm-prompts/problem-math-notation-expressions.json": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e"
+      },
+      "summary": {
+        "case_id": "q31",
+        "image_transport": "files",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "file_api_calls": 0,
+        "usage": {
+          "input_tokens": 10664,
+          "output_tokens": 3142,
+          "reasoning_tokens": 2978,
+          "visible_output_tokens": 164,
+          "usage_available": true
+        },
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "basic_inequality",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 14.124
+      },
+      "notation_family_catalog_hash": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    },
+    {
+      "sample_id": "sample-02",
+      "source_run": "internal/solver-runs/basic-inequality-stage1-live-20260922-retry/q31/q31/sample-02/run",
+      "provider": "deepseek",
+      "response_id": "7a84e7d7-b88c-4194-bc71-3a0463613502",
+      "response_model": "deepseek-flash",
+      "response_created": 1790091564,
+      "raw_response": "{\n  \"original_text\": \"已知正数 a，b 满足 a+b=1，c∈R，则 \\\\frac{3a}{bc^2+b}+\\\\frac{1}{abc^2+ab}+2c^2 的最小值为________.\",\n  \"root\": {\n    \"facts\": [\"a > 0\", \"b > 0\", \"a + b = 1\", \"c ∈ ℝ\"],\n    \"goals\": [\n      {\n        \"kind\": \"find_minimum\",\n        \"expression\": \"3*a/(b*c^2+b)+1/(a*b*c^2+a*b)+2*c^2\"\n      }\n    ]\n  },\n  \"match_status\": \"matched\",\n  \"family_id\": \"basic_inequality\",\n  \"match_reason\": \"题面给出正数 a,b 满足 a+b=1，c∈R，要求代数式的最小值，符合基本不等式题型。\"\n}",
+      "sha256": "a1003b0cd56e01065d9b74b52b17a4a679a6df530209ca0326c433fe4d8a0885",
+      "gold_file_sha256": "06e9468f4dd03d3a8b1c6c68f818994301d7c1d2c5b041dcaa1ac1f55f171591",
+      "image_sha256": "88d347822c840b4c6836fa1be794e1963199400f262510d8b811e7d33f01bcbb",
+      "template_files": {
+        "internal/llm-prompts/problem-math-notation-system.md": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
+        "internal/llm-prompts/problem-math-notation-user.md": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e",
+        "internal/schemas/problem-math-notation-v1.schema.json": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+        "internal/llm-prompts/problem-math-notation-expressions.json": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e"
+      },
+      "summary": {
+        "case_id": "q31",
+        "image_transport": "files",
+        "passed": true,
+        "candidate_only": true,
+        "source_reviewed": false,
+        "solver_ready": false,
+        "semantic_calls": 1,
+        "network_attempts": 1,
+        "file_api_calls": 0,
+        "usage": {
+          "input_tokens": 10664,
+          "output_tokens": 2098,
+          "reasoning_tokens": 1898,
+          "visible_output_tokens": 200,
+          "usage_available": true
+        },
+        "continuation": {
+          "status": "candidate_only",
+          "blocked": false,
+          "error_code": null,
+          "user_action": null,
+          "message": null,
+          "missing_figures": []
+        },
+        "match_status": "matched",
+        "family_id": "basic_inequality",
+        "match_correct": true,
+        "strict_semantics_passed": true,
+        "accepted_omissions": [],
+        "contract_valid": true,
+        "elapsed_seconds": 9.283
+      },
+      "notation_family_catalog_hash": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    }
+  ]
+}

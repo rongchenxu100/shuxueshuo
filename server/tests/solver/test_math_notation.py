@@ -101,7 +101,7 @@ def test_contract_annotations_and_no_old_fact_schema_in_actual_request(tmp_path)
     assert "angle(B,A,C)" not in request.prompt.user_prefix
     assert request.prompt.user_suffix == USER_PATH.read_text().strip()
     examples = re.findall(r"```json\n(.*?)\n```", request.prompt.system, re.DOTALL)
-    assert len(examples) == 6
+    assert len(examples) == 7
     for raw in examples:
         example = json.loads(raw)
         assert example["original_text"]

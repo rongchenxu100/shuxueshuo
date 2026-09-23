@@ -239,7 +239,7 @@ def test_few_shots_cover_state_scope_missing_diagrams_and_preserve_branches():
     examples = [
         json.loads(s) for s in re.findall(r"```json\n(.*?)\n```", SYSTEM, re.DOTALL)
     ]
-    assert len(examples) == 6
+    assert len(examples) == 7
     single = examples[1]["root"]["goals"]
     parallel = examples[3]["root"]["goals"]
     assert len(single) == 1 and single[0]["kind"] == "find_minimum"

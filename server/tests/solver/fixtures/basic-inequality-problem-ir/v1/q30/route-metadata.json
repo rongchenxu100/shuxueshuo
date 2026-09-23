@@ -1,0 +1,12 @@
+{
+  "problem_id": "q30",
+  "methods": [
+    "organize_expressions",
+    "apply_two_term_amgm",
+    "bound_univariate_quadratic",
+    "apply_two_term_amgm",
+    "close_equality_and_restore"
+  ],
+  "catalog_only": true,
+  "used_for": "integration assertions only"
+}

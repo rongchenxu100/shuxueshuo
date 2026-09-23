@@ -23,6 +23,9 @@ REPO = Path(__file__).resolve().parents[3]
 FIXTURES = REPO / "server/tests/solver/fixtures/math-notation-v1/basic-inequality"
 MANIFEST_PATH = FIXTURES / "manifest.json"
 CASES = tuple(json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))["cases"])
+MANIFEST = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+SAMPLES_PER_CASE = int(MANIFEST["samples_per_case"])
+DEFERRED_CASES = MANIFEST["deferred_cases"]
 
 
 def failure_category(result: dict) -> str | None:
@@ -101,7 +104,7 @@ def run_batch(
     output: Path,
     *,
     cases: tuple[str, ...] = CASES,
-    samples: int = 2,
+    samples: int = SAMPLES_PER_CASE,
     provider_factory=None,
 ):
     if samples not in (1, 2):

@@ -1,0 +1,184 @@
+{
+  "schema_version": "basic-inequality-problem-ir/v1",
+  "problem_id": "q30",
+  "meta": {
+    "problem_id": "q30",
+    "title": "若 a>b>c>0，则 2a^2+1/(a*b)+1/(a*(a-b))-10ac+25c^2 的最小值是（ ）。"
+  },
+  "input": {
+    "problem_id": "q30",
+    "pattern": "basic-inequality",
+    "problem_type": "basic_inequality",
+    "display": {
+      "page_title": "q30",
+      "summary": "若 a>b>c>0，则 2a^2+1/(a*b)+1/(a*(a-b))-10ac+25c^2 的最小值是（ ）。"
+    },
+    "original_text": {
+      "source": "basic-inequality frozen notation gold",
+      "number": "q30",
+      "lines": [
+        "若 a>b>c>0，则 2a^2+1/(a*b)+1/(a*(a-b))-10ac+25c^2 的最小值是（ ）。"
+      ]
+    },
+    "scopes": [
+      {
+        "scope_id": "scope_q30_root",
+        "label": "q30",
+        "parent": null,
+        "source_path": "/root"
+      }
+    ],
+    "entities": [
+      {
+        "handle": "symbol:q30_root:a",
+        "entity_type": "symbol",
+        "name": "a",
+        "scope_id": "scope_q30_root",
+        "description": "代数符号 a",
+        "source_path": "/root/facts/0",
+        "source_text": "a > b",
+        "normalized_expression": "a",
+        "sample_hashes": [
+          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
+          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        ]
+      },
+      {
+        "handle": "symbol:q30_root:b",
+        "entity_type": "symbol",
+        "name": "b",
+        "scope_id": "scope_q30_root",
+        "description": "代数符号 b",
+        "source_path": "/root/facts/0",
+        "source_text": "a > b",
+        "normalized_expression": "b",
+        "sample_hashes": [
+          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
+          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        ]
+      },
+      {
+        "handle": "symbol:q30_root:c",
+        "entity_type": "symbol",
+        "name": "c",
+        "scope_id": "scope_q30_root",
+        "description": "代数符号 c",
+        "source_path": "/root/facts/1",
+        "source_text": "b > c",
+        "normalized_expression": "c",
+        "sample_hashes": [
+          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
+          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "handle": "fact:q30_root:f0_0",
+        "type": "symbol_constraint",
+        "scope_id": "scope_q30_root",
+        "valid_scope": "scope_q30_root",
+        "description": "a > b",
+        "source_path": "/root/facts/0",
+        "source_text": "a > b",
+        "normalized_expression": "a > b",
+        "entity_handles": [
+          "symbol:q30_root:a",
+          "symbol:q30_root:b"
+        ],
+        "sample_hashes": [
+          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
+          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        ]
+      },
+      {
+        "handle": "fact:q30_root:f1_0",
+        "type": "symbol_constraint",
+        "scope_id": "scope_q30_root",
+        "valid_scope": "scope_q30_root",
+        "description": "b > c",
+        "source_path": "/root/facts/1",
+        "source_text": "b > c",
+        "normalized_expression": "b > c",
+        "entity_handles": [
+          "symbol:q30_root:b",
+          "symbol:q30_root:c"
+        ],
+        "sample_hashes": [
+          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
+          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        ]
+      },
+      {
+        "handle": "fact:q30_root:f2_0",
+        "type": "symbol_constraint",
+        "scope_id": "scope_q30_root",
+        "valid_scope": "scope_q30_root",
+        "description": "c > 0",
+        "source_path": "/root/facts/2",
+        "source_text": "c > 0",
+        "normalized_expression": "c > 0",
+        "entity_handles": [
+          "symbol:q30_root:c"
+        ],
+        "sample_hashes": [
+          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
+          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        ]
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:q30_root_g0",
+        "scope_id": "scope_q30_root",
+        "valid_scope": "scope_q30_root",
+        "answer_key": "q30_g0",
+        "value_type": "MinimumExpression",
+        "required": true,
+        "description": "find_minimum: 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
+        "goal_kind": "find_minimum",
+        "target_expression": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
+        "source_path": "/root/goals/0",
+        "source_text": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
+        "normalized_expression": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
+        "sample_hashes": [
+          "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
+          "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+        ]
+      }
+    ]
+  },
+  "family_match": {
+    "family_id": "basic_inequality",
+    "matched_by": [
+      "pattern",
+      "problem_type"
+    ]
+  },
+  "provenance": {
+    "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q30.json",
+    "gold_sha256": "c3e45acd76516fbc4cf51aa175f6508c29478cdafe2f82333fed34b43ffe313f",
+    "sample_ids": [
+      "sample-01",
+      "sample-02"
+    ],
+    "sample_hashes": [
+      "efcb094008d0737bbd91c6fe38466c2c69311c4d8f0db97b8397b35e62ddbb3e",
+      "7fadaa84f562fc87a8963853349de2ef5642934ca9f245d37f1092be1a08908e"
+    ],
+    "required_sample_count": 2,
+    "image_path": "math-notation-v1/basic-inequality/images/q30.png",
+    "notation_contract": "problem-math-notation/v1",
+    "prompt_hashes": {
+      "system": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
+      "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+    },
+    "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+    "catalog_hashes": {
+      "expressions": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e",
+      "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    },
+    "canonical_hash": "963b43222f0195fea5559e2419bd8d6ddb55486947f7b7cf314a1129f9608537",
+    "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+  }
+}

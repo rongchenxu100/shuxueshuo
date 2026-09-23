@@ -1,0 +1,11 @@
+{
+  "problem_id": "q25",
+  "methods": [
+    "introduce_semantic_substitution",
+    "organize_expressions",
+    "apply_two_term_amgm",
+    "close_equality_and_restore"
+  ],
+  "catalog_only": true,
+  "used_for": "integration assertions only"
+}

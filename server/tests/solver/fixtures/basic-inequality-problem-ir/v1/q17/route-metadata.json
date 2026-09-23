@@ -1,0 +1,11 @@
+{
+  "problem_id": "q17",
+  "methods": [
+    "organize_expressions",
+    "bound_univariate_quadratic",
+    "solve_univariate_inequality",
+    "close_equality_and_restore"
+  ],
+  "catalog_only": true,
+  "used_for": "integration assertions only"
+}

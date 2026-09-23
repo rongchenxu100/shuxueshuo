@@ -1,8 +1,10 @@
 """Offline stage-0 contract and replay gates for the basic-inequality family."""
 
 import json
+from copy import deepcopy
 from hashlib import sha256
 from pathlib import Path
+import re
 
 import pytest
 from jsonschema import Draft202012Validator
@@ -19,7 +21,7 @@ from shuxueshuo_server.problem_understanding.notation_family_catalog import (
     CATALOG_PATH,
     notation_family_catalog,
 )
-from shuxueshuo_server.problem_understanding.notation_semantics import canonical
+from shuxueshuo_server.problem_understanding.notation_semantics import canonical, compare
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -101,6 +103,36 @@ def test_basic_fixture_manifest_is_image_only_and_frozen():
         assert sha256((FIXTURES / f"{case}.json").read_bytes()).hexdigest() == manifest[
             "gold_sha256"
         ][case]
+
+
+def test_product_few_shot_binds_only_the_two_source_variables():
+    examples = [
+        json.loads(text)
+        for text in re.findall(
+            r"```json\n(.*?)\n```", SYSTEM_PATH.read_text(encoding="utf-8"), re.DOTALL
+        )
+    ]
+    example = next(item for item in examples if "uv=6" in item["original_text"])
+    report = NotationValidator().validate(example)
+    assert report.ok, report.payload()
+    assert {(item["name"], item["kind"]) for item in report.objects} == {
+        ("u", "scalar"), ("v", "scalar")
+    }
+    assert example["root"]["goals"][0]["expression"] == "(u*v)^2/(u+v)+u*(v+1)"
+
+
+def test_q20_product_and_independent_xy_symbol_are_not_equivalent():
+    gold = json.loads((FIXTURES / "q20.json").read_text(encoding="utf-8"))
+    assert compare(gold, gold)["ok"]
+    ambiguous = deepcopy(gold)
+    ambiguous["root"]["facts"][2] = "(x-y)^2 = (xy)^3"
+    report = NotationValidator().validate(ambiguous)
+    assert report.ok, report.payload()
+    assert {item["name"] for item in report.objects} == {"x", "y", "xy"}
+    result = compare(gold, ambiguous)
+    assert not result["ok"]
+    assert result["classification"] == "not_proven_equivalent"
+    assert {item["path"] for item in result["differences"]} == {"/root/facts"}
 
 
 @pytest.mark.parametrize("case", CASES)

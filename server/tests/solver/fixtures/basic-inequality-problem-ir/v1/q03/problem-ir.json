@@ -1,0 +1,169 @@
+{
+  "schema_version": "basic-inequality-problem-ir/v1",
+  "problem_id": "q03",
+  "meta": {
+    "problem_id": "q03",
+    "title": "3. 已知正实数 x，y 满足 1/x+1/y=1，则 x+4y 的最小值为____。"
+  },
+  "input": {
+    "problem_id": "q03",
+    "pattern": "basic-inequality",
+    "problem_type": "basic_inequality",
+    "display": {
+      "page_title": "q03",
+      "summary": "3. 已知正实数 x，y 满足 1/x+1/y=1，则 x+4y 的最小值为____。"
+    },
+    "original_text": {
+      "source": "basic-inequality frozen notation gold",
+      "number": "q03",
+      "lines": [
+        "3. 已知正实数 x，y 满足 1/x+1/y=1，则 x+4y 的最小值为____。"
+      ]
+    },
+    "scopes": [
+      {
+        "scope_id": "scope_q03_root",
+        "label": "q03",
+        "parent": null,
+        "source_path": "/root"
+      }
+    ],
+    "entities": [
+      {
+        "handle": "symbol:q03_root:x",
+        "entity_type": "symbol",
+        "name": "x",
+        "scope_id": "scope_q03_root",
+        "description": "代数符号 x",
+        "source_path": "/root/facts/0",
+        "source_text": "x > 0",
+        "normalized_expression": "x",
+        "sample_hashes": [
+          "8f4655e2e62abb0aa5fb61a1a64ff27d9f71cf5e450185e33d2e605708a49cb7",
+          "0a3adc11c25651c16fda18c1764d3225c77c01093e7cfb898000fd55f25f7bc6"
+        ]
+      },
+      {
+        "handle": "symbol:q03_root:y",
+        "entity_type": "symbol",
+        "name": "y",
+        "scope_id": "scope_q03_root",
+        "description": "代数符号 y",
+        "source_path": "/root/facts/1",
+        "source_text": "y > 0",
+        "normalized_expression": "y",
+        "sample_hashes": [
+          "8f4655e2e62abb0aa5fb61a1a64ff27d9f71cf5e450185e33d2e605708a49cb7",
+          "0a3adc11c25651c16fda18c1764d3225c77c01093e7cfb898000fd55f25f7bc6"
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "handle": "fact:q03_root:f0_0",
+        "type": "symbol_constraint",
+        "scope_id": "scope_q03_root",
+        "valid_scope": "scope_q03_root",
+        "description": "x > 0",
+        "source_path": "/root/facts/0",
+        "source_text": "x > 0",
+        "normalized_expression": "x > 0",
+        "entity_handles": [
+          "symbol:q03_root:x"
+        ],
+        "sample_hashes": [
+          "8f4655e2e62abb0aa5fb61a1a64ff27d9f71cf5e450185e33d2e605708a49cb7",
+          "0a3adc11c25651c16fda18c1764d3225c77c01093e7cfb898000fd55f25f7bc6"
+        ]
+      },
+      {
+        "handle": "fact:q03_root:f1_0",
+        "type": "symbol_constraint",
+        "scope_id": "scope_q03_root",
+        "valid_scope": "scope_q03_root",
+        "description": "y > 0",
+        "source_path": "/root/facts/1",
+        "source_text": "y > 0",
+        "normalized_expression": "y > 0",
+        "entity_handles": [
+          "symbol:q03_root:y"
+        ],
+        "sample_hashes": [
+          "8f4655e2e62abb0aa5fb61a1a64ff27d9f71cf5e450185e33d2e605708a49cb7",
+          "0a3adc11c25651c16fda18c1764d3225c77c01093e7cfb898000fd55f25f7bc6"
+        ]
+      },
+      {
+        "handle": "fact:q03_root:f2_0",
+        "type": "equation",
+        "scope_id": "scope_q03_root",
+        "valid_scope": "scope_q03_root",
+        "description": "1/x+1/y = 1",
+        "source_path": "/root/facts/2",
+        "source_text": "1/x+1/y = 1",
+        "normalized_expression": "1/x+1/y = 1",
+        "entity_handles": [
+          "symbol:q03_root:x",
+          "symbol:q03_root:y"
+        ],
+        "sample_hashes": [
+          "8f4655e2e62abb0aa5fb61a1a64ff27d9f71cf5e450185e33d2e605708a49cb7",
+          "0a3adc11c25651c16fda18c1764d3225c77c01093e7cfb898000fd55f25f7bc6"
+        ]
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:q03_root_g0",
+        "scope_id": "scope_q03_root",
+        "valid_scope": "scope_q03_root",
+        "answer_key": "q03_g0",
+        "value_type": "MinimumExpression",
+        "required": true,
+        "description": "find_minimum: x+4*y",
+        "goal_kind": "find_minimum",
+        "target_expression": "x+4*y",
+        "source_path": "/root/goals/0",
+        "source_text": "x+4*y",
+        "normalized_expression": "x+4*y",
+        "sample_hashes": [
+          "8f4655e2e62abb0aa5fb61a1a64ff27d9f71cf5e450185e33d2e605708a49cb7",
+          "0a3adc11c25651c16fda18c1764d3225c77c01093e7cfb898000fd55f25f7bc6"
+        ]
+      }
+    ]
+  },
+  "family_match": {
+    "family_id": "basic_inequality",
+    "matched_by": [
+      "pattern",
+      "problem_type"
+    ]
+  },
+  "provenance": {
+    "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q03.json",
+    "gold_sha256": "7b3de185cda353b245ab447b868ce9f1ef997c3c307de61b2156f72c0fb8e480",
+    "sample_ids": [
+      "sample-01",
+      "sample-02"
+    ],
+    "sample_hashes": [
+      "8f4655e2e62abb0aa5fb61a1a64ff27d9f71cf5e450185e33d2e605708a49cb7",
+      "0a3adc11c25651c16fda18c1764d3225c77c01093e7cfb898000fd55f25f7bc6"
+    ],
+    "required_sample_count": 2,
+    "image_path": "math-notation-v1/basic-inequality/images/q03.png",
+    "notation_contract": "problem-math-notation/v1",
+    "prompt_hashes": {
+      "system": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
+      "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+    },
+    "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+    "catalog_hashes": {
+      "expressions": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e",
+      "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    },
+    "canonical_hash": "bb8af7698517e018c8640182435b4896216c025d467527ba95a5d94e952453a0",
+    "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+  }
+}

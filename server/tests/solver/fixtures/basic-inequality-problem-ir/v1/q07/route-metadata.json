@@ -1,0 +1,10 @@
+{
+  "problem_id": "q07",
+  "methods": [
+    "apply_two_term_amgm",
+    "apply_two_term_amgm",
+    "close_equality_and_restore"
+  ],
+  "catalog_only": true,
+  "used_for": "integration assertions only"
+}

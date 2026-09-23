@@ -1,0 +1,169 @@
+{
+  "schema_version": "basic-inequality-problem-ir/v1",
+  "problem_id": "q01",
+  "meta": {
+    "problem_id": "q01",
+    "title": "1. 设正实数 m，n 满足 m+n=2，则 mn 的最大值为____。"
+  },
+  "input": {
+    "problem_id": "q01",
+    "pattern": "basic-inequality",
+    "problem_type": "basic_inequality",
+    "display": {
+      "page_title": "q01",
+      "summary": "1. 设正实数 m，n 满足 m+n=2，则 mn 的最大值为____。"
+    },
+    "original_text": {
+      "source": "basic-inequality frozen notation gold",
+      "number": "q01",
+      "lines": [
+        "1. 设正实数 m，n 满足 m+n=2，则 mn 的最大值为____。"
+      ]
+    },
+    "scopes": [
+      {
+        "scope_id": "scope_q01_root",
+        "label": "q01",
+        "parent": null,
+        "source_path": "/root"
+      }
+    ],
+    "entities": [
+      {
+        "handle": "symbol:q01_root:m",
+        "entity_type": "symbol",
+        "name": "m",
+        "scope_id": "scope_q01_root",
+        "description": "代数符号 m",
+        "source_path": "/root/facts/0",
+        "source_text": "m > 0",
+        "normalized_expression": "m",
+        "sample_hashes": [
+          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
+          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        ]
+      },
+      {
+        "handle": "symbol:q01_root:n",
+        "entity_type": "symbol",
+        "name": "n",
+        "scope_id": "scope_q01_root",
+        "description": "代数符号 n",
+        "source_path": "/root/facts/1",
+        "source_text": "n > 0",
+        "normalized_expression": "n",
+        "sample_hashes": [
+          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
+          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "handle": "fact:q01_root:f0_0",
+        "type": "symbol_constraint",
+        "scope_id": "scope_q01_root",
+        "valid_scope": "scope_q01_root",
+        "description": "m > 0",
+        "source_path": "/root/facts/0",
+        "source_text": "m > 0",
+        "normalized_expression": "m > 0",
+        "entity_handles": [
+          "symbol:q01_root:m"
+        ],
+        "sample_hashes": [
+          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
+          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        ]
+      },
+      {
+        "handle": "fact:q01_root:f1_0",
+        "type": "symbol_constraint",
+        "scope_id": "scope_q01_root",
+        "valid_scope": "scope_q01_root",
+        "description": "n > 0",
+        "source_path": "/root/facts/1",
+        "source_text": "n > 0",
+        "normalized_expression": "n > 0",
+        "entity_handles": [
+          "symbol:q01_root:n"
+        ],
+        "sample_hashes": [
+          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
+          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        ]
+      },
+      {
+        "handle": "fact:q01_root:f2_0",
+        "type": "equation",
+        "scope_id": "scope_q01_root",
+        "valid_scope": "scope_q01_root",
+        "description": "m+n = 2",
+        "source_path": "/root/facts/2",
+        "source_text": "m+n = 2",
+        "normalized_expression": "m+n = 2",
+        "entity_handles": [
+          "symbol:q01_root:m",
+          "symbol:q01_root:n"
+        ],
+        "sample_hashes": [
+          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
+          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        ]
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:q01_root_g0",
+        "scope_id": "scope_q01_root",
+        "valid_scope": "scope_q01_root",
+        "answer_key": "q01_g0",
+        "value_type": "MaximumExpression",
+        "required": true,
+        "description": "find_maximum: m*n",
+        "goal_kind": "find_maximum",
+        "target_expression": "m*n",
+        "source_path": "/root/goals/0",
+        "source_text": "m*n",
+        "normalized_expression": "m*n",
+        "sample_hashes": [
+          "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
+          "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+        ]
+      }
+    ]
+  },
+  "family_match": {
+    "family_id": "basic_inequality",
+    "matched_by": [
+      "pattern",
+      "problem_type"
+    ]
+  },
+  "provenance": {
+    "gold_path": "tests/solver/fixtures/math-notation-v1/basic-inequality/q01.json",
+    "gold_sha256": "0aed5d57132546caa434be5b0a8ae66cff448722a0ed89feaecb3142670ca2b0",
+    "sample_ids": [
+      "sample-01",
+      "sample-02"
+    ],
+    "sample_hashes": [
+      "b1b1743a9816218d6763eb8dbc97464c39213991e99e532f3722721f4878fdc9",
+      "4648feb693cece78ef6876ad5d760f73b4a3d6bd6978e5609bc2032b8934f4e8"
+    ],
+    "required_sample_count": 2,
+    "image_path": "math-notation-v1/basic-inequality/images/q01.png",
+    "notation_contract": "problem-math-notation/v1",
+    "prompt_hashes": {
+      "system": "47178b9e7b228ddcd621356ea38a54099b897763c6e05280862d3887a0701a87",
+      "user": "8a9aaf948d9bf2754bd991d07a7093f94834a8debd7fd5988a269dd5d965442e"
+    },
+    "schema_hash": "4ad962d3bfc67be3b37f7c411980535f1186964ac19c342b54d0c28121d5d566",
+    "catalog_hashes": {
+      "expressions": "64b2c319d56da8690ac6b04da03bff4c6ff1bf60f4dcda98db9806cdc6b9e95e",
+      "families": "1a043939cc246358ae4b015d80eda5c9e99c0c782fbe1ff2cd42ba8e88ed5994"
+    },
+    "canonical_hash": "e1ca489942f2c1b55254efc3dba78014255bc55aaebabe990ded15c7bf242cf2",
+    "deferred_cases": "q02,q04-q06,q09-q11,q13-q16,q18-q19,q21-q24,q26-q29"
+  }
+}
