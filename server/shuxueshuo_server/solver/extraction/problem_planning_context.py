@@ -64,6 +64,7 @@ def planner_problem_view_schema() -> dict[str, Any]:
                     "quadratic_equation",
                     "parameter_value",
                     "minimum_value",
+                    "maximum_value",
                 ]
             },
             "goal_ref": {
@@ -105,7 +106,7 @@ def planner_problem_view_schema() -> dict[str, Any]:
             },
             {
                 "if": {
-                    "properties": {"kind": {"const": "minimum_value"}},
+                    "properties": {"kind": {"enum": ["minimum_value", "maximum_value"]}},
                     "required": ["kind"],
                 },
                 "then": {"required": ["expression"]},

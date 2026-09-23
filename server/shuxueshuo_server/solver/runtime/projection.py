@@ -253,6 +253,12 @@ def _runtime_data_from_canonical(
         ),
     }
     path_problem = _runtime_path_problem(payload, facts)
+    root_goals = [
+        _runtime_goal(goal, parents={}, entity_names=entity_names)
+        for goal in goals if goal.get("scope_id") == "problem"
+    ]
+    if root_goals:
+        data["goals"] = root_goals
     if path_problem is not None:
         data["path_problem"] = path_problem
     parameter = _dynamic_parameter(symbols, symbol_roles)
@@ -357,7 +363,7 @@ def _runtime_function(entities: list[dict[str, Any]]) -> dict[str, Any]:
                 else {}
             ),
         }
-    return {"id": "parabola", "type": "quadratic", "expression": "a*x**2 + b*x + c"}
+    return {}
 
 
 def _runtime_points(

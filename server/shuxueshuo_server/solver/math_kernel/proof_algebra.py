@@ -26,6 +26,22 @@ def freeze(value):
     )
 
 
+def commutative_key(value):
+    """Comparison-only key for validated scalar proof trees.
+
+    Swap the two children of add/mul, including inside a radical. Do not
+    flatten, distribute, cancel, or reorder any other operator. The original
+    AST, domain obligations and certificate sources are never rewritten.
+    """
+    if not isinstance(value, (tuple, list)):
+        return value
+    op, *children = value
+    children = tuple(commutative_key(child) for child in children)
+    if op in {"add", "mul"}:
+        children = tuple(sorted(children))
+    return (op, *children)
+
+
 def digest(value):
     return sha256(
         json.dumps(

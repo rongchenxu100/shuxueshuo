@@ -87,7 +87,8 @@
             "point_coordinate",
             "quadratic_equation",
             "parameter_value",
-            "minimum_value"
+            "minimum_value",
+            "maximum_value"
           ]
         },
         "goal_ref": {
@@ -135,7 +136,10 @@
           "if": {
             "properties": {
               "kind": {
-                "const": "minimum_value"
+                "enum": [
+                  "minimum_value",
+                  "maximum_value"
+                ]
               }
             },
             "required": [

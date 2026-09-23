@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 import sympy as sp
+
 from shuxueshuo_server.solver.math_kernel.expression_parser import (
     parse_math_expression,
     parse_math_relation,
@@ -63,6 +64,35 @@ def check(text, ctx, expected=True):
         replay = replay_proof(json.loads(json.dumps(result.proof)), ctx)
         assert replay.status == "proved", replay.to_payload()
     return result
+
+
+@pytest.mark.parametrize("candidate", ["x>-1", "-x<1"])
+def test_relation_transport_certifies_substitution_and_direction(candidate):
+    ctx = context("x+y>0", "y=1")
+    result = check(candidate, ctx)
+    nodes = [
+        n for n in result.proof["nodes"] if n["rule_id"] == "math.relation_transport"
+    ]
+    assert nodes
+    changed = deepcopy(result.proof)
+    node = next(
+        n for n in changed["nodes"] if n["rule_id"] == "math.relation_transport"
+    )
+    node["certificate"]["ratio"] = "-7"
+    assert replay_proof(changed, ctx).status == "not_proved"
+    check(candidate, context("x+y>0"), False)
+
+
+def test_squared_amgm_rule_replays_its_positive_term_dependencies():
+    ctx = context("x>0", "y>0", "x+y>=2*sqrt(x*y)")
+    result = check("x*y<=(x+y)^2/4", ctx)
+    changed = deepcopy(result.proof)
+    node = next(
+        n for n in changed["nodes"] if n["rule_id"] == "math.amgm_squared_bound"
+    )
+    node["children"].pop()
+    assert replay_proof(changed, ctx).status == "not_proved"
+    check("x*y<=(x+y)^2/4-1", ctx, False)
 
 
 @pytest.mark.parametrize(
@@ -805,3 +835,81 @@ def test_explicitly_nonreal_symbol_is_rejected():
     symbols = {"x": sp.Symbol("x", imaginary=True)}
     result = prove_relation(relation("x^2>=0", symbols), ProofContext(symbols))
     assert result.status == "not_proved" and result.code == "invalid_input"
+
+
+@pytest.mark.parametrize("total,bound", [("2", "1"), ("6", "9"), ("1/2", "1/16")])
+def test_amgm_fixed_sum_certificate_replays(total, bound):
+    ctx = context("x>0", "y>0", f"x+y={total}")
+    check("x+y>=2*sqrt(x*y)", ctx)
+    result = check(f"x*y<={bound}", ctx)
+    assert any(
+        n["rule_id"] == "math.fixed_sum_product_bound" for n in result.proof["nodes"]
+    )
+    damaged = deepcopy(result.proof)
+    node = next(
+        n for n in damaged["nodes"] if n["rule_id"] == "math.fixed_sum_product_bound"
+    )
+    node["certificate"]["sum_premise"] = "given_0"
+    assert replay_proof(damaged, ctx).status == "not_proved"
+
+
+@pytest.mark.parametrize(
+    "facts,goal",
+    [
+        (("x+y=2",), "x+y>=2*sqrt(x*y)"),
+        (("x>0", "y>0", "x+y=2"), "x*y<=1/2"),
+        (("x>0", "y>0", "x+y=2"), "x*y>=1"),
+        (("x>0", "y>0"), "x+y>=3*sqrt(x*y)"),
+        (("x>0", "y>0"), "x+y<=2*sqrt(x*y)"),
+        (("x>0", "y>0", "x+y=2"), "a*b<=1"),
+        (("x>0", "y>0", "x+y=-2"), "x*y<=1"),
+    ],
+)
+def test_amgm_rejects_unproved_conditions_or_wrong_bound(facts, goal):
+    check(goal, context(*facts), False)
+
+
+@pytest.mark.parametrize("total", ["x+y", "y+x"])
+@pytest.mark.parametrize("product", ["x*y", "y*x"])
+@pytest.mark.parametrize("root_first", [False, True])
+def test_amgm_commuted_terms_preserve_source_and_replay(total, product, root_first):
+    rhs = f"sqrt({product})*2" if root_first else f"2*sqrt({product})"
+    text = f"{total}>={rhs}"
+    parsed = relation(text)
+    original_ast = from_node(parsed.ast)
+    result = check(text, context("x>0", "y>0", "x+y=2"))
+    theorem = next(
+        n for n in result.proof["nodes"] if n["rule_id"] == "math.two_term_amgm"
+    )
+    from shuxueshuo_server.solver.math_kernel.proof_algebra import freeze
+
+    assert freeze(theorem["conclusion"]) == original_ast
+    assert parsed.source == text
+    assert from_node(parsed.ast) == original_ast
+    check(text, context("x+y=2"), False)
+
+
+@pytest.mark.parametrize(
+    "rhs", ["2*sqrt(y/x)", "2*sqrt(y-x)", "3*sqrt(y*x)", "2*sqrt(x*x)"]
+)
+def test_amgm_commutation_does_not_change_operations_or_factors(rhs):
+    check(f"x+y>={rhs}", context("x>0", "y>0", "x+y=2"), False)
+
+
+def test_commuted_amgm_retains_denominator_obligations():
+    from shuxueshuo_server.solver.math_kernel.proof_algebra import ZERO, freeze
+
+    result = check("x+1/x>=2*sqrt((1/x)*x)", context("x>0"))
+    assert any(
+        freeze(node["conclusion"]) == ("!=", ("symbol", "x"), ZERO)
+        for node in result.proof["nodes"]
+    )
+    check("x+1/x>=2*sqrt((1/x)*x)", context(), False)
+
+
+def test_commuted_amgm_replay_rejects_different_radical():
+    result = check("y+x>=2*sqrt(x*y)", context("x>0", "y>0"))
+    proof = deepcopy(result.proof)
+    node = next(n for n in proof["nodes"] if n["rule_id"] == "math.two_term_amgm")
+    node["conclusion"] = from_node(relation("y+x>=2*sqrt(x/y)").ast)
+    assert replay_proof(proof, context("x>0", "y>0")).status == "not_proved"

@@ -1,0 +1,55 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": [
+      {
+        "goal_ref": "problem.maximum",
+        "steps": [
+          {
+            "step_id": "bound",
+            "capability_id": "apply_two_term_amgm",
+            "args": {
+              "target": "extremum_target"
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "m+n>=2*sqrt(m*n)"
+                },
+                {
+                  "math": "m*n<=1"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "attain",
+            "capability_id": "close_equality_and_restore",
+            "args": {
+              "target": "extremum_target",
+              "bound": {
+                "step_id": "bound",
+                "return": "bound"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "m=1"
+                },
+                {
+                  "math": "n=1"
+                }
+              ]
+            }
+          }
+        ],
+        "answer_from": {
+          "step_id": "attain",
+          "return": "maximum"
+        }
+      }
+    ]
+  }
+}

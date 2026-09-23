@@ -1,0 +1,65 @@
+{
+  "method_id": "close_equality_and_restore",
+  "title": "取等并验证原条件",
+  "description": "",
+  "summary": "消费已验证上界和同一个题面目标。steps 用 1–12 行写出取等条件、具体取值、原条件代回与目标值验算；允许 ∵/∴ 和关系链。例如 ∵x=y,x+y=6；∴x=y=3；∴x+y=6,x*y=9（分行写）。每个原变量必须有明确常量赋值，不能只写待求方程。内核同步代入验证全部提交关系、原条件、定义域、AM-GM 取等条件和目标值；只在提交的取等见证下验证，不把取等假设提升为全局事实，不搜索或枚举全部解。",
+  "solves": [
+    "derive_maximum_value"
+  ],
+  "inputs": {
+    "target": {
+      "required": true,
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    },
+    "bound": {
+      "required": true,
+      "allows_anonymous_result": true,
+      "domain_type": "AmgmBound",
+      "runtime_type": "AmgmBound",
+      "view": {
+        "mode": "exact_result",
+        "domain_type": "AmgmBound"
+      }
+    }
+  },
+  "outputs": {
+    "maximum": "MaximumExpression"
+  },
+  "is_pure": true,
+  "parameters_schema": {
+    "type": "object",
+    "required": [
+      "steps"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "steps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 12,
+        "description": "完整取等推导和验算，可包含原条件、取等条件、具体赋值及目标值。支持 ∵/∴、逗号/分号、x=y=常数。必须明确给出每个原变量的具体取值；所有关系在该见证下验证，不声明对所有可行取值成立。",
+        "items": {
+          "type": "object",
+          "required": [
+            "math"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "math": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        }
+      }
+    }
+  },
+  "generic_teaching_reason": "由上界证据及原条件代回证据组织取等讲解。",
+  "no_new_visual_reason": "只验证有限见证，不产生几何对象。"
+}

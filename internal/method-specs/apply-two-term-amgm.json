@@ -1,0 +1,59 @@
+{
+  "method_id": "apply_two_term_amgm",
+  "title": "应用二元基本不等式",
+  "description": "",
+  "summary": "验证两个正项定和求积的完整上界推导。steps 可有 1–12 行，包含 U+V>=2*sqrt(U*V)，显式代入定和、缩放等中间步骤，最后目标表达式<=常数。允许 ∵/∴ 连续推理和 A<=B=C 关系链，所有陈述均由内核验证，∵ 不创造前提。例如 ∵x>0,y>0；∴x+y>=2*sqrt(x*y)；∵x+y=6；∴6>=2*sqrt(x*y)；∴sqrt(x*y)<=3；∴x*y<=9（分行写）。只产生上界，取等交给 close_equality_and_restore。",
+  "solves": [
+    "derive_product_upper_bound"
+  ],
+  "inputs": {
+    "target": {
+      "required": true,
+      "role": "题面极值目标及完整原条件",
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    }
+  },
+  "outputs": {
+    "bound": "AmgmBound"
+  },
+  "is_pure": true,
+  "parameters_schema": {
+    "type": "object",
+    "required": [
+      "steps"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "steps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 12,
+        "description": "完整数学推导，可写原条件、AM-GM、代入、缩放和上界。支持 ∵/∴、逗号/分号分隔关系和关系链；每个关系均验证。变量乘法用 *。最后归结为目标表达式<=常数。",
+        "items": {
+          "type": "object",
+          "required": [
+            "math"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "math": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        }
+      }
+    }
+  },
+  "do_not_use_when": [
+    "项不为正、非二元定和求积或需要先换元整理。"
+  ],
+  "generic_teaching_reason": "由已验证 AM-GM 证据组织讲解。",
+  "no_new_visual_reason": "仅生成代数不等式证据。"
+}

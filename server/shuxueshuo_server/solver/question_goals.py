@@ -55,6 +55,8 @@ def extract_question_goals(problem: ProblemIR) -> list[QuestionGoal]:
             visit(child)
 
     raw_questions = problem.data.get("questions", [])
+    if problem.data.get("goals"):
+        visit({"id": "problem", "goals": problem.data["goals"]})
     if not isinstance(raw_questions, list):
         raise QuestionGoalError("ProblemIR.data.questions must be a list")
     for raw_question in raw_questions:

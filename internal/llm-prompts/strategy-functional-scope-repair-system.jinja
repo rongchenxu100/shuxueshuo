@@ -14,6 +14,6 @@
 
 Macro 始终是一个原子 capability step。可以修改 Macro 参数或换用公开 capability，但不得展开或编辑 Macro 内部 invocation。
 
-输出 step 只含纯 authored body：`step_id`、`capability_id`、`args`，以及 Schema 允许的 `output_targets`/`intent`。不要填写 `execution`、`return_expectations`、base ID、权限、publication ref 或任何 runtime bookkeeping。
+输出 step 只含纯 authored body：`step_id`、`capability_id`、`args`，以及 Schema 允许的 `parameters`、`output_targets`、`intent`。需要数学推导等参数的 capability，必须按其参数 Schema 填写 `parameters`；不要将参数移入 `args`，也不要在修复时遗漏。不要填写 `execution`、`return_expectations`、base ID、权限、publication ref 或任何 runtime bookkeeping。
 
 严格遵循给定 Output JSON Schema；不要输出 Markdown、解释或 Schema 之外的字段。

@@ -43,7 +43,7 @@
 - 阶段 2 Parser 已提供根式、单关系、定义、分支及带 source span 的 AST；新语法尚未接入 Runtime 证明，旧 M01 保持有理式限制；
 - 设计文档已经确定唯一的 `basic_inequality` Family，但代码注册表尚未注册该 Family；
 - 还没有统一的正性、分母符号、根式定义域和不等式方向证明器；
-- M07、M08、M09、M11、M12、M13、M14 仍主要停留在设计协议，尚未形成完整 runtime 能力；
+- M11、M13 已具备阶段 4A 的二元正项定和求积与单组取等见证验证能力，仅供显式 authoring Runtime 使用；M07、M08、M09、M12、M14 及更广的求界/还原能力仍待实现；
 - M11 尚不能从完整不等式的左右表达式差异中恢复两个正项；
 - 31 题尚未全部经过求解到 HTML 的确定性页面生成门禁；
 - 代表性集成测试尚未冻结执行 artifact 和页面断言。
@@ -185,7 +185,7 @@ Repair Prompt 应要求模型补充 `x+1>0` 这样的直接数学表达式，不
 | M13 `close_equality_and_restore` | `steps[].math`：取等、分支还原和原题代回 | 联立、分支、可达性和原题验算 | extremal witness 或完整可达性证据 |
 | M14 `solve_univariate_inequality` | 一条完整 `math` 不等式；变量域从 Scope 读取 | 代码计算精确解集 | interval solution；LLM 不填根和区间答案 |
 
-M13 可以在公开能力层保持为 Family closure/Macro；如果内部保留 kernel，也不能要求 LLM 了解其内部 wiring。M11 的前提和结论默认分两行，只有当全部前提都能从 Scope 唯一证明时，才允许用单行 `math` 简写。
+M13 可以在公开能力层保持为 Family closure/Macro；如果内部保留 kernel，也不能要求 LLM 了解其内部 wiring。M11、M13 接受有界的完整数学推导，不限定前提和结论只能写两行。`∵/∴` 为讲解标记，每条关系仍需验证；标记本身不授予前提权限。
 
 ## 4. 分阶段实施
 
@@ -317,7 +317,39 @@ SolverFamilySpec(
 
 完成标准：支持的原语生成可独立回放的证明；无法证明和超限均失败闭合。证明结果仍是独立条件证明，不生成 Canonical Fact，不写 StateVersion，也不构成 Runtime 执行授权。
 
-### 阶段 4：扩展 M01 并实现 M11
+### 阶段 4A：M11 + M13 跑通 q01 的求解闭环
+
+阶段 4 改为先完成一题的真实求解链。q01 使用阶段 1 的冻结输入：`m>0`、`n>0`、`m+n=2`，求 `m*n` 最大值。期望答案与路线仅保留在测试资产中，不进入 Solver 输入。
+
+已实现的入口：
+
+- `load_frozen_authoring_bundle` 重放两份真实抽取样本、验证 gold/图片/版本/hash，并对比确定性 ProblemIR；随后建立单作用域、单最大值目标的 authoring Runtime 投影。代码机械映射符号、完整原条件和目标，不按题号选路线；
+- `BASIC_INEQUALITY_RUNTIME_FAMILY` 仅在显式注入的 `STAGE4A_FAMILY_REGISTRY` 中放行 M11、M13。原 `BASIC_INEQUALITY_FAMILY` 仍是 catalog-only 声明，生产 `DEFAULT_FAMILY_REGISTRY` 不变；
+- M11 `apply_two_term_amgm` 接收题面目标及完整原条件、1–12 行完整推导：原条件、`U+V>=2*sqrt(U*V)`、显式代入定和、缩放与目标乘积上界。允许连续 `∴`、`∵`、逗号/分号及关系链；每条关系在原条件和已验证的前序关系下证明，整段共享证明预算，不能把候选前提直接当事实。首轮仍支持两个正项、有理常量定和，最终上界另由原条件独立校验；
+- 关系链拆成相邻关系及方向明确的端点关系，逐项验证，保留原文 hash、行号、JSON source path 和原文片段映射。证书按顺序回放，校验来源及前序依赖。旧的单关系 Parser、M01 和成对标记 Parser 协议保持不变；
+- M11 在通用证明搜索前检查最终有理常数上界是否符合原定和的 AM-GM 模板。不匹配时返回 `target_bound_mismatch`，提示核对定和代入、除法及平方，不以约减预算耗尽作为这类输入的主要 repair 信号。此检查只诊断 Method 模板适用性，不宣称其他机制无法证明该界；匹配后仍须通过全部证明与定义域验证。同行可用逗号或分号分隔；完整关系之后的 `∵/∴` 也直接作为新子句边界，允许省略分隔符。该兜底不修改原文或来源偏移，不跳过不完整关系，不改变逐项验证和预算限制；
+- 模板及上界关联允许加项、乘积因子交换顺序，包括根式内部的乘积；只使用独立的交换律比较键，不改写原 AST、步骤文本、来源或定义域义务，也不交换减法、除法和关系方向。无 function entity 的输入不生成默认二次函数；
+- M13 `close_equality_and_restore` 通过 exact CallResult 消费 M11 的 `AmgmBound`，重新验证并回放上界。1–12 行可写取等条件、具体赋值、原条件代回及目标值验算，支持 `x=y=常数`。每个原变量必须有明确取值；同步代入验证所有提交关系、全部原条件、定义域、取等条件及目标值。取等陈述仅在所提交见证下成立，不提升为全局事实。成功才输出 `MaximumExpression`；不搜索解、不宣称见证穷尽；
+- 两个输出使用现有 `value_only` 事务写入，记录 canonical Fact、确切 CallResult 依赖与 lineage；不创建虚构 MathObject StateVersion。只有 M13 的 `MaximumExpression` 可关闭目标，M11 上界不能冒充最大值；
+- 正式链路为冻结输入 → source-ref FunctionalPlan content/v2 → 严格 binding / compile → transaction → typed goal verification → RuntimeOrchestrator。证明证书保留在审计 trace，公开上界只含数学内容，避免将内部前提 ID 带入 Planner 重试上下文。
+
+离线 authored 计划：`internal/functional-plan-fixtures/basic-inequality-q01.functional-plan.json`。真实 Planner 从外部 strategy reference 获取六种规划思路，能力目录只开放两个已实现 Method；无需题号特判或同题 few-shot。
+
+复跑入口（output 必须是新目录，保留失败记录）：
+
+```bash
+cd server
+uv run python tools/run_basic_inequality_stage4a.py --mode recorded --output ../internal/review-analysis/basic-inequality-stage4a/recorded-new
+RUN_LLM_INTEGRATION=1 uv run python tools/run_basic_inequality_stage4a.py --mode deepseek --output ../internal/review-analysis/basic-inequality-stage4a/live-new
+uv run pytest -q tests/solver/test_basic_inequality_runtime.py tests/solver/test_math_proof_kernel.py
+RUN_LLM_INTEGRATION=1 uv run pytest -q tests/solver/test_basic_inequality_runtime_live.py -m live_llm
+```
+
+验收包含正确答案、完整取等见证、证书回放、错误上界/方向/缺少正性/错误或不完整见证拒绝、原条件不被遗漏、失败事务无答案写入，以及改题号/变量/常数的通用回归。20 份冻结抽取与 10 题 ProblemIR 继续离线重建；其余 21 题不新增资产。
+
+本阶段不迁移 M01，不扩展加权/连续 AM-GM，不生成教学网页。阶段 4B 再从已验证 Runtime artifacts 接入 ExplanationSnapshot → LessonIR → VisualStepIR → HTML；页面不能自行补答案或证明。完整生产注册仍留待能力与 preflight 完成后进行。
+
+### 后续阶段 4 扩展：M01 迁移与 M11 模板扩展
 
 #### M01
 
@@ -349,7 +381,7 @@ k*U+V≥2√(k*U*V),     k>0,U>0,V>0
 
 如果存在多个同样合理的局部匹配，返回 `inequality_ambiguous`。如果没有匹配，返回 `inequality_template_unmatched`。repair 只要求模型重写完整数学关系，不要求模型填写内部项身份。
 
-完成标准：q01、q03、q07、q08、q28 至少能够覆盖一次应用、加权项、连续应用、整理后应用和定积对应。
+完成标准：代表题 q01、q03、q07、q08 覆盖一次应用、加权项、连续应用、整理后应用和定积对应；q28 保留为后续页面泛化验证，不增加冻结抽取或阶段 1 fixture。
 
 ### 阶段 5：实现 M07、M08、M09、M12、M14
 
@@ -412,7 +444,7 @@ s∈R
 
 代码计算精确区间、开闭端点、单点、空集或全域。LLM 不能填写根、符号表或最终区间作为事实。
 
-### 阶段 6：实现 M13、Canonical Fact、Family Runtime 注册和 binding
+### 阶段 6：扩展 M13、Canonical Fact、Family Runtime 注册和 binding
 
 任务：
 
@@ -422,7 +454,7 @@ s∈R
 - 将 M11/M12/M14 的结果统一绑定为可消费的 Canonical Fact；
 - 保存原始表达式、规范 AST、premises、proof、equality conditions 和 source path；
 - 在 StateVersion 中区分等价更新和不等式下界，不把下界覆盖为原目标；
-- M13 联立所有取等关系、原始定义域、换元/消元还原和题目条件；
+- 在阶段 4A 单组有限见证验证的基础上，扩展 M13，联立所有取等关系、原始定义域、换元/消元还原和题目条件；
 - 保留正负分支、参数分支和范围题全区间可达性；
 - 将 rule hash、semantic hash、provenance 写入 binding artifact；
 - Runtime 只消费 Canonical Fact，不要求 LLM 暴露内部 AST。

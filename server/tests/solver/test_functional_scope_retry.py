@@ -1204,6 +1204,13 @@ def test_scope_repair_prompt_has_one_annotated_plan_and_one_replacement_map(
     assert "开放Scope和受影响后继均重新执行" in prompt.system
     definitions = payload["output_json_schema"]["$defs"]
     assert "repair_step_base" in definitions
+    # The repair instruction must not exclude an authored field admitted by
+    # the schema; doing so caused the live planner to second-guess math inputs.
+    assert "parameters" in definitions["repair_step_base"]["properties"]
+    authored_fields = next(
+        line for line in prompt.system.splitlines() if "纯 authored body" in line
+    )
+    assert "`parameters`" in authored_fields
     public_ids = {
         item["capability_id"]
         for item in payload["functional_capability_catalog"]["capabilities"]

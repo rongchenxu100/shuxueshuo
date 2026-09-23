@@ -45,6 +45,7 @@ FULL_TEST_FILES: frozenset[str] = frozenset()
 
 LIVE_LLM_TEST_FILES = frozenset(
     {
+        "test_basic_inequality_runtime_live.py",
         "test_deepseek_functional_planner_heping.py",
         "test_deepseek_functional_planner_heping_ermo.py",
         "test_deepseek_functional_planner_hexi.py",
@@ -66,6 +67,26 @@ class OwnershipRule:
 
 
 OWNERSHIP_RULES = (
+    OwnershipRule(
+        (
+            "server/shuxueshuo_server/solver/basic_inequality_stage4a.py",
+            "server/shuxueshuo_server/solver/family/basic_inequality_runtime.py",
+            "server/shuxueshuo_server/solver/math_kernel/inequality_evidence.py",
+            "server/shuxueshuo_server/solver/math_kernel/derivation_math.py",
+            "server/shuxueshuo_server/solver/math_kernel/proof_algebra.py",
+            "server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",
+            "server/shuxueshuo_server/solver/runtime/methods/apply_two_term_amgm.py",
+            "server/shuxueshuo_server/solver/runtime/methods/close_equality_and_restore.py",
+            "server/tools/run_basic_inequality_stage4a.py",
+            "internal/functional-plan-fixtures/basic-inequality-q01.functional-plan.json",
+        ),
+        (
+            "tests/solver/test_basic_inequality_runtime.py",
+            "tests/solver/test_math_proof_kernel.py",
+            "tests/solver/test_basic_inequality_family.py",
+            "tests/solver/test_basic_inequality_problem_ir.py",
+        ),
+    ),
     OwnershipRule(
         (
             "server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",

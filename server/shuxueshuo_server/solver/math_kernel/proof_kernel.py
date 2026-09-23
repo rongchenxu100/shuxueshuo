@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping, Sequence
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from fractions import Fraction as Q
 from functools import partial
 from hashlib import sha256
@@ -27,6 +27,7 @@ from .proof_algebra import (
     ZERO,
     Arithmetic,
     ProofFailure,
+    commutative_key,
     digest,
     domains,
     expr,
@@ -63,9 +64,19 @@ RULES = (
     "all",
     "witness",
     "exists",
+    "two_term_amgm",
+    "fixed_sum_product_bound",
+    "relation_transport",
+    "amgm_squared_bound",
 )
 RULESET_VERSION = "bounded-real-proof/v1"
-RULESET_HASH = digest({"version": RULESET_VERSION, "rules": RULES})
+RULESET_HASH = digest(
+    {
+        "version": RULESET_VERSION,
+        "rules": RULES,
+        "rule_revisions": {"two_term_amgm": 2},
+    }
+)
 
 
 @dataclass(frozen=True)
@@ -625,6 +636,10 @@ class _Environment:
                 or self.premises.get(cert["premise_id"]) != g
             ):
                 raise ProofFailure("invalid_proof", "wrong source premise")
+        elif rule in {"two_term_amgm", "fixed_sum_product_bound"}:
+            required = self.amgm_requirements(rule, g, cert)
+            if children != list(dict.fromkeys(required)):
+                raise ProofFailure("invalid_proof", "AM-GM premises missing")
         elif rule == "constant":
             sign, expected = a.constant_certificate(_diff(g), supplied=cert)
             if children or cert != expected or not _holds(sign, g[0]):
@@ -657,6 +672,31 @@ class _Environment:
                 raise ProofFailure(
                     "invalid_proof", "invalid signed premise normalization"
                 )
+        elif rule == "relation_transport":
+            if len(children) != 2 or set(cert) != {"ratio"}:
+                raise ProofFailure(
+                    "invalid_proof", "signed relation and equality required"
+                )
+            premise, equality = children
+            ratio = Q(cert["ratio"])
+            expected = ("=", _diff(g), expr("mul", number(ratio), _diff(premise)))
+            possible = {s * (1 if ratio > 0 else -1) for s in SIGNS[premise[0]]}
+            if not ratio or equality != expected or not possible <= SIGNS[g[0]]:
+                raise ProofFailure("invalid_proof", "invalid relation transport")
+        elif rule == "amgm_squared_bound":
+            premise = self.premises.get(cert.get("amgm_premise"))
+            if set(cert) != {"amgm_premise"} or premise is None:
+                raise ProofFailure("invalid_proof", "AM-GM source required")
+            required = self.amgm_requirements("two_term_amgm", premise, {})
+            u, v = premise[1][1:]
+            rhs = expr("div", expr("pow", expr("add", u, v), number(2)), number(4))
+            if (
+                g[0] != "<="
+                or a.difference(("=", g[1], expr("mul", u, v)))
+                or a.difference(("=", g[2], rhs))
+                or children != list(dict.fromkeys([premise, *required]))
+            ):
+                raise ProofFailure("invalid_proof", "invalid squared AM-GM bound")
         elif rule == "factor_nonzero":
             if (
                 len(children) != 1
@@ -882,6 +922,41 @@ class _Environment:
         if not possible <= desired:
             raise ProofFailure("invalid_proof", "sign evidence is insufficient")
 
+    def amgm_requirements(self, rule, g, cert):
+        """Two positive terms; fixed-sum corollary keeps the target separate."""
+        a = self.arithmetic
+        if rule == "two_term_amgm":
+            if cert or g[0] != ">=" or g[1][0] != "add":
+                raise ProofFailure("invalid_proof", "AM-GM template mismatch")
+            u, v = g[1][1:]
+            expected = ("mul", number(2), ("sqrt", ("mul", u, v)))
+            if a.difference(("=", commutative_key(g[2]), commutative_key(expected))):
+                raise ProofFailure("invalid_proof", "AM-GM right side mismatch")
+            return ((">", u, ZERO), (">", v, ZERO))
+        if set(cert) != {"sum_premise"} or g[0] != "<=":
+            raise ProofFailure("invalid_proof", "product-bound certificate mismatch")
+        premise = self.premises[cert["sum_premise"]]
+        if premise[0] != "=":
+            raise ProofFailure("invalid_proof", "sum equality required")
+        total, value = premise[1:]
+        if total[0] != "add":
+            total, value = value, total
+        if total[0] != "add" or a.literal_rational(value) is None:
+            raise ProofFailure("invalid_proof", "two-term fixed rational sum required")
+        u, v = total[1:]
+        expected = ("div", ("pow", value, number(2)), number(4))
+        if a.difference(("=", g[1], ("mul", u, v))) or a.difference(
+            ("=", g[2], expected)
+        ):
+            raise ProofFailure("invalid_proof", "target or bound does not match AM-GM")
+        return (
+            premise,
+            (">", u, ZERO),
+            (">", v, ZERO),
+            (">", value, ZERO),
+            (">=", total, ("mul", number(2), ("sqrt", ("mul", u, v)))),
+        )
+
     def check_witness_node(self, node):
         # Implemented below: witness proofs use a checked child proof bundle per
         # simultaneous assignment, with its own replay under substituted context.
@@ -992,6 +1067,26 @@ class _Search(_Environment):
         for key, premise in self.premises.items():
             if premise == g:
                 return self.add("given", g, certificate={"premise_id": key})
+        if g[0] == ">=" and g[1][0] == "add":
+            try:
+                required = self.amgm_requirements("two_term_amgm", g, {})
+            except ProofFailure as exc:
+                if exc.code != "invalid_proof":
+                    raise
+            else:
+                return self.raw("two_term_amgm", g, required)
+        if g[0] == "<=":
+            for key in self.premises:
+                cert = {"sum_premise": key}
+                try:
+                    required = self.amgm_requirements(
+                        "fixed_sum_product_bound", g, cert
+                    )
+                except ProofFailure as exc:
+                    if exc.code != "invalid_proof":
+                        raise
+                else:
+                    return self.raw("fixed_sum_product_bound", g, required, cert)
         if not names(g):
             sign, certificate = a.constant_certificate(_diff(g))
             if _holds(sign, g[0]):
@@ -1009,6 +1104,59 @@ class _Search(_Environment):
                 )
                 if found:
                     return found
+        # Move an already proved inequality through an equality. The equality
+        # of differences is certified by bounded polynomial reduction, with
+        # all original domains still guarded. Never trust a textual rewrite.
+        if g[0] != "=" and any(p[0] == "=" for p in self.premises.values()):
+            for premise in self.premises.values():
+                if premise[0] == "=":
+                    continue
+                for ratio in (Q(1), Q(-1)):
+                    if (
+                        not {s * (1 if ratio > 0 else -1) for s in SIGNS[premise[0]]}
+                        <= SIGNS[g[0]]
+                    ):
+                        continue
+                    equality = (
+                        "=",
+                        _diff(g),
+                        expr("mul", number(ratio), _diff(premise)),
+                    )
+                    # Only try a direct polynomial certificate, not recursive
+                    # sign search for every unrelated source inequality.
+                    found = self.attempt(partial(self.polynomial, equality))
+                    if found:
+                        guards = tuple(self.need(d) for d in domains(equality))
+                        self.cache[equality] = self.add(
+                            "guard", equality, (found, *guards)
+                        )
+                        return self.raw(
+                            "relation_transport",
+                            g,
+                            [premise, equality],
+                            {"ratio": str(ratio)},
+                        )
+        if g[0] == "<=":
+            for key, premise in self.premises.items():
+                if premise[0] != ">=" or premise[1][0] != "add":
+                    continue
+                try:
+                    required = self.amgm_requirements("two_term_amgm", premise, {})
+                except ProofFailure as exc:
+                    if exc.code != "invalid_proof":
+                        raise
+                    continue
+                u, v = premise[1][1:]
+                rhs = expr("div", expr("pow", expr("add", u, v), number(2)), number(4))
+                if not a.difference(
+                    ("=", g[1], expr("mul", u, v))
+                ) and not a.difference(("=", g[2], rhs)):
+                    return self.raw(
+                        "amgm_squared_bound",
+                        g,
+                        [premise, *required],
+                        {"amgm_premise": key},
+                    )
         ordered = _ordered(g)
         if ordered and all(e[0] in {"symbol", "rat"} for e in g[1:]):
             for premise in self.premises.values():
@@ -1542,6 +1690,43 @@ def prove_relation(candidate: ParsedMath, context: ProofContext) -> ProofResult:
         ArithmeticError,
     ) as exc:
         return _failure(exc)
+
+
+def verify_relation_sequence(relations, context, *, certificates=None):
+    """Prove/replay ordered relations; only verified predecessors become premises.
+
+    A single construction/replay budget spans the whole sequence. Supplying
+    certificates selects replay only: no search and no trusted success flags.
+    The caller binds this sequence to its original teaching-row source map.
+    """
+    if not 1 <= len(relations) <= 32:
+        raise ProofFailure("proof_limit", "1–32 derivation relations required")
+    if certificates is not None and len(certificates) != len(relations):
+        raise ProofFailure("invalid_proof", "derivation certificate count mismatch")
+    budget = _Budget(context.limits)
+    premises = dict(context.premises)
+    known = {from_node(p.ast) for p in premises.values()}
+    proofs = []
+    for i, relation in enumerate(relations):
+        _checked(relation, context.symbols)
+        current = replace(context, premises=dict(premises))
+        request = {"kind": "relation", "candidate": _document(relation)}
+        if certificates is None:
+            proof = _run_request(current, request, budget=budget).proof
+        else:
+            proof = certificates[i]
+            if proof.get("request") != request:
+                raise ProofFailure("invalid_proof", "derivation conclusion changed")
+            _replay(proof, current, budget=budget)
+        proofs.append(proof)
+        value = from_node(relation.ast)
+        if value not in known:
+            key = f"derivation:{i}"
+            if key in premises:
+                raise ProofFailure("invalid_input", "reserved derivation premise ID")
+            premises[key] = relation
+            known.add(value)
+    return proofs
 
 
 def prove_domain(expression: ParsedMath, context: ProofContext) -> ProofResult:

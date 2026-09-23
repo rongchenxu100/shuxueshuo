@@ -580,6 +580,8 @@ class ContextBuilder:
     def _populate_function(self, context: RuntimeContext) -> None:
         """把二次函数表达式和系数关系写入 problem scope。"""
         function = context.problem.data.get("function", {})
+        if not function:
+            return
         expression = function.get("expression", "a*x**2 + b*x + c")
         context.problem_scope.container("expressions")["quadratic"] = TypedValue(
             "Expression",

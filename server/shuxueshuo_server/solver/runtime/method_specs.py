@@ -1178,6 +1178,8 @@ _KNOWN_TYPES = {
     "Expression",
     "Line",
     "MinimumExpression",
+    "MaximumExpression",
+    "AmgmBound",
     "OrientationHint",
     "Parabola",
     "ParameterValue",
