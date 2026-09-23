@@ -68,6 +68,18 @@ class OwnershipRule:
 OWNERSHIP_RULES = (
     OwnershipRule(
         (
+            "server/shuxueshuo_server/solver/math_kernel/expression_parser.py",
+            "server/shuxueshuo_server/solver/math_kernel/expression_rewrite.py",
+        ),
+        (
+            "tests/solver/test_expression_parser.py",
+            "tests/solver/test_organize_expressions.py",
+            "tests/solver/test_organize_expressions_transaction.py",
+            "tests/solver/test_basic_inequality_problem_ir.py",
+        ),
+    ),
+    OwnershipRule(
+        (
             "server/shuxueshuo_server/problem_understanding/basic_inequality_*.py",
             "server/tools/build_basic_inequality_problem_ir.py",
             "server/tests/solver/fixtures/basic-inequality-problem-ir/v1/*/*",

@@ -22,7 +22,7 @@
 
 必须遵守以下原则：
 
-1. **数学表达式优先。** LLM 输出 `a+b≥2√(ab)`、`u:=x²`、`x=±√u` 和完整等价式链；逻辑关系首轮只使用数学符号 `∵`、`∴`，不输出自然语言、内部 AST、Fact ID、`term1`、`term2` 或操作标签。
+1. **数学表达式优先。** LLM 输出 `a+b≥2√(a*b)`、`u:=x²`、`x=±√u` 和完整等价式链；逻辑关系首轮只使用数学符号 `∵`、`∴`，不输出自然语言、内部 AST、Fact ID、`term1`、`term2` 或操作标签。
 2. **8 个 Method 统一协议。** M01、M07、M08、M09、M11、M12、M13、M14 都接收直接数学表达式；有的验证候选，有的根据已验证表达式计算唯一结果。
 3. **候选与事实分离。** LLM 输出在 Parser 和 Runtime 验证前只是候选，不能直接写入 StateVersion、Canonical Fact 或答案。
 4. **来源表达式保留。** 保存原始数学字符串、source path、表达式树节点、规范 AST、前提、proof 和规则集 hash；规范化不能覆盖原文。
@@ -40,7 +40,7 @@
 
 当前差距：
 
-- Parser 还不能完整处理 `√`、一般函数、直接不等式关系和带 source span 的关系 AST；
+- 阶段 2 Parser 已提供根式、单关系、定义、分支及带 source span 的 AST；新语法尚未接入 Runtime 证明，旧 M01 保持有理式限制；
 - 设计文档已经确定唯一的 `basic_inequality` Family，但代码注册表尚未注册该 Family；
 - 还没有统一的正性、分母符号、根式定义域和不等式方向证明器；
 - M07、M08、M09、M11、M12、M13、M14 仍主要停留在设计协议，尚未形成完整 runtime 能力；
@@ -58,7 +58,7 @@
 
 ```json
 {
-  "math": "a+b+1≥2√(ab)+1"
+  "math": "a+b+1≥2√(a*b)+1"
 }
 ```
 
@@ -91,17 +91,17 @@
   "steps": [
     {"math": "u:=x²"},
     {"math": "v:=y²"},
-    {"math": "∵ 5x²y²+y⁴=1"},
-    {"math": "∴ 5uv+v²=1"},
+    {"math": "∵ 5*x²*y²+y⁴=1"},
+    {"math": "∴ 5*u*v+v²=1"},
     {"math": "∵ a>0，b>0"},
-    {"math": "∴ a+b+1≥2√(ab)+1"}
+    {"math": "∴ a+b+1≥2√(a*b)+1"}
   ]
 }
 ```
 
 换元不使用“设”字段；`u:=x²`、`u≔x²`表示定义，首选 `:=`。`=`保留为普通等式，`≡`表示恒等关系，不作为首轮换元定义符号。
 
-Parser 只识别 `∵`、`∴`、`:=`、`≔` 和数学关系本身，生成内部的 premise/conclusion/definition 标记；这些标记不由 LLM 填写。`∵` 行只允许顶层逗号分隔的并列前提，逗号表示前提合取；`∴` 行只允许一个结论关系。前提行和结论行按相邻顺序配对，必要时由代码记录明确的步骤范围。若缺少 `∵` 或 `∴`，可以按单纯数学表达式处理；若符号前后的关系无法验证，返回步骤级诊断。首轮不引入“因为、所以、由、得、利用、应用基本不等式”等自然语言关键词。
+Parser 只识别 `∵`、`∴`、`:=`、`≔` 和数学关系本身，生成内部的 premise/conclusion/definition 标记；这些标记不由 LLM 填写。`∵` 行只允许顶层逗号分隔的并列前提，逗号表示前提合取；`∴` 行只允许一个结论关系。前提行和结论行按相邻顺序配对，必要时由代码记录明确的步骤范围。没有标记的行可以按单纯数学表达式处理；出现孤立或不相邻的标记时返回步骤级诊断。Parser 只建立句法关联，关系证明留给后续内核。首轮不引入“因为、所以、由、得、利用、应用基本不等式”等自然语言关键词。
 
 字段定义明确如下：
 
@@ -128,7 +128,7 @@ Parser 只识别 `∵`、`∴`、`:=`、`≔` 和数学关系本身，生成内�
 {
   "capability_id": "apply_two_term_amgm",
   "parameters": {
-    "math": "a+b+1≥2√(ab)+1"
+    "math": "a+b+1≥2√(a*b)+1"
   }
 }
 ```
@@ -146,7 +146,7 @@ Parser 只识别 `∵`、`∴`、`:=`、`≔` 和数学关系本身，生成内�
   "parameters": {
     "steps": [
       {"math": "u=x²"},
-      {"math": "5uv+v²=1"},
+      {"math": "5*u*v+v²=1"},
       {"math": "x²+y²=u+v"},
       {"math": "x=±√u"}
     ]
@@ -196,7 +196,7 @@ M13 可以在公开能力层保持为 Family closure/Macro；如果内部保留 
 - 只验证 `problem-math-notation/v1` 的“图片 → 数学记法候选”链路，不调用 Method、ProblemIR、Runtime binding 或网页生成；
 - 使用 `server/shuxueshuo_server/problem_understanding/notation_family_catalog.py` 和 `internal/llm-prompts/problem-math-notation-families.json` 作为数学记法专用 Family catalog。它包含既有四个几何来源 Family 与 `basic_inequality`，不导入 `DEFAULT_FAMILY_REGISTRY`；
 - 把 `basic_inequality` 的来源匹配限制为正项、等式/不等式、最大值、最小值、范围和参数目标；Family 只作为抽取上下文，不授予 Runtime 执行能力；
-- Prompt 和表达式目录只要求直接数学表达式：`a > 0`、`a+b = 2`、`max(ab)`、`min(x+4/(x+1))`、`x+y`。不要求 `term1`、`using`、`transformed_target`、`right_angle` 或任何内部 AST；直角仍写 `∠ABC = 90°`；
+- Prompt 和表达式目录只要求直接数学表达式：`a > 0`、`a+b = 2`、目标表达式 `a*b`、`x+4/(x+1)`（最值由目标类型标记）、`x+y`。不要求 `term1`、`using`、`transformed_target`、`right_angle` 或任何内部 AST；直角仍写 `∠ABC = 90°`；
 - 冻结 q01、q03、q07、q08、q12、q17、q20、q25、q30、q31 的单图 image-only fixture、图片 SHA-256/尺寸/来源、数学记法金标和原始题面；q25 的 condition/objective 已按题面顺序合成为一张 `source.png`；
 - 使用 `server/shuxueshuo_server/problem_understanding/basic_inequality_smoke.py` 执行批次。每题必须运行两个独立样本；每个样本保存 request、raw response、parsed、normalized/canonical、comparison、call metadata 和 frozen metadata；
 - 离线回放使用 `server/tests/solver/test_basic_inequality_math_notation.py`，校验 Schema、Parser/Typecheck、semantic canonicalization、Family、直接表达式禁门和图片 hash；live 门禁位于 `test_basic_inequality_math_notation_live.py`，默认跳过；
@@ -270,18 +270,24 @@ SolverFamilySpec(
 
 完成标准：20/20 真实样本可离线回放，10/10 ProblemIR 可确定性重建并唯一匹配 Family，所有来源均可追溯；21 题没有被隐式读取或生成。不实现 Runtime Method、通用 Parser 扩展或网页生成。复现命令：在 server 下执行 `uv run python tools/build_basic_inequality_problem_ir.py --check`，测试资产及冻结方式见 `server/tests/solver/fixtures/basic-inequality-problem-ir/v1/README.md`。
 
-### 阶段 2：扩展表达式 Parser 和关系 AST
+### 阶段 2：扩展安全表达式 Parser 和关系 AST
 
-任务：
+已实现的接口位于 `server/shuxueshuo_server/solver/math_kernel/expression_parser.py`：
 
-- 在现有安全 Parser 上增加 `√`、根式、有限函数、Unicode 比较符和直接分式的前端归一化；
-- 支持 `=`、`≥`、`≤`、`>`、`<` 的单关系解析，并保留关系方向；
-- 保留原始字符串、source span、节点 path、展示树和规范 AST；
-- 建立受限函数白名单，首轮至少支持 `sqrt`、必要的幂和目标表达式函数；
-- 继续拒绝 Python 语法、未知函数、未声明变量、无界展开和任意代码执行；
-- 为同一表达式提供展示形式和计算形式，展示形式不被 SymPy 全局化简覆盖。
+- `parse_math_expression(source, symbols)` 解析单值标量，`parse_math_relation(source, symbols)` 解析一个关系；`parse_math_steps(steps, symbols)` 接收 1–12 个 `{"math": ...}` 行；
+- `ParsedMath` 同时保存 `source`、`normalized_source`、逐字符 `source_map`、不可变展示树 `tree`、规范树 `ast` 和 `obligations`。节点保存 path、原文 Unicode 字符偏移 `[start,end)` 和 operator_span；`to_sympy(symbols)` 只派生计算形式，不证明任何关系；
+- 首轮函数白名单只有一元 `sqrt`，支持 `√(E)`、`√u`、`√2`、整数幂、Unicode 上标、比较符、直接 `/` 分式以及受限 `\frac{E}{E}`、`\sqrt{E}`。无括号根号只覆盖一个数字或标识符；
+- 变量乘法使用显式 `*`。`xy` 是完整标识符，不能拆成 `x*y`；允许 `3x`、`2√(x*y)` 等数字系数简写，不接受 `x(y+1)`。关系方向保留，单关系入口不接收关系链；
+- `u:=E` / `u≔E` 生成待绑定 Definition；右侧只使用已声明变量，解析不会注册 u，后续行使用 u 仍需调用方符号表已声明。`u=E` 保持普通等式；
+- 等式右侧一个 `±` 可生成正、负两个候选分支（如 `x=(s±√d)/2`）；不计算根、不证明可达性，不支持多个 `±`、`∓` 或不等式分支；
+- `∵` 行可有最多 8 个顶层逗号分隔的单关系，下一行必须是只有一个关系的 `∴`；只建立相邻步骤关联，不推导事实；
+- 除法、负幂、根式产生带节点定位的未验证定义域义务，不写入已知条件。字面量除零、负数实根、未知变量/函数、Python 语法和不支持的 LaTeX 命令直接失败；
+- 字符数上限 1024、节点数 256、深度 32、潜在展开规模 128、整数字面量绝对值 10^9、整数指数绝对值 12；语法糖和分支展开同样受限，先校验预算再构造 SymPy；
+- 旧 `expression_rewrite.parse_expression/parse_relation` 通过受限兼容入口复用新 Parser，保持返回结构、展示节点 ID 和有理式限制；不会提前开启 M01 的根式、定义、分支或因果标记能力。
 
-完成标准：`a+b≥2√(ab)`、`3x+4y≥2√(12xy)`、`u=x²`、`x=±√u`、`T=√(xy+4/(xy))` 可以解析、类型检查并保留来源定位。
+完成标准：`a+b≥2√(a*b)`、`3x+4y≥2√(12*x*y)`、`u=x²`、`u:=x²`、`x=±√u`、`T=√(x*y+4/(x*y))` 均能由相应入口解析、类型检查并保留来源定位。解析成功不代表数学关系成立。
+
+验证：新增 `test_expression_parser.py` 检查语法、来源、预算、失败边界及指定 10 题 ProblemIR 与 bound notation AST 的一致性；同时运行现有 M01/事务、阶段 1 和 notation/prompt 回归及 `build_basic_inequality_problem_ir.py --check`。不修改抽取 Parser、冻结样本或 ProblemIR，不建立其余 21 题资产，不运行 live LLM，不变更生产 Family Registry。
 
 ### 阶段 3：建立数学证明内核
 
@@ -311,8 +317,8 @@ SolverFamilySpec(
 M11 首轮只实现有界模板注册表：
 
 ```text
-U+V≥2√(UV),       U>0,V>0
-kU+V≥2√(kUV),     k>0,U>0,V>0
+U+V≥2√(U*V),       U>0,V>0
+k*U+V≥2√(k*U*V),     k>0,U>0,V>0
 ```
 
 验证算法：
@@ -320,7 +326,7 @@ kU+V≥2√(kUV),     k>0,U>0,V>0
 1. 解析完整前后式；
 2. 对加法节点做保守展平；
 3. 根据公共子树和局部差异找出未改变部分；
-4. 恢复候选局部关系 `U+V` 与 `2√(UV)`；
+4. 恢复候选局部关系 `U+V` 与 `2√(U*V)`；
 5. 用证明内核证明 `U>0`、`V>0` 和根式定义域；
 6. 将候选局部关系与注册模板做交换律、结合律和正系数规范化匹配；
 7. 验证不等式方向、目标对应和取等条件；
@@ -361,7 +367,7 @@ T=(3x+1/x+1)/2
 
 ```text
 s=x+y
-p=xy
+p=x*y
 Δ=s²−4p
 x=(s+√Δ)/2
 y=(s−√Δ)/2
@@ -374,8 +380,8 @@ y=(s−√Δ)/2
 代码验证：
 
 ```text
-25c²−10ac+2a²+4/a²=(a−5c)²+a²+4/a²
-(a−5c)²+a²+4/a²≥a²+4/a²
+25*c²−10*a*c+2*a²+4/a²=(a−5*c)²+a²+4/a²
+(a−5*c)²+a²+4/a²≥a²+4/a²
 ```
 
 参数取等是否能与原条件同时成立交由 M13 闭合。
@@ -455,7 +461,7 @@ repair prompt 只能使用直接数学表达式示例，例如：
 
 ```text
 第 2 行无法从当前条件证明分母 x+1 非零。请补充由已有条件推出的数学步骤，或重新输出完整不等式关系，例如：
-3x+4y+1≥2√(12xy)+1。
+3x+4y+1≥2√(12*x*y)+1。
 不要填写 using、transformed_target、term1、term2、operation 或内部 Fact 名称。
 ```
 
@@ -504,8 +510,8 @@ repair prompt 只能使用直接数学表达式示例，例如：
 
 M11 额外覆盖：
 
-- `a+b≥2√(ab)`；
-- `3x+4y≥2√(12xy)`；
+- `a+b≥2√(a*b)`；
+- `3x+4y≥2√(12*x*y)`；
 - 带未变化上下文项；
 - 两个可能匹配项导致歧义；
 - 不满足正性的项；

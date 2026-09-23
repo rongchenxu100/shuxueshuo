@@ -6,7 +6,6 @@ MathObject identities. All algebra uses the caller's existing Symbol objects.
 
 from __future__ import annotations
 
-import ast
 from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
@@ -14,10 +13,13 @@ from typing import Any
 import sympy as sp
 from sympy.core.relational import Relational
 
+from .expression_parser import MathParseError, _parse, _sympy
+
 
 class RewriteError(ValueError):
     def __init__(self, code: str, message: str, row: int | None = None):
         self.code, self.row = code, row
+        self.message = message
         super().__init__(
             f"{code}"
             + (f" at steps[{row}]" if row is not None else "")
@@ -33,109 +35,65 @@ class ParsedExpression:
     denominators: tuple[sp.Expr, ...]
 
 
-def parse_expression(source: str, symbols: Mapping[str, sp.Symbol]) -> ParsedExpression:
-    if not isinstance(source, str) or not source.strip() or len(source) > 1024:
-        raise RewriteError("invalid_expression", "表达式应为 1–1024 个字符")
-    try:
-        root = ast.parse(source.strip().replace("^", "**"), mode="eval").body
-    except (SyntaxError, RecursionError) as exc:
-        raise RewriteError("invalid_syntax", "只接受显式乘号的数学表达式") from exc
-    if sum(1 for _ in ast.walk(root)) > 256:
-        raise RewriteError("expression_too_large", "表达式结构过大")
+def _parser_error(exc: MathParseError) -> RewriteError:
+    error = RewriteError(exc.code, exc.message, exc.step)
+    error.source, error.span = exc.source, exc.span
+    error.path, error.source_path = exc.path, exc.source_path
+    return error
 
-    def expansion_budget(node):
-        if isinstance(node, ast.UnaryOp):
-            return expansion_budget(node.operand)
-        if not isinstance(node, ast.BinOp):
-            return 1
-        left, right = expansion_budget(node.left), expansion_budget(node.right)
-        if isinstance(node.op, ast.Pow):
-            exponent = (
-                node.right.operand
-                if isinstance(node.right, ast.UnaryOp)
-                else node.right
-            )
-            if (
-                not isinstance(exponent, ast.Constant)
-                or type(exponent.value) is not int
-                or abs(exponent.value) > 12
-            ):
-                raise RewriteError(
-                    "unsupported_power", "指数应为绝对值不超过 12 的整数字面量"
+
+def _legacy_tree(node, path="n"):
+    # Historical M01 trees omit parentheses nodes and use n.0/n.1 ids.
+    result = {"id": path, "op": node.op}
+    if node.text is not None:
+        result["text"] = node.text
+    if node.children:
+        result["children"] = [
+            _legacy_tree(child, f"{path}.{i}") for i, child in enumerate(node.children)
+        ]
+    return result
+
+
+def _legacy_parsed(source, symbols, *, relation=False):
+    parsed = _parse(source, symbols, relation=relation, legacy=True)
+    # Keep M01's computational power guard as well as the syntax budgets. A
+    # division such as 1/x lowers to Pow even without a written power operator.
+    for node in parsed.ast.walk():
+        if node.op == "pow":
+            base = _sympy(node.children[0], symbols)
+            if base.has(sp.Pow) or sp.count_ops(base) > 24:
+                raise MathParseError(
+                    "expression_too_large",
+                    "首轮不接受嵌套幂或大型幂展开",
+                    source=source,
+                    span=node.span,
+                    path=node.path,
                 )
-            if any(isinstance(n, ast.Pow) for n in ast.walk(node.left)):
-                raise RewriteError("expression_too_large", "首轮不接受嵌套幂")
-            size = left ** abs(exponent.value)
-        elif isinstance(node.op, (ast.Add, ast.Sub)):
-            size = left + right
-        else:
-            size = left * right
-        if size > 128:
-            raise RewriteError("proof_limit", "潜在展开规模超过首轮限制")
-        return size
+    return parsed
 
-    expansion_budget(root)
-    denominators: list[sp.Expr] = []
 
-    def visit(node: ast.AST, path: str = "n", depth: int = 0):
-        if depth > 32:
-            raise RewriteError("expression_too_deep", "括号层数过多")
-        if isinstance(node, ast.Name):
-            if node.id not in symbols:
-                raise RewriteError("unknown_symbol", f"未知变量 {node.id}")
-            return {"id": path, "op": "symbol", "text": node.id}, symbols[node.id]
-        if (
-            isinstance(node, ast.Constant)
-            and type(node.value) is int
-            and abs(node.value) <= 10**9
-        ):
-            return {"id": path, "op": "integer", "text": str(node.value)}, sp.Integer(
-                node.value
-            )
-        if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd)):
-            child, value = visit(node.operand, path + ".0", depth + 1)
-            op = "neg" if isinstance(node.op, ast.USub) else "pos"
-            return {
-                "id": path,
-                "op": op,
-                "children": [child],
-            }, -value if op == "neg" else value
-        if not isinstance(node, ast.BinOp) or not isinstance(
-            node.op, (ast.Add, ast.Sub, ast.Mult, ast.Div, ast.Pow)
-        ):
-            raise RewriteError(
-                "unsupported_syntax", "仅支持整数、变量、加减乘除、整数幂和括号"
-            )
-        left, x = visit(node.left, path + ".0", depth + 1)
-        right, y = visit(node.right, path + ".1", depth + 1)
-        op = {
-            ast.Add: "add",
-            ast.Sub: "sub",
-            ast.Mult: "mul",
-            ast.Div: "div",
-            ast.Pow: "pow",
-        }[type(node.op)]
-        if op == "pow" and (not y.is_Integer or abs(y) > 12):
-            raise RewriteError(
-                "unsupported_power", "首轮只支持绝对值不超过 12 的整数幂"
-            )
-        if op == "pow" and (sp.count_ops(x) > 24 or x.has(sp.Pow)):
-            raise RewriteError("expression_too_large", "首轮不接受嵌套幂或大型幂展开")
-        if op == "div":
-            denominators.append(y)
-        if op == "pow" and y < 0:
-            denominators.append(x)
-        value = {
-            "add": lambda: x + y,
-            "sub": lambda: x - y,
-            "mul": lambda: x * y,
-            "div": lambda: x / y,
-            "pow": lambda: x**y,
-        }[op]()
-        return {"id": path, "op": op, "children": [left, right]}, value
+def _postorder(node):
+    for child in node.children:
+        yield from _postorder(child)
+    yield node
 
-    tree, value = visit(root)
-    return ParsedExpression(source, tree, value, tuple(denominators))
+
+def parse_expression(source: str, symbols: Mapping[str, sp.Symbol]) -> ParsedExpression:
+    try:
+        parsed = _legacy_parsed(source, symbols)
+        obligations = {item.node_path: item for item in parsed.obligations}
+        return ParsedExpression(
+            source,
+            _legacy_tree(parsed.ast),
+            parsed.to_sympy(symbols),
+            tuple(
+                _sympy(obligations[node.path].expression, symbols)
+                for node in _postorder(parsed.ast)
+                if node.path in obligations
+            ),
+        )
+    except MathParseError as exc:
+        raise _parser_error(exc) from exc
 
 
 def tree_latex(tree: dict) -> str:
@@ -169,18 +127,10 @@ def formula(parsed: ParsedExpression) -> dict:
 
 
 def parse_relation(text: str, symbols: Mapping[str, sp.Symbol]) -> Relational:
-    import re
-
-    parts = re.split(r"(>=|<=|!=|=|>|<)", text)
-    if len(parts) != 3:
-        raise RewriteError("invalid_condition", "条件必须是单个等式或大小关系")
-    x, y = (
-        parse_expression(parts[0], symbols).value,
-        parse_expression(parts[2], symbols).value,
-    )
-    return {"=": sp.Eq, "!=": sp.Ne, ">": sp.Gt, "<": sp.Lt, ">=": sp.Ge, "<=": sp.Le}[
-        parts[1]
-    ](x, y, evaluate=False)
+    try:
+        return _legacy_parsed(text, symbols, relation=True).to_sympy(symbols)
+    except MathParseError as exc:
+        raise _parser_error(exc) from exc
 
 
 def relation_from_bound(value: Any, symbols: Mapping[str, sp.Symbol]) -> Relational:
@@ -484,8 +434,11 @@ def verify_chain(
                 transitions.append(transition)
             parsed.append(current)
         except RewriteError as exc:
-            exc.row = i
-            raise RewriteError(exc.code, str(exc), i) from exc
+            error = RewriteError(exc.code, exc.message, i)
+            for field in ("source", "span", "path", "source_path"):
+                if hasattr(exc, field):
+                    setattr(error, field, getattr(exc, field))
+            raise error from exc
     reveal = False
     for i, t in enumerate(transitions):
         actual = set().union(

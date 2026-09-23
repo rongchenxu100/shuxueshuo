@@ -276,3 +276,17 @@ def test_quick_sample_preserves_pinned_cases_and_dimension_values() -> None:
     assert len(sample) == 32
     assert {item["id"] for item in sample} >= {"scenario:2", "scenario:101"}
     assert {item["kind"] for item in sample} == {f"kind-{index}" for index in range(7)}
+
+
+def test_math_expression_parser_ownership_includes_legacy_and_frozen_inputs():
+    for module in ("expression_parser", "expression_rewrite"):
+        selected, unmapped = _tests_for_changed_paths(
+            (f"server/shuxueshuo_server/solver/math_kernel/{module}.py",)
+        )
+        assert not unmapped
+        assert {
+            "tests/solver/test_expression_parser.py",
+            "tests/solver/test_organize_expressions.py",
+            "tests/solver/test_organize_expressions_transaction.py",
+            "tests/solver/test_basic_inequality_problem_ir.py",
+        }.issubset(selected)
