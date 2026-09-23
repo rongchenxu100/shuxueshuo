@@ -68,10 +68,13 @@ class OwnershipRule:
 OWNERSHIP_RULES = (
     OwnershipRule(
         (
+            "server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",
+            "server/shuxueshuo_server/solver/math_kernel/proof_algebra.py",
             "server/shuxueshuo_server/solver/math_kernel/expression_parser.py",
             "server/shuxueshuo_server/solver/math_kernel/expression_rewrite.py",
         ),
         (
+            "tests/solver/test_math_proof_kernel.py",
             "tests/solver/test_expression_parser.py",
             "tests/solver/test_organize_expressions.py",
             "tests/solver/test_organize_expressions_transaction.py",
