@@ -24,6 +24,8 @@ timeline，以及三层之间的身份、Scope、证据和版本边界。
 Scope Lesson body、一次调用 visual selection、无 semantic retry 以及和平二模纵向冒烟计划，
 以 vNext 设计文档为详细合同；本文保留端到端 Scope/Visual/Animation 总边界。
 
+2026-09-24 补充：基本不等式 4B 新增的 Method/rule 展示声明、LLM 后统一组件绑定与两类图形合并机制，见[学生步骤视觉绑定设计](student-step-visual-binding-design.md)。该设计待实现，不更改上述已完成阶段状态，也不启用可选 G1 的 LLM 组件选择。
+
 ## 1. 背景
 
 F5-F4.3 已将路径最值能力收敛为原子 Macro。Planner 只需要选择公开能力和参数；降维、

@@ -1,6 +1,6 @@
 # 基本不等式表达式优先 Method 实施计划
 
-> 状态：计划稿，待按阶段实施。更新：2026-09-20。
+> 状态：计划稿，待按阶段实施。更新：2026-09-24（补充阶段 4B 设计，未标记实现完成）。
 > 设计入口：[基本不等式 Method 与讲解设计](basic-inequality-method-discussion.md)。
 
 ## 1. 目标与原则
@@ -349,6 +349,21 @@ RUN_LLM_INTEGRATION=1 uv run pytest -q tests/solver/test_basic_inequality_runtim
 
 本阶段不迁移 M01，不扩展加权/连续 AM-GM，不生成教学网页。阶段 4B 再从已验证 Runtime artifacts 接入 ExplanationSnapshot → LessonIR → VisualStepIR → HTML；页面不能自行补答案或证明。完整生产注册仍留待能力与 preflight 完成后进行。
 
+### 阶段 4B：q01 学生步骤与声明式视觉闭环（待实现）
+
+详细契约见[学生步骤、VisualSpec 与前端组件声明式绑定](student-step-visual-binding-design.md)。从 4A 成功执行的公开证据出发，不从手写网页或答案 fixture 构造教学输入。
+
+任务：
+
+- M11 解释代码产生“观察结构”“应用基本不等式”两个单元，M13 产生“验证取等”单元；q01 两个 Runtime Method 对应三个学生步骤，不增加观察 Runtime Method；
+- Family rule 按依赖编排这些单元，可生成路线总览；Method 与 rule 都以声明方式指定 VisualSpec、角色来源和组件绑定注册项，步骤内 `visuals` 直接承载规格引用与角色引用，不引入独立 VisualRequest；
+- Lesson LLM 润色并在声明边界内提出合并；代码保持数学内容、来源与必要独立步骤，LLM 后统一校验、处理展示组合、绑定组件，再确定最终步骤及导航；
+- 数学对象图形沿用 scene/object identity 与 Frame 继承；基本不等式自定义教学图使用并存、覆盖、组合或独立规则，默认不继承，两类展示可以混用；
+- 实现 q01 的结构对照、推导链、取等验证展示，通过公共编译链生成 HTML；组件不重新求解；
+- 按 q07 的两轮依赖机制，用合成公开证据验证 rule 在应用前新增总观察、覆盖映射与后续局部观察保留；次数来自已验证应用组，不由变量数减条件数推断，不把它当作连续 AM-GM Runtime 已完成；M07/08/09 的观察投影随后续 Method 实现补齐。
+
+验收：q01 三个步骤及组件绑定正确；所有内容可追溯；LLM 非法合并局部回退；缺组件/角色产生明确 gap；二次函数场景继承回归保持；保存 Snapshot、编排草稿、LessonIR、展示绑定审计、VisualStepIR 和编译 HTML。生产 Family 注册保持关闭，冻结样本与其余 21 题资产范围不变。
+
 ### 后续阶段 4 扩展：M01 迁移与 M11 模板扩展
 
 #### M01
@@ -467,8 +482,8 @@ s∈R
 
 - Method trace 产生表达式、局部节点、前提和教学片段；
 - Family rule 按已验证结构组织学生步骤，不按题号或字符串相邻关系猜测；
-- 固定数学步骤由代码锁定，Lesson LLM 只能编排开放文案；
-- 视觉组件直接消费 verified trace，页面不重新解析或求解数学；
+- 沿用阶段 4B 的学生步骤与展示声明契约，扩展到后续 Method 和完整路线；代码保持数学内容、来源与必要边界，Lesson LLM 可润色并提出合法合并；
+- Method 和 rule 声明 VisualSpec，LLM 后由统一层完成展示组合与组件绑定；组件消费公开的已验证教学数据，页面不重新解析或求解数学；
 - 每个页面保存 ExplanationSnapshot、LessonIR、VisualStepIR、HTML 和审计 artifact；
 - 页面公式保留直接数学表达式，不回写成 `angle(...)`、`amgm_bound(...)` 等内部表示。
 
