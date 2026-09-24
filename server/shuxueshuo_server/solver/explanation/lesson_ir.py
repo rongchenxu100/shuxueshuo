@@ -57,6 +57,7 @@ class LessonStep:
     goal: str
     derive: tuple[tuple[str, str], ...]
     box: tuple[str, ...]
+    visuals: tuple[dict[str, Any], ...] = ()
 
     @property
     def id(self) -> str:
@@ -72,6 +73,7 @@ class LessonStep:
 
     def to_payload(self) -> dict[str, Any]:
         return {
+            **({"visuals": list(self.visuals)} if self.visuals else {}),
             "lesson_step_id": self.lesson_step_id,
             "source_step_ids": list(self.source_step_ids),
             "capability_ids": list(self.capability_ids),
@@ -119,6 +121,10 @@ class OwnedLessonStep:
     step: LessonStep
     scope_ref: str
     goal_ref: str | None
+
+    @property
+    def visuals(self):
+        return self.step.visuals
 
     @property
     def id(self) -> str:
@@ -360,6 +366,7 @@ class RecursiveLessonIRAssembler:
                     goal=row.goal,
                     derive=tuple(row.derive),
                     box=tuple(row.box),
+                    visuals=tuple(row.visuals),
                 )
                 result.append(step)
                 authority_steps[lesson_step_id] = {
@@ -473,8 +480,10 @@ class LessonAuthoringPipeline:
         self,
         *,
         authoring_service: ScopeLessonAuthoringService | None = None,
+        rule_registry=None,
     ) -> None:
         self.authoring_service = authoring_service
+        self.rule_registry = rule_registry
 
     def build(self, snapshot: ExplanationSnapshot) -> RecursiveLessonBuildResult:
         if self.authoring_service is not None:
@@ -485,7 +494,7 @@ class LessonAuthoringPipeline:
                 generation.validation,
                 generation=generation,
             )
-        projection = AnnotatedTeachingPlanProjector().project(snapshot)
+        projection = AnnotatedTeachingPlanProjector(rule_registry=self.rule_registry).project(snapshot)
         validator = LessonScopeContentValidator(
             plan=projection.plan,
             authority=projection.authority,
@@ -571,6 +580,7 @@ def _step_from_payload(raw: Any, *, path: str) -> LessonStep:
     _require_keys(
         raw,
         {
+            *({"visuals"} if "visuals" in raw else set()),
             "lesson_step_id",
             "source_step_ids",
             "capability_ids",
@@ -596,6 +606,7 @@ def _step_from_payload(raw: Any, *, path: str) -> LessonStep:
             )
         )
     return LessonStep(
+        visuals=tuple(raw.get("visuals", ())),
         lesson_step_id=_nonempty_string(raw["lesson_step_id"], f"{path}.lesson_step_id"),
         source_step_ids=_string_tuple(raw["source_step_ids"], f"{path}.source_step_ids"),
         capability_ids=_string_tuple(raw["capability_ids"], f"{path}.capability_ids"),
@@ -634,7 +645,7 @@ def _lesson_step_id(
             raise LessonIRValidationError(
                 f"lesson_assembly_material_authority_invalid: {container_ref}"
             )
-        if kind == "function":
+        if kind == "function" and sum(r.get("source_step_id") == source_step_id for r in records) == 1:
             return f"teach:{source_step_id}"
         return f"teach:{source_step_id}:{unit_key}"
     signature = {
@@ -742,6 +753,7 @@ def _validate_bound_row(
         "capability_ids": row.capability_ids,
         "unit_keys": row.unit_keys,
         "evidence_refs": row.evidence_refs,
+        "visuals": row.visuals,
     }
     expected = {
         "teaching_step_refs": expected_refs,
@@ -749,6 +761,7 @@ def _validate_bound_row(
         "capability_ids": expected_capabilities,
         "unit_keys": expected_units,
         "evidence_refs": expected_evidence,
+        "visuals": tuple(visual for item in selected for visual in item.get("visuals", ())),
     }
     required_provenance = (
         expected_refs,

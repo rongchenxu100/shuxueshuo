@@ -101,6 +101,7 @@ class MethodSpecSource:
     repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
     teaching_unit: TeachingUnitSpec | None = None
+    teaching_units: tuple[TeachingUnitSpec, ...] = ()
     generic_teaching_reason: str | None = None
     visual: MethodVisualSpec | None = None
     no_new_visual_reason: str | None = None
@@ -120,7 +121,11 @@ class MethodSpecSource:
     parameters_schema: dict[str, Any] | None = None
 
     def __post_init__(self) -> None:
-        if self.teaching_unit is not None and self.generic_teaching_reason is not None:
+        if self.teaching_unit is not None and self.teaching_units:
+            raise MethodSpecContractError("choose single or multiple teaching units")
+        if len({u.unit_key for u in self.teaching_units}) != len(self.teaching_units):
+            raise MethodSpecContractError("duplicate teaching unit key")
+        if (self.teaching_unit is not None or self.teaching_units) and self.generic_teaching_reason is not None:
             raise MethodSpecContractError(
                 "MethodSpec teaching declaration must choose explicit or generic"
             )
@@ -201,6 +206,8 @@ class MethodSpecSource:
             payload["geometry_profiles"] = [
                 _json_ready_hint(item) for item in self.geometry_profiles
             ]
+        if self.teaching_units:
+            payload["teaching_units"] = [u.to_payload() for u in self.teaching_units]
         if self.teaching_unit is not None:
             payload["teaching_unit"] = self.teaching_unit.to_payload()
         if self.generic_teaching_reason is not None:

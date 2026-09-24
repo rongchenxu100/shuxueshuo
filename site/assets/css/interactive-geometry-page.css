@@ -5819,6 +5819,14 @@ svg {
   text-align: center;
 }
 
+.basic-map-deduction:where([data-stage-count="1"]) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.basic-map-deduction:where([data-stage-count="2"]) {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
 .basic-map-deduction > div.is-result {
   border-color: rgba(209, 106, 74, 0.25);
   background: rgba(209, 106, 74, 0.09);
@@ -9295,6 +9303,16 @@ button:disabled {
 
   .basic-map-formula-layout {
     font-size: 1.46rem;
+  }
+
+  .basic-map-formula-layout.is-sum-geometric {
+    gap: 0.22em;
+    font-size: clamp(1rem, 4vw, 1.46rem);
+    white-space: nowrap;
+  }
+
+  .basic-map-formula-layout.is-sum-geometric .math-radicand {
+    white-space: nowrap;
   }
 
   .basic-map-fraction-cluster {

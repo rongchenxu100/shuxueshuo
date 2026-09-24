@@ -287,6 +287,7 @@ class VisualStepBuilder:
         snapshot: ExplanationSnapshot,
         lesson: LessonIR,
         generated_base: GeneratedVisualBase | None = None,
+        teaching_visual_specs=None,
     ) -> VisualStepIR:
         base = generated_base or GeneratedVisualBase.from_snapshot(snapshot, lesson)
         lesson_data = _lesson_data_from_lesson_ir(
@@ -305,7 +306,7 @@ class VisualStepBuilder:
                 bindings=binder.bind(lesson_step, snapshot),
             ),
         )
-        return VisualStepIR(
+        visual_ir = VisualStepIR(
             problem_id=lesson.problem_id,
             source_snapshot_hash=lesson.source_snapshot_hash,
             source_lesson_hash=_stable_payload_hash(lesson.to_payload()),
@@ -318,6 +319,11 @@ class VisualStepBuilder:
                 "base_source": "generated",
                 "scene_model": "recursive_complete_frames",
             },
+        )
+
+        from .teaching_diagrams import bind_lesson_diagrams
+        return bind_lesson_diagrams(
+            visual_ir, lesson, snapshot, registry=teaching_visual_specs
         )
 
 

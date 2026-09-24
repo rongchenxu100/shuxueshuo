@@ -1,14 +1,14 @@
 # 学生步骤、VisualSpec 与前端组件声明式绑定
 
-状态：设计已确认，待阶段 4B 实现。更新：2026-09-24。
+状态：阶段 4B 最小闭环已实现；q07 业务编排、覆盖与组合仍为后续设计。更新：2026-09-24。
 
-本文统一 Method 解释代码和 Family rule 编排代码的展示声明，定义 Lesson LLM 处理后如何绑定前端组件。本文中的新增类型、字段、注册项均为目标契约示意，不表示现有 Python 模型、LLM wire 或前端已支持。
+本文统一 Method 解释代码和 Family rule 编排代码的展示声明，定义 Lesson LLM 处理后如何绑定前端组件。§7 列明当前实现；q07、多次应用合成及覆盖/组合示例仍是目标契约，不代表已有业务能力。
 
 本文取代此前“rule 生成的标题、正文和视觉全部锁死”的基本不等式讲解约定：数学内容、来源和必要边界由代码控制，文字可润色，步骤可在声明边界内合并。现有二次函数生产行为保持不变；可选 G1 的 LLM 组件选择不是本方案的前置条件。
 
 ## 1. 当前实现与需要补齐的部分
 
-现有 `MethodSpec.visual` / `MethodVisualSpec` 声明角色、场景模板和 binder；Macro 也有对应教学单元视觉模板。`LessonStep` 保存 source、capability 和 teaching unit 来源，Visual Builder 据此汇集模板。它尚无本文拟定的步骤内 `visuals`，不能假定 rule 新建步骤已经自动拥有视觉支持。
+现有 `MethodSpec.visual` / `MethodVisualSpec` 继续声明数学场景的角色、模板和 binder；Macro 也有对应机制。新增 Method 的有序 `teaching_units`，每个单元可声明 `visuals` 与独立成步约束。最终 `LessonStep.visuals` 由代码从材料 authority 回填，LLM 无权改写。rule 新建单元共用此路径。
 
 二次函数当前在递归 Scope/Goal 中维护完整 Frame，按数学对象 identity 继承、聚焦和替换对象。已有“抛物线解析式与交点材料合并到同一画面”的测试，以及 `focus` 覆盖 `context`、选定构型替换候选构型等局部规则。它不等于一个通用的自定义教学图合并器。
 
@@ -215,24 +215,29 @@ rule 编排：总观察 → 应用 A → 应用 B → 验等
 
 ## 7. 阶段 4B 实现与验收
 
-1. 定义 VisualSpec、学生步骤内 `visuals` 字段、两类合并策略及统一组件绑定注册契约；为现有 Method/Macro visual 增加适配，保持二次函数基线。
-2. q01 的 M11/M13 解释投影、Family rule 声明与三种教学图组件形成最小闭环。不要求先建知识图谱或启用 G1。
-3. 接入一次 Lesson LLM、合并校验和确定性 fallback，产出 Snapshot、编排草稿、LLM 结果、最终 LessonIR、展示绑定审计、VisualStepIR 和编译 HTML。
-4. 按 q07 的两轮依赖机制新增合成公开证据样本，验证 rule 前置总观察、总览替换及依赖保留；M07/08/09 随后续 Method 阶段补齐，不在本阶段伪造求解实现。
+1. `runtime/inequality_teaching_evidence.py` 从成功执行生成类型化公开证据；`explanation/basic_inequality_teaching.py` 将 M11 拆为观察、应用，M13 产生验等单元。单 `teaching_unit` 兼容保留，与多单元声明互斥。
+2. `explanation/teaching_rules.py` 提供显式注册的 Scope/Goal 编排入口、来源覆盖检查。默认无规则；测试规则新增概览并绑定已有 VisualSpec，不伪造 capability ID。q01 不注册无作用规则。
+3. `visual/teaching_diagrams.py` 的 `VisualSpecRegistry` 声明规格 ID、版本、组件与角色 binder。4B 角色为公开证据引用；旧数学场景继续使用既有模板/binder/Frame。两条路径由 VisualStepBuilder 汇集到最终步骤，分别保留生命周期。
+4. 教学图序列持久化为 `VisualStep.diagram_blocks`，包含实际规格/组件版本和来源；空值不改变既有 JSON。组件共享渲染入口在 `lesson-page-runtime.js`。规格版本清单另存 `visual-version-manifest.json`。
+5. LLM 前生成确定性草稿，LLM 后校验来源与独立边界，再绑定组件；不合法合并局部恢复。`run_basic_inequality_stage4b.py` 支持草稿、录制回放及真实 Lesson LLM，输出新目录中的完整审计与 HTML。
+
+4B 只实现 `coexist` 与独立边界检查；`replace`、`compose`、规则冲突解决及 q07 总观察业务留待连续 AM-GM 求解能力完成后。§4.2 的多次应用注册示例不是当前可调用规格。
+
+AM-GM 教学图从公开证据的 `application_roles` 绑定数学角色，不能使用推导行下标：参与项由已验证的取等关系确定，AM-GM、定和代入、根式界和目标上界按关系两侧表达式识别，每个角色保留原行 `origins`。正性前置、同一行包含多个关系、交换项序或反向书写关系不改变角色。只提交 AM-GM 与上界的简写时，不生成代入/化简中间式；组件省略缺失的中间卡片。
 
 必须覆盖以下回归：
 
 - Method 和 rule 声明通过同一注册/绑定入口，rule 新步骤不靠伪造 capability ID 才能画图。
 - q01 为三步，正性、定和、目标、上界及取等见证来自实际公开证据；变更题号或变量名无需增加绑定分支。
 - 二次函数同一 scene 内曲线与交点合并、focus/context、分支隔离及生命周期保持既有行为。
-- q07 机制由 rule 根据两次公开应用及依赖新增总观察，不能通过变量数减条件数、题号或展示标题触发；缺第二次应用或缺依赖时不伪造连续两次路线。
+- 测试规则新增概览与原始材料的覆盖/只读来源可审计；q07 多次应用规则不在本阶段验收范围。
 - 自定义教学图不隐式继承；相同规格的两次应用不误去重；混合类型不强塞进同一几何 Frame。
-- `coexist/replace/compose/separate` 各有确定性测试；覆盖缺角色、循环或歧义必须拒绝。
+- `coexist` 与独立边界有确定性测试；覆盖/组合测试随后续业务规则实现，当前不接受 rule 删除或合并原始独立材料。
 - LLM 合并前后必讲材料完整、来源可追溯；非法合并局部回退，导航与展示数量一致。
 - 缺组件、缺角色、未知版本产生明确 gap；可用文字不被删掉，完整页面验收仍失败。
 - 不启用生产 basic_inequality Family、不改求解协议、不新增其余 21 题阶段资产。
 
-本次仅更新设计文档，不宣称上述实现或页面测试已经完成。
+已完成 q01 离线求解与两次独立真实 Lesson LLM 验收，均无回退地产出三步；浏览器检查桌面、390px 窄屏、公式及步骤导航。对应审计目录为 `internal/review-analysis/basic-inequality-stage4b/live-final-01`、`live-final-02`。公开证据缺失即报错，VisualGap 保留可靠 LessonIR 文字但不能计为页面闭环成功。
 
 ## 8. 相关设计
 

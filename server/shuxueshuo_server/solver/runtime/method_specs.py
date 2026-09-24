@@ -199,6 +199,13 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
     plan_transformer_scope = _parse_plan_transformer_scope(
         raw.get("plan_transformer_scope", "single_invocation")
     )
+    if raw.get("teaching_units") and raw.get("teaching_unit") is not None:
+        raise ValueError("choose single or multiple teaching units")
+    units = tuple(_parse_teaching_unit(u) for u in raw.get("teaching_units", ()))
+    if any(u is None for u in units) or len({u.unit_key for u in units}) != len(units):
+        raise ValueError("invalid or duplicate teaching units")
+    if units and raw.get("generic_teaching_reason") is not None:
+        raise ValueError("choose explicit or generic teaching")
     if raw.get("teaching_unit") is not None and raw.get(
         "generic_teaching_reason"
     ) is not None:
@@ -241,6 +248,7 @@ def parse_method_spec(raw: dict[str, Any]) -> MethodSpec:
             raw.get("geometry_profiles", [])
         ),
         teaching_unit=_parse_teaching_unit(raw.get("teaching_unit")),
+        teaching_units=units,
         generic_teaching_reason=_parse_optional_nonempty_string(
             raw.get("generic_teaching_reason"),
             field_name="MethodSpec.generic_teaching_reason",
@@ -1102,7 +1110,7 @@ def _parse_teaching_unit(raw: object) -> TeachingUnitSpec | None:
         "role_schema",
         "role_binder_id",
     }
-    if set(raw) != expected:
+    if not expected <= set(raw) or set(raw) - expected - {"visuals", "requires_independent_lesson_step"}:
         raise ValueError("MethodSpec.teaching_unit fields do not match contract")
     derive = raw.get("derive_templates")
     if not isinstance(derive, list | tuple):
@@ -1117,7 +1125,23 @@ def _parse_teaching_unit(raw: object) -> TeachingUnitSpec | None:
     role_schema = raw.get("role_schema")
     if not isinstance(role_schema, dict):
         raise ValueError("MethodSpec.teaching_unit.role_schema must be an object")
+    independent = raw.get("requires_independent_lesson_step", False)
+    if not isinstance(independent, bool):
+        raise ValueError("MethodSpec.teaching_unit independent boundary must be boolean")
+    visuals = raw.get("visuals", ())
+    if not isinstance(visuals, (list, tuple)) or any(
+        not isinstance(visual, dict)
+        or set(visual) != {"spec_id", "roles"}
+        or not isinstance(visual["spec_id"], str)
+        or not visual["spec_id"]
+        or not isinstance(visual["roles"], dict)
+        or any(not isinstance(ref, str) or not ref for ref in visual["roles"].values())
+        for visual in visuals
+    ):
+        raise ValueError("MethodSpec.teaching_unit.visuals must declare spec and role references")
     return TeachingUnitSpec(
+        visuals=tuple(visuals),
+        requires_independent_lesson_step=independent,
         unit_key=str(raw.get("unit_key") or ""),
         title_template=str(raw.get("title_template") or ""),
         nav_title_template=str(raw.get("nav_title_template") or ""),

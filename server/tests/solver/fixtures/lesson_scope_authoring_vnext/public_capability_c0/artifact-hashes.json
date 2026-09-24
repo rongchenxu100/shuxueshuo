@@ -1,7 +1,7 @@
 {
   "schema_version": "lesson-capability-artifact-hashes/v1",
   "source_batch": "f5-f5c0-public-capability-review",
-  "registry_fingerprint": "ab856dbd6f023a1bfb3c2263f09e98005faaf377e449926921b622681977aa25",
+  "registry_fingerprint": "8ab1a6ff7a7785cd4a273029af3142470b758e44abd9563d5622ffd74eb1dcab",
   "summary": {
     "public_capability_count": 29,
     "public_function_count": 23,

@@ -8,6 +8,10 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Mapping, Sequence, TypeAlias
 
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
+from shuxueshuo_server.solver.runtime.inequality_teaching_evidence import (
+    InequalityTeachingEvidence,
+    inequality_teaching_evidence_schema,
+)
 from shuxueshuo_server.solver.runtime.macro_runtime_search import (
     MacroRoleResolution,
     MacroRuntimeSearchReport,
@@ -924,7 +928,8 @@ def _point_string_pair(value: Any, field_name: str) -> tuple[str, str]:
 
 
 FunctionalExecutionEvidence: TypeAlias = (
-    PathMinimumWitness
+    InequalityTeachingEvidence
+    | PathMinimumWitness
     | MacroSearchExecutionEvidence
     | SymbolicClosureExecutionEvidence
     | RightAngleConstructSelectExecutionEvidence
@@ -936,6 +941,8 @@ def functional_execution_evidence_from_payload(
     payload: Mapping[str, Any],
 ) -> FunctionalExecutionEvidence:
     schema_version = payload.get("schema_version")
+    if schema_version == "inequality-teaching-evidence/v1":
+        return InequalityTeachingEvidence.from_payload(payload)
     if schema_version == PATH_MINIMUM_WITNESS_CONTRACT:
         return PathMinimumWitness.from_payload(payload)
     if schema_version == MACRO_SEARCH_EXECUTION_EVIDENCE_CONTRACT:
@@ -952,6 +959,7 @@ def functional_execution_evidence_from_payload(
 def functional_execution_evidence_schema() -> dict[str, Any]:
     return {
         "oneOf": [
+            inequality_teaching_evidence_schema(),
             path_minimum_witness_schema(include_document_header=False),
             macro_search_execution_evidence_schema(include_document_header=False),
             symbolic_closure_execution_evidence_schema(

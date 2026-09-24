@@ -83,6 +83,8 @@ class ApplyTwoTermAmgmMethod:
         )
 
 
+from ...explanation.basic_inequality_teaching import AMGM_UNITS
+
 SPEC = MethodSpecSource(
     method_cls=ApplyTwoTermAmgmMethod,
     title="应用二元基本不等式",
@@ -99,6 +101,6 @@ SPEC = MethodSpecSource(
     parameters_schema=PARAMETERS_SCHEMA,
     summary="验证两个正项定和求积的完整上界推导。steps 可有 1–12 行，包含 U+V>=2*sqrt(U*V)，显式代入定和、缩放等中间步骤，最后目标表达式<=常数。允许 ∵/∴ 连续推理和 A<=B=C 关系链，所有陈述均由内核验证，∵ 不创造前提。例如 ∵x>0,y>0；∴x+y>=2*sqrt(x*y)；∵x+y=6；∴6>=2*sqrt(x*y)；∴sqrt(x*y)<=3；∴x*y<=9（分行写）。只产生上界，取等交给 close_equality_and_restore。",
     do_not_use_when=("项不为正、非二元定和求积或需要先换元整理。",),
-    generic_teaching_reason="由已验证 AM-GM 证据组织讲解。",
-    no_new_visual_reason="仅生成代数不等式证据。",
+    teaching_units=AMGM_UNITS,
+    no_new_visual_reason="几何场景无新增对象；自定义教学图由学生单元 visuals 声明。",
 )

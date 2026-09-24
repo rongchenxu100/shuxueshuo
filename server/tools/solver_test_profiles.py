@@ -69,6 +69,22 @@ class OwnershipRule:
 OWNERSHIP_RULES = (
     OwnershipRule(
         (
+            "server/shuxueshuo_server/solver/explanation/basic_inequality_teaching.py",
+            "server/shuxueshuo_server/solver/explanation/teaching_rules.py",
+            "server/shuxueshuo_server/solver/runtime/inequality_teaching_evidence.py",
+            "server/shuxueshuo_server/solver/visual/teaching_diagrams.py",
+            "server/tools/run_basic_inequality_stage4b.py",
+            "internal/functional-plan-fixtures/basic-inequality-q01-stage4b.functional-plan.json",
+        ),
+        (
+            "tests/solver/test_basic_inequality_lesson.py",
+            "tests/solver/test_basic_inequality_runtime.py",
+            "tests/solver/test_recursive_lesson_ir.py",
+            "tests/solver/test_visual_step_ir_heping_ermo.py",
+        ),
+    ),
+    OwnershipRule(
+        (
             "server/shuxueshuo_server/solver/basic_inequality_stage4a.py",
             "server/shuxueshuo_server/solver/family/basic_inequality_runtime.py",
             "server/shuxueshuo_server/solver/math_kernel/inequality_evidence.py",

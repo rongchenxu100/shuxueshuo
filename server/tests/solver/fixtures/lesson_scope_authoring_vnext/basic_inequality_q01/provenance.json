@@ -1,0 +1,8 @@
+{
+  "producer": "tools/run_basic_inequality_stage4b.py --mode deepseek",
+  "source_run": "internal/review-analysis/basic-inequality-stage4b/live-final-01",
+  "response_sha256": "b7529a433e84e5dc8b866d2b2f83e49935d63461e255f109c75857862e8ee4ed",
+  "metadata_sha256": "007dc0fe38493ae1b31109ad5526868f17ae6d4e5e961b37bfed53bfdf329d76",
+  "solver_plan": "internal/functional-plan-fixtures/basic-inequality-q01-stage4b.functional-plan.json",
+  "solver_plan_sha256": "11e7b5351c02b5e6e6f599b2d11c416798294b7de05a8351bff617f130e9c41a"
+}

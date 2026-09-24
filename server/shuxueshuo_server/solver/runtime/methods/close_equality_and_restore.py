@@ -64,6 +64,8 @@ class CloseEqualityAndRestoreMethod:
         )
 
 
+from ...explanation.basic_inequality_teaching import EQUALITY_UNITS
+
 SPEC = MethodSpecSource(
     method_cls=CloseEqualityAndRestoreMethod,
     title="取等并验证原条件",
@@ -82,6 +84,6 @@ SPEC = MethodSpecSource(
     outputs={"maximum": "MaximumExpression"},
     parameters_schema=PARAMETERS_SCHEMA,
     summary="消费已验证上界和同一个题面目标。steps 用 1–12 行写出取等条件、具体取值、原条件代回与目标值验算；允许 ∵/∴ 和关系链。例如 ∵x=y,x+y=6；∴x=y=3；∴x+y=6,x*y=9（分行写）。每个原变量必须有明确常量赋值，不能只写待求方程。内核同步代入验证全部提交关系、原条件、定义域、AM-GM 取等条件和目标值；只在提交的取等见证下验证，不把取等假设提升为全局事实，不搜索或枚举全部解。",
-    generic_teaching_reason="由上界证据及原条件代回证据组织取等讲解。",
-    no_new_visual_reason="只验证有限见证，不产生几何对象。",
+    teaching_units=EQUALITY_UNITS,
+    no_new_visual_reason="几何场景无新增对象；自定义教学图由学生单元 visuals 声明。",
 )

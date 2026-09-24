@@ -349,20 +349,33 @@ RUN_LLM_INTEGRATION=1 uv run pytest -q tests/solver/test_basic_inequality_runtim
 
 本阶段不迁移 M01，不扩展加权/连续 AM-GM，不生成教学网页。阶段 4B 再从已验证 Runtime artifacts 接入 ExplanationSnapshot → LessonIR → VisualStepIR → HTML；页面不能自行补答案或证明。完整生产注册仍留待能力与 preflight 完成后进行。
 
-### 阶段 4B：q01 学生步骤与声明式视觉闭环（待实现）
+### 阶段 4B：q01 学生步骤与声明式视觉闭环（已实现，2026-09-24）
 
 详细契约见[学生步骤、VisualSpec 与前端组件声明式绑定](student-step-visual-binding-design.md)。从 4A 成功执行的公开证据出发，不从手写网页或答案 fixture 构造教学输入。
 
 任务：
 
 - M11 解释代码产生“观察结构”“应用基本不等式”两个单元，M13 产生“验证取等”单元；q01 两个 Runtime Method 对应三个学生步骤，不增加观察 Runtime Method；
-- Family rule 按依赖编排这些单元，可生成路线总览；Method 与 rule 都以声明方式指定 VisualSpec、角色来源和组件绑定注册项，步骤内 `visuals` 直接承载规格引用与角色引用，不引入独立 VisualRequest；
+- 已接通 `TeachingRuleRegistry` 注册与调度入口；q01 默认无业务规则，原样传递三个 Method 单元。仅测试规则新增概览，校验覆盖与来源；Method 与 rule 的步骤内 `visuals` 共用 VisualSpec 和绑定入口，不引入独立 VisualRequest；
 - Lesson LLM 润色并在声明边界内提出合并；代码保持数学内容、来源与必要独立步骤，LLM 后统一校验、处理展示组合、绑定组件，再确定最终步骤及导航；
-- 数学对象图形沿用 scene/object identity 与 Frame 继承；基本不等式自定义教学图使用并存、覆盖、组合或独立规则，默认不继承，两类展示可以混用；
+- 数学对象图形沿用 scene/object identity 与 Frame 继承；自定义教学图持久化为 `diagram_blocks`，默认不继承，可与场景并存。本阶段实现并存和独立边界检查，覆盖与组合留待真实业务规则；
 - 实现 q01 的结构对照、推导链、取等验证展示，通过公共编译链生成 HTML；组件不重新求解；
-- 按 q07 的两轮依赖机制，用合成公开证据验证 rule 在应用前新增总观察、覆盖映射与后续局部观察保留；次数来自已验证应用组，不由变量数减条件数推断，不把它当作连续 AM-GM Runtime 已完成；M07/08/09 的观察投影随后续 Method 实现补齐。
+- q07 多次应用识别、总观察合成、覆盖/组合业务规则移至连续 AM-GM 求解能力完成后；M07/08/09 的观察投影随后续 Method 实现补齐。本阶段不实现这些业务规则。
 
 验收：q01 三个步骤及组件绑定正确；所有内容可追溯；LLM 非法合并局部回退；缺组件/角色产生明确 gap；二次函数场景继承回归保持；保存 Snapshot、编排草稿、LessonIR、展示绑定审计、VisualStepIR 和编译 HTML。生产 Family 注册保持关闭，冻结样本与其余 21 题资产范围不变。
+
+构建入口（输出目录必须不存在，失败记录不覆盖）：
+
+```bash
+cd server
+uv run python tools/run_basic_inequality_stage4b.py --mode deterministic --output ../internal/review-analysis/basic-inequality-stage4b/new-draft
+uv run python tools/run_basic_inequality_stage4b.py --mode recorded --content tests/solver/fixtures/lesson_scope_authoring_vnext/basic_inequality_q01/scope-content.json --output ../internal/review-analysis/basic-inequality-stage4b/new-replay
+uv run python tools/run_basic_inequality_stage4b.py --mode deepseek --output ../internal/review-analysis/basic-inequality-stage4b/new-live
+```
+
+入口固定重放经过验证的 `basic-inequality-q01-stage4b.functional-plan.json`，含定和代入的完整数学链；不读取手写页面或 expected answer。版本清单、调用统计及视觉绑定审计随产物保存。最终两次真实 Lesson LLM 验收记录见 `internal/review-analysis/basic-inequality-stage4b/live-final-01` 与 `live-final-02`；二者均直接接受三步讲解，无修复、无回退。
+
+最终两次调用合计 5,489 tokens，模型调用时间 3.809 秒；含早期验证调用的总账及浏览器记录见该目录的 `acceptance.json`。使用保存的真实响应重放生成最新样式页面 `page-final-01/lesson.html`、`page-final-02/lesson.html`，桌面 1280×960 与窄屏 390×844 检查通过。新增 18 项教学回归、既有 Method/事务/教学/视觉回归及 51 项文本组件测试通过；20/20 冻结样本、10/10 ProblemIR `--check` 通过。离线真实讲解 fixture 位于 `server/tests/solver/fixtures/lesson_scope_authoring_vnext/basic_inequality_q01`，保留响应、调用统计与 hash 来源。
 
 ### 后续阶段 4 扩展：M01 迁移与 M11 模板扩展
 

@@ -37,6 +37,20 @@ function readLesson(id) {
   ));
 }
 
+test("AM-GM mapping permits omitted intermediates but rejects empty or missing conclusions", () => {
+  for (const omitted of [["replaced"], ["substituted"], ["replaced", "substituted"]]) {
+    const lesson = readLesson("inequality-basic-q01");
+    const visual = lesson.steps[1].visual;
+    for (const field of omitted) delete visual[field];
+    assert.doesNotThrow(() => validateTextLesson(lesson, lesson.meta.id));
+    visual.replaced = "";
+    assert.throws(() => validateTextLesson(lesson, lesson.meta.id), /replaced/);
+    delete visual.replaced;
+    delete visual.conclusion;
+    assert.throws(() => validateTextLesson(lesson, lesson.meta.id), /缺少公式或结论/);
+  }
+});
+
 test("all senior-high text lessons validate and compile to published HTML", () => {
   for (const id of lessonIds) {
     const lesson = validateTextLesson(readLesson(id), id);

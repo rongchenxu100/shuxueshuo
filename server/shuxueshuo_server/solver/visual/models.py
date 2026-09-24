@@ -134,6 +134,7 @@ class VisualStep:
     lesson_step_id: str
     visual_mode: str
     frames: tuple[VisualFrame, ...]
+    diagram_blocks: tuple[JsonObject, ...] = ()
     metadata: JsonObject = field(default_factory=dict, repr=False, compare=False)
     owner_scope_ref: str = field(default="", repr=False, compare=False)
     owner_goal_ref: str | None = field(default=None, repr=False, compare=False)
@@ -161,6 +162,7 @@ class VisualStep:
 
     def to_payload(self) -> JsonObject:
         return {
+            **({"diagram_blocks": _clone(list(self.diagram_blocks))} if self.diagram_blocks else {}),
             "visual_step_id": self.visual_step_id,
             "lesson_step_id": self.lesson_step_id,
             "visual_mode": self.visual_mode,
@@ -378,14 +380,16 @@ def visual_frame_from_payload(payload: JsonObject) -> VisualFrame:
 def visual_step_from_payload(payload: JsonObject) -> VisualStep:
     _require_exact_keys(
         payload,
-        {"visual_step_id", "lesson_step_id", "visual_mode", "frames"},
+        {"visual_step_id", "lesson_step_id", "visual_mode", "frames", "diagram_blocks"},
         "visual_step",
+        optional={"diagram_blocks"},
     )
     return VisualStep(
         visual_step_id=str(payload["visual_step_id"]),
         lesson_step_id=str(payload["lesson_step_id"]),
         visual_mode=str(payload["visual_mode"]),
         frames=tuple(visual_frame_from_payload(item) for item in payload["frames"]),
+        diagram_blocks=tuple(_clone(payload.get("diagram_blocks", []))),
     )
 
 

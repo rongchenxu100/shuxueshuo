@@ -38,6 +38,9 @@ def bind_teaching_roles(
     *,
     snapshot: ExplanationSnapshot,
 ) -> dict[str, Any]:
+    if unit.role_binder_id == "basic_inequality":
+        from .basic_inequality_teaching import roles
+        return roles(source, snapshot)
     binder = _ROLE_BINDERS.get(unit.role_binder_id)
     if binder is None:
         if not unit.role_schema:

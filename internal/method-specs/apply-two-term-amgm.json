@@ -54,6 +54,65 @@
   "do_not_use_when": [
     "项不为正、非二元定和求积或需要先换元整理。"
   ],
-  "generic_teaching_reason": "由已验证 AM-GM 证据组织讲解。",
-  "no_new_visual_reason": "仅生成代数不等式证据。"
+  "teaching_units": [
+    {
+      "visuals": [
+        {
+          "spec_id": "basic_inequality.structure",
+          "roles": {
+            "evidence": "$source"
+          }
+        }
+      ],
+      "requires_independent_lesson_step": true,
+      "unit_key": "amgm_observe",
+      "title_template": "观察结构",
+      "nav_title_template": "观察结构",
+      "goal_template": "{goal}",
+      "derive_templates": [
+        [
+          "∴",
+          "{conclusion}"
+        ]
+      ],
+      "box_templates": [
+        "定和求积"
+      ],
+      "role_schema": {
+        "goal": "本步骤的教学目标。",
+        "conclusion": "来自公开证据的数学结论。"
+      },
+      "role_binder_id": "basic_inequality"
+    },
+    {
+      "visuals": [
+        {
+          "spec_id": "basic_inequality.application",
+          "roles": {
+            "evidence": "$source"
+          }
+        }
+      ],
+      "requires_independent_lesson_step": true,
+      "unit_key": "amgm_apply",
+      "title_template": "应用基本不等式",
+      "nav_title_template": "应用基本不等式",
+      "goal_template": "{goal}",
+      "derive_templates": [
+        [
+          "∴",
+          "{conclusion}"
+        ]
+      ],
+      "box_templates": [
+        "{conclusion}"
+      ],
+      "role_schema": {
+        "goal": "本步骤的教学目标。",
+        "conclusion": "来自公开证据的数学结论。"
+      },
+      "role_binder_id": "basic_inequality"
+    }
+  ],
+  "no_new_visual_reason": "几何场景无新增对象；自定义教学图由学生单元 visuals 声明。"
 }

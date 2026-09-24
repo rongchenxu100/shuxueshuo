@@ -53,6 +53,16 @@ def forward_compile(visual_ir: VisualStepIR) -> CompiledVisualArtifacts:
             for frame in visual_step.frames
         ]
         raw_step["visualFrames"] = compiled_frames
+        if visual_step.diagram_blocks:
+            if not visual_step.frames:
+                lesson_steps_by_id[visual_step.lesson_step_id]["showDiagram"] = False
+            payloads = [
+                copy.deepcopy(block["data"]) for block in visual_step.diagram_blocks
+            ]
+            lesson_steps_by_id[visual_step.lesson_step_id]["visual"] = (
+                payloads[0] if len(payloads) == 1
+                else {"kind": "teaching-diagram-group", "items": payloads}
+            )
         _compile_frame_local_parameters(
             visual_step,
             lesson_step=lesson_steps_by_id.get(visual_step.lesson_step_id),

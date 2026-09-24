@@ -826,6 +826,9 @@ class TeachingEvidenceProjectorRegistry:
 def default_teaching_evidence_projector_registry(
 ) -> TeachingEvidenceProjectorRegistry:
     registry = TeachingEvidenceProjectorRegistry()
+    from ..runtime.inequality_teaching_evidence import InequalityTeachingEvidence
+    from .basic_inequality_teaching import InequalityTeachingProjector
+    registry.register(InequalityTeachingEvidence, InequalityTeachingProjector())
     registry.register(PathMinimumWitness, PathMinimumTeachingEvidenceProjector())
     registry.register(
         SymbolicClosureExecutionEvidence,

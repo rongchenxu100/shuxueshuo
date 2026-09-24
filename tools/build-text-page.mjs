@@ -218,8 +218,13 @@ export function validateTextLesson(lesson, inputDir = "") {
       throw new Error(`${meta.id} 的 problem.keyPoints.result 不能为空`);
     }
   }
+  if (meta.generatedFromSolver && typeof problem.answerText !== "string") throw new Error("generated lesson requires verified answerText");
   const ids = new Set();
   for (const step of lesson.steps) {
+    if (step.visual?.kind === "teaching-diagram-group") {
+      if (!Array.isArray(step.visual.items) || !step.visual.items.length || step.visual.items.some(v => v.kind === "teaching-diagram-group")) throw new Error("invalid teaching diagram group");
+      validateTextLesson({...lesson, steps: step.visual.items.map((visual, i) => ({...step,id: step.id + "-" + i,visual}))}, inputDir);
+    }
     if (step.visual?.kind === "expression-rewrite") validateExpressionRewrite(step.visual);
     if (!step.id || ids.has(step.id)) throw new Error(`${meta.id} 的 step.id 缺失或重复`);
     ids.add(step.id);
@@ -556,8 +561,6 @@ export function validateTextLesson(lesson, inputDir = "") {
       const requiredFields = [
         "template",
         "mapped",
-        "replaced",
-        "substituted",
         "conclusion",
       ];
       if (visual.formulaStyle !== "square-sum") {
@@ -566,7 +569,7 @@ export function validateTextLesson(lesson, inputDir = "") {
       if (requiredFields.some((field) => typeof visual[field] !== "string" || !visual[field].trim())) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual 基本不等式映射缺少公式或结论`);
       }
-      for (const field of ["title", "templateLabel"]) {
+      for (const field of ["title", "templateLabel", "replaced", "substituted"]) {
         if (visual[field] !== undefined && (typeof visual[field] !== "string" || !visual[field].trim())) {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.${field} 必须是非空字符串`);
         }
@@ -1238,16 +1241,16 @@ export function validateTextLesson(lesson, inputDir = "") {
   return lesson;
 }
 
-export function buildTextPage(inputDir, root = repoRoot) {
+export function buildTextPage(inputDir, root = repoRoot, { outputFile } = {}) {
   const inputPath = path.resolve(inputDir);
   const lessonPath = path.join(inputPath, "lesson-data.json");
   if (!fs.existsSync(lessonPath)) throw new Error(`缺少: ${lessonPath}`);
   const lesson = validateTextLesson(readJson(lessonPath), inputDir);
   const meta = lesson.meta;
-  const outputPath = path.resolve(root, meta.outputPath);
+  const outputPath = outputFile ? path.resolve(outputFile) : path.resolve(root, meta.outputPath);
   const siteRoot = path.join(root, "site");
   const relativeOutput = path.relative(siteRoot, outputPath);
-  if (relativeOutput.startsWith("..") || path.extname(outputPath) !== ".html") {
+  if ((!outputFile && relativeOutput.startsWith("..")) || path.extname(outputPath) !== ".html") {
     throw new Error(`${meta.id}.outputPath 必须指向 site 下的 HTML`);
   }
 
@@ -1286,7 +1289,7 @@ export function buildTextPage(inputDir, root = repoRoot) {
     "{{PROBLEM_FULL_HTML}}": buildProblemHtml(
       lesson.problem.lines,
       examSourceLabel(lesson.problem.source),
-      answerTextForSchema(answerSchemaForLesson(root, meta.id)),
+      meta.generatedFromSolver ? lesson.problem.answerText : answerTextForSchema(answerSchemaForLesson(root, meta.id)),
     ),
     "{{PROBLEM_KEY_POINTS_HTML}}": buildKeyPointsHtml(lesson.problem.keyPoints),
     "{{STEPS_JSON}}": lesson.steps.some(step => step.visual?.kind === "expression-rewrite")
@@ -1311,7 +1314,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === currentFile) {
     process.exitCode = 1;
   } else {
     try {
-      console.log(`Wrote: ${buildTextPage(inputArg)}`);
+      const flag = process.argv.indexOf("--output");
+      console.log(`Wrote: ${buildTextPage(inputArg, repoRoot, {outputFile: flag < 0 ? undefined : process.argv[flag + 1]})}`);
     } catch (error) {
       console.error(error.message);
       process.exitCode = 1;

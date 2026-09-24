@@ -43,6 +43,10 @@ from shuxueshuo_server.solver.runtime.answer_goal_verifier import (
     FunctionalGoalVerificationContext,
 )
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
+from shuxueshuo_server.solver.runtime.inequality_teaching_evidence import (
+    InequalityTeachingEvidence,
+    collect_inequality_evidence,
+)
 from shuxueshuo_server.solver.runtime.binding_index import (
     CanonicalRuntimeBindingIndex,
 )
@@ -330,6 +334,7 @@ class CompiledFunctionalCall:
         | CurveCandidateParameterExecutionEvidence
         | None
     ) = None
+    inequality_teaching_evidence: tuple[InequalityTeachingEvidence, ...] = ()
     materialized_state_sources: tuple[tuple[str, StateVersionId], ...] = ()
     output_write_authorities: tuple[MethodOutputWriteAuthority, ...] = ()
 
@@ -6399,6 +6404,12 @@ class FunctionalTransactionalInterpreter:
                     capability=capability,
                     method_results=method_results,
                     handle_registry=handle_registry,
+                )
+                compiled = replace(
+                    compiled,
+                    inequality_teaching_evidence=collect_inequality_evidence(
+                        compiled.call_id, method_results
+                    ),
                 )
                 compiled = _with_direct_macro_teaching_evidence(
                     compiled,

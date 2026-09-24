@@ -120,6 +120,7 @@ class BoundLessonStep:
     goal: str
     derive: tuple[tuple[str, str], ...]
     box: tuple[str, ...]
+    visuals: tuple[dict[str, Any], ...] = ()
 
     @property
     def material_count(self) -> int:
@@ -1017,6 +1018,7 @@ class LessonScopeContentValidator:
     ) -> BoundLessonStep:
         records = tuple(contract.authority[position] for position in positions)
         bound_step = BoundLessonStep(
+            visuals=tuple(v for record in records for v in record.get("visuals", ())),
             container_ref=contract.container_ref,
             material_positions=positions,
             teaching_step_refs=teaching_step_refs,
@@ -1271,12 +1273,14 @@ class ScopeLessonAuthoringService:
         retry_backoff_seconds: float = 0.5,
         sleep_fn: Callable[[float], None] = sleep,
         reviewed_prompt_hash: str | None = None,
+        rule_registry=None,
     ) -> None:
         if max_transport_attempts < 1:
             raise ValueError("max_transport_attempts must be positive")
         if thinking_effort not in {"disabled", "low"}:
             raise ValueError("thinking_effort must be 'disabled' or 'low'")
         self.client = client
+        self.rule_registry = rule_registry
         self.max_transport_attempts = int(max_transport_attempts)
         self.thinking_effort = thinking_effort
         self.retry_backoff_seconds = max(0.0, float(retry_backoff_seconds))
@@ -1287,7 +1291,7 @@ class ScopeLessonAuthoringService:
         self,
         snapshot: ExplanationSnapshot,
     ) -> ScopeLessonGenerationResult:
-        projection = AnnotatedTeachingPlanProjector().project(snapshot)
+        projection = AnnotatedTeachingPlanProjector(rule_registry=self.rule_registry).project(snapshot)
         output_schema = lesson_scope_content_schema(projection.plan)
         prompt = render_annotated_teaching_prompt(
             projection.plan,

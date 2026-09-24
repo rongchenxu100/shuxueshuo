@@ -109,6 +109,9 @@ class VisualStepIRValidator:
             raise VisualStepIRValidationError(
                 f"{label}: unknown lesson_step_id: {step.lesson_step_id}"
             )
+        from .teaching_diagrams import validate_diagram_block
+        for block in step.diagram_blocks:
+            validate_diagram_block(block)
         if step.visual_mode == "none":
             return
         for frame_index, frame in enumerate(step.frames):

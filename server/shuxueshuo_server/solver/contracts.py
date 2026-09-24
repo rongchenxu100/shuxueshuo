@@ -1098,6 +1098,8 @@ class TeachingUnitSpec:
     box_templates: tuple[str, ...] = ()
     role_schema: dict[str, str] = field(default_factory=dict)
     role_binder_id: str = "generic_trace"
+    visuals: tuple[dict[str, Any], ...] = ()
+    requires_independent_lesson_step: bool = False
 
     def __post_init__(self) -> None:
         for field_name in (
@@ -1119,6 +1121,8 @@ class TeachingUnitSpec:
 
     def to_payload(self) -> dict[str, Any]:
         return {
+            **({"visuals": list(self.visuals)} if self.visuals else {}),
+            **({"requires_independent_lesson_step": True} if self.requires_independent_lesson_step else {}),
             "unit_key": self.unit_key,
             "title_template": self.title_template,
             "nav_title_template": self.nav_title_template,
@@ -1140,6 +1144,11 @@ class MethodVisualSpec:
     timeline_templates: tuple[dict[str, Any], ...] = ()
     role_binder_id: str = "generic_visual"
     continuation_policy: str = ""
+
+    @property
+    def visual_kind(self) -> str:
+        """Legacy scene declarations keep their existing serialized shape."""
+        return "mathematical_scene"
 
     def __post_init__(self) -> None:
         if self.continuation_policy not in {
@@ -1183,6 +1192,7 @@ class MethodSpec:
     repair_feedback_provider_id: str | None = None
     geometry_profiles: tuple[dict[str, Any], ...] = ()
     teaching_unit: TeachingUnitSpec | None = None
+    teaching_units: tuple[TeachingUnitSpec, ...] = ()
     # An explicit code-owned approval for the deterministic verified-input /
     # output teaching draft.  ``None`` is intentionally different from an
     # empty string: public-capability coverage treats an omitted declaration

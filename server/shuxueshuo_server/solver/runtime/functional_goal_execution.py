@@ -2944,6 +2944,8 @@ def _transaction_execution_evidence(
             and compiled.direct_macro_teaching_evidence is not None
         ):
             items.append(compiled.direct_macro_teaching_evidence)
+        if result is not None and result.status == "verified":
+            items.extend(compiled.inequality_teaching_evidence)
         closure = result.symbolic_closure if result is not None else None
         if (
             result is not None

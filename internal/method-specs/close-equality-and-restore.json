@@ -60,6 +60,36 @@
       }
     }
   },
-  "generic_teaching_reason": "由上界证据及原条件代回证据组织取等讲解。",
-  "no_new_visual_reason": "只验证有限见证，不产生几何对象。"
+  "teaching_units": [
+    {
+      "visuals": [
+        {
+          "spec_id": "basic_inequality.equality",
+          "roles": {
+            "evidence": "$source"
+          }
+        }
+      ],
+      "requires_independent_lesson_step": true,
+      "unit_key": "equality_verify",
+      "title_template": "验证取等",
+      "nav_title_template": "验证取等",
+      "goal_template": "{goal}",
+      "derive_templates": [
+        [
+          "∴",
+          "{conclusion}"
+        ]
+      ],
+      "box_templates": [
+        "{conclusion}"
+      ],
+      "role_schema": {
+        "goal": "本步骤的教学目标。",
+        "conclusion": "来自公开证据的数学结论。"
+      },
+      "role_binder_id": "basic_inequality"
+    }
+  ],
+  "no_new_visual_reason": "几何场景无新增对象；自定义教学图由学生单元 visuals 声明。"
 }

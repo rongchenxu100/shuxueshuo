@@ -408,8 +408,10 @@ class AnnotatedTeachingPlanProjector:
         self,
         *,
         material_projector: TeachingMaterialProjector | None = None,
+        rule_registry=None,
     ) -> None:
         self._materials = material_projector or TeachingMaterialProjector()
+        self._rule_registry = rule_registry
 
     def project(
         self,
@@ -519,6 +521,7 @@ class AnnotatedTeachingPlanProjector:
                         "requires_independent_lesson_step": (
                             requires_independent
                         ),
+                        **_unit_visual_authority(source, unit_key),
                         "variant_key": projected_materials.variant_key,
                         "variant_evidence_match": _json_clone(
                             projected_materials.evidence_match
@@ -610,11 +613,13 @@ class AnnotatedTeachingPlanProjector:
             },
             "diagnostics": [item.to_payload() for item in diagnostics],
         }
-        return AnnotatedTeachingProjection(
+        projection = AnnotatedTeachingProjection(
             plan=plan,
             authority=authority,
             diagnostics=tuple(diagnostics),
         )
+
+        return self._rule_registry.apply(projection, snapshot) if self._rule_registry else projection
 
 
 def annotated_teaching_plan_schema() -> dict[str, Any]:
@@ -1513,6 +1518,12 @@ def _project_student_runtime_value(
     path: str,
 ) -> Any:
     projected = _json_clone(value)
+    if runtime_type == "AmgmBound":
+        return {"target": student_math_display(value["target_math"]), "upper_bound": student_math_display(value["bound"]),
+                "equality": student_math_display(value["equality"]), "derivation": [student_math_display(v["math"]) for v in value["steps"]]}
+    if runtime_type == "extremum_target":
+        return {"target": student_math_display(value["target_math"]), "goal": "求最大值",
+                "conditions": [student_math_display(v["math"]) for v in value["source_conditions"]]}
     if runtime_type != "AngleEquality" or not student_object_aliases:
         return projected
     if not isinstance(projected, Mapping):
@@ -1612,6 +1623,10 @@ def _project_student_runtime_display(
     fallback: str,
     label: str | None = None,
 ) -> str:
+    if runtime_type == "AmgmBound":
+        return f'{value["target"]}≤{value["upper_bound"]}'
+    if runtime_type == "extremum_target":
+        return "求" + value["target"] + "的最大值；条件：" + "，".join(value["conditions"])
     if runtime_type == "AngleEquality" and isinstance(value, Mapping):
         left = str(value.get("left_angle") or "")
         right = str(value.get("right_angle") or "")
@@ -1852,7 +1867,7 @@ def _calculation_display(
     kind: str,
     value: Mapping[str, Any],
 ) -> list[str]:
-    if kind == "equivalence_chain":
+    if kind in {"equivalence_chain", "verified_relation_chain"}:
         statements = [_display_math(item) for item in value.get("statements", ())]
         result = _display_math(value.get("result"))
         return _unique_nonempty((*statements, result))
@@ -2308,3 +2323,14 @@ __all__ = [
     "llm_facing_annotated_plan_payload",
     "render_annotated_teaching_prompt",
 ]
+
+
+def _unit_visual_authority(source, unit_key):
+    from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+    spec = MethodSpecRegistry.load_from_code().specs.get(source.capability_id)
+    units = spec.teaching_units or ((spec.teaching_unit,) if spec.teaching_unit else ()) if spec else ()
+    unit = next((u for u in units if u.unit_key == unit_key), None)
+    if unit is None or not unit.visuals:
+        return {}
+    from .basic_inequality_teaching import visual_refs
+    return {"visuals": visual_refs(source, unit.visuals)}

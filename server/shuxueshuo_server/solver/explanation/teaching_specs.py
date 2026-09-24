@@ -43,6 +43,7 @@ class BoundTeachingUnit:
     goal: str
     derive: tuple[tuple[str, str], ...]
     box: tuple[str, ...]
+    visuals: tuple[dict[str, Any], ...] = ()
 
     def to_payload(self, *, include_unit_key: bool = True) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -132,6 +133,11 @@ class TeachingSeparationBoundaryResolver:
                     "teaching_separation_capability_kind_mismatch: "
                     f"{capability_id}: {capability_kind}"
                 )
+            for declared in method.teaching_units or ((method.teaching_unit,) if method.teaching_unit else ()):
+                if declared.unit_key == unit_key and declared.requires_independent_lesson_step:
+                    return True
+            if method.teaching_units and unit_key in {u.unit_key for u in method.teaching_units}:
+                return False
             expected_key = (
                 method.teaching_unit.unit_key
                 if method.teaching_unit is not None
@@ -233,6 +239,12 @@ class TeachingSpecBinder:
                 f"{source.capability_id}"
             )
         if method is not None:
+            if method.teaching_units:
+                return {
+                    "kind": "function",
+                    "declared": True,
+                    "teaching_units": [unit.to_payload() for unit in method.teaching_units],
+                }
             unit = method.teaching_unit or _default_teaching_unit(source)
             return {
                 "kind": "function",
@@ -285,26 +297,14 @@ class TeachingSpecBinder:
                 f"{source.capability_id}"
             )
         if method is not None:
-            unit = method.teaching_unit or _default_teaching_unit(source)
-            try:
-                roles = bind_teaching_roles(
-                    source,
-                    unit,
-                    snapshot=snapshot,
-                )
-            except TeachingRoleBindingError as exc:
-                raise TeachingSpecBindingError(str(exc)) from exc
-            return BoundTeachingSelection(
-                kind="function",
-                units=(
-                    _bind_unit_or_fallback(
-                        source,
-                        unit,
-                        roles,
-                        on_unit_error=on_unit_error,
-                    ),
-                ),
-            )
+            bound = []
+            for unit in method.teaching_units or (method.teaching_unit or _default_teaching_unit(source),):
+                try:
+                    roles = bind_teaching_roles(source, unit, snapshot=snapshot)
+                except TeachingRoleBindingError as exc:
+                    raise TeachingSpecBindingError(str(exc)) from exc
+                bound.append(_bind_unit_or_fallback(source, unit, roles, on_unit_error=on_unit_error))
+            return BoundTeachingSelection(kind="function", units=tuple(bound))
         assert recipe is not None and recipe.teaching is not None
         units, variant_key, evidence_match = _select_macro_units(
             recipe.teaching,
@@ -2047,6 +2047,7 @@ def _bind_unit(
         goal=fields["goal"],
         derive=derive,
         box=box,
+        visuals=tuple({"spec_id": v["spec_id"], "roles": {k: source.source_step_id if ref == "$source" else ref for k, ref in v["roles"].items()}} for v in unit.visuals),
     )
 
 
