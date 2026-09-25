@@ -1,0 +1,11 @@
+{
+  "kind": "source_image_transcription",
+  "problem_id": "q29",
+  "image": "source.png",
+  "image_sha256": "8b49903e76a16308a2f7e3ec9b4613d30f4e2bede92e63a95219f2be3ed8ceab",
+  "notation_sha256": "61efe9aa1d9e27ea18e2febd16a24206d16710bae232e100a826a1765b8c21bc",
+  "source_path": "internal/senior-high/source-images/inequality-basic-q29-conditional-elimination/source-question.png",
+  "transcribed_by": "Codex",
+  "human_review_approved": false,
+  "live_extraction_samples": 0
+}

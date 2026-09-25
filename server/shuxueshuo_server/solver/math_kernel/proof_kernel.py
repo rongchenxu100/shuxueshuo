@@ -1147,6 +1147,17 @@ class _Search(_Environment):
         for key, premise in self.premises.items():
             if premise == g:
                 return self.add("given", g, certificate={"premise_id": key})
+        if g[0] in {"<=", "<"} and all(
+            side[0] == "div" and side[1] == ONE for side in g[1:]
+        ):
+            x, y = g[1][2], g[2][2]
+            found = self.attempt(partial(self.raw,
+                "monotone",
+                g,
+                [(">", x, ZERO), (">", y, ZERO), (REVERSE[g[0]], x, y)],
+            ))
+            if found:
+                return found
         # Reordering a previously proved bound does not introduce a second
         # AM-GM application. Preserve that dependency before template search.
         for premise in self.premises.values():
@@ -1297,6 +1308,32 @@ class _Search(_Environment):
             if _holds(sign, g[0]):
                 return self.add("constant", g, certificate=certificate)
             raise ProofFailure("proof_missing", "exact constant comparison is false")
+        if g[0] == "!=" and g[2] == ZERO and g[1][0] in {"mul", "div"}:
+            found = self.attempt(partial(self.raw, "sign", g, [("!=", side, ZERO) for side in g[1][1:]]))
+            if found:
+                return found
+        # Even powers are nonnegative irrespective of their base's sign.
+        # Prefer that direct certificate before unrelated equation transport.
+        if g[2] == ZERO and g[0] in {">", ">=", "!="}:
+            e = g[1]
+
+            def even_power(n):
+                return (
+                    n[0] == "pow"
+                    and (signed_integer(n[2]) or 0) > 0
+                    and signed_integer(n[2]) % 2 == 0
+                )
+
+            if even_power(e) and g[0] == ">=":
+                return self.raw("sign", g)
+            if e[0] == "add":
+                for i, j in ((1, 2), (2, 1)):
+                    literal = a.literal_rational(e[j])
+                    if even_power(e[i]) and literal is not None and literal > 0:
+                        children = [(">=", e[i], ZERO), (">", e[j], ZERO)]
+                        if i == 2:
+                            children.reverse()
+                        return self.raw("sign", g, children)
         # Cheap positive arithmetic/domain guards precede polynomial transport.
         # In particular an unrelated bound must not exhaust the budget while
         # checking a+b != 0 from a>0,b>0.
@@ -1304,6 +1341,7 @@ class _Search(_Environment):
             g[2] == ZERO
             and g[0] in {">", ">=", "!="}
             and g[1][0] in {"add", "mul", "div", "pow", "sqrt"}
+            and all(n[0] not in {"sub", "neg"} for n in walk(g[1]))
             and all(
                 (">", ("symbol", name), ZERO) in self.premises.values()
                 for name in names(g[1])
@@ -1324,6 +1362,72 @@ class _Search(_Environment):
                 )
                 if found:
                     return found
+        if g[0] != "=" and g[2] == ZERO:
+            for premise in self.premises.values():
+                if premise[0] != "=":
+                    continue
+                for left, right in (premise[1:], premise[1:][::-1]):
+                    if left == g[1] and left not in tuple(walk(right)):
+                        found = self.attempt(
+                            partial(
+                                self.raw,
+                                "equal_sign",
+                                g,
+                                [("=", left, right), (g[0], right, ZERO)],
+                            )
+                        )
+                        if found:
+                            return found
+        if (
+            g[0] != "="
+            and g[2] != ZERO
+            and any(
+                p[0] == "=" and _diff(g) in tuple(walk(p))
+                for p in self.premises.values()
+            )
+        ):
+            found = self.attempt(
+                partial(
+                    self.raw,
+                    "difference",
+                    g,
+                    [(g[0], _diff(g), ZERO)],
+                )
+            )
+            if found:
+                return found
+        # A factor explicitly present in an equation can inherit a sign from
+        # the other side and its cofactor. This is finite algebraic transport,
+        # not equation solving: e.g. P/c=d gives P=c*d, with all domains proved.
+        # Try it before reducing against unrelated signed premises.
+        if g[2] == ZERO and g[0] in {">", "<", ">=", "<=", "!="}:
+            for premise in self.premises.values():
+                if premise[0] != "=":
+                    continue
+                for side, other in (premise[1:], premise[1:][::-1]):
+                    candidate = None
+                    if side[0] == "div":
+                        if side[1] == g[1]:
+                            candidate = expr("mul", other, side[2])
+                        elif side[2] == g[1]:
+                            candidate = expr("div", side[1], other)
+                    elif side[0] == "mul":
+                        if side[1] == g[1]:
+                            candidate = expr("div", other, side[2])
+                        elif side[2] == g[1]:
+                            candidate = expr("div", other, side[1])
+                    if candidate is None or g[1] in tuple(walk(candidate)):
+                        continue
+                    found = self.attempt(
+                        partial(
+                            self.raw,
+                            "equal_sign",
+                            g,
+                            [("=", g[1], candidate), (g[0], candidate, ZERO)],
+                        )
+                    )
+                    if found:
+                        return found
         # Move an already proved inequality through an equality. The equality
         # of differences is certified by bounded polynomial reduction, with
         # all original domains still guarded. Never trust a textual rewrite.
@@ -1502,6 +1606,18 @@ class _Search(_Environment):
         equations.sort(
             key=lambda item: not any(side[0] == "symbol" for side in item[1][1:])
         )
+        if len(equations) > self.budget.limits.equations:
+            # Restated identities and scalar multiples add no polynomial
+            # constraint. Only remove premises; never invent an equation.
+            unique = {}
+            for item in equations:
+                divisor = a.equation_divisor(item[1])
+                if not divisor:
+                    continue
+                leading = divisor[min(divisor)]
+                key = tuple(sorted((m, c / leading) for m, c in divisor.items()))
+                unique.setdefault(key, item)
+            equations = list(unique.values())
         # First try an identity independent of premises; unused equations must
         # not create unnecessary domain or provenance dependencies.
         for selected in ([], equations):

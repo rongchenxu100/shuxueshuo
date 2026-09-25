@@ -1296,7 +1296,9 @@
             '</div></section>'
           : '<section class="basic-equality-template"><span>' + esc(visual.templateLabel || "基本不等式取等") + '</span><div>' + equalityTerm(first, "square") + '<i aria-hidden="true">＝</i>' + equalityTerm(second, "circle") + '</div></section>';
         const solutionBranches = Array.isArray(visual.solutionBranches) ? visual.solutionBranches : [];
-        const equalitySolveMarkup = solutionBranches.length
+        const equalitySolveMarkup = visual.solutionMode === "witness"
+          ? '<section class="basic-equality-solve"><article><span>' + esc(visual.solvedLabel || "可取的具体值") + '</span><strong>' + renderFormulaText(visual.solved || "") + '</strong></article><i aria-hidden="true">→</i><article><span>' + esc(visual.conditionLabel || "满足原条件") + '</span><strong>' + renderFormulaText(visual.condition || "") + '</strong></article><i aria-hidden="true">＋</i><article><span>正项相等</span><strong>' + renderFormulaText(visual.equality || "") + '</strong></article></section>'
+          : solutionBranches.length
           ? '<section class="basic-equality-branch-derivation"><span>' + esc(visual.conditionLabel || "结合原条件") + '</span><strong>' + renderFormulaText(visual.condition || "") + '</strong><div>' +
               (visual.solutionRelations || []).map(function (relation) { return '<p>' + renderFormulaText(relation) + '</p>'; }).join('') +
             '</div></section><section class="basic-equality-branches">' + solutionBranches.map(function (branch) {

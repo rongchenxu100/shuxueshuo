@@ -1110,7 +1110,7 @@ def _parse_teaching_unit(raw: object) -> TeachingUnitSpec | None:
         "role_schema",
         "role_binder_id",
     }
-    if not expected <= set(raw) or set(raw) - expected - {"visuals", "requires_independent_lesson_step"}:
+    if not expected <= set(raw) or set(raw) - expected - {"visuals", "requires_independent_lesson_step", "activation_role"}:
         raise ValueError("MethodSpec.teaching_unit fields do not match contract")
     derive = raw.get("derive_templates")
     if not isinstance(derive, list | tuple):
@@ -1140,6 +1140,7 @@ def _parse_teaching_unit(raw: object) -> TeachingUnitSpec | None:
     ):
         raise ValueError("MethodSpec.teaching_unit.visuals must declare spec and role references")
     return TeachingUnitSpec(
+        activation_role=raw.get("activation_role"),
         visuals=tuple(visuals),
         requires_independent_lesson_step=independent,
         unit_key=str(raw.get("unit_key") or ""),
@@ -1204,6 +1205,7 @@ _KNOWN_TYPES = {
     "MinimumExpression",
     "MaximumExpression",
     "AmgmBound",
+    "ConstraintElimination",
     "OrientationHint",
     "Parabola",
     "ParameterValue",

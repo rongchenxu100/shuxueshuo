@@ -1024,6 +1024,10 @@ class LessonScopeContentValidator:
                 ">=": ("上界", "最大值", "不超过", "至多"),
                 "<=": ("下界", "最小值", "不低于", "至少为"),
             }.get(direction, ())
+            # Reciprocal teaching deliberately explains both directions. Its
+            # mathematical relations remain bound to verified source material.
+            if record.get("bound_transform") == "positive_reciprocal":
+                forbidden = ()
             if any(word in prose for word in forbidden):
                 raise _ScopeRejected((_diag(
                     "lesson_scope_bound_direction_conflict", "authority", path,

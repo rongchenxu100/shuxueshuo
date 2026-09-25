@@ -22,15 +22,34 @@ from .models import (
 BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
     BASIC_INEQUALITY_FAMILY,
     method_ids=(
+        "eliminate_by_constraint",
         "organize_expressions",
         "apply_two_term_amgm",
         "close_equality_and_restore",
     ),
     capability_contracts=(
+        CapabilityContractSpec(
+            "eliminate_by_constraint",
+            slot_writes=(
+                StateSlotPattern(
+                    "constraintElimination",
+                    "ConstraintElimination",
+                    output_key="elimination",
+                    semantic_role="elimination",
+                    identity_policy="value_only",
+                ),
+            ),
+        ),
         ORGANIZE_EXPRESSIONS_CONTRACT,
         CapabilityContractSpec(
             "apply_two_term_amgm",
             slot_reads=(
+                StateSlotPattern(
+                    "constraintElimination",
+                    "ConstraintElimination",
+                    semantic_role="elimination",
+                    allows_anonymous_result=True,
+                ),
                 StateSlotPattern(
                     "expression", "Expression", semantic_role="expression"
                 ),
@@ -82,12 +101,16 @@ BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
         ),
     ),
     method_binding_rules=(
+        MethodBindingRuleSpec(
+            "eliminate_by_constraint", input_bindings=(condition_arg_binding("target"),)
+        ),
         ORGANIZE_EXPRESSIONS_BINDING,
         MethodBindingRuleSpec(
             "apply_two_term_amgm",
             input_bindings=(
                 condition_arg_binding("target"),
                 latest_state_binding("expression", required=False),
+                exact_call_result_binding("elimination", required=False),
                 exact_call_result_binding("previous_bound", required=False),
             ),
         ),

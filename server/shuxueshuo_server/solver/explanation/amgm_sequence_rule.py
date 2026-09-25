@@ -164,6 +164,8 @@ def label_route(container, materials, evidence):
     capabilities = {r.authority["capability_id"] for r in materials}
     if "amgm_sequence_overview" in units:
         label = "多次应用基本不等式"
+    elif "constraint_elimination" in units:
+        label = "条件消元"
     elif "homogeneous_observation" in units:
         label = "配齐次式"
     elif "fraction_observation" in units:

@@ -624,6 +624,9 @@ export function validateTextLesson(lesson, inputDir = "") {
     }
     if (step.visual?.kind === "basic-inequality-equality-check") {
       const visual = step.visual;
+      if (visual.solutionMode !== undefined && (visual.solutionMode !== "witness" || ["solutionBranches", "solutionRelations", "equalities", "equalityRelations"].some(key => key in visual))) {
+        throw new Error("equality solutionMode must declare witness verification without solving fields");
+      }
       if (visual.equalityRelations !== undefined && (!Array.isArray(visual.equalityRelations) || !visual.equalityRelations.length || visual.equalityRelations.some(r => typeof r !== "string" || !r.trim()))) {
         throw new Error("equalityRelations requires verified non-empty relations");
       }

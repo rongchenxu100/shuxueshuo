@@ -1,0 +1,299 @@
+{
+  "schema_version": "basic-inequality-authored-input/v1",
+  "input": {
+    "problem_id": "q29",
+    "pattern": "basic-inequality",
+    "problem_type": "basic_inequality",
+    "display": {
+      "page_title": "q29",
+      "summary": "若 a，b 为正实数，且 a+b=1，则 2a/(a^2+b)+b/(a+b^2) 的最大值是____。"
+    },
+    "original_text": {
+      "source": "source_image_transcription",
+      "number": "q29",
+      "lines": [
+        "若 a，b 为正实数，且 a+b=1，则 2a/(a^2+b)+b/(a+b^2) 的最大值是____。"
+      ]
+    },
+    "scopes": [
+      {
+        "scope_id": "s0",
+        "label": "q29",
+        "parent": null,
+        "source_path": "/root"
+      }
+    ],
+    "entities": [
+      {
+        "handle": "symbol:s0:a",
+        "entity_type": "symbol",
+        "name": "a",
+        "scope_id": "s0",
+        "description": "代数符号 a",
+        "notation_ref": "r:scalar:a",
+        "source_path": "/root/facts/0",
+        "source_text": "a>0",
+        "normalized_expression": "(a>0)",
+        "sample_refs": [],
+        "source_occurrences": [
+          {
+            "source_path": "/root/facts/0",
+            "source_text": "a>0",
+            "normalized_expression": "(a>0)",
+            "sample_refs": []
+          },
+          {
+            "source_path": "/root/facts/2",
+            "source_text": "a+b=1",
+            "normalized_expression": "((a+b)=1)",
+            "sample_refs": []
+          },
+          {
+            "source_path": "/root/goals/0/expression",
+            "source_text": "2*a/(a^2+b)+b/(a+b^2)",
+            "normalized_expression": "(((2*a)/((a^2)+b))+(b/(a+(b^2))))",
+            "sample_refs": []
+          }
+        ]
+      },
+      {
+        "handle": "symbol:s0:b",
+        "entity_type": "symbol",
+        "name": "b",
+        "scope_id": "s0",
+        "description": "代数符号 b",
+        "notation_ref": "r:scalar:b",
+        "source_path": "/root/facts/1",
+        "source_text": "b>0",
+        "normalized_expression": "(b>0)",
+        "sample_refs": [],
+        "source_occurrences": [
+          {
+            "source_path": "/root/facts/1",
+            "source_text": "b>0",
+            "normalized_expression": "(b>0)",
+            "sample_refs": []
+          },
+          {
+            "source_path": "/root/facts/2",
+            "source_text": "a+b=1",
+            "normalized_expression": "((a+b)=1)",
+            "sample_refs": []
+          },
+          {
+            "source_path": "/root/goals/0/expression",
+            "source_text": "2*a/(a^2+b)+b/(a+b^2)",
+            "normalized_expression": "(((2*a)/((a^2)+b))+(b/(a+(b^2))))",
+            "sample_refs": []
+          }
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "handle": "fact:s0:f0",
+        "type": "symbol_constraint",
+        "scope_id": "s0",
+        "valid_scope": "s0",
+        "description": "a>0",
+        "expression": "(a>0)",
+        "relation_operator": ">",
+        "bound_expression": [
+          ">",
+          [
+            "ref",
+            "r:scalar:a",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:a"
+        ],
+        "domain_obligations": [],
+        "source_path": "/root/facts/0",
+        "source_text": "a>0",
+        "normalized_expression": "(a>0)",
+        "sample_refs": []
+      },
+      {
+        "handle": "fact:s0:f1",
+        "type": "symbol_constraint",
+        "scope_id": "s0",
+        "valid_scope": "s0",
+        "description": "b>0",
+        "expression": "(b>0)",
+        "relation_operator": ">",
+        "bound_expression": [
+          ">",
+          [
+            "ref",
+            "r:scalar:b",
+            "scalar"
+          ],
+          [
+            "number",
+            "0"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:b"
+        ],
+        "domain_obligations": [],
+        "source_path": "/root/facts/1",
+        "source_text": "b>0",
+        "normalized_expression": "(b>0)",
+        "sample_refs": []
+      },
+      {
+        "handle": "fact:s0:f2",
+        "type": "equation",
+        "scope_id": "s0",
+        "valid_scope": "s0",
+        "description": "a+b=1",
+        "expression": "((a+b)=1)",
+        "relation_operator": "=",
+        "bound_expression": [
+          "=",
+          [
+            "+",
+            [
+              "ref",
+              "r:scalar:a",
+              "scalar"
+            ],
+            [
+              "ref",
+              "r:scalar:b",
+              "scalar"
+            ]
+          ],
+          [
+            "number",
+            "1"
+          ]
+        ],
+        "entity_handles": [
+          "symbol:s0:a",
+          "symbol:s0:b"
+        ],
+        "domain_obligations": [],
+        "source_path": "/root/facts/2",
+        "source_text": "a+b=1",
+        "normalized_expression": "((a+b)=1)",
+        "sample_refs": []
+      }
+    ],
+    "question_goals": [
+      {
+        "handle": "answer:s0.g0",
+        "scope_id": "s0",
+        "valid_scope": "s0",
+        "answer_key": "s0_g0",
+        "value_type": "MaximumExpression",
+        "required": true,
+        "description": "find_maximum: 2*a/(a^2+b)+b/(a+b^2)",
+        "goal_kind": "find_maximum",
+        "target_expression": "2*a/(a^2+b)+b/(a+b^2)",
+        "bound_expression": [
+          "+",
+          [
+            "/",
+            [
+              "*",
+              [
+                "number",
+                "2"
+              ],
+              [
+                "ref",
+                "r:scalar:a",
+                "scalar"
+              ]
+            ],
+            [
+              "+",
+              [
+                "^",
+                [
+                  "ref",
+                  "r:scalar:a",
+                  "scalar"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ],
+              [
+                "ref",
+                "r:scalar:b",
+                "scalar"
+              ]
+            ]
+          ],
+          [
+            "/",
+            [
+              "ref",
+              "r:scalar:b",
+              "scalar"
+            ],
+            [
+              "+",
+              [
+                "ref",
+                "r:scalar:a",
+                "scalar"
+              ],
+              [
+                "^",
+                [
+                  "ref",
+                  "r:scalar:b",
+                  "scalar"
+                ],
+                [
+                  "number",
+                  "2"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "variables": [],
+        "in_terms_of": [],
+        "domain_obligations": [
+          {
+            "expression": "((a^2)+b) != 0",
+            "status": "unverified",
+            "origin": "expression_domain"
+          },
+          {
+            "expression": "(a+(b^2)) != 0",
+            "status": "unverified",
+            "origin": "expression_domain"
+          }
+        ],
+        "source_path": "/root/goals/0/expression",
+        "source_text": "2*a/(a^2+b)+b/(a+b^2)",
+        "normalized_expression": "(((2*a)/((a^2)+b))+(b/(a+(b^2))))",
+        "sample_refs": []
+      }
+    ]
+  },
+  "provenance": {
+    "kind": "source_image_transcription",
+    "problem_id": "q29",
+    "image": "source.png",
+    "image_sha256": "8b49903e76a16308a2f7e3ec9b4613d30f4e2bede92e63a95219f2be3ed8ceab",
+    "notation_sha256": "61efe9aa1d9e27ea18e2febd16a24206d16710bae232e100a826a1765b8c21bc",
+    "source_path": "internal/senior-high/source-images/inequality-basic-q29-conditional-elimination/source-question.png",
+    "transcribed_by": "Codex",
+    "human_review_approved": false,
+    "live_extraction_samples": 0
+  }
+}

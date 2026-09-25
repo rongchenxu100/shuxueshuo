@@ -41,7 +41,8 @@ def target_context(target):
         "find_minimum",
     }:
         raise ProofFailure(
-            "unsupported_target", "a maximum-expression target is required"
+            "unsupported_target",
+            "an extremum_target with its complete original conditions is required",
         )
     names = target["scalar_symbols"]
     conditions = target["source_conditions"]
@@ -297,10 +298,25 @@ def _close_bound_v1(target, bound, steps):
     }
 
 
-def verify_bound(target, steps, *, expression=None, previous_bound=None):
+def verify_bound(
+    target,
+    steps,
+    *,
+    expression=None,
+    previous_bound=None,
+    elimination=None,
+    reciprocal=False,
+):
     from .inequality_bound_v2 import verify
 
-    return verify(target, steps, expression=expression, previous_bound=previous_bound)
+    return verify(
+        target,
+        steps,
+        expression=expression,
+        previous_bound=previous_bound,
+        elimination=elimination,
+        reciprocal=reciprocal,
+    )
 
 
 def public_bound(evidence):

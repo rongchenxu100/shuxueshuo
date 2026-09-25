@@ -571,6 +571,33 @@
     "execution_evidence": {
       "oneOf": [
         {
+          "title": "EliminationTeachingEvidence",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "step_id",
+            "data",
+            "evidence_id"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "elimination-teaching-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "data": {
+              "type": "object"
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
           "title": "InequalityTeachingEvidence",
           "type": "object",
           "required": [

@@ -56,6 +56,13 @@ class VisualSpecRegistry:
                 entries = []
                 for ref in refs:
                     source = sources[ref]
+                    if spec.evidence_kind == "elimination":
+                        from ..explanation.elimination import (
+                            evidence_for as elimination_evidence,
+                        )
+
+                        entries.append(elimination_evidence(source, snapshot))
+                        continue
                     if spec.evidence_kind == "rewrite" or (
                         spec.evidence_kind == "rewrite_with_bound"
                         and source.capability_id == "organize_expressions"
@@ -98,7 +105,7 @@ def math(value):
 
 
 def structure(d):
-    if d.get("direction") == ">=":
+    if d.get("direction") == ">=" or d.get("reciprocal"):
         return lower_structure(d)
     a, b = d["terms"]
     return {
@@ -121,7 +128,7 @@ def structure(d):
 
 
 def application(d):
-    if d.get("direction") == ">=":
+    if d.get("direction") == ">=" or d.get("reciprocal"):
         return lower_application(d)
     a, b = d["terms"]
     roles = d["application_roles"]
@@ -167,7 +174,7 @@ def application(d):
 
 
 def equality(d):
-    if d.get("direction") == ">=":
+    if d.get("direction") == ">=" or d.get("reciprocal"):
         return lower_equality(d)
     if d["claim_scope"] != "submitted_witness" or d["exhaustive"]:
         raise ValueError("witness_claim_invalid")
@@ -190,6 +197,8 @@ def equality(d):
 
 
 def default_visual_specs():
+    from ..explanation.elimination import VISUAL_ID as ELIMINATION_VISUAL
+    from ..explanation.elimination import visual as elimination_visual
     from ..explanation.fraction_observation import VISUAL_ID as FRACTION_VISUAL_ID
     from ..explanation.fraction_observation import observation_visual as fraction_visual
     from ..explanation.homogenization import OBSERVATION, REWRITE, observation_visual
@@ -197,6 +206,12 @@ def default_visual_specs():
 
     return VisualSpecRegistry(
         (
+            VisualSpec(
+                ELIMINATION_VISUAL,
+                "basic-inequality-structure-scan",
+                elimination_visual,
+                evidence_kind="elimination",
+            ),
             VisualSpec(
                 FRACTION_VISUAL_ID,
                 "basic-inequality-structure-scan",
@@ -230,6 +245,9 @@ def default_visual_specs():
                 "basic_inequality.structure",
                 "basic-inequality-structure-scan",
                 structure,
+            ),
+            VisualSpec(
+                "basic_inequality.reciprocal", "basic-inequality-structure-scan", reciprocal_transform
             ),
             VisualSpec(
                 "basic_inequality.application", "basic-inequality-mapping", application
@@ -340,6 +358,11 @@ def validate_diagram_block(block):
         or any(not data.get(f) for f in fields[component])
     ):
         raise VisualGap("visual_component_data_invalid")
+    if component == "basic-inequality-equality-check" and "solutionMode" in data:
+        if data["solutionMode"] != "witness" or any(
+            key in data for key in ("solutionBranches", "solutionRelations", "equalities", "equalityRelations")
+        ):
+            raise VisualGap("visual_equality_solution_mode_invalid")
     if component == "basic-inequality-structure-scan":
         cards = data.get("organization", {}).get("purposeCards")
         if cards is not None and (
@@ -402,6 +425,26 @@ def rewrite_visual(trace):
     return build_rewrite_presentation(trace)["visual"]
 
 
+def reciprocal_transform(d):
+    r = d["reciprocal_roles"]
+    return {
+        "kind": "basic-inequality-structure-scan",
+        "showFocus": False,
+        "condition": {"label": "原式为正", "expression": math(r["reduced"] + ">0")},
+        "target": {"label": "原式的倒数", "expression": math(r["inverse"])},
+        "organization": {
+            "label": "整理目标：正数取倒数",
+            "steps": [
+                {"label": "目标转换", "expression": "原式最大 ⇔ " + math(r["inverse"]) + " 最小"},
+                {"label": "整理倒数", "expression": math(r["rearrangement"])},
+            ],
+            "note": "原式为正；整理倒数，显出可配对的两个正项",
+        },
+        "reading": "正数取倒数",
+        "route": "重新观察结构",
+    }
+
+
 def lower_structure(d):
     return {
         "kind": "basic-inequality-structure-scan",
@@ -411,9 +454,9 @@ def lower_structure(d):
             "tag": "已知条件",
         },
         "target": {
-            "label": "当前求界表达式",
-            "expression": math(d["source_expression"]),
-            "tag": "求最小值",
+            "label": "原式的倒数" if d.get("reciprocal") else "当前求界表达式",
+            "expression": math(d["reciprocal_roles"]["arranged"] if d.get("reciprocal") else d["source_expression"]),
+            "tag": "先求正下界" if d.get("reciprocal") else "求最小值",
         },
         "organization": {
             "label": "选出两个正项",
@@ -421,7 +464,9 @@ def lower_structure(d):
                 {"label": f"第{i + 1}项", "expression": math(term)}
                 for i, term in enumerate(d["terms"])
             ],
-            "note": "求两项和的下界，保留其余项",
+            "note": "倒数取得正下界，再取倒数得到原式上界"
+            if d.get("reciprocal")
+            else "求两项和的下界，保留其余项",
         },
         "reading": "正项配对求和",
         "route": DIRECT_AMGM_ROUTE,
@@ -437,7 +482,7 @@ def lower_application(d):
         "formulaStyle": "sum-geometric",
         "showPositiveStep": True,
         "stageLabel": "代入两个正项",
-        "conclusionLabel": "得到下界",
+        "conclusionLabel": "取倒数得到上界" if d.get("reciprocal") else "得到下界",
         "template": math("u+v≥2√(u*v)"),
         "mapped": math(d["template_latex"]),
         "mappedSum": math("+".join(d["term_latex"])),
@@ -497,10 +542,25 @@ def lower_equality(d):
         "solved": " 或 ".join(math(v) for v in assignments),
         "verificationLabel": "各组取值均满足原条件，且等号成立",
         "verification": math(d["target"] + "=" + d["bound"]),
-        "conclusion": math(d["target"]) + "的最小值为" + math(d["bound"]),
+        "conclusion": math(d["target"])
+        + ("的最大值为" if d["direction"] == "<=" else "的最小值为")
+        + math(d["bound"]),
     }
-    if d.get("equality_derivation"):
+    if len(d["equalities"]) == 1:
         visual.pop("equalityRelations")
+        visual.update(
+            first={"value": math(d["term_latex"][0]), "shape": "square"},
+            second={"value": math(d["term_latex"][1]), "shape": "circle"},
+            equality=math(d["equality"]),
+            templateLabel="基本不等式取等",
+            solutionMode="witness",
+            conditionLabel="满足原条件",
+            condition="；".join(math(r) for r in d["conditions"]),
+            verificationLabel="代回目标",
+        )
+    if d.get("equality_derivation"):
+        visual.pop("equalityRelations", None)
+        visual.pop("solutionMode", None)
         visual.update(
             first={"value": math(d["term_latex"][0]), "shape": "square"},
             second={"value": math(d["term_latex"][1]), "shape": "circle"},

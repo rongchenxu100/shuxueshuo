@@ -322,7 +322,12 @@ def test_default_registry_stays_closed_and_authoring_catalog_stays_inert():
         for c in BASIC_INEQUALITY_FAMILY.capability_contracts
     )
     family = STAGE4A_FAMILY_REGISTRY.match(problem_from_canonical_input(source()))
-    assert family.method_ids == ("organize_expressions", "apply_two_term_amgm", "close_equality_and_restore")
+    assert family.method_ids == (
+        "eliminate_by_constraint",
+        "organize_expressions",
+        "apply_two_term_amgm",
+        "close_equality_and_restore",
+    )
 
 
 def test_catalog_exposes_only_verified_stage4a_methods():

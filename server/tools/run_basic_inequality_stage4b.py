@@ -14,12 +14,13 @@ ROOT = SERVER.parent
 sys.path.insert(0, str(SERVER))
 from run_basic_inequality_stage4a import RecordedClient
 from run_basic_inequality_stage4a import run as solve
+
 from shuxueshuo_server.solver.explanation import ExplanationSnapshotBuilder
-from shuxueshuo_server.solver.explanation.basic_inequality_teaching import (
-    lesson_key_point,
-)
 from shuxueshuo_server.solver.explanation.annotated_teaching import (
     AnnotatedTeachingPlanProjector,
+)
+from shuxueshuo_server.solver.explanation.basic_inequality_teaching import (
+    lesson_key_point,
 )
 from shuxueshuo_server.solver.explanation.lesson_ir import LessonAuthoringPipeline
 from shuxueshuo_server.solver.explanation.scope_lesson import (
@@ -39,9 +40,16 @@ def write(path, value):
 
 
 def build(
-    *, output, mode="deterministic", content=None, rule_registry=None, case="q01"
+    *,
+    output,
+    mode="deterministic",
+    content=None,
+    rule_registry=None,
+    case="q01",
+    plan=None,
+    replay_from=None,
 ):
-    if case not in {"q01", "q03", "q07", "q08"}:
+    if case not in {"q01", "q03", "q07", "q08", "q25", "q29"}:
         raise ValueError("page case outside admitted representative fixtures")
     if rule_registry is None:
         from shuxueshuo_server.solver.explanation.amgm_sequence_rule import (
@@ -53,14 +61,30 @@ def build(
     output.mkdir(parents=True, exist_ok=False)
     started = perf_counter()
     result, runtime = solve(
-        gold=SERVER
-        / f"tests/solver/fixtures/math-notation-v1/basic-inequality/{case}.json",
-        problem_ir=SERVER
-        / f"tests/solver/fixtures/basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+        gold=(
+            SERVER / "tests/solver/fixtures/basic-inequality-stage5a/q29/notation.json"
+            if case == "q29"
+            else SERVER
+            / f"tests/solver/fixtures/math-notation-v1/basic-inequality/{case}.json"
+        ),
+        problem_ir=(
+            SERVER
+            / "tests/solver/fixtures/basic-inequality-stage5a/q29/problem-ir.json"
+            if case == "q29"
+            else SERVER
+            / f"tests/solver/fixtures/basic-inequality-problem-ir/v1/{case}/problem-ir.json"
+        ),
+        input_mode="transcribed" if case == "q29" else "frozen",
         output=output / "solver",
         mode="recorded",
-        plan=(
-            ROOT
+        replay_from=replay_from,
+        plan=plan
+        or (
+            SERVER / "tests/solver/fixtures/basic-inequality-stage5a/q29/plan.json"
+            if case == "q29"
+            else SERVER / "tests/solver/fixtures/basic-inequality-stage5a/q25.json"
+            if case == "q25"
+            else ROOT
             / "internal/functional-plan-fixtures/basic-inequality-q01-stage4b.functional-plan.json"
             if case == "q01"
             else SERVER / f"tests/solver/fixtures/basic-inequality-stage4/{case}.json"
@@ -182,6 +206,7 @@ def build(
         },
     )
     from shuxueshuo_server.solver.explanation.math_typography import typeset_lesson_data
+
     data = typeset_lesson_data(data)
     write(output / "lesson-data.json", data)
     write(output / "geometry-spec.json", compiled.geometry_spec)
@@ -222,12 +247,16 @@ def main():
         default="deterministic",
     )
     parser.add_argument("--content", type=Path)
-    parser.add_argument("--case", choices=["q01", "q03", "q07", "q08"], default="q01")
+    parser.add_argument("--replay-from", type=Path, help="Replay saved Planner responses before generating the lesson")
+    parser.add_argument(
+        "--case", choices=["q01", "q03", "q07", "q08", "q25", "q29"], default="q01"
+    )
     args = parser.parse_args()
     print(
         json.dumps(
             build(
-                output=args.output, mode=args.mode, content=args.content, case=args.case
+                output=args.output, mode=args.mode, content=args.content, case=args.case,
+                replay_from=args.replay_from,
             ),
             ensure_ascii=False,
         )

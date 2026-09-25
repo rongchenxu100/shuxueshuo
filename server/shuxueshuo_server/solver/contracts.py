@@ -1100,8 +1100,13 @@ class TeachingUnitSpec:
     role_binder_id: str = "generic_trace"
     visuals: tuple[dict[str, Any], ...] = ()
     requires_independent_lesson_step: bool = False
+    activation_role: str | None = None
 
     def __post_init__(self) -> None:
+        if self.activation_role is not None and (
+            not isinstance(self.activation_role, str) or not self.activation_role.strip()
+        ):
+            raise ValueError("TeachingUnitSpec.activation_role must be a non-empty role name")
         for field_name in (
             "unit_key",
             "title_template",
@@ -1121,6 +1126,7 @@ class TeachingUnitSpec:
 
     def to_payload(self) -> dict[str, Any]:
         return {
+            **({"activation_role": self.activation_role} if self.activation_role else {}),
             **({"visuals": list(self.visuals)} if self.visuals else {}),
             **({"requires_independent_lesson_step": True} if self.requires_independent_lesson_step else {}),
             "unit_key": self.unit_key,

@@ -612,7 +612,9 @@ def test_q03_semantic_stages_and_conditional_equation_solution(snapshots):
     )
     fallback = lower_equality({**data, "equality_derivation": []})
     assert fallback["solvedLabel"] == "可取的具体值"
-    assert fallback["equalityRelations"]
+    assert "equalityRelations" not in fallback
+    assert fallback["solutionMode"] == "witness"
+    assert fallback["first"]["shape"] == "square"
 
 
 @pytest.mark.parametrize("case", ["q07", "q08"])

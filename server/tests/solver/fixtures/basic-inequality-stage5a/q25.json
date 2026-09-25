@@ -1,0 +1,111 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": [
+      {
+        "goal_ref": "problem.minimum",
+        "steps": [
+          {
+            "step_id": "eliminate",
+            "capability_id": "eliminate_by_constraint",
+            "args": {
+              "target": "extremum_target_target_expression"
+            },
+            "parameters": {
+              "eliminate": "b",
+              "steps": [
+                {
+                  "math": "a-1=a/b"
+                },
+                {
+                  "math": "a-1>0"
+                },
+                {
+                  "math": "b-1=b/a"
+                },
+                {
+                  "math": "b-1>0"
+                },
+                {
+                  "math": "b=a/(a-1)"
+                }
+              ],
+              "expression": "13+9*(a-1)+4/(a-1)"
+            }
+          },
+          {
+            "step_id": "bound",
+            "capability_id": "apply_two_term_amgm",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "elimination": {
+                "step_id": "eliminate",
+                "return": "elimination"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "13+9*(a-1)+4/(a-1)>=25"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "attain",
+            "capability_id": "close_equality_and_restore",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "bound": {
+                "step_id": "bound",
+                "return": "bound"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "a=5/3"
+                },
+                {
+                  "math": "b=5/2"
+                }
+              ],
+              "equality_derivation": [
+                {
+                  "math": "(a-1)^2=4/9",
+                  "using": [
+                    "9*(a-1)=4/(a-1)"
+                  ]
+                },
+                {
+                  "math": "a-1=2/3",
+                  "using": [
+                    "(a-1)^2=4/9"
+                  ]
+                },
+                {
+                  "math": "a=5/3",
+                  "using": [
+                    "a-1=2/3"
+                  ]
+                },
+                {
+                  "math": "b=5/2",
+                  "using": [
+                    "b=a/(a-1)",
+                    "a=5/3"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "answer_from": {
+          "step_id": "attain",
+          "return": "minimum"
+        }
+      }
+    ]
+  }
+}

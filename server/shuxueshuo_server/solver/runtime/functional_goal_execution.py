@@ -3827,6 +3827,20 @@ def _prompt_safe_value(
     *,
     forbidden_values: frozenset[str],
 ) -> Any:
+    if (
+        isinstance(value, Mapping)
+        and value.get("schema_version") == "constraint-elimination/v1"
+    ):
+        value = {
+            key: value[key]
+            for key in (
+                "target_math",
+                "eliminated_variable",
+                "restoration",
+                "expression",
+                "remaining_conditions",
+            )
+        }
     safe = _json_safe_value(value)
     if isinstance(safe, Mapping):
         return {

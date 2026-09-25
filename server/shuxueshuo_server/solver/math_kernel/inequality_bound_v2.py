@@ -43,10 +43,12 @@ def public(evidence):
         **{
             k: deepcopy(v)
             for k, v in evidence.items()
-            if k not in {"proofs", "derivation"}
+            if k not in {"proofs", "derivation", "reciprocal_bound"}
         },
         "certificate_bundle": {
-            k: deepcopy(evidence[k]) for k in ("proofs", "derivation")
+            k: deepcopy(evidence[k])
+            for k in ("proofs", "derivation", "reciprocal_bound")
+            if k in evidence
         },
     }
 
@@ -57,6 +59,9 @@ def verify(
     *,
     expression=None,
     previous_bound=None,
+    elimination=None,
+    reciprocal=False,
+    bound_relation_index=-1,
     depth=0,
     certificates=None,
     budget=None,
@@ -65,12 +70,33 @@ def verify(
 
     if depth > 8:
         raise ProofFailure("proof_limit", "at most eight bound dependencies")
-    if expression is not None and previous_bound is not None:
+    if sum(v is not None for v in (expression, previous_bound, elimination)) > 1:
         raise ProofFailure(
-            "invalid_input", "expression and previous_bound are mutually exclusive"
+            "invalid_input",
+            "expression, elimination and previous_bound are mutually exclusive",
+        )
+    if reciprocal:
+        if expression is not None or previous_bound is not None:
+            raise ProofFailure(
+                "invalid_input",
+                "reciprocal accepts only a same-target elimination input",
+            )
+        from .reciprocal_bound import verify_reciprocal
+
+        return verify_reciprocal(
+            target, steps, elimination, certificates=certificates, budget=budget
         )
     context, _ = target_context(target)
+    from .constraint_elimination import elimination_context, has_elimination
+
+    if elimination is not None or has_elimination(previous_bound):
+        context = elimination_context(context)
     budget = budget or _Budget(context.limits)
+    context = replace(context, limits=budget.limits)
+    if elimination is not None:
+        from .constraint_elimination import replay_elimination
+
+        context = replay_elimination(target, elimination, budget=budget)
     proof_index = 0
 
     def certify(parsed, ctx):
@@ -112,20 +138,35 @@ def verify(
             previous_bound["steps"],
             expression=previous_bound.get("expression"),
             previous_bound=previous_bound.get("previous_bound"),
+            elimination=previous_bound.get("elimination"),
+            reciprocal=previous_bound.get("reciprocal", False),
             depth=depth + 1,
             certificates=previous_bound.get("certificate_bundle"),
             budget=budget,
         )
         if public(predecessor) != previous_bound:
             raise ProofFailure("invalid_proof", "predecessor bound altered")
+        ancestor = previous_bound
+        while ancestor.get("previous_bound") is not None:
+            ancestor = ancestor["previous_bound"]
+        if ancestor.get("elimination") is not None:
+            from .constraint_elimination import replay_elimination
+
+            context = replay_elimination(target, ancestor["elimination"], budget=budget)
         source = predecessor["bound"]
         equalities = list(predecessor["equalities"])
         dependencies = list(predecessor["applications"])
     elif expression is not None:
         source = str(expression)
+    elif elimination is not None:
+        source = elimination["expression"]
     direction = "<=" if target["goal_kind"] == "find_maximum" else ">="
     if direction == "<=":
-        if previous_bound is not None or expression is not None:
+        if (
+            previous_bound is not None
+            or expression is not None
+            or elimination is not None
+        ):
             raise ProofFailure(
                 "inequality_template_unmatched",
                 "maximum path requires the fixed-sum product template",
@@ -203,7 +244,7 @@ def verify(
             "applications": [application],
         }
     chain = parse_derivation(steps, context.symbols)
-    final = chain[-1].parsed
+    final = chain[bound_relation_index].parsed
     if final.ast.op not in {">=", "<="}:
         raise ProofFailure(
             "target_bound_mismatch", "minimum needs a lower-bound relation"
@@ -290,6 +331,7 @@ def verify(
         "source_math": source,
         "expression": str(expression) if expression is not None else None,
         "previous_bound": deepcopy(previous_bound),
+        **({"elimination": deepcopy(elimination)} if elimination is not None else {}),
         "steps": deepcopy(steps),
         "bound": bound,
         "equality": equality,
@@ -380,6 +422,10 @@ def close(
     from .inequality_evidence import require, target_context
 
     context, _ = target_context(target)
+    from .constraint_elimination import elimination_context, has_elimination
+
+    if has_elimination(bound):
+        context = elimination_context(context)
     replay_budget = _Budget(context.limits)
     witness_budget = _Budget(context.limits)
     if not isinstance(bound.get("certificate_bundle"), dict):
@@ -389,11 +435,32 @@ def close(
         bound["steps"],
         expression=bound.get("expression"),
         previous_bound=bound.get("previous_bound"),
+        elimination=bound.get("elimination"),
+        reciprocal=bound.get("reciprocal", False),
         certificates=bound.get("certificate_bundle"),
         budget=replay_budget,
     )
     if public(rebuilt) != bound:
         raise ProofFailure("invalid_proof", "bound or dependency evidence altered")
+    ancestor = bound
+    while ancestor.get("previous_bound") is not None:
+        ancestor = ancestor["previous_bound"]
+    if ancestor.get("elimination") is not None:
+        from .constraint_elimination import replay_elimination
+
+        context = replay_elimination(
+            target, ancestor["elimination"], budget=replay_budget
+        )
+        # Witnesses check the original target directly. The expanded target
+        # equivalence is already replayed above and is not a witness premise.
+        context = replace(
+            context,
+            premises={
+                k: p
+                for k, p in context.premises.items()
+                if p.source_path != "/parameters/expression"
+            },
+        )
     value = parse_math_expression(bound["bound"], context.symbols)
     if names(from_node(value.ast)):
         raise ProofFailure(

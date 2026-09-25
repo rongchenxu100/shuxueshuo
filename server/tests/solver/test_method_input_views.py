@@ -56,13 +56,13 @@ def _input(
 def test_all_method_inputs_declare_one_explicit_view() -> None:
     registry = MethodSpecRegistry.load_from_code()
 
-    assert len(registry.specs) == 34
+    assert len(registry.specs) == 35
     inputs = tuple(
         item
         for spec in registry.specs.values()
         for item in spec.inputs.values()
     )
-    assert len(inputs) == 176
+    assert len(inputs) == 178
     assert {item.view.mode for item in inputs} == {
         "identity",
         "latest_state",

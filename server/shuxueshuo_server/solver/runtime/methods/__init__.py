@@ -8,6 +8,7 @@ MethodSpec JSON 的唯一事实源。
 from __future__ import annotations
 
 from ._common import StatelessMethod, StatelessMethodRegistry
+from .eliminate_by_constraint import EliminateByConstraintMethod, SPEC as ELIMINATE_BY_CONSTRAINT_SPEC
 from .apply_two_term_amgm import ApplyTwoTermAmgmMethod, SPEC as APPLY_TWO_TERM_AMGM_SPEC
 from .close_equality_and_restore import CloseEqualityAndRestoreMethod, SPEC as CLOSE_EQUALITY_AND_RESTORE_SPEC
 from .organize_expressions import OrganizeExpressionsMethod, SPEC as ORGANIZE_EXPRESSIONS_SPEC
@@ -44,6 +45,7 @@ from .coupled_segment_path_minimum import CoupledSegmentPathMinimumMethod, SPEC 
 from .weighted_axis_path_minimum import WeightedAxisPathMinimumMethod, SPEC as WEIGHTED_AXIS_PATH_MINIMUM_SPEC
 
 ALL_METHOD_SPEC_SOURCES = (
+    ELIMINATE_BY_CONSTRAINT_SPEC,
     APPLY_TWO_TERM_AMGM_SPEC,
     CLOSE_EQUALITY_AND_RESTORE_SPEC,
     ORGANIZE_EXPRESSIONS_SPEC,
@@ -89,6 +91,7 @@ def method_spec_payloads() -> list[dict]:
 def default_stateless_registry() -> StatelessMethodRegistry:
     """构建 V1.5 默认 method 注册表。"""
     methods: list[StatelessMethod] = [
+        EliminateByConstraintMethod(),
         ApplyTwoTermAmgmMethod(),
         CloseEqualityAndRestoreMethod(),
         OrganizeExpressionsMethod(),

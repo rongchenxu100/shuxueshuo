@@ -18,6 +18,10 @@ PARAMETERS_SCHEMA = {
     "required": ["steps"],
     "additionalProperties": False,
     "properties": {
+        "reciprocal": {
+            "type": "boolean",
+            "description": "原目标求最大值且绑定 M08 elimination 时可为 true：steps 对消元后目标的倒数求严格正的常数下界，代码证明正性并转回原目标上界。",
+        },
         "steps": {
             "type": "array",
             "minItems": 1,
@@ -68,6 +72,8 @@ class ApplyTwoTermAmgmMethod:
                 parameters["steps"],
                 expression=inputs.get("expression"),
                 previous_bound=inputs.get("previous_bound"),
+                elimination=inputs.get("elimination"),
+                reciprocal=parameters.get("reciprocal", False),
             )
         except (
             ProofFailure,
@@ -124,6 +130,11 @@ SPEC = MethodSpecSource(
             "required": False,
             "state_kind": "expression",
         },
+        "elimination": {
+            "type": "ConstraintElimination",
+            "required": False,
+            "allows_anonymous_result": True,
+        },
         "previous_bound": {
             "type": "AmgmBound",
             "required": False,
@@ -133,11 +144,11 @@ SPEC = MethodSpecSource(
     input_views=declare_input_views(
         immutable_value=("target",),
         latest_state=("expression",),
-        exact_result=("previous_bound",),
+        exact_result=("previous_bound", "elimination"),
     ),
     outputs={"bound": "AmgmBound"},
     parameters_schema=PARAMETERS_SCHEMA,
-    summary="math 只能写数学关系和 ∵/∴，不写“取等条件”“取”“此时”等文字或 ⇒。变量间乘法必须使用 *；a*b 与独立符号 ab 不同，所有条件和验算也必须显式 *。对两个正项应用一次 AM-GM：定和求积上界，或当前完整表达式的局部下界（保留未变项）。需要配齐次、通分、展开或等式代入整理时先调用 M01。expression 用原目标对象的 SourceRef 读取 M01 提交后的准确版本，不能使用 StepResultRef。expression 可引用 M01 整理结果，previous_bound 可引用前次 M11，两者互斥；省略时从原目标开始。steps 写完整关系，可省略独立模板行，例如 3+u+4/u>=7。允许 ∵/∴、正性前置和等价中间式。最小值最后一行须为当前式或原目标>=下界，允许中间界含变量；继续估计须再次调用本方法并绑定 previous_bound。代码验证正性、域和所有关系，不因 ∵ 获得前提。取等闭合交给 M13。",
+    summary="math 只能写数学关系和 ∵/∴，不写“取等条件”“取”“此时”等文字或 ⇒。变量间乘法必须使用 *；a*b 与独立符号 ab 不同，所有条件和验算也必须显式 *。对两个正项应用一次 AM-GM：定和求积上界，或当前完整表达式的局部下界（保留未变项）。需要配齐次、通分、展开或等式代入整理时先调用 M01。expression 用原目标对象的 SourceRef 读取 M01 提交后的准确版本，不能使用 StepResultRef。expression 可引用 M01 整理结果，elimination 用 StepResultRef 引用 M08 的消元结果，previous_bound 可引用前次 M11，三者互斥；省略时从原目标开始。steps 写完整关系，可省略独立模板行，例如 3+u+4/u>=7。允许 ∵/∴、正性前置和等价中间式。最小值最后一行须为当前式或原目标>=下界，允许中间界含变量；继续估计须再次调用本方法并绑定 previous_bound。代码验证正性、域和所有关系，不因 ∵ 获得前提。不允许自行引入临时变量或定义（例如 t=x-1）；当前尚未提供换元能力，参与项直接写原变量表达式。原目标为正分式且求最大值时，可绑定 M08 elimination 并设 reciprocal=true；steps 最后给消元后目标倒数的正的常数下界，允许等价整理，代码验证原目标正性、倒数单调性并返回原目标的上界。此模式不绑定 previous_bound，不注册新变量。取等闭合交给 M13。",
     do_not_use_when=("参与项不能证明为正，或一行含多种不唯一的局部配对。",),
     teaching_units=AMGM_UNITS,
     no_new_visual_reason="几何场景无新增对象；自定义教学图由学生单元 visuals 声明。",

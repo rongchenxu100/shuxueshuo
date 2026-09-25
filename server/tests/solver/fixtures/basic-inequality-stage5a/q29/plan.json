@@ -1,0 +1,118 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": [
+      {
+        "goal_ref": "problem.maximum",
+        "steps": [
+          {
+            "step_id": "eliminate",
+            "capability_id": "eliminate_by_constraint",
+            "args": {
+              "target": "extremum_target"
+            },
+            "parameters": {
+              "eliminate": "b",
+              "steps": [
+                {
+                  "math": "b=1-a"
+                },
+                {
+                  "math": "1-a>0"
+                },
+                {
+                  "math": "a<1"
+                },
+                {
+                  "math": "a^2-a+1=a^2+b"
+                },
+                {
+                  "math": "a^2-a+1>0"
+                }
+              ],
+              "expression": "(a+1)/(a^2-a+1)"
+            }
+          },
+          {
+            "step_id": "bound",
+            "capability_id": "apply_two_term_amgm",
+            "args": {
+              "target": "extremum_target",
+              "elimination": {
+                "step_id": "eliminate",
+                "return": "elimination"
+              }
+            },
+            "parameters": {
+              "reciprocal": true,
+              "steps": [
+                {
+                  "math": "(a^2-a+1)/(a+1)=(a+1)+3/(a+1)-3"
+                },
+                {
+                  "math": "(a+1)+3/(a+1)-3>=2*sqrt(3)-3"
+                },
+                {
+                  "math": "(a^2-a+1)/(a+1)>=2*sqrt(3)-3"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "attain",
+            "capability_id": "close_equality_and_restore",
+            "args": {
+              "target": "extremum_target",
+              "bound": {
+                "step_id": "bound",
+                "return": "bound"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "a=sqrt(3)-1"
+                },
+                {
+                  "math": "b=2-sqrt(3)"
+                }
+              ],
+              "equality_derivation": [
+                {
+                  "math": "(a+1)^2=3",
+                  "using": [
+                    "a+1=3/(a+1)"
+                  ]
+                },
+                {
+                  "math": "a+1=sqrt(3)",
+                  "using": [
+                    "(a+1)^2=3"
+                  ]
+                },
+                {
+                  "math": "a=sqrt(3)-1",
+                  "using": [
+                    "a+1=sqrt(3)"
+                  ]
+                },
+                {
+                  "math": "b=2-sqrt(3)",
+                  "using": [
+                    "b=1-a",
+                    "a=sqrt(3)-1"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "answer_from": {
+          "step_id": "attain",
+          "return": "maximum"
+        }
+      }
+    ]
+  }
+}

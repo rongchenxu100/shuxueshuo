@@ -18,7 +18,7 @@ def lesson_key_point(step, snapshot):
         and source.capability_id == "apply_two_term_amgm"
     )
     _, evidence = evidence_for(source, snapshot)
-    if evidence["data"].get("direction") == ">=":
+    if evidence["data"].get("direction") == ">=" or evidence["data"].get("reciprocal"):
         return step.title + "：" + step.goal
     conditions = "，".join(evidence["data"]["conditions"])
     return (
@@ -26,19 +26,26 @@ def lesson_key_point(step, snapshot):
     )
 
 
-def unit(key, title, visual):
+def unit(key, title, visual, activation_role=None):
     return TeachingUnitSpec(
+        activation_role=activation_role,
         unit_key=key,
         title_template=title,
         nav_title_template=title,
-        goal_template="{goal}",
+        goal_template="{reciprocal_goal}" if key == "reciprocal_transform" else "{goal}",
         derive_templates=(("∴", "{conclusion}"),),
         box_templates=(
-            ("{observation}",) if key == "amgm_observe" else ("{conclusion}",)
+            ("{observation}",) if key == "amgm_observe" else
+            ("{reciprocal_conclusion}",) if key == "reciprocal_transform" else ("{conclusion}",)
         ),
         role_schema={
             "goal": "本步骤的教学目标。",
             "conclusion": "来自公开证据的数学结论。",
+            **({
+                "has_reciprocal_transform": "代码从已验证证据绑定的布尔值，控制本单元是否生成。",
+                "reciprocal_goal": "正数取倒数的目标转换。",
+                "reciprocal_conclusion": "倒数的已验证等价整理。",
+            } if key == "reciprocal_transform" else {}),
         },
         role_binder_id="basic_inequality",
         requires_independent_lesson_step=True,
@@ -47,6 +54,7 @@ def unit(key, title, visual):
 
 
 AMGM_UNITS = (
+    unit("reciprocal_transform", "取倒数并整理目标", "basic_inequality.reciprocal", "has_reciprocal_transform"),
     unit("amgm_observe", "观察结构", "basic_inequality.structure"),
     unit("amgm_apply", "应用基本不等式", "basic_inequality.application"),
 )
@@ -86,8 +94,8 @@ def evidence_for(source, snapshot):
 def roles(source, snapshot):
     _, evidence = evidence_for(source, snapshot)
     d = evidence["data"]
-    if d.get("direction") == ">=":
-        return lower_bound_roles(source, d)
+    if d.get("direction") == ">=" or d.get("reciprocal"):
+        return {**lower_bound_roles(source, d), "has_reciprocal_transform": bool(d.get("reciprocal"))}
     if not d.get("fixed_condition"):
         raise ValueError("fixed_sum_teaching_condition_missing")
     bound = f"{d['target']}≤{d['bound']}"
@@ -97,6 +105,7 @@ def roles(source, snapshot):
     ]
     if source.capability_id == "apply_two_term_amgm":
         return {
+            "has_reciprocal_transform": False,
             "observation": "定和求积",
             "goal": "利用正项定和求积的上界",
             "conclusion": bound,
@@ -133,15 +142,28 @@ def visual_refs(source, declarations):
 
 
 def lower_bound_roles(source, d):
-    pair = " 与 ".join(d["terms"])
+    def math(value):
+        return r"\(" + value + r"\)"
+
+    extremum = "最大值" if d["direction"] == "<=" else "最小值"
+    terms = d.get("term_latex", d["terms"])
+    pair = " 与 ".join(math(t) for t in terms)
+    conditions = "，".join(math(c) for c in d.get("conditions_latex", d.get("conditions", [])))
     if source.capability_id == "apply_two_term_amgm":
+        overall = math(d.get("overall_relation_latex", d["overall_relation"]))
         preview = "把 " + pair + " 配成两个正项，应用基本不等式求和的下界，保留其余项"
-        application = ["∵" + "，".join(d["conditions"])] + [
-            "∴" + v for v in d["derivation"]
+        if d.get("reciprocal"):
+            preview = (
+                "原式为正，对其倒数中的 "
+                + pair
+                + " 应用基本不等式，先求倒数的正下界，再求原式上界"
+            )
+        application = ["∵" + conditions] + [
+            "∴" + math(v) for v in d.get("derivation_latex", d["derivation"])
         ]
         if d.get("constant_product_roles"):
             stages = d["constant_product_roles"]
-            application = ["∵" + "，".join(term + ">0" for term in d["terms"])]
+            application = ["∵" + "，".join(math(term + ">0") for term in terms)]
             application += [
                 r"∴\(" + v + r"\)"
                 for v in (
@@ -149,24 +171,47 @@ def lower_bound_roles(source, d):
                     stages["product_identity"],
                     stages["local_bound"],
                     stages["target_substitution"],
-                    d["overall_relation"],
+                    None if d.get("reciprocal") else d.get("overall_relation_latex", d["overall_relation"]),
                 )
                 if v
             ]
-        return {
+        if d.get("reciprocal"):
+            application += [
+                "∴倒数至少为 "
+                + math(d.get("reciprocal_lower_latex", d["reciprocal_lower_value"]) + ">0")
+                + "，正数取倒数时不等号方向改变",
+                "∴" + overall,
+            ]
+        result = {
             "goal": preview,
             "observation": "正项配对，求和的下界",
-            "conclusion": d["overall_relation"],
+            "conclusion": overall,
             "derive_items_by_unit": {
-                "amgm_observe": ["∵" + "，".join(d["conditions"]), "∴" + preview],
+                "amgm_observe": ["∵" + conditions, "∴" + preview],
                 "amgm_apply": application,
             },
         }
+        if d.get("reciprocal"):
+            r = d["reciprocal_roles"]
+            result["reciprocal_goal"] = "原式为正，将求最大值转为求倒数的最小值，并整理出可配对的正项"
+            result["reciprocal_conclusion"] = r"\(" + r["rearrangement"] + r"\)"
+            result["derive_items_by_unit"]["reciprocal_transform"] = [
+                r"∵原式=\(" + r["reduced"] + r">0\)",
+                "∴求原式的最大值等价于求其倒数的最小值",
+                r"∴原式的倒数为\(" + r["inverse"] + r"\)",
+                "∴" + result["reciprocal_conclusion"],
+            ]
+        return result
     if d.get("claim_scope") != "submitted_witness" or not d.get("verified_branches"):
         raise ValueError("verified_witness_teaching_missing")
-    derive = ["∵取等须同时满足 " + "，".join(d["equalities"])]
+    target = d.get("target_latex", d["target"])
+    bound = d.get("bound_latex", d["bound"])
+    # The answer box retains the runtime's canonical answer spelling for its
+    # coverage check; derivation and diagram roles use structured LaTeX.
+    conclusion = math(target) + "的" + extremum + "为" + math(d["bound"])
+    derive = ["∵取等须同时满足 " + "，".join(math(e) for e in d.get("equalities_latex", d["equalities"]))]
     if d.get("equality_derivation"):
-        derive += ["∵原条件为 " + "，".join(d["conditions"])]
+        derive += ["∵原条件为 " + conditions]
         derive += [r"∴\(" + row["math"] + r"\)" for row in d["equality_derivation"]]
         for branch in d["verified_branches"]:
             if branch.get("equality_derivation"):
@@ -175,20 +220,20 @@ def lower_bound_roles(source, d):
                     r"∴\(" + row["math"] + r"\)"
                     for row in branch["equality_derivation"]
                 ]
-        derive += ["∴代回原条件与目标，等号成立，" + d["target"] + "=" + d["bound"]]
+        derive += ["∴代回原条件与目标，等号成立，" + math(target + "=" + bound)]
         return {
-            "goal": "联立取等条件与原条件求出变量，再代回验证，确认最小值",
-            "conclusion": f"{d['target']}的最小值为{d['bound']}",
+            "goal": "联立取等条件与原条件求出变量，再代回验证，确认" + extremum,
+            "conclusion": conclusion,
             "derive_items": derive,
         }
     for branch in d["verified_branches"]:
         derive.append(
-            "设取 " + "，".join(f"{k}={v}" for k, v in branch["assignments"].items())
+            "∵当 " + "，".join(math(f"{k}={v}") for k, v in branch["assignments"].items()) + " 时"
         )
-        derive += ["∴" + r for r in branch["relations"]]
+        derive.append("∴满足原条件与全部取等条件，" + math(target + "=" + bound))
     derive.append("∴以上取值满足原条件且等号成立")
     return {
         "goal": "验证各次取等条件可以同时成立，确认等号能够成立",
-        "conclusion": f"{d['target']}的最小值为{d['bound']}",
+        "conclusion": conclusion,
         "derive_items": derive,
     }

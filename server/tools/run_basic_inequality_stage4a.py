@@ -58,11 +58,22 @@ class ReplayClient:
             raise ValueError("recorded Planner responses exhausted") from exc
 
 
-def run(*, gold, problem_ir, output, mode, plan=None, replay_from=None):
+def run(
+    *, gold, problem_ir, output, mode, plan=None, replay_from=None, input_mode="frozen"
+):
     # A new directory preserves all failed attempts and their evidence.
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
-    bundle = load_frozen_authoring_bundle(gold, problem_ir)
+    if input_mode == "transcribed":
+        from shuxueshuo_server.solver.basic_inequality_authored_source import (
+            load_transcribed_authoring_bundle,
+        )
+
+        bundle = load_transcribed_authoring_bundle(gold, problem_ir)
+    elif input_mode == "frozen":
+        bundle = load_frozen_authoring_bundle(gold, problem_ir)
+    else:
+        raise ValueError("unknown authoring input mode")
     (output / "source-provenance.json").write_text(
         json.dumps(thaw_json(bundle.provenance), ensure_ascii=False, indent=2) + "\n"
     )

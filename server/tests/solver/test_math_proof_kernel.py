@@ -66,6 +66,51 @@ def check(text, ctx, expected=True):
     return result
 
 
+@pytest.mark.parametrize(
+    "equation, signs, goal",
+    [
+        ("(x-1)/a=1/b", ("a>0", "b>0"), "x-1>0"),
+        ("a*(x-1)=b", ("a<0", "b>0"), "x-1<0"),
+        ("a/(x-1)=b", ("a>0", "b>0", "x-1!=0"), "x-1>0"),
+    ],
+)
+def test_explicit_factor_sign_transport_replays_and_requires_signs(
+    equation, signs, goal
+):
+    check(goal, context(equation, *signs))
+    check(goal, context(equation), False)
+
+
+def test_redundant_equations_do_not_consume_distinct_divisor_slots():
+    check(
+        "y=3-x",
+        context("x+y=3", "2*x+2*y=6", "3*x+3*y=9", "x-x=0", "4*x+4*y=12", "5*x+5*y=15"),
+    )
+
+
+@pytest.mark.parametrize("op", [">", ">="])
+def test_positive_reciprocal_order_has_replayable_sign_guards(op):
+    inverse = "<" if op == ">" else "<="
+    ctx = context("x>0", "y>0", f"x{op}y")
+    result = check(f"1/x{inverse}1/y", ctx)
+    node = next(
+        n for n in result.proof["nodes"] if n["rule_id"] == "math.monotone"
+    )
+    assert len(node["children"]) == 3
+    damaged = deepcopy(result.proof)
+    changed = next(
+        n for n in damaged["nodes"] if n["rule_id"] == "math.monotone"
+    )
+    changed["children"] = changed["children"][:1]
+    assert replay_proof(damaged, ctx).status == "not_proved"
+
+
+def test_reciprocal_order_cannot_assume_signs_or_strengthen_relation():
+    check("1/x<=1/y", context("x>=y", "x!=0", "y!=0"), False)
+    check("1/x<1/y", context("x>0", "y>0", "x>=y"), False)
+    check("1/x<=1/y", context("x>0", "y<0"), False)
+
+
 @pytest.mark.parametrize("candidate", ["x>-1", "-x<1"])
 def test_relation_transport_certifies_substitution_and_direction(candidate):
     ctx = context("x+y>0", "y=1")

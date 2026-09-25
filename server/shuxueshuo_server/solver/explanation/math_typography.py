@@ -8,9 +8,9 @@ import sympy as sp
 from ..math_kernel.expression_parser import MathParseError, parse_math_expression
 from ..math_kernel.expression_rewrite import _legacy_tree, tree_latex
 
-_MATH_RUN = re.compile(r"[A-Za-z0-9α-ωΑ-Ω+＋\-−*/^=＝<>＜＞≤≥≠!√²³⁴⁵⁶⁷⁸⁹⁰·×()（） \t]+")
+_MATH_RUN = re.compile(r"[A-Za-z0-9α-ωΑ-Ω+＋\-−－*/^=＝<>＜＞≤≥≠!√²³⁴⁵⁶⁷⁸⁹⁰·×()（） \t]+")
 _REL = re.compile(r"(>=|<=|!=|[=<>≤≥≠])")
-_ALIASES = str.maketrans("＋−＝＜＞（）×·", "+-=<>()**")
+_ALIASES = str.maketrans("＋−－＝＜＞（）×·", "+--=<>()**")
 _TEX_RELATION = re.compile(r"\\(geq|leq|neq|ge|le|ne)(?![A-Za-z])")
 _TEX_RELATION_SYMBOLS = {
     "geq": "≥",
@@ -53,6 +53,15 @@ def fraction_prose(text):
         try:
             rendered = _latex(raw)
         except (MathParseError, ValueError, KeyError):
+            # A comparison can straddle a pre-typeset TeX fragment (for
+            # example plain U+V >= 2√[ followed by a TeX radicand). Format
+            # complete sides independently, preserving the remaining text.
+            parts = _REL.split(raw.translate(_ALIASES))
+            if len(parts) > 1:
+                return "".join(
+                    part if i % 2 else _MATH_RUN.sub(run, part)
+                    for i, part in enumerate(parts)
+                )
             return raw
         return (
             raw[: len(raw) - len(raw.lstrip())]

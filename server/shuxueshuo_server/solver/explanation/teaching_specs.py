@@ -301,6 +301,12 @@ class TeachingSpecBinder:
             for unit in method.teaching_units or (method.teaching_unit or _default_teaching_unit(source),):
                 try:
                     roles = bind_teaching_roles(source, unit, snapshot=snapshot)
+                    if unit.activation_role:
+                        active = roles.get(unit.activation_role)
+                        if not isinstance(active, bool):
+                            raise TeachingSpecBindingError("teaching_activation_role_missing_or_invalid: " + unit.activation_role)
+                        if not active:
+                            continue
                 except TeachingRoleBindingError as exc:
                     raise TeachingSpecBindingError(str(exc)) from exc
                 bound.append(_bind_unit_or_fallback(source, unit, roles, on_unit_error=on_unit_error))

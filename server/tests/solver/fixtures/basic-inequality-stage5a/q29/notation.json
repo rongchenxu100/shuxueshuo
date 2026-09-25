@@ -1,0 +1,23 @@
+{
+  "original_text": "若 a，b 为正实数，且 a+b=1，则 2a/(a^2+b)+b/(a+b^2) 的最大值是____。",
+  "root": {
+    "label": "q29",
+    "facts": [
+      "a>0",
+      "b>0",
+      "a+b=1"
+    ],
+    "goals": [
+      {
+        "kind": "find_maximum",
+        "expression": "2*a/(a^2+b)+b/(a+b^2)"
+      }
+    ],
+    "children": [],
+    "definitions": [],
+    "uncertainties": []
+  },
+  "match_status": "matched",
+  "family_id": "basic_inequality",
+  "match_reason": "正实数与定和条件，分式最大值目标；仅转录题面。"
+}

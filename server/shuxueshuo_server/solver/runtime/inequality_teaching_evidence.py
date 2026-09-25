@@ -121,9 +121,11 @@ class InequalityTeachingEvidence:
 
 
 def collect_inequality_evidence(step_id, method_results):
+    from .elimination_teaching_evidence import collect_elimination_evidence
     from .rewrite_teaching_evidence import collect_rewrite_evidence
 
     result = list(collect_rewrite_evidence(step_id, method_results))
+    result.extend(collect_elimination_evidence(step_id, method_results))
     for method in method_results:
         if method.method_id not in METHODS:
             continue
@@ -222,18 +224,18 @@ def collect_inequality_evidence(step_id, method_results):
             sum_latex = "+".join(grouped)
             product_latex = r"\cdot ".join(grouped)
             data = {
-                "teaching_effect": verified_bound_effect(bound["source_math"], bound["bound"], symbols),
+                "teaching_effect": verified_bound_effect(
+                    bound["source_math"], bound["bound"], symbols
+                ),
                 "source_expression": student_math_display(bound["source_math"]),
                 "target_hash": bound["target_hash"],
                 "target": student_math_display(target["target_math"]),
                 "conditions": [relation(c) for c in conditions],
+                "conditions_latex": [relation_latex(c) for c in conditions],
                 "condition_equations_latex": [
                     relation_latex(c) for c in conditions if c.ast.op == "="
                 ],
-                "terms": [
-                    student_math_display(equality.source[slice(*n.span)])
-                    for n in equality.ast.children
-                ],
+                "terms": term_latex,
                 "term_latex": term_latex,
                 # Both terms and their domains were proved in this successful M11.
                 # Rational cancellation here only projects their constant product.
@@ -245,13 +247,27 @@ def collect_inequality_evidence(step_id, method_results):
                 "template_latex": sum_latex + r"\geq 2\sqrt{" + product_latex + "}",
                 "fixed_condition": None,
                 "derivation": [relation(r.parsed) for r in chain],
+                "derivation_latex": [relation_latex(r.parsed) for r in chain],
                 "bound": display(bound["bound"]),
+                "bound_latex": sp.latex(scalar(bound["bound"])),
+                "target_latex": tree_latex(_legacy_tree(parse_math_expression(target["target_math"], symbols).ast)),
                 "equality": relation(equality),
                 "origins": [r.origin for r in chain],
                 "direction": bound["direction"],
+                "reciprocal": bound.get("reciprocal", False),
+                "reciprocal_lower_value": display(bound["reciprocal_lower_value"])
+                if bound.get("reciprocal")
+                else None,
+                "reciprocal_lower_latex": sp.latex(scalar(bound["reciprocal_lower_value"]))
+                if bound.get("reciprocal")
+                else None,
                 "applications": bound["applications"],
                 "equalities": [
                     relation(parse_math_relation(v, symbols))
+                    for v in bound["equalities"]
+                ],
+                "equalities_latex": [
+                    relation_latex(parse_math_relation(v, symbols))
                     for v in bound["equalities"]
                 ],
                 "local_relations": local_relations,
@@ -271,25 +287,55 @@ def collect_inequality_evidence(step_id, method_results):
                     else None
                 ),
             }
+            data["overall_relation_latex"] = (
+                data["target_latex"]
+                + (r"\geq " if bound["direction"] == ">=" else r"\leq ")
+                + data["bound_latex"]
+            )
             # Semantic stages of this certified local application. The numerical
             # simplifications below project its proved positive terms and domain;
             # the original-target transport was already certified by M11/M01.
             product = sp.cancel(terms[0] * terms[1])
             data["paired_product_latex"] = sp.latex(product)
             rest = sp.cancel(scalar(bound["source_math"]) - sum(terms))
+            if bound.get("reciprocal"):
+                rest_latex = sp.latex(rest)
+                arranged = sum_latex + (
+                    "" if rest == 0 else rest_latex if rest_latex.startswith("-") else "+" + rest_latex
+                )
+                inverse_latex = sp.latex(sp.cancel(scalar(bound["source_math"])))
+                data["reciprocal_roles"] = {
+                    "reduced": sp.latex(scalar(bound["elimination"]["expression"])),
+                    "inverse": inverse_latex,
+                    "arranged": arranged,
+                    "rearrangement": inverse_latex + "=" + arranged,
+                    "origins": data["origins"],
+                    "basis": "verified_positive_reciprocal_and_local_amgm",
+                }
             local_value = 2 * sp.sqrt(product)
             if (
                 product.is_Rational
                 and product > 0
                 and rest.is_Rational
-                and sp.simplify(rest + local_value - scalar(bound["bound"])) == 0
+                and sp.simplify(
+                    rest
+                    + local_value
+                    - scalar(bound.get("reciprocal_lower_value", bound["bound"]))
+                )
+                == 0
             ):
                 data["constant_product_roles"] = {
                     "product": sp.latex(product),
                     "product_identity": product_latex + "=" + sp.latex(product),
                     "local_bound": sum_latex + r"\geq " + sp.latex(local_value),
                     "target_substitution": (
-                        sp.latex(scalar(target["target_math"]))
+                        sp.latex(
+                            scalar(
+                                bound["source_math"]
+                                if bound.get("reciprocal")
+                                else target["target_math"]
+                            )
+                        )
                         + r"\geq "
                         + sp.latex(rest)
                         + "+"

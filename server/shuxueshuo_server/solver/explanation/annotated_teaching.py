@@ -8,11 +8,12 @@ only by validators and debug artifacts.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from hashlib import sha256
 import json
 import re
-from typing import Any, Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
+from hashlib import sha256
+from typing import Any
 
 from jsonschema import Draft202012Validator
 
@@ -40,7 +41,6 @@ from .teaching_specs import (
     TeachingSpecBinder,
     TeachingSpecBindingError,
 )
-
 
 ANNOTATED_TEACHING_PLAN_CONTRACT = "functional-annotated-teaching-plan/v1"
 TEACHING_AUTHORITY_CONTRACT = "lesson-teaching-authority/v1"
@@ -208,7 +208,7 @@ class AnnotatedTeachingScope:
     scope_ref: str
     steps: tuple[AnnotatedTeachingStep, ...]
     goals: tuple[AnnotatedTeachingGoal, ...]
-    children: tuple["AnnotatedTeachingScope", ...]
+    children: tuple[AnnotatedTeachingScope, ...]
 
     def to_payload(self) -> dict[str, Any]:
         payload: dict[str, Any] = {"scope_ref": self.scope_ref}
@@ -1462,6 +1462,11 @@ def _project_student_runtime_value(
     path: str,
 ) -> Any:
     projected = _json_clone(value)
+    if runtime_type == "ConstraintElimination":
+        return {
+            k: student_math_display(value[k])
+            for k in ("target_math", "expression", "restoration")
+        }
     if runtime_type == "AmgmBound":
         direction = value.get("direction", "<=")
         return {"target": student_math_display(value["target_math"]), "bound": student_math_display(value["bound"]), "direction": direction,
@@ -1568,6 +1573,8 @@ def _project_student_runtime_display(
     fallback: str,
     label: str | None = None,
 ) -> str:
+    if runtime_type == "ConstraintElimination":
+        return value["restoration"] + "；原式=" + value["expression"]
     if runtime_type == "AmgmBound":
         return value["target"] + ({">=": "≥", "<=": "≤"}[value["direction"]]) + value["bound"]
     if runtime_type == "extremum_target":
@@ -2190,6 +2197,10 @@ def _compact_json(value: Any) -> str:
 
 __all__ = [
     "ANNOTATED_TEACHING_PLAN_CONTRACT",
+    "FORBIDDEN_LLM_TOKENS",
+    "LESSON_SCOPE_CONTENT_CONTRACT",
+    "PROJECTION_AUDIT_CONTRACT",
+    "TEACHING_AUTHORITY_CONTRACT",
     "AnnotatedTeachingMaterial",
     "AnnotatedTeachingPlan",
     "AnnotatedTeachingPlanProjector",
@@ -2198,10 +2209,6 @@ __all__ = [
     "AnnotatedTeachingPrompt",
     "AnnotatedTeachingScope",
     "AnnotatedTeachingStep",
-    "FORBIDDEN_LLM_TOKENS",
-    "LESSON_SCOPE_CONTENT_CONTRACT",
-    "PROJECTION_AUDIT_CONTRACT",
-    "TEACHING_AUTHORITY_CONTRACT",
     "TeachingMaterialProjector",
     "TeachingProjectionDiagnostic",
     "annotated_teaching_plan_schema",
@@ -2228,5 +2235,13 @@ def _inequality_authority(source, snapshot):
     if source.capability_id not in {"apply_two_term_amgm", "close_equality_and_restore"}:
         return {}
     from .basic_inequality_teaching import evidence_for
+
     _, evidence = evidence_for(source, snapshot)
-    return {"bound_direction": evidence["data"]["direction"]}
+    return {
+        "bound_direction": evidence["data"]["direction"],
+        **(
+            {"bound_transform": "positive_reciprocal"}
+            if evidence["data"].get("reciprocal")
+            else {}
+        ),
+    }

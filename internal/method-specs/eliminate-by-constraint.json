@@ -1,0 +1,96 @@
+{
+  "method_id": "eliminate_by_constraint",
+  "title": "条件消元",
+  "description": "",
+  "summary": "由原条件消去一个原变量。eliminate 写待消去的变量名；steps[].math 提交条件变形、必要正性/非零关系和唯一的还原公式，如 y=(c-x)/2；expression 写代入后不含该变量的完整目标标量式。所有关系逐条验证，∵/∴ 不赋予前提权限。先证明原目标和还原公式中所有分母的非零性，再使用除法；正性可先把分母差式等价写成已知正量，再提交其 >0。已知条件不用重复写，避免冗长重复的展开/通分；保留必要中间式。原变量不删除，不注册新变量，不搜索方程解，不应用不等式。后续 M11 用 elimination 引用此结果，M13 仍需给出所有原变量的取值。",
+  "solves": [
+    "eliminate_by_constraint"
+  ],
+  "inputs": {
+    "target": {
+      "required": true,
+      "role": "题面极值目标及完整原条件，不是某一条等式条件",
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    }
+  },
+  "outputs": {
+    "elimination": "ConstraintElimination"
+  },
+  "is_pure": true,
+  "parameters_schema": {
+    "type": "object",
+    "required": [
+      "eliminate",
+      "steps",
+      "expression"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "eliminate": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "steps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 12,
+        "description": "提交由原条件得到的等式变形、分母正性或非零关系，以及唯一的显式还原公式。支持 ∵/∴、逗号或分号和关系链；每条关系均须证明，不允许不等式估计或未声明符号。变量乘法用 *。",
+        "items": {
+          "type": "object",
+          "required": [
+            "math"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "math": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        }
+      },
+      "expression": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024
+      }
+    }
+  },
+  "teaching_unit": {
+    "visuals": [
+      {
+        "spec_id": "constraint_elimination.reduction",
+        "roles": {
+          "evidence": "$source"
+        }
+      }
+    ],
+    "requires_independent_lesson_step": true,
+    "unit_key": "constraint_elimination",
+    "title_template": "条件消元",
+    "nav_title_template": "条件消元",
+    "goal_template": "{goal}",
+    "derive_templates": [
+      [
+        "∴",
+        "{result}"
+      ]
+    ],
+    "box_templates": [
+      "{result}"
+    ],
+    "role_schema": {
+      "goal": "消元目的",
+      "result": "代入后的目标"
+    },
+    "role_binder_id": "constraint_elimination"
+  },
+  "no_new_visual_reason": "消元是标量关系变形，不新增几何对象。"
+}

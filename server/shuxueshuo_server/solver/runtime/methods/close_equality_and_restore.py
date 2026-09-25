@@ -15,6 +15,7 @@ from ._spec import MethodSpecSource, declare_input_views
 from .apply_two_term_amgm import PARAMETERS_SCHEMA as BOUND_SCHEMA
 
 PARAMETERS_SCHEMA = deepcopy(BOUND_SCHEMA)
+PARAMETERS_SCHEMA["properties"].pop("reciprocal", None)
 PARAMETERS_SCHEMA["properties"]["steps"].update(
     minItems=1,
     maxItems=12,

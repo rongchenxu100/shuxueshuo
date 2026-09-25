@@ -7,7 +7,8 @@ candidate-group, replay-trace, ``effective_steps`` or ``fact_index`` APIs.
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
+from typing import Any
 
 import sympy as sp
 
@@ -38,6 +39,10 @@ def bind_teaching_roles(
     *,
     snapshot: ExplanationSnapshot,
 ) -> dict[str, Any]:
+    if unit.role_binder_id == "constraint_elimination":
+        from .elimination import roles
+
+        return roles(source, snapshot)
     if unit.role_binder_id == "expression_rewrite":
         from .expression_rewrite import public_rewrite_roles
         return public_rewrite_roles(source, snapshot)
@@ -2665,6 +2670,7 @@ def _semantic_projection_labels(
             if label:
                 matches.add(label)
     return matches
+
 
 def _next_point_label(used: set[str]) -> str:
     alphabet = tuple(chr(value) for value in range(ord("A"), ord("Z") + 1))

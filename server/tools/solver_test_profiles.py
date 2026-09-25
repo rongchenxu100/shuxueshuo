@@ -93,6 +93,7 @@ OWNERSHIP_RULES = (
             "tests/solver/test_basic_inequality_lesson_expansion.py",
             "tests/solver/test_basic_inequality_runtime.py",
             "tests/solver/test_basic_inequality_stage4_expansion.py",
+            "tests/solver/test_basic_inequality_stage5a.py",
             "tests/solver/test_recursive_lesson_ir.py",
             "tests/solver/test_visual_step_ir_heping_ermo.py",
         ),
@@ -117,6 +118,7 @@ OWNERSHIP_RULES = (
         (
             "tests/solver/test_basic_inequality_runtime.py",
             "tests/solver/test_basic_inequality_stage4_expansion.py",
+            "tests/solver/test_basic_inequality_stage5a.py",
             "tests/solver/test_math_proof_kernel.py",
             "tests/solver/test_basic_inequality_family.py",
             "tests/solver/test_basic_inequality_problem_ir.py",

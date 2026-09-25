@@ -2695,6 +2695,13 @@ test("semantic AM-GM stages and equation solving use the full components", () =>
   assert.match(equality,/basic-equality-solve/);
   assert.match(equality,/math-frac/);
   assert.doesNotMatch(equality,/basic-local-equality|undefined/);
+  const witness = context.renderInequalityEquality({first:pair[0],second:pair[1],solutionMode:"witness",condition:"x>0,y>0",equality:"x/y=4y/x",solved:"x=3,y=3/2",verification:"x+4y=9",conclusion:"最小值为9"});
+  assert.match(witness,/basic-equality-template/);
+  assert.match(witness,/is-square/);
+  assert.match(witness,/is-circle/);
+  assert.match(witness,/可取的具体值/);
+  assert.match(witness,/满足原条件/);
+  assert.doesNotMatch(witness,/联立求解|联立求得|basic-local-equality|undefined/);
 });
 
 test("equation restoration component separates multiple AM-GM conditions and signed solution branches", () => {
