@@ -186,3 +186,44 @@ def build_rewrite_lesson(
         (RewriteLessonSection(scope_id, "整理式子", (step.id,)),),
         (step,),
     )
+
+
+class RewriteTeachingProjector:
+    def project(self, evidence, *, planning_context=None):
+        from .evidence_projectors import ProjectedTeachingEvidence
+
+        presentation = build_rewrite_presentation(evidence.data)
+        return ProjectedTeachingEvidence(
+            evidence.evidence_id,
+            evidence.to_payload(),
+            calculations=(
+                {
+                    "calculation_id": "rewrite_chain",
+                    "kind": "verified_relation_chain",
+                    "statements": [" ".join(row) for row in presentation["derive"]],
+                },
+            ),
+        )
+
+
+def rewrite_evidence_for(source, snapshot):
+    matches = [
+        (key, payload)
+        for key, payload in snapshot.evidence.items()
+        if payload.get("schema_version") == "expression-rewrite-teaching-evidence/v1"
+        and payload.get("step_id") == source.source_step_id
+    ]
+    if len(matches) != 1:
+        raise ValueError("rewrite_teaching_evidence_missing_or_ambiguous")
+    return matches[0]
+
+
+def public_rewrite_roles(source, snapshot):
+    _, evidence = rewrite_evidence_for(source, snapshot)
+    trace = evidence["data"]
+    presentation = build_rewrite_presentation(trace)
+    return {
+        "source": "\\(" + trace["source"]["latex"] + "\\)",
+        "result": "\\(" + trace["result"]["latex"] + "\\)",
+        "derive_items": [" ".join(row) for row in presentation["derive"]],
+    }

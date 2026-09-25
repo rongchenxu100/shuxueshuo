@@ -12,13 +12,18 @@ def lesson_key_point(step, snapshot):
     from .models import iter_teaching_sources
 
     source = next(
-        source for source in iter_teaching_sources(snapshot.root_scope)
+        source
+        for source in iter_teaching_sources(snapshot.root_scope)
         if source.source_step_id in step.source_step_ids
         and source.capability_id == "apply_two_term_amgm"
     )
     _, evidence = evidence_for(source, snapshot)
+    if evidence["data"].get("direction") == ">=":
+        return step.title + "：" + step.goal
     conditions = "，".join(evidence["data"]["conditions"])
-    return f"观察结构：由 {conditions} 看出这是正项定和求积的问题，{DIRECT_AMGM_ROUTE}。"
+    return (
+        f"观察结构：由 {conditions} 看出这是正项定和求积的问题，{DIRECT_AMGM_ROUTE}。"
+    )
 
 
 def unit(key, title, visual):
@@ -28,7 +33,9 @@ def unit(key, title, visual):
         nav_title_template=title,
         goal_template="{goal}",
         derive_templates=(("∴", "{conclusion}"),),
-        box_templates=(("定和求积",) if key == "amgm_observe" else ("{conclusion}",)),
+        box_templates=(
+            ("{observation}",) if key == "amgm_observe" else ("{conclusion}",)
+        ),
         role_schema={
             "goal": "本步骤的教学目标。",
             "conclusion": "来自公开证据的数学结论。",
@@ -79,6 +86,10 @@ def evidence_for(source, snapshot):
 def roles(source, snapshot):
     _, evidence = evidence_for(source, snapshot)
     d = evidence["data"]
+    if d.get("direction") == ">=":
+        return lower_bound_roles(source, d)
+    if not d.get("fixed_condition"):
+        raise ValueError("fixed_sum_teaching_condition_missing")
     bound = f"{d['target']}≤{d['bound']}"
     observation = [
         "∵" + "，".join(d["conditions"]),
@@ -86,6 +97,7 @@ def roles(source, snapshot):
     ]
     if source.capability_id == "apply_two_term_amgm":
         return {
+            "observation": "定和求积",
             "goal": "利用正项定和求积的上界",
             "conclusion": bound,
             "derive_items_by_unit": {
@@ -100,7 +112,7 @@ def roles(source, snapshot):
     return {
         "goal": "验证上界能够取到",
         "conclusion": f"{d['target']}的最大值为{d['bound']}",
-        "derive_items": ["∵取等条件为" + d["equality"], "设取" + assignments]
+        "derive_items": ["∵取等条件为" + d["equality"], "当" + assignments + "时"]
         + ["∴" + v for v in d["witness_derivation"]]
         + [f"∴该取值满足原条件且达到上界，最大值为{d['bound']}"],
     }
@@ -118,3 +130,65 @@ def visual_refs(source, declarations):
         }
         for item in declarations
     ]
+
+
+def lower_bound_roles(source, d):
+    pair = " 与 ".join(d["terms"])
+    if source.capability_id == "apply_two_term_amgm":
+        preview = "把 " + pair + " 配成两个正项，应用基本不等式求和的下界，保留其余项"
+        application = ["∵" + "，".join(d["conditions"])] + [
+            "∴" + v for v in d["derivation"]
+        ]
+        if d.get("constant_product_roles"):
+            stages = d["constant_product_roles"]
+            application = ["∵" + "，".join(term + ">0" for term in d["terms"])]
+            application += [
+                r"∴\(" + v + r"\)"
+                for v in (
+                    d["template_latex"],
+                    stages["product_identity"],
+                    stages["local_bound"],
+                    stages["target_substitution"],
+                    d["overall_relation"],
+                )
+                if v
+            ]
+        return {
+            "goal": preview,
+            "observation": "正项配对，求和的下界",
+            "conclusion": d["overall_relation"],
+            "derive_items_by_unit": {
+                "amgm_observe": ["∵" + "，".join(d["conditions"]), "∴" + preview],
+                "amgm_apply": application,
+            },
+        }
+    if d.get("claim_scope") != "submitted_witness" or not d.get("verified_branches"):
+        raise ValueError("verified_witness_teaching_missing")
+    derive = ["∵取等须同时满足 " + "，".join(d["equalities"])]
+    if d.get("equality_derivation"):
+        derive += ["∵原条件为 " + "，".join(d["conditions"])]
+        derive += [r"∴\(" + row["math"] + r"\)" for row in d["equality_derivation"]]
+        for branch in d["verified_branches"]:
+            if branch.get("equality_derivation"):
+                derive += [r"∵当 \(" + branch["when"] + r"\) 时"]
+                derive += [
+                    r"∴\(" + row["math"] + r"\)"
+                    for row in branch["equality_derivation"]
+                ]
+        derive += ["∴代回原条件与目标，等号成立，" + d["target"] + "=" + d["bound"]]
+        return {
+            "goal": "联立取等条件与原条件求出变量，再代回验证，确认最小值",
+            "conclusion": f"{d['target']}的最小值为{d['bound']}",
+            "derive_items": derive,
+        }
+    for branch in d["verified_branches"]:
+        derive.append(
+            "设取 " + "，".join(f"{k}={v}" for k, v in branch["assignments"].items())
+        )
+        derive += ["∴" + r for r in branch["relations"]]
+    derive.append("∴以上取值满足原条件且等号成立")
+    return {
+        "goal": "验证各次取等条件可以同时成立，确认等号能够成立",
+        "conclusion": f"{d['target']}的最小值为{d['bound']}",
+        "derive_items": derive,
+    }

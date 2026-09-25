@@ -489,6 +489,7 @@ class InvocationExecutor:
             parameters = validate_parameters(spec.parameters_schema, invocation.parameters)
             if spec.parameters_schema is not None:
                 inputs["__parameters__"] = parameters
+                inputs["__visible_symbols__"] = context.symbols
                 sources = invocation.inputs.get("conditions", ())
                 inputs["__condition_sources__"] = list(sources) if isinstance(sources, tuple) else [sources]
                 authorities = invocation.input_read_authorities.get("conditions", ())
@@ -742,6 +743,12 @@ class InvocationExecutor:
         )
         if input_types:
             inputs["__input_types__"] = input_types
+        if invocation.method_id in {"organize_expressions", "apply_two_term_amgm"} and "expression" in typed_inputs:
+            inputs["__expression_source__"] = typed_inputs["expression"].source
+            authorities = invocation.input_read_authorities.get("expression", ())
+            inputs["__expression_authority__"] = authorities[0].source.to_payload() if len(authorities) == 1 else None
+            if typed_inputs["expression"].source == "function.expression":
+                inputs["__source_expression__"] = context.problem.data.get("function", {}).get("expression")
         return inputs
 
 

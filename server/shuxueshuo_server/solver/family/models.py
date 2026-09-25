@@ -1036,6 +1036,8 @@ class SolverFamilySpec:
 
     # Reserved teaching-rule references; declaring them does not enable a rule.
     explanation_rule_ids: tuple[str, ...] = ()
+    teaching_template: str | None = None
+    strategy_reference: str | None = None
 
     def __post_init__(self) -> None:
         prefix = f"{self.family_id}."
@@ -1056,6 +1058,9 @@ class SolverFamilySpec:
     def to_payload(self) -> dict[str, object]:
         """Return a detached, JSON-serializable declaration, not a prompt catalog."""
         payload = asdict(self)
+        for key in ("teaching_template", "strategy_reference"):
+            if payload[key] is None:
+                del payload[key]
         payload["explanation_rule_ids"] = list(self.explanation_rule_ids)
         return payload
 
@@ -1199,6 +1204,8 @@ def expand_family_spec(
         capability_contracts=capability_contracts,
         goal_evidence_policies=goal_evidence_policies,
         explanation_rule_ids=family.explanation_rule_ids,
+        teaching_template=family.teaching_template,
+        strategy_reference=family.strategy_reference,
     )
 
 

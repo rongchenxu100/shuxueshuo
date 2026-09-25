@@ -15,22 +15,29 @@ class RuleMaterial:
     source: object
     covers: tuple[str, ...]
     references: tuple[str, ...] = ()
+    resolved_inputs: dict | None = None
 
 
 class TeachingRuleRegistry:
     def __init__(self):
         self.rules = {}
+        self.merge_units = {}
 
-    def register(self, rule_id, composer):
+    def register(self, rule_id, composer, *, merge_unit_keys=()):
         if not rule_id or rule_id in self.rules:
             raise ValueError("teaching_rule_duplicate_or_empty")
         self.rules[rule_id] = composer
+        self.merge_units[rule_id] = frozenset(merge_unit_keys)
 
     def apply(self, projection, snapshot):
         if not self.rules:
             return projection
         from .annotated_teaching import _assert_llm_safe, _stable_hash
+        from .models import iter_teaching_sources
 
+        verified_sources = {
+            s.source_step_id: s for s in iter_teaching_sources(snapshot.root_scope)
+        }
         authority = deepcopy(dict(projection.authority))
         audit = []
 
@@ -46,7 +53,13 @@ class TeachingRuleRegistry:
                     i += 1
                     key = record["source_step_id"] + "/" + record["unit_key"]
                     originals.append(
-                        RuleMaterial(material, deepcopy(record), source, (key,))
+                        RuleMaterial(
+                            material,
+                            deepcopy(record),
+                            source,
+                            (key,),
+                            resolved_inputs=verified_sources[source.step_id].inputs,
+                        )
                     )
             current = tuple(originals)
             keys = tuple(k for row in originals for k in row.covers)
@@ -68,13 +81,29 @@ class TeachingRuleRegistry:
                     )
                 )
                 coverage = tuple(k for row in candidate for k in row.covers)
-                if coverage != keys:
+                mergeable = self.merge_units[rule_id]
+                merged = {k for r in candidate if len(r.covers) > 1 for k in r.covers}
+                if (
+                    len(coverage) != len(keys)
+                    or set(coverage) != set(keys)
+                    or tuple(k for k in coverage if k not in merged)
+                    != tuple(k for k in keys if k not in merged)
+                ):
                     raise ValueError("teaching_rule_coverage_or_order_invalid")
                 seen = set()
                 for row in candidate:
-                    if len(row.covers) > 1:
-                        raise ValueError("teaching_rule_merge_not_supported")
-                    if row.covers:
+                    if len(row.covers) > 1 and not any(r.covers == row.covers for r in current):
+                        merged_originals = [
+                            o for o in originals if o.covers[0] in row.covers
+                        ]
+                        if not all(
+                            o.authority["unit_key"] in mergeable
+                            for o in merged_originals
+                        ):
+                            raise ValueError("teaching_rule_merge_not_supported")
+                    if len(row.covers) > 1 and not row.authority["requires_independent_lesson_step"]:
+                        raise ValueError("teaching_rule_independent_boundary_removed")
+                    if len(row.covers) == 1:
                         original = next(o for o in originals if o.covers == row.covers)
                         if (
                             original.authority["requires_independent_lesson_step"]
@@ -86,6 +115,11 @@ class TeachingRuleRegistry:
                     refs = row.covers or row.references
                     if not refs or any(r not in owners for r in refs):
                         raise ValueError("teaching_rule_source_missing")
+                    declared_sources = row.authority.get(
+                        "source_step_ids", [row.authority["source_step_id"]]
+                    )
+                    if set(declared_sources) != {owners[r] for r in refs}:
+                        raise ValueError("teaching_rule_source_coverage_invalid")
                     if row.authority["source_step_id"] not in {owners[r] for r in refs}:
                         raise ValueError("teaching_rule_owner_changed")
                     if (

@@ -38,6 +38,9 @@ def bind_teaching_roles(
     *,
     snapshot: ExplanationSnapshot,
 ) -> dict[str, Any]:
+    if unit.role_binder_id == "expression_rewrite":
+        from .expression_rewrite import public_rewrite_roles
+        return public_rewrite_roles(source, snapshot)
     if unit.role_binder_id == "basic_inequality":
         from .basic_inequality_teaching import roles
         return roles(source, snapshot)

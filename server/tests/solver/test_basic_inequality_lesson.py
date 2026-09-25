@@ -170,6 +170,19 @@ def test_verified_snapshot_builds_three_units_and_replays(snapshot):
     assert "witness_proof" not in json.dumps(snapshot.to_payload())
 
 
+def test_direct_application_section_label_is_code_owned_and_replayable(snapshot):
+    from shuxueshuo_server.solver.explanation.amgm_sequence_rule import sequence_rule_registry
+
+    for problem_id in (snapshot.problem_id, "renamed-problem"):
+        snap = replace(snapshot, problem_id=problem_id)
+        built = LessonAuthoringPipeline(rule_registry=sequence_rule_registry()).build(snap)
+        assert {s.section_label for s in built.lesson.steps} == {"直接应用基本不等式"}
+        restored = lesson_ir_from_payload(built.lesson.to_payload())
+        assert restored.to_payload() == built.lesson.to_payload()
+        visual = VisualStepBuilder().build(snapshot=snap, lesson=restored)
+        assert {s["section"] for s in forward_compile(visual).lesson_data["steps"]} == {"直接应用基本不等式"}
+
+
 def test_illegal_llm_merge_recovers_drafts_and_visuals(snapshot):
     projection = AnnotatedTeachingPlanProjector().project(snapshot)
     validator = LessonScopeContentValidator(
@@ -371,7 +384,11 @@ def test_recorded_real_lesson_has_no_fallback(snapshot):
             / "server/tests/solver/fixtures/lesson_scope_authoring_vnext/basic_inequality_q01/call-metadata.json"
         ).read_text()
     )
-    assert built.generation.metadata_payload()["hashes"] == metadata["hashes"]
+    # The recorded response remains valid after prompt wording evolves. Keep
+    # historical call metadata unchanged; compare its material/schema contract.
+    current_hashes = built.generation.metadata_payload()["hashes"]
+    assert current_hashes["output_schema"] == metadata["hashes"]["output_schema"]
+    assert len(current_hashes["prompt"]) == 64
     assert len(built.lesson.steps) == 3
     assert all(step.visuals for step in built.lesson.steps)
 

@@ -10101,3 +10101,133 @@ button:disabled {
   .repeated-basic-equality-list { flex-direction: column; }
   .repeated-basic-equality-list > i { align-self: center; }
 }
+
+/* Solver-owned local AM-GM diagrams: independent cards, no scene inheritance. */
+.basic-local-formula, .basic-local-conclusion { padding: 24px 16px; border: 1px solid #c6dedf; border-radius: 16px; background: #fff; text-align: center; display: grid; gap: 14px; min-width: 0; }
+.basic-local-formula > span, .basic-local-conclusion > span, .basic-local-equality > span { font-size: 13px; color: #147378; }
+.basic-local-formula > strong, .basic-local-conclusion > strong { font-size: clamp(18px, 2vw, 26px); overflow-wrap: anywhere; }
+.basic-local-chain { display: grid; justify-items: center; gap: 10px; padding: 20px 12px; text-align: center; overflow-wrap: anywhere; }
+.basic-local-chain > i { color: #cf7047; font-style: normal; }
+.basic-local-chain > div { max-width: 100%; }
+.basic-local-conclusion { background: #eef8f5; border-color: #8dbcb6; }
+.basic-local-equality { display: grid; gap: 10px; text-align: center; margin: 18px 0 0; overflow-wrap: anywhere; }
+.is-local-bound .basic-map-positive-items article { display: grid; gap: 10px; min-width: 0; text-align: center; }
+@media (max-width: 640px) { .basic-local-formula, .basic-local-conclusion { padding: 18px 10px; } .basic-local-chain { padding-inline: 0; font-size: 15px; } }
+.basic-local-equality > div { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 12px; }
+.basic-local-and { color: var(--muted, #667c80); font-size: .85rem; }
+.basic-local-conclusion strong { overflow-wrap: anywhere; }
+.basic-local-formula > strong { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+.basic-local-side { min-width: 0; max-width: 100%; overflow-x: auto; padding-block: 4px; }
+.basic-local-conclusion > strong { min-width: 0; max-width: 100%; overflow-x: auto; }
+.is-local-bound { min-width: 0; }
+@media (max-width: 640px) { .is-local-bound .basic-map-positive-items { display: flex; flex-wrap: wrap; justify-content: center; } .basic-local-formula > strong { font-size: 17px; } }
+
+/* Generated homogeneous observations also fit narrow lesson-card interiors. */
+@media (max-width: 520px) {
+  .lesson-step-basic-structure-scan {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .basic-structure-homogenization-hint .homogeneous-slot-equation {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+  .basic-structure-homogenization-hint .homogeneous-degree-slot > sup {
+    right: 0;
+  }
+  .basic-structure-homogenization-hint .homogeneous-source-expression,
+  .basic-structure-homogenization-hint .homogeneous-ratio-result > strong {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+}
+@media (max-width: 520px) {
+  .lesson-step-basic-inequality-map,
+  .lesson-step-basic-equality-check {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .basic-map-positive-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .basic-map-fixed-board,
+  .basic-map-variable-board,
+  .basic-local-equality,
+  .basic-equality-verify {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+/* Proven equation-solving branches share the equality component's visual language. */
+.basic-equality-branch-derivation,
+.basic-equality-branches {
+  width: min(100%, 720px);
+  min-width: 0;
+}
+.basic-equality-branch-derivation {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(15, 107, 104, .15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .78);
+}
+.basic-equality-branch-derivation > span,
+.basic-equality-branches header {
+  color: #0f6b68;
+  font-size: .78rem;
+  font-weight: 800;
+}
+.basic-equality-branch-derivation > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 20px;
+}
+.basic-equality-branches {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+.basic-equality-branches article {
+  display: grid;
+  min-width: 0;
+  gap: 10px;
+  justify-items: center;
+  padding: 12px;
+  border: 1px solid rgba(48, 158, 139, .2);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .8);
+  text-align: center;
+}
+.basic-equality-branch-derivation p,
+.basic-equality-branches p {
+  margin: 8px 0;
+  color: #173e43;
+}
+.basic-equality-branches article > strong {
+  color: #08786f;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(48, 158, 139, .08);
+  max-width: 100%;
+}
+.basic-equality-or { color: #d16a4a; justify-self: center; }
+@media (max-width: 720px) {
+  .basic-equality-branches { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Purpose cards describe verified transitions, independently of the tool used. */
+.basic-purpose-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:20px; width:100%; margin:14px auto; }
+.basic-purpose-cards article { min-width:0; padding:22px 16px; border:2px solid #17a6bc; border-radius:20px; background:rgba(255,255,255,.85); text-align:center; }
+.basic-purpose-cards article:nth-child(even) { border-color:#ee920d; }
+.basic-purpose-cards header,.basic-purpose-cards small { display:block; color:#637c81; font-size:.84rem; }
+.basic-purpose-cards h3 { color:#006b70; margin:14px 0 8px; font-size:1.3rem; }
+.lesson-step-basic-structure-scan .basic-purpose-cards .basic-purpose-progress { display:block; font-size:2.4rem; color:#006b70; margin:8px 0 20px; }
+.basic-purpose-cards article > div { margin:10px 0 16px; font-size:1.08rem; }
+.basic-purpose-cards p { padding:12px 6px; border-radius:12px; background:#eaf5f5; }
+.basic-purpose-cards footer { margin-top:14px; font-weight:700; color:#006b70; }

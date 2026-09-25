@@ -132,6 +132,8 @@
         ["\\not=", "≠"],
         ["\\iff", "⇔"],
         ["\\ne", "≠"],
+        ["\\leq", "≤"],
+        ["\\geq", "≥"],
         ["\\le", "≤"],
         ["\\ge", "≥"],
         ["\\pm", "±"],
@@ -196,6 +198,9 @@
 
   function renderExponentText(value) {
     const source = String(value != null ? value : "");
+    // Lesson prose may retain verified TeX while omitting inline delimiters.
+    // The same escaping math renderer handles these known commands as text.
+    if (/\\(?:frac|sqrt|cdot|geq|leq)\b/.test(source)) return renderMathExpression(source);
     const exponentPattern = /e\^\(([^()]*)\)/g;
     let cursor = 0;
     let markup = "";
@@ -679,7 +684,7 @@
               renderPatternTerm(pattern.first, "square") +
               '<i aria-hidden="true">' + esc(row?.operator || "") + '</i>' +
               renderPatternTerm(pattern.second, "circle") +
-              '<em>' + esc(row?.tag || fallbackTag) + '</em>' +
+              '<em>' + renderFormulaText(row?.tag || fallbackTag) + '</em>' +
             '</div>'
           );
         };
@@ -732,13 +737,17 @@
             '</section>'
           : '';
         const combineHint = organization.combineHint || {};
+        const combineTerms = Array.isArray(combineHint.terms) ? combineHint.terms : [];
         const organizationCombineHintMarkup = combineHint.action
           ? '<section class="basic-structure-combine-hint" role="img" aria-label="' + esc(combineHint.ariaLabel || "两项分居不同变量时先通分，让条件量出现在分母") + '">' +
               '<div class="basic-structure-combine-rule">' +
                 '<span class="basic-structure-combine-sum" aria-hidden="true">' +
+                  (combineTerms.length ? combineTerms.map(function (term, index) {
+                    return (index ? '<em>＋</em>' : '') + '<b class="basic-structure-combine-term">' + renderFormulaText(term) + '</b>';
+                  }).join("") : (
                   '<span class="basic-structure-slot-fraction is-compact"><b>1</b><span class="basic-structure-combine-denom"><span class="basic-structure-slot-box is-square"></span><i>a</i></span></span>' +
                   '<em>＋</em>' +
-                  '<span class="basic-structure-slot-fraction is-compact"><b>1</b><span class="basic-structure-combine-denom"><span class="basic-structure-slot-box is-circle"></span><i>b</i></span></span>' +
+                  '<span class="basic-structure-slot-fraction is-compact"><b>1</b><span class="basic-structure-combine-denom"><span class="basic-structure-slot-box is-circle"></span><i>b</i></span></span>' )) +
                 '</span>' +
                 '<i aria-hidden="true">→</i>' +
                 '<strong>' + esc(combineHint.action) + '</strong>' +
@@ -954,6 +963,16 @@
               '</div>' +
             '</section>'
           : '';
+        const purposeCards = Array.isArray(organization.purposeCards) ? organization.purposeCards : [];
+        const purposeCardsMarkup = purposeCards.length
+          ? '<section class="basic-purpose-cards" aria-label="解题思路">' + purposeCards.map(function (card) {
+              return '<article class="basic-purpose-card"><header>' + esc(card.label || "") + ' · ' + esc(card.tool || "") + '</header>' +
+                '<h3>' + esc(card.purpose || "") + '</h3>' + (card.progressLabel ? '<small>' + esc(card.progressLabel) + '</small>' : '') + '<strong class="basic-purpose-progress">' + esc(card.progress || "") + '</strong>' +
+                '<small>当前表达式</small><div>' + renderFormulaText(card.before || "") + '</div>' +
+                (card.reason ? '<p>' + renderFormulaText(card.reason) + '</p>' : '') +
+                '<small>所得下界</small><div>' + renderFormulaText(card.after || "") + '</div>' +
+                '<footer>' + esc(card.detail || "") + '</footer></article>';
+            }).join("") + '</section>' : '';
         const relationCountHint = organization.relationCountHint || {};
         const relationVariable = relationCountHint.variable || {};
         const relationCondition = relationCountHint.condition || {};
@@ -1023,12 +1042,13 @@
           !organization.motive &&
           !organization.note
         );
-        const organizationMarkup = organizationSteps.length || organizationSlotHintMarkup || organizationExpandHintMarkup || organizationCombineHintMarkup || organizationSquareHintMarkup || organizationBaseHintMarkup || organizationAlignmentHintMarkup || organizationSubstitutionHintMarkup || organizationEliminationHintMarkup || organizationHomogenizationHintMarkup || organizationLocalHomogenizationHintMarkup || organizationTermSpotMarkup || organizationRelationCountMarkup || organizationSymmetryHintMarkup
+        const organizationMarkup = purposeCardsMarkup || organizationSteps.length || organizationSlotHintMarkup || organizationExpandHintMarkup || organizationCombineHintMarkup || organizationSquareHintMarkup || organizationBaseHintMarkup || organizationAlignmentHintMarkup || organizationSubstitutionHintMarkup || organizationEliminationHintMarkup || organizationHomogenizationHintMarkup || organizationLocalHomogenizationHintMarkup || organizationTermSpotMarkup || organizationRelationCountMarkup || organizationSymmetryHintMarkup
           ? '<section class="basic-structure-organization' + (isMethodCoreOnly ? ' is-method-core-only' : '') + '">' +
               (organization.label ? '<span>' + esc(organization.label) + '</span>' : '') +
               (organization.motive ? '<p class="basic-structure-organization-motive">' + renderFormulaText(organization.motive) + '</p>' : '') +
               organizationTermSpotMarkup +
               organizationRelationCountMarkup +
+              purposeCardsMarkup +
               organizationSlotHintMarkup +
               organizationExpandHintMarkup +
               organizationCombineHintMarkup +
@@ -1075,6 +1095,21 @@
     }
 
     function renderInequalityMapping(visual) {
+      if (visual.formulaStyle === "local-bound") {
+        const formula = Array.isArray(visual.mappedParts) && visual.mappedParts.length === 2
+          ? visual.mappedParts.map(p => '<span class="basic-local-side">' + renderFormulaText(p) + '</span>').join('<span>≥</span>')
+          : renderFormulaText(visual.mapped);
+        const pairs = visual.mappings.map(function(item, i) {
+          return '<article class="' + (i ? 'is-second' : 'is-first') + '"><span>' + esc(item.slot) + '</span><strong>' + renderFormulaText(item.value) + '</strong><span>' + renderFormulaText(item.condition) + '</span></article>';
+        }).join('<i aria-hidden="true">＋</i>');
+        return '<figure class="lesson-step-visual lesson-step-basic-inequality-map is-local-bound" aria-label="正项配对与局部估计">' +
+          '<section class="basic-map-positive-board"><span>识别两个正项</span><div class="basic-map-positive-items">' + pairs + '</div></section>' +
+          '<section class="basic-local-formula"><span>应用基本不等式</span><strong>' + formula + '</strong></section>' +
+          '<div class="basic-local-chain">' + visual.relations.map(function(r) { return '<div>' + renderFormulaText(r) + '</div>'; }).join('<i aria-hidden="true">↓</i>') + '</div>' +
+          '<section class="basic-local-conclusion"><span>目标下界</span><strong>' + renderFormulaText(visual.conclusion) + '</strong></section>' +
+          '<p class="basic-local-equality"><span>本轮取等条件</span><strong>' + renderFormulaText(visual.equality) + '</strong></p></figure>';
+      }
+
       const ariaLabel = esc(visual.ariaLabel || "解题示意图");
         const mappings = Array.isArray(visual.mappings) ? visual.mappings : [];
         const firstMapping = mappings[0] || { slot: "a", value: "m", condition: "\\(m>0\\)" };
@@ -1088,7 +1123,7 @@
           ? renderFormulaText(visual.mappedProduct)
           : firstValue + '<span class="basic-map-product-dot">·</span>' + secondValue;
         const mappedFractionClass = visual.mappedSum ? " is-wide" : "";
-        const fixedSourceMarkup =
+        const fixedSourceMarkup = !visual.fixedCondition ? "" :
           '<div class="basic-map-fixed-source"><span class="basic-map-short-arrow">↑</span><small>' +
           esc(visual.fixedSourceLabel || "已知") + '</small><strong>' +
           renderFormulaText(visual.fixedCondition || "") + '</strong></div>';
@@ -1097,7 +1132,7 @@
         const usesSquareSumFormula = visual.formulaStyle === "square-sum";
         const fixedFormulaClass = fixedSourceTargetsProduct ? " has-product-fixed-source" : "";
         const fixedProductClusterClass = fixedSourceTargetsProduct ? " has-fixed-source" : "";
-        const fixedSumClass = fixedSourceTargetsProduct ? "" : " is-fixed";
+        const fixedSumClass = fixedSourceTargetsProduct || !visual.fixedCondition ? "" : " is-fixed";
         const fixedProductMarkup = fixedSourceTargetsProduct
           ? '<span class="basic-map-product-target">' + mappedProduct + '</span>'
           : mappedProduct;
@@ -1219,6 +1254,7 @@
             '<div class="basic-map-board-heading"><span>' + esc(visual.stageLabel || "代入关系") + '</span><span class="basic-map-screen-reader">' + renderFormulaText(visual.mapped || "") + '</span></div>' +
             '<div class="basic-map-fixed-formula">' + mappedFormula + '</div>' +
           '</div>' +
+          (Array.isArray(visual.relations) ? '<div class="basic-local-chain">' + visual.relations.map(function(r) { return '<div>' + renderFormulaText(r) + '</div>'; }).join('<i aria-hidden="true">↓</i>') + '</div>' : '') +
           '<div class="basic-map-deduction" data-stage-count="' + deductionStages.length + '">' +
             deductionStages.map(stage => '<div' + (stage.result ? ' class="is-result"' : '') + '><small>' +
               renderFormulaText(stage.label) + '</small><strong>' + renderFormulaText(stage.math) + '</strong></div>'
@@ -1238,6 +1274,14 @@
         const first = visual.first || {};
         const second = visual.second || {};
         const equalityItems = Array.isArray(visual.equalities) ? visual.equalities : [];
+        if (Array.isArray(visual.equalityRelations) && visual.equalityRelations.length) {
+          return '<figure class="lesson-step-visual lesson-step-basic-equality-check" role="group" aria-label="验证取等">' +
+            '<section class="basic-local-equality"><span>取等条件同时成立</span><div>' + visual.equalityRelations.map(renderFormulaText).join('<b class="basic-local-and">且</b>') + '</div></section>' +
+            '<section class="basic-local-equality"><span>' + esc(visual.conditionLabel || "原条件与取等条件") + '</span><div>' + renderFormulaText(visual.condition) + '</div></section>' +
+            '<section class="basic-local-conclusion"><span>' + esc(visual.solvedLabel || "可取的具体值") + '</span><strong>' + renderFormulaText(visual.solved) + '</strong></section>' +
+            '<section class="basic-equality-verify"><span>' + esc(visual.verificationLabel) + '</span><strong>' + renderFormulaText(visual.verification) + '</strong><i aria-hidden="true">✓</i></section>' +
+            '<p class="basic-equality-conclusion">' + renderFormulaText(visual.conclusion) + '</p></figure>';
+        }
         const equalityTerm = function (term, fallbackShape) {
           const shape = term.shape === "circle" ? "circle" : fallbackShape;
           return '<span class="basic-equality-term is-' + shape + '">' + renderFormulaText(term.value || "") + '</span>';
@@ -1251,14 +1295,23 @@
               }).join('<b aria-hidden="true">且</b>') +
             '</div></section>'
           : '<section class="basic-equality-template"><span>' + esc(visual.templateLabel || "基本不等式取等") + '</span><div>' + equalityTerm(first, "square") + '<i aria-hidden="true">＝</i>' + equalityTerm(second, "circle") + '</div></section>';
-        const equalitySolveMarkup = equalityItems.length
+        const solutionBranches = Array.isArray(visual.solutionBranches) ? visual.solutionBranches : [];
+        const equalitySolveMarkup = solutionBranches.length
+          ? '<section class="basic-equality-branch-derivation"><span>' + esc(visual.conditionLabel || "结合原条件") + '</span><strong>' + renderFormulaText(visual.condition || "") + '</strong><div>' +
+              (visual.solutionRelations || []).map(function (relation) { return '<p>' + renderFormulaText(relation) + '</p>'; }).join('') +
+            '</div></section><section class="basic-equality-branches">' + solutionBranches.map(function (branch) {
+              return '<article><header>当 ' + renderFormulaText(branch.when) + ' 时</header><div>' +
+                (branch.relations || []).map(function (relation) { return '<p>' + renderFormulaText(relation) + '</p>'; }).join('') +
+                '</div><strong>' + renderFormulaText(branch.result) + '</strong></article>';
+            }).join('<b class="basic-equality-or">或</b>') + '</section>'
+          : equalityItems.length
           ? '<section class="basic-equality-system-solve"><span>联立求解</span><div>' +
               equalityItems.map(function (item, index) {
                 return (index ? '<i aria-hidden="true">＋</i>' : '') + '<strong>' + renderFormulaText(item.result || "") + '</strong>';
               }).join('') +
               '<i aria-hidden="true">→</i><b>' + renderFormulaText(visual.solved || "") + '</b>' +
             '</div></section>'
-          : '<section class="basic-equality-solve"><article><span>' + esc(visual.conditionLabel || "结合条件") + '</span><strong>' + renderFormulaText(visual.condition || "") + '</strong></article><i aria-hidden="true">＋</i><article><span>' + esc(visual.equalityLabel || "正项相等") + '</span><strong>' + renderFormulaText((first.value || "") + "=" + (second.value || "")) + '</strong></article><i aria-hidden="true">→</i><b>' + renderFormulaText(visual.solved || "") + '</b></section>';
+          : '<section class="basic-equality-solve"><article><span>' + esc(visual.conditionLabel || "结合条件") + '</span><strong>' + renderFormulaText(visual.condition || "") + '</strong></article><i aria-hidden="true">＋</i><article><span>' + esc(visual.equalityLabel || "正项相等") + '</span><strong>' + renderFormulaText(visual.equality || ((first.value || "") + "=" + (second.value || ""))) + '</strong></article><i aria-hidden="true">→</i><b>' + renderFormulaText(visual.solved || "") + '</b></section>';
         return (
           '<figure class="lesson-step-visual lesson-step-basic-equality-check" role="group" aria-label="' + esc(visual.ariaLabel || "验证取等") + '">' +
             equalityTemplateMarkup +

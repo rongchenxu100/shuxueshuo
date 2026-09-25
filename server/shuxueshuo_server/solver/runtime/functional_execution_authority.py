@@ -17,6 +17,10 @@ from shuxueshuo_server.solver.runtime.macro_runtime_search import (
     MacroRuntimeSearchReport,
     macro_runtime_search_report_schema,
 )
+from shuxueshuo_server.solver.runtime.rewrite_teaching_evidence import (
+    RewriteTeachingEvidence,
+    rewrite_teaching_evidence_schema,
+)
 
 if TYPE_CHECKING:
     from shuxueshuo_server.solver.extraction.problem_planning_context import (
@@ -928,7 +932,8 @@ def _point_string_pair(value: Any, field_name: str) -> tuple[str, str]:
 
 
 FunctionalExecutionEvidence: TypeAlias = (
-    InequalityTeachingEvidence
+    RewriteTeachingEvidence
+    | InequalityTeachingEvidence
     | PathMinimumWitness
     | MacroSearchExecutionEvidence
     | SymbolicClosureExecutionEvidence
@@ -941,6 +946,8 @@ def functional_execution_evidence_from_payload(
     payload: Mapping[str, Any],
 ) -> FunctionalExecutionEvidence:
     schema_version = payload.get("schema_version")
+    if schema_version == "expression-rewrite-teaching-evidence/v1":
+        return RewriteTeachingEvidence.from_payload(payload)
     if schema_version == "inequality-teaching-evidence/v1":
         return InequalityTeachingEvidence.from_payload(payload)
     if schema_version == PATH_MINIMUM_WITNESS_CONTRACT:
@@ -960,6 +967,7 @@ def functional_execution_evidence_schema() -> dict[str, Any]:
     return {
         "oneOf": [
             inequality_teaching_evidence_schema(),
+            rewrite_teaching_evidence_schema(),
             path_minimum_witness_schema(include_document_header=False),
             macro_search_execution_evidence_schema(include_document_header=False),
             symbolic_closure_execution_evidence_schema(

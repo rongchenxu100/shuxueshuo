@@ -1,0 +1,100 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": [
+      {
+        "goal_ref": "problem.minimum",
+        "steps": [
+          {
+            "step_id": "first",
+            "capability_id": "apply_two_term_amgm",
+            "args": {
+              "target": "extremum_target_target_expression"
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "1/a+a/b^2+b>=2/b+b"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "bound",
+            "capability_id": "apply_two_term_amgm",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "previous_bound": {
+                "step_id": "first",
+                "return": "bound"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "2/b+b>=2*sqrt(2)"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "attain",
+            "capability_id": "close_equality_and_restore",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "bound": {
+                "step_id": "bound",
+                "return": "bound"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "a=b=sqrt(2)"
+                }
+              ],
+              "equality_derivation": [
+                {
+                  "math": "a^2=b^2",
+                  "using": [
+                    "1/a=a/b^2"
+                  ]
+                },
+                {
+                  "math": "a=b",
+                  "using": [
+                    "a^2=b^2"
+                  ]
+                },
+                {
+                  "math": "b^2=2",
+                  "using": [
+                    "2/b=b"
+                  ]
+                },
+                {
+                  "math": "b=sqrt(2)",
+                  "using": [
+                    "b^2=2"
+                  ]
+                },
+                {
+                  "math": "a=sqrt(2)",
+                  "using": [
+                    "a=b",
+                    "b=sqrt(2)"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "answer_from": {
+          "step_id": "attain",
+          "return": "minimum"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": [
+      {
+        "goal_ref": "problem.minimum",
+        "steps": [
+          {
+            "step_id": "rewrite",
+            "capability_id": "organize_expressions",
+            "args": {
+              "expression": "target_expression",
+              "conditions": [
+                "symbol_constraint_x",
+                "symbol_constraint_y",
+                "equation"
+              ]
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "x+4*y"
+                },
+                {
+                  "math": "(x+4*y)*(1/x+1/y)",
+                  "using": [
+                    "1/x+1/y=1"
+                  ]
+                },
+                {
+                  "math": "5+x/y+4*y/x"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "bound",
+            "capability_id": "apply_two_term_amgm",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "expression": "target_expression"
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "5+x/y+4*y/x>=9"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "attain",
+            "capability_id": "close_equality_and_restore",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "bound": {
+                "step_id": "bound",
+                "return": "bound"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "x=3"
+                },
+                {
+                  "math": "y=3/2"
+                }
+              ],
+              "equality_derivation": [
+                {
+                  "math": "x^2=4*y^2",
+                  "using": [
+                    "x/y=4*y/x"
+                  ]
+                },
+                {
+                  "math": "x=2*y",
+                  "using": [
+                    "x^2=4*y^2"
+                  ]
+                },
+                {
+                  "math": "3/(2*y)=1",
+                  "using": [
+                    "x=2*y",
+                    "1/x+1/y=1"
+                  ]
+                },
+                {
+                  "math": "y=3/2",
+                  "using": [
+                    "3/(2*y)=1"
+                  ]
+                },
+                {
+                  "math": "x=3",
+                  "using": [
+                    "x=2*y",
+                    "y=3/2"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "answer_from": {
+          "step_id": "attain",
+          "return": "minimum"
+        }
+      }
+    ]
+  }
+}

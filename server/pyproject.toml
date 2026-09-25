@@ -45,3 +45,6 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["shuxueshuo_server*"]
+
+[tool.setuptools.package-data]
+"shuxueshuo_server.solver.explanation" = ["prompts/*.jinja"]

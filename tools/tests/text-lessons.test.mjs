@@ -2639,3 +2639,118 @@ test("all inequality practice exercises carry a reasoning-specific visualization
   assert.match(runtime, /index === 0 \? "M142 132 C220 38 420 38 498 132" : "M498 148 C420 242 220 242 142 148"/);
   assert.doesNotMatch(runtime, /lesson-implication-directions/);
 });
+
+test("verified TeX in lesson prose renders even without delimiters", () => {
+  const html = renderInlineMathText(String.raw`通分 \frac{a+b}{2}\geq 1`);
+  assert.match(html, /math-fraction/);
+  assert.ok(html.includes('≥'));
+  assert.ok(!html.includes('≥q'));
+  assert.ok(!html.includes('\\frac'));
+  assert.ok(renderInlineMathText(String.raw`<script>\frac{1}{x}</script>`).includes('&lt;script&gt;'));
+});
+
+test("full AM-GM mapping supports positive fractions without a fixed-sum annotation", () => {
+  const source = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  const runtime = { window: {} };
+  vm.runInNewContext(source, runtime);
+  const start = source.indexOf("    function renderInequalityMapping(");
+  const end = source.indexOf("    function renderInequalityEquality(", start);
+  const context = {
+    renderFormulaText: runtime.window.LessonPageRuntime.renderFormulaText,
+    esc: runtime.window.LessonPageRuntime.esc,
+  };
+  vm.runInNewContext(source.slice(start, end), context);
+  const visual = {
+    formulaStyle: "sum-geometric", showPositiveStep: true,
+    template: "u+v≥2√(u*v)", mapped: "x/y+4*y/x≥4", stageLabel: "代入两个正项",
+    mappings: [
+      { shape: "square", value: "\\(\\frac{x}{y}\\)", condition: "x/y>0" },
+      { shape: "circle", value: "\\(\\frac{4y}{x}\\)", condition: "4y/x>0" },
+    ],
+    relations: ["5+x/y+4*y/x≥9"], conclusion: "x+4y≥9",
+  };
+  const html = context.renderInequalityMapping(visual);
+  assert.match(html, /basic-map-formula-slot-stack/);
+  assert.match(html, /is-slot-square/);
+  assert.match(html, /is-slot-circle/);
+  assert.match(html, /公式模板/);
+  assert.match(html, /代入两个正项/);
+  assert.match(html, /5\+x\/y\+4\*y\/x≥9/);
+  assert.doesNotMatch(html, /basic-map-fixed-source|is-local-bound|undefined/);
+});
+
+test("semantic AM-GM stages and equation solving use the full components", () => {
+  const source = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  const runtime = { window: {} };
+  vm.runInNewContext(source, runtime);
+  const context = {renderFormulaText: runtime.window.LessonPageRuntime.renderFormulaText, esc: runtime.window.LessonPageRuntime.esc};
+  vm.runInNewContext(source.slice(source.indexOf("    function renderInequalityMapping("), source.indexOf("    // Shared component registry")), context);
+  const pair = [{shape:"square",value:"\\(\\frac{x}{y}\\)"},{shape:"circle",value:"\\(\\frac{4y}{x}\\)"}];
+  const application = context.renderInequalityMapping({formulaStyle:"sum-geometric",showPositiveStep:true,mappings:pair,mapped:"x/y+4y/x≥4",mappedSum:"x/y+4y/x",mappedProduct:"4",fixedSourceTarget:"product",fixedCondition:"(x/y)*(4y/x)=4",stageLabel:"代入定积",replaced:"x/y+4y/x≥4",substituted:"x+4y≥5+4",conclusion:"x+4y≥9"});
+  assert.match(application,/has-product-fixed-source/);
+  assert.match(application,/x\+4y≥5\+4/);
+  assert.match(application,/代入定积/);
+  const equality = context.renderInequalityEquality({first:pair[0],second:pair[1],condition:"1/x+1/y=1",equality:"\\(\\frac{x}{y}=\\frac{4y}{x}\\)",solved:"x=3,y=3/2",verification:"x+4y=9",conclusion:"最小值为9"});
+  assert.match(equality,/basic-equality-template/);
+  assert.match(equality,/basic-equality-solve/);
+  assert.match(equality,/math-frac/);
+  assert.doesNotMatch(equality,/basic-local-equality|undefined/);
+});
+
+test("equation restoration component separates multiple AM-GM conditions and signed solution branches", () => {
+  const source = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  const runtime = {window:{}};
+  vm.runInNewContext(source,runtime);
+  const context = {renderFormulaText:runtime.window.LessonPageRuntime.renderFormulaText,esc:runtime.window.LessonPageRuntime.esc};
+  vm.runInNewContext(source.slice(source.indexOf("    function renderInequalityEquality("),source.indexOf("    // Shared component registry")),context);
+  const multiple=context.renderInequalityEquality({equalities:[{first:{value:'1/a'},second:{value:'a/b²'},result:'a=b'},{first:{value:'2/b'},second:{value:'b'},result:'b=√2'}],solved:'a=b=√2',verification:'T=2√2',conclusion:'最小值为2√2'});
+  assert.match(multiple,/basic-equality-system/);
+  assert.match(multiple,/联立求解/);
+  assert.doesNotMatch(multiple,/basic-local-equality/);
+  const branches=context.renderInequalityEquality({first:{value:'(a+b)/2'},second:{value:'8/(a+b)'},condition:'ab=1',solutionRelations:['a+b=4','(a-2)²=3'],solutionBranches:[{when:'a-2≥0',relations:['a-2=√3'],result:'a=2+√3,b=2-√3'},{when:'a-2≤0',relations:['2-a=√3'],result:'a=2-√3,b=2+√3'}],verification:'T=4',conclusion:'最小值为4'});
+  assert.match(branches,/basic-equality-branches/);
+  assert.match(branches,/a-2≥0/);
+  assert.match(branches,/a-2≤0/);
+  assert.doesNotMatch(branches,/可取的具体值|undefined/);
+});
+
+test("condition-revealing observation renders supplied fractions without fixed variable names", () => {
+  const source = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  const runtime = { window: {} };
+  vm.runInNewContext(source, runtime);
+  const start = source.indexOf("    function renderInequalityStructure(");
+  const end = source.indexOf("    function renderInequalityMapping(", start);
+  const context = { renderFormulaText: runtime.window.LessonPageRuntime.renderFormulaText, esc: runtime.window.LessonPageRuntime.esc };
+  vm.runInNewContext(source.slice(start, end), context);
+  const html = context.renderInequalityStructure({
+    condition: { expression: "u*v=2" }, target: { expression: "1/(3*u)+1/(3*v)+24/(u+v)" },
+    organization: { combineHint: { terms: ["\\(\\frac{1}{3u}\\)", "\\(\\frac{1}{3v}\\)"], action: "通分使条件量显形", mark: "uv" },
+      steps: [{ label: "代入条件", expression: "u*v=2" }] },
+    reading: "定积求和", route: "直接应用基本不等式",
+  });
+  assert.match(html, /basic-structure-combine-term/);
+  assert.match(html, /3u/);
+  assert.match(html, /3v/);
+  assert.doesNotMatch(html, /<i>a<\/i>|<i>b<\/i>|undefined/);
+});
+
+test("purpose cards separate teaching purpose from tools and support three rounds", () => {
+  const source = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  const runtime = {window:{}};
+  vm.runInNewContext(source, runtime);
+  const context = {renderFormulaText:runtime.window.LessonPageRuntime.renderFormulaText, esc:runtime.window.LessonPageRuntime.esc};
+  vm.runInNewContext(source.slice(source.indexOf("    function renderInequalityStructure("),source.indexOf("    function renderInequalityMapping(")), context);
+  const purposeCards = ["基本不等式", "平方非负", "基本不等式"].map((tool, i) => ({
+    label:`第${i+1}步`, purpose:i < 2 ? "减少变量" : "求最值", tool,
+    progress:i < 2 ? `${3-i} → ${2-i}` : "1 → 定值",
+    before:"\\(\\frac{1}{u}\\)", after:"2", detail:"检查取等",
+  }));
+  const relationCountHint = {ariaLabel:"规划取等关系",variable:{label:"变量数",value:"3"},condition:{label:"已有取等条件数",value:"0"},result:{label:"待补取等关系数",value:"3"}};
+  const html = context.renderInequalityStructure({condition:{expression:"u>0"},target:{expression:"u+v+w"},organization:{purposeCards,relationCountHint},reading:"先消元",route:"再求解"});
+  assert.equal((html.match(/class="basic-purpose-card"/g) || []).length, 3);
+  assert.match(html,/平方非负/);
+  assert.match(html,/math-frac/);
+  assert.doesNotMatch(html,/undefined/);
+  assert.match(html,/待补取等关系数/);
+  assert.ok(html.indexOf('class="basic-structure-relation-count"') < html.indexOf('class="basic-purpose-cards"'));
+});

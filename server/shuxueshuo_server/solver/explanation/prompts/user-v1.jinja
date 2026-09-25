@@ -1,0 +1,19 @@
+## 输出 JSON Schema
+
+{{ output_schema | compact_json }}
+
+{% include "shared-example-v1.jinja" %}{% if strategy is not none %}
+
+## Family 解题思路目录（理解背景，不代表本题已执行）
+
+{{ strategy | compact_json }}{% endif %}{% if routes is not none %}
+
+## 本题已验证路线（只解释对应容器的材料，不新增数学事实）
+
+{{ routes | compact_json }}{% endif %}{% if boundaries.independent or boundaries.mergeable %}
+
+{% include "boundaries-v1.jinja" %}{% endif %}
+
+## Annotated Teaching Plan
+
+{{ plan | compact_json }}

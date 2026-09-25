@@ -211,7 +211,9 @@ def test_human_approved_b3_fixture_is_valid_and_regression_only(
     assert evaluation["teaching_quality"]["coverage_rate"] == 1.0
     assert expected_evaluation["teaching_quality"]["coverage_rate"] == 1.0
     assert review["review_status"] == "approved"
-    assert review["source"]["prompt_hash"] == reviewed_prompt_hash
+    # Historical approval is bound to its historical request, not today's text.
+    historical_audit = json.loads((B2 / "projection-audit.json").read_text())
+    assert review["source"]["prompt_hash"] == historical_audit["hashes"]["prompt"]
     assert review["validation"]["independent_material_merge_repaired"] is False
     assert review["validation"]["rubric_coverage"] == "5/5"
     assert review["fixture_policy"] == {

@@ -52,8 +52,12 @@ def build_authoring_bundle(source_input):
     if len(original["scopes"]) != 1 or len(original["question_goals"]) != 1:
         raise ValueError("Stage 4A supports one scalar maximum goal in one scope")
     goal = original["question_goals"][0]
-    if goal["value_type"] != "MaximumExpression" or goal["goal_kind"] != "find_maximum":
+    if (goal["value_type"], goal["goal_kind"]) not in {
+        ("MaximumExpression", "find_maximum"),
+        ("MinimumExpression", "find_minimum"),
+    }:
         raise ValueError("Stage 4A requires an explicit maximum-expression goal")
+    answer_key = "maximum" if goal["goal_kind"] == "find_maximum" else "minimum"
     if any(e["entity_type"] != "symbol" for e in original["entities"]):
         raise ValueError("Stage 4A only accepts declared scalar symbols")
     if any(
@@ -113,13 +117,18 @@ def build_authoring_bundle(source_input):
                 value=str(value),
             )
     target = {
-        "handle": "fact:problem:maximum_target",
+        "handle": f"fact:problem:{answer_key}_target",
         "type": "extremum_target",
         "scope_id": "problem",
         "valid_scope": "problem",
         "description": goal["description"],
         "goal_kind": goal["goal_kind"],
         "target_math": goal["target_expression"],
+        **(
+            {"expression_owner": "function:problem:target_expression"}
+            if answer_key == "minimum"
+            else {}
+        ),
         "scalar_symbols": [e["name"] for e in entities],
         "source_conditions": [
             {key: f[key] for key in ("handle", "math", "source_path")} for f in facts
@@ -127,6 +136,18 @@ def build_authoring_bundle(source_input):
         "source_path": goal["source_path"],
         "source_input_hash": stable_hash(original),
     }
+    if answer_key == "minimum":
+        entities.append(
+            {
+                "handle": "function:problem:target_expression",
+                "name": "target_expression",
+                "entity_type": "function",
+                "function_type": "scalar_expression",
+                "scope_id": "problem",
+                "expression": goal["target_expression"],
+                "description": "原题目标表达式（可整理的状态）",
+            }
+        )
     canonical = {
         **original,
         "scopes": [{"scope_id": "problem", "label": "题目", "parent": None}],
@@ -135,10 +156,10 @@ def build_authoring_bundle(source_input):
         "question_goals": [
             {
                 **goal,
-                "handle": "answer:problem.maximum",
+                "handle": f"answer:problem.{answer_key}",
                 "scope_id": "problem",
                 "valid_scope": "problem",
-                "answer_key": "maximum",
+                "answer_key": answer_key,
             }
         ],
     }
@@ -148,7 +169,7 @@ def build_authoring_bundle(source_input):
         return kind + ":" + stable_hash([source_hash, value])
 
     graph_entities = tuple(
-        ProblemEntity(uid("entity", e["name"]), e["name"], "symbol", e["name"])
+        ProblemEntity(uid("entity", e["name"]), e["name"], e["entity_type"], e["name"])
         for e in entities
     )
     graph_facts = tuple(
@@ -168,7 +189,7 @@ def build_authoring_bundle(source_input):
             if f != target
             else {
                 "target_math": target["target_math"],
-                "goal_kind": "find_maximum",
+                "goal_kind": goal["goal_kind"],
                 "conditions": [f["math"] for f in facts],
             },
         )
@@ -176,8 +197,8 @@ def build_authoring_bundle(source_input):
     )
     graph_goal = ProblemGoal(
         uid("goal", goal["handle"]),
-        "maximum_value",
-        "maximum",
+        f"{answer_key}_value",
+        answer_key,
         {"expression": {"math": target["target_math"]}},
     )
     root = ProblemScope(
@@ -203,7 +224,7 @@ def build_authoring_bundle(source_input):
         (f["handle"], g, "fact")
         for f, g in zip(canonical["facts"], graph_facts, strict=True)
     ]
-    pairs += [("answer:problem.maximum", graph_goal, "goal")]
+    pairs += [(f"answer:problem.{answer_key}", graph_goal, "goal")]
     units = {
         item.unit_id: ProblemUnitRecord(
             item.unit_id,

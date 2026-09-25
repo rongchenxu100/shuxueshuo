@@ -552,10 +552,7 @@ def _valid_response(projection) -> str:
     return json.dumps(validator.deterministic_fallback, ensure_ascii=False)
 
 
-def test_service_uses_one_semantic_attempt_and_reviewed_prompt(snapshot, projection) -> None:
-    reviewed_hash = json.loads(
-        (B2 / "projection-audit.json").read_text(encoding="utf-8")
-    )["hashes"]["prompt"]
+def test_service_uses_one_semantic_attempt_and_audited_current_prompt(snapshot, projection) -> None:
     with pytest.raises(
         ScopeLessonConfigurationError,
         match="lesson_scope_reviewed_prompt_drift",
@@ -579,15 +576,15 @@ def test_service_uses_one_semantic_attempt_and_reviewed_prompt(snapshot, project
         prompt=prompt,
         output_schema=schema,
     )["hashes"]["prompt"]
-    assert rendered_hash == reviewed_hash
     client = _ResponseClient([_valid_response(projection)])
     service = ScopeLessonAuthoringService(
         client=client,
-        reviewed_prompt_hash=reviewed_hash,
         sleep_fn=lambda _: None,
     )
 
     result = service.generate(snapshot)
+    assert result.projection_audit["hashes"]["prompt"] == rendered_hash
+    assert client.calls[0]["messages"] == prompt.messages
 
     assert result.semantic_attempt_count == 1
     assert len(result.transport_attempts) == 1

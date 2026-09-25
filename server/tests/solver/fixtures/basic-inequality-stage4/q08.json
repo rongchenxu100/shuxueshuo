@@ -1,0 +1,166 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": [
+      {
+        "goal_ref": "problem.minimum",
+        "steps": [
+          {
+            "step_id": "rewrite",
+            "capability_id": "organize_expressions",
+            "args": {
+              "expression": "target_expression",
+              "conditions": [
+                "symbol_constraint_a",
+                "symbol_constraint_b",
+                "equation"
+              ]
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "1/(2*a)+1/(2*b)+8/(a+b)"
+                },
+                {
+                  "math": "(a+b)/(2*a*b)+8/(a+b)"
+                },
+                {
+                  "math": "(a+b)/2+8/(a+b)",
+                  "using": [
+                    "a*b=1"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "bound",
+            "capability_id": "apply_two_term_amgm",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "expression": "target_expression"
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "(a+b)/2+8/(a+b)>=4"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "attain",
+            "capability_id": "close_equality_and_restore",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "bound": {
+                "step_id": "bound",
+                "return": "bound"
+              }
+            },
+            "parameters": {
+              "branches": [
+                {
+                  "steps": [
+                    {
+                      "math": "a=2+sqrt(3)"
+                    },
+                    {
+                      "math": "b=2-sqrt(3)"
+                    }
+                  ],
+                  "when": "a-2>=0",
+                  "equality_derivation": [
+                    {
+                      "math": "a-2=sqrt(3)",
+                      "using": [
+                        "(a-2)^2=3"
+                      ]
+                    },
+                    {
+                      "math": "a=2+sqrt(3)",
+                      "using": [
+                        "a-2=sqrt(3)"
+                      ]
+                    },
+                    {
+                      "math": "b=2-sqrt(3)",
+                      "using": [
+                        "b=4-a",
+                        "a=2+sqrt(3)"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "steps": [
+                    {
+                      "math": "a=2-sqrt(3)"
+                    },
+                    {
+                      "math": "b=2+sqrt(3)"
+                    }
+                  ],
+                  "when": "a-2<=0",
+                  "equality_derivation": [
+                    {
+                      "math": "2-a=sqrt(3)",
+                      "using": [
+                        "(a-2)^2=3"
+                      ]
+                    },
+                    {
+                      "math": "a=2-sqrt(3)",
+                      "using": [
+                        "2-a=sqrt(3)"
+                      ]
+                    },
+                    {
+                      "math": "b=2+sqrt(3)",
+                      "using": [
+                        "b=4-a",
+                        "a=2-sqrt(3)"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "equality_derivation": [
+                {
+                  "math": "(a+b)^2=16",
+                  "using": [
+                    "(a+b)/2=8/(a+b)"
+                  ]
+                },
+                {
+                  "math": "a+b=4",
+                  "using": [
+                    "(a+b)^2=16"
+                  ]
+                },
+                {
+                  "math": "b=4-a",
+                  "using": [
+                    "a+b=4"
+                  ]
+                },
+                {
+                  "math": "(a-2)^2=3",
+                  "using": [
+                    "b=4-a",
+                    "a*b=1"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "answer_from": {
+          "step_id": "attain",
+          "return": "minimum"
+        }
+      }
+    ]
+  }
+}

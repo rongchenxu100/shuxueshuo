@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any
 import copy
 import re
 import unicodedata
+from typing import Any
 
 from shuxueshuo_server.solver.explanation.lesson_ir import (
     LessonIR,
+)
+from shuxueshuo_server.solver.explanation.lesson_ir import (
     OwnedLessonStep as LessonStep,
 )
 from shuxueshuo_server.solver.explanation.models import ExplanationSnapshot
@@ -30,6 +32,7 @@ def lesson_data_from_lesson_ir(
         base_lesson_data,
         snapshot=snapshot,
     )
+    question_owners, shared_scopes = _question_scope_ownership(snapshot, base_lesson_data)
     out.setdefault("meta", {})
     out["meta"]["id"] = lesson.problem_id
     ui = out.setdefault("ui", {})
@@ -39,7 +42,16 @@ def lesson_data_from_lesson_ir(
     labels: dict[str, str] = {}
     section_counts: dict[str, int] = {}
     for step in lesson.steps:
-        section = section_titles.get(step.scope_id, step.scope_id)
+        owner = question_owners.get(step.scope_id)
+        if owner:
+            section = section_titles[owner]
+        elif step.scope_id in shared_scopes:
+            section = "公共推导"
+        else:
+            section = getattr(step, "section_label", "") or "解题过程"
+        # One display name feeds cards, navigation and the mobile dock. Never
+        # change the mathematical scope or concatenate a route onto a question.
+        ui["groupTitles"][section] = section
         section_counts[section] = section_counts.get(section, 0) + 1
         local_index = section_counts[section]
         t_value = default_t(base_lesson_data)
@@ -59,6 +71,70 @@ def lesson_data_from_lesson_ir(
     out["policies"] = policies
     out["stepLabels"] = labels
     return out
+
+
+def _question_scope_ownership(
+    snapshot: ExplanationSnapshot | None,
+    lesson_data: JsonObject,
+) -> tuple[dict[str, str], set[str]]:
+    """Resolve source questions, excluding solver-created branches and titles."""
+    if snapshot is None:
+        return {}, set()
+    scopes = {
+        str(raw["scope_id"]): raw
+        for raw in snapshot.problem.get("scopes", ())
+        if isinstance(raw, dict) and raw.get("scope_id")
+    }
+    lines = [line for line in _problem_original_lines(snapshot.problem, "") if line]
+    lines = lines or _lesson_problem_line_texts(lesson_data)
+    source_markers = set()
+    for line in lines:
+        for match in re.finditer(
+            r"(?:第)?[（(]\s*[ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩIVXivx\d一二三四五六七八九十]+\s*[）)](?:问)?|[①②③④⑤⑥⑦⑧⑨⑩]",
+            line,
+        ):
+            marker = _section_marker_from_title(match.group())
+            if marker:
+                source_markers.add(marker)
+    questions = set()
+    numbered_siblings: dict[str, dict[tuple[str, str], list[str]]] = {}
+    for scope_id, raw in scopes.items():
+        marker = _section_marker_from_title(str(raw.get("label", "")).split("：", 1)[0])
+        if not raw.get("parent") or not marker:
+            continue
+        numbered_siblings.setdefault(str(raw["parent"]), {}).setdefault(marker, []).append(scope_id)
+        parent, child = marker
+        if (marker in source_markers or
+                (child and ("", child) in source_markers and (parent, "") in source_markers)):
+            questions.add(scope_id)
+
+    # The structured question labels survive extraction even when source
+    # numbering is unfamiliar (1., 1、, ⑴) or source text is unavailable. Keep
+    # distinct numbered sibling questions separate. A lone runtime branch
+    # with a question-like display title is not sufficient evidence.
+    for siblings in numbered_siblings.values():
+        if len(siblings) > 1 and all(len(ids) == 1 for ids in siblings.values()):
+            questions.update(ids[0] for ids in siblings.values())
+
+    owners: dict[str, str] = {}
+    shared: set[str] = set()
+    for scope_id in scopes:
+        current = scope_id
+        visited: set[str] = set()
+        while current in scopes and current not in visited:
+            visited.add(current)
+            if current in questions:
+                owners[scope_id] = current
+                break
+            current = str(scopes[current].get("parent") or "")
+    for question in questions:
+        current = str(scopes[question].get("parent") or "")
+        visited = set()
+        while current and current not in visited:
+            visited.add(current)
+            shared.add(current)
+            current = str(scopes.get(current, {}).get("parent") or "")
+    return owners, shared
 
 
 def generated_lesson_shell(
@@ -178,6 +254,8 @@ def _section_titles_for_lesson(
     snapshot: ExplanationSnapshot | None = None,
 ) -> dict[str, str]:
     problem_lines = _lesson_problem_line_texts(lesson_data)
+    if snapshot is not None:
+        problem_lines = [line for line in _problem_original_lines(snapshot.problem, "") if line] or problem_lines
     scope_labels = _snapshot_scope_labels(snapshot)
     scope_parents = {
         str(raw.get("scope_id")): str(raw.get("parent") or "")
@@ -185,34 +263,38 @@ def _section_titles_for_lesson(
         if isinstance(raw, dict)
     }
     out: dict[str, str] = {}
-    for section in lesson.sections:
+    sections = {section.scope_id: str(section.title or section.scope_id) for section in lesson.sections}
+    # A runtime branch can own all displayed steps while its source question
+    # has no direct LessonSection. Still resolve that question's heading.
+    sections.update({key: label for key, label in scope_labels.items() if key not in sections})
+    for scope_id, section_title in sections.items():
         title = scope_labels.get(
-            section.scope_id,
-            str(section.title or section.scope_id),
+            scope_id,
+            section_title,
         )
         marker = _section_marker_from_title(title)
         if marker:
             parent, child = marker
             if not parent:
                 parent_marker = _section_marker_from_title(
-                    scope_labels.get(scope_parents.get(section.scope_id, ""), "")
+                    scope_labels.get(scope_parents.get(scope_id, ""), "")
                 )
-                parent = (parent_marker[0] if parent_marker else "") or _parent_marker_from_scope(section.scope_id)
+                parent = (parent_marker[0] if parent_marker else "") or _parent_marker_from_scope(scope_id)
             if parent:
                 title = f"第（{parent}）{child}问"
         goal = _question_target_for_section(
             title=title,
-            scope_id=section.scope_id,
+            scope_id=scope_id,
             problem_lines=problem_lines,
         )
         if not goal:
             goal = (
-                "公共推导" if section.scope_id in scope_parents.values()
-                else _first_step_nav_title_for_section(lesson, section.scope_id)
+                "公共推导" if scope_id in scope_parents.values()
+                else _first_step_nav_title_for_section(lesson, scope_id)
             )
         if goal and _section_title_needs_goal(title):
             title = f"{title}：{goal}"
-        out[section.scope_id] = title
+        out[scope_id] = title
     return out
 
 

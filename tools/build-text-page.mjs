@@ -320,9 +320,25 @@ export function validateTextLesson(lesson, inputDir = "") {
           && organization.baseHint === undefined
           && organization.alignmentHint === undefined
           && organization.relationCountHint === undefined
+          && organization.purposeCards === undefined
           && organization.symmetryHint === undefined
         ) {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization 必须包含整理公式或规则图`);
+        }
+        if (organization.purposeCards !== undefined) {
+          if (!Array.isArray(organization.purposeCards) || !organization.purposeCards.length) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.purposeCards 必须是非空卡片列表`);
+          }
+          organization.purposeCards.forEach((card, index) => {
+            for (const field of ["label", "purpose", "tool", "progress", "before", "after", "detail"]) {
+              if (!card || typeof card[field] !== "string" || !card[field].trim()) {
+                throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.purposeCards[${index}].${field} 必须是非空字符串`);
+              }
+            }
+            if (card.reason !== undefined && (typeof card.reason !== "string" || !card.reason.trim())) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.purposeCards[${index}].reason 必须是非空字符串`);
+            }
+          });
         }
         organizationSteps.forEach((item, index) => {
           if (typeof item === "string") {
@@ -563,7 +579,7 @@ export function validateTextLesson(lesson, inputDir = "") {
         "mapped",
         "conclusion",
       ];
-      if (visual.formulaStyle !== "square-sum") {
+      if (!["square-sum", "local-bound", "sum-geometric"].includes(visual.formulaStyle)) {
         requiredFields.push("fixedCondition");
       }
       if (requiredFields.some((field) => typeof visual[field] !== "string" || !visual[field].trim())) {
@@ -574,12 +590,13 @@ export function validateTextLesson(lesson, inputDir = "") {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.${field} 必须是非空字符串`);
         }
       }
-      if (visual.formulaStyle !== undefined && !new Set(["fraction-geometric", "sum-geometric", "square-sum"]).has(visual.formulaStyle)) {
+      if (visual.formulaStyle !== undefined && !new Set(["fraction-geometric", "sum-geometric", "square-sum", "local-bound"]).has(visual.formulaStyle)) {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual.formulaStyle 不是受支持的公式样式`);
       }
       if (visual.showPositiveStep !== undefined && typeof visual.showPositiveStep !== "boolean") {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual.showPositiveStep 必须是布尔值`);
       }
+      if (visual.formulaStyle === "local-bound" && (!Array.isArray(visual.relations) || !visual.relations.length || visual.relations.some(r => typeof r !== "string" || !r.trim()) || !visual.equality)) throw new Error("local-bound requires relations and equality");
       const equalityFields = ["equalityTemplate", "equalityMapped", "equalityResult"];
       const equalityPresent = equalityFields.filter((field) => visual[field] !== undefined);
       if (equalityPresent.length && (equalityPresent.length !== equalityFields.length || equalityFields.some((field) => typeof visual[field] !== "string" || !visual[field].trim()))) {
@@ -607,6 +624,9 @@ export function validateTextLesson(lesson, inputDir = "") {
     }
     if (step.visual?.kind === "basic-inequality-equality-check") {
       const visual = step.visual;
+      if (visual.equalityRelations !== undefined && (!Array.isArray(visual.equalityRelations) || !visual.equalityRelations.length || visual.equalityRelations.some(r => typeof r !== "string" || !r.trim()))) {
+        throw new Error("equalityRelations requires verified non-empty relations");
+      }
       const equalities = Array.isArray(visual.equalities) ? visual.equalities : [];
       const requiredFields = equalities.length
         ? ["templateLabel", "solved", "verificationLabel", "verification", "conclusion"]

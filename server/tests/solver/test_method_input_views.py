@@ -62,7 +62,7 @@ def test_all_method_inputs_declare_one_explicit_view() -> None:
         for spec in registry.specs.values()
         for item in spec.inputs.values()
     )
-    assert len(inputs) == 174
+    assert len(inputs) == 176
     assert {item.view.mode for item in inputs} == {
         "identity",
         "latest_state",
@@ -71,6 +71,10 @@ def test_all_method_inputs_declare_one_explicit_view() -> None:
     }
     assert all(item.domain_type == item.view.domain_type for item in inputs)
     assert all(item.runtime_type for item in inputs)
+
+    amgm = registry.specs["apply_two_term_amgm"]
+    assert amgm.inputs["expression"].view.mode == "latest_state"
+    assert amgm.inputs["previous_bound"].view.mode == "exact_result"
 
     intersection = registry.specs["line_intersection_point"]
     assert all(

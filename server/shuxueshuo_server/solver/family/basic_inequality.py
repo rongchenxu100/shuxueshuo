@@ -16,6 +16,8 @@ from .models import (
 BASIC_INEQUALITY_FAMILY = expand_family_spec(
     SolverFamilySpec(
         family_id="basic_inequality",
+        teaching_template="basic-inequality-v1.jinja",
+        strategy_reference="internal/llm-prompts/basic-inequality-strategy.json",
         match=FamilyMatchRule(
             patterns=("basic-inequality",),
             problem_types=("basic_inequality",),

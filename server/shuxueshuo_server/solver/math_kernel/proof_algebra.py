@@ -133,7 +133,7 @@ class Arithmetic:
     def __init__(self, budget):
         self.budget = budget
         self.limits = budget.limits
-        self._gcd_cache = {}
+        self._gcd_cache = budget.gcd_cache
 
     def check(self, p):
         if len(p) > self.limits.polynomial_terms:
@@ -224,6 +224,8 @@ class Arithmetic:
         The original relation still supplies all domain guards. In particular,
         1/x = 2/x has residual -1/x, not an equality asserting x = 0.
         """
+        if relation in self.budget.equation_divisors:
+            return dict(self.budget.equation_divisors[relation])
         numerator, denominator = self.rational(expr("sub", relation[1], relation[2]))
         common = self.polynomial_gcd(numerator, denominator)
         divisor = self.exact_quotient(numerator, common)
@@ -231,6 +233,7 @@ class Arithmetic:
             raise ProofFailure(
                 "inconsistent_premises", "nonzero constant equality residual"
             )
+        self.budget.equation_divisors[relation] = dict(divisor)
         return divisor
 
     def exact_quotient(self, numerator, denominator):
@@ -457,9 +460,9 @@ class Arithmetic:
         return dict(sorted(roots.items()))
 
     def root_polynomial(self, root):
-        a, b = self.rational(root[1])
-        r, _ = self.rational(root)
-        return self.add(self.mul(self.mul(r, r), b), a, Q(-1))
+        # Use the same reduced rational numerator as an ordinary equation.
+        # The caller still proves all original radical/denominator guards.
+        return self.equation_divisor(("=", ("pow", root, number(2)), root[1]))
 
     def factor(self, target, base):
         a, b = self.rational(target)

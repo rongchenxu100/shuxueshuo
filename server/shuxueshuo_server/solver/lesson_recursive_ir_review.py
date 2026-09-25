@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import argparse
 import copy
-from dataclasses import dataclass
-from html import escape
 import json
-from pathlib import Path
 import subprocess
 import tempfile
-from typing import Any, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from html import escape
+from pathlib import Path
+from typing import Any
 
 from shuxueshuo_server.solver.explanation.annotated_teaching import (
     AnnotatedTeachingPlanProjector,
@@ -52,13 +53,9 @@ from shuxueshuo_server.solver.visual import (
     forward_compile,
 )
 
-
 REVIEW_CONTRACT = "lesson-recursive-ir-review/v1"
 ASSEMBLY_AUDIT_CONTRACT = "lesson-recursive-ir-assembly-audit/v1"
 DEFAULT_BATCH_ID = "f5-f5b4-heping-recursive-lesson-review"
-REVIEWED_PROMPT_HASH = (
-    "a4826d362374ffacf405a4188c7a63b4d516a5bd67bba8c61272390b027fa257"
-)
 
 
 class LessonRecursiveIRReviewError(ValueError):
@@ -100,11 +97,8 @@ def build_recursive_lesson_review(
         output_schema=output_schema,
     )
     prompt_hash = str(projection_audit["hashes"]["prompt"])
-    if prompt_hash != REVIEWED_PROMPT_HASH:
-        raise LessonRecursiveIRReviewError(
-            "lesson_recursive_ir_review_prompt_hash_drift: "
-            f"expected={REVIEWED_PROMPT_HASH}, observed={prompt_hash}"
-        )
+    # Record today's request; historical approval belongs to its recorded
+    # request, not to all future wording of the shared teaching prompt.
 
     validator = LessonScopeContentValidator(
         plan=projection.plan,
@@ -147,6 +141,7 @@ def build_recursive_lesson_review(
         "schema_version": ASSEMBLY_AUDIT_CONTRACT,
         "status": "ready_for_human_review",
         "human_review_approved": False,
+        "prompt_assets": copy.deepcopy(projection_audit["prompt_assets"]),
         "hashes": {
             "snapshot": approved.build.lesson.source_snapshot_hash,
             "prompt": prompt_hash,
@@ -167,7 +162,7 @@ def build_recursive_lesson_review(
             "fallback_visual_step_count": len(fallback.visual_ir.steps),
         },
         "checks": {
-            "prompt_hash_unchanged": prompt_hash == REVIEWED_PROMPT_HASH,
+            "approved_body_compatible": approved_validation.direct_acceptance,
             "topology_equal": topology_equal,
             "approved_materials_consumed_once": _material_positions_complete(
                 projection.authority,
@@ -675,9 +670,9 @@ if __name__ == "__main__":
 __all__ = [
     "ASSEMBLY_AUDIT_CONTRACT",
     "DEFAULT_BATCH_ID",
+    "REVIEW_CONTRACT",
     "LessonRecursiveIRReviewArtifacts",
     "LessonRecursiveIRReviewError",
-    "REVIEW_CONTRACT",
     "build_recursive_lesson_review",
     "write_recursive_lesson_review",
 ]

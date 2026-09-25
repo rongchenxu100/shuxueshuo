@@ -68,9 +68,21 @@ class OwnershipRule:
 
 OWNERSHIP_RULES = (
     OwnershipRule(
+        ("server/shuxueshuo_server/solver/explanation/lesson_prompt.py",
+         "server/shuxueshuo_server/solver/explanation/prompts/*",
+         "internal/llm-prompts/basic-inequality-strategy.json"),
+        ("tests/solver/test_lesson_prompt_templates.py",
+         "tests/solver/test_annotated_teaching_plan.py",
+         "tests/solver/test_lesson_scope_content.py"),
+    ),
+    OwnershipRule(
         (
             "server/shuxueshuo_server/solver/explanation/basic_inequality_teaching.py",
             "server/shuxueshuo_server/solver/explanation/teaching_rules.py",
+            "server/shuxueshuo_server/solver/explanation/amgm_sequence_rule.py",
+            "server/shuxueshuo_server/solver/explanation/homogenization.py",
+            "server/shuxueshuo_server/solver/explanation/math_typography.py",
+            "server/shuxueshuo_server/solver/runtime/rewrite_teaching_evidence.py",
             "server/shuxueshuo_server/solver/runtime/inequality_teaching_evidence.py",
             "server/shuxueshuo_server/solver/visual/teaching_diagrams.py",
             "server/tools/run_basic_inequality_stage4b.py",
@@ -78,7 +90,9 @@ OWNERSHIP_RULES = (
         ),
         (
             "tests/solver/test_basic_inequality_lesson.py",
+            "tests/solver/test_basic_inequality_lesson_expansion.py",
             "tests/solver/test_basic_inequality_runtime.py",
+            "tests/solver/test_basic_inequality_stage4_expansion.py",
             "tests/solver/test_recursive_lesson_ir.py",
             "tests/solver/test_visual_step_ir_heping_ermo.py",
         ),
@@ -88,16 +102,21 @@ OWNERSHIP_RULES = (
             "server/shuxueshuo_server/solver/basic_inequality_stage4a.py",
             "server/shuxueshuo_server/solver/family/basic_inequality_runtime.py",
             "server/shuxueshuo_server/solver/math_kernel/inequality_evidence.py",
+            "server/shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py",
+            "server/shuxueshuo_server/solver/math_kernel/local_amgm.py",
             "server/shuxueshuo_server/solver/math_kernel/derivation_math.py",
             "server/shuxueshuo_server/solver/math_kernel/proof_algebra.py",
             "server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",
             "server/shuxueshuo_server/solver/runtime/methods/apply_two_term_amgm.py",
             "server/shuxueshuo_server/solver/runtime/methods/close_equality_and_restore.py",
             "server/tools/run_basic_inequality_stage4a.py",
+            "server/tools/run_basic_inequality_stage4.py",
+            "server/tests/solver/fixtures/basic-inequality-stage4/**",
             "internal/functional-plan-fixtures/basic-inequality-q01.functional-plan.json",
         ),
         (
             "tests/solver/test_basic_inequality_runtime.py",
+            "tests/solver/test_basic_inequality_stage4_expansion.py",
             "tests/solver/test_math_proof_kernel.py",
             "tests/solver/test_basic_inequality_family.py",
             "tests/solver/test_basic_inequality_problem_ir.py",

@@ -420,6 +420,67 @@
     "execution_evidence": {
       "oneOf": [
         {
+          "title": "InequalityTeachingEvidence",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "step_id",
+            "method_id",
+            "data",
+            "evidence_id"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "schema_version": {
+              "const": "inequality-teaching-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "method_id": {
+              "enum": [
+                "apply_two_term_amgm",
+                "close_equality_and_restore"
+              ]
+            },
+            "data": {
+              "type": "object"
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "title": "RewriteTeachingEvidence",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "step_id",
+            "data",
+            "evidence_id"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "expression-rewrite-teaching-evidence/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "data": {
+              "type": "object"
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
           "title": "PathMinimumWitness",
           "type": "object",
           "required": [

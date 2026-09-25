@@ -1017,13 +1017,27 @@ class LessonScopeContentValidator:
         path: str,
     ) -> BoundLessonStep:
         records = tuple(contract.authority[position] for position in positions)
+        prose = json.dumps(normalized, ensure_ascii=False)
+        for record in records:
+            direction = record.get("bound_direction")
+            forbidden = {
+                ">=": ("上界", "最大值", "不超过", "至多"),
+                "<=": ("下界", "最小值", "不低于", "至少为"),
+            }.get(direction, ())
+            if any(word in prose for word in forbidden):
+                raise _ScopeRejected((_diag(
+                    "lesson_scope_bound_direction_conflict", "authority", path,
+                    "lesson prose reverses the verified bound direction " + direction,
+                    contract.scope_ref,
+                ),))
         bound_step = BoundLessonStep(
             visuals=tuple(v for record in records for v in record.get("visuals", ())),
             container_ref=contract.container_ref,
             material_positions=positions,
             teaching_step_refs=teaching_step_refs,
             source_step_ids=_dedupe(
-                str(item["source_step_id"]) for item in records
+                str(source_id) for item in records
+                for source_id in item.get("source_step_ids", [item["source_step_id"]])
             ),
             capability_ids=_dedupe(
                 str(item["capability_id"]) for item in records
@@ -1034,8 +1048,8 @@ class LessonScopeContentValidator:
                 for item in records
                 for ref in item.get("evidence_refs", ())
             ),
-            title=str(normalized["title"]),
-            nav_title=str(normalized["nav_title"]),
+            title=next((str(r["fixed_title"]) for r in records if r.get("fixed_title")), str(normalized["title"])),
+            nav_title=next((str(r["fixed_nav_title"]) for r in records if r.get("fixed_nav_title")), str(normalized["nav_title"])),
             goal=str(normalized["goal"]),
             derive=tuple(
                 (str(item[0]), str(item[1]))
@@ -1262,7 +1276,12 @@ class LessonScopeContentValidator:
 
 
 class ScopeLessonAuthoringService:
-    """Make one semantic Lesson call with bounded transport-only retry."""
+    """Make one semantic Lesson call with bounded transport-only retry.
+
+    ``reviewed_prompt_hash`` is an explicit exact-request pin for historical
+    reproduction. Ordinary generation audits the current request and templates
+    without requiring them to match any past human review.
+    """
 
     def __init__(
         self,

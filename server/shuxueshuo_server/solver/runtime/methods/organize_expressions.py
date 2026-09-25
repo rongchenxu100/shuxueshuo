@@ -30,6 +30,7 @@ PARAMETERS_SCHEMA = {
                 "properties": {
                     "math": {"type": "string", "minLength": 1, "maxLength": 1024},
                     "using": {
+                        "description": "仅填写已绑定等式的数学原文，如 a*b=1；不要填写 ref/handle 或正性条件名。",
                         "type": "array",
                         "maxItems": 8,
                         "uniqueItems": True,
@@ -60,12 +61,15 @@ class OrganizeExpressionsMethod:
             parameters = validate_parameters(
                 PARAMETERS_SCHEMA, inputs.get("__parameters__", {})
             )
-            symbols = {s.name: s for s in expression.free_symbols}
+            symbols = inputs.get("__visible_symbols__") or {
+                s.name: s for s in expression.free_symbols
+            }
             trace = verify_chain(
                 expression,
                 list(inputs.get("conditions", [])),
                 parameters["steps"],
                 symbols,
+                input_source=inputs.get("__source_expression__"),
             )
         except ValidationError as exc:
             raise method_input_invalid(
@@ -137,7 +141,7 @@ SPEC = MethodSpecSource(
     ),
     outputs={"organized_expression": "Expression"},
     parameters_schema=PARAMETERS_SCHEMA,
-    summary="按 parameters.steps 验证完整有理式推导链；只返回最终表达式，不求极值。",
+    summary='math 每行只能是一个标量表达式，不能写等号、关系链或 ∵/∴；第一行写原式。例如 steps=[{"math":"3*u+3*v"},{"math":"3*(u+v)"},{"math":"12","using":["u+v=4"]}]。using 只写数学等式，不写 equation 等目录名称。变量间乘法必须显式 *，ab 是独立标识符，不能表示 a*b。按 parameters.steps 验证完整等价表达式链，支持有界整数幂与 sqrt 根式；从绑定原式开始。使用等式到达某行须在 using 写明已绑定等式；绑定全部正性与定义域条件。逐行证明域、等价并回放证书，只返回同一目标对象的最终表达式，不求极值。不执行条件消元或注册新变量；优先保留原变量的配齐次、通分和展开结构。',
     preconditions=("所有变量和使用的条件已有绑定",),
     postconditions=("最终式与输入在原定义域上等价",),
     teaching_unit=TeachingUnitSpec(
@@ -156,6 +160,8 @@ SPEC = MethodSpecSource(
             "derive_items": "已验证推导",
         },
         role_binder_id="expression_rewrite",
+        requires_independent_lesson_step=True,
+        visuals=({"spec_id": "expression_rewrite.chain", "roles": {"evidence": "$source"}},),
     ),
     visual=MethodVisualSpec(
         role_schema={"rewrite": "已验证推导记录"},

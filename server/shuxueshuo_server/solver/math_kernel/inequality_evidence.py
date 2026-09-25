@@ -36,10 +36,10 @@ def require(result):
 
 
 def target_context(target):
-    if (
-        target.get("type") != "extremum_target"
-        or target.get("goal_kind") != "find_maximum"
-    ):
+    if target.get("type") != "extremum_target" or target.get("goal_kind") not in {
+        "find_maximum",
+        "find_minimum",
+    }:
         raise ProofFailure(
             "unsupported_target", "a maximum-expression target is required"
         )
@@ -111,7 +111,11 @@ def _check_fixed_sum_bound_shape(upper, origin, context):
         )
 
 
-def verify_bound(target, steps):
+def _verify_bound_v1(target, steps):
+    if target.get("goal_kind") != "find_maximum":
+        raise ProofFailure(
+            "target_bound_mismatch", "v1 is a maximum upper-bound contract"
+        )
     context, _expression = target_context(target)
     try:
         derivation = parse_derivation(steps, context.symbols)
@@ -131,14 +135,23 @@ def verify_bound(target, steps):
                 n["rule_id"] == "math.two_term_amgm" for n in result.proof["nodes"]
             ):
                 candidates.append((relation, result.proof))
-    if not candidates:
-        raise ProofFailure(
-            "inequality_template_unmatched",
-            "a two-positive-term AM-GM application is required",
-        )
     # Stage 4A still certifies the final fixed-sum bound from original sources,
     # independently of the now fully checked intermediate derivation.
     q = require(prove_relation(upper, context))
+    if not candidates:
+        # Mean-square/product forms may omit the standalone radical line.
+        # Recover only the actual certified application, never a guessed pair.
+        from .inequality_bound_v2 import math_text
+        from .proof_algebra import freeze
+
+        for node in q["nodes"]:
+            if node["rule_id"] == "math.two_term_amgm":
+                relation = parse_math_relation(
+                    math_text(freeze(node["conclusion"])), context.symbols
+                )
+                candidates.append(
+                    (relation, require(prove_relation(relation, context)))
+                )
     right = upper.ast.children[1]
     bound_value = parse_math_expression(
         upper.source[right.span[0] : right.span[1]], context.symbols
@@ -195,7 +208,7 @@ def verify_bound(target, steps):
     }
 
 
-def public_bound(evidence):
+def _public_bound_v1(evidence):
     """The typed mathematical Fact; certificates stay in the audit trace."""
     return {
         key: deepcopy(evidence[key])
@@ -214,10 +227,10 @@ def replay_derivation(steps, evidence, context):
     )
 
 
-def close_bound(target, bound, steps):
+def _close_bound_v1(target, bound, steps):
     context, _expression = target_context(target)
-    rebuilt = verify_bound(target, bound["steps"])
-    if public_bound(rebuilt) != bound:
+    rebuilt = _verify_bound_v1(target, bound["steps"])
+    if _public_bound_v1(rebuilt) != bound:
         raise ProofFailure("invalid_proof", "bound evidence altered")
     for proof in rebuilt["proofs"]:
         require(replay_proof(proof, context))
@@ -282,3 +295,41 @@ def close_bound(target, bound, steps):
         "claim_scope": "submitted_witness",
         "exhaustive": False,
     }
+
+
+def verify_bound(target, steps, *, expression=None, previous_bound=None):
+    from .inequality_bound_v2 import verify
+
+    return verify(target, steps, expression=expression, previous_bound=previous_bound)
+
+
+def public_bound(evidence):
+    if evidence["schema_version"] == "amgm-bound/v1":
+        return _public_bound_v1(evidence)
+    from .inequality_bound_v2 import public
+
+    return public(evidence)
+
+
+def close_bound(target, bound, steps=None, *, branches=None, equality_derivation=None):
+    if bound["schema_version"] == "amgm-bound/v1":
+        if branches is not None or equality_derivation is not None:
+            raise ProofFailure("invalid_input", "v1 requires single-branch steps")
+        return _close_bound_v1(target, bound, steps)
+    from .inequality_bound_v2 import close
+
+    return close(
+        target,
+        bound,
+        [steps] if branches is None else [b["steps"] for b in branches],
+        equality_derivation=equality_derivation,
+        branch_derivations=(
+            [
+                {"when": b["when"], "equality_derivation": b["equality_derivation"]}
+                for b in branches
+            ]
+            if branches is not None
+            and any("when" in b or "equality_derivation" in b for b in branches)
+            else None
+        ),
+    )

@@ -1,0 +1,9 @@
+{% if boundaries.independent %}## 必须独立的教学材料
+
+以下每个 step_ref 都必须作为 source_steps 的唯一元素单独成步；严禁把同一行中的两个 ref 放入同一个数组：{% for row in boundaries.independent %}
+- {{ row.owner_kind }} {{ row.owner_ref }}：必须分别输出 {% for step_ref in row.refs %}{{ [step_ref] | compact_json }}{% if not loop.last %}、{% endif %}{% endfor %}{% endfor %}{% endif %}{% if boundaries.mergeable %}{% if boundaries.independent %}
+
+{% endif %}## 可考虑合并的连续材料
+
+以下是代码按独立边界计算出的最大连续区间。只能在同一列出的区间内考虑合并；是否合并仍由学生是否需要转换思路决定：{% for row in boundaries.mergeable %}
+- {{ row.owner_kind }} {{ row.owner_ref }}：{% for run in row.runs %}{{ run | compact_json }}{% if not loop.last %}、{% endif %}{% endfor %}{% endfor %}{% endif %}

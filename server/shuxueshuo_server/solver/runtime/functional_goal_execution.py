@@ -3781,6 +3781,7 @@ def _json_safe_value(value: Any) -> Any:
 
 
 _INTERNAL_PROMPT_KEY_PARTS = (
+    "certificate_bundle",
     "artifact",
     "bundle",
     "canonical_handle",

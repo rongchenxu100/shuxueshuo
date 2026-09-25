@@ -7,8 +7,8 @@ request reaches this boundary.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
 from copy import deepcopy
+from dataclasses import dataclass, replace
 from typing import Any
 
 from shuxueshuo_server.solver.contracts import MethodInputBindingSpec
@@ -131,6 +131,26 @@ class FunctionalDirectCompiler:
         inputs: Any,
         handle_registry: Any,
     ) -> ExactCompiledStep:
+        method_id = getattr(request.capability.source, "method_id", None)
+        if method_id and inputs.method_specs is not None:
+            spec = inputs.method_specs.require(method_id)
+            optional = {r.name for r in request.capability.returns if not r.required}
+            omitted = {
+                name
+                for name, activation in spec.output_activation.items()
+                if activation.kind == "runtime_condition"
+                and name in optional
+                and name not in request.required_return_names
+            }
+            if omitted:
+                request = replace(
+                    request,
+                    return_allocations=tuple(
+                        a
+                        for a in request.return_allocations
+                        if a.return_name not in omitted
+                    ),
+                )
         step = _compile_call(request)
         arg_bindings = _runtime_arg_bindings(request)
         compiled = self._capability_compiler.compile(

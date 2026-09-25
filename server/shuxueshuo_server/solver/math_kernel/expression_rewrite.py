@@ -13,7 +13,15 @@ from typing import Any
 import sympy as sp
 from sympy.core.relational import Relational
 
-from .expression_parser import MathParseError, _parse, _sympy
+from .expression_parser import (
+    MathParseError,
+    _parse,
+    _sympy,
+    parse_math_expression,
+    parse_math_relation,
+)
+from .proof_algebra import ProofFailure, from_node, names
+from .proof_kernel import ProofContext, _Budget, _document, _replay, _run_request
 
 
 class RewriteError(ValueError):
@@ -102,6 +110,8 @@ def tree_latex(tree: dict) -> str:
         return sp.latex(sp.Symbol(tree["text"])) if op == "symbol" else tree["text"]
     children = tree["children"]
     a = tree_latex(children[0])
+    if op == "sqrt":
+        return "\\sqrt{" + a + "}"
     if op in ("neg", "pos"):
         return ("-" if op == "neg" else "+") + "\\left(" + a + "\\right)"
     b = tree_latex(children[1])
@@ -110,7 +120,8 @@ def tree_latex(tree: dict) -> str:
     if op == "pow":
         if children[0]["op"] in ("add", "sub", "mul", "neg"):
             a = "\\left(" + a + "\\right)"
-        return "{" + a + "}^{" + b + "}"
+            return a + "^{" + b + "}"
+        return a + "^{" + b + "}"
     if op == "mul":
         if children[0]["op"] in ("add", "sub"):
             a = "\\left(" + a + "\\right)"
@@ -139,6 +150,8 @@ def relation_from_bound(value: Any, symbols: Mapping[str, sp.Symbol]) -> Relatio
     if isinstance(value, str):
         return parse_relation(value, symbols)
     if isinstance(value, dict):
+        if "math" in value:
+            return parse_math_relation(value["math"], symbols).to_sympy(symbols)
         if "expression" in value:
             return parse_relation(str(value["expression"]), symbols)
         if "symbol" in value and "operator" in value and "value" in value:
@@ -245,6 +258,8 @@ def _value(tree: dict, symbols: Mapping[str, sp.Symbol]) -> sp.Expr:
         return -args[0]
     if op == "pos":
         return args[0]
+    if op == "sqrt":
+        return sp.sqrt(args[0])
     x, y = args
     return {
         "add": lambda: x + y,
@@ -260,6 +275,56 @@ def _sum_formula(terms: list[dict]) -> dict:
         "latex": "+".join(tree_latex(t) for t in terms),
         "nodeIds": [t["id"] for t in terms],
     }
+
+
+def homogeneous_degree(tree):
+    """Conservative syntactic degree; mixed sums and unsupported nodes stay unknown."""
+    op = tree["op"]
+    if op == "integer":
+        return 0
+    if op == "symbol":
+        return 1
+    children = tree.get("children", [])
+    ds = [homogeneous_degree(c) for c in children]
+    if any(d is None for d in ds):
+        return None
+    if op in ("neg", "pos"):
+        return ds[0]
+    if op in ("add", "sub"):
+        return ds[0] if ds[0] == ds[1] else None
+    if op == "mul":
+        return ds[0] + ds[1]
+    if op == "div":
+        return ds[0] - ds[1]
+    if op == "pow" and children[1]["op"] == "integer":
+        return ds[0] * int(children[1]["text"])
+    return None
+
+
+def homogenizing_transition(before, after, using, conditions, symbols):
+    degree = homogeneous_degree(before.tree)
+    if degree in (None, 0) or after.tree["op"] != "mul":
+        return None
+    matches = []
+    for original, factor in (after.tree["children"], after.tree["children"][::-1]):
+        if _signature(original) != _signature(before.tree):
+            continue
+        if homogeneous_degree(factor) != -degree:
+            continue
+        value = _value(factor, symbols)
+        for i in using:
+            c = conditions[i]
+            if isinstance(c, sp.Equality) and (
+                (c.rhs == 1 and sp.cancel(value - c.lhs) == 0)
+                or (c.lhs == 1 and sp.cancel(value - c.rhs) == 0)
+            ):
+                matches.append({
+                    "originalDegree": degree, "conditionDegree": -degree,
+                    "resultDegree": 0, "conditionCardId": f"c{i}",
+                    "factor": {"latex": tree_latex(factor), "nodeId": factor["id"]},
+                    "originalNodeId": original["id"],
+                })
+    return matches[0] if len(matches) == 1 else None
 
 
 def classify(
@@ -366,6 +431,9 @@ def classify(
                 for i in using
                 if isinstance(conditions[i], sp.Equality)
             ]
+    homogenization = homogenizing_transition(before, after, using, conditions, symbols)
+    if homogenization is not None:
+        result["homogenization"] = homogenization
     if result["operation"] == "equivalent_rewrite":
         result["classificationGap"] = (
             "已验证等价，但没有唯一匹配的专门变形结构；使用普通等式链。"
@@ -378,22 +446,76 @@ def verify_chain(
     raw_conditions: list[Any],
     steps: list[dict],
     symbols: Mapping[str, sp.Symbol],
+    *,
+    input_source: str | None = None,
 ) -> dict:
-    conditions = [relation_from_bound(c, symbols) for c in raw_conditions]
-    if len(conditions) > 16:
+    if len(raw_conditions) > 16:
         raise RewriteError("proof_limit", "本轮最多绑定 16 个条件")
-    for node in sp.preorder_traversal(expression):
-        if (
-            node.is_Pow
-            and node.exp.is_negative
-            and not _domain_nonzero(node.base, conditions)
-        ):
-            raise RewriteError("domain_unverified", "尚不能验证绑定输入的分母非零")
+    # Proof premises retain their original AST. Lowering them through SymPy
+    # first could cancel a denominator or apply caller-owned Symbol assumptions.
+    neutral_symbols = {name: sp.Symbol(name, real=True) for name in symbols}
+    premises = {}
+    try:
+        for i, value in enumerate(raw_conditions):
+            if isinstance(value, str):
+                source = value
+            elif isinstance(value, dict) and ("math" in value or "expression" in value):
+                source = str(value.get("math", value.get("expression")))
+            elif (
+                isinstance(value, dict)
+                and {"symbol", "operator", "value"} <= value.keys()
+            ):
+                source = f"{value['symbol']}{value['operator']}{value['value']}"
+            else:
+                relation = relation_from_bound(value, neutral_symbols)
+                source = f"({relation.lhs}){('=' if relation.rel_op == '==' else relation.rel_op)}({relation.rhs})"
+            premises[f"c{i}"] = parse_math_relation(source, symbols)
+    except MathParseError as exc:
+        raise _parser_error(exc) from exc
+    conditions = [p.to_sympy(neutral_symbols) for p in premises.values()]
+    budget = _Budget(ProofContext(symbols).limits)
+    certificates = []
+
+    def check(candidate, selected, kind="relation"):
+        selected_premises = {
+            key: p
+            for key, p in premises.items()
+            if p.ast.op != "=" or int(key[1:]) in selected
+        }
+        used = names(from_node(candidate.ast))
+        for premise in selected_premises.values():
+            used |= names(from_node(premise.ast))
+        context = ProofContext(
+            {name: symbols[name] for name in sorted(used)}, selected_premises
+        )
+        request = {"kind": kind, "candidate": _document(candidate)}
+        proof = _run_request(context, request, budget=budget).proof
+        # Replay has its own validation budget, not a second construction charge.
+        _replay(proof, context)
+        certificates.append(proof)
+
+    try:
+        check(
+            parse_math_expression(input_source or str(expression), symbols),
+            range(len(conditions)),
+            "domain",
+        )
+    except (ProofFailure, MathParseError) as exc:
+        raise RewriteError(exc.code, str(exc)) from exc
     parsed = []
     transitions = []
     for i, row in enumerate(steps):
         try:
-            current = parse_expression(row["math"], symbols)
+            ast = parse_math_expression(row["math"], symbols)
+            check(ast, range(len(conditions)), "domain")
+            if any(n.op == "sqrt" and names(from_node(n)) for n in ast.ast.walk()):
+                # Retain the caller's Symbol identities without letting their
+                # extra assumptions simplify a symbolic principal root.
+                with sp.evaluate(False):
+                    value = ast.to_sympy(symbols)
+            else:
+                value = ast.to_sympy(symbols)
+            current = ParsedExpression(row["math"], _legacy_tree(ast.ast), value, ())
             if current.value.has(sp.zoo, sp.nan, sp.oo, -sp.oo):
                 raise RewriteError("undefined_expression", "表达式无定义")
             for den in current.denominators:
@@ -403,7 +525,7 @@ def verify_chain(
                     )
             selected = []
             for text in row.get("using", []):
-                relation = parse_relation(text, symbols)
+                relation = parse_math_relation(text, symbols).to_sympy(neutral_symbols)
                 if not isinstance(relation, sp.Equality):
                     raise RewriteError(
                         "unsupported_using_condition",
@@ -418,21 +540,47 @@ def verify_chain(
                     )
                 selected.append(matches[0])
             if i == 0:
-                if selected or sp.cancel(current.value - expression) != 0:
+                if selected:
                     raise RewriteError(
                         "input_mismatch", "链首必须对应输入表达式，且不能使用新条件"
                     )
+                try:
+                    check(
+                        parse_math_relation(
+                            f"({input_source or str(expression)})=({row['math']})",
+                            symbols,
+                        ),
+                        [],
+                    )
+                except ProofFailure as exc:
+                    if exc.code == "proof_missing":
+                        raise RewriteError(
+                            "input_mismatch", "链首必须对应输入表达式"
+                        ) from exc
+                    raise
             else:
-                if not verify_equivalence(
-                    parsed[-1].value, current.value, [conditions[j] for j in selected]
-                ):
-                    raise RewriteError("equivalence_unverified", "前后式等价验证未通过")
+                check(
+                    parse_math_relation(
+                        f"({parsed[-1].source})=({row['math']})", symbols
+                    ),
+                    selected,
+                )
                 transition = classify(
                     parsed[-1], current, selected, conditions, symbols
                 )
                 transition["id"] = f"t{i - 1}"
                 transitions.append(transition)
             parsed.append(current)
+        except MathParseError as exc:
+            try:
+                raise _parser_error(exc) from exc
+            except RewriteError as bridge:
+                error = RewriteError(bridge.code, bridge.message, i)
+                for field in ("source", "span", "path", "source_path"):
+                    setattr(error, field, getattr(bridge, field))
+                raise error from bridge
+        except ProofFailure as exc:
+            raise RewriteError(exc.code, str(exc), i) from exc
         except RewriteError as exc:
             error = RewriteError(exc.code, exc.message, i)
             for field in ("source", "span", "path", "source_path"):
@@ -458,6 +606,7 @@ def verify_chain(
         "source": formula(parsed[0]),
         "result": formula(parsed[-1]),
         "transitions": transitions,
+        "proofs": certificates,
         "conditionCards": [
             {"id": f"c{i}", "latex": sp.latex(c), "boundIndex": i}
             for i, c in enumerate(conditions)

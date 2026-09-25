@@ -15,7 +15,9 @@ sys.path.insert(0, str(SERVER))
 from run_basic_inequality_stage4a import RecordedClient
 from run_basic_inequality_stage4a import run as solve
 from shuxueshuo_server.solver.explanation import ExplanationSnapshotBuilder
-from shuxueshuo_server.solver.explanation.basic_inequality_teaching import lesson_key_point
+from shuxueshuo_server.solver.explanation.basic_inequality_teaching import (
+    lesson_key_point,
+)
 from shuxueshuo_server.solver.explanation.annotated_teaching import (
     AnnotatedTeachingPlanProjector,
 )
@@ -24,6 +26,7 @@ from shuxueshuo_server.solver.explanation.scope_lesson import (
     ScopeLessonAuthoringService,
 )
 from shuxueshuo_server.solver.runtime.config import SolverRuntimeConfig
+from shuxueshuo_server.solver.student_display import student_math_display
 from shuxueshuo_server.solver.visual import (
     VisualStepBuilder,
     VisualStepIRValidator,
@@ -35,19 +38,33 @@ def write(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2, default=str) + "\n")
 
 
-def build(*, output, mode="deterministic", content=None, rule_registry=None):
+def build(
+    *, output, mode="deterministic", content=None, rule_registry=None, case="q01"
+):
+    if case not in {"q01", "q03", "q07", "q08"}:
+        raise ValueError("page case outside admitted representative fixtures")
+    if rule_registry is None:
+        from shuxueshuo_server.solver.explanation.amgm_sequence_rule import (
+            sequence_rule_registry,
+        )
+
+        rule_registry = sequence_rule_registry()
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=False)
     started = perf_counter()
     result, runtime = solve(
         gold=SERVER
-        / "tests/solver/fixtures/math-notation-v1/basic-inequality/q01.json",
+        / f"tests/solver/fixtures/math-notation-v1/basic-inequality/{case}.json",
         problem_ir=SERVER
-        / "tests/solver/fixtures/basic-inequality-problem-ir/v1/q01/problem-ir.json",
+        / f"tests/solver/fixtures/basic-inequality-problem-ir/v1/{case}/problem-ir.json",
         output=output / "solver",
         mode="recorded",
-        plan=ROOT
-        / "internal/functional-plan-fixtures/basic-inequality-q01-stage4b.functional-plan.json",
+        plan=(
+            ROOT
+            / "internal/functional-plan-fixtures/basic-inequality-q01-stage4b.functional-plan.json"
+            if case == "q01"
+            else SERVER / f"tests/solver/fixtures/basic-inequality-stage4/{case}.json"
+        ),
     )
     if result.status != "ok":
         raise ValueError("recorded solve failed; see solver/result.json")
@@ -84,6 +101,7 @@ def build(*, output, mode="deterministic", content=None, rule_registry=None):
     write(output / "scope-content.json", built.validation.accepted_content)
     if built.generation:
         g = built.generation
+        write(output / "lesson-projection-audit.json", g.projection_audit)
         write(
             output / "lesson-request.json",
             {"messages": g.prompt.messages, "output_schema": g.output_schema},
@@ -120,12 +138,19 @@ def build(*, output, mode="deterministic", content=None, rule_registry=None):
     data = compiled.lesson_data
     data["meta"].update(
         id=snapshot.problem_id,
-        pageTitle="基本不等式 · 定和求积",
+        pageTitle="基本不等式 · "
+        + (
+            "求最大值"
+            if "maximum" in next(iter(snapshot.answers.values()))
+            else "求最小值"
+        ),
         generatedFromSolver=True,
         outputPath="site/generated/inequality.html",
     )
     data["problem"]["answerText"] = "；".join(
-        str(v) for values in snapshot.answers.values() for v in values.values()
+        student_math_display(v)
+        for values in snapshot.answers.values()
+        for v in values.values()
     )
     data["problem"]["source"] = ""
     data["problem"]["lines"] = [
@@ -156,6 +181,8 @@ def build(*, output, mode="deterministic", content=None, rule_registry=None):
             "visual_schema": visual.schema_version,
         },
     )
+    from shuxueshuo_server.solver.explanation.math_typography import typeset_lesson_data
+    data = typeset_lesson_data(data)
     write(output / "lesson-data.json", data)
     write(output / "geometry-spec.json", compiled.geometry_spec)
     write(output / "step-decorations.json", compiled.step_decorations)
@@ -195,10 +222,13 @@ def main():
         default="deterministic",
     )
     parser.add_argument("--content", type=Path)
+    parser.add_argument("--case", choices=["q01", "q03", "q07", "q08"], default="q01")
     args = parser.parse_args()
     print(
         json.dumps(
-            build(output=args.output, mode=args.mode, content=args.content),
+            build(
+                output=args.output, mode=args.mode, content=args.content, case=args.case
+            ),
             ensure_ascii=False,
         )
     )

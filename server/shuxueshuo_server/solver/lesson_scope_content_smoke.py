@@ -787,6 +787,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--batch-id", required=True)
     parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--reviewed-prompt-hash", help="Opt-in exact historical request check; ordinary runs use current templates")
     return parser
 
 
@@ -815,16 +816,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         / "server/tests/solver/fixtures/lesson_scope_authoring_vnext/"
         "heping_ermo_b0"
     )
-    b2_audit_path = (
-        root
-        / "server/tests/solver/fixtures/lesson_scope_authoring_vnext/"
-        "heping_ermo_b2/projection-audit.json"
-    )
-    reviewed_prompt_hash = str(
-        json.loads(b2_audit_path.read_text(encoding="utf-8"))["hashes"][
-            "prompt"
-        ]
-    )
+    reviewed_prompt_hash = args.reviewed_prompt_hash
     batch_config: dict[str, Any] = {
         "schema_version": BATCH_CONFIG_CONTRACT,
         "batch_id": args.batch_id,

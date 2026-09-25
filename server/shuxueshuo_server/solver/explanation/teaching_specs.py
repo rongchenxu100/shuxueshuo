@@ -2023,7 +2023,12 @@ def _bind_unit(
         {
             match.group(1)
             for value in all_text
-            for match in re.finditer(r"\{([^{}]+)\}", value)
+            # Bound inline math contains LaTeX grouping, e.g. \\frac{x}{y}.
+            # Those braces are not unresolved prose template placeholders.
+            for match in re.finditer(
+                r"\{([^{}]+)\}",
+                re.sub(r"\\\(.*?\\\)|\\\[.*?\\\]", "", value, flags=re.DOTALL),
+            )
         }
     )
     if unresolved:
@@ -2083,7 +2088,9 @@ def _bound_derive(
     if isinstance(dynamic, Sequence) and not isinstance(dynamic, str | bytes):
         result: list[tuple[str, str]] = []
         for raw in dynamic:
-            text = format_teaching_template(str(raw), roles).strip()
+            # Dynamic rows have already been bound by code. In particular,
+            # LaTeX braces are mathematical content, not template fields.
+            text = str(raw).strip()
             marker = next(
                 (item for item in ("∵", "∴", "作", "设", "计算") if text.startswith(item)),
                 "计算",

@@ -69,6 +69,55 @@ def test_descriptive_title_is_not_rewritten():
     assert _section_titles_for_lesson(lesson, {}) == {"ii": title}
 
 
+def test_teaching_section_label_preserves_subquestion_identity():
+    step = SimpleNamespace(id="step", scope_id="ii", title="计算", nav_title="计算",
+                           derive=[], box=[], section_label="多次应用基本不等式")
+    lesson = SimpleNamespace(problem_id="p", steps=[step], sections=[SimpleNamespace(
+        scope_id="ii", title="第（Ⅱ）问：求最小值", steps=[step.id])])
+    snapshot = SimpleNamespace(problem={"scopes": [
+        {"scope_id": "ii", "parent": "problem", "label": "第（Ⅱ）问：求最小值"},
+    ], "original_text": ["（Ⅱ）求最小值。"]})
+    result = lesson_data_from_lesson_ir(lesson, {}, snapshot=snapshot)
+    assert result["steps"][0]["section"] == "第（Ⅱ）问：求最小值"
+    assert step.section_label == "多次应用基本不等式"
+
+
+@pytest.mark.parametrize("route, expected", [
+    ("直接应用基本不等式", "直接应用基本不等式"), ("", "解题过程"),
+])
+def test_internal_branch_title_cannot_create_a_question(route, expected):
+    step = SimpleNamespace(id="s", scope_id="branch", title="计算", nav_title="计算",
+                           derive=[], box=[], section_label=route)
+    lesson = SimpleNamespace(problem_id="p", steps=[step], sections=[SimpleNamespace(
+        scope_id="branch", title="第（Ⅰ）问", steps=[step.id])])
+    snapshot = SimpleNamespace(problem={"original_text": ["求原式最小值。"], "scopes": [
+        {"scope_id": "problem", "parent": None, "label": "题目"},
+        {"scope_id": "branch", "parent": "problem", "label": "第（Ⅰ）问"},
+    ]})
+    result = lesson_data_from_lesson_ir(lesson, {}, snapshot=snapshot)
+    assert result["steps"][0]["section"] == expected
+    assert result["ui"]["groupTitles"][expected] == expected
+
+
+def test_shared_prelude_and_nested_runtime_branch_use_source_question_ownership():
+    scopes = [
+        {"scope_id": "problem", "parent": None, "label": "题目"},
+        {"scope_id": "first", "parent": "problem", "label": "（Ⅰ）"},
+        {"scope_id": "second", "parent": "problem", "label": "（Ⅱ）"},
+        {"scope_id": "branch", "parent": "second", "label": "正根分支"},
+    ]
+    steps = [SimpleNamespace(id=s, scope_id=s, title="计算", nav_title="计算",
+                             derive=[], box=[], section_label="直接应用基本不等式")
+             for s in ("problem", "branch")]
+    lesson = SimpleNamespace(problem_id="p", steps=steps, sections=[SimpleNamespace(
+        scope_id=s.scope_id, title=s.scope_id, steps=[s.id]) for s in steps])
+    snapshot = SimpleNamespace(problem={"scopes": scopes, "original_text": [
+        "（Ⅰ）求最大值。", "（Ⅱ）求最小值。",
+    ]})
+    result = lesson_data_from_lesson_ir(lesson, {}, snapshot=snapshot)
+    assert [s["section"] for s in result["steps"]] == ["公共推导", "第（Ⅱ）问：求最小值"]
+
+
 def test_missing_child_text_does_not_steal_parent_goal():
     assert _question_target_for_section(
         title="第（Ⅱ）①问", scope_id="ii_1",
@@ -82,3 +131,36 @@ def test_compound_goal_is_not_truncated_at_last_request():
             "（Ⅲ）求点 P，再求函数解析式。",
         ],
     ) == "求点 P，再求函数解析式"
+
+
+@pytest.mark.parametrize("text", [
+    "1. 求b的值；2. 求c的值",
+    "1、求b的值；2、求c的值",
+    "⑴求b的值；⑵求c的值",
+    "（1）求b的值；2. 求c的值",
+    "求b和c的值。",
+    "",
+])
+def test_numbered_scope_labels_preserve_questions_without_source_marker_match(text):
+    scopes = [
+        {"scope_id": "problem", "parent": None, "label": "题目"},
+        {"scope_id": "one", "parent": "problem", "label": "第（1）问"},
+        {"scope_id": "two", "parent": "problem", "label": "第（2）问"},
+        {"scope_id": "positive", "parent": "two", "label": "正根分支"},
+    ]
+    steps = [SimpleNamespace(
+        id=s, scope_id=s, title="计算", nav_title="求值", derive=[], box=[],
+        section_label="直接应用基本不等式",
+    ) for s in ("problem", "one", "two", "positive")]
+    lesson = SimpleNamespace(problem_id="p", steps=steps, sections=[
+        SimpleNamespace(scope_id=s.scope_id, title=s.scope_id, steps=[s.id])
+        for s in steps
+    ])
+    snapshot = SimpleNamespace(problem={"scopes": scopes, "original_text": [text]})
+    result = lesson_data_from_lesson_ir(lesson, {}, snapshot=snapshot)
+    titles = [s["section"] for s in result["steps"]]
+    assert titles[0] == "公共推导"
+    assert titles[1].startswith("第（1）问：")
+    assert titles[2].startswith("第（2）问：")
+    assert titles[3] == titles[2]
+    assert all(result["ui"]["groupTitles"][title] == title for title in titles)

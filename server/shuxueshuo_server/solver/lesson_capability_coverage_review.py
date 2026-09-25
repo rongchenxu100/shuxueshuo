@@ -530,6 +530,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--case", default="all")
     parser.add_argument("--batch-id", default=DEFAULT_BATCH_ID)
     parser.add_argument("--output-root", default=DEFAULT_OUTPUT_ROOT)
+    parser.add_argument("--fixture-dir", help="Refresh only the four machine baselines; historical human review is never rewritten")
     return parser
 
 
@@ -555,6 +556,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     output_dir = _resolve_repo_path(root, args.output_root) / args.batch_id
     write_capability_coverage_review(artifacts, output_dir=output_dir)
+    if args.fixture_dir:
+        fixture_dir = _resolve_repo_path(root, args.fixture_dir)
+        fixture_dir.mkdir(parents=True, exist_ok=True)
+        for name, payload in capability_coverage_fixture_payloads(artifacts).items():
+            (fixture_dir / name).write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({
         "output_dir": str(output_dir),
         "review_html": str(output_dir / "review.html"),

@@ -58,6 +58,7 @@ class LessonStep:
     derive: tuple[tuple[str, str], ...]
     box: tuple[str, ...]
     visuals: tuple[dict[str, Any], ...] = ()
+    section_label: str = ""
 
     @property
     def id(self) -> str:
@@ -74,6 +75,7 @@ class LessonStep:
     def to_payload(self) -> dict[str, Any]:
         return {
             **({"visuals": list(self.visuals)} if self.visuals else {}),
+            **({"section_label": self.section_label} if self.section_label else {}),
             "lesson_step_id": self.lesson_step_id,
             "source_step_ids": list(self.source_step_ids),
             "capability_ids": list(self.capability_ids),
@@ -125,6 +127,10 @@ class OwnedLessonStep:
     @property
     def visuals(self):
         return self.step.visuals
+
+    @property
+    def section_label(self):
+        return self.step.section_label
 
     @property
     def id(self) -> str:
@@ -356,7 +362,13 @@ class RecursiveLessonIRAssembler:
                         f"lesson_step_id_duplicated: {lesson_step_id}"
                     )
                 used_ids.add(lesson_step_id)
+                section_labels = {
+                    records[p].get("section_label", "") for p in row.material_positions
+                }
+                if len(section_labels) != 1:
+                    raise LessonIRValidationError("lesson_section_label_conflict")
                 step = LessonStep(
+                    section_label=section_labels.pop(),
                     lesson_step_id=lesson_step_id,
                     source_step_ids=tuple(row.source_step_ids),
                     capability_ids=tuple(row.capability_ids),
@@ -581,6 +593,7 @@ def _step_from_payload(raw: Any, *, path: str) -> LessonStep:
         raw,
         {
             *({"visuals"} if "visuals" in raw else set()),
+            *({"section_label"} if "section_label" in raw else set()),
             "lesson_step_id",
             "source_step_ids",
             "capability_ids",
@@ -606,6 +619,7 @@ def _step_from_payload(raw: Any, *, path: str) -> LessonStep:
             )
         )
     return LessonStep(
+        section_label=_nonempty_string(raw["section_label"], f"{path}.section_label") if "section_label" in raw else "",
         visuals=tuple(raw.get("visuals", ())),
         lesson_step_id=_nonempty_string(raw["lesson_step_id"], f"{path}.lesson_step_id"),
         source_step_ids=_string_tuple(raw["source_step_ids"], f"{path}.source_step_ids"),
@@ -736,7 +750,9 @@ def _validate_bound_row(
 
     expected_refs = tuple(str(item.get("teaching_step_ref") or "") for item in selected)
     expected_sources = _ordered_unique(
-        str(item.get("source_step_id") or "") for item in selected
+        str(source)
+        for item in selected
+        for source in item.get("source_step_ids", [item.get("source_step_id") or ""])
     )
     expected_capabilities = _ordered_unique(
         str(item.get("capability_id") or "") for item in selected

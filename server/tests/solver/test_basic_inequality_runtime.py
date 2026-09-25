@@ -163,7 +163,8 @@ def test_certificates_replay_and_public_bound_contains_no_runtime_identity():
     for proof in bound["proofs"]:
         assert replay_proof(proof, ctx).status == "proved"
     public = public_bound(bound)
-    assert "fact:" not in json.dumps(public)
+    assert "fact:" not in json.dumps({k: v for k, v in public.items() if k != "certificate_bundle"})
+    assert "certificate_bundle" in public  # v2 carries backend replay evidence; prompt projection strips it
     value, trace = close_bound(t, public, steps()[1]["parameters"]["steps"])
     assert value == 1
     assert replay_proof(trace["witness_proof"], ctx).status == "proved"
@@ -321,7 +322,7 @@ def test_default_registry_stays_closed_and_authoring_catalog_stays_inert():
         for c in BASIC_INEQUALITY_FAMILY.capability_contracts
     )
     family = STAGE4A_FAMILY_REGISTRY.match(problem_from_canonical_input(source()))
-    assert family.method_ids == ("apply_two_term_amgm", "close_equality_and_restore")
+    assert family.method_ids == ("organize_expressions", "apply_two_term_amgm", "close_equality_and_restore")
 
 
 def test_catalog_exposes_only_verified_stage4a_methods():

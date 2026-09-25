@@ -307,7 +307,9 @@ def test_final_prompt_is_compact_shared_and_contains_student_safe_plan_once(
     assert "让学生清楚每一步为什么成立、得到什么以及如何衔接下一步" in prompt.system
     assert "只能使用当前 materials 的 derive、calculations 和 conclusions 中已经明确给出的计算" in prompt.system
     assert "不得自行新增代入、化简、方程、坐标计算或数值运算" in prompt.system
-    assert "你不需要返回 conclusions 或 box" in prompt.system
+    assert "禁止返回 conclusions 或 box" in prompt.system
+    assert "source_steps、title、nav_title、goal、derive 五个字段" in prompt.system
+    assert "JSON 字符串转义示例" not in prompt.system
     assert "root_scope 仅按真实父子关系递归展示上下文" in prompt.system
     assert "只按同名 scope_ref/goal_ref 填写正文，不要重建 children" in prompt.system
     assert "child Scope 或 sibling Scope 的结果绝不能提前写回" in prompt.system
@@ -322,7 +324,8 @@ def test_final_prompt_is_compact_shared_and_contains_student_safe_plan_once(
         "mechanism": "student_cognitive_action_boundary",
     }
     assert audit["llm_invoked"] is False
-    assert audit["prompt_chars"]["total"] < 14_000
+    # Shared protocol now includes explicit field and JSON escaping guidance.
+    assert audit["prompt_chars"]["total"] < 16_000
     assert audit["independent_step_refs"] == {
         "goal:i_2.E": ["s1", "s2", "s3"],
         "goal:ii.E": ["s2", "s3", "s7"],

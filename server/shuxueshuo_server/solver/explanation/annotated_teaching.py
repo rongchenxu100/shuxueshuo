@@ -282,6 +282,7 @@ class AnnotatedTeachingPlan:
 class AnnotatedTeachingPrompt:
     system: str
     user: str
+    assets: tuple[Mapping[str, str], ...] = ()
 
     @property
     def messages(self) -> list[dict[str, str]]:
@@ -522,6 +523,7 @@ class AnnotatedTeachingPlanProjector:
                             requires_independent
                         ),
                         **_unit_visual_authority(source, unit_key),
+                        **_inequality_authority(source, snapshot),
                         "variant_key": projected_materials.variant_key,
                         "variant_evidence_match": _json_clone(
                             projected_materials.evidence_match
@@ -593,6 +595,7 @@ class AnnotatedTeachingPlanProjector:
         )
         authority = {
             "schema_version": TEACHING_AUTHORITY_CONTRACT,
+            "family_id": snapshot.family_id,
             "canonical_plan_hash": snapshot.canonical_plan_hash,
             "verified_execution_hash": snapshot.verified_execution_hash,
             "snapshot_hash": explanation_snapshot_content_hash(snapshot),
@@ -918,44 +921,14 @@ def render_annotated_teaching_prompt(
             "$.authority",
             "authority is not bound to the rendered Annotated Teaching Plan",
         )
-    independent_materials = _independent_material_prompt_section(authority)
-    system = """你是中学数学讲解编排器。
-你的目标是把已经验证的解题材料整理成学生容易理解的完整讲解。
-学生步骤的边界应对应一次需要理解的新数学思考，而不是一次代码调用。逐项审视同一 Scope/Goal 内相邻的 materials，判断学生在其间是否需要转换思路。
-若后续 material 引入新的解题策略、定理、几何构造、证明、候选分支判断或题目单独要求的结果，应另起一步。若后续 material 只是把刚得到的结论代入已有表达式、坐标或对象，或完成同一推理下的直接计算、化简和结果展开，不需要新的选择或理由，则应与产生该结论的 material 合为一个学生步骤。
-输入输出依赖可以帮助识别同一认知动作，但“相邻”“较短”或“存在依赖”本身都不是合并理由。合并的目的是减少没有新教学意义的步骤切换，而不是压缩数学内容；合并后必须完整保留关键依据、计算和每个必要结果。
-列为“必须独立”的 step_ref 必须各自单独输出：任何包含该 step_ref 的 source_steps 数组都必须恰好只有这一个元素。Prompt 同时会列出可考虑合并的连续区间；它们只是允许范围，仍须按学生是否需要转换思路来判断，不要求机械合并。
-完善并润色 title、nav_title、goal 和 derive，让学生清楚每一步为什么成立、得到什么以及如何衔接下一步。数学语言为主，只补充少量必要的自然语言。
-derive 可以改写已有推导的措辞、合并重复表达，并补充不产生新数学事实的自然语言衔接；只能使用当前 materials 的 derive、calculations 和 conclusions 中已经明确给出的计算，不得自行新增代入、化简、方程、坐标计算或数值运算。
-输入中的数学事实、计算结果、conclusions 和最终 answers 已经由解题器验证；不要重新解题或修改它们。结论由代码写入课程，你不需要返回 conclusions 或 box。
-必须在输出 Schema 固定的 Scope/Goal 中返回完整教学正文，不能移动材料所属容器。
-输入的 root_scope 仅按真实父子关系递归展示上下文；输出 Schema 已由代码把本轮需要填写的 Scope 展开为固定顶层 key。只按同名 scope_ref/goal_ref 填写正文，不要重建 children；未出现在输出 Schema 中的上下文 Scope 不返回。
-每个 Scope/Goal 只能改写自己 materials 中已有的数学内容。父 Scope 的结果可以作为 child Scope 的既有上下文；child Scope 或 sibling Scope 的结果绝不能提前写回父 Scope或其他容器。
-每份 material 都有当前 Scope/Goal 内的局部 step_ref。每个输出步骤用 source_steps 列出它合并的 step_ref；只能合并同一容器内相邻步骤，编号必须保持原顺序，所有编号必须恰好使用一次。
-derive 的每一行必须是一个字符串，并以“作 ”“设 ”“∵ ”“∴ ”或“计算 ”开头。
-所有数学内容必须写成学生在试卷上使用的形式：根式写“√”，分段结果用中文分情况叙述，等式与不等式使用数学符号。严禁输出 Eq(...)、sqrt(...)、Piecewise(...)、**、True、False 等计算机代数内部字符串。
-只能使用输入已经给出的对象、数值、关系和结论，不得编造数学事实或内部标识。
-返回严格符合给定 JSON Schema 的单个 JSON 对象，不要输出 Markdown、HTML 或解释性前言。"""
+    boundaries = _independent_material_prompt_data(authority)
+    from .lesson_prompt import render_lesson_prompt
+
     llm_plan_payload = llm_facing_annotated_plan_payload(plan)
-    sections = [
-            "## 输出 JSON Schema\n\n"
-            + _compact_json(schema),
-            "## 全题型共享示例\n\n"
-            "示例的学生认知分析：s1 需要理解的新思考是根据周长建立方程并求参数；"
-            "s2、s3 只是把刚得到的参数代入两个已有对象，没有引入新策略、定理或判断。"
-            "因此三份材料属于同一次“求参数并应用”的认知动作，应在不省略计算和结果的前提下合为一步。"
-            "如果后续材料需要新的几何构造、证明或分支选择，就应另起一步。"
-            "示例不是当前题条件。\n\n"
-            + _compact_json(_shared_scope_lesson_few_shot()),
-    ]
-    if independent_materials:
-        sections.append(independent_materials)
-    sections.append(
-        "## Annotated Teaching Plan\n\n"
-        + _compact_json(llm_plan_payload)
+    system, user, assets = render_lesson_prompt(
+        llm_plan_payload, authority, output_schema=schema, boundaries=boundaries,
     )
-    user = "\n\n".join(sections)
-    prompt = AnnotatedTeachingPrompt(system=system, user=user)
+    prompt = AnnotatedTeachingPrompt(system=system, user=user, assets=assets)
     _assert_llm_safe(
         {"system": prompt.system, "user": prompt.user},
         path="$.prompt",
@@ -963,9 +936,9 @@ derive 的每一行必须是一个字符串，并以“作 ”“设 ”“∵ �
     return prompt
 
 
-def _independent_material_prompt_section(
+def _independent_material_prompt_data(
     authority: Mapping[str, Any],
-) -> str:
+) -> dict[str, list[dict[str, Any]]]:
     raw = authority.get("independent_step_refs")
     containers = authority.get("containers")
     if not isinstance(raw, Mapping) or not isinstance(containers, Mapping):
@@ -974,8 +947,8 @@ def _independent_material_prompt_section(
             "$.authority.independent_step_refs",
             "independent material authority must be an object",
         )
-    independent_rows: list[str] = []
-    merge_candidate_rows: list[str] = []
+    independent_rows: list[dict[str, Any]] = []
+    merge_candidate_rows: list[dict[str, Any]] = []
     for container_ref, records in containers.items():
         if not isinstance(records, Sequence) or isinstance(records, str | bytes):
             raise AnnotatedTeachingProjectionError(
@@ -1011,12 +984,9 @@ def _independent_material_prompt_section(
         owner_kind, _, owner_ref = str(container_ref).partition(":")
         label = "Scope" if owner_kind == "scope" else "Goal"
         if observed_refs:
-            singleton_arrays = "、".join(
-                f'["{step_ref}"]' for step_ref in observed_refs
-            )
-            independent_rows.append(
-                f"- {label} {owner_ref}：必须分别输出 {singleton_arrays}"
-            )
+            independent_rows.append({
+                "owner_kind": label, "owner_ref": owner_ref, "refs": observed_refs,
+            })
 
         independent = set(observed_refs)
         mergeable_runs: list[list[str]] = []
@@ -1034,13 +1004,9 @@ def _independent_material_prompt_section(
         if len(current_run) >= 2:
             mergeable_runs.append(current_run)
         if mergeable_runs:
-            rendered_runs = "、".join(
-                "[" + ",".join(f'\"{item}\"' for item in run) + "]"
-                for run in mergeable_runs
-            )
-            merge_candidate_rows.append(
-                f"- {label} {owner_ref}：{rendered_runs}"
-            )
+            merge_candidate_rows.append({
+                "owner_kind": label, "owner_ref": owner_ref, "runs": mergeable_runs,
+            })
     unknown = sorted(set(raw) - set(containers))
     if unknown:
         raise AnnotatedTeachingProjectionError(
@@ -1048,30 +1014,7 @@ def _independent_material_prompt_section(
             "$.authority.independent_step_refs",
             f"unknown material containers: {unknown}",
         )
-    if not independent_rows and not merge_candidate_rows:
-        return ""
-    sections: list[str] = []
-    if independent_rows:
-        sections.extend(
-            (
-                "## 必须独立的教学材料",
-                "",
-                "以下每个 step_ref 都必须作为 source_steps 的唯一元素单独成步；严禁把同一行中的两个 ref 放入同一个数组：",
-                *independent_rows,
-            )
-        )
-    if merge_candidate_rows:
-        if sections:
-            sections.append("")
-        sections.extend(
-            (
-                "## 可考虑合并的连续材料",
-                "",
-                "以下是代码按独立边界计算出的最大连续区间。只能在同一列出的区间内考虑合并；是否合并仍由学生是否需要转换思路决定：",
-                *merge_candidate_rows,
-            )
-        )
-    return "\n".join(sections)
+    return {"independent": independent_rows, "mergeable": merge_candidate_rows}
 
 
 def build_projection_audit(
@@ -1119,6 +1062,7 @@ def build_projection_audit(
             "output_schema": _stable_hash(output_schema),
             "prompt": _stable_hash(prompt.messages),
         },
+        "prompt_assets": list(prompt.assets),
         "prompt_chars": {
             "system": len(prompt.system),
             "user": len(prompt.user),
@@ -1519,10 +1463,11 @@ def _project_student_runtime_value(
 ) -> Any:
     projected = _json_clone(value)
     if runtime_type == "AmgmBound":
-        return {"target": student_math_display(value["target_math"]), "upper_bound": student_math_display(value["bound"]),
+        direction = value.get("direction", "<=")
+        return {"target": student_math_display(value["target_math"]), "bound": student_math_display(value["bound"]), "direction": direction,
                 "equality": student_math_display(value["equality"]), "derivation": [student_math_display(v["math"]) for v in value["steps"]]}
     if runtime_type == "extremum_target":
-        return {"target": student_math_display(value["target_math"]), "goal": "求最大值",
+        return {"target": student_math_display(value["target_math"]), "goal": "求最小值" if value.get("goal_kind") == "find_minimum" else "求最大值",
                 "conditions": [student_math_display(v["math"]) for v in value["source_conditions"]]}
     if runtime_type != "AngleEquality" or not student_object_aliases:
         return projected
@@ -1624,9 +1569,9 @@ def _project_student_runtime_display(
     label: str | None = None,
 ) -> str:
     if runtime_type == "AmgmBound":
-        return f'{value["target"]}≤{value["upper_bound"]}'
+        return value["target"] + ({">=": "≥", "<=": "≤"}[value["direction"]]) + value["bound"]
     if runtime_type == "extremum_target":
-        return "求" + value["target"] + "的最大值；条件：" + "，".join(value["conditions"])
+        return "求" + value["target"] + "的" + value["goal"].removeprefix("求") + "；条件：" + "，".join(value["conditions"])
     if runtime_type == "AngleEquality" and isinstance(value, Mapping):
         left = str(value.get("left_angle") or "")
         right = str(value.get("right_angle") or "")
@@ -2136,63 +2081,6 @@ def _lesson_step_array_schema(material_count: int) -> dict[str, Any]:
     }
 
 
-def _shared_scope_lesson_few_shot() -> dict[str, Any]:
-    return {
-        "input": {"materials": [
-            {
-                "step_ref": "s1",
-                "title": "由周长条件求参数 m",
-                "nav_title": "求参数 m",
-                "goal": "由长方形周长建立方程并求出参数。",
-                "derive": [
-                    "∵ 长方形的长为 m＋2，宽为 m－1，周长为 18",
-                    "∴ 2[(m＋2)＋(m－1)]＝18",
-                    "计算 m＝4",
-                ],
-                "conclusions": ["m＝4"],
-            },
-            {
-                "step_ref": "s2",
-                "title": "代入参数求点 U",
-                "nav_title": "求点 U",
-                "goal": "把参数值代入已有含参点。",
-                "derive": ["∵ U(m,2m)，m＝4", "∴ U(4,8)"],
-                "conclusions": ["U(4,8)"],
-            },
-            {
-                "step_ref": "s3",
-                "title": "代入参数写出直线 l",
-                "nav_title": "写出直线 l",
-                "goal": "把同一参数值代入已有直线表达式。",
-                "derive": ["∵ l：y＝mx＋1，m＝4", "∴ l：y＝4x＋1"],
-                "conclusions": ["l：y＝4x＋1"],
-            },
-        ]},
-        "output": {
-            "example": {
-                "goals": {
-                    "example.result": [
-                        {
-                            "source_steps": ["s1", "s2", "s3"],
-                            "title": "求参数并代入相关对象",
-                            "nav_title": "求参并代入",
-                            "goal": "先求出公共参数，再连续代入已有的点和直线。",
-                            "derive": [
-                                "∵ 2[(m＋2)＋(m－1)]＝18",
-                                "计算 m＝4",
-                                "∵ U(m,2m)，m＝4",
-                                "∴ U(4,8)",
-                                "∵ l：y＝mx＋1，m＝4",
-                                "∴ l：y＝4x＋1",
-                            ],
-                        }
-                    ]
-                }
-            }
-        },
-    }
-
-
 def _iter_annotated_scopes(
     root: AnnotatedTeachingScope,
 ) -> Sequence[AnnotatedTeachingScope]:
@@ -2334,3 +2222,11 @@ def _unit_visual_authority(source, unit_key):
         return {}
     from .basic_inequality_teaching import visual_refs
     return {"visuals": visual_refs(source, unit.visuals)}
+
+
+def _inequality_authority(source, snapshot):
+    if source.capability_id not in {"apply_two_term_amgm", "close_equality_and_restore"}:
+        return {}
+    from .basic_inequality_teaching import evidence_for
+    _, evidence = evidence_for(source, snapshot)
+    return {"bound_direction": evidence["data"]["direction"]}

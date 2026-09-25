@@ -68,13 +68,16 @@ RULES = (
     "fixed_sum_product_bound",
     "relation_transport",
     "amgm_squared_bound",
+    "local_two_term_amgm",
+    "equality_bound_transport",
+    "two_term_product_bound",
 )
 RULESET_VERSION = "bounded-real-proof/v1"
 RULESET_HASH = digest(
     {
         "version": RULESET_VERSION,
         "rules": RULES,
-        "rule_revisions": {"two_term_amgm": 2},
+        "rule_revisions": {"two_term_amgm": 2, "transitive": 2, "polynomial": 2},
     }
 )
 
@@ -143,6 +146,9 @@ class Witness:
 class _Budget:
     def __init__(self, limits):
         self.limits, self.counts = limits, {}
+        # Exact algebra caches belong to this bounded request, including its
+        # successive verified rows. They never cache proof authorization.
+        self.gcd_cache, self.equation_divisors = {}, {}
         if not isinstance(limits, ProofLimits) or any(
             type(v) is not int or v <= 0 for v in asdict(limits).values()
         ):
@@ -636,10 +642,23 @@ class _Environment:
                 or self.premises.get(cert["premise_id"]) != g
             ):
                 raise ProofFailure("invalid_proof", "wrong source premise")
-        elif rule in {"two_term_amgm", "fixed_sum_product_bound"}:
+        elif rule in {
+            "two_term_amgm",
+            "fixed_sum_product_bound",
+            "two_term_product_bound",
+        }:
             required = self.amgm_requirements(rule, g, cert)
             if children != list(dict.fromkeys(required)):
                 raise ProofFailure("invalid_proof", "AM-GM premises missing")
+        elif rule == "local_two_term_amgm":
+            if set(cert) != {"u", "v", "rest", "scale"} or g[0] != ">=":
+                raise ProofFailure("invalid_proof", "invalid local AM-GM certificate")
+            u, v, rest, scale = (freeze(cert[k]) for k in ("u", "v", "rest", "scale"))
+            required = self.local_amgm_requirements(g, u, v, rest, scale)
+            if children != list(dict.fromkeys(required)):
+                raise ProofFailure(
+                    "invalid_proof", "local AM-GM guards or transport missing"
+                )
         elif rule == "constant":
             sign, expected = a.constant_certificate(_diff(g), supplied=cert)
             if children or cert != expected or not _holds(sign, g[0]):
@@ -651,12 +670,34 @@ class _Environment:
                 raise ProofFailure("invalid_proof", "invalid order chain")
             first, second = chain
             if (
-                first[1] != target[1]
-                or first[2] != second[1]
-                or second[2] != target[2]
+                a.difference(("=", first[1], target[1]))
+                or a.difference(("=", first[2], second[1]))
+                or a.difference(("=", second[2], target[2]))
                 or (target[0] == ">" and first[0] == second[0] == ">=")
             ):
                 raise ProofFailure("invalid_proof", "invalid order transitivity")
+        elif rule == "equality_bound_transport":
+            if len(children) != 2 or cert or not _ordered(g):
+                raise ProofFailure(
+                    "invalid_proof", "equality bound transport requires two premises"
+                )
+            equality, bound = children
+            target, ordered = _ordered(g), _ordered(bound)
+            if (
+                equality[0] != "="
+                or not ordered
+                or target[0] != ordered[0]
+                or a.difference(("=", target[2], ordered[2]))
+            ):
+                raise ProofFailure(
+                    "invalid_proof", "bound transport direction or endpoint changed"
+                )
+            if not any(
+                not a.difference(("=", target[1], left))
+                and not a.difference(("=", ordered[1], right))
+                for left, right in (equality[1:], equality[1:][::-1])
+            ):
+                raise ProofFailure("invalid_proof", "bound transport equality changed")
         elif rule == "weaken":
             if len(children) != 1:
                 raise ProofFailure("invalid_proof", "one signed premise required")
@@ -925,6 +966,21 @@ class _Environment:
     def amgm_requirements(self, rule, g, cert):
         """Two positive terms; fixed-sum corollary keeps the target separate."""
         a = self.arithmetic
+        if rule == "two_term_product_bound":
+            if cert or g[0] != "<=" or g[1][0] != "mul":
+                raise ProofFailure(
+                    "invalid_proof", "two-term product template mismatch"
+                )
+            u, v = g[1][1:]
+            total = expr("add", u, v)
+            expected = expr("div", expr("pow", total, number(2)), number(4))
+            if a.difference(("=", g[2], expected)):
+                raise ProofFailure("invalid_proof", "product mean-square mismatch")
+            return (
+                (">", u, ZERO),
+                (">", v, ZERO),
+                (">=", total, expr("mul", number(2), ("sqrt", expr("mul", u, v)))),
+            )
         if rule == "two_term_amgm":
             if cert or g[0] != ">=" or g[1][0] != "add":
                 raise ProofFailure("invalid_proof", "AM-GM template mismatch")
@@ -955,6 +1011,30 @@ class _Environment:
             (">", v, ZERO),
             (">", value, ZERO),
             (">=", total, ("mul", number(2), ("sqrt", ("mul", u, v)))),
+        )
+
+    def local_amgm_requirements(self, g, u, v, rest, scale):
+        total = expr("add", u, v)
+        lower = expr("mul", number(2), ("sqrt", expr("mul", u, v)))
+        reduced = expr("sub", expr("div", g[2], scale), rest)
+        numerator, denominator = self.arithmetic.rational(reduced)
+        roots = self.arithmetic.roots([reduced])
+        normal = expr(
+            "div",
+            self.arithmetic.expression(numerator, roots),
+            self.arithmetic.expression(denominator, roots),
+        )
+        return (
+            (">", scale, ZERO),
+            (">=", total, lower),
+            ("=", g[1], expr("mul", scale, expr("add", rest, total))),
+            ("=", reduced, normal),
+            (">=", normal, ZERO),
+            (
+                "=",
+                expr("pow", reduced, number(2)),
+                expr("mul", number(4), expr("mul", u, v)),
+            ),
         )
 
     def check_witness_node(self, node):
@@ -1067,6 +1147,40 @@ class _Search(_Environment):
         for key, premise in self.premises.items():
             if premise == g:
                 return self.add("given", g, certificate={"premise_id": key})
+        # Reordering a previously proved bound does not introduce a second
+        # AM-GM application. Preserve that dependency before template search.
+        for premise in self.premises.values():
+            if (
+                g[0] in {">", ">=", "<", "<="}
+                and premise[0] == g[0]
+                and a.difference(g)
+                and not a.difference(("=", premise[1], g[1]))
+                and not a.difference(("=", premise[2], g[2]))
+            ):
+                found = self.attempt(
+                    partial(self.raw, "weaken", g, [premise], {"ratio": "1"})
+                )
+                if found:
+                    return found
+        ordered_goal = _ordered(g)
+        if ordered_goal:
+            for equality in self.premises.values():
+                if equality[0] != "=":
+                    continue
+                for left, right in (equality[1:], equality[1:][::-1]):
+                    if a.difference(("=", ordered_goal[1], left)):
+                        continue
+                    for bound in self.premises.values():
+                        ordered = _ordered(bound)
+                        if (
+                            ordered
+                            and ordered[0] == ordered_goal[0]
+                            and not a.difference(("=", ordered[1], right))
+                            and not a.difference(("=", ordered[2], ordered_goal[2]))
+                        ):
+                            return self.raw(
+                                "equality_bound_transport", g, [equality, bound]
+                            )
         if g[0] == ">=" and g[1][0] == "add":
             try:
                 required = self.amgm_requirements("two_term_amgm", g, {})
@@ -1075,7 +1189,98 @@ class _Search(_Environment):
                     raise
             else:
                 return self.raw("two_term_amgm", g, required)
+        if (
+            g[0] == ">="
+            and g[2] != ZERO
+            and not any(p[0] == g[0] and p[2] == g[2] for p in self.premises.values())
+        ):
+            # Finite structural candidates only; the equality subproofs certify
+            # the unchanged context and any simplification of the radical.
+            from .local_amgm import candidates
+
+            matches = []
+            for u, v, rest, scale in candidates(g[1]):
+                reduced = expr("sub", expr("div", g[2], scale), rest)
+                square = (
+                    "=",
+                    expr("pow", reduced, number(2)),
+                    expr("mul", number(4), expr("mul", u, v)),
+                )
+                # A necessary algebraic check filters unrelated pairs before
+                # recursive sign search. This check never authorizes a bound.
+                if (
+                    a.difference(square)
+                    and not any(p[0] == "=" for p in self.premises.values())
+                    and not any(n[0] == "sqrt" for n in walk(square))
+                ):
+                    continue
+                found = self.attempt(partial(self.polynomial, square))
+                if not found:
+                    continue
+                required = self.local_amgm_requirements(g, u, v, rest, scale)
+                result = self.attempt(
+                    partial(
+                        self.raw,
+                        "local_two_term_amgm",
+                        g,
+                        required,
+                        {"u": u, "v": v, "rest": rest, "scale": scale},
+                    )
+                )
+                if result:
+                    matches.append(result)
+            if len(matches) > 1:
+                raise ProofFailure(
+                    "inequality_ambiguous",
+                    "multiple local AM-GM pairs; split the submitted relation",
+                )
+            if matches:
+                return matches[0]
+        ordered_target = _ordered(g)
+        if ordered_target:
+            for first in self.premises.values():
+                a1 = _ordered(first)
+                if not a1 or a.difference(("=", a1[1], ordered_target[1])):
+                    continue
+                for second in self.premises.values():
+                    a2 = _ordered(second)
+                    if (
+                        a2
+                        and not a.difference(("=", a1[2], a2[1]))
+                        and not a.difference(("=", a2[2], ordered_target[2]))
+                    ):
+                        if ordered_target[0] == ">" and a1[0] == a2[0] == ">=":
+                            continue
+                        return self.raw("transitive", g, [first, second])
         if g[0] == "<=":
+            for key, premise in self.premises.items():
+                if premise[0] != ">=" or premise[1][0] != "add":
+                    continue
+                try:
+                    required = self.amgm_requirements("two_term_amgm", premise, {})
+                except ProofFailure as exc:
+                    if exc.code != "invalid_proof":
+                        raise
+                    continue
+                u, v = premise[1][1:]
+                rhs = expr("div", expr("pow", expr("add", u, v), number(2)), number(4))
+                if not a.difference(
+                    ("=", g[1], expr("mul", u, v))
+                ) and not a.difference(("=", g[2], rhs)):
+                    return self.raw(
+                        "amgm_squared_bound",
+                        g,
+                        [premise, *required],
+                        {"amgm_premise": key},
+                    )
+        if g[0] == "<=":
+            try:
+                required = self.amgm_requirements("two_term_product_bound", g, {})
+            except ProofFailure as exc:
+                if exc.code != "invalid_proof":
+                    raise
+            else:
+                return self.raw("two_term_product_bound", g, required)
             for key in self.premises:
                 cert = {"sum_premise": key}
                 try:
@@ -1092,6 +1297,21 @@ class _Search(_Environment):
             if _holds(sign, g[0]):
                 return self.add("constant", g, certificate=certificate)
             raise ProofFailure("proof_missing", "exact constant comparison is false")
+        # Cheap positive arithmetic/domain guards precede polynomial transport.
+        # In particular an unrelated bound must not exhaust the budget while
+        # checking a+b != 0 from a>0,b>0.
+        if (
+            g[2] == ZERO
+            and g[0] in {">", ">=", "!="}
+            and g[1][0] in {"add", "mul", "div", "pow", "sqrt"}
+            and all(
+                (">", ("symbol", name), ZERO) in self.premises.values()
+                for name in names(g[1])
+            )
+        ):
+            found = self.attempt(partial(self.sign, g))
+            if found:
+                return found
         for premise in self.premises.values():
             ratio = a.proportional(_diff(g), _diff(premise))
             if (
@@ -1107,9 +1327,18 @@ class _Search(_Environment):
         # Move an already proved inequality through an equality. The equality
         # of differences is certified by bounded polynomial reduction, with
         # all original domains still guarded. Never trust a textual rewrite.
-        if g[0] != "=" and any(p[0] == "=" for p in self.premises.values()):
-            for premise in self.premises.values():
-                if premise[0] == "=":
+        if any(p[0] == "=" for p in self.premises.values()) and (
+            g[0] != "="
+            or (
+                not any(n[0] == "sqrt" for n in walk(g))
+                and any(
+                    p[0] == "=" and any(side[0] == "symbol" for side in p[1:])
+                    for p in self.premises.values()
+                )
+            )
+        ):
+            for premise in sorted(self.premises.values(), key=lambda p: p[2] != g[2]):
+                if (premise[0] == "=") != (g[0] == "="):
                     continue
                 for ratio in (Q(1), Q(-1)):
                     if (
@@ -1136,27 +1365,6 @@ class _Search(_Environment):
                             [premise, equality],
                             {"ratio": str(ratio)},
                         )
-        if g[0] == "<=":
-            for key, premise in self.premises.items():
-                if premise[0] != ">=" or premise[1][0] != "add":
-                    continue
-                try:
-                    required = self.amgm_requirements("two_term_amgm", premise, {})
-                except ProofFailure as exc:
-                    if exc.code != "invalid_proof":
-                        raise
-                    continue
-                u, v = premise[1][1:]
-                rhs = expr("div", expr("pow", expr("add", u, v), number(2)), number(4))
-                if not a.difference(
-                    ("=", g[1], expr("mul", u, v))
-                ) and not a.difference(("=", g[2], rhs)):
-                    return self.raw(
-                        "amgm_squared_bound",
-                        g,
-                        [premise, *required],
-                        {"amgm_premise": key},
-                    )
         ordered = _ordered(g)
         if ordered and all(e[0] in {"symbol", "rat"} for e in g[1:]):
             for premise in self.premises.values():
@@ -1198,7 +1406,13 @@ class _Search(_Environment):
                 and g[2] != ZERO
                 and g[1][0] != "pow"
                 and g[2][0] != "pow"
-                and any(n[0] == "sqrt" for n in walk(g))
+                and (
+                    any(n[0] == "sqrt" for n in walk(g))
+                    or any(
+                        p[0] == "=" and any(n[0] == "pow" for n in walk(p))
+                        for p in self.premises.values()
+                    )
+                )
             ):
                 required = [
                     (">=", g[1], ZERO),
@@ -1283,6 +1497,11 @@ class _Search(_Environment):
         equations = [
             (key, p) for key, p in self.premises.items() if p[0] == "=" and p != g
         ]
+        # Eliminate an explicitly isolated variable before general equations.
+        # This is a deterministic divisor order, not equation solving.
+        equations.sort(
+            key=lambda item: not any(side[0] == "symbol" for side in item[1][1:])
+        )
         # First try an identity independent of premises; unused equations must
         # not create unnecessary domain or provenance dependencies.
         for selected in ([], equations):
@@ -1692,7 +1911,7 @@ def prove_relation(candidate: ParsedMath, context: ProofContext) -> ProofResult:
         return _failure(exc)
 
 
-def verify_relation_sequence(relations, context, *, certificates=None):
+def verify_relation_sequence(relations, context, *, certificates=None, budget=None):
     """Prove/replay ordered relations; only verified predecessors become premises.
 
     A single construction/replay budget spans the whole sequence. Supplying
@@ -1703,7 +1922,7 @@ def verify_relation_sequence(relations, context, *, certificates=None):
         raise ProofFailure("proof_limit", "1–32 derivation relations required")
     if certificates is not None and len(certificates) != len(relations):
         raise ProofFailure("invalid_proof", "derivation certificate count mismatch")
-    budget = _Budget(context.limits)
+    budget = budget or _Budget(context.limits)
     premises = dict(context.premises)
     known = {from_node(p.ast) for p in premises.values()}
     proofs = []
@@ -1757,6 +1976,7 @@ def verify_witnesses(
     mode="all",
     selected_branch=None,
     require_parameterized=False,
+    _budget=None,
 ) -> ProofResult:
     """Verify every submitted branch, or one explicitly selected existential one.
 
@@ -1826,7 +2046,7 @@ def verify_witnesses(
             "selected_branch": selected_branch,
             "require_parameterized": require_parameterized,
         }
-        env = _Search(context, request)
+        env = _Search(context, request, budget=_budget)
         roots = []
         indices = range(len(witnesses)) if mode == "all" else [selected_branch]
         for i in indices:

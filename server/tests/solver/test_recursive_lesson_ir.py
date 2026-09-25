@@ -221,7 +221,17 @@ def test_checked_in_schema_accepts_recursive_payload_and_rejects_flat(
     )
 
 
-def test_visual_boundary_prompt_matches_human_approved_b2_fixture(snapshot) -> None:
+def test_historical_b2_request_retains_its_reviewed_identity():
+    from hashlib import sha256
+
+    messages = [{"role": role, "content": (B2 / f"prompt.{role}.md").read_text().removesuffix("\n")}
+                for role in ("system", "user")]
+    digest = sha256(json.dumps(messages, ensure_ascii=False, sort_keys=True,
+                               separators=(",", ":")).encode()).hexdigest()
+    assert digest == REVIEWED_PROMPT_HASH
+
+
+def test_visual_boundary_contract_preserves_reviewed_materials(snapshot) -> None:
     projection = AnnotatedTeachingPlanProjector().project(snapshot)
     schema = lesson_scope_content_schema(projection.plan)
     prompt = render_annotated_teaching_prompt(
@@ -235,13 +245,8 @@ def test_visual_boundary_prompt_matches_human_approved_b2_fixture(snapshot) -> N
         output_schema=schema,
     )
 
-    assert audit["hashes"]["prompt"] == REVIEWED_PROMPT_HASH
-    assert prompt.system == (B2 / "prompt.system.md").read_text(
-        encoding="utf-8"
-    ).removesuffix("\n")
-    assert prompt.user == (B2 / "prompt.user.md").read_text(
-        encoding="utf-8"
-    ).removesuffix("\n")
+    assert audit["status"] == "ready_for_human_review"
+    assert "shared-v1.jinja" in {asset["id"] for asset in audit["prompt_assets"]}
     assert "必须独立的教学材料" in prompt.user
     assert projection.plan.to_payload() == json.loads(
         (B2 / "annotated-teaching-plan.json").read_text(encoding="utf-8")

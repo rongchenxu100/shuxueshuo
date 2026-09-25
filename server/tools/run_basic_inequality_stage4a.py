@@ -42,7 +42,23 @@ class RecordedClient:
         return self.content
 
 
-def run(*, gold, problem_ir, output, mode, plan=None):
+class ReplayClient:
+    """Replay the original responses, including rejected attempts and repairs."""
+
+    def __init__(self, directory):
+        self.responses = iter(
+            p.read_text()
+            for p in sorted(Path(directory).glob("attempt-*.raw-response.txt"))
+        )
+
+    def complete(self, payload, **kwargs):
+        try:
+            return next(self.responses)
+        except StopIteration as exc:
+            raise ValueError("recorded Planner responses exhausted") from exc
+
+
+def run(*, gold, problem_ir, output, mode, plan=None, replay_from=None):
     # A new directory preserves all failed attempts and their evidence.
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
@@ -50,7 +66,11 @@ def run(*, gold, problem_ir, output, mode, plan=None):
     (output / "source-provenance.json").write_text(
         json.dumps(thaw_json(bundle.provenance), ensure_ascii=False, indent=2) + "\n"
     )
-    if mode == "deepseek":
+    if replay_from is not None:
+        if mode == "deepseek":
+            raise ValueError("response replay cannot make live calls")
+        client = ReplayClient(replay_from)
+    elif mode == "deepseek":
         config = SolverRuntimeConfig.from_sources(
             planner_mode="strategy",
             llm_provider="deepseek",

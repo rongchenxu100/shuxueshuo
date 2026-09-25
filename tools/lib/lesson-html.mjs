@@ -132,6 +132,8 @@ function renderMathExpression(value) {
       ["\\not=", "≠"],
       ["\\iff", "⇔"],
       ["\\ne", "≠"],
+      ["\\leq", "≤"],
+      ["\\geq", "≥"],
       ["\\le", "≤"],
       ["\\ge", "≥"],
       ["\\pm", "±"],
@@ -194,16 +196,17 @@ function renderMathExpression(value) {
 
 export function renderInlineMathText(value) {
   const source = String(value ?? "");
+  const prose = text => /\\(?:frac|sqrt|cdot|geq|leq)\b/.test(text) ? renderMathExpression(text) : esc(text);
   const pattern = /\\\((.*?)\\\)/g;
   let cursor = 0;
   let markup = "";
   let match;
   while ((match = pattern.exec(source)) !== null) {
-    markup += esc(source.slice(cursor, match.index));
+    markup += prose(source.slice(cursor, match.index));
     markup += `<span class="inline-math">${renderMathExpression(match[1])}</span>`;
     cursor = match.index + match[0].length;
   }
-  return markup + esc(source.slice(cursor));
+  return markup + prose(source.slice(cursor));
 }
 
 export function renderSetFigure(figure = {}) {

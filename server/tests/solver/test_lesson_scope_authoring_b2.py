@@ -121,7 +121,7 @@ def test_b2_prompt_and_audit_are_ready_for_manual_review(snapshot_and_artifacts)
     assert "## Annotated Teaching Plan" in artifacts.prompt.user
     assert "## 输出 JSON Schema" in artifacts.prompt.user
     assert "## 全题型共享示例" in artifacts.prompt.user
-    assert "你不需要返回 conclusions 或 box" in artifacts.prompt.system
+    assert "禁止返回 conclusions 或 box" in artifacts.prompt.system
     assert "不得自行新增代入、化简、方程、坐标计算或数值运算" in artifacts.prompt.system
     assert "学生步骤的边界应对应一次需要理解的新数学思考" in artifacts.prompt.system
     assert "而不是一次代码调用" in artifacts.prompt.system
@@ -160,7 +160,7 @@ def test_b2_review_html_is_self_contained_and_exposes_raw_prompt_tabs(
     assert "<link rel=" not in html
 
 
-def test_b2_plan_schema_and_human_approved_boundary_prompt_are_stable(
+def test_b2_plan_schema_and_independent_boundaries_are_stable(
     snapshot_and_artifacts,
 ) -> None:
     _snapshot, artifacts = snapshot_and_artifacts
@@ -176,17 +176,14 @@ def test_b2_plan_schema_and_human_approved_boundary_prompt_are_stable(
     assert artifacts.audit["hashes"]["output_schema"] == previous_audit["hashes"][
         "output_schema"
     ]
-    assert artifacts.audit["hashes"]["prompt"] == previous_audit["hashes"]["prompt"]
     assert artifacts.audit["independent_step_refs"] == {
         "goal:i_2.E": ["s1", "s2", "s3"],
         "goal:ii.E": ["s2", "s3", "s7"],
     }
-    assert artifacts.prompt.system + "\n" == (B2 / "prompt.system.md").read_text(
-        encoding="utf-8"
-    )
-    assert artifacts.prompt.user + "\n" == (B2 / "prompt.user.md").read_text(
-        encoding="utf-8"
-    )
+    assert {asset["id"] for asset in artifacts.audit["prompt_assets"]} == {
+        "system-v1.jinja", "shared-v1.jinja", "user-v1.jinja",
+        "shared-example-v1.jinja", "boundaries-v1.jinja",
+    }
 
 
 def test_b2_builder_has_no_lesson_llm_dependency() -> None:

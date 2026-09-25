@@ -583,7 +583,12 @@ class ContextBuilder:
         if not function:
             return
         expression = function.get("expression", "a*x**2 + b*x + c")
-        context.problem_scope.container("expressions")["quadratic"] = TypedValue(
+        expression_key = (
+            function.get("id", "quadratic")
+            if function.get("type") == "scalar_expression"
+            else "quadratic"
+        )
+        context.problem_scope.container("expressions")[expression_key] = TypedValue(
             "Expression",
             context.kernel.expr(expression, context.symbols),
             locked=True,

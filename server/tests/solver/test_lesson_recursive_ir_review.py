@@ -6,8 +6,10 @@ from pathlib import Path
 
 import pytest
 
+from shuxueshuo_server.solver.explanation import lesson_prompt
 from shuxueshuo_server.solver.explanation.annotated_teaching import (
     AnnotatedTeachingPlanProjector,
+    render_annotated_teaching_prompt,
 )
 from shuxueshuo_server.solver.explanation.models import (
     explanation_snapshot_from_payload,
@@ -15,14 +17,15 @@ from shuxueshuo_server.solver.explanation.models import (
 from shuxueshuo_server.solver.explanation.scope_lesson import (
     LessonScopeContentValidator,
 )
+from shuxueshuo_server.solver.extraction.source_identity import stable_hash
 from shuxueshuo_server.solver.lesson_authoring_support import (
     load_teaching_rubric,
 )
 from shuxueshuo_server.solver.lesson_recursive_ir_review import (
+    LessonRecursiveIRReviewError,
     build_recursive_lesson_review,
     write_recursive_lesson_review,
 )
-
 
 ROOT = Path(__file__).resolve().parents[3]
 FIXTURES = ROOT / "server/tests/solver/fixtures/lesson_scope_authoring_vnext"
@@ -74,7 +77,33 @@ def test_review_accepts_current_human_approved_b3_body(raw_inputs) -> None:
         approved_scope_content=approved_scope_content,
         rubric=rubric,
     )
-    assert result.audit["checks"]["prompt_hash_unchanged"] is True
+    assert result.audit["checks"]["approved_body_compatible"] is True
+    projection = AnnotatedTeachingPlanProjector().project(snapshot)
+    prompt = render_annotated_teaching_prompt(projection.plan, authority=projection.authority)
+    assert result.audit["hashes"]["prompt"] == stable_hash(prompt.messages)
+    assert result.audit["prompt_assets"] == list(prompt.assets)
+
+
+def test_review_audits_template_changes_without_reapproving_history(
+    raw_inputs, artifacts, tmp_path, monkeypatch,
+) -> None:
+    for source in lesson_prompt.TEMPLATE_ROOT.glob("*.jinja"):
+        (tmp_path / source.name).write_bytes(source.read_bytes())
+    shared = tmp_path / "shared-v1.jinja"
+    shared.write_text(shared.read_text() + "\n请保持讲解简洁。\n")
+    monkeypatch.setattr(lesson_prompt, "TEMPLATE_ROOT", tmp_path)
+    snapshot, body, rubric = raw_inputs
+    result = build_recursive_lesson_review(snapshot, approved_scope_content=body, rubric=rubric)
+    assert result.audit["hashes"]["prompt"] != artifacts.audit["hashes"]["prompt"]
+    assert result.audit["prompt_assets"] != artifacts.audit["prompt_assets"]
+    assert result.audit["human_review_approved"] is False
+    assert result.approved.build.lesson.to_payload() == artifacts.approved.build.lesson.to_payload()
+
+
+def test_review_still_rejects_incompatible_recorded_body(raw_inputs) -> None:
+    snapshot, _, rubric = raw_inputs
+    with pytest.raises(LessonRecursiveIRReviewError, match="approved_body_rejected"):
+        build_recursive_lesson_review(snapshot, approved_scope_content={}, rubric=rubric)
 
 
 def test_review_builds_both_recursive_branches(artifacts) -> None:
@@ -124,6 +153,12 @@ def test_human_approved_b4_golden_matches_rebuilt_artifacts(artifacts) -> None:
     assert visual_authority == artifacts.approved.visual_ir.state_authority
     assert review["review_status"] == "approved"
     assert review["checks"]["human_page_review"] is True
+    # Historical approvals are compared to their own request audit, never to
+    # the current template wording. Keep all golden files untouched.
+    historical_audit = json.loads((FIXTURES / "heping_ermo_b2/projection-audit.json").read_text())
+    b3_review = json.loads((FIXTURES / "heping_ermo_b3/review-summary.json").read_text())
+    assert hashes["semantic_hashes"]["prompt"] == historical_audit["hashes"]["prompt"]
+    assert hashes["semantic_hashes"]["prompt"] == b3_review["source"]["prompt_hash"]
     for filename, expected in hashes["fixture_file_hashes"].items():
         observed = hashlib.sha256((B4 / filename).read_bytes()).hexdigest()
         assert observed == expected
