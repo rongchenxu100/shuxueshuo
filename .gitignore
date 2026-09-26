@@ -1,5 +1,6 @@
 LOCAL_GIT_WORKFLOW.md
 demo/
+!site/demo/
 .DS_Store
 # Private environment configuration, at any depth. Only examples belong in Git.
 .env*

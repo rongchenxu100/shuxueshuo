@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 
 from shuxueshuo_server.wechat_jssdk import WeChatJsSdkSigner
+from shuxueshuo_server.tutor_demo.api import create_router as create_tutor_demo_router
 
 # 本地开发：加载 server/.env
 _env_path = Path(__file__).resolve().parent.parent / ".env"
@@ -32,6 +33,8 @@ if os.environ.get('REVIEW_BACKEND', 'product') == 'legacy':
 else:
     from shuxueshuo_server.product.api import create_app
     app = create_app()
+
+app.include_router(create_tutor_demo_router())
 
 _signer: WeChatJsSdkSigner | None = None
 

@@ -48,3 +48,4 @@ include = ["shuxueshuo_server*"]
 
 [tool.setuptools.package-data]
 "shuxueshuo_server.solver.explanation" = ["prompts/*.jinja"]
+"shuxueshuo_server.tutor_demo" = ["lessons/*.json", "prompts/*.jinja"]

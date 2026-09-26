@@ -1,0 +1,528 @@
+{
+  "id": "q01",
+  "version": 2,
+  "problem": {
+    "text": "设正实数 m、n 满足 m + n = 2，求 mn 的最大值。",
+    "conditions": [
+      "m > 0，n > 0",
+      "m + n = 2"
+    ],
+    "target": "(mn)max",
+    "segments": [
+      {
+        "text": "设正实数 "
+      },
+      {
+        "math": "m、n"
+      },
+      {
+        "text": " 满足 "
+      },
+      {
+        "math": "m + n = 2"
+      },
+      {
+        "text": "，求 "
+      },
+      {
+        "math": "mn"
+      },
+      {
+        "text": " 的最大值。"
+      }
+    ]
+  },
+  "methods": [
+    {
+      "id": "direct",
+      "label": "直接应用基本不等式"
+    },
+    {
+      "id": "1",
+      "label": "条件消元法"
+    },
+    {
+      "id": "2",
+      "label": "换元法"
+    },
+    {
+      "id": "3",
+      "label": "配齐次式"
+    },
+    {
+      "id": "4",
+      "label": "找对称结构"
+    }
+  ],
+  "method_guidance": {
+    "2": {
+      "context": "换元可以把反复出现的复杂式子、根式等替换成新变量，让条件和目标更简单。",
+      "reason": "本题的条件 m + n = 2 和目标 mn 已经很简洁，没有需要整体替换的复杂式子。引入新变量也能尝试求解，但会增加转换；若想减少变量，可以直接用条件消元。",
+      "question": "已有的条件和目标之间，能否直接建立联系？"
+    },
+    "3": {
+      "context": "配齐次式是把不同次数的项整理到相同次数，便于比较或应用不等式。",
+      "reason": "本题可以把定和条件平方，用 (m + n)² 与 mn 作比较，但还需要展开或构造平方差。两正数的和已经给定，直接应用基本不等式更简洁，不必先补配齐次结构。",
+      "question": "已知两正数的和，哪种方法能直接联系它们的积？"
+    },
+    "4": {
+      "title": "找对称结构：本题无需再做和积换元",
+      "context": "找对称结构是为了做和积换元：令 s = m + n、p = mn，把对称式改写成关于 s、p 的表达式，简化条件和目标。",
+      "reason": "本题的条件已经是 m + n = 2，目标已经是 mn。换元后只是写成 s = 2、求 p 的最大值，没有进一步简化问题。要求出 p 的上界，仍需建立和与积之间的不等关系，因此直接应用基本不等式更简洁。",
+      "question": "哪种不等式能直接联系两个正数的和与积？"
+    }
+  },
+  "routes": {
+    "direct": {
+      "nodes": [
+        {
+          "id": "structure",
+          "title": "观察结构",
+          "question": "定和求积还是定积求和？",
+          "required_evidence": [
+            "positive_terms",
+            "fixed_sum",
+            "product_target"
+          ],
+          "criteria": "学生理解两正数 m、n 的和固定，要求乘积最大值。只说基本不等式，仅选择方法，不完成结构。明确说定和求积/和为2求mn最大可结合题目正数条件通过；自动填m、n且swapped=false。",
+          "completion_reply": "是的，这是定和求积。",
+          "text_autofill": [
+            {
+              "kind": "fill",
+              "index": 0,
+              "value": "m"
+            },
+            {
+              "kind": "fill",
+              "index": 1,
+              "value": "n"
+            },
+            {
+              "kind": "swap",
+              "value": "sum"
+            }
+          ],
+          "verified_facts": [
+            "m,n>0",
+            "m+n=2"
+          ],
+          "interaction": {
+            "actions": [
+              {
+                "kind": "fill",
+                "index": 0,
+                "values": [
+                  "m",
+                  "n"
+                ],
+                "path": [
+                  "pairs",
+                  0,
+                  0
+                ],
+                "description": "方框"
+              },
+              {
+                "kind": "fill",
+                "index": 1,
+                "values": [
+                  "m",
+                  "n"
+                ],
+                "path": [
+                  "pairs",
+                  0,
+                  1
+                ],
+                "description": "圆圈"
+              },
+              {
+                "kind": "swap",
+                "values": [
+                  "sum",
+                  "product"
+                ],
+                "path": [
+                  "swapped"
+                ],
+                "mapping": {
+                  "sum": false,
+                  "product": true
+                },
+                "description": "sum为定和求积，product为定积求和"
+              }
+            ],
+            "validators": [
+              {
+                "operator": "set_equals",
+                "path": [
+                  "pairs",
+                  0
+                ],
+                "value": [
+                  "m",
+                  "n"
+                ],
+                "message": "两个位置需要分别对应题目中的 m 和 n。"
+              },
+              {
+                "operator": "equals",
+                "path": [
+                  "swapped"
+                ],
+                "value": false,
+                "message": "再看看题目：固定的是 m + n，要求的是 mn 的最大值。"
+              }
+            ]
+          }
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对 m、n 应用基本不等式，能得到什么关系？",
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "明确表达 m+n≥2√(mn) 或等价 (m+n)/2≥√(mn)，也接受对m、n使用AM-GM并给出mn≤1的正确推导；仅猜答案1或只说基本不等式不足。",
+          "completion_reply": "关系正确。结合 m+n=2，整理可得 mn≤1。",
+          "text_autofill": [
+            {
+              "kind": "fill",
+              "index": 0,
+              "value": "m"
+            },
+            {
+              "kind": "fill",
+              "index": 1,
+              "value": "n"
+            }
+          ],
+          "verified_facts": [
+            "m,n>0",
+            "m+n=2",
+            "m+n≥2√(mn)",
+            "2≥2√(mn)",
+            "1≥√(mn)",
+            "mn≤1"
+          ],
+          "interaction": {
+            "actions": [
+              {
+                "kind": "fill",
+                "index": 0,
+                "values": [
+                  "m",
+                  "n"
+                ],
+                "path": [
+                  "pairs",
+                  1,
+                  0
+                ],
+                "description": "方框"
+              },
+              {
+                "kind": "fill",
+                "index": 1,
+                "values": [
+                  "m",
+                  "n"
+                ],
+                "path": [
+                  "pairs",
+                  1,
+                  1
+                ],
+                "description": "圆圈"
+              }
+            ],
+            "validators": [
+              {
+                "operator": "set_equals",
+                "path": [
+                  "pairs",
+                  1
+                ],
+                "value": [
+                  "m",
+                  "n"
+                ],
+                "message": "两个位置需要分别对应题目中的 m 和 n。"
+              }
+            ]
+          }
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，刚才的基本不等式能取等号？",
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "表达m=n或n=m或m=n=1。结合上文问句，“两数相等”也是等价答案。固定等号，两槽填m、n，顺序不限。",
+          "completion_reply": "是的，取等条件是 m=n，结合原题条件可得 m=n=1。",
+          "text_autofill": [
+            {
+              "kind": "fill",
+              "index": 0,
+              "value": "m"
+            },
+            {
+              "kind": "fill",
+              "index": 1,
+              "value": "n"
+            }
+          ],
+          "verified_facts": [
+            "m,n>0",
+            "m+n=2",
+            "m+n≥2√(mn)",
+            "2≥2√(mn)",
+            "1≥√(mn)",
+            "mn≤1",
+            "取等条件m=n，与m+n=2联立得m=n=1",
+            "满足原条件且mn=1，最大值1"
+          ],
+          "interaction": {
+            "actions": [
+              {
+                "kind": "fill",
+                "index": 0,
+                "values": [
+                  "m",
+                  "n"
+                ],
+                "path": [
+                  "pairs",
+                  2,
+                  0
+                ],
+                "description": "方框"
+              },
+              {
+                "kind": "fill",
+                "index": 1,
+                "values": [
+                  "m",
+                  "n"
+                ],
+                "path": [
+                  "pairs",
+                  2,
+                  1
+                ],
+                "description": "圆圈"
+              }
+            ],
+            "validators": [
+              {
+                "operator": "set_equals",
+                "path": [
+                  "pairs",
+                  2
+                ],
+                "value": [
+                  "m",
+                  "n"
+                ],
+                "message": "两个位置需要分别对应题目中的 m 和 n。"
+              }
+            ]
+          }
+        }
+      ],
+      "label": "直接应用基本不等式"
+    },
+    "1": {
+      "nodes": [
+        {
+          "id": "eliminate",
+          "title": "观察结构",
+          "question": "利用 m + n = 2，你准备怎样消去一个变量？",
+          "required_evidence": [
+            "elimination_relation"
+          ],
+          "criteria": "n=2-m时variable=m；m=2-n时variable=n（variable指保留的变量）。只说条件消元法，仅选择方法，需继续问用哪一个变量表示另一个。",
+          "completion_reply": "消元关系正确。",
+          "text_autofill": [],
+          "verified_facts": [
+            "消元可写n=2-m或m=2-n",
+            "保留变量{{v}}，0<{{v}}<2"
+          ],
+          "bindings": {
+            "v": [
+              "elimination",
+              "variable"
+            ]
+          },
+          "interaction": {
+            "actions": [
+              {
+                "kind": "choice",
+                "values": [
+                  "m",
+                  "n"
+                ],
+                "path": [
+                  "elimination",
+                  "variable"
+                ],
+                "description": "保留的变量：m 表示 n=2-m，n 表示 m=2-n"
+              }
+            ],
+            "validators": [
+              {
+                "operator": "not_empty",
+                "path": [
+                  "elimination",
+                  "variable"
+                ],
+                "message": "还需要表达你对这个问题的判断。"
+              }
+            ]
+          }
+        },
+        {
+          "id": "quadratic",
+          "title": "求二次式的上界",
+          "question": "怎样判断这个二次式的最大值？",
+          "required_evidence": [
+            "bound_strategy"
+          ],
+          "criteria": "学生选择配方/平方非负则technique=square，二次函数顶点/抛物线求最值则vertex。选择策略即可通过，具体推导由系统执行。",
+          "completion_reply": "这个思路可行，可以得到 mn≤1。",
+          "text_autofill": [],
+          "verified_facts": [
+            "消元可写n=2-m或m=2-n",
+            "保留变量{{v}}，0<{{v}}<2",
+            "mn={{v}}(2-{{v}})=2{{v}}-{{v}}²=1-({{v}}-1)²≤1",
+            "或令y=2{{v}}-{{v}}²，开口向下，顶点(1,1)在定义域内"
+          ],
+          "bindings": {
+            "v": [
+              "elimination",
+              "variable"
+            ]
+          },
+          "interaction": {
+            "actions": [
+              {
+                "kind": "choice",
+                "values": [
+                  "square",
+                  "vertex"
+                ],
+                "path": [
+                  "elimination",
+                  "technique"
+                ],
+                "description": "square为配方，vertex为二次函数顶点；系统完成后续计算"
+              }
+            ],
+            "validators": [
+              {
+                "operator": "not_empty",
+                "path": [
+                  "elimination",
+                  "technique"
+                ],
+                "message": "还需要表达你对这个问题的判断。"
+              }
+            ]
+          }
+        },
+        {
+          "id": "feasibility",
+          "title": "验证取值",
+          "question": "这个取值满足原题的所有条件吗？",
+          "required_evidence": [
+            "feasible_values"
+          ],
+          "criteria": "验证m=n=1均为正且和为2。若系统刚问是否满足所有原题条件，明确肯定也可接受；疑问句“满足吗”不是回答。",
+          "completion_reply": "是的，两数都为正且和为2，上界可以取到。",
+          "text_autofill": [
+            {
+              "kind": "choice",
+              "value": "yes"
+            }
+          ],
+          "verified_facts": [
+            "消元可写n=2-m或m=2-n",
+            "保留变量{{v}}，0<{{v}}<2",
+            "mn={{v}}(2-{{v}})=2{{v}}-{{v}}²=1-({{v}}-1)²≤1",
+            "或令y=2{{v}}-{{v}}²，开口向下，顶点(1,1)在定义域内",
+            "{{v}}=1时另一个变量也为1，满足原条件，最大值1"
+          ],
+          "bindings": {
+            "v": [
+              "elimination",
+              "variable"
+            ]
+          },
+          "interaction": {
+            "actions": [
+              {
+                "kind": "choice",
+                "values": [
+                  "yes",
+                  "no"
+                ],
+                "path": [
+                  "elimination",
+                  "feasible"
+                ],
+                "description": "验证取值满足原题条件，yes为满足，no为不满足"
+              }
+            ],
+            "validators": [
+              {
+                "operator": "not_empty",
+                "path": [
+                  "elimination",
+                  "feasible"
+                ],
+                "message": "还需要表达你对这个问题的判断。"
+              },
+              {
+                "operator": "equals",
+                "path": [
+                  "elimination",
+                  "feasible"
+                ],
+                "value": "yes",
+                "message": "把 m = n = 1 代回原题：两数是否都为正？它们的和是不是 2？"
+              }
+            ]
+          }
+        }
+      ],
+      "label": "条件消元法"
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "elimination": {
+      "variable": null,
+      "technique": null,
+      "feasible": null
+    },
+    "feedback": "",
+    "hint": false
+  }
+}

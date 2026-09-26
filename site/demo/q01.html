@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q01 交互演示 · 数学说</title>
+  <link rel="stylesheet" href="./q01.css">
+  <script src="./q01.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="../index.html" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">交互演示</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新体验</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span>基本不等式 <span class="separator">/</span> Q01</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p>设正实数 <span class="math"><i>m</i>、<i>n</i></span> 满足 <span class="math nowrap"><i>m</i> + <i>n</i> = 2</span>，求 <span class="math"><i>mn</i></span> 的最大值。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+        <div class="meaning-row"><dt>条件</dt><dd><span class="math nowrap"><i>m</i> &gt; 0，<i>n</i> &gt; 0</span><span class="math nowrap"><i>m</i> + <i>n</i> = 2</span></dd></div>
+        <div class="meaning-row"><dt>目标</dt><dd><span class="math nowrap" aria-label="求 mn 的最大值">(<i>mn</i>)<sub>max</sub></span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：观察结构</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"><button type="button" data-token="m" aria-label="选择 m"><i>m</i></button><button type="button" data-token="n" aria-label="选择 n"><i>n</i></button></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+</body>
+</html>
