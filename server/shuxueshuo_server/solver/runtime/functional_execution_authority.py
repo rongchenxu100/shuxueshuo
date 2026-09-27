@@ -22,6 +22,7 @@ from shuxueshuo_server.solver.runtime.rewrite_teaching_evidence import (
     rewrite_teaching_evidence_schema,
 )
 
+from .substitution_teaching_evidence import SubstitutionTeachingEvidence, substitution_teaching_evidence_schema
 from .elimination_teaching_evidence import EliminationTeachingEvidence, elimination_teaching_evidence_schema
 
 if TYPE_CHECKING:
@@ -934,7 +935,7 @@ def _point_string_pair(value: Any, field_name: str) -> tuple[str, str]:
 
 
 FunctionalExecutionEvidence: TypeAlias = (
-    EliminationTeachingEvidence
+    SubstitutionTeachingEvidence | EliminationTeachingEvidence
     | RewriteTeachingEvidence
     | InequalityTeachingEvidence
     | PathMinimumWitness
@@ -949,6 +950,8 @@ def functional_execution_evidence_from_payload(
     payload: Mapping[str, Any],
 ) -> FunctionalExecutionEvidence:
     schema_version = payload.get("schema_version")
+    if schema_version == "substitution-teaching-evidence/v1":
+        return SubstitutionTeachingEvidence.from_payload(payload)
     if schema_version == "elimination-teaching-evidence/v1":
         return EliminationTeachingEvidence.from_payload(payload)
     if schema_version == "expression-rewrite-teaching-evidence/v1":
@@ -972,6 +975,7 @@ def functional_execution_evidence_schema() -> dict[str, Any]:
     return {
         "oneOf": [
             elimination_teaching_evidence_schema(),
+            substitution_teaching_evidence_schema(),
             inequality_teaching_evidence_schema(),
             rewrite_teaching_evidence_schema(),
             path_minimum_witness_schema(include_document_header=False),

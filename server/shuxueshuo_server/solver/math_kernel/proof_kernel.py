@@ -1158,6 +1158,46 @@ class _Search(_Environment):
             ))
             if found:
                 return found
+        # A submitted sum equation isolates the sign of the missing term.
+        # Construct only these finite candidates; the existing equality/domain
+        # and sign rules still certify every algebraic transport.
+        if g[0] != "=" and g[2] != ZERO:
+            for premise in self.premises.values():
+                if premise[0] != "=":
+                    continue
+                for total, value in (premise[1:], premise[1:][::-1]):
+                    if total[0] != "add" or value != g[2]:
+                        continue
+                    for i,j in ((1,2),(2,1)):
+                        if total[i] == g[1]:
+                            candidate = ("neg", total[j])
+                            difference = (g[0], _diff(g), ZERO)
+                            found = self.attempt(partial(self.raw, "equal_sign", difference,
+                                [("=", _diff(g), candidate), (g[0], candidate, ZERO)]))
+                            if found:
+                                self.cache[difference] = self.add("guard", difference, (found, *(self.need(d) for d in domains(difference))))
+                                return self.raw("difference", g, [difference])
+        # Try only a single signed variable as multiplier before equation
+        # transport (e.g. clearing a positive reciprocal denominator).
+        if g[0] != "=":
+            for premise in self.premises.values():
+                if premise[0] == "=" or not any(n[0] == "div" for n in walk(premise)):
+                    continue
+                for name in sorted(names(g) & names(premise)):
+                    symbol = ("symbol", name)
+                    if (">", symbol, ZERO) not in self.premises.values():
+                        continue
+                    for factor, op in ((symbol, ">"), (("neg", symbol), "<")):
+                        if not {x*y for x in SIGNS[premise[0]] for y in SIGNS[op]} <= SIGNS[g[0]]:
+                            continue
+                        if a.difference(("=", _diff(g), expr("mul", _diff(premise), factor))):
+                            continue
+                        difference = (g[0], _diff(g), ZERO)
+                        found = self.raw("scale", difference, [premise, (op, factor, ZERO)])
+                        if g[2] == ZERO:
+                            return found
+                        self.cache[difference] = self.add("guard", difference, (found, *(self.need(d) for d in domains(difference))))
+                        return self.raw("difference", g, [difference])
         # Reordering a previously proved bound does not introduce a second
         # AM-GM application. Preserve that dependency before template search.
         for premise in self.premises.values():
@@ -1339,9 +1379,9 @@ class _Search(_Environment):
         # checking a+b != 0 from a>0,b>0.
         if (
             g[2] == ZERO
-            and g[0] in {">", ">=", "!="}
-            and g[1][0] in {"add", "mul", "div", "pow", "sqrt"}
-            and all(n[0] not in {"sub", "neg"} for n in walk(g[1]))
+            and g[0] in {">", ">=", "<", "<=", "!="}
+            and g[1][0] in {"add", "mul", "div", "pow", "sqrt", "neg"}
+            and all(n[0] != "sub" for n in walk(g[1]))
             and all(
                 (">", ("symbol", name), ZERO) in self.premises.values()
                 for name in names(g[1])

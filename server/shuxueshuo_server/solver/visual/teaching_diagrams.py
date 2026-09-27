@@ -56,7 +56,13 @@ class VisualSpecRegistry:
                 entries = []
                 for ref in refs:
                     source = sources[ref]
-                    if spec.evidence_kind == "elimination":
+                    if spec.evidence_kind == "substitution":
+                        from ..explanation.substitution import (
+                            evidence_for as substitution_evidence,
+                        )
+                        entries.append(substitution_evidence(source, snapshot))
+                        continue
+                    elif spec.evidence_kind == "elimination":
                         from ..explanation.elimination import (
                             evidence_for as elimination_evidence,
                         )
@@ -203,9 +209,17 @@ def default_visual_specs():
     from ..explanation.fraction_observation import observation_visual as fraction_visual
     from ..explanation.homogenization import OBSERVATION, REWRITE, observation_visual
     from ..explanation.homogenization import rewrite_visual as homogeneous_visual
+    from ..explanation.substitution import OBSERVATION_ID
+    from ..explanation.substitution import VISUAL_ID as SUBSTITUTION_VISUAL
+    from ..explanation.substitution import (
+        observation_visual as substitution_observation,
+    )
+    from ..explanation.substitution import visual as substitution_visual
 
     return VisualSpecRegistry(
         (
+            VisualSpec(OBSERVATION_ID, "basic-inequality-structure-scan", substitution_observation, evidence_kind="substitution"),
+            VisualSpec(SUBSTITUTION_VISUAL, "basic-inequality-structure-scan", substitution_visual, evidence_kind="substitution"),
             VisualSpec(
                 ELIMINATION_VISUAL,
                 "basic-inequality-structure-scan",
@@ -358,12 +372,43 @@ def validate_diagram_block(block):
         or any(not data.get(f) for f in fields[component])
     ):
         raise VisualGap("visual_component_data_invalid")
-    if component == "basic-inequality-equality-check" and "solutionMode" in data:
-        if data["solutionMode"] != "witness" or any(
-            key in data for key in ("solutionBranches", "solutionRelations", "equalities", "equalityRelations")
+    if "presentation" in data:
+        if data["presentation"] != "concept" or component not in {
+            "basic-inequality-mapping", "basic-inequality-equality-check"
+        }:
+            raise VisualGap("visual_concept_presentation_invalid")
+        if component == "basic-inequality-equality-check" and any(
+            not isinstance(data.get(key), list) or not data[key]
+            or any(not isinstance(row, str) or not row.strip() for row in data[key])
+            for key in ("conceptEqualities", "conceptConditions")
         ):
-            raise VisualGap("visual_equality_solution_mode_invalid")
+            raise VisualGap("visual_concept_conditions_invalid")
+    if "productNote" in data and (not isinstance(data["productNote"], str) or not data["productNote"].strip()):
+        raise VisualGap("visual_concept_product_invalid")
+    if component == "basic-inequality-equality-check" and "solutionMode" in data and (
+        data["solutionMode"] != "witness" or any(
+            key in data for key in ("solutionBranches", "solutionRelations", "equalities", "equalityRelations")
+        )
+    ):
+        raise VisualGap("visual_equality_solution_mode_invalid")
     if component == "basic-inequality-structure-scan":
+        if "showRoute" in data and not isinstance(data["showRoute"], bool):
+            raise VisualGap("visual_component_data_invalid")
+        comparisons = data.get("organization", {}).get("comparisons")
+        if comparisons is not None and (
+            not isinstance(comparisons, list) or not comparisons
+            or any(not isinstance(row, dict) or any(
+                not isinstance(row.get(key), str) or not row[key].strip()
+                for key in ("label", "before", "after")
+            ) for row in comparisons)
+        ):
+            raise VisualGap("visual_component_data_invalid")
+        for row in comparisons or []:
+            if any(
+                key in row and (not isinstance(row[key], str) or not row[key].strip())
+                for key in ("beforeLabel", "afterLabel", "arrow")
+            ) or (("beforeLabel" in row) != ("afterLabel" in row)):
+                raise VisualGap("visual_component_data_invalid")
         cards = data.get("organization", {}).get("purposeCards")
         if cards is not None and (
             not isinstance(cards, list)
@@ -430,23 +475,30 @@ def reciprocal_transform(d):
     return {
         "kind": "basic-inequality-structure-scan",
         "showFocus": False,
+        "showRoute": False,
+        "ariaLabel": "正数取倒数，转换最值方向",
         "condition": {"label": "原式为正", "expression": math(r["reduced"] + ">0")},
         "target": {"label": "原式的倒数", "expression": math(r["inverse"])},
         "organization": {
-            "label": "整理目标：正数取倒数",
-            "steps": [
-                {"label": "目标转换", "expression": "原式最大 ⇔ " + math(r["inverse"]) + " 最小"},
-                {"label": "整理倒数", "expression": math(r["rearrangement"])},
+            "comparisons": [
+                {
+                    "label": "取倒数",
+                    "beforeLabel": "原式求最大值",
+                    "afterLabel": "倒数求最小值",
+                    "before": math(r["reduced"]),
+                    "after": math(r["inverse"]),
+                    "arrow": "⇄",
+                },
             ],
-            "note": "原式为正；整理倒数，显出可配对的两个正项",
         },
+        "caption": "原式为正，取倒数后最值方向相反",
         "reading": "正数取倒数",
         "route": "重新观察结构",
     }
 
 
 def lower_structure(d):
-    return {
+    visual = {
         "kind": "basic-inequality-structure-scan",
         "condition": {
             "label": "原条件",
@@ -472,6 +524,18 @@ def lower_structure(d):
         "route": DIRECT_AMGM_ROUTE,
     }
 
+    if d.get("substitution_conditions_latex"):
+        visual["condition"] = {"label": "换元后的条件", "expression": "，".join(math(r) for r in d["substitution_conditions_latex"])}
+    if d.get("constant_product_latex"):
+        visual["pattern"] = {
+            "first": {"value": math(d["term_latex"][0]), "shape": "square"},
+            "second": {"value": math(d["term_latex"][1]), "shape": "circle"},
+            "condition": {"operator": "·", "tag": "定积 " + math(d["constant_product_latex"])},
+            "target": {"operator": "+", "tag": "求最小值"}}
+        visual.pop("organization", None)
+        visual["reading"] = "定积求和"
+    return visual
+
 
 def lower_application(d):
     relations = list(dict.fromkeys(item["math"] for item in d["local_relations"]))
@@ -480,6 +544,7 @@ def lower_application(d):
     visual = {
         "kind": "basic-inequality-mapping",
         "formulaStyle": "sum-geometric",
+        "presentation": "concept",
         "showPositiveStep": True,
         "stageLabel": "代入两个正项",
         "conclusionLabel": "取倒数得到上界" if d.get("reciprocal") else "得到下界",
@@ -506,6 +571,7 @@ def lower_application(d):
     roles = d.get("constant_product_roles")
     if roles:
         visual.update(
+            productNote="定积 " + math(roles["product"]),
             stageLabel="代入定积",
             fixedSourceTarget="product",
             fixedCondition=math(roles["product_identity"]),
@@ -615,6 +681,22 @@ def lower_equality(d):
                     )
                 ],
             )
+    if d.get("substitution_conditions_latex"):
+        visual["conditionLabel"] = "换元后的条件与还原关系"
+        visual["condition"] = "；".join(math(r) for r in [*d["substitution_conditions_latex"], *d["substitution_definitions_latex"]])
+    # Display the simultaneous conditions, keeping witnesses and restoration in derive.
+    conditions = (
+        d.get("substitution_equations_latex")
+        or d.get("substitution_conditions_latex")
+        or d.get("condition_equations_latex")
+        or d["conditions"]
+    )
+    visual.update(
+        presentation="concept",
+        conceptEqualities=[math(r) for r in d["equalities"]],
+        conceptConditions=[math(r) for r in conditions],
+        conceptConditionLabel="换元后的条件" if d.get("substitution_conditions_latex") else "原条件",
+    )
     return visual
 
 

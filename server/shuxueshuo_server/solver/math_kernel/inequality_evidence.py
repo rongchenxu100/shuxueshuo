@@ -305,6 +305,7 @@ def verify_bound(
     expression=None,
     previous_bound=None,
     elimination=None,
+    substitution=None,
     reciprocal=False,
 ):
     from .inequality_bound_v2 import verify
@@ -315,6 +316,7 @@ def verify_bound(
         expression=expression,
         previous_bound=previous_bound,
         elimination=elimination,
+        substitution=substitution,
         reciprocal=reciprocal,
     )
 

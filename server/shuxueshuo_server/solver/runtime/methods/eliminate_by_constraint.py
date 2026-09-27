@@ -37,7 +37,9 @@ class EliminateByConstraintMethod:
             parameters = validate_parameters(
                 PARAMETERS_SCHEMA, inputs.get("__parameters__", {})
             )
-            evidence, _ = verify_elimination(inputs["target"], parameters)
+            evidence, _ = verify_elimination(
+                inputs["target"], parameters, substitution=inputs.get("substitution")
+            )
         except (
             ProofFailure,
             MathParseError,
@@ -82,12 +84,20 @@ SPEC = MethodSpecSource(
             "type": "Condition",
             "required": True,
             "role": "题面极值目标及完整原条件，不是某一条等式条件",
-        }
+        },
+        "substitution": {
+            "type": "Substitution",
+            "required": False,
+            "allows_anonymous_result": True,
+            "role": "同一原目标的准确换元结果；提供时对换元后的目标和条件消元",
+        },
     },
-    input_views=declare_input_views(immutable_value=("target",)),
+    input_views=declare_input_views(
+        immutable_value=("target",), exact_result=("substitution",)
+    ),
     outputs={"elimination": "ConstraintElimination"},
     parameters_schema=PARAMETERS_SCHEMA,
-    summary="由原条件消去一个原变量。eliminate 写待消去的变量名；steps[].math 提交条件变形、必要正性/非零关系和唯一的还原公式，如 y=(c-x)/2；expression 写代入后不含该变量的完整目标标量式。所有关系逐条验证，∵/∴ 不赋予前提权限。先证明原目标和还原公式中所有分母的非零性，再使用除法；正性可先把分母差式等价写成已知正量，再提交其 >0。已知条件不用重复写，避免冗长重复的展开/通分；保留必要中间式。原变量不删除，不注册新变量，不搜索方程解，不应用不等式。后续 M11 用 elimination 引用此结果，M13 仍需给出所有原变量的取值。",
+    summary="可选 substitution 必须引用同一原目标的 M07 准确结果；提供时消去一个新变量，expression 写仅含剩余新变量的完整目标；省略时由原条件消去一个原变量。eliminate 写待消去的变量名；steps[].math 提交条件变形、必要正性/非零关系和唯一的还原公式，如 y=(c-x)/2；expression 写代入后不含该变量的完整目标标量式。所有关系逐条验证，∵/∴ 不赋予前提权限。先证明原目标和还原公式中所有分母的非零性，再使用除法；非负量要升级为正数，先明确提交非零关系，或把已知等式改写成含该量的乘积等于非零常数；不要省略这一理由。steps[].math 只填写数学关系，不混入“假设”“矛盾”“即”等叙述或集合成员声明；正性可先把分母差式等价写成已知正量，再提交其 >0。已知条件不用重复写，避免冗长重复的展开/通分；保留必要中间式。原变量不删除，不注册新变量，不搜索方程解，不应用不等式。后续 M11 用 elimination 引用此结果，M13 仍需给出所有原变量的取值。",
     teaching_unit=UNIT,
     no_new_visual_reason="消元是标量关系变形，不新增几何对象。",
 )

@@ -45,6 +45,74 @@
   background: transparent;
 }
 
+/* A substitution figure highlights one correspondence, not a derivation chain. */
+.substitution-concept-mappings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  padding: 24px 12px;
+}
+.substitution-concept-mapping {
+  --mapping-color: #08a6c3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 18px;
+  font-size: clamp(20px, 2.3vw, 28px);
+}
+.substitution-concept-mapping.is-second { --mapping-color: #e58b00; }
+.substitution-concept-fraction { display: inline-grid; justify-items: center; gap: 6px; }
+.substitution-concept-fraction > span:first-child {
+  min-width: 100%;
+  padding: 0 8px 7px;
+  border-bottom: 2px solid currentColor;
+  text-align: center;
+}
+.substitution-concept-part,
+.substitution-concept-mapping > .substitution-concept-variable {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 62px;
+  min-height: 52px;
+  box-sizing: border-box;
+  padding: 5px 12px;
+  border: 2px solid var(--mapping-color);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .65);
+  font: inherit;
+}
+.is-second .substitution-concept-part,
+.is-second .substitution-concept-variable { border-radius: 28px; }
+.substitution-concept-mapping > i { align-self: flex-end; line-height: 52px; color: var(--mapping-color); font-style: normal; }
+.basic-structure-organization > .basic-structure-comparisons { display: grid; gap: 24px; padding: 14px 0; width: 100%; }
+.basic-structure-comparison {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 20px;
+  font-size: clamp(18px, 1.9vw, 24px);
+}
+.basic-structure-comparison > span { font: 700 14px var(--font-sans, sans-serif); color: #647c80; }
+.basic-structure-comparisons .basic-structure-comparison > strong { text-align: center; overflow-wrap: anywhere; font-size: inherit; }
+.basic-structure-comparison > .is-after { color: #087d78; }
+.basic-structure-comparison > i { color: #d77548; font-style: normal; }
+.basic-structure-comparison.is-labeled { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); padding: 16px 0; }
+.basic-structure-comparison-side { display: grid; justify-items: center; gap: 20px; min-width: 0; }
+.basic-structure-comparison-side > span { font: 700 15px var(--font-sans, sans-serif); color: #647c80; }
+.basic-structure-organization .basic-structure-comparison-side > strong { font-size: clamp(24px, 2.5vw, 32px); text-align: center; }
+.basic-structure-comparison-transition { display: grid; justify-items: center; gap: 8px; color: #d77548; }
+.basic-structure-comparison-transition > span { font: 700 14px var(--font-sans, sans-serif); }
+.basic-structure-comparison-transition > i { font-style: normal; font-size: 32px; }
+@media (max-width: 600px) {
+  .basic-structure-comparison.is-labeled { grid-template-columns: 1fr; }
+  .basic-structure-comparison-transition > i { transform: rotate(90deg); }
+  .substitution-concept-mappings { grid-template-columns: 1fr; gap: 28px; padding: 8px 0; }
+  .basic-structure-comparison { grid-template-columns: 1fr; gap: 12px; justify-items: center; }
+  .basic-structure-comparison > i { transform: rotate(90deg); }
+  .basic-structure-organization > .basic-structure-comparisons { gap: 30px; }
+}
+
 /* Reuse the established “换元法” formula graphic from senior-high-library.css. */
 .basic-structure-substitution-hint.substitution-core-template {
   display: grid;
@@ -10231,3 +10299,59 @@ button:disabled {
 .basic-purpose-cards article > div { margin:10px 0 16px; font-size:1.08rem; }
 .basic-purpose-cards p { padding:12px 6px; border-radius:12px; background:#eaf5f5; }
 .basic-purpose-cards footer { margin-top:14px; font-weight:700; color:#006b70; }
+
+/* Concept views keep calculation and witness restoration in the derivation. */
+.lesson-step-basic-inequality-map.is-concept {
+  padding: 24px 16px;
+  gap: 18px;
+}
+.basic-map-concept-radical {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  margin-top: .12em;
+}
+.is-concept .basic-map-concept-product {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(239, 142, 21, .09);
+  color: #9a5817;
+  font-size: .85rem;
+  white-space: nowrap;
+}
+.basic-concept-simultaneous {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+}
+.basic-concept-simultaneous > section {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 16px;
+  padding: 22px 14px;
+  background: rgba(255,255,255,.75);
+  border: 1px solid rgba(15,107,104,.15);
+  border-radius: 14px;
+}
+.basic-concept-simultaneous > section > span {
+  font-size: .85rem;
+  color: #627779;
+}
+.basic-concept-equalities, .basic-concept-conditions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: clamp(20px, 2.5vw, 28px);
+}
+.basic-concept-equalities i { font-style: normal; color: #d76843; }
+.basic-concept-equalities small, .basic-concept-conditions small { font-size: .8rem; color: #627779; }
+.basic-concept-and { align-self: center; color: #087a77; font-size: .85rem; }
+@media (max-width: 600px) {
+  .basic-concept-simultaneous { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .basic-concept-and { text-align: center; }
+}

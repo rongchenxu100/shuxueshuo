@@ -1206,6 +1206,7 @@ _KNOWN_TYPES = {
     "MaximumExpression",
     "AmgmBound",
     "ConstraintElimination",
+    "Substitution",
     "OrientationHint",
     "Parabola",
     "ParameterValue",

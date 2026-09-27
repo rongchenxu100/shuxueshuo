@@ -60,6 +60,7 @@ def verify(
     expression=None,
     previous_bound=None,
     elimination=None,
+    substitution=None,
     reciprocal=False,
     bound_relation_index=-1,
     depth=0,
@@ -70,13 +71,13 @@ def verify(
 
     if depth > 8:
         raise ProofFailure("proof_limit", "at most eight bound dependencies")
-    if sum(v is not None for v in (expression, previous_bound, elimination)) > 1:
+    if sum(v is not None for v in (expression, previous_bound, elimination, substitution)) > 1:
         raise ProofFailure(
             "invalid_input",
-            "expression, elimination and previous_bound are mutually exclusive",
+            "expression, elimination, substitution and previous_bound are mutually exclusive",
         )
     if reciprocal:
-        if expression is not None or previous_bound is not None:
+        if expression is not None or previous_bound is not None or substitution is not None:
             raise ProofFailure(
                 "invalid_input",
                 "reciprocal accepts only a same-target elimination input",
@@ -91,8 +92,18 @@ def verify(
 
     if elimination is not None or has_elimination(previous_bound):
         context = elimination_context(context)
+    from .substitution import (
+        find_substitution,
+        replay_substitution,
+        substitution_context,
+    )
+    inherited_substitution = substitution or find_substitution({"elimination": elimination}) or find_substitution(previous_bound)
+    if inherited_substitution is not None:
+        context = substitution_context(context)
     budget = budget or _Budget(context.limits)
     context = replace(context, limits=budget.limits)
+    if inherited_substitution is not None and elimination is None:
+        context = replay_substitution(target, inherited_substitution, budget=budget)
     if elimination is not None:
         from .constraint_elimination import replay_elimination
 
@@ -139,6 +150,7 @@ def verify(
             expression=previous_bound.get("expression"),
             previous_bound=previous_bound.get("previous_bound"),
             elimination=previous_bound.get("elimination"),
+            substitution=previous_bound.get("substitution"),
             reciprocal=previous_bound.get("reciprocal", False),
             depth=depth + 1,
             certificates=previous_bound.get("certificate_bundle"),
@@ -156,6 +168,8 @@ def verify(
         source = predecessor["bound"]
         equalities = list(predecessor["equalities"])
         dependencies = list(predecessor["applications"])
+    elif substitution is not None:
+        source = substitution["expression"]
     elif expression is not None:
         source = str(expression)
     elif elimination is not None:
@@ -166,6 +180,7 @@ def verify(
             previous_bound is not None
             or expression is not None
             or elimination is not None
+            or substitution is not None
         ):
             raise ProofFailure(
                 "inequality_template_unmatched",
@@ -332,6 +347,7 @@ def verify(
         "expression": str(expression) if expression is not None else None,
         "previous_bound": deepcopy(previous_bound),
         **({"elimination": deepcopy(elimination)} if elimination is not None else {}),
+        **({"substitution": deepcopy(substitution)} if substitution is not None else {}),
         "steps": deepcopy(steps),
         "bound": bound,
         "equality": equality,
@@ -426,6 +442,14 @@ def close(
 
     if has_elimination(bound):
         context = elimination_context(context)
+    from .substitution import (
+        find_substitution,
+        replay_substitution,
+        substitution_context,
+    )
+    substitution = find_substitution(bound)
+    if substitution is not None:
+        context = substitution_context(context)
     replay_budget = _Budget(context.limits)
     witness_budget = _Budget(context.limits)
     if not isinstance(bound.get("certificate_bundle"), dict):
@@ -436,6 +460,7 @@ def close(
         expression=bound.get("expression"),
         previous_bound=bound.get("previous_bound"),
         elimination=bound.get("elimination"),
+        substitution=bound.get("substitution"),
         reciprocal=bound.get("reciprocal", False),
         certificates=bound.get("certificate_bundle"),
         budget=replay_budget,
@@ -461,6 +486,14 @@ def close(
                 if p.source_path != "/parameters/expression"
             },
         )
+    if substitution is not None:
+        context = replay_substitution(target, substitution, budget=replay_budget)
+        context = replace(context, premises={k:p for k,p in context.premises.items() if p.source_path != "/parameters/expression"})
+    # Restoration checks original facts and conservative definitions. All
+    # transformed rows have already been replayed above; repeating them in the
+    # witness bundle adds no authority and can exceed the finite bundle size.
+    witness_context = replace(context, premises={k:p for k,p in context.premises.items()
+        if not k.startswith("substitution:verified:")}) if substitution is not None else context
     value = parse_math_expression(bound["bound"], context.symbols)
     if names(from_node(value.ast)):
         raise ProofFailure(
@@ -493,6 +526,14 @@ def close(
             for a, b in aliases:
                 if a not in assignments and b in assignments:
                     assignments[a] = assignments[b]
+        if substitution is not None:
+            if not set(target["scalar_symbols"]) <= assignments.keys():
+                raise ProofFailure("witness_assignment_invalid", "submit every original variable explicitly")
+            original_values = {context.symbols[k]: assignments[k].to_sympy(context.symbols) for k in target["scalar_symbols"]}
+            for name, definition in substitution["definitions"].items():
+                if name not in assignments:
+                    computed = parse_math_expression(definition, context.symbols).to_sympy(context.symbols).subs(original_values)
+                    assignments[name] = parse_math_expression(str(computed), context.symbols)
         if set(assignments) != set(context.symbols):
             raise ProofFailure(
                 "witness_assignment_invalid",
@@ -541,9 +582,9 @@ def close(
                 "保留具体赋值与取等条件。内核自动验证原条件及目标值。",
             )
         proof = require(
-            verify_witnesses([assignments], required, context, _budget=witness_budget)
+            verify_witnesses([assignments], required, witness_context, _budget=witness_budget)
         )
-        _replay(proof, context, budget=replay_budget)
+        _replay(proof, witness_context, budget=replay_budget)
         reports.append(
             {
                 "assignments": {k: v.source for k, v in sorted(assignments.items())},

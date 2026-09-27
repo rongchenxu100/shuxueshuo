@@ -243,7 +243,11 @@ def _compact_math_text(text: str, *, fullwidth_operators: bool) -> str:
     text = re.sub(r"(?<![A-Za-z0-9_])min\s*\(", "最小值(", text, flags=re.IGNORECASE)
     text = re.sub(r"(?<![A-Za-z0-9_])max\s*\(", "最大值(", text, flags=re.IGNORECASE)
     text = re.sub(r"Abs\(([^()]+)\)", r"|\1|", text)
-    text = text.replace("**3", "³").replace("**2", "²")
+    # Only complete square/cube exponents become Unicode superscripts. Preserve
+    # all other powers before stripping multiplication signs (e.g. **20, **x).
+    text = re.sub(r"(?:\*\*|\^)2(?![\d.])", "²", text)
+    text = re.sub(r"(?:\*\*|\^)3(?![\d.])", "³", text)
+    text = text.replace("**", "^")
     text = text.replace("sqrt", "√")
     text = re.sub(r"√\(([A-Za-z0-9]+)\)", r"√\1", text)
     text = text.replace("*", "")

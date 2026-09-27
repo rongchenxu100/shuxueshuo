@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pytest
 import sympy as sp
 
 from shuxueshuo_server.solver.student_display import (
@@ -10,6 +11,21 @@ from shuxueshuo_server.solver.student_display import (
 
 def test_student_math_display_compacts_polynomial_text() -> None:
     assert student_math_display("x**2 - 2*x - 3") == "x²-2x-3"
+
+
+@pytest.mark.parametrize("operator", ["^", "**"])
+@pytest.mark.parametrize(
+    "source,expected",
+    [
+        ("u^2", "u²"), ("u^3", "u³"), ("u^4", "u^4"),
+        ("u^10", "u^10"), ("u^20", "u^20"), ("u^30", "u^30"),
+        ("u^2.5", "u^2.5"), ("u^(-1)", "u^(-1)"),
+        ("x^(1/2)", "x^(1/2)"), ("2^x", "2^x"),
+        ("3*u^10+2*u^2", "3u^10+2u²"),
+    ],
+)
+def test_student_math_display_preserves_power_operators(operator, source, expected):
+    assert student_math_display(source.replace("^", operator)) == expected
 
 
 def test_student_math_display_formats_sympy_abs_and_sqrt() -> None:

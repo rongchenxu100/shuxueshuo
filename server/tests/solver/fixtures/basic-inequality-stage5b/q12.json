@@ -1,0 +1,144 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": [
+      {
+        "goal_ref": "problem.minimum",
+        "steps": [
+          {
+            "step_id": "substitute",
+            "capability_id": "substitute_expressions",
+            "args": {
+              "target": "extremum_target_target_expression"
+            },
+            "parameters": {
+              "definitions": {
+                "u": "x^2",
+                "v": "y^2"
+              },
+              "steps": [
+                {
+                  "math": "u>=0"
+                },
+                {
+                  "math": "v>=0"
+                },
+                {
+                  "math": "5*u*v+v^2=1"
+                }
+              ],
+              "expression": "u+v"
+            }
+          },
+          {
+            "step_id": "eliminate",
+            "capability_id": "eliminate_by_constraint",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "substitution": {
+                "step_id": "substitute",
+                "return": "substitution"
+              }
+            },
+            "parameters": {
+              "eliminate": "u",
+              "steps": [
+                {
+                  "math": "v*(5*u+v)=1"
+                },
+                {
+                  "math": "v!=0"
+                },
+                {
+                  "math": "v>0"
+                },
+                {
+                  "math": "u=(1-v^2)/(5*v)"
+                }
+              ],
+              "expression": "(1/v+4*v)/5"
+            }
+          },
+          {
+            "step_id": "bound",
+            "capability_id": "apply_two_term_amgm",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "elimination": {
+                "step_id": "eliminate",
+                "return": "elimination"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "4*v/5+1/(5*v)>=4/5"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "attain",
+            "capability_id": "close_equality_and_restore",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "bound": {
+                "step_id": "bound",
+                "return": "bound"
+              }
+            },
+            "parameters": {
+              "branches": [
+                {
+                  "steps": [
+                    {
+                      "math": "x=sqrt(3/10)"
+                    },
+                    {
+                      "math": "y=sqrt(1/2)"
+                    }
+                  ]
+                },
+                {
+                  "steps": [
+                    {
+                      "math": "x=sqrt(3/10)"
+                    },
+                    {
+                      "math": "y=-sqrt(1/2)"
+                    }
+                  ]
+                },
+                {
+                  "steps": [
+                    {
+                      "math": "x=-sqrt(3/10)"
+                    },
+                    {
+                      "math": "y=sqrt(1/2)"
+                    }
+                  ]
+                },
+                {
+                  "steps": [
+                    {
+                      "math": "x=-sqrt(3/10)"
+                    },
+                    {
+                      "math": "y=-sqrt(1/2)"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "answer_from": {
+          "step_id": "attain",
+          "return": "minimum"
+        }
+      }
+    ]
+  }
+}

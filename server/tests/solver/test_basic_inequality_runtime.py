@@ -323,6 +323,7 @@ def test_default_registry_stays_closed_and_authoring_catalog_stays_inert():
     )
     family = STAGE4A_FAMILY_REGISTRY.match(problem_from_canonical_input(source()))
     assert family.method_ids == (
+        "substitute_expressions",
         "eliminate_by_constraint",
         "organize_expressions",
         "apply_two_term_amgm",

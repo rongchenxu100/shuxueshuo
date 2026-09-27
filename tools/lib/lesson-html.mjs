@@ -196,7 +196,22 @@ function renderMathExpression(value) {
 
 export function renderInlineMathText(value) {
   const source = String(value ?? "");
-  const prose = text => /\\(?:frac|sqrt|cdot|geq|leq)\b/.test(text) ? renderMathExpression(text) : esc(text);
+  const prose = text => {
+    if (/\\(?:frac|sqrt|cdot|geq|leq)\b/.test(text)) return renderMathExpression(text);
+    // Raw extracted statements can contain caret powers outside TeX delimiters.
+    // Render only formula runs; keep prose, answer blanks and HTML escaped.
+    const runs = /[A-Za-z0-9()+*^{}=.\-]+/g;
+    let html = "";
+    let end = 0;
+    for (const run of text.matchAll(runs)) {
+      html += esc(text.slice(end, run.index));
+      html += /(?:[A-Za-z0-9)]|\})\^(?:[+-]?\d|\{)/.test(run[0])
+        ? `<span class="inline-math">${renderMathExpression(run[0].replace(/\*/g, "·"))}</span>`
+        : esc(run[0]);
+      end = run.index + run[0].length;
+    }
+    return html + esc(text.slice(end));
+  };
   const pattern = /\\\((.*?)\\\)/g;
   let cursor = 0;
   let markup = "";

@@ -37,11 +37,15 @@ def roles(source, snapshot):
     _, evidence = evidence_for(source, snapshot)
     d = evidence["data"]
     return {
-        "goal": f"由原条件表示并消去 {d['eliminated_variable']}，把目标化为较少变量的表达式",
+        "goal": f"由条件表示并消去 {d['eliminated_variable']}，把目标化为较少变量的表达式",
         "result": math(d["source"] + "=" + d["result"]),
-        "derive_items": ["∵ " + "，".join(math(s) for s in d["conditions"])]
-        + ["∴ " + math(s) for s in d["relations"]]
-        + ["∴ " + math(d["source"] + "=" + d["result"])],
+        "derive_items": list(
+            dict.fromkeys(
+                ["∵ " + "，".join(math(s) for s in d["conditions"])]
+                + ["∴ " + math(s) for s in d["relations"]]
+                + ["∴ " + math(d["source"] + "=" + d["result"])]
+            )
+        ),
     }
 
 
@@ -55,28 +59,29 @@ class EliminationTeachingProjector:
 def visual(d):
     return {
         "kind": "basic-inequality-structure-scan",
-        "condition": {
-            "label": "原条件",
-            "expression": "，".join(math(s) for s in d["conditions"]),
-        },
-        "target": {"label": "目标表达式", "expression": math(d["source"])},
-        "organization": {
-            "label": "由条件消元，代入目标",
-            "steps": [
-                {
-                    "label": "由条件表示待消去变量",
-                    "expression": math(d["restoration"]),
-                },
-                *([{
-                    "label": "代入后的条件",
-                    "expression": "，".join(math(s) for s in d.get("display_remaining_conditions", d["remaining_conditions"])),
-                }] if d.get("display_remaining_conditions", d["remaining_conditions"]) else []),
-                {
-                    "label": "代入目标",
-                    "expression": math(d["source"] + "=" + d["result"]),
-                },
-            ],
-        },
+        "condition": {"label": "由条件得", "expression": math(d["restoration"])},
+        "target": {"label": "目标", "expression": math(d["source"])},
         "reading": "条件消元",
         "route": "减少变量，再应用不等式求界",
+        "showFocus": False,
+        "showRoute": False,
+        "ariaLabel": "条件消元",
+        "organization": {
+            "comparisons": [
+                {
+                    "label": "条件",
+                    "before": "，".join(
+                        math(s)
+                        for s in (d.get("condition_equations") or d["conditions"])
+                    ),
+                    "after": math(d["restoration"]),
+                },
+                {
+                    "label": "目标",
+                    "before": math(d["source"]),
+                    "after": math(d["result"]),
+                }
+            ],
+        },
+        "caption": "由条件表示并消去 " + d["eliminated_variable"],
     }

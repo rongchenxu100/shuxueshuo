@@ -285,7 +285,10 @@ def test_q29_elimination_reciprocal_closes_original_maximum(tmp_path):
     assert "elimination-teaching-evidence/v1" in json.dumps(execution)
     snapshot = ExplanationSnapshotBuilder().build(runtime.last_success_artifacts)
     from types import SimpleNamespace
-    from shuxueshuo_server.solver.explanation.basic_inequality_teaching import lower_bound_roles
+
+    from shuxueshuo_server.solver.explanation.basic_inequality_teaching import (
+        lower_bound_roles,
+    )
 
     elimination_data = next(
         e["data"] for e in snapshot.evidence.values()
@@ -319,8 +322,14 @@ def test_q29_elimination_reciprocal_closes_original_maximum(tmp_path):
     assert transform["spec_id"] == "basic_inequality.reciprocal"
     assert transform["source_step_ids"] == ["bound"]
     assert transform["data"]["showFocus"] is False
-    assert len(transform["data"]["organization"]["steps"]) == 2
-    assert "最大" in transform["data"]["organization"]["steps"][0]["expression"]
+    assert transform["data"]["showRoute"] is False
+    comparison = transform["data"]["organization"]["comparisons"][0]
+    assert comparison["beforeLabel"] == "原式求最大值"
+    assert comparison["afterLabel"] == "倒数求最小值"
+    assert comparison["before"] != comparison["after"]
+    assert comparison["arrow"] == "⇄"
+    assert "steps" not in transform["data"]["organization"]
+    assert "原式为正" in transform["data"]["caption"]
     assert "取倒数得到上界" in json.dumps(payload, ensure_ascii=False)
     assert "的最大值为" in json.dumps(payload, ensure_ascii=False)
     assert (
@@ -465,17 +474,25 @@ def test_elimination_diagram_uses_roles_not_every_submitted_relation():
         "conditions": ["u>0", "v>0", "u+v=1"],
         "source": "u/v", "result": "u/(1-u)", "restoration": "v=1-u",
         "remaining_conditions": ["u>0", "1-u>0"],
+        "condition_equations": ["u+v=1"],
+        "eliminated_variable": "v",
         "relations": ["long derivation not needed in diagram"] * 15,
     }
     diagram = visual(data)
-    assert len(diagram["organization"]["steps"]) == 3
+    assert [row["label"] for row in diagram["organization"]["comparisons"]] == ["条件", "目标"]
+    assert diagram["organization"]["comparisons"][0] == {
+        "label": "条件", "before": r"\(u+v=1\)", "after": r"\(v=1-u\)"
+    }
     assert "long derivation" not in json.dumps(diagram)
-    assert "1-u>0" in json.dumps(diagram)
+    assert "1-u>0" not in json.dumps(diagram)
 
 
 def test_witness_only_teaching_does_not_present_checked_rows_as_equation_solving():
     from types import SimpleNamespace
-    from shuxueshuo_server.solver.explanation.basic_inequality_teaching import lower_bound_roles
+
+    from shuxueshuo_server.solver.explanation.basic_inequality_teaching import (
+        lower_bound_roles,
+    )
 
     data = {
         "direction": ">=", "terms": ["u", "4/u"], "equalities": ["u=4/u"],

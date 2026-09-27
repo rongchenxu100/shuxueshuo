@@ -2761,3 +2761,48 @@ test("purpose cards separate teaching purpose from tools and support three round
   assert.match(html,/待补取等关系数/);
   assert.ok(html.indexOf('class="basic-structure-relation-count"') < html.indexOf('class="basic-purpose-cards"'));
 });
+
+
+test("raw polynomial statements render caret powers and preserve prose", () => {
+  const html = renderInlineMathText("已知 5x^2*y^2+y^4=1（x，y∈R），则 x^2+y^2 的最小值是____。");
+  assert.match(html, /5x<sup>2<\/sup>·y<sup>2<\/sup>\+y<sup>4<\/sup>=1/);
+  assert.doesNotMatch(html, /\^|\*/);
+  assert.ok(html.includes("（x，y∈R），则"));
+  assert.ok(html.includes("最小值是____。"));
+  assert.match(renderInlineMathText("<script>x^12</script>"), /&lt;script&gt;/);
+  assert.match(renderInlineMathText("x^12"), /<sup>12<\/sup>/);
+  assert.equal(renderInlineMathText("题目____，保留 a_b"), "题目____，保留 a_b");
+});
+
+
+test("labeled comparisons emphasize reciprocal objectives without extra routes", () => {
+  const source = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  const runtime = {window:{}};
+  vm.runInNewContext(source, runtime);
+  const context = {renderFormulaText:runtime.window.LessonPageRuntime.renderFormulaText, esc:runtime.window.LessonPageRuntime.esc};
+  vm.runInNewContext(source.slice(source.indexOf("    function renderInequalityStructure("),source.indexOf("    function renderInequalityMapping(")), context);
+  const row = {label:"取倒数",beforeLabel:"原式求最大值",afterLabel:"倒数求最小值",before:"1/t",after:"t",arrow:"⇄"};
+  const visual = {kind:"basic-inequality-structure-scan",showFocus:false,showRoute:false,condition:{expression:"t>0"},target:{expression:"t"},organization:{comparisons:[row]},reading:"取倒数",route:"重新观察结构",caption:"原式为正，取倒数后最值方向相反"};
+  const html = context.renderInequalityStructure(visual);
+  assert.match(html, /is-labeled/);
+  assert.match(html, /原式求最大值/);
+  assert.match(html, /倒数求最小值/);
+  assert.match(html, /⇄/);
+  assert.doesNotMatch(html, /重新观察结构|undefined/);
+  const lesson = readLesson("inequality-basic-q01");
+  lesson.steps[0].visual = visual;
+  assert.doesNotThrow(() => validateTextLesson(lesson, lesson.meta.id));
+  delete row.afterLabel;
+  assert.throws(() => validateTextLesson(lesson, lesson.meta.id), /两侧标签/);
+  delete row.beforeLabel;
+  assert.doesNotThrow(() => validateTextLesson(lesson, lesson.meta.id));
+  const plain = context.renderInequalityStructure(visual);
+  assert.match(plain, /⇄/);
+  assert.doesNotMatch(plain, /is-labeled/);
+  delete row.arrow;
+  assert.match(context.renderInequalityStructure(visual), /→/);
+  row.arrow = '<script>';
+  const escaped = context.renderInequalityStructure(visual);
+  assert.match(escaped, /&lt;script&gt;/);
+  assert.doesNotMatch(escaped, /<script>/);
+});

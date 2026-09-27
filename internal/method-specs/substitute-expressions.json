@@ -1,0 +1,132 @@
+{
+  "method_id": "substitute_expressions",
+  "title": "换元",
+  "description": "",
+  "summary": "引入一至两个新变量，definitions 为新变量名到原变量表达式的映射，如 {u: x-1, v: y-1} 或 {u: x^2, v: y^2}。本阶段每个定义仅含一个不同的原变量，支持有理系数一次式和单变量平方。禁止覆盖原变量或引用未定义符号。steps[].math 只提交必要关系，避免堆叠等价冗余等式。证明差式为正时可先把差式改写成已知正项的乘积或商，并提交此等式；不会自动搜索这些变形。steps[].math 提交必要正性、非零及换元后条件；全部验证，不能将平方直接断言为正数。expression 写按定义直接换元后的完整目标，只能作恒等整理，不能利用条件消去新变量。需要消元时将 substitution 输出交给 eliminate_by_constraint，并保持同一 target。代码保存所有原条件和一次/平方的完整反解分支。后续 M11 显式绑定 substitution 结果；M13 仍提交所有原变量的具体取值，代码按定义计算新变量并验证，不自动搜索取值。",
+  "solves": [
+    "substitute_expressions"
+  ],
+  "inputs": {
+    "target": {
+      "required": true,
+      "role": "题面极值目标及完整原条件，不是某一条等式条件",
+      "domain_type": "Fact",
+      "runtime_type": "Condition",
+      "view": {
+        "mode": "immutable_value",
+        "domain_type": "Fact"
+      }
+    }
+  },
+  "outputs": {
+    "substitution": "Substitution"
+  },
+  "is_pure": true,
+  "parameters_schema": {
+    "type": "object",
+    "required": [
+      "definitions",
+      "steps",
+      "expression"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "definitions": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 2,
+        "additionalProperties": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      },
+      "steps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 12,
+        "description": "完整数学推导，可写原条件、AM-GM、代入、缩放和上界。支持 ∵/∴、逗号/分号分隔关系和关系链；每个关系均验证。变量乘法用 *。最后归结为目标上界或当前式的下界；一次调用一个 AM-GM 应用。",
+        "items": {
+          "type": "object",
+          "required": [
+            "math"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "math": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        }
+      },
+      "expression": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1024
+      }
+    }
+  },
+  "teaching_units": [
+    {
+      "visuals": [
+        {
+          "spec_id": "expression_substitution.observation",
+          "roles": {
+            "evidence": "$source"
+          }
+        }
+      ],
+      "requires_independent_lesson_step": true,
+      "unit_key": "substitution_observe",
+      "title_template": "观察原式结构",
+      "nav_title_template": "观察原式结构",
+      "goal_template": "{goal}",
+      "derive_templates": [
+        [
+          "∴",
+          "{result}"
+        ]
+      ],
+      "box_templates": [
+        "{result}"
+      ],
+      "role_schema": {
+        "goal": "换元目的",
+        "result": "已验证的换元关系"
+      },
+      "role_binder_id": "expression_substitution"
+    },
+    {
+      "visuals": [
+        {
+          "spec_id": "expression_substitution.reduction",
+          "roles": {
+            "evidence": "$source"
+          }
+        }
+      ],
+      "requires_independent_lesson_step": true,
+      "unit_key": "expression_substitution",
+      "title_template": "整体换元",
+      "nav_title_template": "整体换元",
+      "goal_template": "{goal}",
+      "derive_templates": [
+        [
+          "∴",
+          "{result}"
+        ]
+      ],
+      "box_templates": [
+        "{result}"
+      ],
+      "role_schema": {
+        "goal": "换元目的",
+        "result": "已验证的换元关系"
+      },
+      "role_binder_id": "expression_substitution"
+    }
+  ],
+  "no_new_visual_reason": "换元是标量关系变形，不新增几何对象。"
+}

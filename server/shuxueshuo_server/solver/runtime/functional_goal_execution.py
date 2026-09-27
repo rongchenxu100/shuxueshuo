@@ -3841,6 +3841,8 @@ def _prompt_safe_value(
                 "remaining_conditions",
             )
         }
+    if isinstance(value, Mapping) and value.get("schema_version") == "expression-substitution/v1":
+        value = {key: value[key] for key in ("target_math", "definitions", "expression", "restoration_branches", "relations")}
     safe = _json_safe_value(value)
     if isinstance(safe, Mapping):
         return {

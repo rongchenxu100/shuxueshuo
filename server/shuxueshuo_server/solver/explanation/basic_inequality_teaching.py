@@ -148,7 +148,7 @@ def lower_bound_roles(source, d):
     extremum = "最大值" if d["direction"] == "<=" else "最小值"
     terms = d.get("term_latex", d["terms"])
     pair = " 与 ".join(math(t) for t in terms)
-    conditions = "，".join(math(c) for c in d.get("conditions_latex", d.get("conditions", [])))
+    conditions = "，".join(math(c) for c in d.get("substitution_conditions_latex", d.get("conditions_latex", d.get("conditions", []))))
     if source.capability_id == "apply_two_term_amgm":
         overall = math(d.get("overall_relation_latex", d["overall_relation"]))
         preview = "把 " + pair + " 配成两个正项，应用基本不等式求和的下界，保留其余项"

@@ -88,7 +88,6 @@ def collect_elimination_evidence(step_id, method_results):
         parse_math_relation,
     )
     from ..math_kernel.expression_rewrite import _legacy_tree, tree_latex
-    from ..math_kernel.inequality_evidence import target_context
 
     result = []
     for method in method_results:
@@ -98,8 +97,7 @@ def collect_elimination_evidence(step_id, method_results):
             raise ValueError("elimination teaching trace missing")
         trace = method.trace_fragments[0]
         target, evidence = trace["source_target"], trace["evidence"]
-        replay_elimination(target, evidence)
-        context, _ = target_context(target)
+        context = replay_elimination(target, evidence)
 
         def expression(text, symbols=context.symbols):
             return tree_latex(_legacy_tree(parse_math_expression(text, symbols).ast))
@@ -112,27 +110,42 @@ def collect_elimination_evidence(step_id, method_results):
             )
             return tree_latex(_legacy_tree(a)) + op + tree_latex(_legacy_tree(b))
 
-        def is_identity(text):
-            parsed = parse_math_relation(text, context.symbols)
+        def is_identity(text, symbols=context.symbols):
+            parsed = parse_math_relation(text, symbols)
             if parsed.ast.op != "=":
                 return False
             a, b = parsed.ast.children
             # Display only: domain and substitution were already replayed above.
             # Keep the full conditions in execution and public evidence.
             values = [
-                parse_math_expression(parsed.source[slice(*n.span)], context.symbols)
-                .to_sympy(context.symbols)
+                parse_math_expression(parsed.source[slice(*n.span)], symbols).to_sympy(
+                    symbols
+                )
                 for n in (a, b)
             ]
             return sp.cancel(values[0] - values[1]) == 0
 
+        conditions = [c["math"] for c in target["source_conditions"]]
+        if evidence.get("substitution") is not None:
+            from .substitution_teaching_evidence import project_new_conditions
+
+            sub = evidence["substitution"]
+            conditions = project_new_conditions(
+                sub["relations"], context.symbols, sub["definitions"]
+            )
         data = {
             "kind": "verified_constraint_elimination",
-            "source": expression(target["target_math"]),
+            "source": expression(evidence.get("source_math", target["target_math"])),
+            "after_substitution": evidence.get("substitution") is not None,
             "result": expression(evidence["expression"]),
             "restoration": relation(evidence["restoration"]),
             "eliminated_variable": evidence["eliminated_variable"],
-            "conditions": [relation(c["math"]) for c in target["source_conditions"]],
+            "conditions": [relation(c) for c in conditions],
+            "condition_equations": [
+                relation(c)
+                for c in conditions
+                if parse_math_relation(c, context.symbols).ast.op == "="
+            ],
             "relations": [
                 relation(r.parsed.source)
                 for r in parse_derivation(
@@ -143,7 +156,9 @@ def collect_elimination_evidence(step_id, method_results):
                 relation(s) for s in evidence["remaining_conditions"]
             ],
             "display_remaining_conditions": [
-                relation(s) for s in evidence["remaining_conditions"] if not is_identity(s)
+                relation(s)
+                for s in evidence["remaining_conditions"]
+                if not is_identity(s)
             ],
             "origins": deepcopy(evidence["origins"]),
         }

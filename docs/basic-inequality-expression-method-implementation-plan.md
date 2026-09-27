@@ -1,6 +1,6 @@
 # 基本不等式表达式优先 Method 实施计划
 
-> 状态：阶段 1–4 已实施；阶段 5 按代表题与 Method 集成验收推进，尚未开始实现。更新：2026-09-25（重排阶段 5–7 职责与完成标准）。
+> 状态：阶段 1–4、5A、5B 已实施；5C/5D 待实施。5B 已通过代表题求解与页面门禁，真实 Planner 的稳定性仍需提升，统计见本节验收记录。更新：2026-09-26。
 > 设计入口：[基本不等式 Method 与讲解设计](basic-inequality-method-discussion.md)。
 
 ## 1. 目标与原则
@@ -478,7 +478,7 @@ M13 的可选 `equality_derivation` 现支持公共推导加分支推导。多�
 
 组合 VisualSpec 为 `expression_rewrite.fraction_observation`，复用结构观察组件。通分提示接收参数化分式，图内连接通分、条件代入、整理结果及定积求和。真实 Lesson LLM 首次无回退生成三步，产物位于 `internal/review-analysis/basic-inequality-stage4-pages/q08-fraction-observation-live-01/`。114 项教学/M01 回归与 63 项前端组件回归通过，覆盖换变量、系数、条件常数及拒绝不合法合并的行为。
 
-### 阶段 5：以代表题集成测试驱动 M08、M07、M12、M09、M14（5A 已验收，后续待实施）
+### 阶段 5：以代表题集成测试驱动 M08、M07、M12、M09、M14（5A/5B 已验收，5C/5D 待实施）
 
 不再先孤立完成五个 Method、再等待阶段 6 接 Runtime、阶段 7 做教学。每批先确定代表题和数学能力边界，编写实际使用新 Method 的失败整题测试，再交付该题从已冻结输入到学生网页的完整链路。实现顺序按依赖安排，不按 Method 编号。
 
@@ -552,6 +552,59 @@ M08、M11 正数倒数界传递、M13 原变量取等及四步教学闭环已接
 本阶段复用原十题冻结资产；按本次代表题纠正，另为 q29 增加独立的人工题面转录与确定性 ProblemIR 测试输入。保留原图及内容摘要，不伪造真实抽取样本或人工批准记录，不更改原 20 样本/10 题冻结集。其余 20 题不新增阶段资产；仍使用显式 authoring Registry，不启用生产默认 Family，不部署网站。
 
 以下是各 Method 的数学边界摘要；具体参数协议、可证明子集和预算在对应批次详细计划中确定。
+
+#### 5B 实施与验收结果（2026-09-25）
+
+实现 [M07 换元契约](substitution-method-design.md)：`definitions`、`steps[].math`、`expression`，支持一至两个新符号、单个原变量的有理系数一次式或平方。域与条件、目标等价关系经过证明后，才提交带原目标/Scope 身份的 `Substitution`；失败事务无符号或结果残留。
+
+M11 通过准确结果引用消费 `substitution`，与其他来源输入互斥；M13 重放依赖并验证原变量见证、全部原条件及目标值。平方换元保留正负逆分支，多个提交见证逐个验证，不宣称穷尽。没有新增公理或证明规则；补充的正性推导使用现有规则构造证书。仍仅在 authoring Registry 开放。
+
+首次验收时，确定性集成路线均为 **M07 → M11 → M13**（q12 的执行职责已按下方 2026-09-26 补记调整）：q25 完整分母换元后求得最小值 **25**；q12 平方换元后求得最小值 **4/5**，离线验证四组正负还原见证。新增 29 项测试，覆盖真实编译/事务/后续消费、改名与系数泛化、原始定义域、平方非负性、错误还原、证书和 Scope 篡改、回滚、无搜索证书回放、IR 序列化及正系数外乘的教学图。
+
+真实验收保留全部批次（每次至多三次尝试），未提供答案或指定路线：
+
+| 代表题 | 独立运行总数 | 首轮成功 | 修复后总成功 | 成功调用并消费 M07 | 最终离线回放 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| q25 | 6 | 0/6 | 2/6 | 2 | 2/2 |
+| q12 | 4 | 2/4 | 2/4 | 2 | 2/2 |
+
+这满足每题两次独立成功及 Method 实际覆盖的门禁，不表示 Planner 已稳定；失败批次与诊断全部保留。真实 Lesson 共五次：q25 前两次分别因 JSON 转义和推导前缀问题回退，第三次五步无回退；q12 两次均五步无回退。全部真实 Planner/Lesson 合计 **454,176 tokens**，Planner 运行耗时累计 **887.181 秒**（包括求解等运行时间），Lesson provider 耗时累计 **18.539 秒**，不是并行墙钟时间。
+
+学生步骤为“观察原式结构 → 整体换元 → 观察结构 → 应用基本不等式 → 验证取等”。Method 声明 VisualSpec，统一绑定现有结构图、公式映射图与取等图。q25 参考既有静态页的分母整体替换提示；没有读取 q12 静态页。页面数据完全来自执行证据，条件卡可合并代数等价条件，完整推导与证书不删减。
+
+回归：完整 solver 一轮 **4,310 通过、24 跳过、1 失败**，唯一失败是 authoring Method 白名单测试漏列 M07，已修复；随后包含该测试的 **448 项回归通过**。最后展示投影修改后 **176 项受影响集成回归通过**；前端组件 **58 项通过**；冻结样本 **20/20**、ProblemIR 构建检查 **10/10** 通过。最终生成页复用成功的真实 Planner/Lesson 记录，五步、无回退，桌面与 390px 窄屏完成公式、导航、溢出及浏览器错误检查。
+
+- [q25 最终网页](http://127.0.0.1:8766/internal/review-analysis/basic-inequality-stage5b/q25-final-01/lesson.html)
+- [q12 最终网页](http://127.0.0.1:8766/internal/review-analysis/basic-inequality-stage5b/q12-final-01/lesson.html)
+- [逐次调用、回放及验收总账](../internal/review-analysis/basic-inequality-stage5b/acceptance-02/summary.json)
+
+入口：`server/tools/run_basic_inequality_stage5b.py --case q25|q12 --mode recorded|deepseek --samples 2 --lesson deterministic|deepseek --output <新目录>`。冻结题面、ProblemIR 和金标不变；不部署网站。
+
+#### 5B 补记：换元接条件消元（2026-09-26）
+
+q12 的计划调整为 **M07 → M08 → M11 → M13**。M07 的 `expression` 仅允许定义替换及恒等整理，借原条件消去新变量的目标会被拒绝。M08 新增可选 `substitution` 精确结果输入，在重放同一目标、Scope 的 M07 证据后消去新变量，并在 `ConstraintElimination` 中保存依赖；M11/M13 沿该链验证求界及原变量还原。q25 保持原三 Method 路线。无需在题号上分支，也不由教学层补出未执行的 M08。
+
+学生页面由真实执行单元组成六步；消元图先展示已验证的 `u=…`，再展示目标前后变化，正文保留域与计算细节。图示支持 Planner 提交的等价写法，例如 `u=1/(5v)-v/5`，不强制改成手写答案的形式。
+
+本次新增四次独立 DeepSeek Planner 运行（不注入答案或指定 Method 链）：首批一轮修复后成功、一轮失败；补充通用非零性推导说明后，末批 **2/2 首轮成功，2/2 离线回放成功**，均实际生成并执行上述四 Method 依赖链。末批共 **36,979 tokens**；四次运行共七次 provider 请求、**117,377 tokens**，早期失败全部保留。本次页面使用成功 Planner 响应和确定性教学生成，未新增教学 LLM 调用。
+
+验证：完整 Solver 回归 **4,322 通过、24 跳过、0 失败**；82 项 M07/M08 与输入契约专项回归、59 项页面组件测试通过；桌面及 390px 窄屏验证分式、平方换元映射、六步导航与横向溢出，浏览器无错误。
+
+- [实际方法依赖审计](../internal/review-analysis/basic-inequality-stage5b/q12-method-chain-live-02/verified-method-dependencies.json)
+- [最新真实规划统计](../internal/review-analysis/basic-inequality-stage5b/q12-method-chain-live-02/summary.json)
+- [六步预览](http://127.0.0.1:8767/internal/review-analysis/basic-inequality-stage5b/q12-method-chain-final-03/lesson.html)
+
+
+#### 5B 最终六步真实讲解验收（2026-09-27）
+
+本次在三处审查修复及 100 项相关回归通过后，复用 `q12-method-chain-live-02/planner-01` 的成功 Planner 记录，用当前代码重放求解，再调用一次真实 DeepSeek Lesson。六个单元依次为观察换元、整体换元、条件消元、观察正项、应用基本不等式、验证取等；M07 与 M08 独立成步。首轮直接接受，契约与证据权限校验通过，零修复、零回退、零视觉缺口。
+
+本次仅新增一次 Lesson provider 请求：输入 6,313、输出 1,157，共 **7,470 tokens**；provider 耗时 **6.692 秒**，生成全链耗时 **13.636 秒**，无新 Planner 调用。桌面及 390px 窄屏核对通过，无页面横向溢出或控制台错误。本记录为自动校验及代理浏览器检查，不伪造人工批准。
+
+最终六步链路的真实 Lesson 门禁已补齐，**5B 已完成，可进入 5C**。生产 Family 开放和部署仍不在本阶段范围。
+
+- [最终真实 Lesson 页面](http://127.0.0.1:8767/internal/review-analysis/basic-inequality-stage5b/q12-final-lesson-live-01/lesson.html)
+- [最终验收记录与调用统计](../internal/review-analysis/basic-inequality-stage5b/q12-final-lesson-live-01/acceptance.json)
 
 #### M07 换元
 

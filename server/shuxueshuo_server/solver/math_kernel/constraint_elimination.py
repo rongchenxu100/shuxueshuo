@@ -111,14 +111,33 @@ def _verify_sequence(relations, context, *, certificates, budget):
     return proofs
 
 
-def verify_elimination(target, parameters, *, certificates=None, budget=None):
+def verify_elimination(
+    target, parameters, *, substitution=None, certificates=None, budget=None
+):
     from .inequality_bound_v2 import math_text
     from .inequality_evidence import target_context
 
     context, original = target_context(target)
     context = elimination_context(context)
+    if substitution is not None:
+        from .substitution import replay_substitution, substitution_context
+
+        context = substitution_context(context)
     budget = budget or _Budget(context.limits)
+    if substitution is not None:
+        context = replay_substitution(target, substitution, budget=budget)
+        original = parse_math_expression(substitution["expression"], context.symbols)
+    source_math = (
+        substitution["expression"]
+        if substitution is not None
+        else target["target_math"]
+    )
     variable = parameters["eliminate"]
+    if substitution is not None and variable not in substitution["definitions"]:
+        raise ProofFailure(
+            "elimination_variable_invalid",
+            "eliminate a variable from the bound substitution",
+        )
     if variable not in context.symbols or len(context.symbols) < 2:
         raise ProofFailure(
             "elimination_variable_invalid", "eliminate one declared original variable"
@@ -145,6 +164,16 @@ def verify_elimination(target, parameters, *, certificates=None, budget=None):
             "submit exactly one non-cyclic restoration formula",
         )
     replacement, restoration = next(iter(formulas.items()))
+    allowed_restoration_variables = (
+        set(substitution["definitions"])
+        if substitution is not None
+        else names(from_node(original.ast))
+    ) - {variable}
+    if not names(replacement) <= allowed_restoration_variables:
+        raise ProofFailure(
+            "elimination_restoration_invalid",
+            "restoration must use only remaining target variables (new variables after substitution)",
+        )
     reduced = parse_math_expression(parameters["expression"], context.symbols)
     if variable in names(from_node(reduced.ast)) or not names(
         from_node(reduced.ast)
@@ -155,7 +184,7 @@ def verify_elimination(target, parameters, *, certificates=None, budget=None):
         )
     equation = replace(
         parse_math_relation(
-            f"({target['target_math']})=({parameters['expression']})", context.symbols
+            f"({source_math})=({parameters['expression']})", context.symbols
         ),
         source_path="/parameters/expression",
     )
@@ -175,6 +204,11 @@ def verify_elimination(target, parameters, *, certificates=None, budget=None):
     ]
     evidence = {
         "schema_version": CONTRACT,
+        **(
+            {"substitution": deepcopy(substitution), "source_math": source_math}
+            if substitution is not None
+            else {}
+        ),
         "target_hash": digest(target),
         "target_math": target["target_math"],
         "parameters": deepcopy(parameters),
@@ -227,7 +261,11 @@ def replay_elimination(target, evidence, *, budget=None):
     if not isinstance(evidence.get("proofs"), list):
         raise ProofFailure("invalid_proof", "elimination certificates missing")
     rebuilt, context = verify_elimination(
-        target, evidence["parameters"], certificates=evidence["proofs"], budget=budget
+        target,
+        evidence["parameters"],
+        substitution=evidence.get("substitution"),
+        certificates=evidence["proofs"],
+        budget=budget,
     )
     if rebuilt != evidence:
         raise ProofFailure("invalid_proof", "elimination evidence changed")

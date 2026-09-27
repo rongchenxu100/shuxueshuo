@@ -833,6 +833,9 @@ def default_teaching_evidence_projector_registry(
     from .expression_rewrite import RewriteTeachingProjector
     registry.register(RewriteTeachingEvidence, RewriteTeachingProjector())
     from ..runtime.elimination_teaching_evidence import EliminationTeachingEvidence
+    from ..runtime.substitution_teaching_evidence import SubstitutionTeachingEvidence
+    from .substitution import SubstitutionTeachingProjector
+    registry.register(SubstitutionTeachingEvidence, SubstitutionTeachingProjector())
     from .elimination import EliminationTeachingProjector
     registry.register(EliminationTeachingEvidence, EliminationTeachingProjector())
     registry.register(PathMinimumWitness, PathMinimumTeachingEvidenceProjector())

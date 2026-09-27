@@ -124,7 +124,9 @@ def collect_inequality_evidence(step_id, method_results):
     from .elimination_teaching_evidence import collect_elimination_evidence
     from .rewrite_teaching_evidence import collect_rewrite_evidence
 
-    result = list(collect_rewrite_evidence(step_id, method_results))
+    from .substitution_teaching_evidence import collect_substitution_evidence
+    result = list(collect_substitution_evidence(step_id, method_results))
+    result.extend(collect_rewrite_evidence(step_id, method_results))
     result.extend(collect_elimination_evidence(step_id, method_results))
     for method in method_results:
         if method.method_id not in METHODS:
@@ -140,6 +142,12 @@ def collect_inequality_evidence(step_id, method_results):
         symbols = {
             name: sp.Symbol(name, real=True) for name in target["scalar_symbols"]
         }
+
+        from ..math_kernel.substitution import find_substitution, replay_substitution
+        substitution = find_substitution(bound)
+        if substitution is not None:
+            substitution_context = replay_substitution(target, substitution)
+            symbols = dict(substitution_context.symbols)
 
         def scalar(source, symbols=symbols):
             return parse_math_expression(source, symbols).to_sympy(symbols)
@@ -296,6 +304,26 @@ def collect_inequality_evidence(step_id, method_results):
             # simplifications below project its proved positive terms and domain;
             # the original-target transport was already certified by M11/M01.
             product = sp.cancel(terms[0] * terms[1])
+            if substitution is not None and not product.is_Rational:
+                # Exact polynomial reduction of the already verified conditions;
+                # no equation solving, witness guessing or proof search.
+                from ..math_kernel.proof_algebra import Arithmetic, ProofFailure, from_node
+                from ..math_kernel.proof_kernel import _Budget
+                candidate = sp.cancel(((scalar(bound["bound"]) -
+                    (scalar(bound["source_math"]) - sum(terms))) / 2) ** 2)
+                if candidate.is_Rational and candidate > 0:
+                    arithmetic = Arithmetic(_Budget(substitution_context.limits))
+                    relation_node = from_node(parse_math_relation(
+                        f"({product})=({candidate})", symbols).ast)
+                    divisors = [arithmetic.equation_divisor(from_node(p.ast))
+                        for p in substitution_context.premises.values() if p.ast.op == "="]
+                    try:
+                        _, remainder = arithmetic.reduce(arithmetic.difference(relation_node), divisors)
+                        if not remainder:
+                            product = candidate
+                    except ProofFailure:
+                        pass  # A generic diagram remains valid without a fixed-product card.
+            data["constant_product_latex"] = sp.latex(product) if product.is_Rational else None
             data["paired_product_latex"] = sp.latex(product)
             rest = sp.cancel(scalar(bound["source_math"]) - sum(terms))
             if bound.get("reciprocal"):
@@ -312,6 +340,18 @@ def collect_inequality_evidence(step_id, method_results):
                     "origins": data["origins"],
                     "basis": "verified_positive_reciprocal_and_local_amgm",
                 }
+            scale = sp.Integer(1)
+            if not rest.is_Rational:
+                total = sum(terms)
+                for symbol in sorted(total.free_symbols, key=str):
+                    derivative = sp.diff(total, symbol)
+                    if derivative == 0:
+                        continue
+                    candidate_scale = sp.cancel(sp.diff(scalar(bound["source_math"]), symbol) / derivative)
+                    candidate_rest = sp.cancel(scalar(bound["source_math"]) - candidate_scale * total)
+                    if candidate_scale.is_Rational and candidate_scale > 0 and candidate_rest.is_Rational:
+                        scale, rest = candidate_scale, candidate_rest
+                        break
             local_value = 2 * sp.sqrt(product)
             if (
                 product.is_Rational
@@ -319,7 +359,7 @@ def collect_inequality_evidence(step_id, method_results):
                 and rest.is_Rational
                 and sp.simplify(
                     rest
-                    + local_value
+                    + scale * local_value
                     - scalar(bound.get("reciprocal_lower_value", bound["bound"]))
                 )
                 == 0
@@ -337,15 +377,20 @@ def collect_inequality_evidence(step_id, method_results):
                             )
                         )
                         + r"\geq "
-                        + sp.latex(rest)
-                        + "+"
-                        + sp.latex(local_value)
+                        + (sp.latex(rest) + "+" if rest != 0 else "")
+                        + (sp.latex(local_value) if scale == 1 else sp.latex(scale) + r"\cdot " + sp.latex(local_value))
                     )
-                    if rest != 0
+                    if rest != 0 or scale != 1
                     else None,
                     "origins": [r.origin for r in chain],
                     "basis": "verified_local_amgm_and_target_transport",
                 }
+            if substitution is not None:
+                from .substitution_teaching_evidence import project_new_conditions
+                data["substitution_definitions_latex"] = [relation_latex(parse_math_relation(f"{n}=({v})", symbols)) for n,v in substitution["definitions"].items()]
+                projected = [parse_math_relation(r, symbols) for r in project_new_conditions(substitution["relations"], symbols, substitution["definitions"])]
+                data["substitution_conditions_latex"] = [relation_latex(r) for r in projected]
+                data["substitution_equations_latex"] = [relation_latex(r) for r in projected if r.ast.op == "="]
             if method.method_id == "close_equality_and_restore":
                 data.update(
                     witness={k: display(v) for k, v in evidence["assignments"].items()},

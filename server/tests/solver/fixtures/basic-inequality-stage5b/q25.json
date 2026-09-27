@@ -1,0 +1,141 @@
+{
+  "format": "functional_plan/v2",
+  "root_scope": {
+    "scope_ref": "problem",
+    "goals": [
+      {
+        "goal_ref": "problem.minimum",
+        "steps": [
+          {
+            "step_id": "substitute",
+            "capability_id": "substitute_expressions",
+            "args": {
+              "target": "extremum_target_target_expression"
+            },
+            "parameters": {
+              "definitions": {
+                "u": "a-1",
+                "v": "b-1"
+              },
+              "steps": [
+                {
+                  "math": "a-1=a/b"
+                },
+                {
+                  "math": "b-1=b/a"
+                },
+                {
+                  "math": "u=a/b"
+                },
+                {
+                  "math": "v=b/a"
+                },
+                {
+                  "math": "u>0"
+                },
+                {
+                  "math": "v>0"
+                },
+                {
+                  "math": "u*v=1"
+                }
+              ],
+              "expression": "13+4/u+9/v"
+            }
+          },
+          {
+            "step_id": "bound",
+            "capability_id": "apply_two_term_amgm",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "substitution": {
+                "step_id": "substitute",
+                "return": "substitution"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "13+4/u+9/v>=25"
+                }
+              ]
+            }
+          },
+          {
+            "step_id": "attain",
+            "capability_id": "close_equality_and_restore",
+            "args": {
+              "target": "extremum_target_target_expression",
+              "bound": {
+                "step_id": "bound",
+                "return": "bound"
+              }
+            },
+            "parameters": {
+              "steps": [
+                {
+                  "math": "a=5/3"
+                },
+                {
+                  "math": "b=5/2"
+                }
+              ],
+              "equality_derivation": [
+                {
+                  "math": "v=9*u/4",
+                  "using": [
+                    "4/u=9/v"
+                  ]
+                },
+                {
+                  "math": "9*u^2/4=1",
+                  "using": [
+                    "u*v=1",
+                    "v=9*u/4"
+                  ]
+                },
+                {
+                  "math": "u^2=4/9",
+                  "using": [
+                    "9*u^2/4=1"
+                  ]
+                },
+                {
+                  "math": "u=2/3",
+                  "using": [
+                    "u^2=4/9"
+                  ]
+                },
+                {
+                  "math": "v=3/2",
+                  "using": [
+                    "v=9*u/4",
+                    "u=2/3"
+                  ]
+                },
+                {
+                  "math": "a=5/3",
+                  "using": [
+                    "u=a-1",
+                    "u=2/3"
+                  ]
+                },
+                {
+                  "math": "b=5/2",
+                  "using": [
+                    "v=b-1",
+                    "v=3/2"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "answer_from": {
+          "step_id": "attain",
+          "return": "minimum"
+        }
+      }
+    ]
+  }
+}

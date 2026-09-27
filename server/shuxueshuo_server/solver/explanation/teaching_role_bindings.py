@@ -39,6 +39,9 @@ def bind_teaching_roles(
     *,
     snapshot: ExplanationSnapshot,
 ) -> dict[str, Any]:
+    if unit.role_binder_id == "expression_substitution":
+        from .substitution import roles
+        return roles(source, snapshot, unit)
     if unit.role_binder_id == "constraint_elimination":
         from .elimination import roles
 

@@ -22,14 +22,18 @@ from .models import (
 BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
     BASIC_INEQUALITY_FAMILY,
     method_ids=(
+        "substitute_expressions",
         "eliminate_by_constraint",
         "organize_expressions",
         "apply_two_term_amgm",
         "close_equality_and_restore",
     ),
     capability_contracts=(
+        CapabilityContractSpec("substitute_expressions", slot_writes=(StateSlotPattern(
+            "substitution", "Substitution", output_key="substitution", semantic_role="substitution", identity_policy="value_only"),)),
         CapabilityContractSpec(
             "eliminate_by_constraint",
+            slot_reads=(StateSlotPattern("substitution", "Substitution", semantic_role="substitution", allows_anonymous_result=True),),
             slot_writes=(
                 StateSlotPattern(
                     "constraintElimination",
@@ -44,6 +48,7 @@ BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
         CapabilityContractSpec(
             "apply_two_term_amgm",
             slot_reads=(
+                StateSlotPattern("substitution", "Substitution", semantic_role="substitution", allows_anonymous_result=True),
                 StateSlotPattern(
                     "constraintElimination",
                     "ConstraintElimination",
@@ -101,8 +106,9 @@ BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
         ),
     ),
     method_binding_rules=(
+        MethodBindingRuleSpec("substitute_expressions", input_bindings=(condition_arg_binding("target"),)),
         MethodBindingRuleSpec(
-            "eliminate_by_constraint", input_bindings=(condition_arg_binding("target"),)
+            "eliminate_by_constraint", input_bindings=(condition_arg_binding("target"), exact_call_result_binding("substitution", required=False))
         ),
         ORGANIZE_EXPRESSIONS_BINDING,
         MethodBindingRuleSpec(
@@ -111,6 +117,7 @@ BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
                 condition_arg_binding("target"),
                 latest_state_binding("expression", required=False),
                 exact_call_result_binding("elimination", required=False),
+                exact_call_result_binding("substitution", required=False),
                 exact_call_result_binding("previous_bound", required=False),
             ),
         ),

@@ -841,8 +841,17 @@
           : '';
         const substitutionHint = organization.substitutionHint || {};
         const substitutionMappings = Array.isArray(substitutionHint.mappings) ? substitutionHint.mappings : [];
-        const organizationSubstitutionHintMarkup = substitutionMappings.length
-          ? '<section class="substitution-core-template method-core basic-structure-substitution-hint" role="img" aria-label="' + esc(substitutionHint.ariaLabel || "识别两个完整分母，分别令新变量整体换元") + '">' +
+        const substitutionMappingOnly = substitutionHint.presentation === "mapping";
+        const organizationSubstitutionHintMarkup = substitutionMappings.length && substitutionMappingOnly
+          ? '<section class="substitution-concept-mappings" role="img" aria-label="' + esc(substitutionHint.ariaLabel || "整体换元对应关系") + '">' +
+              substitutionMappings.map(function (mapping, index) {
+                const source = mapping.kind === "radical" || mapping.kind === "expression"
+                  ? '<span class="substitution-concept-part">' + renderFormulaText(mapping.source) + '</span>'
+                  : '<span class="substitution-concept-fraction"><span>' + renderFormulaText(mapping.numerator) + '</span><span class="substitution-concept-part">' + renderFormulaText(mapping.denominator) + '</span></span>';
+                return '<div class="substitution-concept-mapping is-' + (index % 2 ? 'second' : 'first') + '">' + source +
+                  '<i aria-hidden="true">→</i><strong class="substitution-concept-variable">' + renderFormulaText(mapping.variable) + '</strong></div>';
+              }).join('') + '</section>'
+          : substitutionMappings.length ? '<section class="substitution-core-template method-core basic-structure-substitution-hint" role="img" aria-label="' + esc(substitutionHint.ariaLabel || "识别两个完整分母，分别令新变量整体换元") + '">' +
               '<div class="substitution-trigger-pair">' +
                 substitutionMappings.map(function (mapping) {
                   const isRadical = mapping?.kind === "radical";
@@ -1000,6 +1009,20 @@
               (symmetryHint.conclusion ? '<p class="basic-structure-symmetry-conclusion">' + esc(symmetryHint.conclusion) + '</p>' : '') +
             '</section>'
           : '';
+        const comparisonRows = Array.isArray(organization.comparisons) ? organization.comparisons : [];
+        const comparisonMarkup = comparisonRows.length
+          ? '<div class="basic-structure-comparisons">' + comparisonRows.map(function (row) {
+              if (row.beforeLabel && row.afterLabel) {
+                return '<div class="basic-structure-comparison is-labeled">' +
+                  '<div class="basic-structure-comparison-side"><span>' + esc(row.beforeLabel) + '</span><strong>' + renderFormulaText(row.before) + '</strong></div>' +
+                  '<div class="basic-structure-comparison-transition"><span>' + esc(row.label) + '</span><i aria-hidden="true">' + esc(row.arrow || '→') + '</i></div>' +
+                  '<div class="basic-structure-comparison-side is-after"><span>' + esc(row.afterLabel) + '</span><strong>' + renderFormulaText(row.after) + '</strong></div></div>';
+              }
+              return '<div class="basic-structure-comparison"><span>' + esc(row.label) + '</span>' +
+                '<strong>' + renderFormulaText(row.before) + '</strong><i aria-hidden="true">' + esc(row.arrow || '→') + '</i>' +
+                '<strong class="is-after">' + renderFormulaText(row.after) + '</strong></div>';
+            }).join('') + '</div>'
+          : '';
         const organizationStepMarkup = organizationSteps.map(function (item, index) {
           const stepItem = typeof item === "string" ? { expression: item } : (item || {});
           const expression = stepItem.expression || "";
@@ -1042,10 +1065,11 @@
           !organization.motive &&
           !organization.note
         );
-        const organizationMarkup = purposeCardsMarkup || organizationSteps.length || organizationSlotHintMarkup || organizationExpandHintMarkup || organizationCombineHintMarkup || organizationSquareHintMarkup || organizationBaseHintMarkup || organizationAlignmentHintMarkup || organizationSubstitutionHintMarkup || organizationEliminationHintMarkup || organizationHomogenizationHintMarkup || organizationLocalHomogenizationHintMarkup || organizationTermSpotMarkup || organizationRelationCountMarkup || organizationSymmetryHintMarkup
-          ? '<section class="basic-structure-organization' + (isMethodCoreOnly ? ' is-method-core-only' : '') + '">' +
+        const organizationMarkup = comparisonMarkup || purposeCardsMarkup || organizationSteps.length || organizationSlotHintMarkup || organizationExpandHintMarkup || organizationCombineHintMarkup || organizationSquareHintMarkup || organizationBaseHintMarkup || organizationAlignmentHintMarkup || organizationSubstitutionHintMarkup || organizationEliminationHintMarkup || organizationHomogenizationHintMarkup || organizationLocalHomogenizationHintMarkup || organizationTermSpotMarkup || organizationRelationCountMarkup || organizationSymmetryHintMarkup
+          ? '<section class="basic-structure-organization' + (isMethodCoreOnly || comparisonMarkup ? ' is-method-core-only' : '') + '">' +
               (organization.label ? '<span>' + esc(organization.label) + '</span>' : '') +
               (organization.motive ? '<p class="basic-structure-organization-motive">' + renderFormulaText(organization.motive) + '</p>' : '') +
+              comparisonMarkup +
               organizationTermSpotMarkup +
               organizationRelationCountMarkup +
               purposeCardsMarkup +
@@ -1081,13 +1105,13 @@
             structureHeading +
             focusMarkup +
             organizationMarkup +
-            (organizationMarkup ? '<i class="basic-structure-arrow" aria-hidden="true">↓</i>' : '') +
+            (organizationMarkup && visual.showRoute !== false ? '<i class="basic-structure-arrow" aria-hidden="true">↓</i>' : '') +
             patternMarkup +
-            '<p class="basic-structure-route">' +
+            (visual.showRoute === false ? '' : '<p class="basic-structure-route">' +
               '<strong>' + esc(visual.reading || "") + '</strong>' +
               '<b>→</b>' +
               '<span>' + esc(visual.route || "") + '</span>' +
-            '</p>' +
+            '</p>') +
             (visual.caption ? '<figcaption>' + renderFormulaText(visual.caption) + '</figcaption>' : '') +
           '</figure>'
         );
@@ -1182,9 +1206,11 @@
             '<span class="basic-map-operator">+</span>' +
             '<div class="basic-map-formula-slot-stack">' + secondSlotHtml + sumTemplateSource(secondMapping, "second", secondValue) + '</div>' +
             '<span class="basic-map-relation">≥</span><span>2</span>' +
+            (visual.presentation === "concept" && visual.productNote ? '<span class="basic-map-concept-radical">' : '') +
             '<span class="math-radical"><span class="math-radical-symbol">√</span><span class="math-radicand">' +
               firstCompactSlotHtml + '<span class="basic-map-product-dot">·</span>' + secondCompactSlotHtml +
             '</span></span>' +
+            (visual.presentation === "concept" && visual.productNote ? '<small class="basic-map-concept-product">' + renderFormulaText(visual.productNote) + '</small></span>' : '') +
           '</div>';
         const squareSumTemplateFormula =
           '<div class="basic-map-formula-layout is-square-sum" aria-hidden="true">' +
@@ -1198,6 +1224,11 @@
         const templateFormula = usesSquareSumFormula
           ? squareSumTemplateFormula
           : (usesSumGeometricFormula ? sumTemplateFormula : fractionTemplateFormula);
+        if (visual.presentation === "concept") {
+          return '<figure class="lesson-step-visual lesson-step-basic-inequality-map is-concept" role="group" aria-label="正项对应基本不等式">' +
+            '<div class="basic-map-board-heading"><span>代入基本不等式</span><span class="basic-map-screen-reader">' + renderFormulaText(visual.mapped) + '</span></div>' +
+            '<div class="basic-map-template-formula">' + templateFormula + '</div></figure>';
+        }
         const fractionMappedFormula =
           '<div class="basic-map-formula-layout basic-map-formula-layout-fixed' + fixedFormulaClass + '" aria-hidden="true">' +
             '<div class="basic-map-fixed-fraction' + mappedFractionClass + '">' +
@@ -1274,6 +1305,20 @@
         const first = visual.first || {};
         const second = visual.second || {};
         const equalityItems = Array.isArray(visual.equalities) ? visual.equalities : [];
+        if (visual.presentation === "concept") {
+          const equalities = visual.conceptEqualities || [];
+          const pair = function(term, shape) {
+            return '<span class="basic-equality-term is-' + shape + '">' + renderFormulaText(term.value) + '</span>';
+          };
+          const equality = equalities.length === 1
+            ? pair(first, "square") + '<i aria-hidden="true">＝</i>' + pair(second, "circle")
+            : equalities.map(function(row) { return '<strong>' + renderFormulaText(row) + '</strong>'; }).join('<small>且</small>');
+          return '<figure class="lesson-step-visual lesson-step-basic-equality-check is-concept" role="group" aria-label="联立取等条件">' +
+            '<div class="basic-concept-simultaneous"><section><span>取等条件</span><div class="basic-concept-equalities">' + equality + '</div></section>' +
+            '<b class="basic-concept-and">同时成立</b><section><span>' + esc(visual.conceptConditionLabel || "原条件") + '</span><div class="basic-concept-conditions">' +
+            (visual.conceptConditions || []).map(function(row) { return '<strong>' + renderFormulaText(row) + '</strong>'; }).join('<small>且</small>') +
+            '</div></section></div><figcaption>联立求解，检验能否取等</figcaption></figure>';
+        }
         if (Array.isArray(visual.equalityRelations) && visual.equalityRelations.length) {
           return '<figure class="lesson-step-visual lesson-step-basic-equality-check" role="group" aria-label="验证取等">' +
             '<section class="basic-local-equality"><span>取等条件同时成立</span><div>' + visual.equalityRelations.map(renderFormulaText).join('<b class="basic-local-and">且</b>') + '</div></section>' +

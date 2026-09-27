@@ -1462,6 +1462,14 @@ def _project_student_runtime_value(
     path: str,
 ) -> Any:
     projected = _json_clone(value)
+    if runtime_type == "Substitution":
+        return {
+            "definitions": [
+                student_math_display(f"{n}={v}")
+                for n, v in value["definitions"].items()
+            ],
+            "expression": student_math_display(value["expression"]),
+        }
     if runtime_type == "ConstraintElimination":
         return {
             k: student_math_display(value[k])
@@ -1573,6 +1581,8 @@ def _project_student_runtime_display(
     fallback: str,
     label: str | None = None,
 ) -> str:
+    if runtime_type == "Substitution":
+        return "，".join(value["definitions"]) + "；原式=" + value["expression"]
     if runtime_type == "ConstraintElimination":
         return value["restoration"] + "；原式=" + value["expression"]
     if runtime_type == "AmgmBound":

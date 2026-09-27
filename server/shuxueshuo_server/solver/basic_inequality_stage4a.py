@@ -61,9 +61,12 @@ def build_authoring_bundle(source_input):
     if any(e["entity_type"] != "symbol" for e in original["entities"]):
         raise ValueError("Stage 4A only accepts declared scalar symbols")
     if any(
-        f["type"] not in {"equation", "symbol_constraint"} for f in original["facts"]
+        f["type"] not in {"equation", "symbol_constraint", "symbol_domain"} for f in original["facts"]
     ):
         raise ValueError("unsupported source condition")
+    for fact in original["facts"]:
+        if fact["type"] == "symbol_domain" and (fact.get("bound_expression", [None])[-1] != "real" or fact.get("relation_operator") != "default_domain"):
+            raise ValueError("only explicit real scalar domains are supported")
     scope = original["scopes"][0]["scope_id"]
     if any(
         item["scope_id"] != scope
@@ -95,7 +98,7 @@ def build_authoring_bundle(source_input):
             "description": f["source_text"],
             "source_path": f["source_path"],
         }
-        for i, f in enumerate(original["facts"])
+        for i, f in enumerate(original["facts"]) if f["type"] != "symbol_domain"
     ]
     symbols = {e["name"]: sp.Symbol(e["name"], real=True) for e in entities}
     for fact in facts:

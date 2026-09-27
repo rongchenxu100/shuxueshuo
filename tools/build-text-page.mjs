@@ -264,6 +264,9 @@ export function validateTextLesson(lesson, inputDir = "") {
       if (visual.showFocus !== undefined && typeof visual.showFocus !== "boolean") {
         throw new Error(`${meta.id} 的步骤 ${step.id}.visual.showFocus 必须是布尔值`);
       }
+      if (visual.showRoute !== undefined && typeof visual.showRoute !== "boolean") {
+        throw new Error(`${meta.id} 的步骤 ${step.id}.visual.showRoute 必须是布尔值`);
+      }
       for (const field of ["condition", "target"]) {
         const panel = visual[field];
         if (!panel || typeof panel !== "object" || typeof panel.expression !== "string" || !panel.expression.trim()) {
@@ -308,6 +311,7 @@ export function validateTextLesson(lesson, inputDir = "") {
         const organizationSteps = Array.isArray(organization.steps) ? organization.steps : [];
         if (
           !organizationSteps.length
+          && organization.comparisons === undefined
           && organization.substitutionHint === undefined
           && organization.eliminationHint === undefined
           && organization.homogenizationHint === undefined
@@ -324,6 +328,18 @@ export function validateTextLesson(lesson, inputDir = "") {
           && organization.symmetryHint === undefined
         ) {
           throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization 必须包含整理公式或规则图`);
+        }
+        if (organization.comparisons !== undefined) {
+          if (!Array.isArray(organization.comparisons) || !organization.comparisons.length ||
+              organization.comparisons.some((row) => !row || ["label", "before", "after"].some((key) => typeof row[key] !== "string" || !row[key].trim()))) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.comparisons 必须包含有标签的前后对应关系`);
+          }
+        }
+        for (const row of organization.comparisons || []) {
+          if (["beforeLabel", "afterLabel", "arrow"].some((key) => key in row && (typeof row[key] !== "string" || !row[key].trim())) ||
+              (("beforeLabel" in row) !== ("afterLabel" in row))) {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.comparisons 两侧标签须成对且非空`);
+          }
         }
         if (organization.purposeCards !== undefined) {
           if (!Array.isArray(organization.purposeCards) || !organization.purposeCards.length) {
@@ -444,9 +460,15 @@ export function validateTextLesson(lesson, inputDir = "") {
           if (!hint || typeof hint !== "object" || !Array.isArray(hint.mappings) || !hint.mappings.length) {
             throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.substitutionHint 必须包含非空 mappings`);
           }
+          if (hint.presentation !== undefined && hint.presentation !== "mapping") {
+            throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.substitutionHint.presentation 不支持`);
+          }
           hint.mappings.forEach((mapping, index) => {
-            const kind = mapping?.kind === "radical" ? "radical" : "denominator";
-            const requiredFields = kind === "radical"
+            if (mapping?.kind === "expression" && hint.presentation !== "mapping") {
+              throw new Error("expression substitution requires mapping presentation");
+            }
+            const kind = ["radical", "expression"].includes(mapping?.kind) ? "expression" : "denominator";
+            const requiredFields = kind === "expression"
               ? ["source", "variable", "assignment"]
               : ["numerator", "denominator", "variable", "assignment"];
             for (const field of requiredFields) {
@@ -454,8 +476,8 @@ export function validateTextLesson(lesson, inputDir = "") {
                 throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.substitutionHint.mappings[${index}].${field} 必须是非空字符串`);
               }
             }
-            if (mapping?.kind !== undefined && !new Set(["denominator", "radical"]).has(mapping.kind)) {
-              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.substitutionHint.mappings[${index}].kind 必须是 denominator 或 radical`);
+            if (mapping?.kind !== undefined && !new Set(["denominator", "radical", "expression"]).has(mapping.kind)) {
+              throw new Error(`${meta.id} 的步骤 ${step.id}.visual.organization.substitutionHint.mappings[${index}].kind 必须是 denominator、radical 或 expression`);
             }
           });
           if (hint.ariaLabel !== undefined && (typeof hint.ariaLabel !== "string" || !hint.ariaLabel.trim())) {
@@ -571,6 +593,11 @@ export function validateTextLesson(lesson, inputDir = "") {
           }
         }
       }
+    }
+    if (step.visual?.presentation !== undefined && ["basic-inequality-mapping", "basic-inequality-equality-check"].includes(step.visual.kind)) {
+      if (step.visual.presentation !== "concept") throw new Error("invalid inequality presentation");
+      if (step.visual.kind === "basic-inequality-equality-check" && ["conceptEqualities", "conceptConditions"].some(key => !Array.isArray(step.visual[key]) || !step.visual[key].length || step.visual[key].some(row => typeof row !== "string" || !row.trim()))) throw new Error("concept requires simultaneous conditions");
+      if (step.visual.productNote !== undefined && (typeof step.visual.productNote !== "string" || !step.visual.productNote.trim())) throw new Error("invalid concept product note");
     }
     if (step.visual?.kind === "basic-inequality-mapping") {
       const visual = step.visual;
