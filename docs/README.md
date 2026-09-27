@@ -16,6 +16,7 @@
 ## Solver 与 LLM
 
 - `method-solver-architecture.md`：当前 FunctionalPlan 到 runtime 的生产链。
+- [Scope 事实复用与分层证明搜索设计](scoped-proof-search-architecture.md)：已验证数学事实跨 Method 复用、Scope 与执行依赖授权、分层搜索和预算、证书回放及迁移门禁；目标设计，待实施。
 - `functional-method-dsl-authoring-guide.md`：把 FunctionalPlan 视为 DSL 时，新增 Method 的语义边界、代码契约、诊断与测试规范；**§3 规定优先采用 `organize_expressions` 验证型范式，并给出防无限打补丁清单**。
 - `capability-authoring-guide.md`：新增 Function、Macro、binding、return 与 closure contract 的规范；§1.1 与上条交叉引用。
 - `organize-expressions-q08-design.md`：验证型 Method 参考实现（LLM 填式链、代码验等价）。
