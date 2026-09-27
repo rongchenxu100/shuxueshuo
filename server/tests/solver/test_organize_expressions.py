@@ -55,6 +55,83 @@ def test_q08_verified_operations_and_display():
     assert all(c.ok for c in result.checks)
 
 
+@pytest.mark.parametrize("inline_reason", [False, True])
+def test_complete_relations_with_bound_condition_reason(inline_reason):
+    d = data()
+    old = d["call"]["parameters"]["steps"]
+    relation = old[1]["math"] + "=" + old[2]["math"]
+    second = {"math": relation, "using": ["a*b=1"]}
+    if inline_reason:
+        second = {"math": "∵ a*b=1；∴ " + relation}
+    d["call"]["parameters"]["steps"] = [
+        {"math": old[0]["math"] + "=" + old[1]["math"]}, second,
+    ]
+    trace = run(d).trace_fragments[0]
+    assert [t["operation"] for t in trace["transitions"]] == [
+        "combine_fractions", "substitute_condition",
+    ]
+    assert trace["submitted_steps"] == d["call"]["parameters"]["steps"]
+    assert trace["input_format"] == "relations"
+
+
+def test_single_complete_relation():
+    d = data()
+    old = d["call"]["parameters"]["steps"]
+    d["call"]["parameters"]["steps"] = [
+        {"math": old[0]["math"] + "=" + old[1]["math"]},
+    ]
+    assert len(run(d).trace_fragments[0]["transitions"]) == 1
+
+
+def test_complete_relation_cites_conditions_without_proof_details():
+    import sympy as sp
+    from shuxueshuo_server.solver.math_kernel.expression_rewrite import verify_chain
+
+    u, v = sp.symbols("u v", real=True)
+    trace = verify_chain(3*u + 3*v, ["u+v=4"], [
+        {"math": "3*u+3*v=3*(u+v)"},
+        {"math": "∵ u+v=4；∴ 3*(u+v)=12"},
+    ], {"u": u, "v": v})
+    assert trace["value"] == 12
+    assert trace["transitions"][-1]["conditionCardIds"] == ["c0"]
+    assert trace["relation_origins"][-1]["relations"][0]["source_path"] == "/parameters/steps/1/math"
+
+
+def test_undefined_cited_reason_cannot_be_cancelled_into_bound_fact():
+    d = data()
+    old = d["call"]["parameters"]["steps"]
+    d["call"]["parameters"]["steps"] = [{
+        "math": "∵ a*b*(a-a)/(a-a)=1；∴ " + old[0]["math"] + "=" + old[2]["math"],
+    }]
+    with pytest.raises(StatelessMethodError):
+        run(d)
+
+
+@pytest.mark.parametrize("kind", ["forged_reason", "unjustified", "wrong_start", "disconnected", "inequality", "mixed", "undefined_left"])
+def test_complete_relation_rejects_invalid_claims(kind):
+    d = data()
+    old = d["call"]["parameters"]["steps"]
+    steps = [{"math": old[0]["math"] + "=" + old[1]["math"]},
+             {"math": "∵ a*b=1；∴ " + old[1]["math"] + "=" + old[2]["math"]}]
+    if kind == "forged_reason":
+        steps[1]["math"] = steps[1]["math"].replace("a*b=1", "a*b=2")
+    if kind == "unjustified":
+        steps[1]["math"] = old[1]["math"] + "=" + old[2]["math"]
+    if kind == "wrong_start":
+        steps[0]["math"] = "a+b+7=b+a+7"
+    if kind == "disconnected":
+        steps[1]["math"] = "a+b=b+a"
+    if kind == "inequality":
+        steps[0]["math"] = steps[0]["math"].replace("=", ">=")
+    if kind == "mixed":
+        steps[1] = old[2]
+    if kind == "undefined_left":
+        steps[1]["math"] = "1/(a-a)=1/(a-a)"
+    d["call"]["parameters"]["steps"] = steps
+    with pytest.raises(StatelessMethodError):
+        run(d)
+
+
 @pytest.mark.parametrize(
     "kind",
     [
@@ -436,3 +513,35 @@ def test_irrelevant_using_does_not_invent_substitution():
     assert (
         run(d).trace_fragments[0]["transitions"][0]["operation"] == "equivalent_rewrite"
     )
+
+
+@pytest.mark.parametrize("remainder", ["", "7+"])
+def test_fraction_merge_visual_uses_verified_operation_extent(remainder):
+    from shuxueshuo_server.solver.visual.teaching_diagrams import fraction_merge_visual
+
+    d = data()
+    d["symbols"] = ["u", "v"]
+    d["conditions"] = {"positive_u": "u>0", "positive_v": "v>0"}
+    d["expression"] = remainder + "1/(3*u)+1/(3*v)"
+    d["call"]["parameters"]["steps"] = [
+        {"math": d["expression"]},
+        {"math": remainder + "(u+v)/(3*u*v)"},
+    ]
+    trace = run(d).trace_fragments[0]
+    transition = trace["transitions"][0]
+    assert transition["operation"] == "combine_fractions"
+    assert bool(transition["unchanged"]) == bool(remainder)
+    visual = fraction_merge_visual(trace)
+    flow = visual["organization"]["expressionFlow"]
+    assert ["".join(p["expression"] for p in row["parts"]) for row in flow] == [
+        transition["before"]["latex"], transition["after"]["latex"]
+    ]
+    assert flow[1]["relation"] == "="
+    assert visual["reading"] == ("局部通分" if remainder else "整体通分")
+    assert flow[1]["label"] == ("局部通分后" if remainder else "整体通分后")
+    for row in flow:
+        assert any(p.get("highlight") for p in row["parts"]) == bool(remainder)
+    assert "caption" not in visual
+    if not remainder:
+        assert "局部" not in json.dumps(visual, ensure_ascii=False)
+        assert "其余项" not in json.dumps(visual, ensure_ascii=False)

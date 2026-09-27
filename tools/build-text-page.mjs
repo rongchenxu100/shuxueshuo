@@ -312,6 +312,7 @@ export function validateTextLesson(lesson, inputDir = "") {
         if (
           !organizationSteps.length
           && organization.comparisons === undefined
+          && organization.expressionFlow === undefined
           && organization.substitutionHint === undefined
           && organization.eliminationHint === undefined
           && organization.homogenizationHint === undefined
@@ -593,6 +594,22 @@ export function validateTextLesson(lesson, inputDir = "") {
           }
         }
       }
+    }
+    const expressionFlow = step.visual?.expressionFlow ?? step.visual?.organization?.expressionFlow;
+    if (expressionFlow !== undefined && (!Array.isArray(expressionFlow) || !expressionFlow.length || expressionFlow.some(row =>
+      !row || typeof row.label !== "string" || !["", "=", "≥", "≤", "⇐", "→"].includes(row.relation ?? "") ||
+      !Array.isArray(row.parts) || !row.parts.length || row.parts.some(part =>
+        !part || typeof part.expression !== "string" || !part.expression.trim() ||
+        ("highlight" in part && typeof part.highlight !== "boolean"))))) {
+      throw new Error(`${meta.id} 的步骤 ${step.id}.visual.expressionFlow 无效`);
+    }
+    for (const key of ["sumNote", "localConclusion"]) {
+      if (step.visual?.[key] !== undefined && (typeof step.visual[key] !== "string" || !step.visual[key].trim())) throw new Error(`invalid concept ${key}`);
+    }
+    const equalityItems = step.visual?.conceptEqualityItems;
+    if (equalityItems !== undefined && (!Array.isArray(equalityItems) || equalityItems.length !== step.visual.conceptEqualities?.length || equalityItems.some(item =>
+      !item || !["amgm", "quadratic"].includes(item.kind) || (item.kind === "amgm" ? ["first", "second"] : ["expression"]).some(key => typeof item[key] !== "string" || !item[key].trim())))) {
+      throw new Error("invalid conceptEqualityItems");
     }
     if (step.visual?.presentation !== undefined && ["basic-inequality-mapping", "basic-inequality-equality-check"].includes(step.visual.kind)) {
       if (step.visual.presentation !== "concept") throw new Error("invalid inequality presentation");

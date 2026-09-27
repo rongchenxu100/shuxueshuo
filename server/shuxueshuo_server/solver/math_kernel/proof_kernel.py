@@ -149,6 +149,8 @@ class _Budget:
         # Exact algebra caches belong to this bounded request, including its
         # successive verified rows. They never cache proof authorization.
         self.gcd_cache, self.equation_divisors = {}, {}
+        self.proven_goals = {}
+        self.proof_nodes = set()
         if not isinstance(limits, ProofLimits) or any(
             type(v) is not int or v <= 0 for v in asdict(limits).values()
         ):
@@ -210,6 +212,16 @@ def _relation(e):
     return isinstance(e, tuple) and len(e) == 3 and e[0] in RELATIONS
 
 
+def fact_key(relation):
+    """Structural fact identity; never cancel expressions or domains."""
+    op, left, right = relation
+    if op in {"<", "<="}:
+        op, left, right = REVERSE[op], right, left
+    if op in {"=", "!="} and repr(left) > repr(right):
+        left, right = right, left
+    return op, left, right
+
+
 def _factors(e):
     if e[0] == "mul":
         return {e[1], e[2]} | _factors(e[1]) | _factors(e[2])
@@ -236,6 +248,36 @@ def _ordered(g):
 
 def _diff(g):
     return expr("sub", g[1], g[2])
+
+
+def _cancel_additive(node):
+    """Propose cancellation of identical signed addends, without expansion."""
+    positive, negative = [], []
+
+    def collect(item, sign=1):
+        if item[0] in {"add", "sub"}:
+            collect(item[1], sign)
+            collect(item[2], -sign if item[0] == "sub" else sign)
+        elif item[0] == "neg":
+            collect(item[1], -sign)
+        else:
+            (positive if sign == 1 else negative).append(item)
+
+    collect(node)
+    changed = False
+    for item in positive[:]:
+        if item in negative:
+            positive.remove(item)
+            negative.remove(item)
+            changed = True
+    if not changed:
+        return node
+    result = ZERO
+    for item in positive:
+        result = item if result == ZERO else expr("add", result, item)
+    for item in negative:
+        result = expr("sub", result, item)
+    return result
 
 
 def _holds(sign, operator):
@@ -278,7 +320,7 @@ class _Environment:
         self.arithmetic = Arithmetic(self.budget)
         if (
             len(context.symbols) > context.limits.variables
-            or len(context.premises) > context.limits.premises
+            or len(context.premises) > 256
         ):
             raise ProofFailure("proof_limit", "context size limit")
         if any(
@@ -298,6 +340,13 @@ class _Environment:
             self.premises[key] = from_node(checked.ast)
             self.documents["premise:" + key] = _document(parsed)
             self.sources["premise:" + key] = checked
+        # Keep every source ID for old certificates and diagnostic provenance;
+        # capacity counts distinct, structurally normalized facts only.
+        self.fact_sources = {}
+        for key, relation in self.premises.items():
+            self.fact_sources.setdefault(fact_key(relation), []).append(key)
+        if len(self.fact_sources) > context.limits.premises:
+            raise ProofFailure("proof_limit", "context size limit")
         self.request = request
         self._request_sources(request)
         self.context_hash = digest(
@@ -311,6 +360,7 @@ class _Environment:
         self.nodes = []
         self.by_id = {}
         self.depths = {}
+        self.node_keys, self.interned_nodes = {}, {}
         self._check_context()
 
     def _request_sources(self, request):
@@ -452,7 +502,6 @@ class _Environment:
         return tuple(result)
 
     def add(self, rule, conclusion, children=(), certificate=None):
-        self.budget.use("nodes")
         children = tuple(children)
         certificate = certificate or {}
         used = set().union(*(set(self.by_id[c].premises) for c in children))
@@ -470,9 +519,25 @@ class _Environment:
         )
         self.check_node(node)
         self.check_depth(node)
+        key = self.node_key(node)
+        if key in self.interned_nodes:
+            return self.interned_nodes[key]
+        self.charge_node(node, key)
         self.nodes.append(node)
         self.by_id[node.node_id] = node
         return node.node_id
+
+    def node_key(self, node):
+        return digest((RULESET_HASH, self.context_hash, node.rule_id,
+                       node.conclusion, node.certificate,
+                       [self.node_keys[c] for c in node.children]))
+
+    def charge_node(self, node, key):
+        if key not in self.budget.proof_nodes:
+            self.budget.use("nodes")
+            self.budget.proof_nodes.add(key)
+        self.node_keys[node.node_id] = key
+        self.interned_nodes.setdefault(key, node.node_id)
 
     def check_depth(self, node):
         depth = 1 + max((self.depths[c] for c in node.children), default=0)
@@ -1104,6 +1169,21 @@ class _Search(_Environment):
                     "proof_missing", "no bounded proof for requested relation"
                 )
             return found
+        shared_key = (RULESET_HASH, self.context_hash, goal)
+        if shared_key in self.budget.proven_goals:
+            graph, root = self.budget.proven_goals[shared_key]
+            imported = {}
+
+            def attach(node_id):
+                if node_id not in imported:
+                    n = graph[node_id]
+                    imported[node_id] = self.add(n.rule_id.removeprefix("math."), n.conclusion,
+                                                 [attach(c) for c in n.children], n.certificate)
+                return imported[node_id]
+
+            # Recheck every imported rule against this request's source map.
+            self.cache[goal] = attach(root)
+            return self.cache[goal]
         if goal in self.active:
             raise ProofFailure("proof_missing", "cyclic proof dependency")
         if len(self.active) >= self.budget.limits.depth:
@@ -1115,6 +1195,7 @@ class _Search(_Environment):
             core = self.core(goal)
             result = self.add("guard", goal, (core, *guards))
             self.cache[goal] = result
+            self.budget.proven_goals[shared_key] = (dict(self.by_id), result)
             return result
         except ProofFailure as exc:
             if exc.code == "proof_missing":
@@ -1147,15 +1228,161 @@ class _Search(_Environment):
         for key, premise in self.premises.items():
             if premise == g:
                 return self.add("given", g, certificate={"premise_id": key})
-        if g[0] in {"<=", "<"} and all(
+        if not names(g) and not (g[0] == ">=" and g[1][0] == "add"):
+            sign, certificate = a.constant_certificate(_diff(g))
+            if _holds(sign, g[0]):
+                return self.add("constant", g, certificate=certificate)
+            raise ProofFailure("proof_missing", "exact constant comparison is false")
+        if g[0] != "=" and g[2] == ZERO:
+            cancelled = _cancel_additive(g[1])
+            if cancelled != g[1]:
+                found = self.attempt(partial(
+                    self.raw, "equal_sign", g,
+                    [("=", g[1], cancelled), (g[0], cancelled, ZERO)],
+                ))
+                if found:
+                    return found
+            if g[0] == "<" and g[1][0] == "pow":
+                exponent = signed_integer(g[1][2])
+                if exponent is not None and exponent > 0 and exponent % 2 == 0:
+                    raise ProofFailure("proof_missing", "a real even power cannot be negative")
+        # Powers and positive constant denominators have direct sign
+        # certificates. Try these before transporting signs through unrelated
+        # equations; reciprocal domain checks need them before monotonicity.
+        if g[0] != "=" and g[2] == ZERO and g[1][0] == "pow":
+            found = self.attempt(partial(self.sign, g))
+            if found:
+                return found
+        if g[0] != "=" and g[2] == ZERO and g[1][0] == "div":
+            denominator = a.literal_rational(g[1][2])
+            if denominator is not None and denominator > 0:
+                found = self.attempt(partial(
+                    self.raw, "sign", g,
+                    [(g[0], g[1][1], ZERO), (">", g[1][2], ZERO)],
+                ))
+                if found:
+                    return found
+        if g[0] == "!=" and g[2] == ZERO and g[1][0] in {"mul", "div"}:
+            found = self.attempt(
+                partial(self.raw, "sign", g, [("!=", side, ZERO) for side in g[1][1:]])
+            )
+            if found:
+                return found
+        # Prefer exact, already-proved operand signs before transporting a
+        # product through unrelated equations. Operands may be compound terms
+        # such as a-b; symbol-only positivity heuristics miss these. This path
+        # does not speculate about signs: the existing sign rule checks every
+        # combination and its domain, using only verified premises.
+        if g[0] != "=" and g[2] == ZERO and g[1][0] in {"add", "sub", "mul", "div"}:
+            operand_signs = [
+                [p for p in self.premises.values()
+                 if p[0] in SIGNS and p[1] == operand and p[2] == ZERO]
+                for operand in g[1][1:]
+            ]
+            for left_sign in operand_signs[0]:
+                for right_sign in operand_signs[1]:
+                    required = [left_sign, right_sign]
+                    try:
+                        self.check_sign(g, required, {})
+                    except ProofFailure:
+                        continue
+                    return self.raw("sign", g, required)
+        # Reuse the same algebraic relation before searching transports through
+        # unrelated inequalities (which may introduce high-degree denominators).
+        for premise in self.premises.values():
+            # Adding an unchanged remainder may introduce extra parameters in
+            # the written goal. The certified difference (and sign) is still
+            # the same; do not search new AM-GM pairs before transporting it.
+            if premise[0] != g[0] or g[0] == "=" or not names(premise) <= names(g):
+                continue
+            try:
+                ratio = a.proportional(_diff(g), _diff(premise))
+            except ProofFailure as exc:
+                if exc.code == "proof_limit" and str(exc) == "polynomial degree limit":
+                    continue
+                raise
+            if ratio and ratio > 0:
+                found = self.attempt(
+                    partial(self.raw, "weaken", g, [premise], {"ratio": str(ratio)})
+                )
+                if found:
+                    return found
+        ordered_target = _ordered(g)
+        if ordered_target:
+            for first in self.premises.values():
+                a1 = _ordered(first)
+                if not a1 or a.difference(("=", a1[1], ordered_target[1])):
+                    continue
+                for second in self.premises.values():
+                    a2 = _ordered(second)
+                    if (
+                        a2
+                        and not a.difference(("=", a1[2], a2[1]))
+                        and not a.difference(("=", a2[2], ordered_target[2]))
+                    ):
+                        if ordered_target[0] == ">" and a1[0] == a2[0] == ">=":
+                            continue
+                        return self.raw("transitive", g, [first, second])
+        ordered = _ordered(g)
+        if ordered and all(e[0] in {"symbol", "rat"} for e in g[1:]):
+            for premise in self.premises.values():
+                first = _ordered(premise)
+                if first and first[1] == ordered[1] and first[2] != ordered[2]:
+                    second_op = ">=" if ordered[0] == ">=" or first[0] == ">" else ">"
+                    found = self.attempt(
+                        partial(
+                            self.raw,
+                            "transitive",
+                            g,
+                            [premise, (second_op, first[2], ordered[2])],
+                        )
+                    )
+                    if found:
+                        return found
+        if g[0] == "!=":
+            strict_ops = sorted(
+                (">", "<"), key=lambda op: -((op, g[1], g[2]) in self.premises.values())
+            )
+            for strict in strict_ops:
+                found = self.attempt(
+                    partial(
+                        self.raw, "weaken", g, [(strict, g[1], g[2])], {"ratio": "1"}
+                    )
+                )
+                if found:
+                    return found
+        # Normalize positive literal numerators before reciprocal monotonicity;
+        # e.g. 4/a^2 is exactly 1/(a^2/4), not a new proof rule.
+        if g[0] in {">=", ">", "<=", "<"} and all(side[0] == "div" for side in g[1:]):
+            numerators = [a.literal_rational(side[1]) for side in g[1:]]
+            if all(n is not None and n > 0 for n in numerators) and any(
+                n != 1 for n in numerators
+            ):
+                normalized = tuple(
+                    expr(
+                        "div", ONE, side[2] if n == 1 else expr("div", side[2], side[1])
+                    )
+                    for side, n in zip(g[1:], numerators)
+                )
+                found = self.attempt(
+                    partial(
+                        self.raw, "weaken", g, [(g[0], *normalized)], {"ratio": "1"}
+                    )
+                )
+                if found:
+                    return found
+        if g[0] in {"<=", "<", ">=", ">"} and all(
             side[0] == "div" and side[1] == ONE for side in g[1:]
         ):
             x, y = g[1][2], g[2][2]
-            found = self.attempt(partial(self.raw,
-                "monotone",
-                g,
-                [(">", x, ZERO), (">", y, ZERO), (REVERSE[g[0]], x, y)],
-            ))
+            found = self.attempt(
+                partial(
+                    self.raw,
+                    "monotone",
+                    g,
+                    [(">", x, ZERO), (">", y, ZERO), (REVERSE[g[0]], x, y)],
+                )
+            )
             if found:
                 return found
         # A submitted sum equation isolates the sign of the missing term.
@@ -1168,35 +1395,66 @@ class _Search(_Environment):
                 for total, value in (premise[1:], premise[1:][::-1]):
                     if total[0] != "add" or value != g[2]:
                         continue
-                    for i,j in ((1,2),(2,1)):
+                    for i, j in ((1, 2), (2, 1)):
                         if total[i] == g[1]:
                             candidate = ("neg", total[j])
                             difference = (g[0], _diff(g), ZERO)
-                            found = self.attempt(partial(self.raw, "equal_sign", difference,
-                                [("=", _diff(g), candidate), (g[0], candidate, ZERO)]))
+                            found = self.attempt(
+                                partial(
+                                    self.raw,
+                                    "equal_sign",
+                                    difference,
+                                    [
+                                        ("=", _diff(g), candidate),
+                                        (g[0], candidate, ZERO),
+                                    ],
+                                )
+                            )
                             if found:
-                                self.cache[difference] = self.add("guard", difference, (found, *(self.need(d) for d in domains(difference))))
+                                self.cache[difference] = self.add(
+                                    "guard",
+                                    difference,
+                                    (
+                                        found,
+                                        *(self.need(d) for d in domains(difference)),
+                                    ),
+                                )
                                 return self.raw("difference", g, [difference])
         # Try only a single signed variable as multiplier before equation
         # transport (e.g. clearing a positive reciprocal denominator).
         if g[0] != "=":
             for premise in self.premises.values():
-                if premise[0] == "=" or not any(n[0] == "div" for n in walk(premise)):
+                if (
+                    premise[0] == "="
+                    or not names(premise) <= names(g)
+                    or not any(n[0] == "div" for n in walk(premise))
+                ):
                     continue
-                for name in sorted(names(g) & names(premise)):
+                for name in sorted(names(g)):
                     symbol = ("symbol", name)
                     if (">", symbol, ZERO) not in self.premises.values():
                         continue
                     for factor, op in ((symbol, ">"), (("neg", symbol), "<")):
-                        if not {x*y for x in SIGNS[premise[0]] for y in SIGNS[op]} <= SIGNS[g[0]]:
+                        if (
+                            not {x * y for x in SIGNS[premise[0]] for y in SIGNS[op]}
+                            <= SIGNS[g[0]]
+                        ):
                             continue
-                        if a.difference(("=", _diff(g), expr("mul", _diff(premise), factor))):
+                        if a.difference(
+                            ("=", _diff(g), expr("mul", _diff(premise), factor))
+                        ):
                             continue
                         difference = (g[0], _diff(g), ZERO)
-                        found = self.raw("scale", difference, [premise, (op, factor, ZERO)])
+                        found = self.raw(
+                            "scale", difference, [premise, (op, factor, ZERO)]
+                        )
                         if g[2] == ZERO:
                             return found
-                        self.cache[difference] = self.add("guard", difference, (found, *(self.need(d) for d in domains(difference))))
+                        self.cache[difference] = self.add(
+                            "guard",
+                            difference,
+                            (found, *(self.need(d) for d in domains(difference))),
+                        )
                         return self.raw("difference", g, [difference])
         # Reordering a previously proved bound does not introduce a second
         # AM-GM application. Preserve that dependency before template search.
@@ -1287,22 +1545,6 @@ class _Search(_Environment):
                 )
             if matches:
                 return matches[0]
-        ordered_target = _ordered(g)
-        if ordered_target:
-            for first in self.premises.values():
-                a1 = _ordered(first)
-                if not a1 or a.difference(("=", a1[1], ordered_target[1])):
-                    continue
-                for second in self.premises.values():
-                    a2 = _ordered(second)
-                    if (
-                        a2
-                        and not a.difference(("=", a1[2], a2[1]))
-                        and not a.difference(("=", a2[2], ordered_target[2]))
-                    ):
-                        if ordered_target[0] == ">" and a1[0] == a2[0] == ">=":
-                            continue
-                        return self.raw("transitive", g, [first, second])
         if g[0] == "<=":
             for key, premise in self.premises.items():
                 if premise[0] != ">=" or premise[1][0] != "add":
@@ -1348,10 +1590,6 @@ class _Search(_Environment):
             if _holds(sign, g[0]):
                 return self.add("constant", g, certificate=certificate)
             raise ProofFailure("proof_missing", "exact constant comparison is false")
-        if g[0] == "!=" and g[2] == ZERO and g[1][0] in {"mul", "div"}:
-            found = self.attempt(partial(self.raw, "sign", g, [("!=", side, ZERO) for side in g[1][1:]]))
-            if found:
-                return found
         # Even powers are nonnegative irrespective of their base's sign.
         # Prefer that direct certificate before unrelated equation transport.
         if g[2] == ZERO and g[0] in {">", ">=", "!="}:
@@ -1509,31 +1747,6 @@ class _Search(_Environment):
                             [premise, equality],
                             {"ratio": str(ratio)},
                         )
-        ordered = _ordered(g)
-        if ordered and all(e[0] in {"symbol", "rat"} for e in g[1:]):
-            for premise in self.premises.values():
-                first = _ordered(premise)
-                if first and first[1] == ordered[1] and first[2] != ordered[2]:
-                    second_op = ">=" if ordered[0] == ">=" or first[0] == ">" else ">"
-                    found = self.attempt(
-                        partial(
-                            self.raw,
-                            "transitive",
-                            g,
-                            [premise, (second_op, first[2], ordered[2])],
-                        )
-                    )
-                    if found:
-                        return found
-        if g[0] == "!=":
-            for strict in (">", "<"):
-                found = self.attempt(
-                    partial(
-                        self.raw, "weaken", g, [(strict, g[1], g[2])], {"ratio": "1"}
-                    )
-                )
-                if found:
-                    return found
         if g[0] == "=":
             if (
                 g[1][0] == "pow"
@@ -1594,6 +1807,20 @@ class _Search(_Environment):
                         )
                         if found:
                             return found
+        # Prefer a directly certified product sign before polynomial expansion.
+        if g[1][0] == "mul":
+            for left in self.premises.values():
+                for right in self.premises.values():
+                    if left[1:] == (g[1][1], ZERO) and right[1:] == (g[1][2], ZERO):
+                        try:
+                            self.check_sign(g, [left, right], {})
+                        except ProofFailure:
+                            continue
+                        found = self.attempt(
+                            partial(self.raw, "sign", g, [left, right])
+                        )
+                        if found:
+                            return found
         # Exact polynomial multiples of a signed premise preserve or reverse
         # its sign only after the multiplier sign has itself been proved.
         for key, premise in self.premises.items():
@@ -1602,7 +1829,11 @@ class _Search(_Environment):
             factor = a.factor(g[1], _diff(premise))
             if factor is None:
                 continue
-            for op in (">", "<", ">=", "<=", "!=", "="):
+            scale_ops = [">", "<", ">=", "<=", "!=", "="]
+            scale_ops.sort(
+                key=lambda op: -((op, factor, ZERO) in self.premises.values())
+            )
+            for op in scale_ops:
                 possible = {x * y for x in SIGNS[premise[0]] for y in SIGNS[op]}
                 if possible <= SIGNS[g[0]]:
                     found = self.attempt(
@@ -1743,6 +1974,16 @@ class _Search(_Environment):
                 (">", "<="),
                 ("<", ">="),
             ]
+            # Prefer already certified operand signs over speculative strict
+            # signs (a square may be zero at the extremum).
+            options.sort(
+                key=lambda pair: (
+                    -sum(
+                        (op, operand, ZERO) in self.premises.values()
+                        for op, operand in zip(pair, e[1:])
+                    )
+                )
+            )
             for x, y in options:
                 children = [(x, e[1], ZERO), (y, e[2], ZERO)]
                 try:
@@ -2067,15 +2308,17 @@ def prove_relation(candidate: ParsedMath, context: ProofContext) -> ProofResult:
         return _failure(exc)
 
 
-def verify_relation_sequence(relations, context, *, certificates=None, budget=None):
+def verify_relation_sequence(relations, context, *, certificates=None, budget=None, on_verified=None):
     """Prove/replay ordered relations; only verified predecessors become premises.
 
     A single construction/replay budget spans the whole sequence. Supplying
     certificates selects replay only: no search and no trusted success flags.
     The caller binds this sequence to its original teaching-row source map.
     """
-    if not 1 <= len(relations) <= 32:
-        raise ProofFailure("proof_limit", "1–32 derivation relations required")
+    # Natural rows allow 32 authored relations. Monotone chains additionally
+    # produce endpoint obligations; do not charge those as authored steps.
+    if not 1 <= len(relations) <= 256 or len({fact_key(from_node(r.ast)) for r in relations}) > 64:
+        raise ProofFailure("proof_limit", "derivation exceeds 64 distinct expanded relations or 256 records")
     if certificates is not None and len(certificates) != len(relations):
         raise ProofFailure("invalid_proof", "derivation certificate count mismatch")
     budget = budget or _Budget(context.limits)
@@ -2094,6 +2337,8 @@ def verify_relation_sequence(relations, context, *, certificates=None, budget=No
                 raise ProofFailure("invalid_proof", "derivation conclusion changed")
             _replay(proof, current, budget=budget)
         proofs.append(proof)
+        if on_verified is not None:
+            on_verified(proof)
         value = from_node(relation.ast)
         if value not in known:
             key = f"derivation:{i}"
@@ -2294,8 +2539,9 @@ def _replay(proof, context, *, budget=None):
         raise ProofFailure("invalid_proof", "proof context or ruleset mismatch")
     if freeze_json(proof["sources"]) != freeze_json(env.documents):
         raise ProofFailure("invalid_proof", "proof source documents changed")
+    if len(proof["nodes"]) > env.budget.limits.nodes:
+        raise ProofFailure("proof_limit", "certificate node count limit")
     for i, record in enumerate(proof["nodes"]):
-        env.budget.use("nodes")
         if set(record) != {
             "node_id",
             "rule_id",
@@ -2319,6 +2565,7 @@ def _replay(proof, context, *, budget=None):
             raise ProofFailure("invalid_proof", "unstable or duplicate node ID")
         env.check_node(node)
         env.check_depth(node)
+        env.charge_node(node, env.node_key(node))
         env.nodes.append(node)
         env.by_id[node.node_id] = node
     goals = _roots_for_request(env)

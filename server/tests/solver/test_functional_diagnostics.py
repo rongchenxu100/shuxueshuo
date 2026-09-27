@@ -135,6 +135,66 @@ def test_nested_immutable_diagnostic_payload_is_json_safe_and_stable() -> None:
     assert stable_hash(restored.to_payload()) == stable_hash(payload)
 
 
+def test_amgm_remainder_failure_projects_specific_method_repair(tmp_path):
+    from shuxueshuo_server.solver.runtime.methods.apply_two_term_amgm import ApplyTwoTermAmgmMethod
+
+    from shuxueshuo_server.solver.math_kernel.inequality_evidence import public_bound, verify_bound
+
+    t = {
+        "type": "extremum_target", "goal_kind": "find_minimum",
+        "scope_id": "problem", "scalar_symbols": ["a", "b", "c"],
+        "target_math": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2",
+        "source_conditions": [{"handle": f"c{i}", "source_path": f"/facts/{i}", "math": text}
+                              for i, text in enumerate(["a>b", "b>c", "c>0"])],
+    }
+    previous = public_bound(verify_bound(t, [
+        {"math": "b>0"}, {"math": "a-b>0"},
+        {"math": "b*(a-b)<=a^2/4"},
+        {"math": "1/(b*(a-b))>=4/a^2"},
+        {"math": "a^2+(a-5*c)^2+1/(b*(a-b))>=a^2+(a-5*c)^2+4/a^2"},
+    ], expression="a^2+(a-5*c)^2+1/(b*(a-b))"))
+    with pytest.raises(StatelessMethodError) as error:
+        ApplyTwoTermAmgmMethod().run({"target": t, "previous_bound": previous,
+                                    "__parameters__": {"steps": [
+            {"math": "∵ a>b>c>0；∴ a>0"},
+            {"math": "a^2+4/a^2>=2*sqrt(a^2*4/a^2)=4"},
+            {"math": "∵ (a-5*c)^2>=0；∴ a^2+(a-5*c)^2+4/a^2>=a^2+4/a^2>=4"},
+        ]}}, None)
+    assert error.value.authority.observed["code"] == "amgm_remainder_changed"
+    fixture = goal_retry_fixture(tmp_path)
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        error.value.authority, fixture.binding_catalog, fixture.planning_context,
+    )
+    assert prompt.retryability == "planner_repairable"
+    assert prompt.repair_action == "preserve_amgm_remainder"
+    assert "bound_univariate_quadratic" in prompt.message
+    assert "previous_bound" in prompt.message
+    assert "preserve an equivalent remainder" in prompt.message
+    assert "template mismatch alone does not establish" in prompt.message
+    assert "expression binding" in prompt.message
+
+
+def test_m01_domain_failure_projects_missing_conditions(tmp_path):
+    import sympy as sp
+    from shuxueshuo_server.solver.runtime.methods.organize_expressions import OrganizeExpressionsMethod
+
+    symbols = {'a': sp.Symbol('a', real=True)}
+    with pytest.raises(StatelessMethodError) as error:
+        OrganizeExpressionsMethod().run({
+            'expression': 1/symbols['a'], '__visible_symbols__': symbols,
+            '__parameters__': {'steps': [{'math': '1/a=1/a'}]},
+        }, None)
+    assert error.value.authority.observed['code'] == 'input_domain_unverified'
+    assert len(error.value.authority.observed['unverified_conditions']) == 1
+    fixture = goal_retry_fixture(tmp_path)
+    prompt = FunctionalPromptDiagnosticProjector().project(
+        error.value.authority, fixture.binding_catalog, fixture.planning_context,
+    )
+    assert prompt.repair_action == 'bind_domain_conditions'
+    assert 'args.conditions' in prompt.message
+    assert 'nonzero' in prompt.message
+
+
 def test_missing_m_projects_role_and_materialized_point_requirement(tmp_path) -> None:
     fixture = goal_retry_fixture(tmp_path)
     binding = next(

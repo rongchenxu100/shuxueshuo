@@ -297,6 +297,19 @@
     return Math.abs(activeT - Number(item.t)) < (miniEpsilon ?? 0.03);
   }
 
+  function renderExpressionFlow(flowRows) {
+    return flowRows.length
+      ? '<div class="basic-expression-flow">' + flowRows.map(function (row) {
+          return '<div class="basic-expression-flow-row">' +
+            (row.label ? '<small>' + renderFormulaText(row.label) + '</small>' : '') +
+            '<div class="basic-expression-flow-equation">' +
+              (row.relation ? '<b class="basic-expression-flow-relation">' + esc(row.relation) + '</b>' : '') +
+              '<div class="basic-expression-flow-parts">' + (row.parts || []).map(function (part) {
+                return '<span class="basic-expression-flow-part' + (part.highlight ? ' is-highlighted' : '') + '">' + renderFormulaText('\\(' + part.expression + '\\)') + '</span>';
+              }).join('') + '</div></div></div>';
+        }).join('') + '</div>' : '';
+  }
+
   function init(config) {
     const STEPS = config.steps || config.STEPS;
     const POLICIES = config.policies || config.POLICIES;
@@ -973,13 +986,14 @@
             '</section>'
           : '';
         const purposeCards = Array.isArray(organization.purposeCards) ? organization.purposeCards : [];
+        const compactPurpose = organization.purposePresentation === "concept";
         const purposeCardsMarkup = purposeCards.length
-          ? '<section class="basic-purpose-cards" aria-label="解题思路">' + purposeCards.map(function (card) {
+          ? '<section class="basic-purpose-cards' + (compactPurpose ? ' is-concept' : '') + '" aria-label="解题思路">' + purposeCards.map(function (card) {
               return '<article class="basic-purpose-card"><header>' + esc(card.label || "") + ' · ' + esc(card.tool || "") + '</header>' +
                 '<h3>' + esc(card.purpose || "") + '</h3>' + (card.progressLabel ? '<small>' + esc(card.progressLabel) + '</small>' : '') + '<strong class="basic-purpose-progress">' + esc(card.progress || "") + '</strong>' +
-                '<small>当前表达式</small><div>' + renderFormulaText(card.before || "") + '</div>' +
+                (compactPurpose ? '' : '<small>当前表达式</small><div>' + renderFormulaText(card.before || "") + '</div>') +
                 (card.reason ? '<p>' + renderFormulaText(card.reason) + '</p>' : '') +
-                '<small>所得下界</small><div>' + renderFormulaText(card.after || "") + '</div>' +
+                (compactPurpose ? '' : '<small>所得下界</small><div>' + renderFormulaText(card.after || "") + '</div>') +
                 '<footer>' + esc(card.detail || "") + '</footer></article>';
             }).join("") + '</section>' : '';
         const relationCountHint = organization.relationCountHint || {};
@@ -1009,6 +1023,8 @@
               (symmetryHint.conclusion ? '<p class="basic-structure-symmetry-conclusion">' + esc(symmetryHint.conclusion) + '</p>' : '') +
             '</section>'
           : '';
+        const flowRows = Array.isArray(organization.expressionFlow) ? organization.expressionFlow : [];
+        const expressionFlowMarkup = flowRows.length ? renderExpressionFlow(flowRows) : "";
         const comparisonRows = Array.isArray(organization.comparisons) ? organization.comparisons : [];
         const comparisonMarkup = comparisonRows.length
           ? '<div class="basic-structure-comparisons">' + comparisonRows.map(function (row) {
@@ -1065,10 +1081,11 @@
           !organization.motive &&
           !organization.note
         );
-        const organizationMarkup = comparisonMarkup || purposeCardsMarkup || organizationSteps.length || organizationSlotHintMarkup || organizationExpandHintMarkup || organizationCombineHintMarkup || organizationSquareHintMarkup || organizationBaseHintMarkup || organizationAlignmentHintMarkup || organizationSubstitutionHintMarkup || organizationEliminationHintMarkup || organizationHomogenizationHintMarkup || organizationLocalHomogenizationHintMarkup || organizationTermSpotMarkup || organizationRelationCountMarkup || organizationSymmetryHintMarkup
-          ? '<section class="basic-structure-organization' + (isMethodCoreOnly || comparisonMarkup ? ' is-method-core-only' : '') + '">' +
+        const organizationMarkup = expressionFlowMarkup || comparisonMarkup || purposeCardsMarkup || organizationSteps.length || organizationSlotHintMarkup || organizationExpandHintMarkup || organizationCombineHintMarkup || organizationSquareHintMarkup || organizationBaseHintMarkup || organizationAlignmentHintMarkup || organizationSubstitutionHintMarkup || organizationEliminationHintMarkup || organizationHomogenizationHintMarkup || organizationLocalHomogenizationHintMarkup || organizationTermSpotMarkup || organizationRelationCountMarkup || organizationSymmetryHintMarkup
+          ? '<section class="basic-structure-organization' + (isMethodCoreOnly || comparisonMarkup || expressionFlowMarkup ? ' is-method-core-only' : '') + '">' +
               (organization.label ? '<span>' + esc(organization.label) + '</span>' : '') +
               (organization.motive ? '<p class="basic-structure-organization-motive">' + renderFormulaText(organization.motive) + '</p>' : '') +
+              expressionFlowMarkup +
               comparisonMarkup +
               organizationTermSpotMarkup +
               organizationRelationCountMarkup +
@@ -1227,7 +1244,10 @@
         if (visual.presentation === "concept") {
           return '<figure class="lesson-step-visual lesson-step-basic-inequality-map is-concept" role="group" aria-label="正项对应基本不等式">' +
             '<div class="basic-map-board-heading"><span>代入基本不等式</span><span class="basic-map-screen-reader">' + renderFormulaText(visual.mapped) + '</span></div>' +
-            '<div class="basic-map-template-formula">' + templateFormula + '</div></figure>';
+            (visual.sumNote ? '<small class="basic-map-concept-product">' + renderFormulaText(visual.sumNote) + '</small>' : '') +
+            '<div class="basic-map-template-formula">' + templateFormula + '</div>' +
+            (visual.localConclusion ? '<div class="basic-map-local-conclusion">' + renderFormulaText(visual.localConclusion) + '</div>' : '') +
+            (visual.expressionFlow ? '<div class="basic-map-context-arrow" aria-hidden="true">↓</div>' + renderExpressionFlow(visual.expressionFlow) : '') + '</figure>';
         }
         const fractionMappedFormula =
           '<div class="basic-map-formula-layout basic-map-formula-layout-fixed' + fixedFormulaClass + '" aria-hidden="true">' +
@@ -1310,14 +1330,19 @@
           const pair = function(term, shape) {
             return '<span class="basic-equality-term is-' + shape + '">' + renderFormulaText(term.value) + '</span>';
           };
-          const equality = equalities.length === 1
+          const items = visual.conceptEqualityItems || [];
+          const equality = items.length ? items.map(function(item) {
+            return '<div class="basic-concept-equality-row">' + (item.kind === "amgm"
+              ? pair({value:item.first}, "square") + '<i aria-hidden="true">＝</i>' + pair({value:item.second}, "circle")
+              : '<strong class="basic-concept-square-zero">' + renderFormulaText(item.expression) + '</strong>') + '</div>';
+          }).join('') : equalities.length === 1
             ? pair(first, "square") + '<i aria-hidden="true">＝</i>' + pair(second, "circle")
             : equalities.map(function(row) { return '<strong>' + renderFormulaText(row) + '</strong>'; }).join('<small>且</small>');
           return '<figure class="lesson-step-visual lesson-step-basic-equality-check is-concept" role="group" aria-label="联立取等条件">' +
-            '<div class="basic-concept-simultaneous"><section><span>取等条件</span><div class="basic-concept-equalities">' + equality + '</div></section>' +
+            '<div class="basic-concept-simultaneous"><section><span>取等条件</span><div class="basic-concept-equalities' + (items.length ? ' is-stacked' : '') + '">' + equality + '</div></section>' +
             '<b class="basic-concept-and">同时成立</b><section><span>' + esc(visual.conceptConditionLabel || "原条件") + '</span><div class="basic-concept-conditions">' +
             (visual.conceptConditions || []).map(function(row) { return '<strong>' + renderFormulaText(row) + '</strong>'; }).join('<small>且</small>') +
-            '</div></section></div><figcaption>联立求解，检验能否取等</figcaption></figure>';
+            '</div></section></div></figure>';
         }
         if (Array.isArray(visual.equalityRelations) && visual.equalityRelations.length) {
           return '<figure class="lesson-step-visual lesson-step-basic-equality-check" role="group" aria-label="验证取等">' +
@@ -3792,6 +3817,7 @@
   }
 
   global.LessonPageRuntime = {
+    renderExpressionFlow,
     init,
     esc,
     clamp,

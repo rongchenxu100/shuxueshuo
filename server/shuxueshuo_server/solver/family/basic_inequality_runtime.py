@@ -25,10 +25,15 @@ BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
         "substitute_expressions",
         "eliminate_by_constraint",
         "organize_expressions",
+        "bound_univariate_quadratic",
         "apply_two_term_amgm",
         "close_equality_and_restore",
     ),
     capability_contracts=(
+        CapabilityContractSpec("bound_univariate_quadratic",
+            slot_reads=(StateSlotPattern("expression", "Expression", semantic_role="expression"),
+                StateSlotPattern("amgmBound", "AmgmBound | QuadraticBound", semantic_role="previous_bound", allows_anonymous_result=True)),
+            slot_writes=(StateSlotPattern("quadraticBound", "QuadraticBound", output_key="bound", semantic_role="bound", identity_policy="value_only"),)),
         CapabilityContractSpec("substitute_expressions", slot_writes=(StateSlotPattern(
             "substitution", "Substitution", output_key="substitution", semantic_role="substitution", identity_policy="value_only"),)),
         CapabilityContractSpec(
@@ -60,7 +65,7 @@ BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
                 ),
                 StateSlotPattern(
                     "amgmBound",
-                    "AmgmBound",
+                    "AmgmBound | QuadraticBound",
                     semantic_role="previous_bound",
                     allows_anonymous_result=True,
                 ),
@@ -80,7 +85,7 @@ BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
             slot_reads=(
                 StateSlotPattern(
                     "amgmBound",
-                    "AmgmBound",
+                    "AmgmBound | QuadraticBound",
                     semantic_role="bound",
                     allows_anonymous_result=True,
                 ),
@@ -106,6 +111,9 @@ BASIC_INEQUALITY_RUNTIME_FAMILY = replace(
         ),
     ),
     method_binding_rules=(
+        MethodBindingRuleSpec("bound_univariate_quadratic", input_bindings=(
+            condition_arg_binding("target"), latest_state_binding("expression", required=False),
+            exact_call_result_binding("previous_bound", required=False))),
         MethodBindingRuleSpec("substitute_expressions", input_bindings=(condition_arg_binding("target"),)),
         MethodBindingRuleSpec(
             "eliminate_by_constraint", input_bindings=(condition_arg_binding("target"), exact_call_result_binding("substitution", required=False))

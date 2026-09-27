@@ -112,8 +112,6 @@ def build_authoring_bundle(source_input):
             value = parse_math_expression(
                 fact["math"][right.span[0] : right.span[1]], symbols
             ).to_sympy(symbols)
-            if value.free_symbols:
-                raise ValueError("Stage 4A requires constant domain endpoints")
             fact.update(
                 subject=f"symbol:problem:{left.text}",
                 operator=relation.ast.op,

@@ -38,5 +38,103 @@
       "when_to_use": "前面的结构路线仍不能闭合，且条件可以表示出一个变量。",
       "combination_note": "这是兜底改写路线，消元后还可以继续应用直接基本不等式或多次应用。"
     }
+  ],
+  "method_application_rules": {
+    "principle": "一次调用可以包含多行自然数学推导，但只能完成该 Method 契约允许的数学操作。操作边界由方法决定，不能把所有方法一概限制成“一次变形”。不同操作通过准确的状态版本或结果引用衔接；Method spec 与可执行能力目录决定实际参数和能力。 推导优先使用数学符号 ∵、∴；同一角色的多个完整关系用逗号分隔，例如 ∵ a>b>c>0；∴ b>0，a-b>0。优先不写中文“因为”“所以”“且”；取等验算直接写原目标表达式=数值；最值结论由方法输出生成，math 无需重复中文结论。这是表达建议，兼容解析仍逐条验证关系。",
+    "boundaries": [
+      {
+        "method": "M01 organize_expressions",
+        "scope": "可连续通分、展开、配齐次及用绑定条件作等价整理，验证完整等式链；更新同一目标的等价状态，不混入不等式求界。"
+      },
+      {
+        "method": "M07 substitute_expressions",
+        "scope": "执行一组已声明的换元定义，同步转换目标、条件和定义域；条件消元另交 M08。"
+      },
+      {
+        "method": "M08 eliminate_by_constraint",
+        "scope": "每次利用条件消去一个指定变量，验证还原公式及完整目标；不应用不等式求界。"
+      },
+      {
+        "method": "M11 apply_two_term_amgm",
+        "scope": "每次对同一对完整正项应用一次双项基本不等式；允许多行正性、等价整理、倒数方向和代回整体的推导。局部求界必须保留其余项；下一次配对另调用 M11，平方非负另调用 M12。"
+      },
+      {
+        "method": "M12 bound_univariate_quadratic",
+        "scope": "每次对一个指定变量验证含参数二次式的配方下界，保留余项并生成该段取等条件；不同时完成后续基本不等式求界。"
+      },
+      {
+        "method": "M13 close_equality_and_restore",
+        "scope": "联立验证全部前序取等条件、原变量赋值、原条件与目标值；可包含多条关系及多个受验证见证，不把候选取等条件当作全局成立的事实。"
+      }
+    ],
+    "continuation": "M11/M12 的连续求界使用 previous_bound 引用准确的上一步结果，累计保留取等条件；M13 消费最终界。示例只说明调用边界，不指定所有题目的路线。"
+  },
+  "method_boundary_examples": [
+    {
+      "id": "separate_amgm_and_square_nonnegativity",
+      "given": "x>0，z 为实数；当前目标为 x+4/x+(z-2)^2，求最小值。",
+      "incorrect_call": {
+        "capability_id": "apply_two_term_amgm",
+        "parameters": {
+          "steps": [
+            {
+              "math": "∵ x>0，∴ 4/x>0"
+            },
+            {
+              "math": "x+4/x>=2*sqrt(x*(4/x))=4"
+            },
+            {
+              "math": "∵ (z-2)^2>=0，∴ x+4/x+(z-2)^2>=4"
+            }
+          ]
+        }
+      },
+      "why_rejected": "最后一行同时利用了双项基本不等式和独立平方非负。完整不等式虽成立，但一次 M11 不能同时丢弃平方项，否则混合了不同操作及取等条件。",
+      "corrected_calls": [
+        {
+          "step_id": "pair_bound",
+          "capability_id": "apply_two_term_amgm",
+          "args": {
+            "target": "target"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∵ x>0，∴ 4/x>0"
+              },
+              {
+                "math": "x+4/x>=2*sqrt(x*(4/x))=4"
+              },
+              {
+                "math": "∴ x+4/x+(z-2)^2>=4+(z-2)^2"
+              }
+            ]
+          }
+        },
+        {
+          "step_id": "square_bound",
+          "capability_id": "bound_univariate_quadratic",
+          "args": {
+            "target": "target",
+            "previous_bound": {
+              "step_id": "pair_bound",
+              "return": "bound"
+            }
+          },
+          "parameters": {
+            "variable": "z",
+            "steps": [
+              {
+                "math": "4+(z-2)^2=(z-2)^2+4"
+              },
+              {
+                "math": "∵ (z-2)^2>=0，∴ (z-2)^2+4>=4"
+              }
+            ]
+          }
+        }
+      ],
+      "closure": "再由 M13 同时验证 x=4/x、z=2 及 x>0。示例中的 target 是绑定占位，实际调用必须引用当前题的可见目标；也可先执行 M12 再执行 M11，只要各自守住契约并正确连接。"
+    }
   ]
 }

@@ -80,9 +80,9 @@ def test_minimum_pages_cover_verified_material_and_replay(case, snapshots, tmp_p
     if case == "q07":
         assert lesson.steps[0].source_step_ids == ("first", "bound")
         assert lesson.steps[0].teaching_unit_keys == ("amgm_sequence_overview",)
-        assert "2次" in lesson.steps[0].goal
+        assert "2 条取等关系" in lesson.steps[0].goal
         assert [s.title for s in lesson.steps[:3]] == [
-            "观察结构：先消元，再求解",
+            "观察结构：规划取等关系",
             "应用基本不等式消元",
             "再次应用基本不等式取极值",
         ]
@@ -90,12 +90,7 @@ def test_minimum_pages_cover_verified_material_and_replay(case, snapshots, tmp_p
             "应用基本不等式消元",
             "再次应用基本不等式取极值",
         ]
-        cards = visual.steps[0].diagram_blocks[0]["data"]["organization"][
-            "purposeCards"
-        ]
-        assert [c["progress"] for c in cards] == ["2 → 1", "1 → 定值"]
-        assert cards[0]["purpose"] == "消去 a"
-        assert cards[1]["purpose"] == "求解"
+        assert "purposeCards" not in visual.steps[0].diagram_blocks[0]["data"]["organization"]
         planning = visual.steps[0].diagram_blocks[0]["data"]["organization"][
             "relationCountHint"
         ]
@@ -104,10 +99,7 @@ def test_minimum_pages_cover_verified_material_and_replay(case, snapshots, tmp_p
             "0",
             "2",
         ]
-        assert "规划" in lesson.steps[0].goal
-        assert "b" in cards[0]["after"] and "a" not in cards[0]["after"].replace(
-            "frac", ""
-        )
+        assert "可考虑补充" in lesson.steps[0].goal
         assert len(visual.steps[0].diagram_blocks[0]["evidence_refs"]) == 2
         assert [s.teaching_unit_keys for s in lesson.steps[1:3]] == [
             ("amgm_apply",)

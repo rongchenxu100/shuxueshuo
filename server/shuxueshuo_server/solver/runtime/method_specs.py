@@ -1205,6 +1205,7 @@ _KNOWN_TYPES = {
     "MinimumExpression",
     "MaximumExpression",
     "AmgmBound",
+    "QuadraticBound",
     "ConstraintElimination",
     "Substitution",
     "OrientationHint",

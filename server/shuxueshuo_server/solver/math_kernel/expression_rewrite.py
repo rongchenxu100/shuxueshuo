@@ -7,6 +7,7 @@ MathObject identities. All algebra uses the caller's existing Symbol objects.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -20,8 +21,8 @@ from .expression_parser import (
     parse_math_expression,
     parse_math_relation,
 )
-from .proof_algebra import ProofFailure, from_node, names
-from .proof_kernel import ProofContext, _Budget, _document, _replay, _run_request
+from .proof_algebra import ProofFailure, domains, from_node, names
+from .proof_kernel import ProofContext, _Budget, _document, _replay, _run_request, _text
 
 
 class RewriteError(ValueError):
@@ -232,6 +233,8 @@ def verify_equivalence(
 
 
 def _terms(tree: dict) -> list[dict]:
+    if tree["op"] == "sub":
+        return _terms(tree["children"][0]) + [{"id": tree["children"][1]["id"], "op": "neg", "children": [tree["children"][1]]}]
     return (
         _terms(tree["children"][0]) + _terms(tree["children"][1])
         if tree["op"] == "add"
@@ -361,7 +364,8 @@ def classify(
     if len(old) >= 2 and len(new) == 1 and all(t["op"] == "div" for t in old + new):
         den = _value(new[0]["children"][1], symbols)
         ds = [_value(t["children"][1], symbols) for t in old]
-        multipliers = [sp.cancel(den / d) for d in ds]
+        common_den = sp.lcm(ds)
+        multipliers = [sp.cancel(common_den / d) for d in ds]
         if (
             all(m.is_polynomial(*symbols.values()) for m in multipliers)
             and sp.cancel(
@@ -373,7 +377,7 @@ def classify(
             result["evidence"] = {
                 "kind": "structural_common_denominator",
                 "mergedFractionCount": len(old),
-                "commonDenominator": sp.latex(den),
+                "commonDenominator": sp.latex(common_den),
                 "multipliers": [sp.latex(m) for m in multipliers],
                 "localEquivalenceVerified": True,
                 "wholeEquivalenceVerified": True,
@@ -441,6 +445,123 @@ def classify(
     return result
 
 
+def _rewrite_relation_row(source, symbols):
+    """Read a full equality and optional cited premises; grant no authority."""
+    from .derivation_math import parse_derivation
+
+    if isinstance(source, str) and not any(c in source for c in "=<>≤≥≠∵∴"):
+        return None, source, [], []  # Validate legacy expressions in their row.
+
+    try:
+        parse_math_expression(source, symbols)
+        return None, source, [], []  # Historical expression-only protocol.
+    except MathParseError:
+        pass
+    relations = parse_derivation([{"math": source}], symbols)
+    reasons, claims = [], []
+    for row in relations:
+        if row.origin["marker"] == "∵" and not claims:
+            reasons.append(row.parsed.source)
+        else:
+            claims.append(row)
+    if not claims and len(relations) == 1 and relations[0].parsed.ast.op == "=":
+        # A standalone "because" identity is still a claim to verify, not a
+        # newly trusted premise. It can be lifted into the current target.
+        claims, reasons = relations, []
+    if len(claims) != 1 or claims[0].parsed.ast.op != "=":
+        raise RewriteError("invalid_rewrite_relation", "每行提交一个完整等式，可在前面用 ∵ 引用已绑定条件；不接受不等式或等式链")
+    claim = claims[0].parsed
+    left, right = claim.ast.children
+    return (
+        claim.source[slice(*left.span)], claim.source[slice(*right.span)],
+        reasons, [row.origin for row in relations],
+    )
+
+
+def _lift_local_equality(whole, left, right):
+    """Find one structural occurrence, including a group of additive terms.
+
+    This only proposes a rewrite. Both the local equality and the rebuilt
+    whole equality still require domain-checked, replayable certificates.
+    """
+    choices = []
+
+    def visit(node, path):
+        if node == left:
+            choices.append((path, right))
+            return
+        if node.is_Add and left.is_Add:
+            remaining = list(node.args)
+            for term in left.args:
+                if term not in remaining:
+                    break
+                remaining.remove(term)
+            else:
+                choices.append((path, sp.Add(*remaining, right)))
+                return
+        for i, child in enumerate(node.args):
+            visit(child, (*path, i))
+
+    visit(whole, ())
+    if len(choices) != 1:
+        raise RewriteError(
+            "ambiguous_local_rewrite" if choices else "rewrite_scope_mismatch",
+            "局部等式对应多个位置，请补充完整目标结论"
+            if choices else "等式左侧既不是完整目标，也未匹配目标中的局部项",
+        )
+    path, replacement = choices[0]
+
+    def rebuild(node, route):
+        if not route:
+            return replacement
+        children = list(node.args)
+        children[route[0]] = rebuild(children[route[0]], route[1:])
+        return node.func(*children)
+
+    return rebuild(whole, path)
+
+
+def _natural_rows(steps, symbols):
+    """Split notation into proof obligations, retaining authored row origins."""
+    from .derivation_math import parse_derivation
+    from .proof_kernel import fact_key
+
+    independent = set()
+    records = 0
+    for i, row in enumerate(steps):
+        if isinstance(row["math"], str) and not any(c in row["math"] for c in "=<>≤≥≠∵∴"):
+            yield i, row, None, None
+            continue
+        try:
+            parse_math_expression(row["math"], symbols)
+        except MathParseError:
+            try:
+                relations = parse_derivation([{"math": row["math"]}], symbols)
+            except MathParseError as exc:
+                exc.step = i
+                exc.source_path = f"/parameters/steps/{i}/math"
+                raise
+            base = [r for r in relations if not r.origin["chain_endpoint"]]
+            independent.update(fact_key(from_node(r.parsed.ast)) for r in base)
+            records += len(relations)
+            if len(independent) > 32 or records > 256:
+                raise RewriteError("proof_limit", "整段最多 32 个独立数学关系、256 个展开记录", i)
+            conclusions = [r for r in base if r.origin["marker"] != "∵"]
+            if (len(conclusions) == 1 and conclusions[0].parsed.ast.op == "=") or (
+                not conclusions and len(base) == 1 and base[0].parsed.ast.op == "="
+            ):
+                yield i, row, None, None
+                continue
+            for relation in base:
+                origin = {**relation.origin, "step": i, "source_path": f"/parameters/steps/{i}/math"}
+                if relation.parsed.ast.op != "=" or relation.origin["marker"] == "∵":
+                    yield i, row, relation.parsed, origin
+                else:
+                    yield i, {**row, "math": relation.parsed.source}, None, origin
+        else:
+            yield i, row, None, None
+
+
 def verify_chain(
     expression: sp.Expr,
     raw_conditions: list[Any],
@@ -488,6 +609,13 @@ def verify_chain(
         context = ProofContext(
             {name: symbols[name] for name in sorted(used)}, selected_premises
         )
+        if kind == "relation" and candidate.ast.op == "=":
+            equation = candidate.to_sympy(neutral_symbols)
+            if not any(n.op == "sqrt" for n in candidate.ast.walk()):
+                if not verify_equivalence(equation.lhs, equation.rhs, [
+                    p.to_sympy(neutral_symbols) for p in selected_premises.values()
+                ]):
+                    raise ProofFailure("proof_missing", "等式不等价，请检查局部变形及完整目标中的其余项")
         request = {"kind": kind, "candidate": _document(candidate)}
         proof = _run_request(context, request, budget=budget).proof
         # Replay has its own validation budget, not a second construction charge.
@@ -501,12 +629,109 @@ def verify_chain(
             "domain",
         )
     except (ProofFailure, MathParseError) as exc:
+        if isinstance(exc, ProofFailure) and exc.code == "proof_missing":
+            unverified = []
+            candidate = parse_math_expression(input_source or str(expression), symbols)
+            for obligation in domains(from_node(candidate.ast)):
+                source = _text(obligation)
+                try:
+                    check(parse_math_relation(source, symbols), range(len(conditions)))
+                except ProofFailure as failure:
+                    if failure.code != "proof_missing":
+                        raise RewriteError(failure.code, str(failure)) from failure
+                    unverified.append(source)
+            error = RewriteError(
+                "input_domain_unverified",
+                "原目标定义域尚未验证：" + "，".join(unverified)
+                + "；请在 args.conditions 绑定可证明上述非零性或根式定义域的题目条件",
+            )
+            error.unverified_conditions = unverified
+            raise error from exc
         raise RewriteError(exc.code, str(exc)) from exc
     parsed = []
     transitions = []
-    for i, row in enumerate(steps):
+    input_format = None
+    relation_origins = []
+    inferred_transitions = []
+    verified_notes = []
+    try:
+        natural_rows = list(_natural_rows(steps, symbols))
+    except MathParseError as exc:
+        raise _parser_error(exc) from exc
+    except ValueError as exc:
+        raise RewriteError("invalid_rewrite_relation", str(exc)) from exc
+    for i, row, note, natural_origin in natural_rows:
         try:
-            ast = parse_math_expression(row["math"], symbols)
+            if note is not None:
+                ast = note.ast
+                if ast.op != "=" and not (
+                    from_node(ast.children[1]) == ("rat", "0", "1")
+                    or all(n.op == "symbol" for n in ast.children)
+                ):
+                    raise RewriteError("invalid_rewrite_relation", "M01 只验证辅助条件，不执行目标的不等式求界")
+                check(note, range(len(conditions)))
+                verified_notes.append(natural_origin)
+                continue
+            local_assertion = None
+            historical_summary = None
+            left, current_source, reasons, origins = _rewrite_relation_row(row["math"], symbols)
+            row_format = "relations" if left is not None else "expressions"
+            if input_format is not None and row_format != input_format:
+                raise RewriteError("mixed_rewrite_format", "完整等式和旧版表达式序列不能混用")
+            input_format = row_format
+            if left is not None:
+                left_ast = parse_math_expression(left, symbols)
+                check(left_ast, range(len(conditions)), "domain")
+                # The written left side must connect to the committed input or
+                # preceding result without assuming a newly cited equality.
+                previous = parsed[-1].source if parsed else input_source or str(expression)
+                previous_ast = parse_math_expression(previous, symbols)
+                previous_value = previous_ast.to_sympy(neutral_symbols)
+                left_value = left_ast.to_sympy(neutral_symbols)
+                if not verify_equivalence(previous_value, left_value, []):
+                    local_assertion = parse_math_relation(f"({left})=({current_source})", symbols)
+                    right_ast = parse_math_expression(current_source, symbols)
+                    # Check the submitted right side before symbolic rebuilding
+                    # can cancel a denominator or simplify a radical.
+                    check(right_ast, range(len(conditions)), "domain")
+                    right_value = right_ast.to_sympy(neutral_symbols)
+                    try:
+                        lifted = _lift_local_equality(previous_value, left_value, right_value)
+                    except RewriteError as mismatch:
+                        if mismatch.code != "rewrite_scope_mismatch":
+                            raise
+                        # A natural summary may refer to a local group already
+                        # rewritten in this call. It must match an actual prior
+                        # state and reconstruct the CURRENT whole expression.
+                        # It is then a verified supporting relation, not another
+                        # mutation. Domain and relation proofs are still required.
+                        for state in reversed(parsed):
+                            old = parse_math_expression(state.source, symbols).to_sympy(neutral_symbols)
+                            try:
+                                candidate = _lift_local_equality(old, left_value, right_value)
+                            except RewriteError:
+                                continue
+                            if verify_equivalence(candidate, previous_value, []):
+                                historical_summary = state.source
+                                lifted = previous_value
+                                break
+                        if historical_summary is None:
+                            raise mismatch
+                    current_source = str(lifted).replace("**", "^")
+                    if historical_summary is None:
+                        inferred_transitions.append({
+                            "row": i, "local_relation": row["math"],
+                            "whole_relation": f"({previous})=({current_source})",
+                        })
+                    left, left_ast = previous, previous_ast
+                check(parse_math_relation(f"({previous})=({left})", symbols), [])
+                if not parsed:
+                    parsed.append(ParsedExpression(left, _legacy_tree(left_ast.ast), left_ast.to_sympy(symbols), ()))
+                relation_origins.append({
+                    "row": i,
+                    "relations": [natural_origin] if natural_origin else [{**o, "step": i, "source_path": f"/parameters/steps/{i}/math"} for o in origins],
+                })
+            ast = parse_math_expression(current_source, symbols)
             check(ast, range(len(conditions)), "domain")
             if any(n.op == "sqrt" and names(from_node(n)) for n in ast.ast.walk()):
                 # Retain the caller's Symbol identities without letting their
@@ -515,7 +740,7 @@ def verify_chain(
                     value = ast.to_sympy(symbols)
             else:
                 value = ast.to_sympy(symbols)
-            current = ParsedExpression(row["math"], _legacy_tree(ast.ast), value, ())
+            current = ParsedExpression(current_source, _legacy_tree(ast.ast), value, ())
             if current.value.has(sp.zoo, sp.nan, sp.oo, -sp.oo):
                 raise RewriteError("undefined_expression", "表达式无定义")
             for den in current.denominators:
@@ -524,9 +749,15 @@ def verify_chain(
                         "domain_unverified", f"尚不能验证分母 {den} 非零"
                     )
             selected = []
-            for text in row.get("using", []):
-                relation = parse_math_relation(text, symbols).to_sympy(neutral_symbols)
-                if not isinstance(relation, sp.Equality):
+            for text in [*row.get("using", []), *reasons]:
+                cited = parse_math_relation(text, symbols)
+                # A cited condition is still untrusted text: cancellation must
+                # not conceal an undefined expression in the displayed reason.
+                if text in reasons:
+                    for side in cited.ast.children:
+                        check(parse_math_expression(cited.source[slice(*side.span)], symbols), range(len(conditions)), "domain")
+                relation = cited.to_sympy(neutral_symbols)
+                if text in row.get("using", []) and not isinstance(relation, sp.Equality):
                     raise RewriteError(
                         "unsupported_using_condition",
                         "using 首轮只支持等式；定义域条件由代码检查",
@@ -535,11 +766,16 @@ def verify_chain(
                     j for j, c in enumerate(conditions) if same_relation(relation, c)
                 ]
                 if len(matches) != 1:
-                    raise RewriteError(
-                        "condition_unbound", "using 必须唯一匹配已绑定条件"
-                    )
-                selected.append(matches[0])
-            if i == 0:
+                    if text not in reasons:
+                        raise RewriteError("condition_unbound", "using 必须唯一匹配已绑定条件")
+                    # A natural ∵ clause may be a derived local identity.
+                    # Prove it from bound facts; the marker grants no authority.
+                    check(cited, range(len(conditions)))
+                    selected = list(range(len(conditions)))
+                    continue
+                if matches[0] not in selected:
+                    selected.append(matches[0])
+            if not parsed:
                 if selected:
                     raise RewriteError(
                         "input_mismatch", "链首必须对应输入表达式，且不能使用新条件"
@@ -547,7 +783,7 @@ def verify_chain(
                 try:
                     check(
                         parse_math_relation(
-                            f"({input_source or str(expression)})=({row['math']})",
+                            f"({input_source or str(expression)})=({current_source})",
                             symbols,
                         ),
                         [],
@@ -559,16 +795,27 @@ def verify_chain(
                         ) from exc
                     raise
             else:
+                if local_assertion is not None:
+                    check(local_assertion, selected)
                 check(
                     parse_math_relation(
-                        f"({parsed[-1].source})=({row['math']})", symbols
+                        f"({left or parsed[-1].source})=({current_source})", symbols
                     ),
                     selected,
                 )
+                if historical_summary is not None:
+                    verified_notes.append({
+                        **(natural_origin or {}), "row": i,
+                        "role": "historical_local_summary",
+                        "referenced_state": historical_summary,
+                        "current_state": previous,
+                        "local_relation": row["math"],
+                    })
+                    continue
                 transition = classify(
                     parsed[-1], current, selected, conditions, symbols
                 )
-                transition["id"] = f"t{i - 1}"
+                transition["id"] = f"t{len(transitions)}"
                 transitions.append(transition)
             parsed.append(current)
         except MathParseError as exc:
@@ -588,6 +835,8 @@ def verify_chain(
                     setattr(error, field, getattr(exc, field))
             raise error from exc
     reveal = False
+    if not parsed:
+        raise RewriteError("invalid_rewrite_relation", "M01 需要至少一个目标或局部等式，不能只有条件说明")
     for i, t in enumerate(transitions):
         actual = set().union(
             *(
@@ -602,6 +851,10 @@ def verify_chain(
             t["effect"] = "reveal_condition"
             t["conditionCardIds"] = sorted(used)
     return {
+        **({"input_format": "relations", "submitted_steps": deepcopy(steps),
+            "relation_origins": relation_origins} if input_format == "relations" else {}),
+        **({"inferred_transitions": inferred_transitions} if inferred_transitions else {}),
+        **({"verified_notes": verified_notes} if verified_notes else {}),
         "value": parsed[-1].value,
         "source": formula(parsed[0]),
         "result": formula(parsed[-1]),

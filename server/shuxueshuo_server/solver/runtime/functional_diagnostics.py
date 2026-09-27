@@ -48,6 +48,35 @@ _CONFIGURATION_CODES = frozenset(
 )
 
 _REPAIR_MESSAGES = {
+    "bind_domain_conditions": (
+        "M01 cannot verify the original target's domain. Bind the visible problem "
+        "conditions needed to prove the reported nonzero-denominator or radical "
+        "obligations in args.conditions. Do not invent positivity assumptions or "
+        "change a correct algebraic identity to bypass the domain check."
+    ),
+    "repair_local_rewrite": (
+        "Check the reported M01 equality. A local identity must be valid and "
+        "match one location in the current target, or summarize a verified prior "
+        "state in this call while preserving the current whole; otherwise provide an explicit "
+        "whole-target equality that preserves the other terms. A because clause "
+        "must follow from bound conditions, not introduce a new assumption."
+    ),
+    "restore_full_bound": (
+        "The last M11 relation must bound the complete current expression or "
+        "original target, not only an intermediate local expression. Preserve "
+        "the remaining terms. If an independent square is removed, use a separate "
+        "M12 bound_univariate_quadratic call connected by previous_bound."
+    ),
+    "preserve_amgm_remainder": (
+        "M11 apply_two_term_amgm permits one two-term AM-GM application and "
+        "must preserve an equivalent remainder in its full conclusion. Check "
+        "the expression binding and prove any local identities used to combine "
+        "fractions; a template mismatch alone does not establish that a square "
+        "was discarded. If this call also uses independent square "
+        "nonnegativity, add a separate M12 bound_univariate_quadratic step "
+        "and connect the verified bounds using previous_bound StepResultRef; "
+        "then close simultaneous equality conditions with M13."
+    ),
     "provide_visible_point_producer": (
         "Add or repair a visible step that materializes the required Point."
     ),

@@ -12,6 +12,7 @@ from time import perf_counter
 SERVER = Path(__file__).resolve().parents[1]
 ROOT = SERVER.parent
 sys.path.insert(0, str(SERVER))
+sys.path.insert(0, str(SERVER / "tools"))
 from run_basic_inequality_stage4a import RecordedClient
 from run_basic_inequality_stage4a import run as solve
 
@@ -49,7 +50,7 @@ def build(
     plan=None,
     replay_from=None,
 ):
-    if case not in {"q01", "q03", "q07", "q08", "q12", "q25", "q29"}:
+    if case not in {"q01", "q03", "q07", "q08", "q12", "q25", "q29", "q30"}:
         raise ValueError("page case outside admitted representative fixtures")
     if rule_registry is None:
         from shuxueshuo_server.solver.explanation.amgm_sequence_rule import (
@@ -82,6 +83,8 @@ def build(
         or (
             SERVER / "tests/solver/fixtures/basic-inequality-stage5a/q29/plan.json"
             if case == "q29"
+            else SERVER / "tests/solver/fixtures/basic-inequality-stage5c/q30.json"
+            if case == "q30"
             else SERVER / f"tests/solver/fixtures/basic-inequality-stage5b/{case}.json"
             if case in {"q25", "q12"}
             else ROOT
@@ -249,7 +252,7 @@ def main():
     parser.add_argument("--content", type=Path)
     parser.add_argument("--replay-from", type=Path, help="Replay saved Planner responses before generating the lesson")
     parser.add_argument(
-        "--case", choices=["q01", "q03", "q07", "q08", "q12", "q25", "q29"], default="q01"
+        "--case", choices=["q01", "q03", "q07", "q08", "q12", "q25", "q29", "q30"], default="q01"
     )
     args = parser.parse_args()
     print(

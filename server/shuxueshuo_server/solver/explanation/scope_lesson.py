@@ -1026,7 +1026,7 @@ class LessonScopeContentValidator:
             }.get(direction, ())
             # Reciprocal teaching deliberately explains both directions. Its
             # mathematical relations remain bound to verified source material.
-            if record.get("bound_transform") == "positive_reciprocal":
+            if record.get("bound_transform") in {"positive_reciprocal", "local_positive_reciprocal"}:
                 forbidden = ()
             if any(word in prose for word in forbidden):
                 raise _ScopeRejected((_diag(

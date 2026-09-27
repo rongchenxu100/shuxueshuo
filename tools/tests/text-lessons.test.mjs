@@ -2806,3 +2806,85 @@ test("labeled comparisons emphasize reciprocal objectives without extra routes",
   assert.match(escaped, /&lt;script&gt;/);
   assert.doesNotMatch(escaped, /<script>/);
 });
+
+
+test("expression flow preserves full terms, emphasizes only the local part and validates rows", () => {
+  const source = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  const runtime = {window:{}};
+  vm.runInNewContext(source, runtime);
+  const context = {renderExpressionFlow:runtime.window.LessonPageRuntime.renderExpressionFlow, renderFormulaText:runtime.window.LessonPageRuntime.renderFormulaText, esc:runtime.window.LessonPageRuntime.esc};
+  vm.runInNewContext(source.slice(source.indexOf("    function renderInequalityStructure("),source.indexOf("    function renderInequalityMapping(")), context);
+  const visual = {kind:"basic-inequality-structure-scan",showFocus:false,showRoute:false,condition:{expression:"x>0"},target:{expression:"x+1/x"},reading:"局部求界",route:"保留余项",organization:{expressionFlow:[
+    {label:"当前式",relation:"",parts:[{expression:"y+"},{expression:"x+1/x",highlight:true}]},
+    {label:"下界",relation:"≥",parts:[{expression:"y+"},{expression:"2",highlight:true}]},
+  ]}};
+  const html = context.renderInequalityStructure(visual);
+  assert.equal((html.match(/class="basic-expression-flow-row"/g)||[]).length,2);
+  assert.equal((html.match(/is-highlighted/g)||[]).length,2);
+  assert.match(html,/y\+/);
+  assert.match(html,/≥/);
+  assert.doesNotMatch(html,/undefined/);
+  const lesson = readLesson("inequality-basic-q01");
+  lesson.steps[0].visual=visual;
+  assert.doesNotThrow(()=>validateTextLesson(lesson,lesson.meta.id));
+  visual.organization.expressionFlow[0].parts[0].expression="";
+  assert.throws(()=>validateTextLesson(lesson,lesson.meta.id),/expressionFlow/);
+  visual.organization.expressionFlow[0].parts[0].expression="y+";
+  visual.organization.expressionFlow[0].parts[0].highlight="yes";
+  assert.throws(()=>validateTextLesson(lesson,lesson.meta.id),/expressionFlow/);
+});
+
+
+test("local AM-GM reuses wireframe and connects to the complete expression", () => {
+  const source = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  const runtime = {window:{}};
+  vm.runInNewContext(source, runtime);
+  const context = {...runtime.window.LessonPageRuntime};
+  vm.runInNewContext(source.slice(source.indexOf("    function renderInequalityMapping("), source.indexOf("    // Shared component registry")), context);
+  const visual = {kind:"basic-inequality-mapping", presentation:"concept", formulaStyle:"sum-geometric",
+    template:"u+v≥2√(u*v)", mapped:"u+v≥2√(u*v)", conclusion:"z+1/(uv)≥z+4/s²",
+    mappings:[{slot:"第一项",shape:"square",value:"u",condition:"u>0"},{slot:"第二项",shape:"circle",value:"v",condition:"v>0"}],
+    sumNote:"定和 s", localConclusion:"1/(uv)≥4/s²", expressionFlow:[
+      {label:"",relation:"",parts:[{expression:"z+"},{expression:"1/(u*v)",highlight:true}]},
+      {label:"",relation:"≥",parts:[{expression:"z+"},{expression:"4/s^2",highlight:true}]},
+    ]};
+  const html = context.renderInequalityMapping(visual);
+  assert.match(html,/basic-map-formula-slot-stack/);
+  assert.match(html,/is-slot-square/);
+  assert.match(html,/is-slot-circle/);
+  assert.match(html,/定和 s/);
+  assert.match(html,/basic-map-context-arrow[^>]*>↓/);
+  assert.equal((html.match(/class="basic-expression-flow-row"/g)||[]).length,2);
+  assert.ok(html.indexOf('basic-map-context-arrow') < html.indexOf('basic-expression-flow'));
+  assert.doesNotMatch(html,/figcaption|保留其余项|undefined/);
+  const lesson=readLesson("inequality-basic-q01");
+  lesson.steps[0].visual=visual;
+  validateTextLesson(lesson,lesson.meta.id);
+  visual.expressionFlow[1].parts[0].highlight="yes";
+  assert.throws(()=>validateTextLesson(lesson,lesson.meta.id),/expressionFlow/);
+});
+
+test("mixed equality conditions retain AM-GM shapes and separate square zero", () => {
+  const source = fs.readFileSync(path.join(repoRoot, "site/assets/js/lesson-page-runtime.js"), "utf8");
+  const runtime = {window:{}};
+  vm.runInNewContext(source,runtime);
+  const context = {...runtime.window.LessonPageRuntime};
+  vm.runInNewContext(source.slice(source.indexOf("    function renderInequalityEquality("),source.indexOf("    // Shared component registry")),context);
+  const visual={kind:"basic-inequality-equality-check",presentation:"concept",first:{value:"u",shape:"square"},second:{value:"v",shape:"circle"},
+    templateLabel:"取等条件",conditionLabel:"原条件",verificationLabel:"验证",
+    condition:"u>v>0",solved:"u=2,v=1",verification:"F=4",conclusion:"最小值4",
+    conceptEqualities:["u=v","(u-5w)^2=0","u^2=4/u^2"],conceptConditions:["u>v>0"],conceptEqualityItems:[
+      {kind:"amgm",first:"u",second:"v"},{kind:"quadratic",expression:"(u-5w)^2=0"},{kind:"amgm",first:"u^2",second:"4/u^2"}]};
+  const html=context.renderInequalityEquality(visual);
+  assert.match(html,/basic-concept-equalities is-stacked/);
+  assert.equal((html.match(/class="basic-concept-equality-row"/g)||[]).length,3);
+  assert.equal((html.match(/basic-equality-term is-square/g)||[]).length,2);
+  assert.equal((html.match(/basic-equality-term is-circle/g)||[]).length,2);
+  assert.match(html,/basic-concept-square-zero/);
+  assert.doesNotMatch(html,/figcaption|undefined/);
+  const lesson=readLesson("inequality-basic-q01");
+  lesson.steps[0].visual=visual;
+  validateTextLesson(lesson,lesson.meta.id);
+  delete visual.conceptEqualityItems[0].second;
+  assert.throws(()=>validateTextLesson(lesson,lesson.meta.id),/conceptEqualityItems/);
+});

@@ -376,6 +376,12 @@ class _NormalizeElaborateScopeStage:
                     semantic_index=semantic_index,
                 )
             )
+            plan, original_condition_repairs = _bind_original_expression_conditions(
+                plan, semantic_index=semantic_index,
+            )
+            unique_condition_ref_repairs = (
+                *unique_condition_ref_repairs, *original_condition_repairs,
+            )
             if unique_condition_ref_repairs:
                 problem_goal_bindings = problem_binding_catalog.bind_plan(
                     plan,
@@ -6269,6 +6275,77 @@ def _normalize_goal_answer_target_input_refs(
         replace(plan, scopes=tuple(normalized_scopes)),
         tuple(repairs),
     )
+
+
+def _bind_original_expression_conditions(
+    plan: FunctionalPlan, *, semantic_index: FunctionalSemanticIndex,
+) -> tuple[FunctionalPlan, tuple[FunctionalDeterministicRepair, ...]]:
+    """Bind omitted M01 facts via an exact target owner, within call authority.
+
+    Reconciled refs follow the normal Condition authority, dependency, and hash
+    pipeline. No runtime context scan or inferred positivity bypasses it.
+    Explicit conditions stay unchanged; an ambiguous or inaccessible target
+    cannot provide defaults.
+    """
+    repairs = []
+    scopes = []
+    for scope in plan.scopes:
+        calls = []
+        for call in scope.calls:
+            refs = call.args.get("expression", ())
+            if (call.capability_id != "organize_expressions"
+                    or "conditions" in call.args or len(refs) != 1
+                    or not isinstance(refs[0], SemanticRef)):
+                calls.append(call)
+                continue
+            index = semantic_index.for_call(call.call_id)
+            expression, _ = index.resolve(refs[0], scope_id=scope.scope_id,
+                                          accepted_types=("Expression",))
+            candidates = []
+            if expression is not None:
+                for view in index.views:
+                    payload = index.fact_payloads.get(view.handle, {})
+                    if (payload.get("type") != "extremum_target"
+                            or payload.get("expression_owner") != expression.object_ref):
+                        continue
+                    visible, _ = index.resolve(
+                        SemanticRef(ref=view.ref, kind=view.kind), scope_id=scope.scope_id,
+                        accepted_types=(view.runtime_type,),
+                    )
+                    if visible is not None and visible.handle == view.handle:
+                        candidates.append(payload)
+            # Multiple targets, even with the same expression, may carry
+            # different domains. Never choose one by order or text similarity.
+            handles = {p["handle"]: p for p in candidates}
+            if len(handles) != 1:
+                calls.append(call)
+                continue
+            target = next(iter(handles.values()))
+            conditions = []
+            for source in target.get("source_conditions", ()):
+                matches = []
+                for view in index.views:
+                    if view.handle != source["handle"]:
+                        continue
+                    ref = SemanticRef(ref=view.ref, kind=view.kind)
+                    visible, _ = index.resolve(ref, scope_id=scope.scope_id,
+                                               accepted_types=("Condition",))
+                    if visible is not None and visible.handle == source["handle"]:
+                        matches.append(ref)
+                matches = list(dict.fromkeys(matches))
+                if len(matches) != 1:
+                    conditions = []
+                    break
+                conditions.append(matches[0])
+            if conditions:
+                call = replace(call, args={**call.args, "conditions": tuple(conditions)})
+                repairs.append(FunctionalDeterministicRepair(
+                    call.call_id, "bind_original_expression_conditions", "conditions:omitted",
+                    ",".join(ref.ref for ref in conditions),
+                ))
+            calls.append(call)
+        scopes.append(replace(scope, calls=tuple(calls)))
+    return replace(plan, scopes=tuple(scopes)), tuple(repairs)
 
 
 def _normalize_unique_condition_role_refs(

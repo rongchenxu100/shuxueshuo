@@ -1475,7 +1475,7 @@ def _project_student_runtime_value(
             k: student_math_display(value[k])
             for k in ("target_math", "expression", "restoration")
         }
-    if runtime_type == "AmgmBound":
+    if runtime_type in {"AmgmBound", "QuadraticBound"}:
         direction = value.get("direction", "<=")
         return {"target": student_math_display(value["target_math"]), "bound": student_math_display(value["bound"]), "direction": direction,
                 "equality": student_math_display(value["equality"]), "derivation": [student_math_display(v["math"]) for v in value["steps"]]}
@@ -1585,7 +1585,7 @@ def _project_student_runtime_display(
         return "，".join(value["definitions"]) + "；原式=" + value["expression"]
     if runtime_type == "ConstraintElimination":
         return value["restoration"] + "；原式=" + value["expression"]
-    if runtime_type == "AmgmBound":
+    if runtime_type in {"AmgmBound", "QuadraticBound"}:
         return value["target"] + ({">=": "≥", "<=": "≤"}[value["direction"]]) + value["bound"]
     if runtime_type == "extremum_target":
         return "求" + value["target"] + "的" + value["goal"].removeprefix("求") + "；条件：" + "，".join(value["conditions"])
@@ -2252,6 +2252,8 @@ def _inequality_authority(source, snapshot):
         **(
             {"bound_transform": "positive_reciprocal"}
             if evidence["data"].get("reciprocal")
+            else {"bound_transform": "local_positive_reciprocal"}
+            if evidence["data"].get("local_reciprocal_roles")
             else {}
         ),
     }

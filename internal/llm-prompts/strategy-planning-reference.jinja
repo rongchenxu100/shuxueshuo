@@ -12,3 +12,13 @@
 输出仍严格遵循当前 JSON Schema；数学内容使用直接数学表达式。
 
 {{ payload.planning_methods | compact_json }}
+
+{% if payload.method_application_rules is defined %}
+## Method Application Boundaries
+
+{{ payload.method_application_rules | compact_json }}
+
+## Method Boundary Correction Examples
+
+{{ payload.method_boundary_examples | compact_json }}
+{% endif %}

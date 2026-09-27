@@ -8639,6 +8639,8 @@ button:disabled {
 }
 
 .lesson-step-card {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
   scroll-margin-top: 16px;
   padding: 14px;
   display: grid;
@@ -10355,3 +10357,46 @@ button:disabled {
   .basic-concept-simultaneous { grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .basic-concept-and { text-align: center; }
 }
+
+/* Mixed bound routes: emphasize the purpose, keep full algebra in derivations. */
+.basic-purpose-cards.is-concept { grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr)); gap:14px; }
+.basic-purpose-cards.is-concept article { padding:18px 12px; }
+
+/* A long formula must scroll inside its row, never widen the lesson grid. */
+.step-card-body-text-only, .step-card-panel > .derive-list { min-width:0; }
+.step-card-body-text-only .derive-line { min-width:0; max-width:100%; }
+
+@media (max-width:600px) {
+  .step-card-body-text-only .derive-line .inline-math {
+    display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden;
+    padding-block:4px; vertical-align:middle;
+  }
+}
+
+.lesson-step-basic-structure-scan .basic-purpose-cards.is-concept .basic-purpose-progress {
+  font-size:2rem; white-space:nowrap;
+}
+
+/* Keep the full expression visible while emphasizing one local operation. */
+.basic-structure-organization > .basic-expression-flow, .lesson-step-basic-inequality-map > .basic-expression-flow { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; width: 100%; min-width: 0; }
+.basic-expression-flow-row { display: grid; gap: .5rem; min-width: 0; }
+.basic-expression-flow-row > small { color: #617d82; font-size: .85rem; font-weight: 600; text-align: center; }
+.basic-expression-flow-equation { display: flex; align-items: center; justify-content: center; gap: .7rem; min-width: 0; }
+.basic-expression-flow-relation { color: #cc684b; font-size: 1.7rem; flex: 0 0 auto; }
+.basic-expression-flow-parts { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .15rem; min-width: 0; font-size: clamp(1rem, 2vw, 1.55rem); }
+.basic-expression-flow-part { color: #45636b; min-width: 0; max-width: 100%; }
+.basic-expression-flow-part.is-highlighted { color: #007c80; background: #e6f5f4; border: 2px solid #14a5b3; border-radius: .6rem; padding: .3rem .45rem; }
+.basic-expression-flow-part .inline-math { display: inline-block; max-width: 100%; overflow-x: auto; overflow-y: hidden; vertical-align: middle; padding-block: .2rem; }
+@media (max-width: 600px) {
+  .basic-expression-flow { gap: 1rem; }
+  .basic-expression-flow-parts { font-size: 1.05rem; }
+  .basic-expression-flow-equation { gap: .35rem; }
+}
+
+.basic-map-context-arrow { color: #14a5b3; text-align: center; font-size: 1.8rem; }
+.basic-map-local-conclusion { text-align: center; font-size: 1.3rem; }
+.basic-concept-equalities.is-stacked { display: grid; justify-items: center; gap: 1.2rem; }
+.basic-concept-equality-row { display: flex; align-items: center; justify-content: center; gap: .6rem; min-width: 0; }
+.basic-concept-square-zero { padding: .35rem .5rem; border-left: 3px solid #d76843; background: rgba(239, 142, 21, .07); border-radius: .3rem; }
+
+.lesson-step-basic-inequality-map > .basic-map-concept-product { justify-self: center; }

@@ -222,7 +222,7 @@ def test_invalid_bound_never_answers(math, tmp_path):
         transaction = json.loads((tmp_path / "attempt-1.transaction.json").read_text())
         issue = transaction["root_issues"][0]["diagnostic_authority"]
         assert issue["observed"]["code"] == "target_bound_mismatch"
-        assert issue["repair_action"] == "repair_derivation"
+        assert issue["repair_action"] == "restore_full_bound"
         assert "定和代入" in issue["original_message"]
 
 
@@ -326,6 +326,7 @@ def test_default_registry_stays_closed_and_authoring_catalog_stays_inert():
         "substitute_expressions",
         "eliminate_by_constraint",
         "organize_expressions",
+        "bound_univariate_quadratic",
         "apply_two_term_amgm",
         "close_equality_and_restore",
     )
@@ -404,6 +405,10 @@ def test_retry_repairs_witness_without_reusing_failed_answer(tmp_path, bad_bound
     assert result.status == "ok", result.to_dict()
     assert result.answers == {"problem": {"maximum": "1"}}
     assert len(client.requests) == 2
+    for request in client.requests:
+        user = next(m['content'] for m in request['messages'] if m['role'] == 'user')
+        assert 'Method Application Boundaries' in user
+        assert 'separate_amgm_and_square_nonnegativity' in user
     first = json.loads((tmp_path / "attempt-1.transaction.json").read_text())
     assert [row["runtime_type"] for row in first["state_writes"]] == (
         [] if bad_bound else ["AmgmBound"]
@@ -514,8 +519,9 @@ def test_marker_fallback_never_discards_incomplete_or_unseparated_relations(math
 def test_marker_fallback_preserves_verification_and_clause_budget():
     with pytest.raises(ProofFailure):
         verify_bound(target(), math_rows("∵m=n∴m+n>=2*sqrt(m*n)", "m*n<=1"))
+    verify_bound(target(), math_rows("∵m>0" + "∴m>0" * 8, "m*n<=1"))
     with pytest.raises(ProofFailure) as caught:
-        verify_bound(target(), math_rows("∵m>0" + "∴m>0" * 8, "m*n<=1"))
+        verify_bound(target(), math_rows(",".join(f"m>{i}" for i in range(33)), "m*n<=1"))
     assert caught.value.code == "proof_limit"
 
 
@@ -615,5 +621,8 @@ def test_derivation_source_segments_and_shared_budget():
     assert parsed[-1].origin["chain_endpoint"]
     small = replace(ctx, limits=replace(ctx.limits, nodes=3))
     repeated = [parse_derivation(math_rows("m>0"), ctx.symbols)[0].parsed] * 2
+    proofs = verify_relation_sequence(repeated, small)
+    verify_relation_sequence(repeated, small, certificates=proofs)
+    distinct = repeated[:1] + [parse_derivation(math_rows("n>0"), ctx.symbols)[0].parsed]
     with pytest.raises(ProofFailure, match="nodes budget"):
-        verify_relation_sequence(repeated, small)
+        verify_relation_sequence(distinct, small)

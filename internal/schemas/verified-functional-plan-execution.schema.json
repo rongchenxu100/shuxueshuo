@@ -646,6 +646,7 @@
             "method_id": {
               "enum": [
                 "apply_two_term_amgm",
+                "bound_univariate_quadratic",
                 "close_equality_and_restore"
               ]
             },

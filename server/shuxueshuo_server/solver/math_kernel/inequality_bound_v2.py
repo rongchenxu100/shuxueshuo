@@ -43,11 +43,11 @@ def public(evidence):
         **{
             k: deepcopy(v)
             for k, v in evidence.items()
-            if k not in {"proofs", "derivation", "reciprocal_bound"}
+            if k not in {"proofs", "derivation", "reciprocal_bound", "local_application"}
         },
         "certificate_bundle": {
             k: deepcopy(evidence[k])
-            for k in ("proofs", "derivation", "reciprocal_bound")
+            for k in ("proofs", "derivation", "reciprocal_bound", "local_application")
             if k in evidence
         },
     }
@@ -138,26 +138,10 @@ def verify(
             raise ProofFailure(
                 "invalid_proof", "missing predecessor certificate bundle"
             )
-        if previous_bound.get(
-            "schema_version"
-        ) != "amgm-bound/v2" or previous_bound.get("target_hash") != digest(target):
-            raise ProofFailure(
-                "invalid_proof", "bound belongs to another target or version"
-            )
-        predecessor = verify(
-            target,
-            previous_bound["steps"],
-            expression=previous_bound.get("expression"),
-            previous_bound=previous_bound.get("previous_bound"),
-            elimination=previous_bound.get("elimination"),
-            substitution=previous_bound.get("substitution"),
-            reciprocal=previous_bound.get("reciprocal", False),
-            depth=depth + 1,
-            certificates=previous_bound.get("certificate_bundle"),
-            budget=budget,
-        )
-        if public(predecessor) != previous_bound:
-            raise ProofFailure("invalid_proof", "predecessor bound altered")
+        from .bound_chain import replay_bound
+        predecessor = replay_bound(target, previous_bound, depth=depth + 1, budget=budget)
+        if predecessor["direction"] != ">=":
+            raise ProofFailure("target_bound_mismatch", "predecessor must be a lower bound")
         ancestor = previous_bound
         while ancestor.get("previous_bound") is not None:
             ancestor = ancestor["previous_bound"]
@@ -281,7 +265,8 @@ def verify(
         )
         proof = certify(eq, context)
         proofs.append(proof)
-        premises["expression:verified"] = eq
+        # The identity is already certified; do not add a redundant equation
+        # to local sign search. Final transport still checks the original target.
     working = replace(context, premises=premises)
     # The submitted final lhs may be the original target or the current source.
     from .proof_algebra import Arithmetic
@@ -301,6 +286,23 @@ def verify(
     origins = [r.origin for r in chain]
     if certificates is not None and certificates["derivation"]["origins"] != origins:
         raise ProofFailure("invalid_proof", "bound origins changed")
+    checked_pairs = set()
+
+    def check_local_contract(proof):
+        # Use only a certified pair, never infer proof authority from notation.
+        # Reject an independently removed remainder before later rows can
+        # consume the whole search budget and obscure the Method boundary.
+        from .local_bound_contract import verify_local_application
+
+        for node in proof["nodes"]:
+            if node["rule_id"] != "math.two_term_amgm":
+                continue
+            u, v = freeze(node["conclusion"])[1][1:]
+            key = commutative_key(("add", u, v))
+            if key not in checked_pairs:
+                verify_local_application(context, source, bound, u, v, budget=budget)
+                checked_pairs.add(key)
+
     sequence = verify_relation_sequence(
         [r.parsed for r in chain],
         working,
@@ -308,6 +310,7 @@ def verify(
         if certificates is not None
         else None,
         budget=budget,
+        on_verified=check_local_contract if certificates is None else None,
     )
     if certificates is None:
         verify_relation_sequence(
@@ -327,11 +330,28 @@ def verify(
             "one new positive two-term AM-GM application per call is required",
         )
     u, v = next(iter(pairs.values()))
+    local_application = None
+    if certificates is None or "local_application" in certificates:
+        from .local_bound_contract import verify_local_application
+        local_application = verify_local_application(
+            context, source, bound, u, v, budget=budget,
+            certificates=certificates.get("local_application") if certificates is not None else None,
+        )
     equality = f"({math_text(u)})=({math_text(v)})"
     equalities.append(equality)
     dependencies.append({"terms": [math_text(u), math_text(v)], "equality": equality})
+    transport_premises = dict(premises)
     for i, row in enumerate(chain):
         premises[f"bound:row:{i}"] = row.parsed
+    from .proof_kernel import fact_key
+    if len({fact_key(from_node(p.ast)) for p in premises.values()}) > context.limits.premises:
+        # Every row was certified above. Final transport needs the selected
+        # complete bound, not every intermediate algebraic spelling. Preserve
+        # original scope facts and predecessors; use the same source ID for
+        # replay. Previously accepted (within-limit) certificates keep their
+        # original context unchanged.
+        transport_premises[f"bound:row:{bound_relation_index % len(chain)}"] = final
+        premises = transport_premises
     final_context = replace(context, premises=premises)
     goal = parse_math_relation(f"({target['target_math']})>=({bound})", context.symbols)
     proof = certify(goal, final_context)
@@ -344,6 +364,7 @@ def verify(
         "target_math": target["target_math"],
         "direction": direction,
         "source_math": source,
+        **({"local_application": local_application} if local_application is not None else {}),
         "expression": str(expression) if expression is not None else None,
         "previous_bound": deepcopy(previous_bound),
         **({"elimination": deepcopy(elimination)} if elimination is not None else {}),
@@ -432,6 +453,53 @@ def verify_equality_derivation(
     return reports
 
 
+def verify_equality_references(chain, equalities, context, budget):
+    """Resolve natural equality references against replayed bound conditions."""
+    import sympy as sp
+    from .proof_algebra import Arithmetic
+
+    arithmetic = Arithmetic(budget)
+    known = [parse_math_relation(eq, context.symbols) for eq in equalities]
+    reports = []
+    for row in chain:
+        reference = row.origin.get("equality_reference")
+        if reference is None:
+            continue
+        goal = ("sub", *from_node(row.parsed.ast)[1:])
+        matched = next((eq for eq in known if arithmetic.proportional(
+            goal, ("sub", *from_node(eq.ast)[1:])
+        ) not in (None, 0)), None)
+        if matched is None:
+            raise ProofFailure("equality_reference_unmatched", "取等关系必须对应前序已验证的取等条件")
+        cited = parse_math_relation(reference["inequality"], context.symbols)
+        # Establish the inequality without assuming attainment.
+        proofs = verify_relation_sequence([cited], context, budget=budget)
+        verify_relation_sequence([cited], context, certificates=proofs)
+        left, right = cited.ast.children
+        equality = parse_math_relation(
+            f"({cited.source[slice(*left.span)]})=({cited.source[slice(*right.span)]})",
+            context.symbols,
+        )
+        when = replace(context, premises={**context.premises, "attainment:reference": matched})
+        left_text, right_text = (cited.source[slice(*side.span)] for side in (left, right))
+        def square_text(text):
+            value = parse_math_expression(text, context.symbols).to_sympy(context.symbols)
+            # A generated candidate, still proved by the kernel; avoid nested
+            # powers rejected by the submitted-expression size guard.
+            return str(sp.expand(value ** 2))
+        squared = parse_math_relation(
+            f"{square_text(left_text)}={square_text(right_text)}", context.symbols
+        )
+        # The existing square_equal rule also checks nonnegative sides; merely
+        # proving equal squares must never authorize a sign change.
+        attainment_rows = [squared, equality]
+        attained = verify_relation_sequence(attainment_rows, when, budget=budget)
+        verify_relation_sequence(attainment_rows, when, certificates=attained)
+        reports.append({"origin": row.origin, "condition": matched.source,
+                        "inequality_proof": proofs, "attainment_proof": attained})
+    return reports
+
+
 def close(
     target, bound, branches, *, equality_derivation=None, branch_derivations=None
 ):
@@ -454,19 +522,8 @@ def close(
     witness_budget = _Budget(context.limits)
     if not isinstance(bound.get("certificate_bundle"), dict):
         raise ProofFailure("invalid_proof", "missing bound certificate bundle")
-    rebuilt = verify(
-        target,
-        bound["steps"],
-        expression=bound.get("expression"),
-        previous_bound=bound.get("previous_bound"),
-        elimination=bound.get("elimination"),
-        substitution=bound.get("substitution"),
-        reciprocal=bound.get("reciprocal", False),
-        certificates=bound.get("certificate_bundle"),
-        budget=replay_budget,
-    )
-    if public(rebuilt) != bound:
-        raise ProofFailure("invalid_proof", "bound or dependency evidence altered")
+    from .bound_chain import replay_bound
+    rebuilt = replay_bound(target, bound, budget=replay_budget)
     ancestor = bound
     while ancestor.get("previous_bound") is not None:
         ancestor = ancestor["previous_bound"]
@@ -505,9 +562,15 @@ def close(
     if branch_derivations is not None and len(branch_derivations) != len(branches):
         raise ProofFailure("invalid_input", "branch derivation count mismatch")
     for branch_index, steps in enumerate(branches):
-        chain = parse_derivation(steps, context.symbols)
+        chain = parse_derivation(steps, context.symbols, closure_target=target)
+        equality_references = verify_equality_references(
+            chain, rebuilt["equalities"], context, witness_budget
+        )
         assignments, aliases = {}, []
         for row in chain:
+            # Summary statements add obligations, never manufacture witnesses.
+            if row.origin.get("statement_reference") or row.origin.get("equality_reference"):
+                continue
             if row.parsed.ast.op != "=":
                 continue
             a, b = row.parsed.ast.children
@@ -575,22 +638,29 @@ def close(
                 }
             )
         required = unique
-        if len(required) > 16:
-            raise ProofFailure(
-                "proof_limit",
-                f"见证共 {len(required)} 个关系，超过 16；请删去重复常量计算并缩短关系链，"
-                "保留具体赋值与取等条件。内核自动验证原条件及目标值。",
-            )
-        proof = require(
-            verify_witnesses([assignments], required, witness_context, _budget=witness_budget)
-        )
-        _replay(proof, witness_context, budget=replay_budget)
+        # Keep the proof kernel's bounded certificate size. Natural comparison
+        # chains can produce more assertions; verify every batch under the same
+        # total construction/replay budgets and the exact same witness/context.
+        proof_batches = []
+        for offset in range(0, len(required), 16):
+            proof = require(verify_witnesses(
+                [assignments], required[offset:offset + 16], witness_context,
+                _budget=witness_budget,
+            ))
+            _replay(proof, witness_context, budget=replay_budget)
+            proof_batches.append(proof)
+        proof = proof_batches[0]
+        if len(proof_batches) > 1:
+            for entry in coverage:
+                entry["proof_batch"], entry["batch_requirement"] = divmod(entry["proof_requirement"], 16)
         reports.append(
             {
                 "assignments": {k: v.source for k, v in sorted(assignments.items())},
                 "steps": deepcopy(steps),
                 "origins": [r.origin for r in chain],
+                **({"equality_references": equality_references} if equality_references else {}),
                 "proof": proof,
+                **({"proof_batches": proof_batches} if len(proof_batches) > 1 else {}),
                 "requirement_coverage": coverage,
             }
         )
@@ -678,6 +748,7 @@ def close(
         "kind": "verified_extremum",
         "bound": rebuilt,
         "witness_proof": first["proof"],
+        **({"witness_proof_batches": first["proof_batches"]} if "proof_batches" in first else {}),
         "assignments": first["assignments"],
         "steps": first["steps"],
         "derivation_origins": first["origins"],

@@ -16,7 +16,6 @@ method，再把 method output 写回 RuntimeContext。
 from __future__ import annotations
 
 from dataclasses import replace
-from .method_parameters import validate_parameters
 
 import sympy as sp
 
@@ -29,18 +28,27 @@ from shuxueshuo_server.solver.contracts import (
 )
 from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
-from shuxueshuo_server.solver.runtime.method_specs import (
-    MethodSpecRegistry,
-    method_output_activity,
-)
-from shuxueshuo_server.solver.runtime.method_input_views import (
-    MethodInputViewResolver,
-    expected_runtime_type_for_view,
+from shuxueshuo_server.solver.runtime.functional_diagnostics import (
+    StatelessMethodError,
+    method_input_invalid,
+    method_input_missing,
+    method_input_state_unavailable,
+    method_result_ambiguous,
+    method_result_empty,
+    unexpected_method_error,
 )
 from shuxueshuo_server.solver.runtime.method_input_read_authority import (
     DerivedInputReadSource,
     MethodInputReadAuthority,
     StateVersionReadSource,
+)
+from shuxueshuo_server.solver.runtime.method_input_views import (
+    MethodInputViewResolver,
+    expected_runtime_type_for_view,
+)
+from shuxueshuo_server.solver.runtime.method_specs import (
+    MethodSpecRegistry,
+    method_output_activity,
 )
 from shuxueshuo_server.solver.runtime.methods import (
     StatelessMethodRegistry,
@@ -56,20 +64,13 @@ from shuxueshuo_server.solver.runtime.models import (
     StepPlan,
     runtime_type_matches,
 )
-from shuxueshuo_server.solver.runtime.functional_diagnostics import (
-    StatelessMethodError,
-    method_input_invalid,
-    method_input_missing,
-    method_input_state_unavailable,
-    method_result_ambiguous,
-    method_result_empty,
-    unexpected_method_error,
-)
 from shuxueshuo_server.solver.runtime.symbolic_state_representation import (
     SymbolicStateRepresentationError,
     polynomial_state_relations,
     project_symbolic_input_view,
 )
+
+from .method_parameters import validate_parameters
 
 
 class DeclarationValidator:
@@ -743,7 +744,7 @@ class InvocationExecutor:
         )
         if input_types:
             inputs["__input_types__"] = input_types
-        if invocation.method_id in {"organize_expressions", "apply_two_term_amgm"} and "expression" in typed_inputs:
+        if invocation.method_id in {"organize_expressions", "apply_two_term_amgm", "bound_univariate_quadratic"} and "expression" in typed_inputs:
             inputs["__expression_source__"] = typed_inputs["expression"].source
             authorities = invocation.input_read_authorities.get("expression", ())
             inputs["__expression_authority__"] = authorities[0].source.to_payload() if len(authorities) == 1 else None

@@ -32,11 +32,12 @@ def unit(key, title, visual, activation_role=None):
         unit_key=key,
         title_template=title,
         nav_title_template=title,
-        goal_template="{reciprocal_goal}" if key == "reciprocal_transform" else "{goal}",
+        goal_template=("{reciprocal_goal}" if key == "reciprocal_transform" else "{local_reciprocal_goal}" if key == "local_reciprocal_transform" else "{goal}"),
         derive_templates=(("∴", "{conclusion}"),),
         box_templates=(
             ("{observation}",) if key == "amgm_observe" else
-            ("{reciprocal_conclusion}",) if key == "reciprocal_transform" else ("{conclusion}",)
+            ("{reciprocal_conclusion}",) if key == "reciprocal_transform" else
+            ("{local_reciprocal_conclusion}",) if key == "local_reciprocal_transform" else ("{conclusion}",)
         ),
         role_schema={
             "goal": "本步骤的教学目标。",
@@ -46,6 +47,7 @@ def unit(key, title, visual, activation_role=None):
                 "reciprocal_goal": "正数取倒数的目标转换。",
                 "reciprocal_conclusion": "倒数的已验证等价整理。",
             } if key == "reciprocal_transform" else {}),
+            **({"has_local_reciprocal": "已验证局部倒数求界。", "local_reciprocal_goal": "转换局部求界方向。", "local_reciprocal_conclusion": "保留其余项，对正分母求上界。"} if key == "local_reciprocal_transform" else {}),
         },
         role_binder_id="basic_inequality",
         requires_independent_lesson_step=True,
@@ -56,7 +58,12 @@ def unit(key, title, visual, activation_role=None):
 AMGM_UNITS = (
     unit("reciprocal_transform", "取倒数并整理目标", "basic_inequality.reciprocal", "has_reciprocal_transform"),
     unit("amgm_observe", "观察结构", "basic_inequality.structure"),
+    unit("local_reciprocal_transform", "取倒数，转换局部求界方向", "basic_inequality.local_reciprocal_transform", "has_local_reciprocal"),
     unit("amgm_apply", "应用基本不等式", "basic_inequality.application"),
+)
+QUADRATIC_UNITS = (
+    unit("quadratic_observe", "观察结构", "basic_inequality.structure"),
+    unit("quadratic_bound", "配方，利用平方非负消元", "basic_inequality.quadratic"),
 )
 EQUALITY_UNITS = (unit("equality_verify", "验证取等", "basic_inequality.equality"),)
 
@@ -95,7 +102,7 @@ def roles(source, snapshot):
     _, evidence = evidence_for(source, snapshot)
     d = evidence["data"]
     if d.get("direction") == ">=" or d.get("reciprocal"):
-        return {**lower_bound_roles(source, d), "has_reciprocal_transform": bool(d.get("reciprocal"))}
+        return {**lower_bound_roles(source, d), "has_reciprocal_transform": bool(d.get("reciprocal")), "has_local_reciprocal": bool(d.get("local_reciprocal_roles"))}
     if not d.get("fixed_condition"):
         raise ValueError("fixed_sum_teaching_condition_missing")
     bound = f"{d['target']}≤{d['bound']}"
@@ -106,6 +113,7 @@ def roles(source, snapshot):
     if source.capability_id == "apply_two_term_amgm":
         return {
             "has_reciprocal_transform": False,
+            "has_local_reciprocal": False,
             "observation": "定和求积",
             "goal": "利用正项定和求积的上界",
             "conclusion": bound,
@@ -145,6 +153,18 @@ def lower_bound_roles(source, d):
     def math(value):
         return r"\(" + value + r"\)"
 
+    if source.capability_id == "bound_univariate_quadratic":
+        conclusion = math(d["teaching_effect"]["after_latex"])
+        return {
+            "goal": "配方并利用平方非负求下界，保留取等条件",
+            "observation": "识别二次项，配成平方",
+            "conclusion": conclusion,
+            "derive_items_by_unit": {
+                "quadratic_observe": ["∴识别二次项，通过配方减少变量"],
+                "quadratic_bound": ["∴" + math(v) for v in d["derivation_latex"]]
+                    + ["∴取等条件为 " + math(d["equalities_latex"][-1])],
+            },
+        }
     extremum = "最大值" if d["direction"] == "<=" else "最小值"
     terms = d.get("term_latex", d["terms"])
     pair = " 与 ".join(math(t) for t in terms)
@@ -152,6 +172,8 @@ def lower_bound_roles(source, d):
     if source.capability_id == "apply_two_term_amgm":
         overall = math(d.get("overall_relation_latex", d["overall_relation"]))
         preview = "把 " + pair + " 配成两个正项，应用基本不等式求和的下界，保留其余项"
+        if d.get("local_reciprocal_roles"):
+            preview = "利用 " + pair + " 的和求乘积上界，正数取倒数得到局部下界，保留其余项"
         if d.get("reciprocal"):
             preview = (
                 "原式为正，对其倒数中的 "
@@ -191,6 +213,25 @@ def lower_bound_roles(source, d):
                 "amgm_apply": application,
             },
         }
+        if d.get("local_reciprocal_roles"):
+            r = d["local_reciprocal_roles"]
+            local = r["reciprocal_bound"].split(r"\geq ")[0]
+            product = r["product_bound"].split(r"\leq ")[0]
+            result["local_reciprocal_goal"] = "保留其余项，将局部倒数项求下界转为对正分母求上界"
+            result["local_reciprocal_conclusion"] = "正分母的上界可转为局部倒数项的下界"
+            result["derive_items_by_unit"]["local_reciprocal_transform"] = [
+                "∵" + "，".join(math(t + ">0") for t in terms),
+                "∴" + math(product + ">0") + "，正数取倒数时不等号方向改变",
+                "∴为求局部项 " + math(local) + " 的下界，可先求分母 " + math(product) + " 的正上界，其余项保持不变",
+            ]
+            # Expose the formula substitution before the verified numerical bound.
+            product_upper = r["product_bound"].split(r"\leq ")[1]
+            product_template = product + r"\leq\left(\frac{" + terms[0] + "+(" + terms[1] + r")}{2}\right)^2=" + product_upper
+            index = next((i for i, line in enumerate(application) if r["product_bound"] in line), None)
+            if index is None:
+                application.insert(1, "∴" + math(product_template))
+            else:
+                application[index] = "∴" + math(product_template)
         if d.get("reciprocal"):
             r = d["reciprocal_roles"]
             result["reciprocal_goal"] = "原式为正，将求最大值转为求倒数的最小值，并整理出可配对的正项"

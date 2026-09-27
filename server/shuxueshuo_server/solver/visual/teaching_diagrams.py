@@ -218,6 +218,9 @@ def default_visual_specs():
 
     return VisualSpecRegistry(
         (
+            VisualSpec("basic_inequality.local_reciprocal_transform", "basic-inequality-structure-scan", reciprocal_local_transform),
+            VisualSpec("basic_inequality.local_reciprocal", "basic-inequality-mapping", reciprocal_local),
+            VisualSpec("basic_inequality.quadratic", "basic-inequality-structure-scan", quadratic),
             VisualSpec(OBSERVATION_ID, "basic-inequality-structure-scan", substitution_observation, evidence_kind="substitution"),
             VisualSpec(SUBSTITUTION_VISUAL, "basic-inequality-structure-scan", substitution_visual, evidence_kind="substitution"),
             VisualSpec(
@@ -232,6 +235,7 @@ def default_visual_specs():
                 fraction_visual,
                 evidence_kind="rewrite_with_bound",
             ),
+            VisualSpec("expression_rewrite.fraction_merge", "basic-inequality-structure-scan", fraction_merge_visual, evidence_kind="rewrite"),
             VisualSpec(
                 "expression_rewrite.chain",
                 "expression-rewrite",
@@ -391,6 +395,34 @@ def validate_diagram_block(block):
         )
     ):
         raise VisualGap("visual_equality_solution_mode_invalid")
+    flow = data.get("expressionFlow", data.get("organization", {}).get("expressionFlow"))
+    if flow is not None and (
+        not isinstance(flow, list) or not flow
+        or any(
+            not isinstance(row, dict)
+            or not isinstance(row.get("label"), str)
+            or row.get("relation", "") not in ("", "=", "≥", "≤", "⇐", "→")
+            or not isinstance(row.get("parts"), list) or not row["parts"]
+            or any(not isinstance(part, dict)
+                or not isinstance(part.get("expression"), str) or not part["expression"].strip()
+                or ("highlight" in part and not isinstance(part["highlight"], bool))
+                for part in row["parts"])
+            for row in flow
+        )
+    ):
+        raise VisualGap("visual_expression_flow_invalid")
+    for key in ("sumNote", "localConclusion"):
+        if key in data and (not isinstance(data[key], str) or not data[key].strip()):
+            raise VisualGap("visual_concept_note_invalid")
+    items = data.get("conceptEqualityItems")
+    if items is not None and (
+        not isinstance(items, list) or len(items) != len(data.get("conceptEqualities", []))
+        or any(not isinstance(item, dict) or item.get("kind") not in ("amgm", "quadratic")
+            or any(not isinstance(item.get(key), str) or not item[key].strip()
+                for key in (("first", "second") if item.get("kind") == "amgm" else ("expression",)))
+            for item in items)
+    ):
+        raise VisualGap("visual_concept_equality_items_invalid")
     if component == "basic-inequality-structure-scan":
         if "showRoute" in data and not isinstance(data["showRoute"], bool):
             raise VisualGap("visual_component_data_invalid")
@@ -409,6 +441,9 @@ def validate_diagram_block(block):
                 for key in ("beforeLabel", "afterLabel", "arrow")
             ) or (("beforeLabel" in row) != ("afterLabel" in row)):
                 raise VisualGap("visual_component_data_invalid")
+        presentation = data.get("organization", {}).get("purposePresentation")
+        if presentation not in (None, "concept"):
+            raise ValueError("invalid_purpose_presentation")
         cards = data.get("organization", {}).get("purposeCards")
         if cards is not None and (
             not isinstance(cards, list)
@@ -464,9 +499,37 @@ def validate_diagram_block(block):
             raise VisualGap("visual_branch_solution_invalid")
 
 
-def rewrite_visual(trace):
+def fraction_merge_visual(trace):
     from ..explanation.expression_rewrite import build_rewrite_presentation
 
+    transitions = trace["transitions"]
+    if len(transitions) == 1 and transitions[0]["operation"] == "combine_fractions" and not transitions[0].get("revealedConditionIds"):
+        row = transitions[0]
+        from .expression_flow import expression_row, flow_visual
+
+        # The kernel records unchanged summands during structural classification.
+        # Use that evidence, rather than formula text or the problem identity,
+        # to distinguish a local merge from a whole-expression merge.
+        local = bool(row["unchanged"])
+        visual = flow_visual([
+            expression_row(
+                row["before"]["latex"],
+                focus=row["localBefore"]["latex"] if local else None,
+            ),
+            expression_row(
+                row["after"]["latex"],
+                focus=row["localAfter"]["latex"] if local else None,
+                label="局部通分后" if local else "整体通分后",
+                relation="=",
+            ),
+        ], title="合并分式")
+        visual["reading"] = "局部通分" if local else "整体通分"
+        return visual
+    return build_rewrite_presentation(trace)["visual"]
+
+
+def rewrite_visual(trace):
+    from ..explanation.expression_rewrite import build_rewrite_presentation
     return build_rewrite_presentation(trace)["visual"]
 
 
@@ -537,6 +600,52 @@ def lower_structure(d):
     return visual
 
 
+def quadratic(d):
+    from .expression_flow import expression_row, flow_visual
+
+    before = d["teaching_effect"]["before_latex"]
+    after = d["teaching_effect"]["after_latex"]
+    square = d["square_latex"]
+    return flow_visual([
+        expression_row(before),
+        expression_row(square + "+" + after, focus=square, label="配出平方项", relation="="),
+        expression_row(after, relation="≥"),
+    ], title="配方，利用平方非负")
+
+
+def reciprocal_local_transform(d):
+    from .expression_flow import expression_row, flow_visual
+
+    roles = d["local_reciprocal_roles"]
+    local = roles["reciprocal_bound"].split(r"\geq ")[0]
+    product = roles["product_bound"].split(r"\leq ")[0]
+    visual = flow_visual([
+        expression_row(d["teaching_effect"]["before_latex"], focus=local),
+    ], title="转换求界方向")
+    visual["organization"]["comparisons"] = [{
+        "label": "转换局部求界方向", "beforeLabel": "倒数项求下界", "afterLabel": "正分母求上界",
+        "before": math(local), "after": math(product), "arrow": "⇐",
+    }]
+    return visual
+
+
+def reciprocal_local(d):
+    from .expression_flow import expression_row
+
+    roles = d["local_reciprocal_roles"]
+    local, lower = roles["reciprocal_bound"].split(r"\geq ")
+    visual = lower_application(d)
+    visual.update(
+        sumNote="定和 " + math(roles["sum"]),
+        localConclusion=math(roles["reciprocal_bound"]),
+        expressionFlow=[
+            expression_row(d["teaching_effect"]["before_latex"], focus=local),
+            expression_row(d["teaching_effect"]["after_latex"], focus=lower, relation="≥"),
+        ],
+    )
+    return visual
+
+
 def lower_application(d):
     relations = list(dict.fromkeys(item["math"] for item in d["local_relations"]))
     if not relations:
@@ -568,6 +677,22 @@ def lower_application(d):
         "conclusion": math(d["overall_relation"]),
         "equality": math(d["equality"]),
     }
+    local = d.get("local_sum_roles")
+    if local:
+        visual.update(
+            productNote="定积 " + math(local["product"]),
+            expressionFlow=[
+                {
+                    "parts": [
+                        {"expression": local[key], "highlight": True},
+                        {"expression": local["remainder_tail"]},
+                    ],
+                    "label": "",
+                    "relation": relation,
+                }
+                for key, relation in (("sum", ""), ("value", "≥"))
+            ],
+        )
     roles = d.get("constant_product_roles")
     if roles:
         visual.update(
@@ -642,17 +767,17 @@ def lower_equality(d):
         if len(d["equalities"]) > 1:
             applications = d.get("equality_applications", [])
             if len(applications) != len(d["equalities"]) or any(
-                not app["reduction"] for app in applications
+                not app["reduction"] and not app.get("terms") for app in applications
             ):
                 raise ValueError("verified_equality_reduction_missing")
             visual.update(
-                templateLabel=f"{len(d['equalities'])}次基本不等式同时取等",
+                templateLabel=("各次不等式同时取等" if any(a.get("kind") == "quadratic" for a in applications) else f"{len(d['equalities'])}次基本不等式同时取等"),
                 equalities=[
                     {
-                        "label": f"第{i + 1}次取等",
+                        "label": "平方项取零" if app.get("kind") == "quadratic" else f"第{i + 1}次取等",
                         "first": {"value": math(app["terms"][0]), "shape": "square"},
                         "second": {"value": math(app["terms"][1]), "shape": "circle"},
-                        "result": math(app["reduction"]),
+                        "result": math(app["reduction"] or "=".join(app["terms"])),
                     }
                     for i, app in enumerate(applications)
                 ],
@@ -684,6 +809,14 @@ def lower_equality(d):
     if d.get("substitution_conditions_latex"):
         visual["conditionLabel"] = "换元后的条件与还原关系"
         visual["condition"] = "；".join(math(r) for r in [*d["substitution_conditions_latex"], *d["substitution_definitions_latex"]])
+    applications = d.get("equality_applications", [])
+    if applications:
+        visual["conceptEqualityItems"] = [
+            {"kind": "quadratic", "expression": math(app["square"] + "=0")}
+            if app.get("kind") == "quadratic" else
+            {"kind": "amgm", "first": math(app["terms"][0]), "second": math(app["terms"][1])}
+            for app in applications
+        ]
     # Display the simultaneous conditions, keeping witnesses and restoration in derive.
     conditions = (
         d.get("substitution_equations_latex")
@@ -693,7 +826,7 @@ def lower_equality(d):
     )
     visual.update(
         presentation="concept",
-        conceptEqualities=[math(r) for r in d["equalities"]],
+        conceptEqualities=[math(r) for r in d["equalities_latex"]],
         conceptConditions=[math(r) for r in conditions],
         conceptConditionLabel="换元后的条件" if d.get("substitution_conditions_latex") else "原条件",
     )
@@ -717,27 +850,32 @@ def sequence_overview(items):
         "kind": "basic-inequality-structure-scan",
         "condition": {
             "label": "原条件",
-            "expression": math("，".join(items[0]["conditions"])),
+            "expression": math(r"，".join(items[0]["conditions_latex"])),
         },
         "target": {
             "label": "目标表达式",
-            "expression": math(items[0]["target"]),
+            "expression": math(items[0]["target_latex"]),
             "tag": "求最小值",
         },
         "organization": {
             "label": "路线预告：依次估计前一轮下界",
             "steps": [
                 {
-                    "label": f"第{i + 1}次配对",
-                    "expression": " 与 ".join(math(t) for t in d["terms"]),
+                    "label": f"第{i + 1}步：" + ("平方非负" if d.get("method_kind") == "quadratic" else "基本不等式"),
+                    "expression": math(d["square_latex"] + r"\geq0") if d.get("method_kind") == "quadratic" else " 与 ".join(math(t) for t in d["terms"]),
                 }
                 for i, d in enumerate(items)
             ],
             "note": "每轮记录取等条件，最后检查能否同时成立",
         },
         "reading": "连续求界",
-        "route": f"本解法分{len(items)}次应用基本不等式",
+        "route": f"本解法分{len(items)}次连续求界",
     }
+    planning = relation_count_plan(items)
+    if planning:
+        visual["organization"] = {"label": "规划取等关系", "relationCountHint": planning}
+        visual.update(showFocus=False, showRoute=False)
+        return visual
     cards = purpose_cards(items)
     if (
         cards
@@ -749,15 +887,11 @@ def sequence_overview(items):
             "purposeCards": cards,
             "note": "每轮保留取等条件，最后检查能否同时成立",
         }
-        planning = relation_count_plan(items)
-        if planning:
-            visual["organization"].update(
-                label="规划取等关系",
-                relationCountHint=planning,
-                note=f"考虑补充 {planning['result']['value']} 条取等关系；本解法分 {len(items)} 次应用不等式，最后联立检查取等",
-            )
         visual.update(reading="先消元", route="再求解，最后检查取等")
         visual["target"]["tag"] = (
             f"含 {len(items[0]['teaching_effect']['input_symbols'])} 个变量"
         )
+    if any(d.get("method_kind") == "quadratic" for d in items) and cards:
+        visual["showFocus"] = False
+        visual["organization"]["purposePresentation"] = "concept"
     return visual

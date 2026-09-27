@@ -27,5 +27,5 @@ ORGANIZE_EXPRESSIONS_CONTRACT = CapabilityContractSpec(
             write_mode="transition",
         ),
     ),
-    notes=("保留输入对象，只提交最后一行；条件通过显式参数绑定。",),
+    notes=("保留输入对象，只提交最后一行；条件显式绑定；省略时可由唯一可见的原目标自动绑定原条件，保留来源。",),
 )

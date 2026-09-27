@@ -307,6 +307,8 @@ class StrategyPayloadBuilder:
             result.pop("strategy_principles", None)
             result["strategy_overview"] = strategy_reference["strategy_overview"]
             result["planning_methods"] = strategy_reference.get("methods", [])
+            result["method_application_rules"] = strategy_reference["method_application_rules"]
+            result["method_boundary_examples"] = strategy_reference["method_boundary_examples"]
         return result
 
     def build_scoped(
@@ -399,7 +401,7 @@ class StrategyPayloadBuilder:
             "family_id": inputs.family_spec.family_id,
             **{
                 key: base[key]
-                for key in ("strategy_overview", "planning_methods")
+                for key in ("strategy_overview", "planning_methods", "method_application_rules", "method_boundary_examples")
                 if key in base
             },
             "problem_planning_context": (
@@ -1250,6 +1252,8 @@ def write_strategy_debug_artifacts(
         "strategy_principles",
         "strategy_overview",
         "planning_methods",
+        "method_application_rules",
+        "method_boundary_examples",
         "functional_capability_catalog",
         "few_shot_examples",
         "functional_few_shot_selection",

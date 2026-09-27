@@ -274,9 +274,10 @@ def _render(node):
 
 
 class _Parser:
-    def __init__(self, source, symbols, *, legacy=False, source_path=None, step=None):
+    def __init__(self, source, symbols, *, legacy=False, source_path=None, step=None, clause_words=()):
         self.source, self.symbols = source, symbols
         self.legacy, self.source_path, self.step = legacy, source_path, step
+        self.clause_words = tuple(sorted(clause_words, key=len, reverse=True))
         if not isinstance(source, str) or not source.strip() or len(source) > 1024:
             self.fail(
                 "invalid_expression",
@@ -318,6 +319,21 @@ class _Parser:
             if c.isspace():
                 i += 1
                 continue
+            if self.clause_words and '\u3400' <= c <= '\u9fff':
+                word = next((w for w in self.clause_words if self.source.startswith(w, i)), None)
+                if word is None:
+                    end = i + 1
+                    while end < len(self.source) and '\u3400' <= self.source[end] <= '\u9fff':
+                        end += 1
+                    phrase = self.source[i:end]
+                    self.fail(
+                        "unsupported_derivation_phrase",
+                        f"尚不支持数学句式“{phrase}”；不能忽略否定、假设或取等含义，请明确数学关系及其作用",
+                        (i, end),
+                    )
+                tokens.append(_Token(word, (i, i + len(word))))
+                i += len(word)
+                continue
             if c in SUPER_CHARS and not self.legacy:
                 while i < len(self.source) and self.source[i] in SUPER_CHARS:
                     i += 1
@@ -354,6 +370,8 @@ class _Parser:
                 i += 2
                 if text == "**":
                     text = "^"
+            elif c in ":：" and "取等" in self.clause_words:
+                text, i = ":", i + 1
             elif c in "+-*/^()=<>" or (not self.legacy and c in "{},√±∵∴"):
                 text, i = c, i + 1
             elif not self.legacy and c in aliases:

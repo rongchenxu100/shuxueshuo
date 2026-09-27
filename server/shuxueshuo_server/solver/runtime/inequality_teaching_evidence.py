@@ -22,7 +22,7 @@ from shuxueshuo_server.solver.math_kernel.expression_rewrite import (
 from shuxueshuo_server.solver.student_display import student_math_display
 
 CONTRACT = "inequality-teaching-evidence/v1"
-METHODS = {"apply_two_term_amgm", "close_equality_and_restore"}
+METHODS = {"apply_two_term_amgm", "bound_univariate_quadratic", "close_equality_and_restore"}
 
 
 def inequality_teaching_evidence_schema():
@@ -123,7 +123,6 @@ class InequalityTeachingEvidence:
 def collect_inequality_evidence(step_id, method_results):
     from .elimination_teaching_evidence import collect_elimination_evidence
     from .rewrite_teaching_evidence import collect_rewrite_evidence
-
     from .substitution_teaching_evidence import collect_substitution_evidence
     result = list(collect_substitution_evidence(step_id, method_results))
     result.extend(collect_rewrite_evidence(step_id, method_results))
@@ -137,7 +136,7 @@ def collect_inequality_evidence(step_id, method_results):
         fragment = fragments[0]
         target, evidence = fragment["source_target"], fragment["evidence"]
         bound = (
-            evidence if method.method_id == "apply_two_term_amgm" else evidence["bound"]
+            evidence if method.method_id != "close_equality_and_restore" else evidence["bound"]
         )
         symbols = {
             name: sp.Symbol(name, real=True) for name in target["scalar_symbols"]
@@ -209,7 +208,7 @@ def collect_inequality_evidence(step_id, method_results):
             from ..math_kernel.proof_algebra import freeze
 
             local_relations = []
-            for row, proof in zip(chain, bound["derivation"]["proofs"], strict=True):
+            for row, proof in zip(chain, bound["derivation"]["proofs"][:len(chain)], strict=True):
                 for node in proof["nodes"]:
                     if node["rule_id"] == "math.two_term_amgm":
                         local_relations.append(
@@ -232,6 +231,8 @@ def collect_inequality_evidence(step_id, method_results):
             sum_latex = "+".join(grouped)
             product_latex = r"\cdot ".join(grouped)
             data = {
+                "method_kind": "quadratic" if bound["schema_version"] == "quadratic-bound/v1" else "amgm",
+                "square_latex": sp.latex(scalar(bound["square"])) if "square" in bound else None,
                 "teaching_effect": verified_bound_effect(
                     bound["source_math"], bound["bound"], symbols
                 ),
@@ -307,7 +308,11 @@ def collect_inequality_evidence(step_id, method_results):
             if substitution is not None and not product.is_Rational:
                 # Exact polynomial reduction of the already verified conditions;
                 # no equation solving, witness guessing or proof search.
-                from ..math_kernel.proof_algebra import Arithmetic, ProofFailure, from_node
+                from ..math_kernel.proof_algebra import (
+                    Arithmetic,
+                    ProofFailure,
+                    from_node,
+                )
                 from ..math_kernel.proof_kernel import _Budget
                 candidate = sp.cancel(((scalar(bound["bound"]) -
                     (scalar(bound["source_math"]) - sum(terms))) / 2) ** 2)
@@ -354,6 +359,22 @@ def collect_inequality_evidence(step_id, method_results):
                         break
             local_value = 2 * sp.sqrt(product)
             if (
+                data["method_kind"] == "amgm" and not bound.get("reciprocal")
+                and product.is_Rational and product > 0 and scale == 1
+                and rest.free_symbols
+                and sp.cancel(rest + local_value - scalar(bound["bound"])) == 0
+            ):
+                # Regroup the certified pair for display while retaining the
+                # complete remainder, including its original variables.
+                remainder_latex = sp.latex(sp.factor(rest))
+                tail = "+\\left(" + remainder_latex + r"\right)"
+                data["local_sum_roles"] = {
+                    "product": sp.latex(product), "sum": sum_latex,
+                    "value": sp.latex(local_value),
+                    "remainder_tail": tail,
+                    "basis": "verified_local_amgm_with_symbolic_remainder",
+                }
+            if (
                 product.is_Rational
                 and product > 0
                 and rest.is_Rational
@@ -385,6 +406,29 @@ def collect_inequality_evidence(step_id, method_results):
                     "origins": [r.origin for r in chain],
                     "basis": "verified_local_amgm_and_target_transport",
                 }
+            if data["method_kind"] == "amgm" and not bound.get("reciprocal"):
+                # Match the verified pair inside one reciprocal summand. This
+                # projection classifies evidence; it does not authorize a bound.
+                source_expr = scalar(bound["source_math"])
+                from ..math_kernel.local_bound_contract import reciprocal_coefficient
+                summands = list(sp.Add.make_args(sp.expand(source_expr)))
+                combined = reciprocal_coefficient(source_expr, scalar(bound["bound"]), *terms)
+                if combined is not None:
+                    summands.append(combined / product)
+                for summand in summands:
+                    coefficient = sp.cancel(summand * product)
+                    if coefficient.free_symbols & product.free_symbols or coefficient == 0:
+                        continue
+                    local = sp.cancel(4 * coefficient / sum(terms)**2)
+                    if sp.cancel(source_expr - summand + local - scalar(bound["bound"])) == 0:
+                        data["local_reciprocal_roles"] = {
+                            "sum": sp.latex(sp.cancel(sum(terms))),
+                            "sum_relation": sp.latex(terms[0]) + "+(" + sp.latex(terms[1]) + ")=" + sp.latex(sp.cancel(sum(terms))),
+                            "product_bound": product_latex + r"\leq " + sp.latex(sp.cancel(sum(terms)**2 / 4)),
+                            "reciprocal_bound": r"\frac{" + sp.latex(coefficient) + "}{" + product_latex + "}" + r"\geq " + sp.latex(local),
+                            "coefficient": sp.latex(coefficient),
+                        }
+                        break
             if substitution is not None:
                 from .substitution_teaching_evidence import project_new_conditions
                 data["substitution_definitions_latex"] = [relation_latex(parse_math_relation(f"{n}=({v})", symbols)) for n,v in substitution["definitions"].items()]
@@ -396,7 +440,7 @@ def collect_inequality_evidence(step_id, method_results):
                     witness={k: display(v) for k, v in evidence["assignments"].items()},
                     witness_derivation=[
                         relation(r.parsed)
-                        for r in parse_derivation(evidence["steps"], symbols)
+                        for r in parse_derivation(evidence["steps"], symbols, closure_target=target)
                     ],
                     verified_branches=[
                         {
@@ -405,7 +449,7 @@ def collect_inequality_evidence(step_id, method_results):
                             },
                             "relations": [
                                 relation(r.parsed)
-                                for r in parse_derivation(b["steps"], symbols)
+                                for r in parse_derivation(b["steps"], symbols, closure_target=target)
                             ],
                             "when": relation_latex(
                                 parse_math_relation(b["when"], symbols)
@@ -472,8 +516,11 @@ def collect_inequality_evidence(step_id, method_results):
                             tree_latex(
                                 _legacy_tree(parse_math_expression(t, symbols).ast)
                             )
-                            for t in app["terms"]
+                            for t in (app["terms"] if "terms" in app else [
+                                app["equality"].split("=", 1)[0], app["equality"].split("=", 1)[1]])
                         ],
+                        "kind": app.get("kind", "amgm"),
+                        "square": sp.latex(scalar(app["square"])) if app.get("kind") == "quadratic" else None,
                         "reduction": reductions.get(i),
                     }
                     for i, app in enumerate(bound["applications"])
@@ -557,7 +604,7 @@ def collect_inequality_evidence(step_id, method_results):
             "previous_bound": None,
         }
         if method.method_id == "close_equality_and_restore":
-            rows = parse_derivation(evidence["steps"], symbols)
+            rows = parse_derivation(evidence["steps"], symbols, closure_target=target)
             data.update(
                 witness={
                     name: display(value)

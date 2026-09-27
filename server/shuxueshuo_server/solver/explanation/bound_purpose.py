@@ -41,21 +41,22 @@ def purpose_cards(items):
                 "purpose": "消去 " + "、".join(effect["removed_symbols"])
                 if eliminate
                 else "求解",
-                "tool": "基本不等式",
+                "tool": "平方非负" if data.get("method_kind") == "quadratic" else "基本不等式",
                 "progressLabel": "变量数变化",
                 "progress": str(len(effect["input_symbols"]))
                 + " → "
                 + (str(len(effect["output_symbols"])) if eliminate else "定值"),
                 "before": r"\(" + effect["before_latex"] + r"\)",
                 "after": r"\(" + effect["after_latex"] + r"\)",
-                "reason": "配对项的乘积：\\("
-                + r"\left("
-                + data["term_latex"][0]
-                + r"\right)\cdot\left("
-                + data["term_latex"][1]
-                + r"\right)="
-                + data["paired_product_latex"]
-                + r"\)",
+                "reason": (
+                    "平方非负：\\(" + data["square_latex"] + r"\geq0\)"
+                    if data.get("method_kind") == "quadratic" else
+                    "正项定和：\\(" + data["local_reciprocal_roles"]["sum"] + r"\)"
+                    if data.get("local_reciprocal_roles") else
+                    "配对项的乘积：\\(" + r"\left(" + data["term_latex"][0]
+                    + r"\right)\cdot\left(" + data["term_latex"][1]
+                    + r"\right)=" + data["paired_product_latex"] + r"\)"
+                ),
                 "detail": ("求界式只剩 " + "、".join(effect["output_symbols"]))
                 if eliminate
                 else "得到常数下界，随后检查取等",
