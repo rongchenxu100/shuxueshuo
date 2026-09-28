@@ -1,0 +1,58 @@
+.................................F...................................... [ 19%]
+...................................................xxx.................. [ 39%]
+........................................................................ [ 59%]
+........................................................................ [ 79%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_snapshot_cache_cannot_hide_mutated_source_authority ___________
+
+    def test_snapshot_cache_cannot_hide_mutated_source_authority():
+        store = environment()
+        overlay = store.begin("first")
+        overlay.prove_scheduled("x!=0")
+        store.commit(overlay, "first")
+        store.source_context.premises["positive"] = parse_math_relation(
+            "x<0", store.source_context.symbols
+        )
+        with pytest.raises(ValueError, match="source authority changed"):
+>           store.begin("second")
+
+server/tests/solver/test_scoped_proof_search_stage_d.py:542:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:234: in begin
+    self.verify_snapshot()
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:263: in verify_snapshot
+    fresh._restore_one(saved.to_payload())
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:303: in _restore_one
+    require(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+condition = False, message = 'committed manifest changed'
+
+    def require(condition, message):
+        if not condition:
+>           raise ValueError("proof_facts: " + message)
+E           ValueError: proof_facts: committed manifest changed
+
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:35: ValueError
+
+During handling of the above exception, another exception occurred:
+
+    def test_snapshot_cache_cannot_hide_mutated_source_authority():
+        store = environment()
+        overlay = store.begin("first")
+        overlay.prove_scheduled("x!=0")
+        store.commit(overlay, "first")
+        store.source_context.premises["positive"] = parse_math_relation(
+            "x<0", store.source_context.symbols
+        )
+>       with pytest.raises(ValueError, match="source authority changed"):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'source authority changed'
+E         Actual message: 'proof_facts: committed manifest changed'
+
+server/tests/solver/test_scoped_proof_search_stage_d.py:541: AssertionError
+=========================== short test summary info ============================
+FAILED server/tests/solver/test_scoped_proof_search_stage_d.py::test_snapshot_cache_cannot_hide_mutated_source_authority
+1 failed, 357 passed, 3 xfailed in 68.83s (0:01:08)

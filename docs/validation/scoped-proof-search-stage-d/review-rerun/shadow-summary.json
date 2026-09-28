@@ -1,0 +1,178 @@
+{
+  "schema_version": "layered-search-measurement/v1",
+  "input_sha256": {
+    "server/tests/solver/fixtures/basic-inequality-stage5c/live14-plans.json": "ae1e831e8e565f40ae02e481e55b8984da6c8cd4e5e8f31a688ede3a489a1292",
+    "server/tests/solver/fixtures/basic-inequality-stage5c/live12-budget.json": "73b1648aebf3904293e11f34fbd508d4bbb17385ccb6373a17acfb199de4270d",
+    "server/tests/solver/fixtures/basic-inequality-stage5c/q30.json": "7ca6eb8a7a0c29068ece4c4c74617c6ffed5def9267ad614bb09af517a549a96",
+    "server/tests/solver/fixtures/basic-inequality-problem-ir/v1/q30/problem-ir.json": "23033b8009317d076c107f9747df369c77857c45af24bab8ad85c7030c8ba1bb",
+    "server/tests/solver/fixtures/math-notation-v1/basic-inequality/q30.json": "179b1a6627fbb29303295f511de27d72b3d3fb82340ec5c54edcc11e6f8055ee",
+    "server/tests/solver/fixtures/scoped-proof-search/legacy-m01-context.json": "b3103f3054591e5caf6c43af940639fbe1948030671e9860fc45feb467eeb4df",
+    "server/tests/solver/fixtures/scoped-proof-search/q12-subchain.json": "04be85c5b67270ef175bba88f0752e1ddb40128f4051da2d631f2ea080be5bb9"
+  },
+  "profiles": {
+    "default": {
+      "premises": 16,
+      "variables": 4,
+      "radicals": 4,
+      "equations": 4,
+      "polynomial_degree": 12,
+      "polynomial_terms": 128,
+      "coefficient_bits": 4096,
+      "reductions": 256,
+      "depth": 32,
+      "nodes": 512,
+      "attempts": 512,
+      "branches": 8,
+      "algebraic_degree": 16,
+      "refinements": 128
+    },
+    "elimination": {
+      "premises": 48,
+      "variables": 4,
+      "radicals": 4,
+      "equations": 4,
+      "polynomial_degree": 12,
+      "polynomial_terms": 128,
+      "coefficient_bits": 4096,
+      "reductions": 1024,
+      "depth": 32,
+      "nodes": 2048,
+      "attempts": 2048,
+      "branches": 8,
+      "algebraic_degree": 16,
+      "refinements": 128
+    },
+    "substitution": {
+      "premises": 64,
+      "variables": 8,
+      "radicals": 4,
+      "equations": 8,
+      "polynomial_degree": 12,
+      "polynomial_terms": 128,
+      "coefficient_bits": 4096,
+      "reductions": 2048,
+      "depth": 32,
+      "nodes": 4096,
+      "attempts": 4096,
+      "branches": 8,
+      "algebraic_degree": 16,
+      "refinements": 128
+    },
+    "elimination_after_substitution": {
+      "premises": 48,
+      "variables": 8,
+      "radicals": 4,
+      "equations": 8,
+      "polynomial_degree": 12,
+      "polynomial_terms": 128,
+      "coefficient_bits": 4096,
+      "reductions": 1024,
+      "depth": 32,
+      "nodes": 2048,
+      "attempts": 2048,
+      "branches": 8,
+      "algebraic_degree": 16,
+      "refinements": 128
+    },
+    "substitution_after_elimination": {
+      "premises": 64,
+      "variables": 8,
+      "radicals": 4,
+      "equations": 8,
+      "polynomial_degree": 12,
+      "polynomial_terms": 128,
+      "coefficient_bits": 4096,
+      "reductions": 2048,
+      "depth": 32,
+      "nodes": 4096,
+      "attempts": 4096,
+      "branches": 8,
+      "algebraic_degree": 16,
+      "refinements": 128
+    }
+  },
+  "live_llm_calls": 0,
+  "mode": "frozen-request-shadow",
+  "cases": [
+    {
+      "id": "live14-1",
+      "legacy_outcome": {
+        "status": "ok",
+        "answers": {
+          "problem": {
+            "minimum": "4"
+          }
+        }
+      },
+      "legacy_seconds": 10.092308124992996,
+      "requests": 54,
+      "witness_drivers_deferred": 1,
+      "new_seconds": 2.552285249985289,
+      "counts": {
+        "attempts": 891,
+        "nodes": 589,
+        "arithmetic_operations": 32120,
+        "reductions": 22,
+        "refinements": 12
+      },
+      "failures": []
+    },
+    {
+      "id": "live14-3",
+      "legacy_outcome": {
+        "status": "ok",
+        "answers": {
+          "problem": {
+            "minimum": "4"
+          }
+        }
+      },
+      "legacy_seconds": 11.006466707971413,
+      "requests": 73,
+      "witness_drivers_deferred": 1,
+      "new_seconds": 3.976741666032467,
+      "counts": {
+        "attempts": 1765,
+        "nodes": 1116,
+        "arithmetic_operations": 48998,
+        "reductions": 159,
+        "refinements": 15
+      },
+      "failures": []
+    },
+    {
+      "id": "live12-m11-2",
+      "legacy_outcome": {
+        "bound": "2*a^2 - 10*a*c + 25*c^2 + 4/a^2"
+      },
+      "legacy_seconds": 0.45545137498993427,
+      "requests": 18,
+      "witness_drivers_deferred": 0,
+      "new_seconds": 0.5855000829906203,
+      "counts": {
+        "attempts": 363,
+        "nodes": 218,
+        "arithmetic_operations": 8829,
+        "reductions": 2
+      },
+      "failures": []
+    },
+    {
+      "id": "live12-m11-3",
+      "legacy_outcome": {
+        "bound": "2*a^2-10*a*c+25*c^2+4/a^2"
+      },
+      "legacy_seconds": 0.5202772920019925,
+      "requests": 23,
+      "witness_drivers_deferred": 0,
+      "new_seconds": 0.875818291970063,
+      "counts": {
+        "attempts": 387,
+        "nodes": 240,
+        "arithmetic_operations": 10468,
+        "reductions": 2
+      },
+      "failures": []
+    }
+  ]
+}

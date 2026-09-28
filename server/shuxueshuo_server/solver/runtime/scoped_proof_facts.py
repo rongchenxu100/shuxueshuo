@@ -142,6 +142,8 @@ class ScopedProofFacts:
         self.bindings = tuple(sorted(symbol_bindings))
         self.calls = tuple(calls)
         self.registry = registry or default_fact_kinds(METHOD_PUBLISHERS)
+        self._verified_snapshots = set()
+        self._verification_registry = self.registry
         require(
             len({c.call_id for c in calls}) == len(calls), "duplicate canonical call"
         )
@@ -204,7 +206,7 @@ class ScopedProofFacts:
             )
 
     def fork(self, runtime_context):
-        return ScopedProofFacts(
+        forked = ScopedProofFacts(
             runtime_context,
             self.source_context,
             self.bindings,
@@ -212,6 +214,9 @@ class ScopedProofFacts:
             registry=self.registry,
             snapshot=self.snapshot,
         )
+        self._verification_key()  # Clear stale registry authority before sharing.
+        forked._verified_snapshots = set(self._verified_snapshots)
+        return forked
 
     def authority(self, call_id):
         return next(c for c in self.calls if c.call_id == call_id)
@@ -246,6 +251,9 @@ class ScopedProofFacts:
     def verify_snapshot(self):
         if not self.snapshot.commits:
             return
+        cache_key = self._verification_key()
+        if cache_key in self._verified_snapshots:
+            return
         fresh = ScopedProofFacts(
             self.context,
             self.source_context,
@@ -256,6 +264,50 @@ class ScopedProofFacts:
         for saved in self.snapshot.commits:
             fresh._restore_one(saved.to_payload())
         require(fresh.snapshot == self.snapshot, "fact snapshot changed")
+        self._remember_verified_snapshot()
+
+    def _verification_key(self):
+        # Retain the trusted registry itself: distinct callbacks with identical
+        # qualified names must never share a memo, nor can recycled addresses.
+        if self._verification_registry is not self.registry:
+            self._verified_snapshots.clear()
+            self._verification_registry = self.registry
+
+        def qualified(value):
+            return (value.__module__, value.__qualname__)
+
+        registry_structure = (
+            qualified(type(self.registry)),
+            [
+                (
+                    k.kind,
+                    k.publishers,
+                    k.unconditional,
+                    qualified(k.identity_key),
+                    qualified(k.index_keys),
+                    qualified(k.publishable),
+                )
+                for k in self.registry.kinds
+            ],
+        )
+        # Full content plus current host authority, never just a claimed hash.
+        return digest(
+            (
+                self.snapshot.committed_manifest_hash,
+                self.snapshot.source_hash,
+                self.bindings,
+                [f.to_payload() for f in self.snapshot.roots],
+                repr(self.source_context),
+                [c.fingerprint for c in self.calls],
+                repr(self.context.scopes),
+                registry_structure,
+            )
+        )
+
+    def _remember_verified_snapshot(self):
+        if len(self._verified_snapshots) >= 64:
+            self._verified_snapshots.clear()
+        self._verified_snapshots.add(self._verification_key())
 
     def _restore_one(self, payload):
         authority = self.authority(payload["call_id"])
@@ -310,10 +362,12 @@ class ScopedProofFacts:
             == self.snapshot.committed_manifest_hash,
             "stale transaction snapshot",
         )
+        self.verify_snapshot()
         commit = overlay.finish(output_hash)
         verifier = self.fork(self.context)
         verifier._restore_one(commit.to_payload())
         self.snapshot = verifier.snapshot
+        self._remember_verified_snapshot()
         overlay.closed = True
         return commit
 
@@ -351,6 +405,7 @@ class ScopedProofFacts:
             fresh._restore_one(item)
         require(fresh.to_payload() == payload, "checkpoint manifest mismatch")
         self.snapshot = fresh.snapshot
+        self._remember_verified_snapshot()
 
     def dependency_closure(self, call_ids):
         by_call = {c.call_id: c for c in self.snapshot.commits}
@@ -385,6 +440,59 @@ class SessionFactOverlay:
         self._reads = set()
         self._requirements = []
         self.closed = False
+        self._search_session = None
+
+    def prove_scheduled(
+        self, relation, *, semantic_kind="relation", limits=None, policy=None
+    ):
+        """Internal D entry: authorized retrieval, scheduled search, strict admission."""
+        from ..math_kernel.proof_algebra import ProofFailure
+        from ..math_kernel.proof_search_session import ProofSearchSession
+
+        require(not self.closed, "closed transaction")
+        if self._search_session is None:
+            self._search_session = ProofSearchSession(policy=policy, limits=limits)
+        else:
+            require(
+                limits is None or limits == self._search_session.limits,
+                "search limits cannot change within a session",
+            )
+            require(
+                policy is None or policy == self._search_session.policy,
+                "search policy cannot change within a session",
+            )
+        session = self._search_session
+        result = session.prove(
+            relation,
+            facts=tuple(
+                fact
+                for fact in (*self.view.facts, *self._candidates)
+                if self.authority.validity.includes(fact.validity)
+            ),
+            symbols=bindings_symbols(self.authority.symbol_bindings),
+            bindings=self.authority.symbol_bindings,
+            scope_id=self.authority.scope_id,
+            manifest_hash=self.view.committed_manifest_hash,
+            authority_hash=self.authority.fingerprint,
+        )
+        if result.result.status != "proved":
+            raise ProofFailure(result.result.code, result.result.diagnostic)
+        return self.replay_record(
+            {
+                "kind": "relation",
+                "relation": relation,
+                "semantic_kind": semantic_kind,
+                "fact_ids": list(result.context.premises),
+                "limits": asdict(session.limits),
+                "proof": result.result.proof,
+                "search": {
+                    "policy": asdict(session.policy),
+                    "policy_hash": session.policy.fingerprint,
+                    "manifest_hash": self.view.committed_manifest_hash,
+                    "authority_hash": self.authority.fingerprint,
+                },
+            }
+        )
 
     def _selected(self, ids):
         require(not self.closed, "closed transaction")
@@ -469,10 +577,20 @@ class SessionFactOverlay:
         requirements = ()
         if record["kind"] == "relation":
             require(
-                set(record)
+                set(record) - {"search"}
                 == {"kind", "relation", "semantic_kind", "fact_ids", "limits", "proof"},
                 "invalid relation record",
             )
+            if "search" in record:
+                metadata = record["search"]
+                require(
+                    set(metadata)
+                    == {"policy", "policy_hash", "manifest_hash", "authority_hash"}
+                    and digest(metadata["policy"]) == metadata["policy_hash"]
+                    and metadata["manifest_hash"] == self.view.committed_manifest_hash
+                    and metadata["authority_hash"] == call.fingerprint,
+                    "search environment metadata changed",
+                )
             selected = self._selected(tuple(record["fact_ids"]))
             context = self._context(selected, ProofLimits(**record["limits"]))
             result = replay_proof(record["proof"], context)
