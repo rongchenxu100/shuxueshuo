@@ -1,0 +1,47 @@
+[
+  {
+    "mode": "baseline",
+    "seconds": 38.46470395801589,
+    "attempt_duration_ms": 38067,
+    "answers": {
+      "problem": {
+        "minimum": "4"
+      }
+    },
+    "commits": 5,
+    "requirements": 3,
+    "proof_snapshot_sha256": "20cb39a69736494a2916b8ebb8f973fc9caa8f47fb51a09af80b8bd1d7b804ac",
+    "live_llm_calls": 0,
+    "note": "One cold process, all mathematical checks retained. Timing excludes summary serialization below."
+  },
+  {
+    "mode": "no-debug",
+    "seconds": 25.77166829199996,
+    "attempt_duration_ms": 25243,
+    "answers": {
+      "problem": {
+        "minimum": "4"
+      }
+    },
+    "commits": 5,
+    "requirements": 3,
+    "proof_snapshot_sha256": "20cb39a69736494a2916b8ebb8f973fc9caa8f47fb51a09af80b8bd1d7b804ac",
+    "live_llm_calls": 0,
+    "note": "One cold process, all mathematical checks retained. Timing excludes summary serialization below."
+  },
+  {
+    "mode": "metadata-cache",
+    "seconds": 15.982872207998298,
+    "attempt_duration_ms": 15502,
+    "answers": {
+      "problem": {
+        "minimum": "4"
+      }
+    },
+    "commits": 5,
+    "requirements": 3,
+    "proof_snapshot_sha256": "20cb39a69736494a2916b8ebb8f973fc9caa8f47fb51a09af80b8bd1d7b804ac",
+    "live_llm_calls": 0,
+    "note": "One cold process, all mathematical checks retained. Timing excludes summary serialization below."
+  }
+]

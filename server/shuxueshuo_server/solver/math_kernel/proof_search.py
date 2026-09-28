@@ -336,6 +336,7 @@ def run_scheduled_request(
     rules=None,
     manifest_hash="local-context/v1",
     request_quota=None,
+    seed_provider=None,
 ):
     """Internal opt-in entry; stage E owns production Method migration."""
     from .proof_types import ProofResult
@@ -363,6 +364,7 @@ def run_scheduled_request(
             context, request, budget=ledger, policy=policy, manifest_hash=manifest_hash
         )
         engine.scheduler = SearchScheduler(package, policy, ledger)
+        engine.seed_provider = seed_provider
         proof = engine.run()
         # Independent final replay, separate from search work, bounded by the
         # same effective profile. A candidate cannot certify itself.
@@ -378,6 +380,7 @@ def run_scheduled_request(
     return SearchRun(
         result,
         {
+            "fact_reads": sorted(getattr(engine, "used_seed_reads", ())) if result.status == "proved" else [],
             **ledger.report(),
             "manifest_hash": manifest_hash,
             "context_hash": getattr(engine, "context_hash", None),

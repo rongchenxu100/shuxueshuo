@@ -43,11 +43,11 @@ def public(evidence):
         **{
             k: deepcopy(v)
             for k, v in evidence.items()
-            if k not in {"proofs", "derivation", "reciprocal_bound", "local_application"}
+            if k not in {"proofs", "derivation", "reciprocal_bound", "local_application", "method_application"}
         },
         "certificate_bundle": {
             k: deepcopy(evidence[k])
-            for k in ("proofs", "derivation", "reciprocal_bound", "local_application")
+            for k in ("proofs", "derivation", "reciprocal_bound", "local_application", "method_application")
             if k in evidence
         },
     }
@@ -170,6 +170,39 @@ def verify(
                 "inequality_template_unmatched",
                 "maximum path requires the fixed-sum product template",
             )
+        from .method_proof_session import active_session
+        if (certificates is None and active_session() is not None) or (certificates is not None and "method_application" in certificates):
+            from .amgm_application import verify_application
+            from .inequality_evidence import _check_fixed_sum_bound_shape
+            chain = parse_derivation(steps, context.symbols)
+            upper = chain[-1].parsed
+            _check_fixed_sum_bound_shape(upper, chain[-1].origin, context)
+            if upper.ast.op != "<=" or parse_math_expression(upper.source[slice(*upper.ast.children[1].span)], context.symbols).to_sympy(context.symbols).free_symbols:
+                raise ProofFailure("target_bound_mismatch", "fixed-sum constant upper bound required")
+            bound = upper.source[slice(*upper.ast.children[1].span)]
+            app = verify_application(context, target, source, bound, chain, budget=budget,
+                                     certificate=certificates["method_application"] if certificates else None)
+            sequence = verify_relation_sequence([r.parsed for r in chain], context, budget=budget,
+                certificates=certificates["derivation"]["proofs"] if certificates else None)
+            target_eq = parse_math_relation(f"({source})=({upper.source[slice(*upper.ast.children[0].span)]})", context.symbols)
+            if certificates:
+                proofs = certificates["proofs"]
+                if len(proofs) != 3 or proofs[0] != app["local_proof"] or proofs[1]["request"]["candidate"] != _document(upper) or proofs[2]["request"]["candidate"] != _document(target_eq):
+                    raise ProofFailure("invalid_proof", "fixed-sum evidence changed")
+                for proof in proofs:
+                    _replay(proof, context, budget=budget)
+                if certificates["derivation"]["origins"] != [r.origin for r in chain]:
+                    raise ProofFailure("invalid_proof", "bound origins changed")
+            else:
+                proofs = [app["local_proof"], certify(upper, context), certify(target_eq, context)]
+            return {"schema_version": "amgm-bound/v2", "target_hash": digest(target),
+                    "target_math": target["target_math"], "steps": deepcopy(steps),
+                    "proofs": proofs, "derivation": {"origins": [r.origin for r in chain], "proofs": sequence},
+                    "bound": str(parse_math_expression(bound, context.symbols).to_sympy(context.symbols)),
+                    "direction": direction, "expression": None, "previous_bound": None,
+                    "source_math": source, "equality": app["equality"], "equalities": [app["equality"]],
+                    "applications": [{"terms": app["terms"], "equality": app["equality"]}],
+                    "method_application": app}
         if certificates is None:
             legacy = _verify_bound_v1(target, steps)
         else:
@@ -286,57 +319,79 @@ def verify(
     origins = [r.origin for r in chain]
     if certificates is not None and certificates["derivation"]["origins"] != origins:
         raise ProofFailure("invalid_proof", "bound origins changed")
-    checked_pairs = set()
-
-    def check_local_contract(proof):
-        # Use only a certified pair, never infer proof authority from notation.
-        # Reject an independently removed remainder before later rows can
-        # consume the whole search budget and obscure the Method boundary.
-        from .local_bound_contract import verify_local_application
-
-        for node in proof["nodes"]:
-            if node["rule_id"] != "math.two_term_amgm":
-                continue
-            u, v = freeze(node["conclusion"])[1][1:]
-            key = commutative_key(("add", u, v))
-            if key not in checked_pairs:
-                verify_local_application(context, source, bound, u, v, budget=budget)
-                checked_pairs.add(key)
-
-    sequence = verify_relation_sequence(
-        [r.parsed for r in chain],
-        working,
-        certificates=certificates["derivation"]["proofs"]
-        if certificates is not None
-        else None,
-        budget=budget,
-        on_verified=check_local_contract if certificates is None else None,
-    )
-    if certificates is None:
-        verify_relation_sequence(
-            [r.parsed for r in chain], working, certificates=sequence
+    method_application = None
+    # Missing application field selects the immutable legacy replay protocol.
+    from .method_proof_session import active_session
+    modern = (certificates is None and active_session() is not None) or (certificates is not None and "method_application" in certificates)
+    if modern:
+        from .amgm_application import verify_application
+        if certificates is None and all(
+            any(from_node(row.parsed.ast) == from_node(p.ast) for p in working.premises.values())
+            for row in chain
+        ):
+            raise ProofFailure("inequality_template_unmatched", "old bound alone has no current application")
+        method_application = verify_application(
+            context, target, source, bound, chain, budget=budget,
+            certificate=certificates["method_application"] if certificates else None,
         )
-    pairs = {}
-    for proof in sequence:
-        for node in proof["nodes"]:
-            if node["rule_id"] != "math.two_term_amgm":
-                continue
-            u, v = freeze(node["conclusion"])[1][1:]
-            key = commutative_key(("add", u, v))
-            pairs[key] = (u, v)
-    if len(pairs) != 1:
-        raise ProofFailure(
-            "inequality_ambiguous" if pairs else "inequality_template_unmatched",
-            "one new positive two-term AM-GM application per call is required",
+        u, v = (freeze(t) for t in method_application["terms_ast"])
+        local_application = method_application["effect"]
+        sequence = verify_relation_sequence(
+            [r.parsed for r in chain], working, budget=budget,
+            certificates=certificates["derivation"]["proofs"] if certificates else None,
         )
-    u, v = next(iter(pairs.values()))
-    local_application = None
-    if certificates is None or "local_application" in certificates:
-        from .local_bound_contract import verify_local_application
-        local_application = verify_local_application(
-            context, source, bound, u, v, budget=budget,
-            certificates=certificates.get("local_application") if certificates is not None else None,
+    else:
+        checked_pairs = set()
+
+        def check_local_contract(proof):
+            # Use only a certified pair, never infer proof authority from notation.
+            # Reject an independently removed remainder before later rows can
+            # consume the whole search budget and obscure the Method boundary.
+            from .local_bound_contract import verify_local_application
+
+            for node in proof["nodes"]:
+                if node["rule_id"] != "math.two_term_amgm":
+                    continue
+                u, v = freeze(node["conclusion"])[1][1:]
+                key = commutative_key(("add", u, v))
+                if key not in checked_pairs:
+                    verify_local_application(context, source, bound, u, v, budget=budget)
+                    checked_pairs.add(key)
+
+        sequence = verify_relation_sequence(
+            [r.parsed for r in chain],
+            working,
+            certificates=certificates["derivation"]["proofs"]
+            if certificates is not None
+            else None,
+            budget=budget,
+            on_verified=check_local_contract if certificates is None else None,
         )
+        if certificates is None:
+            verify_relation_sequence(
+                [r.parsed for r in chain], working, certificates=sequence
+            )
+        pairs = {}
+        for proof in sequence:
+            for node in proof["nodes"]:
+                if node["rule_id"] != "math.two_term_amgm":
+                    continue
+                u, v = freeze(node["conclusion"])[1][1:]
+                key = commutative_key(("add", u, v))
+                pairs[key] = (u, v)
+        if len(pairs) != 1:
+            raise ProofFailure(
+                "inequality_ambiguous" if pairs else "inequality_template_unmatched",
+                "one new positive two-term AM-GM application per call is required",
+            )
+        u, v = next(iter(pairs.values()))
+        local_application = None
+        if certificates is None or "local_application" in certificates:
+            from .local_bound_contract import verify_local_application
+            local_application = verify_local_application(
+                context, source, bound, u, v, budget=budget,
+                certificates=certificates.get("local_application") if certificates is not None else None,
+            )
     equality = f"({math_text(u)})=({math_text(v)})"
     equalities.append(equality)
     dependencies.append({"terms": [math_text(u), math_text(v)], "equality": equality})
@@ -364,6 +419,7 @@ def verify(
         "target_math": target["target_math"],
         "direction": direction,
         "source_math": source,
+        **({"method_application": method_application} if method_application is not None else {}),
         **({"local_application": local_application} if local_application is not None else {}),
         "expression": str(expression) if expression is not None else None,
         "previous_bound": deepcopy(previous_bound),

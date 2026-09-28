@@ -1,0 +1,1688 @@
+{
+  "profiler_total_seconds": 85.12020033099985,
+  "function_calls": 477108575,
+  "profiled": true,
+  "warning": "Nested cumulative times overlap; profiler overhead means these are not normal wall times.",
+  "functions": [
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 181,
+      "function": "solve_verified",
+      "calls": 1,
+      "own_seconds": 1.6375e-05,
+      "cumulative_seconds": 84.23271525
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 189,
+      "function": "_solve_verified_scope_native",
+      "calls": 1,
+      "own_seconds": 0.00024358300000000002,
+      "cumulative_seconds": 84.22987412500001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 1000,
+      "function": "_write_debug_attempt",
+      "calls": 5,
+      "own_seconds": 0.008222952,
+      "cumulative_seconds": 28.264424834000003
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 314,
+      "function": "_restore_one",
+      "calls": 25,
+      "own_seconds": 0.035492025,
+      "cumulative_seconds": 23.997771586000002
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 252,
+      "function": "verify_snapshot",
+      "calls": 10,
+      "own_seconds": 0.007148245,
+      "cumulative_seconds": 22.673337377000003
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/llm_debug.py",
+      "line": 28,
+      "function": "write_debug_json",
+      "calls": 172,
+      "own_seconds": 0.031096571000000003,
+      "cumulative_seconds": 22.190960295
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 360,
+      "function": "commit",
+      "calls": 5,
+      "own_seconds": 0.0021535390000000003,
+      "cumulative_seconds": 20.644584084
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 575,
+      "function": "replay_record",
+      "calls": 130,
+      "own_seconds": 0.016522512,
+      "cumulative_seconds": 17.093158624
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 281,
+      "function": "<lambda>",
+      "calls": 4,
+      "own_seconds": 5.1375e-05,
+      "cumulative_seconds": 14.633397209000002
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 83,
+      "function": "to_payload",
+      "calls": 250,
+      "own_seconds": 0.0022394700000000003,
+      "cumulative_seconds": 14.068621761000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 1277,
+      "function": "_write_scoped_debug_attempts",
+      "calls": 1,
+      "own_seconds": 2.0876e-05,
+      "cumulative_seconds": 13.631099917
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/bound_chain.py",
+      "line": 6,
+      "function": "replay_bound",
+      "calls": 40,
+      "own_seconds": 0.038548338,
+      "cumulative_seconds": 13.496742211
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 77,
+      "function": "to_payload",
+      "calls": 28091,
+      "own_seconds": 0.061460847000000006,
+      "cumulative_seconds": 12.702897359000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 90,
+      "function": "<listcomp>",
+      "calls": 250,
+      "own_seconds": 0.009544344,
+      "cumulative_seconds": 12.678181666
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 225,
+      "function": "begin",
+      "calls": 5,
+      "own_seconds": 0.0005777390000000001,
+      "cumulative_seconds": 11.878610584
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 80,
+      "function": "replay_method",
+      "calls": 18,
+      "own_seconds": 0.007369493,
+      "cumulative_seconds": 11.562562416
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/llm_debug.py",
+      "line": 13,
+      "function": "safe_debug_json",
+      "calls": 5056641,
+      "own_seconds": 1.751356409,
+      "cumulative_seconds": 10.766946885000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/llm_debug.py",
+      "line": 22,
+      "function": "<dictcomp>",
+      "calls": 500371,
+      "own_seconds": 0.49810355500000003,
+      "cumulative_seconds": 10.762806597
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/llm_debug.py",
+      "line": 24,
+      "function": "<listcomp>",
+      "calls": 942544,
+      "own_seconds": 0.562676717,
+      "cumulative_seconds": 10.746911099
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 110,
+      "function": "committed_manifest_hash",
+      "calls": 94,
+      "own_seconds": 0.059882588,
+      "cumulative_seconds": 10.678716338000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 112,
+      "function": "<listcomp>",
+      "calls": 94,
+      "own_seconds": 0.000174697,
+      "cumulative_seconds": 9.972225287
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 63,
+      "function": "statement_key",
+      "calls": 34953,
+      "own_seconds": 0.054331156000000005,
+      "cumulative_seconds": 8.157648593000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 1295,
+      "function": "_write_json",
+      "calls": 94,
+      "own_seconds": 0.008112793,
+      "cumulative_seconds": 7.796876834000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 73,
+      "function": "fact_id",
+      "calls": 68029,
+      "own_seconds": 0.033572175,
+      "cumulative_seconds": 6.3052321650000005
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 165,
+      "function": "run_request",
+      "calls": 43,
+      "own_seconds": 0.0033861090000000004,
+      "cumulative_seconds": 6.058199666
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 839,
+      "function": "finish",
+      "calls": 30,
+      "own_seconds": 0.016869255,
+      "cumulative_seconds": 5.867338585000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 270,
+      "function": "_verification_key",
+      "calls": 30,
+      "own_seconds": 0.000592423,
+      "cumulative_seconds": 5.561950002000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 71,
+      "function": "commit_id",
+      "calls": 3478,
+      "own_seconds": 0.0024117170000000003,
+      "cumulative_seconds": 4.161238391
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 1302,
+      "function": "_safe_json",
+      "calls": 103,
+      "own_seconds": 9.7621e-05,
+      "cumulative_seconds": 3.6486117470000003
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 329,
+      "function": "run_scheduled_request",
+      "calls": 48,
+      "own_seconds": 0.001155402,
+      "cumulative_seconds": 3.155540627
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 566,
+      "function": "admit_method",
+      "calls": 3,
+      "own_seconds": 0.0015694160000000001,
+      "cumulative_seconds": 2.6089405
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 309,
+      "function": "_remember_verified_snapshot",
+      "calls": 13,
+      "own_seconds": 7.933300000000001e-05,
+      "cumulative_seconds": 2.488034084
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 376,
+      "function": "to_payload",
+      "calls": 4,
+      "own_seconds": 3.6294e-05,
+      "cumulative_seconds": 1.9866798760000002
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/llm_debug.py",
+      "line": 17,
+      "function": "<dictcomp>",
+      "calls": 295,
+      "own_seconds": 0.00045006600000000005,
+      "cumulative_seconds": 1.7563969970000002
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 501,
+      "function": "_selected",
+      "calls": 222,
+      "own_seconds": 0.00147516,
+      "cumulative_seconds": 1.750015088
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 217,
+      "function": "prove",
+      "calls": 283,
+      "own_seconds": 0.014398977,
+      "cumulative_seconds": 1.62590725
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 209,
+      "function": "fork",
+      "calls": 9,
+      "own_seconds": 9.945900000000001e-05,
+      "cumulative_seconds": 1.535710708
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 49,
+      "function": "__post_init__",
+      "calls": 6721,
+      "own_seconds": 0.017329125,
+      "cumulative_seconds": 1.493107033
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 503,
+      "function": "<dictcomp>",
+      "calls": 222,
+      "own_seconds": 0.004411626,
+      "cumulative_seconds": 1.427740296
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 133,
+      "function": "validate",
+      "calls": 3228,
+      "own_seconds": 0.003681651,
+      "cumulative_seconds": 1.3803796050000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 62,
+      "function": "seed",
+      "calls": 343,
+      "own_seconds": 0.028356838000000002,
+      "cumulative_seconds": 1.2231209490000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 381,
+      "function": "<listcomp>",
+      "calls": 4,
+      "own_seconds": 1.8623e-05,
+      "cumulative_seconds": 0.998340458
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 151,
+      "function": "_indices",
+      "calls": 3228,
+      "own_seconds": 0.004390212,
+      "cumulative_seconds": 0.707150421
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 147,
+      "function": "_identity",
+      "calls": 3228,
+      "own_seconds": 0.002808217,
+      "cumulative_seconds": 0.66540792
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 16,
+      "function": "canonical",
+      "calls": 28615,
+      "own_seconds": 0.010431627,
+      "cumulative_seconds": 0.521240889
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 867,
+      "function": "<dictcomp>",
+      "calls": 30,
+      "own_seconds": 0.001425349,
+      "cumulative_seconds": 0.419794873
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 655,
+      "function": "<dictcomp>",
+      "calls": 50,
+      "own_seconds": 0.00021775,
+      "cumulative_seconds": 0.343038418
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 504,
+      "function": "<genexpr>",
+      "calls": 6642,
+      "own_seconds": 0.001534259,
+      "cumulative_seconds": 0.31950169
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 543,
+      "function": "admit_certificate",
+      "calls": 5,
+      "own_seconds": 0.000196503,
+      "cumulative_seconds": 0.170087874
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 766,
+      "function": "<genexpr>",
+      "calls": 1398,
+      "own_seconds": 0.00037313600000000004,
+      "cumulative_seconds": 0.16931142600000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 802,
+      "function": "<setcomp>",
+      "calls": 18,
+      "own_seconds": 0.00033765600000000003,
+      "cumulative_seconds": 0.168469335
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 69,
+      "function": "<dictcomp>",
+      "calls": 34953,
+      "own_seconds": 0.023520167,
+      "cumulative_seconds": 0.11356241800000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "own_seconds": 6.1708e-05,
+      "cumulative_seconds": 0.108186
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 147,
+      "function": "use",
+      "calls": 39918,
+      "own_seconds": 0.057097467000000006,
+      "cumulative_seconds": 0.071820969
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 55,
+      "function": "necessary_relations",
+      "calls": 3390,
+      "own_seconds": 0.005493424,
+      "cumulative_seconds": 0.058279540000000005
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 178,
+      "function": "<listcomp>",
+      "calls": 43,
+      "own_seconds": 0.000288433,
+      "cumulative_seconds": 0.051626333
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 54,
+      "function": "<dictcomp>",
+      "calls": 6721,
+      "own_seconds": 0.006971846,
+      "cumulative_seconds": 0.037600561000000005
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 301,
+      "function": "<listcomp>",
+      "calls": 30,
+      "own_seconds": 6.537700000000001e-05,
+      "cumulative_seconds": 0.022187876000000002
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 130,
+      "function": "__init__",
+      "calls": 18,
+      "own_seconds": 0.000543381,
+      "cumulative_seconds": 0.020678625000000003
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 860,
+      "function": "<genexpr>",
+      "calls": 113552,
+      "own_seconds": 0.012817959,
+      "cumulative_seconds": 0.017773049000000003
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 691,
+      "function": "<listcomp>",
+      "calls": 50,
+      "own_seconds": 0.000303458,
+      "cumulative_seconds": 0.016476921000000002
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 34,
+      "function": "__init__",
+      "calls": 5,
+      "own_seconds": 0.00110109,
+      "cumulative_seconds": 0.014064834
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 173,
+      "function": "<listcomp>",
+      "calls": 18,
+      "own_seconds": 2.5168e-05,
+      "cumulative_seconds": 0.012162706
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 54,
+      "function": "fingerprint",
+      "calls": 151,
+      "own_seconds": 0.00014862500000000002,
+      "cumulative_seconds": 0.011089793
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 200,
+      "function": "report",
+      "calls": 48,
+      "own_seconds": 0.000155414,
+      "cumulative_seconds": 0.011000834000000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 315,
+      "function": "default_search_configuration",
+      "calls": 53,
+      "own_seconds": 0.000493663,
+      "cumulative_seconds": 0.009844496000000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 161,
+      "function": "<genexpr>",
+      "calls": 72,
+      "own_seconds": 0.00010424100000000001,
+      "cumulative_seconds": 0.007344579
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 303,
+      "function": "<listcomp>",
+      "calls": 30,
+      "own_seconds": 5.820700000000001e-05,
+      "cumulative_seconds": 0.006491664
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 336,
+      "function": "<genexpr>",
+      "calls": 3797,
+      "own_seconds": 0.002105871,
+      "cumulative_seconds": 0.0059813950000000005
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 95,
+      "function": "<listcomp>",
+      "calls": 250,
+      "own_seconds": 0.000149882,
+      "cumulative_seconds": 0.0055775040000000005
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "own_seconds": 1.6124e-05,
+      "cumulative_seconds": 0.005245458000000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 587,
+      "function": "<genexpr>",
+      "calls": 158,
+      "own_seconds": 3.3715000000000005e-05,
+      "cumulative_seconds": 0.005008089
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 758,
+      "function": "<genexpr>",
+      "calls": 52,
+      "own_seconds": 0.004735835,
+      "cumulative_seconds": 0.004738752000000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 115,
+      "function": "fingerprint",
+      "calls": 48,
+      "own_seconds": 4.2135e-05,
+      "cumulative_seconds": 0.004575503
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 28,
+      "function": "includes",
+      "calls": 7093,
+      "own_seconds": 0.0043060550000000005,
+      "cumulative_seconds": 0.0043060550000000005
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 801,
+      "function": "<setcomp>",
+      "calls": 18,
+      "own_seconds": 0.000792205,
+      "cumulative_seconds": 0.004244292
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "own_seconds": 5.5083e-05,
+      "cumulative_seconds": 0.004123458
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 71,
+      "function": "<dictcomp>",
+      "calls": 989,
+      "own_seconds": 0.0040880890000000005,
+      "cumulative_seconds": 0.0040880890000000005
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 127,
+      "function": "require",
+      "calls": 3228,
+      "own_seconds": 0.001994313,
+      "cumulative_seconds": 0.0033892350000000004
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "own_seconds": 3.6084e-05,
+      "cumulative_seconds": 0.002855208
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 129,
+      "function": "__init__",
+      "calls": 48,
+      "own_seconds": 0.000130622,
+      "cumulative_seconds": 0.002305917
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "own_seconds": 1.2667000000000001e-05,
+      "cumulative_seconds": 0.002182209
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 60,
+      "function": "<genexpr>",
+      "calls": 15623,
+      "own_seconds": 0.0021368010000000002,
+      "cumulative_seconds": 0.0021368010000000002
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 239,
+      "function": "<genexpr>",
+      "calls": 1205,
+      "own_seconds": 0.000630944,
+      "cumulative_seconds": 0.001840803
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 105,
+      "function": "<listcomp>",
+      "calls": 4854,
+      "own_seconds": 0.0012876550000000002,
+      "cumulative_seconds": 0.0012876550000000002
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 46,
+      "function": "<genexpr>",
+      "calls": 2710,
+      "own_seconds": 0.0012258430000000001,
+      "cumulative_seconds": 0.0012258430000000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 341,
+      "function": "<genexpr>",
+      "calls": 8864,
+      "own_seconds": 0.0010200720000000001,
+      "cumulative_seconds": 0.001195393
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 786,
+      "function": "<listcomp>",
+      "calls": 18,
+      "own_seconds": 0.0006349130000000001,
+      "cumulative_seconds": 0.001108127
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 69,
+      "function": "resolve",
+      "calls": 48,
+      "own_seconds": 0.001029082,
+      "cumulative_seconds": 0.001104626
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 66,
+      "function": "<dictcomp>",
+      "calls": 343,
+      "own_seconds": 0.0005419670000000001,
+      "cumulative_seconds": 0.000994861
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 179,
+      "function": "branch",
+      "calls": 1232,
+      "own_seconds": 0.0007134460000000001,
+      "cumulative_seconds": 0.000975755
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 152,
+      "function": "<genexpr>",
+      "calls": 7460,
+      "own_seconds": 0.000851059,
+      "cumulative_seconds": 0.000851059
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 128,
+      "function": "<genexpr>",
+      "calls": 6456,
+      "own_seconds": 0.0008412920000000001,
+      "cumulative_seconds": 0.0008412920000000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 155,
+      "function": "_ordinary",
+      "calls": 3228,
+      "own_seconds": 0.000750378,
+      "cumulative_seconds": 0.000750378
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 196,
+      "function": "<listcomp>",
+      "calls": 56,
+      "own_seconds": 5.441500000000001e-05,
+      "cumulative_seconds": 0.000721334
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "own_seconds": 1.196e-05,
+      "cumulative_seconds": 0.000713375
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 106,
+      "function": "facts",
+      "calls": 30,
+      "own_seconds": 0.00031481500000000003,
+      "cumulative_seconds": 0.000691083
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 38,
+      "function": "bindings_symbols",
+      "calls": 55,
+      "own_seconds": 5.8249000000000004e-05,
+      "cumulative_seconds": 0.000676874
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 39,
+      "function": "<dictcomp>",
+      "calls": 55,
+      "own_seconds": 0.000160206,
+      "cumulative_seconds": 0.000618625
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 288,
+      "function": "<dictcomp>",
+      "calls": 616,
+      "own_seconds": 0.000475342,
+      "cumulative_seconds": 0.000593566
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 33,
+      "function": "require",
+      "calls": 5430,
+      "own_seconds": 0.0005360510000000001,
+      "cumulative_seconds": 0.0005360510000000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 57,
+      "function": "<dictcomp>",
+      "calls": 180,
+      "own_seconds": 0.000535533,
+      "cumulative_seconds": 0.000535533
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 35,
+      "function": "__post_init__",
+      "calls": 2226,
+      "own_seconds": 0.000500311,
+      "cumulative_seconds": 0.000500311
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 715,
+      "function": "<dictcomp>",
+      "calls": 18,
+      "own_seconds": 0.000416082,
+      "cumulative_seconds": 0.000416082
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 194,
+      "function": "event",
+      "calls": 616,
+      "own_seconds": 0.00030483400000000003,
+      "cumulative_seconds": 0.00038448000000000003
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 244,
+      "function": "<genexpr>",
+      "calls": 2792,
+      "own_seconds": 0.000329901,
+      "cumulative_seconds": 0.000382809
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 108,
+      "function": "<genexpr>",
+      "calls": 4912,
+      "own_seconds": 0.000376268,
+      "cumulative_seconds": 0.000376268
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 117,
+      "function": "<listcomp>",
+      "calls": 4854,
+      "own_seconds": 0.000339923,
+      "cumulative_seconds": 0.000339923
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 98,
+      "function": "__post_init__",
+      "calls": 58,
+      "own_seconds": 4.1669000000000004e-05,
+      "cumulative_seconds": 0.000333379
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 57,
+      "function": "__post_init__",
+      "calls": 53,
+      "own_seconds": 0.00010599800000000001,
+      "cumulative_seconds": 0.000261709
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 869,
+      "function": "<setcomp>",
+      "calls": 30,
+      "own_seconds": 0.000234331,
+      "cumulative_seconds": 0.000234331
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 99,
+      "function": "<genexpr>",
+      "calls": 580,
+      "own_seconds": 0.00015957000000000002,
+      "cumulative_seconds": 0.000206486
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 507,
+      "function": "<genexpr>",
+      "calls": 1856,
+      "own_seconds": 0.000188521,
+      "cumulative_seconds": 0.000188521
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 659,
+      "function": "<genexpr>",
+      "calls": 200,
+      "own_seconds": 7.9133e-05,
+      "cumulative_seconds": 0.00018621700000000002
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 282,
+      "function": "<listcomp>",
+      "calls": 30,
+      "own_seconds": 0.00011656800000000001,
+      "cumulative_seconds": 0.000179039
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 245,
+      "function": "<lambda>",
+      "calls": 1554,
+      "own_seconds": 0.000178717,
+      "cumulative_seconds": 0.000178717
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 585,
+      "function": "<genexpr>",
+      "calls": 158,
+      "own_seconds": 7.7911e-05,
+      "cumulative_seconds": 0.000162501
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 146,
+      "function": "<listcomp>",
+      "calls": 757,
+      "own_seconds": 0.000147471,
+      "cumulative_seconds": 0.000147471
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 222,
+      "function": "authority",
+      "calls": 45,
+      "own_seconds": 5.4118000000000006e-05,
+      "cumulative_seconds": 0.000127078
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 822,
+      "function": "<genexpr>",
+      "calls": 86,
+      "own_seconds": 8.6302e-05,
+      "cumulative_seconds": 0.000125635
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 61,
+      "function": "<setcomp>",
+      "calls": 53,
+      "own_seconds": 0.00011766700000000001,
+      "cumulative_seconds": 0.00011766700000000001
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 153,
+      "function": "validate_application_binding",
+      "calls": 18,
+      "own_seconds": 8.479100000000001e-05,
+      "cumulative_seconds": 0.000103127
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 277,
+      "function": "qualified",
+      "calls": 480,
+      "own_seconds": 8.993e-05,
+      "cumulative_seconds": 8.993e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 18,
+      "function": "active_session",
+      "calls": 74,
+      "own_seconds": 6.287400000000001e-05,
+      "cumulative_seconds": 8.379100000000001e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 721,
+      "function": "<genexpr>",
+      "calls": 72,
+      "own_seconds": 7.791300000000001e-05,
+      "cumulative_seconds": 8.158400000000001e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 245,
+      "function": "<genexpr>",
+      "calls": 86,
+      "own_seconds": 7.592200000000001e-05,
+      "cumulative_seconds": 7.592200000000001e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 725,
+      "function": "_plan_execution_from_transaction",
+      "calls": 1,
+      "own_seconds": 3.1958e-05,
+      "cumulative_seconds": 6.983300000000001e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 208,
+      "function": "<setcomp>",
+      "calls": 43,
+      "own_seconds": 4.4160000000000004e-05,
+      "cumulative_seconds": 6.608e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 226,
+      "function": "<dictcomp>",
+      "calls": 18,
+      "own_seconds": 4.525e-05,
+      "cumulative_seconds": 6.454300000000001e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 663,
+      "function": "<genexpr>",
+      "calls": 200,
+      "own_seconds": 6.267000000000001e-05,
+      "cumulative_seconds": 6.267000000000001e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 41,
+      "function": "premise_policy",
+      "calls": 50,
+      "own_seconds": 5.3576000000000003e-05,
+      "cumulative_seconds": 5.3576000000000003e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 440,
+      "function": "__init__",
+      "calls": 30,
+      "own_seconds": 4.8374e-05,
+      "cumulative_seconds": 4.8374e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 993,
+      "function": "_run_log",
+      "calls": 1,
+      "own_seconds": 4.459e-06,
+      "cumulative_seconds": 4.2625e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 211,
+      "function": "<setcomp>",
+      "calls": 64,
+      "own_seconds": 4.2250000000000004e-05,
+      "cumulative_seconds": 4.2250000000000004e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 204,
+      "function": "<genexpr>",
+      "calls": 245,
+      "own_seconds": 3.8284e-05,
+      "cumulative_seconds": 3.8284e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 125,
+      "function": "<listcomp>",
+      "calls": 18,
+      "own_seconds": 3.8208000000000004e-05,
+      "cumulative_seconds": 3.8208000000000004e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 217,
+      "function": "<dictcomp>",
+      "calls": 48,
+      "own_seconds": 3.7585e-05,
+      "cumulative_seconds": 3.7585e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 768,
+      "function": "_verified_goal_runtime_results",
+      "calls": 1,
+      "own_seconds": 5.832e-06,
+      "cumulative_seconds": 3.6375e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 223,
+      "function": "<genexpr>",
+      "calls": 90,
+      "own_seconds": 3.108e-05,
+      "cumulative_seconds": 3.108e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 48,
+      "function": "identity",
+      "calls": 255,
+      "own_seconds": 3.0912000000000005e-05,
+      "cumulative_seconds": 3.0912000000000005e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 731,
+      "function": "<dictcomp>",
+      "calls": 18,
+      "own_seconds": 3.0083000000000003e-05,
+      "cumulative_seconds": 3.0083000000000003e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 22,
+      "function": "use_proof_session",
+      "calls": 10,
+      "own_seconds": 1.6084e-05,
+      "cumulative_seconds": 2.8251e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 316,
+      "function": "<dictcomp>",
+      "calls": 25,
+      "own_seconds": 2.6584e-05,
+      "cumulative_seconds": 2.6584e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 860,
+      "function": "_attempt_record",
+      "calls": 1,
+      "own_seconds": 2.2083000000000002e-05,
+      "cumulative_seconds": 2.5750000000000002e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 796,
+      "function": "<setcomp>",
+      "calls": 18,
+      "own_seconds": 2.5333000000000003e-05,
+      "cumulative_seconds": 2.5333000000000003e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 70,
+      "function": "<genexpr>",
+      "calls": 96,
+      "own_seconds": 1.9757e-05,
+      "cumulative_seconds": 2.5297000000000002e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 788,
+      "function": "visit",
+      "calls": 1,
+      "own_seconds": 1.5833000000000002e-05,
+      "cumulative_seconds": 2.5167e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 177,
+      "function": "<genexpr>",
+      "calls": 169,
+      "own_seconds": 2.4455000000000002e-05,
+      "cumulative_seconds": 2.4455000000000002e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 58,
+      "function": "<setcomp>",
+      "calls": 53,
+      "own_seconds": 1.8577000000000002e-05,
+      "cumulative_seconds": 2.3495e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 149,
+      "function": "<setcomp>",
+      "calls": 18,
+      "own_seconds": 2.3126000000000002e-05,
+      "cumulative_seconds": 2.3126000000000002e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 207,
+      "function": "<genexpr>",
+      "calls": 62,
+      "own_seconds": 1.9165e-05,
+      "cumulative_seconds": 1.9165e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 342,
+      "function": "<listcomp>",
+      "calls": 1,
+      "own_seconds": 1e-05,
+      "cumulative_seconds": 1.7208000000000002e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 317,
+      "function": "<setcomp>",
+      "calls": 25,
+      "own_seconds": 1.6542000000000002e-05,
+      "cumulative_seconds": 1.6542000000000002e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 214,
+      "function": "__init__",
+      "calls": 48,
+      "own_seconds": 1.6213000000000002e-05,
+      "cumulative_seconds": 1.6213000000000002e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 141,
+      "function": "__init__",
+      "calls": 1,
+      "own_seconds": 4.333e-06,
+      "cumulative_seconds": 1.575e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 174,
+      "function": "<listcomp>",
+      "calls": 18,
+      "own_seconds": 1.5413e-05,
+      "cumulative_seconds": 1.5413e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 736,
+      "function": "<listcomp>",
+      "calls": 5,
+      "own_seconds": 1.4457e-05,
+      "cumulative_seconds": 1.4457e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 163,
+      "function": "default_fact_kinds",
+      "calls": 1,
+      "own_seconds": 4.208e-06,
+      "cumulative_seconds": 1.4375e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 126,
+      "function": "<listcomp>",
+      "calls": 18,
+      "own_seconds": 1.3168000000000002e-05,
+      "cumulative_seconds": 1.3168000000000002e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 202,
+      "function": "<genexpr>",
+      "calls": 54,
+      "own_seconds": 1.2374e-05,
+      "cumulative_seconds": 1.2374e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 320,
+      "function": "<genexpr>",
+      "calls": 55,
+      "own_seconds": 1.0292e-05,
+      "cumulative_seconds": 1.0292e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 881,
+      "function": "_llm_call_from_planner",
+      "calls": 1,
+      "own_seconds": 8.25e-06,
+      "cumulative_seconds": 1.0083e-05
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 744,
+      "function": "<genexpr>",
+      "calls": 20,
+      "own_seconds": 9.792e-06,
+      "cumulative_seconds": 9.792e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 185,
+      "function": "<dictcomp>",
+      "calls": 18,
+      "own_seconds": 9.539000000000001e-06,
+      "cumulative_seconds": 9.539000000000001e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 1115,
+      "function": "<dictcomp>",
+      "calls": 4,
+      "own_seconds": 8.875e-06,
+      "cumulative_seconds": 8.875e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 156,
+      "function": "<setcomp>",
+      "calls": 18,
+      "own_seconds": 8.045e-06,
+      "cumulative_seconds": 8.045e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 741,
+      "function": "<listcomp>",
+      "calls": 5,
+      "own_seconds": 7.667000000000001e-06,
+      "cumulative_seconds": 7.667000000000001e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 121,
+      "function": "__init__",
+      "calls": 2,
+      "own_seconds": 4.041e-06,
+      "cumulative_seconds": 6.958e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/llm_debug.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "own_seconds": 6.792e-06,
+      "cumulative_seconds": 6.792e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 122,
+      "function": "ScopedProofFacts",
+      "calls": 1,
+      "own_seconds": 6.7090000000000005e-06,
+      "cumulative_seconds": 6.7090000000000005e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 126,
+      "function": "SearchBudget",
+      "calls": 1,
+      "own_seconds": 2.209e-06,
+      "cumulative_seconds": 6.292e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 165,
+      "function": "<genexpr>",
+      "calls": 5,
+      "own_seconds": 3.3760000000000004e-06,
+      "cumulative_seconds": 5.626e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 746,
+      "function": "<listcomp>",
+      "calls": 5,
+      "own_seconds": 5.083e-06,
+      "cumulative_seconds": 5.083e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 782,
+      "function": "<dictcomp>",
+      "calls": 1,
+      "own_seconds": 5.042e-06,
+      "cumulative_seconds": 5.042e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 554,
+      "function": "<dictcomp>",
+      "calls": 5,
+      "own_seconds": 4.958000000000001e-06,
+      "cumulative_seconds": 4.958000000000001e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 17,
+      "function": "CandidateDescriptor",
+      "calls": 1,
+      "own_seconds": 4.542e-06,
+      "cumulative_seconds": 4.542e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 42,
+      "function": "ProofCallAuthority",
+      "calls": 1,
+      "own_seconds": 4.167e-06,
+      "cumulative_seconds": 4.167e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 439,
+      "function": "SessionFactOverlay",
+      "calls": 1,
+      "own_seconds": 4.125e-06,
+      "cumulative_seconds": 4.125e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/bound_chain.py",
+      "line": 1,
+      "function": "<module>",
+      "calls": 1,
+      "own_seconds": 3.333e-06,
+      "cumulative_seconds": 4.0830000000000005e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 59,
+      "function": "FactCommit",
+      "calls": 1,
+      "own_seconds": 3.541e-06,
+      "cumulative_seconds": 3.541e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 132,
+      "function": "<listcomp>",
+      "calls": 18,
+      "own_seconds": 3.2500000000000002e-06,
+      "cumulative_seconds": 3.2500000000000002e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 231,
+      "function": "<genexpr>",
+      "calls": 15,
+      "own_seconds": 2.418e-06,
+      "cumulative_seconds": 2.418e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 227,
+      "function": "<dictcomp>",
+      "calls": 5,
+      "own_seconds": 2.4160000000000002e-06,
+      "cumulative_seconds": 2.4160000000000002e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 228,
+      "function": "<setcomp>",
+      "calls": 5,
+      "own_seconds": 2.376e-06,
+      "cumulative_seconds": 2.376e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 82,
+      "function": "SearchPolicy",
+      "calls": 1,
+      "own_seconds": 2.333e-06,
+      "cumulative_seconds": 2.333e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 37,
+      "function": "VerifiedMathFact",
+      "calls": 1,
+      "own_seconds": 2.209e-06,
+      "cumulative_seconds": 2.209e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 100,
+      "function": "FactSnapshot",
+      "calls": 1,
+      "own_seconds": 2.167e-06,
+      "cumulative_seconds": 2.167e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 771,
+      "function": "<genexpr>",
+      "calls": 18,
+      "own_seconds": 2.041e-06,
+      "cumulative_seconds": 2.041e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 120,
+      "function": "__post_init__",
+      "calls": 1,
+      "own_seconds": 1.167e-06,
+      "cumulative_seconds": 1.958e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 130,
+      "function": "RuntimeOrchestrator",
+      "calls": 1,
+      "own_seconds": 1.8340000000000001e-06,
+      "cumulative_seconds": 1.8340000000000001e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 20,
+      "function": "FactValidity",
+      "calls": 1,
+      "own_seconds": 1.7920000000000002e-06,
+      "cumulative_seconds": 1.7920000000000002e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 308,
+      "function": "SearchRun",
+      "calls": 1,
+      "own_seconds": 8.750000000000001e-07,
+      "cumulative_seconds": 1.7500000000000002e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 87,
+      "function": "RuntimeSuccessArtifacts",
+      "calls": 1,
+      "own_seconds": 1.542e-06,
+      "cumulative_seconds": 1.542e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 40,
+      "function": "StrategyPackage",
+      "calls": 1,
+      "own_seconds": 1.334e-06,
+      "cumulative_seconds": 1.334e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py",
+      "line": 115,
+      "function": "ProofEnvironmentView",
+      "calls": 1,
+      "own_seconds": 1.125e-06,
+      "cumulative_seconds": 1.125e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 104,
+      "function": "FactKind",
+      "calls": 1,
+      "own_seconds": 1.0840000000000001e-06,
+      "cumulative_seconds": 1.0840000000000001e-06
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 53,
+      "function": "StrategyRegistry",
+      "calls": 1,
+      "own_seconds": 9.58e-07,
+      "cumulative_seconds": 9.58e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 25,
+      "function": "ProofStrategy",
+      "calls": 1,
+      "own_seconds": 9.170000000000001e-07,
+      "cumulative_seconds": 9.170000000000001e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 793,
+      "function": "<genexpr>",
+      "calls": 2,
+      "own_seconds": 9.160000000000001e-07,
+      "cumulative_seconds": 9.160000000000001e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/proof_evidence_adapters.py",
+      "line": 48,
+      "function": "FactCandidate",
+      "calls": 1,
+      "own_seconds": 8.750000000000001e-07,
+      "cumulative_seconds": 8.750000000000001e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 755,
+      "function": "<listcomp>",
+      "calls": 1,
+      "own_seconds": 7.91e-07,
+      "cumulative_seconds": 7.91e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 31,
+      "function": "MethodProofSession",
+      "calls": 1,
+      "own_seconds": 7.91e-07,
+      "cumulative_seconds": 7.91e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 116,
+      "function": "FactKindRegistry",
+      "calls": 1,
+      "own_seconds": 7.5e-07,
+      "cumulative_seconds": 7.5e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 120,
+      "function": "BranchBudgetExhausted",
+      "calls": 1,
+      "own_seconds": 6.25e-07,
+      "cumulative_seconds": 6.25e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 121,
+      "function": "<setcomp>",
+      "calls": 1,
+      "own_seconds": 5.830000000000001e-07,
+      "cumulative_seconds": 5.830000000000001e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "line": 760,
+      "function": "<listcomp>",
+      "calls": 1,
+      "own_seconds": 5.420000000000001e-07,
+      "cumulative_seconds": 5.420000000000001e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 89,
+      "function": "ConditionalRequirement",
+      "calls": 1,
+      "own_seconds": 5.420000000000001e-07,
+      "cumulative_seconds": 5.420000000000001e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+      "line": 213,
+      "function": "SearchScheduler",
+      "calls": 1,
+      "own_seconds": 5.000000000000001e-07,
+      "cumulative_seconds": 5.000000000000001e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
+      "line": 98,
+      "function": "AttainmentRequirement",
+      "calls": 1,
+      "own_seconds": 3.75e-07,
+      "cumulative_seconds": 3.75e-07
+    },
+    {
+      "file": "/Users/haorong/projects/code/shuxueshuo/server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+      "line": 138,
+      "function": "<listcomp>",
+      "calls": 2,
+      "own_seconds": 2.92e-07,
+      "cumulative_seconds": 2.92e-07
+    }
+  ]
+}

@@ -596,6 +596,7 @@ def verify_chain(
     conditions = [p.to_sympy(neutral_symbols) for p in premises.values()]
     budget = _Budget(ProofContext(symbols).limits)
     certificates = []
+    proof_contexts = []
 
     def check(candidate, selected, kind="relation"):
         selected_premises = {
@@ -621,6 +622,10 @@ def verify_chain(
         # Replay has its own validation budget, not a second construction charge.
         _replay(proof, context)
         certificates.append(proof)
+        from dataclasses import asdict
+        proof_contexts.append({"symbols": sorted(context.symbols), "scope_id": context.scope_id,
+            "limits": asdict(context.limits), "premises": {k: {"source": p.source,
+            "source_path": p.source_path, "step": p.step} for k, p in context.premises.items()}})
 
     try:
         check(
@@ -860,6 +865,7 @@ def verify_chain(
         "result": formula(parsed[-1]),
         "transitions": transitions,
         "proofs": certificates,
+        "proof_contexts": proof_contexts,
         "conditionCards": [
             {"id": f"c{i}", "latex": sp.latex(c), "boundIndex": i}
             for i, c in enumerate(conditions)

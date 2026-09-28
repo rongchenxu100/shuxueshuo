@@ -6285,7 +6285,9 @@ def _bind_original_expression_conditions(
     Reconciled refs follow the normal Condition authority, dependency, and hash
     pipeline. No runtime context scan or inferred positivity bypasses it.
     Explicit conditions stay unchanged; an ambiguous or inaccessible target
-    cannot provide defaults.
+    cannot provide defaults. This preserves bound-conditions/v1 resolution;
+    scoped-facts/v2 additionally opens the authenticated source view at Method
+    execution, without rewriting explicit hint bindings.
     """
     repairs = []
     scopes = []

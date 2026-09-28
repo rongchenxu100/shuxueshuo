@@ -208,19 +208,29 @@ def collect_inequality_evidence(step_id, method_results):
             from ..math_kernel.proof_algebra import freeze
 
             local_relations = []
-            for row, proof in zip(chain, bound["derivation"]["proofs"][:len(chain)], strict=True):
-                for node in proof["nodes"]:
-                    if node["rule_id"] == "math.two_term_amgm":
-                        local_relations.append(
-                            {
-                                "math": relation(
-                                    parse_math_relation(
-                                        math_text(freeze(node["conclusion"])), symbols
-                                    )
-                                ),
-                                "origins": [row.origin],
-                            }
-                        )
+            application = bound.get("method_application")
+            if application is not None:
+                local_relations.append({
+                    "math": relation(parse_math_relation(application["local_rule_relation"], symbols)),
+                    "origins": ([application["local_rule_origin"]["origin"]]
+                        if application.get("local_rule_origin", {}).get("kind") == "submitted_relation"
+                        else [] if "local_rule_origin" in application
+                        else application["submitted_relation_origins"]),
+                })
+            else:
+                for row, proof in zip(chain, bound["derivation"]["proofs"][:len(chain)], strict=True):
+                    for node in proof["nodes"]:
+                        if node["rule_id"] == "math.two_term_amgm":
+                            local_relations.append(
+                                {
+                                    "math": relation(
+                                        parse_math_relation(
+                                            math_text(freeze(node["conclusion"])), symbols
+                                        )
+                                    ),
+                                    "origins": [row.origin],
+                                }
+                            )
             term_latex = [tree_latex(_legacy_tree(n)) for n in equality.ast.children]
             # Keep each complete participating term grouped, especially a sum
             # used as a factor. Display projection must not change precedence.

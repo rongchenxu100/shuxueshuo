@@ -48,7 +48,7 @@ PROMPT = """调用 organize_expressions，为后续应用二元基本不等式�
 parameters.steps 使用自然的数学推导格式：可用 ∵ 标识依据、∴ 标识结论；支持完整目标等式或唯一匹配的局部等式；
 纯恒等变形写“∴ 左式=右式”，如“∴ 3*u+3*v=3*(u+v)”，无需虚构 ∵ 条件。
 条件代入写“∵ 条件；∴ 左式=右式”，如“∵ u+v=4；∴ 3*(u+v)=12”。
-∵ 可引用 args.conditions 中的条件，也可提交根据已绑定条件可证明的局部恒等式；代码验证依据及整体等价，不需要提供证明证书。允许自然等式链及正性、非零性说明，代码拆分关系并逐条验证。
+∵ 可引用当前作用域可见的题目原条件，args.conditions 是可选提示，也可提交根据这些条件可证明的局部恒等式；代码验证依据及整体等价，不需要提供证明证书。允许自然等式链及正性、非零性说明，代码拆分关系并逐条验证。
 ∵ 标识所用条件，∴ 标识待验证结论；标记不能代替数学验证。局部等式可单独成行，代码唯一匹配目标中的局部并补出整体等价转换；也可写“∵ 局部等式；∴ 完整目标等式”。无法唯一匹配时请补充整体结论。
 推导优先使用 ∵/∴ 和完整数学关系；衔接语本身不是证明。使用显式乘号 *、除号 /、括号和整数幂 ^；不写未识别的叙述、操作标签或答案。
 不能引入新变量，不能对目标应用不等式求界；正性、非零性等辅助关系须由绑定条件证明。"""
@@ -70,7 +70,7 @@ class OrganizeExpressionsMethod:
             }
             trace = verify_chain(
                 expression,
-                list(inputs.get("conditions", [])),
+                list(inputs.get("__scope_conditions__", inputs.get("conditions", []))),
                 parameters["steps"],
                 symbols,
                 input_source=inputs.get("__source_expression__"),
@@ -83,19 +83,21 @@ class OrganizeExpressionsMethod:
                 repair_action="repair_derivation",
             ) from exc
         except RewriteError as exc:
+            scoped_domain = exc.code == "input_domain_unverified" and inputs.get("__proof_protocol__") == "scoped-facts/v2"
             raise method_input_invalid(
-                str(exc),
+                "原目标作用域条件已自动可用，仍无法证明所列分母非零。" if scoped_domain else str(exc),
                 method_id=self.method_id,
-                observed={"code": exc.code, "row": exc.row,
+                observed={"code": "domain_unproved" if scoped_domain else exc.code, "row": exc.row,
                           **({"unverified_conditions": exc.unverified_conditions}
                              if hasattr(exc, "unverified_conditions") else {})},
-                repair_action=("bind_domain_conditions" if exc.code == "input_domain_unverified"
+                repair_action=("repair_domain_proof" if scoped_domain else "bind_domain_conditions" if exc.code == "input_domain_unverified"
                                else "repair_local_rewrite" if exc.code in {
                     "ambiguous_local_rewrite", "rewrite_scope_mismatch", "proof_missing"
                 } else "repair_derivation"),
             ) from exc
+        trace["condition_protocol"] = inputs.get("__proof_protocol__", "bound-conditions/v1")
         value = trace.pop("value")
-        sources = inputs.get("__condition_sources__", [])
+        sources = inputs.get("__scope_condition_sources__", inputs.get("__condition_sources__", []))
         for card in trace["conditionCards"]:
             index = card["boundIndex"]
             if index < len(sources):
@@ -150,8 +152,8 @@ SPEC = MethodSpecSource(
     ),
     outputs={"organized_expression": "Expression"},
     parameters_schema=PARAMETERS_SCHEMA,
-    summary='推导优先用 ∵ 表示依据、∴ 表示结论；同一角色的多个完整关系用逗号分隔，例如 ∵ a>b>0；∴ a>0，b>0。优先不用中文“因为”“所以”“且”，兼容解析不等于推荐输出。math 使用自然的数学推导格式：可用 ∵ 标识依据、∴ 标识结论，写完整数学关系，支持完整目标等式或唯一匹配的局部等式。例如 steps=[{"math":"∴ 3*u+3*v=3*(u+v)"},{"math":"∵ u+v=4；∴ 3*(u+v)=12"}]。纯恒等变形无需虚构 ∵ 条件；∵ 可引用 args.conditions 中的数学条件或由这些条件可证明的局部恒等式，代码自行匹配并证明，不要求 LLM 给出证明证书；也可使用可选 using 数组提供相同的等式引用。∵ 标识条件，∴ 标识待验证结论，标记本身不授予证明权限。局部等式可单独成行，代码唯一匹配目标中的局部并补出整体等价转换；也可写“∵ 局部等式；∴ 完整目标等式”。无法唯一匹配时请补充整体结论。允许自然等式链和由绑定条件可证明的正性、非零性等辅助关系；不能对目标作不等式估计。代码逐条验证每个关系。不写内部标识或未识别的自由文本理由。变量间乘法必须显式 *，ab 是独立标识符，不能表示 a*b。省略 args.conditions 时，若表达式唯一对应可见题面极值目标，代码自动绑定该目标的原条件并保留来源；无法唯一定位或条件不可见时仍须显式绑定。已提供的 conditions 不会被改写。定义域始终须证明，不默认变量为正。逐行验证定义域、左侧衔接及等价并回放证书，只提交右侧作为同一目标对象的新状态，不求极值。不执行条件消元或注册新变量。支持有界整数幂与 sqrt 根式，优先保留原变量的配齐次、通分和展开结构。',
-    preconditions=("所有变量和使用的条件已有绑定",),
+    summary='推导优先用 ∵ 表示依据、∴ 表示结论；同一角色的多个完整关系用逗号分隔，例如 ∵ a>b>0；∴ a>0，b>0。优先不用中文“因为”“所以”“且”，兼容解析不等于推荐输出。math 使用自然的数学推导格式：可用 ∵ 标识依据、∴ 标识结论，写完整数学关系，支持完整目标等式或唯一匹配的局部等式。例如 steps=[{"math":"∴ 3*u+3*v=3*(u+v)"},{"math":"∵ u+v=4；∴ 3*(u+v)=12"}]。纯恒等变形无需虚构 ∵ 条件；∵ 可引用当前作用域可见的题目原条件或由这些条件可证明的局部恒等式，代码自行匹配并证明，不要求 LLM 给出证明证书；也可使用可选 using 数组提供相同的等式引用。∵ 标识条件，∴ 标识待验证结论，标记本身不授予证明权限。局部等式可单独成行，代码唯一匹配目标中的局部并补出整体等价转换；也可写“∵ 局部等式；∴ 完整目标等式”。无法唯一匹配时请补充整体结论。允许自然等式链和由绑定条件可证明的正性、非零性等辅助关系；不能对目标作不等式估计。代码逐条验证每个关系。不写内部标识或未识别的自由文本理由。变量间乘法必须显式 *，ab 是独立标识符，不能表示 a*b。scoped-facts/v2 下，代码从准确目标绑定自动获取可见原条件并保留来源；args.conditions 为可选检索提示，不缩小前提集，可省略、为空或只列部分。显式引用仍须合法且可见。历史 bound-conditions/v1 证据只按原绑定前提集回放，不扩充条件。定义域始终须证明，不默认变量为正。逐行验证定义域、左侧衔接及等价并回放证书，只提交右侧作为同一目标对象的新状态，不求极值。不执行条件消元或注册新变量。支持有界整数幂与 sqrt 根式，优先保留原变量的配齐次、通分和展开结构。',
+    preconditions=("目标与变量准确绑定，显式条件引用合法且可见",),
     postconditions=("最终式与输入在原定义域上等价",),
     teaching_unit=TeachingUnitSpec(
         unit_key="organize_expressions/rewrite",

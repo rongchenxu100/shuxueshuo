@@ -147,7 +147,11 @@ class RuntimeOrchestrator:
         kernel: SympyKernel | None = None,
         max_attempts: int = 1,
         debug_dir: str | Path | None = None,
+        proof_protocol: str = "bound-conditions/v1",
     ) -> None:
+        if proof_protocol not in {"bound-conditions/v1", "scoped-facts/v2"}:
+            raise ValueError("unknown proof execution protocol")
+        self.proof_protocol = proof_protocol
         self.family_registry = family_registry
         # ``None`` 表示使用生产默认 provider map。Strategy 生产化后，默认 map 不再
         # 注册 per-family deterministic provider，而是通过 default provider fallback
@@ -246,6 +250,7 @@ class RuntimeOrchestrator:
         try:
             kernel = self.kernel or SympyKernel()
             context = ContextBuilder(kernel).build(problem)
+            context.proof_protocol = self.proof_protocol
             specs = MethodSpecRegistry.load_from_code()
             question_goals = extract_question_goals(problem)
             planner = provider(context, problem_authority=authority)
@@ -519,6 +524,7 @@ class RuntimeOrchestrator:
             try:
                 # Repair 采用整体重生成 plan，因此每轮都从干净 RuntimeContext 开始。
                 context = ContextBuilder(kernel).build(attempt_problem)
+                context.proof_protocol = self.proof_protocol
                 specs = MethodSpecRegistry.load_from_code()
                 context_inventory = ContextInventoryBuilder().build(context, specs)
                 question_goals = extract_question_goals(attempt_problem)

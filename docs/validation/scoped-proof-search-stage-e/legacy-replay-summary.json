@@ -1,0 +1,10 @@
+{
+  "proved": 166,
+  "deferred_witness_drivers": 2,
+  "archives": {
+    "live12-m11-2.json.gz": "66f54b81335838ed51f6f5cd6f4638a086b77238f6c919e56bcc38bd3d1ee63c",
+    "live12-m11-3.json.gz": "ae269271cbe12121be82f6450cea6b05e5bf2f48463603d1fdca357888503919",
+    "live14-1.json.gz": "7b2bfb121e6c045224e59d256d974f220d1b371231ad63a41ebfced40ce4ff07",
+    "live14-3.json.gz": "26185d6b979bf86198aab23f3656dee7d54cf981cfa94c8b40c848391d742d60"
+  }
+}

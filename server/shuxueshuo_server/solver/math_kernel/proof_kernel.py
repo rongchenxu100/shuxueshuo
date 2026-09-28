@@ -975,6 +975,10 @@ class _Search(_Environment):
 
 
 def _run_request(context, request, *, budget=None):
+    from .method_proof_session import active_session
+    session = active_session()
+    if session is not None:
+        return session.run_request(context, request, budget=budget)
     env = _Search(context, request, budget=budget)
     goals = _roots_for_request(env)
     roots = []
@@ -1145,7 +1149,8 @@ def verify_witnesses(
             "selected_branch": selected_branch,
             "require_parameterized": require_parameterized,
         }
-        env = _Search(context, request, budget=_budget)
+        # Witness is a checker-owned constructor, not a search strategy.
+        env = _Environment(context, request, budget=_budget)
         roots = []
         indices = range(len(witnesses)) if mode == "all" else [selected_branch]
         for i in indices:

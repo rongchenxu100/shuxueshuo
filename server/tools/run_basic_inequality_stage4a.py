@@ -59,7 +59,7 @@ class ReplayClient:
 
 
 def run(
-    *, gold, problem_ir, output, mode, plan=None, replay_from=None, input_mode="frozen"
+    *, gold, problem_ir, output, mode, plan=None, replay_from=None, input_mode="frozen", proof_protocol="bound-conditions/v1"
 ):
     # A new directory preserves all failed attempts and their evidence.
     output = Path(output)
@@ -111,6 +111,7 @@ def run(
             functional_few_shot_mode="strict_test",
         ),
         max_attempts=3,
+        proof_protocol=proof_protocol,
         debug_dir=output,
     )
     result = runtime.solve_verified(bundle)
@@ -142,6 +143,7 @@ def main():
         / "internal/functional-plan-fixtures/basic-inequality-q01.functional-plan.json",
     )
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--proof-protocol", choices=("bound-conditions/v1", "scoped-facts/v2"), default="bound-conditions/v1")
     args = parser.parse_args()
     result, _ = run(
         gold=args.gold,
@@ -149,6 +151,7 @@ def main():
         output=args.output,
         mode=args.mode,
         plan=args.plan,
+        proof_protocol=args.proof_protocol,
     )
     print(
         json.dumps(

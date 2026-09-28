@@ -1,0 +1,37 @@
+......F..                                                                [100%]
+=================================== FAILURES ===================================
+_________ test_v2_invocation_without_overlay_never_uses_legacy_search __________
+
+tmp_path = PosixPath('/private/var/folders/wl/4_4jw_wx531_248clmdd8njm0000gn/T/pytest-of-haorong/pytest-666/test_v2_invocation_without_ove0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10c24e3d0>
+
+    def test_v2_invocation_without_overlay_never_uses_legacy_search(tmp_path, monkeypatch):
+        from shuxueshuo_server.solver.math_kernel import proof_kernel
+        from shuxueshuo_server.solver.runtime import method_proof_integration
+    
+        monkeypatch.setattr(
+            method_proof_integration, "prepare_scoped_call", lambda *a: None
+        )
+        monkeypatch.setattr(
+            proof_kernel._Search, "need", lambda *a, **k: pytest.fail("legacy fallback")
+        )
+        result, _ = run(
+            gold=FIXTURES / "math-notation-v1/basic-inequality/q30.json",
+            problem_ir=FIXTURES / "basic-inequality-problem-ir/v1/q30/problem-ir.json",
+            plan=FIXTURES / "basic-inequality-stage5c/q30.json",
+            output=tmp_path / "missing-adapter",
+            mode="recorded",
+            proof_protocol="scoped-facts/v2",
+        )
+        assert result.status != "ok"
+>       assert "no authorized proof adapter" in json.dumps(result.to_dict())
+E       assert 'no authorized proof adapter' in '{"problem_id": "q30", "status": "failed", "solver_family": "basic_inequality", "methods_used": [], "facts": [], "trac...h": ["additionalProperties"], "diagnostic_id": "7f72bc25e7de67a8"}}]}}, "llm_call": {"provider": "RecordedClient"}}]}}'
+E        +  where '{"problem_id": "q30", "status": "failed", "solver_family": "basic_inequality", "methods_used": [], "facts": [], "trac...h": ["additionalProperties"], "diagnostic_id": "7f72bc25e7de67a8"}}]}}, "llm_call": {"provider": "RecordedClient"}}]}}' = <function dumps at 0x107e5d580>({'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...})
+E        +    where <function dumps at 0x107e5d580> = json.dumps
+E        +    and   {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...} = to_dict()
+E        +      where to_dict = SolverResult(problem_id='q30', status='failed', solver_family='basic_inequality', methods_used=[], facts=[], trace=Non...th': ['additionalProperties'], 'diagnostic_id': '7f72bc25e7de67a8'}}]}}, 'llm_call': {'provider': 'RecordedClient'}}]}).to_dict
+
+tests/solver/test_scoped_proof_search_stage_e.py:423: AssertionError
+=========================== short test summary info ============================
+FAILED tests/solver/test_scoped_proof_search_stage_e.py::test_v2_invocation_without_overlay_never_uses_legacy_search
+1 failed, 8 passed, 17 deselected in 1.31s

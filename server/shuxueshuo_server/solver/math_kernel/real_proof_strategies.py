@@ -97,9 +97,27 @@ class SearchArithmetic(Arithmetic):
         self.budget.use("arithmetic_operations")
         return super().constant_interval(*args, **kwargs)
 
-    def constant_certificate(self, *args, **kwargs):
+    def constant_certificate(self, value, *, supplied=None):
         self.budget.use("arithmetic_operations")
-        return super().constant_certificate(*args, **kwargs)
+        # Exact constants depend on neither Scope nor premises. Candidate
+        # construction may reuse their isolating certificate; independent
+        # checker replay uses Arithmetic and recomputes it from scratch.
+        ledger = getattr(self.budget, "parent", None) or self.budget
+        if not hasattr(ledger, "constant_certificates"):
+            ledger.constant_certificates = {}
+        cache = ledger.constant_certificates
+        key = (value, self.limits)
+        if key in cache and (supplied is None or cache[key][1] == supplied):
+            from copy import deepcopy
+
+            return deepcopy(cache[key])
+        result = super().constant_certificate(value, supplied=supplied)
+        if len(cache) >= 64:
+            cache.pop(next(iter(cache)))
+        from copy import deepcopy
+
+        cache[key] = deepcopy(result)
+        return result
 
 
 class RealSearchTools(_Environment):
@@ -396,6 +414,19 @@ def same_difference(self, g):
             )
             if found:
                 return found
+        # Rationally identical left sides with differently written algebraic
+        # constants need a radical identity, not a search through equations.
+        if not a.difference(("=", g[1], premise[1])):
+            equality = ("=", _diff(g), expr("mul", ONE, _diff(premise)))
+            found = self.attempt(
+                partial(self.polynomial, equality, identities_only=True)
+            )
+            if found:
+                guards = tuple(self.need(d) for d in domains(equality))
+                self.cache[equality] = self.add("guard", equality, (found, *guards))
+                return self.raw(
+                    "relation_transport", g, [premise, equality], {"ratio": "1"}
+                )
 
 
 def known_transitivity(self, g):
@@ -1059,6 +1090,8 @@ class ScheduledRealSearch(RealSearchTools):
         self.policy, self.manifest_hash = policy, manifest_hash
         self.cache, self.active, self.requests = {}, set(), []
         self.scheduler = None
+        self.seed_provider = None
+        self.seed_reads = {}
 
     def checkpoint(self):
         return (
@@ -1067,11 +1100,20 @@ class ScheduledRealSearch(RealSearchTools):
             dict(self.depths),
             dict(self.node_keys),
             dict(self.interned_nodes),
+            dict(self.seed_reads),
             len(self.requests),
         )
 
     def rollback(self, saved):
-        count, self.cache, self.depths, self.node_keys, self.interned_nodes, _ = saved
+        (
+            count,
+            self.cache,
+            self.depths,
+            self.node_keys,
+            self.interned_nodes,
+            self.seed_reads,
+            _,
+        ) = saved
         self.nodes = self.nodes[:count]
         self.by_id = {n.node_id: n for n in self.nodes}
         # Arithmetic work and previously checked node charges are never refunded.
@@ -1117,7 +1159,9 @@ class ScheduledRealSearch(RealSearchTools):
         self.active.add(goal)
         try:
             guards = tuple(self.need(d) for d in domains(goal))
-            root = self.scheduler.prove(self, goal)
+            root = self.seed_provider(self, goal) if self.seed_provider else None
+            if root is None:
+                root = self.scheduler.prove(self, goal)
             result = self.add("guard", goal, (root, *guards))
             self.cache[goal] = result
             return result
@@ -1148,6 +1192,9 @@ class ScheduledRealSearch(RealSearchTools):
             visit(root)
         from dataclasses import replace
 
+        self.used_seed_reads = {
+            ref for node, ref in self.seed_reads.items() if node in used
+        }
         selected = [n for n in self.nodes if n.node_id in used]
         mapping = {n.node_id: f"p{i:04d}" for i, n in enumerate(selected)}
         self.nodes = [
@@ -1173,7 +1220,7 @@ def real_strategy_package():
         "positive_denominator": ("sign",),
         "nonzero_product": ("sign",),
         "operand_signs": ("sign",),
-        "same_difference": ("weaken",),
+        "same_difference": ("weaken", "polynomial", "relation_transport"),
         "known_transitivity": ("transitive",),
         "scalar_transitivity": ("transitive",),
         "strict_nonzero": ("weaken",),

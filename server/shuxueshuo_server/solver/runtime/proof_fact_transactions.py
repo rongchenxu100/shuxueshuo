@@ -43,6 +43,9 @@ def call_fingerprint(compiled):
 
 
 def begin_call(branch, call_id, compiled, graph):
+    if branch.proof_protocol == "scoped-facts/v2":
+        from .method_proof_integration import prepare_scoped_call
+        prepare_scoped_call(branch, call_id, compiled, graph)
     if branch.proof_facts is None:
         return
     store = branch.proof_facts
@@ -201,23 +204,40 @@ def select_checkpoint(payload, selected):
     }
 
 
-def restore_facts(context, seed):
+def restore_facts(context, seed, graph=None):
     if seed is None or seed.proof_fact_checkpoint is None:
         require(
             seed is None or not any(c.proof_commit for c in seed.call_results),
             "proof checkpoint missing",
         )
         return
-    require(
-        context.proof_facts is not None,
-        "proof restore requires external source authority",
-    )
+    require(seed.proof_fact_checkpoint.get("condition_protocol", "bound-conditions/v1") == context.proof_protocol, "checkpoint condition protocol changed")
+    if (context.proof_protocol == "scoped-facts/v2" and context.proof_facts is None
+            and seed.proof_fact_checkpoint["commits"] == []):
+        require(not any(c.proof_commit for c in seed.call_results), "empty checkpoint lost proof evidence")
+        require(seed.proof_fact_checkpoint["committed_manifest_hash"] == digest((seed.proof_fact_checkpoint["source_hash"], [])), "checkpoint manifest mismatch")
+        return
+    restored_prefix = False
     hashes = {
         c.call_id: proof_output_hash(c.runtime_results, c.state_writes)
         for c in seed.call_results
         if c.proof_commit is not None
     }
-    context.proof_facts.restore(seed.proof_fact_checkpoint, hashes)
+    if context.proof_facts is None and context.proof_protocol == "scoped-facts/v2":
+        require(graph is not None, "restore requires authenticated call graph")
+        compiled = {c.call_id: c for c in seed.compiled_calls}
+        retained = set()
+        for commit in seed.proof_fact_checkpoint["commits"]:
+            call_id = commit["call_id"]
+            require(call_id in compiled, "restored proof has no authenticated compiled call")
+            from .method_proof_integration import prepare_scoped_call
+            prepare_scoped_call(context, call_id, compiled[call_id], graph)
+            retained.add(call_id)
+            context.proof_facts.restore(select_checkpoint(seed.proof_fact_checkpoint, retained), hashes)
+        restored_prefix = True
+    require(context.proof_facts is not None, "proof restore requires external source authority")
+    if not restored_prefix:
+        context.proof_facts.restore(seed.proof_fact_checkpoint, hashes)
     for commit in context.proof_facts.snapshot.commits:
         result = next(c for c in seed.call_results if c.call_id == commit.call_id)
         require(

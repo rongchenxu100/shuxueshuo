@@ -1,0 +1,5 @@
+{
+  "server/tests/solver/fixtures/math-notation-v1/basic-inequality/q30.json": "179b1a6627fbb29303295f511de27d72b3d3fb82340ec5c54edcc11e6f8055ee",
+  "server/tests/solver/fixtures/basic-inequality-problem-ir/v1/q30/problem-ir.json": "23033b8009317d076c107f9747df369c77857c45af24bab8ad85c7030c8ba1bb",
+  "server/tests/solver/fixtures/basic-inequality-stage5c/q30.json": "7ca6eb8a7a0c29068ece4c4c74617c6ffed5def9267ad614bb09af517a549a96"
+}

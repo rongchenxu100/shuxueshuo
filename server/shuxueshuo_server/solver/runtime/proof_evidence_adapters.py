@@ -148,3 +148,21 @@ METHOD_PUBLISHERS = (
     "organize_expressions",
     "verified_relation",
 )
+
+
+def validate_application_binding(evidence, call, manifest):
+    """Current operation uses the producer's exact input authority, not a consumer's."""
+    from ..math_kernel.proof_algebra import ProofFailure
+    bundle = evidence.get("certificate_bundle", evidence)
+    app = bundle.get("method_application")
+    if app is None and isinstance(bundle.get("reciprocal_bound"), dict):
+        return validate_application_binding(bundle["reciprocal_bound"], call, manifest)
+    if call.method_id == "apply_two_term_amgm" and app is None:
+        raise ProofFailure("invalid_proof", "new Method execution requires current application evidence")
+    if app is not None and app.get("binding") != {
+        "producer_call_id": call.call_id,
+        "source_binding_fingerprint": call.input_fingerprint,
+        "scope_id": call.scope_id,
+        "committed_manifest_hash": manifest,
+    }:
+        raise ProofFailure("invalid_proof", "current application input authority changed")

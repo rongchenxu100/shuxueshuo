@@ -63,6 +63,8 @@ class RuntimeContext:
         self.kernel = kernel
         self.symbols = symbols
         # Internal opt-in proof service; never reconstructed from Planner text.
+        self.proof_protocol = "bound-conditions/v1"
+        self.proof_source_catalog = ()
         self.proof_facts = None
         self.proof_fact_overlay = None
         self.scopes: dict[str, RuntimeScope] = {
@@ -94,6 +96,8 @@ class RuntimeContext:
 
         branch = RuntimeContext(self.problem, self.kernel, self.symbols)
         branch.scopes = deepcopy(self.scopes)
+        branch.proof_protocol = self.proof_protocol
+        branch.proof_source_catalog = self.proof_source_catalog
         if self.proof_facts is not None:
             branch.proof_facts = self.proof_facts.fork(branch)
         return branch

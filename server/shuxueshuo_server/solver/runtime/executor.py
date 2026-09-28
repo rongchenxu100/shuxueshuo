@@ -496,6 +496,8 @@ class InvocationExecutor:
                 authorities = invocation.input_read_authorities.get("conditions", ())
                 if authorities:
                     inputs["__condition_sources__"] = [authority.authority_payload() for authority in authorities]
+            if context.proof_protocol == "scoped-facts/v2" and context.proof_fact_overlay is None:
+                raise ValueError("proof_facts: scoped-facts/v2 invocation has no authorized proof adapter")
             kernel_service = self.kernel
             if context.proof_fact_overlay is not None:
                 from ..math_kernel.proof_facts import canonical
@@ -504,7 +506,25 @@ class InvocationExecutor:
                 if authority.target_json is not None and canonical(inputs.get("target")) != authority.target_json:
                     raise ValueError("proof_facts: target differs from authenticated Method input")
                 kernel_service = ProofKernelServices(self.kernel, context.proof_fact_overlay)
-            result = method.run(inputs, kernel_service)
+            if context.proof_fact_overlay is None or context.proof_protocol != "scoped-facts/v2":
+                result = method.run(inputs, kernel_service)
+            else:
+                from ..math_kernel.method_proof_session import use_proof_session
+                from .method_proof_integration import (
+                    method_search_service,
+                    publish_method_result,
+                )
+                overlay = context.proof_fact_overlay
+                if invocation.method_id == "organize_expressions":
+                    inputs["__proof_protocol__"] = "scoped-facts/v2"
+                    roots = [f for f in overlay.view.facts
+                        if f.producer_call_id is None and overlay.authority.validity.includes(f.validity)]
+                    inputs["__scope_conditions__"] = [f.relation for f in roots]
+                    inputs["__scope_condition_sources__"] = [f.source for f in roots]
+                service = method_search_service(overlay)
+                with use_proof_session(service):
+                    result = method.run(inputs, kernel_service)
+                publish_method_result(overlay, inputs, result)
         except StatelessMethodError as exc:
             input_authorities = {
                 **invocation.supporting_input_read_authorities,

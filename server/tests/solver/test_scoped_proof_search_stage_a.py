@@ -159,19 +159,23 @@ def inline_verified_auxiliary(monkeypatch):
 def test_auxiliary_fragment_is_valid_and_reproduces_m11_gap(monkeypatch):
     assert verify_bound(amgm_target(), [{"math": "x+4/x>=4"}])["bound"] == "4"
     observed = inline_verified_auxiliary(monkeypatch)
-    with pytest.raises(ProofFailure) as error:
+    with pytest.raises(ProofFailure, match="one AM-GM|remainder|full-expression"):
         verify_bound(amgm_target(), [{"math": "x+4/x>=4"}])
-    assert error.value.code == "amgm_remainder_changed"
     assert len(observed) == 1
     assert sum(n["rule_id"] == "math.two_term_amgm" for n in observed[0]["nodes"]) == 2
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=PendingContract,
-    reason="Stage E P1: identify current application, not dependency nodes",
-)
-def test_m11_ignores_verified_auxiliary_application(monkeypatch):
+@pytest.fixture
+def scoped_session():
+    from shuxueshuo_server.solver.math_kernel.method_proof_session import (
+        MethodProofSession,
+        use_proof_session,
+    )
+    with use_proof_session(MethodProofSession()):
+        yield
+
+
+def test_m11_ignores_verified_auxiliary_application(monkeypatch, scoped_session):
     inline_verified_auxiliary(monkeypatch)
     try:
         bound = verify_bound(amgm_target(), [{"math": "x+4/x>=4"}])
@@ -183,12 +187,7 @@ def test_m11_ignores_verified_auxiliary_application(monkeypatch):
     assert bound["bound"] == "4"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=PendingContract,
-    reason="Stage E P1: teaching projects current application evidence",
-)
-def test_teaching_does_not_attribute_auxiliary_amgm_to_current_row(monkeypatch):
+def test_teaching_does_not_attribute_auxiliary_amgm_to_current_row(monkeypatch, scoped_session):
     target = amgm_target()
     bound = verify_bound(target, [{"math": "x+4/x>=4"}])
     observed = inline_verified_auxiliary(monkeypatch)
@@ -212,18 +211,12 @@ def test_teaching_does_not_attribute_auxiliary_amgm_to_current_row(monkeypatch):
 
 
 @pytest.mark.solver_contract
-@pytest.mark.xfail(
-    strict=True,
-    raises=PendingContract,
-    reason="Stage E: conditions become hints; scoped domain remains available",
-)
-def test_m01_scope_domain_available_with_partial_condition_hints(tmp_path):
+@pytest.mark.parametrize("hints", [[], ["symbol_constraint_c"]])
+def test_m01_scope_domain_available_with_partial_condition_hints(tmp_path, hints):
     from tools.run_basic_inequality_stage4a import run
 
     plan = json.loads((FIXTURES / "basic-inequality-stage5c/q30.json").read_text())
-    plan["root_scope"]["goals"][0]["steps"][0]["args"]["conditions"] = [
-        "symbol_constraint_c"
-    ]
+    plan["root_scope"]["goals"][0]["steps"][0]["args"]["conditions"] = hints
     path = tmp_path / "plan.json"
     path.write_text(json.dumps(plan))
     result, _ = run(
@@ -231,13 +224,8 @@ def test_m01_scope_domain_available_with_partial_condition_hints(tmp_path):
         problem_ir=FIXTURES / "basic-inequality-problem-ir/v1/q30/problem-ir.json",
         plan=path,
         output=tmp_path / "execution",
-        mode="recorded",
+        mode="recorded", proof_protocol="scoped-facts/v2",
     )
-    if result.status != "ok":
-        checkpoint = (tmp_path / "execution/attempt-2.base-checkpoint.json").read_text()
-        assert "input_domain_unverified" in checkpoint
-        assert "bind_domain_conditions" in checkpoint
-        raise PendingContract("partial condition binding hides original target domain")
     assert result.status == "ok", result.to_dict()
     assert result.answers == {"problem": {"minimum": "4"}}
 

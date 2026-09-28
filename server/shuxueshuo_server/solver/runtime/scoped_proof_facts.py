@@ -139,6 +139,7 @@ class ScopedProofFacts:
     ):
         self.context = runtime_context
         self.source_context = source_context
+        self.condition_protocol = runtime_context.proof_protocol
         self.bindings = tuple(sorted(symbol_bindings))
         self.calls = tuple(calls)
         self.registry = registry or default_fact_kinds(METHOD_PUBLISHERS)
@@ -294,6 +295,7 @@ class ScopedProofFacts:
         return digest(
             (
                 self.snapshot.committed_manifest_hash,
+                self.condition_protocol,
                 self.snapshot.source_hash,
                 self.bindings,
                 [f.to_payload() for f in self.snapshot.roots],
@@ -374,6 +376,7 @@ class ScopedProofFacts:
     def to_payload(self):
         return {
             "schema_version": CONTRACT,
+            **({"condition_protocol": self.condition_protocol} if self.condition_protocol != "bound-conditions/v1" else {}),
             "source_hash": self.snapshot.source_hash,
             "commits": [c.to_payload() for c in self.snapshot.commits],
             "committed_manifest_hash": self.snapshot.committed_manifest_hash,
@@ -381,11 +384,12 @@ class ScopedProofFacts:
 
     def restore(self, payload, output_hashes):
         require(
-            set(payload)
+            set(payload) - {"condition_protocol"}
             == {"schema_version", "source_hash", "commits", "committed_manifest_hash"}
             and payload["schema_version"] == CONTRACT,
             "invalid checkpoint",
         )
+        require(payload.get("condition_protocol", "bound-conditions/v1") == self.condition_protocol, "checkpoint condition protocol changed")
         require(
             payload["source_hash"] == self.snapshot.source_hash,
             "checkpoint source changed",
@@ -575,6 +579,13 @@ class SessionFactOverlay:
         call = self.authority
         proof_ref = digest(record)
         requirements = ()
+        if record["kind"] == "reuse":
+            require(set(record) == {"kind", "fact_ids"}, "invalid proof reuse record")
+            imported = self._selected(tuple(record["fact_ids"]))
+            require(all(call.validity.includes(f.validity) for f in imported), "dependency validity lost")
+            self._records.append(canonical(record))
+            self._reads.update(f.fact_id for f in imported)
+            return ()
         if record["kind"] == "relation":
             require(
                 set(record) - {"search"}
@@ -694,6 +705,9 @@ class SessionFactOverlay:
                 "invalid Method record",
             )
             require(call.target_json is not None, "Method target authority required")
+            if self.owner.condition_protocol == "scoped-facts/v2":
+                from .proof_evidence_adapters import validate_application_binding
+                validate_application_binding(record["evidence"], call, self.view.committed_manifest_hash)
             target = json.loads(call.target_json)
             require(target["scope_id"] == call.scope_id, "target Scope mismatch")
             # Bind all original source conditions by exact relation and origin;

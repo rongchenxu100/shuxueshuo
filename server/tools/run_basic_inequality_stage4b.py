@@ -49,6 +49,7 @@ def build(
     case="q01",
     plan=None,
     replay_from=None,
+    proof_protocol="bound-conditions/v1",
 ):
     if case not in {"q01", "q03", "q07", "q08", "q12", "q25", "q29", "q30"}:
         raise ValueError("page case outside admitted representative fixtures")
@@ -79,6 +80,7 @@ def build(
         output=output / "solver",
         mode="recorded",
         replay_from=replay_from,
+        proof_protocol=proof_protocol,
         plan=plan
         or (
             SERVER / "tests/solver/fixtures/basic-inequality-stage5a/q29/plan.json"

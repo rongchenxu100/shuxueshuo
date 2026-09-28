@@ -6069,6 +6069,8 @@ class FunctionalTransactionalInterpreter:
                 working.emit(call_id, "eliminated")
 
         current_context = runtime_context.fork()
+        if current_context.proof_protocol == "scoped-facts/v2":
+            current_context.proof_source_catalog = tuple(parent_context.state.problem_ir.get("facts", ()))
         _capture_initial_runtime_version_values(
             working,
             current_context,
@@ -6098,7 +6100,6 @@ class FunctionalTransactionalInterpreter:
         ] = []
         runtime_state_equivalence_probe_results: list[dict[str, Any]] = []
         from .proof_fact_transactions import add_dependency_edges, restore_facts
-        restore_facts(current_context, restored_seed)
         restored_call_ids = _restore_verified_calls(
             restored_seed,
             graph=graph,
@@ -6108,6 +6109,7 @@ class FunctionalTransactionalInterpreter:
             compiled_calls=compiled_calls,
             runtime_result_values=runtime_result_values,
         )
+        restore_facts(current_context, restored_seed, graph)
         if current_context.proof_facts is not None:
             for receipt in current_context.proof_facts.snapshot.commits:
                 graph = add_dependency_edges(graph, working, receipt)
