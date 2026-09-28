@@ -68,6 +68,27 @@ class OwnershipRule:
 
 OWNERSHIP_RULES = (
     OwnershipRule(
+        ("server/shuxueshuo_server/solver/__init__.py",
+         "server/shuxueshuo_server/solver/runtime/__init__.py"),
+        ("tests/solver/test_review_human_revision.py",
+         "tests/solver/test_question_goals.py"),
+    ),
+    OwnershipRule(
+        ("server/shuxueshuo_server/solver/__init__.py",
+         "server/shuxueshuo_server/solver/runtime/__init__.py",
+         "server/shuxueshuo_server/solver/math_kernel/proof_checker.py",
+         "server/shuxueshuo_server/solver/math_kernel/proof_rule_registry.py",
+         "server/shuxueshuo_server/solver/math_kernel/proof_types.py",
+         "server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",
+         "server/tests/solver/fixtures/scoped-proof-search/checker-legacy-corpus.json"),
+        ("tests/solver/test_proof_checker_stage_b.py",
+         "tests/solver/test_math_proof_kernel.py",
+         "tests/solver/test_proof_capacity_reuse.py",
+         "tests/solver/test_scoped_proof_search_stage_a.py",
+         "tests/solver/test_basic_inequality_stage5b.py",
+         "tests/solver/test_basic_inequality_stage5c.py"),
+    ),
+    OwnershipRule(
         ("server/tools/proof_search_baseline.py",
          "server/tests/solver/fixtures/scoped-proof-search/*",
          "server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",

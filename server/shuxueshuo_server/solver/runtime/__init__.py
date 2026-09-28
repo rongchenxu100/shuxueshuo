@@ -1,61 +1,140 @@
-"""Public runtime API for the FunctionalPlan solver."""
+"""Public Runtime exports, resolved without eager orchestration imports.
 
-from shuxueshuo_server.solver.runtime.context import ContextBuilder, RuntimeContext
-from shuxueshuo_server.solver.runtime.config import (
-    SolverRuntimeConfig,
-    SolverRuntimeConfigError,
-)
-from shuxueshuo_server.solver.runtime.executor import (
-    DeclarationValidator,
-    InvocationExecutor,
-    PlanValidator,
-)
-from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
-from shuxueshuo_server.solver.runtime.llm_clients import (
-    DeepSeekPlannerClient,
-    DoubaoPlannerClient,
-    LLMClientConfigurationError,
-    LLMPlannerClient,
-    OpenAICompatiblePlannerClient,
-)
-from shuxueshuo_server.solver.runtime.methods import (
-    StatelessMethodRegistry,
-    default_stateless_registry,
-)
-from shuxueshuo_server.solver.runtime.models import (
-    ContextDeclaration,
-    ContextPath,
-    MethodInvocation,
-    MethodSpec,
-    PlannerOutput,
-    PointRef,
-    RuntimeScope,
-    StepGoal,
-    StepPlan,
-    TypedValue,
-)
-from shuxueshuo_server.solver.runtime.planner import (
-    GenericPlanner,
-    PlannerInputs,
-)
-from shuxueshuo_server.solver.runtime.projection import (
-    RuntimeProjection,
-    problem_to_llm_payload,
-)
-from shuxueshuo_server.solver.runtime.result_builder import (
-    ResultBuilder,
-    ResultBuilderError,
-)
-from shuxueshuo_server.solver.runtime.session import (
-    LLMCallRecord,
-    SolveAttemptRecord,
-    SolveSession,
-    StructuredSolveError,
-)
-from shuxueshuo_server.solver.runtime.strategy_planner import *  # noqa: F403
-from shuxueshuo_server.solver.runtime.orchestrator import (
-    DEFAULT_PLANNER_PROVIDERS,
-    RuntimeOrchestrator,
-)
+Importing a Runtime model must not initialize the engine or proof search. Public
+objects retain their defining modules and are loaded on first attribute access.
+"""
 
-__all__ = [name for name in globals() if not name.startswith("_")]
+from importlib import import_module as _import_module
+
+_EXPORT_MODULES = {
+    "ContextBuilder": "shuxueshuo_server.solver.runtime.context",
+    "RuntimeContext": "shuxueshuo_server.solver.runtime.context",
+    "SolverRuntimeConfig": "shuxueshuo_server.solver.runtime.config",
+    "SolverRuntimeConfigError": "shuxueshuo_server.solver.runtime.config",
+    "DeclarationValidator": "shuxueshuo_server.solver.runtime.executor",
+    "InvocationExecutor": "shuxueshuo_server.solver.runtime.executor",
+    "PlanValidator": "shuxueshuo_server.solver.runtime.executor",
+    "MethodSpecRegistry": "shuxueshuo_server.solver.runtime.method_specs",
+    "DeepSeekPlannerClient": "shuxueshuo_server.solver.runtime.llm_clients",
+    "DoubaoPlannerClient": "shuxueshuo_server.solver.runtime.llm_clients",
+    "LLMClientConfigurationError": "shuxueshuo_server.solver.runtime.llm_clients",
+    "LLMPlannerClient": "shuxueshuo_server.solver.runtime.llm_clients",
+    "OpenAICompatiblePlannerClient": "shuxueshuo_server.solver.runtime.llm_clients",
+    "StatelessMethodRegistry": "shuxueshuo_server.solver.runtime.methods",
+    "default_stateless_registry": "shuxueshuo_server.solver.runtime.methods",
+    "ContextDeclaration": "shuxueshuo_server.solver.runtime.models",
+    "ContextPath": "shuxueshuo_server.solver.runtime.models",
+    "MethodInvocation": "shuxueshuo_server.solver.runtime.models",
+    "MethodSpec": "shuxueshuo_server.solver.runtime.models",
+    "PlannerOutput": "shuxueshuo_server.solver.runtime.models",
+    "PointRef": "shuxueshuo_server.solver.runtime.models",
+    "RuntimeScope": "shuxueshuo_server.solver.runtime.models",
+    "StepGoal": "shuxueshuo_server.solver.runtime.models",
+    "StepPlan": "shuxueshuo_server.solver.runtime.models",
+    "TypedValue": "shuxueshuo_server.solver.runtime.models",
+    "GenericPlanner": "shuxueshuo_server.solver.runtime.planner",
+    "PlannerInputs": "shuxueshuo_server.solver.runtime.planner",
+    "RuntimeProjection": "shuxueshuo_server.solver.runtime.projection",
+    "problem_to_llm_payload": "shuxueshuo_server.solver.runtime.projection",
+    "ResultBuilder": "shuxueshuo_server.solver.runtime.result_builder",
+    "ResultBuilderError": "shuxueshuo_server.solver.runtime.result_builder",
+    "LLMCallRecord": "shuxueshuo_server.solver.runtime.session",
+    "SolveAttemptRecord": "shuxueshuo_server.solver.runtime.session",
+    "SolveSession": "shuxueshuo_server.solver.runtime.session",
+    "StructuredSolveError": "shuxueshuo_server.solver.runtime.session",
+    "CanonicalHandleRegistry": "shuxueshuo_server.solver.runtime.handle_registry",
+    "CanonicalRuntimeBindingIndex": "shuxueshuo_server.solver.runtime.strategy_compiler",
+    "FunctionalCapabilityCompiler": "shuxueshuo_server.solver.runtime.strategy_compiler",
+    "MethodBindingRuleRegistry": "shuxueshuo_server.solver.runtime.strategy_compiler",
+    "RecipeExecutionSpecRegistry": "shuxueshuo_server.solver.runtime.strategy_compiler",
+    "FunctionalRepairAttempt": "shuxueshuo_server.solver.runtime.strategy_models",
+    "PlannerRetryIssue": "shuxueshuo_server.solver.runtime.strategy_models",
+    "PlannerRetryState": "shuxueshuo_server.solver.runtime.strategy_models",
+    "StrategyDraftValidationError": "shuxueshuo_server.solver.runtime.strategy_models",
+    "StrategyPrompt": "shuxueshuo_server.solver.runtime.strategy_models",
+    "FUNCTIONAL_PLAN_JSON_SCHEMA": "shuxueshuo_server.solver.runtime.functional_plan",
+    "SCOPED_FUNCTIONAL_PLAN_CONTRACT": "shuxueshuo_server.solver.runtime.functional_plan",
+    "CallResultRef": "shuxueshuo_server.solver.runtime.functional_plan",
+    "CanonicalStateHandleFactory": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalCall": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalCallPlacement": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalCapabilityCatalog": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalPlan": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalPlanIssue": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalPlanReconciler": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalPlanReconciliationResult": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalPlanValidator": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalScope": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionalStepScopeAuthority": "shuxueshuo_server.solver.runtime.functional_plan",
+    "ScopedFunctionalPlan": "shuxueshuo_server.solver.runtime.functional_plan",
+    "ScopedFunctionalPlanAuthority": "shuxueshuo_server.solver.runtime.functional_plan",
+    "ScopedFunctionalPlanAuthorityAdapter": "shuxueshuo_server.solver.runtime.functional_plan",
+    "ScopedFunctionalPlanValidator": "shuxueshuo_server.solver.runtime.functional_plan",
+    "scoped_functional_plan_schema": "shuxueshuo_server.solver.runtime.functional_plan",
+    "functional_capability_catalog_payload": "shuxueshuo_server.solver.runtime.functional_plan",
+    "prepare_functional_plan_raw_response": "shuxueshuo_server.solver.runtime.functional_plan",
+    "FunctionAdapterRegistry": "shuxueshuo_server.solver.runtime.function_specs",
+    "FunctionAdapterSpec": "shuxueshuo_server.solver.runtime.function_specs",
+    "FunctionArgSpec": "shuxueshuo_server.solver.runtime.function_specs",
+    "FunctionReturnSpec": "shuxueshuo_server.solver.runtime.function_specs",
+    "FunctionSpec": "shuxueshuo_server.solver.runtime.function_specs",
+    "FunctionSpecRegistry": "shuxueshuo_server.solver.runtime.function_specs",
+    "GENERIC_FUNCTION_METHOD_IDS": "shuxueshuo_server.solver.runtime.function_specs",
+    "assert_no_function_adapter_failures": "shuxueshuo_server.solver.runtime.function_specs",
+    "function_catalog_payload": "shuxueshuo_server.solver.runtime.function_specs",
+    "MacroAdapterRegistry": "shuxueshuo_server.solver.runtime.macro_specs",
+    "MacroAdapterSpec": "shuxueshuo_server.solver.runtime.macro_specs",
+    "MacroArgSpec": "shuxueshuo_server.solver.runtime.macro_specs",
+    "MacroInternalCallSpec": "shuxueshuo_server.solver.runtime.macro_specs",
+    "MacroReturnSpec": "shuxueshuo_server.solver.runtime.macro_specs",
+    "MacroSpec": "shuxueshuo_server.solver.runtime.macro_specs",
+    "MacroSpecRegistry": "shuxueshuo_server.solver.runtime.macro_specs",
+    "assert_no_macro_adapter_failures": "shuxueshuo_server.solver.runtime.macro_specs",
+    "macro_catalog_payload": "shuxueshuo_server.solver.runtime.macro_specs",
+    "StrategyPayloadBuilder": "shuxueshuo_server.solver.runtime.strategy_payload",
+    "StrategyPromptRenderer": "shuxueshuo_server.solver.runtime.strategy_payload",
+    "build_strategy_probe_inputs": "shuxueshuo_server.solver.runtime.strategy_payload",
+    "write_strategy_debug_artifacts": "shuxueshuo_server.solver.runtime.strategy_payload",
+    "AliasIndex": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "Condition": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "ContextManifest": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "MathObject": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "PlannerState": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "PlannerStateContext": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "PlannerStateContextBuilder": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "RetryMemory": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "ScopeGraph": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "StateRewriteEvent": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "StateSlot": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "StepState": "shuxueshuo_server.solver.runtime.planner_state_context",
+    "PlannerRetryStateProjector": "shuxueshuo_server.solver.runtime.planner_retry_projection",
+    "PlannerRetryReplayResult": "shuxueshuo_server.solver.runtime.strategy_replay",
+    "PlannerRetryReplayService": "shuxueshuo_server.solver.runtime.strategy_replay",
+    "repair_attempt_payload_from_replay": "shuxueshuo_server.solver.runtime.strategy_replay",
+    "ScopedFunctionalPlanAuthoringResult": "shuxueshuo_server.solver.runtime.scoped_functional_plan_replay",
+    "ScopedFunctionalPlanAuthoringService": "shuxueshuo_server.solver.runtime.scoped_functional_plan_replay",
+    "ScopedFunctionalPlanReplayResult": "shuxueshuo_server.solver.runtime.scoped_functional_plan_replay",
+    "ScopedFunctionalPlanReplayService": "shuxueshuo_server.solver.runtime.scoped_functional_plan_replay",
+    "retry_state_from_attempt": "shuxueshuo_server.solver.runtime.functional_plan_retry",
+    "StrategyPlanner": "shuxueshuo_server.solver.runtime.strategy_runtime_planner",
+    "StrategyPlannerArtifacts": "shuxueshuo_server.solver.runtime.strategy_runtime_planner",
+    "strategy_planner_provider": "shuxueshuo_server.solver.runtime.strategy_runtime_planner",
+    "DEFAULT_PLANNER_PROVIDERS": "shuxueshuo_server.solver.runtime.orchestrator",
+    "RuntimeOrchestrator": "shuxueshuo_server.solver.runtime.orchestrator",
+}
+
+
+def __getattr__(name):
+    module = _EXPORT_MODULES.get(name)
+    if module is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(_import_module(module), name)
+    globals()[name] = value
+    return value
+
+
+def __dir__():
+    return sorted(set(globals()) | set(__all__))
+
+
+__all__ = list(_EXPORT_MODULES)

@@ -315,3 +315,18 @@ def test_scoped_proof_baseline_assets_select_contract_regressions():
         selected, unmapped = _tests_for_changed_paths((path,))
         assert not unmapped
         assert 'tests/solver/test_scoped_proof_search_stage_a.py' in selected
+
+
+def test_checker_extraction_ownership_includes_legacy_and_method_chains():
+    for path in (
+        'server/shuxueshuo_server/solver/__init__.py',
+        'server/shuxueshuo_server/solver/math_kernel/proof_checker.py',
+        'server/shuxueshuo_server/solver/math_kernel/proof_rule_registry.py',
+        'server/shuxueshuo_server/solver/math_kernel/proof_types.py',
+        'server/tests/solver/fixtures/scoped-proof-search/checker-legacy-corpus.json',
+    ):
+        selected, unmapped = _tests_for_changed_paths((path,))
+        assert not unmapped
+        assert {'tests/solver/test_proof_checker_stage_b.py',
+                'tests/solver/test_basic_inequality_stage5b.py',
+                'tests/solver/test_basic_inequality_stage5c.py'}.issubset(selected)
