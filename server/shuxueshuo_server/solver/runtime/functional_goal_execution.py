@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, replace
 import json
+from dataclasses import dataclass, field, replace
 from types import MappingProxyType
 from typing import Any, Literal, Mapping, Sequence
 
-from jsonschema import Draft202012Validator
 import sympy as sp
+from jsonschema import Draft202012Validator
 
 from shuxueshuo_server.solver.extraction.problem_planning_binding import (
     FunctionalProblemBindingContext,
@@ -19,11 +19,11 @@ from shuxueshuo_server.solver.extraction.problem_planning_context import (
     ProblemPlanningContext,
 )
 from shuxueshuo_server.solver.extraction.source_identity import stable_hash
-from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
-    FunctionalCapabilityCatalog,
-)
 from shuxueshuo_server.solver.runtime.functional_binding_context import (
     FunctionalBindingContextError,
+)
+from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
+    functional_call_local_debug_alias,
 )
 from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     FunctionalDiagnosticAuthority,
@@ -31,17 +31,23 @@ from shuxueshuo_server.solver.runtime.functional_diagnostics import (
     diagnostic_authority_from_issue,
 )
 from shuxueshuo_server.solver.runtime.functional_execution_authority import (
+    VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT,
     FunctionalExecutionEvidence,
     MacroSearchExecutionEvidence,
     PathMinimumPromptWitnessProjector,
     PathMinimumWitness,
     SymbolicClosureExecutionEvidence,
-    VERIFIED_FUNCTIONAL_PLAN_EXECUTION_CONTRACT,
     functional_execution_evidence_from_payload,
     functional_execution_evidence_schema,
 )
-from shuxueshuo_server.solver.runtime.functional_debug_aliases import (
-    functional_call_local_debug_alias,
+from shuxueshuo_server.solver.runtime.functional_plan_capabilities import (
+    FunctionalCapabilityCatalog,
+)
+from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
+    FunctionalRestoredCallSeed,
+    FunctionalRuntimeEquivalentCallAlias,
+    build_functional_execution_restore_seed,
+    rebase_restored_call_seed,
 )
 from shuxueshuo_server.solver.runtime.handle_registry import (
     CanonicalHandleRegistry,
@@ -74,13 +80,12 @@ from shuxueshuo_server.solver.runtime.strategy_replay import (
     PlannerRetryReplayResult,
     PlannerRetryReplayService,
 )
-from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
-    FunctionalRuntimeEquivalentCallAlias,
-    FunctionalRestoredCallSeed,
-    build_functional_execution_restore_seed,
-    rebase_restored_call_seed,
-)
 
+from ..math_kernel.proof_facts import canonical
+from .proof_fact_evidence import (
+    ProofFactsExecutionEvidence,
+    include_proof_dependencies,
+)
 
 FUNCTIONAL_GOAL_EXECUTION_CHECKPOINT_CONTRACT = (
     "functional-goal-execution-checkpoint/v3"
@@ -333,6 +338,7 @@ def functional_goal_execution_checkpoint_schema() -> dict[str, Any]:
                     "restore_signature",
                 ],
                 "properties": {
+                    "proof_facts": {"type": "object"},
                     "schema_version": {
                         "const": FUNCTIONAL_EXECUTION_RESTORE_STATE_CONTRACT,
                     },
@@ -548,6 +554,7 @@ class FunctionalGoalExecutionScope:
 class FunctionalExecutionRestoreState:
     """Private typed namespaces and signatures owned by one Goal checkpoint."""
 
+    proof_facts_json: str | None = None
     state_versions: tuple[Mapping[str, Any], ...] = ()
     call_results: tuple[Mapping[str, Any], ...] = ()
     conditions: tuple[Mapping[str, Any], ...] = ()
@@ -608,6 +615,10 @@ class FunctionalExecutionRestoreState:
 
     def _payload(self, *, include_signature: bool) -> dict[str, Any]:
         payload = {
+            **(
+                {"proof_facts": json.loads(self.proof_facts_json)}
+                if self.proof_facts_json is not None else {}
+            ),
             "schema_version": self.schema_version,
             "state_versions": [dict(item) for item in self.state_versions],
             "call_results": [dict(item) for item in self.call_results],
@@ -721,6 +732,10 @@ class FunctionalExecutionRestoreState:
             if item.macro_preparation_authority is not None
         )
         return cls(
+            proof_facts_json=(
+                canonical(seed.proof_fact_checkpoint)
+                if seed.proof_fact_checkpoint is not None else None
+            ),
             state_versions=state_versions,
             call_results=call_results,
             conditions=tuple(
@@ -771,7 +786,9 @@ class FunctionalExecutionRestoreState:
             for result in selected_results
             for version in result.committed_versions
         }
+        from .proof_fact_transactions import select_checkpoint
         return FunctionalRestoredCallSeed(
+            proof_fact_checkpoint=select_checkpoint(seed.proof_fact_checkpoint, call_ids),
             call_results=selected_results,
             compiled_calls=tuple(
                 compiled_by_call[call_id]
@@ -844,6 +861,10 @@ class FunctionalExecutionRestoreState:
         candidate = dict(payload)
         observed_signature = str(candidate.pop("restore_signature", ""))
         state = cls(
+            proof_facts_json=(
+                canonical(candidate["proof_facts"])
+                if "proof_facts" in candidate else None
+            ),
             schema_version=str(candidate.get("schema_version", "")),
             state_versions=tuple(
                 _mapping(item)
@@ -1078,14 +1099,14 @@ class FunctionalGoalExecutionCheckpoint:
                 planning_context=planning_context,
                 goal_authority=goal_authority,
                 blocked_by=_checkpoint_blocked_by(self.root_scope),
-                runtime_dependency_graph=dependency_graph or {},
+                runtime_dependency_graph=include_proof_dependencies(dependency_graph or {}, self.root_scope),
             )
             if self.plan_id != goal_authority.plan_id:
                 mismatches.append("plan_id")
             if dict(self.goal_unit_ids) != expected_goal_ids:
                 mismatches.append("goal_unit_ids")
         if dependency_graph is not None and self.execution_graph_signature != (
-            _execution_graph_signature(dependency_graph)
+            _execution_graph_signature(include_proof_dependencies(dependency_graph, self.root_scope))
         ):
             mismatches.append("execution_graph_signature")
         if binding_context is not None:
@@ -1482,7 +1503,7 @@ class VerifiedFunctionalPlanExecution:
                 "authority"
             )
         normalized_graph = _normalized_execution_dependency_graph(
-            reconciliation.dependency_graph
+            include_proof_dependencies(reconciliation.dependency_graph, checkpoint.root_scope)
         )
         if _execution_graph_signature(normalized_graph) != (
             checkpoint.execution_graph_signature
@@ -2946,6 +2967,12 @@ def _transaction_execution_evidence(
             items.append(compiled.direct_macro_teaching_evidence)
         if result is not None and result.status == "verified":
             items.extend(compiled.inequality_teaching_evidence)
+            if result.proof_commit is not None:
+                store = transaction.execution_report.runtime_context.proof_facts
+                items.append(ProofFactsExecutionEvidence(
+                    result.call_id, store.snapshot.source_hash,
+                    canonical(result.proof_commit),
+                ))
         closure = result.symbolic_closure if result is not None else None
         if (
             result is not None
@@ -3197,7 +3224,7 @@ def _build_checkpoint(
         goal_authority=goal_authority,
         blocked_by=blocked_by,
         runtime_dependency_graph=(
-            reconciliation.dependency_graph
+            include_proof_dependencies(reconciliation.dependency_graph, root_scope)
             if reconciliation is not None
             else {}
         ),
@@ -3238,7 +3265,7 @@ def _build_checkpoint(
         problem_semantic_hash=planning_context.problem_semantic_hash,
         plan_id=scoped_functional_plan_id(canonical_plan),
         execution_graph_signature=_execution_graph_signature(
-            reconciliation.dependency_graph
+            include_proof_dependencies(reconciliation.dependency_graph, root_scope)
             if reconciliation is not None
             else {}
         ),

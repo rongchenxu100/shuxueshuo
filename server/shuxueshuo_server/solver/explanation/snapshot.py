@@ -377,6 +377,8 @@ def _project_source(
             raise ExplanationSnapshotError(
                 f"{exc}: step={authored.step_id}"
             ) from exc
+        if projected is None:
+            continue  # Explicitly registered execution-only evidence.
         evidence_ref = projected.evidence_ref
         payload = _json_value(projected.payload)
         previous = evidence.get(evidence_ref)

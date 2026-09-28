@@ -34,6 +34,7 @@ FunctionalCallLifecycleStatus = Literal[
     "aliased",
 ]
 FunctionalDependencyKind = Literal[
+    "proof_read",
     "call_result",
     "state_version",
     "condition",

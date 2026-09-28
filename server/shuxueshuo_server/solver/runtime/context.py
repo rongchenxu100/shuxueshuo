@@ -62,6 +62,9 @@ class RuntimeContext:
         self.problem = problem
         self.kernel = kernel
         self.symbols = symbols
+        # Internal opt-in proof service; never reconstructed from Planner text.
+        self.proof_facts = None
+        self.proof_fact_overlay = None
         self.scopes: dict[str, RuntimeScope] = {
             "problem": RuntimeScope("problem", "problem")
         }
@@ -91,6 +94,8 @@ class RuntimeContext:
 
         branch = RuntimeContext(self.problem, self.kernel, self.symbols)
         branch.scopes = deepcopy(self.scopes)
+        if self.proof_facts is not None:
+            branch.proof_facts = self.proof_facts.fork(branch)
         return branch
 
     def ensure_step_scope(self, step_id: str, parent_id: str) -> RuntimeScope:

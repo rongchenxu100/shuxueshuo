@@ -496,7 +496,15 @@ class InvocationExecutor:
                 authorities = invocation.input_read_authorities.get("conditions", ())
                 if authorities:
                     inputs["__condition_sources__"] = [authority.authority_payload() for authority in authorities]
-            result = method.run(inputs, self.kernel)
+            kernel_service = self.kernel
+            if context.proof_fact_overlay is not None:
+                from ..math_kernel.proof_facts import canonical
+                from .proof_fact_transactions import ProofKernelServices
+                authority = context.proof_fact_overlay.authority
+                if authority.target_json is not None and canonical(inputs.get("target")) != authority.target_json:
+                    raise ValueError("proof_facts: target differs from authenticated Method input")
+                kernel_service = ProofKernelServices(self.kernel, context.proof_fact_overlay)
+            result = method.run(inputs, kernel_service)
         except StatelessMethodError as exc:
             input_authorities = {
                 **invocation.supporting_input_read_authorities,

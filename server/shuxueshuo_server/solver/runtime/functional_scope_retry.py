@@ -1700,8 +1700,11 @@ def build_scope_retry_restore_seed(
         if execution.replay is not None
         else None
     )
+    from .proof_fact_evidence import include_proof_dependencies
+    from .proof_fact_transactions import retained_proof_prefix
+
     dependency_graph = (
-        reconciliation.dependency_graph
+        include_proof_dependencies(reconciliation.dependency_graph, checkpoint.root_scope)
         if reconciliation is not None
         else {}
     )
@@ -1718,6 +1721,7 @@ def build_scope_retry_restore_seed(
         for call_id in seed.call_ids
         if call_id not in invalid and call_id in next_step_ids
     )
+    selected = retained_proof_prefix(seed.proof_fact_checkpoint, selected, seed.call_ids)
     if not selected:
         return FunctionalRestoredCallSeed()
     try:

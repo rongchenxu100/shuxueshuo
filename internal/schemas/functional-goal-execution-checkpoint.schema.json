@@ -117,6 +117,9 @@
         "restore_signature"
       ],
       "properties": {
+        "proof_facts": {
+          "type": "object"
+        },
         "schema_version": {
           "const": "functional-execution-restore-state/v1"
         },
@@ -419,6 +422,37 @@
     },
     "execution_evidence": {
       "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema_version",
+            "step_id",
+            "source_hash",
+            "commit",
+            "evidence_id"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "scoped-proof-commit/v1"
+            },
+            "step_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "source_hash": {
+              "type": "string",
+              "minLength": 1
+            },
+            "evidence_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "commit": {
+              "type": "object"
+            }
+          }
+        },
         {
           "title": "EliminationTeachingEvidence",
           "type": "object",

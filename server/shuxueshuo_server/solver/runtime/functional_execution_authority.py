@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import json
+from dataclasses import dataclass, field
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Mapping, Sequence, TypeAlias
 
@@ -22,8 +22,15 @@ from shuxueshuo_server.solver.runtime.rewrite_teaching_evidence import (
     rewrite_teaching_evidence_schema,
 )
 
-from .substitution_teaching_evidence import SubstitutionTeachingEvidence, substitution_teaching_evidence_schema
-from .elimination_teaching_evidence import EliminationTeachingEvidence, elimination_teaching_evidence_schema
+from .elimination_teaching_evidence import (
+    EliminationTeachingEvidence,
+    elimination_teaching_evidence_schema,
+)
+from .proof_fact_evidence import ProofFactsExecutionEvidence, proof_fact_evidence_schema
+from .substitution_teaching_evidence import (
+    SubstitutionTeachingEvidence,
+    substitution_teaching_evidence_schema,
+)
 
 if TYPE_CHECKING:
     from shuxueshuo_server.solver.extraction.problem_planning_context import (
@@ -935,7 +942,8 @@ def _point_string_pair(value: Any, field_name: str) -> tuple[str, str]:
 
 
 FunctionalExecutionEvidence: TypeAlias = (
-    SubstitutionTeachingEvidence | EliminationTeachingEvidence
+    ProofFactsExecutionEvidence
+    | SubstitutionTeachingEvidence | EliminationTeachingEvidence
     | RewriteTeachingEvidence
     | InequalityTeachingEvidence
     | PathMinimumWitness
@@ -950,6 +958,8 @@ def functional_execution_evidence_from_payload(
     payload: Mapping[str, Any],
 ) -> FunctionalExecutionEvidence:
     schema_version = payload.get("schema_version")
+    if schema_version == "scoped-proof-commit/v1":
+        return ProofFactsExecutionEvidence.from_payload(payload)
     if schema_version == "substitution-teaching-evidence/v1":
         return SubstitutionTeachingEvidence.from_payload(payload)
     if schema_version == "elimination-teaching-evidence/v1":
@@ -974,6 +984,7 @@ def functional_execution_evidence_from_payload(
 def functional_execution_evidence_schema() -> dict[str, Any]:
     return {
         "oneOf": [
+            proof_fact_evidence_schema(),
             elimination_teaching_evidence_schema(),
             substitution_teaching_evidence_schema(),
             inequality_teaching_evidence_schema(),

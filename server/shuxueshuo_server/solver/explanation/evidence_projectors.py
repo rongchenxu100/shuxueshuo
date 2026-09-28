@@ -49,7 +49,7 @@ class TeachingEvidenceProjector(Protocol[EvidenceT]):
         evidence: EvidenceT,
         *,
         planning_context: Any | None,
-    ) -> ProjectedTeachingEvidence: ...
+    ) -> ProjectedTeachingEvidence | None: ...
 
 
 class PathMinimumTeachingEvidenceProjector:
@@ -787,6 +787,13 @@ class CurveCandidateParameterTeachingEvidenceProjector:
         )
 
 
+class AuxiliaryProofEvidenceProjector:
+    """Keep proof commits in execution authority, never in student content."""
+
+    def project(self, evidence, *, planning_context):
+        return None
+
+
 class TeachingEvidenceProjectorRegistry:
     """Exact-type registry; unknown verified evidence fails loudly."""
 
@@ -810,7 +817,7 @@ class TeachingEvidenceProjectorRegistry:
         evidence: FunctionalExecutionEvidence,
         *,
         planning_context: Any | None,
-    ) -> ProjectedTeachingEvidence:
+    ) -> ProjectedTeachingEvidence | None:
         projector = self._projectors.get(type(evidence))
         if projector is None:
             raise TeachingEvidenceProjectionError(
@@ -826,6 +833,8 @@ class TeachingEvidenceProjectorRegistry:
 def default_teaching_evidence_projector_registry(
 ) -> TeachingEvidenceProjectorRegistry:
     registry = TeachingEvidenceProjectorRegistry()
+    from ..runtime.proof_fact_evidence import ProofFactsExecutionEvidence
+    registry.register(ProofFactsExecutionEvidence, AuxiliaryProofEvidenceProjector())
     from ..runtime.inequality_teaching_evidence import InequalityTeachingEvidence
     from .basic_inequality_teaching import InequalityTeachingProjector
     registry.register(InequalityTeachingEvidence, InequalityTeachingProjector())

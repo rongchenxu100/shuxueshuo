@@ -356,6 +356,7 @@ class FunctionalCallExecutionResult:
     macro_preparation_authority: Any | None = None
     macro_search_report: MacroRuntimeSearchReport | None = None
     path_minimum_witness: PathMinimumWitness | None = None
+    proof_commit: dict[str, Any] | None = None
     step_results: tuple[StepExecutionResult, ...] = field(
         default=(),
         repr=False,
@@ -364,6 +365,7 @@ class FunctionalCallExecutionResult:
 
     def to_payload(self) -> dict[str, Any]:
         return {
+            **({"proof_commit": self.proof_commit} if self.proof_commit is not None else {}),
             "call_id": self.call_id,
             "status": self.status,
             "runtime_results": [
@@ -554,6 +556,8 @@ class FunctionalTransactionalExecutionReport:
 
     def to_payload(self) -> dict[str, Any]:
         return {
+            **({"proof_facts": self.runtime_context.proof_facts.to_payload()}
+               if self.runtime_context is not None and self.runtime_context.proof_facts is not None else {}),
             "ok": self.ok,
             "graph": self.graph.to_payload(),
             "call_states": [item.to_payload() for item in self.call_states],
@@ -751,6 +755,7 @@ class FunctionalRestoredTypedValueIndex:
 class FunctionalRestoredCallSeed:
     """In-process runtime values authenticated by an F5-D checkpoint."""
 
+    proof_fact_checkpoint: dict[str, Any] | None = None
     call_results: tuple[FunctionalCallExecutionResult, ...] = ()
     compiled_calls: tuple[CompiledFunctionalCall, ...] = ()
     runtime_version_values: Mapping[StateVersionId, TypedValue] = field(
@@ -886,7 +891,11 @@ def build_functional_execution_restore_seed(
         }
         for call_id, payloads in authority_payloads.items()
     }
+    from .proof_fact_transactions import select_checkpoint
+    proof_payload = (report.runtime_context.proof_facts.to_payload()
+                     if report.runtime_context is not None and report.runtime_context.proof_facts is not None else None)
     return FunctionalRestoredCallSeed(
+        proof_fact_checkpoint=select_checkpoint(proof_payload, selected),
         call_results=tuple(
             result_by_call[call_id]
             for call_id in report.graph.canonical_order
@@ -6088,6 +6097,8 @@ class FunctionalTransactionalInterpreter:
             FunctionalRuntimeEquivalentCallAlias
         ] = []
         runtime_state_equivalence_probe_results: list[dict[str, Any]] = []
+        from .proof_fact_transactions import add_dependency_edges, restore_facts
+        restore_facts(current_context, restored_seed)
         restored_call_ids = _restore_verified_calls(
             restored_seed,
             graph=graph,
@@ -6097,6 +6108,9 @@ class FunctionalTransactionalInterpreter:
             compiled_calls=compiled_calls,
             runtime_result_values=runtime_result_values,
         )
+        if current_context.proof_facts is not None:
+            for receipt in current_context.proof_facts.snapshot.commits:
+                graph = add_dependency_edges(graph, working, receipt)
         for call_id in graph.canonical_order:
             if call_id in restored_call_ids:
                 continue
@@ -6221,6 +6235,8 @@ class FunctionalTransactionalInterpreter:
                     ),
                 )
                 _audit_method_output_write_authorities(compiled)
+                from .proof_fact_transactions import begin_call
+                begin_call(branch, call_id, compiled, graph)
                 executor = self._executor_factory(inputs, branch)
                 symbolic_spec = (
                     getattr(capability.source, "symbolic_closure", None)
@@ -6571,6 +6587,18 @@ class FunctionalTransactionalInterpreter:
                     current_versions=versions,
                 )
                 macro_search_report = compiled.macro_search_report
+                from .proof_fact_transactions import (
+                    add_dependency_edges,
+                    finalize_call,
+                    validate_dependencies,
+                )
+                require_proof_alias = branch.proof_fact_overlay is not None and runtime_alias is not None
+                if require_proof_alias:
+                    raise ValueError("proof_facts: runtime aliases require a new proof binding")
+                if branch.proof_fact_overlay is not None and lineage_edges:
+                    raise ValueError("proof_facts: Scope lineage requires explicit proof rebinding")
+                proof_receipt = finalize_call(branch, runtime_results, writes)
+                validate_dependencies(graph, working, proof_receipt)
                 if runtime_alias is not None:
                     if lineage_edges:
                         raise ValueError(
@@ -6667,6 +6695,7 @@ class FunctionalTransactionalInterpreter:
                             expected_type=write.runtime_type,
                         )
                     )
+                graph = add_dependency_edges(graph, working, proof_receipt)
                 current_context = branch
                 compiled_calls.append(compiled)
                 results.append(
@@ -6676,6 +6705,7 @@ class FunctionalTransactionalInterpreter:
                         runtime_results=runtime_results,
                         state_writes=writes,
                         committed_versions=versions,
+                        proof_commit=proof_receipt.to_payload() if proof_receipt else None,
                         checks=tuple(execution.checks),
                         step_results=tuple(execution.step_results),
                         symbolic_closure=closure_result,
