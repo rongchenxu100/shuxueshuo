@@ -16,6 +16,16 @@ def test_q30_real_method_chain_with_scoped_search(tmp_path, monkeypatch):
         raise AssertionError("v2 execution called legacy search")
 
     monkeypatch.setattr(proof_kernel._Search, "need", forbidden)
+    from shuxueshuo_server.solver.runtime.scoped_proof_facts import ScopedProofFacts
+
+    replayed_commits = []
+    restore_one = ScopedProofFacts._restore_one
+
+    def counted_commit(self, payload):
+        replayed_commits.append(payload["call_id"])
+        return restore_one(self, payload)
+
+    monkeypatch.setattr(ScopedProofFacts, "_restore_one", counted_commit)
     from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
         FunctionalTransactionalInterpreter,
         build_functional_execution_restore_seed,
@@ -47,6 +57,8 @@ def test_q30_real_method_chain_with_scoped_search(tmp_path, monkeypatch):
     store = runtime.last_success_artifacts.context.proof_facts
     assert store is not None
     assert len(store.snapshot.commits) == 5
+    assert replayed_commits == ["rewrite", "first", "square", "last", "attain"]
+    replayed_commits.clear()
     assert sum(len(c.requirements) for c in store.snapshot.commits) == 3
     assert "rewrite" in store.snapshot.commits[1].dependencies
     assert any(
@@ -76,6 +88,8 @@ def test_q30_real_method_chain_with_scoped_search(tmp_path, monkeypatch):
         store.to_payload(), {c.call_id: c.output_hash for c in store.snapshot.commits}
     )
     assert restored.to_payload() == store.to_payload()
+    assert replayed_commits == ["rewrite", "first", "square", "last", "attain"]
+    replayed_commits.clear()
     (tmp_path / "q30-verified-proof-snapshot.json").write_text(
         json.dumps(
             {
@@ -102,6 +116,7 @@ def test_q30_real_method_chain_with_scoped_search(tmp_path, monkeypatch):
     monkeypatch.setattr(ScopedProofFacts, "restore", counted_restore)
     replayed = execute(interpreter, **{**args, "restored_seed": seed})
     assert restored_sizes == [1, 2, 3, 4, 5]
+    assert replayed_commits == ["rewrite", "first", "square", "last", "attain"]
     assert replayed.execution_report.ok, replayed.execution_report.to_payload()
     assert (
         replayed.execution_report.runtime_context.proof_facts.to_payload()

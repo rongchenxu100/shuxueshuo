@@ -1,0 +1,41 @@
+{
+  "authority_sha256": "6f7a8bcab109ed0f1540ec3ab8930d5f4f443637adb50aed8168372ff45dcd5a",
+  "samples": [
+    {
+      "seconds": 1.2285138340084814,
+      "replayed_commits": [
+        "rewrite",
+        "first",
+        "square",
+        "last",
+        "attain"
+      ],
+      "search_disabled": true,
+      "fresh_process": true
+    },
+    {
+      "seconds": 1.1994971670210361,
+      "replayed_commits": [
+        "rewrite",
+        "first",
+        "square",
+        "last",
+        "attain"
+      ],
+      "search_disabled": true,
+      "fresh_process": true
+    },
+    {
+      "seconds": 1.5072287090006284,
+      "replayed_commits": [
+        "rewrite",
+        "first",
+        "square",
+        "last",
+        "attain"
+      ],
+      "search_disabled": true,
+      "fresh_process": true
+    }
+  ]
+}

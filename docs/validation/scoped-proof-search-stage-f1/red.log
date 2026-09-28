@@ -1,0 +1,134 @@
+FFFFF..F                                                                 [100%]
+=================================== FAILURES ===================================
+_____________ test_metadata_freezes_input_lists_and_payload_copies _____________
+
+    def test_metadata_freezes_input_lists_and_payload_copies():
+        refs = ['definition']
+        validity = FactValidity('q', definition_refs=refs)
+        dependencies = ['dependency']
+        fact = VerifiedMathFact('x>0', [['x', 'q/x']], validity, 'domain', 'source', dependency_fact_refs=dependencies)
+        expected = fact.to_payload()
+        refs.append('another')
+        dependencies.append('another')
+>       assert fact.to_payload() == expected
+E       AssertionError: assert {'commit_id':...d': None, ...} == {'commit_id':...d': None, ...}
+E         
+E         Omitting 8 identical items, use -vv to show
+E         Differing items:
+E         {'dependency_fact_refs': ['dependency', 'another']} != {'dependency_fact_refs': ['dependency']}
+E         {'validity': {'assumption_refs': [], 'definition_refs': ['definition', 'another'], 'scope_id': 'q', 'state_version_refs': [], ...}} != {'validity': {'assumption_refs': [], 'definition_refs': ['definition'], 'scope_id': 'q', 'state_version_refs': [], ...}}
+E         {'fact_id': '4efa647bd09bdcbad158b16e9cf6295052179481b624b82da90e8df5d0fd0786'} != {'fact_id': '1e0a850e986faeb358488b9ae7ebf67004b84f2267ff8114f0fdd437c01af57e'}
+E         Use -v to get more diff
+
+tests/solver/test_scoped_proof_search_stage_f1.py:21: AssertionError
+______ test_commit_and_snapshot_preserve_legacy_hashes_and_fresh_payloads ______
+
+    def test_commit_and_snapshot_preserve_legacy_hashes_and_fresh_payloads():
+        store = environment()
+        commit = publish(store)
+        payload = commit.to_payload()
+>       assert commit.canonical_bytes == canonical(payload).encode()
+               ^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'FactCommit' object has no attribute 'canonical_bytes'
+
+tests/solver/test_scoped_proof_search_stage_f1.py:35: AttributeError
+____ test_future_call_and_unrelated_outputs_do_not_invalidate_producer_memo ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x109ff3d50>
+
+    def test_future_call_and_unrelated_outputs_do_not_invalidate_producer_memo(monkeypatch):
+        store = environment()
+        publish(store)
+        replayed = count_replays(monkeypatch, store)
+        before = store._verification_key()
+        store.calls = (*store.calls, replace(store.calls[-1], call_id='future', input_fingerprint='future'))
+        store.context.scopes['q'].outputs['irrelevant'] = {'large': 'payload'}
+>       assert store._verification_key() == before
+E       AssertionError: assert '204d2738dd89...ed9428ba0ab23' == 'c8c2e87ec04e...2c2adb80827af'
+E         
+E         - c8c2e87ec04e1bfad31c653fa021a71084e8194465fe47489612c2adb80827af
+E         + 204d2738dd89686dca0e1d53e5c8e7e862ead0260e6ed06a073ed9428ba0ab23
+
+tests/solver/test_scoped_proof_search_stage_f1.py:67: AssertionError
+______________ test_consumer_permission_is_checked_on_every_read _______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10aad78d0>
+
+    def test_consumer_permission_is_checked_on_every_read(monkeypatch):
+        store = environment()
+        commit = publish(store)
+        replayed = count_replays(monkeypatch, store)
+        second = store.calls[1]
+        store.calls = (store.calls[0], replace(second, symbol_bindings=(('x', 'other/x'),)), *store.calls[2:])
+        assert not store.begin('second').view.facts
+>       assert replayed == []
+E       AssertionError: assert ['first'] == []
+E         
+E         Left contains one more item: 'first'
+E         Use -v to get more diff
+
+tests/solver/test_scoped_proof_search_stage_f1.py:80: AssertionError
+_ test_incremental_restore_replays_only_new_commits_and_authenticates_old_outputs _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10ab49090>
+
+    def test_incremental_restore_replays_only_new_commits_and_authenticates_old_outputs(monkeypatch):
+        store = environment()
+        first = publish(store)
+        prefix = store.to_payload()
+        second = publish(store, 'second')
+        full = store.to_payload()
+        fresh = environment()
+        replayed = count_replays(monkeypatch, store)
+        fresh.restore(prefix, {'first': first.output_hash})
+        fresh.restore(full, {'first': first.output_hash, 'second': second.output_hash})
+>       assert replayed == ['first', 'second']
+E       AssertionError: assert ['first', 'first', 'second'] == ['first', 'second']
+E         
+E         At index 1 diff: 'first' != 'second'
+E         Left contains one more item: 'second'
+E         Use -v to get more diff
+
+tests/solver/test_scoped_proof_search_stage_f1.py:96: AssertionError
+______________ test_warm_verification_does_not_reserialize_commit ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1094d7050>
+
+    def test_warm_verification_does_not_reserialize_commit(monkeypatch):
+        store = environment()
+        publish(store)
+        store.verify_snapshot()
+        monkeypatch.setattr(type(store.snapshot.commits[0]), 'to_payload', lambda *a: pytest.fail('re-serialized commit'))
+>       store.verify_snapshot()
+
+tests/solver/test_scoped_proof_search_stage_f1.py:136: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/runtime/scoped_proof_facts.py:255: in verify_snapshot
+    cache_key = self._verification_key()
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/runtime/scoped_proof_facts.py:297: in _verification_key
+    self.snapshot.committed_manifest_hash,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/runtime/scoped_proof_facts.py:112: in committed_manifest_hash
+    return digest((self.source_hash, [c.to_payload() for c in self.commits]))
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/runtime/scoped_proof_facts.py:112: in <listcomp>
+    return digest((self.source_hash, [c.to_payload() for c in self.commits]))
+                                      ^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+a = (FactCommit(call_id='first', authority_hash='5e490bdc4a07bddfdda9a51422e5d002cce63daa4e42139213d78a3736f5ec64', predec... proof_reads=('ac45d3dcdc882166a83e153f2cf3faffe41065856e9e3633026e5bd6e1f6e0bb',), dependencies=(), requirements=()),)
+
+>   monkeypatch.setattr(type(store.snapshot.commits[0]), 'to_payload', lambda *a: pytest.fail('re-serialized commit'))
+                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: re-serialized commit
+
+tests/solver/test_scoped_proof_search_stage_f1.py:135: Failed
+=========================== short test summary info ============================
+FAILED tests/solver/test_scoped_proof_search_stage_f1.py::test_metadata_freezes_input_lists_and_payload_copies
+FAILED tests/solver/test_scoped_proof_search_stage_f1.py::test_commit_and_snapshot_preserve_legacy_hashes_and_fresh_payloads
+FAILED tests/solver/test_scoped_proof_search_stage_f1.py::test_future_call_and_unrelated_outputs_do_not_invalidate_producer_memo
+FAILED tests/solver/test_scoped_proof_search_stage_f1.py::test_consumer_permission_is_checked_on_every_read
+FAILED tests/solver/test_scoped_proof_search_stage_f1.py::test_incremental_restore_replays_only_new_commits_and_authenticates_old_outputs
+FAILED tests/solver/test_scoped_proof_search_stage_f1.py::test_warm_verification_does_not_reserialize_commit
+6 failed, 2 passed in 0.42s

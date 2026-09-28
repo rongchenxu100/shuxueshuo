@@ -1,0 +1,9 @@
+{
+  "server/tests/solver/fixtures/math-notation-v1/basic-inequality/q30.json": "179b1a6627fbb29303295f511de27d72b3d3fb82340ec5c54edcc11e6f8055ee",
+  "server/tests/solver/fixtures/basic-inequality-problem-ir/v1/q30/problem-ir.json": "23033b8009317d076c107f9747df369c77857c45af24bab8ad85c7030c8ba1bb",
+  "server/tests/solver/fixtures/basic-inequality-stage5c/q30.json": "7ca6eb8a7a0c29068ece4c4c74617c6ffed5def9267ad614bb09af517a549a96",
+  "docs/validation/scoped-proof-search-stage-e/q30-review-proof-snapshot.json.gz": "5ae12f6d0700f131c582e0eae27a7e559a096780e02f577335f907a27ee671f5",
+  "docs/validation/scoped-proof-search-stage-f1/q30-authority.json": "6f7a8bcab109ed0f1540ec3ab8930d5f4f443637adb50aed8168372ff45dcd5a",
+  "docs/validation/scoped-proof-search-stage-f1/benchmark.py": "60a0a72adbce52e2a86058e1eed90e0f64459e62cfab12a28dd3893d1fc2b3ac",
+  "docs/validation/scoped-proof-search-stage-f1/cold_replay.py": "4a067b3dd7ec0886223667ac1130c66c699cb902f18373279ffd6acfdfe63431"
+}

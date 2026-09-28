@@ -6,6 +6,8 @@ or a Planner parameter. The legacy Method/teaching path remains unchanged.
 
 import json
 from dataclasses import asdict, dataclass, replace
+from functools import cached_property
+from hashlib import sha256
 
 import sympy as sp
 
@@ -18,6 +20,7 @@ from ..math_kernel.proof_facts import (
     VerifiedMathFact,
     canonical,
     default_fact_kinds,
+    freeze_metadata,
 )
 from ..math_kernel.proof_types import ProofContext, ProofLimits
 from .proof_evidence_adapters import (
@@ -51,7 +54,10 @@ class ProofCallAuthority:
     allowed_kinds: tuple[str, ...] = ("domain", "identity", "relation", "bound")
     target_json: str | None = None
 
-    @property
+    def __post_init__(self):
+        freeze_metadata(self)
+
+    @cached_property
     def fingerprint(self):
         return digest(asdict(self))
 
@@ -68,7 +74,10 @@ class FactCommit:
     dependencies: tuple[str, ...]
     requirements: tuple[AttainmentRequirement, ...] = ()
 
-    @property
+    def __post_init__(self):
+        freeze_metadata(self)
+
+    @cached_property
     def commit_id(self):
         return digest(
             (
@@ -80,7 +89,7 @@ class FactCommit:
             )
         )
 
-    def to_payload(self):
+    def _payload(self):
         return {
             "call_id": self.call_id,
             "authority_hash": self.authority_hash,
@@ -96,6 +105,13 @@ class FactCommit:
             ),
         }
 
+    @cached_property
+    def canonical_bytes(self):
+        return canonical(self._payload()).encode()
+
+    def to_payload(self):
+        return json.loads(self.canonical_bytes)
+
 
 @dataclass(frozen=True)
 class FactSnapshot:
@@ -103,13 +119,32 @@ class FactSnapshot:
     roots: tuple[VerifiedMathFact, ...]
     commits: tuple[FactCommit, ...] = ()
 
-    @property
+    def __post_init__(self):
+        object.__setattr__(self, "roots", tuple(self.roots))
+        object.__setattr__(self, "commits", tuple(self.commits))
+        if (
+            type(self.source_hash) is not str
+            or any(type(f) is not VerifiedMathFact for f in self.roots)
+            or any(type(c) is not FactCommit for c in self.commits)
+        ):
+            raise TypeError("immutable fact snapshot required")
+
+    @cached_property
     def facts(self):
         return self.roots + tuple(f for c in self.commits for f in c.facts)
 
-    @property
+    @cached_property
     def committed_manifest_hash(self):
-        return digest((self.source_hash, [c.to_payload() for c in self.commits]))
+        # Exact bytes of the legacy digest((source_hash, [commit payloads])).
+        # Stream already-canonical commits; do not decode/re-encode the prefix.
+        hasher = sha256()
+        hasher.update(b"[" + canonical(self.source_hash).encode() + b",[")
+        for index, commit in enumerate(self.commits):
+            if index:
+                hasher.update(b",")
+            hasher.update(commit.canonical_bytes)
+        hasher.update(b"]]")
+        return hasher.hexdigest()
 
 
 @dataclass(frozen=True)
@@ -145,6 +180,9 @@ class ScopedProofFacts:
         self.registry = registry or default_fact_kinds(METHOD_PUBLISHERS)
         self._verified_snapshots = set()
         self._verification_registry = self.registry
+        from ..math_kernel import proof_checker
+
+        self._verification_rules = proof_checker.DEFAULT_RULE_REGISTRY
         require(
             len({c.call_id for c in calls}) == len(calls), "duplicate canonical call"
         )
@@ -182,29 +220,45 @@ class ScopedProofFacts:
             self.snapshot.source_hash == source_hash and self.snapshot.roots == roots,
             "source authority changed",
         )
-        order = {c.call_id: i for i, c in enumerate(calls)}
-        for call in calls:
-            require(
-                call.scope_id == call.validity.scope_id,
-                "publication Scope differs from call Scope",
-            )
-            require(call.scope_id in runtime_context.scopes, "unknown call Scope")
-            require(
-                len(dict(call.symbol_bindings)) == len(call.symbol_bindings),
-                "duplicate symbol name",
-            )
-            require(
-                len(set(dict(call.symbol_bindings).values()))
-                == len(call.symbol_bindings),
-                "duplicate symbol identity",
-            )
-            require(
-                all(
-                    d in order and order[d] < order[call.call_id]
-                    for d in call.dependencies
-                ),
-                "future or cyclic explicit dependency",
-            )
+        order = {c.call_id: i for i, c in enumerate(self.calls)}
+        for call in self.calls:
+            self._validate_grant(call, order)
+
+    def _validate_grant(self, call, order):
+        """Validate live consumer authority before any fact view is exposed.
+
+        This is independent of producer-certificate memoization: future grants
+        deliberately do not participate in the verified-prefix cache key.
+        """
+        require(
+            call.scope_id == call.validity.scope_id,
+            "publication Scope differs from call Scope",
+        )
+        require(call.scope_id in self.context.scopes, "unknown call Scope")
+        require(
+            len(dict(call.symbol_bindings)) == len(call.symbol_bindings),
+            "duplicate symbol name",
+        )
+        require(
+            len(set(dict(call.symbol_bindings).values())) == len(call.symbol_bindings),
+            "duplicate symbol identity",
+        )
+        require(
+            all(
+                d in order and order[d] < order[call.call_id] for d in call.dependencies
+            ),
+            "future or cyclic explicit dependency",
+        )
+
+    def register_call(self, grant):
+        """Append authenticated Runtime authority only after validating its shape."""
+        require(
+            grant.call_id not in {c.call_id for c in self.calls},
+            "duplicate proof call registration",
+        )
+        proposed = (*self.calls, grant)
+        self._validate_grant(grant, {c.call_id: i for i, c in enumerate(proposed)})
+        self.calls = proposed
 
     def fork(self, runtime_context):
         forked = ScopedProofFacts(
@@ -225,6 +279,7 @@ class ScopedProofFacts:
     def begin(self, call_id):
         authority = self.authority(call_id)
         order = {c.call_id: i for i, c in enumerate(self.calls)}
+        self._validate_grant(authority, order)
         committed = {c.call_id for c in self.snapshot.commits}
         require(call_id not in committed, "call already committed")
         require(
@@ -291,18 +346,41 @@ class ScopedProofFacts:
                 for k in self.registry.kinds
             ],
         )
-        # Full content plus current host authority, never just a claimed hash.
+        from ..math_kernel import proof_checker
+
+        rules = proof_checker.DEFAULT_RULE_REGISTRY
+        if self._verification_rules is not rules:
+            self._verified_snapshots.clear()
+            self._verification_rules = rules
+        producers = {commit.call_id for commit in self.snapshot.commits}
+        producer_grants = [c for c in self.calls if c.call_id in producers]
+        require(len(producer_grants) == len(producers), "producer authority missing")
+        # Only permissions used by committed producers belong in this memo.
+        # Future consumer grants/Scope outputs are checked by begin(), not here.
+        fact_scopes = sorted({f.validity.scope_id for f in self.snapshot.facts})
+        visibility = [
+            (c.scope_id, scope, self.context.is_visible(c.scope_id, scope))
+            for c in producer_grants
+            for scope in fact_scopes
+        ]
+        # Full immutable content plus live producer/source authority. Preserve
+        # order of committed producer grants; unrelated later grants do not count.
         return digest(
             (
                 self.snapshot.committed_manifest_hash,
                 self.condition_protocol,
                 self.snapshot.source_hash,
                 self.bindings,
-                [f.to_payload() for f in self.snapshot.roots],
+                [f.fact_id for f in self.snapshot.roots],
                 repr(self.source_context),
-                [c.fingerprint for c in self.calls],
-                repr(self.context.scopes),
+                [c.fingerprint for c in producer_grants],
+                visibility,
                 registry_structure,
+                [
+                    (p.identity, p.rule_ids, qualified(p.checker))
+                    for p in rules.packages
+                ],
+                proof_checker.RULESET_HASH,
             )
         )
 
@@ -314,6 +392,7 @@ class ScopedProofFacts:
     def _restore_one(self, payload):
         authority = self.authority(payload["call_id"])
         order = {c.call_id: i for i, c in enumerate(self.calls)}
+        self._validate_grant(authority, order)
         committed = {c.call_id for c in self.snapshot.commits}
         require(
             authority.call_id not in committed
@@ -376,7 +455,11 @@ class ScopedProofFacts:
     def to_payload(self):
         return {
             "schema_version": CONTRACT,
-            **({"condition_protocol": self.condition_protocol} if self.condition_protocol != "bound-conditions/v1" else {}),
+            **(
+                {"condition_protocol": self.condition_protocol}
+                if self.condition_protocol != "bound-conditions/v1"
+                else {}
+            ),
             "source_hash": self.snapshot.source_hash,
             "commits": [c.to_payload() for c in self.snapshot.commits],
             "committed_manifest_hash": self.snapshot.committed_manifest_hash,
@@ -389,23 +472,42 @@ class ScopedProofFacts:
             and payload["schema_version"] == CONTRACT,
             "invalid checkpoint",
         )
-        require(payload.get("condition_protocol", "bound-conditions/v1") == self.condition_protocol, "checkpoint condition protocol changed")
+        require(
+            payload.get("condition_protocol", "bound-conditions/v1")
+            == self.condition_protocol,
+            "checkpoint condition protocol changed",
+        )
         require(
             payload["source_hash"] == self.snapshot.source_hash,
             "checkpoint source changed",
         )
-        fresh = ScopedProofFacts(
-            self.context,
-            self.source_context,
-            self.bindings,
-            self.calls,
-            registry=self.registry,
-        )
+        # Authenticate all output bindings, including already checked commits.
         for item in payload["commits"]:
             require(
                 output_hashes.get(item["call_id"]) == item["output_hash"],
                 "checkpoint outputs not authenticated",
             )
+        prefix = self.snapshot.commits
+        extends_current = len(payload["commits"]) >= len(prefix) and all(
+            saved.canonical_bytes == canonical(item).encode()
+            for saved, item in zip(prefix, payload["commits"])
+        )
+        if extends_current:
+            # Only an in-process, independently authenticated prefix can be
+            # reused. Serialized commit IDs or a claimed verified flag cannot.
+            self.verify_snapshot()
+            fresh = self.fork(self.context)
+            start = len(prefix)
+        else:
+            fresh = ScopedProofFacts(
+                self.context,
+                self.source_context,
+                self.bindings,
+                self.calls,
+                registry=self.registry,
+            )
+            start = 0
+        for item in payload["commits"][start:]:
             fresh._restore_one(item)
         require(fresh.to_payload() == payload, "checkpoint manifest mismatch")
         self.snapshot = fresh.snapshot
@@ -582,7 +684,10 @@ class SessionFactOverlay:
         if record["kind"] == "reuse":
             require(set(record) == {"kind", "fact_ids"}, "invalid proof reuse record")
             imported = self._selected(tuple(record["fact_ids"]))
-            require(all(call.validity.includes(f.validity) for f in imported), "dependency validity lost")
+            require(
+                all(call.validity.includes(f.validity) for f in imported),
+                "dependency validity lost",
+            )
             self._records.append(canonical(record))
             self._reads.update(f.fact_id for f in imported)
             return ()
@@ -707,7 +812,10 @@ class SessionFactOverlay:
             require(call.target_json is not None, "Method target authority required")
             if self.owner.condition_protocol == "scoped-facts/v2":
                 from .proof_evidence_adapters import validate_application_binding
-                validate_application_binding(record["evidence"], call, self.view.committed_manifest_hash)
+
+                validate_application_binding(
+                    record["evidence"], call, self.view.committed_manifest_hash
+                )
             target = json.loads(call.target_json)
             require(target["scope_id"] == call.scope_id, "target Scope mismatch")
             # Bind all original source conditions by exact relation and origin;

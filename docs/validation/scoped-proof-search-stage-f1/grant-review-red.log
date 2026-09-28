@@ -1,0 +1,685 @@
+FFFFFFFFFFFFF                                                            [100%]
+=================================== FAILURES ===================================
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes0-duplicate symbol identity-begin] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1086dbe90>
+entry = 'begin'
+changes = {'symbol_bindings': (('x', 'q/object/x'), ('y', 'q/object/x'))}
+message = 'duplicate symbol identity'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+server/tests/solver/test_scoped_proof_search_stage_f1.py:322: in <lambda>
+    action = lambda: store.begin("second")
+                     ^^^^^^^^^^^^^^^^^^^^^
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:275: in begin
+    self.verify_snapshot()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (), kwargs = {}
+
+    def forbidden(*args, **kwargs):
+>       pytest.fail("invalid consumer grant reached snapshot verification or replay")
+E       Failed: invalid consumer grant reached snapshot verification or replay
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:316: Failed
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes0-duplicate symbol identity-register_call] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x107667890>
+entry = 'register_call'
+changes = {'symbol_bindings': (('x', 'q/object/x'), ('y', 'q/object/x'))}
+message = 'duplicate symbol identity'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   action = lambda: store.register_call(bad)
+                     ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ScopedProofFacts' object has no attribute 'register_call'
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:324: AttributeError
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes1-duplicate symbol name-begin] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108cbb7d0>
+entry = 'begin'
+changes = {'symbol_bindings': (('x', 'q/object/x'), ('x', 'q/object/y'))}
+message = 'duplicate symbol name'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+server/tests/solver/test_scoped_proof_search_stage_f1.py:322: in <lambda>
+    action = lambda: store.begin("second")
+                     ^^^^^^^^^^^^^^^^^^^^^
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:275: in begin
+    self.verify_snapshot()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (), kwargs = {}
+
+    def forbidden(*args, **kwargs):
+>       pytest.fail("invalid consumer grant reached snapshot verification or replay")
+E       Failed: invalid consumer grant reached snapshot verification or replay
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:316: Failed
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes1-duplicate symbol name-register_call] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10767ee10>
+entry = 'register_call'
+changes = {'symbol_bindings': (('x', 'q/object/x'), ('x', 'q/object/y'))}
+message = 'duplicate symbol name'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   action = lambda: store.register_call(bad)
+                     ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ScopedProofFacts' object has no attribute 'register_call'
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:324: AttributeError
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes2-publication Scope differs from call Scope-begin] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108da3490>
+entry = 'begin'
+changes = {'validity': FactValidity(scope_id='other', assumption_refs=(), definition_refs=(), state_version_refs=(), witness_ref=None)}
+message = 'publication Scope differs from call Scope'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+server/tests/solver/test_scoped_proof_search_stage_f1.py:322: in <lambda>
+    action = lambda: store.begin("second")
+                     ^^^^^^^^^^^^^^^^^^^^^
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:275: in begin
+    self.verify_snapshot()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (), kwargs = {}
+
+    def forbidden(*args, **kwargs):
+>       pytest.fail("invalid consumer grant reached snapshot verification or replay")
+E       Failed: invalid consumer grant reached snapshot verification or replay
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:316: Failed
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes2-publication Scope differs from call Scope-register_call] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108cd2dd0>
+entry = 'register_call'
+changes = {'validity': FactValidity(scope_id='other', assumption_refs=(), definition_refs=(), state_version_refs=(), witness_ref=None)}
+message = 'publication Scope differs from call Scope'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   action = lambda: store.register_call(bad)
+                     ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ScopedProofFacts' object has no attribute 'register_call'
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:324: AttributeError
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes3-unknown call Scope-begin] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108d64350>
+entry = 'begin'
+changes = {'scope_id': 'nope', 'validity': FactValidity(scope_id='nope', assumption_refs=(), definition_refs=(), state_version_refs=(), witness_ref=None)}
+message = 'unknown call Scope'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+server/tests/solver/test_scoped_proof_search_stage_f1.py:322: in <lambda>
+    action = lambda: store.begin("second")
+                     ^^^^^^^^^^^^^^^^^^^^^
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:275: in begin
+    self.verify_snapshot()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (), kwargs = {}
+
+    def forbidden(*args, **kwargs):
+>       pytest.fail("invalid consumer grant reached snapshot verification or replay")
+E       Failed: invalid consumer grant reached snapshot verification or replay
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:316: Failed
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes3-unknown call Scope-register_call] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1076a93d0>
+entry = 'register_call'
+changes = {'scope_id': 'nope', 'validity': FactValidity(scope_id='nope', assumption_refs=(), definition_refs=(), state_version_refs=(), witness_ref=None)}
+message = 'unknown call Scope'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   action = lambda: store.register_call(bad)
+                     ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ScopedProofFacts' object has no attribute 'register_call'
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:324: AttributeError
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes4-future or cyclic explicit dependency-begin] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108dce290>
+entry = 'begin', changes = {'dependencies': ('future',)}
+message = 'future or cyclic explicit dependency'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+server/tests/solver/test_scoped_proof_search_stage_f1.py:322: in <lambda>
+    action = lambda: store.begin("second")
+                     ^^^^^^^^^^^^^^^^^^^^^
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:271: in begin
+    require(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'uncommitted explicit dependency'
+
+    def require(condition, message):
+        if not condition:
+>           raise ValueError("proof_facts: " + message)
+E           ValueError: proof_facts: uncommitted explicit dependency
+
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:38: ValueError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108dce290>
+entry = 'begin', changes = {'dependencies': ('future',)}
+message = 'future or cyclic explicit dependency'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+>       with pytest.raises(ValueError, match="proof_facts: " + message):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'proof_facts: future or cyclic explicit dependency'
+E         Actual message: 'proof_facts: uncommitted explicit dependency'
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:325: AssertionError
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes4-future or cyclic explicit dependency-register_call] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108d5c490>
+entry = 'register_call', changes = {'dependencies': ('future',)}
+message = 'future or cyclic explicit dependency'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   action = lambda: store.register_call(bad)
+                     ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ScopedProofFacts' object has no attribute 'register_call'
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:324: AttributeError
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes5-future or cyclic explicit dependency-begin] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108dac650>
+entry = 'begin', changes = {'dependencies': ('second',)}
+message = 'future or cyclic explicit dependency'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+server/tests/solver/test_scoped_proof_search_stage_f1.py:322: in <lambda>
+    action = lambda: store.begin("second")
+                     ^^^^^^^^^^^^^^^^^^^^^
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:271: in begin
+    require(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'uncommitted explicit dependency'
+
+    def require(condition, message):
+        if not condition:
+>           raise ValueError("proof_facts: " + message)
+E           ValueError: proof_facts: uncommitted explicit dependency
+
+server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py:38: ValueError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108dac650>
+entry = 'begin', changes = {'dependencies': ('second',)}
+message = 'future or cyclic explicit dependency'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+>       with pytest.raises(ValueError, match="proof_facts: " + message):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'proof_facts: future or cyclic explicit dependency'
+E         Actual message: 'proof_facts: uncommitted explicit dependency'
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:325: AssertionError
+_ test_invalid_consumer_grant_is_rejected_before_fact_access[changes5-future or cyclic explicit dependency-register_call] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x108d5d850>
+entry = 'register_call', changes = {'dependencies': ('second',)}
+message = 'future or cyclic explicit dependency'
+
+    @pytest.mark.parametrize("entry", ["begin", "register_call"])
+    @pytest.mark.parametrize("changes,message", [
+        ({"symbol_bindings": (("x", "q/object/x"), ("y", "q/object/x"))}, "duplicate symbol identity"),
+        ({"symbol_bindings": (("x", "q/object/x"), ("x", "q/object/y"))}, "duplicate symbol name"),
+        ({"validity": FactValidity("other")}, "publication Scope differs from call Scope"),
+        ({"scope_id": "nope", "validity": FactValidity("nope")}, "unknown call Scope"),
+        ({"dependencies": ("future",)}, "future or cyclic explicit dependency"),
+        ({"dependencies": ("second",)}, "future or cyclic explicit dependency"),
+    ])
+    def test_invalid_consumer_grant_is_rejected_before_fact_access(monkeypatch, entry, changes, message):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        bad = replace(second, **changes)
+        before = store.to_payload()
+        def forbidden(*args, **kwargs):
+            pytest.fail("invalid consumer grant reached snapshot verification or replay")
+        monkeypatch.setattr(store, "verify_snapshot", forbidden)
+        monkeypatch.setattr(type(store), "_restore_one", forbidden)
+        if entry == "begin":
+            # Defend the read boundary even if an internal caller bypassed registration.
+            store.calls = (first, bad)
+            action = lambda: store.begin("second")
+        else:
+            action = lambda: store.register_call(bad)
+        with pytest.raises(ValueError, match="proof_facts: " + message):
+>           action()
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:326: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   action = lambda: store.register_call(bad)
+                     ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ScopedProofFacts' object has no attribute 'register_call'
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:324: AttributeError
+_______ test_register_call_keeps_producer_memo_and_rejects_duplicate_id ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10769d2d0>
+
+    def test_register_call_keeps_producer_memo_and_rejects_duplicate_id(monkeypatch):
+        store = environment()
+        publish(store)
+        first, second = store.calls[:2]
+        store.calls = (first,)
+        memo = store._verification_key()
+        replayed = count_replays(monkeypatch, store)
+>       store.register_call(second)
+        ^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'ScopedProofFacts' object has no attribute 'register_call'
+
+server/tests/solver/test_scoped_proof_search_stage_f1.py:339: AttributeError
+=========================== short test summary info ============================
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes0-duplicate symbol identity-begin]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes0-duplicate symbol identity-register_call]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes1-duplicate symbol name-begin]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes1-duplicate symbol name-register_call]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes2-publication Scope differs from call Scope-begin]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes2-publication Scope differs from call Scope-register_call]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes3-unknown call Scope-begin]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes3-unknown call Scope-register_call]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes4-future or cyclic explicit dependency-begin]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes4-future or cyclic explicit dependency-register_call]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes5-future or cyclic explicit dependency-begin]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_invalid_consumer_grant_is_rejected_before_fact_access[changes5-future or cyclic explicit dependency-register_call]
+FAILED server/tests/solver/test_scoped_proof_search_stage_f1.py::test_register_call_keeps_producer_memo_and_rejects_duplicate_id
+13 failed, 18 deselected in 0.56s

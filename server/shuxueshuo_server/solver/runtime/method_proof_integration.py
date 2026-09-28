@@ -274,8 +274,4 @@ def prepare_scoped_call(branch, call_id, compiled, graph):
             store.source_context == source,
             "new target source requires a separate proof session",
         )
-        require(
-            call_id not in {c.call_id for c in store.calls},
-            "duplicate proof call registration",
-        )
-        store.calls = (*store.calls, grant)
+        store.register_call(grant)

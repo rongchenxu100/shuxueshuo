@@ -1,0 +1,140 @@
+{
+  "samples": [
+    {
+      "solve_full_debug": {
+        "seconds": 18.07869087497238,
+        "replayed_commits": 5
+      },
+      "cold_restore": {
+        "seconds": 1.11039983300725,
+        "replayed_commits": 5
+      },
+      "warm_verify": {
+        "seconds": 0.0001764170010574162,
+        "replayed_commits": 0
+      },
+      "runtime_retry": {
+        "seconds": 1.422018165991176,
+        "replayed_commits": 5
+      },
+      "snapshot_serialization": {
+        "seconds": 0.027432374947238714,
+        "replayed_commits": 0
+      },
+      "snapshot_bytes": 3848202,
+      "snapshot_sha256": "20cb39a69736494a2916b8ebb8f973fc9caa8f47fb51a09af80b8bd1d7b804ac"
+    },
+    {
+      "solve_full_debug": {
+        "seconds": 18.162432583980262,
+        "replayed_commits": 5
+      },
+      "cold_restore": {
+        "seconds": 1.0856644170125946,
+        "replayed_commits": 5
+      },
+      "warm_verify": {
+        "seconds": 0.00018674996681511402,
+        "replayed_commits": 0
+      },
+      "runtime_retry": {
+        "seconds": 1.4397694590152241,
+        "replayed_commits": 5
+      },
+      "snapshot_serialization": {
+        "seconds": 0.027985208958853036,
+        "replayed_commits": 0
+      },
+      "snapshot_bytes": 3848202,
+      "snapshot_sha256": "20cb39a69736494a2916b8ebb8f973fc9caa8f47fb51a09af80b8bd1d7b804ac"
+    },
+    {
+      "solve_full_debug": {
+        "seconds": 18.620184166997205,
+        "replayed_commits": 5
+      },
+      "cold_restore": {
+        "seconds": 1.1434237500070594,
+        "replayed_commits": 5
+      },
+      "warm_verify": {
+        "seconds": 0.00027662498177960515,
+        "replayed_commits": 0
+      },
+      "runtime_retry": {
+        "seconds": 1.558952583000064,
+        "replayed_commits": 5
+      },
+      "snapshot_serialization": {
+        "seconds": 0.029136625002138317,
+        "replayed_commits": 0
+      },
+      "snapshot_bytes": 3848202,
+      "snapshot_sha256": "20cb39a69736494a2916b8ebb8f973fc9caa8f47fb51a09af80b8bd1d7b804ac"
+    }
+  ],
+  "summary": {
+    "solve_full_debug": {
+      "median_seconds": 18.162432583980262,
+      "range_seconds": [
+        18.07869087497238,
+        18.620184166997205
+      ],
+      "replayed_commits": [
+        5,
+        5,
+        5
+      ]
+    },
+    "cold_restore": {
+      "median_seconds": 1.11039983300725,
+      "range_seconds": [
+        1.0856644170125946,
+        1.1434237500070594
+      ],
+      "replayed_commits": [
+        5,
+        5,
+        5
+      ]
+    },
+    "warm_verify": {
+      "median_seconds": 0.00018674996681511402,
+      "range_seconds": [
+        0.0001764170010574162,
+        0.00027662498177960515
+      ],
+      "replayed_commits": [
+        0,
+        0,
+        0
+      ]
+    },
+    "runtime_retry": {
+      "median_seconds": 1.4397694590152241,
+      "range_seconds": [
+        1.422018165991176,
+        1.558952583000064
+      ],
+      "replayed_commits": [
+        5,
+        5,
+        5
+      ]
+    },
+    "snapshot_serialization": {
+      "median_seconds": 0.027985208958853036,
+      "range_seconds": [
+        0.027432374947238714,
+        0.029136625002138317
+      ],
+      "replayed_commits": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "live_llm_calls": 0,
+  "note": "Sequential repeats in one process, fresh Runtime per solve; cold restore uses a new fact store with empty verification memo. Full debug unchanged."
+}

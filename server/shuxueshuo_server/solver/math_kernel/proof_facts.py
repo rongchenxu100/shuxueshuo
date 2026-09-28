@@ -6,7 +6,8 @@ Runtime owns admission, Scope visibility, commit order and version validity.
 
 import json
 from collections.abc import Callable
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
+from functools import cached_property
 
 from .expression_parser import parse_math_relation
 from .proof_algebra import digest, from_node, names
@@ -17,6 +18,31 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
 
 
+def freeze_metadata(value):
+    """Detach sequence inputs and reject mutable leaves before caching identities.
+
+    Only proof value objects call this helper. Cached properties are not dataclass
+    fields, so asdict/replace and existing wire hashes keep their old semantics.
+    """
+
+    def freeze(item):
+        if item is None or type(item) in (str, bool, int):
+            return item
+        if isinstance(item, (tuple, list)):
+            return tuple(freeze(v) for v in item)
+        if type(item) in (
+            FactValidity,
+            VerifiedMathFact,
+            ConditionalRequirement,
+            AttainmentRequirement,
+        ):
+            return item
+        raise TypeError("immutable proof metadata required")
+
+    for field in fields(value):
+        object.__setattr__(value, field.name, freeze(getattr(value, field.name)))
+
+
 @dataclass(frozen=True)
 class FactValidity:
     scope_id: str
@@ -24,6 +50,9 @@ class FactValidity:
     definition_refs: tuple[str, ...] = ()
     state_version_refs: tuple[str, ...] = ()
     witness_ref: str | None = None
+
+    def __post_init__(self):
+        freeze_metadata(self)
 
     def includes(self, other):
         return (
@@ -47,6 +76,7 @@ class VerifiedMathFact:
     commit_id: str | None = None
 
     def __post_init__(self):
+        freeze_metadata(self)
         import sympy as sp
 
         bindings = dict(self.symbol_bindings)
@@ -60,7 +90,7 @@ class VerifiedMathFact:
             tuple(sorted((name, bindings[name]) for name in used)),
         )
 
-    @property
+    @cached_property
     def statement_key(self):
         # Deliberately structural: no cancellation or domain-erasing simplify.
         import sympy as sp
@@ -70,20 +100,23 @@ class VerifiedMathFact:
         )
         return digest((fact_key(from_node(parsed.ast)), self.symbol_bindings))
 
-    @property
+    @cached_property
     def fact_id(self):
         return digest(asdict(self))
 
+    @cached_property
+    def canonical_bytes(self):
+        return canonical(
+            {
+                **asdict(self),
+                "fact_id": self.fact_id,
+                "statement_key": self.statement_key,
+            }
+        ).encode()
+
     def to_payload(self):
-        return json.loads(
-            canonical(
-                {
-                    **asdict(self),
-                    "fact_id": self.fact_id,
-                    "statement_key": self.statement_key,
-                }
-            )
-        )
+        # Fresh mutable output; the cache never retains a caller-owned dict.
+        return json.loads(self.canonical_bytes)
 
 
 @dataclass(frozen=True)
@@ -93,6 +126,9 @@ class ConditionalRequirement:
     required_relation: str
     validity: FactValidity
     characterization_proof_ref: str
+
+    def __post_init__(self):
+        freeze_metadata(self)
 
 
 @dataclass(frozen=True)

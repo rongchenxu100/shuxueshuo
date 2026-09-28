@@ -1,0 +1,247 @@
+{
+  "symbols": [
+    "a",
+    "b",
+    "c"
+  ],
+  "scope_id": "problem",
+  "limits": {
+    "premises": 16,
+    "variables": 4,
+    "radicals": 4,
+    "equations": 4,
+    "polynomial_degree": 12,
+    "polynomial_terms": 128,
+    "coefficient_bits": 4096,
+    "reductions": 256,
+    "depth": 32,
+    "nodes": 512,
+    "attempts": 512,
+    "branches": 8,
+    "algebraic_degree": 16,
+    "refinements": 128
+  },
+  "premises": {
+    "fact:problem:condition_0": {
+      "source": "(a>b)",
+      "source_path": "/root/facts/0",
+      "step": null
+    },
+    "fact:problem:condition_1": {
+      "source": "(b>c)",
+      "source_path": "/root/facts/1",
+      "step": null
+    },
+    "fact:problem:condition_2": {
+      "source": "(c>0)",
+      "source_path": "/root/facts/2",
+      "step": null
+    }
+  },
+  "bindings": [
+    [
+      "a",
+      "problem/scalar/a"
+    ],
+    [
+      "b",
+      "problem/scalar/b"
+    ],
+    [
+      "c",
+      "problem/scalar/c"
+    ]
+  ],
+  "calls": [
+    {
+      "call_id": "rewrite",
+      "scope_id": "problem",
+      "method_id": "organize_expressions",
+      "symbol_bindings": [
+        [
+          "a",
+          "problem/scalar/a"
+        ],
+        [
+          "b",
+          "problem/scalar/b"
+        ],
+        [
+          "c",
+          "problem/scalar/c"
+        ]
+      ],
+      "validity": {
+        "scope_id": "problem",
+        "assumption_refs": [],
+        "definition_refs": [],
+        "state_version_refs": [],
+        "witness_ref": null
+      },
+      "input_fingerprint": "4240fbaf07556979b46552bec9a9e2651f42b077460532efed44de4a0e49b18a",
+      "dependencies": [],
+      "allowed_kinds": [
+        "domain",
+        "identity",
+        "relation",
+        "bound"
+      ],
+      "target_json": null
+    },
+    {
+      "call_id": "first",
+      "scope_id": "problem",
+      "method_id": "apply_two_term_amgm",
+      "symbol_bindings": [
+        [
+          "a",
+          "problem/scalar/a"
+        ],
+        [
+          "b",
+          "problem/scalar/b"
+        ],
+        [
+          "c",
+          "problem/scalar/c"
+        ]
+      ],
+      "validity": {
+        "scope_id": "problem",
+        "assumption_refs": [],
+        "definition_refs": [],
+        "state_version_refs": [],
+        "witness_ref": null
+      },
+      "input_fingerprint": "888cec00d77230c477456a1d06198396b3dcfca05013e09c302e6b8d9562181b",
+      "dependencies": [],
+      "allowed_kinds": [
+        "domain",
+        "identity",
+        "relation",
+        "bound"
+      ],
+      "target_json": "{\"description\":\"find_minimum: 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\",\"expression_owner\":\"function:problem:target_expression\",\"goal_kind\":\"find_minimum\",\"handle\":\"fact:problem:minimum_target\",\"scalar_symbols\":[\"a\",\"b\",\"c\"],\"scope_id\":\"problem\",\"source\":\"ProblemIR.facts\",\"source_conditions\":[{\"handle\":\"fact:problem:condition_0\",\"math\":\"(a>b)\",\"source_path\":\"/root/facts/0\"},{\"handle\":\"fact:problem:condition_1\",\"math\":\"(b>c)\",\"source_path\":\"/root/facts/1\"},{\"handle\":\"fact:problem:condition_2\",\"math\":\"(c>0)\",\"source_path\":\"/root/facts/2\"}],\"source_input_hash\":\"e15a154367dc625384782336296be72f2f7d4708cd5d1e401c3b3c189a6c38c9\",\"source_path\":\"/root/goals/0/expression\",\"target_math\":\"2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\",\"type\":\"extremum_target\",\"valid_scope\":\"problem\"}"
+    },
+    {
+      "call_id": "square",
+      "scope_id": "problem",
+      "method_id": "bound_univariate_quadratic",
+      "symbol_bindings": [
+        [
+          "a",
+          "problem/scalar/a"
+        ],
+        [
+          "b",
+          "problem/scalar/b"
+        ],
+        [
+          "c",
+          "problem/scalar/c"
+        ]
+      ],
+      "validity": {
+        "scope_id": "problem",
+        "assumption_refs": [],
+        "definition_refs": [],
+        "state_version_refs": [],
+        "witness_ref": null
+      },
+      "input_fingerprint": "aaa4e6cf84adde99a02049b2894633fb3777d204142bad6252d2182c92978c13",
+      "dependencies": [],
+      "allowed_kinds": [
+        "domain",
+        "identity",
+        "relation",
+        "bound"
+      ],
+      "target_json": "{\"description\":\"find_minimum: 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\",\"expression_owner\":\"function:problem:target_expression\",\"goal_kind\":\"find_minimum\",\"handle\":\"fact:problem:minimum_target\",\"scalar_symbols\":[\"a\",\"b\",\"c\"],\"scope_id\":\"problem\",\"source\":\"ProblemIR.facts\",\"source_conditions\":[{\"handle\":\"fact:problem:condition_0\",\"math\":\"(a>b)\",\"source_path\":\"/root/facts/0\"},{\"handle\":\"fact:problem:condition_1\",\"math\":\"(b>c)\",\"source_path\":\"/root/facts/1\"},{\"handle\":\"fact:problem:condition_2\",\"math\":\"(c>0)\",\"source_path\":\"/root/facts/2\"}],\"source_input_hash\":\"e15a154367dc625384782336296be72f2f7d4708cd5d1e401c3b3c189a6c38c9\",\"source_path\":\"/root/goals/0/expression\",\"target_math\":\"2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\",\"type\":\"extremum_target\",\"valid_scope\":\"problem\"}"
+    },
+    {
+      "call_id": "last",
+      "scope_id": "problem",
+      "method_id": "apply_two_term_amgm",
+      "symbol_bindings": [
+        [
+          "a",
+          "problem/scalar/a"
+        ],
+        [
+          "b",
+          "problem/scalar/b"
+        ],
+        [
+          "c",
+          "problem/scalar/c"
+        ]
+      ],
+      "validity": {
+        "scope_id": "problem",
+        "assumption_refs": [],
+        "definition_refs": [],
+        "state_version_refs": [],
+        "witness_ref": null
+      },
+      "input_fingerprint": "2a053f01a8e3bebec1481b3801e05146250d85d62bb164032d224112afe0703f",
+      "dependencies": [],
+      "allowed_kinds": [
+        "domain",
+        "identity",
+        "relation",
+        "bound"
+      ],
+      "target_json": "{\"description\":\"find_minimum: 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\",\"expression_owner\":\"function:problem:target_expression\",\"goal_kind\":\"find_minimum\",\"handle\":\"fact:problem:minimum_target\",\"scalar_symbols\":[\"a\",\"b\",\"c\"],\"scope_id\":\"problem\",\"source\":\"ProblemIR.facts\",\"source_conditions\":[{\"handle\":\"fact:problem:condition_0\",\"math\":\"(a>b)\",\"source_path\":\"/root/facts/0\"},{\"handle\":\"fact:problem:condition_1\",\"math\":\"(b>c)\",\"source_path\":\"/root/facts/1\"},{\"handle\":\"fact:problem:condition_2\",\"math\":\"(c>0)\",\"source_path\":\"/root/facts/2\"}],\"source_input_hash\":\"e15a154367dc625384782336296be72f2f7d4708cd5d1e401c3b3c189a6c38c9\",\"source_path\":\"/root/goals/0/expression\",\"target_math\":\"2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\",\"type\":\"extremum_target\",\"valid_scope\":\"problem\"}"
+    },
+    {
+      "call_id": "attain",
+      "scope_id": "problem",
+      "method_id": "close_equality_and_restore",
+      "symbol_bindings": [
+        [
+          "a",
+          "problem/scalar/a"
+        ],
+        [
+          "b",
+          "problem/scalar/b"
+        ],
+        [
+          "c",
+          "problem/scalar/c"
+        ]
+      ],
+      "validity": {
+        "scope_id": "problem",
+        "assumption_refs": [],
+        "definition_refs": [],
+        "state_version_refs": [],
+        "witness_ref": null
+      },
+      "input_fingerprint": "5cc21d0ee80c71743ee56a1daa7a095990873224d05c846c71f13abe88864d7b",
+      "dependencies": [],
+      "allowed_kinds": [
+        "domain",
+        "identity",
+        "relation",
+        "bound"
+      ],
+      "target_json": "{\"description\":\"find_minimum: 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\",\"expression_owner\":\"function:problem:target_expression\",\"goal_kind\":\"find_minimum\",\"handle\":\"fact:problem:minimum_target\",\"scalar_symbols\":[\"a\",\"b\",\"c\"],\"scope_id\":\"problem\",\"source\":\"ProblemIR.facts\",\"source_conditions\":[{\"handle\":\"fact:problem:condition_0\",\"math\":\"(a>b)\",\"source_path\":\"/root/facts/0\"},{\"handle\":\"fact:problem:condition_1\",\"math\":\"(b>c)\",\"source_path\":\"/root/facts/1\"},{\"handle\":\"fact:problem:condition_2\",\"math\":\"(c>0)\",\"source_path\":\"/root/facts/2\"}],\"source_input_hash\":\"e15a154367dc625384782336296be72f2f7d4708cd5d1e401c3b3c189a6c38c9\",\"source_path\":\"/root/goals/0/expression\",\"target_math\":\"2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2\",\"type\":\"extremum_target\",\"valid_scope\":\"problem\"}"
+    }
+  ],
+  "scopes": {
+    "problem": null,
+    "rewrite": "problem",
+    "first": "problem",
+    "square": "problem",
+    "last": "problem",
+    "attain": "problem"
+  },
+  "output_hashes": {
+    "rewrite": "7a73af3d73e53715b03bbeacc0e453a595a7cdb2e1b5689718d4b2528ce99532",
+    "first": "7dde0c6bc33fac6ce6e1962414654c8ccde54a6739725851c8d8cbcbfbccd3bb",
+    "square": "bfc4b560fd72d0b77be1d353402c065de4b503357d3181e5c5e7558679806bac",
+    "last": "5a461d1222abdc02bfc42a17b79ad3da3b20010e2190ee774e6186939f064ffb",
+    "attain": "ba384a66dfd6c256f025c55dcccf184bea1f101b035c2720f3e713ebedb6aaed"
+  }
+}
