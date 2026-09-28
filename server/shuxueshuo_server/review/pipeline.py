@@ -9,7 +9,7 @@ import subprocess
 import time
 from threading import Event, Thread
 
-from .store import REPO
+from .store import REPO, redact
 from .replay import (KEYS, EVIDENCE, read_json, save_archive, restore_archive,
                      extraction_store as relocated_extraction_store, evidence_checkpoint, restore_evidence)
 
@@ -70,6 +70,9 @@ class AuditedClient:
 
 def solver_debug_role(name):
     """Keep raw authoring distinct from generated intermediate/final Plans."""
+    # Shared content blobs have no unique authoring role; aliases/indexes retain it.
+    if name.startswith(".versions/"):
+        return "validation"
     kind = name.rsplit("/", 1)[-1].split(".", 1)[-1].removesuffix(".json")
     if kind in {"raw-response", "functional-plan", "provider-responses", "provider-reasoning"}:
         return "raw"
@@ -82,14 +85,19 @@ def solver_debug_role(name):
 
 class DebugJournal:
     """Publish completed execution/checkpoint files while the solver is running."""
-    def __init__(self, directory, publish):
+    def __init__(self, directory, publish, *, redact=None):
         self.directory, self.publish = directory, publish
+        # Platform mode publishes exact JSON bytes after its normal redaction.
+        # References are rehashed if redaction changes the published bytes.
+        self.redact = redact
+        self.resolved_versions = {}
+        self.published_versions = set()
         self.seen, self.errors = {}, []
         self.stop = Event()
         self.thread = Thread(target=self.watch, daemon=True)
 
     def scan(self):
-        for path in sorted(self.directory.rglob("*.json"), key=lambda p: p.stat().st_mtime_ns):
+        for path in sorted(self.directory.rglob("*.json")):
             try:
                 raw = path.read_bytes()
                 doc = json.loads(raw)
@@ -97,8 +105,55 @@ class DebugJournal:
                 continue  # A writer may not have finished the file yet.
             digest = sha256(raw).hexdigest()
             if self.seen.get(path) != digest:
-                self.publish(str(path.relative_to(self.directory)), doc)
+                name = str(path.relative_to(self.directory))
+                if self.redact is None:
+                    self.publish(name, doc)
+                else:
+                    self._publish_json(name, raw, doc, frozenset())
                 self.seen[path] = digest
+
+    def _publish_json(self, name, raw, doc, active):
+        key = (name, sha256(raw).hexdigest())
+        if name.startswith(".versions/") and key in self.resolved_versions:
+            return self.resolved_versions[key]
+        if name in active:
+            raise ValueError("cyclic debug artifact reference")
+        active = active | {name}
+
+        def rewrite(value):
+            if isinstance(value, list):
+                return [rewrite(item) for item in value]
+            if not isinstance(value, dict):
+                return value
+            file = value.get("file")
+            if (value.get("status") == "saved" and isinstance(file, str)
+                    and file.startswith(".versions/") and "sha256" in value):
+                parts = Path(file).parts
+                if len(parts) != 2 or parts[1] in {".", ".."}:
+                    raise ValueError("invalid debug artifact reference")
+                source = (self.directory / file).read_bytes()
+                if sha256(source).hexdigest() != value["sha256"]:
+                    raise ValueError("debug artifact reference digest mismatch")
+                saved = self._publish_json(file, source, json.loads(source), active)
+                return {**value, **saved}
+            return {k: rewrite(v) for k, v in value.items()}
+
+        prepared = rewrite(self.redact(doc))
+        # Equality alone is safe here: no numeric transformation is performed.
+        content = raw if prepared == doc else json.dumps(
+            prepared, ensure_ascii=False, indent=2, default=str
+        ).encode("utf-8")
+        digest = sha256(content).hexdigest()
+        version = name.startswith(".versions/")
+        published_name = f".versions/{digest}.json" if version else name
+        if not version or published_name not in self.published_versions:
+            self.publish(published_name, content)
+            if version:
+                self.published_versions.add(published_name)
+        saved = {"file": published_name, "sha256": digest}
+        if version:
+            self.resolved_versions[key] = saved
+        return saved
 
     def watch(self):
         try:
@@ -257,7 +312,8 @@ def generate(store, run_id):
                 functional_few_shot_mode=config.functional_few_shot_mode,
                 argument_encoding=config.argument_encoding),
             max_attempts=config.max_llm_attempts, debug_dir=str(debug_dir))
-        with DebugJournal(debug_dir, lambda name, doc: add("solver", solver_debug_role(name), name, doc)):
+        with DebugJournal(debug_dir, lambda name, doc: add("solver", solver_debug_role(name), name, doc),
+                          redact=lambda doc: redact(doc, store.secrets)):
             result = orchestrator.solve_verified(bundle)
             add("solver", "validation", "执行检查与结果摘要", result.to_dict())
         success = orchestrator.last_success_artifacts

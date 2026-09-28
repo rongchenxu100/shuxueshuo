@@ -1,0 +1,92 @@
+{
+  "authority_fixture": "docs/validation/scoped-proof-search-stage-f1/q30-authority.json",
+  "authority_sha256": "6f7a8bcab109ed0f1540ec3ab8930d5f4f443637adb50aed8168372ff45dcd5a",
+  "modes": {
+    "full": {
+      "archive": "q30-full-audit.tar.gz",
+      "archive_sha256": "570d2e72bfad02409cea385e654a99c1fde429212b4c89c07d1516a0ce2a5377",
+      "archive_bytes": 2594247,
+      "samples": [
+        {
+          "seconds": 0.9760550410137512,
+          "replayed_commits": [
+            "rewrite",
+            "first",
+            "square",
+            "last",
+            "attain"
+          ],
+          "search_disabled": true,
+          "fresh_process": true
+        },
+        {
+          "seconds": 0.9649878339841962,
+          "replayed_commits": [
+            "rewrite",
+            "first",
+            "square",
+            "last",
+            "attain"
+          ],
+          "search_disabled": true,
+          "fresh_process": true
+        },
+        {
+          "seconds": 0.9775059999665245,
+          "replayed_commits": [
+            "rewrite",
+            "first",
+            "square",
+            "last",
+            "attain"
+          ],
+          "search_disabled": true,
+          "fresh_process": true
+        }
+      ]
+    },
+    "compact": {
+      "archive": "q30-compact-audit.tar.gz",
+      "archive_sha256": "3d44e8dba406a78af9c6826bd966930b45140e3e40756a25247e98741570e15c",
+      "archive_bytes": 1167834,
+      "samples": [
+        {
+          "seconds": 0.9511170000187121,
+          "replayed_commits": [
+            "rewrite",
+            "first",
+            "square",
+            "last",
+            "attain"
+          ],
+          "search_disabled": true,
+          "fresh_process": true
+        },
+        {
+          "seconds": 0.9480595419881865,
+          "replayed_commits": [
+            "rewrite",
+            "first",
+            "square",
+            "last",
+            "attain"
+          ],
+          "search_disabled": true,
+          "fresh_process": true
+        },
+        {
+          "seconds": 0.9684828330064192,
+          "replayed_commits": [
+            "rewrite",
+            "first",
+            "square",
+            "last",
+            "attain"
+          ],
+          "search_disabled": true,
+          "fresh_process": true
+        }
+      ]
+    }
+  }
+}

@@ -73,3 +73,8 @@
 建议首批实施第 1 项与第 2 项，随后做第 3 项；这比先重写搜索算法更符合当前证据。具体目标耗时应在重复基准后设定，本轮 15.98 秒是实验观测，不是正式实现的性能承诺。
 
 原始数据、输入指纹及复现脚本见 [验证目录](validation/scoped-proof-performance/README.md)。
+
+
+## F2 产物收敛实施记录
+
+已接入按内容版本去重和两种输出模式，详见 [F2 实施说明](scoped-proof-search-stage-f2.md)及[三轮基准与存档](validation/scoped-proof-search-stage-f2/README.md)。新的正式测量保留 canonical 审计和完整回放闭包，与本文早期关闭 debug 的探索实验分开统计。默认仍为完整诊断及 v1 证明协议，F3 全量验收尚未完成。

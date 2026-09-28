@@ -68,6 +68,20 @@ class OwnershipRule:
 
 OWNERSHIP_RULES = (
     OwnershipRule(
+        ("server/shuxueshuo_server/solver/runtime/llm_debug.py",
+         "server/shuxueshuo_server/solver/runtime/functional_attempt_evidence.py",
+         "server/shuxueshuo_server/solver/runtime/orchestrator.py",
+         "server/shuxueshuo_server/solver/runtime/config.py",
+         "server/shuxueshuo_server/solver/engine.py",
+         "server/tools/run_basic_inequality_stage4a.py",
+         "server/shuxueshuo_server/solver/solve_problem.py",
+         "server/shuxueshuo_server/solver/extraction/problem_cold_path_smoke.py"),
+        ("tests/solver/test_scoped_proof_search_stage_f2.py",
+         "tests/solver/test_runtime_orchestrator_scoped_debug.py",
+         "tests/solver/test_runtime_config.py",
+         "tests/solver/test_functional_scope_retry.py"),
+    ),
+    OwnershipRule(
         ("server/shuxueshuo_server/solver/math_kernel/proof_facts.py",
          "server/shuxueshuo_server/solver/runtime/scoped_proof_facts.py"),
         ("tests/solver/test_scoped_proof_search_stage_f1.py",

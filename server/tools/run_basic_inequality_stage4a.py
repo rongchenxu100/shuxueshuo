@@ -59,7 +59,7 @@ class ReplayClient:
 
 
 def run(
-    *, gold, problem_ir, output, mode, plan=None, replay_from=None, input_mode="frozen", proof_protocol="bound-conditions/v1"
+    *, gold, problem_ir, output, mode, plan=None, replay_from=None, input_mode="frozen", proof_protocol="bound-conditions/v1", debug_artifact_mode="full_diagnostic"
 ):
     # A new directory preserves all failed attempts and their evidence.
     output = Path(output)
@@ -113,6 +113,7 @@ def run(
         max_attempts=3,
         proof_protocol=proof_protocol,
         debug_dir=output,
+        debug_artifact_mode=debug_artifact_mode,
     )
     result = runtime.solve_verified(bundle)
     (output / "result.json").write_text(
@@ -144,6 +145,7 @@ def main():
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--proof-protocol", choices=("bound-conditions/v1", "scoped-facts/v2"), default="bound-conditions/v1")
+    parser.add_argument("--debug-artifact-mode", choices=("compact_audit", "full_diagnostic"), default="full_diagnostic")
     args = parser.parse_args()
     result, _ = run(
         gold=args.gold,
@@ -152,6 +154,7 @@ def main():
         mode=args.mode,
         plan=args.plan,
         proof_protocol=args.proof_protocol,
+        debug_artifact_mode=args.debug_artifact_mode,
     )
     print(
         json.dumps(

@@ -1,0 +1,174 @@
+{
+  "samples": [
+    {
+      "solve_full_debug": {
+        "seconds": 13.709575832996052,
+        "replayed_commits": 5
+      },
+      "cold_restore": {
+        "seconds": 1.085761041031219,
+        "replayed_commits": 5
+      },
+      "warm_verify": {
+        "seconds": 0.00017095799557864666,
+        "replayed_commits": 0
+      },
+      "runtime_retry": {
+        "seconds": 1.2677748329588212,
+        "replayed_commits": 5
+      },
+      "snapshot_serialization": {
+        "seconds": 0.2870994170079939,
+        "replayed_commits": 0
+      },
+      "snapshot_bytes": 3848202,
+      "snapshot_sha256": "20cb39a69736494a2916b8ebb8f973fc9caa8f47fb51a09af80b8bd1d7b804ac",
+      "artifact_metrics": {
+        "publications": 145,
+        "unchanged": 89,
+        "serializations": 53,
+        "conversions": 53,
+        "writes": 56,
+        "bytes_written": 105050912,
+        "aliases": 56
+      },
+      "artifact_unique_bytes": 115830384,
+      "artifact_file_count": 105
+    },
+    {
+      "solve_full_debug": {
+        "seconds": 14.825210624956526,
+        "replayed_commits": 5
+      },
+      "cold_restore": {
+        "seconds": 1.4192282080184668,
+        "replayed_commits": 5
+      },
+      "warm_verify": {
+        "seconds": 0.00022633298067376018,
+        "replayed_commits": 0
+      },
+      "runtime_retry": {
+        "seconds": 1.8188584999879822,
+        "replayed_commits": 5
+      },
+      "snapshot_serialization": {
+        "seconds": 0.032451917009893805,
+        "replayed_commits": 0
+      },
+      "snapshot_bytes": 3848202,
+      "snapshot_sha256": "20cb39a69736494a2916b8ebb8f973fc9caa8f47fb51a09af80b8bd1d7b804ac",
+      "artifact_metrics": {
+        "publications": 145,
+        "unchanged": 89,
+        "serializations": 53,
+        "conversions": 53,
+        "writes": 56,
+        "bytes_written": 105050912,
+        "aliases": 56
+      },
+      "artifact_unique_bytes": 115830384,
+      "artifact_file_count": 105
+    },
+    {
+      "solve_full_debug": {
+        "seconds": 15.133294875035062,
+        "replayed_commits": 5
+      },
+      "cold_restore": {
+        "seconds": 0.9588897079811431,
+        "replayed_commits": 5
+      },
+      "warm_verify": {
+        "seconds": 0.0001990000018849969,
+        "replayed_commits": 0
+      },
+      "runtime_retry": {
+        "seconds": 1.6580250000115484,
+        "replayed_commits": 5
+      },
+      "snapshot_serialization": {
+        "seconds": 0.03791679203277454,
+        "replayed_commits": 0
+      },
+      "snapshot_bytes": 3848202,
+      "snapshot_sha256": "20cb39a69736494a2916b8ebb8f973fc9caa8f47fb51a09af80b8bd1d7b804ac",
+      "artifact_metrics": {
+        "publications": 145,
+        "unchanged": 89,
+        "serializations": 53,
+        "conversions": 53,
+        "writes": 56,
+        "bytes_written": 105050912,
+        "aliases": 56
+      },
+      "artifact_unique_bytes": 115830384,
+      "artifact_file_count": 105
+    }
+  ],
+  "summary": {
+    "solve_full_debug": {
+      "median_seconds": 14.825210624956526,
+      "range_seconds": [
+        13.709575832996052,
+        15.133294875035062
+      ],
+      "replayed_commits": [
+        5,
+        5,
+        5
+      ]
+    },
+    "cold_restore": {
+      "median_seconds": 1.085761041031219,
+      "range_seconds": [
+        0.9588897079811431,
+        1.4192282080184668
+      ],
+      "replayed_commits": [
+        5,
+        5,
+        5
+      ]
+    },
+    "warm_verify": {
+      "median_seconds": 0.0001990000018849969,
+      "range_seconds": [
+        0.00017095799557864666,
+        0.00022633298067376018
+      ],
+      "replayed_commits": [
+        0,
+        0,
+        0
+      ]
+    },
+    "runtime_retry": {
+      "median_seconds": 1.6580250000115484,
+      "range_seconds": [
+        1.2677748329588212,
+        1.8188584999879822
+      ],
+      "replayed_commits": [
+        5,
+        5,
+        5
+      ]
+    },
+    "snapshot_serialization": {
+      "median_seconds": 0.03791679203277454,
+      "range_seconds": [
+        0.032451917009893805,
+        0.2870994170079939
+      ],
+      "replayed_commits": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "live_llm_calls": 0,
+  "artifact_mode": "full_diagnostic",
+  "note": "Sequential repeats in one process, fresh Runtime per solve; cold restore uses a new fact store with empty verification memo. Selected artifact mode; all canonical audit roles and cold replay retained."
+}

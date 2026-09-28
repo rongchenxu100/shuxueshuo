@@ -264,6 +264,7 @@ def _run_sample(
             default_planner_provider=runtime_config.build_default_planner_provider(),
             max_attempts=runtime_config.max_llm_attempts,
             debug_dir=runtime_config.llm_debug_dir,
+            debug_artifact_mode=runtime_config.llm_debug_artifact_mode,
         )
         orchestrator_box["orchestrator"] = orchestrator
         return orchestrator.solve_verified(bundle)

@@ -5,12 +5,11 @@ particularly a rejected candidate versus a previously executed base Plan.
 """
 from __future__ import annotations
 
-from hashlib import sha256
 import json
 from pathlib import Path
 from typing import Any
 
-from .llm_debug import safe_debug_json, write_debug_json
+from .llm_debug import DebugArtifactJournal
 
 
 def _payload(value: Any) -> Any:
@@ -18,14 +17,18 @@ def _payload(value: Any) -> Any:
         method = getattr(value, method_name, None)
         if callable(method):
             return method()
-    return safe_debug_json(value)
+    return value
 
 
 def _issues(report: Any) -> list[Any]:
     return [_payload(item) for item in getattr(report, "issues", ())]
 
 
-def write_scoped_attempt_evidence(directory: Path, attempt: Any) -> None:
+def write_scoped_attempt_evidence(
+    directory: Path, attempt: Any, *, journal: DebugArtifactJournal | None = None,
+    terminal_error: Any = None,
+) -> None:
+    journal = journal or DebugArtifactJournal(directory)
     directory.mkdir(parents=True, exist_ok=True)
     prefix = f"attempt-{attempt.semantic_attempt}"
     artifacts: dict[str, Any] = {}
@@ -34,12 +37,7 @@ def write_scoped_attempt_evidence(directory: Path, attempt: Any) -> None:
         if value is None:
             artifacts[role] = {"status": "not_available", "reason": reason}
             return
-        path = directory / f"{prefix}.{role}.json"
-        write_debug_json(path, _payload(value))
-        artifacts[role] = {
-            "status": "saved", "file": path.name,
-            "sha256": sha256(path.read_bytes()).hexdigest(),
-        }
+        artifacts[role] = journal.write_json(f"{prefix}.{role}.json", _payload(value))
 
     execution = getattr(attempt, "execution", None)
     replay = getattr(execution, "replay", None)
@@ -58,6 +56,7 @@ def write_scoped_attempt_evidence(directory: Path, attempt: Any) -> None:
     save("request", {"messages": messages, "planner_payload": attempt.payload})
     raw = attempt.raw_response
     if raw is not None:
+        journal.write_text(f"{prefix}.raw-response.txt", str(raw))
         try:
             parsed = json.loads(raw)
             parse_error = None
@@ -114,6 +113,7 @@ def write_scoped_attempt_evidence(directory: Path, attempt: Any) -> None:
     })
     error = getattr(attempt, "error", None)
     save("attempt-error", error, "no_attempt_error")
+    save("runtime-error", terminal_error, "no_outer_runtime_error")
     candidate_rejected = error is not None and raw is not None and execution is None and getattr(attempt, "evidence_phase", "") != "execution_failed"
     save("candidate-error", error if candidate_rejected else None, "not_a_candidate_rejection")
     blockers = []
@@ -147,8 +147,9 @@ def write_scoped_attempt_evidence(directory: Path, attempt: Any) -> None:
     })
     save("provider-metadata", metadata)
     # Write the index last. Consumers may verify each hash before using a file.
-    write_debug_json(directory / f"{prefix}.evidence-index.json", {
+    journal.write_index(prefix, {
         "schema_version": "functional-attempt-evidence/v1",
+        "artifact_mode": journal.mode,
         "semantic_attempt": attempt.semantic_attempt,
         "planner_protocol": attempt.planner_protocol,
         "phase": getattr(attempt, "evidence_phase", "completed"),
@@ -156,5 +157,6 @@ def write_scoped_attempt_evidence(directory: Path, attempt: Any) -> None:
         "base_checkpoint_id": getattr(base_checkpoint, "checkpoint_id", None),
         "result_checkpoint_id": getattr(checkpoint, "checkpoint_id", None),
         "artifacts": artifacts,
-        "legacy_aliases": {f"{prefix}.functional-plan.json": "raw-response"},
+        "legacy_aliases": ({f"{prefix}.functional-plan.json": "raw-response"}
+                           if journal.mode == "full_diagnostic" else {}),
     })

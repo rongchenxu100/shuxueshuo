@@ -1,0 +1,15 @@
+{
+  "server/shuxueshuo_server/solver/engine.py": "577771801850710cd5ba9340f33ecc13ffdf75dbf2f578cbce2fa5692799eb2c",
+  "server/shuxueshuo_server/solver/extraction/problem_cold_path_smoke.py": "1596bf6109b476e950142167f8906b5e8d9d611d24e02f4f313f5d7a441faa06",
+  "server/shuxueshuo_server/solver/runtime/config.py": "c583502968da7ada88fe79bccf7c3db497c1e3ce129c429d661fd8ad916154f2",
+  "server/shuxueshuo_server/solver/runtime/functional_attempt_evidence.py": "9f2190e49f0089f18422343f8e2f50f1bedfced5bc58e5c2c6912f0a38bdf29d",
+  "server/shuxueshuo_server/solver/runtime/llm_debug.py": "9a8af8910370a9827b5f021c893c1d0746cf33206648ef0b80842c93c2888582",
+  "server/shuxueshuo_server/solver/runtime/orchestrator.py": "49755e5a4a305a928874ce555ed43afe0cd2783c97d1e8f2635e14051deeb0aa",
+  "server/shuxueshuo_server/solver/solve_problem.py": "138123b426020faeaf98a602489e9a35dd8efc643af44a5a4770d3f3f44699c4",
+  "server/tools/run_basic_inequality_stage4a.py": "e3b30d30daebcec1d8c371890cd7edd954f3206598aab21718337641f7c06f8b",
+  "server/tools/solver_test_profiles.py": "5d1616b140a78de8e766378039dd848ac1c3993e45882831c7fa01824d574c48",
+  "server/tests/solver/test_scoped_proof_search_stage_f2.py": "58a5e7e95651827e0961a77ddb3e77cf1ab3aa61ed5fafa5cd1e22f7b06e52d1",
+  "docs/validation/scoped-proof-search-stage-f2/benchmark.py": "e9fd86d78fc1756327488e4f4c5d2a6f331ff2a9a05fffe3152b243946d203ff",
+  "docs/validation/scoped-proof-search-stage-f2/cold_replay.py": "018decf44cdab04b165cfbbcadc4222a6a0cff31f3706cdcb962ab2f130bdbf2",
+  "docs/validation/scoped-proof-search-stage-f2/archive.py": "4206ff403b5f2dea7df3f0bf4734ef86a93fc4273aa1281ce39219213a00b8d1"
+}

@@ -81,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
         "--llm-debug-dir",
         help="Directory for per-attempt LLM planner debug artifacts.",
     )
+    parser.add_argument("--llm-debug-artifact-mode", choices=("compact_audit", "full_diagnostic"))
     args = parser.parse_args(argv)
 
     try:
@@ -90,6 +91,7 @@ def main(argv: list[str] | None = None) -> int:
             llm_model=args.llm_model,
             max_llm_attempts=args.llm_max_attempts,
             llm_debug_dir=args.llm_debug_dir,
+            llm_debug_artifact_mode=args.llm_debug_artifact_mode,
             argument_encoding=args.argument_encoding,
         )
         if args.fixture:

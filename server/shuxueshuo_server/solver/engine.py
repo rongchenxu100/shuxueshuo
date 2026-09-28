@@ -49,6 +49,7 @@ def solve_problem(
         and runtime_config.llm_provider == "deepseek"
         else 1,
         debug_dir=runtime_config.llm_debug_dir,
+        debug_artifact_mode=runtime_config.llm_debug_artifact_mode,
     ).solve_verified(problem)
 
 
@@ -74,4 +75,5 @@ def solve_problem_ir_debug(
         default_planner_provider=config.build_default_planner_provider(),
         max_attempts=1,
         debug_dir=config.llm_debug_dir,
+        debug_artifact_mode=config.llm_debug_artifact_mode,
     ).solve(problem_ir)

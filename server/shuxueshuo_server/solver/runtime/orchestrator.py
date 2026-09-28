@@ -147,6 +147,7 @@ class RuntimeOrchestrator:
         kernel: SympyKernel | None = None,
         max_attempts: int = 1,
         debug_dir: str | Path | None = None,
+        debug_artifact_mode: str = "full_diagnostic",
         proof_protocol: str = "bound-conditions/v1",
     ) -> None:
         if proof_protocol not in {"bound-conditions/v1", "scoped-facts/v2"}:
@@ -165,9 +166,20 @@ class RuntimeOrchestrator:
         self.default_planner_provider = default_planner_provider
         self.kernel = kernel
         self.max_attempts = max(1, int(max_attempts))
+        from .llm_debug import DebugArtifactJournal
+
+        self.debug_artifact_mode = debug_artifact_mode
         self.debug_dir = Path(debug_dir) if debug_dir else None
+        self.debug_journal = DebugArtifactJournal(self.debug_dir or Path("."), mode=debug_artifact_mode)
         self.last_session: SolveSession | None = None
         self.last_success_artifacts: RuntimeSuccessArtifacts | None = None
+
+    def _reset_debug_journal(self) -> None:
+        from .llm_debug import DebugArtifactJournal
+
+        self.debug_journal = DebugArtifactJournal(
+            self.debug_dir or Path("."), mode=self.debug_artifact_mode,
+        )
 
     def solve(self, problem: ProblemIR) -> SolverResult:
         """运行显式配置的deterministic/debug ProblemIR链路。
@@ -176,15 +188,23 @@ class RuntimeOrchestrator:
         默认Strategy provider调用时会稳定失败；生产调用方必须使用
         ``solve_verified()``，公开API则使用``engine.solve_problem()``。
         """
-        return self._solve(problem, problem_authority=None)
+        self._reset_debug_journal()
+        try:
+            return self._solve(problem, problem_authority=None)
+        finally:
+            self.debug_journal.release_snapshots()
 
     def solve_verified(
         self,
         bundle: SolverProblemBundle,
     ) -> SolverResult:
         """从authenticated Bundle运行唯一的Strategy cold path。"""
-        authority = VerifiedPlannerProblemAuthority.from_bundle(bundle)
-        return self._solve_verified_scope_native(bundle, authority=authority)
+        self._reset_debug_journal()
+        try:
+            authority = VerifiedPlannerProblemAuthority.from_bundle(bundle)
+            return self._solve_verified_scope_native(bundle, authority=authority)
+        finally:
+            self.debug_journal.release_snapshots()
 
     def _solve_verified_scope_native(
         self,
@@ -278,10 +298,12 @@ class RuntimeOrchestrator:
 
             observer_options = {}
             if self.debug_dir is not None and "attempt_observer" in signature(run_scoped).parameters:
-                observer_options["attempt_observer"] = lambda attempt: _write_debug_attempt(
-                    self.debug_dir, attempt.semantic_attempt, planner, None, None,
-                    scoped_attempt=attempt,
-                )
+                def observe(attempt):
+                    _write_debug_attempt(
+                        self.debug_dir, attempt.semantic_attempt, planner, None, None,
+                        scoped_attempt=attempt, journal=self.debug_journal,
+                    )
+                observer_options["attempt_observer"] = observe
             scoped_result = run_scoped(
                 planner_inputs,
                 max_attempts=self.max_attempts,
@@ -291,7 +313,7 @@ class RuntimeOrchestrator:
             _write_scoped_debug_attempts(
                 self.debug_dir,
                 planner,
-                scoped_result,
+                scoped_result, journal=self.debug_journal,
             )
             if scoped_result.status != "accepted":
                 raise PlannerExecutionError(
@@ -372,7 +394,7 @@ class RuntimeOrchestrator:
                     planner,
                     None,
                     error,
-                    scoped_attempt=scoped_attempts[-1],
+                    scoped_attempt=scoped_attempts[-1], journal=self.debug_journal,
                 )
             else:
                 _write_debug_attempt(
@@ -381,6 +403,7 @@ class RuntimeOrchestrator:
                     planner,
                     None,
                     error,
+                    journal=self.debug_journal,
                 )
             session.add_attempt(
                 _attempt_record(
@@ -556,6 +579,7 @@ class RuntimeOrchestrator:
                     planner,
                     planner_output,
                     None,
+                    journal=self.debug_journal,
                 )
 
                 stage = "declaration_validation"
@@ -581,6 +605,7 @@ class RuntimeOrchestrator:
                         planner,
                         planner_output,
                         error,
+                        journal=self.debug_journal,
                     )
                     session.add_attempt(
                         _attempt_record(
@@ -621,6 +646,7 @@ class RuntimeOrchestrator:
                     planner,
                     None,
                     error,
+                    journal=self.debug_journal,
                 )
                 session.add_attempt(
                     _attempt_record(
@@ -1005,6 +1031,7 @@ def _write_debug_attempt(
     error: StructuredSolveError | None,
     *,
     scoped_attempt: Any | None = None,
+    journal: Any | None = None,
 ) -> None:
     """按 attempt 写出 prompt、raw response、draft、compiled output 和错误。
 
@@ -1012,6 +1039,19 @@ def _write_debug_attempt(
     """
     if debug_dir is None or planner is None:
         return
+    from .llm_debug import DebugArtifactJournal
+
+    journal = journal or DebugArtifactJournal(debug_dir)
+    if scoped_attempt is not None and journal.mode == "compact_audit":
+        from .functional_attempt_evidence import write_scoped_attempt_evidence
+
+        write_scoped_attempt_evidence(debug_dir, scoped_attempt, journal=journal, terminal_error=error)
+        if error is not None:
+            journal.write_json(f"attempt-{attempt_index}.structured-error.json", error.to_payload())
+        return
+    def _write_json(path, value):
+        return journal.write_json(path.name, value)
+
     debug_dir.mkdir(parents=True, exist_ok=True)
     prefix = f"attempt-{attempt_index}"
     prompt = (
@@ -1037,14 +1077,8 @@ def _write_debug_attempt(
                 "planner_payload": payload,
             },
         )
-        (debug_dir / f"{prefix}.prompt.system.md").write_text(
-            str(getattr(prompt, "system", "")),
-            encoding="utf-8",
-        )
-        (debug_dir / f"{prefix}.prompt.user.md").write_text(
-            str(getattr(prompt, "user", "")),
-            encoding="utf-8",
-        )
+        journal.write_text(f"{prefix}.prompt.system.md", str(getattr(prompt, "system", "")))
+        journal.write_text(f"{prefix}.prompt.user.md", str(getattr(prompt, "user", "")))
     if isinstance(payload, Mapping):
         for key, value in payload.items():
             _write_json(
@@ -1059,7 +1093,7 @@ def _write_debug_attempt(
             (
                 debug_payload()
                 if callable(debug_payload)
-                else _safe_json(scope_authority)
+                else scope_authority
             ),
         )
     result_scope_authority = getattr(scoped_attempt, "result_scope_authority", None)
@@ -1091,10 +1125,7 @@ def _write_debug_attempt(
         else getattr(planner, "last_raw_response", None)
     )
     if raw_response is not None:
-        (debug_dir / f"{prefix}.raw-response.txt").write_text(
-            str(raw_response),
-            encoding="utf-8",
-        )
+        journal.write_text(f"{prefix}.raw-response.txt", str(raw_response))
         try:
             functional_payload = json.loads(str(raw_response))
         except json.JSONDecodeError:
@@ -1163,7 +1194,7 @@ def _write_debug_attempt(
     if validation_report is not None:
         _write_json(
             debug_dir / f"{prefix}.validation-report.json",
-            _safe_json(validation_report),
+            validation_report,
         )
     diagnostic = (
         None
@@ -1173,7 +1204,7 @@ def _write_debug_attempt(
     if diagnostic is not None:
         _write_json(
             debug_dir / f"{prefix}.execution-diagnostic.json",
-            _safe_json(diagnostic),
+            diagnostic,
         )
     replay = (
         getattr(getattr(scoped_attempt, "execution", None), "replay", None)
@@ -1222,7 +1253,7 @@ def _write_debug_attempt(
                     artifact_payload = artifact_payload.to_payload()
                 _write_json(
                     debug_dir / f"{prefix}.{artifact_name}.json",
-                    _safe_json(artifact_payload),
+                    artifact_payload,
                 )
     repair_payload = (
         None
@@ -1250,7 +1281,7 @@ def _write_debug_attempt(
     if output is not None:
         _write_json(
             debug_dir / f"{prefix}.compiled-planner-output.json",
-            _safe_json(output),
+            output,
         )
     if error is not None:
         _write_json(
@@ -1265,22 +1296,26 @@ def _write_debug_attempt(
         to_payload = getattr(scoped_error, "to_prompt_payload", None)
         _write_json(
             debug_dir / f"{prefix}.scope-retry-error.json",
-            to_payload() if callable(to_payload) else _safe_json(scoped_error),
+            to_payload() if callable(to_payload) else scoped_error,
         )
 
     if scoped_attempt is not None:
         from .functional_attempt_evidence import write_scoped_attempt_evidence
 
-        write_scoped_attempt_evidence(debug_dir, scoped_attempt)
+        write_scoped_attempt_evidence(debug_dir, scoped_attempt, journal=journal, terminal_error=error)
 
 
 def _write_scoped_debug_attempts(
     debug_dir: Path | None,
     planner: GenericPlanner | None,
     scoped_result: Any,
+    *, journal: Any | None = None,
 ) -> None:
     """Persist each scoped retry from its own immutable attempt snapshot."""
 
+    from .llm_debug import DebugArtifactJournal
+
+    journal = journal or (DebugArtifactJournal(debug_dir) if debug_dir is not None else None)
     for attempt in tuple(getattr(scoped_result, "attempts", ())):
         _write_debug_attempt(
             debug_dir,
@@ -1288,7 +1323,7 @@ def _write_scoped_debug_attempts(
             planner,
             None,
             None,
-            scoped_attempt=attempt,
+            scoped_attempt=attempt, journal=journal,
         )
 
 
@@ -1296,7 +1331,7 @@ def _write_json(path: Path, payload: Any) -> None:
     """写入稳定格式的 debug JSON。"""
     from shuxueshuo_server.solver.runtime.llm_debug import write_debug_json
 
-    write_debug_json(path, _safe_json(payload))
+    write_debug_json(path, payload)
 
 
 def _safe_json(value: Any) -> Any:

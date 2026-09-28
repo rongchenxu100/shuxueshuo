@@ -73,6 +73,7 @@ class SolverRuntimeConfig:
     deepseek_vision_max_tokens: int = 16_384
     max_llm_attempts: int = 3
     llm_debug_dir: str | None = None
+    llm_debug_artifact_mode: str = "full_diagnostic"
     allow_same_problem_few_shot: bool = True
     functional_few_shot_mode: FunctionalFewShotSelectionMode | None = None
     # Direct construction is retained for deterministic/replay fixtures.  The
@@ -81,6 +82,8 @@ class SolverRuntimeConfig:
 
     def __post_init__(self) -> None:
         """校验直接构造配置时的基础约束。"""
+        if self.llm_debug_artifact_mode not in {"compact_audit", "full_diagnostic"}:
+            raise SolverRuntimeConfigError("unknown LLM debug artifact mode")
         if self.max_llm_attempts < 1:
             raise SolverRuntimeConfigError(
                 "max_llm_attempts must be a positive integer"
@@ -111,6 +114,7 @@ class SolverRuntimeConfig:
         llm_model: str | None = None,
         max_llm_attempts: str | int | None = None,
         llm_debug_dir: str | None = None,
+        llm_debug_artifact_mode: str | None = None,
         allow_same_problem_few_shot: bool | str | None = None,
         functional_few_shot_mode: str | None = None,
         argument_encoding: str | None = None,
@@ -194,6 +198,7 @@ class SolverRuntimeConfig:
             llm_debug_dir=_clean(
                 cli_value_or_env(llm_debug_dir, values.get("SOLVER_LLM_DEBUG_DIR"))
             ),
+            llm_debug_artifact_mode=_clean(cli_value_or_env(llm_debug_artifact_mode, values.get("SOLVER_LLM_DEBUG_ARTIFACT_MODE"))) or "full_diagnostic",
             allow_same_problem_few_shot=resolved_allow_same_problem,
             functional_few_shot_mode=resolved_functional_mode,  # type: ignore[arg-type]
             argument_encoding=argument_encoding or PRODUCTION_ARGUMENT_ENCODING,

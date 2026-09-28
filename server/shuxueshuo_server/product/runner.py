@@ -324,7 +324,8 @@ class StageRunner:
                 allow_same_problem_few_shot=False, functional_few_shot_mode=x.config.functional_few_shot_mode,
                 argument_encoding=argument_encoding),
             max_attempts=x.config.max_llm_attempts, debug_dir=str(x.work / 'planner'))
-        with DebugJournal(x.work / 'planner', lambda name, doc: x.add(name, doc, role=solver_debug_role(name))):
+        with DebugJournal(x.work / 'planner', lambda name, doc: x.add(name, doc, role=solver_debug_role(name)),
+                          redact=x.redact):
             result = orchestrator.solve_verified(x.bundle())
             x.add('执行检查与结果摘要', result.to_dict(), role='validation')
         success = orchestrator.last_success_artifacts

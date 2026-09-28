@@ -429,3 +429,105 @@ def test_extraction_checkpoint_restores_content_without_historical_locator(tmp_p
 def test_solver_journal_preserves_artifact_roles(kind, role):
     from shuxueshuo_server.review.pipeline import solver_debug_role
     assert solver_debug_role(f'attempt-2.{kind}.json') == role
+
+
+@pytest.mark.parametrize("mode", ["full_diagnostic", "compact_audit"])
+@pytest.mark.parametrize("sensitive", [False, True])
+def test_solver_journal_history_is_complete_in_platform_storage(service, tmp_path, mode, sensitive):
+    from hashlib import sha256
+    from shuxueshuo_server.review.pipeline import DebugJournal, solver_debug_role
+    from shuxueshuo_server.review.store import redact
+    from shuxueshuo_server.solver.runtime.llm_debug import DebugArtifactJournal
+
+    store, client = service
+    run_id = create(client)
+    directory = tmp_path / "planner"
+    writer = DebugArtifactJournal(directory, mode=mode)
+    for phase in ("requested", "failed", "completed"):
+        value = {"phase": phase, "nested": [1, 2], "text": "数学推导"}
+        if sensitive:
+            value["api_key"] = "test-sensitive-key"
+        artifact = writer.write_json("attempt-1.checkpoint.json", value)
+        # Equal contents in another role must share the uploaded blob.
+        assert writer.write_json("attempt-1.canonical-plan.json", value) == artifact
+        writer.write_index("attempt-1", {
+            "phase": phase, "semantic_attempt": 1, "artifacts": {"checkpoint": artifact},
+        })
+    published = []
+
+    def publish(name, content):
+        ref = store.add(run_id, "solver", solver_debug_role(name), name, content)
+        published.append(ref)
+
+    # All three phases finished before the first scan: latest aliases alone
+    # cannot preserve the failed phase.
+    monitor = DebugJournal(directory, publish, redact=lambda doc: redact(doc, store.secrets))
+    monitor.scan()
+    count = len(published)
+    monitor.scan()
+    assert len(published) == count
+    stored = {ref["name"]: store.read(run_id, ref["id"])[1] for ref in published}
+    history = json.loads(stored["attempt-1.evidence-history.json"])
+    assert [v["phase"] for v in history["versions"]] == ["requested", "failed", "completed"]
+
+    def check_refs(value):
+        if isinstance(value, list):
+            for item in value:
+                check_refs(item)
+        elif isinstance(value, dict):
+            if value.get("status") == "saved":
+                assert sha256(stored[value["file"]]).hexdigest() == value["sha256"]
+            for item in value.values():
+                check_refs(item)
+
+    for name, raw in stored.items():
+        check_refs(json.loads(raw))
+        if sensitive:
+            assert b"test-sensitive-key" not in raw
+        else:
+            # Compact whitespace must survive upload too.
+            assert raw == (directory / name).read_bytes()
+    for item in history["versions"]:
+        index = json.loads(stored[item["file"]])
+        checkpoint = json.loads(stored[index["artifacts"]["checkpoint"]["file"]])
+        assert checkpoint["phase"] == item["phase"]
+    names = [ref["name"] for ref in published if ref["name"].startswith(".versions/")]
+    assert len(names) == len(set(names))
+    assert solver_debug_role(names[0]) == "validation"
+    assert solver_debug_role("attempt-1.canonical-plan.json") == "output"
+
+
+def test_debug_journal_rejects_dangling_or_tampered_reference(tmp_path):
+    from shuxueshuo_server.review.pipeline import DebugJournal
+    from shuxueshuo_server.solver.runtime.llm_debug import DebugArtifactJournal
+
+    writer = DebugArtifactJournal(tmp_path)
+    saved = writer.write_json("checkpoint.json", {"value": 1})
+    writer.write_json("index.json", {"reference": {**saved, "sha256": "0" * 64}})
+    monitor = DebugJournal(tmp_path, lambda *args: None, redact=lambda doc: doc)
+    with pytest.raises(ValueError, match="digest mismatch"):
+        monitor.scan()
+
+
+def test_product_debug_redaction_preserves_referenced_content_hashes(tmp_path):
+    from hashlib import sha256
+    from shuxueshuo_server.product.execution import ExecutionContext
+    from shuxueshuo_server.review.pipeline import DebugJournal
+    from shuxueshuo_server.solver.runtime.llm_debug import DebugArtifactJournal
+
+    context = ExecutionContext.__new__(ExecutionContext)
+    context.secrets = ["test-provider-secret"]
+    writer = DebugArtifactJournal(tmp_path, mode="compact_audit")
+    saved = writer.write_json("attempt-1.raw-response.json", {
+        "authorization": "hidden", "text": "test-provider-secret",
+    })
+    writer.write_json("attempt-1.evidence-index.json", {"reference": saved})
+    stored = {}
+    # ExecutionContext.add passes byte payloads through its redactor unchanged.
+    monitor = DebugJournal(tmp_path, lambda name, raw: stored.update({name: context.redact(raw)}),
+                           redact=context.redact)
+    monitor.scan()
+    ref = json.loads(stored["attempt-1.evidence-index.json"])["reference"]
+    assert sha256(stored[ref["file"]]).hexdigest() == ref["sha256"]
+    assert json.loads(stored[ref["file"]]) == {"authorization": "[REDACTED]", "text": "[REDACTED]"}
+    assert ref["sha256"] != saved["sha256"]
