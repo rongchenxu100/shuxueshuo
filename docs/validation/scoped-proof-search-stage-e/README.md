@@ -49,4 +49,13 @@ q30 实际恢复断言为 5 次 restore，前缀长度依次为 1、2、3、4、
 
 初次边界回归有一条测试断言查错了日志位置：RecordedClient 在重试时重复初始计划，最终 result 只显示第三次修复协议错误；实际缺 overlay 的拒绝已经写在第一轮 blockers 中。测试改为检查第一轮 blockers，保留 [初次断言失败日志](review-initial-assertion-failure.log)，没有放宽拒绝行为。
 
-当前 `implementation-sha256.json` 对应修订代码；原指纹保存在 `implementation-pre-review-sha256.json`。复现命令沿用上文，并加入 `test_basic_inequality_stage5c.py`、`test_proof_checker_stage_b.py`、`test_solver_test_profiles.py` 可覆盖本次 238 项。
+`implementation-sha256.json` 对应前一轮审查修订代码；原指纹保存在 `implementation-pre-review-sha256.json`。复现命令沿用上文，并加入 `test_basic_inequality_stage5c.py`、`test_proof_checker_stage_b.py`、`test_solver_test_profiles.py` 可覆盖本次 238 项。
+
+
+## 补充审查：后端登记与来源必填
+
+- 本轮实现指纹单独保存为 `implementation-backend-origin-sha256.json`，历史版本指纹不覆盖。
+- 验证命令（`server` 目录）：`.venv/bin/python -m pytest -q tests/solver/test_scoped_proof_search_stage_e.py tests/solver/test_invocation_executor.py --disable-warnings`。日志见 `backend-origin-review.log`：**38 passed，134.99 秒**。
+- 覆盖 v2 下真实几何双 invocation、二次函数执行、未知后端拒绝、混合后端复合调用拒绝、缺 overlay 拒绝、M11 新发布必填来源、旧应用记录独立回放兼容，以及原 E 链路回归。
+- 初次运行在测试更新前已收集旧断言，未知后端的新诊断与旧的“single-Method proof adapter”文案断言不匹配（21 passed，1 failed）。将未知后端与复合调用分开测试后重新运行；未为通过断言放宽运行时检查。
+- C/D/E 历史日志（含压缩的初次失败日志）与性能 profile 仅规范化本机路径，测试结果、计时和调用数不变；数学证书未改写。

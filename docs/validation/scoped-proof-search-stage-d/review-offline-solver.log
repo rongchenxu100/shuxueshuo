@@ -1,5 +1,5 @@
 
-$ /Users/haorong/projects/code/shuxueshuo/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 6 --dist worksteal
+$ server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 6 --dist worksteal
 bringing up nodes...
 bringing up nodes...
 
@@ -101,6 +101,6 @@ xx.......x.............................................................. [ 24%]
 8.02s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full_metadata
 4673 passed, 3 xfailed in 293.85s (0:04:53)
 
-$ /Users/haorong/projects/code/shuxueshuo/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and serial -n 0 --durations 30
+$ server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and serial -n 0 --durations 30
 
 4700 deselected in 1.31s

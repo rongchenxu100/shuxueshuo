@@ -171,16 +171,17 @@ def prepare_scoped_call(branch, call_id, compiled, graph):
     from .scoped_proof_facts import ProofCallAuthority, ScopedProofFacts
 
     invocations = [i for p in compiled.plans for i in p.invocations]
-    supported = {
-        "organize_expressions",
-        "apply_two_term_amgm",
-        "bound_univariate_quadratic",
-        "substitute_expressions",
-        "eliminate_by_constraint",
-        "close_equality_and_restore",
-    }
+    from .method_proof_backends import requires_scoped_proof
+
+    needs_proof = [requires_scoped_proof(i.method_id) for i in invocations]
     require(
-        len(invocations) == 1 and invocations[0].method_id in supported,
+        bool(invocations),
+        "scoped-facts/v2 requires a registered single-Method proof adapter",
+    )
+    if not any(needs_proof):
+        return  # Native validation creates no shared proof grant or facts.
+    require(
+        len(invocations) == 1,
         "scoped-facts/v2 requires a registered single-Method proof adapter",
     )
     invocation = invocations[0]

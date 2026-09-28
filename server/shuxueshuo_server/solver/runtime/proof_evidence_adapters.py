@@ -159,6 +159,8 @@ def validate_application_binding(evidence, call, manifest):
         return validate_application_binding(bundle["reciprocal_bound"], call, manifest)
     if call.method_id == "apply_two_term_amgm" and app is None:
         raise ProofFailure("invalid_proof", "new Method execution requires current application evidence")
+    if call.method_id == "apply_two_term_amgm" and not isinstance(app.get("local_rule_origin"), dict):
+        raise ProofFailure("invalid_proof", "new Method execution requires local_rule_origin")
     if app is not None and app.get("binding") != {
         "producer_call_id": call.call_id,
         "source_binding_fingerprint": call.input_fingerprint,

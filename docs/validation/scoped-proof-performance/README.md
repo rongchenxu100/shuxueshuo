@@ -3,7 +3,7 @@
 日期：2026-09-28。参见 [分析与优化顺序](../../scoped-proof-performance.md)。
 
 - `measurements.json`：三个独立进程、按 baseline → no-debug → metadata-cache 顺序运行的单次测量；没有真实 LLM 调用。
-- `profile-summary.json`：原实现开启 cProfile 的函数调用统计。累计耗时有嵌套，不能相加，也不能直接和非剖析墙钟时间比较。
+- `profile-summary.json`：原实现开启 cProfile 的函数调用统计；仓库内文件名已规范化为仓库相对路径，用户目录以 `<HOME>` 代替，计时及调用数未修改。累计耗时有嵌套，不能相加，也不能直接和非剖析墙钟时间比较。
 - `input-sha256.json`：q30 题意、冻结 ProblemIR 和录制计划指纹。
 - `implementation-sha256.json`：测量时生产代码指纹；本次没有修改这些代码。
 - `capture.py`：可重现的进程内实验。metadata-cache 同时关闭调试输出，并对事实、提交、快照和调用授权的派生属性安装 cached_property；没有修改磁盘上的实现，没有跳过数学 checker。

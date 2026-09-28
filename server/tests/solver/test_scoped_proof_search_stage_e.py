@@ -383,7 +383,12 @@ def test_empty_v2_checkpoint_restores_only_with_matching_protocol(protocol):
 
 
 @pytest.mark.parametrize(
-    "methods", [[], ["unregistered"], ["organize_expressions", "apply_two_term_amgm"]]
+    "methods",
+    [
+        [],
+        ["organize_expressions", "apply_two_term_amgm"],
+        ["midpoint_point", "organize_expressions"],
+    ],
 )
 def test_v2_requires_registered_single_method_adapter(methods):
     from types import SimpleNamespace
@@ -494,9 +499,91 @@ def test_current_application_origin_is_one_submitted_row_and_checked():
     old_app.pop("application_id")
     old_app["application_id"] = digest(old_app)
     assert public_bound(replay_bound(t, legacy)) == legacy
+    from types import SimpleNamespace
+
+    from shuxueshuo_server.solver.runtime.proof_evidence_adapters import (
+        validate_application_binding,
+    )
+
+    call = SimpleNamespace(
+        method_id="apply_two_term_amgm",
+        call_id="current",
+        input_fingerprint="inputs",
+        scope_id="problem",
+    )
+    for wrapper in (
+        lambda x: x,
+        lambda x: {"certificate_bundle": {"reciprocal_bound": x}},
+    ):
+        with pytest.raises(ProofFailure, match="local_rule_origin"):
+            validate_application_binding(wrapper(legacy), call, "manifest")
     bad = deepcopy(evidence)
     bad["certificate_bundle"]["method_application"]["local_rule_origin"]["origin"] = (
         "other"
     )
     with pytest.raises(ProofFailure):
         replay_bound(t, bad)
+
+
+def test_proof_backend_registration_is_exhaustive_and_unknown_is_rejected():
+    from shuxueshuo_server.solver.runtime.method_proof_backends import (
+        NATIVE_VALIDATION_METHODS,
+        SCOPED_PROOF_METHODS,
+        requires_scoped_proof,
+    )
+    from shuxueshuo_server.solver.runtime.methods import ALL_METHOD_SPEC_SOURCES
+
+    assert not (SCOPED_PROOF_METHODS & NATIVE_VALIDATION_METHODS)
+    assert {s.method_cls.method_id for s in ALL_METHOD_SPEC_SOURCES} == (
+        SCOPED_PROOF_METHODS | NATIVE_VALIDATION_METHODS
+    )
+    with pytest.raises(ValueError, match="unregistered Method proof backend"):
+        requires_scoped_proof("unregistered")
+
+
+def test_v2_native_geometry_call_executes_multiple_invocations_without_proof_facts(
+    monkeypatch,
+):
+    from types import SimpleNamespace
+
+    import sympy as sp
+    from shuxueshuo_server.solver.fixtures import load_problem_ir
+    from shuxueshuo_server.solver.math_kernel import proof_kernel
+    from shuxueshuo_server.solver.runtime.context import ContextBuilder
+    from shuxueshuo_server.solver.runtime.context_inventory import (
+        ContextInventoryBuilder,
+    )
+    from shuxueshuo_server.solver.runtime.executor import InvocationExecutor
+    from shuxueshuo_server.solver.runtime.method_specs import MethodSpecRegistry
+    from shuxueshuo_server.solver.runtime.planner import RuleBasedStepPlannerV15
+    from shuxueshuo_server.solver.runtime.proof_fact_transactions import (
+        begin_call,
+        finalize_call,
+    )
+
+    monkeypatch.setattr(
+        proof_kernel._Search, "need", lambda *a, **k: pytest.fail("legacy search")
+    )
+    context = ContextBuilder().build(
+        load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json")
+    )
+    context.proof_protocol = "scoped-facts/v2"
+    specs = MethodSpecRegistry.load_from_code()
+    signal = next(
+        s
+        for s in ContextInventoryBuilder().build(context, specs).planning_signals
+        if s.signal_type == "constructible_right_angle_equal_length_point"
+        and s.roles["target"] == "N"
+    )
+    plan = RuleBasedStepPlannerV15(specs).plan(context, signal)
+    assert len(plan.invocations) == 2
+    begin_call(context, "native", SimpleNamespace(plans=[plan]), None)
+    result = InvocationExecutor(specs).execute_step(context, plan)
+    assert result.checks and all(c.ok for c in result.checks)
+    point = context.read_path(
+        "$question.ii.points.N", from_scope_id="ii", expected_type="Point"
+    ).value
+    assert sp.simplify(point[0] - 2) == 0
+    assert sp.simplify(point[1] - (1 - context.symbols["m"])) == 0
+    assert finalize_call(context, (), ()) is None
+    assert context.proof_facts is None and context.proof_fact_overlay is None

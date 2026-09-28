@@ -1,5 +1,5 @@
 
-$ /Users/haorong/projects/code/shuxueshuo/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 6 --dist worksteal
+$ server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 6 --dist worksteal
 bringing up nodes...
 bringing up nodes...
 
@@ -101,6 +101,6 @@ bringing up nodes...
 8.71s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_seven_steps_and_semantic_visuals[True]
 4631 passed, 3 xfailed in 306.97s (0:05:06)
 
-$ /Users/haorong/projects/code/shuxueshuo/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and serial -n 0 --durations 30
+$ server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and serial -n 0 --durations 30
 
 4658 deselected in 1.29s

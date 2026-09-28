@@ -1,5 +1,5 @@
 
-$ /Users/haorong/projects/code/shuxueshuo/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 6 --dist worksteal
+$ server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 6 --dist worksteal
 bringing up nodes...
 bringing up nodes...
 
@@ -101,6 +101,6 @@ bringing up nodes...
 8.61s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[3]
 4622 passed, 3 xfailed in 297.96s (0:04:57)
 
-$ /Users/haorong/projects/code/shuxueshuo/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and serial -n 0 --durations 30
+$ server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and serial -n 0 --durations 30
 
 4651 deselected in 1.26s

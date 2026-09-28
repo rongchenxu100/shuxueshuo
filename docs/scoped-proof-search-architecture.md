@@ -561,6 +561,7 @@ v2 的具体规则：
 必须接入的现有位置：
 
 - `runtime/executor.py`：只读证明服务注入，不扩大 Method 直接访问 RuntimeContext 的权限。
+- `runtime/method_proof_backends.py`：显式登记证明内核与原生验证后端；v2 只对证明内核 Method 强制要求已授权的单 invocation 适配器。原生几何、二次函数验证继续自身路径，不生成共享事实；未知后端拒绝，新增 Method 必须登记并通过穷举测试。
 - `runtime/functional_transaction_execution.py`：事实与输出原子提交，记录 `proof_reads`，恢复与撤销。
 - `runtime/planner_state_context.py`、checkpoint 相关 schema：记录稳定依赖与恢复指纹；生成 schema 必须同步。
 - `math_kernel/inequality_bound_v2.py`、`quadratic_bound.py`、`expression_rewrite.py`、`bound_chain.py`：使用共享会话、保持准确输入与 Method 契约。

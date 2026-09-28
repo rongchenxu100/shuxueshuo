@@ -90,9 +90,11 @@ def test_stateless_methods_do_not_accept_solve_context() -> None:
     assert list(selector_signature.parameters) == ["inputs", "kernel"]
 
 
-def test_executor_reads_point_identity_from_canonical_entity_path() -> None:
+@pytest.mark.parametrize("protocol", ["bound-conditions/v1", "scoped-facts/v2"])
+def test_executor_reads_point_identity_from_canonical_entity_path(protocol) -> None:
     """Identity-view inputs come from the canonical entity, not a Point value."""
     context = ContextBuilder().build(load_problem_ir(NANKAI_FIXTURE))
+    context.proof_protocol = protocol
     specs = MethodSpecRegistry.load_from_code()
     invocation = MethodInvocation(
         invocation_id="derive_D.quadratic_axis_from_relation",

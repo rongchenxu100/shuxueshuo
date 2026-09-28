@@ -496,8 +496,16 @@ class InvocationExecutor:
                 authorities = invocation.input_read_authorities.get("conditions", ())
                 if authorities:
                     inputs["__condition_sources__"] = [authority.authority_payload() for authority in authorities]
-            if context.proof_protocol == "scoped-facts/v2" and context.proof_fact_overlay is None:
-                raise ValueError("proof_facts: scoped-facts/v2 invocation has no authorized proof adapter")
+            if context.proof_protocol == "scoped-facts/v2":
+                from .method_proof_backends import requires_scoped_proof
+                needs_proof = requires_scoped_proof(invocation.method_id)
+                overlay = context.proof_fact_overlay
+                if needs_proof and overlay is None:
+                    raise ValueError("proof_facts: scoped-facts/v2 invocation has no authorized proof adapter")
+                if overlay is not None and (
+                    not needs_proof or overlay.authority.method_id != invocation.method_id
+                ):
+                    raise ValueError("proof_facts: invocation differs from authorized proof adapter")
             kernel_service = self.kernel
             if context.proof_fact_overlay is not None:
                 from ..math_kernel.proof_facts import canonical

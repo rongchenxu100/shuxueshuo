@@ -1,5 +1,5 @@
 
-$ /Users/haorong/projects/code/shuxueshuo/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 4 --dist worksteal
+$ server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 4 --dist worksteal
 bringing up nodes...
 bringing up nodes...
 
@@ -102,6 +102,6 @@ bringing up nodes...
 7.59s call     tests/solver/test_method_math_arguments.py::test_failed_plan_has_identical_scope_retry_and_committed_state
 4688 passed in 429.90s (0:07:09)
 
-$ /Users/haorong/projects/code/shuxueshuo/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and serial -n 0 --durations 30
+$ server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and serial -n 0 --durations 30
 
 4716 deselected in 1.24s
