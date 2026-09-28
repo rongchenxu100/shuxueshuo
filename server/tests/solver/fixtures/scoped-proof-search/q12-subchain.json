@@ -1,0 +1,59 @@
+{
+  "schema_version": "authored-subchain/v1",
+  "provenance": "q12 renamed authored M07/M08 case; frozen from test_basic_inequality_stage5b.square_elimination_case; not an LLM response",
+  "target": {
+    "type": "extremum_target",
+    "goal_kind": "find_minimum",
+    "scope_id": "problem",
+    "scalar_symbols": [
+      "r",
+      "s"
+    ],
+    "target_math": "r^2+s^2",
+    "source_conditions": [
+      {
+        "handle": "c",
+        "source_path": "/facts/0",
+        "math": "5*r^2*s^2+s^4=1"
+      }
+    ]
+  },
+  "substitution": {
+    "definitions": {
+      "p": "r^2",
+      "q": "s^2"
+    },
+    "expression": "p+q",
+    "steps": [
+      {
+        "math": "p>=0"
+      },
+      {
+        "math": "q>=0"
+      },
+      {
+        "math": "5*p*q+q^2=1"
+      }
+    ]
+  },
+  "elimination": {
+    "eliminate": "p",
+    "expression": "(1/q+4*q)/5",
+    "steps": [
+      {
+        "math": "q*(5*p+q)=1"
+      },
+      {
+        "math": "q!=0"
+      },
+      {
+        "math": "q>0"
+      },
+      {
+        "math": "p=(1-q^2)/(5*q)"
+      }
+    ]
+  },
+  "expected_import": "q>=0",
+  "scope_note": "Current explicit substitution evidence replay only. Shared publication, proof_reads and rule registry gates remain C/E work."
+}

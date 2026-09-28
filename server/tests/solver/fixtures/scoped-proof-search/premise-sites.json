@@ -1,0 +1,232 @@
+{
+  "schema_version": "premise-audit/v1",
+  "baseline_commit": "0a8d3585",
+  "sites": [
+    {
+      "namespace": "bound:previous",
+      "file": "server/shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py",
+      "function": "verify",
+      "source_lines": [
+        261
+      ],
+      "semantic_kind": "bound",
+      "validity": "source_target+previous_bound",
+      "publication": "conditional",
+      "proof_origin": "prior",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "previous_bound -> bound_chain.replay_bound (dispatches by evidence schema)"
+    },
+    {
+      "namespace": "bound:previous",
+      "file": "server/shuxueshuo_server/solver/math_kernel/quadratic_bound.py",
+      "function": "verify_quadratic",
+      "source_lines": [
+        153
+      ],
+      "semantic_kind": "bound",
+      "validity": "source_target+previous_bound",
+      "publication": "conditional",
+      "proof_origin": "predecessor",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "previous_bound -> bound_chain.replay_bound (dispatches by evidence schema)"
+    },
+    {
+      "namespace": "substitution:definition:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/substitution.py",
+      "function": "verify_substitution",
+      "source_lines": [
+        108
+      ],
+      "semantic_kind": "definition",
+      "validity": "fresh_symbols+definition_refs+domain",
+      "publication": "definition_only",
+      "proof_origin": "defining",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "definitions + certificates.domains; conservative definition, not an unconditional theorem"
+    },
+    {
+      "namespace": "substitution:verified:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/substitution.py",
+      "function": "verify_substitution",
+      "source_lines": [
+        185
+      ],
+      "semantic_kind": "classify_relation",
+      "validity": "definition_refs+source_conditions",
+      "publication": "conditional",
+      "proof_origin": "relations",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "certificates.relations"
+    },
+    {
+      "namespace": "substitution:domain:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/substitution.py",
+      "function": "verify_substitution",
+      "source_lines": [
+        143
+      ],
+      "semantic_kind": "classify_non_equality",
+      "validity": "definition_refs+source_conditions",
+      "publication": "conditional",
+      "proof_origin": "relations[:-1]",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "certificates.relations[:-1] + definition dependencies"
+    },
+    {
+      "namespace": "elimination:row:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/constraint_elimination.py",
+      "function": "_verify_sequence",
+      "source_lines": [
+        88
+      ],
+      "semantic_kind": "classify_relation",
+      "validity": "session_prefix+all_dependencies",
+      "publication": "after_commit_only",
+      "proof_origin": "derived",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "_verify_sequence local proofs prefix; caller stores proofs or certificates.relations"
+    },
+    {
+      "namespace": "elimination:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/constraint_elimination.py",
+      "function": "verify_elimination",
+      "source_lines": [
+        244
+      ],
+      "semantic_kind": "classify_relation",
+      "validity": "elimination+substitution+domain",
+      "publication": "conditional",
+      "proof_origin": "exports",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "elimination evidence.proofs + substitution certificates when present"
+    },
+    {
+      "namespace": "quadratic:verified:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/quadratic_bound.py",
+      "function": "verify_quadratic",
+      "source_lines": [
+        151
+      ],
+      "semantic_kind": "classify_relation",
+      "validity": "source_version+previous_bound",
+      "publication": "conditional",
+      "proof_origin": "required",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "QuadraticBound.proofs (required identities, positivity, bound)"
+    },
+    {
+      "namespace": "attainment:reference",
+      "file": "server/shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py",
+      "function": "verify_equality_references",
+      "source_lines": [
+        483
+      ],
+      "semantic_kind": "assumption",
+      "validity": "attainment_branch",
+      "publication": "never_global",
+      "proof_origin": "matched",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "bound equalities are requirements; reference alone is not proof of attainment"
+    },
+    {
+      "namespace": "attainment:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py",
+      "function": "verify_equality_derivation",
+      "source_lines": [
+        403
+      ],
+      "semantic_kind": "assumption",
+      "validity": "attainment_branch",
+      "publication": "never_global",
+      "proof_origin": "equalities",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "bound.equalities as hypotheses of verify_equality_derivation, not globally certified facts"
+    },
+    {
+      "namespace": "solution_case",
+      "file": "server/shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py",
+      "function": "close",
+      "source_lines": [
+        728
+      ],
+      "semantic_kind": "assumption",
+      "validity": "case_identity",
+      "publication": "never_global",
+      "proof_origin": "case",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "candidate case admitted only within that witness branch"
+    },
+    {
+      "namespace": "shared_solution:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py",
+      "function": "close",
+      "source_lines": [
+        715
+      ],
+      "semantic_kind": "conditional_relation",
+      "validity": "attainment_branch",
+      "publication": "never_global",
+      "proof_origin": "derivation",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "equality_derivation.proofs under the attainment hypotheses"
+    },
+    {
+      "namespace": "equality_derivation:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py",
+      "function": "verify_equality_derivation",
+      "source_lines": [
+        452
+      ],
+      "semantic_kind": "conditional_relation",
+      "validity": "attainment_branch",
+      "publication": "never_global",
+      "proof_origin": "parsed",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "proofs prefix inside verify_equality_derivation under attainment hypotheses"
+    },
+    {
+      "namespace": "derivation:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",
+      "function": "verify_relation_sequence",
+      "source_lines": [
+        2344
+      ],
+      "semantic_kind": "classify_relation",
+      "validity": "inherited_context",
+      "publication": "after_commit_only",
+      "proof_origin": "relation",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "verify_relation_sequence returned certificate prefix under inherited context"
+    },
+    {
+      "namespace": "bound:row:",
+      "file": "server/shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py",
+      "function": "verify",
+      "source_lines": [
+        345,
+        353
+      ],
+      "semantic_kind": "classify_relation",
+      "validity": "inherited_context",
+      "publication": "after_commit_only",
+      "proof_origin": "chain",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "AmgmBound.derivation.proofs; substituted final row also retains transport dependencies"
+    },
+    {
+      "namespace": "c{i}",
+      "file": "server/shuxueshuo_server/solver/math_kernel/expression_rewrite.py",
+      "function": "verify_chain",
+      "source_lines": [
+        593
+      ],
+      "semantic_kind": "source_condition",
+      "validity": "resolved_binding",
+      "publication": "source_authority_only",
+      "proof_origin": "premises",
+      "classification_authority": "constructor and proof dependencies, not prefix alone",
+      "certificate_location": "authenticated input binding; M01 trace.proofs records the exact selected cN sources"
+    }
+  ],
+  "unknown_constructor_policy": "reject_publication"
+}

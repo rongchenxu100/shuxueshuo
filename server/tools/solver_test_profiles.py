@@ -68,6 +68,14 @@ class OwnershipRule:
 
 OWNERSHIP_RULES = (
     OwnershipRule(
+        ("server/tools/proof_search_baseline.py",
+         "server/tests/solver/fixtures/scoped-proof-search/*",
+         "server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",
+         "server/shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py",
+         "server/shuxueshuo_server/solver/runtime/inequality_teaching_evidence.py"),
+        ("tests/solver/test_scoped_proof_search_stage_a.py",),
+    ),
+    OwnershipRule(
         ("server/shuxueshuo_server/solver/explanation/lesson_prompt.py",
          "server/shuxueshuo_server/solver/explanation/prompts/*",
          "internal/llm-prompts/basic-inequality-strategy.json"),

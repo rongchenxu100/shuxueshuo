@@ -9,7 +9,6 @@ from support.generated_gate_profiles import (
     select_shard,
     stable_bucket,
 )
-
 from tools.run_solver_tests import pytest_commands, sanitized_environment
 from tools.solver_test_profiles import (
     LIVE_LLM_TEST_FILES,
@@ -305,3 +304,14 @@ def test_proof_kernel_ownership_includes_parser_and_existing_runtime_regressions
             "tests/solver/test_organize_expressions_transaction.py",
             "tests/solver/test_basic_inequality_problem_ir.py",
         }.issubset(selected)
+
+
+def test_scoped_proof_baseline_assets_select_contract_regressions():
+    for path in (
+        'server/tools/proof_search_baseline.py',
+        'server/tests/solver/fixtures/scoped-proof-search/manifest.json',
+        'server/shuxueshuo_server/solver/runtime/inequality_teaching_evidence.py',
+    ):
+        selected, unmapped = _tests_for_changed_paths((path,))
+        assert not unmapped
+        assert 'tests/solver/test_scoped_proof_search_stage_a.py' in selected

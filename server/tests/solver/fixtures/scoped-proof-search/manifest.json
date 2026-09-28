@@ -1,0 +1,88 @@
+{
+  "schema_version": "proof-baseline-inputs/v1",
+  "baseline_commit": "0a8d3585",
+  "input_sha256": {
+    "server/tests/solver/fixtures/basic-inequality-stage5c/live14-plans.json": "ae1e831e8e565f40ae02e481e55b8984da6c8cd4e5e8f31a688ede3a489a1292",
+    "server/tests/solver/fixtures/basic-inequality-stage5c/live12-budget.json": "73b1648aebf3904293e11f34fbd508d4bbb17385ccb6373a17acfb199de4270d",
+    "server/tests/solver/fixtures/basic-inequality-stage5c/q30.json": "7ca6eb8a7a0c29068ece4c4c74617c6ffed5def9267ad614bb09af517a549a96",
+    "server/tests/solver/fixtures/basic-inequality-problem-ir/v1/q30/problem-ir.json": "23033b8009317d076c107f9747df369c77857c45af24bab8ad85c7030c8ba1bb",
+    "server/tests/solver/fixtures/math-notation-v1/basic-inequality/q30.json": "179b1a6627fbb29303295f511de27d72b3d3fb82340ec5c54edcc11e6f8055ee",
+    "server/tests/solver/fixtures/scoped-proof-search/legacy-m01-context.json": "b3103f3054591e5caf6c43af940639fbe1948030671e9860fc45feb467eeb4df",
+    "server/tests/solver/fixtures/scoped-proof-search/q12-subchain.json": "04be85c5b67270ef175bba88f0752e1ddb40128f4051da2d631f2ea080be5bb9"
+  },
+  "cases": [
+    {
+      "id": "live14-1",
+      "input": "server/tests/solver/fixtures/basic-inequality-stage5c/live14-plans.json",
+      "key": "1",
+      "kind": "recorded_plan",
+      "historical_failure": "M11: reduction search detour (historically repaired)",
+      "required": "runtime_answer_4",
+      "classification": "legal_recorded_response"
+    },
+    {
+      "id": "live14-3",
+      "input": "server/tests/solver/fixtures/basic-inequality-stage5c/live14-plans.json",
+      "key": "3",
+      "kind": "recorded_plan",
+      "historical_failure": "M13: attainment separator syntax (historically repaired; parser control)",
+      "required": "runtime_answer_4",
+      "classification": "legal_recorded_response"
+    },
+    {
+      "id": "live12-m11-2",
+      "input": "server/tests/solver/fixtures/basic-inequality-stage5c/live12-budget.json",
+      "key": "2",
+      "kind": "local_bound",
+      "historical_failure": "M11: bound transport/reduction budget (historically repaired)",
+      "required": "proof_and_replay",
+      "classification": "legal_recorded_derivation"
+    },
+    {
+      "id": "live12-m11-3",
+      "input": "server/tests/solver/fixtures/basic-inequality-stage5c/live12-budget.json",
+      "key": "3",
+      "kind": "local_bound",
+      "historical_failure": "M11: bound transport/reduction budget (historically repaired)",
+      "required": "proof_and_replay",
+      "classification": "legal_recorded_derivation"
+    }
+  ],
+  "local_target": {
+    "type": "extremum_target",
+    "goal_kind": "find_minimum",
+    "scope_id": "problem",
+    "scalar_symbols": [
+      "a",
+      "b",
+      "c"
+    ],
+    "target_math": "2*a^2+1/(b*(a-b))-10*a*c+25*c^2",
+    "source_conditions": [
+      {
+        "handle": "c0",
+        "source_path": "/facts/0",
+        "math": "a>b"
+      },
+      {
+        "handle": "c1",
+        "source_path": "/facts/1",
+        "math": "b>c"
+      },
+      {
+        "handle": "c2",
+        "source_path": "/facts/2",
+        "math": "c>0"
+      }
+    ]
+  },
+  "scope": "Representative live12/live14 recorded failures only; existing other regression fixtures remain unchanged. Historical failures are not claimed to remain failing today.",
+  "controls": [
+    {
+      "id": "q12-subchain",
+      "input": "server/tests/solver/fixtures/scoped-proof-search/q12-subchain.json",
+      "kind": "authored_non_amgm_control",
+      "required": "M07/M08 evidence replay without AM-GM; shared-store reuse deferred"
+    }
+  ]
+}

@@ -1,0 +1,543 @@
+{
+  "schema_version": "legacy-context-fixture/v1",
+  "condition_protocol": "bound-conditions/v1",
+  "symbols": [
+    "x"
+  ],
+  "scope_id": "authoring",
+  "resolved_conditions": {
+    "c0": "x>0"
+  },
+  "additional_scope_conditions": {
+    "unused": "y>0"
+  },
+  "proof": {
+    "schema_version": "bounded-real-proof/v1",
+    "ruleset_hash": "8d9a1f9ccc4061513641ce0f15f70f821e4f1e19598c4d149d3191e32167bb16",
+    "context_hash": "a89bf612fd913d8925f7106565876c1882a65ec8eea36e687cf2dbba163da251",
+    "request": {
+      "kind": "relation",
+      "candidate": {
+        "source": "(1/x)=(1/x)",
+        "source_path": null,
+        "step": null
+      }
+    },
+    "sources": {
+      "premise:c0": {
+        "source": "x>0",
+        "source_path": null,
+        "step": null
+      },
+      "candidate": {
+        "source": "(1/x)=(1/x)",
+        "source_path": null,
+        "step": null
+      }
+    },
+    "nodes": [
+      {
+        "node_id": "p0000",
+        "rule_id": "math.given",
+        "conclusion": [
+          ">",
+          [
+            "symbol",
+            "x"
+          ],
+          [
+            "rat",
+            "0",
+            "1"
+          ]
+        ],
+        "children": [],
+        "premises": [
+          "c0"
+        ],
+        "input_nodes": [
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n",
+            "span": [
+              0,
+              11
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.0.1",
+            "span": [
+              3,
+              4
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.1.1",
+            "span": [
+              9,
+              10
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n",
+            "span": [
+              0,
+              3
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n.0",
+            "span": [
+              0,
+              1
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n.1",
+            "span": [
+              2,
+              3
+            ]
+          }
+        ],
+        "certificate": {
+          "premise_id": "c0"
+        }
+      },
+      {
+        "node_id": "p0001",
+        "rule_id": "math.guard",
+        "conclusion": [
+          ">",
+          [
+            "symbol",
+            "x"
+          ],
+          [
+            "rat",
+            "0",
+            "1"
+          ]
+        ],
+        "children": [
+          "p0000"
+        ],
+        "premises": [
+          "c0"
+        ],
+        "input_nodes": [
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n",
+            "span": [
+              0,
+              11
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.0.1",
+            "span": [
+              3,
+              4
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.1.1",
+            "span": [
+              9,
+              10
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n",
+            "span": [
+              0,
+              3
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n.0",
+            "span": [
+              0,
+              1
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n.1",
+            "span": [
+              2,
+              3
+            ]
+          }
+        ],
+        "certificate": {}
+      },
+      {
+        "node_id": "p0002",
+        "rule_id": "math.weaken",
+        "conclusion": [
+          "!=",
+          [
+            "symbol",
+            "x"
+          ],
+          [
+            "rat",
+            "0",
+            "1"
+          ]
+        ],
+        "children": [
+          "p0001"
+        ],
+        "premises": [
+          "c0"
+        ],
+        "input_nodes": [
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n",
+            "span": [
+              0,
+              11
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.0.1",
+            "span": [
+              3,
+              4
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.1.1",
+            "span": [
+              9,
+              10
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n",
+            "span": [
+              0,
+              3
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n.0",
+            "span": [
+              0,
+              1
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n.1",
+            "span": [
+              2,
+              3
+            ]
+          }
+        ],
+        "certificate": {
+          "ratio": "1"
+        }
+      },
+      {
+        "node_id": "p0003",
+        "rule_id": "math.guard",
+        "conclusion": [
+          "!=",
+          [
+            "symbol",
+            "x"
+          ],
+          [
+            "rat",
+            "0",
+            "1"
+          ]
+        ],
+        "children": [
+          "p0002"
+        ],
+        "premises": [
+          "c0"
+        ],
+        "input_nodes": [
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n",
+            "span": [
+              0,
+              11
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.0.1",
+            "span": [
+              3,
+              4
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.1.1",
+            "span": [
+              9,
+              10
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n",
+            "span": [
+              0,
+              3
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n.0",
+            "span": [
+              0,
+              1
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n.1",
+            "span": [
+              2,
+              3
+            ]
+          }
+        ],
+        "certificate": {}
+      },
+      {
+        "node_id": "p0004",
+        "rule_id": "math.polynomial",
+        "conclusion": [
+          "=",
+          [
+            "div",
+            [
+              "rat",
+              "1",
+              "1"
+            ],
+            [
+              "symbol",
+              "x"
+            ]
+          ],
+          [
+            "div",
+            [
+              "rat",
+              "1",
+              "1"
+            ],
+            [
+              "symbol",
+              "x"
+            ]
+          ]
+        ],
+        "children": [],
+        "premises": [],
+        "input_nodes": [
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n",
+            "span": [
+              0,
+              11
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.0",
+            "span": [
+              1,
+              4
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.1",
+            "span": [
+              7,
+              10
+            ]
+          }
+        ],
+        "certificate": {
+          "equations": [],
+          "roots": [],
+          "multipliers": []
+        }
+      },
+      {
+        "node_id": "p0005",
+        "rule_id": "math.guard",
+        "conclusion": [
+          "=",
+          [
+            "div",
+            [
+              "rat",
+              "1",
+              "1"
+            ],
+            [
+              "symbol",
+              "x"
+            ]
+          ],
+          [
+            "div",
+            [
+              "rat",
+              "1",
+              "1"
+            ],
+            [
+              "symbol",
+              "x"
+            ]
+          ]
+        ],
+        "children": [
+          "p0004",
+          "p0003"
+        ],
+        "premises": [
+          "c0"
+        ],
+        "input_nodes": [
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n",
+            "span": [
+              0,
+              11
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.0",
+            "span": [
+              1,
+              4
+            ]
+          },
+          {
+            "document": "candidate",
+            "source_sha256": "756dd251c34fb3a927cf7b7af547f166d76cc25544fa6d1f04c48a7e02ed9dfa",
+            "source_path": "/sources/candidate/source",
+            "node_path": "n.1",
+            "span": [
+              7,
+              10
+            ]
+          },
+          {
+            "document": "premise:c0",
+            "source_sha256": "17be29a8a74e899495ca5b35ae16f9810c721e4745dd6d6cc1e1bb42f71d87e9",
+            "source_path": "/sources/premise:c0/source",
+            "node_path": "n",
+            "span": [
+              0,
+              3
+            ]
+          }
+        ],
+        "certificate": {}
+      }
+    ],
+    "roots": [
+      "p0005"
+    ]
+  },
+  "producer": "expression_rewrite.verify_chain; actual relation certificate from trace.proofs",
+  "submitted_steps": [
+    {
+      "math": "1/x=2/(2*x)"
+    }
+  ]
+}
