@@ -1,9 +1,8 @@
-"""Transactional execution for canonical Functional calls.
+"""Sequential execution of canonical Functional calls.
 
-C1 keeps this interpreter as an execution shadow. C2 can promote its actual
-call results, StateVersions, goal closure, Context and retry projection to the
-Functional authority while legacy replay remains available as a comparison
-oracle.
+Methods share one attempt context. Failed calls rebuild from verified public
+outputs; successful calls do not copy or merge a RuntimeContext. Historical
+class/module and payload names remain compatible with saved retry evidence.
 """
 
 from __future__ import annotations
@@ -554,9 +553,20 @@ class FunctionalTransactionalExecutionReport:
     def ok(self) -> bool:
         return not self.compatibility_mismatches
 
-    def to_payload(self) -> dict[str, Any]:
+    def to_payload(self, *, proof_facts_ref=None) -> dict[str, Any]:
+        def call_payload(item):
+            payload = item.to_payload()
+            if proof_facts_ref is not None and item.proof_commit is not None:
+                payload["proof_commit"] = {
+                    "store_ref": proof_facts_ref,
+                    "call_id": item.call_id,
+                    "commit_id": item.proof_commit["commit_id"],
+                }
+            return payload
+
         return {
-            **({"proof_facts": self.runtime_context.proof_facts.to_payload()}
+            **({"proof_facts": proof_facts_ref if proof_facts_ref is not None
+                else self.runtime_context.proof_facts.to_payload()}
                if self.runtime_context is not None and self.runtime_context.proof_facts is not None else {}),
             "ok": self.ok,
             "graph": self.graph.to_payload(),
@@ -565,7 +575,7 @@ class FunctionalTransactionalExecutionReport:
             "committed_versions": [
                 item.to_payload() for item in self.committed_versions
             ],
-            "call_results": [item.to_payload() for item in self.call_results],
+            "call_results": [call_payload(item) for item in self.call_results],
             "goal_verification": self.goal_verification,
             "compatibility_mismatches": [
                 item.to_payload() for item in self.compatibility_mismatches
@@ -675,9 +685,9 @@ class FunctionalTransactionalAttemptResult:
     state_writes: tuple[StateWriteProvenance, ...]
     root_issues: tuple[PlannerRetryIssue, ...]
 
-    def to_payload(self) -> dict[str, Any]:
+    def to_payload(self, *, proof_facts_ref=None) -> dict[str, Any]:
         return {
-            "execution_report": self.execution_report.to_payload(),
+            "execution_report": self.execution_report.to_payload(proof_facts_ref=proof_facts_ref),
             "compiled_output_ok": self.compiled_output is not None,
             "diagnostic": self.diagnostic.to_payload(),
             "goal_report": self.goal_report.to_payload(),
@@ -6010,7 +6020,7 @@ class FunctionalRuntimeWriteCommitter:
 
 
 class FunctionalTransactionalInterpreter:
-    """Execute canonical Functional calls in isolated transactions."""
+    """Execute calls sequentially; historical name retained for API compatibility."""
 
     def __init__(
         self,
@@ -6148,6 +6158,9 @@ class FunctionalTransactionalInterpreter:
             closure_result: SymbolicClosureExecutionResult | None = None
             prepared: Any | None = None
             compiled: CompiledFunctionalCall | None = None
+            prior_store = current_context.proof_facts
+            prior_snapshot = prior_store.snapshot if prior_store is not None else None
+            prior_grants = prior_store.calls if prior_store is not None else ()
             try:
                 prepared = preparer.prepare(
                     call_id=call_id,
@@ -6202,7 +6215,7 @@ class FunctionalTransactionalInterpreter:
                     prepared=prepared,
                 )
                 _audit_compiled_problem_source_provenance(compiled)
-                branch = current_context.fork()
+                branch = current_context
                 for plan in compiled.plans:
                     branch.ensure_step_scope(plan.step_id, plan.scope)
                 _apply_missing_declarations(branch, compiled.declarations)
@@ -6607,7 +6620,7 @@ class FunctionalTransactionalInterpreter:
                             "planner_configuration_error: "
                             "planner.runtime_state_lineage_alias_conflict"
                         )
-                    # The isolated branch proved that every reused typed state
+                    # The call proved that every reused typed state
                     # is unchanged. Keep an answer alias so the Goal remains
                     # bound to the proven existing StateVersion, but never
                     # commit a second object-state write.
@@ -6842,6 +6855,25 @@ class FunctionalTransactionalInterpreter:
                         ),
                     )
                 )
+
+            finally:
+                if (
+                    not results
+                    or results[-1].call_id != call_id
+                    or results[-1].status != "verified"
+                ):
+                    # Normal execution has no per-call context transaction. Only
+                    # a failed call rebuilds from independently verified outputs.
+                    current_context = _rebuild_verified_context(
+                        runtime_context, current_context, compiled_calls, results,
+                        working.runtime_version_values, runtime_result_values,
+                    )
+                    if prior_store is not None:
+                        prior_store.snapshot = prior_snapshot
+                        prior_store.calls = prior_grants
+                        prior_store.context = current_context
+                    current_context.proof_facts = prior_store
+                    current_context.proof_fact_overlay = None
 
         return FunctionalTransactionalExecutionReport(
             graph=graph,
@@ -7115,6 +7147,54 @@ class FunctionalTransactionalInterpreter:
             state_writes=state_writes,
             root_issues=root_issues,
         )
+
+
+def _rebuild_verified_context(
+    base: RuntimeContext,
+    failed: RuntimeContext,
+    compiled_calls: Sequence[CompiledFunctionalCall],
+    results: Sequence[FunctionalCallExecutionResult],
+    version_values: Mapping[StateVersionId, TypedValue],
+    result_values: Mapping[tuple[str, str], TypedValue],
+) -> RuntimeContext:
+    """Failure-only recovery; do not rerun Methods or replay their proofs."""
+    clean = base.fork()
+    clean.proof_source_catalog = failed.proof_source_catalog
+    verified = {r.call_id: r for r in results if r.status == "verified"}
+    for compiled in compiled_calls:
+        result = verified.get(compiled.call_id)
+        if result is None:
+            continue
+        _apply_missing_declarations(clean, compiled.declarations)
+        for plan in compiled.plans:
+            clean.ensure_step_scope(plan.step_id, plan.scope)
+        writes = {w.selected_version_id: w for w in result.state_writes}
+        for version in result.committed_versions:
+            write = writes[version.version_id]
+            clean.write_path(
+                version.runtime_destination.runtime_path,
+                version_values[version.version_id],
+                from_scope_id=write.scope_id,
+                allow_overwrite=True,
+                allow_ancestor_write=True,
+            )
+        for returned in compiled.public_returns:
+            write = returned.expected_write
+            if write is None:
+                continue
+            typed = result_values.get((compiled.call_id, write.output_key))
+            destination = write.runtime_destination_key
+            path = (
+                destination.runtime_path
+                if destination is not None and destination.runtime_path is not None
+                else _runtime_path_for_write(compiled.plans, write)
+            )
+            if typed is not None and path is not None:
+                clean.write_path(
+                    path, typed, from_scope_id=write.scope_id,
+                    allow_overwrite=True, allow_ancestor_write=True,
+                )
+    return clean
 
 
 def _restore_verified_calls(

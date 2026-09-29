@@ -1,0 +1,125 @@
+{
+  "source": "live-02/planner-01 saved responses, replayed with no provider call; full_diagnostic; sequential fresh processes; lightweight timers, not cProfile",
+  "before": {
+    "status": "ok",
+    "seconds": 33.70838941598777,
+    "answers": {
+      "problem": {
+        "minimum": "4"
+      }
+    },
+    "sections": {
+      "_write_debug_attempt": {
+        "seconds": 5.86563562595984,
+        "calls": 10
+      },
+      "method_search_service": {
+        "seconds": 16.125640041951556,
+        "calls": 5
+      },
+      "publish_method_result": {
+        "seconds": 2.54151016601827,
+        "calls": 5
+      },
+      "_restore_one": {
+        "seconds": 1.583808623952791,
+        "calls": 5
+      }
+    },
+    "mode": "full_diagnostic"
+  },
+  "after": [
+    {
+      "status": "ok",
+      "seconds": 15.09308433404658,
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "sections": {
+        "_write_debug_attempt": {
+          "seconds": 2.016947418975178,
+          "calls": 10
+        },
+        "method_search_service": {
+          "seconds": 0.17886645800899714,
+          "calls": 5
+        },
+        "publish_method_result": {
+          "seconds": 3.0494510409771465,
+          "calls": 5
+        },
+        "_restore_one": {
+          "seconds": 1.8689727079472505,
+          "calls": 5
+        }
+      },
+      "mode": "full_diagnostic"
+    },
+    {
+      "status": "ok",
+      "seconds": 13.33017191599356,
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "sections": {
+        "_write_debug_attempt": {
+          "seconds": 1.9575926649267785,
+          "calls": 10
+        },
+        "method_search_service": {
+          "seconds": 0.16093995794653893,
+          "calls": 5
+        },
+        "publish_method_result": {
+          "seconds": 2.4962832080200315,
+          "calls": 5
+        },
+        "_restore_one": {
+          "seconds": 1.495674623933155,
+          "calls": 5
+        }
+      },
+      "mode": "full_diagnostic"
+    },
+    {
+      "status": "ok",
+      "seconds": 14.39939937501913,
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "sections": {
+        "_write_debug_attempt": {
+          "seconds": 1.9466834589838982,
+          "calls": 10
+        },
+        "method_search_service": {
+          "seconds": 0.168137998029124,
+          "calls": 5
+        },
+        "publish_method_result": {
+          "seconds": 2.797342124104034,
+          "calls": 5
+        },
+        "_restore_one": {
+          "seconds": 1.7681949990219437,
+          "calls": 5
+        }
+      },
+      "mode": "full_diagnostic"
+    }
+  ],
+  "after_median_seconds": 14.39939937501913,
+  "after_section_medians": {
+    "_write_debug_attempt": 1.9575926649267785,
+    "method_search_service": 0.168137998029124,
+    "publish_method_result": 2.797342124104034,
+    "_restore_one": 1.7681949990219437
+  },
+  "note": "Before is one serial baseline; after is three serial samples. Original live 96.48s local estimate included concurrency and is not the same timing setup. Section durations are inclusive and must not be summed."
+}

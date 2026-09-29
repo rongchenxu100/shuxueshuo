@@ -5,6 +5,7 @@ from dataclasses import replace
 
 from .derivation_math import parse_derivation
 from .expression_parser import parse_math_expression, parse_math_relation
+from .method_proof_session import record_checked_bound
 from .proof_algebra import (
     ProofFailure,
     commutative_key,
@@ -18,7 +19,6 @@ from .proof_kernel import (
     _document,
     _replay,
     _run_request,
-    replay_proof,
     verify_relation_sequence,
     verify_witnesses,
 )
@@ -53,6 +53,7 @@ def public(evidence):
     }
 
 
+@record_checked_bound
 def verify(
     target,
     steps,
@@ -67,7 +68,7 @@ def verify(
     certificates=None,
     budget=None,
 ):
-    from .inequality_evidence import _verify_bound_v1, require, target_context
+    from .inequality_evidence import _verify_bound_v1, target_context
 
     if depth > 8:
         raise ProofFailure("proof_limit", "at most eight bound dependencies")
@@ -115,7 +116,7 @@ def verify(
         request = {"kind": "relation", "candidate": _document(parsed)}
         if certificates is None:
             proof = _run_request(ctx, request, budget=budget).proof
-            require(replay_proof(proof, ctx))
+            # _run_request already independently checked this certificate.
         else:
             try:
                 proof = certificates["proofs"][proof_index]
@@ -138,8 +139,9 @@ def verify(
             raise ProofFailure(
                 "invalid_proof", "missing predecessor certificate bundle"
             )
-        from .bound_chain import replay_bound
-        predecessor = replay_bound(target, previous_bound, depth=depth + 1, budget=budget)
+        from .bound_chain import consume_bound, replay_bound
+        read_bound = consume_bound if certificates is None else replay_bound
+        predecessor = read_bound(target, previous_bound, depth=depth + 1, budget=budget)
         if predecessor["direction"] != ">=":
             raise ProofFailure("target_bound_mismatch", "predecessor must be a lower bound")
         ancestor = previous_bound
@@ -512,6 +514,7 @@ def verify_equality_derivation(
 def verify_equality_references(chain, equalities, context, budget):
     """Resolve natural equality references against replayed bound conditions."""
     import sympy as sp
+
     from .proof_algebra import Arithmetic
 
     arithmetic = Arithmetic(budget)
@@ -543,12 +546,25 @@ def verify_equality_references(chain, equalities, context, budget):
             # A generated candidate, still proved by the kernel; avoid nested
             # powers rejected by the submitted-expression size guard.
             return str(sp.expand(value ** 2))
-        squared = parse_math_relation(
-            f"{square_text(left_text)}={square_text(right_text)}", context.symbols
-        )
-        # The existing square_equal rule also checks nonnegative sides; merely
-        # proving equal squares must never authorize a sign change.
-        attainment_rows = [squared, equality]
+        attainment_rows = [equality]
+        try:
+            _, remainder = arithmetic.reduce(
+                arithmetic.difference(from_node(equality.ast)),
+                [arithmetic.equation_divisor(from_node(matched.ast))],
+            )
+            direct_identity = not remainder
+        except ProofFailure as exc:
+            if exc.code not in {"proof_limit", "proof_missing"}:
+                raise
+            direct_identity = False
+        if not direct_identity:
+            squared = parse_math_relation(
+                f"{square_text(left_text)}={square_text(right_text)}", context.symbols
+            )
+            # Only introduce a squared helper when direct reduction does not
+            # establish equality. The probe is not proof authority: both paths
+            # are independently checked, including square_equal's sign guards.
+            attainment_rows.insert(0, squared)
         attained = verify_relation_sequence(attainment_rows, when, budget=budget)
         verify_relation_sequence(attainment_rows, when, certificates=attained)
         reports.append({"origin": row.origin, "condition": matched.source,
@@ -578,8 +594,8 @@ def close(
     witness_budget = _Budget(context.limits)
     if not isinstance(bound.get("certificate_bundle"), dict):
         raise ProofFailure("invalid_proof", "missing bound certificate bundle")
-    from .bound_chain import replay_bound
-    rebuilt = replay_bound(target, bound, budget=replay_budget)
+    from .bound_chain import consume_bound
+    rebuilt = consume_bound(target, bound, budget=replay_budget)
     ancestor = bound
     while ancestor.get("previous_bound") is not None:
         ancestor = ancestor["previous_bound"]

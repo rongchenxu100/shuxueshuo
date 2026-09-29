@@ -1,0 +1,250 @@
+{
+  "runs": [
+    {
+      "sample": 1,
+      "status": "ok",
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "elapsed_seconds": 173.33663774997694,
+      "output": "internal/review-analysis/scoped-proof-search-stage-f3/live-02/planner-01",
+      "calls": [
+        {
+          "attempt": 1,
+          "provider_invocation_id": 1,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 10775,
+            "completion_tokens": 10696,
+            "total_tokens": 21471
+          }
+        },
+        {
+          "attempt": 2,
+          "provider_invocation_id": 2,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 11292,
+            "completion_tokens": 8525,
+            "total_tokens": 19817
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 22067,
+        "completion_tokens": 19221,
+        "total_tokens": 41288
+      },
+      "attempt_count": 2,
+      "mixed_chain_executed": false,
+      "full_chain_executed": false,
+      "verified_method_dependencies": [
+        {
+          "producer": "apply_two_term_amgm",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "amgm_b",
+          "consumer_step": "amgm_a"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "organize_target",
+          "consumer_step": "amgm_a"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "organize_target",
+          "consumer_step": "amgm_b"
+        },
+        {
+          "producer": "bound_univariate_quadratic",
+          "consumer": "close_equality_and_restore",
+          "producer_step": "quadratic_a",
+          "consumer_step": "close_min"
+        },
+        {
+          "producer": "apply_two_term_amgm",
+          "consumer": "bound_univariate_quadratic",
+          "producer_step": "amgm_a",
+          "consumer_step": "quadratic_a"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "bound_univariate_quadratic",
+          "producer_step": "organize_target",
+          "consumer_step": "quadratic_a"
+        }
+      ],
+      "replay_ok": true
+    },
+    {
+      "sample": 2,
+      "status": "ok",
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "elapsed_seconds": 119.45707449998008,
+      "output": "internal/review-analysis/scoped-proof-search-stage-f3/live-02/planner-02",
+      "calls": [
+        {
+          "attempt": 1,
+          "provider_invocation_id": 1,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 10775,
+            "completion_tokens": 10788,
+            "total_tokens": 21563
+          }
+        },
+        {
+          "attempt": 2,
+          "provider_invocation_id": 2,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 10874,
+            "completion_tokens": 10428,
+            "total_tokens": 21302
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 21649,
+        "completion_tokens": 21216,
+        "total_tokens": 42865
+      },
+      "attempt_count": 2,
+      "mixed_chain_executed": false,
+      "full_chain_executed": false,
+      "verified_method_dependencies": [
+        {
+          "producer": "organize_expressions",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "step1",
+          "consumer_step": "step2"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "step1",
+          "consumer_step": "step3"
+        },
+        {
+          "producer": "apply_two_term_amgm",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "step2",
+          "consumer_step": "step3"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "bound_univariate_quadratic",
+          "producer_step": "step1",
+          "consumer_step": "step4"
+        },
+        {
+          "producer": "apply_two_term_amgm",
+          "consumer": "bound_univariate_quadratic",
+          "producer_step": "step3",
+          "consumer_step": "step4"
+        },
+        {
+          "producer": "bound_univariate_quadratic",
+          "consumer": "close_equality_and_restore",
+          "producer_step": "step4",
+          "consumer_step": "step5"
+        }
+      ],
+      "replay_ok": true
+    },
+    {
+      "sample": 3,
+      "status": "ok",
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "elapsed_seconds": 86.0705105420202,
+      "output": "internal/review-analysis/scoped-proof-search-stage-f3/live-02/planner-03",
+      "calls": [
+        {
+          "attempt": 1,
+          "provider_invocation_id": 1,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 10775,
+            "completion_tokens": 13250,
+            "total_tokens": 24025
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 10775,
+        "completion_tokens": 13250,
+        "total_tokens": 24025
+      },
+      "attempt_count": 1,
+      "mixed_chain_executed": false,
+      "full_chain_executed": false,
+      "verified_method_dependencies": [
+        {
+          "producer": "apply_two_term_amgm",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "amgm_b_a_minus_b",
+          "consumer_step": "amgm_a2_4_over_a2"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "organize_target",
+          "consumer_step": "amgm_a2_4_over_a2"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "organize_target",
+          "consumer_step": "amgm_b_a_minus_b"
+        },
+        {
+          "producer": "bound_univariate_quadratic",
+          "consumer": "close_equality_and_restore",
+          "producer_step": "quadratic_c_bound",
+          "consumer_step": "close_equality"
+        },
+        {
+          "producer": "apply_two_term_amgm",
+          "consumer": "bound_univariate_quadratic",
+          "producer_step": "amgm_a2_4_over_a2",
+          "consumer_step": "quadratic_c_bound"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "bound_univariate_quadratic",
+          "producer_step": "organize_target",
+          "consumer_step": "quadratic_c_bound"
+        }
+      ],
+      "replay_ok": true
+    }
+  ],
+  "wall_seconds": 271.844362709031,
+  "call_seconds": 378.8642227919772,
+  "usage": {
+    "prompt_tokens": 54491,
+    "completion_tokens": 53687,
+    "total_tokens": 108178
+  },
+  "first_attempt_success": 1,
+  "successful_runs": 3,
+  "mixed_chain_covered": false,
+  "full_chain_successful_runs": 0
+}

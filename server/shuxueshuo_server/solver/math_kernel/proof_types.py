@@ -80,6 +80,7 @@ class _Budget:
         # successive verified rows. They never cache proof authorization.
         self.gcd_cache, self.equation_divisors = {}, {}
         self.proven_goals = {}
+        self.local_search_session = None
         self.proof_nodes = set()
         if not isinstance(limits, ProofLimits) or any(
             type(v) is not int or v <= 0 for v in asdict(limits).values()

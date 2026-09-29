@@ -16,6 +16,8 @@ from unittest.mock import patch
 SERVER = Path(__file__).resolve().parents[1]
 ROOT = SERVER.parent
 sys.path.insert(0, str(SERVER))
+from tools.proof_search_legacy import HistoricalRequests, LegacySearch
+
 FIXTURES = SERVER / "tests/solver/fixtures"
 ASSETS = FIXTURES / "scoped-proof-search"
 
@@ -58,7 +60,7 @@ class ObserveProofs:
         self.goals = Counter()
         self.trace = []
         self.hits = Counter()
-        old_use, old_need = pk._Budget.use, pk._Search.need
+        old_use, old_need = pk._Budget.use, LegacySearch.need
 
         def use(budget, field, amount=1):
             self.budgets[id(budget)] = budget
@@ -81,18 +83,19 @@ class ObserveProofs:
             return old_need(search, goal)
 
         self.patches = [
+            HistoricalRequests(),
             patch.object(pk._Budget, "use", use),
-            patch.object(pk._Search, "need", need),
+            patch.object(LegacySearch, "need", need),
         ]
         for p in self.patches:
-            p.start()
+            p.__enter__()
         self.started = perf_counter()
         return self
 
     def __exit__(self, *exc):
         self.elapsed = perf_counter() - self.started
         for p in reversed(self.patches):
-            p.stop()
+            p.__exit__(*exc)
 
     def report(self):
         totals = Counter()
@@ -180,6 +183,7 @@ def run_baseline(output):
                         plan=plan_path,
                         output=path / "execution",
                         mode="recorded",
+                        proof_protocol="bound-conditions/v1",
                     )
                     outcome = {"status": result.status, "answers": result.answers}
                     if result.status == "ok":

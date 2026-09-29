@@ -83,61 +83,12 @@ def contains_secret_or_data_url(value: Any) -> bool:
     )
 
 
-_MISSING = object()
-
-
-def _matches_snapshot(value: Any, snapshot: Any) -> bool:
-    """Value comparison without conversion; mutable descendants are checked."""
+def _debug_json_default(value: Any) -> Any:
+    """Convert only objects the native JSON encoder cannot already encode."""
     if is_dataclass(value) and not isinstance(value, type):
-        members = fields(value)
-        return (
-            type(snapshot) is dict
-            and tuple(snapshot) == tuple(f.name for f in members)
-            and all(
-                _matches_snapshot(getattr(value, f.name), snapshot[f.name])
-                for f in members
-            )
-        )
+        return {field.name: getattr(value, field.name) for field in fields(value)}
     if isinstance(value, Mapping):
-        return (
-            type(snapshot) is dict
-            and tuple(snapshot) == tuple(str(k) for k in value)
-            and all(_matches_snapshot(v, snapshot[str(k)]) for k, v in value.items())
-        )
-    if isinstance(value, (list, tuple)):
-        return (
-            type(snapshot) is list
-            and len(value) == len(snapshot)
-            and all(_matches_snapshot(a, b) for a, b in zip(value, snapshot))
-        )
-    value = _json_leaf(value)
-    if type(value) is float and type(snapshot) is float:
-        return value.hex() == snapshot.hex()
-    return type(value) is type(snapshot) and value == snapshot
-
-
-def _json_snapshot(value: Any) -> Any:
-    # Complete private JSON snapshot, including opaque leaves that json.dumps
-    # historically rendered using default=str. No caller-owned containers.
-    if is_dataclass(value) and not isinstance(value, type):
-        return {f.name: _json_snapshot(getattr(value, f.name)) for f in fields(value)}
-    if isinstance(value, Mapping):
-        return {str(k): _json_snapshot(v) for k, v in value.items()}
-    if isinstance(value, (list, tuple)):
-        return [_json_snapshot(v) for v in value]
-    return _json_leaf(value)
-
-
-def _json_leaf(value: Any) -> Any:
-    # Match json.dumps(default=str), including str/int Enum subclasses.
-    if isinstance(value, str):
-        return str.__str__(value)
-    if isinstance(value, bool) or value is None:
-        return value
-    if isinstance(value, int):
-        return int(value)
-    if isinstance(value, float):
-        return float(value)
+        return {str(key): item for key, item in value.items()}
     return str(value)
 
 
@@ -146,8 +97,10 @@ class DebugArtifactJournal:
 
     Latest filenames remain compatible. The index points at immutable versions,
     so a later phase cannot destroy a failed/partial attempt's evidence. Full
-    diagnostic mode includes legacy views; compact audit omits those views and
-    whitespace, never the canonical evidence roles. No cache survives a solve.
+    diagnostic mode includes legacy views; compact audit omits those views,
+    never the canonical evidence roles. Both use compact native JSON encoding;
+    pretty-printing large proofs is not part of the solve path. No cache survives
+    a solve.
     """
 
     def __init__(self, directory: Path, *, mode: str = "full_diagnostic") -> None:
@@ -155,9 +108,9 @@ class DebugArtifactJournal:
             raise ValueError(f"unknown debug artifact mode: {mode}")
         self.directory = Path(directory)
         self.mode = mode
-        self._latest: dict[str, tuple[Any, dict[str, str]]] = {}
+        self._latest: dict[str, dict[str, str]] = {}
         self._history: dict[str, list[dict[str, str]]] = {}
-        self._versions: dict[str, list[tuple[Any, dict[str, str]]]] = {}
+        self._versions: dict[str, dict[str, str]] = {}
         self.metrics = {
             "publications": 0,
             "unchanged": 0,
@@ -169,7 +122,7 @@ class DebugArtifactJournal:
         }
 
     def release_snapshots(self) -> None:
-        """Drop comparison payloads at solve exit; keep only aggregate metrics."""
+        """Drop publication metadata at solve exit; keep only aggregate metrics."""
         self._latest.clear()
         self._versions.clear()
         self._history.clear()
@@ -178,41 +131,31 @@ class DebugArtifactJournal:
         if Path(name).name != name or name in {"", ".", ".."}:
             raise ValueError("artifact role must be a filename")
         self.metrics["publications"] += 1
-        prior, saved = self._latest.get(name, (_MISSING, None))
-        if prior is not _MISSING and _matches_snapshot(value, prior):
-            self.metrics["unchanged"] += 1
-            return dict(saved)
-        for snapshot, saved in self._versions.get(name, ()):
-            if _matches_snapshot(value, snapshot):
-                self._link_latest(name, self.directory / saved["file"])
-                self._latest[name] = (snapshot, saved)
-                self.metrics["unchanged"] += 1
-                return dict(saved)
-        snapshot = _json_snapshot(value)
-        self.metrics["conversions"] += 1
-        text = json.dumps(
-            snapshot,
-            ensure_ascii=False,
-            indent=2 if self.mode == "full_diagnostic" else None,
-            separators=None if self.mode == "full_diagnostic" else (",", ":"),
-        )
+        # Encode once, with no recursive snapshot conversion/comparison and no
+        # caller-owned payload retained. Content hashes select immutable files.
         self.metrics["serializations"] += 1
-        saved = self._publish(name, text)
-        self._latest[name] = (snapshot, saved)
-        self._versions.setdefault(name, []).append((snapshot, saved))
-        return dict(saved)
+        try:
+            text = json.dumps(
+                value, ensure_ascii=False, separators=(",", ":"),
+                default=_debug_json_default,
+            )
+        except TypeError:
+            # Native dict encoding never calls default() for unsupported keys.
+            # Rare tuple/dataclass keys use the historical str(key) conversion,
+            # including nested mappings; ordinary proof payloads avoid a walk.
+            self.metrics["conversions"] += 1
+            self.metrics["serializations"] += 1
+            text = json.dumps(
+                safe_debug_json(value), ensure_ascii=False, separators=(",", ":"),
+                default=_debug_json_default,
+            )
+        return self._publish(name, text)
 
     def write_text(self, name: str, value: str) -> dict[str, str]:
         if Path(name).name != name or name in {"", ".", ".."}:
             raise ValueError("artifact role must be a filename")
         self.metrics["publications"] += 1
-        prior, saved = self._latest.get(name, (_MISSING, None))
-        if type(prior) is str and prior == value:
-            self.metrics["unchanged"] += 1
-            return dict(saved)
-        saved = self._publish(name, value)
-        self._latest[name] = (value, saved)
-        return dict(saved)
+        return self._publish(name, value)
 
     def write_index(self, prefix: str, value: Any) -> None:
         saved = self.write_json(f"{prefix}.evidence-index.json", value)
@@ -238,9 +181,17 @@ class DebugArtifactJournal:
 
         data = text.encode("utf-8")
         digest = sha256(data).hexdigest()
+        version_key = f"{digest}{Path(name).suffix}"
+        saved = self._versions.get(version_key)
+        if saved is not None:
+            if self._latest.get(name) != saved:
+                self._link_latest(name, self.directory / saved["file"])
+                self._latest[name] = saved
+            self.metrics["unchanged"] += 1
+            return dict(saved)
         versions = self.directory / ".versions"
         versions.mkdir(parents=True, exist_ok=True)
-        version = versions / f"{digest}{Path(name).suffix}"
+        version = versions / version_key
         # Versions may already exist after an interrupted writer/reopened journal.
         if not version.exists():
             _atomic_text(version, text)
@@ -250,11 +201,14 @@ class DebugArtifactJournal:
             raise ValueError("artifact version content mismatch")
         version.chmod(0o444)
         self._link_latest(name, version)
-        return {
+        saved = {
             "status": "saved",
             "file": str(version.relative_to(self.directory)),
             "sha256": digest,
         }
+        self._versions[version_key] = saved
+        self._latest[name] = saved
+        return dict(saved)
 
     def _link_latest(self, name: str, version: Path) -> None:
         # Atomic link publishes the compatibility filename without a second

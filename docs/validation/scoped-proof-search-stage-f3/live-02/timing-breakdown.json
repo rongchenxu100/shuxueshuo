@@ -1,0 +1,138 @@
+{
+  "measurement": "Estimate from immutable requested/received evidence-index filesystem mtime; not instrumented API duration. LLM window includes network/provider latency and adjacent observer writes. Local remainder includes parsing, verification, evidence/debug I/O, setup and concurrent scheduling; not CPU time. Automatic post-solve replay is excluded.",
+  "runs": [
+    {
+      "sample": 1,
+      "solve_seconds": 173.33663774997694,
+      "estimated_llm_window_seconds": 76.85824028799999,
+      "estimated_local_wall_seconds": 96.47839746197695,
+      "attempts": [
+        {
+          "history": "attempt-1.evidence-history.json",
+          "stages": {
+            "requested": {
+              "file": ".versions/833df652e21d854d9d49134592fd40b4620b056127488555a46c794d98580481.json",
+              "mtime_ns": 1790606336624883484
+            },
+            "received": {
+              "file": ".versions/ab7d6a765e0df68ea6c097c0b401f3f7abcf31d48b514549c2ec9e8228510b5c.json",
+              "mtime_ns": 1790606379242577022
+            },
+            "compiled": {
+              "file": ".versions/77263a5d486869e9b1574d34f42a400b008303d27758d675dcdef4cb29f9399a.json",
+              "mtime_ns": 1790606379267762478
+            },
+            "completed": {
+              "file": ".versions/139177b141728b9e0c4e9b29c64bb2e93d4e760715c7fd741b68d29ebedb99e8.json",
+              "mtime_ns": 1790606379340970300
+            }
+          },
+          "llm_window_seconds": 42.617693538
+        },
+        {
+          "history": "attempt-2.evidence-history.json",
+          "stages": {
+            "requested": {
+              "file": ".versions/d6c13d83daca197f2e40df5dd10f824428ccfcc388ac45ff6046f3b86dc45ad8.json",
+              "mtime_ns": 1790606379400869061
+            },
+            "received": {
+              "file": ".versions/1f7b0053652da2e7091b44871578524b69419bd65496d191389a431ab3ee5fc9.json",
+              "mtime_ns": 1790606413641415811
+            },
+            "compiled": {
+              "file": ".versions/96125062d8c632f9f97f25e8b54571268ec0beda504b0d1991501acd25d05a37.json",
+              "mtime_ns": 1790606413666418350
+            },
+            "completed": {
+              "file": ".versions/7b4ac065349e9ad474193cda064d108850ed5c2282c71dc4ffb3a4d4050a93ad.json",
+              "mtime_ns": 1790606505357572754
+            }
+          },
+          "llm_window_seconds": 34.24054675
+        }
+      ]
+    },
+    {
+      "sample": 2,
+      "solve_seconds": 119.45707449998008,
+      "estimated_llm_window_seconds": 82.282212631,
+      "estimated_local_wall_seconds": 37.17486186898009,
+      "attempts": [
+        {
+          "history": "attempt-1.evidence-history.json",
+          "stages": {
+            "requested": {
+              "file": ".versions/833df652e21d854d9d49134592fd40b4620b056127488555a46c794d98580481.json",
+              "mtime_ns": 1790606336626157028
+            },
+            "received": {
+              "file": ".versions/0223d0d5e51ac9eebb1b65029945ca61e9b7e139f074328f2d81739fa5bf6f60.json",
+              "mtime_ns": 1790606379242595230
+            },
+            "completed": {
+              "file": ".versions/c894a913f4ddac984171643f3cc50183b6388644f78e002a03445ee943f95f95.json",
+              "mtime_ns": 1790606379268998813
+            }
+          },
+          "llm_window_seconds": 42.616438202
+        },
+        {
+          "history": "attempt-2.evidence-history.json",
+          "stages": {
+            "requested": {
+              "file": ".versions/869fe16b7a384aa81153db77b5eeb5bd264eacf5e9976c8242423b2adcad7a66.json",
+              "mtime_ns": 1790606379384670535
+            },
+            "received": {
+              "file": ".versions/78d650f7764e683a696066792ec1f464df8f613d5eb7ac369d79f69534288c70.json",
+              "mtime_ns": 1790606419050444964
+            },
+            "compiled": {
+              "file": ".versions/2caa0ba0182916497f73eccf93fecf493d70fc67b2d9d95326c24ef33fda8020.json",
+              "mtime_ns": 1790606419091016527
+            },
+            "completed": {
+              "file": ".versions/7b758ce157a138a9d3653d0c483630d64fe4fc358358461f53268e0ba4e125ee.json",
+              "mtime_ns": 1790606451935616598
+            }
+          },
+          "llm_window_seconds": 39.665774429
+        }
+      ]
+    },
+    {
+      "sample": 3,
+      "solve_seconds": 86.0705105420202,
+      "estimated_llm_window_seconds": 53.439012307,
+      "estimated_local_wall_seconds": 32.6314982350202,
+      "attempts": [
+        {
+          "history": "attempt-1.evidence-history.json",
+          "stages": {
+            "requested": {
+              "file": ".versions/833df652e21d854d9d49134592fd40b4620b056127488555a46c794d98580481.json",
+              "mtime_ns": 1790606493677116185
+            },
+            "received": {
+              "file": ".versions/5cf856de55b63ff35f129e98e79de72967d917379e7f91544d2350812f8531cc.json",
+              "mtime_ns": 1790606547116128492
+            },
+            "compiled": {
+              "file": ".versions/ddd8299f0e7884db8e1fbcfa888dd19b228cd1f344e47d0bea48cae7e095249b.json",
+              "mtime_ns": 1790606547156456264
+            },
+            "completed": {
+              "file": ".versions/738020089d60ae0646bf837729919dfa1e1ff40785fdccd2a4c7091e101eae1a.json",
+              "mtime_ns": 1790606576999916316
+            }
+          },
+          "llm_window_seconds": 53.439012307
+        }
+      ]
+    }
+  ],
+  "summed_solve_seconds": 378.8642227919772,
+  "summed_estimated_llm_seconds": 212.57946522599997,
+  "summed_estimated_local_seconds": 166.28475756597726
+}

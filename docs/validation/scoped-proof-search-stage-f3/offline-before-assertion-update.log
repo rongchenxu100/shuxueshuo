@@ -1,0 +1,189 @@
+
+$ <repo>/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 4 --dist worksteal
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  1%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+...................................F.................................... [  6%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 19%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 28%]
+........................................................................ [ 30%]
+........................................................................ [ 31%]
+........................................................................ [ 33%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+....................F................................................... [ 51%]
+........................................................................ [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 58%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+........................................................................ [ 63%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 72%]
+........................................................................ [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 84%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 89%]
+........................................................................ [ 90%]
+........................................................................ [ 92%]
+........................................................................ [ 93%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+........................................................................ [ 99%]
+.............                                                            [100%]
+=================================== FAILURES ===================================
+__________ test_shared_budgets_fail_closed[reductions-1-facts2-x^2=4] __________
+[gw2] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+limit = 'reductions', value = 1, facts = ('x=2',), goal = 'x^2=4'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+>       result = check(goal, context(*facts, limits=limits), False)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_math_proof_kernel.py:800: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = 'x^2=4'
+ctx = ProofContext(symbols={'x': x, 'y': y, 'a': a, 'b': b}, premises={'given_0': ParsedMath(source='x=2', normalized_source...ductions=1, depth=32, nodes=512, attempts=512, branches=8, algebraic_degree=16, refinements=128), scope_id='authoring')
+expected = False
+
+    def check(text, ctx, expected=True):
+        result = prove_relation(relation(text, ctx.symbols), ctx)
+>       assert result.status == ("proved" if expected else "not_proved"), (
+            result.to_payload()
+        )
+E       AssertionError: {'branches': [], 'code': None, 'diagnostic': None, 'proof': {'context_hash': 'b5ce5a16bbb3fe38b44dd2b8a8c9b8520d166c9b...candidate': {'source': 'x^2=4', 'source_path': None, 'step': None}, 'kind': 'relation'}, 'roots': ['p0005'], ...}, ...}
+E       assert 'proved' == 'not_proved'
+E         
+E         - not_proved
+E         ? ----
+E         + proved
+
+tests/solver/test_math_proof_kernel.py:62: AssertionError
+________________ test_substitution_uses_scoped_search[q12-4/5] _________________
+[gw3] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+case = 'q12', answer = '4/5'
+tmp_path = PosixPath('<pytest-temp>')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x111a91610>
+
+    @pytest.mark.parametrize("case,answer", [("q12", "4/5"), ("q25", "25")])
+    def test_substitution_uses_scoped_search(case, answer, tmp_path, monkeypatch):
+    
+        def forbidden(*args, **kwargs):
+            raise AssertionError("legacy search called")
+    
+        monkeypatch.setattr(LegacySearch, "need", forbidden)
+        result, runtime = run(
+            gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+            problem_ir=FIXTURES / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+            plan=FIXTURES / f"basic-inequality-stage5b/{case}.json",
+            output=tmp_path / case,
+            mode="recorded",
+            proof_protocol="scoped-facts/v2",
+        )
+        assert result.status == "ok", result.to_dict()
+        assert result.answers == {"problem": {"minimum": answer}}
+        store = runtime.last_success_artifacts.context.proof_facts
+        if case == "q12":
+            elimination = store.snapshot.commits[1]
+            assert "substitute" in elimination.dependencies
+            records = json.loads(elimination.records_json)
+>           assert any(r["kind"] == "reuse" for r in records)
+E           assert False
+E            +  where False = any(<generator object test_substitution_uses_scoped_search.<locals>.<genexpr> at 0x10eed9630>)
+
+tests/solver/test_scoped_proof_search_stage_e.py:155: AssertionError
+============================= slowest 30 durations =============================
+31.33s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_authenticated_scope_native_protocol_probes
+29.40s call     tests/solver/test_live14_repairs.py::test_original_first_response_end_to_end[1]
+28.74s setup    tests/solver/test_five_case_recorded_lesson_pages.py::test_all_five_recorded_cases_build_recursive_lesson_and_visual_pages
+27.93s call     tests/solver/test_live14_repairs.py::test_original_first_response_end_to_end[3]
+27.37s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[1]
+24.61s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[2]
+22.59s call     tests/solver/test_scoped_proof_search_stage_e.py::test_q30_real_method_chain_with_scoped_search
+19.71s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[3]
+19.34s call     tests/solver/test_scoped_proof_search_stage_e.py::test_v2_compiled_lesson[q30]
+19.10s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_seven_steps_and_semantic_visuals[False]
+18.97s call     tests/solver/test_basic_inequality_stage5c.py::test_alternate_q30_page_preserves_local_remainder_and_method_order
+18.90s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_consumes_mixed_bound_chain[True]
+18.75s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_seven_steps_and_semantic_visuals[True]
+18.71s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_consumes_mixed_bound_chain[False]
+18.69s call     tests/solver/test_scoped_proof_search_stage_a.py::test_m01_scope_domain_available_with_partial_condition_hints[hints1]
+18.34s call     tests/solver/test_scoped_proof_search_stage_a.py::test_m01_scope_domain_available_with_partial_condition_hints[hints0]
+18.31s call     tests/solver/test_live12_repairs.py::test_q30_m01_omitted_conditions_are_runtime_bound[True]
+18.27s call     tests/solver/test_basic_inequality_stage5c.py::test_m12_consumes_exact_m01_state_version
+17.98s call     tests/solver/test_live12_repairs.py::test_q30_m01_omitted_conditions_are_runtime_bound[False]
+17.32s call     tests/solver/test_scoped_proof_search_stage_a.py::test_recorded_baseline_runs_real_runtime_and_replay
+17.23s setup    tests/solver/test_lesson_teaching_c1_smoke.py::test_c1_cases_are_rebuilt_from_all_five_verified_snapshots
+16.59s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_default_q30_creates_full_scoped_committed_chain
+16.42s setup    tests/solver/test_lesson_capability_coverage.py::test_recorded_and_typed_synthetic_execution_cover_all_public_capabilities
+12.93s call     tests/solver/test_lesson_capability_coverage.py::test_all_public_teaching_materials_hide_internal_math_syntax
+12.41s call     tests/solver/test_lesson_capability_coverage.py::test_review_has_one_card_per_public_capability
+12.14s call     tests/solver/test_lesson_capability_coverage.py::test_all_public_teaching_materials_contain_no_english_prose
+12.02s call     tests/solver/test_lesson_capability_coverage.py::test_c0_regression_fixtures_match_current_public_registry
+11.97s call     tests/solver/test_lesson_capability_coverage.py::test_every_public_function_projects_its_key_student_computation
+10.94s setup    tests/solver/test_method_output_write_authority.py::test_all_companion_outputs_receive_exact_write_authority
+9.87s setup    tests/solver/test_lesson_prompt_templates.py::test_minimum_context_has_catalog_and_verified_route[q03]
+=========================== short test summary info ============================
+FAILED tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[reductions-1-facts2-x^2=4]
+FAILED tests/solver/test_scoped_proof_search_stage_e.py::test_substitution_uses_scoped_search[q12-4/5]
+2 failed, 4763 passed in 452.94s (0:07:32)

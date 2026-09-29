@@ -460,7 +460,18 @@ class _Environment:
         return node.node_id
 
     def node_key(self, node):
-        return digest((RULESET_HASH, self.context_hash, node.rule_id,
+        # Count a checked DAG node once when unrelated local rows are added.
+        # This is accounting/interning only: check_node always runs first and
+        # certificates still bind the complete context_hash and source map.
+        # Witness rules inspect the complete assumption set, so retain their
+        # complete context identity rather than narrowing it to child reads.
+        authority = self.context_hash if node.rule_id in {
+            "math.witness", "math.exists", "math.all"
+        } else (
+            self.scope_id, tuple(self.symbols), asdict(self.budget.limits),
+            {k: self.documents["premise:" + k] for k in node.premises},
+        )
+        return digest((RULESET_HASH, authority, node.rule_id,
                        node.conclusion, node.certificate,
                        [self.node_keys[c] for c in node.children]))
 
@@ -507,6 +518,11 @@ class _Environment:
                 raise ProofFailure("inconsistent_premises", "false constant premise")
         for i, g in enumerate(items):
             for h in items[:i]:
+                if (SIGNS[g[0]] & SIGNS[h[0]]
+                        and SIGNS[g[0]] & {-s for s in SIGNS[h[0]]}):
+                    # Neither positive nor negative proportionality can make
+                    # these sign sets disjoint (e.g. equality and >=).
+                    continue
                 ratio = a.proportional(_diff(g), _diff(h))
                 if ratio:
                     signs = {s * (1 if ratio > 0 else -1) for s in SIGNS[h[0]]}
@@ -1414,5 +1430,3 @@ def replay_proof(proof: dict | ProofResult, context: ProofContext, *, registry=N
         }:
             return _failure(exc)
         return ProofResult("not_proved", "invalid_proof", str(exc))
-
-

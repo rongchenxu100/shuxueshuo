@@ -1,0 +1,11 @@
+{
+  "server/shuxueshuo_server/solver/runtime/functional_goal_execution.py": "d5fe884cc3f60809c9fcc18fa11f52dd86d91638002f3f91583340fd58d9f17c",
+  "server/shuxueshuo_server/solver/runtime/functional_execution_authority.py": "d3e8e0615428316b347877a1435e1f6b92f58deb0002408141e35e5c54d0992c",
+  "server/shuxueshuo_server/solver/runtime/proof_fact_evidence.py": "87fb37a45725d582bb3ecb3f11acbf0721375791fed6c383826ded60f7917c47",
+  "server/shuxueshuo_server/solver/runtime/functional_attempt_evidence.py": "d3ee6114789433a96655cef42aa7aacbbd8b98414a5a935a1b487e20e06b0630",
+  "server/shuxueshuo_server/solver/runtime/functional_transaction_execution.py": "7c2b2ed15152a94036a99213b7b2ad4caef589576729b8471857da178d464964",
+  "server/tools/run_basic_inequality_stage4a.py": "5a874cd0852b4285f83b0c88072787f76d83ee60c6c51139ae550a9bddd5c83e",
+  "server/tests/solver/test_scoped_proof_search_stage_f3.py": "b7ec49d9c016f42f7715561f14d381ef015061c64cea9cd50f1c898234726ac4",
+  "internal/schemas/functional-goal-execution-checkpoint.schema.json": "bb55e495d6df2d6f90f8f5e8964f5fb26675be26dcc860e7f53c9d4f9ad02795",
+  "internal/schemas/verified-functional-plan-execution.schema.json": "92f03199a01214c8f786be8a38c7b03f00150272570923d0e3df042a73ce4550"
+}

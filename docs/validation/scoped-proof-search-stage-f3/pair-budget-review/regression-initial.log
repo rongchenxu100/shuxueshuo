@@ -1,0 +1,34 @@
+........................................................................ [ 49%]
+..............................................................F......... [ 98%]
+..                                                                       [100%]
+=================================== FAILURES ===================================
+_____________ test_application_search_preserves_global_exhaustion ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10b7ef690>
+
+    def test_application_search_preserves_global_exhaustion(monkeypatch):
+        from shuxueshuo_server.solver.math_kernel import amgm_application
+        from shuxueshuo_server.solver.math_kernel.inequality_evidence import verify_bound
+        from shuxueshuo_server.solver.math_kernel.method_proof_session import (
+            MethodProofSession,
+            use_proof_session,
+        )
+        from shuxueshuo_server.solver.math_kernel.proof_algebra import ProofFailure
+        from test_basic_inequality_stage5c import rows, target
+    
+        def exhausted(*args, **kwargs):
+            raise ProofFailure("proof_search_exhausted", "session total exhausted")
+    
+        monkeypatch.setattr(amgm_application, "verify_local_application", exhausted)
+        with use_proof_session(MethodProofSession()), pytest.raises(ProofFailure) as error:
+            verify_bound(target("x+4/x", ["x>0"], ["x"]), rows("x+4/x>=4"))
+>       assert error.value.code == "proof_search_exhausted"
+E       AssertionError: assert 'amgm_remainder_changed' == 'proof_search_exhausted'
+E         
+E         - proof_search_exhausted
+E         + amgm_remainder_changed
+
+tests/solver/test_scoped_proof_search_stage_e.py:388: AssertionError
+=========================== short test summary info ============================
+FAILED tests/solver/test_scoped_proof_search_stage_e.py::test_application_search_preserves_global_exhaustion
+1 failed, 145 passed in 137.93s (0:02:17)

@@ -41,7 +41,8 @@ payload = json.loads(gzip.decompress(path.read_bytes()))['facts']
 expected = fixture['output_hashes']
 def forbidden(*a, **kw):
     raise AssertionError('cold replay called search')
-proof_kernel._Search.need = forbidden
+from shuxueshuo_server.solver.math_kernel.real_proof_strategies import ScheduledRealSearch
+ScheduledRealSearch.need = forbidden
 proof_kernel._run_request = forbidden
 SearchScheduler.prove = forbidden
 replayed = []

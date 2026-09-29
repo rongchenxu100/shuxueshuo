@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from dataclasses import replace
+from hashlib import sha256
 from pathlib import Path
 
 SERVER = Path(__file__).resolve().parents[1]
@@ -59,7 +61,7 @@ class ReplayClient:
 
 
 def run(
-    *, gold, problem_ir, output, mode, plan=None, replay_from=None, input_mode="frozen", proof_protocol="bound-conditions/v1", debug_artifact_mode="full_diagnostic"
+    *, gold, problem_ir, output, mode, plan=None, replay_from=None, input_mode="frozen", proof_protocol="scoped-facts/v2", debug_artifact_mode="full_diagnostic"
 ):
     # A new directory preserves all failed attempts and their evidence.
     output = Path(output)
@@ -116,10 +118,43 @@ def run(
         debug_artifact_mode=debug_artifact_mode,
     )
     result = runtime.solve_verified(bundle)
-    (output / "result.json").write_text(
-        json.dumps(result.to_dict(), ensure_ascii=False, indent=2, default=str) + "\n"
-    )
+    _write_result_summary(output, result)
     return result, runtime
+
+
+def _write_result_summary(output, result):
+    """Export answers/diagnostics once; proofs already live in attempt artifacts.
+
+    This changes only the authoring harness file, not SolverResult or its API.
+    Immutable index references retain every attempt, including failed attempts.
+    """
+    indexes = sorted(output.glob("attempt-*.evidence-index.json"))
+    trace = result.trace
+    if indexes and trace is not None:
+        trace = replace(trace, steps=[
+            {key: step[key] for key in (
+                "kind", "method_id", "title", "goal", "reason", "calculation", "conclusion",
+            ) if key in step}
+            for step in trace.steps
+        ])
+    payload = replace(result, trace=trace).to_dict()
+    if indexes:
+        payload["export_schema"] = "solver-authoring-summary/v1"
+        payload["evidence_indexes"] = []
+        for path in indexes:
+            history_path = path.with_name(
+                path.name.replace(".evidence-index.json", ".evidence-history.json")
+            )
+            history_bytes = history_path.read_bytes()
+            history_hash = sha256(history_bytes).hexdigest()
+            payload["evidence_indexes"].append({
+                "semantic_attempt": int(path.name.split(".")[0].split("-")[1]),
+                **json.loads(history_bytes)["versions"][-1],
+                "history": {"file": f".versions/{history_hash}.json", "sha256": history_hash},
+            })
+    (output / "result.json").write_text(
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":"), default=str) + "\n"
+    )
 
 
 def main():
@@ -144,7 +179,7 @@ def main():
         / "internal/functional-plan-fixtures/basic-inequality-q01.functional-plan.json",
     )
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--proof-protocol", choices=("bound-conditions/v1", "scoped-facts/v2"), default="bound-conditions/v1")
+    parser.add_argument("--proof-protocol", choices=("bound-conditions/v1", "scoped-facts/v2"), default="scoped-facts/v2")
     parser.add_argument("--debug-artifact-mode", choices=("compact_audit", "full_diagnostic"), default="full_diagnostic")
     args = parser.parse_args()
     result, _ = run(

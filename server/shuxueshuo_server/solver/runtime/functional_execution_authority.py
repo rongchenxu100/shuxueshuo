@@ -958,7 +958,7 @@ def functional_execution_evidence_from_payload(
     payload: Mapping[str, Any],
 ) -> FunctionalExecutionEvidence:
     schema_version = payload.get("schema_version")
-    if schema_version == "scoped-proof-commit/v1":
+    if schema_version in {"scoped-proof-commit/v1", "scoped-proof-commit-ref/v1"}:
         return ProofFactsExecutionEvidence.from_payload(payload)
     if schema_version == "substitution-teaching-evidence/v1":
         return SubstitutionTeachingEvidence.from_payload(payload)

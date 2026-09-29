@@ -1,0 +1,99 @@
+{
+  "runs": [
+    {
+      "sample": 1,
+      "status": "ok",
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "elapsed_seconds": 29.993258750007953,
+      "output": "internal/review-analysis/scoped-proof-search-stage-f3/final-lesson/planner-01",
+      "calls": [
+        {
+          "attempt": 1,
+          "provider_invocation_id": null,
+          "request_model": null,
+          "response_model": null,
+          "usage": {}
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
+        "total_tokens": 0
+      },
+      "attempt_count": 1,
+      "mixed_chain_executed": true,
+      "full_chain_executed": true,
+      "verified_method_dependencies": [
+        {
+          "producer": "apply_two_term_amgm",
+          "consumer": "close_equality_and_restore",
+          "producer_step": "last",
+          "consumer_step": "attain"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "close_equality_and_restore",
+          "producer_step": "rewrite",
+          "consumer_step": "attain"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "rewrite",
+          "consumer_step": "first"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "rewrite",
+          "consumer_step": "last"
+        },
+        {
+          "producer": "bound_univariate_quadratic",
+          "consumer": "apply_two_term_amgm",
+          "producer_step": "square",
+          "consumer_step": "last"
+        },
+        {
+          "producer": "apply_two_term_amgm",
+          "consumer": "bound_univariate_quadratic",
+          "producer_step": "first",
+          "consumer_step": "square"
+        },
+        {
+          "producer": "organize_expressions",
+          "consumer": "bound_univariate_quadratic",
+          "producer_step": "rewrite",
+          "consumer_step": "square"
+        }
+      ],
+      "replay_ok": true
+    }
+  ],
+  "wall_seconds": 57.34927449998213,
+  "call_seconds": 29.993258750007953,
+  "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0
+  },
+  "first_attempt_success": 1,
+  "successful_runs": 1,
+  "mixed_chain_covered": true,
+  "full_chain_successful_runs": 1,
+  "lesson": {
+    "mode": "deterministic",
+    "steps": 7,
+    "page": "internal/review-analysis/scoped-proof-search-stage-f3/final-lesson/lesson/lesson.html",
+    "elapsed_seconds": 27.236,
+    "lesson": {
+      "provider_calls": 0,
+      "fallback_used": false
+    }
+  },
+  "timing_note": "Ran concurrently with offline regression; not used as a performance benchmark."
+}

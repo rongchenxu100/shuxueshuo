@@ -1,0 +1,1242 @@
+........................................................................ [ 26%]
+........................................................................ [ 53%]
+...................................................................FF... [ 80%]
+...F..F......FFFF....................................                    [100%]
+=================================== FAILURES ===================================
+_____________ test_attainment_reference_is_verified_and_located[:] _____________
+
+simple_bound = ({'goal_kind': 'find_minimum', 'scalar_symbols': ['x'], 'scope_id': 'problem', 'source_conditions': [{'handle': 'c0', ......}, {...}], 'request': {'candidate': {...}, 'kind': 'relation'}, 'roots': ['p0005'], ...}]}, 'direction': '>=', ...})
+colon = ':'
+
+    @pytest.mark.parametrize('colon', [':','：'])
+    def test_attainment_reference_is_verified_and_located(simple_bound, colon):
+        t,b = simple_bound
+        phrase = f'∵ x+4/x>=4 取等{colon}x=4/x；∴ x=2'
+>       value, evidence = close_bound(t,b,[{'math':phrase}])
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_live13_repairs.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:339: in close_bound
+    return close(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:627: in close
+    chain = parse_derivation(steps, context.symbols, closure_target=target)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:557: in verify_equality_references
+    attainment_rows.insert(0, squared)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:111: in verify_relation_sequence
+    proof = _run_request(current, request, budget=budget).proof
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x11fb9a990>
+context = ProofContext(symbols={'x': x}, premises={'c0': ParsedMath(source='x>0', normalized_source='(x>0)', source_map=((0, 0),...ductions=256, depth=32, nodes=512, attempts=512, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': '(x+4/x)=(4)', 'source_path': None, 'step': None}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        # Small retrieval views must retain the local scalar order/sign basis.
+        # A retrieved bound does not replace a>b, b>c, c>0 when proving the
+        # original denominator guards. Losing that basis makes each widening
+        # retry search an impossible sign problem before it sees the premises.
+        sign_basis = {
+            key for key, parsed in context.premises.items()
+            if (tree := from_node(parsed.ast))[0] != "="
+            and all(side[0] in {"symbol", "rat"} for side in tree[1:])
+        }
+        # Keep complete already-submitted order paths together. Selecting only
+        # F>=G while dropping G>=k makes even a two-edge transitivity request
+        # repeat its domain proof in every widening view.
+        from .proof_checker import _ordered
+    
+        edges = [(key, _ordered(from_node(p.ast))) for key, p in context.premises.items()]
+        for root in roots:
+            ordered = _ordered(root) if root[0] != "all" else None
+            if not ordered:
+                continue
+            compatible = [(key, p) for key, p in edges if p and p[0] == ordered[0]]
+            forward, backward = {ordered[1]}, {ordered[2]}
+            for _ in range(len(compatible)):
+                before = len(forward), len(backward)
+                for _, p in compatible:
+                    if p[1] in forward:
+                        forward.add(p[2])
+                    if p[2] in backward:
+                        backward.add(p[1])
+                if before == (len(forward), len(backward)):
+                    break
+            sign_basis.update(key for key, p in compatible
+                              if p[1] in forward and p[2] in backward)
+        selections = []
+        for size in sizes:
+            keys = sign_basis | {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    # Split speculative search work, not the certificate's
+                    # minimum footprint: a valid DAG may need more than 1/N
+                    # of the remaining nodes in every view. Global node and
+                    # per-candidate node limits still apply without refunds.
+                    for r in ("attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: bounded strategies exhausted; relation not established
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:317: ProofFailure
+__________ test_attainment_reference_is_verified_and_located[\uff1a] ___________
+
+simple_bound = ({'goal_kind': 'find_minimum', 'scalar_symbols': ['x'], 'scope_id': 'problem', 'source_conditions': [{'handle': 'c0', ......}, {...}], 'request': {'candidate': {...}, 'kind': 'relation'}, 'roots': ['p0005'], ...}]}, 'direction': '>=', ...})
+colon = '：'
+
+    @pytest.mark.parametrize('colon', [':','：'])
+    def test_attainment_reference_is_verified_and_located(simple_bound, colon):
+        t,b = simple_bound
+        phrase = f'∵ x+4/x>=4 取等{colon}x=4/x；∴ x=2'
+>       value, evidence = close_bound(t,b,[{'math':phrase}])
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_live13_repairs.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:339: in close_bound
+    return close(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:627: in close
+    chain = parse_derivation(steps, context.symbols, closure_target=target)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:557: in verify_equality_references
+    attainment_rows.insert(0, squared)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:111: in verify_relation_sequence
+    proof = _run_request(current, request, budget=budget).proof
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x11dbcf490>
+context = ProofContext(symbols={'x': x}, premises={'c0': ParsedMath(source='x>0', normalized_source='(x>0)', source_map=((0, 0),...ductions=256, depth=32, nodes=512, attempts=512, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': '(x+4/x)=(4)', 'source_path': None, 'step': None}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        # Small retrieval views must retain the local scalar order/sign basis.
+        # A retrieved bound does not replace a>b, b>c, c>0 when proving the
+        # original denominator guards. Losing that basis makes each widening
+        # retry search an impossible sign problem before it sees the premises.
+        sign_basis = {
+            key for key, parsed in context.premises.items()
+            if (tree := from_node(parsed.ast))[0] != "="
+            and all(side[0] in {"symbol", "rat"} for side in tree[1:])
+        }
+        # Keep complete already-submitted order paths together. Selecting only
+        # F>=G while dropping G>=k makes even a two-edge transitivity request
+        # repeat its domain proof in every widening view.
+        from .proof_checker import _ordered
+    
+        edges = [(key, _ordered(from_node(p.ast))) for key, p in context.premises.items()]
+        for root in roots:
+            ordered = _ordered(root) if root[0] != "all" else None
+            if not ordered:
+                continue
+            compatible = [(key, p) for key, p in edges if p and p[0] == ordered[0]]
+            forward, backward = {ordered[1]}, {ordered[2]}
+            for _ in range(len(compatible)):
+                before = len(forward), len(backward)
+                for _, p in compatible:
+                    if p[1] in forward:
+                        forward.add(p[2])
+                    if p[2] in backward:
+                        backward.add(p[1])
+                if before == (len(forward), len(backward)):
+                    break
+            sign_basis.update(key for key, p in compatible
+                              if p[1] in forward and p[2] in backward)
+        selections = []
+        for size in sizes:
+            keys = sign_basis | {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    # Split speculative search work, not the certificate's
+                    # minimum footprint: a valid DAG may need more than 1/N
+                    # of the remaining nodes in every view. Global node and
+                    # per-candidate node limits still apply without refunds.
+                    for r in ("attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: bounded strategies exhausted; relation not established
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:317: ProofFailure
+____________________ test_reference_does_not_supply_witness ____________________
+
+simple_bound = ({'goal_kind': 'find_minimum', 'scalar_symbols': ['x'], 'scope_id': 'problem', 'source_conditions': [{'handle': 'c0', ......}, {...}], 'request': {'candidate': {...}, 'kind': 'relation'}, 'roots': ['p0005'], ...}]}, 'direction': '>=', ...})
+
+    def test_reference_does_not_supply_witness(simple_bound):
+        t,b = simple_bound
+        with pytest.raises(ProofFailure, match='explicit constant assignment'):
+>           close_bound(t,b,[{'math':'∵ x+4/x>=4 取等：x=4/x'}])
+
+tests/solver/test_live13_repairs.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:339: in close_bound
+    return close(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:627: in close
+    chain = parse_derivation(steps, context.symbols, closure_target=target)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:557: in verify_equality_references
+    attainment_rows.insert(0, squared)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:111: in verify_relation_sequence
+    proof = _run_request(current, request, budget=budget).proof
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x10e7df810>
+context = ProofContext(symbols={'x': x}, premises={'c0': ParsedMath(source='x>0', normalized_source='(x>0)', source_map=((0, 0),...ductions=256, depth=32, nodes=512, attempts=512, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': '(x+4/x)=(4)', 'source_path': None, 'step': None}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        # Small retrieval views must retain the local scalar order/sign basis.
+        # A retrieved bound does not replace a>b, b>c, c>0 when proving the
+        # original denominator guards. Losing that basis makes each widening
+        # retry search an impossible sign problem before it sees the premises.
+        sign_basis = {
+            key for key, parsed in context.premises.items()
+            if (tree := from_node(parsed.ast))[0] != "="
+            and all(side[0] in {"symbol", "rat"} for side in tree[1:])
+        }
+        # Keep complete already-submitted order paths together. Selecting only
+        # F>=G while dropping G>=k makes even a two-edge transitivity request
+        # repeat its domain proof in every widening view.
+        from .proof_checker import _ordered
+    
+        edges = [(key, _ordered(from_node(p.ast))) for key, p in context.premises.items()]
+        for root in roots:
+            ordered = _ordered(root) if root[0] != "all" else None
+            if not ordered:
+                continue
+            compatible = [(key, p) for key, p in edges if p and p[0] == ordered[0]]
+            forward, backward = {ordered[1]}, {ordered[2]}
+            for _ in range(len(compatible)):
+                before = len(forward), len(backward)
+                for _, p in compatible:
+                    if p[1] in forward:
+                        forward.add(p[2])
+                    if p[2] in backward:
+                        backward.add(p[1])
+                if before == (len(forward), len(backward)):
+                    break
+            sign_basis.update(key for key, p in compatible
+                              if p[1] in forward and p[2] in backward)
+        selections = []
+        for size in sizes:
+            keys = sign_basis | {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    # Split speculative search work, not the certificate's
+                    # minimum footprint: a valid DAG may need more than 1/N
+                    # of the remaining nodes in every view. Global node and
+                    # per-candidate node limits still apply without refunds.
+                    for r in ("attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: bounded strategies exhausted; relation not established
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:317: ProofFailure
+
+During handling of the above exception, another exception occurred:
+
+simple_bound = ({'goal_kind': 'find_minimum', 'scalar_symbols': ['x'], 'scope_id': 'problem', 'source_conditions': [{'handle': 'c0', ......}, {...}], 'request': {'candidate': {...}, 'kind': 'relation'}, 'roots': ['p0005'], ...}]}, 'direction': '>=', ...})
+
+    def test_reference_does_not_supply_witness(simple_bound):
+        t,b = simple_bound
+>       with pytest.raises(ProofFailure, match='explicit constant assignment'):
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'explicit constant assignment'
+E         Actual message: 'bounded strategies exhausted; relation not established'
+
+tests/solver/test_live13_repairs.py:86: AssertionError
+_______________________ test_real_first_attempt_plan[3] ________________________
+
+tmp_path = PosixPath('<pytest-temp>/pytest-717/test_real_first_attempt_plan_30')
+sample = '3'
+
+    @pytest.mark.parametrize('sample', ['1','2','3'])
+    def test_real_first_attempt_plan(tmp_path, sample):
+        plan = tmp_path/'plan.json'
+        plan.write_text(json.dumps({'format':'functional_plan/v2', 'root_scope':{'scope_ref':'problem', 'steps':PLANS[sample].get('scope_steps',{}).get('problem',[]), 'goals':[{'goal_ref':key, **value} for key,value in PLANS[sample]['goal_plans'].items()]}}))
+        result,_ = run(gold=FIXTURES/'math-notation-v1/basic-inequality/q30.json',
+                       problem_ir=FIXTURES/'basic-inequality-problem-ir/v1/q30/problem-ir.json',
+                       plan=plan, mode='recorded', output=tmp_path/'run')
+>       assert result.status == 'ok', result.to_dict()
+E       AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E       assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_live13_repairs.py:97: AssertionError
+__________ test_conclusion_marker_references_same_attainment[\uff1b] ___________
+
+simple_bound = ({'goal_kind': 'find_minimum', 'scalar_symbols': ['x'], 'scope_id': 'problem', 'source_conditions': [{'handle': 'c0', ......}, {...}], 'request': {'candidate': {...}, 'kind': 'relation'}, 'roots': ['p0005'], ...}]}, 'direction': '>=', ...})
+separator = '；'
+
+    @pytest.mark.parametrize('separator', ['；',';',',','，'])
+    def test_conclusion_marker_references_same_attainment(simple_bound, separator):
+        t,b = simple_bound
+        text = f'∵ x+4/x>=4 取等{separator}∴ x=4/x；∴ x=2'
+>       value,evidence = close_bound(t,b,[{'math':text}])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_live14_repairs.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:339: in close_bound
+    return close(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:627: in close
+    chain = parse_derivation(steps, context.symbols, closure_target=target)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:557: in verify_equality_references
+    attainment_rows.insert(0, squared)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:111: in verify_relation_sequence
+    proof = _run_request(current, request, budget=budget).proof
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x1130e0a10>
+context = ProofContext(symbols={'x': x}, premises={'c0': ParsedMath(source='x>0', normalized_source='(x>0)', source_map=((0, 0),...ductions=256, depth=32, nodes=512, attempts=512, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': '(x+4/x)=(4)', 'source_path': None, 'step': None}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        # Small retrieval views must retain the local scalar order/sign basis.
+        # A retrieved bound does not replace a>b, b>c, c>0 when proving the
+        # original denominator guards. Losing that basis makes each widening
+        # retry search an impossible sign problem before it sees the premises.
+        sign_basis = {
+            key for key, parsed in context.premises.items()
+            if (tree := from_node(parsed.ast))[0] != "="
+            and all(side[0] in {"symbol", "rat"} for side in tree[1:])
+        }
+        # Keep complete already-submitted order paths together. Selecting only
+        # F>=G while dropping G>=k makes even a two-edge transitivity request
+        # repeat its domain proof in every widening view.
+        from .proof_checker import _ordered
+    
+        edges = [(key, _ordered(from_node(p.ast))) for key, p in context.premises.items()]
+        for root in roots:
+            ordered = _ordered(root) if root[0] != "all" else None
+            if not ordered:
+                continue
+            compatible = [(key, p) for key, p in edges if p and p[0] == ordered[0]]
+            forward, backward = {ordered[1]}, {ordered[2]}
+            for _ in range(len(compatible)):
+                before = len(forward), len(backward)
+                for _, p in compatible:
+                    if p[1] in forward:
+                        forward.add(p[2])
+                    if p[2] in backward:
+                        backward.add(p[1])
+                if before == (len(forward), len(backward)):
+                    break
+            sign_basis.update(key for key, p in compatible
+                              if p[1] in forward and p[2] in backward)
+        selections = []
+        for size in sizes:
+            keys = sign_basis | {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    # Split speculative search work, not the certificate's
+                    # minimum footprint: a valid DAG may need more than 1/N
+                    # of the remaining nodes in every view. Global node and
+                    # per-candidate node limits still apply without refunds.
+                    for r in ("attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: bounded strategies exhausted; relation not established
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:317: ProofFailure
+_____________ test_conclusion_marker_references_same_attainment[;] _____________
+
+simple_bound = ({'goal_kind': 'find_minimum', 'scalar_symbols': ['x'], 'scope_id': 'problem', 'source_conditions': [{'handle': 'c0', ......}, {...}], 'request': {'candidate': {...}, 'kind': 'relation'}, 'roots': ['p0005'], ...}]}, 'direction': '>=', ...})
+separator = ';'
+
+    @pytest.mark.parametrize('separator', ['；',';',',','，'])
+    def test_conclusion_marker_references_same_attainment(simple_bound, separator):
+        t,b = simple_bound
+        text = f'∵ x+4/x>=4 取等{separator}∴ x=4/x；∴ x=2'
+>       value,evidence = close_bound(t,b,[{'math':text}])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_live14_repairs.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:339: in close_bound
+    return close(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:627: in close
+    chain = parse_derivation(steps, context.symbols, closure_target=target)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:557: in verify_equality_references
+    attainment_rows.insert(0, squared)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:111: in verify_relation_sequence
+    proof = _run_request(current, request, budget=budget).proof
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x10f9cbf10>
+context = ProofContext(symbols={'x': x}, premises={'c0': ParsedMath(source='x>0', normalized_source='(x>0)', source_map=((0, 0),...ductions=256, depth=32, nodes=512, attempts=512, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': '(x+4/x)=(4)', 'source_path': None, 'step': None}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        # Small retrieval views must retain the local scalar order/sign basis.
+        # A retrieved bound does not replace a>b, b>c, c>0 when proving the
+        # original denominator guards. Losing that basis makes each widening
+        # retry search an impossible sign problem before it sees the premises.
+        sign_basis = {
+            key for key, parsed in context.premises.items()
+            if (tree := from_node(parsed.ast))[0] != "="
+            and all(side[0] in {"symbol", "rat"} for side in tree[1:])
+        }
+        # Keep complete already-submitted order paths together. Selecting only
+        # F>=G while dropping G>=k makes even a two-edge transitivity request
+        # repeat its domain proof in every widening view.
+        from .proof_checker import _ordered
+    
+        edges = [(key, _ordered(from_node(p.ast))) for key, p in context.premises.items()]
+        for root in roots:
+            ordered = _ordered(root) if root[0] != "all" else None
+            if not ordered:
+                continue
+            compatible = [(key, p) for key, p in edges if p and p[0] == ordered[0]]
+            forward, backward = {ordered[1]}, {ordered[2]}
+            for _ in range(len(compatible)):
+                before = len(forward), len(backward)
+                for _, p in compatible:
+                    if p[1] in forward:
+                        forward.add(p[2])
+                    if p[2] in backward:
+                        backward.add(p[1])
+                if before == (len(forward), len(backward)):
+                    break
+            sign_basis.update(key for key, p in compatible
+                              if p[1] in forward and p[2] in backward)
+        selections = []
+        for size in sizes:
+            keys = sign_basis | {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    # Split speculative search work, not the certificate's
+                    # minimum footprint: a valid DAG may need more than 1/N
+                    # of the remaining nodes in every view. Global node and
+                    # per-candidate node limits still apply without refunds.
+                    for r in ("attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: bounded strategies exhausted; relation not established
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:317: ProofFailure
+_____________ test_conclusion_marker_references_same_attainment[,] _____________
+
+simple_bound = ({'goal_kind': 'find_minimum', 'scalar_symbols': ['x'], 'scope_id': 'problem', 'source_conditions': [{'handle': 'c0', ......}, {...}], 'request': {'candidate': {...}, 'kind': 'relation'}, 'roots': ['p0005'], ...}]}, 'direction': '>=', ...})
+separator = ','
+
+    @pytest.mark.parametrize('separator', ['；',';',',','，'])
+    def test_conclusion_marker_references_same_attainment(simple_bound, separator):
+        t,b = simple_bound
+        text = f'∵ x+4/x>=4 取等{separator}∴ x=4/x；∴ x=2'
+>       value,evidence = close_bound(t,b,[{'math':text}])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_live14_repairs.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:339: in close_bound
+    return close(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:627: in close
+    chain = parse_derivation(steps, context.symbols, closure_target=target)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:557: in verify_equality_references
+    attainment_rows.insert(0, squared)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:111: in verify_relation_sequence
+    proof = _run_request(current, request, budget=budget).proof
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x10e9c4b90>
+context = ProofContext(symbols={'x': x}, premises={'c0': ParsedMath(source='x>0', normalized_source='(x>0)', source_map=((0, 0),...ductions=256, depth=32, nodes=512, attempts=512, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': '(x+4/x)=(4)', 'source_path': None, 'step': None}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        # Small retrieval views must retain the local scalar order/sign basis.
+        # A retrieved bound does not replace a>b, b>c, c>0 when proving the
+        # original denominator guards. Losing that basis makes each widening
+        # retry search an impossible sign problem before it sees the premises.
+        sign_basis = {
+            key for key, parsed in context.premises.items()
+            if (tree := from_node(parsed.ast))[0] != "="
+            and all(side[0] in {"symbol", "rat"} for side in tree[1:])
+        }
+        # Keep complete already-submitted order paths together. Selecting only
+        # F>=G while dropping G>=k makes even a two-edge transitivity request
+        # repeat its domain proof in every widening view.
+        from .proof_checker import _ordered
+    
+        edges = [(key, _ordered(from_node(p.ast))) for key, p in context.premises.items()]
+        for root in roots:
+            ordered = _ordered(root) if root[0] != "all" else None
+            if not ordered:
+                continue
+            compatible = [(key, p) for key, p in edges if p and p[0] == ordered[0]]
+            forward, backward = {ordered[1]}, {ordered[2]}
+            for _ in range(len(compatible)):
+                before = len(forward), len(backward)
+                for _, p in compatible:
+                    if p[1] in forward:
+                        forward.add(p[2])
+                    if p[2] in backward:
+                        backward.add(p[1])
+                if before == (len(forward), len(backward)):
+                    break
+            sign_basis.update(key for key, p in compatible
+                              if p[1] in forward and p[2] in backward)
+        selections = []
+        for size in sizes:
+            keys = sign_basis | {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    # Split speculative search work, not the certificate's
+                    # minimum footprint: a valid DAG may need more than 1/N
+                    # of the remaining nodes in every view. Global node and
+                    # per-candidate node limits still apply without refunds.
+                    for r in ("attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: bounded strategies exhausted; relation not established
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:317: ProofFailure
+__________ test_conclusion_marker_references_same_attainment[\uff0c] ___________
+
+simple_bound = ({'goal_kind': 'find_minimum', 'scalar_symbols': ['x'], 'scope_id': 'problem', 'source_conditions': [{'handle': 'c0', ......}, {...}], 'request': {'candidate': {...}, 'kind': 'relation'}, 'roots': ['p0005'], ...}]}, 'direction': '>=', ...})
+separator = '，'
+
+    @pytest.mark.parametrize('separator', ['；',';',',','，'])
+    def test_conclusion_marker_references_same_attainment(simple_bound, separator):
+        t,b = simple_bound
+        text = f'∵ x+4/x>=4 取等{separator}∴ x=4/x；∴ x=2'
+>       value,evidence = close_bound(t,b,[{'math':text}])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_live14_repairs.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:339: in close_bound
+    return close(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:627: in close
+    chain = parse_derivation(steps, context.symbols, closure_target=target)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:557: in verify_equality_references
+    attainment_rows.insert(0, squared)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:111: in verify_relation_sequence
+    proof = _run_request(current, request, budget=budget).proof
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x10eb9aad0>
+context = ProofContext(symbols={'x': x}, premises={'c0': ParsedMath(source='x>0', normalized_source='(x>0)', source_map=((0, 0),...ductions=256, depth=32, nodes=512, attempts=512, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': '(x+4/x)=(4)', 'source_path': None, 'step': None}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        # Small retrieval views must retain the local scalar order/sign basis.
+        # A retrieved bound does not replace a>b, b>c, c>0 when proving the
+        # original denominator guards. Losing that basis makes each widening
+        # retry search an impossible sign problem before it sees the premises.
+        sign_basis = {
+            key for key, parsed in context.premises.items()
+            if (tree := from_node(parsed.ast))[0] != "="
+            and all(side[0] in {"symbol", "rat"} for side in tree[1:])
+        }
+        # Keep complete already-submitted order paths together. Selecting only
+        # F>=G while dropping G>=k makes even a two-edge transitivity request
+        # repeat its domain proof in every widening view.
+        from .proof_checker import _ordered
+    
+        edges = [(key, _ordered(from_node(p.ast))) for key, p in context.premises.items()]
+        for root in roots:
+            ordered = _ordered(root) if root[0] != "all" else None
+            if not ordered:
+                continue
+            compatible = [(key, p) for key, p in edges if p and p[0] == ordered[0]]
+            forward, backward = {ordered[1]}, {ordered[2]}
+            for _ in range(len(compatible)):
+                before = len(forward), len(backward)
+                for _, p in compatible:
+                    if p[1] in forward:
+                        forward.add(p[2])
+                    if p[2] in backward:
+                        backward.add(p[1])
+                if before == (len(forward), len(backward)):
+                    break
+            sign_basis.update(key for key, p in compatible
+                              if p[1] in forward and p[2] in backward)
+        selections = []
+        for size in sizes:
+            keys = sign_basis | {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    # Split speculative search work, not the certificate's
+                    # minimum footprint: a valid DAG may need more than 1/N
+                    # of the remaining nodes in every view. Global node and
+                    # per-candidate node limits still apply without refunds.
+                    for r in ("attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: bounded strategies exhausted; relation not established
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:317: ProofFailure
+=========================== short test summary info ============================
+FAILED tests/solver/test_live13_repairs.py::test_attainment_reference_is_verified_and_located[:]
+FAILED tests/solver/test_live13_repairs.py::test_attainment_reference_is_verified_and_located[\uff1a]
+FAILED tests/solver/test_live13_repairs.py::test_reference_does_not_supply_witness
+FAILED tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[3]
+FAILED tests/solver/test_live14_repairs.py::test_conclusion_marker_references_same_attainment[\uff1b]
+FAILED tests/solver/test_live14_repairs.py::test_conclusion_marker_references_same_attainment[;]
+FAILED tests/solver/test_live14_repairs.py::test_conclusion_marker_references_same_attainment[,]
+FAILED tests/solver/test_live14_repairs.py::test_conclusion_marker_references_same_attainment[\uff0c]
+8 failed, 261 passed in 270.22s (0:04:30)

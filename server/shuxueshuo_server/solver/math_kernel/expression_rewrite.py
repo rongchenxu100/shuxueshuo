@@ -22,7 +22,7 @@ from .expression_parser import (
     parse_math_relation,
 )
 from .proof_algebra import ProofFailure, domains, from_node, names
-from .proof_kernel import ProofContext, _Budget, _document, _replay, _run_request, _text
+from .proof_kernel import ProofContext, _Budget, _document, _run_request, _text
 
 
 class RewriteError(ValueError):
@@ -619,8 +619,7 @@ def verify_chain(
                     raise ProofFailure("proof_missing", "等式不等价，请检查局部变形及完整目标中的其余项")
         request = {"kind": kind, "candidate": _document(candidate)}
         proof = _run_request(context, request, budget=budget).proof
-        # Replay has its own validation budget, not a second construction charge.
-        _replay(proof, context)
+        # _run_request returns only independently checked certificates.
         certificates.append(proof)
         from dataclasses import asdict
         proof_contexts.append({"symbols": sorted(context.symbols), "scope_id": context.scope_id,

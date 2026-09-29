@@ -61,8 +61,11 @@ def candidate_pairs(tree):
 def application_candidates(source, chain, symbols):
     # Only current input/submitted mathematics proposes this operation.
     seen = set()
-    trees = [from_node(parse_math_expression(source, symbols).ast)]
-    trees.extend(from_node(row.parsed.ast) for row in chain)
+    # Authored operands retain the student's grouping. The Runtime expression
+    # may already be expanded (e.g. (a+b)/2 into a/2+b/2); both are candidates,
+    # but an accepted submitted pair is the authoritative current operation.
+    trees = [from_node(row.parsed.ast) for row in chain]
+    trees.append(from_node(parse_math_expression(source, symbols).ast))
     for tree in trees:
         for u, v in candidate_pairs(tree):
             key = commutative_key(("add", u, v))
@@ -136,9 +139,16 @@ def verify_application(
                     certificates=certificate["effect"] if certificate else None,
                 )
             except ProofFailure as exc:
-                # A speculative effect outside the finite algebra profile is
-                # unavailable. This does not enlarge search or replay budgets.
-                if certificate is None and exc.code == "proof_limit":
+                # Minimum effects allocate private budgets per pair (shared
+                # only by that pair's templates/relations). Their exhaustion
+                # makes this pair unavailable. Upper effects and the positivity
+                # checks below consume the caller's ledger and must propagate
+                # shared exhaustion. Explicit replay never tries another pair.
+                if certificate is None and (
+                    exc.is_structure_limit or exc.code == "strategy_budget_exhausted"
+                    or (effect_verifier is verify_local_application
+                        and exc.is_shared_budget_exhaustion)
+                ):
                     continue
                 raise
             relation = f"({math_text(u)})+({math_text(v)})>=2*sqrt(({math_text(u)})*({math_text(v)}))"

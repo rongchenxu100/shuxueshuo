@@ -135,6 +135,7 @@ class SearchBudget(_Budget):
             self.gcd_cache = parent.gcd_cache
             self.equation_divisors = parent.equation_divisors
             self.proof_nodes = parent.proof_nodes
+            self.proven_goals = parent.proven_goals
         self.leases = []
         self.candidates = 0
         self.trace = []
@@ -322,7 +323,7 @@ def default_search_configuration():
     return (
         StrategyRegistry((package,)),
         rules,
-        SearchPolicy("layered-search/v1", package.identity, checker.rule_ids),
+        SearchPolicy("layered-search/v2", package.identity, checker.rule_ids),
     )
 
 
@@ -338,7 +339,7 @@ def run_scheduled_request(
     request_quota=None,
     seed_provider=None,
 ):
-    """Internal opt-in entry; stage E owns production Method migration."""
+    """Bounded production search; independent replay remains the only checker."""
     from .proof_types import ProofResult
 
     defaults = default_search_configuration()

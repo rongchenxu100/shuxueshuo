@@ -2,7 +2,10 @@
 
 The legacy run reconstructs exact Method-local contexts only. New searches run
 independently; failures are saved and never repaired by the legacy result.
-Method/application migration and witness routing remain stage E.
+Outer witness drivers are excluded from this historical request comparison;
+current Runtime, Method and witness migration are covered by E/F3 tests.
+The archived search uses the current checker/accounting, so rerun costs are not
+a byte-for-byte reconstruction of historical performance measurements.
 """
 
 from __future__ import annotations
@@ -20,10 +23,10 @@ from unittest.mock import patch
 SERVER = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SERVER))
 from tools.proof_search_baseline import FIXTURES, ROOT, profiles, verify_assets
+from tools.proof_search_legacy import HistoricalRequests, LegacySearch
 
 
 def measure(output):
-    from shuxueshuo_server.solver.math_kernel import proof_kernel as legacy
     from shuxueshuo_server.solver.math_kernel.inequality_evidence import verify_bound
     from shuxueshuo_server.solver.math_kernel.proof_checker import replay_proof
     from shuxueshuo_server.solver.math_kernel.proof_search import run_scheduled_request
@@ -46,7 +49,7 @@ def measure(output):
         path.mkdir()
         source = json.loads((ROOT / case["input"]).read_text())[case["key"]]
         requests = []
-        original = legacy._Search.__init__
+        original = LegacySearch.__init__
 
         def observe(
             self, context, request, original=original, requests=requests, **kwargs
@@ -56,7 +59,7 @@ def measure(output):
             return result
 
         start = perf_counter()
-        with patch.object(legacy._Search, "__init__", observe):
+        with patch.object(LegacySearch, "__init__", observe), HistoricalRequests():
             if case["kind"] == "local_bound":
                 verified = verify_bound(manifest["local_target"], source)
                 old_outcome = {"bound": verified["bound"]}
@@ -81,6 +84,7 @@ def measure(output):
                     plan=plan_path,
                     output=path / "legacy",
                     mode="recorded",
+                    proof_protocol="bound-conditions/v1",
                 )
                 old_outcome = {"status": result.status, "answers": result.answers}
         legacy_elapsed = perf_counter() - start
@@ -92,7 +96,7 @@ def measure(output):
         def forbidden(*a, **kw):
             raise AssertionError("layered search invoked legacy fallback")
 
-        with patch.object(legacy._Search, "core", forbidden):
+        with patch.object(LegacySearch, "core", forbidden):
             for i, (context, request, limits) in enumerate(requests):
                 if request["kind"] == "witness":
                     rows.append(
@@ -171,7 +175,6 @@ def replay_saved(directory):
     from hashlib import sha256
 
     import sympy as sp
-    from shuxueshuo_server.solver.math_kernel import proof_kernel as legacy
     from shuxueshuo_server.solver.math_kernel.expression_parser import (
         parse_math_relation,
     )
@@ -187,7 +190,7 @@ def replay_saved(directory):
 
     report = {"proved": 0, "deferred_witness_drivers": 0, "archives": {}}
     with (
-        patch.object(legacy._Search, "need", forbidden),
+        patch.object(LegacySearch, "need", forbidden),
         patch.object(SearchScheduler, "prove", forbidden),
     ):
         for path in sorted(directory.glob("live*.json.gz")):

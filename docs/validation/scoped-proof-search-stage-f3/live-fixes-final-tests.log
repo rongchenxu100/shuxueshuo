@@ -1,0 +1,25 @@
+...............F..................................                       [100%]
+=================================== FAILURES ===================================
+_______________________ test_real_first_attempt_plan[3] ________________________
+
+tmp_path = PosixPath('<pytest-temp>/pytest-718/test_real_first_attempt_plan_30')
+sample = '3'
+
+    @pytest.mark.parametrize('sample', ['1','2','3'])
+    def test_real_first_attempt_plan(tmp_path, sample):
+        plan = tmp_path/'plan.json'
+        plan.write_text(json.dumps({'format':'functional_plan/v2', 'root_scope':{'scope_ref':'problem', 'steps':PLANS[sample].get('scope_steps',{}).get('problem',[]), 'goals':[{'goal_ref':key, **value} for key,value in PLANS[sample]['goal_plans'].items()]}}))
+        result,_ = run(gold=FIXTURES/'math-notation-v1/basic-inequality/q30.json',
+                       problem_ir=FIXTURES/'basic-inequality-problem-ir/v1/q30/problem-ir.json',
+                       plan=plan, mode='recorded', output=tmp_path/'run')
+>       assert result.status == 'ok', result.to_dict()
+E       AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E       assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_live13_repairs.py:97: AssertionError
+=========================== short test summary info ============================
+FAILED tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[3]
+1 failed, 49 passed in 215.58s (0:03:35)

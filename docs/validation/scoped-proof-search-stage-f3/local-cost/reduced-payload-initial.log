@@ -1,0 +1,20 @@
+F....................................................................... [ 68%]
+.................................                                        [100%]
+=================================== FAILURES ===================================
+__________ test_checkpoint_python_schema_matches_checked_in_snapshot ___________
+
+    def test_checkpoint_python_schema_matches_checked_in_snapshot() -> None:
+>       assert json.loads(SCHEMA_PATH.read_text(encoding="utf-8")) == (
+            functional_goal_execution_checkpoint_schema()
+        )
+E       AssertionError: assert {'$defs': {'a...': False, ...} == {'$defs': {'a...': False, ...}
+E         
+E         Omitting 7 identical items, use -vv to show
+E         Differing items:
+E         {'$defs': {'authored_step': {'additionalProperties': False, 'properties': {'args': {'additionalProperties': {'oneOf': ...$ref': '#/$defs/execution_step'}, 'minItems': 1, 'type': 'array'}}, 'required': ['scope_ref'], 'type': 'object'}, ...}} != {'$defs': {'authored_step': {'additionalProperties': False, 'properties': {'args': {'additionalProperties': {'oneOf': ...$ref': '#/$defs/execution_step'}, 'minItems': 1, 'type': 'array'}}, 'required': ['scope_ref'], 'type': 'object'}, ...}}
+E         Use -v to get more diff
+
+server/tests/solver/test_functional_goal_execution.py:59: AssertionError
+=========================== short test summary info ============================
+FAILED server/tests/solver/test_functional_goal_execution.py::test_checkpoint_python_schema_matches_checked_in_snapshot
+1 failed, 104 passed in 118.15s (0:01:58)

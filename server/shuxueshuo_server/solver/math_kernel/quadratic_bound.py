@@ -5,15 +5,17 @@ from dataclasses import replace
 
 import sympy as sp
 
-from .bound_chain import replay_bound
+from .bound_chain import consume_bound, replay_bound
 from .derivation_math import parse_derivation
 from .expression_parser import parse_math_expression, parse_math_relation
 from .inequality_bound_v2 import math_text
 from .inequality_evidence import target_context
+from .method_proof_session import active_session, record_checked_bound
 from .proof_algebra import ProofFailure, digest, domains, from_node
 from .proof_kernel import _Budget, verify_relation_sequence
 
 
+@record_checked_bound
 def verify_quadratic(
     target,
     steps,
@@ -38,7 +40,8 @@ def verify_quadratic(
     budget = budget or _Budget(context.limits)
     predecessor = None
     if previous_bound is not None:
-        predecessor = replay_bound(
+        read_bound = consume_bound if certificates is None else replay_bound
+        predecessor = read_bound(
             target, previous_bound, depth=depth + 1, budget=budget
         )
         if predecessor["direction"] != ">=":
@@ -196,7 +199,7 @@ def verify_quadratic(
         "proofs": proofs,
         "derivation": {"origins": origins, "proofs": sequence},
     }
-    if certificates is None:
+    if certificates is None and active_session() is None:
         from .inequality_bound_v2 import public
 
         replay_bound(

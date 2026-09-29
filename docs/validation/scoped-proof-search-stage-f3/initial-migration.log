@@ -1,0 +1,630 @@
+.........F..............................F............................... [ 28%]
+..............................................................F......... [ 57%]
+...FFFFFFFFFF......F.F...........F...........................F.......... [ 86%]
+...................................                                      [100%]
+=================================== FAILURES ===================================
+________ test_squared_amgm_rule_replays_its_positive_term_dependencies _________
+
+    def test_squared_amgm_rule_replays_its_positive_term_dependencies():
+        ctx = context("x>0", "y>0", "x+y>=2*sqrt(x*y)")
+        result = check("x*y<=(x+y)^2/4", ctx)
+        changed = deepcopy(result.proof)
+>       node = next(
+            n for n in changed["nodes"] if n["rule_id"] == "math.amgm_squared_bound"
+        )
+E       StopIteration
+
+server/tests/solver/test_math_proof_kernel.py:136: StopIteration
+_________ test_insufficient_evidence_fails_closed[facts2-sqrt(x^2)=x] __________
+
+facts = ('x<=0',), goal = 'sqrt(x^2)=x'
+
+    @pytest.mark.parametrize(
+        ("facts", "goal"),
+        [
+            ((), "x/x=1"),
+            ((), "sqrt(x^2)=x"),
+            (("x<=0",), "sqrt(x^2)=x"),
+            (("x*y>0",), "x>0"),
+            (("a>b",), "a*x>b*x"),
+            (("x>=0",), "x>0"),
+            (("x=2",), "x^2=5"),
+            (("x>=-1", "x<=1"), "x!=0"),
+            (("x>0",), "sqrt(y)>=0"),
+            (("x/x=1",), "x!=0"),
+            (("x=y", "y=x"), "x>0"),
+        ],
+    )
+    def test_insufficient_evidence_fails_closed(facts, goal):
+        result = check(goal, context(*facts), False)
+>       assert result.code == "proof_missing", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'strategy_budget_exhausted', 'diagnostic': 'bounded strategies exhausted; relation not established', 'proof': None, ...}
+E       assert 'strategy_budget_exhausted' == 'proof_missing'
+E         
+E         - proof_missing
+E         + strategy_budget_exhausted
+
+server/tests/solver/test_math_proof_kernel.py:199: AssertionError
+_____________ test_tampered_certificates_are_rejected[coefficient] _____________
+
+tamper = 'coefficient'
+
+    @pytest.mark.parametrize(
+        "tamper",
+        [
+            "conclusion",
+            "domain",
+            "premise",
+            "source",
+            "rule",
+            "version",
+            "cycle",
+            "coefficient",
+            "constant",
+            "root",
+        ],
+    )
+    def test_tampered_certificates_are_rejected(tamper):
+        c = context("x!=0", "x=2")
+        result = check("x/x+x=3", c)
+        proof = deepcopy(result.proof)
+        if tamper == "conclusion":
+            proof["nodes"][-1]["conclusion"][0] = "<"
+        elif tamper == "domain":
+            proof["nodes"][-1]["children"].pop()
+        elif tamper == "premise":
+            node = next(n for n in proof["nodes"] if n["rule_id"] == "math.given")
+            node["certificate"]["premise_id"] = "missing"
+        elif tamper == "source":
+            proof["nodes"][-1]["input_nodes"][0]["span"] = [0, 0]
+        elif tamper == "rule":
+            proof["nodes"][-1]["rule_id"] = "math.trust_me"
+        elif tamper == "version":
+            proof["ruleset_hash"] = "obsolete"
+        elif tamper == "cycle":
+            proof["nodes"][-1]["children"] = [proof["nodes"][-1]["node_id"]]
+        elif tamper == "coefficient":
+            proof = deepcopy(check("x^2=4", c).proof)
+>           node = next(
+                n
+                for n in proof["nodes"]
+                if n["rule_id"] == "math.polynomial"
+                and any(n["certificate"]["multipliers"])
+            )
+E           StopIteration
+
+server/tests/solver/test_math_proof_kernel.py:580: StopIteration
+_____________ test_shared_budgets_fail_closed[nodes-1-facts0-x=x] ______________
+
+limit = 'nodes', value = 1, facts = (), goal = 'x=x'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'proof_search_exhausted', 'diagnostic': 'nodes budget exhausted', 'proof': None, ...}
+E       assert 'proof_search_exhausted' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_search_exhausted
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+___________ test_shared_budgets_fail_closed[attempts-1-facts1-x*x>0] ___________
+
+limit = 'attempts', value = 1, facts = ('x>0',), goal = 'x*x>0'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'proof_search_exhausted', 'diagnostic': 'attempts budget exhausted', 'proof': None, ...}
+E       assert 'proof_search_exhausted' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_search_exhausted
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+__________ test_shared_budgets_fail_closed[reductions-1-facts2-x^2=4] __________
+
+limit = 'reductions', value = 1, facts = ('x=2',), goal = 'x^2=4'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'proof_search_exhausted', 'diagnostic': 'reductions budget exhausted', 'proof': None, ...}
+E       assert 'proof_search_exhausted' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_search_exhausted
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+____________ test_shared_budgets_fail_closed[depth-1-facts3-x*x>0] _____________
+
+limit = 'depth', value = 1, facts = ('x>0',), goal = 'x*x>0'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'strategy_budget_exhausted', 'diagnostic': 'bounded strategies exhausted; relation not established', 'proof': None, ...}
+E       assert 'strategy_budget_exhausted' == 'proof_limit'
+E         
+E         - proof_limit
+E         + strategy_budget_exhausted
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+_____ test_shared_budgets_fail_closed[polynomial_degree-1-facts4-x^2=x*x] ______
+
+limit = 'polynomial_degree', value = 1, facts = (), goal = 'x^2=x*x'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'proof_missing', 'diagnostic': 'bounded strategies exhausted; relation not established', 'proof': None, ...}
+E       assert 'proof_missing' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_missing
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+______ test_shared_budgets_fail_closed[polynomial_terms-1-facts5-x+y=y+x] ______
+
+limit = 'polynomial_terms', value = 1, facts = (), goal = 'x+y=y+x'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'proof_missing', 'diagnostic': 'bounded strategies exhausted; relation not established', 'proof': None, ...}
+E       assert 'proof_missing' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_missing
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+_______ test_shared_budgets_fail_closed[coefficient_bits-2-facts6-10=10] _______
+
+limit = 'coefficient_bits', value = 2, facts = (), goal = '10=10'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'proof_missing', 'diagnostic': 'bounded strategies exhausted; relation not established', 'proof': None, ...}
+E       assert 'proof_missing' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_missing
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+______ test_shared_budgets_fail_closed[radicals-1-facts7-sqrt(2)<sqrt(3)] ______
+
+limit = 'radicals', value = 1, facts = (), goal = 'sqrt(2)<sqrt(3)'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'proof_missing', 'diagnostic': 'bounded strategies exhausted; relation not established', 'proof': None, ...}
+E       assert 'proof_missing' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_missing
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+_____ test_shared_budgets_fail_closed[algebraic_degree-1-facts8-sqrt(2)>1] _____
+
+limit = 'algebraic_degree', value = 1, facts = (), goal = 'sqrt(2)>1'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'proof_missing', 'diagnostic': 'bounded strategies exhausted; relation not established', 'proof': None, ...}
+E       assert 'proof_missing' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_missing
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+______ test_shared_budgets_fail_closed[refinements-1-facts9-sqrt(2)>7/5] _______
+
+limit = 'refinements', value = 1, facts = (), goal = 'sqrt(2)>7/5'
+
+    @pytest.mark.parametrize(
+        ("limit", "value", "facts", "goal"),
+        [
+            ("nodes", 1, (), "x=x"),
+            ("attempts", 1, ("x>0",), "x*x>0"),
+            ("reductions", 1, ("x=2",), "x^2=4"),
+            ("depth", 1, ("x>0",), "x*x>0"),
+            ("polynomial_degree", 1, (), "x^2=x*x"),
+            ("polynomial_terms", 1, (), "x+y=y+x"),
+            ("coefficient_bits", 2, (), "10=10"),
+            ("radicals", 1, (), "sqrt(2)<sqrt(3)"),
+            ("algebraic_degree", 1, (), "sqrt(2)>1"),
+            ("refinements", 1, (), "sqrt(2)>7/5"),
+            ("premises", 1, ("x>0", "y>0"), "x>0"),
+            ("variables", 1, (), "x=x"),
+        ],
+    )
+    def test_shared_budgets_fail_closed(limit, value, facts, goal):
+        limits = replace(ProofLimits(), **{limit: value})
+        result = check(goal, context(*facts, limits=limits), False)
+>       assert result.code == "proof_limit", result.to_payload()
+E       AssertionError: {'branches': [], 'code': 'proof_search_exhausted', 'diagnostic': 'refinements budget exhausted', 'proof': None, ...}
+E       assert 'proof_search_exhausted' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_search_exhausted
+
+server/tests/solver/test_math_proof_kernel.py:799: AssertionError
+_______________________ test_equation_and_branch_budgets _______________________
+
+    def test_equation_and_branch_budgets():
+        c = context("x+y=3", "x-y=1", limits=replace(ProofLimits(), equations=1))
+>       assert check("x=2", c, False).code == "proof_limit"
+E       AssertionError: assert 'proof_missing' == 'proof_limit'
+E         
+E         - proof_limit
+E         + proof_missing
+
+server/tests/solver/test_math_proof_kernel.py:848: AssertionError
+________ test_corrupt_polynomial_denominator_is_a_structured_rejection _________
+
+    def test_corrupt_polynomial_denominator_is_a_structured_rejection():
+        c = context("x=2")
+        proof = deepcopy(check("x^2=4", c).proof)
+>       polynomial = next(
+            n
+            for n in proof["nodes"]
+            if n["rule_id"] == "math.polynomial" and any(n["certificate"]["multipliers"])
+        )
+E       StopIteration
+
+server/tests/solver/test_math_proof_kernel.py:865: StopIteration
+_____ test_amgm_rejects_unproved_conditions_or_wrong_bound[facts6-x*y<=1] ______
+
+facts = ('x>0', 'y>0', 'x+y=-2'), goal = 'x*y<=1'
+
+    @pytest.mark.parametrize(
+        "facts,goal",
+        [
+            (("x+y=2",), "x+y>=2*sqrt(x*y)"),
+            (("x>0", "y>0", "x+y=2"), "x*y<=1/2"),
+            (("x>0", "y>0", "x+y=2"), "x*y>=1"),
+            (("x>0", "y>0"), "x+y>=3*sqrt(x*y)"),
+            (("x>0", "y>0"), "x+y<=2*sqrt(x*y)"),
+            (("x>0", "y>0", "x+y=2"), "a*b<=1"),
+            (("x>0", "y>0", "x+y=-2"), "x*y<=1"),
+        ],
+    )
+    def test_amgm_rejects_unproved_conditions_or_wrong_bound(facts, goal):
+>       check(goal, context(*facts), False)
+
+server/tests/solver/test_math_proof_kernel.py:915: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = 'x*y<=1'
+ctx = ProofContext(symbols={'x': x, 'y': y, 'a': a, 'b': b}, premises={'given_0': ParsedMath(source='x>0', normalized_source...ctions=256, depth=32, nodes=512, attempts=512, branches=8, algebraic_degree=16, refinements=128), scope_id='authoring')
+expected = False
+
+    def check(text, ctx, expected=True):
+        result = prove_relation(relation(text, ctx.symbols), ctx)
+>       assert result.status == ("proved" if expected else "not_proved"), (
+            result.to_payload()
+        )
+E       AssertionError: {'branches': [], 'code': None, 'diagnostic': None, 'proof': {'context_hash': 'b09066e12e09eb105502b754f369652a7d2d9176...andidate': {'source': 'x*y<=1', 'source_path': None, 'step': None}, 'kind': 'relation'}, 'roots': ['p0017'], ...}, ...}
+E       assert 'proved' == 'not_proved'
+E         
+E         - not_proved
+E         ? ----
+E         + proved
+
+server/tests/solver/test_math_proof_kernel.py:61: AssertionError
+_____________ test_recorded_baseline_runs_real_runtime_and_replay ______________
+
+tmp_path = PosixPath('<pytest-temp>')
+
+    @pytest.mark.solver_contract
+    def test_recorded_baseline_runs_real_runtime_and_replay(tmp_path):
+        from tools.proof_search_baseline import run_baseline
+    
+        output = tmp_path / "baseline"
+>       summary = run_baseline(output)
+                  ^^^^^^^^^^^^^^^^^^^^
+
+server/tests/solver/test_scoped_proof_search_stage_a.py:240: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+output = PosixPath('<pytest-temp>')
+
+    def run_baseline(output):
+        from shuxueshuo_server.solver.math_kernel.bound_chain import replay_bound
+        from shuxueshuo_server.solver.math_kernel.inequality_evidence import (
+            public_bound,
+            verify_bound,
+        )
+        from tools.run_basic_inequality_stage4a import run
+        from tools.run_basic_inequality_stage5c import full_chain_executed
+    
+        manifest = verify_assets()
+        output.mkdir(parents=True, exist_ok=False)
+        summary = {
+            "schema_version": "proof-search-baseline/v1",
+            "code_head": subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+            ).strip(),
+            "profiles": profiles(),
+            "cases": [],
+            "live_llm_calls": 0,
+            "input_sha256": manifest["input_sha256"],
+            "instrumentation_sha256": file_hash(Path(__file__)),
+            "python_version": sys.version,
+            "measurement_note": "All budget instances include search, auxiliary checks and replay; not a single global search budget.",
+        }
+        for case in manifest["cases"]:
+            source = json.loads((ROOT / case["input"]).read_text())
+            payload = source[case["key"]]
+            path = output / case["id"]
+            path.mkdir()
+            error = None
+            observation = ObserveProofs()
+            try:
+                with observation:
+                    if case["kind"] == "recorded_plan":
+                        plan = {
+                            "format": "functional_plan/v2",
+                            "root_scope": {
+                                "scope_ref": "problem",
+                                "steps": payload.get("scope_steps", {}).get("problem", []),
+                                "goals": [
+                                    {"goal_ref": k, **v}
+                                    for k, v in payload["goal_plans"].items()
+                                ],
+                            },
+                        }
+                        plan_path = path / "plan.json"
+                        plan_path.write_text(json.dumps(plan, ensure_ascii=False))
+                        result, runtime = run(
+                            gold=FIXTURES / "math-notation-v1/basic-inequality/q30.json",
+                            problem_ir=FIXTURES
+                            / "basic-inequality-problem-ir/v1/q30/problem-ir.json",
+                            plan=plan_path,
+                            output=path / "execution",
+                            mode="recorded",
+                        )
+                        outcome = {"status": result.status, "answers": result.answers}
+                        if result.status == "ok":
+                            execution = runtime.last_success_artifacts.verified_functional_execution.to_payload()
+                            outcome["full_five_method_chain"] = full_chain_executed(
+                                execution
+                            )
+                    else:
+                        target = manifest["local_target"]
+                        verified = verify_bound(target, payload)
+                        (path / "bound.json").write_text(
+                            json.dumps(public_bound(verified), ensure_ascii=False, indent=2)
+                            + "\n"
+                        )
+                        replayed = replay_bound(target, public_bound(verified))
+                        outcome = {
+                            "status": "ok",
+                            "bound": verified["bound"],
+                            "replay_same_bound": replayed["bound"] == verified["bound"],
+                        }
+            except Exception as exc:  # noqa: BLE001 - persist diagnostics, then re-raise below
+                error = exc
+                outcome = {
+                    "status": "failed",
+                    "error_type": type(exc).__name__,
+                    "code": getattr(exc, "code", None),
+                    "message": str(exc),
+                }
+            item = {
+                "id": case["id"],
+                "historical_failure": case["historical_failure"],
+                "outcome": outcome,
+                "measurement": observation.report(),
+            }
+            (path / "measurement.json").write_text(
+                json.dumps(item, ensure_ascii=False, indent=2) + "\n"
+            )
+            summary["cases"].append(
+                {k: v for k, v in item.items() if k != "measurement"}
+                | {
+                    "elapsed_seconds": observation.elapsed,
+                    "all_budget_charges": item["measurement"]["all_budget_charges"],
+                }
+            )
+            (output / "summary.json").write_text(
+                json.dumps(summary, ensure_ascii=False, indent=2) + "\n"
+            )
+            if error is not None:
+                raise RuntimeError(f"baseline regression: {case['id']}") from error
+            if (
+                outcome["status"] != "ok"
+                or (
+                    case["kind"] == "recorded_plan"
+                    and outcome["answers"] != {"problem": {"minimum": "4"}}
+                )
+                or (case["kind"] == "local_bound" and not outcome["replay_same_bound"])
+            ):
+>               raise RuntimeError(f"baseline regression: {case['id']}")
+E               RuntimeError: baseline regression: live14-3
+
+server/tools/proof_search_baseline.py:243: RuntimeError
+=========================== short test summary info ============================
+FAILED server/tests/solver/test_math_proof_kernel.py::test_squared_amgm_rule_replays_its_positive_term_dependencies
+FAILED server/tests/solver/test_math_proof_kernel.py::test_insufficient_evidence_fails_closed[facts2-sqrt(x^2)=x]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_tampered_certificates_are_rejected[coefficient]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[nodes-1-facts0-x=x]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[attempts-1-facts1-x*x>0]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[reductions-1-facts2-x^2=4]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[depth-1-facts3-x*x>0]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[polynomial_degree-1-facts4-x^2=x*x]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[polynomial_terms-1-facts5-x+y=y+x]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[coefficient_bits-2-facts6-10=10]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[radicals-1-facts7-sqrt(2)<sqrt(3)]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[algebraic_degree-1-facts8-sqrt(2)>1]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_shared_budgets_fail_closed[refinements-1-facts9-sqrt(2)>7/5]
+FAILED server/tests/solver/test_math_proof_kernel.py::test_equation_and_branch_budgets
+FAILED server/tests/solver/test_math_proof_kernel.py::test_corrupt_polynomial_denominator_is_a_structured_rejection
+FAILED server/tests/solver/test_math_proof_kernel.py::test_amgm_rejects_unproved_conditions_or_wrong_bound[facts6-x*y<=1]
+FAILED server/tests/solver/test_scoped_proof_search_stage_a.py::test_recorded_baseline_runs_real_runtime_and_replay
+17 failed, 234 passed in 69.16s (0:01:09)

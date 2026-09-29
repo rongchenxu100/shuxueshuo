@@ -19,6 +19,23 @@ class ProofFailure(ValueError):
         self.code = code
         super().__init__(message)
 
+    @property
+    def is_shared_budget_exhaustion(self):
+        return self.code == "proof_search_exhausted" or (
+            self.code == "proof_limit" and str(self).endswith(" budget exhausted")
+        )
+
+    @property
+    def is_structure_limit(self):
+        # Legacy arithmetic uses one wire code for size caps and work budgets.
+        # Only known size/profile limits permit abandoning a candidate.
+        return self.code == "proof_limit" and str(self) in {
+            "polynomial term limit", "polynomial degree limit", "coefficient bit limit",
+            "power limit", "oversized coefficient", "radical generator limit",
+            "algebraic degree bound", "algebraic degree limit", "algebraic isolation limit",
+            "equation premise budget",
+        }
+
 
 def freeze(value):
     return (
@@ -478,7 +495,11 @@ class Arithmetic:
     def proportional(self, a, b):
         x, y = self.rational(a)
         u, v = self.rational(b)
-        left, right = self.mul(x, v), self.mul(u, y)
+        if not x or not u:
+            return None
+        # Equal denominators cancel for a proportionality query. Multiplying
+        # both sides by that same polynomial only inflates the degree budget.
+        left, right = (x, u) if y == v else (self.mul(x, v), self.mul(u, y))
         if not right or set(left) != set(right):
             return None
         m = next(iter(right))

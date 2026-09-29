@@ -1,0 +1,25 @@
+{
+  "files_checked": 29,
+  "new_findings": 0,
+  "unchanged_region_findings": [
+    {
+      "file": "server/shuxueshuo_server/solver/runtime/orchestrator.py",
+      "codes": [
+        "I001",
+        "F401",
+        "F401",
+        "BLE001",
+        "BLE001"
+      ],
+      "note": "Only default proof_protocol changed in this file; all reported regions are identical to HEAD."
+    },
+    {
+      "file": "server/tools/run_basic_inequality_stage4b.py",
+      "codes": [
+        "I001"
+      ],
+      "note": "Only default proof_protocol changed; reported import region is identical to HEAD."
+    }
+  ],
+  "command": "uvx ruff check <changed server Python files and new F3 Python files>"
+}

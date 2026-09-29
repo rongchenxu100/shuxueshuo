@@ -1,13 +1,15 @@
-"""Execution-scoped search service; checker and certificate replay never consult it.
+"""Execution-scoped search and checked-result handoff to Runtime publication.
 
 Runtime installs a read-only service for exactly one Method invocation. The
 kernel depends on this protocol, never on RuntimeContext or a global fact store.
+The independent checker and explicit certificate replay never consult receipts.
 """
 
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import deepcopy
 from dataclasses import replace
+from functools import wraps
 
 from .proof_algebra import ZERO, ProofFailure, freeze, from_node, names
 from .proof_search import default_search_configuration, run_scheduled_request
@@ -17,6 +19,18 @@ _ACTIVE = ContextVar("method_proof_session", default=None)
 
 def active_session():
     return _ACTIVE.get()
+
+
+def record_checked_bound(verify):
+    """Pass a successful kernel result to this invocation's publication step."""
+    @wraps(verify)
+    def checked(target, *args, **kwargs):
+        result = verify(target, *args, **kwargs)
+        session = active_session()
+        if session is not None and kwargs.get("certificates") is None:
+            session.remember_bound(target, result)
+        return result
+    return checked
 
 
 @contextmanager
@@ -39,6 +53,7 @@ class MethodProofSession:
         manifest_hash="local/v1",
         policy=None,
         application_binding=None,
+        resolve_bound=None,
     ):
         self.fragments = {}
         for fragment in fragments:
@@ -51,19 +66,42 @@ class MethodProofSession:
         self.manifest_hash = manifest_hash
         self.policy = policy or replace(
             default_search_configuration()[2],
-            version="layered-method-search/v1",
+            version="layered-method-search/v2",
             branch_attempts=256,
             branch_reductions=256,
             branch_nodes=512,
         )
         self.runs = []
         self.recorded_reads = set()
+        self.resolve_bound = resolve_bound
+        self._checked_certificates = {}
+        self._checked_bounds = []
+
+    def remember_bound(self, target, result):
+        from .inequality_bound_v2 import public
+
+        self._checked_bounds.append((deepcopy(target), public(result)))
+
+    def checked_bound(self, target, evidence):
+        from .bound_chain import unpack_bound
+
+        for original, checked in self._checked_bounds:
+            if original == target and checked == evidence:
+                return unpack_bound(checked)
+        return None
+
+    def accepts_certificate(self, proof, context):
+        return any(
+            proof == checked and context == original
+            for checked, original in self._checked_certificates.get(proof.get("context_hash"), ())
+        )
 
     def seed(self, engine, goal):
         from .proof_algebra import names
         from .proof_checker import fact_key
 
         current = {fact_key(p): key for key, p in engine.premises.items()}
+        candidates = []
         for fact_id, proof, root in (
             *self.fragments.get(goal, ()),
             *self.local_fragments.get(goal, ()),
@@ -78,6 +116,11 @@ class MethodProofSession:
                     continue
                 used.add(key)
                 pending.extend(nodes[key]["children"])
+            candidates.append((len(used), fact_id, proof, root, nodes, used))
+        # A store can contain several certificates for one relation. Prefer
+        # the smallest reachable graph, not the first historical producer.
+        # Stable sorting preserves publication order for equal costs.
+        for _, fact_id, proof, root, nodes, used in sorted(candidates, key=lambda c: c[0]):
             from .expression_parser import parse_math_relation
 
             imports = {}
@@ -115,6 +158,19 @@ class MethodProofSession:
                 ]
                 references += cert.get("equations", [])
                 references += [b["premise_id"] for b in cert.get("bindings", ())]
+                # A given of a derived relation can be replaced by a checked
+                # proof in the destination. Other rules' named-premise fields
+                # still require exact original-premise mappings.
+                if node["rule_id"] == "math.given":
+                    conclusion = freeze(node["conclusion"])
+                    if cert["premise_id"] not in imports and (
+                        conclusion == goal
+                        or conclusion in getattr(engine, "active", ())
+                        or (conclusion not in self.fragments
+                            and conclusion not in self.local_fragments)
+                    ):
+                        break
+                    references = []
                 if not set(references) <= imports.keys():
                     break
             else:
@@ -125,6 +181,13 @@ class MethodProofSession:
                         if node["node_id"] not in used:
                             continue
                         certificate = deepcopy(node["certificate"])
+                        if (node["rule_id"] == "math.given"
+                                and certificate["premise_id"] not in imports):
+                            checked = engine.need(freeze(node["conclusion"]))
+                            # Historical given nodes are unguarded cores; the
+                            # historical guard is imported separately below.
+                            mapping[node["node_id"]] = engine.by_id[checked].children[0]
+                            continue
                         for field in (
                             "premise_id",
                             "sum_premise",
@@ -157,7 +220,14 @@ class MethodProofSession:
                     if fact_id is not None:
                         engine.seed_reads[result] = fact_id
                     return result
-                except (ProofFailure, KeyError):
+                except ProofFailure as exc:
+                    engine.rollback(saved)
+                    if exc.code in {"proof_missing", "strategy_not_applicable"} or exc.is_structure_limit:
+                        continue
+                    # Shared/ancestor leases cannot be reset by trying another
+                    # fragment; malformed checked evidence must also surface.
+                    raise
+                except KeyError:
                     engine.rollback(saved)
                     raise
         return None
@@ -206,9 +276,41 @@ class MethodProofSession:
         # local premise, including assumptions with no adjacent goal symbols.
         ids.extend(ref for ref in index.facts if ref not in ids)
         sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        # Small retrieval views must retain the local scalar order/sign basis.
+        # A retrieved bound does not replace a>b, b>c, c>0 when proving the
+        # original denominator guards. Losing that basis makes each widening
+        # retry search an impossible sign problem before it sees the premises.
+        sign_basis = {
+            key for key, parsed in context.premises.items()
+            if (tree := from_node(parsed.ast))[0] != "="
+            and all(side[0] in {"symbol", "rat"} for side in tree[1:])
+        }
+        # Keep complete already-submitted order paths together. Selecting only
+        # F>=G while dropping G>=k makes even a two-edge transitivity request
+        # repeat its domain proof in every widening view.
+        from .proof_checker import _ordered
+
+        edges = [(key, _ordered(from_node(p.ast))) for key, p in context.premises.items()]
+        for root in roots:
+            ordered = _ordered(root) if root[0] != "all" else None
+            if not ordered:
+                continue
+            compatible = [(key, p) for key, p in edges if p and p[0] == ordered[0]]
+            forward, backward = {ordered[1]}, {ordered[2]}
+            for _ in range(len(compatible)):
+                before = len(forward), len(backward)
+                for _, p in compatible:
+                    if p[1] in forward:
+                        forward.add(p[2])
+                    if p[2] in backward:
+                        backward.add(p[1])
+                if before == (len(forward), len(backward)):
+                    break
+            sign_basis.update(key for key, p in compatible
+                              if p[1] in forward and p[2] in backward)
         selections = []
         for size in sizes:
-            keys = {index.facts[ref].source for ref in ids[:size]}
+            keys = sign_basis | {index.facts[ref].source for ref in ids[:size]}
             if keys not in selections:
                 selections.append(keys)
         for position, keys in enumerate(selections):
@@ -229,18 +331,25 @@ class MethodProofSession:
                         (getattr(budget.limits, r) - budget.counts.get(r, 0))
                         // (len(selections) - position),
                     )
-                    for r in ("nodes", "attempts", "reductions")
+                    # Split speculative search work, not the certificate's
+                    # minimum footprint: a valid DAG may need more than 1/N
+                    # of the remaining nodes in every view. Global node and
+                    # per-candidate node limits still apply without refunds.
+                    for r in ("attempts", "reductions")
                 }
                 if position < len(selections) - 1
                 else None,
             )
             self.runs.append(run.diagnostics)
             if run.result.status == "proved":
-                # Rebuild and independently replay against the exact Method
-                # context required by existing v1 local certificate readers.
-                env = _Environment(context, request)
-                proof = env.payload(copy_nodes(run.result.proof, env))
-                _replay(proof, context)
+                # The scheduler independently checked this exact context. Only
+                # a changed premise set needs certificate rebinding and replay.
+                if selected == context:
+                    proof = run.result.proof
+                else:
+                    env = _Environment(context, request)
+                    proof = env.payload(copy_nodes(run.result.proof, env))
+                    _replay(proof, context)
                 for root_id in proof["roots"]:
                     node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
                     conclusion = freeze(node["conclusion"])
@@ -257,6 +366,9 @@ class MethodProofSession:
                     if fresh_reads:
                         self.on_read(fresh_reads)
                         self.recorded_reads.update(fresh_reads)
+                self._checked_certificates.setdefault(proof.get("context_hash"), []).append(
+                    (deepcopy(proof), deepcopy(context))
+                )
                 return replace(run.result, proof=proof)
             if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
                 break

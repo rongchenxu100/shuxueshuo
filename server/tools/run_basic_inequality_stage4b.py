@@ -49,7 +49,7 @@ def build(
     case="q01",
     plan=None,
     replay_from=None,
-    proof_protocol="bound-conditions/v1",
+    proof_protocol="scoped-facts/v2",
 ):
     if case not in {"q01", "q03", "q07", "q08", "q12", "q25", "q29", "q30"}:
         raise ValueError("page case outside admitted representative fixtures")

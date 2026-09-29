@@ -5,7 +5,6 @@ from copy import deepcopy
 from pathlib import Path
 
 import pytest
-
 from shuxueshuo_server.solver.basic_inequality_stage4a import (
     build_authoring_bundle,
     load_frozen_authoring_bundle,
@@ -259,7 +258,7 @@ def test_matching_constant_does_not_hide_real_proof_budget_failure(monkeypatch):
     monkeypatch.setattr(inequality_evidence, "target_context", limited)
     with pytest.raises(ProofFailure) as caught:
         verify_bound(target(), math_rows("m+n>=2*sqrt(m*n)", "m*n<=1"))
-    assert caught.value.code == "proof_limit"
+    assert caught.value.code == "proof_search_exhausted"
 
 
 def test_bound_is_not_a_maximum_answer(tmp_path):

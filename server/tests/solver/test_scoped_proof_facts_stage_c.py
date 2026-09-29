@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 import sympy as sp
-from shuxueshuo_server.solver.math_kernel import SympyKernel, proof_kernel
+from shuxueshuo_server.solver.math_kernel import SympyKernel
 from shuxueshuo_server.solver.math_kernel.expression_parser import parse_math_relation
 from shuxueshuo_server.solver.math_kernel.proof_facts import (
     ConditionalRequirement,
@@ -15,6 +15,9 @@ from shuxueshuo_server.solver.math_kernel.proof_facts import (
     canonical,
 )
 from shuxueshuo_server.solver.math_kernel.proof_types import ProofContext
+from shuxueshuo_server.solver.math_kernel.real_proof_strategies import (
+    ScheduledRealSearch,
+)
 from shuxueshuo_server.solver.problem_models import ProblemIR
 from shuxueshuo_server.solver.runtime.context import RuntimeContext
 from shuxueshuo_server.solver.runtime.models import RuntimeScope
@@ -84,7 +87,7 @@ def test_real_cross_call_import_and_independent_replay(monkeypatch):
     assert store.dependency_closure(["second"]) == {"first", "second"}
     payload = json.loads(json.dumps(store.to_payload()))
     monkeypatch.setattr(
-        proof_kernel._Search, "need", lambda *a, **k: pytest.fail("replay searched")
+        ScheduledRealSearch, "need", lambda *a, **k: pytest.fail("replay searched")
     )
     restored = environment()
     restored.restore(
@@ -238,7 +241,7 @@ def test_non_numeric_substitution_producer_actual_domain_reuse(monkeypatch):
         verify_elimination,
     )
 
-    original_add = proof_kernel._Search.add
+    original_add = ScheduledRealSearch.add
 
     def no_amgm(search, rule, *args, **kwargs):
         assert rule not in {
@@ -249,7 +252,7 @@ def test_non_numeric_substitution_producer_actual_domain_reuse(monkeypatch):
         }
         return original_add(search, rule, *args, **kwargs)
 
-    monkeypatch.setattr(proof_kernel._Search, "add", no_amgm)
+    monkeypatch.setattr(ScheduledRealSearch, "add", no_amgm)
     target = fixture["target"]
     source, _ = target_context(target)
     runtime = RuntimeContext(
@@ -310,7 +313,7 @@ def test_non_numeric_substitution_producer_actual_domain_reuse(monkeypatch):
     assert result.dependencies == ("sub",)
     payload = json.loads(json.dumps(store.to_payload()))
     monkeypatch.setattr(
-        proof_kernel._Search, "need", lambda *a, **k: pytest.fail("replay searched")
+        ScheduledRealSearch, "need", lambda *a, **k: pytest.fail("replay searched")
     )
     store.verify_snapshot()
     assert store.to_payload() == payload
@@ -665,3 +668,41 @@ from shuxueshuo_server.solver.explanation.snapshot import ExplanationSnapshotBui
 assert ExplanationSnapshotBuilder is Direct
 """
     subprocess.run([sys.executable, "-c", script], check=True, capture_output=True)
+
+
+@pytest.mark.parametrize("field", ["_records", "_candidates", "_requirements", "_reads"])
+def test_direct_publication_rejects_changed_checked_evidence(field, monkeypatch):
+    store = environment()
+    session = store.begin("first")
+    session.prove("x=x")
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("publication must not fork or replay")
+
+    monkeypatch.setattr(store, "fork", forbidden)
+    monkeypatch.setattr(store, "_restore_one", forbidden)
+    items = getattr(session, field)
+    if isinstance(items, set):
+        items.add("forged")
+    else:
+        items.append("forged")
+    with pytest.raises(ValueError, match="verified evidence was modified"):
+        store.publish(session, "output")
+    assert not store.snapshot.commits
+
+
+def test_direct_publication_does_not_fork_or_replay(monkeypatch):
+    store = environment()
+    session = store.begin("first")
+    session.prove("x=x")
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("publication must not fork or replay")
+
+    monkeypatch.setattr(store, "fork", forbidden)
+    monkeypatch.setattr(store, "_restore_one", forbidden)
+    receipt = store.publish(session, "output")
+    assert store.snapshot.commits == (receipt,)
+    assert session.closed
+    with pytest.raises(ValueError):
+        store.publish(session, "output")

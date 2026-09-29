@@ -1,0 +1,67 @@
+{
+  "planner-01": [
+    {
+      "layer": "functional_reconciliation",
+      "code": "functional.arg_missing",
+      "step_id": "organize_target",
+      "scope_id": "problem",
+      "repair_target": "functional_call",
+      "preserve_policy": "none",
+      "message": "missing required argument: organize_expressions.expression",
+      "hints": [],
+      "related_handles": [],
+      "details": {
+        "arg": "expression",
+        "semantic_role": "expression",
+        "accepted_item_types": [
+          "Expression"
+        ],
+        "accepted_condition_kinds": [],
+        "compatible_refs": [
+          {
+            "ref": "target_expression",
+            "kind": "function",
+            "value_type": "Function"
+          },
+          {
+            "ref": "target_expression",
+            "kind": "fact",
+            "value_type": "Expression"
+          }
+        ]
+      },
+      "diagnostic_authority": null
+    },
+    {
+      "layer": "functional_reconciliation",
+      "code": "functional.return_type_mismatch",
+      "step_id": "organize_target",
+      "scope_id": "problem",
+      "repair_target": "functional_call",
+      "preserve_policy": "none",
+      "message": "return Expression cannot bind to semantic value_type extremum_target",
+      "hints": [],
+      "related_handles": [],
+      "details": {
+        "return": "organized_expression"
+      },
+      "diagnostic_authority": null
+    }
+  ],
+  "planner-02": {
+    "code": "functional.plan_content_invalid_json",
+    "path": "$",
+    "message": "Expecting ',' delimiter: line 1 column 1912 (char 1911)",
+    "retryable": true,
+    "details": {
+      "diagnostics": [
+        {
+          "code": "functional.plan_content_invalid_json",
+          "path": "$",
+          "message": "Expecting ',' delimiter: line 1 column 1912 (char 1911)"
+        }
+      ]
+    }
+  },
+  "planner-03": []
+}

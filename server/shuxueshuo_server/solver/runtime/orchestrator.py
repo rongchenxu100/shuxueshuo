@@ -148,7 +148,7 @@ class RuntimeOrchestrator:
         max_attempts: int = 1,
         debug_dir: str | Path | None = None,
         debug_artifact_mode: str = "full_diagnostic",
-        proof_protocol: str = "bound-conditions/v1",
+        proof_protocol: str = "scoped-facts/v2",
     ) -> None:
         if proof_protocol not in {"bound-conditions/v1", "scoped-facts/v2"}:
             raise ValueError("unknown proof execution protocol")
@@ -297,12 +297,15 @@ class RuntimeOrchestrator:
             from inspect import signature
 
             observer_options = {}
+            published_attempts = []
             if self.debug_dir is not None and "attempt_observer" in signature(run_scoped).parameters:
                 def observe(attempt):
                     _write_debug_attempt(
                         self.debug_dir, attempt.semantic_attempt, planner, None, None,
                         scoped_attempt=attempt, journal=self.debug_journal,
                     )
+                    if attempt.evidence_phase == "completed":
+                        published_attempts.append(attempt)
                 observer_options["attempt_observer"] = observe
             scoped_result = run_scoped(
                 planner_inputs,
@@ -314,6 +317,7 @@ class RuntimeOrchestrator:
                 self.debug_dir,
                 planner,
                 scoped_result, journal=self.debug_journal,
+                published_attempts=published_attempts,
             )
             if scoped_result.status != "accepted":
                 raise PlannerExecutionError(
@@ -1102,23 +1106,7 @@ def _write_debug_attempt(
             debug_dir / f"{prefix}.scope-retry-result-authority.json",
             result_scope_authority.debug_payload(),
         )
-    planner_artifacts = getattr(planner, "artifacts", None)
-    problem_authority = getattr(planner_artifacts, "problem_authority", None)
-    problem_binding_catalog = getattr(
-        planner_artifacts,
-        "problem_binding_catalog",
-        None,
-    )
-    if problem_authority is not None:
-        _write_json(
-            debug_dir / f"{prefix}.problem-bundle-authority.json",
-            problem_authority.authority_payload(),
-        )
-    if problem_binding_catalog is not None:
-        _write_json(
-            debug_dir / f"{prefix}.problem-planning-binding-catalog.json",
-            problem_binding_catalog.authority_payload(),
-        )
+    _write_debug_authorities(planner, prefix, journal)
     raw_response = (
         getattr(scoped_attempt, "raw_response", None)
         if scoped_attempt is not None
@@ -1305,11 +1293,25 @@ def _write_debug_attempt(
         write_scoped_attempt_evidence(debug_dir, scoped_attempt, journal=journal, terminal_error=error)
 
 
+def _write_debug_authorities(planner, prefix, journal):
+    """Small sidecars become available only after run_scoped returns."""
+    if journal is None or journal.mode != "full_diagnostic":
+        return
+    artifacts = getattr(planner, "artifacts", None)
+    for attribute, role in (
+        ("problem_authority", "problem-bundle-authority"),
+        ("problem_binding_catalog", "problem-planning-binding-catalog"),
+    ):
+        authority = getattr(artifacts, attribute, None)
+        if authority is not None:
+            journal.write_json(f"{prefix}.{role}.json", authority.authority_payload())
+
+
 def _write_scoped_debug_attempts(
     debug_dir: Path | None,
     planner: GenericPlanner | None,
     scoped_result: Any,
-    *, journal: Any | None = None,
+    *, journal: Any | None = None, published_attempts: tuple[Any, ...] | list[Any] = (),
 ) -> None:
     """Persist each scoped retry from its own immutable attempt snapshot."""
 
@@ -1317,6 +1319,12 @@ def _write_scoped_debug_attempts(
 
     journal = journal or (DebugArtifactJournal(debug_dir) if debug_dir is not None else None)
     for attempt in tuple(getattr(scoped_result, "attempts", ())):
+        # Only the identical immutable completed snapshot was already written.
+        # Changed snapshots, intermediate phases and providers without observers
+        # still publish normally. Do not compare or serialize their payloads.
+        if any(attempt is published for published in published_attempts):
+            _write_debug_authorities(planner, f"attempt-{attempt.semantic_attempt}", journal)
+            continue
         _write_debug_attempt(
             debug_dir,
             int(attempt.semantic_attempt),

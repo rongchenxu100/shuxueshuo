@@ -1,0 +1,3638 @@
+
+$ <repo>/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 4 --dist worksteal
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  1%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+.......................................EEEEEEEEEEEE..EEEEE......EE...... [ 10%]
+..............EEEE.....EEEEEEEEEE...E................................... [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+....................................F.................................F. [ 19%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+..............................................................F........F [ 27%]
+.......F................................................................ [ 28%]
+......................................F...............................F. [ 30%]
+.F..F.....F....F.....F...F...F....FF.............F...................... [ 31%]
+...........................................................F............ [ 33%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+......F................................................................. [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+...F.F.................................................................. [ 51%]
+........................................................................ [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 58%]
+........................................................................ [ 60%]
+........................................................................ [ 62%]
+........................................................................ [ 63%]
+........................................................................ [ 65%]
+........................................................................ [ 66%]
+........................................................................ [ 68%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 72%]
+........................................................................ [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 84%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 89%]
+........................................................................ [ 90%]
+........................................................................ [ 92%]
+........................................................................ [ 93%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+........................................................................ [ 99%]
+.......F.                                                                [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_minimum_pages_cover_verified_material_and_replay[q03] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_minimum_pages_cover_verified_material_and_replay[q07] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_minimum_pages_cover_verified_material_and_replay[q08] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_sequence_rule_requires_actual_bound_dependency[owner] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_sequence_rule_requires_actual_bound_dependency[predecessor] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_sequence_rule_requires_actual_bound_dependency[applications] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+______ ERROR at setup of test_sequence_visual_requires_both_source_owners ______
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_____ ERROR at setup of test_rewrite_public_evidence_roundtrip_and_tamper ______
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+________ ERROR at setup of test_minimum_prose_cannot_claim_upper_bound _________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+________ ERROR at setup of test_lower_bounds_use_full_amgm_mapping[q03] ________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+________ ERROR at setup of test_lower_bounds_use_full_amgm_mapping[q07] ________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+________ ERROR at setup of test_lower_bounds_use_full_amgm_mapping[q08] ________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_homogeneous_degree_rejects_mixed_sum_and_does_not_classify_plain_rewrite _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+___ ERROR at setup of test_homogenization_does_not_merge_an_unrelated_bound ____
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_homogenization_visual_uses_bound_pair_and_constant_product _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+___ ERROR at setup of test_fixed_homogenization_title_survives_llm_rewording ___
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+__ ERROR at setup of test_purpose_titles_and_navigation_survive_llm_rewording __
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_sequence_rule_rejects_different_resolved_predecessor __
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_later_label_rule_cannot_remove_independence_of_composed_units _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_q03_semantic_stages_and_conditional_equation_solution _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_generated_equality_components_use_verified_solving_evidence[q07] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_generated_equality_components_use_verified_solving_evidence[q08] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_compound_terms_keep_grouping_in_amgm_teaching_projection _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_requires_adjacent_unique_committed_dependency[unrelated] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_requires_adjacent_unique_committed_dependency[target] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_requires_adjacent_unique_committed_dependency[gap] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_requires_adjacent_unique_committed_dependency[duplicate] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_requires_adjacent_unique_committed_dependency[missing_expression] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[no_substitution] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[pair_mismatch] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[no_product] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[broken_chain] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[second_combine] _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+_ ERROR at setup of test_fraction_combination_keeps_coverage_and_independent_application _
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('<pytest-temp>'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def snapshots(tmp_path_factory):
+        output = tmp_path_factory.mktemp("minimum-pages")
+        result = {}
+        for case in ("q03", "q07", "q08"):
+            solved, runtime = run(
+                gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+                problem_ir=FIXTURES
+                / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+                output=output / case,
+                mode="recorded",
+                plan=FIXTURES / f"basic-inequality-stage4/{case}.json",
+            )
+>           assert solved.status == "ok", solved.to_dict()
+E           AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E           assert 'failed' == 'ok'
+E             
+E             - ok
+E             + failed
+
+tests/solver/test_basic_inequality_lesson_expansion.py:58: AssertionError
+=================================== FAILURES ===================================
+________ test_marker_fallback_preserves_verification_and_clause_budget _________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+    def test_marker_fallback_preserves_verification_and_clause_budget():
+        with pytest.raises(ProofFailure):
+            verify_bound(target(), math_rows("∵m=n∴m+n>=2*sqrt(m*n)", "m*n<=1"))
+        verify_bound(target(), math_rows("∵m>0" + "∴m>0" * 8, "m*n<=1"))
+        with pytest.raises(ProofFailure) as caught:
+            verify_bound(target(), math_rows(",".join(f"m>{i}" for i in range(33)), "m*n<=1"))
+>       assert caught.value.code == "proof_search_exhausted"
+E       AssertionError: assert 'proof_limit' == 'proof_search_exhausted'
+E         
+E         - proof_search_exhausted
+E         + proof_limit
+
+tests/solver/test_basic_inequality_runtime.py:525: AssertionError
+________________________ test_four_frozen_cases[q08-4] _________________________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+case = 'q08', answer = '4'
+tmp_path = PosixPath('<pytest-temp>')
+
+    @pytest.mark.parametrize(
+        "case,answer", [("q01", "1"), ("q03", "9"), ("q07", "2*sqrt(2)"), ("q08", "4")]
+    )
+    def test_four_frozen_cases(case, answer, tmp_path):
+        result, runtime = run(
+            gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+            problem_ir=FIXTURES / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+            output=tmp_path / case,
+            mode="recorded",
+            plan=PLANS / f"{case}.json",
+        )
+>       assert result.status == "ok", result.to_dict()
+E       AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E       assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_basic_inequality_stage4_expansion.py:23: AssertionError
+______________ test_substitution_closes_original_problem[q25-25] _______________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+case = 'q25', answer = '25'
+tmp_path = PosixPath('<pytest-temp>')
+
+    @pytest.mark.parametrize("case,answer", [("q25", "25"), ("q12", "4/5")])
+    def test_substitution_closes_original_problem(case, answer, tmp_path):
+        result, runtime = run(
+            gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+            problem_ir=FIXTURES / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+            plan=FIXTURES / f"basic-inequality-stage5b/{case}.json",
+            output=tmp_path / case,
+            mode="recorded",
+        )
+>       assert result.status == "ok", result.to_dict()
+E       AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E       assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_basic_inequality_stage5b.py:23: AssertionError
+______________ test_substitution_closes_original_problem[q12-4/5] ______________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+case = 'q12', answer = '4/5'
+tmp_path = PosixPath('<pytest-temp>')
+
+    @pytest.mark.parametrize("case,answer", [("q25", "25"), ("q12", "4/5")])
+    def test_substitution_closes_original_problem(case, answer, tmp_path):
+        result, runtime = run(
+            gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+            problem_ir=FIXTURES / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+            plan=FIXTURES / f"basic-inequality-stage5b/{case}.json",
+            output=tmp_path / case,
+            mode="recorded",
+        )
+>       assert result.status == "ok", result.to_dict()
+E       AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E       assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_basic_inequality_stage5b.py:23: AssertionError
+_______ test_affine_substitution_generalizes_and_replays_without_search ________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1102f4c50>
+
+    def test_affine_substitution_generalizes_and_replays_without_search(monkeypatch):
+        t, p = affine_case("x", "y", 9, 16)
+        e, _ = verify_substitution(t, p)
+        bound = public_bound(
+>           verify_bound(t, [{"math": p["expression"] + ">=49"}], substitution=e)
+        )
+
+tests/solver/test_basic_inequality_stage5b.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:313: in verify_bound
+    return verify(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:361: in verify
+    sequence = verify_relation_sequence(
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:119: in verify_relation_sequence
+    on_verified(proof)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:358: in check_local_contract
+    verify_local_application(context, source, bound, u, v, budget=budget)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = ProofContext(symbols={'x': x, 'y': y, 'r': r, 's': s}, premises={'c0': ParsedMath(source='x>0', normalized_source='(x>...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+source = '25+9/r+16/s', bound = '49'
+u = ('div', ('rat', '9', '1'), ('sub', ('symbol', 'x'), ('rat', '1', '1')))
+v = ('div', ('rat', '16', '1'), ('sub', ('symbol', 'y'), ('rat', '1', '1')))
+
+    def verify_local_application(
+        context, source, bound, u, v, *, budget, certificates=None
+    ):
+        from .inequality_bound_v2 import math_text
+    
+        def scalar(text):
+            return parse_math_expression(text, context.symbols).to_sympy(context.symbols)
+    
+        a, b = scalar(math_text(u)), scalar(math_text(v))
+        value, result = scalar(source), scalar(bound)
+        factors = [sp.Integer(1)]
+        for _, _, _, scale in candidates(
+            from_node(parse_math_expression(source, context.symbols).ast)
+        ):
+            factor = scalar(math_text(scale))
+            if factor not in factors:
+                factors.append(factor)
+        for term in sp.Add.make_args(sp.expand(value)):
+            for paired in (a, b):
+                factor = sp.cancel(term / paired)
+                if factor.is_Rational and factor > 0 and factor not in factors:
+                    factors.append(factor)
+        options = []
+        for factor in factors:
+            local_result = sp.cancel(result - value + factor * (a + b))
+            options.append(
+                [
+                    f"({sp.cancel(local_result**2)})=({sp.cancel(4 * factor**2 * a * b)})",
+                    f"({local_result})>0",
+                    f"({factor})>0",
+                ]
+            )
+        for term in sp.Add.make_args(sp.expand(value)):
+            coefficient = sp.cancel(term * a * b)
+            if coefficient == 0 or coefficient.free_symbols & (
+                a.free_symbols | b.free_symbols
+            ):
+                continue
+            expected = value - term + 4 * coefficient / (a + b) ** 2
+            options.insert(0, [f"({bound})=({expected})", f"({coefficient})>0"])
+        # Recognize the same reciprocal application across equivalent sums of
+        # fractions. SymPy only proposes a coefficient; the exact full-expression
+        # identity and positivity are still certified below and replayed. Requiring
+        # independence from both participating terms prevents hiding another bound
+        # (for example dropping a square) inside this coefficient.
+        coefficient = reciprocal_coefficient(value, result, a, b)
+        if coefficient is not None:
+            expected = value - coefficient / (a * b) + 4 * coefficient / (a + b) ** 2
+            options.append([f"({bound})=({expected})", f"({coefficient})>0"])
+        limits = budget.limits
+        if certificates is not None:
+            if certificates["relations"] not in options:
+                raise ProofFailure("invalid_proof", "local application template changed")
+            verify_relation_sequence(
+                [
+                    parse_math_relation(r, context.symbols)
+                    for r in certificates["relations"]
+                ],
+                context,
+                budget=_Budget(limits),
+                certificates=certificates["proofs"],
+            )
+            return certificates
+        arithmetic = Arithmetic(_Budget(limits))
+        divisors = [
+            arithmetic.equation_divisor(from_node(p.ast))
+            for p in context.premises.values()
+            if p.ast.op == "="
+        ]
+        for option in options:
+            try:
+                relations = [parse_math_relation(r, context.symbols) for r in option]
+            except MathParseError:
+                # These are speculative templates generated above, not submitted
+                # mathematics. An unsupported candidate must not prevent checking
+                # a different template. Source parsing and certificate replay stay
+                # strict; only a fully proved candidate can be returned below.
+                continue
+            _, remainder = arithmetic.reduce(
+                arithmetic.difference(from_node(relations[0].ast)), divisors
+            )
+            if remainder:
+                continue
+            proofs = verify_relation_sequence(relations, context, budget=_Budget(limits))
+            return {"relations": option, "proofs": proofs}
+>       raise ProofFailure(
+            "amgm_remainder_changed",
+            "cannot certify this full-expression change as one AM-GM application "
+            "with an equivalent remainder; check the source expression binding and "
+            "local algebraic identity. If a separate square bound is used, call M12",
+        )
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: cannot certify this full-expression change as one AM-GM application with an equivalent remainder; check the source expression binding and local algebraic identity. If a separate square bound is used, call M12
+
+shuxueshuo_server/solver/math_kernel/local_bound_contract.py:106: ProofFailure
+_____________ test_substitution_lesson_and_diagrams_roundtrip[q25] _____________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+case = 'q25'
+tmp_path = PosixPath('<pytest-temp>')
+
+    @pytest.mark.parametrize("case", ["q25", "q12"])
+    def test_substitution_lesson_and_diagrams_roundtrip(case, tmp_path):
+        result, runtime = run(
+            gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+            problem_ir=FIXTURES / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+            plan=FIXTURES / f"basic-inequality-stage5b/{case}.json",
+            output=tmp_path / case,
+            mode="recorded",
+        )
+>       assert result.status == "ok"
+E       AssertionError: assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_basic_inequality_stage5b.py:277: AssertionError
+_____________ test_substitution_lesson_and_diagrams_roundtrip[q12] _____________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+case = 'q12'
+tmp_path = PosixPath('<pytest-temp>')
+
+    @pytest.mark.parametrize("case", ["q25", "q12"])
+    def test_substitution_lesson_and_diagrams_roundtrip(case, tmp_path):
+        result, runtime = run(
+            gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+            problem_ir=FIXTURES / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+            plan=FIXTURES / f"basic-inequality-stage5b/{case}.json",
+            output=tmp_path / case,
+            mode="recorded",
+        )
+>       assert result.status == "ok"
+E       AssertionError: assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_basic_inequality_stage5b.py:277: AssertionError
+_______ test_wrong_original_witness_is_not_fixed_by_new_variable_values ________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+    def test_wrong_original_witness_is_not_fixed_by_new_variable_values():
+        t, p = affine_case()
+        e, _ = verify_substitution(t, p)
+>       bound = public_bound(verify_bound(t, [{"math": "13+4/r+9/s>=25"}], substitution=e))
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_basic_inequality_stage5b.py:355: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:313: in verify_bound
+    return verify(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:361: in verify
+    sequence = verify_relation_sequence(
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:119: in verify_relation_sequence
+    on_verified(proof)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:358: in check_local_contract
+    verify_local_application(context, source, bound, u, v, budget=budget)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = ProofContext(symbols={'a': a, 'b': b, 'r': r, 's': s}, premises={'c0': ParsedMath(source='a>0', normalized_source='(a>...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+source = '13+4/r+9/s', bound = '25'
+u = ('div', ('rat', '4', '1'), ('sub', ('symbol', 'a'), ('rat', '1', '1')))
+v = ('div', ('rat', '9', '1'), ('sub', ('symbol', 'b'), ('rat', '1', '1')))
+
+    def verify_local_application(
+        context, source, bound, u, v, *, budget, certificates=None
+    ):
+        from .inequality_bound_v2 import math_text
+    
+        def scalar(text):
+            return parse_math_expression(text, context.symbols).to_sympy(context.symbols)
+    
+        a, b = scalar(math_text(u)), scalar(math_text(v))
+        value, result = scalar(source), scalar(bound)
+        factors = [sp.Integer(1)]
+        for _, _, _, scale in candidates(
+            from_node(parse_math_expression(source, context.symbols).ast)
+        ):
+            factor = scalar(math_text(scale))
+            if factor not in factors:
+                factors.append(factor)
+        for term in sp.Add.make_args(sp.expand(value)):
+            for paired in (a, b):
+                factor = sp.cancel(term / paired)
+                if factor.is_Rational and factor > 0 and factor not in factors:
+                    factors.append(factor)
+        options = []
+        for factor in factors:
+            local_result = sp.cancel(result - value + factor * (a + b))
+            options.append(
+                [
+                    f"({sp.cancel(local_result**2)})=({sp.cancel(4 * factor**2 * a * b)})",
+                    f"({local_result})>0",
+                    f"({factor})>0",
+                ]
+            )
+        for term in sp.Add.make_args(sp.expand(value)):
+            coefficient = sp.cancel(term * a * b)
+            if coefficient == 0 or coefficient.free_symbols & (
+                a.free_symbols | b.free_symbols
+            ):
+                continue
+            expected = value - term + 4 * coefficient / (a + b) ** 2
+            options.insert(0, [f"({bound})=({expected})", f"({coefficient})>0"])
+        # Recognize the same reciprocal application across equivalent sums of
+        # fractions. SymPy only proposes a coefficient; the exact full-expression
+        # identity and positivity are still certified below and replayed. Requiring
+        # independence from both participating terms prevents hiding another bound
+        # (for example dropping a square) inside this coefficient.
+        coefficient = reciprocal_coefficient(value, result, a, b)
+        if coefficient is not None:
+            expected = value - coefficient / (a * b) + 4 * coefficient / (a + b) ** 2
+            options.append([f"({bound})=({expected})", f"({coefficient})>0"])
+        limits = budget.limits
+        if certificates is not None:
+            if certificates["relations"] not in options:
+                raise ProofFailure("invalid_proof", "local application template changed")
+            verify_relation_sequence(
+                [
+                    parse_math_relation(r, context.symbols)
+                    for r in certificates["relations"]
+                ],
+                context,
+                budget=_Budget(limits),
+                certificates=certificates["proofs"],
+            )
+            return certificates
+        arithmetic = Arithmetic(_Budget(limits))
+        divisors = [
+            arithmetic.equation_divisor(from_node(p.ast))
+            for p in context.premises.values()
+            if p.ast.op == "="
+        ]
+        for option in options:
+            try:
+                relations = [parse_math_relation(r, context.symbols) for r in option]
+            except MathParseError:
+                # These are speculative templates generated above, not submitted
+                # mathematics. An unsupported candidate must not prevent checking
+                # a different template. Source parsing and certificate replay stay
+                # strict; only a fully proved candidate can be returned below.
+                continue
+            _, remainder = arithmetic.reduce(
+                arithmetic.difference(from_node(relations[0].ast)), divisors
+            )
+            if remainder:
+                continue
+            proofs = verify_relation_sequence(relations, context, budget=_Budget(limits))
+            return {"relations": option, "proofs": proofs}
+>       raise ProofFailure(
+            "amgm_remainder_changed",
+            "cannot certify this full-expression change as one AM-GM application "
+            "with an equivalent remainder; check the source expression binding and "
+            "local algebraic identity. If a separate square bound is used, call M12",
+        )
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: cannot certify this full-expression change as one AM-GM application with an equivalent remainder; check the source expression binding and local algebraic identity. If a separate square bound is used, call M12
+
+shuxueshuo_server/solver/math_kernel/local_bound_contract.py:106: ProofFailure
+____ test_reciprocal_domain_derivation_and_long_restoration_are_replayable _____
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+    def test_reciprocal_domain_derivation_and_long_restoration_are_replayable():
+        t, p = affine_case()
+        p["steps"] = [
+            {"math": s}
+            for s in [
+                "a>0,b>0,1/a+1/b=1",
+                "1/a<1,1/b<1",
+                "a>1,b>1",
+                "r=a-1,s=b-1",
+                "r>0,s>0",
+                "a+b=a*b",
+                "a*b-a-b=0",
+                "(a-1)*(b-1)=1",
+                "r*s=1",
+            ]
+        ]
+        e, _ = verify_substitution(t, p)
+        replay_substitution(t, e)
+>       b = public_bound(verify_bound(t, [{"math": "13+4/r+9/s>=25"}], substitution=e))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_basic_inequality_stage5b.py:380: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/inequality_evidence.py:313: in verify_bound
+    return verify(
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:361: in verify
+    sequence = verify_relation_sequence(
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:119: in verify_relation_sequence
+    on_verified(proof)
+shuxueshuo_server/solver/math_kernel/inequality_bound_v2.py:358: in check_local_contract
+    verify_local_application(context, source, bound, u, v, budget=budget)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+context = ProofContext(symbols={'a': a, 'b': b, 'r': r, 's': s}, premises={'c0': ParsedMath(source='a>0', normalized_source='(a>...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+source = '13+4/r+9/s', bound = '25'
+u = ('div', ('rat', '4', '1'), ('sub', ('symbol', 'a'), ('rat', '1', '1')))
+v = ('div', ('rat', '9', '1'), ('sub', ('symbol', 'b'), ('rat', '1', '1')))
+
+    def verify_local_application(
+        context, source, bound, u, v, *, budget, certificates=None
+    ):
+        from .inequality_bound_v2 import math_text
+    
+        def scalar(text):
+            return parse_math_expression(text, context.symbols).to_sympy(context.symbols)
+    
+        a, b = scalar(math_text(u)), scalar(math_text(v))
+        value, result = scalar(source), scalar(bound)
+        factors = [sp.Integer(1)]
+        for _, _, _, scale in candidates(
+            from_node(parse_math_expression(source, context.symbols).ast)
+        ):
+            factor = scalar(math_text(scale))
+            if factor not in factors:
+                factors.append(factor)
+        for term in sp.Add.make_args(sp.expand(value)):
+            for paired in (a, b):
+                factor = sp.cancel(term / paired)
+                if factor.is_Rational and factor > 0 and factor not in factors:
+                    factors.append(factor)
+        options = []
+        for factor in factors:
+            local_result = sp.cancel(result - value + factor * (a + b))
+            options.append(
+                [
+                    f"({sp.cancel(local_result**2)})=({sp.cancel(4 * factor**2 * a * b)})",
+                    f"({local_result})>0",
+                    f"({factor})>0",
+                ]
+            )
+        for term in sp.Add.make_args(sp.expand(value)):
+            coefficient = sp.cancel(term * a * b)
+            if coefficient == 0 or coefficient.free_symbols & (
+                a.free_symbols | b.free_symbols
+            ):
+                continue
+            expected = value - term + 4 * coefficient / (a + b) ** 2
+            options.insert(0, [f"({bound})=({expected})", f"({coefficient})>0"])
+        # Recognize the same reciprocal application across equivalent sums of
+        # fractions. SymPy only proposes a coefficient; the exact full-expression
+        # identity and positivity are still certified below and replayed. Requiring
+        # independence from both participating terms prevents hiding another bound
+        # (for example dropping a square) inside this coefficient.
+        coefficient = reciprocal_coefficient(value, result, a, b)
+        if coefficient is not None:
+            expected = value - coefficient / (a * b) + 4 * coefficient / (a + b) ** 2
+            options.append([f"({bound})=({expected})", f"({coefficient})>0"])
+        limits = budget.limits
+        if certificates is not None:
+            if certificates["relations"] not in options:
+                raise ProofFailure("invalid_proof", "local application template changed")
+            verify_relation_sequence(
+                [
+                    parse_math_relation(r, context.symbols)
+                    for r in certificates["relations"]
+                ],
+                context,
+                budget=_Budget(limits),
+                certificates=certificates["proofs"],
+            )
+            return certificates
+        arithmetic = Arithmetic(_Budget(limits))
+        divisors = [
+            arithmetic.equation_divisor(from_node(p.ast))
+            for p in context.premises.values()
+            if p.ast.op == "="
+        ]
+        for option in options:
+            try:
+                relations = [parse_math_relation(r, context.symbols) for r in option]
+            except MathParseError:
+                # These are speculative templates generated above, not submitted
+                # mathematics. An unsupported candidate must not prevent checking
+                # a different template. Source parsing and certificate replay stay
+                # strict; only a fully proved candidate can be returned below.
+                continue
+            _, remainder = arithmetic.reduce(
+                arithmetic.difference(from_node(relations[0].ast)), divisors
+            )
+            if remainder:
+                continue
+            proofs = verify_relation_sequence(relations, context, budget=_Budget(limits))
+            return {"relations": option, "proofs": proofs}
+>       raise ProofFailure(
+            "amgm_remainder_changed",
+            "cannot certify this full-expression change as one AM-GM application "
+            "with an equivalent remainder; check the source expression binding and "
+            "local algebraic identity. If a separate square bound is used, call M12",
+        )
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: cannot certify this full-expression change as one AM-GM application with an equivalent remainder; check the source expression binding and local algebraic identity. If a separate square bound is used, call M12
+
+shuxueshuo_server/solver/math_kernel/local_bound_contract.py:106: ProofFailure
+___________ test_positive_outer_scaling_keeps_fixed_product_diagram ____________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path = PosixPath('<pytest-temp>')
+
+    def test_positive_outer_scaling_keeps_fixed_product_diagram(tmp_path):
+        plan = json.loads((FIXTURES / "basic-inequality-stage5b/q12.json").read_text())
+        steps = plan["root_scope"]["goals"][0]["steps"]
+        steps[1]["parameters"]["expression"] = "(4*v+1/v)/5"
+        steps[2]["parameters"]["steps"] = [
+            {"math": "4*v+1/v>=4"},
+            {"math": "(4*v+1/v)/5>=4/5"},
+        ]
+        path = tmp_path / "scaled.json"
+        path.write_text(json.dumps(plan))
+        result, runtime = run(
+            gold=FIXTURES / "math-notation-v1/basic-inequality/q12.json",
+            problem_ir=FIXTURES / "basic-inequality-problem-ir/v1/q12/problem-ir.json",
+            plan=path,
+            output=tmp_path / "scaled",
+            mode="recorded",
+        )
+>       assert result.status == "ok", result.to_dict()
+E       AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E       assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_basic_inequality_stage5b.py:460: AssertionError
+_________ test_nested_substitution_elimination_replays_without_search __________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+>                   proof = _run_request(current, request, budget=budget).proof
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x110a63c90>
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': 'q != 0', 'source_path': '/derived_relations/1/math', 'step': 1}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        selections = []
+        for size in sizes:
+            keys = {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    for r in ("nodes", "attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:263: ProofFailure
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x10c9ede50>
+
+    def test_nested_substitution_elimination_replays_without_search(monkeypatch):
+        from shuxueshuo_server.solver.math_kernel import (
+            constraint_elimination,
+            proof_kernel,
+        )
+    
+        target, params, elim_params = square_elimination_case()
+        sub, _ = verify_substitution(target, params)
+>       elim, _ = constraint_elimination.verify_elimination(
+            target, elim_params, substitution=sub
+        )
+
+tests/solver/test_basic_inequality_stage5b.py:519: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:192: in verify_elimination
+    proofs = _verify_sequence(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+                    proof = _run_request(current, request, budget=budget).proof
+                else:
+                    proof = certificates[i]
+                    if proof.get("request") != request:
+                        raise ProofFailure(
+                            "invalid_proof", "elimination conclusion changed"
+                        )
+                    _replay(proof, current, budget=budget)
+                if any(n["rule_id"] == "math.two_term_amgm" for n in proof["nodes"]):
+                    raise ProofFailure(
+                        "elimination_estimate_forbidden",
+                        "submit equivalence and domain derivations; inequality estimation belongs to another Method",
+                    )
+            except ProofFailure as exc:
+>               raise ProofFailure(
+                    exc.code,
+                    f"{relation.source_path or '/parameters/steps'}: {relation.source}: {exc}",
+                ) from exc
+E               shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: /derived_relations/1/math: q != 0: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:78: ProofFailure
+__________ test_nested_elimination_rejects_changed_dependency[scope] ___________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+>                   proof = _run_request(current, request, budget=budget).proof
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x10f5e0a90>
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': 'q != 0', 'source_path': '/derived_relations/1/math', 'step': 1}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        selections = []
+        for size in sizes:
+            keys = {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    for r in ("nodes", "attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:263: ProofFailure
+
+The above exception was the direct cause of the following exception:
+
+mutation = 'scope'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        ["scope", "definition", "target", "source", "proof", "missing_dependency"],
+    )
+    def test_nested_elimination_rejects_changed_dependency(mutation):
+        from shuxueshuo_server.solver.math_kernel.constraint_elimination import (
+            replay_elimination,
+            verify_elimination,
+        )
+    
+        target, params, elim_params = square_elimination_case()
+        sub, _ = verify_substitution(target, params)
+>       elim, _ = verify_elimination(target, elim_params, substitution=sub)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_basic_inequality_stage5b.py:552: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:192: in verify_elimination
+    proofs = _verify_sequence(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+                    proof = _run_request(current, request, budget=budget).proof
+                else:
+                    proof = certificates[i]
+                    if proof.get("request") != request:
+                        raise ProofFailure(
+                            "invalid_proof", "elimination conclusion changed"
+                        )
+                    _replay(proof, current, budget=budget)
+                if any(n["rule_id"] == "math.two_term_amgm" for n in proof["nodes"]):
+                    raise ProofFailure(
+                        "elimination_estimate_forbidden",
+                        "submit equivalence and domain derivations; inequality estimation belongs to another Method",
+                    )
+            except ProofFailure as exc:
+>               raise ProofFailure(
+                    exc.code,
+                    f"{relation.source_path or '/parameters/steps'}: {relation.source}: {exc}",
+                ) from exc
+E               shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: /derived_relations/1/math: q != 0: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:78: ProofFailure
+________ test_nested_elimination_rejects_changed_dependency[definition] ________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+>                   proof = _run_request(current, request, budget=budget).proof
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x10e2aa090>
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': 'q != 0', 'source_path': '/derived_relations/1/math', 'step': 1}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        selections = []
+        for size in sizes:
+            keys = {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    for r in ("nodes", "attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:263: ProofFailure
+
+The above exception was the direct cause of the following exception:
+
+mutation = 'definition'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        ["scope", "definition", "target", "source", "proof", "missing_dependency"],
+    )
+    def test_nested_elimination_rejects_changed_dependency(mutation):
+        from shuxueshuo_server.solver.math_kernel.constraint_elimination import (
+            replay_elimination,
+            verify_elimination,
+        )
+    
+        target, params, elim_params = square_elimination_case()
+        sub, _ = verify_substitution(target, params)
+>       elim, _ = verify_elimination(target, elim_params, substitution=sub)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_basic_inequality_stage5b.py:552: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:192: in verify_elimination
+    proofs = _verify_sequence(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+                    proof = _run_request(current, request, budget=budget).proof
+                else:
+                    proof = certificates[i]
+                    if proof.get("request") != request:
+                        raise ProofFailure(
+                            "invalid_proof", "elimination conclusion changed"
+                        )
+                    _replay(proof, current, budget=budget)
+                if any(n["rule_id"] == "math.two_term_amgm" for n in proof["nodes"]):
+                    raise ProofFailure(
+                        "elimination_estimate_forbidden",
+                        "submit equivalence and domain derivations; inequality estimation belongs to another Method",
+                    )
+            except ProofFailure as exc:
+>               raise ProofFailure(
+                    exc.code,
+                    f"{relation.source_path or '/parameters/steps'}: {relation.source}: {exc}",
+                ) from exc
+E               shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: /derived_relations/1/math: q != 0: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:78: ProofFailure
+__________ test_nested_elimination_rejects_changed_dependency[target] __________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+>                   proof = _run_request(current, request, budget=budget).proof
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x1108f5190>
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': 'q != 0', 'source_path': '/derived_relations/1/math', 'step': 1}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        selections = []
+        for size in sizes:
+            keys = {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    for r in ("nodes", "attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:263: ProofFailure
+
+The above exception was the direct cause of the following exception:
+
+mutation = 'target'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        ["scope", "definition", "target", "source", "proof", "missing_dependency"],
+    )
+    def test_nested_elimination_rejects_changed_dependency(mutation):
+        from shuxueshuo_server.solver.math_kernel.constraint_elimination import (
+            replay_elimination,
+            verify_elimination,
+        )
+    
+        target, params, elim_params = square_elimination_case()
+        sub, _ = verify_substitution(target, params)
+>       elim, _ = verify_elimination(target, elim_params, substitution=sub)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_basic_inequality_stage5b.py:552: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:192: in verify_elimination
+    proofs = _verify_sequence(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+                    proof = _run_request(current, request, budget=budget).proof
+                else:
+                    proof = certificates[i]
+                    if proof.get("request") != request:
+                        raise ProofFailure(
+                            "invalid_proof", "elimination conclusion changed"
+                        )
+                    _replay(proof, current, budget=budget)
+                if any(n["rule_id"] == "math.two_term_amgm" for n in proof["nodes"]):
+                    raise ProofFailure(
+                        "elimination_estimate_forbidden",
+                        "submit equivalence and domain derivations; inequality estimation belongs to another Method",
+                    )
+            except ProofFailure as exc:
+>               raise ProofFailure(
+                    exc.code,
+                    f"{relation.source_path or '/parameters/steps'}: {relation.source}: {exc}",
+                ) from exc
+E               shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: /derived_relations/1/math: q != 0: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:78: ProofFailure
+__________ test_nested_elimination_rejects_changed_dependency[source] __________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+>                   proof = _run_request(current, request, budget=budget).proof
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x10fc143d0>
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': 'q != 0', 'source_path': '/derived_relations/1/math', 'step': 1}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        selections = []
+        for size in sizes:
+            keys = {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    for r in ("nodes", "attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:263: ProofFailure
+
+The above exception was the direct cause of the following exception:
+
+mutation = 'source'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        ["scope", "definition", "target", "source", "proof", "missing_dependency"],
+    )
+    def test_nested_elimination_rejects_changed_dependency(mutation):
+        from shuxueshuo_server.solver.math_kernel.constraint_elimination import (
+            replay_elimination,
+            verify_elimination,
+        )
+    
+        target, params, elim_params = square_elimination_case()
+        sub, _ = verify_substitution(target, params)
+>       elim, _ = verify_elimination(target, elim_params, substitution=sub)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_basic_inequality_stage5b.py:552: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:192: in verify_elimination
+    proofs = _verify_sequence(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+                    proof = _run_request(current, request, budget=budget).proof
+                else:
+                    proof = certificates[i]
+                    if proof.get("request") != request:
+                        raise ProofFailure(
+                            "invalid_proof", "elimination conclusion changed"
+                        )
+                    _replay(proof, current, budget=budget)
+                if any(n["rule_id"] == "math.two_term_amgm" for n in proof["nodes"]):
+                    raise ProofFailure(
+                        "elimination_estimate_forbidden",
+                        "submit equivalence and domain derivations; inequality estimation belongs to another Method",
+                    )
+            except ProofFailure as exc:
+>               raise ProofFailure(
+                    exc.code,
+                    f"{relation.source_path or '/parameters/steps'}: {relation.source}: {exc}",
+                ) from exc
+E               shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: /derived_relations/1/math: q != 0: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:78: ProofFailure
+__________ test_nested_elimination_rejects_changed_dependency[proof] ___________
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+>                   proof = _run_request(current, request, budget=budget).proof
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x10eaace50>
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': 'q != 0', 'source_path': '/derived_relations/1/math', 'step': 1}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        selections = []
+        for size in sizes:
+            keys = {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    for r in ("nodes", "attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:263: ProofFailure
+
+The above exception was the direct cause of the following exception:
+
+mutation = 'proof'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        ["scope", "definition", "target", "source", "proof", "missing_dependency"],
+    )
+    def test_nested_elimination_rejects_changed_dependency(mutation):
+        from shuxueshuo_server.solver.math_kernel.constraint_elimination import (
+            replay_elimination,
+            verify_elimination,
+        )
+    
+        target, params, elim_params = square_elimination_case()
+        sub, _ = verify_substitution(target, params)
+>       elim, _ = verify_elimination(target, elim_params, substitution=sub)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_basic_inequality_stage5b.py:552: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:192: in verify_elimination
+    proofs = _verify_sequence(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+                    proof = _run_request(current, request, budget=budget).proof
+                else:
+                    proof = certificates[i]
+                    if proof.get("request") != request:
+                        raise ProofFailure(
+                            "invalid_proof", "elimination conclusion changed"
+                        )
+                    _replay(proof, current, budget=budget)
+                if any(n["rule_id"] == "math.two_term_amgm" for n in proof["nodes"]):
+                    raise ProofFailure(
+                        "elimination_estimate_forbidden",
+                        "submit equivalence and domain derivations; inequality estimation belongs to another Method",
+                    )
+            except ProofFailure as exc:
+>               raise ProofFailure(
+                    exc.code,
+                    f"{relation.source_path or '/parameters/steps'}: {relation.source}: {exc}",
+                ) from exc
+E               shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: /derived_relations/1/math: q != 0: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:78: ProofFailure
+____ test_nested_elimination_rejects_changed_dependency[missing_dependency] ____
+[gw0] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+>                   proof = _run_request(current, request, budget=budget).proof
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x10f80cd50>
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': 'q != 0', 'source_path': '/derived_relations/1/math', 'step': 1}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        selections = []
+        for size in sizes:
+            keys = {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    for r in ("nodes", "attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:263: ProofFailure
+
+The above exception was the direct cause of the following exception:
+
+mutation = 'missing_dependency'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        ["scope", "definition", "target", "source", "proof", "missing_dependency"],
+    )
+    def test_nested_elimination_rejects_changed_dependency(mutation):
+        from shuxueshuo_server.solver.math_kernel.constraint_elimination import (
+            replay_elimination,
+            verify_elimination,
+        )
+    
+        target, params, elim_params = square_elimination_case()
+        sub, _ = verify_substitution(target, params)
+>       elim, _ = verify_elimination(target, elim_params, substitution=sub)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/solver/test_basic_inequality_stage5b.py:552: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:192: in verify_elimination
+    proofs = _verify_sequence(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+                    proof = _run_request(current, request, budget=budget).proof
+                else:
+                    proof = certificates[i]
+                    if proof.get("request") != request:
+                        raise ProofFailure(
+                            "invalid_proof", "elimination conclusion changed"
+                        )
+                    _replay(proof, current, budget=budget)
+                if any(n["rule_id"] == "math.two_term_amgm" for n in proof["nodes"]):
+                    raise ProofFailure(
+                        "elimination_estimate_forbidden",
+                        "submit equivalence and domain derivations; inequality estimation belongs to another Method",
+                    )
+            except ProofFailure as exc:
+>               raise ProofFailure(
+                    exc.code,
+                    f"{relation.source_path or '/parameters/steps'}: {relation.source}: {exc}",
+                ) from exc
+E               shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: /derived_relations/1/math: q != 0: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:78: ProofFailure
+__________ test_non_numeric_substitution_producer_actual_domain_reuse __________
+[gw3] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+>                   proof = _run_request(current, request, budget=budget).proof
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x1134681d0>
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': 'q != 0', 'source_path': '/derived_relations/1/math', 'step': 1}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        selections = []
+        for size in sizes:
+            keys = {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    for r in ("nodes", "attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+                    fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+                    if fresh_reads:
+                        self.on_read(fresh_reads)
+                        self.recorded_reads.update(fresh_reads)
+                return replace(run.result, proof=proof)
+            if run.result.code not in {"proof_missing", "strategy_budget_exhausted"}:
+                break
+>       raise ProofFailure(run.result.code, run.result.diagnostic)
+E       shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:263: ProofFailure
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1119fa610>
+
+    def test_non_numeric_substitution_producer_actual_domain_reuse(monkeypatch):
+        from shuxueshuo_server.solver.math_kernel.inequality_evidence import target_context
+        from shuxueshuo_server.solver.math_kernel.substitution import verify_substitution
+    
+        fixture = json.loads(
+            (
+                Path(__file__).parent / "fixtures/scoped-proof-search/q12-subchain.json"
+            ).read_text()
+        )
+        from shuxueshuo_server.solver.math_kernel.constraint_elimination import (
+            verify_elimination,
+        )
+    
+        original_add = ScheduledRealSearch.add
+    
+        def no_amgm(search, rule, *args, **kwargs):
+            assert rule not in {
+                "two_term_amgm",
+                "amgm_squared_bound",
+                "local_two_term_amgm",
+                "two_term_product_bound",
+            }
+            return original_add(search, rule, *args, **kwargs)
+    
+        monkeypatch.setattr(ScheduledRealSearch, "add", no_amgm)
+        target = fixture["target"]
+        source, _ = target_context(target)
+        runtime = RuntimeContext(
+            ProblemIR("subchain", "", "", list(source.symbols)),
+            SympyKernel(),
+            source.symbols,
+        )
+        bindings = tuple((n, "original/" + n) for n in source.symbols)
+        producer = ProofCallAuthority(
+            "sub",
+            "problem",
+            "substitute_expressions",
+            bindings,
+            FactValidity("problem"),
+            "target",
+            allowed_kinds=("domain", "identity", "definition", "relation"),
+            target_json=canonical(target),
+        )
+        definitions = ("sub/definition/p", "sub/definition/q")
+        new_bindings = tuple(
+            sorted(
+                (
+                    *bindings,
+                    ("p", "target/sub/definition/p"),
+                    ("q", "target/sub/definition/q"),
+                )
+            )
+        )
+        consumer = ProofCallAuthority(
+            "elim",
+            "problem",
+            "eliminate_by_constraint",
+            new_bindings,
+            FactValidity("problem", definition_refs=definitions),
+            "target",
+            target_json=canonical(target),
+        )
+        store = ScopedProofFacts(runtime, source, bindings, (producer, consumer))
+        evidence, _ = verify_substitution(target, fixture["substitution"])
+        overlay = store.begin("sub")
+        overlay.admit_method(evidence)
+        commit = store.commit(overlay, "substitution-output")
+        view = store.begin("elim")
+        q_nonnegative = next(
+            f
+            for f in view.view.facts
+            if f.relation.replace("(", "").replace(")", "") == "q>=0"
+        )
+        assert q_nonnegative.producer_call_id == "sub"
+        # Import the committed nonnegative fact itself, not its defining square.
+        candidate = view.prove("q>=0", [q_nonnegative.fact_id], semantic_kind="domain")[0]
+        assert candidate.dependency_fact_refs == (q_nonnegative.fact_id,)
+>       elimination, _ = verify_elimination(
+            target, fixture["elimination"], substitution=evidence
+        )
+
+tests/solver/test_scoped_proof_facts_stage_c.py:308: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:192: in verify_elimination
+    proofs = _verify_sequence(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+                    proof = _run_request(current, request, budget=budget).proof
+                else:
+                    proof = certificates[i]
+                    if proof.get("request") != request:
+                        raise ProofFailure(
+                            "invalid_proof", "elimination conclusion changed"
+                        )
+                    _replay(proof, current, budget=budget)
+                if any(n["rule_id"] == "math.two_term_amgm" for n in proof["nodes"]):
+                    raise ProofFailure(
+                        "elimination_estimate_forbidden",
+                        "submit equivalence and domain derivations; inequality estimation belongs to another Method",
+                    )
+            except ProofFailure as exc:
+>               raise ProofFailure(
+                    exc.code,
+                    f"{relation.source_path or '/parameters/steps'}: {relation.source}: {exc}",
+                ) from exc
+E               shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: /derived_relations/1/math: q != 0: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:78: ProofFailure
+_____ test_frozen_m07_m08_control_uses_no_amgm_and_replays_without_search ______
+[gw3] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+>                   proof = _run_request(current, request, budget=budget).proof
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/proof_kernel.py:66: in _run_request
+    return session.run_request(context, request, budget=budget)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <shuxueshuo_server.solver.math_kernel.method_proof_session.MethodProofSession object at 0x112f3bf90>
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+request = {'candidate': {'source': 'q != 0', 'source_path': '/derived_relations/1/math', 'step': 1}, 'kind': 'relation'}
+
+    def run_request(self, context, request, *, budget=None):
+        from dataclasses import replace
+    
+        from .amgm_application import copy_nodes
+        from .proof_checker import _Environment, _replay, _roots_for_request
+        from .proof_fact_index import ProofFactIndex
+        from .proof_facts import FactValidity, VerifiedMathFact
+        from .proof_types import _Budget
+    
+        budget = budget or _Budget(context.limits)
+        # Existing Method-local premises keep their semantics and source IDs.
+        # The D index selects small views; it grants no new premise authority.
+        bindings = tuple((n, n) for n in context.symbols)
+        local = [
+            VerifiedMathFact(
+                p.source, bindings, FactValidity(context.scope_id), "relation", key
+            )
+            for key, p in context.premises.items()
+        ]
+        index = ProofFactIndex(local, context.symbols, limit=self.policy.fact_limit)
+        roots = _roots_for_request(_Environment(context, request))
+        ids = []
+        for root in roots:
+            goals = root[1:] if root[0] == "all" else (root,)
+            for goal in goals:
+                queried, _ = index.query(
+                    goal, bindings, limit=self.policy.retrieval_limit
+                )
+                # An existing bound is a better transport premise than a large
+                # unrelated equation basis. Keep its sign/domain prerequisites
+                # next, using the index's deterministic order.
+                transport = [
+                    ref
+                    for ref in queried
+                    if goal[0] in {"<", "<=", ">", ">="}
+                    and index.trees[ref][0] == goal[0]
+                    and index.trees[ref][2] != ZERO
+                    and names(index.trees[ref]) <= names(goal)
+                ]
+                ids.extend(ref for ref in (*transport, *queried) if ref not in ids)
+        # Preserve original constant premises and eventually every admissible
+        # local premise, including assumptions with no adjacent goal symbols.
+        ids.extend(ref for ref in index.facts if ref not in ids)
+        sizes = sorted({min(n, len(ids)) for n in (4, 8, len(ids))})
+        # Small retrieval views must retain the local scalar order/sign basis.
+        # A retrieved bound does not replace a>b, b>c, c>0 when proving the
+        # original denominator guards. Losing that basis makes each widening
+        # retry search an impossible sign problem before it sees the premises.
+        sign_basis = {
+            key for key, parsed in context.premises.items()
+            if (tree := from_node(parsed.ast))[0] != "="
+            and all(side[0] in {"symbol", "rat"} for side in tree[1:])
+        }
+        selections = []
+        for size in sizes:
+            keys = sign_basis | {index.facts[ref].source for ref in ids[:size]}
+            if keys not in selections:
+                selections.append(keys)
+        for position, keys in enumerate(selections):
+            selected = replace(
+                context,
+                premises={k: p for k, p in context.premises.items() if k in keys},
+            )
+            run = run_scheduled_request(
+                selected,
+                request,
+                budget=budget,
+                policy=self.policy,
+                manifest_hash=self.manifest_hash,
+                seed_provider=self.seed,
+                request_quota={
+                    r: max(
+                        1,
+                        (getattr(budget.limits, r) - budget.counts.get(r, 0))
+                        // (len(selections) - position),
+                    )
+                    for r in ("nodes", "attempts", "reductions")
+                }
+                if position < len(selections) - 1
+                else None,
+            )
+            self.runs.append(run.diagnostics)
+            if run.result.status == "proved":
+                # Rebuild and independently replay against the exact Method
+                # context required by existing v1 local certificate readers.
+                env = _Environment(context, request)
+                proof = env.payload(copy_nodes(run.result.proof, env))
+                _replay(proof, context)
+                for root_id in proof["roots"]:
+                    node = next(n for n in proof["nodes"] if n["node_id"] == root_id)
+                    conclusion = freeze(node["conclusion"])
+                    if conclusion[0] != "all":
+                        if len(self.local_fragments) >= 64:
+                            self.local_fragments.pop(next(iter(self.local_fragments)))
+                        # A prior request recorded its shared producer reads
+                        # in this call's overlay before entering this cache.
+                        self.local_fragments[conclusion] = [(None, proof, root_id)]
+                if self.on_read and run.diagnostics.get("fact_reads"):
+>                   fresh_reads = tuple(
+                        sorted(set(run.diagnostics["fact_reads"]) - self.recorded_reads)
+                    )
+E                   shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/method_proof_session.py:263: ProofFailure
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x110f52a10>
+
+    def test_frozen_m07_m08_control_uses_no_amgm_and_replays_without_search(monkeypatch):
+        from shuxueshuo_server.solver.math_kernel import constraint_elimination as ce
+        from shuxueshuo_server.solver.math_kernel.substitution import verify_substitution
+    
+        fixture = load("q12-subchain.json")
+        from shuxueshuo_server.solver.math_kernel.real_proof_strategies import (
+            ScheduledRealSearch,
+        )
+        original_add = ScheduledRealSearch.add
+        rules = set()
+        forbidden_rules = {
+            "two_term_amgm",
+            "fixed_sum_product_bound",
+            "amgm_squared_bound",
+            "local_two_term_amgm",
+            "two_term_product_bound",
+        }
+    
+        def no_amgm(search, rule, *args, **kwargs):
+            assert rule not in forbidden_rules, rule
+            rules.add(rule)
+            return original_add(search, rule, *args, **kwargs)
+    
+        monkeypatch.setattr(ScheduledRealSearch, "add", no_amgm)
+        substitution, context = verify_substitution(
+            fixture["target"], fixture["substitution"]
+        )
+>       elimination, _ = ce.verify_elimination(
+            fixture["target"], fixture["elimination"], substitution=substitution
+        )
+
+tests/solver/test_scoped_proof_search_stage_a.py:309: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:192: in verify_elimination
+    proofs = _verify_sequence(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relations = [ParsedMath(source='q*(5*p+q) = 1', normalized_source='((q*(((5*p)+q)))=1)', source_map=((0, 0), (0, 0), (0, 1), (1, 2...th='n.1.0.0', span=(8, 11), status='unverified')), source_path='/parameters/expression', step=None, related_step=None)]
+context = ProofContext(symbols={'r': r, 's': s, 'p': p, 'q': q}, premises={'c': ParsedMath(source='5*r^2*s^2+s^4=1', normalized_...tions=2048, depth=32, nodes=4096, attempts=4096, branches=8, algebraic_degree=16, refinements=128), scope_id='problem')
+
+    def _verify_sequence(relations, context, *, certificates, budget):
+        """Retain original facts and the latest form of equivalent derived equations.
+    
+        This only removes redundant premises; it never adds an unproved relation.
+        Replay uses the same deterministic selection and never searches.
+        """
+        if not 1 <= len(relations) <= 32:
+            raise ProofFailure("proof_limit", "1–32 elimination relations required")
+        if certificates is not None and len(certificates) != len(relations):
+            raise ProofFailure("invalid_proof", "elimination certificate count mismatch")
+        derived = {}
+        equation_keys = {}
+        proofs = []
+        arithmetic = Arithmetic(budget)
+        for i, relation in enumerate(relations):
+            current = replace(context, premises={**context.premises, **derived})
+            request = {"kind": "relation", "candidate": _document(relation)}
+            try:
+                if certificates is None:
+                    proof = _run_request(current, request, budget=budget).proof
+                else:
+                    proof = certificates[i]
+                    if proof.get("request") != request:
+                        raise ProofFailure(
+                            "invalid_proof", "elimination conclusion changed"
+                        )
+                    _replay(proof, current, budget=budget)
+                if any(n["rule_id"] == "math.two_term_amgm" for n in proof["nodes"]):
+                    raise ProofFailure(
+                        "elimination_estimate_forbidden",
+                        "submit equivalence and domain derivations; inequality estimation belongs to another Method",
+                    )
+            except ProofFailure as exc:
+>               raise ProofFailure(
+                    exc.code,
+                    f"{relation.source_path or '/parameters/steps'}: {relation.source}: {exc}",
+                ) from exc
+E               shuxueshuo_server.solver.math_kernel.proof_algebra.ProofFailure: /derived_relations/1/math: q != 0: request candidate budget exhausted
+
+shuxueshuo_server/solver/math_kernel/constraint_elimination.py:78: ProofFailure
+________________ test_substitution_uses_scoped_search[q12-4/5] _________________
+[gw3] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+case = 'q12', answer = '4/5'
+tmp_path = PosixPath('<pytest-temp>')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x111145c90>
+
+    @pytest.mark.parametrize("case,answer", [("q12", "4/5"), ("q25", "25")])
+    def test_substitution_uses_scoped_search(case, answer, tmp_path, monkeypatch):
+    
+        def forbidden(*args, **kwargs):
+            raise AssertionError("legacy search called")
+    
+        monkeypatch.setattr(LegacySearch, "need", forbidden)
+        result, runtime = run(
+            gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+            problem_ir=FIXTURES / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+            plan=FIXTURES / f"basic-inequality-stage5b/{case}.json",
+            output=tmp_path / case,
+            mode="recorded",
+            proof_protocol="scoped-facts/v2",
+        )
+>       assert result.status == "ok", result.to_dict()
+E       AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E       assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_scoped_proof_search_stage_e.py:148: AssertionError
+_________________ test_substitution_uses_scoped_search[q25-25] _________________
+[gw3] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+case = 'q25', answer = '25'
+tmp_path = PosixPath('<pytest-temp>')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x111e91690>
+
+    @pytest.mark.parametrize("case,answer", [("q12", "4/5"), ("q25", "25")])
+    def test_substitution_uses_scoped_search(case, answer, tmp_path, monkeypatch):
+    
+        def forbidden(*args, **kwargs):
+            raise AssertionError("legacy search called")
+    
+        monkeypatch.setattr(LegacySearch, "need", forbidden)
+        result, runtime = run(
+            gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
+            problem_ir=FIXTURES / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
+            plan=FIXTURES / f"basic-inequality-stage5b/{case}.json",
+            output=tmp_path / case,
+            mode="recorded",
+            proof_protocol="scoped-facts/v2",
+        )
+>       assert result.status == "ok", result.to_dict()
+E       AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E       assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_scoped_proof_search_stage_e.py:148: AssertionError
+_______________________ test_real_first_attempt_plan[3] ________________________
+[gw2] darwin -- Python 3.11.13 <repo>/server/.venv/bin/python
+
+tmp_path = PosixPath('<pytest-temp>')
+sample = '3'
+
+    @pytest.mark.parametrize('sample', ['1','2','3'])
+    def test_real_first_attempt_plan(tmp_path, sample):
+        plan = tmp_path/'plan.json'
+        plan.write_text(json.dumps({'format':'functional_plan/v2', 'root_scope':{'scope_ref':'problem', 'steps':PLANS[sample].get('scope_steps',{}).get('problem',[]), 'goals':[{'goal_ref':key, **value} for key,value in PLANS[sample]['goal_plans'].items()]}}))
+        result,_ = run(gold=FIXTURES/'math-notation-v1/basic-inequality/q30.json',
+                       problem_ir=FIXTURES/'basic-inequality-problem-ir/v1/q30/problem-ir.json',
+                       plan=plan, mode='recorded', output=tmp_path/'run')
+>       assert result.status == 'ok', result.to_dict()
+E       AssertionError: {'answers': {}, 'checks': [], 'errors': ['Required field is missing.'], 'facts': [], ...}
+E       assert 'failed' == 'ok'
+E         
+E         - ok
+E         + failed
+
+tests/solver/test_live13_repairs.py:97: AssertionError
+============================= slowest 30 durations =============================
+43.54s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_authenticated_scope_native_protocol_probes
+41.51s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[1]
+39.75s setup    tests/solver/test_five_case_recorded_lesson_pages.py::test_all_five_recorded_cases_build_recursive_lesson_and_visual_pages
+35.47s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[2]
+33.95s call     tests/solver/test_live14_repairs.py::test_original_first_response_end_to_end[1]
+29.95s call     tests/solver/test_live14_repairs.py::test_original_first_response_end_to_end[3]
+29.14s call     tests/solver/test_scoped_proof_search_stage_e.py::test_q30_real_method_chain_with_scoped_search
+26.56s call     tests/solver/test_live12_repairs.py::test_q30_m01_omitted_conditions_are_runtime_bound[True]
+26.31s call     tests/solver/test_live12_repairs.py::test_q30_m01_omitted_conditions_are_runtime_bound[False]
+24.64s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_seven_steps_and_semantic_visuals[True]
+24.23s call     tests/solver/test_basic_inequality_stage5c.py::test_alternate_q30_page_preserves_local_remainder_and_method_order
+24.20s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_seven_steps_and_semantic_visuals[False]
+23.32s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_consumes_mixed_bound_chain[False]
+23.09s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_consumes_mixed_bound_chain[True]
+22.75s setup    tests/solver/test_lesson_teaching_c1_smoke.py::test_c1_cases_are_rebuilt_from_all_five_verified_snapshots
+22.51s call     tests/solver/test_scoped_proof_search_stage_e.py::test_v2_compiled_lesson[q30]
+22.44s call     tests/solver/test_scoped_proof_search_stage_a.py::test_recorded_baseline_runs_real_runtime_and_replay
+22.28s setup    tests/solver/test_lesson_capability_coverage.py::test_recorded_and_typed_synthetic_execution_cover_all_public_capabilities
+21.88s call     tests/solver/test_scoped_proof_search_stage_a.py::test_m01_scope_domain_available_with_partial_condition_hints[hints0]
+21.26s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_default_q30_creates_full_scoped_committed_chain
+20.85s call     tests/solver/test_basic_inequality_stage5c.py::test_m12_consumes_exact_m01_state_version
+19.50s call     tests/solver/test_scoped_proof_search_stage_a.py::test_m01_scope_domain_available_with_partial_condition_hints[hints1]
+17.43s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[3]
+16.94s call     tests/solver/test_lesson_capability_coverage.py::test_every_public_function_projects_its_key_student_computation
+16.26s call     tests/solver/test_lesson_capability_coverage.py::test_all_public_teaching_materials_hide_internal_math_syntax
+15.77s call     tests/solver/test_lesson_capability_coverage.py::test_all_public_teaching_materials_contain_no_english_prose
+15.48s call     tests/solver/test_lesson_capability_coverage.py::test_review_has_one_card_per_public_capability
+14.51s setup    tests/solver/test_method_output_write_authority.py::test_all_companion_outputs_receive_exact_write_authority
+13.55s call     tests/solver/test_lesson_capability_coverage.py::test_c0_regression_fixtures_match_current_public_registry
+13.28s setup    tests/solver/test_basic_inequality_lesson_expansion.py::test_minimum_pages_cover_verified_material_and_replay[q03]
+=========================== short test summary info ============================
+FAILED tests/solver/test_basic_inequality_runtime.py::test_marker_fallback_preserves_verification_and_clause_budget
+FAILED tests/solver/test_basic_inequality_stage4_expansion.py::test_four_frozen_cases[q08-4]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_substitution_closes_original_problem[q25-25]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_substitution_closes_original_problem[q12-4/5]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_affine_substitution_generalizes_and_replays_without_search
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_substitution_lesson_and_diagrams_roundtrip[q25]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_substitution_lesson_and_diagrams_roundtrip[q12]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_wrong_original_witness_is_not_fixed_by_new_variable_values
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_reciprocal_domain_derivation_and_long_restoration_are_replayable
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_positive_outer_scaling_keeps_fixed_product_diagram
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_nested_substitution_elimination_replays_without_search
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_nested_elimination_rejects_changed_dependency[scope]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_nested_elimination_rejects_changed_dependency[definition]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_nested_elimination_rejects_changed_dependency[target]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_nested_elimination_rejects_changed_dependency[source]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_nested_elimination_rejects_changed_dependency[proof]
+FAILED tests/solver/test_basic_inequality_stage5b.py::test_nested_elimination_rejects_changed_dependency[missing_dependency]
+FAILED tests/solver/test_scoped_proof_facts_stage_c.py::test_non_numeric_substitution_producer_actual_domain_reuse
+FAILED tests/solver/test_scoped_proof_search_stage_a.py::test_frozen_m07_m08_control_uses_no_amgm_and_replays_without_search
+FAILED tests/solver/test_scoped_proof_search_stage_e.py::test_substitution_uses_scoped_search[q12-4/5]
+FAILED tests/solver/test_scoped_proof_search_stage_e.py::test_substitution_uses_scoped_search[q25-25]
+FAILED tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[3]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_minimum_pages_cover_verified_material_and_replay[q03]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_minimum_pages_cover_verified_material_and_replay[q07]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_minimum_pages_cover_verified_material_and_replay[q08]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_sequence_rule_requires_actual_bound_dependency[owner]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_sequence_rule_requires_actual_bound_dependency[predecessor]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_sequence_rule_requires_actual_bound_dependency[applications]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_sequence_visual_requires_both_source_owners
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_rewrite_public_evidence_roundtrip_and_tamper
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_minimum_prose_cannot_claim_upper_bound
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_lower_bounds_use_full_amgm_mapping[q03]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_lower_bounds_use_full_amgm_mapping[q07]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_lower_bounds_use_full_amgm_mapping[q08]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_homogeneous_degree_rejects_mixed_sum_and_does_not_classify_plain_rewrite
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_homogenization_does_not_merge_an_unrelated_bound
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_homogenization_visual_uses_bound_pair_and_constant_product
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fixed_homogenization_title_survives_llm_rewording
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_purpose_titles_and_navigation_survive_llm_rewording
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_sequence_rule_rejects_different_resolved_predecessor
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_later_label_rule_cannot_remove_independence_of_composed_units
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_q03_semantic_stages_and_conditional_equation_solution
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_generated_equality_components_use_verified_solving_evidence[q07]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_generated_equality_components_use_verified_solving_evidence[q08]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_compound_terms_keep_grouping_in_amgm_teaching_projection
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_requires_adjacent_unique_committed_dependency[unrelated]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_requires_adjacent_unique_committed_dependency[target]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_requires_adjacent_unique_committed_dependency[gap]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_requires_adjacent_unique_committed_dependency[duplicate]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_requires_adjacent_unique_committed_dependency[missing_expression]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[no_substitution]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[pair_mismatch]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[no_product]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[broken_chain]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_rule_preserves_steps_when_semantic_evidence_is_incomplete[second_combine]
+ERROR tests/solver/test_basic_inequality_lesson_expansion.py::test_fraction_combination_keeps_coverage_and_independent_application
+22 failed, 4705 passed, 34 errors in 594.98s (0:09:54)

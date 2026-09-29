@@ -85,8 +85,19 @@ def write_scoped_attempt_evidence(
     save("execution-validation", getattr(execution, "validation_report", None))
     save("execution-authority", getattr(execution, "authority_report", None))
     save("final-plan-contract-validation", getattr(attempt, "final_plan_contract_validation", None))
-    save("transaction", transaction, "transaction_not_started")
     save("checkpoint", checkpoint, "execution_did_not_produce_checkpoint")
+    proof_facts_ref = None
+    if getattr(getattr(checkpoint, "restore_state", None), "proof_facts_json", None) is not None:
+        proof_facts_ref = {
+            "schema_version": "debug-artifact-ref/v1",
+            "file": artifacts["checkpoint"]["file"],
+            "sha256": artifacts["checkpoint"]["sha256"],
+            "pointer": "/restore_state/proof_facts",
+        }
+    save("transaction", (
+        transaction.to_payload(proof_facts_ref=proof_facts_ref)
+        if transaction is not None and proof_facts_ref is not None else transaction
+    ), "transaction_not_started")
     save("verified-execution", getattr(execution, "verified_execution", None), "execution_not_verified")
     # This is the versioned checkpoint authority including typed value payloads
     # and signatures, not the prompt-only view. Its runtime_seed is deliberately
@@ -150,6 +161,7 @@ def write_scoped_attempt_evidence(
     journal.write_index(prefix, {
         "schema_version": "functional-attempt-evidence/v1",
         "artifact_mode": journal.mode,
+        "proof_storage": "checkpoint-references/v1",
         "semantic_attempt": attempt.semantic_attempt,
         "planner_protocol": attempt.planner_protocol,
         "phase": getattr(attempt, "evidence_phase", "completed"),

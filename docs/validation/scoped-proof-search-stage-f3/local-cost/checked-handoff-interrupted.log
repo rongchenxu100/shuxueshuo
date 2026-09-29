@@ -1,0 +1,55 @@
+
+$ <repo>/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 4 --dist worksteal
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  1%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 19%]
+........................................................................ [ 21%]
+..........................
+============================= slowest 30 durations =============================
+9.76s call     tests/solver/test_method_math_arguments.py::test_ten_plans_have_identical_canonical_calls_and_execution[tj-2026-nankai-yimo-25-authored]
+9.40s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full[5]
+9.36s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full[0]
+9.11s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full[1]
+7.91s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full[2]
+7.73s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full[7]
+7.53s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full[6]
+7.06s call     tests/solver/test_method_math_arguments.py::test_ten_plans_have_identical_canonical_calls_and_execution[tj-2026-hexi-yimo-25-authored]
+6.95s call     tests/solver/test_method_math_arguments.py::test_ten_plans_have_identical_canonical_calls_and_execution[tj-2026-nankai-yimo-25-recorded]
+6.88s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_quick
+6.84s setup    tests/solver/test_basic_inequality_lesson_expansion.py::test_minimum_pages_cover_verified_material_and_replay[q03]
+6.79s call     tests/solver/test_math_runtime_binding.py::test_ten_candidate_bindings_execute_trusted_plans[tj-2026-nankai-yimo-25-recorded]
+6.33s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full[4]
+6.05s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full[3]
+5.98s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_scope_native_c0_c5_generated_gate_full_metadata
+5.53s call     tests/solver/test_method_math_arguments.py::test_ten_plans_have_identical_canonical_calls_and_execution[tj-2026-heping-yimo-25-recorded]
+5.21s call     tests/solver/test_math_runtime_binding.py::test_ten_candidate_bindings_execute_trusted_plans[tj-2026-xiqing-yimo-25-recorded]
+5.13s call     tests/solver/test_functional_goal_execution.py::test_runtime_equivalent_version_alias_is_canonical_for_later_writer
+4.88s call     tests/solver/test_method_math_arguments.py::test_ten_plans_have_identical_canonical_calls_and_execution[tj-2026-hexi-yimo-25-recorded]
+4.88s call     tests/solver/test_basic_inequality_stage5a.py::test_q29_elimination_reciprocal_closes_original_maximum
+4.62s call     tests/solver/test_method_math_arguments.py::test_ten_plans_have_identical_canonical_calls_and_execution[tj-2026-heping-yimo-25-authored]
+4.46s call     tests/solver/test_functional_goal_execution.py::test_complete_call_drops_unknown_capability_arg_before_execution
+4.42s call     tests/solver/test_math_runtime_binding.py::test_ten_candidate_bindings_execute_trusted_plans[tj-2026-nankai-yimo-25-authored]
+4.35s call     tests/solver/test_functional_goal_execution.py::test_v2_step_ids_remain_canonical_without_call_aliases[tj-2026-nankai-yimo-25]
+4.10s call     tests/solver/test_method_math_arguments.py::test_ten_plans_have_identical_canonical_calls_and_execution[tj-2026-heping-ermo-25-authored]
+3.96s call     tests/solver/test_basic_inequality_stage5a.py::test_q25_teaching_and_visuals_are_source_bound_and_serializable
+3.94s call     tests/solver/test_functional_goal_execution.py::test_state_writers_keep_v2_semantic_owner_scope[tj-2026-heping-yimo-25]
+3.94s call     tests/solver/test_math_runtime_binding.py::test_ten_candidate_bindings_execute_trusted_plans[tj-2026-heping-yimo-25-recorded]
+3.85s call     tests/solver/test_basic_inequality_stage5a.py::test_reciprocal_bound_renamed_reordered_and_replay_without_search
+3.82s call     tests/solver/test_math_runtime_binding.py::test_ten_candidate_bindings_execute_trusted_plans[tj-2026-xiqing-yimo-25-authored]
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/opt/homebrew/Cellar/python@3.11/3.11.13/Frameworks/Python.framework/Versions/3.11/lib/python3.11/threading.py:331: KeyboardInterrupt
+(to show a full traceback on KeyboardInterrupt use --full-trace)
+1034 passed in 103.03s (0:01:43)

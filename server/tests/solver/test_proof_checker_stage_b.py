@@ -23,6 +23,9 @@ from shuxueshuo_server.solver.math_kernel.proof_types import (
     ProofLimits,
     ProofResult,
 )
+from shuxueshuo_server.solver.math_kernel.real_proof_strategies import (
+    ScheduledRealSearch,
+)
 
 CORPUS_PATH = (
     Path(__file__).parent / "fixtures/scoped-proof-search/checker-legacy-corpus.json"
@@ -67,7 +70,7 @@ def test_frozen_legacy_replay_with_search_disabled(record, monkeypatch):
         pytest.fail("checker invoked search")
 
     monkeypatch.setattr(kernel, "_run_request", forbidden)
-    monkeypatch.setattr(kernel._Search, "__init__", forbidden)
+    monkeypatch.setattr(ScheduledRealSearch, "__init__", forbidden)
     original = deepcopy(record["proof"])
     result = checker.replay_proof(record["proof"], restore(record["context"]))
     assert result.status == "proved", result.to_payload()

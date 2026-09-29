@@ -11,6 +11,7 @@ from ..math_kernel.proof_algebra import digest
 from ..math_kernel.proof_facts import canonical
 
 CONTRACT = "scoped-proof-commit/v1"
+REFERENCE_CONTRACT = "scoped-proof-commit-ref/v1"
 
 
 @dataclass(frozen=True)
@@ -18,6 +19,7 @@ class ProofFactsExecutionEvidence:
     step_id: str
     source_hash: str
     commit_json: str
+    is_reference: bool = False
 
     def __post_init__(self):
         commit = self.commit
@@ -27,10 +29,37 @@ class ProofFactsExecutionEvidence:
             or commit.get("call_id") != self.step_id
         ):
             raise ValueError("invalid proof commit identity")
+        if self.is_reference and (
+            set(commit) != {"call_id", "commit_id", "dependencies", "proof_reads"}
+            or not isinstance(commit.get("commit_id"), str) or not commit["commit_id"]
+        ):
+            raise ValueError("invalid proof commit reference")
         if not isinstance(commit.get("dependencies"), list) or not isinstance(
             commit.get("proof_reads"), list
         ):
             raise TypeError("proof dependencies required")
+
+    @classmethod
+    def from_commit(cls, step_id, source_hash, commit):
+        # The restore-state fact store owns the full record. Teaching/execution
+        # need only its identity and dependency edges, never another proof copy.
+        return cls(step_id, source_hash, canonical({
+            "call_id": commit["call_id"],
+            "commit_id": commit["commit_id"],
+            "dependencies": list(commit["dependencies"]),
+            "proof_reads": list(commit["proof_reads"]),
+        }), is_reference=True)
+
+    def verify_reference(self, source_hash, commits):
+        if not self.is_reference:
+            return
+        ref = self.commit
+        target = commits.get(self.step_id)
+        if self.source_hash != source_hash or target is None or any(
+            ref[key] != target.get(key)
+            for key in ("call_id", "commit_id", "dependencies", "proof_reads")
+        ):
+            raise ValueError("proof commit reference does not match restore state")
 
     @property
     def commit(self):
@@ -38,14 +67,14 @@ class ProofFactsExecutionEvidence:
 
     @property
     def schema_version(self):
-        return CONTRACT
+        return REFERENCE_CONTRACT if self.is_reference else CONTRACT
 
     def to_payload(self):
         body = {
-            "schema_version": CONTRACT,
+            "schema_version": self.schema_version,
             "step_id": self.step_id,
             "source_hash": self.source_hash,
-            "commit": self.commit,
+            "commit_ref" if self.is_reference else "commit": self.commit,
         }
         return {**body, "evidence_id": digest(body)}
 
@@ -54,8 +83,10 @@ class ProofFactsExecutionEvidence:
 
     @classmethod
     def from_payload(cls, payload):
+        reference = payload.get("schema_version") == REFERENCE_CONTRACT
         item = cls(
-            payload["step_id"], payload["source_hash"], canonical(payload["commit"])
+            payload["step_id"], payload["source_hash"],
+            canonical(payload["commit_ref" if reference else "commit"]), reference,
         )
         if item.to_payload() != payload:
             raise ValueError("proof evidence shape or identity changed")
@@ -63,7 +94,7 @@ class ProofFactsExecutionEvidence:
 
 
 def proof_fact_evidence_schema():
-    return {
+    legacy = {
         "type": "object",
         "additionalProperties": False,
         "required": [
@@ -81,6 +112,26 @@ def proof_fact_evidence_schema():
             "commit": {"type": "object"},
         },
     }
+
+    reference = {
+        **legacy,
+        "required": ["schema_version", "step_id", "source_hash", "commit_ref", "evidence_id"],
+        "properties": {
+            **{k: v for k, v in legacy["properties"].items() if k != "commit"},
+            "schema_version": {"const": REFERENCE_CONTRACT},
+            "commit_ref": {
+                "type": "object", "additionalProperties": False,
+                "required": ["call_id", "commit_id", "dependencies", "proof_reads"],
+                "properties": {
+                    "call_id": {"type": "string", "minLength": 1},
+                    "commit_id": {"type": "string", "minLength": 1},
+                    "dependencies": {"type": "array", "items": {"type": "string"}},
+                    "proof_reads": {"type": "array", "items": {"type": "string"}},
+                },
+            },
+        },
+    }
+    return {"oneOf": [legacy, reference]}
 
 
 def include_proof_dependencies(graph, root_scope):

@@ -6,7 +6,6 @@ from unittest.mock import patch
 
 import pytest
 import sympy as sp
-from shuxueshuo_server.solver.math_kernel import proof_kernel as legacy
 from shuxueshuo_server.solver.math_kernel.expression_parser import parse_math_relation
 from shuxueshuo_server.solver.math_kernel.proof_algebra import (
     ProofFailure,
@@ -39,6 +38,7 @@ from shuxueshuo_server.solver.math_kernel.proof_types import (
     ProofResult,
 )
 from test_scoped_proof_facts_stage_c import environment
+from tools.proof_search_legacy import HistoricalRequests, LegacySearch
 
 
 def context(premises=(), variables="abx", **kwargs):
@@ -73,7 +73,7 @@ def prove(source, ctx, **kwargs):
 def test_real_strategies_and_search_free_replay(relation, monkeypatch):
     ctx = context(["a>b", "b>0", "x>0"])
     monkeypatch.setattr(
-        legacy._Search, "core", lambda *a: pytest.fail("legacy fallback")
+        LegacySearch, "core", lambda *a: pytest.fail("legacy fallback")
     )
     run = prove(relation, ctx)
     assert run.result.status == "proved", run.result
@@ -377,16 +377,16 @@ def test_frozen_budget_derivations_have_no_legacy_fallback(fixture_key, monkeypa
     )
     steps = json.loads((ROOT / sample["input"]).read_text())[fixture_key]
     captured = []
-    original = legacy._Search.__init__
+    original = LegacySearch.__init__
 
     def observe(self, ctx, request, **kwargs):
         captured.append((ctx, request))
         return original(self, ctx, request, **kwargs)
 
-    with patch.object(legacy._Search, "__init__", observe):
+    with patch.object(LegacySearch, "__init__", observe), HistoricalRequests():
         verify_bound(manifest["local_target"], steps)
     monkeypatch.setattr(
-        legacy._Search, "core", lambda *a: pytest.fail("legacy fallback")
+        LegacySearch, "core", lambda *a: pytest.fail("legacy fallback")
     )
     assert captured
     for ctx, request in captured:
@@ -491,7 +491,7 @@ def test_search_metadata_replays_without_current_policy_and_detects_tampering(
     store.commit(overlay, "first")
     payload = store.to_payload()
     metadata = payload["commits"][0]["records"][0]["search"]
-    assert metadata["policy"]["version"] == "layered-search/v1"
+    assert metadata["policy"]["version"] == "layered-search/v2"
     monkeypatch.setattr(
         SearchScheduler, "prove", lambda *a: pytest.fail("replay searched")
     )
@@ -582,7 +582,7 @@ def test_frozen_rows_use_one_authorized_retrieving_session(fixture_key, monkeypa
         json.loads((ROOT / sample["input"]).read_text())[fixture_key], ctx.symbols
     )
     monkeypatch.setattr(
-        legacy._Search, "core", lambda *a: pytest.fail("session used legacy search")
+        LegacySearch, "core", lambda *a: pytest.fail("session used legacy search")
     )
     for row in rows:
         overlay.prove_scheduled(row.parsed.source)
@@ -632,6 +632,9 @@ def test_review_local_definition_fact_does_not_poison_search():
         validity=replace(root.validity, definition_refs=("definition:local",)),
     )
     overlay._candidates.append(conditional)
+    # This unit fixture models an already checked, definition-bound local fact.
+    # Admission/tampering is covered separately; here exercise retrieval filtering.
+    overlay._verified_state = overlay._evidence_state()
     overlay.prove_scheduled("x!=0")
     record = json.loads(overlay._records[-1])
     assert conditional.fact_id not in record["fact_ids"]

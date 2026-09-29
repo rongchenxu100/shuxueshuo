@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from tools.run_basic_inequality_stage4a import run
 from tools.run_basic_inequality_stage5b import verified_method_dependencies
 
@@ -227,7 +226,7 @@ def test_substitution_budget_is_shared_and_finite():
     t, p = affine_case()
     with pytest.raises(ProofFailure) as exc:
         verify_substitution(t, p, budget=_Budget(ProofLimits(nodes=1)))
-    assert exc.value.code == "proof_limit"
+    assert exc.value.code == "proof_search_exhausted"
 
 
 @pytest.mark.parametrize("failure", ["expression", "certificate"])
@@ -417,7 +416,6 @@ def test_reciprocal_sign_transport_still_requires_positive_denominators():
 
 def test_new_condition_projection_deduplicates_without_losing_strict_signs():
     import sympy as sp
-
     from shuxueshuo_server.solver.runtime.substitution_teaching_evidence import (
         project_new_conditions,
     )

@@ -3,6 +3,32 @@
 from .proof_algebra import ProofFailure, digest
 
 
+def unpack_bound(evidence):
+    """Decode an already checked public bound; this function grants no authority."""
+    from copy import deepcopy
+
+    return deepcopy({**{k: v for k, v in evidence.items() if k != "certificate_bundle"},
+                     **evidence["certificate_bundle"]})
+
+
+def consume_bound(target, evidence, *, depth=0, budget=None):
+    """Execution uses an exact authorized predecessor; external replay stays strict."""
+    from .method_proof_session import active_session
+
+    ancestor, level = evidence, depth
+    while ancestor is not None:
+        if level > 8:
+            raise ProofFailure("proof_limit", "at most eight bound dependencies")
+        level += 1
+        ancestor = ancestor.get("previous_bound")
+    session = active_session()
+    if session is not None and session.resolve_bound is not None:
+        result = session.resolve_bound(target, evidence)
+        if result is not None:
+            return result
+    return replay_bound(target, evidence, depth=depth, budget=budget)
+
+
 def replay_bound(target, evidence, *, depth=0, budget=None):
     from .inequality_bound_v2 import public, verify
 

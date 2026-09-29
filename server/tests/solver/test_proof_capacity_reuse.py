@@ -4,12 +4,16 @@ from dataclasses import replace
 
 import pytest
 import sympy as sp
-
 from shuxueshuo_server.solver.math_kernel.derivation_math import parse_derivation
 from shuxueshuo_server.solver.math_kernel.expression_parser import parse_math_relation
 from shuxueshuo_server.solver.math_kernel.proof_algebra import ProofFailure, from_node
 from shuxueshuo_server.solver.math_kernel.proof_kernel import (
-    ProofContext, _Budget, _document, _replay, _run_request, fact_key,
+    ProofContext,
+    _Budget,
+    _document,
+    _replay,
+    _run_request,
+    fact_key,
 )
 
 SYMBOLS = {s: sp.Symbol(s, real=True) for s in 'abc'}
@@ -29,7 +33,8 @@ def test_shared_goal_graph_saves_search_and_nodes_and_replays():
     first = _run_request(ctx, request('a*b>0'), budget=budget).proof
     counts = dict(budget.counts)
     second = _run_request(ctx, request('(a*b)>0'), budget=budget).proof
-    assert budget.counts == counts
+    assert {k:v for k,v in budget.counts.items() if k != "arithmetic_operations"} == {k:v for k,v in counts.items() if k != "arithmetic_operations"}
+    # Rechecking imported nodes is metered even when no search is needed.
     replay_budget = _Budget(ctx.limits)
     _replay(first, ctx, budget=replay_budget)
     counts = dict(replay_budget.counts)
@@ -86,7 +91,10 @@ def test_whole_derivation_limit_still_rejects_excess_distinct_relations():
 
 
 def test_rewrite_limit_applies_across_authored_rows():
-    from shuxueshuo_server.solver.math_kernel.expression_rewrite import verify_chain, RewriteError
+    from shuxueshuo_server.solver.math_kernel.expression_rewrite import (
+        RewriteError,
+        verify_chain,
+    )
     rows = [{'math': ','.join(f'a>{i}' for i in range(start, start+11))}
             for start in (0, 11, 22)]
     with pytest.raises(RewriteError, match='32'):

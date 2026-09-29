@@ -13,10 +13,53 @@ def method_search_service(overlay):
 
     from ..math_kernel.method_proof_session import MethodProofSession
 
+    # Index each immutable producer record once per invocation. Fact count must
+    # not multiply serialization of the entire nested evidence chain.
     records = {
-        commit.call_id: json.loads(commit.records_json)
+        commit.call_id: {digest(record): record for record in json.loads(commit.records_json)}
         for commit in overlay.owner.snapshot.commits
     }
+
+    def resolve_bound(target, evidence):
+        from ..math_kernel.bound_chain import unpack_bound
+        from ..math_kernel.proof_facts import canonical
+
+        if canonical(target) != overlay.authority.target_json:
+            return None
+        for commit in overlay.owner.snapshot.commits:
+            grant = overlay.owner.authority(commit.call_id)
+            if grant.target_json != overlay.authority.target_json:
+                continue
+            matching = {ref for ref, record in records[commit.call_id].items()
+                        if record.get("kind") == "method" and record["evidence"] == evidence}
+            if not matching:
+                continue
+            # Reading a checked result still requires this call's visibility,
+            # symbol identity and validity, and records the proof dependency.
+            symbols = dict(overlay.authority.symbol_bindings)
+            if any(symbols.get(n) != identity for n, identity in grant.symbol_bindings
+                   if n in target["scalar_symbols"]):
+                return None
+            # The certified bound is the dependency being consumed. Reading all
+            # intermediate proof nodes would inflate checkpoints unnecessarily.
+            refs = tuple(f.fact_id for f in commit.facts
+                         if f.source == f"{commit.call_id}/certified_bound"
+                         and f.proof_ref in matching)
+            require(bool(refs), "predecessor has no published evidence")
+            # M13 may return to original variables without carrying substitution
+            # definitions. Such evidence needs the existing full replay path.
+            if not set(refs) <= {f.fact_id for f in overlay.view.facts}:
+                return None
+            facts = overlay._selected(refs)
+            if not all(overlay.authority.validity.includes(f.validity) for f in facts):
+                return None
+            fresh = sorted(set(refs) - service.recorded_reads)
+            if fresh:
+                overlay.replay_record({"kind": "reuse", "fact_ids": fresh})
+                service.recorded_reads.update(fresh)
+            return unpack_bound(evidence)
+        return None
+
     fragments = []
     for fact in overlay.view.facts:
         if not fact.producer_call_id or not overlay.authority.validity.includes(
@@ -27,23 +70,23 @@ def method_search_service(overlay):
         if "/nodes/" not in path:
             continue
         path, node = path.rsplit("/nodes/", 1)
-        for record in records[fact.producer_call_id]:
-            if digest(record) != fact.proof_ref:
-                continue
-            document = record.get("evidence", record)
-            document = {**document, **document.get("certificate_bundle", {})}
-            try:
-                for part in path.split("/"):
-                    document = (
-                        document[int(part)]
-                        if isinstance(document, list)
-                        else document[part]
-                    )
-            except (KeyError, IndexError, ValueError):
-                continue
-            if isinstance(document, dict) and "nodes" in document:
-                fragments.append((fact.fact_id, document, node))
-    return MethodProofSession(
+        record = records[fact.producer_call_id].get(fact.proof_ref)
+        if record is None:
+            continue
+        document = record.get("evidence", record)
+        document = {**document, **document.get("certificate_bundle", {})}
+        try:
+            for part in path.split("/"):
+                document = (
+                    document[int(part)]
+                    if isinstance(document, list)
+                    else document[part]
+                )
+        except (KeyError, IndexError, ValueError):
+            continue
+        if isinstance(document, dict) and "nodes" in document:
+            fragments.append((fact.fact_id, document, node))
+    service = MethodProofSession(
         fragments=fragments,
         application_binding={
             "producer_call_id": overlay.authority.call_id,
@@ -55,32 +98,61 @@ def method_search_service(overlay):
         on_read=lambda refs: overlay.replay_record(
             {"kind": "reuse", "fact_ids": list(refs)}
         ),
+        resolve_bound=resolve_bound,
     )
+    return service
+
+
+class PremiseFactIndex:
+    """One publication's parsed relations; new checked facts extend the index."""
+
+    def __init__(self, authority):
+        from .scoped_proof_facts import bindings_symbols
+
+        self.authority = authority
+        self.bindings = dict(authority.symbol_bindings)
+        self.symbols = bindings_symbols(authority.symbol_bindings)
+        self.relations = {}
+        self.seen = set()
+
+    def extend(self, facts):
+        from ..math_kernel.expression_parser import parse_math_relation
+        from ..math_kernel.proof_algebra import from_node
+
+        for fact in facts:
+            if fact.fact_id in self.seen:
+                continue
+            self.seen.add(fact.fact_id)
+            if not all(self.bindings.get(n) == identity for n, identity in fact.symbol_bindings):
+                continue
+            if not self.authority.validity.includes(fact.validity):
+                continue
+            relation = from_node(parse_math_relation(fact.relation, self.symbols).ast)
+            self.relations.setdefault(relation, []).append(fact)
+
+    def match(self, parsed, symbols):
+        from ..math_kernel.proof_algebra import from_node
+
+        matches = [
+            fact for fact in self.relations.get(from_node(parsed.ast), ())
+            if all(n in symbols for n, _ in fact.symbol_bindings)
+        ]
+        require(bool(matches), "rewrite premise has no authorized producer")
+        return min(matches, key=lambda f: (f.producer_call_id or "", f.source, f.fact_id))
 
 
 def match_premise_fact(available, parsed, symbols, authority):
     """Match exact symbol identities and select stable provenance."""
-    from ..math_kernel.expression_parser import parse_math_relation
-    from ..math_kernel.proof_algebra import from_node
-
-    bindings = dict(authority.symbol_bindings)
-    matches = [
-        f
-        for f in available
-        if all(
-            n in symbols and bindings.get(n) == identity
-            for n, identity in f.symbol_bindings
-        )
-        and authority.validity.includes(f.validity)
-        and from_node(parse_math_relation(f.relation, symbols).ast)
-        == from_node(parsed.ast)
-    ]
-    require(bool(matches), "rewrite premise has no authorized producer")
-    return min(matches, key=lambda f: (f.producer_call_id or "", f.source, f.fact_id))
+    if isinstance(available, PremiseFactIndex):
+        require(available.authority == authority, "premise index authority changed")
+        return available.match(parsed, symbols)
+    index = PremiseFactIndex(authority)
+    index.extend(available)
+    return index.match(parsed, symbols)
 
 
-def publish_method_result(overlay, inputs, result):
-    """Method evidence is replayed before entering the private publication delta."""
+def publish_method_result(overlay, inputs, result, *, checked=None):
+    """Project checked invocation results; external records still require replay."""
     import json
     from dataclasses import replace
 
@@ -90,6 +162,8 @@ def publish_method_result(overlay, inputs, result):
 
     method = result.method_id
     if method == "organize_expressions":
+        premise_index = PremiseFactIndex(overlay.authority)
+        premise_index.extend((*overlay.view.facts, *overlay._candidates))
         for trace in result.trace_fragments:
             for proof, raw in zip(
                 trace.get("proofs", ()), trace.get("proof_contexts", ()), strict=True
@@ -108,20 +182,21 @@ def publish_method_result(overlay, inputs, result):
                     )
                     for key, d in raw["premises"].items()
                 }
-                available = (*overlay.view.facts, *overlay._candidates)
                 imports = {}
                 for key, parsed in premises.items():
                     imports[key] = match_premise_fact(
-                        available, parsed, symbols, overlay.authority
+                        premise_index, parsed, symbols, overlay.authority
                     ).fact_id
-                overlay.admit_certificate(
+                admitted = overlay.admit_certificate(
                     proof,
                     ProofContext(
                         symbols, premises, ProofLimits(**raw["limits"]), raw["scope_id"]
                     ),
                     imports,
                     ("expression_rewrite", "verify_chain", "c{i}"),
+                    checked=checked,
                 )
+                premise_index.extend(admitted)
         return
     if method not in {
         "apply_two_term_amgm",
@@ -153,7 +228,7 @@ def publish_method_result(overlay, inputs, result):
             len(matches) == 1, "Method predecessor must identify one committed producer"
         )
         producers[key] = matches[0]
-    overlay.admit_method(evidence, producer_refs=producers)
+    overlay.admit_method(evidence, producer_refs=producers, checked=checked)
 
 
 def prepare_scoped_call(branch, call_id, compiled, graph):

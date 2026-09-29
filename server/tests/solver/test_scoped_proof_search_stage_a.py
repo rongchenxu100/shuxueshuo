@@ -16,6 +16,7 @@ from shuxueshuo_server.solver.runtime.inequality_teaching_evidence import (
     collect_inequality_evidence,
 )
 from tools.proof_search_baseline import ASSETS, FIXTURES, ROOT, profiles, verify_assets
+from tools.proof_search_legacy import LegacySearch
 
 
 class PendingContract(AssertionError):
@@ -73,7 +74,10 @@ def test_legacy_exact_context_replays_without_search(monkeypatch):
     def forbidden(*args, **kwargs):
         pytest.fail("replay called search")
 
-    monkeypatch.setattr(pk._Search, "need", forbidden)
+    from shuxueshuo_server.solver.math_kernel.real_proof_strategies import (
+        ScheduledRealSearch,
+    )
+    monkeypatch.setattr(ScheduledRealSearch, "need", forbidden)
     assert pk.replay_proof(fixture["proof"], context).status == "proved"
 
 
@@ -144,7 +148,7 @@ def inline_verified_auxiliary(monkeypatch):
             != "x+4/x>=4"
         ):
             return original(context, request, budget=budget)
-        search = pk._Search(context, request, budget=budget)
+        search = LegacySearch(context, request, budget=budget)
         search.need(from_node(parse_math_relation("y+4/y>=4", context.symbols).ast))
         roots = [search.need(goal) for goal in pk._roots_for_request(search)]
         proof = search.payload(roots)
@@ -280,7 +284,10 @@ def test_frozen_m07_m08_control_uses_no_amgm_and_replays_without_search(monkeypa
     from shuxueshuo_server.solver.math_kernel.substitution import verify_substitution
 
     fixture = load("q12-subchain.json")
-    original_add = pk._Search.add
+    from shuxueshuo_server.solver.math_kernel.real_proof_strategies import (
+        ScheduledRealSearch,
+    )
+    original_add = ScheduledRealSearch.add
     rules = set()
     forbidden_rules = {
         "two_term_amgm",
@@ -295,7 +302,7 @@ def test_frozen_m07_m08_control_uses_no_amgm_and_replays_without_search(monkeypa
         rules.add(rule)
         return original_add(search, rule, *args, **kwargs)
 
-    monkeypatch.setattr(pk._Search, "add", no_amgm)
+    monkeypatch.setattr(ScheduledRealSearch, "add", no_amgm)
     substitution, context = verify_substitution(
         fixture["target"], fixture["substitution"]
     )

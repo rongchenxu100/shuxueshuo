@@ -14,7 +14,7 @@ def test_same_role_version_materialized_once_and_mutation_detected(tmp_path):
     first = journal.write_json("attempt-1.checkpoint.json", source)
     counts = dict(journal.metrics)
     assert journal.write_json("attempt-1.checkpoint.json", source) == first
-    assert journal.metrics["serializations"] == counts["serializations"]
+    assert journal.metrics["serializations"] == counts["serializations"] + 1
     assert journal.metrics["writes"] == counts["writes"]
     source["nested"][1]["value"] = 3
     second = journal.write_json("attempt-1.checkpoint.json", source)
@@ -39,12 +39,12 @@ def test_dataclass_recreated_same_content_and_attempts_are_separate(tmp_path):
     journal = DebugArtifactJournal(tmp_path)
     first = journal.write_json("attempt-1.request.json", Payload((1, 2)))
     journal.write_json("attempt-1.request.json", Payload((1, 2)))
-    assert journal.metrics["serializations"] == 1
+    assert journal.metrics["serializations"] == 2
     second = journal.write_json("attempt-2.request.json", Payload((1, 2)))
     assert second["file"] == first["file"]
     assert journal.metrics["writes"] == 1
     assert (tmp_path / "attempt-2.request.json").exists()
-    assert journal.metrics["serializations"] == 2
+    assert journal.metrics["serializations"] == 3
 
 
 def test_failed_publish_does_not_mark_version_saved(tmp_path, monkeypatch):
@@ -74,13 +74,13 @@ def test_journal_rejects_unknown_mode_and_path_escape(tmp_path):
         journal.write_json("../elsewhere.json", {})
 
 
-def test_return_to_earlier_version_does_not_convert_or_serialize_again(tmp_path):
+def test_return_to_earlier_version_does_not_rewrite_file(tmp_path):
     journal = DebugArtifactJournal(tmp_path)
     a = journal.write_json("attempt-1.report.json", {"v": 1})
     journal.write_json("attempt-1.report.json", {"v": 2})
     counts = dict(journal.metrics)
     assert journal.write_json("attempt-1.report.json", {"v": 1}) == a
-    assert journal.metrics["serializations"] == counts["serializations"]
+    assert journal.metrics["serializations"] == counts["serializations"] + 1
     assert journal.metrics["conversions"] == counts["conversions"]
     assert journal.metrics["writes"] == counts["writes"]
 
@@ -279,20 +279,31 @@ def test_scalar_subclasses_match_legacy_json(tmp_path):
     )
 
 
-def test_unchanged_content_never_reenters_conversion_or_serialization(
-    tmp_path, monkeypatch
-):
+def test_publication_encodes_once_without_recursive_snapshot_pass(tmp_path, monkeypatch):
     from shuxueshuo_server.solver.runtime import llm_debug
 
     journal = DebugArtifactJournal(tmp_path)
-    original = journal.write_json("attempt-1.report.json", {"v": [1, 2]})
+    original_dumps = llm_debug.json.dumps
+    calls = []
+
+    def encode(*a, **kw):
+        calls.append(a[0])
+        return original_dumps(*a, **kw)
 
     def forbidden(*a, **kw):
-        raise AssertionError("duplicate conversion or serialization")
+        raise AssertionError("recursive snapshot conversion")
 
-    monkeypatch.setattr(llm_debug, "_json_snapshot", forbidden)
-    monkeypatch.setattr(llm_debug.json, "dumps", forbidden)
+    monkeypatch.setattr(llm_debug, "safe_debug_json", forbidden)
+    monkeypatch.setattr(llm_debug.json, "dumps", encode)
+    source = {"v": [1, 2]}
+    original = journal.write_json("attempt-1.report.json", source)
     assert journal.write_json("attempt-1.report.json", {"v": (1, 2)}) == original
+    assert len(calls) == 2
+    assert journal.metrics["conversions"] == 0
+    assert journal.metrics["writes"] == 1
+    # Only small immutable-file references survive publication, not payloads.
+    assert journal._latest["attempt-1.report.json"] == original
+    assert all(set(v) == {"file", "sha256", "status"} for v in journal._versions.values())
 
 
 def test_release_drops_payloads_and_reopen_preserves_history(tmp_path):
@@ -397,3 +408,42 @@ def test_unsupported_hardlinks_fall_back_to_atomic_copy(tmp_path, monkeypatch):
     assert json.loads((tmp_path / "value.json").read_text()) == {"v": 2}
     assert (tmp_path / "value.json").stat().st_mode & 0o222 == 0
     assert journal.metrics["writes"] == 4
+
+
+@pytest.mark.parametrize('nested', [False, True])
+def test_debug_json_preserves_legacy_nonstring_key_conversion(tmp_path, nested):
+    from types import MappingProxyType
+
+    from shuxueshuo_server.solver.runtime.llm_debug import safe_debug_json
+
+    @dataclass(frozen=True)
+    class K:
+        value: int
+
+    @dataclass(frozen=True)
+    class Payload:
+        data: object
+
+    source = {('a', 'b'): 1, K(1): 2}
+    value = Payload({'items': [MappingProxyType(source), source]}) if nested else source
+    journal = DebugArtifactJournal(tmp_path)
+    saved = journal.write_json('attempt-1.request.json', value)
+    raw = (tmp_path / saved['file']).read_bytes()
+    assert json.loads(raw) == safe_debug_json(value)
+    assert sha256(raw).hexdigest() == saved['sha256']
+    assert journal.metrics['conversions'] == 1
+    assert journal.metrics['serializations'] == 2
+    assert source == {('a', 'b'): 1, K(1): 2}
+
+
+def test_ordinary_debug_json_does_not_walk_payload_for_key_conversion(tmp_path, monkeypatch):
+    from shuxueshuo_server.solver.runtime import llm_debug
+
+    def forbidden(*args):
+        raise AssertionError('ordinary payload recursively normalized')
+    monkeypatch.setattr(llm_debug, 'safe_debug_json', forbidden)
+    journal = DebugArtifactJournal(tmp_path)
+    saved = journal.write_json('attempt-1.request.json', {'rows': [{'value': 2}]})
+    assert json.loads((tmp_path / saved['file']).read_bytes()) == {'rows': [{'value': 2}]}
+    assert journal.metrics['serializations'] == 1
+    assert journal.metrics['conversions'] == 0

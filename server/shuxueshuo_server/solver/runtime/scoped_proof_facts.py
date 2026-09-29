@@ -436,21 +436,29 @@ class ScopedProofFacts:
             self.snapshot, commits=(*self.snapshot.commits, restored)
         )
 
-    def commit(self, overlay, output_hash):
-        require(overlay.owner is self, "foreign transaction")
+    def publish(self, overlay, output_hash):
+        """Append already checked call evidence; disk recovery alone replays it."""
+        require(overlay.owner is self, "foreign proof session")
+        require(
+            self.authority(overlay.authority.call_id) == overlay.authority,
+            "call authority changed before publication",
+        )
         require(
             overlay.view.committed_manifest_hash
             == self.snapshot.committed_manifest_hash,
-            "stale transaction snapshot",
+            "stale proof session",
         )
         self.verify_snapshot()
-        commit = overlay.finish(output_hash)
-        verifier = self.fork(self.context)
-        verifier._restore_one(commit.to_payload())
-        self.snapshot = verifier.snapshot
+        receipt = overlay.finish(output_hash)
+        self.snapshot = replace(
+            self.snapshot, commits=(*self.snapshot.commits, receipt)
+        )
         self._remember_verified_snapshot()
         overlay.closed = True
-        return commit
+        return receipt
+
+    # Historical callers and checkpoint terminology; no transaction/replay here.
+    commit = publish
 
     def to_payload(self):
         return {
@@ -547,6 +555,7 @@ class SessionFactOverlay:
         self._requirements = []
         self.closed = False
         self._search_session = None
+        self._verified_state = self._evidence_state()
 
     def prove_scheduled(
         self, relation, *, semantic_kind="relation", limits=None, policy=None
@@ -642,7 +651,7 @@ class SessionFactOverlay:
             }
         )
 
-    def admit_certificate(self, proof, context, premise_fact_refs, source_site):
+    def admit_certificate(self, proof, context, premise_fact_refs, source_site, *, checked=None):
         return self.replay_record(
             {
                 "kind": "certificate",
@@ -662,23 +671,49 @@ class SessionFactOverlay:
                         for k, p in context.premises.items()
                     },
                 },
-            }
+            }, checked=checked,
         )
 
-    def admit_method(self, evidence, *, producer_refs=None):
+    def admit_method(self, evidence, *, producer_refs=None, checked=None):
         return self.replay_record(
             {
                 "kind": "method",
                 "evidence": evidence,
                 "producer_refs": dict(producer_refs or {}),
-            }
+            }, checked=checked,
         )
 
-    def replay_record(self, raw):
+    def _evidence_state(self):
+        # Strings and frozen fact/requirement values: no serialization or replay.
+        return (
+            self.authority, self.view, tuple(self._records), tuple(self._candidates),
+            frozenset(self._reads), tuple(self._requirements),
+        )
+
+    def _check_verified_state(self):
+        require(
+            self._evidence_state() == self._verified_state,
+            "verified evidence was modified",
+        )
+
+    def replay_record(self, raw, *, checked=None):
+        self._check_verified_state()
+        result = self._check_record(raw, checked=checked)
+        self._verified_state = self._evidence_state()
+        return result
+
+    def _check_record(self, raw, *, checked=None):
         # Freeze caller-owned mutable evidence before checking or storing it.
         record = json.loads(canonical(raw))
         require(not self.closed, "closed transaction")
         call = self.authority
+        if checked is not None:
+            require(checked.application_binding == {
+                "producer_call_id": call.call_id,
+                "source_binding_fingerprint": call.input_fingerprint,
+                "scope_id": call.scope_id,
+                "committed_manifest_hash": self.view.committed_manifest_hash,
+            }, "checked result belongs to another invocation")
         proof_ref = digest(record)
         requirements = ()
         if record["kind"] == "reuse":
@@ -788,10 +823,11 @@ class SessionFactOverlay:
                 ProofLimits(**raw_context["limits"]),
                 raw_context["scope_id"],
             )
-            checked = replay_proof(record["proof"], context)
-            require(
-                checked.status == "proved", checked.diagnostic or "invalid certificate"
-            )
+            if checked is None or not checked.accepts_certificate(record["proof"], context):
+                verification = replay_proof(record["proof"], context)
+                require(
+                    verification.status == "proved", verification.diagnostic or "invalid certificate"
+                )
             projected = necessary_relations(record["proof"], "proof")
             candidates = [
                 (
@@ -874,7 +910,7 @@ class SessionFactOverlay:
                     self._selected(tuple(f.fact_id for f in producer.facts))
                 )
             projected, definitions, requirements = replay_method(
-                call.method_id, target, record["evidence"]
+                call.method_id, target, record["evidence"], checked=checked,
             )
             definition_refs = tuple(
                 f"{call.call_id}/definition/{n}" for n in definitions
@@ -945,6 +981,7 @@ class SessionFactOverlay:
         return tuple(facts)
 
     def finish(self, output_hash):
+        self._check_verified_state()
         require(not self.closed, "closed transaction")
         call = self.authority
         records_json = "[" + ",".join(self._records) + "]"

@@ -1,0 +1,313 @@
+[
+  {
+    "sample": "planner-01",
+    "attempt": 1,
+    "issues": [
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.arg_type_mismatch",
+        "category": "input",
+        "stage": "reconciliation_binding",
+        "retryability": "planner_repairable",
+        "subjects": [
+          {
+            "ref": "target_expression",
+            "arg_name": "target",
+            "expected_type": "Condition"
+          }
+        ],
+        "expected": {
+          "accepted_types": [
+            "Condition"
+          ]
+        },
+        "observed": {
+          "available_condition_kinds": [],
+          "available_refs": [
+            "target_expression"
+          ],
+          "available_types": [
+            "Expression",
+            "Function",
+            "extremum_target"
+          ],
+          "available_value_types": [
+            "Expression",
+            "Function",
+            "extremum_target"
+          ],
+          "compatible_refs": [
+            {
+              "kind": "fact",
+              "ref": "extremum_target_target_expression",
+              "value_type": "Condition"
+            },
+            {
+              "kind": "fact",
+              "ref": "symbol_constraint_a",
+              "value_type": "Condition"
+            },
+            {
+              "kind": "fact",
+              "ref": "symbol_constraint_b",
+              "value_type": "Condition"
+            },
+            {
+              "kind": "fact",
+              "ref": "symbol_constraint_c",
+              "value_type": "Condition"
+            }
+          ]
+        },
+        "repair_action": "repair_input_binding",
+        "repair_call_ids": [],
+        "message": "Bind the argument to a compatible visible source.",
+        "scope_id": "problem",
+        "step_id": "amgm_b_a_minus_b"
+      }
+    ]
+  },
+  {
+    "sample": "planner-01",
+    "attempt": 2,
+    "issues": [
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.method_input_invalid",
+        "category": "input",
+        "stage": "method",
+        "retryability": "planner_repairable",
+        "subjects": [],
+        "expected": {},
+        "observed": {
+          "code": "unsupported_derivation_phrase"
+        },
+        "repair_action": "repair_derivation",
+        "repair_call_ids": [],
+        "message": "Replace the failed Goal steps with a valid strategy.",
+        "method_id": "close_equality_and_restore",
+        "capability_id": "close_equality_and_restore",
+        "scope_id": "problem",
+        "step_id": "close_minimum"
+      }
+    ]
+  },
+  {
+    "sample": "planner-01",
+    "attempt": 3,
+    "issues": [
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.method_input_invalid",
+        "category": "input",
+        "stage": "method",
+        "retryability": "planner_repairable",
+        "subjects": [],
+        "expected": {},
+        "observed": {
+          "code": "strategy_budget_exhausted"
+        },
+        "repair_action": "repair_derivation",
+        "repair_call_ids": [],
+        "message": "Replace the failed Goal steps with a valid strategy.",
+        "method_id": "close_equality_and_restore",
+        "capability_id": "close_equality_and_restore",
+        "scope_id": "problem",
+        "step_id": "close_minimum"
+      }
+    ]
+  },
+  {
+    "sample": "planner-02",
+    "attempt": 1,
+    "issues": [
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.method_input_invalid",
+        "category": "input",
+        "stage": "method",
+        "retryability": "planner_repairable",
+        "subjects": [],
+        "expected": {},
+        "observed": {
+          "code": "amgm_remainder_changed"
+        },
+        "repair_action": "preserve_amgm_remainder",
+        "repair_call_ids": [],
+        "message": "M11 apply_two_term_amgm permits one two-term AM-GM application and must preserve an equivalent remainder in its full conclusion. Check the expression binding and prove any local identities used to combine fractions; a template mismatch alone does not establish that a square was discarded. If this call also uses independent square nonnegativity, add a separate M12 bound_univariate_quadratic step and connect the verified bounds using previous_bound StepResultRef; then close simultaneous equality conditions with M13.",
+        "method_id": "apply_two_term_amgm",
+        "capability_id": "apply_two_term_amgm",
+        "scope_id": "problem",
+        "step_id": "amgm1"
+      }
+    ]
+  },
+  {
+    "sample": "planner-02",
+    "attempt": 2,
+    "issues": [
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.method_input_invalid",
+        "category": "input",
+        "stage": "method",
+        "retryability": "planner_repairable",
+        "subjects": [],
+        "expected": {},
+        "observed": {
+          "code": "amgm_remainder_changed"
+        },
+        "repair_action": "preserve_amgm_remainder",
+        "repair_call_ids": [],
+        "message": "M11 apply_two_term_amgm permits one two-term AM-GM application and must preserve an equivalent remainder in its full conclusion. Check the expression binding and prove any local identities used to combine fractions; a template mismatch alone does not establish that a square was discarded. If this call also uses independent square nonnegativity, add a separate M12 bound_univariate_quadratic step and connect the verified bounds using previous_bound StepResultRef; then close simultaneous equality conditions with M13.",
+        "method_id": "apply_two_term_amgm",
+        "capability_id": "apply_two_term_amgm",
+        "scope_id": "problem",
+        "step_id": "amgm1"
+      }
+    ]
+  },
+  {
+    "sample": "planner-02",
+    "attempt": 3,
+    "issues": [
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.return_type_mismatch",
+        "category": "result",
+        "stage": "reconciliation_binding",
+        "retryability": "planner_repairable",
+        "subjects": [],
+        "expected": {},
+        "observed": {},
+        "repair_action": "repair_failed_step",
+        "repair_call_ids": [],
+        "message": "Replace the failed Goal steps with a valid strategy.",
+        "scope_id": "problem",
+        "step_id": "organize1"
+      },
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.arg_type_mismatch",
+        "category": "input",
+        "stage": "reconciliation_binding",
+        "retryability": "planner_repairable",
+        "subjects": [
+          {
+            "ref": "extremum_target_target_expression",
+            "arg_name": "expression",
+            "expected_type": "Expression"
+          }
+        ],
+        "expected": {
+          "accepted_types": [
+            "Expression"
+          ]
+        },
+        "observed": {
+          "available_condition_kinds": [
+            "extremum_target"
+          ],
+          "available_refs": [
+            "extremum_target_target_expression"
+          ],
+          "available_types": [
+            "Condition",
+            "extremum_target"
+          ],
+          "available_value_types": [
+            "Condition",
+            "extremum_target"
+          ],
+          "compatible_refs": [
+            {
+              "kind": "function",
+              "ref": "target_expression",
+              "value_type": "Function"
+            }
+          ]
+        },
+        "repair_action": "repair_input_binding",
+        "repair_call_ids": [],
+        "message": "Bind the argument to a compatible visible source.",
+        "scope_id": "problem",
+        "step_id": "amgm1"
+      }
+    ]
+  },
+  {
+    "sample": "planner-03",
+    "attempt": 1,
+    "issues": [
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.method_input_invalid",
+        "category": "input",
+        "stage": "method",
+        "retryability": "planner_repairable",
+        "subjects": [],
+        "expected": {},
+        "observed": {
+          "code": "proof_limit"
+        },
+        "repair_action": "repair_derivation",
+        "repair_call_ids": [],
+        "message": "Replace the failed Goal steps with a valid strategy.",
+        "method_id": "bound_univariate_quadratic",
+        "capability_id": "bound_univariate_quadratic",
+        "scope_id": "problem",
+        "step_id": "quadratic_bound_c"
+      }
+    ]
+  },
+  {
+    "sample": "planner-03",
+    "attempt": 2,
+    "issues": [
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.method_input_invalid",
+        "category": "input",
+        "stage": "method",
+        "retryability": "planner_repairable",
+        "subjects": [],
+        "expected": {},
+        "observed": {
+          "code": "proof_limit"
+        },
+        "repair_action": "repair_derivation",
+        "repair_call_ids": [],
+        "message": "Replace the failed Goal steps with a valid strategy.",
+        "method_id": "bound_univariate_quadratic",
+        "capability_id": "bound_univariate_quadratic",
+        "scope_id": "problem",
+        "step_id": "quadratic_bound_c"
+      }
+    ]
+  },
+  {
+    "sample": "planner-03",
+    "attempt": 3,
+    "issues": [
+      {
+        "schema_version": "functional-prompt-diagnostic/v1",
+        "code": "functional.method_input_invalid",
+        "category": "input",
+        "stage": "method",
+        "retryability": "planner_repairable",
+        "subjects": [],
+        "expected": {},
+        "observed": {
+          "code": "strategy_budget_exhausted"
+        },
+        "repair_action": "repair_derivation",
+        "repair_call_ids": [],
+        "message": "Replace the failed Goal steps with a valid strategy.",
+        "method_id": "close_equality_and_restore",
+        "capability_id": "close_equality_and_restore",
+        "scope_id": "problem",
+        "step_id": "close_bound"
+      }
+    ]
+  }
+]

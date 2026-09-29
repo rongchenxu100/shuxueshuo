@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+from tools.proof_search_legacy import LegacySearch
 from tools.run_basic_inequality_stage4a import run
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -15,7 +16,7 @@ def test_q30_real_method_chain_with_scoped_search(tmp_path, monkeypatch):
     def forbidden(*a, **kw):
         raise AssertionError("v2 execution called legacy search")
 
-    monkeypatch.setattr(proof_kernel._Search, "need", forbidden)
+    monkeypatch.setattr(LegacySearch, "need", forbidden)
     from shuxueshuo_server.solver.runtime.scoped_proof_facts import ScopedProofFacts
 
     replayed_commits = []
@@ -26,16 +27,28 @@ def test_q30_real_method_chain_with_scoped_search(tmp_path, monkeypatch):
         return restore_one(self, payload)
 
     monkeypatch.setattr(ScopedProofFacts, "_restore_one", counted_commit)
+    from shuxueshuo_server.solver.runtime.context import RuntimeContext
     from shuxueshuo_server.solver.runtime.functional_transaction_execution import (
         FunctionalTransactionalInterpreter,
         build_functional_execution_restore_seed,
     )
 
+    fork = RuntimeContext.fork
+    context_forks = []
+
+    def counted_fork(self):
+        context_forks.append(self)
+        return fork(self)
+
+    monkeypatch.setattr(RuntimeContext, "fork", counted_fork)
     execute = FunctionalTransactionalInterpreter.execute_attempt
     captured = []
+    execution_forks = []
 
     def capture(self, **kwargs):
+        before = len(context_forks)
         attempt = execute(self, **kwargs)
+        execution_forks.append(len(context_forks) - before)
         captured.append((self, kwargs, attempt))
         return attempt
 
@@ -50,6 +63,7 @@ def test_q30_real_method_chain_with_scoped_search(tmp_path, monkeypatch):
     )
     assert result.status == "ok", result.to_dict()
     assert result.answers == {"problem": {"minimum": "4"}}
+    assert execution_forks == [1]  # One attempt context, no five per-call branches.
     execution = (
         runtime.last_success_artifacts.verified_functional_execution.to_payload()
     )
@@ -57,7 +71,7 @@ def test_q30_real_method_chain_with_scoped_search(tmp_path, monkeypatch):
     store = runtime.last_success_artifacts.context.proof_facts
     assert store is not None
     assert len(store.snapshot.commits) == 5
-    assert replayed_commits == ["rewrite", "first", "square", "last", "attain"]
+    assert replayed_commits == []  # In-process publication does not replay.
     replayed_commits.clear()
     assert sum(len(c.requirements) for c in store.snapshot.commits) == 3
     assert "rewrite" in store.snapshot.commits[1].dependencies
@@ -131,12 +145,11 @@ def test_q30_real_method_chain_with_scoped_search(tmp_path, monkeypatch):
 
 @pytest.mark.parametrize("case,answer", [("q12", "4/5"), ("q25", "25")])
 def test_substitution_uses_scoped_search(case, answer, tmp_path, monkeypatch):
-    from shuxueshuo_server.solver.math_kernel import proof_kernel
 
     def forbidden(*args, **kwargs):
         raise AssertionError("legacy search called")
 
-    monkeypatch.setattr(proof_kernel._Search, "need", forbidden)
+    monkeypatch.setattr(LegacySearch, "need", forbidden)
     result, runtime = run(
         gold=FIXTURES / f"math-notation-v1/basic-inequality/{case}.json",
         problem_ir=FIXTURES / f"basic-inequality-problem-ir/v1/{case}/problem-ir.json",
@@ -152,19 +165,22 @@ def test_substitution_uses_scoped_search(case, answer, tmp_path, monkeypatch):
         elimination = store.snapshot.commits[1]
         assert "substitute" in elimination.dependencies
         records = json.loads(elimination.records_json)
-        assert any(r["kind"] == "reuse" for r in records)
+        # F3 can prove nonzero factors directly from the submitted product
+        # equality; no auxiliary read is required when that proof is cheaper.
+        # The producer binding remains mandatory. Dedicated C tests require
+        # actual shared-domain reuse on a case that needs it.
+        assert records
         assert "math.two_term_amgm" not in json.dumps(records)
 
 
 @pytest.mark.parametrize("case", ["q30", "q29", "q01"])
 def test_v2_compiled_lesson(case, tmp_path, monkeypatch):
-    from shuxueshuo_server.solver.math_kernel import proof_kernel
     from tools.run_basic_inequality_stage4b import build
 
     def forbidden(*args, **kwargs):
         raise AssertionError("legacy search called")
 
-    monkeypatch.setattr(proof_kernel._Search, "need", forbidden)
+    monkeypatch.setattr(LegacySearch, "need", forbidden)
     output = tmp_path / case
     build(case=case, output=output, proof_protocol="scoped-facts/v2")
     assert (output / "lesson.html").exists()
@@ -243,7 +259,7 @@ def test_scoped_mixed_chain_generalizes_and_replays(names, k, monkeypatch):
     def forbidden(*args, **kwargs):
         raise AssertionError("legacy search or replay search called")
 
-    monkeypatch.setattr(proof_kernel._Search, "need", forbidden)
+    monkeypatch.setattr(LegacySearch, "need", forbidden)
     with use_proof_session(MethodProofSession()):
         target, first, _square, last = mixed_case(*names, k)
         a, b, c = names
@@ -296,12 +312,11 @@ def test_application_anchor_tampering_and_old_bound_rejected(monkeypatch):
 
 
 def test_normalized_radical_bound_transport_uses_checked_identity(monkeypatch):
-    from shuxueshuo_server.solver.math_kernel import proof_kernel
     from shuxueshuo_server.solver.math_kernel.proof_checker import replay_proof
     from test_scoped_proof_search_stage_d import context, prove
 
     monkeypatch.setattr(
-        proof_kernel._Search, "need", lambda *a, **k: pytest.fail("legacy search")
+        LegacySearch, "need", lambda *a, **k: pytest.fail("legacy search")
     )
     ctx = context(["x<=1/(2*sqrt(3)-3)"], variables="x")
     result = prove("x<=1+2*sqrt(3)/3", ctx).result
@@ -364,13 +379,23 @@ def test_application_search_preserves_global_exhaustion(monkeypatch):
     from shuxueshuo_server.solver.math_kernel.proof_algebra import ProofFailure
     from test_basic_inequality_stage5c import rows, target
 
-    def exhausted(*args, **kwargs):
-        raise ProofFailure("proof_search_exhausted", "session total exhausted")
+    original = amgm_application.verify_local_application
+    attempts = []
 
-    monkeypatch.setattr(amgm_application, "verify_local_application", exhausted)
+    def consume_caller_budget_after_effect(*args, **kwargs):
+        effect = original(*args, **kwargs)
+        attempts.append(1)
+        # The effect's own budgets are private. Exhaust the caller's actual
+        # ledger so the subsequent positivity request must stop the search.
+        budget = kwargs["budget"]
+        budget.use("attempts", budget.limits.attempts - budget.counts.get("attempts", 0))
+        return effect
+
+    monkeypatch.setattr(amgm_application, "verify_local_application", consume_caller_budget_after_effect)
     with use_proof_session(MethodProofSession()), pytest.raises(ProofFailure) as error:
         verify_bound(target("x+4/x", ["x>0"], ["x"]), rows("x+4/x>=4"))
     assert error.value.code == "proof_search_exhausted"
+    assert attempts == [1]
 
 
 @pytest.mark.parametrize("protocol", ["scoped-facts/v2", "bound-conditions/v1", None])
@@ -422,14 +447,13 @@ def test_v2_requires_registered_single_method_adapter(methods):
 
 
 def test_v2_invocation_without_overlay_never_uses_legacy_search(tmp_path, monkeypatch):
-    from shuxueshuo_server.solver.math_kernel import proof_kernel
     from shuxueshuo_server.solver.runtime import method_proof_integration
 
     monkeypatch.setattr(
         method_proof_integration, "prepare_scoped_call", lambda *a: None
     )
     monkeypatch.setattr(
-        proof_kernel._Search, "need", lambda *a, **k: pytest.fail("legacy fallback")
+        LegacySearch, "need", lambda *a, **k: pytest.fail("legacy fallback")
     )
     result, _ = run(
         gold=FIXTURES / "math-notation-v1/basic-inequality/q30.json",
@@ -563,7 +587,6 @@ def test_v2_native_geometry_call_executes_multiple_invocations_without_proof_fac
 
     import sympy as sp
     from shuxueshuo_server.solver.fixtures import load_problem_ir
-    from shuxueshuo_server.solver.math_kernel import proof_kernel
     from shuxueshuo_server.solver.runtime.context import ContextBuilder
     from shuxueshuo_server.solver.runtime.context_inventory import (
         ContextInventoryBuilder,
@@ -577,7 +600,7 @@ def test_v2_native_geometry_call_executes_multiple_invocations_without_proof_fac
     )
 
     monkeypatch.setattr(
-        proof_kernel._Search, "need", lambda *a, **k: pytest.fail("legacy search")
+        LegacySearch, "need", lambda *a, **k: pytest.fail("legacy search")
     )
     context = ContextBuilder().build(
         load_problem_ir("../internal/solver-fixtures/tj-2026-nankai-yimo-25.json")

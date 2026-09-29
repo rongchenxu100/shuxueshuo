@@ -1,5 +1,7 @@
 # 阶段 F2：产物成本收敛
 
+> 后续性能修订：本文保留 F2 当时的实现和测量记录。F3 后已删除递归内容快照比较，改为原生 JSON 一次编码后按内容哈希复用文件；两种模式均不缩进。详见 [本地成本修订](validation/scoped-proof-search-stage-f3/local-cost/README.md)。
+
 日期：2026-09-28。按[架构计划](scoped-proof-search-architecture.md)第 14.6、15 节实施。默认证明协议仍为 `bound-conditions/v1`，本阶段不切换默认、不改变 checker、证明证书、Method 或 Planner 提示词。F3 全量验收与清理另行实施。
 
 ## 实现边界

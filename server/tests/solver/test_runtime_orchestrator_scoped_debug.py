@@ -295,3 +295,35 @@ def test_verified_orchestrator_publishes_before_run_scoped_returns(tmp_path, mon
     index = json.loads((tmp_path / 'attempt-1.evidence-index.json').read_text())
     assert index['artifacts']['canonical-plan']['status'] == 'saved'
     assert index['artifacts']['checkpoint']['status'] == 'saved'
+
+
+def test_completed_snapshot_is_not_encoded_again_but_revisions_are(tmp_path, monkeypatch):
+    from shuxueshuo_server.solver.runtime import orchestrator
+
+    old = _attempt(1, FUNCTIONAL_PLAN_CONTENT_CONTRACT)
+    revised = replace(old, payload={"revision": 2})
+    second = _attempt(2, FUNCTIONAL_SCOPE_REPAIR_CONTRACT)
+    published = []
+    monkeypatch.setattr(orchestrator, "_write_debug_attempt", lambda *a, **kw: published.append(kw["scoped_attempt"]))
+    orchestrator._write_scoped_debug_attempts(
+        tmp_path, None, SimpleNamespace(attempts=(old, revised, second)),
+        published_attempts=(old,),
+    )
+    assert published == [revised, second]
+
+
+
+def test_observed_completion_still_writes_late_authority_sidecars(tmp_path, monkeypatch):
+    from shuxueshuo_server.solver.runtime import orchestrator
+
+    attempt = _attempt(1, FUNCTIONAL_PLAN_CONTENT_CONTRACT)
+    planner = SimpleNamespace(artifacts=SimpleNamespace(
+        problem_authority=SimpleNamespace(authority_payload=lambda: {"authority": "bundle"}),
+        problem_binding_catalog=SimpleNamespace(authority_payload=lambda: {"binding": "catalog"}),
+    ))
+    monkeypatch.setattr(orchestrator, "_write_debug_attempt", lambda *a, **kw: pytest.fail("encoded completed snapshot twice"))
+    orchestrator._write_scoped_debug_attempts(
+        tmp_path, planner, SimpleNamespace(attempts=(attempt,)), published_attempts=(attempt,),
+    )
+    assert json.loads((tmp_path / "attempt-1.problem-bundle-authority.json").read_text()) == {"authority": "bundle"}
+    assert json.loads((tmp_path / "attempt-1.problem-planning-binding-catalog.json").read_text()) == {"binding": "catalog"}

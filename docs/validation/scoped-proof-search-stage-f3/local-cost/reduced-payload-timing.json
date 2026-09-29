@@ -1,0 +1,993 @@
+{
+  "baseline": {
+    "measurement": "q30 frozen responses, final detailed instrumentation; no live LLM; production source unchanged",
+    "source": "internal/review-analysis/scoped-proof-search-stage-f3/detailed-current-final-03/timing.json",
+    "total_seconds": 9.217771833995357,
+    "total_cpu_seconds": 8.934320999999999,
+    "solve_verified_seconds": 8.269483833923005,
+    "status": "ok",
+    "answers": {
+      "problem": {
+        "minimum": "4"
+      }
+    },
+    "solver_disjoint_groups_seconds": {
+      "debug_artifacts": 1.104891375056468,
+      "recorded_response_read": 0.0008874990744516253,
+      "plan_compilation_binding": 2.2896447079256177,
+      "fact_authority": 0.006063332897610962,
+      "transaction_orchestration": 0.6259493741672486,
+      "fact_index": 0.2582107081543654,
+      "M01": 0.6131435830611736,
+      "fact_publication": 0.6447102481033653,
+      "invocation_io": 0.0010163778206333518,
+      "fact_commit": 0.4002908339025453,
+      "M11": 1.314916249946691,
+      "M12": 0.553681791992858,
+      "M13": 0.37149495794437826,
+      "planner_orchestration": 0.07414595992304385,
+      "solver_orchestration": 0.01043683395255357
+    },
+    "exclusive_phases": {
+      "input_bundle": {
+        "seconds": 0.056923915981315076,
+        "calls": 1
+      },
+      "runtime_initialization": {
+        "seconds": 1.5958910807967186e-05,
+        "calls": 1
+      },
+      "debug_write": {
+        "seconds": 0.059648039285093546,
+        "calls": 79
+      },
+      "debug_link": {
+        "seconds": 0.07537437311839312,
+        "calls": 117
+      },
+      "debug_publish": {
+        "seconds": 0.05173449870198965,
+        "calls": 298
+      },
+      "debug_json": {
+        "seconds": 0.3213375429622829,
+        "calls": 270
+      },
+      "audit_artifacts": {
+        "seconds": 0.038008049479685724,
+        "calls": 8
+      },
+      "debug_artifacts": {
+        "seconds": 0.0017128715990111232,
+        "calls": 8
+      },
+      "recorded_response_read": {
+        "seconds": 0.0008874990744516253,
+        "calls": 2
+      },
+      "execution_evidence_build": {
+        "seconds": 0.04991258296649903,
+        "calls": 2
+      },
+      "input_projection": {
+        "seconds": 0.2081637920346111,
+        "calls": 10
+      },
+      "checkpoint_module_hash": {
+        "seconds": 0.22334337374195457,
+        "calls": 18
+      },
+      "state_payload": {
+        "seconds": 0.19428299996070564,
+        "calls": 2
+      },
+      "restore_state_payload": {
+        "seconds": 0.880794542026706,
+        "calls": 10
+      },
+      "restore_state_build": {
+        "seconds": 0.2664926260476932,
+        "calls": 2
+      },
+      "checkpoint_prompt_view": {
+        "seconds": 0.0002997108967974782,
+        "calls": 10
+      },
+      "scope_authority_payload": {
+        "seconds": 0.5366877079941332,
+        "calls": 10
+      },
+      "checkpoint_payload": {
+        "seconds": 0.00024041486904025078,
+        "calls": 8
+      },
+      "prompt_audit": {
+        "seconds": 0.0003821669379249215,
+        "calls": 2
+      },
+      "checkpoint_build": {
+        "seconds": 0.17489333415869623,
+        "calls": 2
+      },
+      "plan_compilation_binding": {
+        "seconds": 0.22981454012915492,
+        "calls": 2
+      },
+      "fact_record_hash": {
+        "seconds": 0.04540024581365287,
+        "calls": 76
+      },
+      "fact_authority": {
+        "seconds": 0.005999541957862675,
+        "calls": 5
+      },
+      "verify_snapshot": {
+        "seconds": 3.1375791877508163e-05,
+        "calls": 10
+      },
+      "fact_canonical_json": {
+        "seconds": 0.08016962395049632,
+        "calls": 112
+      },
+      "fact_index": {
+        "seconds": 0.2582107081543654,
+        "calls": 5
+      },
+      "search_and_check": {
+        "seconds": 1.3823047496844083,
+        "calls": 85
+      },
+      "M01": {
+        "seconds": 0.13097166805528104,
+        "calls": 1
+      },
+      "fact_publication": {
+        "seconds": 0.572835294296965,
+        "calls": 5
+      },
+      "invocation_io": {
+        "seconds": 0.0010163778206333518,
+        "calls": 5
+      },
+      "output_hash": {
+        "seconds": 0.020165876019746065,
+        "calls": 5
+      },
+      "fact_finalize": {
+        "seconds": 0.1363095419947058,
+        "calls": 5
+      },
+      "fact_verification_key": {
+        "seconds": 0.1907064146362245,
+        "calls": 13
+      },
+      "fact_register": {
+        "seconds": 0.00019503955263644457,
+        "calls": 5
+      },
+      "fact_commit": {
+        "seconds": 0.00027066795155406,
+        "calls": 5
+      },
+      "M11": {
+        "seconds": 0.7450385399861261,
+        "calls": 2
+      },
+      "M12": {
+        "seconds": 0.35028333496302366,
+        "calls": 1
+      },
+      "M13": {
+        "seconds": 0.2444724990054965,
+        "calls": 1
+      },
+      "transaction_orchestration": {
+        "seconds": 0.6250959583558142,
+        "calls": 1
+      },
+      "public_result_projection": {
+        "seconds": 0.08504979102872312,
+        "calls": 5
+      },
+      "restore_authority_payload": {
+        "seconds": 0.00019745808094739914,
+        "calls": 5
+      },
+      "planner_orchestration": {
+        "seconds": 0.07414595992304385,
+        "calls": 1
+      },
+      "solver_orchestration": {
+        "seconds": 0.006602500914596021,
+        "calls": 1
+      },
+      "result_payload": {
+        "seconds": 0.5971810830524191,
+        "calls": 1
+      },
+      "harness_result_json": {
+        "seconds": 0.27224870794452727,
+        "calls": 1
+      },
+      "unclassified": {
+        "seconds": 0.02191833418328315,
+        "calls": 1
+      }
+    },
+    "inclusive_details": {
+      "search_and_check / checker_replay": {
+        "seconds": 0.30089854437392205,
+        "calls": 85
+      },
+      "fact_publication / premise_index_extend": {
+        "seconds": 0.03791758185252547,
+        "calls": 37
+      },
+      "fact_publication / premise_fact_match": {
+        "seconds": 0.0012795398943126202,
+        "calls": 108
+      },
+      "M11 / checker_replay": {
+        "seconds": 0.12397733109537512,
+        "calls": 21
+      },
+      "M12 / checker_replay": {
+        "seconds": 0.047327417181804776,
+        "calls": 8
+      },
+      "M13 / checker_replay": {
+        "seconds": 0.0394959170371294,
+        "calls": 2
+      }
+    },
+    "artifact_bytes": {
+      "attempt-2.checkpoint.json": 15120882,
+      "attempt-2.transaction.json": 19057352,
+      "attempt-2.planner-state-context.json": 14760420,
+      "attempt-2.verified-execution.json": 6681171,
+      "result.json": 16976973
+    },
+    "notes": [
+      "Nested detail timings overlap phase totals; do not add them again.",
+      "Earlier local totals also included harness result export; they were not pure solve_verified timings.",
+      "Detailed instrumentation is diagnostic, not a replacement for the earlier three-run benchmark."
+    ]
+  },
+  "runs": [
+    {
+      "source": "internal/review-analysis/scoped-proof-search-stage-f3/reduced-payload-final-01/timing.json",
+      "total_seconds": 6.148659290978685,
+      "total_cpu_seconds": 6.016603,
+      "solve_verified_seconds": 6.098204541020095,
+      "status": "ok",
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "solver_disjoint_groups_seconds": {
+        "debug_artifacts": 0.4737195420311764,
+        "recorded_response_read": 0.0006738750962540507,
+        "plan_compilation_binding": 1.3930225840304047,
+        "fact_authority": 0.00493562500923872,
+        "transaction_orchestration": 0.5644670411711559,
+        "fact_index": 0.21046554285567254,
+        "M01": 0.4941917909309268,
+        "fact_publication": 0.5518944169161841,
+        "invocation_io": 0.000674998271279037,
+        "fact_commit": 0.3549618748947978,
+        "M11": 1.1745943750720471,
+        "M12": 0.4807025839108974,
+        "M13": 0.31920679192990065,
+        "planner_orchestration": 0.06594595790375024,
+        "solver_orchestration": 0.008747540996409953
+      },
+      "exclusive_phases": {
+        "input_bundle": {
+          "seconds": 0.048317542066797614,
+          "calls": 1
+        },
+        "runtime_initialization": {
+          "seconds": 1.5583005733788013e-05,
+          "calls": 1
+        },
+        "debug_write": {
+          "seconds": 0.05281308095436543,
+          "calls": 79
+        },
+        "debug_link": {
+          "seconds": 0.06757075234781951,
+          "calls": 117
+        },
+        "debug_publish": {
+          "seconds": 0.02809479075949639,
+          "calls": 298
+        },
+        "debug_json": {
+          "seconds": 0.16261721320915967,
+          "calls": 270
+        },
+        "audit_artifacts": {
+          "seconds": 0.005077373469248414,
+          "calls": 8
+        },
+        "debug_artifacts": {
+          "seconds": 0.0013114582980051637,
+          "calls": 8
+        },
+        "recorded_response_read": {
+          "seconds": 0.0006738750962540507,
+          "calls": 2
+        },
+        "execution_evidence_build": {
+          "seconds": 0.00015491701196879148,
+          "calls": 2
+        },
+        "input_projection": {
+          "seconds": 0.05047458421904594,
+          "calls": 10
+        },
+        "checkpoint_module_hash": {
+          "seconds": 0.11792170780245215,
+          "calls": 18
+        },
+        "state_payload": {
+          "seconds": 0.14974920894019306,
+          "calls": 2
+        },
+        "restore_state_payload": {
+          "seconds": 0.41593975003343076,
+          "calls": 10
+        },
+        "restore_state_build": {
+          "seconds": 0.3159844579640776,
+          "calls": 2
+        },
+        "checkpoint_prompt_view": {
+          "seconds": 0.00026266416534781456,
+          "calls": 10
+        },
+        "scope_authority_payload": {
+          "seconds": 0.1428959162440151,
+          "calls": 10
+        },
+        "checkpoint_payload": {
+          "seconds": 0.00017825164832174778,
+          "calls": 8
+        },
+        "prompt_audit": {
+          "seconds": 0.0003042080206796527,
+          "calls": 2
+        },
+        "checkpoint_build": {
+          "seconds": 0.010106954956427217,
+          "calls": 2
+        },
+        "plan_compilation_binding": {
+          "seconds": 0.16520037595182657,
+          "calls": 2
+        },
+        "fact_record_hash": {
+          "seconds": 0.04296974919270724,
+          "calls": 76
+        },
+        "fact_authority": {
+          "seconds": 0.004919541999697685,
+          "calls": 5
+        },
+        "verify_snapshot": {
+          "seconds": 2.6750494726002216e-05,
+          "calls": 10
+        },
+        "fact_canonical_json": {
+          "seconds": 0.07343812356702983,
+          "calls": 112
+        },
+        "fact_index": {
+          "seconds": 0.21046554285567254,
+          "calls": 5
+        },
+        "search_and_check": {
+          "seconds": 1.2133062083739787,
+          "calls": 85
+        },
+        "M01": {
+          "seconds": 0.11150983197148889,
+          "calls": 1
+        },
+        "fact_publication": {
+          "seconds": 0.4887458391021937,
+          "calls": 5
+        },
+        "invocation_io": {
+          "seconds": 0.000674998271279037,
+          "calls": 5
+        },
+        "output_hash": {
+          "seconds": 0.015420165844261646,
+          "calls": 5
+        },
+        "fact_finalize": {
+          "seconds": 0.12548520672135055,
+          "calls": 5
+        },
+        "fact_verification_key": {
+          "seconds": 0.16125124844256788,
+          "calls": 13
+        },
+        "fact_register": {
+          "seconds": 0.00012091710232198238,
+          "calls": 5
+        },
+        "fact_commit": {
+          "seconds": 0.0002801251830533147,
+          "calls": 5
+        },
+        "M11": {
+          "seconds": 0.6428184589603916,
+          "calls": 2
+        },
+        "M12": {
+          "seconds": 0.30054374993778765,
+          "calls": 1
+        },
+        "M13": {
+          "seconds": 0.2004010418895632,
+          "calls": 1
+        },
+        "transaction_orchestration": {
+          "seconds": 0.5637175410520285,
+          "calls": 1
+        },
+        "public_result_projection": {
+          "seconds": 0.18316641787532717,
+          "calls": 5
+        },
+        "restore_authority_payload": {
+          "seconds": 0.00018245924729853868,
+          "calls": 5
+        },
+        "planner_orchestration": {
+          "seconds": 0.06594595790375024,
+          "calls": 1
+        },
+        "solver_orchestration": {
+          "seconds": 0.005483123939484358,
+          "calls": 1
+        },
+        "result_payload": {
+          "seconds": 0.00010449998080730438,
+          "calls": 1
+        },
+        "unclassified": {
+          "seconds": 0.0020171249052509665,
+          "calls": 1
+        }
+      },
+      "inclusive_details": {
+        "search_and_check / checker_replay": {
+          "seconds": 0.282736626570113,
+          "calls": 85
+        },
+        "fact_publication / premise_index_extend": {
+          "seconds": 0.033596833352930844,
+          "calls": 37
+        },
+        "fact_publication / premise_fact_match": {
+          "seconds": 0.0007838337915018201,
+          "calls": 108
+        },
+        "M11 / checker_replay": {
+          "seconds": 0.11716912302654237,
+          "calls": 21
+        },
+        "M12 / checker_replay": {
+          "seconds": 0.043231626972556114,
+          "calls": 8
+        },
+        "M13 / checker_replay": {
+          "seconds": 0.036798125016503036,
+          "calls": 2
+        }
+      },
+      "artifact_bytes": {
+        "attempt-2.checkpoint.json": 8957572,
+        "attempt-2.transaction.json": 6687087,
+        "attempt-2.planner-state-context.json": 14760420,
+        "attempt-2.verified-execution.json": 517861,
+        "result.json": 4362
+      }
+    },
+    {
+      "source": "internal/review-analysis/scoped-proof-search-stage-f3/reduced-payload-final-02/timing.json",
+      "total_seconds": 6.07845679204911,
+      "total_cpu_seconds": 5.992735,
+      "solve_verified_seconds": 6.031371125020087,
+      "status": "ok",
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "solver_disjoint_groups_seconds": {
+        "debug_artifacts": 0.4910988339688629,
+        "recorded_response_read": 0.00037037499714642763,
+        "plan_compilation_binding": 1.4563265820033848,
+        "fact_authority": 0.0033354999031871557,
+        "transaction_orchestration": 0.5618945840978995,
+        "fact_index": 0.28916908404789865,
+        "M01": 0.4543819579994306,
+        "fact_publication": 0.5414554181043059,
+        "invocation_io": 0.0007982468232512474,
+        "fact_commit": 0.3554624170064926,
+        "M11": 1.0996158750494942,
+        "M12": 0.4686811249703169,
+        "M13": 0.22358129196800292,
+        "planner_orchestration": 0.07613908406347036,
+        "solver_orchestration": 0.00906075001694262
+      },
+      "exclusive_phases": {
+        "input_bundle": {
+          "seconds": 0.04575166595168412,
+          "calls": 1
+        },
+        "runtime_initialization": {
+          "seconds": 1.633400097489357e-05,
+          "calls": 1
+        },
+        "debug_write": {
+          "seconds": 0.03970712190493941,
+          "calls": 79
+        },
+        "debug_link": {
+          "seconds": 0.07463587389793247,
+          "calls": 117
+        },
+        "debug_publish": {
+          "seconds": 0.029658346087671816,
+          "calls": 298
+        },
+        "debug_json": {
+          "seconds": 0.1785674097482115,
+          "calls": 270
+        },
+        "audit_artifacts": {
+          "seconds": 0.007240413571707904,
+          "calls": 8
+        },
+        "debug_artifacts": {
+          "seconds": 0.0013377935392782092,
+          "calls": 8
+        },
+        "recorded_response_read": {
+          "seconds": 0.00037037499714642763,
+          "calls": 2
+        },
+        "execution_evidence_build": {
+          "seconds": 0.00012599991168826818,
+          "calls": 2
+        },
+        "input_projection": {
+          "seconds": 0.051293292664922774,
+          "calls": 10
+        },
+        "checkpoint_module_hash": {
+          "seconds": 0.11175024707335979,
+          "calls": 18
+        },
+        "state_payload": {
+          "seconds": 0.1496637500822544,
+          "calls": 2
+        },
+        "restore_state_payload": {
+          "seconds": 0.44213229091838,
+          "calls": 10
+        },
+        "restore_state_build": {
+          "seconds": 0.3638849180424586,
+          "calls": 2
+        },
+        "checkpoint_prompt_view": {
+          "seconds": 0.00020179292187094688,
+          "calls": 10
+        },
+        "scope_authority_payload": {
+          "seconds": 0.14730754122138023,
+          "calls": 10
+        },
+        "checkpoint_payload": {
+          "seconds": 0.00013279204722493887,
+          "calls": 8
+        },
+        "prompt_audit": {
+          "seconds": 0.00030295795295387506,
+          "calls": 2
+        },
+        "checkpoint_build": {
+          "seconds": 0.010497874463908374,
+          "calls": 2
+        },
+        "plan_compilation_binding": {
+          "seconds": 0.15722328994888812,
+          "calls": 2
+        },
+        "fact_record_hash": {
+          "seconds": 0.04201320034917444,
+          "calls": 76
+        },
+        "fact_authority": {
+          "seconds": 0.00331699987873435,
+          "calls": 5
+        },
+        "verify_snapshot": {
+          "seconds": 2.5583314709365368e-05,
+          "calls": 10
+        },
+        "fact_canonical_json": {
+          "seconds": 0.0700578335672617,
+          "calls": 112
+        },
+        "fact_index": {
+          "seconds": 0.28916908404789865,
+          "calls": 5
+        },
+        "search_and_check": {
+          "seconds": 1.0938351267250255,
+          "calls": 85
+        },
+        "M01": {
+          "seconds": 0.10425979096908122,
+          "calls": 1
+        },
+        "fact_publication": {
+          "seconds": 0.4791396742220968,
+          "calls": 5
+        },
+        "invocation_io": {
+          "seconds": 0.0007982468232512474,
+          "calls": 5
+        },
+        "output_hash": {
+          "seconds": 0.0160139569779858,
+          "calls": 5
+        },
+        "fact_finalize": {
+          "seconds": 0.12562041834462434,
+          "calls": 5
+        },
+        "fact_verification_key": {
+          "seconds": 0.1645464989123866,
+          "calls": 13
+        },
+        "fact_register": {
+          "seconds": 0.00011762697249650955,
+          "calls": 5
+        },
+        "fact_commit": {
+          "seconds": 0.00022666796576231718,
+          "calls": 5
+        },
+        "M11": {
+          "seconds": 0.6365186220500618,
+          "calls": 2
+        },
+        "M12": {
+          "seconds": 0.29779916582629085,
+          "calls": 1
+        },
+        "M13": {
+          "seconds": 0.11371571000199765,
+          "calls": 1
+        },
+        "transaction_orchestration": {
+          "seconds": 0.5612012930214405,
+          "calls": 1
+        },
+        "public_result_projection": {
+          "seconds": 0.18518025102093816,
+          "calls": 5
+        },
+        "restore_authority_payload": {
+          "seconds": 0.00017750088591128588,
+          "calls": 5
+        },
+        "planner_orchestration": {
+          "seconds": 0.07613908406347036,
+          "calls": 1
+        },
+        "solver_orchestration": {
+          "seconds": 0.005464708083309233,
+          "calls": 1
+        },
+        "result_payload": {
+          "seconds": 0.00010808301158249378,
+          "calls": 1
+        },
+        "unclassified": {
+          "seconds": 0.0012095840647816658,
+          "calls": 1
+        }
+      },
+      "inclusive_details": {
+        "search_and_check / checker_replay": {
+          "seconds": 0.2566084930440411,
+          "calls": 85
+        },
+        "fact_publication / premise_index_extend": {
+          "seconds": 0.03315554070286453,
+          "calls": 37
+        },
+        "fact_publication / premise_fact_match": {
+          "seconds": 0.0009089217055588961,
+          "calls": 108
+        },
+        "M11 / checker_replay": {
+          "seconds": 0.11275645706336945,
+          "calls": 21
+        },
+        "M12 / checker_replay": {
+          "seconds": 0.04308629420120269,
+          "calls": 8
+        },
+        "M13 / checker_replay": {
+          "seconds": 0.03494145907461643,
+          "calls": 2
+        }
+      },
+      "artifact_bytes": {
+        "attempt-2.checkpoint.json": 8957572,
+        "attempt-2.transaction.json": 6687087,
+        "attempt-2.planner-state-context.json": 14760420,
+        "attempt-2.verified-execution.json": 517861,
+        "result.json": 4362
+      }
+    },
+    {
+      "source": "internal/review-analysis/scoped-proof-search-stage-f3/reduced-payload-final-03/timing.json",
+      "total_seconds": 6.076755334041081,
+      "total_cpu_seconds": 5.9548630000000005,
+      "solve_verified_seconds": 6.028599458979443,
+      "status": "ok",
+      "answers": {
+        "problem": {
+          "minimum": "4"
+        }
+      },
+      "solver_disjoint_groups_seconds": {
+        "debug_artifacts": 0.5655725434189662,
+        "recorded_response_read": 0.0004384581698104739,
+        "plan_compilation_binding": 1.3880122089758515,
+        "fact_authority": 0.003336876048706472,
+        "transaction_orchestration": 0.5502085809130222,
+        "fact_index": 0.29040791711304337,
+        "M01": 0.46183220902457833,
+        "fact_publication": 0.551361209130846,
+        "invocation_io": 0.0006787906168028712,
+        "fact_commit": 0.3463243751320988,
+        "M11": 1.0972268329933286,
+        "M12": 0.4657752920174971,
+        "M13": 0.22182637499645352,
+        "planner_orchestration": 0.07678104052320123,
+        "solver_orchestration": 0.008816749905236065
+      },
+      "exclusive_phases": {
+        "input_bundle": {
+          "seconds": 0.046813166001811624,
+          "calls": 1
+        },
+        "runtime_initialization": {
+          "seconds": 1.6707926988601685e-05,
+          "calls": 1
+        },
+        "debug_write": {
+          "seconds": 0.06944750086404383,
+          "calls": 79
+        },
+        "debug_link": {
+          "seconds": 0.0743159162811935,
+          "calls": 117
+        },
+        "debug_publish": {
+          "seconds": 0.040053581120446324,
+          "calls": 298
+        },
+        "debug_json": {
+          "seconds": 0.18490104447118938,
+          "calls": 270
+        },
+        "audit_artifacts": {
+          "seconds": 0.0049140420742332935,
+          "calls": 8
+        },
+        "debug_artifacts": {
+          "seconds": 0.005832792492583394,
+          "calls": 8
+        },
+        "recorded_response_read": {
+          "seconds": 0.0004384581698104739,
+          "calls": 2
+        },
+        "execution_evidence_build": {
+          "seconds": 0.00012454099487513304,
+          "calls": 2
+        },
+        "input_projection": {
+          "seconds": 0.050903333933092654,
+          "calls": 10
+        },
+        "checkpoint_module_hash": {
+          "seconds": 0.1140821649460122,
+          "calls": 18
+        },
+        "state_payload": {
+          "seconds": 0.155420750961639,
+          "calls": 2
+        },
+        "restore_state_payload": {
+          "seconds": 0.4315823329379782,
+          "calls": 10
+        },
+        "restore_state_build": {
+          "seconds": 0.31006487703416497,
+          "calls": 2
+        },
+        "checkpoint_prompt_view": {
+          "seconds": 0.00024300080258399248,
+          "calls": 10
+        },
+        "scope_authority_payload": {
+          "seconds": 0.15834066551178694,
+          "calls": 10
+        },
+        "checkpoint_payload": {
+          "seconds": 0.0001631256891414523,
+          "calls": 8
+        },
+        "prompt_audit": {
+          "seconds": 0.0002807079581543803,
+          "calls": 2
+        },
+        "checkpoint_build": {
+          "seconds": 0.010179374134168029,
+          "calls": 2
+        },
+        "plan_compilation_binding": {
+          "seconds": 0.16210533294361085,
+          "calls": 2
+        },
+        "fact_record_hash": {
+          "seconds": 0.04482942202594131,
+          "calls": 76
+        },
+        "fact_authority": {
+          "seconds": 0.0033208760432899,
+          "calls": 5
+        },
+        "verify_snapshot": {
+          "seconds": 2.541497815400362e-05,
+          "calls": 10
+        },
+        "fact_canonical_json": {
+          "seconds": 0.07097104063723236,
+          "calls": 112
+        },
+        "fact_index": {
+          "seconds": 0.29040791711304337,
+          "calls": 5
+        },
+        "search_and_check": {
+          "seconds": 1.0938805394107476,
+          "calls": 85
+        },
+        "M01": {
+          "seconds": 0.104809585143812,
+          "calls": 1
+        },
+        "fact_publication": {
+          "seconds": 0.4869786233175546,
+          "calls": 5
+        },
+        "invocation_io": {
+          "seconds": 0.0006787906168028712,
+          "calls": 5
+        },
+        "output_hash": {
+          "seconds": 0.01542237401008606,
+          "calls": 5
+        },
+        "fact_finalize": {
+          "seconds": 0.12605066690593958,
+          "calls": 5
+        },
+        "fact_verification_key": {
+          "seconds": 0.15393782767932862,
+          "calls": 13
+        },
+        "fact_register": {
+          "seconds": 0.00012266903650015593,
+          "calls": 5
+        },
+        "fact_commit": {
+          "seconds": 0.00020137510728091002,
+          "calls": 5
+        },
+        "M11": {
+          "seconds": 0.6383433757582679,
+          "calls": 2
+        },
+        "M12": {
+          "seconds": 0.2958931701723486,
+          "calls": 1
+        },
+        "M13": {
+          "seconds": 0.11362316692247987,
+          "calls": 1
+        },
+        "transaction_orchestration": {
+          "seconds": 0.5494816231075674,
+          "calls": 1
+        },
+        "public_result_projection": {
+          "seconds": 0.1837761258939281,
+          "calls": 5
+        },
+        "restore_authority_payload": {
+          "seconds": 0.0001911252038553357,
+          "calls": 5
+        },
+        "planner_orchestration": {
+          "seconds": 0.07678104052320123,
+          "calls": 1
+        },
+        "solver_orchestration": {
+          "seconds": 0.005479166051372886,
+          "calls": 1
+        },
+        "result_payload": {
+          "seconds": 0.00010337494313716888,
+          "calls": 1
+        },
+        "unclassified": {
+          "seconds": 0.0012226261897012591,
+          "calls": 1
+        }
+      },
+      "inclusive_details": {
+        "search_and_check / checker_replay": {
+          "seconds": 0.24971946363803,
+          "calls": 85
+        },
+        "fact_publication / premise_index_extend": {
+          "seconds": 0.03243395499885082,
+          "calls": 37
+        },
+        "fact_publication / premise_fact_match": {
+          "seconds": 0.0007252446375787258,
+          "calls": 108
+        },
+        "M11 / checker_replay": {
+          "seconds": 0.11028771020937711,
+          "calls": 21
+        },
+        "M12 / checker_replay": {
+          "seconds": 0.04217375011648983,
+          "calls": 8
+        },
+        "M13 / checker_replay": {
+          "seconds": 0.03538233297877014,
+          "calls": 2
+        }
+      },
+      "artifact_bytes": {
+        "attempt-2.checkpoint.json": 8957572,
+        "attempt-2.transaction.json": 6687087,
+        "attempt-2.planner-state-context.json": 14760420,
+        "attempt-2.verified-execution.json": 517861,
+        "result.json": 4362
+      }
+    }
+  ],
+  "median_solver_seconds": 6.031371125020087,
+  "median_total_seconds": 6.07845679204911,
+  "note": "Frozen responses, sequential runs, no LLM or concurrent tests. Baseline is one prior detailed measurement; totals include authoring summary export. Every run retains its earlier binding failure before successful execution."
+}

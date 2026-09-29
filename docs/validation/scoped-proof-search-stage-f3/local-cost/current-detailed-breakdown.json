@@ -1,0 +1,254 @@
+{
+  "measurement": "q30 frozen responses, final detailed instrumentation; no live LLM; production source unchanged",
+  "source": "internal/review-analysis/scoped-proof-search-stage-f3/detailed-current-final-03/timing.json",
+  "total_seconds": 9.217771833995357,
+  "total_cpu_seconds": 8.934320999999999,
+  "solve_verified_seconds": 8.269483833923005,
+  "status": "ok",
+  "answers": {
+    "problem": {
+      "minimum": "4"
+    }
+  },
+  "solver_disjoint_groups_seconds": {
+    "debug_artifacts": 1.104891375056468,
+    "recorded_response_read": 0.0008874990744516253,
+    "plan_compilation_binding": 2.2896447079256177,
+    "fact_authority": 0.006063332897610962,
+    "transaction_orchestration": 0.6259493741672486,
+    "fact_index": 0.2582107081543654,
+    "M01": 0.6131435830611736,
+    "fact_publication": 0.6447102481033653,
+    "invocation_io": 0.0010163778206333518,
+    "fact_commit": 0.4002908339025453,
+    "M11": 1.314916249946691,
+    "M12": 0.553681791992858,
+    "M13": 0.37149495794437826,
+    "planner_orchestration": 0.07414595992304385,
+    "solver_orchestration": 0.01043683395255357
+  },
+  "exclusive_phases": {
+    "input_bundle": {
+      "seconds": 0.056923915981315076,
+      "calls": 1
+    },
+    "runtime_initialization": {
+      "seconds": 1.5958910807967186e-05,
+      "calls": 1
+    },
+    "debug_write": {
+      "seconds": 0.059648039285093546,
+      "calls": 79
+    },
+    "debug_link": {
+      "seconds": 0.07537437311839312,
+      "calls": 117
+    },
+    "debug_publish": {
+      "seconds": 0.05173449870198965,
+      "calls": 298
+    },
+    "debug_json": {
+      "seconds": 0.3213375429622829,
+      "calls": 270
+    },
+    "audit_artifacts": {
+      "seconds": 0.038008049479685724,
+      "calls": 8
+    },
+    "debug_artifacts": {
+      "seconds": 0.0017128715990111232,
+      "calls": 8
+    },
+    "recorded_response_read": {
+      "seconds": 0.0008874990744516253,
+      "calls": 2
+    },
+    "execution_evidence_build": {
+      "seconds": 0.04991258296649903,
+      "calls": 2
+    },
+    "input_projection": {
+      "seconds": 0.2081637920346111,
+      "calls": 10
+    },
+    "checkpoint_module_hash": {
+      "seconds": 0.22334337374195457,
+      "calls": 18
+    },
+    "state_payload": {
+      "seconds": 0.19428299996070564,
+      "calls": 2
+    },
+    "restore_state_payload": {
+      "seconds": 0.880794542026706,
+      "calls": 10
+    },
+    "restore_state_build": {
+      "seconds": 0.2664926260476932,
+      "calls": 2
+    },
+    "checkpoint_prompt_view": {
+      "seconds": 0.0002997108967974782,
+      "calls": 10
+    },
+    "scope_authority_payload": {
+      "seconds": 0.5366877079941332,
+      "calls": 10
+    },
+    "checkpoint_payload": {
+      "seconds": 0.00024041486904025078,
+      "calls": 8
+    },
+    "prompt_audit": {
+      "seconds": 0.0003821669379249215,
+      "calls": 2
+    },
+    "checkpoint_build": {
+      "seconds": 0.17489333415869623,
+      "calls": 2
+    },
+    "plan_compilation_binding": {
+      "seconds": 0.22981454012915492,
+      "calls": 2
+    },
+    "fact_record_hash": {
+      "seconds": 0.04540024581365287,
+      "calls": 76
+    },
+    "fact_authority": {
+      "seconds": 0.005999541957862675,
+      "calls": 5
+    },
+    "verify_snapshot": {
+      "seconds": 3.1375791877508163e-05,
+      "calls": 10
+    },
+    "fact_canonical_json": {
+      "seconds": 0.08016962395049632,
+      "calls": 112
+    },
+    "fact_index": {
+      "seconds": 0.2582107081543654,
+      "calls": 5
+    },
+    "search_and_check": {
+      "seconds": 1.3823047496844083,
+      "calls": 85
+    },
+    "M01": {
+      "seconds": 0.13097166805528104,
+      "calls": 1
+    },
+    "fact_publication": {
+      "seconds": 0.572835294296965,
+      "calls": 5
+    },
+    "invocation_io": {
+      "seconds": 0.0010163778206333518,
+      "calls": 5
+    },
+    "output_hash": {
+      "seconds": 0.020165876019746065,
+      "calls": 5
+    },
+    "fact_finalize": {
+      "seconds": 0.1363095419947058,
+      "calls": 5
+    },
+    "fact_verification_key": {
+      "seconds": 0.1907064146362245,
+      "calls": 13
+    },
+    "fact_register": {
+      "seconds": 0.00019503955263644457,
+      "calls": 5
+    },
+    "fact_commit": {
+      "seconds": 0.00027066795155406,
+      "calls": 5
+    },
+    "M11": {
+      "seconds": 0.7450385399861261,
+      "calls": 2
+    },
+    "M12": {
+      "seconds": 0.35028333496302366,
+      "calls": 1
+    },
+    "M13": {
+      "seconds": 0.2444724990054965,
+      "calls": 1
+    },
+    "transaction_orchestration": {
+      "seconds": 0.6250959583558142,
+      "calls": 1
+    },
+    "public_result_projection": {
+      "seconds": 0.08504979102872312,
+      "calls": 5
+    },
+    "restore_authority_payload": {
+      "seconds": 0.00019745808094739914,
+      "calls": 5
+    },
+    "planner_orchestration": {
+      "seconds": 0.07414595992304385,
+      "calls": 1
+    },
+    "solver_orchestration": {
+      "seconds": 0.006602500914596021,
+      "calls": 1
+    },
+    "result_payload": {
+      "seconds": 0.5971810830524191,
+      "calls": 1
+    },
+    "harness_result_json": {
+      "seconds": 0.27224870794452727,
+      "calls": 1
+    },
+    "unclassified": {
+      "seconds": 0.02191833418328315,
+      "calls": 1
+    }
+  },
+  "inclusive_details": {
+    "search_and_check / checker_replay": {
+      "seconds": 0.30089854437392205,
+      "calls": 85
+    },
+    "fact_publication / premise_index_extend": {
+      "seconds": 0.03791758185252547,
+      "calls": 37
+    },
+    "fact_publication / premise_fact_match": {
+      "seconds": 0.0012795398943126202,
+      "calls": 108
+    },
+    "M11 / checker_replay": {
+      "seconds": 0.12397733109537512,
+      "calls": 21
+    },
+    "M12 / checker_replay": {
+      "seconds": 0.047327417181804776,
+      "calls": 8
+    },
+    "M13 / checker_replay": {
+      "seconds": 0.0394959170371294,
+      "calls": 2
+    }
+  },
+  "artifact_bytes": {
+    "attempt-2.checkpoint.json": 15120882,
+    "attempt-2.transaction.json": 19057352,
+    "attempt-2.planner-state-context.json": 14760420,
+    "attempt-2.verified-execution.json": 6681171,
+    "result.json": 16976973
+  },
+  "notes": [
+    "Nested detail timings overlap phase totals; do not add them again.",
+    "Earlier local totals also included harness result export; they were not pure solve_verified timings.",
+    "Detailed instrumentation is diagnostic, not a replacement for the earlier three-run benchmark."
+  ]
+}

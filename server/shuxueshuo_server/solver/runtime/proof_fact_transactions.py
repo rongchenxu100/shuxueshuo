@@ -1,4 +1,7 @@
-"""Opt-in bridge to the existing Functional branch transaction and dependency DAG."""
+"""Sequential proof publication, dependency tracking and checkpoint recovery.
+
+The module name is retained for historical imports and checkpoint compatibility.
+"""
 
 from dataclasses import replace
 
@@ -104,10 +107,10 @@ def finalize_call(branch, runtime_results, writes):
     overlay = branch.proof_fact_overlay
     if overlay is None:
         return None
-    # This writes only to the private Runtime branch. Any later output/version
-    # validation failure discards the branch and these facts together.
+    # Records were independently checked on admission. Publish without a second
+    # branch or replay; failed calls rebuild from previously verified outputs.
     output_hash = proof_output_hash(runtime_results, writes)
-    receipt = branch.proof_facts.commit(overlay, output_hash)
+    receipt = branch.proof_facts.publish(overlay, output_hash)
     branch.proof_fact_overlay = None
     return receipt
 

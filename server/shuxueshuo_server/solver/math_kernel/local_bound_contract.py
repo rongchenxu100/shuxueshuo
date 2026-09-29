@@ -2,7 +2,11 @@
 
 import sympy as sp
 
-from .expression_parser import MathParseError, parse_math_expression, parse_math_relation
+from .expression_parser import (
+    MathParseError,
+    parse_math_expression,
+    parse_math_relation,
+)
 from .local_amgm import candidates
 from .proof_algebra import Arithmetic, ProofFailure, from_node
 from .proof_kernel import _Budget, verify_relation_sequence
@@ -21,6 +25,12 @@ def reciprocal_coefficient(value, result, a, b):
 def verify_local_application(
     context, source, bound, u, v, *, budget, certificates=None
 ):
+    """Check one minimum-bound pair using private budgets with caller limits.
+
+    Templates share a prefilter budget; relation verification has a separate
+    private budget. Exhaustion escapes this function but does not exhaust the
+    caller's ledger. The application search may then try a different pair.
+    """
     from .inequality_bound_v2 import math_text
 
     def scalar(text):
@@ -96,9 +106,17 @@ def verify_local_application(
             # a different template. Source parsing and certificate replay stay
             # strict; only a fully proved candidate can be returned below.
             continue
-        _, remainder = arithmetic.reduce(
-            arithmetic.difference(from_node(relations[0].ast)), divisors
-        )
+        try:
+            _, remainder = arithmetic.reduce(
+                arithmetic.difference(from_node(relations[0].ast)), divisors
+            )
+        except ProofFailure as exc:
+            # Oversized speculative expressions can be skipped. Exhaustion of
+            # this loop's shared ledger must propagate, never masquerade as a
+            # changed remainder. No work is refunded between templates.
+            if exc.is_structure_limit:
+                continue
+            raise
         if remainder:
             continue
         proofs = verify_relation_sequence(relations, context, budget=_Budget(limits))

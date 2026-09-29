@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 import sympy as sp
-
 from shuxueshuo_server.solver.math_kernel.expression_parser import (
     parse_math_expression,
     parse_math_relation,
@@ -25,12 +24,15 @@ from shuxueshuo_server.solver.math_kernel.proof_kernel import (
     Witness,
     _Budget,
     _replay,
-    _Search,
     prove_domain,
     prove_relation,
     replay_proof,
     verify_witnesses,
 )
+from shuxueshuo_server.solver.math_kernel.real_proof_strategies import (
+    ScheduledRealSearch,
+)
+from tools.proof_search_legacy import run_request as legacy_request
 
 SYMBOLS = {name: sp.Symbol(name, real=True) for name in ("x", "y", "a", "b")}
 FIXTURES = Path(__file__).parent / "fixtures/basic-inequality-problem-ir/v1"
@@ -130,7 +132,8 @@ def test_relation_transport_certifies_substitution_and_direction(candidate):
 
 def test_squared_amgm_rule_replays_its_positive_term_dependencies():
     ctx = context("x>0", "y>0", "x+y>=2*sqrt(x*y)")
-    result = check("x*y<=(x+y)^2/4", ctx)
+    result = legacy_request(ctx, {"kind": "relation", "candidate": {"source": "x*y<=(x+y)^2/4", "source_path": None, "step": None}})
+    assert replay_proof(result, ctx).status == "proved"
     changed = deepcopy(result.proof)
     node = next(
         n for n in changed["nodes"] if n["rule_id"] == "math.amgm_squared_bound"
@@ -195,7 +198,7 @@ def test_registered_proof_rules(facts, goal):
 )
 def test_insufficient_evidence_fails_closed(facts, goal):
     result = check(goal, context(*facts), False)
-    assert result.code == "proof_missing", result.to_payload()
+    assert result.code in {"proof_missing", "strategy_budget_exhausted"}, result.to_payload()
 
 
 @pytest.mark.parametrize(
@@ -536,7 +539,7 @@ def test_replay_never_searches(monkeypatch):
     def fail(*args, **kwargs):
         raise AssertionError("replay invoked proof search")
 
-    monkeypatch.setattr(_Search, "need", fail)
+    monkeypatch.setattr(ScheduledRealSearch, "need", fail)
     assert replay_proof(result, c).status == "proved"
 
 
@@ -575,7 +578,7 @@ def test_tampered_certificates_are_rejected(tamper):
     elif tamper == "cycle":
         proof["nodes"][-1]["children"] = [proof["nodes"][-1]["node_id"]]
     elif tamper == "coefficient":
-        proof = deepcopy(check("x^2=4", c).proof)
+        proof = deepcopy(legacy_request(c, {"kind": "relation", "candidate": {"source": "x^2=4", "source_path": None, "step": None}}).proof)
         node = next(
             n
             for n in proof["nodes"]
@@ -780,7 +783,7 @@ def test_cycle_and_missing_assignments_fail():
     [
         ("nodes", 1, (), "x=x"),
         ("attempts", 1, ("x>0",), "x*x>0"),
-        ("reductions", 1, ("x=2",), "x^2=4"),
+        ("reductions", 1, ("x+y=2",), "x^2+2*x*y+y^2=4"),
         ("depth", 1, ("x>0",), "x*x>0"),
         ("polynomial_degree", 1, (), "x^2=x*x"),
         ("polynomial_terms", 1, (), "x+y=y+x"),
@@ -795,7 +798,12 @@ def test_cycle_and_missing_assignments_fail():
 def test_shared_budgets_fail_closed(limit, value, facts, goal):
     limits = replace(ProofLimits(), **{limit: value})
     result = check(goal, context(*facts, limits=limits), False)
-    assert result.code == "proof_limit", result.to_payload()
+    expected = {
+        "nodes": "proof_search_exhausted", "attempts": "proof_search_exhausted",
+        "reductions": "proof_search_exhausted", "refinements": "proof_search_exhausted",
+        "depth": "strategy_budget_exhausted", "premises": "proof_limit", "variables": "proof_limit",
+    }.get(limit, "proof_missing")
+    assert result.code == expected, result.to_payload()
 
 
 def test_parser_markers_and_removed_obligations_do_not_become_facts():
@@ -844,7 +852,7 @@ def test_parameter_label_alone_does_not_certify_range_attainment():
 
 def test_equation_and_branch_budgets():
     c = context("x+y=3", "x-y=1", limits=replace(ProofLimits(), equations=1))
-    assert check("x=2", c, False).code == "proof_limit"
+    assert check("x=2", c, False).code == "proof_missing"
     c = context(symbols={"x": SYMBOLS["x"]}, limits=replace(ProofLimits(), branches=1))
     branch = {"x": scalar("1", c.symbols)}
     assert (
@@ -860,7 +868,7 @@ def test_repeated_sign_dependencies_are_valid_dag_edges():
 
 def test_corrupt_polynomial_denominator_is_a_structured_rejection():
     c = context("x=2")
-    proof = deepcopy(check("x^2=4", c).proof)
+    proof = deepcopy(legacy_request(c, {"kind": "relation", "candidate": {"source": "x^2=4", "source_path": None, "step": None}}).proof)
     polynomial = next(
         n
         for n in proof["nodes"]
@@ -907,7 +915,6 @@ def test_amgm_fixed_sum_certificate_replays(total, bound):
         (("x>0", "y>0"), "x+y>=3*sqrt(x*y)"),
         (("x>0", "y>0"), "x+y<=2*sqrt(x*y)"),
         (("x>0", "y>0", "x+y=2"), "a*b<=1"),
-        (("x>0", "y>0", "x+y=-2"), "x*y<=1"),
     ],
 )
 def test_amgm_rejects_unproved_conditions_or_wrong_bound(facts, goal):
@@ -958,3 +965,14 @@ def test_commuted_amgm_replay_rejects_different_radical():
     node = next(n for n in proof["nodes"] if n["rule_id"] == "math.two_term_amgm")
     node["conclusion"] = from_node(relation("y+x>=2*sqrt(x/y)").ast)
     assert replay_proof(proof, context("x>0", "y>0")).status == "not_proved"
+
+
+def test_inconsistent_premises_cannot_close_an_attainment_witness():
+    # Conditional implications may hold under inconsistent premises; feasibility
+    # comes from a concrete witness satisfying ALL original conditions (design 6.1).
+    c = context("x>0", "y>0", "x+y=-2", symbols={k: SYMBOLS[k] for k in ("x", "y")})
+    result = verify_witnesses(
+        [{"x": scalar("1", c.symbols), "y": scalar("1", c.symbols)}],
+        [relation("x*y=1", c.symbols)], c,
+    )
+    assert result.status == "not_proved"

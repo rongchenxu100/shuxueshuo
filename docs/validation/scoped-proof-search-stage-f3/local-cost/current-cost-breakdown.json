@@ -1,0 +1,641 @@
+{
+  "note": "Analysis only. No LLM calls or production changes. Checker identity uses certificate JSON, repr(context), effective limits; it is diagnostic, not an authorization cache key. Instrumented checker run includes diagnostic overhead; use finer_timing for wall time. Nested details overlap.",
+  "checker_breakdown": {
+    "calls": 378,
+    "unique": 101,
+    "total_nodes": 5690,
+    "groups": {
+      "M01 | proof_search.py:run_scheduled_request > method_proof_session.py:run_request > proof_kernel.py:_run_request > expression_rewrite.py:check": {
+        "calls": 36,
+        "nodes": 665,
+        "seconds": 0.09576046006986871
+      },
+      "fact_publication | proof_checker.py:_replay > proof_checker.py:replay_proof > scoped_proof_facts.py:_check_record > scoped_proof_facts.py:replay_record": {
+        "calls": 36,
+        "nodes": 665,
+        "seconds": 0.08859228697838262
+      },
+      "M11 | proof_search.py:run_scheduled_request > method_proof_session.py:run_request > proof_kernel.py:_run_request > inequality_bound_v2.py:certify": {
+        "calls": 3,
+        "nodes": 84,
+        "seconds": 0.026481084001716226
+      },
+      "M11 | proof_search.py:run_scheduled_request > method_proof_session.py:run_request > proof_kernel.py:_run_request > proof_kernel.py:verify_relation_sequence": {
+        "calls": 26,
+        "nodes": 340,
+        "seconds": 0.0694431253359653
+      },
+      "M11 | proof_search.py:run_scheduled_request > method_proof_session.py:run_request > proof_kernel.py:_run_request > amgm_application.py:verify_application": {
+        "calls": 7,
+        "nodes": 110,
+        "seconds": 0.008750541950576007
+      },
+      "M11 | proof_checker.py:_replay > amgm_application.py:verify_application > inequality_bound_v2.py:verify > inequality_evidence.py:verify_bound": {
+        "calls": 9,
+        "nodes": 160,
+        "seconds": 0.013793833961244673
+      },
+      "M11 | proof_checker.py:_replay > method_proof_session.py:run_request > proof_kernel.py:_run_request > proof_kernel.py:verify_relation_sequence": {
+        "calls": 10,
+        "nodes": 208,
+        "seconds": 0.07275408192072064
+      },
+      "M11 | proof_checker.py:_replay > method_proof_session.py:run_request > proof_kernel.py:_run_request > inequality_bound_v2.py:certify": {
+        "calls": 2,
+        "nodes": 54,
+        "seconds": 0.029301834001671523
+      },
+      "fact_publication | proof_checker.py:_replay > inequality_bound_v2.py:certify > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 8,
+        "nodes": 220,
+        "seconds": 0.09339429106330499
+      },
+      "fact_publication | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > local_bound_contract.py:verify_local_application > amgm_application.py:verify_application": {
+        "calls": 12,
+        "nodes": 138,
+        "seconds": 0.05569245992228389
+      },
+      "fact_publication | proof_checker.py:_replay > amgm_application.py:verify_application > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 5,
+        "nodes": 124,
+        "seconds": 0.013074668124318123
+      },
+      "fact_publication | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 56,
+        "nodes": 748,
+        "seconds": 0.19894337427103892
+      },
+      "M11 | proof_checker.py:_replay > inequality_bound_v2.py:certify > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 2,
+        "nodes": 52,
+        "seconds": 0.02139995904872194
+      },
+      "M11 | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > local_bound_contract.py:verify_local_application > amgm_application.py:verify_application": {
+        "calls": 2,
+        "nodes": 42,
+        "seconds": 0.012666333001106977
+      },
+      "M11 | proof_checker.py:_replay > amgm_application.py:verify_application > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 1,
+        "nodes": 24,
+        "seconds": 0.002039541956037283
+      },
+      "M11 | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 14,
+        "nodes": 164,
+        "seconds": 0.038819000066723675
+      },
+      "M12 | proof_checker.py:_replay > inequality_bound_v2.py:certify > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 6,
+        "nodes": 168,
+        "seconds": 0.07016233197646216
+      },
+      "M12 | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > local_bound_contract.py:verify_local_application > amgm_application.py:verify_application": {
+        "calls": 10,
+        "nodes": 96,
+        "seconds": 0.032786790980026126
+      },
+      "M12 | proof_checker.py:_replay > amgm_application.py:verify_application > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 4,
+        "nodes": 100,
+        "seconds": 0.010649707983247936
+      },
+      "M12 | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 42,
+        "nodes": 584,
+        "seconds": 0.20967216900316998
+      },
+      "M12 | proof_search.py:run_scheduled_request > method_proof_session.py:run_request > proof_kernel.py:_run_request > proof_kernel.py:verify_relation_sequence": {
+        "calls": 11,
+        "nodes": 92,
+        "seconds": 0.024227124988101423
+      },
+      "M12 | proof_checker.py:_replay > method_proof_session.py:run_request > proof_kernel.py:_run_request > proof_kernel.py:verify_relation_sequence": {
+        "calls": 8,
+        "nodes": 50,
+        "seconds": 0.0412586260936223
+      },
+      "M12 | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > quadratic_bound.py:verify_quadratic > bound_chain.py:replay_bound": {
+        "calls": 11,
+        "nodes": 92,
+        "seconds": 0.04407420789357275
+      },
+      "fact_publication | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > quadratic_bound.py:verify_quadratic > bound_chain.py:replay_bound": {
+        "calls": 11,
+        "nodes": 92,
+        "seconds": 0.04353795701172203
+      },
+      "M13 | proof_checker.py:_replay > inequality_bound_v2.py:certify > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 3,
+        "nodes": 84,
+        "seconds": 0.034949209017213434
+      },
+      "M13 | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > local_bound_contract.py:verify_local_application > amgm_application.py:verify_application": {
+        "calls": 5,
+        "nodes": 48,
+        "seconds": 0.022336583002470434
+      },
+      "M13 | proof_checker.py:_replay > amgm_application.py:verify_application > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 2,
+        "nodes": 50,
+        "seconds": 0.005404083000030369
+      },
+      "M13 | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > inequality_bound_v2.py:verify > bound_chain.py:replay_bound": {
+        "calls": 21,
+        "nodes": 292,
+        "seconds": 0.0805714579182677
+      },
+      "M13 | proof_checker.py:_replay > proof_kernel.py:verify_relation_sequence > quadratic_bound.py:verify_quadratic > bound_chain.py:replay_bound": {
+        "calls": 11,
+        "nodes": 92,
+        "seconds": 0.0440420001395978
+      },
+      "M13 | proof_search.py:run_scheduled_request > method_proof_session.py:run_request > proof_kernel.py:_run_request > proof_kernel.py:verify_witnesses": {
+        "calls": 2,
+        "nodes": 50,
+        "seconds": 0.030050082015804946
+      },
+      "M13 | proof_checker.py:_replay > inequality_bound_v2.py:close > inequality_evidence.py:close_bound > close_equality_and_restore.py:run": {
+        "calls": 2,
+        "nodes": 2,
+        "seconds": 0.03468458302086219
+      }
+    },
+    "repeated_exact_certificate_and_context": {
+      "M01": {
+        "calls": 8,
+        "seconds": 0.023760583018884063
+      },
+      "fact_publication": {
+        "calls": 128,
+        "seconds": 0.49323503737105057
+      },
+      "M11": {
+        "calls": 26,
+        "seconds": 0.08349304209696129
+      },
+      "M12": {
+        "calls": 73,
+        "seconds": 0.36734520783647895
+      },
+      "M13": {
+        "calls": 42,
+        "seconds": 0.18730333307757974
+      }
+    }
+  },
+  "finer_timing": {
+    "total_seconds": 9.518811999994796,
+    "status": "ok",
+    "answers": {
+      "problem": {
+        "minimum": "4"
+      }
+    },
+    "exclusive_phases": {
+      "input_bundle": {
+        "seconds": 0.04630558396456763,
+        "calls": 1
+      },
+      "debug_artifacts": {
+        "seconds": 0.9787896249908954,
+        "calls": 8
+      },
+      "recorded_response_read": {
+        "seconds": 0.0007154999766498804,
+        "calls": 2
+      },
+      "plan_compilation_binding": {
+        "seconds": 1.7672267489833757,
+        "calls": 2
+      },
+      "fact_authority": {
+        "seconds": 0.003570334054529667,
+        "calls": 5
+      },
+      "fact_index": {
+        "seconds": 0.20500862604239956,
+        "calls": 5
+      },
+      "M01": {
+        "seconds": 0.6835669999709353,
+        "calls": 1
+      },
+      "fact_publication": {
+        "seconds": 1.166789082926698,
+        "calls": 5
+      },
+      "invocation_io": {
+        "seconds": 0.0049249150906689465,
+        "calls": 5
+      },
+      "fact_commit": {
+        "seconds": 0.5133910850272514,
+        "calls": 5
+      },
+      "M11": {
+        "seconds": 1.1016559589770623,
+        "calls": 2
+      },
+      "M12": {
+        "seconds": 1.151210792013444,
+        "calls": 1
+      },
+      "M13": {
+        "seconds": 0.46872862498275936,
+        "calls": 1
+      },
+      "transaction_orchestration": {
+        "seconds": 0.6000737479189411,
+        "calls": 1
+      },
+      "planner_orchestration": {
+        "seconds": 0.19533554301597178,
+        "calls": 1
+      },
+      "unclassified": {
+        "seconds": 0.6315188320586458,
+        "calls": 1
+      }
+    },
+    "inclusive_details": {
+      "debug_artifacts / debug_publish_bytes": {
+        "seconds": 0.17124991165474057,
+        "calls": 294
+      },
+      "debug_artifacts / debug_encode_publish": {
+        "seconds": 0.4293605038546957,
+        "calls": 266
+      },
+      "plan_compilation_binding / execution_evidence_build": {
+        "seconds": 0.15435170801356435,
+        "calls": 2
+      },
+      "plan_compilation_binding / state_payload": {
+        "seconds": 0.13890624995110556,
+        "calls": 2
+      },
+      "plan_compilation_binding / prompt_audit": {
+        "seconds": 0.0002726669772528112,
+        "calls": 2
+      },
+      "plan_compilation_binding / checkpoint_build": {
+        "seconds": 1.513992500025779,
+        "calls": 2
+      },
+      "M01 / checker_replay": {
+        "seconds": 0.15780333400471136,
+        "calls": 36
+      },
+      "M01 / search": {
+        "seconds": 0.5506798340938985,
+        "calls": 36
+      },
+      "fact_publication / premise_index_extend": {
+        "seconds": 0.031487251282669604,
+        "calls": 37
+      },
+      "fact_publication / premise_fact_match": {
+        "seconds": 0.0007294175447896123,
+        "calls": 108
+      },
+      "fact_publication / checker_replay": {
+        "seconds": 0.5187485488713719,
+        "calls": 128
+      },
+      "fact_commit / output_hash": {
+        "seconds": 0.02174591599032283,
+        "calls": 5
+      },
+      "fact_commit / fact_register": {
+        "seconds": 0.49131474999012426,
+        "calls": 5
+      },
+      "M11 / checker_replay": {
+        "seconds": 0.32501521095400676,
+        "calls": 76
+      },
+      "M11 / search": {
+        "seconds": 0.4608646230190061,
+        "calls": 36
+      },
+      "fact_publication / historical_bound_replay": {
+        "seconds": 0.6311691669397987,
+        "calls": 3
+      },
+      "M11 / historical_bound_replay": {
+        "seconds": 0.10548383399145678,
+        "calls": 1
+      },
+      "M12 / checker_replay": {
+        "seconds": 0.44226153806084767,
+        "calls": 92
+      },
+      "M12 / historical_bound_replay": {
+        "seconds": 0.23897862603189424,
+        "calls": 2
+      },
+      "M12 / search": {
+        "seconds": 0.1828991679358296,
+        "calls": 11
+      },
+      "M13 / checker_replay": {
+        "seconds": 0.2425726258661598,
+        "calls": 46
+      },
+      "M13 / historical_bound_replay": {
+        "seconds": 0.2745797499665059,
+        "calls": 1
+      },
+      "M13 / search": {
+        "seconds": 0.10456633399007842,
+        "calls": 2
+      },
+      "plan_compilation_binding / restore_authority_payload": {
+        "seconds": 0.00026662397431209683,
+        "calls": 5
+      },
+      "unclassified / debug_publish_bytes": {
+        "seconds": 0.0024166240473277867,
+        "calls": 4
+      },
+      "unclassified / debug_encode_publish": {
+        "seconds": 0.002618334023281932,
+        "calls": 4
+      }
+    },
+    "events": [
+      {
+        "phase": "input_bundle",
+        "parent": null,
+        "inclusive_seconds": 0.04630558396456763,
+        "exclusive_seconds": 0.04630558396456763
+      },
+      {
+        "phase": "debug_artifacts",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.0227492080302909,
+        "exclusive_seconds": 0.0227492080302909
+      },
+      {
+        "phase": "recorded_response_read",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.00038487499114125967,
+        "exclusive_seconds": 0.00038487499114125967
+      },
+      {
+        "phase": "debug_artifacts",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.006111791997682303,
+        "exclusive_seconds": 0.006111791997682303
+      },
+      {
+        "phase": "debug_artifacts",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.0064751250320114195,
+        "exclusive_seconds": 0.0064751250320114195
+      },
+      {
+        "phase": "plan_compilation_binding",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.01930170803098008,
+        "exclusive_seconds": 0.01930170803098008
+      },
+      {
+        "phase": "debug_artifacts",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.010547083977144212,
+        "exclusive_seconds": 0.010547083977144212
+      },
+      {
+        "phase": "debug_artifacts",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.018807249958626926,
+        "exclusive_seconds": 0.018807249958626926
+      },
+      {
+        "phase": "recorded_response_read",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.00033062498550862074,
+        "exclusive_seconds": 0.00033062498550862074
+      },
+      {
+        "phase": "debug_artifacts",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.006107749999500811,
+        "exclusive_seconds": 0.006107749999500811
+      },
+      {
+        "phase": "debug_artifacts",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.006696583004668355,
+        "exclusive_seconds": 0.006696583004668355
+      },
+      {
+        "phase": "fact_authority",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.0014854170149192214,
+        "exclusive_seconds": 0.0014854170149192214
+      },
+      {
+        "phase": "fact_index",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.000824499991722405,
+        "exclusive_seconds": 0.000824499991722405
+      },
+      {
+        "phase": "M01",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.6835669999709353,
+        "exclusive_seconds": 0.6835669999709353
+      },
+      {
+        "phase": "fact_publication",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.22925299999769777,
+        "exclusive_seconds": 0.22925299999769777
+      },
+      {
+        "phase": "invocation_io",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.9165627909824252,
+        "exclusive_seconds": 0.002918291022069752
+      },
+      {
+        "phase": "fact_commit",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.10847625002497807,
+        "exclusive_seconds": 0.10847625002497807
+      },
+      {
+        "phase": "fact_authority",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.00045600003795698285,
+        "exclusive_seconds": 0.00045600003795698285
+      },
+      {
+        "phase": "fact_index",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.03723554202588275,
+        "exclusive_seconds": 0.03723554202588275
+      },
+      {
+        "phase": "M11",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.5343175000161864,
+        "exclusive_seconds": 0.5343175000161864
+      },
+      {
+        "phase": "fact_publication",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.14582683297339827,
+        "exclusive_seconds": 0.14582683297339827
+      },
+      {
+        "phase": "invocation_io",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.717502583982423,
+        "exclusive_seconds": 0.00012270896695554256
+      },
+      {
+        "phase": "fact_commit",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.0938578339992091,
+        "exclusive_seconds": 0.0938578339992091
+      },
+      {
+        "phase": "fact_authority",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.0004892920260317624,
+        "exclusive_seconds": 0.0004892920260317624
+      },
+      {
+        "phase": "fact_index",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.018510750029236078,
+        "exclusive_seconds": 0.018510750029236078
+      },
+      {
+        "phase": "M11",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.5673384589608759,
+        "exclusive_seconds": 0.5673384589608759
+      },
+      {
+        "phase": "fact_publication",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.2974705829983577,
+        "exclusive_seconds": 0.2974705829983577
+      },
+      {
+        "phase": "invocation_io",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.8841103750164621,
+        "exclusive_seconds": 0.0007905830279923975
+      },
+      {
+        "phase": "fact_commit",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.14050554198911414,
+        "exclusive_seconds": 0.14050554198911414
+      },
+      {
+        "phase": "fact_authority",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.0005633750115521252,
+        "exclusive_seconds": 0.0005633750115521252
+      },
+      {
+        "phase": "fact_index",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.02619500004220754,
+        "exclusive_seconds": 0.02619500004220754
+      },
+      {
+        "phase": "M12",
+        "parent": "invocation_io",
+        "inclusive_seconds": 1.151210792013444,
+        "exclusive_seconds": 1.151210792013444
+      },
+      {
+        "phase": "fact_publication",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.4942311249906197,
+        "exclusive_seconds": 0.4942311249906197
+      },
+      {
+        "phase": "invocation_io",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 1.6725658330251463,
+        "exclusive_seconds": 0.0009289159788750112
+      },
+      {
+        "phase": "fact_commit",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.16788333398289979,
+        "exclusive_seconds": 0.16788333398289979
+      },
+      {
+        "phase": "fact_authority",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.0005762499640695751,
+        "exclusive_seconds": 0.0005762499640695751
+      },
+      {
+        "phase": "fact_index",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.12224283395335078,
+        "exclusive_seconds": 0.12224283395335078
+      },
+      {
+        "phase": "M13",
+        "parent": "invocation_io",
+        "inclusive_seconds": 0.46872862498275936,
+        "exclusive_seconds": 0.46872862498275936
+      },
+      {
+        "phase": "fact_publication",
+        "parent": "invocation_io",
+        "inclusive_seconds": 7.541966624557972e-06,
+        "exclusive_seconds": 7.541966624557972e-06
+      },
+      {
+        "phase": "invocation_io",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.5911434169975109,
+        "exclusive_seconds": 0.00016441609477624297
+      },
+      {
+        "phase": "fact_commit",
+        "parent": "transaction_orchestration",
+        "inclusive_seconds": 0.0026681250310502946,
+        "exclusive_seconds": 0.0026681250310502946
+      },
+      {
+        "phase": "transaction_orchestration",
+        "parent": "plan_compilation_binding",
+        "inclusive_seconds": 5.89892016700469,
+        "exclusive_seconds": 0.6000737479189411
+      },
+      {
+        "phase": "plan_compilation_binding",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 7.646845207957085,
+        "exclusive_seconds": 1.7479250409523956
+      },
+      {
+        "phase": "debug_artifacts",
+        "parent": "planner_orchestration",
+        "inclusive_seconds": 0.9012948329909705,
+        "exclusive_seconds": 0.9012948329909705
+      },
+      {
+        "phase": "planner_orchestration",
+        "parent": null,
+        "inclusive_seconds": 8.840987583971582,
+        "exclusive_seconds": 0.19533554301597178
+      }
+    ],
+    "note": "Lightweight nested timers. exclusive_phases are disjoint and sum to total; inclusive_details overlap and must not be summed. No provider call. Timers include incremental premise-index construction."
+  }
+}

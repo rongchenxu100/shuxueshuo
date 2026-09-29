@@ -1,0 +1,39 @@
+......................................F................................. [ 93%]
+.....                                                                    [100%]
+=================================== FAILURES ===================================
+___________ test_review_local_definition_fact_does_not_poison_search ___________
+
+    def test_review_local_definition_fact_does_not_poison_search():
+        store = environment()
+        overlay = store.begin("first")
+        root = overlay.view.facts[0]
+        conditional = replace(
+            root,
+            relation="x!=0",
+            source="definition-local",
+            validity=replace(root.validity, definition_refs=("definition:local",)),
+        )
+        overlay._candidates.append(conditional)
+>       overlay.prove_scheduled("x!=0")
+
+tests/solver/test_scoped_proof_search_stage_d.py:635: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+shuxueshuo_server/solver/runtime/scoped_proof_facts.py:595: in prove_scheduled
+    return self.replay_record(
+shuxueshuo_server/solver/runtime/scoped_proof_facts.py:700: in replay_record
+    self._check_verified_state()
+shuxueshuo_server/solver/runtime/scoped_proof_facts.py:694: in _check_verified_state
+    require(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, message = 'verified evidence was modified'
+
+    def require(condition, message):
+        if not condition:
+>           raise ValueError("proof_facts: " + message)
+E           ValueError: proof_facts: verified evidence was modified
+
+shuxueshuo_server/solver/runtime/scoped_proof_facts.py:38: ValueError
+=========================== short test summary info ============================
+FAILED tests/solver/test_scoped_proof_search_stage_d.py::test_review_local_definition_fact_does_not_poison_search
+1 failed, 76 passed in 30.31s

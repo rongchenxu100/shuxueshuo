@@ -1,7 +1,7 @@
 """Bounded-real search capabilities. Scheduling lives in proof_search.
 
 These constructors only propose existing rules; _Environment.add checks every
-node. The legacy search remains separate during migration and is never a fallback.
+node. Historical search is archived in tools only and is never a runtime fallback.
 """
 
 from __future__ import annotations
@@ -282,30 +282,48 @@ class RealSearchTools(_Environment):
                     )
         raise ProofFailure("proof_missing", "interval sign not established")
 
-    def substitution(self, g):
+    def substitution(self, g, *, ground_only=False):
         mapping, bindings, equations = ({}, [], [])
-        for key, p in self.premises.items():
-            if p[0] != "=":
-                continue
-            for side in (1, 2):
-                if (
-                    p[side][0] == "symbol"
-                    and p[side][1] in names(g)
-                    and (p[side][1] not in names(p[3 - side]))
-                ):
-                    name = p[side][1]
-                    if name not in mapping:
-                        mapping[name] = p[3 - side]
-                        bindings.append({"premise_id": key, "side": side})
-                        equations.append(p)
-                    break
+        pending = set(names(g))
+        available = list(self.premises.items())
+        for _ in range(len(self.symbols)):
+            for key, p in available:
+                if p[0] != "=":
+                    continue
+                for side in (1, 2):
+                    if (
+                        p[side][0] == "symbol"
+                        and p[side][1] in pending
+                        and (p[side][1] not in names(p[3 - side]))
+                    ):
+                        name = p[side][1]
+                        if name not in mapping:
+                            mapping[name] = p[3 - side]
+                            bindings.append({"premise_id": key, "side": side})
+                            equations.append(p)
+                            pending.update(names(p[3 - side]))
+                        break
         if not mapping:
             raise ProofFailure("proof_missing", "no substitution")
         _noncyclic(mapping)
+        replaced = substitute(g, mapping)
+        if ground_only:
+            # Eligibility follows the entire acyclic dependency graph. Keep the
+            # one-step substitution below: the checker and historical proofs
+            # still verify every equation and each intermediate substitution.
+            unresolved = set(names(replaced))
+            visited = set()
+            while unresolved:
+                name = unresolved.pop()
+                if name not in mapping:
+                    return None
+                if name not in visited:
+                    visited.add(name)
+                    unresolved.update(names(mapping[name]) - visited)
         return self.raw(
             "substitution",
             g,
-            [*equations, substitute(g, mapping)],
+            [*equations, replaced],
             {"bindings": bindings},
         )
 
@@ -314,6 +332,10 @@ def given(self, g):
     for key, premise in self.premises.items():
         if premise == g:
             return self.add("given", g, certificate={"premise_id": key})
+
+
+def verified_fragment(self, g):
+    return self.seed_provider(self, g) if self.seed_provider else None
 
 
 def constant(self, g):
@@ -395,6 +417,45 @@ def operand_signs(self, g):
                 except ProofFailure:
                     continue
                 return self.raw("sign", g, required)
+
+
+def positive_components(self, g):
+    """Compose positive subexpressions without searching unrelated sign cases.
+
+    A known positive composite (e.g. z-h) is a leaf, just like a positive
+    variable. This is structural matching only; every edge uses the sign checker.
+    """
+    if g[0] not in {">", ">=", "!="} or g[2] != ZERO or g[1][0] not in {"add", "mul", "div"}:
+        return None
+    known = set(self.premises.values())
+
+    def positive(e):
+        if (">", e, ZERO) in known or (">", e, ZERO) in self.cache:
+            return True
+        if e[0] == "rat":
+            return Q(int(e[1]), int(e[2])) > 0
+        return e[0] in {"add", "mul", "div"} and all(positive(c) for c in e[1:])
+
+    if all(positive(c) for c in g[1][1:]):
+        return self.raw("sign", g, [(">", c, ZERO) for c in g[1][1:]])
+
+
+def nonnegative_components(self, g):
+    """Compose explicit weak signs without first guessing strict positivity."""
+    known = set(self.premises.values())
+
+    def nonnegative(e):
+        if any((op, e, ZERO) in known for op in (">", ">=", "=")):
+            return True
+        if e[0] == "rat":
+            return Q(int(e[1]), int(e[2])) >= 0
+        if e[0] == "pow":
+            exponent = signed_integer(e[2])
+            return exponent is not None and exponent > 0 and exponent % 2 == 0
+        return e[0] in {"add", "mul"} and all(nonnegative(c) for c in e[1:])
+
+    if all(nonnegative(c) for c in g[1][1:]):
+        return self.raw("sign", g, [(">=", c, ZERO) for c in g[1][1:]])
 
 
 def same_difference(self, g):
@@ -623,6 +684,22 @@ def equality_bound(self, g):
                         return self.raw(
                             "equality_bound_transport", g, [equality, bound]
                         )
+
+
+def endpoint_transport(self, g):
+    ordered_goal = _ordered(g)
+    if not ordered_goal:
+        return
+    for premise in self.premises.values():
+        ordered = _ordered(premise)
+        if (ordered and ordered[0] == ordered_goal[0]
+                and ordered[2] == ordered_goal[2]
+                and ordered[1] != ordered_goal[1]):
+            equality = ("=", ordered_goal[1], ordered[1])
+            found = self.attempt(partial(
+                self.raw, "equality_bound_transport", g, [equality, premise]))
+            if found:
+                return found
 
 
 def sum_bound(self, g):
@@ -960,6 +1037,21 @@ def factor_nonzero(self, g):
                         return found
 
 
+def known_product_nonzero(self, g):
+    for premise in self.premises.values():
+        if premise[0] != "=":
+            continue
+        for product, value in (premise[1:], premise[1:][::-1]):
+            literal = self.arithmetic.literal_rational(value)
+            if (product[0] == "mul" and literal is not None and literal != 0
+                    and g[1] in _factors(product)):
+                nonzero = ("!=", product, ZERO)
+                core = self.raw("equal_sign", nonzero, [("=", product, value), ("!=", value, ZERO)])
+                guards = [self.need(d) for d in domains(nonzero)]
+                checked = self.add("guard", nonzero, [core, *guards])
+                return self.add("factor_nonzero", g, [checked])
+
+
 def product_sign(self, g):
     if g[1][0] == "mul":
         for left in self.premises.values():
@@ -1029,6 +1121,10 @@ def substitution(self, g):
         return found
 
 
+def ground_substitution(self, g):
+    return self.substitution(g, ground_only=True)
+
+
 def identity(self, g):
     return self.polynomial(g, identities_only=True)
 
@@ -1041,12 +1137,15 @@ CAPABILITIES = (
     ("identity", 2, 0, identity),
     ("root_sign", 1, 0, root_sign),
     ("given", 0, 0, given),
+    ("verified_fragment", 1, 2, verified_fragment),
     ("constant", 1, 0, constant),
     ("cancel_sign", 2, 0, cancel_sign),
     ("power_sign", 1, 0, power_sign),
     ("positive_denominator", 1, 0, positive_denominator),
     ("nonzero_product", 1, 0, nonzero_product),
     ("operand_signs", 1, 0, operand_signs),
+    ("positive_components", 1, 0, positive_components),
+    ("nonnegative_components", 1, 0, nonnegative_components),
     ("same_difference", 2, 1, same_difference),
     ("known_transitivity", 2, 1, known_transitivity),
     ("scalar_transitivity", 2, 0, scalar_transitivity),
@@ -1068,17 +1167,20 @@ CAPABILITIES = (
     ("explicit_sign_transport", 2, 0, explicit_sign_transport),
     ("explicit_difference", 2, 0, explicit_difference),
     ("equation_factor", 2, 2, equation_factor),
-    ("polynomial_transport", 4, 2, polynomial_transport),
-    ("equality", 4, 1, equality),
+    ("polynomial_transport", 3, 4, polynomial_transport),
+    ("equality", 2, 3, equality),
+    ("endpoint_transport", 2, 3, endpoint_transport),
     ("root_monotone", 3, 0, root_monotone),
     ("reciprocal_relation", 3, 1, reciprocal_relation),
     ("difference", 4, 0, difference),
     ("factor_nonzero", 2, 1, factor_nonzero),
+    ("known_product_nonzero", 1, 0, known_product_nonzero),
     ("product_sign", 1, 0, product_sign),
     ("polynomial_scale", 4, 3, polynomial_scale),
     ("structural_sign", 4, 4, structural_sign),
     ("interval", 3, 2, interval),
     ("equation_sign", 2, 1, equation_sign),
+    ("ground_substitution", 1, 2, ground_substitution),
     ("substitution", 4, 3, substitution),
 )
 
@@ -1088,6 +1190,7 @@ class ScheduledRealSearch(RealSearchTools):
         super().__init__(context, request, budget=budget)
         self.arithmetic = SearchArithmetic(budget)
         self.policy, self.manifest_hash = policy, manifest_hash
+        self.cache_authority = (RULESET_HASH, self.context_hash, manifest_hash, policy.fingerprint)
         self.cache, self.active, self.requests = {}, set(), []
         self.scheduler = None
         self.seed_provider = None
@@ -1151,6 +1254,28 @@ class ScheduledRealSearch(RealSearchTools):
         if goal in self.cache:
             self.budget.cache_hits += 1
             return self.cache[goal]
+        # Reuse a checked subgraph only under the identical search authority.
+        # Successful subgoals of abandoned candidates remain valid; their work
+        # was charged and every imported node is checked again on attachment.
+        shared_key = (*self.cache_authority, goal)
+        if shared_key in self.budget.proven_goals:
+            graph, root, reads = self.budget.proven_goals[shared_key]
+            imported = {}
+
+            def attach(key):
+                if key not in imported:
+                    node = graph[key]
+                    imported[key] = self.add(
+                        node.rule_id.removeprefix("math."), node.conclusion,
+                        [attach(c) for c in node.children], node.certificate)
+                    if key in reads:
+                        self.seed_reads[imported[key]] = reads[key]
+                return imported[key]
+
+            result = attach(root)
+            self.cache[goal] = result
+            self.budget.cache_hits += 1
+            return result
         if goal in self.active:
             raise ProofFailure("proof_missing", "active goal cycle")
         if len(self.active) >= self.budget.limits.depth:
@@ -1159,11 +1284,11 @@ class ScheduledRealSearch(RealSearchTools):
         self.active.add(goal)
         try:
             guards = tuple(self.need(d) for d in domains(goal))
-            root = self.seed_provider(self, goal) if self.seed_provider else None
-            if root is None:
-                root = self.scheduler.prove(self, goal)
+            root = self.scheduler.prove(self, goal)
             result = self.add("guard", goal, (root, *guards))
             self.cache[goal] = result
+            self.budget.proven_goals[shared_key] = (
+                dict(self.by_id), result, dict(self.seed_reads))
             return result
         finally:
             self.active.remove(goal)
@@ -1220,6 +1345,8 @@ def real_strategy_package():
         "positive_denominator": ("sign",),
         "nonzero_product": ("sign",),
         "operand_signs": ("sign",),
+        "positive_components": ("sign",),
+        "nonnegative_components": ("sign",),
         "same_difference": ("weaken", "polynomial", "relation_transport"),
         "known_transitivity": ("transitive",),
         "scalar_transitivity": ("transitive",),
@@ -1255,7 +1382,12 @@ def real_strategy_package():
         "substitution": ("substitution",),
     }
     primary.update(identity=("polynomial",), root_sign=("sign",))
+    primary["endpoint_transport"] = ("equality_bound_transport",)
+    primary["ground_substitution"] = ("substitution",)
+    primary["known_product_nonzero"] = ("equal_sign", "factor_nonzero")
     equal = {
+        "verified_fragment",
+        "ground_substitution",
         "equality",
         "substitution",
         "constant",
@@ -1299,6 +1431,7 @@ def real_strategy_package():
                     "polynomial_transport",
                     "equation_sign",
                     "substitution",
+                    "ground_substitution",
                 }
                 else ()
             )
@@ -1317,11 +1450,15 @@ def real_strategy_package():
                 else ()
             )
             if name == "identity":
-                applicable = op == "="
+                applicable = op == "=" and not any(
+                    side[0] == "symbol" and side[1] not in names(other)
+                    for side, other in ((left, right), (right, left)))
             elif name == "root_sign":
                 applicable = is_sign and left[0] == "sqrt"
             elif name == "given":
                 applicable = goal in values
+            elif name == "verified_fragment":
+                applicable = engine.seed_provider is not None
             elif name == "constant" or name == "constant_sum":
                 applicable = not names(goal)
             elif name == "cancel_sign":
@@ -1332,6 +1469,10 @@ def real_strategy_package():
                 applicable = is_sign and left[0] == "div" and (not names(left[2]))
             elif name == "nonzero_product":
                 applicable = is_sign and op == "!=" and (left[0] in {"mul", "div"})
+            elif name == "positive_components":
+                applicable = is_sign and op in {">", ">=", "!="} and left[0] in {"add", "mul", "div"}
+            elif name == "nonnegative_components":
+                applicable = is_sign and op == ">=" and left[0] in {"add", "mul"}
             elif name == "operand_signs":
                 applicable = is_sign and left[0] in {"add", "sub", "mul", "div"}
             elif name == "same_difference":
@@ -1348,6 +1489,8 @@ def real_strategy_package():
                 )
             elif name == "strict_nonzero":
                 applicable = op == "!="
+            elif name == "known_product_nonzero":
+                applicable = op == "!=" and is_sign
             elif name == "normalize_reciprocal":
                 applicable = ordered and left[0] == right[0] == "div"
             elif name == "reciprocal_monotone":
@@ -1362,6 +1505,13 @@ def real_strategy_package():
                 )
             elif name == "reorder_bound":
                 applicable = ordered and any(p[0] == op for p in relevant)
+            elif name == "endpoint_transport":
+                goal_order = _ordered(goal)
+                applicable = goal_order is not None and any(
+                    p is not None and p[0] == goal_order[0]
+                    and p[2] == goal_order[2] and p[1] != goal_order[1]
+                    for p in map(_ordered, values)
+                )
             elif name == "equality_bound":
                 applicable = ordered and bool(equations)
             elif name == "sum_bound":
@@ -1426,7 +1576,7 @@ def real_strategy_package():
                 applicable = len(names(goal)) == 1
             elif name == "equation_sign":
                 applicable = is_sign and any(left in p[1:] for p in equations)
-            elif name == "substitution":
+            elif name in {"substitution", "ground_substitution"}:
                 applicable = bool(equations)
             else:
                 raise ValueError("unknown strategy: " + name)

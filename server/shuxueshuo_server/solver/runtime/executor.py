@@ -532,7 +532,7 @@ class InvocationExecutor:
                 service = method_search_service(overlay)
                 with use_proof_session(service):
                     result = method.run(inputs, kernel_service)
-                publish_method_result(overlay, inputs, result)
+                publish_method_result(overlay, inputs, result, checked=service)
         except StatelessMethodError as exc:
             input_authorities = {
                 **invocation.supporting_input_read_authorities,

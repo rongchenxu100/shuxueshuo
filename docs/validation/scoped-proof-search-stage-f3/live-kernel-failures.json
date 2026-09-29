@@ -1,0 +1,67 @@
+[
+  {
+    "request": {
+      "kind": "relation",
+      "candidate": {
+        "source": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2 = 25*(c-a/5)^2+a^2+1/(a*b)+1/(a*(a-b))",
+        "source_path": "/derived_relations/0/math",
+        "step": 0
+      }
+    },
+    "premises": {
+      "fact:problem:condition_0": "(a>b)",
+      "fact:problem:condition_1": "(b>c)",
+      "fact:problem:condition_2": "(c>0)",
+      "quadratic:verified:0": "((a)*(b))!=(0)",
+      "quadratic:verified:1": "((a)*((a)-(b)))!=(0)",
+      "quadratic:verified:2": "(25)>0",
+      "quadratic:verified:3": "((a - 5*c)**2)>=0",
+      "quadratic:verified:4": "((a - 5*c)**2)>=0",
+      "quadratic:verified:5": "(2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2)=(((a - 5*c)**2)+(a^2+1/(a*b)+1/(a*(a-b))))",
+      "quadratic:verified:6": "(((a - 5*c)**2)+(a^2+1/(a*b)+1/(a*(a-b))))>=(a^2+1/(a*b)+1/(a*(a-b)))"
+    },
+    "error": "polynomial degree limit",
+    "code": "proof_limit"
+  },
+  {
+    "request": {
+      "kind": "relation",
+      "candidate": {
+        "source": "2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2 = 25*(c-a/5)^2+a^2+1/(a*b)+1/(a*(a-b))",
+        "source_path": "/derived_relations/0/math",
+        "step": 0
+      }
+    },
+    "premises": {
+      "fact:problem:condition_0": "(a>b)",
+      "fact:problem:condition_1": "(b>c)",
+      "fact:problem:condition_2": "(c>0)",
+      "quadratic:verified:0": "((a)*(b))!=(0)",
+      "quadratic:verified:1": "((a)*((a)-(b)))!=(0)",
+      "quadratic:verified:2": "(25)>0",
+      "quadratic:verified:3": "((a - 5*c)**2)>=0",
+      "quadratic:verified:4": "((a - 5*c)**2)>=0",
+      "quadratic:verified:5": "(2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2)=(((a - 5*c)**2)+(a^2+1/(a*b)+1/(a*(a-b))))",
+      "quadratic:verified:6": "(((a - 5*c)**2)+(a^2+1/(a*b)+1/(a*(a-b))))>=(a^2+1/(a*b)+1/(a*(a-b)))"
+    },
+    "error": "polynomial degree limit",
+    "code": "proof_limit"
+  },
+  {
+    "request": {
+      "kind": "relation",
+      "candidate": {
+        "source": "25*(c-a/5)^2 >= 0",
+        "source_path": null,
+        "step": null
+      }
+    },
+    "premises": {
+      "fact:problem:condition_0": "(a>b)",
+      "fact:problem:condition_1": "(b>c)",
+      "fact:problem:condition_2": "(c>0)"
+    },
+    "error": "bounded strategies exhausted; relation not established",
+    "code": "strategy_budget_exhausted"
+  }
+]

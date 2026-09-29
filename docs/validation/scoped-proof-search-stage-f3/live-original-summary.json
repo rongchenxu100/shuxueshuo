@@ -1,0 +1,165 @@
+{
+  "runs": [
+    {
+      "sample": 1,
+      "status": "failed",
+      "answers": {},
+      "elapsed_seconds": 150.2112221660209,
+      "output": "internal/review-analysis/scoped-proof-search-stage-f3/live-01/planner-01",
+      "calls": [
+        {
+          "attempt": 1,
+          "provider_invocation_id": 1,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 10775,
+            "completion_tokens": 12200,
+            "total_tokens": 22975
+          }
+        },
+        {
+          "attempt": 2,
+          "provider_invocation_id": 2,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 11537,
+            "completion_tokens": 5990,
+            "total_tokens": 17527
+          }
+        },
+        {
+          "attempt": 3,
+          "provider_invocation_id": 3,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 13329,
+            "completion_tokens": 9323,
+            "total_tokens": 22652
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 35641,
+        "completion_tokens": 27513,
+        "total_tokens": 63154
+      },
+      "attempt_count": 3,
+      "mixed_chain_executed": false,
+      "full_chain_executed": false
+    },
+    {
+      "sample": 2,
+      "status": "failed",
+      "answers": {},
+      "elapsed_seconds": 150.36435004201485,
+      "output": "internal/review-analysis/scoped-proof-search-stage-f3/live-01/planner-02",
+      "calls": [
+        {
+          "attempt": 1,
+          "provider_invocation_id": 1,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 10775,
+            "completion_tokens": 15730,
+            "total_tokens": 26505
+          }
+        },
+        {
+          "attempt": 2,
+          "provider_invocation_id": 2,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 11274,
+            "completion_tokens": 11034,
+            "total_tokens": 22308
+          }
+        },
+        {
+          "attempt": 3,
+          "provider_invocation_id": 3,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 11250,
+            "completion_tokens": 9450,
+            "total_tokens": 20700
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 33299,
+        "completion_tokens": 36214,
+        "total_tokens": 69513
+      },
+      "attempt_count": 3,
+      "mixed_chain_executed": false,
+      "full_chain_executed": false
+    },
+    {
+      "sample": 3,
+      "status": "failed",
+      "answers": {},
+      "elapsed_seconds": 133.9565714999917,
+      "output": "internal/review-analysis/scoped-proof-search-stage-f3/live-01/planner-03",
+      "calls": [
+        {
+          "attempt": 1,
+          "provider_invocation_id": 1,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 10775,
+            "completion_tokens": 10298,
+            "total_tokens": 21073
+          }
+        },
+        {
+          "attempt": 2,
+          "provider_invocation_id": 2,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 11107,
+            "completion_tokens": 9139,
+            "total_tokens": 20246
+          }
+        },
+        {
+          "attempt": 3,
+          "provider_invocation_id": 3,
+          "request_model": "deepseek-v4-flash",
+          "response_model": "deepseek-flash",
+          "usage": {
+            "prompt_tokens": 11134,
+            "completion_tokens": 7468,
+            "total_tokens": 18602
+          }
+        }
+      ],
+      "usage": {
+        "prompt_tokens": 33016,
+        "completion_tokens": 26905,
+        "total_tokens": 59921
+      },
+      "attempt_count": 3,
+      "mixed_chain_executed": false,
+      "full_chain_executed": false
+    }
+  ],
+  "wall_seconds": 284.17153316701297,
+  "call_seconds": 434.53214370802743,
+  "usage": {
+    "prompt_tokens": 101956,
+    "completion_tokens": 90632,
+    "total_tokens": 192588
+  },
+  "first_attempt_success": 0,
+  "successful_runs": 0,
+  "mixed_chain_covered": false,
+  "full_chain_successful_runs": 0
+}

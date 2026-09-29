@@ -77,10 +77,11 @@ def necessary_relations(proof, path):
             yield FactCandidate(_text(relation), kind, f"{path}/nodes/{key}")
 
 
-def replay_method(method_id, target, evidence):
-    """Replay existing Method evidence, then project only certified operations.
+def replay_method(method_id, target, evidence, *, checked=None):
+    """Project certified operations, reusing exact results from this invocation.
 
     target is supplied by Runtime admission, never trusted from the evidence.
+    With no matching checked result, independently replay the supplied evidence.
     Return names of definitions separately so Runtime gives them fresh identity.
     M13 witness/attainment hypotheses intentionally have no publication adapter.
     """
@@ -106,7 +107,9 @@ def replay_method(method_id, target, evidence):
         from ..math_kernel.bound_chain import replay_bound
         from ..math_kernel.inequality_bound_v2 import public
 
-        rebuilt = replay_bound(target, evidence)
+        rebuilt = checked.checked_bound(target, evidence) if checked is not None else None
+        if rebuilt is None:
+            rebuilt = replay_bound(target, evidence)
         expected = (
             "quadratic-bound/v1"
             if method_id == "bound_univariate_quadratic"

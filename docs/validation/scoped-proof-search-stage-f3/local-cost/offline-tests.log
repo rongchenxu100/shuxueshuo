@@ -1,0 +1,108 @@
+
+$ <repo>/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 4 --dist worksteal
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  1%]
+........................................................................ [  3%]
+........................................................................ [  4%]
+........................................................................ [  6%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 19%]
+........................................................................ [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 25%]
+........................................................................ [ 27%]
+........................................................................ [ 28%]
+........................................................................ [ 30%]
+........................................................................ [ 31%]
+........................................................................ [ 33%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 37%]
+........................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 58%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+........................................................................ [ 63%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 70%]
+........................................................................ [ 72%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 76%]
+........................................................................ [ 78%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+........................................................................ [ 82%]
+........................................................................ [ 84%]
+........................................................................ [ 85%]
+........................................................................ [ 87%]
+........................................................................ [ 89%]
+........................................................................ [ 90%]
+........................................................................ [ 92%]
+........................................................................ [ 93%]
+........................................................................ [ 95%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+........................................................................ [ 99%]
+.....................                                                    [100%]
+============================= slowest 30 durations =============================
+46.07s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_frozen_f3_live_responses_close_without_new_model_calls[1]
+37.09s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_authenticated_scope_native_protocol_probes
+29.23s setup    tests/solver/test_five_case_recorded_lesson_pages.py::test_all_five_recorded_cases_build_recursive_lesson_and_visual_pages
+24.27s call     tests/solver/test_live14_repairs.py::test_original_first_response_end_to_end[1]
+21.53s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[1]
+19.46s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[2]
+18.72s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_frozen_f3_live_responses_close_without_new_model_calls[3]
+18.07s setup    tests/solver/test_lesson_capability_coverage.py::test_recorded_and_typed_synthetic_execution_cover_all_public_capabilities
+18.05s setup    tests/solver/test_lesson_teaching_c1_smoke.py::test_c1_cases_are_rebuilt_from_all_five_verified_snapshots
+18.04s call     tests/solver/test_live14_repairs.py::test_original_first_response_end_to_end[3]
+17.50s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[3]
+16.98s call     tests/solver/test_scoped_proof_search_stage_e.py::test_q30_real_method_chain_with_scoped_search
+15.44s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_frozen_f3_live_responses_close_without_new_model_calls[2]
+15.15s call     tests/solver/test_scoped_proof_search_stage_a.py::test_recorded_baseline_runs_real_runtime_and_replay
+13.68s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_seven_steps_and_semantic_visuals[True]
+13.65s call     tests/solver/test_lesson_capability_coverage.py::test_all_public_teaching_materials_contain_no_english_prose
+13.56s call     tests/solver/test_lesson_capability_coverage.py::test_all_public_teaching_materials_hide_internal_math_syntax
+13.40s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_seven_steps_and_semantic_visuals[False]
+12.75s call     tests/solver/test_scoped_proof_search_stage_e.py::test_v2_compiled_lesson[q30]
+12.74s call     tests/solver/test_scoped_proof_search_stage_a.py::test_m01_scope_domain_available_with_partial_condition_hints[hints1]
+12.53s call     tests/solver/test_lesson_capability_coverage.py::test_review_has_one_card_per_public_capability
+12.52s call     tests/solver/test_live12_repairs.py::test_q30_m01_omitted_conditions_are_runtime_bound[False]
+12.41s call     tests/solver/test_lesson_capability_coverage.py::test_every_public_function_projects_its_key_student_computation
+12.39s call     tests/solver/test_basic_inequality_stage5c.py::test_alternate_q30_page_preserves_local_remainder_and_method_order
+12.37s call     tests/solver/test_lesson_capability_coverage.py::test_c0_regression_fixtures_match_current_public_registry
+12.36s call     tests/solver/test_live12_repairs.py::test_q30_m01_omitted_conditions_are_runtime_bound[True]
+12.32s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_consumes_mixed_bound_chain[False]
+12.05s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_consumes_mixed_bound_chain[True]
+11.98s call     tests/solver/test_scoped_proof_search_stage_a.py::test_m01_scope_domain_available_with_partial_condition_hints[hints0]
+11.97s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_default_q30_creates_full_scoped_committed_chain
+4773 passed in 457.68s (0:07:37)
+
+$ <repo>/server/.venv/bin/python -m pytest tests/solver -q -m (not live_llm) and serial -n 0 --durations 30
+
+4797 deselected in 1.41s

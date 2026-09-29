@@ -571,35 +571,99 @@
     "execution_evidence": {
       "oneOf": [
         {
-          "type": "object",
-          "additionalProperties": false,
-          "required": [
-            "schema_version",
-            "step_id",
-            "source_hash",
-            "commit",
-            "evidence_id"
-          ],
-          "properties": {
-            "schema_version": {
-              "const": "scoped-proof-commit/v1"
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "schema_version",
+                "step_id",
+                "source_hash",
+                "commit",
+                "evidence_id"
+              ],
+              "properties": {
+                "schema_version": {
+                  "const": "scoped-proof-commit/v1"
+                },
+                "step_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_hash": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "commit": {
+                  "type": "object"
+                }
+              }
             },
-            "step_id": {
-              "type": "string",
-              "minLength": 1
-            },
-            "source_hash": {
-              "type": "string",
-              "minLength": 1
-            },
-            "evidence_id": {
-              "type": "string",
-              "minLength": 1
-            },
-            "commit": {
-              "type": "object"
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "schema_version",
+                "step_id",
+                "source_hash",
+                "commit_ref",
+                "evidence_id"
+              ],
+              "properties": {
+                "schema_version": {
+                  "const": "scoped-proof-commit-ref/v1"
+                },
+                "step_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "source_hash": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "evidence_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "commit_ref": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "call_id",
+                    "commit_id",
+                    "dependencies",
+                    "proof_reads"
+                  ],
+                  "properties": {
+                    "call_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "commit_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "dependencies": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "proof_reads": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
             }
-          }
+          ]
         },
         {
           "title": "EliminationTeachingEvidence",

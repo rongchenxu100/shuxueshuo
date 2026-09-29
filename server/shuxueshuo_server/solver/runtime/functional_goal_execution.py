@@ -550,6 +550,16 @@ class FunctionalGoalExecutionScope:
         return payload
 
 
+
+def _freeze_restore_value(value):
+    """Own immutable nested restore data before retaining its encoded payload."""
+    if isinstance(value, dict):
+        return MappingProxyType({k: _freeze_restore_value(v) for k, v in value.items()})
+    if isinstance(value, list):
+        return tuple(_freeze_restore_value(v) for v in value)
+    return value
+
+
 @dataclass(frozen=True)
 class FunctionalExecutionRestoreState:
     """Private typed namespaces and signatures owned by one Goal checkpoint."""
@@ -593,7 +603,7 @@ class FunctionalExecutionRestoreState:
                 self,
                 name,
                 tuple(
-                    MappingProxyType(dict(_mapping(item)))
+                    _freeze_restore_value(_json_safe_value(_mapping(item)))
                     for item in getattr(self, name)
                 ),
             )
@@ -607,13 +617,22 @@ class FunctionalExecutionRestoreState:
                 name,
                 MappingProxyType(dict(sorted(getattr(self, name).items()))),
             )
-        object.__setattr__(
-            self,
-            "restore_signature",
-            stable_hash(self._payload(include_signature=False)),
-        )
+        payload = self._payload(include_signature=False)
+        signature = stable_hash(payload)
+        object.__setattr__(self, "restore_signature", signature)
+        # Immutable bytes, not a mutable shared dict. Export remains detached;
+        # no recursive normalization or proof JSON expansion on each export.
+        object.__setattr__(self, "_authority_json", canonical({
+            **payload, "restore_signature": signature,
+        }))
 
     def _payload(self, *, include_signature: bool) -> dict[str, Any]:
+        encoded = getattr(self, "_authority_json", None)
+        if encoded is not None:
+            payload = json.loads(encoded)
+            if not include_signature:
+                payload.pop("restore_signature")
+            return payload
         payload = {
             **(
                 {"proof_facts": json.loads(self.proof_facts_json)}
@@ -1210,6 +1229,13 @@ class FunctionalGoalExecutionCheckpoint:
             ),
             checkpoint_id=str(candidate["checkpoint_id"]),
         )
+        proof_payload = _mapping(candidate["restore_state"]).get("proof_facts", {})
+        commits = {item["call_id"]: item for item in proof_payload.get("commits", ())}
+        for scope in _iter_execution_scopes(checkpoint.root_scope):
+            for step in (*scope.scope_steps, *(s for g in scope.goals for s in g.steps)):
+                for evidence in step.evidence:
+                    if isinstance(evidence, ProofFactsExecutionEvidence):
+                        evidence.verify_reference(proof_payload.get("source_hash"), commits)
         expected = stable_hash(_checkpoint_identity_payload(checkpoint))
         if checkpoint.checkpoint_id != expected:
             raise FunctionalGoalExecutionCheckpointError(
@@ -2969,9 +2995,9 @@ def _transaction_execution_evidence(
             items.extend(compiled.inequality_teaching_evidence)
             if result.proof_commit is not None:
                 store = transaction.execution_report.runtime_context.proof_facts
-                items.append(ProofFactsExecutionEvidence(
+                items.append(ProofFactsExecutionEvidence.from_commit(
                     result.call_id, store.snapshot.source_hash,
-                    canonical(result.proof_commit),
+                    result.proof_commit,
                 ))
         closure = result.symbolic_closure if result is not None else None
         if (

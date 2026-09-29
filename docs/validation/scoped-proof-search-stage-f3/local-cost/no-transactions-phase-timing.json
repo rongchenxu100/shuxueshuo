@@ -1,0 +1,418 @@
+{
+  "total_seconds": 12.040755165973678,
+  "status": "ok",
+  "answers": {
+    "problem": {
+      "minimum": "4"
+    }
+  },
+  "exclusive_phases": {
+    "input_bundle": {
+      "seconds": 0.04810037498828024,
+      "calls": 1
+    },
+    "debug_artifacts": {
+      "seconds": 1.7512641259818338,
+      "calls": 10
+    },
+    "recorded_response_read": {
+      "seconds": 0.0007470830460079014,
+      "calls": 2
+    },
+    "plan_compilation_binding": {
+      "seconds": 1.920246999943629,
+      "calls": 2
+    },
+    "fact_authority": {
+      "seconds": 0.003592332941479981,
+      "calls": 5
+    },
+    "fact_index": {
+      "seconds": 0.22789112495956942,
+      "calls": 5
+    },
+    "M01": {
+      "seconds": 0.8441991250147112,
+      "calls": 1
+    },
+    "fact_publication": {
+      "seconds": 2.5783315830049105,
+      "calls": 5
+    },
+    "invocation_io": {
+      "seconds": 0.0050174990319646895,
+      "calls": 5
+    },
+    "fact_commit": {
+      "seconds": 0.3401110839913599,
+      "calls": 5
+    },
+    "M11": {
+      "seconds": 1.2021511259954423,
+      "calls": 2
+    },
+    "M12": {
+      "seconds": 0.9981920000282116,
+      "calls": 1
+    },
+    "M13": {
+      "seconds": 0.5629114169860259,
+      "calls": 1
+    },
+    "transaction_orchestration": {
+      "seconds": 0.7196604170603678,
+      "calls": 1
+    },
+    "planner_orchestration": {
+      "seconds": 0.06816579104634002,
+      "calls": 1
+    },
+    "unclassified": {
+      "seconds": 0.7701730819535442,
+      "calls": 1
+    }
+  },
+  "inclusive_details": {
+    "M01 / checker_replay": {
+      "seconds": 0.31868325057439506,
+      "calls": 108
+    },
+    "M01 / search": {
+      "seconds": 0.32718620798550546,
+      "calls": 36
+    },
+    "fact_publication / premise_fact_match": {
+      "seconds": 1.473191662458703,
+      "calls": 108
+    },
+    "fact_publication / checker_replay": {
+      "seconds": 0.5330548767815344,
+      "calls": 128
+    },
+    "M11 / checker_replay": {
+      "seconds": 0.36852233309764415,
+      "calls": 103
+    },
+    "M11 / search": {
+      "seconds": 0.45135233411565423,
+      "calls": 36
+    },
+    "fact_publication / historical_bound_replay": {
+      "seconds": 0.621226166957058,
+      "calls": 3
+    },
+    "M11 / historical_bound_replay": {
+      "seconds": 0.10596983297728002,
+      "calls": 1
+    },
+    "M12 / checker_replay": {
+      "seconds": 0.39448866894235834,
+      "calls": 95
+    },
+    "M12 / historical_bound_replay": {
+      "seconds": 0.20807495899498463,
+      "calls": 2
+    },
+    "M12 / search": {
+      "seconds": 0.16450295684626326,
+      "calls": 11
+    },
+    "M13 / checker_replay": {
+      "seconds": 0.27585279307095334,
+      "calls": 48
+    },
+    "M13 / historical_bound_replay": {
+      "seconds": 0.2716312080156058,
+      "calls": 1
+    },
+    "M13 / search": {
+      "seconds": 0.10674504202324897,
+      "calls": 2
+    }
+  },
+  "events": [
+    {
+      "phase": "input_bundle",
+      "parent": null,
+      "inclusive_seconds": 0.04810037498828024,
+      "exclusive_seconds": 0.04810037498828024
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.0256184579920955,
+      "exclusive_seconds": 0.0256184579920955
+    },
+    {
+      "phase": "recorded_response_read",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.00044000003254041076,
+      "exclusive_seconds": 0.00044000003254041076
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.007745041977614164,
+      "exclusive_seconds": 0.007745041977614164
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.007503959001041949,
+      "exclusive_seconds": 0.007503959001041949
+    },
+    {
+      "phase": "plan_compilation_binding",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.020485374960117042,
+      "exclusive_seconds": 0.020485374960117042
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.011786583985667676,
+      "exclusive_seconds": 0.011786583985667676
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.018842165998648852,
+      "exclusive_seconds": 0.018842165998648852
+    },
+    {
+      "phase": "recorded_response_read",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.0003070830134674907,
+      "exclusive_seconds": 0.0003070830134674907
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.007209083007182926,
+      "exclusive_seconds": 0.007209083007182926
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.007375125016551465,
+      "exclusive_seconds": 0.007375125016551465
+    },
+    {
+      "phase": "fact_authority",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.0014947499730624259,
+      "exclusive_seconds": 0.0014947499730624259
+    },
+    {
+      "phase": "fact_index",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.0008797079790383577,
+      "exclusive_seconds": 0.0008797079790383577
+    },
+    {
+      "phase": "M01",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.8441991250147112,
+      "exclusive_seconds": 0.8441991250147112
+    },
+    {
+      "phase": "fact_publication",
+      "parent": "invocation_io",
+      "inclusive_seconds": 1.6900341250002384,
+      "exclusive_seconds": 1.6900341250002384
+    },
+    {
+      "phase": "invocation_io",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 2.5376555409748107,
+      "exclusive_seconds": 0.002542582980822772
+    },
+    {
+      "phase": "fact_commit",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.13369433296611533,
+      "exclusive_seconds": 0.13369433296611533
+    },
+    {
+      "phase": "fact_authority",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.0005095829837955534,
+      "exclusive_seconds": 0.0005095829837955534
+    },
+    {
+      "phase": "fact_index",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.04174437501933426,
+      "exclusive_seconds": 0.04174437501933426
+    },
+    {
+      "phase": "M11",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.5600584169733338,
+      "exclusive_seconds": 0.5600584169733338
+    },
+    {
+      "phase": "fact_publication",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.1829301249817945,
+      "exclusive_seconds": 0.1829301249817945
+    },
+    {
+      "phase": "invocation_io",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.7854957919917069,
+      "exclusive_seconds": 0.0007628750172443688
+    },
+    {
+      "phase": "fact_commit",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.04942241701064631,
+      "exclusive_seconds": 0.04942241701064631
+    },
+    {
+      "phase": "fact_authority",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.000538916967343539,
+      "exclusive_seconds": 0.000538916967343539
+    },
+    {
+      "phase": "fact_index",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.0562512920005247,
+      "exclusive_seconds": 0.0562512920005247
+    },
+    {
+      "phase": "M11",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.6420927090221085,
+      "exclusive_seconds": 0.6420927090221085
+    },
+    {
+      "phase": "fact_publication",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.30549516598694026,
+      "exclusive_seconds": 0.30549516598694026
+    },
+    {
+      "phase": "invocation_io",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 1.0046985830413178,
+      "exclusive_seconds": 0.0008594160317443311
+    },
+    {
+      "phase": "fact_commit",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.09496941702673212,
+      "exclusive_seconds": 0.09496941702673212
+    },
+    {
+      "phase": "fact_authority",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.0005224170163273811,
+      "exclusive_seconds": 0.0005224170163273811
+    },
+    {
+      "phase": "fact_index",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.027220499992836267,
+      "exclusive_seconds": 0.027220499992836267
+    },
+    {
+      "phase": "M12",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.9981920000282116,
+      "exclusive_seconds": 0.9981920000282116
+    },
+    {
+      "phase": "fact_publication",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.3998636670294218,
+      "exclusive_seconds": 0.3998636670294218
+    },
+    {
+      "phase": "invocation_io",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 1.4259914589929394,
+      "exclusive_seconds": 0.0007152919424697757
+    },
+    {
+      "phase": "fact_commit",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.05940904200542718,
+      "exclusive_seconds": 0.05940904200542718
+    },
+    {
+      "phase": "fact_authority",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.0005266660009510815,
+      "exclusive_seconds": 0.0005266660009510815
+    },
+    {
+      "phase": "fact_index",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.10179524996783584,
+      "exclusive_seconds": 0.10179524996783584
+    },
+    {
+      "phase": "M13",
+      "parent": "invocation_io",
+      "inclusive_seconds": 0.5629114169860259,
+      "exclusive_seconds": 0.5629114169860259
+    },
+    {
+      "phase": "fact_publication",
+      "parent": "invocation_io",
+      "inclusive_seconds": 8.500006515532732e-06,
+      "exclusive_seconds": 8.500006515532732e-06
+    },
+    {
+      "phase": "invocation_io",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.6648525000200607,
+      "exclusive_seconds": 0.00013733305968344212
+    },
+    {
+      "phase": "fact_commit",
+      "parent": "transaction_orchestration",
+      "inclusive_seconds": 0.0026158749824389815,
+      "exclusive_seconds": 0.0026158749824389815
+    },
+    {
+      "phase": "transaction_orchestration",
+      "parent": "plan_compilation_binding",
+      "inclusive_seconds": 7.482057709014043,
+      "exclusive_seconds": 0.7196604170603678
+    },
+    {
+      "phase": "plan_compilation_binding",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 9.381819333997555,
+      "exclusive_seconds": 1.8997616249835119
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": "planner_orchestration",
+      "inclusive_seconds": 0.8428658749908209,
+      "exclusive_seconds": 0.8428658749908209
+    },
+    {
+      "phase": "planner_orchestration",
+      "parent": null,
+      "inclusive_seconds": 10.400163875019643,
+      "exclusive_seconds": 0.06816579104634002
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": null,
+      "inclusive_seconds": 0.004287749994546175,
+      "exclusive_seconds": 0.004287749994546175
+    },
+    {
+      "phase": "debug_artifacts",
+      "parent": null,
+      "inclusive_seconds": 0.8180300840176642,
+      "exclusive_seconds": 0.8180300840176642
+    }
+  ],
+  "note": "Sequential execution revision. Same saved responses and nested timers as phase-timing.py; no provider call. Historical timer labels retained for comparison. Inclusive details overlap."
+}

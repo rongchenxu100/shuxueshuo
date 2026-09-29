@@ -68,6 +68,18 @@ class OwnershipRule:
 
 OWNERSHIP_RULES = (
     OwnershipRule(
+        ("server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",
+         "server/shuxueshuo_server/solver/math_kernel/real_proof_strategies.py",
+         "server/shuxueshuo_server/solver/math_kernel/proof_search.py",
+         "server/shuxueshuo_server/solver/math_kernel/method_proof_session.py",
+         "server/shuxueshuo_server/solver/runtime/orchestrator.py",
+         "server/tools/proof_search_legacy.py"),
+        ("tests/solver/test_scoped_proof_search_stage_f3.py",
+         "tests/solver/test_math_proof_kernel.py",
+         "tests/solver/test_scoped_proof_search_stage_e.py",
+         "tests/solver/test_scoped_proof_search_stage_d.py"),
+    ),
+    OwnershipRule(
         ("server/shuxueshuo_server/solver/runtime/llm_debug.py",
          "server/shuxueshuo_server/solver/runtime/functional_attempt_evidence.py",
          "server/shuxueshuo_server/solver/runtime/orchestrator.py",

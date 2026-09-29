@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from shuxueshuo_server.solver.explanation import ExplanationSnapshotBuilder
 from shuxueshuo_server.solver.explanation.lesson_ir import (
     LessonAuthoringPipeline,
@@ -20,6 +19,9 @@ from shuxueshuo_server.solver.math_kernel.inequality_evidence import (
     verify_bound,
 )
 from shuxueshuo_server.solver.math_kernel.proof_algebra import ProofFailure
+from shuxueshuo_server.solver.math_kernel.real_proof_strategies import (
+    ScheduledRealSearch,
+)
 from shuxueshuo_server.solver.visual import VisualStepBuilder, VisualStepIRValidator
 from shuxueshuo_server.solver.visual.models import visual_step_ir_from_payload
 from tools.run_basic_inequality_stage4a import run
@@ -225,7 +227,7 @@ def test_elimination_has_a_shared_finite_budget():
     target, params = scalar_case()
     with pytest.raises(ProofFailure, match="nodes budget") as error:
         verify_elimination(target, params, budget=_Budget(ProofLimits(nodes=1)))
-    assert error.value.code == "proof_limit"
+    assert error.value.code == "proof_search_exhausted"
 
 
 def test_elimination_cannot_smuggle_an_amgm_estimate():
@@ -366,8 +368,7 @@ def reciprocal_case(x="a", y="b"):
 
 def test_reciprocal_bound_renamed_reordered_and_replay_without_search(monkeypatch):
     import sympy as sp
-
-    from shuxueshuo_server.solver.math_kernel import inequality_bound_v2, proof_kernel
+    from shuxueshuo_server.solver.math_kernel import inequality_bound_v2
 
     target, params = reciprocal_case("u", "v")
     elimination, _ = verify_elimination(target, params[0])
@@ -382,7 +383,7 @@ def test_reciprocal_bound_renamed_reordered_and_replay_without_search(monkeypatc
     def no_search(*args, **kwargs):
         raise AssertionError("certificate replay attempted proof search")
 
-    monkeypatch.setattr(proof_kernel._Search, "core", no_search)
+    monkeypatch.setattr(ScheduledRealSearch, "need", no_search)
     rebuilt = inequality_bound_v2.verify(
         target,
         **params[1],

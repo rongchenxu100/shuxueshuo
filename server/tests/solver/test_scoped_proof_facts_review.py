@@ -60,6 +60,7 @@ def test_enabled_facts_build_real_teaching_snapshot_without_extra_actions(
             family_registry=config.build_family_registry(),
             default_planner_provider=config.build_default_planner_provider(),
             max_attempts=config.max_llm_attempts,
+            proof_protocol="bound-conditions/v1", # synthetic C-stage bridge injection
         )
         result = runtime.solve_verified(bundle)
         assert result.status == "ok", result.errors
@@ -309,8 +310,8 @@ def test_certificate_import_retains_validity_requirements():
     store = environment()
     session = store.begin("first")
     candidate = session.prove("x>0", [store.snapshot.roots[0].fact_id])[0]
-    # A local adapter can add definition-bound candidates before commit. They
-    # must not be imported into a narrower certificate context.
+    # Mutating an admitted fact cannot widen its definition authority.
+    # Reject before importing it into any subsequent certificate.
     session._candidates[0] = replace(
         candidate, validity=FactValidity("q", definition_refs=("definition:d",))
     )
@@ -319,7 +320,7 @@ def test_certificate_import_retains_validity_requirements():
         {"c0": parse_math_relation("x>0", store.source_context.symbols)},
     )
     proof = prove_relation(parse_math_relation("x!=0", context.symbols), context).proof
-    with pytest.raises(ValueError, match="dependency validity lost"):
+    with pytest.raises(ValueError, match="verified evidence was modified"):
         session.admit_certificate(
             proof,
             context,
