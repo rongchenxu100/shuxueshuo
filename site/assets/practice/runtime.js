@@ -1,0 +1,369 @@
+/* Shared practice runtime: HTML owns course content; dialogue sync is opt-in. */
+(() => {
+  'use strict';
+  const lesson = JSON.parse(document.getElementById('practice-config').textContent);
+  const methods = lesson.methods;
+  let titles = [];
+  let remote = null;
+  let pendingOperations = [];
+  const steps = document.querySelector('#steps');
+  const picker = document.querySelector('#picker');
+  const attemptHistory = document.querySelector('#attempt-history');
+  const announcement = document.querySelector('#announcement');
+  let state = PracticeContext.freshState(lesson);
+  let picking = null;
+  let snapshot = null;
+  let busy = false;
+  let generation = 0;
+  let requestController = null;
+  let retryRequest = null;
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  const api = local && location.port === '8765' ? `${location.protocol}//${location.hostname}:8766/api/tutor-demo` : '/api/tutor-demo';
+  const messageInput = document.querySelector('#message');
+  const sendButton = document.querySelector('.send-button');
+  const networkStatus = document.querySelector('#network-status');
+  const retryButton = document.querySelector('#request-retry');
+  const escapeHTML = (text) => String(text).replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
+
+  function updateBusy() {
+    const blocked = busy;
+    for (const button of [...steps.querySelectorAll('button'), ...document.querySelectorAll('[data-switch-route]'), ...picker.querySelectorAll('button')]) {
+      if (!button.hasAttribute('data-initial-disabled')) button.dataset.initialDisabled = String(button.disabled);
+      button.disabled = blocked || button.dataset.initialDisabled === 'true';
+    }
+    sendButton.disabled = busy || !snapshot || Boolean(retryRequest) || !messageInput.value.trim();
+    messageInput.disabled = busy;
+    steps.setAttribute('aria-busy', String(busy));
+  }
+
+  function conversation(stage, attempt = null) {
+    const attemptId = attempt?.id || snapshot?.attempt_id;
+    const messages = (attempt?.messages || snapshot?.messages || []).filter(m => m.attempt_id === attemptId && m.stage === stage && m.kind !== 'ui');
+    if (!messages.length) return '';
+    const content = `<div class="node-conversation" aria-label="本步骤的对话">${messages.map(m => `<div class="chat-message ${m.role === 'student' ? 'student' : 'assistant'}"><span class="chat-author">${m.role === 'student' ? '你' : '老师'}</span><p>${escapeHTML(m.text)}</p></div>`).join('')}</div>`;
+    if (attempt || stage < state.active) return `<details class="conversation-history" id="conversation-${attemptId}-${stage}"><summary>查看本步对话<span class="conversation-count">${messages.length} 条</span></summary>${content}</details>`;
+    return content;
+  }
+
+  function acceptSnapshot(data) {
+    if (snapshot?.session_id === data.session_id && data.revision < snapshot.revision) return;
+    const changedAttempt = snapshot && snapshot.attempt_id !== data.attempt_id;
+    if (changedAttempt) {
+      pauseIdle();
+      invitedQuestions.clear();
+      idleQuestion = null;
+    }
+    snapshot = data;
+    state = data.state;
+    render();
+  }
+
+  function showProgress(oldActive, oldAttempt) {
+    if (state.active > oldActive || oldAttempt !== snapshot.attempt_id) requestAnimationFrame(() => {
+      document.querySelector(completed() ? '.completion-card' : `#step-${state.active}`)?.scrollIntoView({
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'center'});
+    });
+  }
+
+  async function request(payload) {
+    if (busy) return;
+    const thisGeneration = generation, oldActive = state.active, oldAttempt = snapshot.attempt_id;
+    const controller = new AbortController();
+    requestController = controller;
+    const timeout = setTimeout(() => controller.abort(), 55000);
+    busy = true; pauseIdle(); retryRequest = null; retryButton.hidden = true;
+    networkStatus.textContent = '老师正在思考…'; updateBusy();
+    const post = async (url, body) => {
+      const response = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body), signal: controller.signal});
+      const data = await response.json();
+      if (!response.ok) throw Error(typeof data.detail === 'string' ? data.detail : '暂时无法连接老师，请重试。');
+      return data;
+    };
+    try {
+      if (!remote) {
+        const started = await post(`${api}/sessions`, {lesson_id: lesson.id});
+        if (thisGeneration !== generation) return;
+        remote = {session_id: started.session_id, revision: started.revision};
+      }
+      const data = await post(`${api}/sessions/${remote.session_id}/events`, payload);
+      if (thisGeneration !== generation) return;
+      // A failed request can be retried after more local work. Replay that tail onto
+      // the acknowledged state, rather than erasing the student's newer choices.
+      const acknowledged = new Set(payload.pending_operations.map(operation => operation.event_id));
+      const tail = pendingOperations.filter(operation => !acknowledged.has(operation.event_id));
+      const merged = PracticeContext.reconcile(data, tail, lesson);
+      remote = {session_id: data.session_id, revision: data.revision};
+      pendingOperations = merged.remaining;
+      acceptSnapshot(merged.view);
+      if (payload.kind === 'text' && messageInput.value.trim() === payload.text) messageInput.value = '';
+      networkStatus.textContent = '';
+      showProgress(oldActive, oldAttempt);
+      if (state.active === oldActive && oldAttempt === snapshot.attempt_id) {
+        document.querySelector(completed() ? '#completion .chat-message:last-child' : `#step-${state.active} .chat-message:last-child`)?.scrollIntoView({behavior: 'smooth', block: 'center'});
+      }
+      announce(data.messages.at(-1)?.text || '老师已回复。');
+    } catch (error) {
+      if (thisGeneration !== generation) return;
+      retryRequest = payload; retryButton.hidden = false;
+      networkStatus.textContent = (error.name === 'AbortError' ? '老师回复超时。' : error.message === 'Failed to fetch' ? '暂时无法连接老师。' : error.message) + ' 可以继续点选练习，输入和进度已保留。';
+    } finally {
+      clearTimeout(timeout);
+      if (thisGeneration === generation) { busy = false; updateBusy(); resumeIdle(); }
+    }
+  }
+
+  function sendEvent(kind, action = null, text = '') {
+    if (busy) return;
+    closePicker();
+    if (kind === 'ui') {
+      const oldActive = state.active, oldAttempt = snapshot.attempt_id;
+      const operation = {event_id: crypto.randomUUID(), action, position: PracticeContext.position(snapshot)};
+      pendingOperations.push(operation);
+      acceptSnapshot(PracticeContext.apply(snapshot, operation, lesson));
+      showProgress(oldActive, oldAttempt);
+      announce(state.feedback || '已记录你的选择。');
+      return;
+    }
+    if (retryRequest) return;
+    request({event_id: crypto.randomUUID(), revision: remote?.revision || 0,
+      lesson_version: lesson.version, pending_operations: structuredClone(pendingOperations), kind, text});
+  }
+
+  function restart() {
+    generation++; requestController?.abort(); busy = false;
+    remote = null; pendingOperations = []; retryRequest = null;
+    retryButton.hidden = true; networkStatus.textContent = '';
+    pauseIdle(); invitedQuestions.clear(); idleQuestion = null; messageInput.value = '';
+    steps.innerHTML = ''; attemptHistory.innerHTML = '';
+    acceptSnapshot(PracticeContext.create(lesson, crypto.randomUUID()));
+    window.scrollTo({top: 0, behavior: 'instant'});
+  }
+
+  retryButton.addEventListener('click', () => { if (retryRequest) request(retryRequest); });
+  sendButton.addEventListener('click', () => sendEvent('text', null, messageInput.value.trim()));
+  messageInput.addEventListener('input', updateBusy);
+  messageInput.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      if (!sendButton.disabled) sendButton.click();
+    }
+  });
+  const idleDelay = 10_000;
+  const invitedQuestions = new Set();
+  let idleQuestion = null;
+  let idleTimer = null;
+  let idleStartedAt = 0;
+  let idleRemaining = idleDelay;
+
+  function currentQuestion() {
+    return completed() ? null : `${snapshot.attempt_id}-${state.method || 'method'}-${state.active}`;
+  }
+
+  function pauseIdle() {
+    if (idleTimer !== null) {
+      clearTimeout(idleTimer);
+      idleRemaining = Math.max(0, idleRemaining - (performance.now() - idleStartedAt));
+      idleTimer = null;
+    }
+  }
+
+  function hideIdleInvitation() {
+    steps.querySelector('.idle-invitation')?.remove();
+    steps.querySelector('.hint-button.idle-highlight')?.classList.remove('idle-highlight');
+  }
+
+  function resumeIdle() {
+    if (busy || retryRequest || idleTimer !== null || !idleQuestion || invitedQuestions.has(idleQuestion) || document.hidden || document.activeElement?.id === 'message') return;
+    idleStartedAt = performance.now();
+    idleTimer = setTimeout(() => {
+      idleTimer = null;
+      const hint = steps.querySelector('.step-card.active .hint-button');
+      if (!hint || document.hidden || document.activeElement?.id === 'message') return;
+      invitedQuestions.add(idleQuestion);
+      hint.classList.add('idle-highlight');
+      hint.insertAdjacentHTML('afterend', '<span class="idle-invitation" role="status">需要一点提示吗？</span>');
+    }, idleRemaining);
+  }
+
+  function recordActivity() {
+    pauseIdle();
+    hideIdleInvitation();
+    idleRemaining = idleDelay;
+    resumeIdle();
+  }
+
+  function syncIdleQuestion() {
+    const question = currentQuestion();
+    if (question !== idleQuestion) {
+      pauseIdle();
+      idleQuestion = question;
+      idleRemaining = idleDelay;
+    }
+    resumeIdle();
+  }
+
+  const UI = PracticeComponents;
+  const {hintIcon} = UI;
+  const routeNodes = () => lesson.routes[state.method] || lesson.routes[methods[0].id];
+  const completed = () => PracticeContext.done(lesson, state);
+  const nodeAt = stage => lesson.routes[state.method]?.[stage];
+  const ready = stage => nodeAt(stage).interaction.type === 'choice'
+    ? state.choices[nodeAt(stage).interaction.field] != null : state.pairs[stage].every(Boolean);
+  const announce = (text) => { announcement.textContent = text; };
+
+  function slot(stage, index, occurrence = '') {
+    return UI.slot({stage, index, occurrence, value: state.pairs[stage][index], title: titles[stage]});
+  }
+
+  function template(id, displayState = state, stage = 0, prefix = snapshot.attempt_id) {
+    if (!id) return '';
+    const pair = displayState.pairs[stage] || [];
+    const variable = displayState.choices.variable || lesson.variables[0];
+    const values = {...displayState.choices, variable,
+      other: lesson.variables.find(term => term !== variable), first: pair[0], second: pair[1],
+      uid: `${prefix}-${stage}`};
+    return document.getElementById(id).innerHTML.replace(/\{\{(\w+)\}\}/g, (_, key) => escapeHTML(values[key] ?? ''));
+  }
+
+  function renderInteraction(stage) {
+    if (!state.method) return `<p class="question">${escapeHTML(lesson.method_question)}</p>
+      <div class="method-options">${methods.map(({id, label}) => `<button type="button" class="method-choice" data-method="${escapeHTML(id)}"><span class="radio-mark" aria-hidden="true"></span>${escapeHTML(label)}<span class="option-arrow" aria-hidden="true">›</span></button>`).join('')}</div>
+      <button type="button" class="hint-button" data-hint="0">${hintIcon}还没想好，给点提示</button>`;
+    const node = nodeAt(stage), component = node.interaction;
+    const props = {slot: (index, occurrence) => slot(stage, index, occurrence), terms: component.terms, swapped: state.swapped};
+    const tabs = stage === 0 ? `<div class="method-tabs" role="group" aria-label="解题方案">${methods.map(({id, label}) => `<button type="button" class="method-tab" data-method="${escapeHTML(id)}" aria-pressed="${state.method === id}">${escapeHTML(label)}</button>`).join('')}</div>` : '';
+    const board = component.type === 'choice'
+      ? template(node.board) + UI.choices(component, state.choices[component.field], node.title)
+      : UI[component.type](props);
+    return tabs + `<p class="question" data-math-text>${escapeHTML(node.question)}</p>` + board +
+      UI.controls({stage, label: node.submit_label, ready: ready(stage), feedback: state.feedback, hint: state.hint});
+  }
+
+  function renderDisplay(stage, displayState = state, prefix = snapshot.attempt_id) {
+    const node = lesson.routes[displayState.method][stage];
+    const display = typeof node.display === 'string' ? node.display : node.display.options[displayState.choices[node.display.field]];
+    return template(display, displayState, stage, prefix);
+  }
+
+  function renderAttemptHistory() {
+    const previous = (snapshot.attempts || []).filter(attempt => attempt.id !== snapshot.attempt_id);
+    attemptHistory.innerHTML = previous.map((attempt, index) => {
+      const label = lesson.methods.find(method => method.id === attempt.route)?.label || '方案探索';
+      const nodes = lesson.routes[attempt.route] || lesson.routes[methods[0].id];
+      const completed = attempt.completed.map(record => `<section class="archived-node"><h3>${escapeHTML(nodes[record.stage].title)}</h3>${renderDisplay(record.stage, attempt.state, `${attempt.id}-`)}${conversation(record.stage, attempt)}</section>`).join('');
+      const pending = attempt.status !== 'completed' ? `<p class="archived-position">停在：${escapeHTML(nodes[attempt.state.active]?.title || '选择方案')}（未完成）</p>` : '';
+      return `<details class="attempt-history-card" id="attempt-${attempt.id}"><summary>第 ${index + 1} 次尝试 · ${escapeHTML(label)}<span class="attempt-status">${attempt.status === 'completed' ? '已完成' : '已保留进度'}</span></summary>${completed}${pending}${conversation(attempt.state.active, attempt)}</details>`;
+    }).join('');
+  }
+
+  function render() {
+    closePicker();
+    titles = routeNodes().map(node => node.title);
+    const detailStates = new Map([...document.querySelectorAll('.workspace details[id]')].map(el => [el.id, el.open]));
+    renderAttemptHistory();
+    steps.innerHTML = titles.map((title, stage) => {
+      if (stage > state.active) return '';
+      const done = stage < state.active;
+      return `<article class="step-card ${done ? 'done' : 'active'}" id="step-${stage}" aria-labelledby="step-title-${stage}"><header class="step-heading"><span class="step-number" aria-hidden="true">${done ? '✓' : stage + 1}</span><h2 id="step-title-${stage}" tabindex="-1">${title}</h2><span class="status">${done ? '已完成' : '进行中'}</span></header>${done ? renderDisplay(stage) : renderInteraction(stage)}${conversation(stage)}</article>`;
+    }).join('');
+    document.querySelector('#progress-fill').style.width = `${state.active / routeNodes().length * 100}%`;
+    document.querySelector('#conversation-focus').textContent = completed() ? '本题已完成' : `正在讨论：${titles[state.active]}`;
+    const completion = document.querySelector('#completion');
+    completion.hidden = !completed();
+    completion.innerHTML = completed() ? template(lesson.completion) + template(lesson.comparisons?.[state.method]) : '';
+    if (completed()) {
+      const routes = lesson.methods.filter(method => lesson.routes[method.id] && method.id !== state.method);
+      completion.insertAdjacentHTML('beforeend', `<div class="route-actions">${routes.map(method => `<button type="button" class="method-tab" data-switch-route="${escapeHTML(method.id)}">再试试${escapeHTML(method.label)}</button>`).join('')}</div>` + conversation(state.active));
+    }
+    for (const [id, open] of detailStates) {
+      const details = document.getElementById(id);
+      if (details) details.open = open;
+    }
+    for (const label of steps.querySelectorAll('[data-math-text]')) PracticeMath.render(label, label.textContent);
+    updateBusy();
+    syncIdleQuestion();
+  }
+
+  function closePicker() {
+    if (picking?.button?.isConnected) picking.button.setAttribute('aria-expanded', 'false');
+    picker.hidden = true;
+    picking = null;
+  }
+
+  function openPicker(button) {
+    const stage = Number(button.dataset.stage);
+    if (stage !== state.active) return;
+    closePicker();
+    picking = { stage, index: Number(button.dataset.slot), button, occurrence: button.dataset.occurrence };
+    button.setAttribute('aria-expanded', 'true');
+    picker.hidden = false;
+    picker.querySelector('.picker-options').innerHTML = nodeAt(stage).interaction.terms.map(term => `<button type="button" data-token="${escapeHTML(term)}" aria-label="选择 ${escapeHTML(term)}"><i>${escapeHTML(term)}</i></button>`).join('');
+    const rect = button.getBoundingClientRect();
+    const height = picker.offsetHeight;
+    const composerTop = document.querySelector('.composer').getBoundingClientRect().top;
+    const left = Math.max(12, Math.min(window.innerWidth - picker.offsetWidth - 12, rect.left + rect.width / 2 - picker.offsetWidth / 2));
+    const top = rect.bottom + height + 10 > composerTop ? Math.max(8, rect.top - height - 10) : rect.bottom + 10;
+    picker.style.left = `${left}px`;
+    picker.style.top = `${top}px`;
+    picker.querySelector('button').focus({ preventScroll: true });
+  }
+
+  steps.addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (!button || busy) return;
+    if (button.hasAttribute('data-method')) sendEvent('ui', {kind: 'method', value: button.dataset.method});
+    else if (button.hasAttribute('data-choice')) sendEvent('ui', {kind: 'choice', value: button.dataset.value});
+    else if (button.hasAttribute('data-slot')) openPicker(button);
+    else if (button.id === 'swap') sendEvent('ui', {kind: 'swap', value: state.swapped ? 'sum' : 'product'});
+    else if (button.hasAttribute('data-submit')) sendEvent('ui', {kind: 'submit'});
+    else if (button.hasAttribute('data-hint')) {
+      invitedQuestions.add(currentQuestion());
+      sendEvent('help');
+    }
+  });
+
+  picker.addEventListener('click', event => {
+    const button = event.target.closest('[data-token]');
+    if (!button || !picking) return;
+    sendEvent('ui', {kind: 'fill', index: picking.index, value: button.dataset.token});
+  });
+  document.addEventListener('click', (event) => {
+    if (picking && !picker.contains(event.target) && !event.target.closest('[data-slot]')) closePicker();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && picking) {
+      const source = picking.button;
+      closePicker();
+      source.focus({ preventScroll: true });
+    }
+    if (event.key === 'Tab' && picking) {
+      const buttons = [...picker.querySelectorAll('button')];
+      if ((!event.shiftKey && document.activeElement === buttons.at(-1)) || (event.shiftKey && document.activeElement === buttons[0])) {
+        event.preventDefault();
+        buttons[event.shiftKey ? buttons.length - 1 : 0].focus();
+      }
+    }
+  });
+  window.addEventListener('resize', closePicker);
+  window.addEventListener('scroll', closePicker, { passive: true });
+  document.querySelector('#reset').addEventListener('click', restart);
+  document.querySelector('#completion').addEventListener('click', event => {
+    const button = event.target.closest('[data-switch-route]');
+    if (button) sendEvent('ui', {kind:'switch_route', value:button.dataset.switchRoute});
+  });
+  new ResizeObserver(entries => {
+    document.documentElement.style.setProperty('--composer-height', `${Math.ceil(entries[0].target.getBoundingClientRect().height)}px`);
+  }).observe(document.querySelector('.composer'));
+  for (const type of ['click', 'keydown', 'input']) document.addEventListener(type, recordActivity);
+  document.querySelector('#message').addEventListener('focus', () => {
+    pauseIdle();
+    hideIdleInvitation();
+  });
+  document.querySelector('#message').addEventListener('blur', recordActivity);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pauseIdle();
+    else resumeIdle();
+  });
+  restart();
+})();

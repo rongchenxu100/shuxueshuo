@@ -321,7 +321,7 @@ def test_elimination_feasibility_evidence_fills_yes():
         view = send(client, view, op).json()
     view = send(client, view, text="都是正数，和等于2").json()
     assert view["state"]["active"] == 3
-    assert view["state"]["elimination"]["feasible"] == "yes"
+    assert view["state"]["choices"]["feasible"] == "yes"
     view = send(client, view, text="我还有个问题").json()
     assert view["state"]["active"] == 3
     assert view["messages"][-1]["stage"] == 3

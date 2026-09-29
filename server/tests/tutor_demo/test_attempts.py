@@ -157,27 +157,24 @@ def test_contract_executor_accepts_different_variables_and_node_count():
     node.update(
         id="different",
         required_evidence=["relation"],
-        text_autofill=[],
         interaction={
-            "actions": [
-                {"kind": "choice", "values": ["x+y", "x-y"], "path": ["selected"]}
-            ],
-            "validators": [
-                {
-                    "operator": "equals",
-                    "path": ["selected"],
-                    "value": "x+y",
-                    "message": "需要和式",
-                }
+            "type": "choice",
+            "field": "selected",
+            "options": [
+                {"value": "x+y", "label": "和"},
+                {"value": "x-y", "label": "差"},
             ],
         },
+        expected_answer={"one_of": ["x+y"]},
+        feedback={"answer": "需要和式"},
+        results=["得到x+y"],
     )
     lesson.update(
         id="other-lesson",
         initial_state={
             "active": 0,
             "method": None,
-            "selected": None,
+            "choices": {"selected": None},
             "feedback": "",
             "hint": False,
         },
@@ -193,4 +190,84 @@ def test_contract_executor_accepts_different_variables_and_node_count():
     apply_action(state, Action(kind="submit"), lesson)
     assert current_node(lesson, state) is None
     assert turn_context(lesson, state, [])["status"] == "completed"
-    assert session.view()["state"]["selected"] is None
+    assert session.view()["state"]["choices"]["selected"] is None
+
+
+def test_text_completion_preserves_equivalent_slot_order():
+    tutor = Tutor(
+        Proposal(
+            reply="确认",
+            intent="answer",
+            evidence=["positive_terms", "fixed_sum", "product_target"],
+            actions=[],
+        )
+    )
+    client, view = client_session(tutor)
+    for op in [
+        action("method", "direct"),
+        action("fill", "n", 0),
+        action("fill", "m", 1),
+    ]:
+        view = send(client, view, op).json()
+    view = send(client, view, text="这是定和求积").json()
+    assert view["state"]["active"] == 1
+    assert view["state"]["pairs"][0] == ["n", "m"]
+
+
+def test_multiple_valid_choices_require_student_selection():
+    tutor = Tutor(
+        Proposal(
+            reply="确认",
+            intent="answer",
+            evidence=["elimination_relation"],
+            actions=[Action(kind="method", value="1")],
+        )
+    )
+    client, view = client_session(tutor)
+    view = send(client, view, text="我用消元").json()
+    # Even complete-looking evidence must not silently choose m or n.
+    assert view["state"]["active"] == 0
+    assert view["state"]["choices"]["variable"] is None
+    tutor.proposal.actions.append(Action(kind="choice", value="n"))
+    view = send(client, view, text="m=2-n").json()
+    assert view["state"]["active"] == 1
+    assert view["state"]["choices"]["variable"] == "n"
+
+
+def test_context_separates_conditions_completed_results_and_current_reference():
+    lesson = load_lesson("q01")
+    state = fresh_state(lesson)
+    apply_action(state, Action(kind="method", value="1"), lesson)
+    context = turn_context(lesson, state, [])
+    assert context["problem_conditions"] == lesson["problem"]["conditions"]
+    assert context["completed_results"] == []
+    assert "{{" not in str(context["node"])
+    apply_action(state, Action(kind="choice", value="n"), lesson)
+    apply_action(state, Action(kind="submit"), lesson)
+    context = turn_context(lesson, state, [])
+    assert "保留变量n，0<n<2" in context["completed_results"]
+    assert not any("≤1" in result for result in context["completed_results"])
+    assert any("≤1" in result for result in context["node"]["reference_results"])
+    apply_action(state, Action(kind="choice", value="square"), lesson)
+    apply_action(state, Action(kind="submit"), lesson)
+    assert any(
+        "≤1" in result
+        for result in turn_context(lesson, state, [])["completed_results"]
+    )
+
+
+def test_structure_component_uses_authored_answer_not_q01_constants():
+    lesson = load_lesson("q01")
+    node = lesson["routes"]["direct"]["nodes"][0]
+    node["interaction"]["terms"] = ["x", "y"]
+    node["expected_answer"] = {"terms": ["x", "y"], "fixed": "product", "target": "sum"}
+    state = fresh_state(lesson)
+    for op in [
+        Action(kind="method", value="direct"),
+        Action(kind="fill", index=0, value="y"),
+        Action(kind="fill", index=1, value="x"),
+        Action(kind="swap", value="product"),
+        Action(kind="submit"),
+    ]:
+        apply_action(state, op, lesson)
+    assert state["active"] == 1

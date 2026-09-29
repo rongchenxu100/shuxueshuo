@@ -13,6 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from .contracts import (
     InvalidAction,
+    accept_text_answer,
     apply_action,
     current_node,
     fresh_state,
@@ -22,6 +23,20 @@ from .contracts import (
 from .llm import Action
 
 
+class OperationPosition(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    route: str | None
+    stage: int = Field(ge=0)
+    attempt: int = Field(ge=0)
+
+
+class LocalOperation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    event_id: str = Field(min_length=1, max_length=80)
+    action: Action
+    position: OperationPosition | None = None
+
+
 class Event(BaseModel):
     model_config = ConfigDict(extra="forbid")
     event_id: str = Field(min_length=1, max_length=80)
@@ -29,6 +44,10 @@ class Event(BaseModel):
     kind: Literal["ui", "text", "help"]
     action: Action | None = None
     text: str = Field(default="", max_length=2000)
+    lesson_version: int | None = None
+    pending_operations: list[LocalOperation] = Field(
+        default_factory=list, max_length=400
+    )
 
 
 class Conflict(Exception):
@@ -93,10 +112,12 @@ class Session:
                 "lesson": {
                     "problem": self.lesson["problem"],
                     "methods": self.lesson["methods"],
-                    "method_guidance": self.lesson["method_guidance"],
                     "routes": {
                         k: [
-                            {f: n[f] for f in ("id", "title", "question")}
+                            {
+                                f: n[f]
+                                for f in ("id", "title", "question", "interaction")
+                            }
                             for n in r["nodes"]
                         ]
                         for k, r in self.lesson["routes"].items()
@@ -123,6 +144,68 @@ class Session:
                 return deepcopy(response)
             if event.revision != self.revision:
                 raise Conflict("页面状态已更新，请按当前步骤继续。")
+            if (
+                event.lesson_version is not None
+                and event.lesson_version != self.lesson["version"]
+            ):
+                raise InvalidAction(
+                    "题目版本已更新。你可以继续本地练习，刷新后可重新开始对话。"
+                )
+            if event.pending_operations:
+                if event.kind == "ui" or event.lesson_version is None:
+                    raise InvalidAction("同步操作需要题目版本及本次对话。")
+                ids = [op.event_id for op in event.pending_operations]
+                if len(set(ids + [event.event_id])) != len(ids) + 1:
+                    raise InvalidAction("同步操作编号不能重复。")
+                # Replay into a private draft: model failure or malformed input commits nothing.
+                draft = Session(self.lesson, id=self.id)
+                fields = (
+                    "revision",
+                    "state",
+                    "attempt_id",
+                    "archived_attempts",
+                    "messages",
+                    "completed",
+                    "evidence",
+                    "responses",
+                )
+                for name in fields:
+                    setattr(draft, name, deepcopy(getattr(self, name)))
+                for operation in event.pending_operations:
+                    if (
+                        operation.position is not None
+                        and operation.position.model_dump()
+                        != {
+                            "route": draft.state["method"],
+                            "stage": draft.state["active"],
+                            "attempt": len(draft.archived_attempts),
+                        }
+                    ):
+                        raise InvalidAction(
+                            "操作与当前步骤不一致，本地练习进度已保留。"
+                        )
+                    await draft.handle(
+                        Event(
+                            event_id=operation.event_id,
+                            revision=draft.revision,
+                            kind="ui",
+                            action=operation.action,
+                        ),
+                        tutor,
+                    )
+                response = await draft.handle(
+                    event.model_copy(
+                        update={
+                            "revision": draft.revision,
+                            "pending_operations": [],
+                        }
+                    ),
+                    tutor,
+                )
+                for name in fields:
+                    setattr(self, name, getattr(draft, name))
+                self.responses[event.event_id] = (serialized, deepcopy(response))
+                return response
             if len(self.messages) >= 400:
                 raise InvalidAction("本轮对话已达演示上限，请重新体验。")
             before = deepcopy(self.state)
@@ -180,7 +263,6 @@ class Session:
                             "version",
                             "problem",
                             "methods",
-                            "method_guidance",
                         )
                     },
                     context=context,
@@ -236,8 +318,7 @@ class Session:
                                     node["required_evidence"]
                                 ).issubset(set(evidence + proposal.evidence)):
                                     raise InvalidAction("missing evidence")
-                                for fill in node.get("text_autofill", []):
-                                    apply_action(candidate, Action(**fill), self.lesson)
+                                accept_text_answer(node, candidate)
                             apply_action(candidate, action, self.lesson)
                         node = current_node(self.lesson, {**candidate, "active": stage})
                         if node:
@@ -248,8 +329,7 @@ class Session:
                             if candidate["active"] == stage and set(
                                 node["required_evidence"]
                             ).issubset(evidence):
-                                for fill in node.get("text_autofill", []):
-                                    apply_action(candidate, Action(**fill), self.lesson)
+                                accept_text_answer(node, candidate)
                                 apply_action(
                                     candidate, Action(kind="submit"), self.lesson
                                 )

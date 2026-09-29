@@ -43,7 +43,7 @@ def test_deepseek_elimination_and_question():
                 assert result["state"]["active"] == expected, (
                     tutor.last_proposal.model_dump()
                 )
-            assert session.state["elimination"] == {
+            assert session.state["choices"] == {
                 "variable": "n",
                 "technique": "vertex",
                 "feasible": "yes",

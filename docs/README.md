@@ -32,6 +32,9 @@
 
 ## 课程页与交互
 
+- [基本不等式章节题库首版计划](basic-inequality-practice-bank-plan.md)：`/1` 章节入口、题目与 JSON 清单、个人做题状态、登录的四阶段计划；静态入口已实现、待发布。
+- [交互题目公共运行时设计](interactive-lesson-shared-runtime-design.md)：HTML 承担学生课程，教师 JSON + Context 支撑一对一对话；Q01 已实现本地练习和发起对话时批量同步，未部署。
+
 - [错题本构建规范](mistake-book-authoring-guide.md)：原解保留、三步内容结构、错误分类、可视化、双视图浏览和新增题目检查规范。
 
 - [工作台首版设计](workspace-product-design.md)：最新收敛范围，上传单题图片、中栏生成进度、右栏解析网页；批量、框选与其他功能后续重新讨论。

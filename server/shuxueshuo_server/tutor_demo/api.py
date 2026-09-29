@@ -79,9 +79,15 @@ def create_app(tutor=None):
         allow_methods=["GET", "POST"],
         allow_headers=["Content-Type"],
     )
-    demo = Path(__file__).resolve().parents[3] / "site/demo"
-    if demo.is_dir():
-        app.mount("/demo", StaticFiles(directory=demo), name="demo")
+    site = Path(__file__).resolve().parents[3] / "site"
+    for url, relative, name in (
+        ("/1", "1", "basic-inequality"),
+        ("/assets/practice", "assets/practice", "practice-assets"),
+        ("/demo", "demo", "legacy-demo"),
+    ):
+        directory = site / relative
+        if directory.is_dir():
+            app.mount(url, StaticFiles(directory=directory, html=True), name=name)
     return app
 
 

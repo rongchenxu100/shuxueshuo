@@ -13,6 +13,9 @@
   font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
 }
 
+.chapter-return { color: inherit; text-decoration: none; }
+.chapter-return:hover { color: var(--teal); text-decoration: underline; }
+
 * {
   box-sizing:border-box;
 }

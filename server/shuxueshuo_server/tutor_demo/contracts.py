@@ -1,10 +1,15 @@
-"""Execute authored node contracts, without problem-specific mathematical branches."""
+"""Execute the small set of supported components against authored math answers."""
 
+import re
+from collections import Counter
 from copy import deepcopy
 
 
 class InvalidAction(ValueError):
     pass
+
+
+PAIR_COMPONENTS = {"structure", "amgm", "equality"}
 
 
 def fresh_state(lesson):
@@ -23,17 +28,77 @@ def current_node(lesson, state):
     return route["nodes"][state["active"]]
 
 
-def read_path(state, path):
-    value = state
-    for key in path:
-        value = value[key]
-    return value
+def allowed_actions(node):
+    component = node["interaction"]
+    if component["type"] in PAIR_COMPONENTS:
+        actions = [
+            {
+                "kind": "fill",
+                "index": i,
+                "values": component["terms"],
+                "description": name,
+            }
+            for i, name in enumerate(("方框", "圆圈"))
+        ]
+        if component["type"] == "structure":
+            actions.append(
+                {
+                    "kind": "swap",
+                    "values": ["sum", "product"],
+                    "description": "sum为定和求积，product为定积求和",
+                }
+            )
+    elif component["type"] == "choice":
+        actions = [
+            {
+                "kind": "choice",
+                "values": [o["value"] for o in component["options"]],
+                "description": component.get("description", node["question"]),
+            }
+        ]
+    else:
+        raise ValueError(f"Unknown component: {component['type']}")
+    return actions + [{"kind": "submit"}]
 
 
-def write_path(state, path, value):
-    # Only paths from trusted lesson contracts, never paths supplied by the model.
-    owner = read_path(state, path[:-1])
-    owner[path[-1]] = value
+def validate_answer(node, state):
+    component, expected = node["interaction"], node["expected_answer"]
+    feedback = node.get("feedback", {})
+    if component["type"] in PAIR_COMPONENTS:
+        if Counter(state["pairs"][state["active"]]) != Counter(expected["terms"]):
+            raise InvalidAction(feedback.get("terms", "再看看两个数学项是否对应。"))
+        if component["type"] == "structure":
+            fixed, target = (
+                ("product", "sum") if state["swapped"] else ("sum", "product")
+            )
+            if fixed != expected["fixed"] or target != expected["target"]:
+                raise InvalidAction(
+                    feedback.get("structure", "再看看条件和目标的关系。")
+                )
+    elif component["type"] == "choice":
+        if state["choices"].get(component["field"]) not in expected["one_of"]:
+            raise InvalidAction(
+                feedback.get("answer", "还需要表达你对这个问题的判断。")
+            )
+    else:
+        raise ValueError(f"Unknown component: {component['type']}")
+
+
+def accept_text_answer(node, state):
+    """Bind a confirmed answer, only after the session has checked its evidence.
+
+    Preserve equivalent student choices. Never choose between multiple valid
+    alternatives on the student's behalf.
+    """
+    component, expected = node["interaction"], node["expected_answer"]
+    if component["type"] in PAIR_COMPONENTS:
+        pair = state["pairs"][state["active"]]
+        if Counter(pair) != Counter(expected["terms"]):
+            state["pairs"][state["active"]] = list(expected["terms"])
+        if component["type"] == "structure":
+            state["swapped"] = expected["fixed"] == "product"
+    elif component["type"] == "choice" and len(expected["one_of"]) == 1:
+        state["choices"][component["field"]] = expected["one_of"][0]
 
 
 def apply_action(state, action, lesson):
@@ -52,35 +117,38 @@ def apply_action(state, action, lesson):
     if not node:
         raise InvalidAction("当前没有可作答的节点，请选择可用路径。")
     if action.kind == "submit":
-        for rule in node["interaction"]["validators"]:
-            value = read_path(state, rule["path"])
-            operator = rule["operator"]
-            if operator == "equals":
-                valid = value == rule["value"]
-            elif operator == "set_equals":
-                valid = len(value) == len(rule["value"]) and set(value) == set(
-                    rule["value"]
-                )
-            elif operator == "not_empty":
-                valid = value is not None and value != ""
-            else:
-                raise ValueError(f"Unknown authored validator: {operator}")
-            if not valid:
-                raise InvalidAction(rule["message"])
+        validate_answer(node, state)
         state["active"] += 1
         return
-    for spec in node["interaction"]["actions"]:
+    for spec in allowed_actions(node):
         if spec["kind"] == action.kind and spec.get("index") == action.index:
             if action.value not in spec["values"]:
                 raise InvalidAction("这个值不属于当前组件的候选项。")
-            value = spec.get("mapping", {}).get(action.value, action.value)
-            write_path(state, spec["path"], value)
+            if action.kind == "fill":
+                state["pairs"][state["active"]][action.index] = action.value
+            elif action.kind == "swap":
+                state["swapped"] = action.value == "product"
+            elif action.kind == "choice":
+                state["choices"][node["interaction"]["field"]] = action.value
             return
     raise InvalidAction("这个操作不属于当前节点。")
 
 
+def node_results(node, state):
+    """Resolve authored conclusions; they are references, not solver certificates."""
+    values = state.get("choices", {})
+    results = []
+    for result in node.get("results", []):
+        names = re.findall(r"\{\{(\w+)\}\}", result)
+        if any(values.get(name) is None for name in names):
+            continue
+        for name in names:
+            result = result.replace("{{" + name + "}}", str(values[name]))
+        results.append(result)
+    return results
+
+
 def node_contract(node, state):
-    """Teacher-facing contract, excluding internal mutable paths and validators."""
     if node is None:
         return None
     contract = {
@@ -91,25 +159,13 @@ def node_contract(node, state):
             "question",
             "criteria",
             "required_evidence",
-            "text_autofill",
+            "expected_answer",
             "completion_reply",
-            "verified_facts",
         )
     }
-    contract["allowed_actions"] = [
-        {k: v for k, v in action.items() if k not in ("path", "mapping")}
-        for action in node["interaction"]["actions"]
-    ] + [{"kind": "submit"}]
-    bindings = {
-        name: read_path(state, path) for name, path in node.get("bindings", {}).items()
-    }
-    contract["bindings"] = bindings
-    for name, value in bindings.items():
-        if value is not None:
-            contract["verified_facts"] = [
-                fact.replace("{{" + name + "}}", str(value))
-                for fact in contract["verified_facts"]
-            ]
+    contract["allowed_actions"] = allowed_actions(node)
+    contract["reference_results"] = node_results(node, state)
+    contract["answer_values"] = deepcopy(state.get("choices", {}))
     return contract
 
 
@@ -124,14 +180,23 @@ def turn_context(lesson, state, evidence):
             "description": "创建新的路径尝试，保存旧记录；单独执行，不能同时提交答案。",
         }
     ]
+    if state["method"] is None:
+        actions = []
     if selectable:
         actions.append(
             {"kind": "method", "values": [m["id"] for m in lesson["methods"]]}
         )
+    previous_results = []
+    route = lesson["routes"].get(state["method"])
+    if route:
+        for node in route["nodes"][: state["active"]]:
+            previous_results.extend(node_results(node, state))
     return {
         "state": deepcopy(state),
         "status": "completed" if complete else "learning",
         "node": node_contract(current_node(lesson, state), state),
+        "problem_conditions": deepcopy(lesson["problem"]["conditions"]),
+        "completed_results": list(dict.fromkeys(previous_results)),
         "accepted_evidence": list(evidence),
         "available_routes": routes,
         "flow_actions": actions,
