@@ -1,0 +1,4 @@
+interface:
+  display_name: "交互练习题网页"
+  short_description: "新增独立静态练习页与教师 JSON，复用组件并按需接入一对一对话"
+  default_prompt: "使用 $interactive-practice-page 为这道题新增交互练习网页和教师 JSON，并验证本地练习与按需对话同步。"
