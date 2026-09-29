@@ -1333,8 +1333,8 @@ export function buildTextPage(inputDir, root = repoRoot, { outputFile } = {}) {
   const libraryHref = `${libraryBase}${meta.breadcrumbSearch ?? ""}`;
   const textRendererScript = [
     ...(lesson.steps.some(step => step.visual?.kind === "expression-rewrite") ? [
-      `<link rel="stylesheet" href="${assetPrefix}/css/expression-rewrite.css">`,
-      `<script src="${assetPrefix}/js/expression-rewrite.js"></script>`,
+      `<link rel="stylesheet" href="${assetPrefix}/css/expression-rewrite.css?v=compact-2">`,
+      `<script src="${assetPrefix}/js/expression-rewrite.js?v=compact-2"></script>`,
     ] : []),
     "<script>",
     "  function diagramMarkupFor() { return ''; }",

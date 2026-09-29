@@ -1,6 +1,7 @@
 // Validate generated semantic specs before embedding them in a lesson page.
 export function validateExpressionRewrite(spec) {
   const fail = message => { throw new Error(`expression-rewrite: ${message}`); };
+  if (spec.presentation !== undefined && spec.presentation !== 'compact') fail('unsupported presentation');
   const formula = value => {
     if (!value || typeof value.latex !== 'string') fail('missing formula');
     const ids = new Set();

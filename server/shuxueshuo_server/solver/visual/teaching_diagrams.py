@@ -377,9 +377,12 @@ def validate_diagram_block(block):
     ):
         raise VisualGap("visual_component_data_invalid")
     if "presentation" in data:
-        if data["presentation"] != "concept" or component not in {
-            "basic-inequality-mapping", "basic-inequality-equality-check"
-        }:
+        presentations = {
+            "basic-inequality-mapping": "concept",
+            "basic-inequality-equality-check": "concept",
+            "expression-rewrite": "compact",
+        }
+        if data["presentation"] != presentations.get(component):
             raise VisualGap("visual_concept_presentation_invalid")
         if component == "basic-inequality-equality-check" and any(
             not isinstance(data.get(key), list) or not data[key]
@@ -606,6 +609,12 @@ def quadratic(d):
     before = d["teaching_effect"]["before_latex"]
     after = d["teaching_effect"]["after_latex"]
     square = d["square_latex"]
+    if d.get("existing_square_latex"):
+        square = d["existing_square_latex"]
+        return flow_visual([
+            expression_row(square + "+" + after, focus=square),
+            expression_row(after, relation="≥"),
+        ], title="利用平方非负")
     return flow_visual([
         expression_row(before),
         expression_row(square + "+" + after, focus=square, label="配出平方项", relation="="),

@@ -1,0 +1,215 @@
+{
+  "problem": {
+    "goals": {
+      "problem.minimum": [
+        {
+          "source_steps": [
+            "s1"
+          ],
+          "title": "观察结构：规划取等关系",
+          "nav_title": "观察结构",
+          "goal": "按变量数与已有取等条件数确定需要补充的取等关系数目，并规划连续求界、最后联立验证的路线。",
+          "derive": [
+            [
+              "∴",
+              "按变量数 3 减去已有取等条件数 0，可考虑补充 3 条取等关系"
+            ],
+            [
+              "∴",
+              "根据表达式结构，尝试连续求界：可以应用基本不等式，也可以通过配方利用平方非负，或利用一元二次函数的最值，逐步减少求界式中的变量"
+            ],
+            [
+              "∴",
+              "每次求界都保留取等条件，最后联立这些条件，检验所得界值能否达到"
+            ]
+          ],
+          "box": [
+            "规划取等关系 → 连续求界 → 联立验证"
+          ]
+        },
+        {
+          "source_steps": [
+            "s2"
+          ],
+          "title": "整理目标式",
+          "nav_title": "整理目标式",
+          "goal": "对目标式通分并配方，整理成便于后续逐项求界的形式。",
+          "derive": [
+            [
+              "计算",
+              "通分 \\(\\frac{1}{a\\cdot b}+\\frac{1}{a\\cdot \\left(a-b\\right)}=\\frac{1}{b\\cdot \\left(a-b\\right)}\\)"
+            ],
+            [
+              "计算",
+              "等价整理 \\(2\\cdot a^{2}-10\\cdot a\\cdot c+25\\cdot c^{2}+\\frac{1}{b\\cdot \\left(a-b\\right)}=2\\cdot a^{2}-10\\cdot a\\cdot c+25\\cdot c^{2}+\\frac{1}{b\\cdot \\left(a-b\\right)}\\)"
+            ],
+            [
+              "计算",
+              "等价整理 \\(2\\cdot a^{2}+-\\left(10\\cdot a\\cdot c\\right)+25\\cdot c^{2}=a^{2}+\\left(a-5\\cdot c\\right)^{2}\\)"
+            ],
+            [
+              "计算",
+              "等价整理 \\(a^{2}+\\left(a-5\\cdot c\\right)^{2}+\\frac{1}{b\\cdot \\left(a-b\\right)}=a^{2}+\\left(a-5\\cdot c\\right)^{2}+\\frac{1}{b\\cdot \\left(a-b\\right)}\\)"
+            ],
+            [
+              "∴",
+              "原式 \\(a^{2}+\\left(a-5\\cdot c\\right)^{2}+\\frac{1}{b\\cdot \\left(a-b\\right)}\\)"
+            ]
+          ],
+          "box": [
+            "\\(a^{2}+\\left(a-5\\cdot c\\right)^{2}+\\frac{1}{b\\cdot \\left(a-b\\right)}\\)"
+          ]
+        },
+        {
+          "source_steps": [
+            "s3"
+          ],
+          "title": "取倒数，转换局部求界方向",
+          "nav_title": "取倒数转化方向",
+          "goal": "确认分母为正，将局部倒数项求下界转化为对正分母求上界。",
+          "derive": [
+            [
+              "∵",
+              "\\(b>0\\)，\\(a-b>0\\)"
+            ],
+            [
+              "∴",
+              "\\(b\\cdot \\left(a-b\\right)>0\\)，正数取倒数时不等号方向改变"
+            ],
+            [
+              "∴",
+              "为求局部项 \\(\\frac{1}{b\\cdot \\left(a-b\\right)}\\) 的下界，可先求分母 \\(b\\cdot \\left(a-b\\right)\\) 的正上界，其余项保持不变"
+            ]
+          ],
+          "box": [
+            "正分母的上界可转为局部倒数项的下界"
+          ]
+        },
+        {
+          "source_steps": [
+            "s4"
+          ],
+          "title": "应用基本不等式消元",
+          "nav_title": "应用基本不等式消元",
+          "goal": "对正分母应用基本不等式求出上界，取倒数得到局部项下界，消去变量 b。",
+          "derive": [
+            [
+              "∵",
+              "\\(a>b\\)，\\(b>c\\)，\\(c>0\\)"
+            ],
+            [
+              "∴",
+              "\\(b>0\\)，\\(a-b>0\\)"
+            ],
+            [
+              "∴",
+              "\\(b\\cdot \\left(a-b\\right)\\leq\\left(\\frac{b+(a-b)}{2}\\right)^2=\\frac{a^{2}}{4}\\)"
+            ],
+            [
+              "∴",
+              "\\(\\frac{1}{b\\cdot \\left(a-b\\right)}\\geq \\frac{4}{a^{2}}\\)"
+            ],
+            [
+              "∴",
+              "\\(a^{2}+\\left(a-5\\cdot c\\right)^{2}+\\frac{1}{b\\cdot \\left(a-b\\right)}\\geq a^{2}+\\left(a-5\\cdot c\\right)^{2}+\\frac{4}{a^{2}}\\)"
+            ]
+          ],
+          "box": [
+            "\\(2\\cdot a^{2}+\\frac{1}{a\\cdot b}+\\frac{1}{a\\cdot \\left(a-b\\right)}-10\\cdot a\\cdot c+25\\cdot c^{2}\\geq a^{2} + \\left(a - 5 c\\right)^{2} + \\frac{4}{a^{2}}\\)"
+          ]
+        },
+        {
+          "source_steps": [
+            "s5"
+          ],
+          "title": "配方，利用平方非负消元",
+          "nav_title": "配方，利用平方非负消元",
+          "goal": "通过配方利用平方非负消去变量 c，得到只含 a 的下界。",
+          "derive": [
+            [
+              "∴",
+              "\\(a^{2}+\\left(a-5\\cdot c\\right)^{2}+\\frac{4}{a^{2}}=25\\cdot \\left(c-\\frac{a}{5}\\right)^{2}+a^{2}+\\frac{4}{a^{2}}\\)"
+            ],
+            [
+              "∴",
+              "\\(25\\cdot \\left(c-\\frac{a}{5}\\right)^{2}\\geq 0\\)"
+            ],
+            [
+              "∴",
+              "\\(a^{2}+\\left(a-5\\cdot c\\right)^{2}+\\frac{4}{a^{2}}\\geq a^{2}+\\frac{4}{a^{2}}\\)"
+            ],
+            [
+              "∴",
+              "取等条件为 \\(c=\\frac{a}{5}\\)"
+            ]
+          ],
+          "box": [
+            "\\(a^{2}+\\frac{4}{a^{2}}\\)"
+          ]
+        },
+        {
+          "source_steps": [
+            "s6"
+          ],
+          "title": "再次应用基本不等式取极值",
+          "nav_title": "再次应用基本不等式取极值",
+          "goal": "对两个正项应用基本不等式得到常数下界，为验证最小值作准备。",
+          "derive": [
+            [
+              "∵",
+              "\\(a^{2}>0\\)，\\(\\frac{4}{a^{2}}>0\\)"
+            ],
+            [
+              "∴",
+              "\\(a^{2}+\\frac{4}{a^{2}}\\geq 2\\sqrt{a^{2}\\cdot \\frac{4}{a^{2}}}\\)"
+            ],
+            [
+              "∴",
+              "\\(a^{2}\\cdot \\frac{4}{a^{2}}=4\\)"
+            ],
+            [
+              "∴",
+              "\\(a^{2}+\\frac{4}{a^{2}}\\geq 4\\)"
+            ],
+            [
+              "∴",
+              "\\(2\\cdot a^{2}+\\frac{1}{a\\cdot b}+\\frac{1}{a\\cdot \\left(a-b\\right)}-10\\cdot a\\cdot c+25\\cdot c^{2}\\geq 4\\)"
+            ]
+          ],
+          "box": [
+            "\\(2\\cdot a^{2}+\\frac{1}{a\\cdot b}+\\frac{1}{a\\cdot \\left(a-b\\right)}-10\\cdot a\\cdot c+25\\cdot c^{2}\\geq 4\\)"
+          ]
+        },
+        {
+          "source_steps": [
+            "s7"
+          ],
+          "title": "验证取等",
+          "nav_title": "验证取等",
+          "goal": "验证各次取等条件可以同时成立，确认等号能够成立，从而最小值为 4。",
+          "derive": [
+            [
+              "∵",
+              "取等须同时满足 \\(b=a-b\\)，\\(c=\\frac{a}{5}\\)，\\(a^{2}=\\frac{4}{a^{2}}\\)"
+            ],
+            [
+              "∵",
+              "当 \\(a=√2\\)，\\(b=√2/2\\)，\\(c=√2/5\\) 时"
+            ],
+            [
+              "∴",
+              "满足原条件与全部取等条件，\\(2\\cdot a^{2}+\\frac{1}{a\\cdot b}+\\frac{1}{a\\cdot \\left(a-b\\right)}-10\\cdot a\\cdot c+25\\cdot c^{2}=4\\)"
+            ],
+            [
+              "∴",
+              "以上取值满足原条件且等号成立，故所求最小值为 4"
+            ]
+          ],
+          "box": [
+            "\\(2\\cdot a^{2}+\\frac{1}{a\\cdot b}+\\frac{1}{a\\cdot \\left(a-b\\right)}-10\\cdot a\\cdot c+25\\cdot c^{2}\\)的最小值为\\(4\\)"
+          ]
+        }
+      ]
+    }
+  }
+}

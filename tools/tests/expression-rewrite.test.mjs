@@ -51,3 +51,34 @@ test('compiled preview includes reusable assets and narrow-screen overflow rules
   const css=fs.readFileSync(new URL('site/assets/css/expression-rewrite.css',base),'utf8');
   assert.match(css,/overflow-x/); assert.match(css,/@media/);
 });
+
+test('compact presentation shows whole-expression changes without nested navigation',()=>{
+  const compact=structuredClone(spec);
+  compact.presentation='compact';
+  assert.equal(validateExpressionRewrite(compact),compact);
+  const html=context.ExpressionRewrite.render(compact,s=>s);
+  assert.match(html,/er-compact/);
+  assert.doesNotMatch(html,/<nav|<header|er-conditions|完整推导|观察目标式|data-er=/);
+  assert.equal((html.match(/class="er-formula"/g)||[]).length,3);
+  assert.equal((html.match(/class="er-flow-arrow"/g)||[]).length,2);
+  assert.match(html,/er-highlight/);
+  compact.presentation='unknown';
+  assert.throws(()=>validateExpressionRewrite(compact),/unsupported presentation/);
+});
+
+test('compact flow groups adjacent changed terms in one box per visible row',()=>{
+  const atom = (id,text) => ({id,op:'symbol',text});
+  const add = (id,a,b) => ({id,op:'add',children:[a,b]});
+  const before={latex:'x+y+z',tree:add('root',add('sum',atom('x','x'),atom('y','y')),atom('z','z'))};
+  const middle={latex:'u+z',tree:add('root',atom('u','u'),atom('z','z'))};
+  const after={latex:'v',tree:atom('v','v')};
+  const diagram={presentation:'compact',title:'整理',result:after,transitions:[
+    {label:'合并',before,after:middle,localBefore:{nodeIds:['x','y']},localAfter:{nodeIds:['u']}},
+    {label:'整理',before:middle,after,localBefore:{nodeIds:['u','z']},localAfter:{nodeIds:['v']}},
+  ]};
+  const html=context.ExpressionRewrite.render(diagram,s=>s);
+  assert.equal((html.match(/class="er-formula"/g)||[]).length,3);
+  assert.equal((html.match(/class="er-highlight er-local"/g)||[]).length,3);
+  assert.equal((html.match(/class="er-flow-arrow"/g)||[]).length,2);
+  assert.doesNotMatch(html,/<button| hidden(?:[ =>])|er-frame|data-er=/);
+});

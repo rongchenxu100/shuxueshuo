@@ -491,7 +491,7 @@ def test_search_metadata_replays_without_current_policy_and_detects_tampering(
     store.commit(overlay, "first")
     payload = store.to_payload()
     metadata = payload["commits"][0]["records"][0]["search"]
-    assert metadata["policy"]["version"] == "layered-search/v3"
+    assert metadata["policy"]["version"] == "layered-search/v4"
     monkeypatch.setattr(
         SearchScheduler, "prove", lambda *a: pytest.fail("replay searched")
     )

@@ -513,6 +513,23 @@ def known_transitivity(self, g):
                     if ordered_target[0] == ">" and a1[0] == a2[0] == ">=":
                         continue
                     return self.raw("transitive", g, [first, second])
+            # A known local bound may carry the same remainder on both sides:
+            # F >= R+U and U >= V imply F >= R+V. Match the difference exactly
+            # before constructing the intermediate; do not search for a new
+            # AM-GM pair inside F or assume the remainder is nonnegative.
+            for second in self.premises.values():
+                a2 = _ordered(second)
+                if not a2 or (ordered_target[0] == ">" and a1[0] == a2[0] == ">="):
+                    continue
+                bridge = (a2[0], a1[2], ordered_target[2])
+                if a.difference(("=", _diff(bridge), _diff(a2))):
+                    continue
+                if second[0] in {"<", "<="}:
+                    bridge = (second[0], bridge[2], bridge[1])
+                root = self.raw("weaken", bridge, [second], {"ratio": "1"})
+                guards = tuple(self.need(d) for d in domains(bridge))
+                self.cache[bridge] = self.add("guard", bridge, (root, *guards))
+                return self.raw("transitive", g, [first, bridge])
 
 
 def scalar_transitivity(self, g):
@@ -1353,7 +1370,7 @@ def real_strategy_package():
         "positive_components": ("sign",),
         "nonnegative_components": ("sign",),
         "same_difference": ("weaken", "polynomial", "relation_transport"),
-        "known_transitivity": ("transitive",),
+        "known_transitivity": ("transitive", "weaken", "guard"),
         "scalar_transitivity": ("transitive",),
         "strict_nonzero": ("weaken",),
         "normalize_reciprocal": ("weaken",),
@@ -1483,8 +1500,10 @@ def real_strategy_package():
             elif name == "same_difference":
                 applicable = op != "=" and any(p[0] == op for p in relevant)
             elif name == "known_transitivity":
-                applicable = ordered and any(
-                    p[1] == left or p[2] == left for p in values
+                goal_order = _ordered(goal)
+                applicable = goal_order is not None and any(
+                    p is not None and p[1] == goal_order[1]
+                    for p in map(_ordered, values)
                 )
             elif name == "scalar_transitivity":
                 applicable = (

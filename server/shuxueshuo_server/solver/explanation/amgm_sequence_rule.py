@@ -129,20 +129,21 @@ def compose_sequence(container, materials, evidence):
                     continue
                 eliminate = effect["kind"] == "eliminate_variable"
                 quadratic = d.get("method_kind") == "quadratic"
+                existing_square = bool(d.get("existing_square_latex"))
                 constant = effect["kind"] == "constant_bound"
                 title = (
-                    ("配方，利用平方非负消元" if quadratic else "应用基本不等式消元")
+                    (("利用平方非负消元" if existing_square else "配方，利用平方非负消元") if quadratic else "应用基本不等式消元")
                     if eliminate else
                     ("利用平方非负取极值" if quadratic else "再次应用基本不等式取极值")
                     if constant else
-                    ("配方求局部下界" if quadratic else "应用基本不等式求局部下界")
+                    (("利用平方非负求局部下界" if existing_square else "配方求局部下界") if quadratic else "应用基本不等式求局部下界")
                 )
                 nav = title
                 auth = deepcopy(row.authority)
                 auth.update(fixed_title=title, fixed_nav_title=nav)
                 goal = (
                     (
-                        ("通过配方消去 " if d.get("method_kind") == "quadratic" else "通过配对消去 ")
+                        (("利用平方非负消去 " if existing_square else "通过配方消去 ") if quadratic else "通过配对消去 ")
                         + "、".join(effect["removed_symbols"])
                         + "，使后续求界式只含 "
                         + "、".join(effect["output_symbols"])

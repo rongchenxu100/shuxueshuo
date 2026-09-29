@@ -25,6 +25,22 @@ CONTRACT = "inequality-teaching-evidence/v1"
 METHODS = {"apply_two_term_amgm", "bound_univariate_quadratic", "close_equality_and_restore"}
 
 
+def existing_square_latex(source, square, remainder, symbols):
+    """Project an already visible square matching the verified M12 remainder.
+
+    Do not factor the input to discover a square: an expanded quadratic still
+    needs a completing-the-square teaching step. This grants no proof authority.
+    """
+    parse = lambda value: parse_math_expression(value, symbols).to_sympy(symbols)
+    expression, certified, rest = map(parse, (source, square, remainder))
+    for term in sp.Add.make_args(expression):
+        if not any(p.exp == 2 and p.base.free_symbols for p in term.atoms(sp.Pow)):
+            continue
+        if sp.cancel(term - certified) == 0 and sp.cancel(expression - term - rest) == 0:
+            return sp.latex(term)
+    return None
+
+
 def inequality_teaching_evidence_schema():
     return {
         "title": "InequalityTeachingEvidence",
@@ -161,7 +177,7 @@ def collect_inequality_evidence(step_id, method_results):
             op = {">=": "≥", "<=": "≤", "!=": "≠"}.get(parsed.ast.op, parsed.ast.op)
             return f"{student_math_display(a)} {op} {student_math_display(b)}"
 
-        chain = parse_derivation(bound["steps"], symbols)
+        chain = parse_derivation(bound["steps"], symbols, original_expression=target["target_math"])
         # The verified equality identifies the actual AM-GM pair selected by M11.
         # Do not choose an arbitrary sum/root relation from the submitted chain.
         equality = parse_math_relation(bound["equality"], symbols)
@@ -311,6 +327,10 @@ def collect_inequality_evidence(step_id, method_results):
                 + (r"\geq " if bound["direction"] == ">=" else r"\leq ")
                 + data["bound_latex"]
             )
+            if data["method_kind"] == "quadratic":
+                data["existing_square_latex"] = existing_square_latex(
+                    bound["source_math"], bound["square"], bound["bound"], symbols
+                )
             # Semantic stages of this certified local application. The numerical
             # simplifications below project its proved positive terms and domain;
             # the original-target transport was already certified by M11/M01.

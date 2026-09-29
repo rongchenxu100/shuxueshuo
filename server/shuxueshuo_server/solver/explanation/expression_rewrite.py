@@ -13,10 +13,28 @@ LABELS = {
 }
 
 
+def _square_shapes(tree):
+    def shape(node):
+        return (node["op"], node.get("text"), tuple(shape(c) for c in node.get("children", [])))
+
+    found = set()
+    def visit(node):
+        children = node.get("children", [])
+        if (node["op"] == "pow" and children[1].get("text") == "2"
+                and children[0]["op"] in {"add", "sub"}):
+            found.add(shape(node))
+        for child in children:
+            visit(child)
+    visit(tree)
+    return found
+
+
 def build_rewrite_presentation(trace: dict) -> dict:
     if trace.get("kind") != "verified_expression_rewrite":
         raise ValueError("presentation requires verified_expression_rewrite trace")
     transitions = deepcopy(trace["transitions"])
+    changed = [t for t in transitions if t["before"]["latex"] != t["after"]["latex"]]
+    transitions = changed or transitions[:1]
     cards = deepcopy(trace["conditionCards"])
     for card in cards:
         card.pop("source", None)
@@ -29,6 +47,9 @@ def build_rewrite_presentation(trace: dict) -> dict:
     derive = []
     for t in transitions:
         t["label"] = LABELS[t["operation"]]
+        if (t["operation"] == "equivalent_rewrite"
+                and _square_shapes(t["after"]["tree"]) - _square_shapes(t["before"]["tree"])):
+            t["label"] = "配方"
         beats.append(
             {"kind": "transform", "transitionId": t["id"], "title": t["label"]}
         )
@@ -38,6 +59,8 @@ def build_rewrite_presentation(trace: dict) -> dict:
         equation = t["localBefore"]["latex"] + "=" + t["localAfter"]["latex"]
         if not t["localBefore"]["latex"] or not t["localAfter"]["latex"]:
             equation = t["before"]["latex"] + "=" + t["after"]["latex"]
+        if t["before"]["latex"] == t["after"]["latex"]:
+            continue
         derive.append(
             [
                 (
@@ -52,6 +75,7 @@ def build_rewrite_presentation(trace: dict) -> dict:
     derive.append(["∴ 原式", "\\(" + trace["result"]["latex"] + "\\)"])
     visual = {
         "kind": "expression-rewrite",
+        "presentation": "compact",
         "title": title,
         "source": deepcopy(trace["source"]),
         "result": deepcopy(trace["result"]),

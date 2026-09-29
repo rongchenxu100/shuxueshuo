@@ -1,0 +1,131 @@
+
+$ server/.venv/bin/python3 -m pytest tests/solver -q -m (not live_llm) and not serial --durations 30 -n 4 --dist worksteal
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  1%]
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  5%]
+........................................................................ [  7%]
+........................................................................ [  8%]
+........................................................................ [ 10%]
+........................................................................ [ 11%]
+........................................................................ [ 13%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 20%]
+........................................................................ [ 22%]
+........................................................................ [ 23%]
+........................................................................ [ 25%]
+........................................................................ [ 26%]
+........................................................................ [ 28%]
+........................................................................ [ 29%]
+........................................................................ [ 31%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 35%]
+........................................................................ [ 37%]
+........................................................................ [ 38%]
+........................................................................ [ 40%]
+........................................................................ [ 41%]
+........................................................................ [ 43%]
+........................................................................ [ 44%]
+........................................................................ [ 45%]
+........................................................................ [ 47%]
+........................................................................ [ 48%]
+........................................................................ [ 50%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 56%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 60%]
+......................................F................................. [ 62%]
+........................................................................ [ 63%]
+........................................................................ [ 65%]
+........................................................................ [ 66%]
+........................................................................ [ 68%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 72%]
+........................................................................ [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 83%]
+........................................................................ [ 84%]
+........................................................................ [ 86%]
+........................................................................ [ 87%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 91%]
+........................................................................ [ 93%]
+........................................................................ [ 94%]
+........................................................................ [ 96%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+..............................                                           [100%]
+=================================== FAILURES ===================================
+_____ test_known_bound_transports_an_arbitrary_remainder[premises1-r+v<=x] _____
+[gw2] darwin -- Python 3.11.13 server/.venv/bin/python3
+
+premises = ['r+u<=x', 'v<=u'], goal = 'r+v<=x'
+
+    @pytest.mark.parametrize('premises,goal', [
+        (['x>=r+u', 'u>=v'], 'x>=r+v'),
+        (['r+u<=x', 'v<=u'], 'r+v<=x'),
+        (['x>r+u', 'u>=v'], 'x>r+v'),
+        (['x>=r+u', 'u>v'], 'x>r+v'),
+        (['x>=u-3*r', 'u>=v'], 'x>=v-3*r'),
+    ])
+    def test_known_bound_transports_an_arbitrary_remainder(premises, goal):
+        ctx = context(premises, variables='xruv')
+        result = prove(goal, ctx)
+>       assert result.result.status == 'proved', result.result
+E       AssertionError: ProofResult(status='failed', code='strategy_budget_exhausted', diagnostic='bounded strategies exhausted; relation not established', proof=None, branches=())
+E       assert 'failed' == 'proved'
+E
+E         - proved
+E         + failed
+
+tests/solver/test_q30_final_acceptance.py:22: AssertionError
+============================= slowest 30 durations =============================
+38.11s setup    tests/solver/test_five_case_recorded_lesson_pages.py::test_all_five_recorded_cases_build_recursive_lesson_and_visual_pages
+36.66s call     tests/solver/test_scope_native_c0_c5_generated_gate.py::test_authenticated_scope_native_protocol_probes
+27.96s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_frozen_f3_live_responses_close_without_new_model_calls[1]
+21.85s call     tests/solver/test_q30_final_acceptance.py::test_original_expression_full_saved_plan_and_response_replay
+21.07s setup    tests/solver/test_lesson_teaching_c1_smoke.py::test_c1_cases_are_rebuilt_from_all_five_verified_snapshots
+19.52s call     tests/solver/test_lesson_capability_coverage.py::test_all_public_teaching_materials_hide_internal_math_syntax
+19.15s setup    tests/solver/test_lesson_capability_coverage.py::test_recorded_and_typed_synthetic_execution_cover_all_public_capabilities
+16.85s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[1]
+14.84s call     tests/solver/test_lesson_capability_coverage.py::test_every_public_function_projects_its_key_student_computation
+14.25s call     tests/solver/test_lesson_capability_coverage.py::test_c0_regression_fixtures_match_current_public_registry
+14.21s call     tests/solver/test_lesson_capability_coverage.py::test_review_has_one_card_per_public_capability
+13.86s call     tests/solver/test_scoped_proof_search_stage_a.py::test_recorded_baseline_runs_real_runtime_and_replay
+13.77s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_frozen_f3_live_responses_close_without_new_model_calls[3]
+13.59s setup    tests/solver/test_method_output_write_authority.py::test_all_companion_outputs_receive_exact_write_authority
+13.53s call     tests/solver/test_lesson_capability_coverage.py::test_all_public_teaching_materials_contain_no_english_prose
+13.14s call     tests/solver/test_geometry_output_input_authority.py::test_c3_geometry_inputs_never_lower_through_compiler_selector
+12.77s call     tests/solver/test_functional_direct_compiler.py::test_recorded_strict_slices_have_no_legacy_selector_entrypoint
+12.21s call     tests/solver/test_live13_repairs.py::test_real_first_attempt_plan[2]
+11.48s call     tests/solver/test_lesson_recursive_ir_review.py::test_review_accepts_current_human_approved_b3_body
+11.48s call     tests/solver/test_live14_repairs.py::test_original_first_response_end_to_end[1]
+11.45s call     tests/solver/test_scoped_proof_search_stage_e.py::test_q30_real_method_chain_with_scoped_search
+11.35s call     tests/solver/test_scoped_proof_facts_review.py::test_scope_retry_reexecutes_independent_calls_after_replaced_middle_scope
+11.13s call     tests/solver/test_q30_acceptance_repairs.py::test_saved_plan_binding_feedback_and_direct_root_closure[root_equality]
+10.87s call     tests/solver/test_functional_direct_compiler.py::test_recorded_typed_bindings_never_use_selector_read_authority
+10.52s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_frozen_f3_live_responses_close_without_new_model_calls[2]
+10.18s call     tests/solver/test_lesson_recursive_ir_review.py::test_review_audits_template_changes_without_reapproving_history
+10.15s setup    tests/solver/test_lesson_recursive_ir_review.py::test_review_audits_template_changes_without_reapproving_history
+10.03s call     tests/solver/test_scoped_proof_search_stage_f3.py::test_default_q30_creates_full_scoped_committed_chain
+9.90s call     tests/solver/test_scoped_proof_search_stage_e.py::test_v2_compiled_lesson[q30]
+9.87s call     tests/solver/test_basic_inequality_stage5c.py::test_q30_consumes_mixed_bound_chain[False]
+=========================== short test summary info ============================
+FAILED tests/solver/test_q30_final_acceptance.py::test_known_bound_transports_an_arbitrary_remainder[premises1-r+v<=x]
+1 failed, 4853 passed in 488.60s (0:08:08)

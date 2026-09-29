@@ -7,18 +7,18 @@
     for (const child of tree.children || []) { const result = find(child, id); if (result) return result; }
     return null;
   }
-  function mathTree(node, marks) {
+  function mathTree(node, marks, compact = false) {
     if (!node) return "";
     const children = node.children || [];
-    const child = i => mathTree(children[i], marks);
+    const child = i => mathTree(children[i], marks, compact);
     let content;
     switch (node.op) {
       case "integer": case "symbol": content = esc(node.text); break;
       case "add": content = child(0) + '<span class="er-op">+</span>' + (children[1].op === "add" ? '('+child(1)+')' : child(1)); break;
-      case "sub": content = child(0) + '<span class="er-op">−</span>(' + child(1) + ')'; break;
-      case "mul": content = children.map((c) => ['add','sub'].includes(c.op) ? '('+mathTree(c,marks)+')' : mathTree(c,marks)).join('<span class="er-mul">·</span>'); break;
+      case "sub": content = child(0) + '<span class="er-op">−</span>' + (compact && !['add','sub','neg'].includes(children[1].op) ? child(1) : '('+child(1)+')'); break;
+      case "mul": content = children.map((c) => ['add','sub'].includes(c.op) ? '('+mathTree(c,marks,compact)+')' : mathTree(c,marks,compact)).join('<span class="er-mul">·</span>'); break;
       case "div": content = '<span class="er-fraction"><span>'+child(0)+'</span><span>'+child(1)+'</span></span>'; break;
-      case "pow": content = '('+child(0)+')<sup>'+child(1)+'</sup>'; break;
+      case "pow": content = (compact && ['symbol','integer'].includes(children[0].op) ? child(0) : '('+child(0)+')')+'<sup>'+child(1)+'</sup>'; break;
       case "neg": case "pos": content = (node.op === 'neg' ? '−' : '+')+'('+child(0)+')'; break;
       default: throw new Error("Unsupported expression tree operation");
     }
@@ -35,7 +35,44 @@
     if (value.nodeIds && value.nodeIds.length) return value.nodeIds.map(id=>mathTree(find(whole.tree,id),marks)).join('<span class="er-op">+</span>');
     return formula(whole,renderFormula,marks);
   }
+  // Flatten only additive structure: preserve signs and all multiplicative grouping.
+  // Consecutive selected terms form one box, including operators between them.
+  function compactFormula(value, renderFormula, marks) {
+    if (!value.tree) return formula(value, renderFormula, marks);
+    const selected = new Set(marks.map(m => m.nodeId));
+    const terms = [];
+    function collect(node, sign) {
+      if (!selected.has(node.id) && ['add', 'sub'].includes(node.op)) {
+        collect(node.children[0], sign);
+        collect(node.children[1], node.op === 'sub' ? -sign : sign);
+      } else terms.push({node, sign, active:selected.has(node.id)});
+    }
+    collect(value.tree, 1);
+    let html = '', active = false;
+    terms.forEach((term, i) => {
+      const operator = i === 0 && term.sign > 0 ? '' : '<span class="er-op">'+(term.sign < 0 ? '−' : '+')+'</span>';
+      if (active && !term.active) { html += '</span>'; active = false; }
+      if (term.active && !active) {
+        html += operator+'<span class="er-highlight er-local">'; active = true;
+      } else html += operator;
+      html += mathTree(term.node, [], true);
+    });
+    return html+(active ? '</span>' : '');
+  }
   function render(spec, renderFormula) {
+    if (spec.presentation === 'compact') {
+      const transitions = spec.transitions.filter(t => t.before.latex !== t.after.latex);
+      const marks = (t, side) => t[side === 'before' ? 'localBefore' : 'localAfter'].nodeIds.map(nodeId => ({nodeId, role:'local'}));
+      const row = (value, highlights) => '<div class="er-formula">'+compactFormula(value, renderFormula, highlights)+'</div>';
+      let body = transitions.length ? row(transitions[0].before, marks(transitions[0], 'before')) : row(spec.result, []);
+      transitions.forEach((t, i) => {
+        const next = transitions[i+1];
+        const value = next && next.before.latex === t.after.latex ? next.before : t.after;
+        const highlights = value === next?.before ? marks(next, 'before') : marks(t, 'after');
+        body += '<div class="er-flow-arrow"><small>'+esc(t.label || '')+'</small><span aria-hidden="true">↓</span></div>'+row(value, highlights);
+      });
+      return '<figure class="lesson-step-visual expression-rewrite er-compact" aria-label="'+esc(spec.title)+'">'+body+'</figure>';
+    }
     const cards = ids => spec.conditionCards.filter(c => !ids || ids.includes(c.id)).map(c=>'<span class="er-condition">'+renderFormula('\\('+c.latex+'\\)')+'</span>').join('');
     let frames = '';
     spec.beats.forEach((beat,index)=>{

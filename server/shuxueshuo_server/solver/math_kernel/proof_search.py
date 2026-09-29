@@ -323,7 +323,7 @@ def default_search_configuration():
     return (
         StrategyRegistry((package,)),
         rules,
-        SearchPolicy("layered-search/v3", package.identity, checker.rule_ids),
+        SearchPolicy("layered-search/v4", package.identity, checker.rule_ids),
     )
 
 

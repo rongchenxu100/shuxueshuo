@@ -1,0 +1,87 @@
+{
+  "mode": "deepseek",
+  "steps": 7,
+  "page": "internal/review-analysis/basic-inequality-stage5c/q30-final-acceptance-20260929/lesson-live/lesson.html",
+  "elapsed_seconds": 13.328,
+  "lesson": {
+    "schema_version": "lesson-scope-generation-result/v1",
+    "semantic_attempt_count": 1,
+    "transport_request_count": 1,
+    "raw_response_received": true,
+    "direct_acceptance": true,
+    "fallback_used": false,
+    "syntax_repaired": false,
+    "source_step_completion_repaired": false,
+    "independent_material_merge_repaired": false,
+    "appended_suffix": "",
+    "removed_suffix": "",
+    "scope_sources": {
+      "problem": "llm"
+    },
+    "hashes": {
+      "annotated_plan": "49265c160da434c685d78ace755e9bcd308b0ffc0cd1ce26dd262843547587d5",
+      "output_schema": "98aa1e7f6bc9d4ecf62bd432601fdc5a22079f4a89081388f570d867ce755e3c",
+      "prompt": "0fc220c04521dc41c2a02ac64ca6250454f829a0e89ee916e7cea6c2e7baf87d"
+    },
+    "usage": {
+      "prompt_tokens": 9834,
+      "completion_tokens": 1723,
+      "total_tokens": 11557
+    },
+    "provider_duration_seconds": 6.114814,
+    "first_token_seconds": null,
+    "first_token_unavailable_reason": "provider_client_uses_non_streaming_chat_completions",
+    "transport_attempts": [
+      {
+        "transport_attempt": 1,
+        "duration_seconds": 6.114814,
+        "prompt_hash": "0fc220c04521dc41c2a02ac64ca6250454f829a0e89ee916e7cea6c2e7baf87d",
+        "visible_response": true,
+        "error": null,
+        "retryable": false,
+        "usage": {
+          "prompt_tokens": 9834,
+          "completion_tokens": 1723,
+          "total_tokens": 11557
+        },
+        "provider": "deepseek",
+        "request_model": "deepseek-v4-flash",
+        "response_model": "deepseek-flash",
+        "provider_attempts": [
+          {
+            "provider_attempt": 1,
+            "response_model": "deepseek-flash",
+            "usage": {
+              "completion_tokens": 1723,
+              "prompt_tokens": 9834,
+              "total_tokens": 11557,
+              "completion_tokens_details": null,
+              "prompt_tokens_details": {
+                "audio_tokens": null,
+                "cached_tokens": 1280
+              },
+              "prompt_cache_hit_tokens": 1280,
+              "prompt_cache_miss_tokens": 8554
+            },
+            "finish_reason": "stop",
+            "visible_content": true,
+            "reasoning_content_available": false,
+            "reasoning_content_chars": 0,
+            "response_format": "json_object",
+            "thinking_mode": "disabled",
+            "reasoning_effort": null
+          }
+        ],
+        "reasoning_content_available": false,
+        "reasoning_content_chars": 0,
+        "reasoning_debug_artifact": "transport-attempt-01.reasoning.json",
+        "reasoning_content_hashes": [
+          null
+        ],
+        "first_token_seconds": null,
+        "first_token_unavailable_reason": "provider_client_uses_non_streaming_chat_completions",
+        "raw_response_hash": "f78942efd231882e3ba16591e78cdf4974d8a4bee793cf7e6354e252968243ec"
+      }
+    ]
+  }
+}

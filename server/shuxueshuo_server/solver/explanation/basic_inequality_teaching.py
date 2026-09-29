@@ -155,13 +155,18 @@ def lower_bound_roles(source, d):
 
     if source.capability_id == "bound_univariate_quadratic":
         conclusion = math(d["teaching_effect"]["after_latex"])
+        existing = d.get("existing_square_latex")
+        derivation = (
+            [existing + r"\geq0", d["teaching_effect"]["before_latex"] + r"\geq " + d["teaching_effect"]["after_latex"]]
+            if existing else d["derivation_latex"]
+        )
         return {
-            "goal": "配方并利用平方非负求下界，保留取等条件",
-            "observation": "识别二次项，配成平方",
+            "goal": "利用平方非负求下界，保留取等条件" if existing else "配方并利用平方非负求下界，保留取等条件",
+            "observation": "识别已有的非负平方项" if existing else "识别二次项，配成平方",
             "conclusion": conclusion,
             "derive_items_by_unit": {
-                "quadratic_observe": ["∴识别二次项，通过配方减少变量"],
-                "quadratic_bound": ["∴" + math(v) for v in d["derivation_latex"]]
+                "quadratic_observe": ["∴识别已有的非负平方项" if existing else "∴识别二次项，通过配方减少变量"],
+                "quadratic_bound": ["∴" + math(v) for v in derivation]
                     + ["∴取等条件为 " + math(d["equalities_latex"][-1])],
             },
         }

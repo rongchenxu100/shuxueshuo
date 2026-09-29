@@ -277,7 +277,9 @@ def verify(
             "equalities": [equality],
             "applications": [application],
         }
-    chain = parse_derivation(steps, context.symbols)
+    # In a continuous lower-bound chain 原式 always denotes the original
+    # target, not the predecessor bound (which is generally not equivalent).
+    chain = parse_derivation(steps, context.symbols, original_expression=target["target_math"])
     final = chain[bound_relation_index].parsed
     if final.ast.op not in {">=", "<="}:
         raise ProofFailure(
