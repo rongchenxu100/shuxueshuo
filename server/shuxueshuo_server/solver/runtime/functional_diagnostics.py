@@ -915,6 +915,8 @@ def diagnostic_authority_from_issue(
     accepted_types = _string_sequence(details.get("accepted_item_types"))
     if accepted_types:
         expected.setdefault("accepted_types", list(accepted_types))
+    if code == "functional.arg_type_mismatch" and details.get("arg_name"):
+        expected.setdefault("argument", str(details["arg_name"]))
     accepted_condition_kinds = _string_sequence(
         details.get("accepted_condition_kinds")
     )

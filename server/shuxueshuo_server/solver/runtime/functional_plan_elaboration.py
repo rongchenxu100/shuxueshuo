@@ -1005,6 +1005,13 @@ def _reclassify_unique_semantic_args(
             ):
                 retained.append(value)
                 continue
+            # An explicitly named expression input is the subject of the
+            # operation, not a misplaced condition hint. Preserve a bad ref
+            # for arg_type_mismatch (including compatible_refs), instead of
+            # moving it to conditions and hiding the original binding error.
+            if source_spec.runtime_type == "Expression":
+                retained.append(value)
+                continue
             target_names = [
                 name
                 for name, spec in arg_specs.items()

@@ -1405,6 +1405,10 @@ class FunctionalPlanReconciler:
                     capability,
                     call,
                     scope_id=scope.scope_id,
+                    invalid_arg_names=frozenset(
+                        item.details.get("arg_name") for item in issues[issue_start:]
+                        if item.code == "functional.arg_type_mismatch"
+                    ),
                 )
             )
             if len(issues) > issue_start:
@@ -4831,6 +4835,7 @@ def _functional_return_contract_issues(
     call: FunctionalCall,
     *,
     scope_id: str,
+    invalid_arg_names: frozenset[str] = frozenset(),
 ) -> tuple[FunctionalPlanIssue, ...]:
     """Validate only wire-level return names, forms and declared types."""
     issues: list[FunctionalPlanIssue] = []
@@ -4884,6 +4889,14 @@ def _functional_return_contract_issues(
             )
     for name, binding in call.return_bindings.items():
         return_spec = return_specs.get(name)
+        # A same-object return copied from an invalid identity argument is a
+        # consequence of that input error. Keep the actionable arg diagnostic;
+        # independent, explicitly wrong return bindings still report normally.
+        if (return_spec is not None and return_spec.identity_arg in invalid_arg_names
+                and any(isinstance(ref, SemanticRef) and ref.ref == binding.ref
+                        and ref.kind == binding.kind
+                        for ref in call.args.get(return_spec.identity_arg, ()))):
+            continue
         if (
             return_spec is not None
             and binding.value_type is not None

@@ -8,7 +8,7 @@ The single-relation and legacy step-parser contracts remain unchanged.
 from dataclasses import dataclass, replace
 from hashlib import sha256
 
-from .expression_parser import RELATIONS, MathParseError, ParsedMath, _Parser, parse_math_relation
+from .expression_parser import RELATIONS, MathParseError, ParsedMath, _Parser, parse_math_expression, parse_math_relation
 
 
 CONNECTORS = {**dict.fromkeys(("因为", "由于", "由"), "∵"),
@@ -23,14 +23,16 @@ class DerivationRelation:
 
 
 def _append_relation(
-    result, row_start, parser, marker, left, operator, right, *, endpoint=False, language_tokens=()
+    result, row_start, parser, marker, left, operator, right, *, endpoint=False, language_tokens=(), expression_references=()
 ):
     if len(result) >= 256:
         parser.fail("proof_limit", "整段展开超过 256 个关系记录")
     spans = [left.span, operator.span, right.span]
     # Whitespace prevents accidental token concatenation. The segment table
     # maps the lowered source back to actual Unicode offsets in the raw row.
-    text = " ".join(parser.source[a:b] for a, b in spans)
+    references = [ref for ref in expression_references if tuple(ref["span"]) in spans]
+    expansions = {tuple(ref["span"]): f"({ref['math']})" for ref in references}
+    text = " ".join(expansions.get((a, b), parser.source[a:b]) for a, b in spans)
     derived_path = f"/derived_relations/{len(result)}/math"
     parsed = replace(
         parse_math_relation(text, parser.symbols),
@@ -52,19 +54,26 @@ def _append_relation(
                 "segments": [list(span) for span in spans],
                 "chain_endpoint": endpoint,
                 **({"language_tokens": list(language_tokens)} if language_tokens else {}),
+                **({"expression_references": references} if references else {}),
             },
         )
     )
 
 
-def parse_derivation(steps, symbols, *, closure_target=None):
+def parse_derivation(steps, symbols, *, closure_target=None, original_expression=None):
     if not isinstance(steps, (list, tuple)) or not 1 <= len(steps) <= 12:
         raise ValueError("steps 需要 1–12 行数学推导")
     result = []
+    # Only the owning Method supplies this binding. Ordinary parser callers
+    # cannot infer an expression from the prose or register a symbol named 原式.
+    original = None
     for i, row in enumerate(steps):
         if not isinstance(row, dict) or set(row) != {"math"}:
             raise ValueError("每行只能包含 math")
         source = row["math"]
+        if (original is None and original_expression is not None
+                and isinstance(source, str) and "原式" in source):
+            original = parse_math_expression(original_expression, symbols)
         path = f"/parameters/steps/{i}/math"
         # Teaching-clause separators are lexical aliases only. Replacement is
         # exactly one code point, so every token keeps its original offset;
@@ -75,8 +84,9 @@ def parse_derivation(steps, symbols, *, closure_target=None):
             else source
         )
         try:
-            parser = _Parser(lexical_source, symbols, step=i, source_path=path, clause_words=((*CLAUSE_WORDS, "最小值为", "最大值为", "原条件", "取等")
-                                                                                         if closure_target else CLAUSE_WORDS))
+            words = (*CLAUSE_WORDS, "最小值为", "最大值为", "原条件", "取等") if closure_target else CLAUSE_WORDS
+            parser = _Parser(lexical_source, symbols, step=i, source_path=path,
+                             clause_words=(*words, "原式") if original is not None else words)
         except MathParseError as exc:
             exc.source = source
             raise
@@ -84,6 +94,18 @@ def parse_derivation(steps, symbols, *, closure_target=None):
         marker = None
         row_start = len(result)
         conjunction = None
+        expression_references = []
+
+        def operand():
+            if original is None or parser.peek().text != "原式":
+                return parser.expr()
+            token = parser.take()
+            expression_references.append({"kind": "method_input_expression", "text": "原式",
+                                          "span": list(token.span), "math": original.source})
+            # A reference is a complete operand of a relation, not arbitrary
+            # Chinese text removal. Lowering below re-parses the expanded math
+            # with its own certificate spans and the original reference map.
+            return replace(original.ast, span=token.span)
 
         while True:
             explicit_marker = None
@@ -151,7 +173,7 @@ def parse_derivation(steps, symbols, *, closure_target=None):
                                             {"text": word.text, "span": list(word.span), "role": marker}],
                     }))
             else:
-                left = parser.expr()
+                left = operand()
                 first = left
                 operators = []
                 if parser.peek().text not in RELATIONS:
@@ -161,11 +183,12 @@ def parse_derivation(steps, symbols, *, closure_target=None):
                     )
                 while parser.peek().text in RELATIONS:
                     operator = parser.take()
-                    right = parser.expr()
+                    right = operand()
                     parser.check(left)
                     parser.check(right)
                     _append_relation(
-                        result, row_start, parser, marker, left, operator, right, language_tokens=language_tokens
+                        result, row_start, parser, marker, left, operator, right, language_tokens=language_tokens,
+                        expression_references=expression_references,
                     )
                     operators.append(operator)
                     left = right
@@ -184,6 +207,7 @@ def parse_derivation(steps, symbols, *, closure_target=None):
                             right,
                             endpoint=True,
                             language_tokens=language_tokens,
+                            expression_references=expression_references,
                         )
                 if closure_target and parser.peek().text == "取等":
                     word = parser.take()

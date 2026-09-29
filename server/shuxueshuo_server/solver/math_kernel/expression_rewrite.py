@@ -445,7 +445,7 @@ def classify(
     return result
 
 
-def _rewrite_relation_row(source, symbols):
+def _rewrite_relation_row(source, symbols, *, original_expression=None):
     """Read a full equality and optional cited premises; grant no authority."""
     from .derivation_math import parse_derivation
 
@@ -457,7 +457,7 @@ def _rewrite_relation_row(source, symbols):
         return None, source, [], []  # Historical expression-only protocol.
     except MathParseError:
         pass
-    relations = parse_derivation([{"math": source}], symbols)
+    relations = parse_derivation([{"math": source}], symbols, original_expression=original_expression)
     reasons, claims = [], []
     for row in relations:
         if row.origin["marker"] == "∵" and not claims:
@@ -521,7 +521,7 @@ def _lift_local_equality(whole, left, right):
     return rebuild(whole, path)
 
 
-def _natural_rows(steps, symbols):
+def _natural_rows(steps, symbols, *, original_expression=None):
     """Split notation into proof obligations, retaining authored row origins."""
     from .derivation_math import parse_derivation
     from .proof_kernel import fact_key
@@ -536,7 +536,8 @@ def _natural_rows(steps, symbols):
             parse_math_expression(row["math"], symbols)
         except MathParseError:
             try:
-                relations = parse_derivation([{"math": row["math"]}], symbols)
+                relations = parse_derivation([{"math": row["math"]}], symbols,
+                                             original_expression=original_expression)
             except MathParseError as exc:
                 exc.step = i
                 exc.source_path = f"/parameters/steps/{i}/math"
@@ -550,7 +551,11 @@ def _natural_rows(steps, symbols):
             if (len(conclusions) == 1 and conclusions[0].parsed.ast.op == "=") or (
                 not conclusions and len(base) == 1 and base[0].parsed.ast.op == "="
             ):
-                yield i, row, None, None
+                refs = [ref for r in base for ref in r.origin.get("expression_references", [])]
+                origin = ({**(conclusions or base)[0].origin, "step": i,
+                           "source_path": f"/parameters/steps/{i}/math",
+                           "expression_references": refs} if refs else None)
+                yield i, row, None, origin
                 continue
             for relation in base:
                 origin = {**relation.origin, "step": i, "source_path": f"/parameters/steps/{i}/math"}
@@ -658,8 +663,9 @@ def verify_chain(
     relation_origins = []
     inferred_transitions = []
     verified_notes = []
+    verified_chain_tail = None
     try:
-        natural_rows = list(_natural_rows(steps, symbols))
+        natural_rows = list(_natural_rows(steps, symbols, original_expression=input_source or str(expression)))
     except MathParseError as exc:
         raise _parser_error(exc) from exc
     except ValueError as exc:
@@ -678,7 +684,9 @@ def verify_chain(
                 continue
             local_assertion = None
             historical_summary = None
-            left, current_source, reasons, origins = _rewrite_relation_row(row["math"], symbols)
+            left, current_source, reasons, origins = _rewrite_relation_row(
+                row["math"], symbols, original_expression=input_source or str(expression))
+            authored_right = current_source
             row_format = "relations" if left is not None else "expressions"
             if input_format is not None and row_format != input_format:
                 raise RewriteError("mixed_rewrite_format", "完整等式和旧版表达式序列不能混用")
@@ -704,12 +712,27 @@ def verify_chain(
                     except RewriteError as mismatch:
                         if mismatch.code != "rewrite_scope_mismatch":
                             raise
+                        # Adjacent relations in one authored chain share the
+                        # exact source span of their middle operand. Rebuilding
+                        # the whole may already have cancelled this operand.
+                        # Keep its continuation as a checked local identity,
+                        # not another mutation or an unrelated free-standing
+                        # claim. Both sides' domains and the equality are still
+                        # checked below before recording the next endpoint.
+                        if (natural_origin and verified_chain_tail is not None
+                                and verified_chain_tail[:2] == (i, natural_origin["segments"][0])
+                                and verified_chain_tail[2] == left_value
+                                and verify_equivalence(left_value, right_value, [])):
+                            historical_summary = previous
+                            lifted = previous_value
                         # A natural summary may refer to a local group already
                         # rewritten in this call. It must match an actual prior
                         # state and reconstruct the CURRENT whole expression.
                         # It is then a verified supporting relation, not another
                         # mutation. Domain and relation proofs are still required.
                         for state in reversed(parsed):
+                            if historical_summary is not None:
+                                break
                             old = parse_math_expression(state.source, symbols).to_sympy(neutral_symbols)
                             try:
                                 candidate = _lift_local_equality(old, left_value, right_value)
@@ -807,6 +830,11 @@ def verify_chain(
                     ),
                     selected,
                 )
+                if natural_origin:
+                    endpoint = parse_math_expression(authored_right, symbols).to_sympy(neutral_symbols)
+                    verified_chain_tail = (i, natural_origin["segments"][2], endpoint)
+                else:
+                    verified_chain_tail = None
                 if historical_summary is not None:
                     verified_notes.append({
                         **(natural_origin or {}), "row": i,

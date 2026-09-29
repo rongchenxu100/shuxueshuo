@@ -838,7 +838,7 @@ def test_reconciliation_type_mismatch_projects_ref_arg_and_types(
             "observed_type": "point_on_curve",
         }
     ]
-    assert payload["expected"] == {"accepted_types": ["Point"]}
+    assert payload["expected"] == {"accepted_types": ["Point"], "argument": "curve_points"}
     assert payload["observed"] == {"type": "point_on_curve"}
     assert payload["repair_action"] == "repair_input_binding"
 

@@ -1,0 +1,440 @@
+{
+  "binding_error": {
+    "format": "functional_plan/v2",
+    "root_scope": {
+      "scope_ref": "problem",
+      "steps": [
+        {
+          "step_id": "organize",
+          "capability_id": "organize_expressions",
+          "args": {
+            "expression": "extremum_target_target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∵ a>b>c>0；∴ b>0，a-b>0"
+              },
+              {
+                "math": "∴ 1/(a*b)+1/(a*(a-b))=1/a*(1/b+1/(a-b))"
+              },
+              {
+                "math": "∴ 1/b+1/(a-b)=(a-b+b)/(b*(a-b))=a/(b*(a-b))"
+              },
+              {
+                "math": "∴ 1/(a*b)+1/(a*(a-b))=1/(b*(a-b))"
+              },
+              {
+                "math": "∴ 2*a^2-10*a*c+25*c^2=a^2+(a-5*c)^2"
+              },
+              {
+                "math": "∴ 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2=a^2+(a-5*c)^2+1/(b*(a-b))"
+              }
+            ]
+          }
+        },
+        {
+          "step_id": "bound_c",
+          "capability_id": "bound_univariate_quadratic",
+          "args": {
+            "expression": "extremum_target_target_expression",
+            "target": "extremum_target_target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∴ 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2=25*(c-a/5)^2+a^2+1/(b*(a-b))"
+              },
+              {
+                "math": "∵ (c-a/5)^2>=0；∴ 25*(c-a/5)^2>=0"
+              },
+              {
+                "math": "∴ 25*(c-a/5)^2+a^2+1/(b*(a-b))>=a^2+1/(b*(a-b))"
+              }
+            ],
+            "variable": "c"
+          }
+        },
+        {
+          "step_id": "amgm_b",
+          "capability_id": "apply_two_term_amgm",
+          "args": {
+            "previous_bound": {
+              "step_id": "bound_c",
+              "return": "bound"
+            },
+            "target": "extremum_target_target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∵ a>b>c>0；∴ b>0，a-b>0"
+              },
+              {
+                "math": "∴ b*(a-b)<=((b+(a-b))^2)/4=a^2/4"
+              },
+              {
+                "math": "∵ a>0；∴ a^2>0"
+              },
+              {
+                "math": "∴ 1/(b*(a-b))>=4/a^2"
+              },
+              {
+                "math": "∴ a^2+1/(b*(a-b))>=a^2+4/a^2"
+              }
+            ]
+          }
+        },
+        {
+          "step_id": "amgm_a",
+          "capability_id": "apply_two_term_amgm",
+          "args": {
+            "previous_bound": {
+              "step_id": "amgm_b",
+              "return": "bound"
+            },
+            "target": "extremum_target_target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∵ a>0；∴ a^2>0，4/a^2>0"
+              },
+              {
+                "math": "∴ a^2+4/a^2>=2*sqrt(a^2*(4/a^2))=4"
+              }
+            ]
+          }
+        },
+        {
+          "step_id": "close",
+          "capability_id": "close_equality_and_restore",
+          "args": {
+            "bound": {
+              "step_id": "amgm_a",
+              "return": "bound"
+            },
+            "target": "extremum_target_target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∵ c=a/5；∴ c=sqrt(2)/5"
+              },
+              {
+                "math": "∵ b=a-b；∴ b=a/2=sqrt(2)/2"
+              },
+              {
+                "math": "∵ a^2=4/a^2；∴ a^4=4"
+              },
+              {
+                "math": "∵ a>0；∴ a=sqrt(2)"
+              },
+              {
+                "math": "∴ sqrt(2)>sqrt(2)/2>sqrt(2)/5>0"
+              },
+              {
+                "math": "∴ 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2=4"
+              }
+            ]
+          }
+        }
+      ],
+      "goals": [
+        {
+          "goal_ref": "problem.minimum",
+          "answer_from": {
+            "step_id": "close",
+            "return": "minimum"
+          }
+        }
+      ]
+    }
+  },
+  "local_chain": {
+    "format": "functional_plan/v2",
+    "root_scope": {
+      "scope_ref": "problem",
+      "steps": [
+        {
+          "step_id": "organize",
+          "capability_id": "organize_expressions",
+          "args": {
+            "expression": "target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∵ a>b>c>0；∴ b>0，a-b>0"
+              },
+              {
+                "math": "∴ 1/(a*b)+1/(a*(a-b))=1/a*(1/b+1/(a-b))"
+              },
+              {
+                "math": "∴ 1/b+1/(a-b)=(a-b+b)/(b*(a-b))=a/(b*(a-b))"
+              },
+              {
+                "math": "∴ 1/(a*b)+1/(a*(a-b))=1/(b*(a-b))"
+              },
+              {
+                "math": "∴ 2*a^2-10*a*c+25*c^2=a^2+(a-5*c)^2"
+              },
+              {
+                "math": "∴ 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2=a^2+(a-5*c)^2+1/(b*(a-b))"
+              }
+            ]
+          }
+        },
+        {
+          "step_id": "bound_c",
+          "capability_id": "bound_univariate_quadratic",
+          "args": {
+            "expression": "target_expression",
+            "target": "extremum_target_target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∴ a^2+(a-5*c)^2+1/(b*(a-b))=25*(c-a/5)^2+a^2+1/(b*(a-b))"
+              },
+              {
+                "math": "∵ (c-a/5)^2>=0；∴ 25*(c-a/5)^2>=0"
+              },
+              {
+                "math": "∴ 25*(c-a/5)^2+a^2+1/(b*(a-b))>=a^2+1/(b*(a-b))"
+              }
+            ],
+            "variable": "c"
+          }
+        },
+        {
+          "step_id": "amgm_b",
+          "capability_id": "apply_two_term_amgm",
+          "args": {
+            "previous_bound": {
+              "step_id": "bound_c",
+              "return": "bound"
+            },
+            "target": "extremum_target_target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∵ a>b>c>0；∴ b>0，a-b>0"
+              },
+              {
+                "math": "∴ b*(a-b)<=((b+(a-b))^2)/4=a^2/4"
+              },
+              {
+                "math": "∵ a>0；∴ a^2>0"
+              },
+              {
+                "math": "∴ 1/(b*(a-b))>=4/a^2"
+              },
+              {
+                "math": "∴ a^2+(a-5*c)^2+1/(b*(a-b))>=a^2+(a-5*c)^2+4/a^2"
+              }
+            ]
+          }
+        },
+        {
+          "step_id": "amgm_a",
+          "capability_id": "apply_two_term_amgm",
+          "args": {
+            "previous_bound": {
+              "step_id": "amgm_b",
+              "return": "bound"
+            },
+            "target": "extremum_target_target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∵ a>0；∴ a^2>0，4/a^2>0"
+              },
+              {
+                "math": "∴ a^2+4/a^2>=2*sqrt(a^2*(4/a^2))=4"
+              },
+              {
+                "math": "∴ a^2+(a-5*c)^2+4/a^2>=4"
+              }
+            ]
+          }
+        },
+        {
+          "step_id": "close",
+          "capability_id": "close_equality_and_restore",
+          "args": {
+            "bound": {
+              "step_id": "amgm_a",
+              "return": "bound"
+            },
+            "target": "extremum_target_target_expression"
+          },
+          "parameters": {
+            "steps": [
+              {
+                "math": "∵ c-a/5=0；∴ c=a/5"
+              },
+              {
+                "math": "∵ b=a-b；∴ b=a/2"
+              },
+              {
+                "math": "∵ a^2=4/a^2；∴ a^4=4"
+              },
+              {
+                "math": "∵ a>0；∴ a=sqrt(2)"
+              },
+              {
+                "math": "∴ b=sqrt(2)/2，c=sqrt(2)/5"
+              },
+              {
+                "math": "∵ sqrt(2)>sqrt(2)/2>sqrt(2)/5>0"
+              },
+              {
+                "math": "∴ 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2=4"
+              }
+            ]
+          }
+        }
+      ],
+      "goals": [
+        {
+          "goal_ref": "problem.minimum",
+          "answer_from": {
+            "step_id": "close",
+            "return": "minimum"
+          }
+        }
+      ]
+    }
+  },
+  "root_equality": {
+    "format": "functional_plan/v2",
+    "root_scope": {
+      "scope_ref": "problem",
+      "goals": [
+        {
+          "goal_ref": "problem.minimum",
+          "answer_from": {
+            "step_id": "close_min",
+            "return": "minimum"
+          },
+          "steps": [
+            {
+              "step_id": "organize_target",
+              "capability_id": "organize_expressions",
+              "args": {
+                "expression": "target_expression"
+              },
+              "parameters": {
+                "steps": [
+                  {
+                    "math": "∴ 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2 = a^2+1/(a*b)+1/(a*(a-b))+(a-5*c)^2"
+                  }
+                ]
+              }
+            },
+            {
+              "step_id": "bound_c",
+              "capability_id": "bound_univariate_quadratic",
+              "args": {
+                "expression": "target_expression",
+                "target": "extremum_target_target_expression"
+              },
+              "parameters": {
+                "steps": [
+                  {
+                    "math": "∴ a^2+1/(a*b)+1/(a*(a-b))+(a-5*c)^2 = 25*(c-a/5)^2+a^2+1/(a*b)+1/(a*(a-b))"
+                  },
+                  {
+                    "math": "∵ 25*(c-a/5)^2>=0；∴ 25*(c-a/5)^2+a^2+1/(a*b)+1/(a*(a-b)) >= a^2+1/(a*b)+1/(a*(a-b))"
+                  }
+                ],
+                "variable": "c"
+              }
+            },
+            {
+              "step_id": "bound_b",
+              "capability_id": "apply_two_term_amgm",
+              "args": {
+                "previous_bound": {
+                  "step_id": "bound_c",
+                  "return": "bound"
+                },
+                "target": "extremum_target_target_expression"
+              },
+              "parameters": {
+                "steps": [
+                  {
+                    "math": "∵ b>0, a-b>0；∴ b*(a-b) <= ((b+(a-b))/2)^2 = a^2/4"
+                  },
+                  {
+                    "math": "∴ 1/(b*(a-b)) >= 4/a^2"
+                  },
+                  {
+                    "math": "∵ 1/(a*b)+1/(a*(a-b)) = 1/(b*(a-b))"
+                  },
+                  {
+                    "math": "∴ a^2+1/(a*b)+1/(a*(a-b)) >= a^2+4/a^2"
+                  }
+                ]
+              }
+            },
+            {
+              "step_id": "bound_a",
+              "capability_id": "apply_two_term_amgm",
+              "args": {
+                "previous_bound": {
+                  "step_id": "bound_b",
+                  "return": "bound"
+                },
+                "target": "extremum_target_target_expression"
+              },
+              "parameters": {
+                "steps": [
+                  {
+                    "math": "∵ a^2>0, 4/a^2>0；∴ a^2+4/a^2 >= 2*sqrt(a^2*(4/a^2)) = 4"
+                  }
+                ]
+              }
+            },
+            {
+              "step_id": "close_min",
+              "capability_id": "close_equality_and_restore",
+              "args": {
+                "bound": {
+                  "step_id": "bound_a",
+                  "return": "bound"
+                },
+                "target": "extremum_target_target_expression"
+              },
+              "parameters": {
+                "steps": [
+                  {
+                    "math": "∵ b*(a-b) <= a^2/4 取等：b=a-b；∴ b=a/2"
+                  },
+                  {
+                    "math": "∵ a^2+4/a^2 >= 4 取等：a^2=4/a^2；∴ a^2=2"
+                  },
+                  {
+                    "math": "∵ 25*(c-a/5)^2 >= 0 取等：c=a/5；∴ c=a/5"
+                  },
+                  {
+                    "math": "∵ a^2=2, b=a/2, c=a/5；∴ a=sqrt(2), b=sqrt(2)/2, c=sqrt(2)/5"
+                  },
+                  {
+                    "math": "∴ sqrt(2)>sqrt(2)/2>sqrt(2)/5>0"
+                  },
+                  {
+                    "math": "∴ 2*a^2+1/(a*b)+1/(a*(a-b))-10*a*c+25*c^2 = 4"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

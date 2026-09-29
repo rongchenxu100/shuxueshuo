@@ -2,7 +2,7 @@
   "method_id": "bound_univariate_quadratic",
   "title": "配方利用平方非负求下界",
   "description": "",
-  "summary": "推导优先用 ∵ 表示依据、∴ 表示结论；同一角色的多个完整关系用逗号分隔，例如 ∵ a>b>0；∴ a>0，b>0。优先不用中文“因为”“所以”“且”，兼容解析不等于推荐输出。对当前完整表达式关于 variable 配方，其他已声明变量作为参数。steps 写完整关系，优先用 ∵/∴，逐条验证，不能将依据当作新假设。先提交配方恒等式 E=A*(z-h)^2+R，再提交下界关系 A*(z-h)^2+R>=R；不得把等式两侧拆成裸表达式行。A 必须可证明严格正，A、h、R 不含 z。expression 只能是同目标 M01 的 SourceRef，与 previous_bound 互斥；previous_bound 用 M11/M12 的 StepResultRef。省略时使用原目标。乘法显式写 *。不关闭最值，取等关系 z=h 自动保留，最终用 M13 联立验证。",
+  "summary": "target 绑定 extremum_target 极值目标事实；expression 绑定同目标 M01 已提交的表达式对象，二者不是同一个引用。例如目录中的 extremum_target_target_expression 用于 target，target_expression 用于 expression；名称以实际目录为准。推导优先用 ∵ 表示依据、∴ 表示结论；同一角色的多个完整关系用逗号分隔，例如 ∵ a>b>0；∴ a>0，b>0。优先不用中文“因为”“所以”“且”，兼容解析不等于推荐输出。对当前完整表达式关于 variable 配方，其他已声明变量作为参数。steps 写完整关系，优先用 ∵/∴，逐条验证，不能将依据当作新假设。先提交配方恒等式 E=A*(z-h)^2+R，再提交下界关系 A*(z-h)^2+R>=R；不得把等式两侧拆成裸表达式行。A 必须可证明严格正，A、h、R 不含 z。expression 只能是同目标 M01 的 SourceRef，与 previous_bound 互斥；previous_bound 用 M11/M12 的 StepResultRef。省略时使用原目标。乘法显式写 *。不关闭最值，取等关系 z=h 自动保留，最终用 M13 联立验证。",
   "solves": [
     "derive_expression_lower_bound"
   ],

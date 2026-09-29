@@ -449,6 +449,11 @@ def nonnegative_components(self, g):
             return True
         if e[0] == "rat":
             return Q(int(e[1]), int(e[2])) >= 0
+        if e[0] == "sqrt":
+            # Principal roots are nonnegative on their domain. Do not search
+            # for strict positivity of the radicand just to prove a weak sign.
+            # raw/need still prove the domain and replay the root/sign rules.
+            return True
         if e[0] == "pow":
             exponent = signed_integer(e[2])
             return exponent is not None and exponent > 0 and exponent % 2 == 0

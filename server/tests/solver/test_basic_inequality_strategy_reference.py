@@ -88,6 +88,8 @@ def test_basic_inequality_prompt_renders_overview_and_planning_methods(protocol)
     assert "separate_amgm_and_square_nonnegativity" in prompt.user
     assert "previous_bound" in prompt.user
     assert reference['method_application_rules']['principle'] in prompt.user
+    assert '表达式对象与极值目标事实' in prompt.user
+    assert '这是教学偏好，不是合法路线的准入条件' in prompt.user
     assert 'Method Application Boundaries' not in prompt.system
 
 

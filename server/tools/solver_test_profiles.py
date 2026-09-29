@@ -68,6 +68,20 @@ class OwnershipRule:
 
 OWNERSHIP_RULES = (
     OwnershipRule(
+        ("server/shuxueshuo_server/solver/math_kernel/derivation_math.py",
+         "server/shuxueshuo_server/solver/math_kernel/expression_rewrite.py",
+         "server/shuxueshuo_server/solver/runtime/methods/organize_expressions.py"),
+        ("tests/solver/test_m01_original_expression_reference.py",),
+    ),
+    OwnershipRule(
+        ("server/shuxueshuo_server/solver/math_kernel/expression_rewrite.py",
+         "server/shuxueshuo_server/solver/math_kernel/real_proof_strategies.py",
+         "server/shuxueshuo_server/solver/runtime/functional_plan_elaboration.py",
+         "server/shuxueshuo_server/solver/runtime/functional_plan_reconciliation.py",
+         "server/tools/run_basic_inequality_stage5c.py"),
+        ("tests/solver/test_q30_acceptance_repairs.py",),
+    ),
+    OwnershipRule(
         ("server/shuxueshuo_server/solver/math_kernel/proof_kernel.py",
          "server/shuxueshuo_server/solver/math_kernel/real_proof_strategies.py",
          "server/shuxueshuo_server/solver/math_kernel/proof_search.py",
