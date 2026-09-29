@@ -9,7 +9,14 @@ class InvalidAction(ValueError):
     pass
 
 
-PAIR_COMPONENTS = {"structure", "amgm", "equality"}
+ORDERED_COMPONENTS = {"symmetry", "substitution"}
+PAIR_COMPONENTS = {"structure", "amgm", "equality"} | ORDERED_COMPONENTS
+
+
+def pair_matches(component, actual, expected):
+    if component["type"] in ORDERED_COMPONENTS:
+        return actual == expected
+    return Counter(actual) == Counter(expected)
 
 
 def fresh_state(lesson):
@@ -38,7 +45,7 @@ def allowed_actions(node):
                 "values": component["terms"],
                 "description": name,
             }
-            for i, name in enumerate(("方框", "圆圈"))
+            for i, name in enumerate(component.get("slot_labels", ("方框", "圆圈")))
         ]
         if component["type"] == "structure":
             actions.append(
@@ -65,7 +72,9 @@ def validate_answer(node, state):
     component, expected = node["interaction"], node["expected_answer"]
     feedback = node.get("feedback", {})
     if component["type"] in PAIR_COMPONENTS:
-        if Counter(state["pairs"][state["active"]]) != Counter(expected["terms"]):
+        if not pair_matches(
+            component, state["pairs"][state["active"]], expected["terms"]
+        ):
             raise InvalidAction(feedback.get("terms", "再看看两个数学项是否对应。"))
         if component["type"] == "structure":
             fixed, target = (
@@ -93,7 +102,7 @@ def accept_text_answer(node, state):
     component, expected = node["interaction"], node["expected_answer"]
     if component["type"] in PAIR_COMPONENTS:
         pair = state["pairs"][state["active"]]
-        if Counter(pair) != Counter(expected["terms"]):
+        if not pair_matches(component, pair, expected["terms"]):
             state["pairs"][state["active"]] = list(expected["terms"])
         if component["type"] == "structure":
             state["swapped"] = expected["fixed"] == "product"

@@ -458,6 +458,9 @@ button:disabled {
     grid-template-columns:minmax(0,1fr);
     gap:10px;
   }
+  .function-conversion .math {
+    font-size:clamp(16px,5vw,24px);
+  }
   .conversion-arrow {
     transform:rotate(90deg);
   }
@@ -801,7 +804,9 @@ button.shape[aria-expanded=true] {
 .token-picker {
   position:fixed;
   z-index:30;
-  width:180px;
+  width:max-content;
+  min-width:180px;
+  max-width:calc(100vw - 24px);
   border:1px solid #e0e7e3;
   border-radius:12px;
   background:white;
@@ -816,6 +821,7 @@ button.shape[aria-expanded=true] {
 
 .picker-options {
   display:flex;
+  flex-wrap:wrap;
   gap:8px;
   margin-top:10px;
 }
@@ -824,8 +830,11 @@ button.shape[aria-expanded=true] {
   background:#f5f8f6;
   border:1px solid #e0e8e2;
   border-radius:8px;
-  flex:1;
-  height:45px;
+  flex:1 0 auto;
+  min-width:45px;
+  min-height:45px;
+  padding:8px 12px;
+  white-space:nowrap;
   font-family:Georgia,serif;
   font-size:24px;
 }
@@ -1418,10 +1427,13 @@ button.shape[aria-expanded=true] {
 
 /* Conversation belongs to its lesson node; the composer stays visible. */
 .node-conversation { border-top: 1px solid #e0e9e5; margin-top: 24px; padding-top: 16px; display: grid; gap: 14px; }
-.chat-message { max-width: 92%; padding: 12px 16px; border-radius: 12px; background: #f2f7f4; }
-.chat-message.student { justify-self: end; background: #e5f3ef; }
-.chat-author { color: #628078; font-size: 12px; }
-.chat-message p { margin: 5px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
+.chat-message { min-width: 0; max-width: 92%; padding: 12px 16px; border-radius: 12px; background: #f1f4f3; }
+.chat-message.student { justify-self: end; background: #d2ebe4; color: #234f46; }
+.chat-message p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; }
+.chat-message .katex { white-space: normal; }
+.chat-message p > span > .katex { display: inline-block; max-width: 100%; overflow-x: auto; overflow-y: hidden; vertical-align: middle; padding: 3px 0; }
+.chat-message .katex-display { margin: .6em 0; padding: 4px 0; text-align: left; }
+.chat-message .katex-display > .katex { text-align: left; }
 .network-feedback { display: flex; align-items: center; gap: 12px; font-size: 12px; color: #627a72; }
 .network-feedback:has(#network-status:empty) { display: none; }
 #request-retry { border: 0; padding: 8px; background: transparent; color: #07847d; cursor: pointer; }
@@ -1441,3 +1453,96 @@ button.shape[aria-expanded=true] {
 .archived-node > h3 { font-size: 16px; }
 .archived-position { color: var(--muted); font-size: 13px; }
 .route-actions { margin: 20px 0; display: flex; flex-wrap: wrap; gap: 12px; }
+
+/* Expressions keep stable token values; labels may contain fractions or powers. */
+.shape.expression-slot { font-style:normal; }
+.shape.expression-slot .katex { font-size:.78em; }
+.picker-options button:has(.katex) { min-height:56px; }
+.picker-options .katex { font-size:.9em; }
+.choice-preview p { margin:16px 0; }
+[data-math-text] .katex-display { overflow-x:auto; overflow-y:hidden; }
+@media(max-width:600px) {
+  .shape.expression-slot { height:52px; }
+  .application-board .shape.expression-slot { height:48px; }
+  .completed-visual .shape.expression-slot { width:43px; height:48px; }
+  .application-board.completed-visual .shape.expression-slot { width:37px; }
+  .completed-visual > .formula[data-math-text] { font-size:18px; }
+  .reasoning p[data-math-text], .details p[data-math-text] { overflow-x:auto; padding:3px 0; }
+}
+@media(max-width:380px) {
+  .application-board.completed-visual .shape.expression-slot { width:clamp(26px,8vw,32px); }
+}
+
+/* A term can be a compound expression. Keep it inside its outline and
+   wrap AM-GM between the two sides, never within a term or a radical. */
+.shape.expression-slot,
+.completed-visual .shape.expression-slot,
+.application-board .shape.expression-slot,
+.application-board.completed-visual .shape.expression-slot {
+  width: max-content;
+  min-width: 1.8em;
+  padding-inline: 8px;
+}
+/* A circle stays round for short terms and becomes a pill for wide ones. */
+.shape.circle.expression-slot,
+.completed-visual .shape.circle.expression-slot,
+.application-board .shape.circle.expression-slot,
+.application-board.completed-visual .shape.circle.expression-slot {
+  width: auto;
+  min-width: auto;
+  aspect-ratio: 1;
+  border-radius: 999px;
+}
+.application-board .formula { flex-wrap: wrap; row-gap: 14px; }
+.amgm-side { display: inline-flex; align-items: center; justify-content: center; gap: inherit; }
+.function-conversion .conversion-terms { font-size:24px; gap:8px; margin:8px 0 0; }
+
+/* Two independent symmetry judgments and ordered substitution definitions. */
+.symmetry-judgments, .substitution-definitions {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.symmetry-judgments { margin-top:20px; }
+.symmetry-judgment { text-align:center; color:var(--muted); }
+.judgment-options { display:flex; gap:8px; margin-top:10px; }
+.judgment-options button { flex:1; min-height:44px; padding:8px 12px; border:1px solid var(--line); border-radius:10px; background:var(--paper); color:var(--ink); }
+.judgment-options button[aria-pressed="true"] { border-color:var(--teal); color:var(--teal); background:#eaf6f2; }
+
+/* Swap check: each row shows an expression, its x↔y swap and its own judgment. */
+.sym-check { margin:20px 0 12px; border:1px solid #e4efea; border-radius:15px; background:linear-gradient(125deg,#f0f8f7,#fbfaf6); }
+.sym-check.completed-visual { padding:0; }
+.sym-row { display:grid; grid-template-columns:36px minmax(0,1fr) auto; grid-template-areas:"label exprs judge"; align-items:center; gap:16px; padding:18px 20px; }
+.sym-row + .sym-row { border-top:1px solid #e4efea; }
+.sym-label { grid-area:label; font-size:12px; color:#70857d; }
+.sym-exprs { grid-area:exprs; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; justify-items:center; gap:14px; min-width:0; font-size:20px; }
+.sym-expr { white-space:nowrap; }
+.sym-arrow { display:inline-flex; align-items:center; gap:4px; padding:2px 10px; border:1px solid #e1ebe6; border-radius:999px; background:#fff; color:#9aaba5; font-size:15px; }
+.sym-arrow i { font-family:KaTeX_Math,"Times New Roman",serif; font-size:15px; }
+.sym-x { color:#087f79; }
+.sym-y { color:#c27a0e; }
+.sym-row > .judgment-options, .sym-verdict { grid-area:judge; }
+.sym-check .judgment-options { gap:2px; margin:0; padding:3px; border-radius:11px; background:#e6eeeb; }
+.sym-check .judgment-options button { flex:1; min-width:64px; min-height:38px; padding:6px 14px; border:0; border-radius:8px; background:transparent; color:#5f736d; font-size:14px; transition:background .15s, color .15s, box-shadow .15s; }
+.sym-check .judgment-options button:hover { color:var(--ink); }
+.sym-check .judgment-options button[aria-pressed="true"] { background:#fff; color:var(--teal); font-weight:600; box-shadow:0 1px 3px rgba(20,50,45,.16); }
+.sym-verdict { padding:4px 12px; border-radius:999px; background:#e5f2ef; color:var(--teal); font-size:13px; font-weight:600; white-space:nowrap; }
+.sym-verdict::before { content:'✓ '; }
+@media(max-width:760px) {
+  .sym-row { grid-template-columns:minmax(0,1fr) auto; grid-template-areas:"label label" "exprs exprs" "judge judge"; gap:10px; padding:16px; }
+  .sym-row:has(.sym-verdict) { grid-template-areas:"label judge" "exprs exprs"; }
+  .sym-verdict { justify-self:end; }
+}
+@media(max-width:600px) {
+  .symmetry-judgments, .substitution-definitions { grid-template-columns:minmax(0,1fr); }
+  .sym-exprs { gap:8px; font-size:17px; }
+  .sym-arrow { padding:2px 7px; }
+}
+@media(max-width:380px) {
+  .sym-row { padding:14px 12px; }
+  .sym-exprs { gap:6px; }
+  .sym-arrow { padding:1px 5px; font-size:13px; }
+}
+@media(max-width:360px) {
+  .sym-exprs { grid-template-columns:minmax(0,1fr); gap:10px; }
+}

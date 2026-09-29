@@ -35,7 +35,9 @@
     if (component.type === 'choice') {
       if (!expected.one_of.includes(state.choices[component.field])) throw Error(feedback.answer || '还需要表达你对这个问题的判断。');
     } else {
-      if (JSON.stringify([...state.pairs[state.active]].sort()) !== JSON.stringify([...expected.terms].sort())) throw Error(feedback.terms || '再看看两个数学项是否对应。');
+      const ordered = ['symmetry', 'substitution'].includes(component.type);
+      const actual = [...state.pairs[state.active]], wanted = [...expected.terms];
+      if (JSON.stringify(ordered ? actual : actual.sort()) !== JSON.stringify(ordered ? wanted : wanted.sort())) throw Error(feedback.terms || '再看看两个数学项是否对应。');
       if (component.type === 'structure' && ((state.swapped ? 'product' : 'sum') !== expected.fixed || (state.swapped ? 'sum' : 'product') !== expected.target)) throw Error(feedback.structure || '再看看条件和目标的关系。');
     }
   }

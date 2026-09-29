@@ -1,0 +1,247 @@
+{
+  "id": "q07",
+  "version": 1,
+  "problem": {
+    "statement": "已知 $-3<x<0$，则 $y=x\\sqrt{9-x^2}$ 的最小值为？",
+    "conditions": [
+      "-3<x<0",
+      "y=x√(9-x²)"
+    ],
+    "target": "ymin"
+  },
+  "methods": [
+    {
+      "id": "matching",
+      "label": "凑配后应用基本不等式"
+    }
+  ],
+  "routes": {
+    "matching": {
+      "label": "凑配后应用基本不等式",
+      "nodes": [
+        {
+          "id": "rewrite",
+          "title": "凑配表达式",
+          "question": "已知 $x<0$，怎样把原式改写成根号内两个正项相乘的形式？",
+          "interaction": {
+            "type": "choice",
+            "field": "rewrite_form",
+            "options": [
+              {
+                "value": "negative_root",
+                "label": "$-\\sqrt{x^2(9-x^2)}$"
+              },
+              {
+                "value": "positive_root",
+                "label": "$\\sqrt{x^2(9-x^2)}$"
+              },
+              {
+                "value": "missing_root",
+                "label": "$-x^2(9-x^2)$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "negative_root"
+            ]
+          },
+          "feedback": {
+            "answer": "注意 $\\sqrt{x^2}=|x|=-x$。原式为负，移入根号后要保留根号外的负号。"
+          },
+          "required_evidence": [
+            "signed_rewrite"
+          ],
+          "criteria": "接受y=-√[x²(9-x²)]，或明确说明x<0故x=-√(x²)，从而把原式写成负的积的平方根。接受先令t=-x>0再写y=-√[t²(9-t²)]，系统仍用原变量显示并说明等价。只说平方、只选方法、只猜-9/2不足。y=+√[x²(9-x²)]或y=-x²(9-x²)不等价，不通过。若提出对-x和√(9-x²)求积，认可其可行，但它们固定的是平方和9，不是和；可引导研究平方后的两项。不能因不同于预设就否定数学上合法的路径。没有计算板，不承诺执行工具。",
+          "completion_reply": "改写正确。因为 $x<0$，有 $\\sqrt{x^2}=-x$，所以 $y=-\\sqrt{x^2(9-x^2)}$。",
+          "results": [
+            "0<x²<9",
+            "y=-√[x²(9-x²)]",
+            "x²>0，9-x²>0"
+          ]
+        },
+        {
+          "id": "structure",
+          "title": "观察结构",
+          "question": "根号内这两项是定和求积，还是定积求和？",
+          "interaction": {
+            "type": "structure",
+            "terms": [
+              "x^2",
+              "9-x^2"
+            ],
+            "term_labels": {
+              "x^2": "$x^2$",
+              "9-x^2": "$9-x^2$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "x^2",
+              "9-x^2"
+            ],
+            "fixed": "sum",
+            "target": "product"
+          },
+          "feedback": {
+            "terms": "两项应分别为 $x^2$ 与 $9-x^2$。",
+            "structure": "固定的是 $x^2+(9-x^2)=9$；先求两项乘积的上界，再代回带负号的原式。"
+          },
+          "required_evidence": [
+            "fixed_sum_structure"
+          ],
+          "criteria": "接受x²和9-x²为两个正项且和为9，先求乘积最大值/上界；若当前已选两项，可只回答定和求积。不能把原式y的目标说成最大值；求乘积上界是为求负平方根的下界。只说两项为正或只报最终数值不足。若谈-x和√(9-x²)，肯定两项为正且平方和固定，但不能把它们的和说成固定。",
+          "completion_reply": "判断正确。$x^2+(9-x^2)=9$，这是定和求积；乘积越大，原式的负平方根越小。",
+          "results": [
+            "x²>0，9-x²>0",
+            "x²+(9-x²)=9",
+            "先求x²(9-x²)的上界"
+          ]
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对这两个正项应用基本不等式，能得到什么关系？",
+          "interaction": {
+            "type": "amgm",
+            "terms": [
+              "x^2",
+              "9-x^2"
+            ],
+            "term_labels": {
+              "x^2": "$x^2$",
+              "9-x^2": "$9-x^2$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "x^2",
+              "9-x^2"
+            ]
+          },
+          "feedback": {
+            "terms": "两个位置应分别对应 $x^2$ 和 $9-x^2$。"
+          },
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "接受x²+(9-x²)≥2√[x²(9-x²)]、9≥2√[x²(9-x²)]、等价均值形式或由此给出的乘积≤81/4、平方根≤9/2。系统代入和9、整理常数，不要求学生再算一次。只猜y最小值-9/2不足。对负的x与正的√(9-x²)直接套正项基本不等式不成立，应说明正性要求，而非简单归因项与模板不同。完成只确认本步，不追问下一步。",
+          "completion_reply": "关系正确。代入两项的和为 $9$，得到 $\\sqrt{x^2(9-x^2)}\\le\\frac92$。",
+          "results": [
+            "9≥2√[x²(9-x²)]",
+            "√[x²(9-x²)]≤9/2",
+            "x²(9-x²)≤81/4"
+          ]
+        },
+        {
+          "id": "bound",
+          "title": "代回原式",
+          "question": "代回 $y=-\\sqrt{x^2(9-x^2)}$，能得到什么界？",
+          "interaction": {
+            "type": "choice",
+            "field": "bound_direction",
+            "options": [
+              {
+                "value": "lower",
+                "label": "$y\\ge-\\frac92$"
+              },
+              {
+                "value": "upper",
+                "label": "$y\\le-\\frac92$"
+              },
+              {
+                "value": "positive",
+                "label": "$y\\ge\\frac92$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "lower"
+            ]
+          },
+          "feedback": {
+            "answer": "把 $\\sqrt{x^2(9-x^2)}\\le\\frac92$ 两边乘以 $-1$，不等号方向要改变。"
+          },
+          "required_evidence": [
+            "negative_lower_bound"
+          ],
+          "criteria": "接受y≥-9/2，或明确对平方根的上界取负变成原式下界。y≤-9/2以及y≥9/2不通过。只说乘以负数而未明确方向不足。回答最小值-9/2可视为表达本步界，确认时只声明下界，仍需下一步验证可达，不自动完成取等节点。 判定必须保留学生本轮写出的不等号方向。例如“所以y≤-9/2”明确是错误答案，即使只错一个符号，也不能自行纠正为≥后给negative_lower_bound证据；应说明错误并等待学生修正。老师之前给出的正确关系不能替代学生在本步骤的回答。",
+          "completion_reply": "方向正确。两边乘以 $-1$，得到 $y=-\\sqrt{x^2(9-x^2)}\\ge-\\frac92$。",
+          "results": [
+            "y=-√[x²(9-x²)]≥-9/2",
+            "下界是否可达仍需验证"
+          ]
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，这个下界可以取到？",
+          "interaction": {
+            "type": "equality",
+            "terms": [
+              "x^2",
+              "9-x^2"
+            ],
+            "term_labels": {
+              "x^2": "$x^2$",
+              "9-x^2": "$9-x^2$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "x^2",
+              "9-x^2"
+            ]
+          },
+          "feedback": {
+            "terms": "取等需要两个正项相等：$x^2=9-x^2$。"
+          },
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "接受x²=9-x²、x²=9/2、x=-3√2/2，或明确两个正项相等。只需给出方程，系统解方程并依-3<x<0筛选负根，无需学生重复输入x。若已给出正确方程并列出±3√2/2尚未筛选，可由系统筛选；若坚持正根满足原条件、或只答正根，不通过。只报-9/2或询问为何相等不足。两端-3和0不在定义域，但负根位于开区间内部，下界确实取到。",
+          "completion_reply": "取等条件正确。$x^2=9-x^2$，结合 $-3<x<0$ 得 $x=-\\frac{3\\sqrt2}{2}$，此时 $y=-\\frac92$。",
+          "results": [
+            "x²=9-x² ⇒ x²=9/2",
+            "-3<x<0 ⇒ x=-3√2/2",
+            "y=-9/2，下界可以取到"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {
+      "rewrite_form": null,
+      "bound_direction": null
+    },
+    "feedback": "",
+    "hint": false
+  }
+}

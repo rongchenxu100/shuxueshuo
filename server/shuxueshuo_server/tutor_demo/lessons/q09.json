@@ -1,0 +1,436 @@
+{
+  "id": "q09",
+  "version": 1,
+  "problem": {
+    "statement": "已知实数 $a,b$ 满足 $\\left(\\frac1a-2\\right)\\left(\\frac1b-3\\right)=6$，则 $ab$ 的最大值为？",
+    "conditions": [
+      "a,b为实数",
+      "a≠0,b≠0",
+      "(1/a-2)(1/b-3)=6"
+    ],
+    "target": "max(ab)"
+  },
+  "methods": [
+    {
+      "id": "matching",
+      "label": "配凑后应用基本不等式"
+    },
+    {
+      "id": "elimination",
+      "label": "条件消元法"
+    }
+  ],
+  "routes": {
+    "matching": {
+      "label": "配凑后应用基本不等式",
+      "nodes": [
+        {
+          "id": "rewrite",
+          "title": "整理条件",
+          "question": "去掉分母并展开，原条件可以整理成哪个关系？",
+          "interaction": {
+            "type": "choice",
+            "field": "condition_form",
+            "options": [
+              {
+                "value": "linear",
+                "label": "$2a+3b=1$"
+              },
+              {
+                "value": "swapped",
+                "label": "$3a+2b=1$"
+              },
+              {
+                "value": "six",
+                "label": "$2a+3b=6$"
+              }
+            ],
+            "description": "linear正确；swapped将a,b的系数交换；six混淆常数项。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "linear"
+            ]
+          },
+          "feedback": {
+            "answer": "由 $a,b\\ne0$，可得 $(1-2a)(1-3b)=6ab$。展开时保留常数 $1$，两边的 $6ab$ 可以消去。"
+          },
+          "required_evidence": [
+            "linear_condition"
+          ],
+          "criteria": "接受2a+3b=1、3b+2a=1或等价关系。原式定义要求a,b≠0，故两边乘ab是等式变形，不受ab正负影响；但后续必须保留非零限制。只写(1-2a)(1-3b)=6ab是中间过程，尚需学生指出消去后线性关系。3a+2b=1系数错，2a+3b=6常数错，不自动纠正后通过。只选方法或猜1/24不足。不要声称原条件推出a,b都正。",
+          "completion_reply": "整理正确。在 $a,b\\ne0$ 的前提下，原条件等价于 $2a+3b=1$。",
+          "results": [
+            "a≠0,b≠0",
+            "(1-2a)(1-3b)=6ab",
+            "1-2a-3b+6ab=6ab ⇒ 2a+3b=1"
+          ]
+        },
+        {
+          "id": "sign",
+          "title": "判断正负",
+          "question": "要对两项应用基本不等式，怎样处理 a、b 的符号？",
+          "interaction": {
+            "type": "choice",
+            "field": "sign_case",
+            "options": [
+              {
+                "value": "split",
+                "label": "先分 $ab<0$ 与 $ab>0$；后一种情况由条件推出 $a,b>0$"
+              },
+              {
+                "value": "positive",
+                "label": "由 $2a+3b=1$，直接认定 $a,b>0$"
+              },
+              {
+                "value": "negative",
+                "label": "当 $ab>0$ 时，$a,b$ 都为负数"
+              }
+            ],
+            "description": "split按乘积符号分类，且ab>0时利用正的加权和排除都负；positive忽略异号情况；negative与加权和为正冲突。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "split"
+            ]
+          },
+          "feedback": {
+            "answer": "和为正不代表两项都正。先讨论 $ab$ 的符号；若 $ab>0$，两数同号，再结合 $2a+3b=1>0$ 判断。"
+          },
+          "required_evidence": [
+            "sign_cases"
+          ],
+          "criteria": "须说明先处理ab<0和ab>0两类；ab=0因非零条件不可能。若ab>0则a,b同号，2a+3b=1>0排除都负，才可对2a与3b用正数基本不等式。接受简述异号时积负，同号只能都正。只说a,b都是正数或只说加权和为正不足。单凭2a+3b=1不能推出都正，例如a=2,b=-1满足原题且ab<0。本步不提前断言所有解都正，也不能把分类讨论记成原题新增条件。后续先求正积情况的上界，最终得到可达正值后与负积情况比较。",
+          "completion_reply": "分类正确。$ab<0$ 时乘积为负；$ab>0$ 时两数同号，结合 $2a+3b=1>0$ 得 $a,b>0$。后续先研究这一类，最后比较两类结果。",
+          "results": [
+            "ab≠0",
+            "ab<0：乘积为负",
+            "ab>0：a,b同号且2a+3b=1>0 ⇒ a>0,b>0",
+            "后续AM-GM只在ab>0分支使用"
+          ]
+        },
+        {
+          "id": "structure",
+          "title": "观察结构",
+          "question": "这两项是定和求积，还是定积求和？",
+          "interaction": {
+            "type": "structure",
+            "terms": [
+              "a",
+              "b",
+              "2a",
+              "3b"
+            ],
+            "term_labels": {
+              "a": "$a$",
+              "b": "$b$",
+              "2a": "$2a$",
+              "3b": "$3b$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "2a",
+              "3b"
+            ],
+            "fixed": "sum",
+            "target": "product"
+          },
+          "feedback": {
+            "terms": "请对应条件中的两项 $2a$、$3b$，留意系数。",
+            "structure": "固定的是 $2a+3b=1$，目标是求乘积 $6ab$ 的最大值。"
+          },
+          "required_evidence": [
+            "fixed_sum_structure"
+          ],
+          "criteria": "本步在已讨论的ab>0分支中选择2a和3b、识别定和求积。若槽位或当前问题已明确对象，简答定和求积足够。若仍选a,b，只说定和求积不够：a+b不固定，2a+3b固定为1。a,b也可合法使用AM-GM，但不能直接把a+b当作1；不要说a,b不是正数，当前分支中它们确为正。两配凑项乘积为6ab，最大化它与最大化ab等价，换算由系统完成。",
+          "completion_reply": "判断正确。$2a+3b=1$ 是定和，求的是乘积 $6ab$ 的上界，再换算为 $ab$ 的上界。",
+          "results": [
+            "在ab>0分支：2a>0,3b>0",
+            "2a+3b=1",
+            "(2a)(3b)=6ab，定和求积"
+          ]
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对这两个正项应用基本不等式，能得到什么关系？",
+          "interaction": {
+            "type": "amgm",
+            "terms": [
+              "a",
+              "b",
+              "2a",
+              "3b"
+            ],
+            "term_labels": {
+              "a": "$a$",
+              "b": "$b$",
+              "2a": "$2a$",
+              "3b": "$3b$"
+            },
+            "positive_terms": [
+              "2a",
+              "3b"
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "2a",
+              "3b"
+            ]
+          },
+          "feedback": {
+            "terms": "请对应条件中的两项 $2a$、$3b$，留意系数。"
+          },
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "在ab>0分支接受2a+3b≥2√(6ab)、1≥2√(6ab)、6ab≤1/4，或由这两个项明确推出ab≤1/24。只猜1/24不足。a+b≥2√ab本身成立，但a+b不固定，尚未满足本步配凑关系；不能将a+b替成1。6ab的界为1/4，ab的界为1/24，不能混淆。ab<0时根号√(6ab)无实数意义，不能将此不等式直接用于所有实数解。系统负责根号、平方和除6，不额外追问取等。",
+          "completion_reply": "关系正确。在 $ab>0$ 的情况下，$1\\ge2\\sqrt{6ab}$，所以 $6ab\\le\\frac14$，即 $ab\\le\\frac1{24}$。",
+          "results": [
+            "ab>0时：1=2a+3b≥2√(6ab)",
+            "6ab≤1/4 ⇒ ab≤1/24"
+          ]
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，这个上界可以取到？",
+          "interaction": {
+            "type": "equality",
+            "terms": [
+              "a",
+              "b",
+              "2a",
+              "3b"
+            ],
+            "term_labels": {
+              "a": "$a$",
+              "b": "$b$",
+              "2a": "$2a$",
+              "3b": "$3b$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "2a",
+              "3b"
+            ]
+          },
+          "feedback": {
+            "terms": "请对应条件中的两项 $2a$、$3b$，留意系数。"
+          },
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "接受2a=3b、a/b=3/2，或a=1/4,b=1/6。只需给取等关系，系统联立2a+3b=1求解并验证原分式条件，不要求反复填值。a=b不是本题AM-GM等号条件，a=b=1/5虽满足原条件但积1/25不是最大值。只猜1/24或问为什么相等不足。最终应明确取得的1/24>0，大于所有ab<0的值，因此是全部实数解上的最大值。",
+          "completion_reply": "取等条件正确。联立得 $a=\\frac14,b=\\frac16$，代回原条件成立，且 $ab=\\frac1{24}>0$，也大于所有负积情况。",
+          "results": [
+            "2a=3b,2a+3b=1 ⇒ a=1/4,b=1/6",
+            "(4-2)(6-3)=6",
+            "ab=1/24>0，大于ab<0的全部情况，故全局最大值1/24"
+          ]
+        }
+      ]
+    },
+    "elimination": {
+      "label": "条件消元法",
+      "nodes": [
+        {
+          "id": "rewrite",
+          "title": "整理条件",
+          "question": "去掉分母并展开，原条件可以整理成哪个关系？",
+          "interaction": {
+            "type": "choice",
+            "field": "condition_form",
+            "options": [
+              {
+                "value": "linear",
+                "label": "$2a+3b=1$"
+              },
+              {
+                "value": "swapped",
+                "label": "$3a+2b=1$"
+              },
+              {
+                "value": "six",
+                "label": "$2a+3b=6$"
+              }
+            ],
+            "description": "linear正确；swapped将a,b的系数交换；six混淆常数项。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "linear"
+            ]
+          },
+          "feedback": {
+            "answer": "由 $a,b\\ne0$，可得 $(1-2a)(1-3b)=6ab$。展开时保留常数 $1$，两边的 $6ab$ 可以消去。"
+          },
+          "required_evidence": [
+            "linear_condition"
+          ],
+          "criteria": "接受2a+3b=1、3b+2a=1或等价关系。原式定义要求a,b≠0，故两边乘ab是等式变形，不受ab正负影响；但后续必须保留非零限制。只写(1-2a)(1-3b)=6ab是中间过程，尚需学生指出消去后线性关系。3a+2b=1系数错，2a+3b=6常数错，不自动纠正后通过。只选方法或猜1/24不足。不要声称原条件推出a,b都正。",
+          "completion_reply": "整理正确。在 $a,b\\ne0$ 的前提下，原条件等价于 $2a+3b=1$。",
+          "results": [
+            "a≠0,b≠0",
+            "(1-2a)(1-3b)=6ab",
+            "1-2a-3b+6ab=6ab ⇒ 2a+3b=1"
+          ]
+        },
+        {
+          "id": "eliminate",
+          "title": "条件消元",
+          "question": "利用整理后的条件，你准备消去哪个变量？",
+          "interaction": {
+            "type": "choice",
+            "field": "variable",
+            "options": [
+              {
+                "value": "a",
+                "label": "$b=\\frac{1-2a}{3}$"
+              },
+              {
+                "value": "b",
+                "label": "$a=\\frac{1-3b}{2}$"
+              }
+            ],
+            "description": "a为保留a、消去b；b为保留b、消去a。两个选择都可行，必须根据学生表达选择。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "a",
+              "b"
+            ]
+          },
+          "feedback": {
+            "answer": "请选择一种消元方向。"
+          },
+          "required_evidence": [
+            "elimination_relation"
+          ],
+          "criteria": "接受b=(1-2a)/3并选择variable=a，或a=(1-3b)/2并选择variable=b。学生仅说消元或任选一个还没给方向，不要代选；若指明消去a则保留b，消去b则保留a。变量只是非零实数，不可擅加正数区间；保留a时a≠0,1/2，保留b时b≠0,1/3。代入目标和整理二次式由系统完成。",
+          "completion_reply": "消元关系正确。系统把它代入乘积，整理成一个变量的二次式，并保留原来的非零限制。",
+          "results": [
+            "使用学生选择的消元方向；variable=a表示保留a，variable=b表示保留b",
+            "保留a时：b=(1-2a)/3,ab=a/3-2a²/3,a≠0且a≠1/2",
+            "保留b时：a=(1-3b)/2,ab=b/2-3b²/2,b≠0且b≠1/3"
+          ]
+        },
+        {
+          "id": "quadratic",
+          "title": "求二次式的上界",
+          "question": "怎样判断刚才这个二次式的最大值？",
+          "interaction": {
+            "type": "choice",
+            "field": "technique",
+            "options": [
+              {
+                "value": "square",
+                "label": "配方，看平方项的取值"
+              },
+              {
+                "value": "vertex",
+                "label": "利用二次函数的顶点"
+              }
+            ],
+            "description": "square为配方，vertex为顶点法；两者都有效，系统给出对应二次式的计算结果。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "square",
+              "vertex"
+            ]
+          },
+          "feedback": {
+            "answer": "可以从配方或二次函数的顶点入手。"
+          },
+          "required_evidence": [
+            "quadratic_method"
+          ],
+          "criteria": "明确选择配方或顶点法即可，不要求重复计算。学生给配方恒等式也视为square；给开口向下顶点信息视为vertex，动作需按实际回答选择，不能只返回证据后随机代选。保留a时ab=1/24-(2/3)(a-1/4)^2，保留b时ab=1/24-(3/2)(b-1/6)^2。只猜1/24或只说有最大值不足；学生所写配方系数或常数错时先纠错，不能因提到配方就通过。这里给出上界和候选值，原分式条件验证在下一步。",
+          "completion_reply": "这个方法可行。二次式开口向下，上界为 $\\frac1{24}$，候选取值为 $a=\\frac14,b=\\frac16$。",
+          "results": [
+            "ab=1/24-(2/3)(a-1/4)^2=1/24-(3/2)(b-1/6)^2",
+            "ab≤1/24，候选a=1/4,b=1/6，待验证原条件"
+          ]
+        },
+        {
+          "id": "feasibility",
+          "title": "验证取值",
+          "question": "这个候选取值满足原题的条件吗？",
+          "interaction": {
+            "type": "choice",
+            "field": "feasible",
+            "options": [
+              {
+                "value": "yes",
+                "label": "满足：两数非零，且代回原分式等式成立"
+              },
+              {
+                "value": "no",
+                "label": "不满足原题条件"
+              }
+            ],
+            "description": "yes为满足原条件，no为不满足。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "yes"
+            ]
+          },
+          "feedback": {
+            "answer": "两数都非零；代入得到 $(4-2)(6-3)=6$。请核对原条件。"
+          },
+          "required_evidence": [
+            "feasible_values"
+          ],
+          "criteria": "本步候选为a=1/4,b=1/6。接受明确确认两数非零且原等式成立，或写(4-2)(6-3)=6。页面已明确候选和验证对象时简答满足也接受。不要求两数为正作为原题限制；原条件只是非零实数和分式等式。只再次猜最大值1/24不足。",
+          "completion_reply": "验证正确。两数非零，代回原式得到 $6$，所以上界 $\\frac1{24}$ 能够取到。",
+          "results": [
+            "a=1/4,b=1/6满足非零实数条件",
+            "(4-2)(6-3)=6",
+            "最大值1/24可以取到"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {
+      "condition_form": null,
+      "sign_case": null,
+      "variable": null,
+      "technique": null,
+      "feasible": null
+    },
+    "feedback": "",
+    "hint": false
+  }
+}

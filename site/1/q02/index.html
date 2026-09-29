@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q02 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=17">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=13" defer></script>
+  <script src="/assets/practice/context.js?v=7" defer></script>
+  <script src="/assets/practice/runtime.js?v=11" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q02</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>$x^2+\frac{1}{x^2}$ 的最小值为？</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>在实数范围内讨论</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$x\in\mathbb R,\quad x\ne0$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$\left(x^2+\frac1{x^2}\right)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：观察结构</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q02",
+  "version": 1,
+  "variables": [
+    "x"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "direct",
+      "label": "直接应用基本不等式"
+    },
+    {
+      "id": "square",
+      "label": "配方利用平方非负"
+    }
+  ],
+  "routes": {
+    "direct": [
+      {
+        "id": "structure",
+        "title": "观察结构",
+        "question": "定和求积还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "x^2",
+            "1/x^2"
+          ],
+          "term_labels": {
+            "x^2": "$x^2$",
+            "1/x^2": "$\\frac{1}{x^2}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "x^2",
+            "1/x^2"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "两个位置需要分别对应 x² 和 1/x²。",
+          "structure": "两项相乘恒为 1，题目要求的是它们的和的最小值。"
+        },
+        "submit_label": "确认结构",
+        "display": "direct-structure-done"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对 $x^2$ 和 $\\frac1{x^2}$ 应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "x^2",
+            "1/x^2"
+          ],
+          "term_labels": {
+            "x^2": "$x^2$",
+            "1/x^2": "$\\frac{1}{x^2}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "x^2",
+            "1/x^2"
+          ]
+        },
+        "feedback": {
+          "terms": "两个位置需要分别对应 x² 和 1/x²。"
+        },
+        "submit_label": "确认关系",
+        "display": "direct-amgm-done"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，刚才的基本不等式能取等号？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "x^2",
+            "1/x^2"
+          ],
+          "term_labels": {
+            "x^2": "$x^2$",
+            "1/x^2": "$\\frac{1}{x^2}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "x^2",
+            "1/x^2"
+          ]
+        },
+        "feedback": {
+          "terms": "两个位置需要分别对应 x² 和 1/x²。"
+        },
+        "submit_label": "确认取等",
+        "display": "direct-equality-done"
+      }
+    ],
+    "square": [
+      {
+        "id": "rewrite",
+        "title": "选择平方结构",
+        "question": "你准备借助哪个完全平方式，寻找原式的下界？",
+        "interaction": {
+          "type": "choice",
+          "field": "square_form",
+          "options": [
+            {
+              "value": "difference",
+              "label": "$\\left(x-\\frac1x\\right)^2$"
+            },
+            {
+              "value": "sum",
+              "label": "$\\left(x+\\frac1x\\right)^2$"
+            }
+          ],
+          "description": "difference为差的平方；sum为和的平方。系统负责展开和移项。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "difference"
+          ]
+        },
+        "feedback": {
+          "answer": "和的平方改写成立，但仅利用平方非负得到的下界 −2 无法取到。试试差的平方。"
+        },
+        "submit_label": "确认思路",
+        "display": "square-rewrite-done",
+        "preview": {
+          "difference": "difference-preview",
+          "sum": "sum-preview"
+        }
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个平方项等于零？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "x",
+            "1/x"
+          ],
+          "term_labels": {
+            "x": "$x$",
+            "1/x": "$\\frac1x$"
+          },
+          "caption": "平方项为零"
+        },
+        "expected_answer": {
+          "terms": [
+            "x",
+            "1/x"
+          ]
+        },
+        "feedback": {
+          "terms": "平方项为零，需要 x 与 1/x 相等。"
+        },
+        "submit_label": "确认取等",
+        "display": "square-equality-done"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+
+  <template id="direct-structure-done">
+    <div class="visual-board completed-visual">
+      <div class="structure-summary">
+        <div class="summary-item"><span class="summary-label">定积</span><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span> · <span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div>
+        <span class="flow-arrow" aria-hidden="true">→</span>
+        <div class="summary-item"><span class="summary-label">求和</span><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span> + <span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div>
+      </div>
+    </div>
+    <div class="reasoning"><span class="section-label">根据你的选择，整理思路</span>
+      <p data-math-text>$x\ne0\ \Longrightarrow\ x^2>0,\quad\frac1{x^2}>0$</p>
+      <p data-math-text>$x^2\cdot\frac1{x^2}=1$</p>
+      <p>两正项的积固定，要求和的最小值，可以应用基本不等式。</p>
+    </div>
+  </template>
+  <template id="direct-amgm-done">
+    <div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div>
+    <details class="details" id="{{uid}}-derivation" open><summary>完整推导</summary>
+      <p data-math-text>$x^2>0,\quad\frac1{x^2}>0$</p>
+      <p data-math-text>$x^2+\frac1{x^2}\ge2\sqrt{x^2\cdot\frac1{x^2}}=2$</p>
+    </details><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="direct-equality-done">
+    <div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div>
+    <div class="reasoning"><span class="section-label">系统计算 · 验证取等</span>
+      <p data-math-text>$x^2=\frac1{x^2}\ \Longrightarrow\ x^4=1\ \Longrightarrow\ x^2=1$</p>
+      <p data-math-text>$x=\pm1$</p><p data-math-text>两个取值都满足 $x\ne0$，且 $x^2+\frac1{x^2}=2$。下界可以取到。</p>
+    </div>
+  </template>
+  <template id="difference-preview">
+    <div class="reasoning choice-preview" aria-live="polite"><span class="section-label">展开并整理</span>
+      <p data-math-text>$\left(x-\frac1x\right)^2=x^2-2+\frac1{x^2}$</p>
+      <p data-math-text>$x^2+\frac1{x^2}=\left(x-\frac1x\right)^2+2$</p>
+    </div>
+  </template>
+  <template id="sum-preview">
+    <div class="reasoning choice-preview" aria-live="polite"><span class="section-label">展开并整理</span>
+      <p data-math-text>$\left(x+\frac1x\right)^2=x^2+2+\frac1{x^2}$</p>
+      <p data-math-text>$x^2+\frac1{x^2}=\left(x+\frac1x\right)^2-2\ge-2$</p>
+    </div>
+    <p class="feedback">这个改写成立，但仅利用平方非负得到的下界 −2 无法取到。再看看差的平方。</p>
+  </template>
+  <template id="square-rewrite-done">
+    <div class="visual-board completed-visual">
+      <div class="board-caption">配方：把原式转化为“平方项 + 常数”</div>
+      <div class="function-conversion">
+        <div><span class="conversion-label">原式求最小值</span><div class="math" data-math-text>$\left(x^2+\frac1{x^2}\right)_{\min}$</div></div>
+        <span class="conversion-arrow" aria-hidden="true">→</span>
+        <div><span class="conversion-label">平方项越小，原式越小</span><div class="math"><span class="square-term" data-math-text>$\left(x-\frac1x\right)^2$</span> + 2</div><span class="conversion-label">平方项 ≥ 0，所以原式 ≥ 2</span></div>
+      </div>
+    </div>
+    <div class="reasoning"><span class="section-label">系统计算 · 平方非负</span>
+      <p data-math-text>$\left(x-\frac1x\right)^2=x^2-2+\frac1{x^2}$</p>
+      <p data-math-text>$\left(x-\frac1x\right)^2\ge0$</p>
+      <p data-math-text>$x^2+\frac1{x^2}=\left(x-\frac1x\right)^2+2\ge2$</p>
+    </div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="square-equality-done">
+    <div class="visual-board completed-visual"><div class="board-caption">平方项为零</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div>
+    <div class="reasoning"><span class="section-label">系统计算 · 验证取等</span>
+      <p data-math-text>$x=\frac1x\ \Longrightarrow\ x^2=1\ \Longrightarrow\ x=\pm1$</p>
+      <p data-math-text>$\left(x-\frac1x\right)^2=0$</p><p data-math-text>两个取值都满足 $x\ne0$，原式等于 $0+2=2$。下界可以取到。</p>
+    </div>
+  </template>
+  <template id="lesson-completion">
+    <section class="completion-card" tabindex="-1"><h2 data-math-text>$x^2+\frac1{x^2}$ 的最小值为 $2$</h2><p data-math-text>当 $x=\pm1$ 时取到。</p></section>
+  </template>
+</body>
+</html>

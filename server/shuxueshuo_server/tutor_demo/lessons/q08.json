@@ -1,0 +1,404 @@
+{
+  "id": "q08",
+  "version": 1,
+  "problem": {
+    "statement": "已知正数 $x,y$ 满足 $xy=1$，则 $\\frac{x^2+y^2+6}{x+y}$ 的最小值为？",
+    "conditions": [
+      "x>0",
+      "y>0",
+      "xy=1"
+    ],
+    "target": "min((x^2+y^2+6)/(x+y))"
+  },
+  "methods": [
+    {
+      "id": "matching",
+      "label": "常规配凑"
+    },
+    {
+      "id": "symmetric",
+      "label": "找对称结构，和积换元"
+    }
+  ],
+  "routes": {
+    "matching": {
+      "label": "常规配凑",
+      "nodes": [
+        {
+          "id": "rewrite",
+          "title": "凑配表达式",
+          "question": "利用条件，怎样将原式配成两个正项的和？",
+          "interaction": {
+            "type": "choice",
+            "field": "rewrite_form",
+            "options": [
+              {
+                "value": "plus_four",
+                "label": "$x+y+\\frac4{x+y}$"
+              },
+              {
+                "value": "plus_six",
+                "label": "$x+y+\\frac6{x+y}$"
+              },
+              {
+                "value": "minus_four",
+                "label": "$x+y-\\frac4{x+y}$"
+              }
+            ],
+            "description": "plus_four为正确等价改写；plus_six漏掉平方展开的2xy；minus_four常数符号错误。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "plus_four"
+            ]
+          },
+          "feedback": {
+            "answer": "核对 $x^2+y^2=(x+y)^2-2xy$，再代入 $xy=1$，注意剩下的常数。"
+          },
+          "required_evidence": [
+            "equivalent_rewrite"
+          ],
+          "criteria": "接受原式=x+y+4/(x+y)，或分子=(x+y)^2+4；分式拆开由系统完成。只说找对称、用基本不等式、猜4不足。+6/(x+y)遗漏2xy，-4/(x+y)符号错。其他等价改写先认可，未给出本步所需结构不能代答并通过。本步不要求判断定积求和。没有计算板，不承诺调用计算工具。",
+          "completion_reply": "改写正确。由 $xy=1$，分子配成 $(x+y)^2+4$，原式成为 $x+y+\\frac4{x+y}$。",
+          "results": [
+            "x^2+y^2+6=(x+y)^2-2xy+6=(x+y)^2+4",
+            "原式=x+y+4/(x+y)"
+          ]
+        },
+        {
+          "id": "structure",
+          "title": "观察结构",
+          "question": "这两项是定和求积，还是定积求和？",
+          "interaction": {
+            "type": "structure",
+            "terms": [
+              "x+y",
+              "4/(x+y)"
+            ],
+            "term_labels": {
+              "x+y": "$x+y$",
+              "4/(x+y)": "$\\frac4{x+y}$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "x+y",
+              "4/(x+y)"
+            ],
+            "fixed": "product",
+            "target": "sum"
+          },
+          "feedback": {
+            "terms": "请核对两个位置对应的数学项。",
+            "structure": "两项的积固定为 $4$，目标是求和的最小值。"
+          },
+          "required_evidence": [
+            "fixed_product_structure"
+          ],
+          "criteria": "需明确x+y与4/(x+y)是定积求和。已明确两个项时简答定积求和可通过，常数4由系统算。只说正数或只重复改写不足。定和求积错误，不能老师纠正后算学生通过。",
+          "completion_reply": "判断正确。两个正项的积为 $4$，要求它们和的最小值，是定积求和。",
+          "results": [
+            "x+y>0,4/(x+y)>0",
+            "(x+y)·(4/(x+y))=4",
+            "定积求和"
+          ]
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对这两个正项应用基本不等式，能得到什么关系？",
+          "interaction": {
+            "type": "amgm",
+            "terms": [
+              "x+y",
+              "4/(x+y)"
+            ],
+            "term_labels": {
+              "x+y": "$x+y$",
+              "4/(x+y)": "$\\frac4{x+y}$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "x+y",
+              "4/(x+y)"
+            ]
+          },
+          "feedback": {
+            "terms": "请核对两个位置对应的数学项。"
+          },
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "接受(x+y)+(4/(x+y))≥2√((x+y)·(4/(x+y)))或等价关系≥4并明确这两个正项。只猜4不足。化简由系统完成，本步不追问取等。不能将原分子≥8和分母≥2相除就断言商≥4，上下界相除不保留这种方向；要通过改写或其他成立证明获得常数下界。 解释改写时保持整条等式：原式=(x²+y²+6)/(x+y)=((x+y)²+4)/(x+y)=(x+y)+4/(x+y)。不能漏写分母，把分子(x+y)²+4写成与改写后的商相等。和积路径则用原式=(s²-2p+6)/s=(s²+4)/s=s+4/s。 分子分母下界相除的错误在不等式方向：分母B≥2只能得1/B≤1/2，不能与分子A≥8相乘推出A/B≥4。本题分子8与分母2确实同时在x=y=1取得，不要以二者不能同时取到为理由；同时取到也不能单凭两个下界证明全域商的下界。",
+          "completion_reply": "关系正确。两项的积为 $4$，由基本不等式得到原式不小于 $4$。",
+          "results": [
+            "(x+y)+(4/(x+y))≥2√4=4"
+          ]
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，这个下界可以取到？",
+          "interaction": {
+            "type": "equality",
+            "terms": [
+              "x+y",
+              "4/(x+y)"
+            ],
+            "term_labels": {
+              "x+y": "$x+y$",
+              "4/(x+y)": "$\\frac4{x+y}$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "x+y",
+              "4/(x+y)"
+            ]
+          },
+          "feedback": {
+            "terms": "请核对两个位置对应的数学项。"
+          },
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "接受x+y=4/(x+y)，或x+y=2，或x=y=1。系统完成求解与验证，不要求学生再次填x,y。若只说x=y但未结合xy=1，可由系统得到x=y=1，接受。只说最小值4不足；只问为什么相等是疑问，不提交。必须验证原约束与取等可达，不能把x=y=-1也接受；原变量为正。",
+          "completion_reply": "取等条件正确。代回原条件得到 $x=y=1$，此时原式为 $4$，下界可以取到。",
+          "results": [
+            "x+y=4/(x+y)",
+            "x+y=2,xy=1 ⇒ x=y=1",
+            "原式最小值4，x=y=1时取得"
+          ]
+        }
+      ]
+    },
+    "symmetric": {
+      "label": "找对称结构，和积换元",
+      "nodes": [
+        {
+          "id": "symmetry",
+          "title": "识别对称结构",
+          "question": "交换 x、y 后，条件和目标是否分别保持不变？",
+          "interaction": {
+            "type": "symmetry",
+            "terms": [
+              "unchanged",
+              "changed"
+            ],
+            "term_labels": {
+              "unchanged": "不变",
+              "changed": "改变"
+            },
+            "slot_labels": [
+              "条件",
+              "目标"
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "unchanged",
+              "unchanged"
+            ]
+          },
+          "feedback": {
+            "terms": "交换的是变量的位置。请分别核对条件和目标，不能只看其中一个。"
+          },
+          "required_evidence": [
+            "symmetric_condition",
+            "symmetric_target"
+          ],
+          "criteria": "本步要学生判断交换x、y后条件与目标均不变。明确说这道题的条件和目标都对称、交换后两者都不变，足够；只说xy=yx仅满足symmetric_condition，只说目标不变仅满足symmetric_target，可分轮积累。只选方法、只点击交换、只说令s=x+y、只猜4不足。条件xy=1交换为yx=1；目标分子x²+y²+6交换为y²+x²+6、分母x+y交换为y+x，值均不变；正数定义域也在交换后保持。不能把式子书写顺序改变误判成数学值改变。错误判断应解释并留在本步，不替学生改答案。",
+          "completion_reply": "判断正确。交换 $x,y$ 后，条件与目标均不变，正数范围也不变，可以考虑用和与积表示。",
+          "results": [
+            "交换x,y：xy=1与yx=1等价",
+            "交换x,y：目标分式不变",
+            "x,y>0的定义域在交换后不变"
+          ]
+        },
+        {
+          "id": "substitution",
+          "title": "和积换元",
+          "question": "分别用 s 表示和、p 表示积，怎样定义它们？",
+          "interaction": {
+            "type": "substitution",
+            "terms": [
+              "x+y",
+              "xy",
+              "x-y"
+            ],
+            "term_labels": {
+              "x+y": "$x+y$",
+              "xy": "$xy$",
+              "x-y": "$x-y$"
+            },
+            "slot_labels": [
+              "s",
+              "p"
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "x+y",
+              "xy"
+            ]
+          },
+          "feedback": {
+            "terms": "这里约定 $s$ 表示和、$p$ 表示积。请核对两个变量各自对应的表达式。"
+          },
+          "required_evidence": [
+            "sum_definition",
+            "product_definition"
+          ],
+          "criteria": "需定义s=x+y、p=xy；可分轮积累两条定义。只给s=x+y尚缺积的定义，不能凭系统参考结论将其视为学生已答。明确说s是和、p是积也接受。若把s、p互换或另用t并非数学错误，但本页面约定s为和p为积，解释约定后等学生确认，不将反向槽位当成正确。定义完整即可通过，系统完成x²+y²=s²-2p、p=1、s≥2及目标=s+4/s，不要求学生重复推导。定义后用s,p进行计算，不混用旧变量；最终取等时才代回。不能仅凭s>0认为任意正s均可由xy=1的正x,y实现，须保留s²≥4p及s≥2。",
+          "completion_reply": "定义正确：$s=x+y,\\ p=xy$。代入条件得 $p=1,\\ s\\ge2$，目标化为 $s+\\frac4s$。",
+          "results": [
+            "s=x+y,p=xy",
+            "x²+y²=s²-2p",
+            "s>0,p=1,s²≥4p ⇒ s≥2",
+            "原式=(s²-2p+6)/s=s+4/s"
+          ]
+        },
+        {
+          "id": "structure",
+          "title": "观察结构",
+          "question": "这两项是定和求积，还是定积求和？",
+          "interaction": {
+            "type": "structure",
+            "terms": [
+              "s",
+              "4/s"
+            ],
+            "term_labels": {
+              "s": "$s$",
+              "4/s": "$\\frac4s$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "s",
+              "4/s"
+            ],
+            "fixed": "product",
+            "target": "sum"
+          },
+          "feedback": {
+            "terms": "请核对两个位置对应的数学项。",
+            "structure": "两项的积固定为 $4$，目标是求和的最小值。"
+          },
+          "required_evidence": [
+            "fixed_product_structure"
+          ],
+          "criteria": "需明确s与4/s是定积求和。已明确两个项时简答定积求和可通过，常数4由系统算。只说正数或只重复改写不足。定和求积错误，不能老师纠正后算学生通过。",
+          "completion_reply": "判断正确。两个正项的积为 $4$，要求它们和的最小值，是定积求和。",
+          "results": [
+            "s>0,4/s>0",
+            "(s)·(4/s)=4",
+            "定积求和"
+          ]
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对这两个正项应用基本不等式，能得到什么关系？",
+          "interaction": {
+            "type": "amgm",
+            "terms": [
+              "s",
+              "4/s"
+            ],
+            "term_labels": {
+              "s": "$s$",
+              "4/s": "$\\frac4s$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "s",
+              "4/s"
+            ]
+          },
+          "feedback": {
+            "terms": "请核对两个位置对应的数学项。"
+          },
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "接受(s)+(4/s)≥2√((s)·(4/s))或等价关系≥4并明确这两个正项。只猜4不足。化简由系统完成，本步不追问取等。不能将原分子≥8和分母≥2相除就断言商≥4，上下界相除不保留这种方向；要通过改写或其他成立证明获得常数下界。 解释改写时保持整条等式：原式=(x²+y²+6)/(x+y)=((x+y)²+4)/(x+y)=(x+y)+4/(x+y)。不能漏写分母，把分子(x+y)²+4写成与改写后的商相等。和积路径则用原式=(s²-2p+6)/s=(s²+4)/s=s+4/s。 分子分母下界相除的错误在不等式方向：分母B≥2只能得1/B≤1/2，不能与分子A≥8相乘推出A/B≥4。本题分子8与分母2确实同时在x=y=1取得，不要以二者不能同时取到为理由；同时取到也不能单凭两个下界证明全域商的下界。",
+          "completion_reply": "关系正确。两项的积为 $4$，由基本不等式得到原式不小于 $4$。",
+          "results": [
+            "(s)+(4/s)≥2√4=4"
+          ]
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，这个下界可以取到？",
+          "interaction": {
+            "type": "equality",
+            "terms": [
+              "s",
+              "4/s"
+            ],
+            "term_labels": {
+              "s": "$s$",
+              "4/s": "$\\frac4s$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "s",
+              "4/s"
+            ]
+          },
+          "feedback": {
+            "terms": "请核对两个位置对应的数学项。"
+          },
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "接受s=4/s，或s=2，或x=y=1。系统完成求解与验证，不要求学生再次填x,y。若只说x=y但未结合xy=1，可由系统得到x=y=1，接受。只说最小值4不足；只问为什么相等是疑问，不提交。必须验证原约束与取等可达，不能把x=y=-1也接受；原变量为正。",
+          "completion_reply": "取等条件正确。代回原条件得到 $x=y=1$，此时原式为 $4$，下界可以取到。",
+          "results": [
+            "s=4/s",
+            "s=2,p=1",
+            "x+y=2,xy=1 ⇒ x=y=1",
+            "原式最小值4，x=y=1时取得"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {
+      "rewrite_form": null
+    },
+    "feedback": "",
+    "hint": false
+  }
+}

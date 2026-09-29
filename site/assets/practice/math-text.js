@@ -7,9 +7,13 @@
       renderMathInElement(element, {
         delimiters: [
           {left: '$$', right: '$$', display: true},
-          {left: '$', right: '$', display: false}
+          {left: '$', right: '$', display: false},
+          {left: '\\[', right: '\\]', display: true},
+          {left: '\\(', right: '\\)', display: false}
         ],
-        throwOnError: false,
+        // Auto-render catches each ParseError and preserves that formula's source.
+        throwOnError: true,
+        errorCallback: () => {},
         trust: false
       });
     }

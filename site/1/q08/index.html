@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q08 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=18">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=13" defer></script>
+  <script src="/assets/practice/context.js?v=7" defer></script>
+  <script src="/assets/practice/runtime.js?v=11" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q08</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知正数 $x,y$ 满足 $xy=1$，则 $\frac{x^2+y^2+6}{x+y}$ 的最小值为？</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$x>0,\ y>0,\ xy=1$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$\left(\frac{x^2+y^2+6}{x+y}\right)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：凑配表达式</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q08",
+  "version": 1,
+  "variables": [
+    "x",
+    "y"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "matching",
+      "label": "常规配凑"
+    },
+    {
+      "id": "symmetric",
+      "label": "找对称结构，和积换元"
+    }
+  ],
+  "routes": {
+    "matching": [
+      {
+        "id": "rewrite",
+        "title": "凑配表达式",
+        "question": "利用条件，怎样将原式配成两个正项的和？",
+        "interaction": {
+          "type": "choice",
+          "field": "rewrite_form",
+          "options": [
+            {
+              "value": "plus_four",
+              "label": "$x+y+\\frac4{x+y}$"
+            },
+            {
+              "value": "plus_six",
+              "label": "$x+y+\\frac6{x+y}$"
+            },
+            {
+              "value": "minus_four",
+              "label": "$x+y-\\frac4{x+y}$"
+            }
+          ],
+          "description": "plus_four为正确等价改写；plus_six漏掉平方展开的2xy；minus_four常数符号错误。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "plus_four"
+          ]
+        },
+        "feedback": {
+          "answer": "核对 $x^2+y^2=(x+y)^2-2xy$，再代入 $xy=1$，注意剩下的常数。"
+        },
+        "display": "matching-rewrite-done",
+        "submit_label": "确认判断",
+        "preview": {
+          "plus_four": "preview-plus_four",
+          "plus_six": "preview-plus_six",
+          "minus_four": "preview-minus_four"
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "x+y",
+            "4/(x+y)"
+          ],
+          "term_labels": {
+            "x+y": "$x+y$",
+            "4/(x+y)": "$\\frac4{x+y}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "x+y",
+            "4/(x+y)"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对两个位置对应的数学项。",
+          "structure": "两项的积固定为 $4$，目标是求和的最小值。"
+        },
+        "display": "matching-structure-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "x+y",
+            "4/(x+y)"
+          ],
+          "term_labels": {
+            "x+y": "$x+y$",
+            "4/(x+y)": "$\\frac4{x+y}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "x+y",
+            "4/(x+y)"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对两个位置对应的数学项。"
+        },
+        "display": "matching-amgm-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "x+y",
+            "4/(x+y)"
+          ],
+          "term_labels": {
+            "x+y": "$x+y$",
+            "4/(x+y)": "$\\frac4{x+y}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "x+y",
+            "4/(x+y)"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对两个位置对应的数学项。"
+        },
+        "display": "matching-equality-done",
+        "submit_label": "确认判断"
+      }
+    ],
+    "symmetric": [
+      {
+        "id": "symmetry",
+        "title": "识别对称结构",
+        "question": "交换 x、y 后，条件和目标是否分别保持不变？",
+        "interaction": {
+          "type": "symmetry",
+          "terms": [
+            "unchanged",
+            "changed"
+          ],
+          "term_labels": {
+            "unchanged": "不变",
+            "changed": "改变"
+          },
+          "slot_labels": [
+            "条件",
+            "目标"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "unchanged",
+            "unchanged"
+          ]
+        },
+        "feedback": {
+          "terms": "交换的是变量的位置。请分别核对条件和目标，不能只看其中一个。"
+        },
+        "display": "symmetric-symmetry-done",
+        "submit_label": "确认判断",
+        "board": "symmetry-scan"
+      },
+      {
+        "id": "substitution",
+        "title": "和积换元",
+        "question": "分别用 s 表示和、p 表示积，怎样定义它们？",
+        "interaction": {
+          "type": "substitution",
+          "terms": [
+            "x+y",
+            "xy",
+            "x-y"
+          ],
+          "term_labels": {
+            "x+y": "$x+y$",
+            "xy": "$xy$",
+            "x-y": "$x-y$"
+          },
+          "slot_labels": [
+            "s",
+            "p"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "x+y",
+            "xy"
+          ]
+        },
+        "feedback": {
+          "terms": "这里约定 $s$ 表示和、$p$ 表示积。请核对两个变量各自对应的表达式。"
+        },
+        "display": "symmetric-substitution-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "structure",
+        "title": "观察结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "s",
+            "4/s"
+          ],
+          "term_labels": {
+            "s": "$s$",
+            "4/s": "$\\frac4s$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "s",
+            "4/s"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对两个位置对应的数学项。",
+          "structure": "两项的积固定为 $4$，目标是求和的最小值。"
+        },
+        "display": "symmetric-structure-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "s",
+            "4/s"
+          ],
+          "term_labels": {
+            "s": "$s$",
+            "4/s": "$\\frac4s$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "s",
+            "4/s"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对两个位置对应的数学项。"
+        },
+        "display": "symmetric-amgm-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "s",
+            "4/s"
+          ],
+          "term_labels": {
+            "s": "$s$",
+            "4/s": "$\\frac4s$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "s",
+            "4/s"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对两个位置对应的数学项。"
+        },
+        "display": "symmetric-equality-done",
+        "submit_label": "确认判断"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="preview-plus_four"><div class="reasoning"><span class="section-label">通分并代入条件核对</span><p data-math-text>$\frac{(x+y)^2+4}{x+y}=\frac{x^2+y^2+6}{x+y}$</p><p data-math-text>与原式相等。</p></div></template>
+  <template id="preview-plus_six"><div class="reasoning"><span class="section-label">通分并代入条件核对</span><p data-math-text>$\frac{(x+y)^2+6}{x+y}=\frac{x^2+y^2+8}{x+y}$</p><p data-math-text>分子比原式多了 $2$。</p></div></template>
+  <template id="preview-minus_four"><div class="reasoning"><span class="section-label">通分并代入条件核对</span><p data-math-text>$\frac{(x+y)^2-4}{x+y}=\frac{x^2+y^2-2}{x+y}$</p><p data-math-text>分子比原式少了 $8$。</p></div></template>
+  <template id="matching-rewrite-done"><div class="visual-board completed-visual"><div class="board-caption">配成两个正项的和</div><div class="function-conversion"><div><span class="conversion-label">原式</span><div class="math" data-math-text>$\frac{x^2+y^2+6}{x+y}$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div class="formula conversion-terms"><span class="shape square expression-slot" data-math-text>$x+y$</span><span>+</span><span class="shape circle expression-slot" data-math-text>$\frac4{x+y}$</span></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 等价改写</span><p data-math-text>$x^2+y^2+6=(x+y)^2-2xy+6=(x+y)^2+4$</p><p data-math-text>$\frac{x^2+y^2+6}{x+y}=\frac{(x+y)^2+4}{x+y}=x+y+\frac4{x+y}$</p></div></template>
+  <template id="symmetry-scan"><div class="sym-check"><div class="sym-row"><span class="sym-label">条件</span><div class="sym-exprs"><span class="sym-expr" data-math-text>$\textcolor{#087f79}{x}\textcolor{#c27a0e}{y}=1$</span><span class="sym-arrow"><span class="sr-only">交换 x、y 后变为</span><span aria-hidden="true"><i class="sym-x">x</i>⇄<i class="sym-y">y</i></span></span><span class="sym-expr" data-math-text>$\textcolor{#c27a0e}{y}\textcolor{#087f79}{x}=1$</span></div><span data-judgment="0"></span></div><div class="sym-row"><span class="sym-label">目标</span><div class="sym-exprs"><span class="sym-expr" data-math-text>$\displaystyle\frac{\textcolor{#087f79}{x}^2+\textcolor{#c27a0e}{y}^2+6}{\textcolor{#087f79}{x}+\textcolor{#c27a0e}{y}}$</span><span class="sym-arrow"><span class="sr-only">交换 x、y 后变为</span><span aria-hidden="true"><i class="sym-x">x</i>⇄<i class="sym-y">y</i></span></span><span class="sym-expr" data-math-text>$\displaystyle\frac{\textcolor{#c27a0e}{y}^2+\textcolor{#087f79}{x}^2+6}{\textcolor{#c27a0e}{y}+\textcolor{#087f79}{x}}$</span></div><span data-judgment="1"></span></div></div></template>
+  <template id="symmetric-symmetry-done"><div class="sym-check completed-visual"><div class="sym-row"><span class="sym-label">条件</span><div class="sym-exprs"><span class="sym-expr" data-math-text>$xy=1$</span><span class="sym-arrow"><span class="sr-only">交换 x、y 后变为</span><span aria-hidden="true"><i class="sym-x">x</i>⇄<i class="sym-y">y</i></span></span><span class="sym-expr" data-math-text>$yx=1$</span></div><span class="sym-verdict">不变</span></div><div class="sym-row"><span class="sym-label">目标</span><div class="sym-exprs"><span class="sym-expr" data-math-text>$\displaystyle\frac{x^2+y^2+6}{x+y}$</span><span class="sym-arrow"><span class="sr-only">交换 x、y 后变为</span><span aria-hidden="true"><i class="sym-x">x</i>⇄<i class="sym-y">y</i></span></span><span class="sym-expr" data-math-text>$\displaystyle\frac{y^2+x^2+6}{y+x}$</span></div><span class="sym-verdict">不变</span></div></div><div class="reasoning"><span class="section-label">根据你的判断，确认对称结构</span><p data-math-text>条件和目标交换 $x$、$y$ 后都不变，$x>0,\ y>0$ 的取值范围也不变。</p></div></template>
+  <template id="symmetric-substitution-done"><div class="visual-board completed-visual"><div class="board-caption">用和与积表示</div><div class="substitution-definitions"><div class="formula"><span data-math-text>$s=$</span><span class="shape square expression-slot" data-math-text>$x+y$</span></div><div class="formula"><span data-math-text>$p=$</span><span class="shape circle expression-slot" data-math-text>$xy$</span></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 代入并化简</span><p data-math-text>$x^2+y^2=s^2-2p$</p><p data-math-text>$p=1,\quad s>0,\quad s^2\ge4p\ \Longrightarrow\ s\ge2$</p><p data-math-text>$\frac{s^2-2p+6}{s}=\frac{s^2+4}{s}=s+\frac4s$</p></div></template>
+  <template id="matching-structure-done"><div class="visual-board completed-visual"><div class="structure-summary"><div class="summary-item"><span class="summary-label">定积</span><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span> · <span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><span class="flow-arrow" aria-hidden="true">→</span><div class="summary-item"><span class="summary-label">求和</span><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span> + <span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>$x+y>0,\quad \frac4{x+y}>0$</p><p data-math-text>$(x+y)\cdot\frac4{x+y}=4$</p><p data-math-text>两正项的积固定，要求和的最小值。</p></div></template>
+  <template id="matching-amgm-done"><div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><details class="details" id="{{uid}}-derivation" open><summary>完整推导</summary><p data-math-text>$x+y+\frac4{x+y}\ge2\sqrt{(x+y)\cdot\frac4{x+y}}=4$</p></details><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p></template>
+  <template id="matching-equality-done"><div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 代回并验证</span><p data-math-text>$x+y=\frac4{x+y},\quad x+y>0\ \Longrightarrow\ x+y=2$</p><p data-math-text>$(x-y)^2=(x+y)^2-4xy=4-4=0$</p><p data-math-text>$x=y,\quad x+y=2\ \Longrightarrow\ x=y=1$</p><p data-math-text>$x=y=1>0,\quad xy=1,\quad \frac{1+1+6}{1+1}=4$</p><p data-math-text>满足原条件，下界可以取到。</p></div></template>
+  <template id="symmetric-structure-done"><div class="visual-board completed-visual"><div class="structure-summary"><div class="summary-item"><span class="summary-label">定积</span><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span> · <span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><span class="flow-arrow" aria-hidden="true">→</span><div class="summary-item"><span class="summary-label">求和</span><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span> + <span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>$s>0,\quad \frac4s>0$</p><p data-math-text>$(s)\cdot\frac4s=4$</p><p data-math-text>两正项的积固定，要求和的最小值。</p></div></template>
+  <template id="symmetric-amgm-done"><div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><details class="details" id="{{uid}}-derivation" open><summary>完整推导</summary><p data-math-text>$s+\frac4s\ge2\sqrt{(s)\cdot\frac4s}=4$</p></details><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p></template>
+  <template id="symmetric-equality-done"><div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 代回并验证</span><p data-math-text>$s=\frac4s,\quad s\ge2\ \Longrightarrow\ s=2$</p><p data-math-text>$p=1,\quad s^2-4p=0\ \Longrightarrow\ x=y$</p><p data-math-text>$x+y=2\ \Longrightarrow\ x=y=1$</p><p data-math-text>$x=y=1>0,\quad xy=1,\quad \frac{1+1+6}{1+1}=4$</p><p data-math-text>满足原条件，下界可以取到。</p></div></template>
+  <template id="lesson-completion"><section class="completion-card" tabindex="-1"><h2 data-math-text>$\frac{x^2+y^2+6}{x+y}$ 的最小值为 $4$</h2><p data-math-text>当 $x=y=1$ 时取到。</p></section></template>
+</body>
+</html>

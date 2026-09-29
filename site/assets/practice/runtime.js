@@ -40,7 +40,7 @@
     const attemptId = attempt?.id || snapshot?.attempt_id;
     const messages = (attempt?.messages || snapshot?.messages || []).filter(m => m.attempt_id === attemptId && m.stage === stage && m.kind !== 'ui');
     if (!messages.length) return '';
-    const content = `<div class="node-conversation" aria-label="本步骤的对话">${messages.map(m => `<div class="chat-message ${m.role === 'student' ? 'student' : 'assistant'}"><span class="chat-author">${m.role === 'student' ? '你' : '老师'}</span><p>${escapeHTML(m.text)}</p></div>`).join('')}</div>`;
+    const content = `<div class="node-conversation" aria-label="本步骤的对话">${messages.map(m => `<div class="chat-message ${m.role === 'student' ? 'student' : 'assistant'}" role="group" aria-label="${m.role === 'student' ? '学生消息' : '老师回复'}"><p data-math-text>${escapeHTML(m.text)}</p></div>`).join('')}</div>`;
     if (attempt || stage < state.active) return `<details class="conversation-history" id="conversation-${attemptId}-${stage}"><summary>查看本步对话<span class="conversation-count">${messages.length} 条</span></summary>${content}</details>`;
     return content;
   }
@@ -213,15 +213,18 @@
   const announce = (text) => { announcement.textContent = text; };
 
   function slot(stage, index, occurrence = '') {
-    return UI.slot({stage, index, occurrence, value: state.pairs[stage][index], title: titles[stage]});
+    const value = state.pairs[stage][index];
+    return UI.slot({stage, index, occurrence, value, label: nodeAt(stage).interaction.term_labels?.[value], title: titles[stage]});
   }
 
   function template(id, displayState = state, stage = 0, prefix = snapshot.attempt_id) {
     if (!id) return '';
     const pair = displayState.pairs[stage] || [];
     const variable = displayState.choices.variable || lesson.variables[0];
+    const termLabels = lesson.routes[displayState.method]?.[stage]?.interaction.term_labels || {};
     const values = {...displayState.choices, variable,
       other: lesson.variables.find(term => term !== variable), first: pair[0], second: pair[1],
+      first_math: termLabels[pair[0]] || pair[0], second_math: termLabels[pair[1]] || pair[1],
       uid: `${prefix}-${stage}`};
     return document.getElementById(id).innerHTML.replace(/\{\{(\w+)\}\}/g, (_, key) => escapeHTML(values[key] ?? ''));
   }
@@ -231,10 +234,10 @@
       <div class="method-options">${methods.map(({id, label}) => `<button type="button" class="method-choice" data-method="${escapeHTML(id)}"><span class="radio-mark" aria-hidden="true"></span>${escapeHTML(label)}<span class="option-arrow" aria-hidden="true">›</span></button>`).join('')}</div>
       <button type="button" class="hint-button" data-hint="0">${hintIcon}还没想好，给点提示</button>`;
     const node = nodeAt(stage), component = node.interaction;
-    const props = {slot: (index, occurrence) => slot(stage, index, occurrence), terms: component.terms, swapped: state.swapped};
+    const props = {slot: (index, occurrence) => slot(stage, index, occurrence), terms: component.terms, positiveTerms: component.positive_terms, termLabels: component.term_labels, caption: component.caption, swapped: state.swapped, slotLabels: component.slot_labels, pair: state.pairs[stage], board: template(node.board, state, stage)};
     const tabs = stage === 0 ? `<div class="method-tabs" role="group" aria-label="解题方案">${methods.map(({id, label}) => `<button type="button" class="method-tab" data-method="${escapeHTML(id)}" aria-pressed="${state.method === id}">${escapeHTML(label)}</button>`).join('')}</div>` : '';
     const board = component.type === 'choice'
-      ? template(node.board) + UI.choices(component, state.choices[component.field], node.title)
+      ? template(node.board) + UI.choices(component, state.choices[component.field], node.title) + template(node.preview?.[state.choices[component.field]])
       : UI[component.type](props);
     return tabs + `<p class="question" data-math-text>${escapeHTML(node.question)}</p>` + board +
       UI.controls({stage, label: node.submit_label, ready: ready(stage), feedback: state.feedback, hint: state.hint});
@@ -280,7 +283,14 @@
       const details = document.getElementById(id);
       if (details) details.open = open;
     }
-    for (const label of steps.querySelectorAll('[data-math-text]')) PracticeMath.render(label, label.textContent);
+    const workspace = document.querySelector('.workspace');
+    for (const board of workspace.querySelectorAll('[data-completed-amgm]')) {
+      board.innerHTML = UI.completedAmgm({terms: [board.dataset.first, board.dataset.second], labels: [board.dataset.firstLabel, board.dataset.secondLabel]});
+    }
+    for (const graph of workspace.querySelectorAll('[data-quadratic-graph]')) {
+      graph.innerHTML = UI.quadraticGraph(JSON.parse(graph.dataset.quadraticGraph));
+    }
+    renderMath(workspace);
     updateBusy();
     syncIdleQuestion();
   }
@@ -291,6 +301,13 @@
     picking = null;
   }
 
+  function renderMath(root) {
+    for (const label of root.querySelectorAll('[data-math-text]:not([data-math-rendered])')) {
+      PracticeMath.render(label, label.textContent);
+      label.dataset.mathRendered = 'true';
+    }
+  }
+
   function openPicker(button) {
     const stage = Number(button.dataset.stage);
     if (stage !== state.active) return;
@@ -298,7 +315,9 @@
     picking = { stage, index: Number(button.dataset.slot), button, occurrence: button.dataset.occurrence };
     button.setAttribute('aria-expanded', 'true');
     picker.hidden = false;
-    picker.querySelector('.picker-options').innerHTML = nodeAt(stage).interaction.terms.map(term => `<button type="button" data-token="${escapeHTML(term)}" aria-label="选择 ${escapeHTML(term)}"><i>${escapeHTML(term)}</i></button>`).join('');
+    const component = nodeAt(stage).interaction;
+    picker.querySelector('.picker-options').innerHTML = component.terms.map(term => `<button type="button" data-token="${escapeHTML(term)}" aria-label="选择 ${escapeHTML(term)}"><span data-math-text>${escapeHTML(component.term_labels?.[term] || term)}</span></button>`).join('');
+    renderMath(picker);
     const rect = button.getBoundingClientRect();
     const height = picker.offsetHeight;
     const composerTop = document.querySelector('.composer').getBoundingClientRect().top;
@@ -314,6 +333,7 @@
     if (!button || busy) return;
     if (button.hasAttribute('data-method')) sendEvent('ui', {kind: 'method', value: button.dataset.method});
     else if (button.hasAttribute('data-choice')) sendEvent('ui', {kind: 'choice', value: button.dataset.value});
+    else if (button.hasAttribute('data-pair-answer')) sendEvent('ui', {kind: 'fill', index: Number(button.dataset.pairAnswer), value: button.dataset.value});
     else if (button.hasAttribute('data-slot')) openPicker(button);
     else if (button.id === 'swap') sendEvent('ui', {kind: 'swap', value: state.swapped ? 'sum' : 'product'});
     else if (button.hasAttribute('data-submit')) sendEvent('ui', {kind: 'submit'});

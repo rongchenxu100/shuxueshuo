@@ -7,13 +7,13 @@
   <meta name="theme-color" content="#f5f7f5">
   <title>Q01 · 基本不等式 · 数学说</title>
   <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
-  <link rel="stylesheet" href="/assets/practice/practice.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=17">
   <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
   <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
-  <script src="/assets/practice/math-text.js" defer></script>
-  <script src="/assets/practice/components.js?v=5" defer></script>
-  <script src="/assets/practice/context.js?v=6" defer></script>
-  <script src="/assets/practice/runtime.js?v=6" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=14" defer></script>
+  <script src="/assets/practice/context.js?v=7" defer></script>
+  <script src="/assets/practice/runtime.js?v=12" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -308,27 +308,7 @@
         <p class="math">即 <i>mn</i> ≤ 1，在 <i>{{variable}}</i> = 1 时取等。</p>
         <p class="math">代回 <i>{{other}}</i> = 2 − <i>{{variable}}</i>，得 <i>{{other}}</i> = 1。</p>
       </div>
-      <figure class="quadratic-graph">
-        <svg viewBox="0 0 360 270" role="img" aria-labelledby="{{uid}}-title {{uid}}-description">
-          <title id="{{uid}}-title">y 等于负 {{variable}} 平方加 2{{variable}} 的图像</title>
-          <desc id="{{uid}}-description">横轴为 {{variable}}，纵轴为 y，也就是 mn。定义域为 0 到 2 的开区间，两端用空心点表示。抛物线开口向下，顶点为 (1,1)，在 {{variable}} 等于 1 时取得最大值 1。</desc>
-          <rect x="60" y="48" width="220" height="162" rx="5" fill="#f0f7f4"/>
-          <path d="M25 210H326M60 240V30" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
-          <path d="m321 206 5 4-5 4M56 35l4-5 4 5" fill="none" stroke="#9dafaa" stroke-width="1.3"/>
-          <path d="M60 75H170V210" fill="none" stroke="#9abfb5" stroke-width="1.2" stroke-dasharray="4 4"/>
-          <path d="M60 210Q170 -60 280 210" fill="none" stroke="#07847d" stroke-width="3"/>
-          <g fill="white" stroke="#07847d" stroke-width="2"><circle cx="60" cy="210" r="4"/><circle cx="280" cy="210" r="4"/></g>
-          <circle cx="170" cy="75" r="5" fill="#d18a2e"/>
-          <g fill="#526e64" font-family="Georgia,serif" font-size="14">
-            <text x="43" y="230">0</text><text x="166" y="230">1</text><text x="276" y="230">2</text><text x="42" y="80">1</text>
-            <text x="333" y="215" font-style="italic">{{variable}}</text><text x="43" y="24" font-style="italic">y</text>
-            <text x="185" y="66" fill="#a36920">P(1, 1)</text>
-            <text x="110" y="27">y = −{{variable}}² + 2{{variable}}</text>
-            <text x="136" y="256">0 &lt; {{variable}} &lt; 2</text>
-          </g>
-        </svg>
-        <figcaption>纵轴 <span class="math"><i>y</i> = <i>mn</i></span>；空心点表示端点不取。</figcaption>
-      </figure>
+      <figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: -1, &quot;vertex&quot;: [1, 1], &quot;bounds&quot;: [-0.3, 2.5, -0.22, 1.32], &quot;domain&quot;: [0, 2], &quot;excluded&quot;: [0, 2], &quot;xTicks&quot;: [[0, &quot;0&quot;], [1, &quot;1&quot;], [2, &quot;2&quot;]], &quot;yLabel&quot;: &quot;1&quot;, &quot;variable&quot;: &quot;{{variable}}&quot;, &quot;title&quot;: &quot;y = −{{variable}}² + 2{{variable}} 的图像&quot;, &quot;description&quot;: &quot;横轴为 {{variable}}，纵轴 y=mn。定义域为 (0,2)，两端不取，抛物线开口向下，顶点 (1,1)。&quot;, &quot;uid&quot;: &quot;{{uid}}-quadratic&quot;}"></div><figcaption data-math-text>$y=mn$，$0<{{variable}}<2$；空心点表示端点不取。</figcaption></figure>
     </div><p class="calculation-note">还需要检查这个取值是否满足原题条件。</p>
   </template>
   <template id="structure-done">
@@ -337,8 +317,8 @@
         <div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p><span class="reason-symbol">∵</span><span class="math"><i>m</i>, <i>n</i> &gt; 0，<i>m</i> + <i>n</i> = 2</span>，目标是求 <span class="math"><i>mn</i></span> 的最大值。</p><p><span class="reason-symbol">∴</span>定和求积，可以直接应用基本不等式。</p></div>
   </template>
   <template id="amgm-done">
-<div class="visual-board completed-visual"><div class="board-caption">基本不等式</div><div class="formula"><span class="shape square">{{first}}</span> + <span class="shape circle">{{second}}</span> ≥ 2<span class="radical"><span class="root-sign">√</span><span class="radicand"><i>{{first}}{{second}}</i></span></span></div></div>
-        <details class="details" id="{{uid}}-derivation" open><summary>完整推导</summary><p class="math">∵ <i>m</i> &gt; 0，<i>n</i> &gt; 0</p><p class="math">∴ <i>m</i> + <i>n</i> ≥ 2<span class="radical"><span class="root-sign">√</span><span class="radicand"><i>mn</i></span></span></p><p class="math">∵ <i>m</i> + <i>n</i> = 2</p><p class="math">∴ 2 ≥ 2<span class="radical"><span class="root-sign">√</span><span class="radicand"><i>mn</i></span></span></p><p class="math">∴ 1 ≥ <span class="radical"><span class="root-sign">√</span><span class="radicand"><i>mn</i></span></span>，<i>mn</i> ≤ 1</p></details><p class="calculation-note">上界已经得到，还需要检查它能否取到。</p>
+    <div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div>
+    <details class="details" id="{{uid}}-derivation" open><summary>完整推导</summary><p class="math">∵ <i>m</i> &gt; 0，<i>n</i> &gt; 0</p><p class="math">∴ <i>m</i> + <i>n</i> ≥ 2<span class="radical"><span class="root-sign">√</span><span class="radicand"><i>mn</i></span></span></p><p class="math">∵ <i>m</i> + <i>n</i> = 2</p><p class="math">∴ 2 ≥ 2<span class="radical"><span class="root-sign">√</span><span class="radicand"><i>mn</i></span></span></p><p class="math">∴ 1 ≥ <span class="radical"><span class="root-sign">√</span><span class="radicand"><i>mn</i></span></span>，<i>mn</i> ≤ 1</p></details><p class="calculation-note">上界已经得到，还需要检查它能否取到。</p>
   </template>
   <template id="equality-done">
 <div class="visual-board completed-visual"><div class="board-caption">你给出的取等条件</div><div class="formula"><span class="shape square">{{first}}</span> <span class="equal-sign">=</span> <span class="shape circle">{{second}}</span></div></div>
