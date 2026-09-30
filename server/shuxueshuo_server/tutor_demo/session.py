@@ -22,6 +22,8 @@ from .contracts import (
 )
 from .llm import Action
 
+OFF_TOPIC_REPLY = "我主要陪你讨论这道题。可以说说哪一步不明白，也可以试试另一种解法。"
+
 
 class OperationPosition(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -273,6 +275,9 @@ class Session:
                     event=message,
                 )
                 reply = proposal.reply
+                if proposal.intent == "other":
+                    # Never display arbitrary off-topic output or accept its operations.
+                    reply = OFF_TOPIC_REPLY
                 if event.kind == "text" and proposal.intent == "route_change":
                     try:
                         if not proposal.actions:

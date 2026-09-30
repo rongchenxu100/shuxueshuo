@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict
 
 from .llm import DeepSeekTutor, TutorUnavailable
+from .limits import BudgetedTutor, BudgetUnavailable, CallBudget, DialogueLimited
 from .session import Conflict, Event, InvalidAction, Sessions
 
 
@@ -18,10 +19,11 @@ class Start(BaseModel):
     lesson_id: str = "q01"
 
 
-def create_router(tutor=None):
+def create_router(tutor=None, budget=None):
     """Share the same API and cleanup lifecycle with the production app."""
     tutor = tutor or DeepSeekTutor()
     sessions = Sessions()
+    budget = budget if budget is not None else CallBudget()
 
     @asynccontextmanager
     async def lifespan(app):
@@ -53,7 +55,15 @@ def create_router(tutor=None):
     async def event(session_id: str, body: Event):
         try:
             session = sessions.get(session_id)
-            return await session.handle(body, tutor)
+            if body.kind != "ui" and session.lock.locked():
+                raise DialogueLimited("session_busy", "老师正在回复，请稍后再试。", 2)
+            return await session.handle(body, BudgetedTutor(tutor, budget, session_id))
+        except DialogueLimited as exc:
+            return JSONResponse(status_code=429, content={
+                "detail": str(exc), "code": exc.code, "retry_after": exc.retry_after,
+            }, headers={"Retry-After": str(exc.retry_after)} if exc.retry_after else {})
+        except BudgetUnavailable:
+            raise HTTPException(503, "老师交流暂不可用，可以继续点选练习。") from None
         except KeyError:
             raise HTTPException(404, "会话已过期，请重新体验。") from None
         except Conflict as exc:
@@ -69,10 +79,10 @@ def create_router(tutor=None):
     return router
 
 
-def create_app(tutor=None):
+def create_app(tutor=None, budget=None):
     """Standalone local development entry point; production uses create_router."""
     app = FastAPI(title="数学说 Q01 tutor demo")
-    app.include_router(create_router(tutor))
+    app.include_router(create_router(tutor, budget))
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://127.0.0.1:8765", "http://localhost:8765"],

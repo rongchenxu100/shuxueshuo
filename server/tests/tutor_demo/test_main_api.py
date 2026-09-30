@@ -2,6 +2,7 @@
 
 import runpy
 
+import pytest
 from fastapi.testclient import TestClient
 
 from shuxueshuo_server.product import api as product_api
@@ -9,7 +10,11 @@ from shuxueshuo_server.tutor_demo import api as tutor_api
 from shuxueshuo_server.tutor_demo.llm import Proposal, TutorUnavailable
 
 
-def test_main_hosts_tutor_api_and_preserves_lifecycles(monkeypatch):
+@pytest.mark.parametrize('blank_limits', [False, True])
+def test_main_hosts_tutor_api_and_preserves_lifecycles(monkeypatch, blank_limits):
+    if blank_limits:
+        for key in ('TUTOR_SESSION_CALL_LIMIT', 'TUTOR_DAILY_CALL_LIMIT', 'TUTOR_FAILURE_COOLDOWN_SECONDS'):
+            monkeypatch.setenv(key, '')
     lifecycle = []
 
     class Product:

@@ -9,6 +9,7 @@ demo/
 !.env.example
 !*.env.example
 server/.venv/
+server/var/
 server/shuxueshuo_server.egg-info/
 internal/solver-runs/deepseek-debug-*/
 internal/solver-runs/strategy-planner-deepseek-*/

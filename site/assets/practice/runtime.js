@@ -17,6 +17,8 @@
   let generation = 0;
   let requestController = null;
   let retryRequest = null;
+  let dialoguePause = null;
+  let dialogueTimer = null;
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
   const api = local && location.port === '8765' ? `${location.protocol}//${location.hostname}:8766/api/tutor-demo` : '/api/tutor-demo';
   const messageInput = document.querySelector('#message');
@@ -27,12 +29,13 @@
 
   function updateBusy() {
     const blocked = busy;
+    const paused = dialoguePause && dialoguePause.until > Date.now();
     for (const button of [...steps.querySelectorAll('button'), ...document.querySelectorAll('[data-switch-route]'), ...picker.querySelectorAll('button')]) {
       if (!button.hasAttribute('data-initial-disabled')) button.dataset.initialDisabled = String(button.disabled);
-      button.disabled = blocked || button.dataset.initialDisabled === 'true';
+      button.disabled = blocked || (paused && button.hasAttribute('data-hint')) || button.dataset.initialDisabled === 'true';
     }
-    sendButton.disabled = busy || !snapshot || Boolean(retryRequest) || !messageInput.value.trim();
-    messageInput.disabled = busy;
+    sendButton.disabled = busy || paused || !snapshot || Boolean(retryRequest) || !messageInput.value.trim();
+    messageInput.disabled = busy || paused;
     steps.setAttribute('aria-busy', String(busy));
   }
 
@@ -77,7 +80,7 @@
   }
 
   async function request(payload) {
-    if (busy) return;
+    if (busy || (dialoguePause && dialoguePause.until > Date.now())) return;
     const thisGeneration = generation, oldActive = state.active, oldAttempt = snapshot.attempt_id;
     const controller = new AbortController();
     requestController = controller;
@@ -88,7 +91,11 @@
       const response = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body), signal: controller.signal});
       const data = await response.json();
-      if (!response.ok) throw Error(typeof data.detail === 'string' ? data.detail : '暂时无法连接老师，请重试。');
+      if (!response.ok) {
+        const error = Error(typeof data.detail === 'string' ? data.detail : '暂时无法连接老师，请重试。');
+        error.code = data.code; error.retryAfter = data.retry_after;
+        throw error;
+      }
       return data;
     };
     try {
@@ -116,8 +123,20 @@
       announce(data.messages.at(-1)?.text || '老师已回复。');
     } catch (error) {
       if (thisGeneration !== generation) return;
-      retryRequest = payload; retryButton.hidden = false;
-      networkStatus.textContent = (error.name === 'AbortError' ? '老师回复超时。' : error.message === 'Failed to fetch' ? '暂时无法连接老师。' : error.message) + ' 可以继续点选练习，输入和进度已保留。';
+      const limited = ['session_limit', 'daily_limit', 'retry_cooldown', 'session_busy'].includes(error.code);
+      const exhausted = ['session_limit', 'daily_limit'].includes(error.code);
+      retryRequest = exhausted ? null : payload; retryButton.hidden = limited;
+      if (limited) {
+        dialoguePause = {code: error.code, message: error.message, until: error.code === 'session_limit' ? Infinity : Date.now() + Math.max(1, error.retryAfter || 5) * 1000};
+        clearTimeout(dialogueTimer);
+        if (Number.isFinite(dialoguePause.until)) dialogueTimer = setTimeout(() => {
+          dialoguePause = null;
+          retryButton.hidden = !retryRequest;
+          networkStatus.textContent = retryRequest ? '现在可以重试，原来的输入和进度已保留。' : '';
+          updateBusy(); resumeIdle();
+        }, dialoguePause.until - Date.now());
+      }
+      networkStatus.textContent = (error.name === 'AbortError' ? '老师回复超时。' : error.message === 'Failed to fetch' ? '暂时无法连接老师。' : error.message) + (limited ? ' 输入和进度已保留。' : ' 可以继续点选练习，输入和进度已保留。');
     } finally {
       clearTimeout(timeout);
       if (thisGeneration === generation) { busy = false; updateBusy(); resumeIdle(); }
@@ -143,8 +162,11 @@
 
   function restart() {
     generation++; requestController?.abort(); busy = false;
+    if (dialoguePause?.code !== 'daily_limit') {
+      dialoguePause = null; clearTimeout(dialogueTimer);
+    }
     remote = null; pendingOperations = []; retryRequest = null;
-    retryButton.hidden = true; networkStatus.textContent = '';
+    retryButton.hidden = true; networkStatus.textContent = dialoguePause?.message || '';
     pauseIdle(); invitedQuestions.clear(); idleQuestion = null; messageInput.value = '';
     steps.innerHTML = ''; attemptHistory.innerHTML = '';
     acceptSnapshot(PracticeContext.create(lesson, crypto.randomUUID()));
@@ -185,7 +207,7 @@
   }
 
   function resumeIdle() {
-    if (busy || retryRequest || idleTimer !== null || !idleQuestion || invitedQuestions.has(idleQuestion) || document.hidden || document.activeElement?.id === 'message') return;
+    if (busy || (dialoguePause && dialoguePause.until > Date.now()) || retryRequest || idleTimer !== null || !idleQuestion || invitedQuestions.has(idleQuestion) || document.hidden || document.activeElement?.id === 'message') return;
     idleStartedAt = performance.now();
     idleTimer = setTimeout(() => {
       idleTimer = null;
