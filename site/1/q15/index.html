@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q15 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q15</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知 $a>0,\ b>0,\ a+b=1$，则 $\frac{b+1}a+\frac{a+1}b$ 的最小值为？</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$a,b>0$，</span><span class="nowrap" data-math-text>$a+b=1$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$\left(\frac{b+1}a+\frac{a+1}b\right)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：识别齐次结构</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q15",
+  "version": 1,
+  "variables": [
+    "a",
+    "b"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "homogeneous",
+      "label": "配齐次式"
+    }
+  ],
+  "routes": {
+    "homogeneous": [
+      {
+        "id": "homogeneity",
+        "title": "识别齐次结构",
+        "question": "拆项后，两组和条件表达式分别是几次？目标是齐次式吗？",
+        "interaction": {
+          "type": "homogeneity",
+          "terms": [
+            "-1",
+            "0",
+            "1"
+          ],
+          "term_labels": {
+            "-1": "$-1$",
+            "0": "$0$",
+            "1": "$+1$"
+          },
+          "slot_labels": [
+            "第一组的次数",
+            "第二组的次数",
+            "条件表达式的次数"
+          ],
+          "slot_shapes": [
+            "square",
+            "square",
+            "circle"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "0",
+            "-1",
+            "1"
+          ]
+        },
+        "feedback": {
+          "terms": "判断次数时，先看每一项中变量的指数，数字系数不计入次数。$\\frac ba=b\\cdot a^{-1}$、$\\frac ab=a\\cdot b^{-1}$，指数相加 $1+(-1)=0$，第一组是零次；$\\frac1a=a^{-1}$、$\\frac1b=b^{-1}$，第二组是负一次；$a$、$b$ 都是一次，所以条件表达式 $a+b$ 是正一次。"
+        },
+        "display": "homogeneity-done",
+        "submit_label": "确认结构",
+        "board": "degree-board"
+      },
+      {
+        "id": "rewrite",
+        "title": "配齐次式",
+        "question": "对拆项后的哪一部分乘入什么表达式，才能保持值不变并配成零次齐次式？",
+        "interaction": {
+          "type": "rewrite",
+          "slots": [
+            {
+              "label": "作用范围",
+              "options": [
+                {
+                  "value": "whole",
+                  "label": "整个式子"
+                },
+                {
+                  "value": "first",
+                  "label": "第一组 $\\frac ba+\\frac ab$"
+                },
+                {
+                  "value": "second",
+                  "label": "第二组 $\\frac1a+\\frac1b$"
+                }
+              ]
+            },
+            {
+              "label": "乘入的表达式",
+              "options": [
+                {
+                  "value": "a+b",
+                  "label": "$a+b$"
+                },
+                {
+                  "value": "a",
+                  "label": "$a$"
+                },
+                {
+                  "value": "1",
+                  "label": "$1$"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "second",
+            "a+b"
+          ]
+        },
+        "feedback": {
+          "terms": "要同时满足“值不变”和“各项都是零次”。第一组 $\\frac ba+\\frac ab$ 已经是零次，再乘正一次的式子会变成一次；只需给负一次的第二组 $\\frac1a+\\frac1b$ 乘入等于 $1$ 的正一次表达式 $a+b$。"
+        },
+        "display": "rewrite-done",
+        "submit_label": "确认配式",
+        "board": "rewrite-scope",
+        "scope_boards": {
+          "whole": "rewrite-whole",
+          "first": "rewrite-first",
+          "second": "rewrite-second"
+        },
+        "attempt_calculations": {
+          "whole": {
+            "a+b": "calc-whole-condition",
+            "a": "calc-whole-a",
+            "1": "calc-whole-one"
+          },
+          "first": {
+            "a+b": "calc-first-condition",
+            "a": "calc-first-a",
+            "1": "calc-first-one"
+          },
+          "second": {
+            "a+b": "rewrite-done",
+            "a": "calc-second-a",
+            "1": "calc-second-one"
+          }
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ],
+          "term_labels": {
+            "2b/a": "$\\frac{2b}a$",
+            "2a/b": "$\\frac{2a}b$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对配式后的两个比值项。",
+          "structure": "两项的积固定为 $4$，要求它们和的最小值。"
+        },
+        "display": "structure-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ],
+          "term_labels": {
+            "2b/a": "$\\frac{2b}a$",
+            "2a/b": "$\\frac{2a}b$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对配式后的两个正项。"
+        },
+        "display": "amgm-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ],
+          "term_labels": {
+            "2b/a": "$\\frac{2b}a$",
+            "2a/b": "$\\frac{2a}b$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两个比值项相等。"
+        },
+        "display": "equality-done",
+        "submit_label": "确认判断"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="degree-board">
+<div class="visual-board deg-board deg-board-terms"><div class="deg-split"><span class="deg-split-label">系统拆项</span><span class="nowrap" data-math-text>$\dfrac{b+1}a+\dfrac{a+1}b$</span><span class="nowrap" data-math-text>$=\left(\dfrac ba+\dfrac ab\right)+\left(\dfrac1a+\dfrac1b\right)$</span></div><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">第一组</span><span class="deg-expr" data-math-text>$\dfrac ba+\dfrac ab$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="0"></span></span></div><span class="deg-op" aria-hidden="true">+</span><div class="deg-factor deg-target"><span class="deg-label">第二组</span><span class="deg-expr" data-math-text>$\dfrac1a+\dfrac1b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="1"></span></span></div><span class="deg-sep" aria-hidden="true"></span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 1</span><span class="deg-expr" data-math-text>$a+b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="2"></span></span></div></div></div>
+  </template>
+  <template id="homogeneity-done">
+<div class="visual-board deg-board deg-board-terms completed-visual"><div class="deg-split"><span class="deg-split-label">系统拆项</span><span class="nowrap" data-math-text>$\dfrac{b+1}a+\dfrac{a+1}b$</span><span class="nowrap" data-math-text>$=\left(\dfrac ba+\dfrac ab\right)+\left(\dfrac1a+\dfrac1b\right)$</span></div><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">第一组</span><span class="deg-expr" data-math-text>$\dfrac ba+\dfrac ab$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">0</span></span></div><span class="deg-op" aria-hidden="true">+</span><div class="deg-factor deg-target"><span class="deg-label">第二组</span><span class="deg-expr" data-math-text>$\dfrac1a+\dfrac1b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">−1</span></span></div><span class="deg-sep" aria-hidden="true"></span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 1</span><span class="deg-expr" data-math-text>$a+b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">+1</span></span></div></div></div><div class="reasoning"><span class="section-label">根据你的判断，整理思路</span><p data-math-text>第一组零次，第二组负一次，两组次数不同，目标不是齐次式。</p><p data-math-text>条件表达式 $a+b$ 是正一次，且 $a+b=1$；只给第二组乘上它，次数 $(-1)+(+1)=0$，与第一组同为零次。</p></div>
+  </template>
+  <template id="rewrite-scope">
+<div class="visual-board rw-board"><span class="rw-caption">拆项后的原式 · 点选要乘入的部分</span><div class="rw-source" role="group" aria-label="作用范围"><button type="button" class="rw-target rw-whole" data-rewrite-scope="whole"><span class="rw-legend">整个式子</span></button><div class="rw-terms"><button type="button" class="rw-target rw-term" data-rewrite-scope="first" aria-label="第一组 b/a+a/b"><span class="nowrap" data-math-text>$\dfrac ba+\dfrac ab$</span></button><span class="rw-op">+</span><button type="button" class="rw-target rw-term" data-rewrite-scope="second" aria-label="第二组 1/a+1/b"><span class="nowrap" data-math-text>$\dfrac1a+\dfrac1b$</span></button></div></div><span data-rewrite-result></span></div>
+  </template>
+  <template id="rewrite-whole">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$\left(\dfrac ba+\dfrac ab+\dfrac1a+\dfrac1b\right)$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-first">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$\left(\dfrac ba+\dfrac ab\right)$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span><span class="rw-op">+</span><span data-math-text>$\left(\dfrac1a+\dfrac1b\right)$</span></div>
+  </template>
+  <template id="rewrite-second">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span data-math-text>$\left(\dfrac ba+\dfrac ab\right)$</span><span class="rw-op">+</span><span class="rw-focus"><span data-math-text>$\left(\dfrac1a+\dfrac1b\right)$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-done">
+<div class="visual-board completed-visual"><div class="board-caption">只给第二组乘入定值 1，各项都成零次</div><div class="rewrite-equation" data-math-text>$\left(\frac ba+\frac ab\right)+\left(\frac1a+\frac1b\right)(a+b)$</div><div class="rewrite-equation"><span>= 2 +</span><span class="shape square expression-slot" data-math-text>$\frac{2b}a$</span><span>+</span><span class="shape circle expression-slot" data-math-text>$\frac{2a}b$</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 展开整理</span><p data-math-text>$\left(\frac1a+\frac1b\right)(a+b)=1+\frac ba+\frac ab+1=2+\frac ba+\frac ab$，相当于把原分子中的 $1$ 换成 $a+b$</p><p data-math-text>$\frac{b+1}a+\frac{a+1}b=\frac ba+\frac ab+2+\frac ba+\frac ab=2+\frac{2b}a+\frac{2a}b$</p></div>
+  </template>
+  <template id="calc-whole-condition">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac ba+\frac ab+\frac1a+\frac1b\right)\cdot (a+b)$</p><p data-math-text>$=a+b+\frac{b^2}a+\frac{a^2}b+2+\frac ba+\frac ab$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 是一次；$\frac{b^2}a$ 的次数为 $2-1=1$；常数 $2$ 是零次，$\frac ba$ 的次数为 $1-1=0$。</p><p data-math-text>乘入的表达式 $a+b=1$，与原式等价。</p><p data-math-text>展开后同时有一次项和零次项，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="calc-whole-a">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac ba+\frac ab+\frac1a+\frac1b\right)\cdot a$</p><p data-math-text>$=b+\frac{a^2}b+1+\frac ab$</p><p data-math-text>$0&lt;a=1-b&lt;1$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$b$ 是一次；$\frac{a^2}b$ 的次数为 $2-1=1$；常数 $1$ 是零次，$\frac ab$ 的次数为 $1-1=0$。</p><p data-math-text>由 $a,b&gt;0$、$a+b=1$ 得 $0&lt;a&lt;1$；所选部分为正，乘 $a$ 后值减小，与原式不等价。</p><p data-math-text>展开后同时有一次项和零次项，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="calc-whole-one">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac ba+\frac ab+\frac1a+\frac1b\right)\cdot 1$</p><p data-math-text>$=\frac ba+\frac ab+\frac1a+\frac1b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$\frac ba$、$\frac ab$ 的次数均为 $1-1=0$；$\frac1a$、$\frac1b$ 的次数均为 $0-1=-1$。</p><p data-math-text>乘入常数 $1$，与原式等价。</p><p data-math-text>表达式未改变，零次项与负一次项混合，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="calc-first-condition">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac ba+\frac ab\right)\cdot (a+b)+\left(\frac1a+\frac1b\right)$</p><p data-math-text>$=a+b+\frac{b^2}a+\frac{a^2}b+\frac1a+\frac1b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 是一次；$\frac{b^2}a$ 的次数为 $2-1=1$；$\frac1a$ 的次数为 $0-1=-1$。</p><p data-math-text>乘入的表达式 $a+b=1$，与原式等价。</p><p data-math-text>第一组变成一次，第二组仍为负一次，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="calc-first-a">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac ba+\frac ab\right)\cdot a+\left(\frac1a+\frac1b\right)$</p><p data-math-text>$=b+\frac{a^2}b+\frac1a+\frac1b$</p><p data-math-text>$0&lt;a=1-b&lt;1$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$b$ 是一次；$\frac{a^2}b$ 的次数为 $2-1=1$；$\frac1a$ 的次数为 $0-1=-1$。</p><p data-math-text>由 $a,b&gt;0$、$a+b=1$ 得 $0&lt;a&lt;1$；所选部分为正，乘 $a$ 后值减小，与原式不等价。</p><p data-math-text>第一组变成一次，第二组仍为负一次，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="calc-first-one">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac ba+\frac ab\right)\cdot 1+\left(\frac1a+\frac1b\right)$</p><p data-math-text>$=\frac ba+\frac ab+\frac1a+\frac1b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$\frac ba$、$\frac ab$ 的次数均为 $1-1=0$；$\frac1a$、$\frac1b$ 的次数均为 $0-1=-1$。</p><p data-math-text>乘入常数 $1$，与原式等价。</p><p data-math-text>表达式未改变，零次项与负一次项混合，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="calc-second-a">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac ba+\frac ab\right)+\left(\frac1a+\frac1b\right)\cdot a$</p><p data-math-text>$=\frac ba+\frac{2a}b+1$</p><p data-math-text>$0&lt;a=1-b&lt;1$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$\frac ba$、$\frac{2a}b$ 的次数均为 $1-1=0$，数字系数 $2$ 不计入次数；常数 $1$ 是零次。</p><p data-math-text>由 $a,b&gt;0$、$a+b=1$ 得 $0&lt;a&lt;1$；所选部分为正，乘 $a$ 后值减小，与原式不等价。</p><p data-math-text>展开后各项都是零次，但这不是原式的等价改写。</p></div></section>
+  </template>
+  <template id="calc-second-one">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac ba+\frac ab\right)+\left(\frac1a+\frac1b\right)\cdot 1$</p><p data-math-text>$=\frac ba+\frac ab+\frac1a+\frac1b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$\frac ba$、$\frac ab$ 的次数均为 $1-1=0$；$\frac1a$、$\frac1b$ 的次数均为 $0-1=-1$。</p><p data-math-text>乘入常数 $1$，与原式等价。</p><p data-math-text>表达式未改变，零次项与负一次项混合，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span>= 4</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>$a,b>0\ \Longrightarrow\ \frac{2b}a>0,\quad\frac{2a}b>0$</p><p data-math-text>$\frac{2b}a\cdot\frac{2a}b=4$</p><p data-math-text>两项的积固定，要求和的最小值；原式还包含常数 $2$。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界，再加回常数</span><p data-math-text>$\frac{2b}a+\frac{2a}b\ge2\sqrt{\frac{2b}a\cdot\frac{2a}b}=4$</p><p data-math-text>$\frac{b+1}a+\frac{a+1}b=2+\frac{2b}a+\frac{2a}b\ge2+4=6$</p></div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 联立取等条件</span><p data-math-text>$\frac{2b}a=\frac{2a}b\ \Longrightarrow\ a^2=b^2$</p><p data-math-text>$a,b>0\ \Longrightarrow\ a=b$</p><p data-math-text>$a=b,\quad a+b=1\ \Longrightarrow\ a=b=\frac12$</p></div><div class="reasoning"><span class="section-label">系统计算 · 验证原条件</span><p data-math-text>$a=b=\frac12>0,\quad a+b=1$</p><p data-math-text>$\frac{b+1}a+\frac{a+1}b=3+3=6$</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$\frac{b+1}a+\frac{a+1}b$ 的最小值为 $6$</h2><p data-math-text>当 $a=b=\frac12$ 时取到。</p></section>
+  </template>
+</body>
+</html>

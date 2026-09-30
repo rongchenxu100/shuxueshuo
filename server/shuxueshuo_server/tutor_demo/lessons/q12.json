@@ -1,0 +1,321 @@
+{
+  "id": "q12",
+  "version": 1,
+  "problem": {
+    "statement": "已知正数 $m,n$ 满足 $2m+n=6$，求 $\\frac1{2m+1}+\\frac1{n+1}$ 的最小值。",
+    "conditions": [
+      "m>0",
+      "n>0",
+      "2m+n=6"
+    ],
+    "target": "min(1/(2m+1)+1/(n+1))"
+  },
+  "methods": [
+    {
+      "id": "substitution",
+      "label": "换元法"
+    }
+  ],
+  "routes": {
+    "substitution": {
+      "label": "换元法",
+      "nodes": [
+        {
+          "id": "substitution",
+          "title": "换元",
+          "question": "目标中哪些部分适合看成整体，换成新变量？",
+          "interaction": {
+            "type": "substitution",
+            "slots": [
+              {
+                "label": "换元对象",
+                "names": [
+                  "x",
+                  "y"
+                ],
+                "options": [
+                  {
+                    "value": "2m+1",
+                    "label": "$2m+1$"
+                  },
+                  {
+                    "value": "n+1",
+                    "label": "$n+1$"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "2m+1|n+1"
+            ]
+          },
+          "feedback": {
+            "terms": "只换一个分母是等价的，但还没有完成本步要求的两个分母换元。等式 $2m+n=6$ 两边各加 $2$，再将左边整理为 $(2m+1)+(n+1)=8$。把两个分母分别记为 $x,y$，条件就变成 $x+y=8$。"
+          },
+          "required_evidence": [
+            "first_denominator_target",
+            "second_denominator_target"
+          ],
+          "criteria": "学生需要把两个分母都看成整体换元：x=2m+1满足first_denominator_target，y=n+1满足second_denominator_target，两者可分轮积累。接受“设x=2m+1,y=n+1”“两个分母分别换元”“分母之和(2m+1)+(n+1)=8”等明确指出两个分母的表达。用其他字母如t,u表示也接受，页面统一记为x、y。系统负责改写：条件x+y=8，范围x>1、y>1（也可推出1<x<7），目标1/x+1/y；不要求学生自己推出，也不能追问。只换一个分母不是数学错误，但另一个分母仍含原变量：只换2m+1得x+n=7，目标1/x+1/(n+1)；只换n+1得2m+y=7，目标1/(2m+1)+1/y；只能记一个对应证据。换m或n单个字母只是改名，不满足要求。只说“换元”未指明对象、只猜1/2不足。若学生不换元，直接对原式乘((2m+1)+(n+1))/8=1，这也是正确思路，不能判错；说明当前页面练习换元路径。",
+          "completion_reply": "换元正确。设 $x=2m+1,\\ y=n+1$，条件变为 $x+y=8$，范围变为 $x>1,\\ y>1$，目标变为 $\\frac1x+\\frac1y$。",
+          "results": [
+            "设x=2m+1,y=n+1，则2m=x-1,n=y-1",
+            "2m+n=6 ⇒ x+y=8",
+            "m>0 ⇒ x>1；n>0 ⇒ y>1",
+            "目标化为1/x+1/y"
+          ]
+        },
+        {
+          "id": "homogeneity",
+          "title": "识别齐次结构",
+          "question": "目标表达式与条件表达式分别是几次？相乘后能配成零次齐次式吗？",
+          "interaction": {
+            "type": "homogeneity",
+            "terms": [
+              "-1",
+              "0",
+              "1"
+            ],
+            "term_labels": {
+              "-1": "$-1$",
+              "0": "$0$",
+              "1": "$+1$"
+            },
+            "slot_labels": [
+              "目标表达式的次数",
+              "条件表达式的次数"
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "-1",
+              "1"
+            ]
+          },
+          "feedback": {
+            "terms": "判断次数时，先看每一项中变量的指数。$\\frac1x=x^{-1}$、$\\frac1y=y^{-1}$，目标是负一次；$x$、$y$ 的指数都是 $1$，条件表达式 $x+y$ 是正一次。只有相乘时才把次数相加。"
+          },
+          "required_evidence": [
+            "target_degree",
+            "condition_degree"
+          ],
+          "criteria": "需要识别目标1/x+1/y为负一次，条件表达式x+y为正一次。可分轮累积两项证据；已给出这两项次数就足够，系统展示次数相加为0，以及x+y=8所以(x+y)/8=1，不能再强行追问。本步不要求实际乘入或展开。明确说目标乘(x+y)/8后次数-1+1=0且不改变值也接受。只说能、乘1或猜最终答案不足。负一次指齐次次数，不是表达式为负；x,y>1，两项均为正。1/x=x^{-1}、1/y=y^{-1}。相加时不把次数相加，只有相乘时才相加。条件表达式指x+y，它等于8而不是1。次数互换错误，不能把纠正后的答案当成学生证据。",
+          "completion_reply": "判断正确。目标为负一次，条件表达式为正一次，相乘的次数是 $(-1)+1=0$；由 $x+y=8$ 得 $\\frac{x+y}8=1$，可以用于等价改写。",
+          "results": [
+            "目标1/x+1/y为负一次齐次表达式",
+            "条件表达式x+y为正一次，且x+y=8，(x+y)/8=1",
+            "两者相乘的次数为0，乘入(x+y)/8不改变目标值"
+          ]
+        },
+        {
+          "id": "rewrite",
+          "title": "配齐次式",
+          "question": "对原式的哪一部分乘入什么表达式，才能保持值不变并配成零次齐次式？",
+          "interaction": {
+            "type": "rewrite",
+            "slots": [
+              {
+                "label": "作用范围",
+                "options": [
+                  {
+                    "value": "whole",
+                    "label": "整个式子"
+                  },
+                  {
+                    "value": "first",
+                    "label": "第一项 $\\frac1x$"
+                  },
+                  {
+                    "value": "second",
+                    "label": "第二项 $\\frac1y$"
+                  }
+                ]
+              },
+              {
+                "label": "乘入的表达式",
+                "options": [
+                  {
+                    "value": "(x+y)/8",
+                    "label": "$\\frac{x+y}8$"
+                  },
+                  {
+                    "value": "x+y",
+                    "label": "$x+y$"
+                  },
+                  {
+                    "value": "1",
+                    "label": "$1$"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "whole",
+              "(x+y)/8"
+            ]
+          },
+          "feedback": {
+            "terms": "要同时满足“值不变”和“整体变成零次”。条件是 $x+y=8$，等于 $1$ 的正一次表达式是 $\\frac{x+y}8$；两项都是负一次，需要乘给整个式子。"
+          },
+          "required_evidence": [
+            "whole_scope",
+            "unit_factor"
+          ],
+          "criteria": "学生要选择整个1/x+1/y乘(x+y)/8，接受原式=(1/x+1/y)(x+y)/8，或原式=(1/8)(1/x+1/y)(x+y)等完整等价式。只说整个式子满足whole_scope，乘入(x+y)/8满足unit_factor，两者可分轮积累；只说乘1未指明哪个表达式不足。展开由系统完成，不要求学生给出1/4及两个比值项。整体乘x+y会把值变成原来的8倍，不保持值；学生若说“乘x+y再除以8”则等价于乘(x+y)/8，可以接受。乘常数1保持值但未改变齐次次数。仅一项乘(x+y)/8保持值但整体次数仍混合，不能说数学错误：只乘第一项是(1/x)(x+y)/8+1/y=1/8+y/(8x)+1/y；只乘第二项是1/x+(1/y)(x+y)/8=1/x+x/(8y)+1/8；两者都残留负一次项。任何一项乘数或范围明确错误，本轮不算完成证据。",
+          "completion_reply": "配式正确。给整个式子乘入 $\\frac{x+y}8=1$，展开得到 $\\frac14+\\frac18\\left(\\frac yx+\\frac xy\\right)$。",
+          "results": [
+            "原式=(1/x+1/y)(x+y)/8=(1/8)(1+y/x+x/y+1)=1/4+(1/8)(y/x+x/y)",
+            "两个比值项均为零次齐次表达式"
+          ]
+        },
+        {
+          "id": "structure",
+          "title": "观察和积结构",
+          "question": "这两项是定和求积，还是定积求和？",
+          "interaction": {
+            "type": "structure",
+            "terms": [
+              "y/x",
+              "x/y"
+            ],
+            "term_labels": {
+              "y/x": "$\\frac{y}{x}$",
+              "x/y": "$\\frac{x}{y}$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "y/x",
+              "x/y"
+            ],
+            "fixed": "product",
+            "target": "sum"
+          },
+          "feedback": {
+            "terms": "请核对展开后的两个比值项。",
+            "structure": "两项的积固定为 $1$，要求它们和的最小值。"
+          },
+          "required_evidence": [
+            "fixed_product_structure"
+          ],
+          "criteria": "学生需识别y/x与x/y定积求和。已由前一步明确两项，简答定积求和可以通过，积1由系统计算。只说两个正数或乘积为1未表达求和，可引导目标。原式是1/4+(1/8)(y/x+x/y)，系数1/8为正，两项和最小时原式最小。另一种做法：1/x+1/y≥2/√(xy)，且xy≤((x+y)/2)²=16，得原式≥1/2；两次取等都在x=y=4，所以同样成立，不能判错，但当前页面练习配齐次路线。",
+          "completion_reply": "判断正确。两个正项的积是 $1$，目标是求和的最小值。",
+          "results": [
+            "x>1,y>1 ⇒ y/x>0,x/y>0",
+            "(y/x)(x/y)=1",
+            "原式=1/4+(1/8)(两项和)，定积求和"
+          ]
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对这两个正项应用基本不等式，能得到什么关系？",
+          "interaction": {
+            "type": "amgm",
+            "terms": [
+              "y/x",
+              "x/y"
+            ],
+            "term_labels": {
+              "y/x": "$\\frac{y}{x}$",
+              "x/y": "$\\frac{x}{y}$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "y/x",
+              "x/y"
+            ]
+          },
+          "feedback": {
+            "terms": "请核对展开后的两个正项。"
+          },
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "接受y/x+x/y≥2√((y/x)(x/y))，或明确这两项和≥2的关系。学生只猜1/2不足。系统算积1、两项和下界2、代回得原式≥1/4+2/8=1/2。2是两个比值项之和的下界，不是原式的下界；不要漏掉系数1/8和常数1/4。此时只证明下界，不先认定可取到，不追问下一步骤。",
+          "completion_reply": "关系正确。两项之和不小于 $2$，代回原式得 $\\frac1x+\\frac1y\\ge\\frac14+\\frac14=\\frac12$。",
+          "results": [
+            "y/x+x/y≥2√1=2",
+            "原式=1/4+(1/8)(y/x+x/y)≥1/2"
+          ]
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，这个下界可以取到？",
+          "interaction": {
+            "type": "equality",
+            "terms": [
+              "y/x",
+              "x/y"
+            ],
+            "term_labels": {
+              "y/x": "$\\frac{y}{x}$",
+              "x/y": "$\\frac{x}{y}$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "y/x",
+              "x/y"
+            ]
+          },
+          "feedback": {
+            "terms": "取等要求应用基本不等式的两个比值项相等。"
+          },
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "接受y/x=x/y，或x²=y²结合正数，或x=y，或x=y=4，或回到原变量2m+1=n+1、m=3/2,n=3。系统完成解方程，并验证x=4>1、y=4>1在换元后的范围内、m>0、n>0、2m+n=6，不再让学生求值。注意本题x=y恰好是正确的取等条件；但m=n不是（m=n=2时2m+1=5≠n+1=3），不能接受。负根x=-y不满足正数，不能接受。等号关系正确即可通过；只说最小值、两数正或提问为什么相等不足。如果学生追问为什么要检查x>1、y>1，说明换元后新变量的范围由原条件决定，取等点必须落在这个范围内。",
+          "completion_reply": "取等条件正确。联立 $x=y$ 与 $x+y=8$，得 $x=y=4$，即 $m=\\frac32,\\ n=3$，最小值为 $\\frac12$。",
+          "results": [
+            "y/x=x/y ⇒ x²=y²",
+            "x,y>0 ⇒ x=y",
+            "x=y,x+y=8 ⇒ x=y=4",
+            "x=4>1,y=4>1；m=(x-1)/2=3/2>0,n=y-1=3>0,2m+n=6",
+            "1/(2m+1)+1/(n+1)=1/4+1/4=1/2，最小值1/2"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {},
+    "feedback": "",
+    "hint": false
+  }
+}

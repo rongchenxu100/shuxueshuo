@@ -1,0 +1,349 @@
+{
+  "id": "q27",
+  "version": 1,
+  "problem": {
+    "statement": "若 $x>0$，求函数 $y=\\frac{2x+1}{x^2+1}$ 的最大值。",
+    "conditions": [
+      "x>0"
+    ],
+    "target": "y=(2x+1)/(x^2+1)的最大值"
+  },
+  "methods": [
+    {
+      "id": "reciprocal",
+      "label": "取倒数后分式分离"
+    }
+  ],
+  "routes": {
+    "reciprocal": {
+      "label": "取倒数后分式分离",
+      "nodes": [
+        {
+          "id": "transform",
+          "title": "转化目标",
+          "question": "要求 $y$ 的最大值，可以先转化成求什么？",
+          "interaction": {
+            "type": "choice",
+            "field": "transform_target",
+            "options": [
+              {
+                "value": "min_reciprocal",
+                "label": "求 $\\frac1y$ 的最小值"
+              },
+              {
+                "value": "max_reciprocal",
+                "label": "求 $\\frac1y$ 的最大值"
+              },
+              {
+                "value": "min_denominator",
+                "label": "求分母 $x^2+1$ 的最小值"
+              }
+            ],
+            "description": "min_reciprocal为x>0时y>0，y越大1/y越小，y的最大值对应1/y的最小值；max_reciprocal方向反了；本题1/y无最大值，y无最小值；min_denominator忽略了分子2x+1也随x变化。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "min_reciprocal"
+            ]
+          },
+          "feedback": {
+            "answer": "$x>0$ 时 $y>0$，$y$ 越大，$\\frac1y$ 越小；分子 $2x+1$ 也在变，不能只看分母。把 $y$ 的最大值转化成 $\\frac1y$ 的最小值，$\\frac1y=\\frac{x^2+1}{2x+1}$ 的分子次数高于分母。"
+          },
+          "required_evidence": [
+            "reciprocal_target"
+          ],
+          "criteria": "回答y为什么无最小值时，可直接展示y=(2/x+1/x²)/(1+1/x²)，x趋于正无穷时趋于0且始终为正；相应1/y无上界。优先用这个公式解释，避免额外比较增长速度时混淆分子分母。原y的2x+1是分子，绝不能称为分母。只向学生解释数学，不叙述“这是提问/不是作答”等内部分类。\n本步只判断转化目标。原函数y=(2x+1)/(x²+1)，原分子是2x+1，原分母是x²+1；倒数1/y才交换二者。解释“只看原分母不行”时必须指明原函数y的分子、分母都在变，不得混用y和1/y的分子分母。\n接受“求1/y的最小值”“求(x²+1)/(2x+1)的最小值”，返回reciprocal_target。只说“取倒数”而未明确方向时追问；求1/y最大值、只求原分母最小值均不通过。\n下界问题：x>0，所以x²+1>1。x从正侧趋于0时原分母趋于1，但1取不到，是下界不是最小值，不得说“分母最小时”。\n最值问题：x趋于正无穷时y趋于0，y始终为正，因此y没有最小值；1/y无上界，没有最大值。此极限不表示y在整个正半轴递减，不得说“x越大y越小”。y>0时y越大1/y越小，所以最大化y应最小化1/y。\n其他合法做法可认可，不要将非当前路线说成数学错误。本步不要求后续换元、拆分或最终答案。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "转化正确。$x>0$ 时 $y>0$，$y$ 越大 $\\frac1y$ 越小，所以求 $\\frac1y=\\frac{x^2+1}{2x+1}$ 的最小值。",
+          "results": [
+            "x>0 ⇒ y>0",
+            "求y的最大值 ⇔ 求1/y的最小值",
+            "1/y=(x²+1)/(2x+1)"
+          ]
+        },
+        {
+          "id": "substitution",
+          "title": "换元",
+          "question": "$\\frac1y$ 中哪一部分适合看成一个整体，换成新变量？",
+          "interaction": {
+            "type": "substitution",
+            "slots": [
+              {
+                "label": "换元对象",
+                "names": [
+                  "t"
+                ],
+                "options": [
+                  {
+                    "value": "2x+1",
+                    "label": "$2x+1$"
+                  },
+                  {
+                    "value": "x",
+                    "label": "$x$"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "2x+1"
+            ]
+          },
+          "feedback": {
+            "terms": "只把 $x$ 换成 $t$，分母仍是 $2t+1$，只是换了个名字。把分母 $2x+1$ 看成整体，分母就只剩一个 $t$，可以逐项相除。"
+          },
+          "required_evidence": [
+            "denominator_target"
+          ],
+          "criteria": "本步目标：把倒数1/y的分母2x+1看成整体换元，方便化成一次项、常数项、倒数项的和。\n合法性：分母为多项式也可以按分子拆分。(x²+1)/(2x+1)=x²/(2x+1)+1/(2x+1)成立。学生选t=x时，范围仅为t>0，分母2t+1>1；不是t>1。这种改名后的拆分合法，但分母仍是2t+1，尚未便于约简。不能声称不合法或不能逐项相除。\n只有明确选t=2x+1（或其他字母表示同一整体）才返回denominator_target。此时才有t>1，x=(t-1)/2，1/y=(t²-2t+5)/(4t)，这些计算由系统完成。不要把正确换元的范围套到学生t=x的选择上。只说换元未指明对象、t=x或只换2x，均未满足本步。\n学生只问拆分是否合法，应认可并说明整体换元便于约简的作用，保留原选择，不代选分母。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "换元正确。设 $t=2x+1$，则 $x=\\frac{t-1}2$，$t>1$，$\\frac1y=\\frac14\\cdot\\frac{t^2-2t+5}{t}$。",
+          "results": [
+            "设t=2x+1，则x=(t-1)/2",
+            "x²+1=(t²-2t+5)/4",
+            "x>0 ⇒ t>1",
+            "1/y=(1/4)·(t²-2t+5)/t"
+          ]
+        },
+        {
+          "id": "split",
+          "title": "分式分离",
+          "question": "把分子逐项除以 $t$，方框和圆圈各填什么？",
+          "interaction": {
+            "type": "fill",
+            "terms": [
+              "-5",
+              "-2",
+              "2",
+              "5"
+            ],
+            "term_labels": {
+              "-5": "$-5$",
+              "-2": "$-2$",
+              "2": "$2$",
+              "5": "$5$"
+            },
+            "slot_labels": [
+              "常数项",
+              "1/t 的系数"
+            ],
+            "slot_shapes": [
+              "square",
+              "circle"
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "-2",
+              "5"
+            ]
+          },
+          "feedback": {
+            "terms": "把你填的式子乘回 $t$，分别核对一次项与常数项，是否与分子 $t^2-2t+5$ 相同。"
+          },
+          "required_evidence": [
+            "constant_term",
+            "reciprocal_coefficient"
+          ],
+          "criteria": "优先判断意图：“按我填的式子乘回核对，不要替我改”是在请求解释，不是提交新答案。即使所填两格中有一格正确，也必须intent=question、evidence=[]、actions=[]；不能顺便记录reciprocal_coefficient或constant_term。只有学生随后明确确认系数作为答案时才记录。核对错误填写时，先展示学生实际式子的乘回结果，再比较原分子。例如填2和5，写t(t+2+5/t)=t²+2t+5，与t²-2t+5不恒等；不可先把正确答案当成学生式子，也不可把错误式子写成与原式相等。学生要把(t²-2t+5)/t逐项相除得到t-2+5/t。常数-2是constant_term，1/t的系数5是reciprocal_coefficient，可分轮积累；直接写出t-2+5/t两项齐全；写出1/y=(1/4)(t-2+5/t)也可以。当前槽位值见current_inputs，严禁借用expected_answer替换学生的选择。填2或-5是符号错误；把-2与5对调是位置错误；恒等需要一次项与常数项同时匹配。系数1/4已由系统提到括号外，本步不要求处理。本步不要求和积结构或基本不等式。只猜最终答案不足。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。学生只明确一个系数，另一个说待定时，只记录该系数的证据，不替他补全；随后明确另一个系数可合并已有证据。填常数c、倒数系数d时，乘回t得t²+ct+d，c与原一次项系数-2对应，d与原常数项5对应；常数-2已确定后，只需核对剩余常数项5，不要再通过一次项-2t判断倒数系数。",
+          "completion_reply": "分离正确。$\\frac{t^2-2t+5}{t}=t-2+\\frac5t$，所以 $\\frac1y=\\frac14\\left(t-2+\\frac5t\\right)$。",
+          "results": [
+            "(t²-2t+5)/t=t-2+5/t",
+            "1/y=(1/4)(t-2+5/t)"
+          ]
+        },
+        {
+          "id": "structure",
+          "title": "观察和积结构",
+          "question": "这两项是定和求积，还是定积求和？",
+          "interaction": {
+            "type": "structure",
+            "terms": [
+              "t",
+              "5/t"
+            ],
+            "term_labels": {
+              "t": "$t$",
+              "5/t": "$\\frac5t$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "t",
+              "5/t"
+            ],
+            "fixed": "product",
+            "target": "sum"
+          },
+          "feedback": {
+            "terms": "请核对括号里分离出的两项，系数 $\\frac14$ 和常数 $-2$ 留在外面。",
+            "structure": "两项的积固定为 $5$，要求它们和的最小值。"
+          },
+          "required_evidence": [
+            "fixed_product_structure"
+          ],
+          "criteria": "判定当前学生原话，不能判定老师自己纠正后的结论。学生说“定和求积”时一定不通过，evidence=[]、actions=[]，尤其不能返回fixed_product_structure或swap。只有学生表达“定积求和”才返回fixed_product_structure。学生需识别t与5/t定积求和。已由前一步明确两项，简答定积求和可以通过，积5由系统计算。只说两个正数或乘积为5未表达求和，可引导目标；只猜答案不足；定和求积不通过，老师不能自动改正后计为学生证据。系数1/4与常数-2暂留在外，得到两项和的界后系统代回。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "判断正确。$t$ 与 $\\frac5t$ 的积是 $5$，目标是求和的最小值。",
+          "results": [
+            "t>1 ⇒ t>0,5/t>0",
+            "t·(5/t)=5",
+            "1/y=(1/4)(两项和-2)，定积求和"
+          ]
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对这两个正项应用基本不等式，能得到什么关系？",
+          "interaction": {
+            "type": "amgm",
+            "terms": [
+              "t",
+              "5/t"
+            ],
+            "term_labels": {
+              "t": "$t$",
+              "5/t": "$\\frac5t$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "t",
+              "5/t"
+            ]
+          },
+          "feedback": {
+            "terms": "请核对分离后的两个正项。"
+          },
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "接受t+5/t≥2√(t·5/t)=2√5，或明确以这两个正项用基本不等式得到1/y≥(√5-1)/2。根号化简、减2乘1/4由系统完成，不要求学生再提交计算。只猜答案不足。2√5是两项和的下界，2√5-2是括号的下界，(√5-1)/2是1/y的下界，都不是y的最大值；若学生已正确给出两项和≥2√5，则已满足本步。此时只证明下界，不先认定可取到，不追问下一步骤。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "关系正确。$t+\\frac5t\\ge2\\sqrt5$，所以 $\\frac1y\\ge\\frac{2\\sqrt5-2}{4}=\\frac{\\sqrt5-1}{2}$。",
+          "results": [
+            "t+5/t≥2√5",
+            "1/y=(1/4)(t+5/t-2)≥(2√5-2)/4=(√5-1)/2"
+          ]
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，这个下界可以取到？",
+          "interaction": {
+            "type": "equality",
+            "terms": [
+              "t",
+              "5/t"
+            ],
+            "term_labels": {
+              "t": "$t$",
+              "5/t": "$\\frac5t$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "t",
+              "5/t"
+            ]
+          },
+          "feedback": {
+            "terms": "取等要求应用基本不等式的两项相等。"
+          },
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "范围追问应明确：t>0足以使用基本不等式；t>1是由原题x>0及t=2x+1得到的实际范围。只写t>0会额外包含0<t≤1（例如t=1/2对应x=-1/4），这些点不属于原题。t>0和t>1都能排除负根-√5，绝不能说仅用t>0会允许负根。正根√5>1满足实际范围，所以本题下界可取。这类范围追问只解释，不记录取等证据，也不要向学生叙述intent或“这是提问不是作答”等内部判定。\n直接答x=(√5-1)/2时取等已经正确：代回t=2x+1得t=√5，满足t=5/t，必须返回equal_terms，actions=[]。不能以没写t=5/t为由拒绝正确x值，不能要求重复补写方程。关于范围：t>0足以保证能用基本不等式；但取等能否实现须检查原定义域对应的t>1，不能把范围扩成全部正数。询问范围本身不算学生提交取等答案。接受t=5/t、t²=5结合t>1、t=√5、2x+1=√5或直接x=(√5-1)/2。学生只需给取等关系，系统求根、根据范围筛选并换回x。由t²=5得t=±√5，但-√5不满足t>1；√5≈2.236>1可取。只答t=-√5不通过。若正确给出取等方程后列出两个代数根而尚未筛选，可由系统完成。只猜最值不足。提问为什么两项相等也不足。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "取等条件正确。$t=\\sqrt5>1$，即 $x=\\frac{\\sqrt5-1}{2}$，$\\frac1y$ 的最小值 $\\frac{\\sqrt5-1}{2}$ 可以取到。",
+          "results": [
+            "t=5/t ⇒ t²=5",
+            "t>1 ⇒ t=√5",
+            "x=(t-1)/2=(√5-1)/2>0",
+            "1/y的最小值(√5-1)/2可以取到"
+          ]
+        },
+        {
+          "id": "back",
+          "title": "换回 y",
+          "question": "$\\frac1y$ 的最小值是 $\\frac{\\sqrt5-1}{2}$，$y$ 的最大值是多少？",
+          "interaction": {
+            "type": "choice",
+            "field": "back_to_y",
+            "options": [
+              {
+                "value": "reciprocal_back",
+                "label": "$\\dfrac{\\sqrt5+1}{2}$"
+              },
+              {
+                "value": "forgot_back",
+                "label": "$\\dfrac{\\sqrt5-1}{2}$"
+              },
+              {
+                "value": "forgot_both",
+                "label": "$2\\sqrt5-2$"
+              }
+            ],
+            "description": "reciprocal_back为y>0时y的最大值等于1/y最小值的倒数2/(√5-1)=(√5+1)/2；forgot_back把1/y的最小值当成y的最大值；forgot_both是t-2+5/t的最小值，既漏了系数1/4也没有换回y。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "reciprocal_back"
+            ]
+          },
+          "feedback": {
+            "answer": "$\\frac{\\sqrt5-1}{2}$ 是 $\\frac1y$ 的最小值。$y>0$ 时，$y$ 的最大值是它的倒数 $\\frac{2}{\\sqrt5-1}$，分母有理化后再选。"
+          },
+          "required_evidence": [
+            "reciprocal_back"
+          ],
+          "criteria": "学生需要由1/y的最小值(√5-1)/2换回y的最大值：y>0，y的最大值为2/(√5-1)=(√5+1)/2。接受(√5+1)/2、2/(√5-1)、(1+√5)/2等等价形式。把(√5-1)/2当作y的最大值是忘了换回；答2√5-2是括号t-2+5/t的最小值，漏了系数1/4也没有换回；答1/((√5-1)/2)未化简也可以接受。只说“取倒数”而未给出值不足。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "换回正确。$y\\le\\frac{2}{\\sqrt5-1}=\\frac{\\sqrt5+1}{2}$，最大值为 $\\frac{\\sqrt5+1}{2}$，此时 $x=\\frac{\\sqrt5-1}{2}$。",
+          "results": [
+            "y>0，1/y最小时y最大",
+            "y≤2/(√5-1)=(√5+1)/2",
+            "最大值为(√5+1)/2，此时x=(√5-1)/2"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {
+      "transform_target": null,
+      "back_to_y": null
+    },
+    "feedback": "",
+    "hint": false
+  }
+}

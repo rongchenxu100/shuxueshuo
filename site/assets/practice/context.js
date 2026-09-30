@@ -6,6 +6,29 @@
     pairs: Array.from({length: Math.max(...Object.values(lesson.routes).map(nodes => nodes.length))}, () => ['', '']),
     choices: Object.fromEntries(Object.values(lesson.routes).flat().filter(node => node.interaction.type === 'choice').map(node => [node.interaction.field, null])), feedback: '', hint: false});
   const done = (lesson, state) => Boolean(state.method) && state.active >= lesson.routes[state.method].length;
+  const slotCount = component => component.slots?.length ?? component.slot_labels?.length ?? 2;
+  // Recover the last confirmed UI combination from Context. Dialogue does not
+  // erase it; any new UI selection requires confirmation again.
+  function confirmedPair(view) {
+    const {state} = view;
+    const operations = view.messages.filter(message => message.kind === 'ui' &&
+      message.attempt_id === view.attempt_id && message.route === state.method && message.stage === state.active);
+    if (operations.at(-1)?.action.kind !== 'submit') return null;
+    // State keeps two storage cells even for a one-slot fill.
+    const pair = Array(state.pairs[state.active].length).fill('');
+    for (const {action} of operations) {
+      if (action.kind === 'fill') pair[action.index] = action.value;
+    }
+    return pair.length && JSON.stringify(pair) === JSON.stringify(state.pairs[state.active]) ? pair : null;
+  }
+  // A slot with names selects up to names.length targets, joined by "|" in option order; "" clears it.
+  function slotAccepts(slot, value) {
+    if (!slot) return false;
+    const values = slot.options.map(option => option.value);
+    if (!slot.names) return values.includes(value);
+    const parts = value ? value.split('|') : [];
+    return parts.length <= slot.names.length && parts.every((part, i) => values.includes(part) && (i === 0 || values.indexOf(parts[i - 1]) < values.indexOf(part)));
+  }
   function create(lesson, id) {
     return {session_id: null, revision: 0, lesson_id: lesson.id, lesson_version: lesson.version,
       attempt_id: id, attempts: [], state: freshState(lesson), messages: [], completed: [], accepted_evidence: []};
@@ -35,8 +58,8 @@
     if (component.type === 'choice') {
       if (!expected.one_of.includes(state.choices[component.field])) throw Error(feedback.answer || '还需要表达你对这个问题的判断。');
     } else {
-      const ordered = ['symmetry', 'substitution'].includes(component.type);
-      const actual = [...state.pairs[state.active]], wanted = [...expected.terms];
+      const ordered = ['symmetry', 'substitution', 'homogeneity', 'fill', 'rewrite'].includes(component.type);
+      const actual = state.pairs[state.active].slice(0, slotCount(component)), wanted = [...expected.terms];
       if (JSON.stringify(ordered ? actual : actual.sort()) !== JSON.stringify(ordered ? wanted : wanted.sort())) throw Error(feedback.terms || '再看看两个数学项是否对应。');
       if (component.type === 'structure' && ((state.swapped ? 'product' : 'sum') !== expected.fixed || (state.swapped ? 'sum' : 'product') !== expected.target)) throw Error(feedback.structure || '再看看条件和目标的关系。');
     }
@@ -62,7 +85,13 @@
         if (!node) throw Error('当前没有可作答的节点，请选择可用路径。');
         const component = node.interaction;
         if (action.kind === 'submit') { validate(node, state); state.active++; }
-        else if (action.kind === 'fill' && component.terms?.includes(action.value) && [0, 1].includes(action.index)) state.pairs[state.active][action.index] = action.value;
+        else if (action.kind === 'fill' && Number.isInteger(action.index) && action.index >= 0 && action.index < slotCount(component) && (component.slots
+          ? slotAccepts(component.slots[action.index], action.value)
+          : component.terms?.includes(action.value))) {
+          const pair = state.pairs[state.active];
+          while (pair.length < action.index) pair.push('');
+          pair[action.index] = action.value;
+        }
         else if (action.kind === 'swap' && component.type === 'structure' && ['sum', 'product'].includes(action.value)) state.swapped = action.value === 'product';
         else if (action.kind === 'choice' && component.type === 'choice' && component.options.some(option => option.value === action.value)) state.choices[component.field] = action.value;
         else throw Error('这个操作不属于当前节点。');
@@ -91,5 +120,5 @@
     next.attempts = next.attempts.filter(item => item.id !== next.attempt_id).concat(attempt(next, lesson));
     return next;
   }
-  globalThis.PracticeContext = {create, apply, freshState, done, position, reconcile};
+  globalThis.PracticeContext = {create, apply, freshState, done, position, reconcile, slotCount, confirmedPair};
 })();

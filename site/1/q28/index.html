@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q28 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q28</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>若实数 $x,y$ 满足 ${x^2+y^2-xy=1}$，求 $x+y$ 的取值范围。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$x,y$ 为实数，${x^2+y^2-xy=1}$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$x+y$ 的取值范围</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：识别对称结构</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q28",
+  "version": 1,
+  "variables": [
+    "x",
+    "y"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "symmetric",
+      "label": "找对称结构，和积换元"
+    }
+  ],
+  "routes": {
+    "symmetric": [
+      {
+        "id": "symmetry",
+        "title": "识别对称结构",
+        "question": "交换 x、y 后，条件和目标是否分别保持不变？",
+        "interaction": {
+          "type": "symmetry",
+          "terms": [
+            "unchanged",
+            "changed"
+          ],
+          "term_labels": {
+            "unchanged": "不变",
+            "changed": "改变"
+          },
+          "slot_labels": [
+            "条件",
+            "目标"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "unchanged",
+            "unchanged"
+          ]
+        },
+        "feedback": {
+          "terms": "交换的是变量的位置。请分别核对条件和目标，不能只看其中一个。"
+        },
+        "display": "symmetry-done",
+        "submit_label": "确认判断",
+        "board": "symmetry-scan"
+      },
+      {
+        "id": "substitution",
+        "title": "和积换元",
+        "question": "分别用 s 表示和、p 表示积，怎样定义它们？",
+        "interaction": {
+          "type": "substitution",
+          "terms": [
+            "x+y",
+            "xy",
+            "x-y"
+          ],
+          "term_labels": {
+            "x+y": "$x+y$",
+            "xy": "$xy$",
+            "x-y": "$x-y$"
+          },
+          "slot_labels": [
+            "s",
+            "p"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "x+y",
+            "xy"
+          ]
+        },
+        "feedback": {
+          "terms": "这里约定 $s$ 表示和、$p$ 表示积。请核对两个变量各自对应的表达式。"
+        },
+        "display": "substitution-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "condition",
+        "title": "改写条件",
+        "question": "用 $s$、$p$ 表示条件，应该是哪一个？",
+        "interaction": {
+          "type": "choice",
+          "field": "condition_form",
+          "options": [
+            {
+              "value": "minus_3p",
+              "label": "$s^2-3p=1$"
+            },
+            {
+              "value": "minus_2p",
+              "label": "$s^2-2p=1$"
+            },
+            {
+              "value": "minus_p",
+              "label": "$s^2-p=1$"
+            }
+          ],
+          "description": "minus_3p为x²+y²-xy=(x+y)²-3xy；minus_2p只写了x²+y²=s²-2p，漏了-xy；minus_p是x²+y²+xy，xy的符号反了。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "minus_3p"
+          ]
+        },
+        "feedback": {
+          "answer": "先写 $x^2+y^2=s^2-2p$，再减去 $xy=p$。"
+        },
+        "submit_label": "确认改写",
+        "display": "condition-done",
+        "board": "condition-board",
+        "preview": {
+          "minus_3p": "preview-condition-minus_3p",
+          "minus_2p": "preview-condition-minus_2p",
+          "minus_p": "preview-condition-minus_p"
+        }
+      },
+      {
+        "id": "inequality",
+        "title": "选不等式",
+        "question": "$x,y$ 是任意实数，哪个不等式能联系 $s$ 与 $p$？",
+        "interaction": {
+          "type": "choice",
+          "field": "inequality_form",
+          "options": [
+            {
+              "value": "p_le",
+              "label": "$p\\le\\dfrac{s^2}{4}$"
+            },
+            {
+              "value": "s_ge",
+              "label": "$s\\ge2\\sqrt p$"
+            },
+            {
+              "value": "p_ge",
+              "label": "$p\\ge\\dfrac{s^2}{4}$"
+            }
+          ],
+          "description": "p_le由(x-y)²≥0得(x+y)²≥4xy，对任意实数成立；s_ge对x,y均非负时成立（允许零），本题不保证；p<0时√p无实数意义；p_ge方向反了。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "p_le"
+          ]
+        },
+        "feedback": {
+          "answer": "$x,y$ 可以是负数，要用对任意实数都成立的不等式。从 $(x-y)^2\\ge0$ 出发，展开后看和与积的关系。"
+        },
+        "submit_label": "确认选择",
+        "display": "inequality-done",
+        "board": "inequality-board",
+        "preview": {
+          "p_le": "preview-inequality-p_le",
+          "s_ge": "preview-inequality-s_ge",
+          "p_ge": "preview-inequality-p_ge"
+        }
+      },
+      {
+        "id": "range",
+        "title": "解出范围",
+        "question": "由 $s^2\\le4$，$s$ 的范围是什么？",
+        "interaction": {
+          "type": "choice",
+          "field": "range_form",
+          "options": [
+            {
+              "value": "closed",
+              "label": "$-2\\le s\\le2$"
+            },
+            {
+              "value": "upper_only",
+              "label": "$s\\le2$"
+            },
+            {
+              "value": "positive",
+              "label": "$0\\lt s\\le2$"
+            },
+            {
+              "value": "outside",
+              "label": "$s\\le-2$ 或 $s\\ge2$"
+            }
+          ],
+          "description": "closed为s²≤4的解集；upper_only丢了下界；positive默认了x,y为正；outside是s²≥4的解。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "closed"
+          ]
+        },
+        "feedback": {
+          "answer": "$s^2\\le4$ 即 $|s|\\le2$，上界和下界都要写；题目没有说 $x,y$ 为正。"
+        },
+        "submit_label": "确认范围",
+        "display": "range-done",
+        "board": "range-board",
+        "preview": {
+          "closed": "preview-range-closed",
+          "upper_only": "preview-range-upper_only",
+          "positive": "preview-range-positive",
+          "outside": "preview-range-outside"
+        }
+      },
+      {
+        "id": "equality",
+        "title": "验证端点",
+        "question": "端点 $s=\\pm2$ 在什么条件下取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "x",
+            "y",
+            "-y"
+          ],
+          "term_labels": {
+            "x": "$x$",
+            "y": "$y$",
+            "-y": "$-y$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "x",
+            "y"
+          ]
+        },
+        "feedback": {
+          "terms": "端点来自 $p\\le\\frac{s^2}{4}$ 取等，也就是 $(x-y)^2=0$。"
+        },
+        "submit_label": "确认判断",
+        "display": "equality-done"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="symmetry-scan">
+<div class="sym-check"><div class="sym-row"><span class="sym-label">条件</span><div class="sym-exprs"><span class="sym-expr" data-math-text>$\textcolor{#087f79}{x}^2+\textcolor{#c27a0e}{y}^2-\textcolor{#087f79}{x}\textcolor{#c27a0e}{y}=1$</span><span class="sym-arrow"><span class="sr-only">交换 x、y 后变为</span><span aria-hidden="true"><i class="sym-x">x</i>⇄<i class="sym-y">y</i></span></span><span class="sym-expr" data-math-text>$\textcolor{#c27a0e}{y}^2+\textcolor{#087f79}{x}^2-\textcolor{#c27a0e}{y}\textcolor{#087f79}{x}=1$</span></div><span data-judgment="0"></span></div><div class="sym-row"><span class="sym-label">目标</span><div class="sym-exprs"><span class="sym-expr" data-math-text>$\textcolor{#087f79}{x}+\textcolor{#c27a0e}{y}$</span><span class="sym-arrow"><span class="sr-only">交换 x、y 后变为</span><span aria-hidden="true"><i class="sym-x">x</i>⇄<i class="sym-y">y</i></span></span><span class="sym-expr" data-math-text>$\textcolor{#c27a0e}{y}+\textcolor{#087f79}{x}$</span></div><span data-judgment="1"></span></div></div>
+  </template>
+  <template id="symmetry-done">
+<div class="sym-check completed-visual"><div class="sym-row"><span class="sym-label">条件</span><div class="sym-exprs"><span class="sym-expr" data-math-text>$x^2+y^2-xy=1$</span><span class="sym-arrow"><span class="sr-only">交换 x、y 后变为</span><span aria-hidden="true"><i class="sym-x">x</i>⇄<i class="sym-y">y</i></span></span><span class="sym-expr" data-math-text>$y^2+x^2-yx=1$</span></div><span class="sym-verdict">不变</span></div><div class="sym-row"><span class="sym-label">目标</span><div class="sym-exprs"><span class="sym-expr" data-math-text>$x+y$</span><span class="sym-arrow"><span class="sr-only">交换 x、y 后变为</span><span aria-hidden="true"><i class="sym-x">x</i>⇄<i class="sym-y">y</i></span></span><span class="sym-expr" data-math-text>$y+x$</span></div><span class="sym-verdict">不变</span></div></div><div class="reasoning"><span class="section-label">根据你的判断，确认对称结构</span><p data-math-text>条件和目标交换 $x$、$y$ 后都不变，可以考虑用和与积表示。</p></div>
+  </template>
+  <template id="substitution-done">
+<div class="visual-board completed-visual"><div class="board-caption">用和与积表示</div><div class="substitution-definitions"><div class="formula"><span data-math-text>$s=$</span><span class="shape square expression-slot" data-math-text>$x+y$</span></div><div class="formula"><span data-math-text>$p=$</span><span class="shape circle expression-slot" data-math-text>$xy$</span></div></div></div><div class="reasoning"><span class="section-label">系统说明 · 新变量的范围</span><p data-math-text>$x,y$ 是任意实数，$s$、$p$ 暂时没有符号限制。</p><p data-math-text>接下来把条件用 $s$、$p$ 表示。</p></div>
+  </template>
+  <template id="condition-board">
+<div class="visual-board"><div class="board-caption">条件 · 用 s、p 表示</div><div class="formula" data-math-text>$x^2+y^2-xy=1$</div></div>
+  </template>
+  <template id="preview-condition-minus_3p">
+<div class="reasoning choice-preview"><span class="section-label">改写核对</span><p data-math-text>$x^2+y^2=s^2-2p$</p><p data-math-text>${x^2+y^2-xy=s^2-2p-p}$ ${=s^2-3p}$</p></div>
+  </template>
+  <template id="preview-condition-minus_2p">
+<div class="reasoning choice-preview"><span class="section-label">改写核对</span><p data-math-text>$s^2-2p$ 只是 $x^2+y^2$，还漏了 $-xy$ 这一项。</p></div>
+  </template>
+  <template id="preview-condition-minus_p">
+<div class="reasoning choice-preview"><span class="section-label">改写核对</span><p data-math-text>${s^2-p=x^2+y^2+xy}$，$xy$ 的符号反了。</p></div>
+  </template>
+  <template id="condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">用和与积改写条件</div><div class="function-conversion"><div><span class="conversion-label">条件</span><div class="math" data-math-text>$x^2+y^2-xy=1$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">和积形式</span><div class="math" data-math-text>$s^2-3p=1$</div></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 改写条件</span><p data-math-text>${x^2+y^2-xy=(x+y)^2-3xy}$</p><p data-math-text>$s^2-3p=1\ \Longrightarrow\ p=\frac{s^2-1}{3}$</p><p data-math-text>接下来需要一个联系 $s$ 与 $p$ 的不等式。</p></div>
+  </template>
+  <template id="inequality-board">
+<div class="visual-board"><div class="board-caption">联系和与积 · x、y 是任意实数</div><div class="formula" data-math-text>$p=\dfrac{s^2-1}{3}$</div></div>
+  </template>
+  <template id="preview-inequality-p_le">
+<div class="reasoning choice-preview"><span class="section-label">不等式核对</span><p data-math-text>$(x-y)^2\ge0\ \Longrightarrow\ (x+y)^2\ge4xy$</p><p data-math-text>即 $p\le\frac{s^2}{4}$，对任意实数都成立。</p></div>
+  </template>
+  <template id="preview-inequality-s_ge">
+<div class="reasoning choice-preview"><span class="section-label">不等式核对</span><p data-math-text>$s\ge2\sqrt p$ 对两个非负数成立（允许零），但本题不保证 $x,y$ 均非负；当 $p&lt;0$ 时，$\sqrt p$ 在实数范围内无定义。</p><p data-math-text>比如 $x=y=-1$ 满足条件，此时 $s=-2$，$2\sqrt p=2$，不成立。</p></div>
+  </template>
+  <template id="preview-inequality-p_ge">
+<div class="reasoning choice-preview"><span class="section-label">不等式核对</span><p data-math-text>$(x-y)^2\ge0$ 给出的是 $s^2\ge4p$，即 $p\le\frac{s^2}{4}$，方向反了。</p></div>
+  </template>
+  <template id="inequality-done">
+<div class="visual-board completed-visual"><div class="board-caption">对任意实数成立</div><div class="formula" data-math-text>$p\le\dfrac{s^2}{4}$</div></div><div class="reasoning"><span class="section-label">系统计算 · 代入条件</span><p data-math-text>$(x-y)^2\ge0\ \Longrightarrow\ p\le\frac{s^2}{4}$</p><p data-math-text>${\frac{s^2-1}{3}\le\frac{s^2}{4}}$</p><p data-math-text>${4s^2-4\le3s^2\ \Longrightarrow\ s^2\le4}$</p></div>
+  </template>
+  <template id="range-board">
+<div class="visual-board"><div class="board-caption">解不等式 · 上下界都要</div><div class="formula" data-math-text>$s^2\le4$</div></div>
+  </template>
+  <template id="preview-range-closed">
+<div class="reasoning choice-preview"><span class="section-label">范围核对</span><p data-math-text>${s^2\le4\ \Longleftrightarrow\ |s|\le2}$</p><p data-math-text>即 $-2\le s\le2$</p></div>
+  </template>
+  <template id="preview-range-upper_only">
+<div class="reasoning choice-preview"><span class="section-label">范围核对</span><p data-math-text>只写了上界。$s=-3$ 满足 $s\le2$，但 $s^2=9$，不满足 $s^2\le4$。</p></div>
+  </template>
+  <template id="preview-range-positive">
+<div class="reasoning choice-preview"><span class="section-label">范围核对</span><p data-math-text>题目没有说 $x,y$ 为正，$s$ 可以是负数。</p><p data-math-text>比如 $x=y=-1$ 时 $s=-2$。</p></div>
+  </template>
+  <template id="preview-range-outside">
+<div class="reasoning choice-preview"><span class="section-label">范围核对</span><p data-math-text>$s\le-2$ 或 $s\ge2$ 是 $s^2\ge4$ 的解，方向反了。</p></div>
+  </template>
+  <template id="range-done">
+<div class="visual-board completed-visual"><div class="board-caption">上下界都要</div><div class="formula" data-math-text>$-2\le s\le2$</div></div><div class="reasoning"><span class="section-label">系统计算 · 解不等式</span><p data-math-text>$s^2\le4\ \Longrightarrow\ -2\le s\le2$</p><p data-math-text>还要检查两个端点能否取到。</p></div>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">端点取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 端点与中间值</span><p data-math-text>${p=\frac{s^2}{4}\ \Longleftrightarrow\ (x-y)^2=0}$</p><p data-math-text>$x=y$ 代入条件：${x^2=1\ \Longrightarrow\ x=y=\pm1}$</p><p data-math-text>$x=y=1$ 时 $s=2$；$x=y=-1$ 时 $s=-2$</p><p data-math-text>对 $[-2,2]$ 内任意 $s$，取 $p=\frac{s^2-1}{3}$，</p><p data-math-text>${s^2-4p=\frac{4-s^2}{3}\ge0}$，</p><p data-math-text>方程 $t^2-st+p=0$ 有实根 $x,y$，中间值也都能取到。</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$x+y$ 的取值范围是 $[-2,2]$</h2><p data-math-text>最大值 $2$ 在 $x=y=1$ 时取到，最小值 $-2$ 在 $x=y=-1$ 时取到。</p></section>
+  </template>
+</body>
+</html>

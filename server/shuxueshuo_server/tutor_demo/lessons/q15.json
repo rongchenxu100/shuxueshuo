@@ -1,0 +1,279 @@
+{
+  "id": "q15",
+  "version": 1,
+  "problem": {
+    "statement": "已知 $a>0,\\ b>0,\\ a+b=1$，则 $\\frac{b+1}a+\\frac{a+1}b$ 的最小值为？",
+    "conditions": [
+      "a>0",
+      "b>0",
+      "a+b=1"
+    ],
+    "target": "min((b+1)/a+(a+1)/b)"
+  },
+  "methods": [
+    {
+      "id": "homogeneous",
+      "label": "配齐次式"
+    }
+  ],
+  "routes": {
+    "homogeneous": {
+      "label": "配齐次式",
+      "nodes": [
+        {
+          "id": "homogeneity",
+          "title": "识别齐次结构",
+          "question": "拆项后，两组和条件表达式分别是几次？目标是齐次式吗？",
+          "interaction": {
+            "type": "homogeneity",
+            "terms": [
+              "-1",
+              "0",
+              "1"
+            ],
+            "term_labels": {
+              "-1": "$-1$",
+              "0": "$0$",
+              "1": "$+1$"
+            },
+            "slot_labels": [
+              "第一组的次数",
+              "第二组的次数",
+              "条件表达式的次数"
+            ],
+            "slot_shapes": [
+              "square",
+              "square",
+              "circle"
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "0",
+              "-1",
+              "1"
+            ]
+          },
+          "feedback": {
+            "terms": "判断次数时，先看每一项中变量的指数，数字系数不计入次数。$\\frac ba=b\\cdot a^{-1}$、$\\frac ab=a\\cdot b^{-1}$，指数相加 $1+(-1)=0$，第一组是零次；$\\frac1a=a^{-1}$、$\\frac1b=b^{-1}$，第二组是负一次；$a$、$b$ 都是一次，所以条件表达式 $a+b$ 是正一次。"
+          },
+          "required_evidence": [
+            "zero_group_degree",
+            "negative_group_degree",
+            "condition_degree"
+          ],
+          "criteria": "系统已把原式拆成(b/a+a/b)+(1/a+1/b)。需要识别第一组b/a+a/b为零次，第二组1/a+1/b为负一次，条件表达式a+b为正一次。可分轮累积三项证据；已给出三个次数就足够，系统展示两组次数不同、只需给第二组乘条件表达式，不能再强行追问。逐项说b/a、a/b零次或1/a、1/b负一次，可记对应的组。学生明确说第一组已是零次、第二组负一次，并说给第二组乘正一次的a+b后变成零次，可视为三项证据齐全。本步不要求实际乘入或展开。只说能配、乘1或猜6不足。两组次数不同，目标不是齐次式；不要把次数相加说成目标的次数，也不要说目标是负一次或零次。拆项前的分子b+1中b一次、1零次，同样说明不齐次；学生这样说明时，可按对应内容记录。零次指齐次次数，不是说b/a的值为常数。默认不引入缩放检验，学生明确追问定义时才解释。条件表达式指a+b，不把整条等式a+b=1当成表达式。次数填错位置，不能把纠正后的答案当成学生证据。",
+          "completion_reply": "判断正确。第一组 $\\frac ba+\\frac ab$ 已是零次，第二组 $\\frac1a+\\frac1b$ 是负一次，目标不是齐次式；条件表达式 $a+b$ 是正一次且等于 $1$，只要给第二组乘上它，各项就都是零次。",
+          "results": [
+            "拆项：原式=(b/a+a/b)+(1/a+1/b)",
+            "b/a+a/b为零次，1/a+1/b为负一次，目标不是齐次式",
+            "条件表达式a+b为正一次，且等于1",
+            "只给1/a+1/b乘a+b，次数(-1)+1=0，与第一组一致"
+          ]
+        },
+        {
+          "id": "rewrite",
+          "title": "配齐次式",
+          "question": "对拆项后的哪一部分乘入什么表达式，才能保持值不变并配成零次齐次式？",
+          "interaction": {
+            "type": "rewrite",
+            "slots": [
+              {
+                "label": "作用范围",
+                "options": [
+                  {
+                    "value": "whole",
+                    "label": "整个式子"
+                  },
+                  {
+                    "value": "first",
+                    "label": "第一组 $\\frac ba+\\frac ab$"
+                  },
+                  {
+                    "value": "second",
+                    "label": "第二组 $\\frac1a+\\frac1b$"
+                  }
+                ]
+              },
+              {
+                "label": "乘入的表达式",
+                "options": [
+                  {
+                    "value": "a+b",
+                    "label": "$a+b$"
+                  },
+                  {
+                    "value": "a",
+                    "label": "$a$"
+                  },
+                  {
+                    "value": "1",
+                    "label": "$1$"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "second",
+              "a+b"
+            ]
+          },
+          "feedback": {
+            "terms": "要同时满足“值不变”和“各项都是零次”。第一组 $\\frac ba+\\frac ab$ 已经是零次，再乘正一次的式子会变成一次；只需给负一次的第二组 $\\frac1a+\\frac1b$ 乘入等于 $1$ 的正一次表达式 $a+b$。"
+          },
+          "required_evidence": [
+            "second_group_scope",
+            "unit_factor"
+          ],
+          "criteria": "先按学生当前组合展开，保留未改动的组，分别判断等价性与齐次性，不用正确方案替换学生尝试。只乘第一组(a+b)：a+b+b²/a+a²/b+1/a+1/b，是一次与负一次混合，但等价。整体乘(a+b)：a+b+b²/a+a²/b+2+b/a+a/b，是一次与零次混合，但等价。只给第二组乘a：b/a+2a/b+1，全部零次但不等价。乘常数1：原结构不变。问“仍等价对吗”、要求计算当前组合属于question，actions=[]、evidence=[]，不擅自改选或推进。\n学生要只给第二组1/a+1/b乘a+b。接受(1/a+1/b)(a+b)、把1/a、1/b分子的1换成a+b、把原式分子中的常数1换成a+b等等价表述；最后一种与本步等价，可同时记录两项证据。只说只乘第二组满足second_group_scope，乘入a+b满足unit_factor，两者可分轮积累；只说乘1未指明哪个表达式不足。只给1/a或1/b一项乘不完整，可引导另一项。展开由系统完成，不要求学生给出常数2及两个比值项。给整个式子乘a+b值不变，但第一组乘后变成b+b²/a+a²/b+a，是一次，次数混合，不能说数学错误，但配不成零次齐次式；只乘第一组更不齐次。乘常数1保持值但未改变次数；只有给第二组乘a时各项才都是零次，但0<a<1，所选部分为正，值减小，不等价；其他范围乘a仍混合次数。学生询问“整体乘a+b不也相等吗”、要求展开或判断次数时是在讨论另一种尝试，应解释其等价但不齐次，intent=question、evidence=[]，停留本步。回复中即使补充正确的配式，也不能将老师补充的作用范围和乘数计为学生证据。只有学生自己明确选择第二组与a+b，才记录对应证据；任何范围或乘数明确错误，本轮不算完成证据。与Q13相同，只给次数不对的部分乘条件表达式；整体配式只在各部分次数相同时适用，不能把局部或整体说成普遍规则。直接对原两项用基本不等式也合法：积为1+2/(ab)，不是定值，还需由a+b=1得ab≤1/4，才得原式≥2√9=6，两次取等都在a=b=1/2；这条思路成立，应认可，但当前页面只提供拆项配齐次这条路线。",
+          "completion_reply": "配式正确。只给第二组乘入 $a+b=1$，得到 $\\left(\\frac1a+\\frac1b\\right)(a+b)=2+\\frac ba+\\frac ab$，原式 $=2+\\frac{2b}a+\\frac{2a}b$。",
+          "results": [
+            "(1/a+1/b)(a+b)=2+b/a+a/b，相当于把原分子中的1换成a+b",
+            "原式=2+2b/a+2a/b，两个比值项均为零次"
+          ]
+        },
+        {
+          "id": "structure",
+          "title": "观察和积结构",
+          "question": "这两项是定和求积，还是定积求和？",
+          "interaction": {
+            "type": "structure",
+            "terms": [
+              "2b/a",
+              "2a/b"
+            ],
+            "term_labels": {
+              "2b/a": "$\\frac{2b}a$",
+              "2a/b": "$\\frac{2a}b$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "2b/a",
+              "2a/b"
+            ],
+            "fixed": "product",
+            "target": "sum"
+          },
+          "feedback": {
+            "terms": "请核对配式后的两个比值项。",
+            "structure": "两项的积固定为 $4$，要求它们和的最小值。"
+          },
+          "required_evidence": [
+            "fixed_product_structure"
+          ],
+          "criteria": "学生需识别2b/a与2a/b定积求和。已由前一步明确两项，简答定积求和可以通过，积4由系统计算。写成2(b/a+a/b)并识别b/a与a/b定积求和也接受。只说两个正数或乘积为4未表达求和，可引导目标。原两项(b+1)/a与(a+1)/b的积1+2/(ab)不是定值；直接对它们用基本不等式合法，还需ab≤1/4才能得到6，这条思路成立但不是当前路线。常数2不参与基本不等式。",
+          "completion_reply": "判断正确。两个正项的积是 $4$，目标是求和的最小值。",
+          "results": [
+            "2b/a>0,2a/b>0",
+            "(2b/a)(2a/b)=4",
+            "常数2加上两个正项的和，定积求和"
+          ]
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对这两个正项应用基本不等式，能得到什么关系？",
+          "interaction": {
+            "type": "amgm",
+            "terms": [
+              "2b/a",
+              "2a/b"
+            ],
+            "term_labels": {
+              "2b/a": "$\\frac{2b}a$",
+              "2a/b": "$\\frac{2a}b$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "2b/a",
+              "2a/b"
+            ]
+          },
+          "feedback": {
+            "terms": "请核对配式后的两个正项。"
+          },
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "接受2b/a+2a/b≥2√((2b/a)(2a/b))，或明确这两项和≥4，或b/a+a/b≥2的关系。学生只猜6不足。系统算积4、两项和下界4、加回常数2得到原式≥6。4是两项之和的下界，不是原式的下界答案；不要遗漏常数。此时只证明下界，不先认定可取到，不追问下一步骤。",
+          "completion_reply": "关系正确。两项之和不小于 $4$，加回常数 $2$，原式不小于 $6$。",
+          "results": [
+            "2b/a+2a/b≥2√4=4",
+            "原式=2+2b/a+2a/b≥6"
+          ]
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，这个下界可以取到？",
+          "interaction": {
+            "type": "equality",
+            "terms": [
+              "2b/a",
+              "2a/b"
+            ],
+            "term_labels": {
+              "2b/a": "$\\frac{2b}a$",
+              "2a/b": "$\\frac{2a}b$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "2b/a",
+              "2a/b"
+            ]
+          },
+          "feedback": {
+            "terms": "取等要求应用基本不等式的两个比值项相等。"
+          },
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "接受2b/a=2a/b，或a²=b²结合正数，或a=b，或a=b=1/2。系统完成解方程和原条件验证，不再让学生求a,b。原两项(b+1)/a=(a+1)/b在本题化简后也得a=b，但它不是本次基本不等式的取等依据；学生给出a=b即可通过。负根a=-b不满足正数，不能接受。只说6、两数正或提问为什么相等不足。",
+          "completion_reply": "取等条件正确。联立 $a=b$ 与 $a+b=1$，得 $a=b=\\frac12$，原式等于 $6$。",
+          "results": [
+            "2b/a=2a/b ⇒a²=b²",
+            "a,b>0 ⇒a=b",
+            "a=b,a+b=1 ⇒a=b=1/2",
+            "a=b=1/2>0,a+b=1",
+            "(b+1)/a+(a+1)/b=3+3=6，最小值6"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {},
+    "feedback": "",
+    "hint": false
+  }
+}

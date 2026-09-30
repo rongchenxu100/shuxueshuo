@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q27 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q27</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>若 $x>0$，求函数 ${y=\frac{2x+1}{x^2+1}}$ 的最大值。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$x>0$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>${y=\frac{2x+1}{x^2+1}}$ 的最大值</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：转化目标</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q27",
+  "version": 1,
+  "variables": [
+    "x"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "reciprocal",
+      "label": "取倒数后分式分离"
+    }
+  ],
+  "routes": {
+    "reciprocal": [
+      {
+        "id": "transform",
+        "title": "转化目标",
+        "question": "要求 $y$ 的最大值，可以先转化成求什么？",
+        "interaction": {
+          "type": "choice",
+          "field": "transform_target",
+          "options": [
+            {
+              "value": "min_reciprocal",
+              "label": "求 $\\frac1y$ 的最小值"
+            },
+            {
+              "value": "max_reciprocal",
+              "label": "求 $\\frac1y$ 的最大值"
+            },
+            {
+              "value": "min_denominator",
+              "label": "求分母 $x^2+1$ 的最小值"
+            }
+          ],
+          "description": "min_reciprocal为x>0时y>0，y越大1/y越小，y的最大值对应1/y的最小值；max_reciprocal方向反了；本题1/y无最大值，y无最小值；min_denominator忽略了分子2x+1也随x变化。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "min_reciprocal"
+          ]
+        },
+        "feedback": {
+          "answer": "$x>0$ 时 $y>0$，$y$ 越大，$\\frac1y$ 越小；分子 $2x+1$ 也在变，不能只看分母。把 $y$ 的最大值转化成 $\\frac1y$ 的最小值，$\\frac1y=\\frac{x^2+1}{2x+1}$ 的分子次数高于分母。"
+        },
+        "submit_label": "确认转化",
+        "display": "transform-done",
+        "board": "transform-board",
+        "preview": {
+          "min_reciprocal": "preview-transform-min_reciprocal",
+          "max_reciprocal": "preview-transform-max_reciprocal",
+          "min_denominator": "preview-transform-min_denominator"
+        }
+      },
+      {
+        "id": "substitution",
+        "title": "换元",
+        "question": "$\\frac1y$ 中哪一部分适合看成一个整体，换成新变量？",
+        "interaction": {
+          "type": "substitution",
+          "slots": [
+            {
+              "label": "换元对象",
+              "names": [
+                "t"
+              ],
+              "options": [
+                {
+                  "value": "2x+1",
+                  "label": "$2x+1$"
+                },
+                {
+                  "value": "x",
+                  "label": "$x$"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "2x+1"
+          ]
+        },
+        "feedback": {
+          "terms": "只把 $x$ 换成 $t$，分母仍是 $2t+1$，只是换了个名字。把分母 $2x+1$ 看成整体，分母就只剩一个 $t$，可以逐项相除。"
+        },
+        "display": "substitution-done",
+        "submit_label": "确认换元",
+        "board": "substitution-board",
+        "scope_boards": {
+          "2x+1": "substitution-denominator",
+          "x": "substitution-rename"
+        }
+      },
+      {
+        "id": "split",
+        "title": "分式分离",
+        "question": "把分子逐项除以 $t$，方框和圆圈各填什么？",
+        "interaction": {
+          "type": "fill",
+          "terms": [
+            "-5",
+            "-2",
+            "2",
+            "5"
+          ],
+          "term_labels": {
+            "-5": "$-5$",
+            "-2": "$-2$",
+            "2": "$2$",
+            "5": "$5$"
+          },
+          "slot_labels": [
+            "常数项",
+            "1/t 的系数"
+          ],
+          "slot_shapes": [
+            "square",
+            "circle"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "-2",
+            "5"
+          ]
+        },
+        "feedback": {
+          "terms": "把你填的式子乘回 $t$，分别核对一次项与常数项，是否与分子 $t^2-2t+5$ 相同。"
+        },
+        "submit_label": "确认分离",
+        "display": "split-done",
+        "board": "split-board",
+        "attempt_calculations": {
+          "-5": {
+            "-5": "split-attempt-neg5-neg5",
+            "-2": "split-attempt-neg5-neg2",
+            "2": "split-attempt-neg5-2",
+            "5": "split-attempt-neg5-5"
+          },
+          "-2": {
+            "-5": "split-attempt-neg2-neg5",
+            "-2": "split-attempt-neg2-neg2",
+            "2": "split-attempt-neg2-2",
+            "5": "split-done"
+          },
+          "2": {
+            "-5": "split-attempt-2-neg5",
+            "-2": "split-attempt-2-neg2",
+            "2": "split-attempt-2-2",
+            "5": "split-attempt-2-5"
+          },
+          "5": {
+            "-5": "split-attempt-5-neg5",
+            "-2": "split-attempt-5-neg2",
+            "2": "split-attempt-5-2",
+            "5": "split-attempt-5-5"
+          }
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "t",
+            "5/t"
+          ],
+          "term_labels": {
+            "t": "$t$",
+            "5/t": "$\\frac5t$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "t",
+            "5/t"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对括号里分离出的两项，系数 $\\frac14$ 和常数 $-2$ 留在外面。",
+          "structure": "两项的积固定为 $5$，要求它们和的最小值。"
+        },
+        "submit_label": "确认判断",
+        "display": "structure-done"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "t",
+            "5/t"
+          ],
+          "term_labels": {
+            "t": "$t$",
+            "5/t": "$\\frac5t$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "t",
+            "5/t"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对分离后的两个正项。"
+        },
+        "submit_label": "确认判断",
+        "display": "amgm-done"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "t",
+            "5/t"
+          ],
+          "term_labels": {
+            "t": "$t$",
+            "5/t": "$\\frac5t$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "t",
+            "5/t"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两项相等。"
+        },
+        "submit_label": "确认判断",
+        "display": "equality-done"
+      },
+      {
+        "id": "back",
+        "title": "换回 y",
+        "question": "$\\frac1y$ 的最小值是 $\\frac{\\sqrt5-1}{2}$，$y$ 的最大值是多少？",
+        "interaction": {
+          "type": "choice",
+          "field": "back_to_y",
+          "options": [
+            {
+              "value": "reciprocal_back",
+              "label": "$\\dfrac{\\sqrt5+1}{2}$"
+            },
+            {
+              "value": "forgot_back",
+              "label": "$\\dfrac{\\sqrt5-1}{2}$"
+            },
+            {
+              "value": "forgot_both",
+              "label": "$2\\sqrt5-2$"
+            }
+          ],
+          "description": "reciprocal_back为y>0时y的最大值等于1/y最小值的倒数2/(√5-1)=(√5+1)/2；forgot_back把1/y的最小值当成y的最大值；forgot_both是t-2+5/t的最小值，既漏了系数1/4也没有换回y。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "reciprocal_back"
+          ]
+        },
+        "feedback": {
+          "answer": "$\\frac{\\sqrt5-1}{2}$ 是 $\\frac1y$ 的最小值。$y>0$ 时，$y$ 的最大值是它的倒数 $\\frac{2}{\\sqrt5-1}$，分母有理化后再选。"
+        },
+        "submit_label": "确认换回",
+        "display": "back-done",
+        "board": "back-board",
+        "preview": {
+          "reciprocal_back": "preview-back-reciprocal_back",
+          "forgot_back": "preview-back-forgot_back",
+          "forgot_both": "preview-back-forgot_both"
+        }
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="transform-board">
+<div class="visual-board"><div class="board-caption">目标 · 分子次数低于分母</div><div class="formula" data-math-text>$y=\dfrac{2x+1}{x^2+1}\ (x>0)$</div></div>
+  </template>
+  <template id="preview-transform-min_reciprocal">
+<div class="reasoning choice-preview"><span class="section-label">转化核对</span><p data-math-text>$x>0\ \Longrightarrow\ y>0$</p><p data-math-text>$y$ 越大，$\frac1y$ 越小，$y$ 的最大值对应 $\frac1y$ 的最小值。</p><p data-math-text>${\frac1y=\frac{x^2+1}{2x+1}}$，分子次数高于分母。</p></div>
+  </template>
+  <template id="preview-transform-max_reciprocal">
+<div class="reasoning choice-preview"><span class="section-label">转化核对</span><p data-math-text>$y>0$ 时，$y$ 越大，$\frac1y$ 越小。</p><p data-math-text>$y$ 越小，$\frac1y$ 越大，求最大值的方向反了。本题 $y>0$ 可无限接近 $0$，没有最小值；$\frac1y$ 无上界，也没有最大值。</p></div>
+  </template>
+  <template id="preview-transform-min_denominator">
+<div class="reasoning choice-preview"><span class="section-label">转化核对</span><p data-math-text>分子 $2x+1$ 也随 $x$ 变化，不能只看分母。</p><p data-math-text>$x>0$ 时 $x^2+1>1$，分母没有最小值；$x$ 从正侧趋于 $0$ 时，分母趋于下界 $1$，$y$ 趋于 $1$；而 $x=1$ 时 $y=\frac32$，更大。</p></div>
+  </template>
+  <template id="transform-done">
+<div class="visual-board completed-visual"><div class="board-caption">取倒数：求最大值转为求最小值</div><div class="function-conversion"><div><span class="conversion-label">求最大值</span><div class="math" data-math-text>$y=\dfrac{2x+1}{x^2+1}$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">求最小值</span><div class="math" data-math-text>$\dfrac1y=\dfrac{x^2+1}{2x+1}$</div></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 转化目标</span><p data-math-text>$x>0\ \Longrightarrow\ y>0$</p><p data-math-text>$y$ 越大，$\frac1y$ 越小，所以求 $\frac1y$ 的最小值。</p><p data-math-text>可以合法拆成 $\frac{x^2}{2x+1}+\frac1{2x+1}$，但还不能直接化成一次项、常数项与倒数项的和。把分母看成整体换元，能让后续分离更方便。</p></div>
+  </template>
+  <template id="substitution-board">
+<div class="visual-board sub-board"><span class="sub-caption">1/y · 点选要看成整体的部分</span><div class="sub-source" role="group" aria-label="换元对象"><span class="sub-frac"><span><var>x</var><sup>2</sup><span class="sub-bin">+</span>1</span><span><span class="sub-chunk"><button type="button" class="sub-frame" data-sub-target="2x+1" aria-label="分母 2x+1 整体"></button><span class="sub-inner">2<button type="button" class="sub-leaf" data-sub-target="x" aria-label="字母 x"><var>x</var></button><span class="sub-rest"><span class="sub-bin">+</span>1</span></span></span></span></span></div><span data-sub-result></span></div>
+  </template>
+  <template id="substitution-denominator">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $t=2x+1$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$x>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{t}>1$</span></div><div class="sub-row"><span class="sub-label">1/y</span><span data-math-text>$\dfrac{x^2+1}{\textcolor{#087f79}{2x+1}}$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac{t^2-2t+5}{4\textcolor{#087f79}{t}}$</span></div></div>
+  </template>
+  <template id="substitution-rename">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $t=x$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$x>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{t}>0$</span></div><div class="sub-row"><span class="sub-label">1/y</span><span data-math-text>$\dfrac{\textcolor{#087f79}{x}^2+1}{2\textcolor{#087f79}{x}+1}$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span><span data-math-text>$\dfrac{\textcolor{#087f79}{t}^2+1}{2\textcolor{#087f79}{t}+1}$</span>，只是改名</span></div></div>
+  </template>
+  <template id="substitution-done">
+<div class="visual-board sub-board completed-visual"><div class="sub-table"><span class="sub-def" data-math-text>设 $t=2x+1$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$x>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{t}>1$</span></div><div class="sub-row"><span class="sub-label">1/y</span><span data-math-text>$\dfrac{x^2+1}{\textcolor{#087f79}{2x+1}}$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac{t^2-2t+5}{4\textcolor{#087f79}{t}}$</span></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 改写范围与目标</span><p data-math-text>$t=2x+1\ \Longrightarrow\ x=\frac{t-1}2$</p><p data-math-text>${x^2+1=\frac{(t-1)^2}{4}+1}$ ${=\frac{t^2-2t+5}{4}}$</p><p data-math-text>$x>0\ \Longrightarrow\ t>1$</p><p data-math-text>${\frac1y=\frac{t^2-2t+5}{4t}}$ ${=\frac14\cdot\frac{t^2-2t+5}{t}}$</p><p data-math-text>系数 $\frac14$ 先提到外面，接下来对 $\frac{t^2-2t+5}{t}$ 逐项相除。</p></div>
+  </template>
+  <template id="split-board">
+<div class="visual-board"><div class="board-caption">尝试分离 · 确认后乘回核对</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$\dfrac{t^2-2t+5}{t}\ \stackrel{?}{=}$</span></span><span class="fill-group"><span data-math-text>$t+$</span><span data-fill="0"></span></span><span class="fill-group"><span data-math-text>$+$</span><span data-fill="1"></span><span data-math-text>$\cdot\dfrac1t$</span></span></div></div>
+  </template>
+  <template id="split-done">
+<div class="visual-board completed-visual"><div class="board-caption">逐项除以分母</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$\dfrac{t^2-2t+5}{t}\ =$</span></span><span class="fill-group"><span data-math-text>$t+$</span><span class="shape square expression-slot" data-math-text>$-2$</span></span><span class="fill-group"><span data-math-text>$+$</span><span class="shape circle expression-slot" data-math-text>$5$</span><span data-math-text>$\cdot\dfrac1t$</span></span></div></div><div class="reasoning"><span class="section-label">系统计算 · 分式分离</span><p data-math-text>${\frac{t^2-2t+5}{t}=t-2+\frac5t}$</p><p data-math-text>${\frac1y=\frac14\left(t-2+\frac5t\right)}$</p></div>
+  </template>
+  <template id="split-attempt-neg5-neg5">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t-5-\frac5t\right)}={t^2-5t-5}$</p><p data-math-text>$t^2-5t-5\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-5$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $-5$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg5-neg2">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t-5-\frac2t\right)}={t^2-5t-2}$</p><p data-math-text>$t^2-5t-2\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-5$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $-2$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg5-2">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t-5+\frac2t\right)}={t^2-5t+2}$</p><p data-math-text>$t^2-5t+2\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-5$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $2$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg5-5">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t-5+\frac5t\right)}={t^2-5t+5}$</p><p data-math-text>$t^2-5t+5\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-5$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $5$，与分子的 $5$ 一致。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg2-neg5">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t-2-\frac5t\right)}={t^2-2t-5}$</p><p data-math-text>$t^2-2t-5\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-2$，与分子的 $-2$ 一致。</p><p data-math-text>常数项是 $-5$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg2-neg2">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t-2-\frac2t\right)}={t^2-2t-2}$</p><p data-math-text>$t^2-2t-2\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-2$，与分子的 $-2$ 一致。</p><p data-math-text>常数项是 $-2$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg2-2">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t-2+\frac2t\right)}={t^2-2t+2}$</p><p data-math-text>$t^2-2t+2\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-2$，与分子的 $-2$ 一致。</p><p data-math-text>常数项是 $2$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-2-neg5">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t+2-\frac5t\right)}={t^2+2t-5}$</p><p data-math-text>$t^2+2t-5\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $2$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $-5$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-2-neg2">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t+2-\frac2t\right)}={t^2+2t-2}$</p><p data-math-text>$t^2+2t-2\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $2$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $-2$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-2-2">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t+2+\frac2t\right)}={t^2+2t+2}$</p><p data-math-text>$t^2+2t+2\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $2$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $2$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-2-5">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t+2+\frac5t\right)}={t^2+2t+5}$</p><p data-math-text>$t^2+2t+5\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $2$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $5$，与分子的 $5$ 一致。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-5-neg5">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t+5-\frac5t\right)}={t^2+5t-5}$</p><p data-math-text>$t^2+5t-5\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $5$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $-5$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-5-neg2">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t+5-\frac2t\right)}={t^2+5t-2}$</p><p data-math-text>$t^2+5t-2\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $5$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $-2$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-5-2">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t+5+\frac2t\right)}={t^2+5t+2}$</p><p data-math-text>$t^2+5t+2\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $5$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $2$，与分子的 $5$ 不同。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="split-attempt-5-5">
+<section class="rewrite-calculation" aria-label="本次填空的乘回核对"><span class="section-label">把你的填写乘回 t</span><div class="rewrite-calculation-math"><p data-math-text>${t\left(t+5+\frac5t\right)}={t^2+5t+5}$</p><p data-math-text>$t^2+5t+5\not\equiv t^2-2t+5$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $5$，与分子的 $-2$ 不同。</p><p data-math-text>常数项是 $5$，与分子的 $5$ 一致。</p><p>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span>= 5</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>$t>1\ \Longrightarrow\ t>0,\quad\frac5t>0$</p><p data-math-text>$t\cdot\frac5t=5$</p><p data-math-text>两个正项的积固定，求和的最小值。系数 $\frac14$ 和常数 $-2$ 留在外面，最后代回。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界，再代回 1/y</span><p data-math-text>${t+\frac5t\ge2\sqrt{t\cdot\frac5t}=2\sqrt5}$</p><p data-math-text>${\frac1y=\frac14\left(t+\frac5t-2\right)}$</p><p data-math-text>${\ge\frac{2\sqrt5-2}{4}=\frac{\sqrt5-1}{2}}$</p></div><p class="calculation-note">这是 1/y 的下界，还需要检查它在哪里取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 求取等点并换回 x</span><p data-math-text>$t=\frac5t\ \Longrightarrow\ t^2=5$</p><p data-math-text>$t>1\ \Longrightarrow\ t=\sqrt5$</p><p data-math-text>${x=\frac{t-1}2=\frac{\sqrt5-1}2}$，满足 $x>0$</p><p data-math-text>$\frac1y$ 的最小值 $\frac{\sqrt5-1}{2}$ 可以取到</p></div>
+  </template>
+  <template id="back-board">
+<div class="visual-board"><div class="board-caption">由 1/y 的最小值换回 y</div><div class="formula" data-math-text>$\dfrac1y\ge\dfrac{\sqrt5-1}{2}$</div></div>
+  </template>
+  <template id="preview-back-reciprocal_back">
+<div class="reasoning choice-preview"><span class="section-label">换回核对</span><p data-math-text>$y>0$，$\frac1y$ 最小时 $y$ 最大。</p><p data-math-text>${y\le\frac{2}{\sqrt5-1}}$ ${=\frac{2(\sqrt5+1)}{4}=\frac{\sqrt5+1}{2}}$</p></div>
+  </template>
+  <template id="preview-back-forgot_back">
+<div class="reasoning choice-preview"><span class="section-label">换回核对</span><p data-math-text>$\frac{\sqrt5-1}{2}$ 是 $\frac1y$ 的最小值，还要取倒数换回 $y$。</p><p data-math-text>取等点 $x\approx0.618$ 时 $y\approx1.618$，不是 $0.618$。</p></div>
+  </template>
+  <template id="preview-back-forgot_both">
+<div class="reasoning choice-preview"><span class="section-label">换回核对</span><p data-math-text>$2\sqrt5-2$ 是括号 $t-2+\frac5t$ 的最小值。</p><p data-math-text>漏了系数 $\frac14$，也没有换回 $y$。</p></div>
+  </template>
+  <template id="back-done">
+<div class="visual-board completed-visual"><div class="board-caption">取倒数换回 y</div><div class="function-conversion"><div><span class="conversion-label">1/y 的最小值</span><div class="math" data-math-text>$\dfrac{\sqrt5-1}{2}$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">y 的最大值</span><div class="math" data-math-text>$\dfrac{\sqrt5+1}{2}$</div></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 换回 y</span><p data-math-text>$y>0$，$\frac1y$ 最小时 $y$ 最大</p><p data-math-text>${y\le\frac{2}{\sqrt5-1}}$ ${=\frac{2(\sqrt5+1)}{4}=\frac{\sqrt5+1}{2}}$</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>最大值为 $\frac{\sqrt5+1}{2}$</h2><p data-math-text>当 ${x=\frac{\sqrt5-1}{2}}$ 时取到。$\frac{\sqrt5-1}{2}$ 是 $\frac1y$ 的最小值，不是答案。</p></section>
+  </template>
+</body>
+</html>

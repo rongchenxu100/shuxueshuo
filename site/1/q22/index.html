@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q22 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q22</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知 $x>y>0$，且 ${4x+3y=1}$，求 ${\frac1{2x-y}+\frac2{x+2y}}$ 的最小值。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>${x>y>0},\quad$ ${4x+3y=1}$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$\left(\frac1{2x-y}+\frac2{x+2y}\right)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：双换元</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q22",
+  "version": 1,
+  "variables": [
+    "x",
+    "y"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "substitution",
+      "label": "换元法"
+    }
+  ],
+  "routes": {
+    "substitution": [
+      {
+        "id": "substitution",
+        "title": "双换元",
+        "question": "目标中哪些部分适合看成整体，换成新变量？",
+        "interaction": {
+          "type": "substitution",
+          "slots": [
+            {
+              "label": "换元对象",
+              "names": [
+                "a",
+                "b"
+              ],
+              "options": [
+                {
+                  "value": "2x-y",
+                  "label": "$2x-y$"
+                },
+                {
+                  "value": "x+2y",
+                  "label": "$x+2y$"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "2x-y|x+2y"
+          ]
+        },
+        "feedback": {
+          "terms": "只换一个分母是等价的，但目标里仍留着另一个含 $x,y$ 的分母。把两个分母分别记为 $a,b$，目标就变成 $\\frac1a+\\frac2b$。"
+        },
+        "display": "substitution-done",
+        "submit_label": "确认换元",
+        "board": "substitution-board",
+        "scope_boards": {
+          "2x-y": "substitution-first",
+          "x+2y": "substitution-second",
+          "2x-y|x+2y": "substitution-both"
+        }
+      },
+      {
+        "id": "express",
+        "title": "用新元表示条件",
+        "question": "把条件中的 $4x+3y$ 用 ${a=2x-y}$、${b=x+2y}$ 表示，方框和圆圈各填什么？",
+        "interaction": {
+          "type": "fill",
+          "terms": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "term_labels": {
+            "1": "$1$",
+            "2": "$2$",
+            "3": "$3$",
+            "4": "$4$",
+            "5": "$5$"
+          },
+          "slot_labels": [
+            "a 的系数",
+            "b 的系数"
+          ],
+          "slot_shapes": [
+            "square",
+            "circle"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "1",
+            "2"
+          ]
+        },
+        "feedback": {
+          "terms": "按你填入的系数展开，分别核对 $x$、$y$ 的系数，是否等于条件中的 $4$、$3$。"
+        },
+        "submit_label": "确认表示",
+        "display": "express-done",
+        "board": "express-board",
+        "attempt_calculations": {
+          "1": {
+            "1": "express-attempt-1-1",
+            "2": "express-done",
+            "3": "express-attempt-1-3",
+            "4": "express-attempt-1-4",
+            "5": "express-attempt-1-5"
+          },
+          "2": {
+            "1": "express-attempt-2-1",
+            "2": "express-attempt-2-2",
+            "3": "express-attempt-2-3",
+            "4": "express-attempt-2-4",
+            "5": "express-attempt-2-5"
+          },
+          "3": {
+            "1": "express-attempt-3-1",
+            "2": "express-attempt-3-2",
+            "3": "express-attempt-3-3",
+            "4": "express-attempt-3-4",
+            "5": "express-attempt-3-5"
+          },
+          "4": {
+            "1": "express-attempt-4-1",
+            "2": "express-attempt-4-2",
+            "3": "express-attempt-4-3",
+            "4": "express-attempt-4-4",
+            "5": "express-attempt-4-5"
+          },
+          "5": {
+            "1": "express-attempt-5-1",
+            "2": "express-attempt-5-2",
+            "3": "express-attempt-5-3",
+            "4": "express-attempt-5-4",
+            "5": "express-attempt-5-5"
+          }
+        }
+      },
+      {
+        "id": "homogeneity",
+        "title": "识别齐次结构",
+        "question": "目标表达式与条件表达式分别是几次？相乘后能配成零次齐次式吗？",
+        "interaction": {
+          "type": "homogeneity",
+          "terms": [
+            "-1",
+            "0",
+            "1"
+          ],
+          "term_labels": {
+            "-1": "$-1$",
+            "0": "$0$",
+            "1": "$+1$"
+          },
+          "slot_labels": [
+            "目标表达式的次数",
+            "条件表达式的次数"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "-1",
+            "1"
+          ]
+        },
+        "feedback": {
+          "terms": "判断次数时，先看每一项中变量的指数，数字系数不计入次数。$\\frac1a=a^{-1}$、$\\frac2b=2b^{-1}$，目标是负一次；$a$、$b$ 的指数都是 $1$，条件表达式 $a+2b$ 是正一次。只有相乘时才把次数相加。"
+        },
+        "display": "homogeneity-done",
+        "submit_label": "确认结构",
+        "board": "degree-board"
+      },
+      {
+        "id": "rewrite",
+        "title": "配齐次式",
+        "question": "对原式的哪一部分乘入什么表达式，才能保持值不变并配成零次齐次式？",
+        "interaction": {
+          "type": "rewrite",
+          "slots": [
+            {
+              "label": "作用范围",
+              "options": [
+                {
+                  "value": "whole",
+                  "label": "整个式子"
+                },
+                {
+                  "value": "first",
+                  "label": "第一项 $\\frac1a$"
+                },
+                {
+                  "value": "second",
+                  "label": "第二项 $\\frac2b$"
+                }
+              ]
+            },
+            {
+              "label": "乘入的表达式",
+              "options": [
+                {
+                  "value": "a+2b",
+                  "label": "$a+2b$"
+                },
+                {
+                  "value": "2a+b",
+                  "label": "$2a+b$"
+                },
+                {
+                  "value": "1",
+                  "label": "$1$"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "whole",
+            "a+2b"
+          ]
+        },
+        "feedback": {
+          "terms": "要同时满足“值不变”和“整体变成零次”。条件是 $a+2b=1$，它本身就是等于 $1$ 的正一次表达式；两项都是负一次，需要乘给整个式子。"
+        },
+        "display": "rewrite-done",
+        "submit_label": "确认配式",
+        "board": "rewrite-scope",
+        "scope_boards": {
+          "whole": "rewrite-whole",
+          "first": "rewrite-first",
+          "second": "rewrite-second"
+        },
+        "attempt_calculations": {
+          "whole": {
+            "a+2b": "rewrite-done",
+            "2a+b": "rewrite-calculation-whole-1",
+            "1": "rewrite-calculation-whole-2"
+          },
+          "first": {
+            "a+2b": "rewrite-calculation-first-0",
+            "2a+b": "rewrite-calculation-first-1",
+            "1": "rewrite-calculation-first-2"
+          },
+          "second": {
+            "a+2b": "rewrite-calculation-second-0",
+            "2a+b": "rewrite-calculation-second-1",
+            "1": "rewrite-calculation-second-2"
+          }
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ],
+          "term_labels": {
+            "2b/a": "$\\frac{2b}{a}$",
+            "2a/b": "$\\frac{2a}{b}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对展开后的两个比值项。",
+          "structure": "两项的积固定为 $4$，要求它们和的最小值。"
+        },
+        "display": "structure-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ],
+          "term_labels": {
+            "2b/a": "$\\frac{2b}{a}$",
+            "2a/b": "$\\frac{2a}{b}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对展开后的两个正项。"
+        },
+        "display": "amgm-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ],
+          "term_labels": {
+            "2b/a": "$\\frac{2b}{a}$",
+            "2a/b": "$\\frac{2a}{b}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "2b/a",
+            "2a/b"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两个比值项相等。"
+        },
+        "display": "equality-done",
+        "submit_label": "确认判断"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="substitution-board">
+<div class="visual-board sub-board"><span class="sub-caption">目标 · 点选要看成整体的部分</span><div class="sub-source" role="group" aria-label="换元对象"><span class="sub-frac"><span>1</span><span><button type="button" class="sub-leaf" data-sub-target="2x-y" aria-label="分母 2x-y 整体">2<var>x</var><span class="sub-bin">−</span><var>y</var></button></span></span><span class="sub-bin">+</span><span class="sub-frac"><span>2</span><span><button type="button" class="sub-leaf" data-sub-target="x+2y" aria-label="分母 x+2y 整体"><var>x</var><span class="sub-bin">+</span>2<var>y</var></button></span></span></div><span data-sub-result></span></div>
+  </template>
+  <template id="substitution-first">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $a=2x-y$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$4x+3y=1$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span><span>仍含 <var>x</var>、<var>y</var></span></span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$x>y>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{a}>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{2x-y}}+\dfrac2{x+2y}$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{a}}+\dfrac2{x+2y}$</span></div></div>
+  </template>
+  <template id="substitution-second">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $a=x+2y$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$4x+3y=1$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span><span>仍含 <var>x</var>、<var>y</var></span></span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$x>y>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{a}>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$\dfrac1{2x-y}+\dfrac2{\textcolor{#087f79}{x+2y}}$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac1{2x-y}+\dfrac2{\textcolor{#087f79}{a}}$</span></div></div>
+  </template>
+  <template id="substitution-both">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $a=2x-y,\ b=x+2y$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$4x+3y=1$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span><span data-math-text>下一步用 $a,b$ 表示</span></span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$x>y>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{a}>0,\ \textcolor{#b0730c}{b}>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{2x-y}}+\dfrac2{\textcolor{#b0730c}{x+2y}}$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{a}}+\dfrac2{\textcolor{#b0730c}{b}}$</span></div></div>
+  </template>
+  <template id="substitution-done">
+<div class="visual-board sub-board completed-visual"><div class="sub-table"><span class="sub-def" data-math-text>设 $a=2x-y,\ b=x+2y$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$4x+3y=1$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span><span data-math-text>下一步用 $a,b$ 表示</span></span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$x>y>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{a}>0,\ \textcolor{#b0730c}{b}>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{2x-y}}+\dfrac2{\textcolor{#b0730c}{x+2y}}$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{a}}+\dfrac2{\textcolor{#b0730c}{b}}$</span></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 改写目标与范围</span><p data-math-text>${a=2x-y,\ b=x+2y}$，目标化为 ${\frac1a+\frac2b}$</p><p data-math-text>$x>y>0\ \Longrightarrow\ {a=x+(x-y)>0},\ {b=x+2y>0}$</p><p data-math-text>目标只剩 $a,b$；接下来把条件 $4x+3y=1$ 也用 $a,b$ 表示。</p></div>
+  </template>
+  <template id="express-board">
+<div class="visual-board"><div class="board-caption">尝试表示 · 确认后展开核对</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$4x+3y\ \stackrel{?}{=}$</span></span><span class="fill-group"><span data-fill="0"></span><span data-math-text>$\cdot\,(2x-y)$</span></span><span class="fill-group"><span data-math-text>$+$</span><span data-fill="1"></span><span data-math-text>$\cdot\,(x+2y)$</span></span></div></div>
+  </template>
+  <template id="express-done">
+<div class="visual-board completed-visual"><div class="board-caption">用新变量表示条件</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$4x+3y\ =$</span></span><span class="fill-group"><span class="shape square expression-slot" data-math-text>$1$</span><span data-math-text>$\cdot\,(2x-y)$</span></span><span class="fill-group"><span data-math-text>$+$</span><span class="shape circle expression-slot" data-math-text>$2$</span><span data-math-text>$\cdot\,(x+2y)$</span></span></div></div><div class="reasoning"><span class="section-label">系统计算 · 比较系数</span><p data-math-text>$(2x-y)+2(x+2y)=4x+3y$</p><p data-math-text>$4x+3y=1\ \Longrightarrow\ a+2b=1$</p><p data-math-text>问题化为：$a,b>0$，$a+2b=1$，求 $\frac1a+\frac2b$ 的最小值。</p></div>
+  </template>
+  <template id="express-attempt-1-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$(2x-y)+(x+2y)=3x+y$</p><p data-math-text>$3x+y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $3$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $1$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-1-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$(2x-y)+3(x+2y)=5x+5y$</p><p data-math-text>$5x+5y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $5$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $5$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-1-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$(2x-y)+4(x+2y)=6x+7y$</p><p data-math-text>$6x+7y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $6$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $7$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-1-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$(2x-y)+5(x+2y)=7x+9y$</p><p data-math-text>$7x+9y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $7$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $9$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(2x-y)+(x+2y)=5x$</p><p data-math-text>$5x\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $5$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $0$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(2x-y)+2(x+2y)=6x+2y$</p><p data-math-text>$6x+2y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $6$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $2$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(2x-y)+3(x+2y)=7x+4y$</p><p data-math-text>$7x+4y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $7$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $4$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(2x-y)+4(x+2y)=8x+6y$</p><p data-math-text>$8x+6y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $8$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $6$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(2x-y)+5(x+2y)=9x+8y$</p><p data-math-text>$9x+8y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $9$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $8$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(2x-y)+(x+2y)=7x-y$</p><p data-math-text>$7x-y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $7$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $-1$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(2x-y)+2(x+2y)=8x+y$</p><p data-math-text>$8x+y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $8$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $1$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(2x-y)+3(x+2y)=9x+3y$</p><p data-math-text>$9x+3y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $9$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $3$，与条件中的 $3$ 一致。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(2x-y)+4(x+2y)=10x+5y$</p><p data-math-text>$10x+5y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $10$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $5$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(2x-y)+5(x+2y)=11x+7y$</p><p data-math-text>$11x+7y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $11$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $7$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(2x-y)+(x+2y)=9x-2y$</p><p data-math-text>$9x-2y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $9$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $-2$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(2x-y)+2(x+2y)=10x$</p><p data-math-text>$10x\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $10$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $0$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(2x-y)+3(x+2y)=11x+2y$</p><p data-math-text>$11x+2y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $11$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $2$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(2x-y)+4(x+2y)=12x+4y$</p><p data-math-text>$12x+4y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $12$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $4$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(2x-y)+5(x+2y)=13x+6y$</p><p data-math-text>$13x+6y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $13$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $6$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(2x-y)+(x+2y)=11x-3y$</p><p data-math-text>$11x-3y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $11$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $-3$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(2x-y)+2(x+2y)=12x-y$</p><p data-math-text>$12x-y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $12$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $-1$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(2x-y)+3(x+2y)=13x+y$</p><p data-math-text>$13x+y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $13$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $1$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(2x-y)+4(x+2y)=14x+3y$</p><p data-math-text>$14x+3y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $14$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $3$，与条件中的 $3$ 一致。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(2x-y)+5(x+2y)=15x+5y$</p><p data-math-text>$15x+5y\not\equiv 4x+3y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$x$ 的系数是 $15$，与条件中的 $4$ 不同。</p><p data-math-text>$y$ 的系数是 $5$，与条件中的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="degree-board">
+<div class="visual-board deg-board"><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">目标</span><span class="deg-expr" data-math-text>$\dfrac1a+\dfrac2b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="0"></span></span></div><span class="deg-op" aria-hidden="true">×</span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 1</span><span class="deg-expr" data-math-text>$a+2b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="1"></span></span></div><span class="deg-op deg-op-equal" aria-hidden="true">=</span><div class="deg-factor deg-result"><span class="deg-label">相乘后</span><span data-degree-total></span></div></div></div>
+  </template>
+  <template id="homogeneity-done">
+<div class="visual-board deg-board completed-visual"><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">目标</span><span class="deg-expr" data-math-text>$\dfrac1a+\dfrac2b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">−1</span></span></div><span class="deg-op" aria-hidden="true">×</span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 1</span><span class="deg-expr" data-math-text>$a+2b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">+1</span></span></div><span class="deg-op deg-op-equal" aria-hidden="true">=</span><div class="deg-factor deg-result"><span class="deg-label">相乘后</span><div class="deg-total"><span class="deg-total-value">0 次</span><span class="deg-total-sum" data-math-text>$(-1)+(+1)=0$</span></div></div></div></div><div class="reasoning"><span class="section-label">根据你的判断，整理思路</span><p data-math-text>目标为负一次，条件表达式为正一次，相乘可配成零次齐次式。</p><p data-math-text>$a+2b=1$，乘入它可以保持原式的值不变。</p></div>
+  </template>
+  <template id="rewrite-scope">
+<div class="visual-board rw-board"><span class="rw-caption">原式 · 点选要乘入的部分</span><div class="rw-source" role="group" aria-label="作用范围"><button type="button" class="rw-target rw-whole" data-rewrite-scope="whole"><span class="rw-legend">整个式子</span></button><div class="rw-terms"><button type="button" class="rw-target rw-term" data-rewrite-scope="first" aria-label="第一项 1/a"><span data-math-text>$\dfrac1a$</span></button><span class="rw-op">+</span><button type="button" class="rw-target rw-term" data-rewrite-scope="second" aria-label="第二项 2/b"><span data-math-text>$\dfrac2b$</span></button></div></div><span data-rewrite-result></span></div>
+  </template>
+  <template id="rewrite-whole">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$\left(\dfrac1a+\dfrac2b\right)$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-first">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$\dfrac1a$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span><span class="rw-op">+</span><span data-math-text>$\dfrac2b$</span></div>
+  </template>
+  <template id="rewrite-second">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span data-math-text>$\dfrac1a$</span><span class="rw-op">+</span><span class="rw-focus"><span data-math-text>$\dfrac2b$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-calculation-whole-1">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac1a+\frac2b\right)\cdot (2a+b)$</p><p data-math-text>$=4+\frac ba+\frac{4a}{b}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>由 $a+2b=1$ 得 $2a+b=1+(a-b)$，不保证等于 $1$；这个改写不保证与原式等值。</p><p data-math-text>展开各项虽为零次，但未保证原式的值不变。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-whole-2">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\left(\frac1a+\frac2b\right)\cdot 1$</p><p data-math-text>$=\frac1a+\frac2b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>乘入常数 $1$，与原式等值。</p><p data-math-text>仍是原来的两个负一次项，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-first-0">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\frac1a\cdot (a+2b)+\frac2b$</p><p data-math-text>$=1+\frac{2b}{a}+\frac2b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>条件给出 $a+2b=1$，乘给其中一项仍保持原式的值。</p><p data-math-text>常数与比值项为零次，未乘入的 $\frac2b$ 仍为负一次，整体不是零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-first-1">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\frac1a\cdot (2a+b)+\frac2b$</p><p data-math-text>$=2+\frac ba+\frac2b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>由 $a+2b=1$ 得 $2a+b=1+(a-b)$，不保证等于 $1$；这个改写不保证与原式等值。</p><p data-math-text>常数与比值项为零次，未乘入的 $\frac2b$ 仍为负一次，整体不是零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-first-2">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\frac1a\cdot 1+\frac2b$</p><p data-math-text>$=\frac1a+\frac2b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>乘入常数 $1$，与原式等值。</p><p data-math-text>仍是原来的两个负一次项，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-second-0">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\frac1a+\frac2b\cdot (a+2b)$</p><p data-math-text>$=\frac1a+\frac{2a}{b}+4$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>条件给出 $a+2b=1$，乘给其中一项仍保持原式的值。</p><p data-math-text>常数与比值项为零次，未乘入的 $\frac1a$ 仍为负一次，整体不是零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-second-1">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\frac1a+\frac2b\cdot (2a+b)$</p><p data-math-text>$=\frac1a+\frac{4a}{b}+2$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>由 $a+2b=1$ 得 $2a+b=1+(a-b)$，不保证等于 $1$；这个改写不保证与原式等值。</p><p data-math-text>常数与比值项为零次，未乘入的 $\frac1a$ 仍为负一次，整体不是零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-second-2">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$\frac1a+\frac2b\cdot 1$</p><p data-math-text>$=\frac1a+\frac2b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>乘入常数 $1$，与原式等值。</p><p data-math-text>仍是原来的两个负一次项，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-done">
+<div class="visual-board completed-visual"><div class="board-caption">乘入定值 1，配成零次齐次式</div><div class="rewrite-equation" data-math-text>$\left(\frac1a+\frac2b\right)(a+2b)$</div><div class="rewrite-equation"><span class="fill-group"><span data-math-text>$=5$</span></span><span class="fill-group"><span data-math-text>${}+$</span><span class="shape square expression-slot" data-math-text>$\frac{2b}{a}$</span><span>+</span><span class="shape circle expression-slot" data-math-text>$\frac{2a}{b}$</span></span></div></div><div class="reasoning"><span class="section-label">系统计算 · 展开整理</span><p data-math-text>${\frac1a+\frac2b=\left(\frac1a+\frac2b\right)(a+2b)}$</p><p data-math-text>$=1+\frac{2b}a+\frac{2a}b+4$</p><p data-math-text>$=5+\frac{2b}a+\frac{2a}b$</p></div>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span>= 4</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>$a>0,\ b>0\ \Longrightarrow\ \frac{2b}{a}>0,\quad\frac{2a}{b}>0$</p><p data-math-text>$\frac{2b}{a}\cdot\frac{2a}{b}=4$</p><p data-math-text>两项的积固定，要求和的最小值；原式是 $5+(\cdots)$，和最小时原式也最小。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界，再代回原式</span><p data-math-text>$\frac{2b}{a}+\frac{2a}{b}\ge2\sqrt{\frac{2b}{a}\cdot\frac{2a}{b}}=4$</p><p data-math-text>$\frac1a+\frac2b=5+\frac{2b}a+\frac{2a}b\ge5+4=9$</p></div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 联立取等条件</span><p data-math-text>$\frac{2b}{a}=\frac{2a}{b}\ \Longrightarrow\ a^2=b^2$</p><p data-math-text>$a,b>0\ \Longrightarrow\ a=b$</p><p data-math-text>$a=b,\quad a+2b=1\ \Longrightarrow\ a=b=\frac13$</p></div><div class="reasoning"><span class="section-label">系统计算 · 回代原变量并验证</span><p data-math-text>${2x-y=x+2y=\frac13}\ \Longrightarrow\ {x=3y,\ y=\frac1{15},\ x=\frac15}$</p><p data-math-text>${x=\frac15>y=\frac1{15}>0}$，${4x+3y=\frac45+\frac15=1}$，满足原条件。</p><p data-math-text>${\frac1{2x-y}+\frac2{x+2y}=3+6=9}$</p><p data-math-text>由 $x=\frac{2a+b}5$、$y=\frac{2b-a}5$，$x>y>0$ 要求 $3a>b$、$2b>a$；取等点 $a=b$ 满足，所以下界能取到。</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$\frac1{2x-y}+\frac2{x+2y}$ 的最小值为 $9$</h2><p data-math-text>当 $x=\frac15,\ y=\frac1{15}$ 时取到。</p></section>
+  </template>
+</body>
+</html>

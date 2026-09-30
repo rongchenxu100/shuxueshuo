@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q17 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q17</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知 $5m^2n^2+n^4=1$，则 $m^2+n^2$ 的最小值为？</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$5m^2n^2+n^4=1$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$(m^2+n^2)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：消参</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q17",
+  "version": 1,
+  "variables": [
+    "m",
+    "n"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "elimination",
+      "label": "消参法"
+    }
+  ],
+  "routes": {
+    "elimination": [
+      {
+        "id": "eliminate",
+        "title": "消参",
+        "question": "把 $m^2$ 看成整体，由条件用 $n^2$ 表示 $m^2$，应该是哪一个？",
+        "interaction": {
+          "type": "choice",
+          "field": "eliminate_form",
+          "options": [
+            {
+              "value": "correct",
+              "label": "$m^2=\\frac{1-n^4}{5n^2}$"
+            },
+            {
+              "value": "missing_five",
+              "label": "$m^2=\\frac{1-n^4}{n^2}$"
+            },
+            {
+              "value": "wrong_sign",
+              "label": "$m^2=\\frac{1+n^4}{5n^2}$"
+            }
+          ],
+          "description": "correct为5m²n²=1-n⁴后除以5n²；missing_five漏除系数5；wrong_sign把n⁴移项时未变号。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "correct"
+          ]
+        },
+        "feedback": {
+          "answer": "先移项得 $5m^2n^2=1-n^4$；$n=0$ 时条件不成立，所以 $n\\ne0$，再两边除以 $5n^2$。"
+        },
+        "submit_label": "确认消参",
+        "display": "eliminate-done",
+        "board": "eliminate-board",
+        "preview": {
+          "correct": "preview-eliminate-correct",
+          "missing_five": "preview-eliminate-missing_five",
+          "wrong_sign": "preview-eliminate-wrong_sign"
+        }
+      },
+      {
+        "id": "split",
+        "title": "分式分离",
+        "question": "把分式逐项相除，再与 $n^2$ 合并，方框和圆圈各填什么？",
+        "interaction": {
+          "type": "fill",
+          "terms": [
+            "1/5",
+            "-1/5",
+            "4/5",
+            "6/5",
+            "1"
+          ],
+          "term_labels": {
+            "1/5": "$\\frac15$",
+            "-1/5": "$-\\frac15$",
+            "4/5": "$\\frac45$",
+            "6/5": "$\\frac65$",
+            "1": "$1$"
+          },
+          "slot_labels": [
+            "1/n² 的系数",
+            "n² 的系数"
+          ],
+          "slot_shapes": [
+            "square",
+            "circle"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "1/5",
+            "4/5"
+          ]
+        },
+        "feedback": {
+          "terms": "按你填入的系数通分，分别核对分子的常数项与 $n^4$ 的系数，是否恒等于 $m^2+n^2$。"
+        },
+        "submit_label": "确认分离",
+        "display": "split-done",
+        "board": "split-board",
+        "attempt_calculations": {
+          "1/5": {
+            "1/5": "split-attempt-1_5-1_5",
+            "-1/5": "split-attempt-1_5-neg1_5",
+            "4/5": "split-done",
+            "6/5": "split-attempt-1_5-6_5",
+            "1": "split-attempt-1_5-1"
+          },
+          "-1/5": {
+            "1/5": "split-attempt-neg1_5-1_5",
+            "-1/5": "split-attempt-neg1_5-neg1_5",
+            "4/5": "split-attempt-neg1_5-4_5",
+            "6/5": "split-attempt-neg1_5-6_5",
+            "1": "split-attempt-neg1_5-1"
+          },
+          "4/5": {
+            "1/5": "split-attempt-4_5-1_5",
+            "-1/5": "split-attempt-4_5-neg1_5",
+            "4/5": "split-attempt-4_5-4_5",
+            "6/5": "split-attempt-4_5-6_5",
+            "1": "split-attempt-4_5-1"
+          },
+          "6/5": {
+            "1/5": "split-attempt-6_5-1_5",
+            "-1/5": "split-attempt-6_5-neg1_5",
+            "4/5": "split-attempt-6_5-4_5",
+            "6/5": "split-attempt-6_5-6_5",
+            "1": "split-attempt-6_5-1"
+          },
+          "1": {
+            "1/5": "split-attempt-1-1_5",
+            "-1/5": "split-attempt-1-neg1_5",
+            "4/5": "split-attempt-1-4_5",
+            "6/5": "split-attempt-1-6_5",
+            "1": "split-attempt-1-1"
+          }
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "1/(5n^2)",
+            "4n^2/5"
+          ],
+          "term_labels": {
+            "1/(5n^2)": "$\\frac1{5n^2}$",
+            "4n^2/5": "$\\frac{4n^2}5$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "1/(5n^2)",
+            "4n^2/5"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对分式分离后的两个正项。",
+          "structure": "两项的积固定为 $\\frac4{25}$，要求它们和的最小值。"
+        },
+        "submit_label": "确认判断",
+        "display": "structure-done"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "1/(5n^2)",
+            "4n^2/5"
+          ],
+          "term_labels": {
+            "1/(5n^2)": "$\\frac1{5n^2}$",
+            "4n^2/5": "$\\frac{4n^2}5$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "1/(5n^2)",
+            "4n^2/5"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对分式分离后的两个正项。"
+        },
+        "submit_label": "确认判断",
+        "display": "amgm-done"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "1/(5n^2)",
+            "4n^2/5"
+          ],
+          "term_labels": {
+            "1/(5n^2)": "$\\frac1{5n^2}$",
+            "4n^2/5": "$\\frac{4n^2}5$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "1/(5n^2)",
+            "4n^2/5"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两个正项相等。"
+        },
+        "submit_label": "确认判断",
+        "display": "equality-done"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="eliminate-board">
+<div class="visual-board"><div class="board-caption">条件 · 把 m² 看成整体</div><div class="formula" data-math-text>$5m^2n^2+n^4=1$</div></div>
+  </template>
+  <template id="preview-eliminate-correct"><div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>$5m^2n^2=1-n^4$</p><p data-math-text>$n=0$ 时条件变成 $0=1$，所以 $n\ne0$，两边可以除以 $5n^2$。</p></div></template>
+  <template id="preview-eliminate-missing_five"><div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>$5m^2n^2$ 除以 $n^2$ 得 $5m^2$，还要再除以 $5$。</p></div></template>
+  <template id="preview-eliminate-wrong_sign"><div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>把 $n^4$ 移到右边要变号：$5m^2n^2=1-n^4$，右边不是 $1+n^4$。</p></div></template>
+  <template id="eliminate-done">
+<div class="visual-board completed-visual"><div class="board-caption">消参：用 n² 表示 m²</div><div class="function-conversion"><div><span class="conversion-label">条件</span><div class="math" data-math-text>$5m^2n^2+n^4=1$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">用 n² 表示 m²</span><div class="math" data-math-text>$m^2=\dfrac{1-n^4}{5n^2}$</div></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 整理与范围</span><p data-math-text>$n=0$ 时条件为 $0=1$，不成立，所以 $n\ne0$，$n^2&gt;0$</p><p data-math-text>由 $m^2\ge0$ 得 $1-n^4\ge0$，即 ${0&lt;n^2\le1}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2$</p><p data-math-text>把 $m^2$ 看成整体 $u$，条件成为 $5n^2u+n^4=1$，关于 $u$ 是一次方程，所以先消去这个整体更方便。若把 $n^2$ 看成整体 $v$，则为 $v^2+5m^2v=1$，需要解关于 $v$ 的二次方程。</p></div>
+  </template>
+  <template id="split-board">
+<div class="visual-board"><div class="board-caption">尝试分离 · 确认后通分核对</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$m^2+n^2\ \stackrel{?}{=}$</span></span><span class="fill-group"><span data-fill="0"></span><span data-math-text>$\cdot\dfrac1{n^2}$</span></span><span class="fill-group"><span data-math-text>$+$</span><span data-fill="1"></span><span data-math-text>$\cdot\,n^2$</span></span></div></div>
+  </template>
+  <template id="split-attempt-1_5-1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac1{5n^2}+\frac{n^2}5=\frac{1+n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{1+n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $1$，与原式的 $1$ 一致。</p><p data-math-text>分子 $n^4$ 的系数是 $1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-1_5-neg1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac1{5n^2}-\frac{n^2}5=\frac{1-n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{1-n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $1$，与原式的 $1$ 一致。</p><p data-math-text>分子 $n^4$ 的系数是 $-1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-1_5-6_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac1{5n^2}+\frac{6n^2}5=\frac{1+6n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{1+6n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $1$，与原式的 $1$ 一致。</p><p data-math-text>分子 $n^4$ 的系数是 $6$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-1_5-1">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac1{5n^2}+n^2=\frac{1+5n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{1+5n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $1$，与原式的 $1$ 一致。</p><p data-math-text>分子 $n^4$ 的系数是 $5$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg1_5-1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$-\frac1{5n^2}+\frac{n^2}5=\frac{-1+n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{-1+n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $-1$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg1_5-neg1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$-\frac1{5n^2}-\frac{n^2}5=\frac{-1-n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{-1-n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $-1$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $-1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg1_5-4_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$-\frac1{5n^2}+\frac{4n^2}5=\frac{-1+4n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{-1+4n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $-1$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $4$，与原式的 $4$ 一致。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg1_5-6_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$-\frac1{5n^2}+\frac{6n^2}5=\frac{-1+6n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{-1+6n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $-1$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $6$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg1_5-1">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$-\frac1{5n^2}+n^2=\frac{-1+5n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{-1+5n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $-1$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $5$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-4_5-1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac4{5n^2}+\frac{n^2}5=\frac{4+n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{4+n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $4$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-4_5-neg1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac4{5n^2}-\frac{n^2}5=\frac{4-n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{4-n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $4$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $-1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-4_5-4_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac4{5n^2}+\frac{4n^2}5=\frac{4+4n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{4+4n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $4$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $4$，与原式的 $4$ 一致。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-4_5-6_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac4{5n^2}+\frac{6n^2}5=\frac{4+6n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{4+6n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $4$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $6$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-4_5-1">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac4{5n^2}+n^2=\frac{4+5n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{4+5n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $4$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $5$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-6_5-1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac6{5n^2}+\frac{n^2}5=\frac{6+n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{6+n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $6$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-6_5-neg1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac6{5n^2}-\frac{n^2}5=\frac{6-n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{6-n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $6$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $-1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-6_5-4_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac6{5n^2}+\frac{4n^2}5=\frac{6+4n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{6+4n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $6$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $4$，与原式的 $4$ 一致。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-6_5-6_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac6{5n^2}+\frac{6n^2}5=\frac{6+6n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{6+6n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $6$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $6$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-6_5-1">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac6{5n^2}+n^2=\frac{6+5n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{6+5n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $6$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $5$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-1-1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac1{n^2}+\frac{n^2}5=\frac{5+n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{5+n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $5$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-1-neg1_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac1{n^2}-\frac{n^2}5=\frac{5-n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{5-n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $5$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $-1$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-1-4_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac1{n^2}+\frac{4n^2}5=\frac{5+4n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{5+4n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $5$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $4$，与原式的 $4$ 一致。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-1-6_5">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac1{n^2}+\frac{6n^2}5=\frac{5+6n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{5+6n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $5$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $6$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-attempt-1-1">
+<section class="rewrite-calculation" aria-label="本次填空的通分核对"><span class="section-label">按你的填写通分</span><div class="rewrite-calculation-math"><p data-math-text>$\frac1{n^2}+n^2=\frac{5+5n^4}{5n^2}$</p><p data-math-text>$m^2+n^2=\frac{1-n^4}{5n^2}+n^2=\frac{1+4n^4}{5n^2}$</p><p data-math-text>$\frac{5+5n^4}{5n^2}\not\equiv\frac{1+4n^4}{5n^2}$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>分子常数项是 $5$，与原式的 $1$ 不同。</p><p data-math-text>分子 $n^4$ 的系数是 $5$，与原式的 $4$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="split-done">
+<div class="visual-board completed-visual"><div class="board-caption">逐项相除，再合并同类项</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$m^2+n^2\ =$</span></span><span class="fill-group"><span class="shape square expression-slot" data-math-text>$\frac15$</span><span data-math-text>$\cdot\dfrac1{n^2}$</span></span><span class="fill-group"><span data-math-text>$+$</span><span class="shape circle expression-slot" data-math-text>$\frac45$</span><span data-math-text>$\cdot\,n^2$</span></span></div></div><div class="reasoning"><span class="section-label">系统计算 · 分式分离</span><p data-math-text>$\frac{1-n^4}{5n^2}=\frac1{5n^2}-\frac{n^4}{5n^2}=\frac1{5n^2}-\frac{n^2}5$</p><p data-math-text>$m^2+n^2=\frac1{5n^2}-\frac{n^2}5+n^2=\frac1{5n^2}+\frac{4n^2}5$</p><p data-math-text>两项的积 $\frac1{5n^2}\cdot\frac{4n^2}5=\frac4{25}$ 已经固定，不需要再凑配。</p></div>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span data-math-text>$=\frac4{25}$</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>由 $n^2&gt;0$ 得 $\frac1{5n^2}&gt;0$，$\frac{4n^2}5&gt;0$</p><p data-math-text>$\frac1{5n^2}\cdot\frac{4n^2}5=\frac4{25}$</p><p data-math-text>两个正项的积固定，求和的最小值。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界</span><p data-math-text>$\frac1{5n^2}+\frac{4n^2}5\ge2\sqrt{\frac1{5n^2}\cdot\frac{4n^2}5}=2\sqrt{\frac4{25}}=\frac45$</p><p data-math-text>$m^2+n^2\ge\frac45$</p></div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 联立取等条件</span><p data-math-text>由 $\frac1{5n^2}=\frac{4n^2}5$ 得 $n^4=\frac14$</p><p data-math-text>又 $n^2&gt;0$，所以 $n^2=\frac12$，在 ${0&lt;n^2\le1}$ 内</p><p data-math-text>$m^2=\frac{1-\frac14}{5\cdot\frac12}=\frac3{10}\ge0$</p></div><div class="reasoning"><span class="section-label">系统计算 · 验证原条件</span><p data-math-text>$5\cdot\frac3{10}\cdot\frac12+\frac14=\frac34+\frac14=1$</p><p data-math-text>$m^2+n^2=\frac3{10}+\frac12=\frac45$</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$m^2+n^2$ 的最小值为 $\frac45$</h2><p data-math-text>当 $n^2=\frac12,\ m^2=\frac3{10}$ 时取到。</p></section>
+  </template>
+</body>
+</html>

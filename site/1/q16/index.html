@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q16 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q16</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知 $x>0,\ y>0$，且 $x+2y+xy-7=0$，则 $x+y$ 的最小值为？</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$x,y>0$，</span><span class="nowrap" data-math-text>$x+2y+xy-7=0$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$(x+y)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：消参</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q16",
+  "version": 1,
+  "variables": [
+    "x",
+    "y"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "elimination",
+      "label": "消参法"
+    }
+  ],
+  "routes": {
+    "elimination": [
+      {
+        "id": "eliminate",
+        "title": "消参",
+        "question": "由条件用 $y$ 表示 $x$，应该是哪一个？",
+        "interaction": {
+          "type": "choice",
+          "field": "eliminate_form",
+          "options": [
+            {
+              "value": "correct",
+              "label": "$x=\\frac{7-2y}{y+1}$"
+            },
+            {
+              "value": "missing_one",
+              "label": "$x=\\frac{7-2y}{y}$"
+            },
+            {
+              "value": "wrong_sign",
+              "label": "$x=\\frac{7+2y}{y+1}$"
+            }
+          ],
+          "description": "correct为x(1+y)=7-2y后除以y+1；missing_one漏掉了含x的一次项x；wrong_sign把2y移项时未变号。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "correct"
+          ]
+        },
+        "feedback": {
+          "answer": "把含 $x$ 的项放在一起：$x+xy=x(1+y)$，其余的项移到右边得 $7-2y$，再两边除以 $y+1$。"
+        },
+        "submit_label": "确认消参",
+        "display": "eliminate-done",
+        "board": "eliminate-board",
+        "preview": {
+          "correct": "preview-eliminate-correct",
+          "missing_one": "preview-eliminate-missing_one",
+          "wrong_sign": "preview-eliminate-wrong_sign"
+        }
+      },
+      {
+        "id": "split",
+        "title": "分式分离",
+        "question": "把分子 $7-2y$ 用分母 $y+1$ 表示，方框和圆圈各填什么？",
+        "interaction": {
+          "type": "fill",
+          "terms": [
+            "-2",
+            "2",
+            "5",
+            "7",
+            "9"
+          ],
+          "term_labels": {
+            "-2": "$-2$",
+            "2": "$2$",
+            "5": "$5$",
+            "7": "$7$",
+            "9": "$9$"
+          },
+          "slot_labels": [
+            "分母的倍数",
+            "余下的常数"
+          ],
+          "slot_shapes": [
+            "square",
+            "circle"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "-2",
+            "9"
+          ]
+        },
+        "feedback": {
+          "terms": "按你填入的数展开，分别核对 $y$ 的系数与常数项，是否恒等于 $7-2y$。"
+        },
+        "submit_label": "确认分离",
+        "display": "split-done",
+        "board": "split-board",
+        "attempt_calculations": {
+          "-2": {
+            "-2": "split-attempt-neg2-neg2",
+            "2": "split-attempt-neg2-2",
+            "5": "split-attempt-neg2-5",
+            "7": "split-attempt-neg2-7",
+            "9": "split-done"
+          },
+          "2": {
+            "-2": "split-attempt-2-neg2",
+            "2": "split-attempt-2-2",
+            "5": "split-attempt-2-5",
+            "7": "split-attempt-2-7",
+            "9": "split-attempt-2-9"
+          },
+          "5": {
+            "-2": "split-attempt-5-neg2",
+            "2": "split-attempt-5-2",
+            "5": "split-attempt-5-5",
+            "7": "split-attempt-5-7",
+            "9": "split-attempt-5-9"
+          },
+          "7": {
+            "-2": "split-attempt-7-neg2",
+            "2": "split-attempt-7-2",
+            "5": "split-attempt-7-5",
+            "7": "split-attempt-7-7",
+            "9": "split-attempt-7-9"
+          },
+          "9": {
+            "-2": "split-attempt-9-neg2",
+            "2": "split-attempt-9-2",
+            "5": "split-attempt-9-5",
+            "7": "split-attempt-9-7",
+            "9": "split-attempt-9-9"
+          }
+        }
+      },
+      {
+        "id": "rewrite",
+        "title": "凑配表达式",
+        "question": "怎样改写 $y+\\frac9{y+1}-2$，让其中两个正项的积固定？",
+        "interaction": {
+          "type": "choice",
+          "field": "rewrite_form",
+          "options": [
+            {
+              "value": "fixed_product",
+              "label": "$(y+1)+\\frac9{y+1}-3$"
+            },
+            {
+              "value": "unchanged",
+              "label": "$y+\\frac9{y+1}-2$"
+            },
+            {
+              "value": "wrong_constant",
+              "label": "$(y+1)+\\frac9{y+1}-1$"
+            }
+          ],
+          "description": "fixed_product把y写成(y+1)-1并调整常数；unchanged未凑配，y与9/(y+1)积不固定；wrong_constant凑出y+1后常数未调整。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "fixed_product"
+          ]
+        },
+        "feedback": {
+          "answer": "要让积固定，$\\frac9{y+1}$ 需要和 $y+1$ 配对：$y=(y+1)-1$，常数随之变为 $-2-1=-3$。"
+        },
+        "submit_label": "确认改写",
+        "display": "rewrite-done",
+        "board": "rewrite-board",
+        "preview": {
+          "fixed_product": "preview-rewrite-fixed_product",
+          "unchanged": "preview-rewrite-unchanged",
+          "wrong_constant": "preview-rewrite-wrong_constant"
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "y+1",
+            "9/(y+1)"
+          ],
+          "term_labels": {
+            "y+1": "$y+1$",
+            "9/(y+1)": "$\\frac9{y+1}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "y+1",
+            "9/(y+1)"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对凑配后的两个正项。",
+          "structure": "两项的积固定为 $9$，要求它们和的最小值。"
+        },
+        "submit_label": "确认判断",
+        "display": "structure-done"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "y+1",
+            "9/(y+1)"
+          ],
+          "term_labels": {
+            "y+1": "$y+1$",
+            "9/(y+1)": "$\\frac9{y+1}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "y+1",
+            "9/(y+1)"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对凑配后的两个正项。"
+        },
+        "submit_label": "确认判断",
+        "display": "amgm-done"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "y+1",
+            "9/(y+1)"
+          ],
+          "term_labels": {
+            "y+1": "$y+1$",
+            "9/(y+1)": "$\\frac9{y+1}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "y+1",
+            "9/(y+1)"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两个正项相等。"
+        },
+        "submit_label": "确认判断",
+        "display": "equality-done"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="eliminate-board">
+<div class="visual-board"><div class="board-caption">条件 · 把含 x 的项放在一起</div><div class="formula" data-math-text>$x+2y+xy-7=0$</div></div>
+  </template>
+  <template id="preview-eliminate-correct"><div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>$x+xy=7-2y\ \Longrightarrow\ x(1+y)=7-2y$</p><p data-math-text>$y>0\ \Longrightarrow\ y+1>0$，两边除以 $y+1$。</p></div></template>
+  <template id="preview-eliminate-missing_one"><div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>$x+xy=x(1+y)$，含 $x$ 的项有两个，不能只保留 $xy$。</p></div></template>
+  <template id="preview-eliminate-wrong_sign"><div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>把 $2y$、$-7$ 移到右边要变号：$x+xy=7-2y$，右边不是 $7+2y$。</p></div></template>
+  <template id="eliminate-done">
+<div class="visual-board completed-visual"><div class="board-caption">消参：用 y 表示 x</div><div class="function-conversion"><div><span class="conversion-label">条件</span><div class="math" data-math-text>$x+2y+xy-7=0$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">用 y 表示 x</span><div class="math" data-math-text>$x=\dfrac{7-2y}{y+1}$</div></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 整理与范围</span><p data-math-text>$x(1+y)=7-2y,\quad y+1>0\ \Longrightarrow\ x=\frac{7-2y}{y+1}$</p><p data-math-text>$x>0\ \Longrightarrow\ 7-2y>0\ \Longrightarrow\ 0&lt;y&lt;\frac72$</p><p data-math-text>$x+y=\frac{7-2y}{y+1}+y$</p></div>
+  </template>
+  <template id="split-board">
+<div class="visual-board"><div class="board-caption">尝试配式 · 确认后展开核对</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$7-2y\ \stackrel{?}{=}$</span></span><span class="fill-group"><span data-fill="0"></span><span data-math-text>$\cdot\,(y+1)$</span></span><span class="fill-group"><span data-math-text>$+$</span><span data-fill="1"></span></span></div></div>
+  </template>
+  <template id="split-attempt-neg2-neg2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-2(y+1)-2=-2y-4$</p><p data-math-text>$-2y-4\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $-2$，与原式的 $-2$ 一致。</p><p data-math-text>常数项是 $-4$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg2-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-2(y+1)+2=-2y$</p><p data-math-text>$-2y\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $-2$，与原式的 $-2$ 一致。</p><p data-math-text>常数项是 $0$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg2-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-2(y+1)+5=-2y+3$</p><p data-math-text>$-2y+3\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $-2$，与原式的 $-2$ 一致。</p><p data-math-text>常数项是 $3$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg2-7">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-2(y+1)+7=-2y+5$</p><p data-math-text>$-2y+5\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $-2$，与原式的 $-2$ 一致。</p><p data-math-text>常数项是 $5$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-2-neg2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(y+1)-2=2y$</p><p data-math-text>$2y\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $2$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $0$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-2-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(y+1)+2=2y+4$</p><p data-math-text>$2y+4\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $2$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $4$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-2-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(y+1)+5=2y+7$</p><p data-math-text>$2y+7\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $2$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $7$，与原式的 $7$ 一致。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-2-7">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(y+1)+7=2y+9$</p><p data-math-text>$2y+9\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $2$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $9$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-2-9">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(y+1)+9=2y+11$</p><p data-math-text>$2y+11\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $2$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $11$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-5-neg2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(y+1)-2=5y+3$</p><p data-math-text>$5y+3\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $5$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $3$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-5-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(y+1)+2=5y+7$</p><p data-math-text>$5y+7\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $5$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $7$，与原式的 $7$ 一致。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-5-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(y+1)+5=5y+10$</p><p data-math-text>$5y+10\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $5$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $10$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-5-7">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(y+1)+7=5y+12$</p><p data-math-text>$5y+12\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $5$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $12$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-5-9">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(y+1)+9=5y+14$</p><p data-math-text>$5y+14\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $5$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $14$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-7-neg2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$7(y+1)-2=7y+5$</p><p data-math-text>$7y+5\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $7$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $5$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-7-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$7(y+1)+2=7y+9$</p><p data-math-text>$7y+9\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $7$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $9$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-7-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$7(y+1)+5=7y+12$</p><p data-math-text>$7y+12\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $7$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $12$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-7-7">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$7(y+1)+7=7y+14$</p><p data-math-text>$7y+14\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $7$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $14$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-7-9">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$7(y+1)+9=7y+16$</p><p data-math-text>$7y+16\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $7$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $16$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-neg2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(y+1)-2=9y+7$</p><p data-math-text>$9y+7\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $9$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $7$，与原式的 $7$ 一致。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(y+1)+2=9y+11$</p><p data-math-text>$9y+11\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $9$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $11$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(y+1)+5=9y+14$</p><p data-math-text>$9y+14\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $9$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $14$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-7">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(y+1)+7=9y+16$</p><p data-math-text>$9y+16\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $9$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $16$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-9">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(y+1)+9=9y+18$</p><p data-math-text>$9y+18\not\equiv 7-2y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$y$ 的系数是 $9$，与原式的 $-2$ 不同。</p><p data-math-text>常数项是 $18$，与原式的 $7$ 不同。</p><p>本步需要恒等改写，请调整不匹配的系数或常数。</p></div></section>
+  </template>
+  <template id="split-done">
+<div class="visual-board completed-visual"><div class="board-caption">用分母表示分子，再逐项除以分母</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$7-2y\ =$</span></span><span class="fill-group"><span class="shape square expression-slot" data-math-text>$-2$</span><span data-math-text>$\cdot\,(y+1)$</span></span><span class="fill-group"><span data-math-text>$+$</span><span class="shape circle expression-slot" data-math-text>$9$</span></span></div></div><div class="reasoning"><span class="section-label">系统计算 · 分式分离</span><p data-math-text>$-2(y+1)+9=-2y-2+9=7-2y$</p><p data-math-text>$\frac{7-2y}{y+1}=\frac{-2(y+1)+9}{y+1}=-2+\frac9{y+1}$</p><p data-math-text>$x+y=y+\frac9{y+1}-2$</p></div>
+  </template>
+  <template id="rewrite-board">
+<div class="visual-board"><div class="board-caption">分式分离后的目标式</div><div class="formula fill-formula"><span class="fill-group" data-math-text>$x+y\ =$</span><span class="fill-group" data-math-text>$y+\dfrac9{y+1}-2$</span></div></div>
+  </template>
+  <template id="preview-rewrite-fixed_product"><div class="reasoning choice-preview"><span class="section-label">展开核对</span><p data-math-text>$(y+1)+\frac9{y+1}-3=y+\frac9{y+1}-2$</p><p data-math-text>$(y+1)\cdot\frac9{y+1}=9$，积固定。</p></div></template>
+  <template id="preview-rewrite-unchanged"><div class="reasoning choice-preview"><span class="section-label">展开核对</span><p data-math-text>$y\cdot\frac9{y+1}=\frac{9y}{y+1}$，随 $y$ 变化，积不固定。</p></div></template>
+  <template id="preview-rewrite-wrong_constant"><div class="reasoning choice-preview"><span class="section-label">展开核对</span><p data-math-text>$(y+1)+\frac9{y+1}-1=y+\frac9{y+1}$</p><p data-math-text>比原式多了 $2$，与原式不等价。</p></div></template>
+  <template id="rewrite-done">
+<div class="visual-board completed-visual"><div class="board-caption">凑配：让 y+1 与分式配对，再调整常数</div><div class="function-conversion"><div><span class="conversion-label">分式分离后</span><div class="math" data-math-text>$y+\frac9{y+1}-2$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">配成两项，常数随之调整</span><div class="formula conversion-terms"><span class="shape square expression-slot" data-math-text>$y+1$</span><span>+</span><span class="shape circle expression-slot" data-math-text>$\frac9{y+1}$</span><span data-math-text>$-\,3$</span></div></div></div></div><div class="reasoning"><span class="section-label">核对等价改写</span><p data-math-text>$y=(y+1)-1\ \Longrightarrow\ y+\frac9{y+1}-2=(y+1)+\frac9{y+1}-3$</p></div>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span>= 9</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>$y>0\ \Longrightarrow\ y+1>0,\quad\frac9{y+1}>0$</p><p data-math-text>$(y+1)\cdot\frac9{y+1}=9$</p><p data-math-text>两个正项的积固定，求和的最小值。常数 $-3$ 留在外面，最后加回。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界，再加回常数</span><p data-math-text>$(y+1)+\frac9{y+1}\ge2\sqrt{(y+1)\cdot\frac9{y+1}}=6$</p><p data-math-text>$x+y=(y+1)+\frac9{y+1}-3\ge6-3=3$</p></div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 联立取等条件</span><p data-math-text>$y+1=\frac9{y+1}\ \Longrightarrow\ (y+1)^2=9$</p><p data-math-text>$y+1>0\ \Longrightarrow\ y+1=3\ \Longrightarrow\ y=2$</p><p data-math-text>$0&lt;2&lt;\frac72$，在范围内；$x=\frac{7-4}{3}=1$</p></div><div class="reasoning"><span class="section-label">系统计算 · 验证原条件</span><p data-math-text>$x=1>0,\ y=2>0,\quad 1+4+2-7=0$</p><p data-math-text>$x+y=3$</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$x+y$ 的最小值为 $3$</h2><p data-math-text>当 $x=1,\ y=2$ 时取到。</p></section>
+  </template>
+</body>
+</html>

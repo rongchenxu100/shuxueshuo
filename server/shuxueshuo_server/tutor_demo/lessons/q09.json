@@ -17,7 +17,7 @@
     },
     {
       "id": "elimination",
-      "label": "条件消元法"
+      "label": "消参法"
     }
   ],
   "routes": {
@@ -235,7 +235,7 @@
       ]
     },
     "elimination": {
-      "label": "条件消元法",
+      "label": "消参法",
       "nodes": [
         {
           "id": "rewrite",
@@ -281,7 +281,7 @@
         },
         {
           "id": "eliminate",
-          "title": "条件消元",
+          "title": "消参",
           "question": "利用整理后的条件，你准备消去哪个变量？",
           "interaction": {
             "type": "choice",
@@ -305,15 +305,15 @@
             ]
           },
           "feedback": {
-            "answer": "请选择一种消元方向。"
+            "answer": "请选择一种消参方向。"
           },
           "required_evidence": [
             "elimination_relation"
           ],
-          "criteria": "接受b=(1-2a)/3并选择variable=a，或a=(1-3b)/2并选择variable=b。学生仅说消元或任选一个还没给方向，不要代选；若指明消去a则保留b，消去b则保留a。变量只是非零实数，不可擅加正数区间；保留a时a≠0,1/2，保留b时b≠0,1/3。代入目标和整理二次式由系统完成。",
-          "completion_reply": "消元关系正确。系统把它代入乘积，整理成一个变量的二次式，并保留原来的非零限制。",
+          "criteria": "接受b=(1-2a)/3并选择variable=a，或a=(1-3b)/2并选择variable=b。学生仅说消参（也叫条件消元、消元）或任选一个还没给方向，不要代选；若指明消去a则保留b，消去b则保留a。变量只是非零实数，不可擅加正数区间；保留a时a≠0,1/2，保留b时b≠0,1/3。代入目标和整理二次式由系统完成。",
+          "completion_reply": "消参关系正确。系统把它代入乘积，整理成一个变量的二次式，并保留原来的非零限制。",
           "results": [
-            "使用学生选择的消元方向；variable=a表示保留a，variable=b表示保留b",
+            "使用学生选择的消参方向；variable=a表示保留a，variable=b表示保留b",
             "保留a时：b=(1-2a)/3,ab=a/3-2a²/3,a≠0且a≠1/2",
             "保留b时：a=(1-3b)/2,ab=b/2-3b²/2,b≠0且b≠1/3"
           ]

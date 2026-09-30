@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q21 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=21" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q21</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知 $a>0,\ b>0$，若 ${\frac1{4a+b}+\frac1{a+2b}=3}$，求 $5a+3b$ 的最小值。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$a>0,\quad b>0,\quad$ ${\frac1{4a+b}+\frac1{a+2b}=3}$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$(5a+3b)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：双换元</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q21",
+  "version": 1,
+  "variables": [
+    "a",
+    "b"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "substitution",
+      "label": "换元法"
+    }
+  ],
+  "routes": {
+    "substitution": [
+      {
+        "id": "substitution",
+        "title": "双换元",
+        "question": "条件中哪些部分适合看成整体，换成新变量？",
+        "interaction": {
+          "type": "substitution",
+          "slots": [
+            {
+              "label": "换元对象",
+              "names": [
+                "x",
+                "y"
+              ],
+              "options": [
+                {
+                  "value": "4a+b",
+                  "label": "$4a+b$"
+                },
+                {
+                  "value": "a+2b",
+                  "label": "$a+2b$"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "4a+b|a+2b"
+          ]
+        },
+        "feedback": {
+          "terms": "只换一个分母是等价的，但条件里仍留着另一个含 $a,b$ 的分母。把两个分母分别记为 $x,y$，条件就变成 $\\frac1x+\\frac1y=3$。"
+        },
+        "display": "substitution-done",
+        "submit_label": "确认换元",
+        "board": "substitution-board",
+        "scope_boards": {
+          "4a+b": "substitution-first",
+          "a+2b": "substitution-second",
+          "4a+b|a+2b": "substitution-both"
+        }
+      },
+      {
+        "id": "express",
+        "title": "用新元表示目标",
+        "question": "把目标 $5a+3b$ 用 $x=4a+b$、$y=a+2b$ 表示，方框和圆圈各填什么？",
+        "interaction": {
+          "type": "fill",
+          "terms": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5"
+          ],
+          "term_labels": {
+            "1": "$1$",
+            "2": "$2$",
+            "3": "$3$",
+            "4": "$4$",
+            "5": "$5$"
+          },
+          "slot_labels": [
+            "x 的系数",
+            "y 的系数"
+          ],
+          "slot_shapes": [
+            "square",
+            "circle"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "1",
+            "1"
+          ]
+        },
+        "feedback": {
+          "terms": "按你填入的系数展开，分别核对 $a$、$b$ 的系数，是否等于目标的 $5$、$3$。"
+        },
+        "submit_label": "确认表示",
+        "display": "express-done",
+        "board": "express-board",
+        "attempt_calculations": {
+          "1": {
+            "1": "express-done",
+            "2": "express-attempt-1-2",
+            "3": "express-attempt-1-3",
+            "4": "express-attempt-1-4",
+            "5": "express-attempt-1-5"
+          },
+          "2": {
+            "1": "express-attempt-2-1",
+            "2": "express-attempt-2-2",
+            "3": "express-attempt-2-3",
+            "4": "express-attempt-2-4",
+            "5": "express-attempt-2-5"
+          },
+          "3": {
+            "1": "express-attempt-3-1",
+            "2": "express-attempt-3-2",
+            "3": "express-attempt-3-3",
+            "4": "express-attempt-3-4",
+            "5": "express-attempt-3-5"
+          },
+          "4": {
+            "1": "express-attempt-4-1",
+            "2": "express-attempt-4-2",
+            "3": "express-attempt-4-3",
+            "4": "express-attempt-4-4",
+            "5": "express-attempt-4-5"
+          },
+          "5": {
+            "1": "express-attempt-5-1",
+            "2": "express-attempt-5-2",
+            "3": "express-attempt-5-3",
+            "4": "express-attempt-5-4",
+            "5": "express-attempt-5-5"
+          }
+        }
+      },
+      {
+        "id": "homogeneity",
+        "title": "识别齐次结构",
+        "question": "目标表达式与条件表达式分别是几次？相乘后能配成零次齐次式吗？",
+        "interaction": {
+          "type": "homogeneity",
+          "terms": [
+            "-1",
+            "0",
+            "1"
+          ],
+          "term_labels": {
+            "-1": "$-1$",
+            "0": "$0$",
+            "1": "$+1$"
+          },
+          "slot_labels": [
+            "目标表达式的次数",
+            "条件表达式的次数"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "1",
+            "-1"
+          ]
+        },
+        "feedback": {
+          "terms": "判断次数时，先看每一项中变量的指数。$x$、$y$ 的指数都是 $1$，目标 $x+y$ 是正一次；$\\frac1x=x^{-1}$、$\\frac1y=y^{-1}$，条件表达式 $\\frac1x+\\frac1y$ 是负一次。只有相乘时才把次数相加。"
+        },
+        "display": "homogeneity-done",
+        "submit_label": "确认结构",
+        "board": "degree-board"
+      },
+      {
+        "id": "rewrite",
+        "title": "配齐次式",
+        "question": "对原式的哪一部分乘入什么表达式，才能保持值不变并配成零次齐次式？",
+        "interaction": {
+          "type": "rewrite",
+          "slots": [
+            {
+              "label": "作用范围",
+              "options": [
+                {
+                  "value": "whole",
+                  "label": "整个式子"
+                },
+                {
+                  "value": "first",
+                  "label": "第一项 $x$"
+                },
+                {
+                  "value": "second",
+                  "label": "第二项 $y$"
+                }
+              ]
+            },
+            {
+              "label": "乘入的表达式",
+              "options": [
+                {
+                  "value": "(1/x+1/y)/3",
+                  "label": "$\\frac13\\left(\\frac1x+\\frac1y\\right)$"
+                },
+                {
+                  "value": "1/x+1/y",
+                  "label": "$\\frac1x+\\frac1y$"
+                },
+                {
+                  "value": "1",
+                  "label": "$1$"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "whole",
+            "(1/x+1/y)/3"
+          ]
+        },
+        "feedback": {
+          "terms": "要同时满足“值不变”和“整体变成零次”。条件是 $\\frac1x+\\frac1y=3$，等于 $1$ 的负一次表达式是 $\\frac13\\left(\\frac1x+\\frac1y\\right)$；两项都是正一次，需要乘给整个式子。"
+        },
+        "display": "rewrite-done",
+        "submit_label": "确认配式",
+        "board": "rewrite-scope",
+        "scope_boards": {
+          "whole": "rewrite-whole",
+          "first": "rewrite-first",
+          "second": "rewrite-second"
+        },
+        "attempt_calculations": {
+          "whole": {
+            "(1/x+1/y)/3": "rewrite-done",
+            "1/x+1/y": "rewrite-calculation-whole-1",
+            "1": "rewrite-calculation-whole-2"
+          },
+          "first": {
+            "(1/x+1/y)/3": "rewrite-calculation-first-0",
+            "1/x+1/y": "rewrite-calculation-first-1",
+            "1": "rewrite-calculation-first-2"
+          },
+          "second": {
+            "(1/x+1/y)/3": "rewrite-calculation-second-0",
+            "1/x+1/y": "rewrite-calculation-second-1",
+            "1": "rewrite-calculation-second-2"
+          }
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "y/x",
+            "x/y"
+          ],
+          "term_labels": {
+            "y/x": "$\\frac{y}{x}$",
+            "x/y": "$\\frac{x}{y}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "y/x",
+            "x/y"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对展开后的两个比值项。",
+          "structure": "两项的积固定为 $1$，要求它们和的最小值。"
+        },
+        "display": "structure-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "y/x",
+            "x/y"
+          ],
+          "term_labels": {
+            "y/x": "$\\frac{y}{x}$",
+            "x/y": "$\\frac{x}{y}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "y/x",
+            "x/y"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对展开后的两个正项。"
+        },
+        "display": "amgm-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "y/x",
+            "x/y"
+          ],
+          "term_labels": {
+            "y/x": "$\\frac{y}{x}$",
+            "x/y": "$\\frac{x}{y}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "y/x",
+            "x/y"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两个比值项相等。"
+        },
+        "display": "equality-done",
+        "submit_label": "确认判断"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="substitution-board">
+<div class="visual-board sub-board"><span class="sub-caption">条件 · 点选要看成整体的部分</span><div class="sub-source" role="group" aria-label="换元对象"><span class="sub-frac"><span>1</span><span><button type="button" class="sub-leaf" data-sub-target="4a+b" aria-label="分母 4a+b 整体">4<var>a</var><span class="sub-bin">+</span><var>b</var></button></span></span><span class="sub-bin">+</span><span class="sub-frac"><span>1</span><span><button type="button" class="sub-leaf" data-sub-target="a+2b" aria-label="分母 a+2b 整体"><var>a</var><span class="sub-bin">+</span>2<var>b</var></button></span></span><span class="sub-bin">=</span><span>3</span></div><span data-sub-result></span></div>
+  </template>
+  <template id="substitution-first">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $x=4a+b$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{4a+b}}+\dfrac1{a+2b}=3$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{x}}+\dfrac1{a+2b}=3$</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$a>0,\ b>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{x}>0,\ a>0,\ b>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$5a+3b$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span><span>仍含 <var>a</var>、<var>b</var></span></span></div></div>
+  </template>
+  <template id="substitution-second">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $x=a+2b$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$\dfrac1{4a+b}+\dfrac1{\textcolor{#087f79}{a+2b}}=3$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac1{4a+b}+\dfrac1{\textcolor{#087f79}{x}}=3$</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$a>0,\ b>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$a>0,\ b>0,\ \textcolor{#087f79}{x}>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$5a+3b$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span><span>仍含 <var>a</var>、<var>b</var></span></span></div></div>
+  </template>
+  <template id="substitution-both">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $x=4a+b,\ y=a+2b$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{4a+b}}+\dfrac1{\textcolor{#b0730c}{a+2b}}=3$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{x}}+\dfrac1{\textcolor{#b0730c}{y}}=3$</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$a>0,\ b>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{x}>0,\ \textcolor{#b0730c}{y}>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$5a+3b$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span><span data-math-text>下一步用 $x,y$ 表示</span></span></div></div>
+  </template>
+  <template id="substitution-done">
+<div class="visual-board sub-board completed-visual"><div class="sub-table"><span class="sub-def" data-math-text>设 $x=4a+b,\ y=a+2b$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{4a+b}}+\dfrac1{\textcolor{#b0730c}{a+2b}}=3$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac1{\textcolor{#087f79}{x}}+\dfrac1{\textcolor{#b0730c}{y}}=3$</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$a>0,\ b>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{x}>0,\ \textcolor{#b0730c}{y}>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$5a+3b$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span><span data-math-text>下一步用 $x,y$ 表示</span></span></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 改写条件与范围</span><p data-math-text>${x=4a+b,\ y=a+2b}\ \Longrightarrow\ {\frac1x+\frac1y=3}$</p><p data-math-text>$a>0,\ b>0\ \Longrightarrow\ x>0,\ y>0$</p><p data-math-text>条件只剩 $x,y$；接下来把目标 $5a+3b$ 也用 $x,y$ 表示。</p></div>
+  </template>
+  <template id="express-board">
+<div class="visual-board"><div class="board-caption">尝试表示 · 确认后展开核对</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$5a+3b\ \stackrel{?}{=}$</span></span><span class="fill-group"><span data-fill="0"></span><span data-math-text>$\cdot\,(4a+b)$</span></span><span class="fill-group"><span data-math-text>$+$</span><span data-fill="1"></span><span data-math-text>$\cdot\,(a+2b)$</span></span></div></div>
+  </template>
+  <template id="express-done">
+<div class="visual-board completed-visual"><div class="board-caption">目标恰好是两个新变量之和</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$5a+3b\ =$</span></span><span class="fill-group"><span class="shape square expression-slot" data-math-text>$1$</span><span data-math-text>$\cdot\,(4a+b)$</span></span><span class="fill-group"><span data-math-text>$+$</span><span class="shape circle expression-slot" data-math-text>$1$</span><span data-math-text>$\cdot\,(a+2b)$</span></span></div></div><div class="reasoning"><span class="section-label">系统计算 · 比较系数</span><p data-math-text>$(4a+b)+(a+2b)=5a+3b$</p><p data-math-text>$5a+3b=x+y$</p><p data-math-text>问题化为：$x,y>0$，$\frac1x+\frac1y=3$，求 $x+y$ 的最小值。</p></div>
+  </template>
+  <template id="express-attempt-1-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$(4a+b)+2(a+2b)=6a+5b$</p><p data-math-text>$6a+5b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $6$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $5$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-1-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$(4a+b)+3(a+2b)=7a+7b$</p><p data-math-text>$7a+7b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $7$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $7$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-1-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$(4a+b)+4(a+2b)=8a+9b$</p><p data-math-text>$8a+9b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $8$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $9$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-1-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$(4a+b)+5(a+2b)=9a+11b$</p><p data-math-text>$9a+11b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $9$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $11$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(4a+b)+(a+2b)=9a+4b$</p><p data-math-text>$9a+4b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $9$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $4$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(4a+b)+2(a+2b)=10a+6b$</p><p data-math-text>$10a+6b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $10$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $6$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(4a+b)+3(a+2b)=11a+8b$</p><p data-math-text>$11a+8b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $11$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $8$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(4a+b)+4(a+2b)=12a+10b$</p><p data-math-text>$12a+10b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $12$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $10$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-2-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2(4a+b)+5(a+2b)=13a+12b$</p><p data-math-text>$13a+12b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $13$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $12$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(4a+b)+(a+2b)=13a+5b$</p><p data-math-text>$13a+5b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $13$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $5$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(4a+b)+2(a+2b)=14a+7b$</p><p data-math-text>$14a+7b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $14$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $7$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(4a+b)+3(a+2b)=15a+9b$</p><p data-math-text>$15a+9b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $15$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $9$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(4a+b)+4(a+2b)=16a+11b$</p><p data-math-text>$16a+11b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $16$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $11$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-3-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3(4a+b)+5(a+2b)=17a+13b$</p><p data-math-text>$17a+13b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $17$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $13$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(4a+b)+(a+2b)=17a+6b$</p><p data-math-text>$17a+6b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $17$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $6$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(4a+b)+2(a+2b)=18a+8b$</p><p data-math-text>$18a+8b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $18$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $8$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(4a+b)+3(a+2b)=19a+10b$</p><p data-math-text>$19a+10b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $19$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $10$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(4a+b)+4(a+2b)=20a+12b$</p><p data-math-text>$20a+12b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $20$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $12$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-4-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4(4a+b)+5(a+2b)=21a+14b$</p><p data-math-text>$21a+14b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $21$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $14$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(4a+b)+(a+2b)=21a+7b$</p><p data-math-text>$21a+7b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $21$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $7$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(4a+b)+2(a+2b)=22a+9b$</p><p data-math-text>$22a+9b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $22$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $9$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(4a+b)+3(a+2b)=23a+11b$</p><p data-math-text>$23a+11b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $23$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $11$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(4a+b)+4(a+2b)=24a+13b$</p><p data-math-text>$24a+13b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $24$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $13$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="express-attempt-5-5">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$5(4a+b)+5(a+2b)=25a+15b$</p><p data-math-text>$25a+15b\not\equiv 5a+3b$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $25$，与目标的 $5$ 不同。</p><p data-math-text>$b$ 的系数是 $15$，与目标的 $3$ 不同。</p><p>本步需要恒等表示，请调整不匹配的系数。</p></div></section>
+  </template>
+  <template id="degree-board">
+<div class="visual-board deg-board"><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">目标</span><span class="deg-expr" data-math-text>$x+y$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="0"></span></span></div><span class="deg-op" aria-hidden="true">×</span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 3</span><span class="deg-expr" data-math-text>$\dfrac1x+\dfrac1y$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="1"></span></span></div><span class="deg-op deg-op-equal" aria-hidden="true">=</span><div class="deg-factor deg-result"><span class="deg-label">相乘后</span><span data-degree-total></span></div></div></div>
+  </template>
+  <template id="homogeneity-done">
+<div class="visual-board deg-board completed-visual"><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">目标</span><span class="deg-expr" data-math-text>$x+y$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">+1</span></span></div><span class="deg-op" aria-hidden="true">×</span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 3</span><span class="deg-expr" data-math-text>$\dfrac1x+\dfrac1y$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">−1</span></span></div><span class="deg-op deg-op-equal" aria-hidden="true">=</span><div class="deg-factor deg-result"><span class="deg-label">相乘后</span><div class="deg-total"><span class="deg-total-value">0 次</span><span class="deg-total-sum" data-math-text>$(+1)+(-1)=0$</span></div></div></div></div><div class="reasoning"><span class="section-label">根据你的判断，整理思路</span><p data-math-text>目标为正一次，条件表达式为负一次，相乘可配成零次齐次式。</p><p data-math-text>$\frac1x+\frac1y=3$，所以 $\frac13\left(\frac1x+\frac1y\right)=1$，乘入它可以保持原式的值不变。</p></div>
+  </template>
+  <template id="rewrite-scope">
+<div class="visual-board rw-board"><span class="rw-caption">原式 · 点选要乘入的部分</span><div class="rw-source" role="group" aria-label="作用范围"><button type="button" class="rw-target rw-whole" data-rewrite-scope="whole"><span class="rw-legend">整个式子</span></button><div class="rw-terms"><button type="button" class="rw-target rw-term" data-rewrite-scope="first" aria-label="第一项 x"><span data-math-text>$x$</span></button><span class="rw-op">+</span><button type="button" class="rw-target rw-term" data-rewrite-scope="second" aria-label="第二项 y"><span data-math-text>$y$</span></button></div></div><span data-rewrite-result></span></div>
+  </template>
+  <template id="rewrite-whole">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$(x+y)$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-first">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$x$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span><span class="rw-op">+</span><span data-math-text>$y$</span></div>
+  </template>
+  <template id="rewrite-second">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span data-math-text>$x$</span><span class="rw-op">+</span><span class="rw-focus"><span data-math-text>$y$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-calculation-whole-1">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$(x+y)\cdot \left(\frac1x+\frac1y\right)$</p><p data-math-text>$=2+\frac yx+\frac xy$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>条件表达式等于 $3$，整体乘入后为 $3(x+y)$，是原式的 $3$ 倍，不等价。</p><p data-math-text>展开后的常数与比值项均为零次，但没有保持原式的值。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-whole-2">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$(x+y)\cdot 1$</p><p data-math-text>$=x+y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>乘入常数 $1$，改写前后值不变。</p><p data-math-text>仍为 $x+y$，两项都是正一次，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-first-0">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$x\cdot \frac13\left(\frac1x+\frac1y\right)+y$</p><p data-math-text>$=\frac13+\frac{x}{3y}+y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>乘入的表达式等于 $1$，改写前后值不变。</p><p data-math-text>常数与比值项是零次，未乘入的 $y$ 是正一次，整体不是零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-first-1">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$x\cdot \left(\frac1x+\frac1y\right)+y$</p><p data-math-text>$=1+\frac xy+y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>条件表达式等于 $3$，只乘第一项后为 $3x+y$，比原式多 $2x$，不等价。</p><p data-math-text>常数与比值项是零次，未乘入的 $y$ 是正一次，整体不是零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-first-2">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$x\cdot 1+y$</p><p data-math-text>$=x+y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>乘入常数 $1$，改写前后值不变。</p><p data-math-text>仍为 $x+y$，两项都是正一次，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-second-0">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$x+y\cdot \frac13\left(\frac1x+\frac1y\right)$</p><p data-math-text>$=x+\frac{y}{3x}+\frac13$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>乘入的表达式等于 $1$，改写前后值不变。</p><p data-math-text>常数与比值项是零次，未乘入的 $x$ 是正一次，整体不是零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-second-1">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$x+y\cdot \left(\frac1x+\frac1y\right)$</p><p data-math-text>$=x+\frac yx+1$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>条件表达式等于 $3$，只乘第二项后为 $x+3y$，比原式多 $2y$，不等价。</p><p data-math-text>常数与比值项是零次，未乘入的 $x$ 是正一次，整体不是零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-calculation-second-2">
+<section class="rewrite-calculation" aria-label="本次尝试的计算"><div class="rewrite-calculation-math"><p data-math-text>$x+y\cdot 1$</p><p data-math-text>$=x+y$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>乘入常数 $1$，改写前后值不变。</p><p data-math-text>仍为 $x+y$，两项都是正一次，尚未配成零次齐次式。</p></div></section>
+  </template>
+  <template id="rewrite-done">
+<div class="visual-board completed-visual"><div class="board-caption">乘入定值 1，配成零次齐次式</div><div class="rewrite-equation" data-math-text>${(x+y)\cdot\frac13\left(\frac1x+\frac1y\right)}$</div><div class="rewrite-equation"><span class="fill-group"><span data-math-text>$=\dfrac23$</span></span><span class="fill-group"><span data-math-text>${}+\dfrac13\Big($</span><span class="shape square expression-slot" data-math-text>$\frac{y}{x}$</span><span>+</span><span class="shape circle expression-slot" data-math-text>$\frac{x}{y}$</span><span data-math-text>$\Big)$</span></span></div></div><div class="reasoning"><span class="section-label">系统计算 · 展开整理</span><p data-math-text>${x+y=(x+y)\cdot\frac13\left(\frac1x+\frac1y\right)}$</p><p data-math-text>$=\frac13\left(1+\frac yx+\frac xy+1\right)$</p><p data-math-text>$=\frac23+\frac13\left(\frac yx+\frac xy\right)$</p></div>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span>= 1</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>$x>0,\ y>0\ \Longrightarrow\ \frac{y}{x}>0,\quad\frac{x}{y}>0$</p><p data-math-text>$\frac{y}{x}\cdot\frac{x}{y}=1$</p><p data-math-text>两项的积固定，要求和的最小值；原式是 $\frac23+\frac13(\cdots)$，系数 $\frac13$ 为正，和最小时原式也最小。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界，再代回原式</span><p data-math-text>$\frac{y}{x}+\frac{x}{y}\ge2\sqrt{\frac{y}{x}\cdot\frac{x}{y}}=2$</p><p data-math-text>$5a+3b=\frac23+\frac13\left(\frac yx+\frac xy\right)$</p><p data-math-text>$\ge\frac23+\frac23=\frac43$</p></div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 联立取等条件</span><p data-math-text>$\frac{y}{x}=\frac{x}{y}\ \Longrightarrow\ x^2=y^2$</p><p data-math-text>$x,y>0\ \Longrightarrow\ x=y$</p><p data-math-text>$x=y,\quad \frac1x+\frac1y=3\ \Longrightarrow\ x=y=\frac23$</p></div><div class="reasoning"><span class="section-label">系统计算 · 回代原变量并验证</span><p data-math-text>${4a+b=a+2b=\frac23}\ \Longrightarrow\ {b=3a,\ a=\frac2{21},\ b=\frac27}$</p><p data-math-text>$a=\frac2{21}>0,\ b=\frac27>0$，满足原条件。</p><p data-math-text>${5a+3b=\frac{10}{21}+\frac{18}{21}=\frac43}$</p><p data-math-text>由 $a=\frac{2x-y}7>0$、$b=\frac{4y-x}7>0$，$x,y$ 还需满足 $2x>y$、$4y>x$；取等点 $x=y$ 满足，所以下界能取到。</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$5a+3b$ 的最小值为 $\frac43$</h2><p data-math-text>当 $a=\frac2{21},\ b=\frac27$ 时取到。</p></section>
+  </template>
+</body>
+</html>

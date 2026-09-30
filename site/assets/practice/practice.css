@@ -600,6 +600,8 @@ button:disabled {
   line-height:1.3;
   white-space:nowrap;
 }
+.fill-formula { flex-wrap:wrap; row-gap:10px; }
+.fill-group { display:inline-flex; align-items:center; gap:inherit; }
 
 .shape {
   display:inline-grid;
@@ -1329,11 +1331,13 @@ button.shape[aria-expanded=true] {
     font-size:17px;
   }
   .actions {
-    gap:16px;
+    flex-wrap:wrap;
+    gap:8px 16px;
     margin-top:20px;
   }
   .primary {
-    flex:1;
+    flex:1 0 auto;
+    white-space:nowrap;
     padding:11px 14px;
     font-size:13px;
   }
@@ -1456,7 +1460,7 @@ button.shape[aria-expanded=true] {
 
 /* Expressions keep stable token values; labels may contain fractions or powers. */
 .shape.expression-slot { font-style:normal; }
-.shape.expression-slot .katex { font-size:.78em; }
+.shape.expression-slot .katex { font-size:.78em; white-space:nowrap; }
 .picker-options button:has(.katex) { min-height:56px; }
 .picker-options .katex { font-size:.9em; }
 .choice-preview p { margin:16px 0; }
@@ -1545,4 +1549,135 @@ button.shape[aria-expanded=true] {
 }
 @media(max-width:360px) {
   .sym-exprs { grid-template-columns:minmax(0,1fr); gap:10px; }
+}
+
+/* Identify degrees before applying a scoped, authored rewrite. */
+.degree-total { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin:16px 0; color:var(--teal); }
+
+/* Degree check laid out as target × condition = product; each column is label / expression / degree. */
+.deg-board { padding:22px 18px 18px; }
+.deg-equation { display:flex; justify-content:center; align-items:flex-start; gap:8px 12px; }
+.deg-split { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:4px 6px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px dashed #cfe1dc; font-size:16px; color:var(--ink); }
+.deg-split-label { font-size:12px; color:#70857d; }
+.deg-factor { display:flex; flex:1 1 0; flex-direction:column; align-items:center; gap:8px; min-width:0; }
+.deg-label { height:20px; font-size:12px; line-height:20px; color:#70857d; white-space:nowrap; }
+.deg-target .deg-label { color:#0a8197; }
+.deg-condition .deg-label { color:#b0730c; }
+.deg-expr, .deg-total-value { display:flex; align-items:center; justify-content:center; height:72px; font-size:24px; white-space:nowrap; }
+.deg-degree, .deg-total-sum { display:flex; align-items:center; justify-content:center; gap:8px; height:46px; white-space:nowrap; }
+.deg-degree-label { font-size:12px; color:#8a9b95; }
+.deg-op { display:flex; align-items:center; height:72px; margin-top:28px; color:var(--teal); font-size:22px; }
+.deg-total { display:contents; }
+.deg-total-value { color:var(--teal); font-size:26px; font-weight:600; }
+.deg-total-value.pending { color:#a9b8b3; font-weight:400; }
+.deg-total-sum { color:#5f736d; font-size:14px; }
+.deg-board .shape, .deg-board .shape.expression-slot { height:44px; font-size:20px; }
+.deg-board .shape:not(.expression-slot) { width:44px; }
+.deg-badge { display:inline-grid; place-items:center; min-width:44px; height:36px; padding:0 10px; border:2px solid var(--cyan); border-radius:9px; background:#f8fdfe; color:#244f54; font-size:16px; font-weight:600; }
+.deg-condition .deg-badge { border-color:var(--orange); border-radius:999px; background:#fffcf5; color:#67502a; }
+.deg-sep { align-self:stretch; margin:0 6px; border-left:1px dashed #cfe1dc; }
+.rewrite-scopes { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0; }
+.rewrite-scopes button { flex:1 1 120px; padding:12px; min-height:48px; border:1px solid var(--line); border-radius:10px; background:var(--paper); color:var(--ink); }
+.rewrite-scopes button[aria-pressed="true"] { border-color:var(--teal); color:var(--teal); background:#eaf6f2; }
+.rewrite-equation, .rewrite-result, .rewrite-focus { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:12px; }
+.rewrite-equation { margin:18px 0; font-size:24px; }
+.rewrite-focus { padding:10px; border:1px dashed #8bbfb7; border-radius:12px; }
+.rewrite-equation > [data-math-text] { max-width:100%; overflow-x:auto; }
+/* Pieces laid out between slots are short; tall delimiters would otherwise trigger a scrollbar. */
+.rewrite-equation:has(> .shape) > [data-math-text]:not(.shape) { overflow:visible; }
+
+/* Rewrite: the source expression is the scope picker; the chosen part is rewritten on the next line. */
+.rw-board { display:flex; flex-direction:column; align-items:center; gap:12px; padding:20px 18px 22px; }
+.rw-caption { font-size:12px; color:#70857d; }
+.rw-source { position:relative; display:inline-flex; margin-top:10px; padding:24px 22px 18px; }
+.rw-target { font:inherit; color:inherit; background:none; cursor:pointer; }
+/* The whole-scope button fills the frame beneath the term buttons: clicks on the frame's gaps select the whole. */
+.rw-whole { position:absolute; inset:0; z-index:0; padding:0; border:1.5px dashed #b9d3cc; border-radius:18px; transition:border-color .15s, background .15s; }
+.rw-legend { position:absolute; top:0; left:50%; transform:translate(-50%,-50%); padding:2px 12px; border:1px solid #cfe1dc; border-radius:999px; background:#fff; color:#6f8680; font-size:12px; line-height:1.5; white-space:nowrap; transition:background .15s, color .15s, border-color .15s; }
+.rw-whole:hover { border-color:var(--teal); background:rgba(255,255,255,.55); }
+.rw-whole:hover .rw-legend { border-color:var(--teal); color:var(--teal); }
+.rw-whole[aria-pressed="true"] { border-style:solid; border-color:var(--teal); background:#eaf6f2; }
+.rw-whole[aria-pressed="true"] .rw-legend { border-color:var(--teal); background:var(--teal); color:#fff; font-weight:600; }
+.rw-terms { position:relative; z-index:1; display:flex; align-items:center; justify-content:center; gap:10px; font-size:24px; pointer-events:none; }
+.rw-term { padding:6px 12px; border:1.5px dashed #b9d3cc; border-radius:12px; pointer-events:auto; transition:border-color .15s, background .15s; }
+.rw-term:hover { border-color:var(--teal); background:#fff; }
+.rw-term[aria-pressed="true"] { border-style:solid; border-color:var(--teal); background:#eaf6f2; }
+.rw-source:has(.rw-whole[aria-pressed="true"]) .rw-term:not(:hover) { border-color:transparent; }
+.rw-op, .rw-eq, .rw-times { font-family:KaTeX_Main,"Times New Roman",serif; }
+.rw-eq, .rw-times { color:var(--teal); }
+.rw-preview-label { flex-basis:100%; text-align:center; font-size:13px; color:var(--muted); }
+.rewrite-calculation { margin-top:24px; border-top:1px solid var(--line); padding-top:20px; }
+.rewrite-calculation-math { padding:16px 20px; border-radius:12px; background:var(--page); }
+.rewrite-calculation-math p { margin:10px 0; overflow-x:auto; padding:4px 0; }
+.rewrite-calculation-feedback { margin-top:12px; color:var(--muted); font-size:15px; line-height:1.7; }
+.rewrite-calculation-feedback p { margin:4px 0; }
+.rw-result { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px; min-height:64px; font-size:22px; }
+.rw-focus { display:inline-flex; align-items:center; gap:10px; padding:6px 10px; border:1.5px dashed #8bbfb7; border-radius:12px; background:#fff; }
+.rw-placeholder { padding:10px 16px; border:1.5px dashed #cfe1dc; border-radius:12px; color:#9aaba6; font-size:14px; }
+/* Authored fraction, so a part inside a numerator or denominator (e.g. the 1 in 1/x) can be its own target. */
+.rw-frac { display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; line-height:1.2; }
+.rw-frac > :first-child { margin-bottom:3px; }
+.rw-frac > :last-child { align-self:stretch; padding:3px 4px 0; border-top:1.5px solid currentColor; text-align:center; }
+/* Substitution: click a part of the target to name it; the authored table below translates condition, range and target. */
+.sub-board { display:flex; flex-direction:column; align-items:center; gap:12px; padding:20px 18px 22px; }
+.sub-caption { font-size:12px; color:#70857d; }
+.sub-source { display:inline-flex; align-items:center; gap:12px; padding:4px 12px 30px; font-family:KaTeX_Main,"Times New Roman",serif; font-size:26px; line-height:1.2; }
+.sub-source var { font-family:KaTeX_Math,"Times New Roman",serif; font-style:italic; }
+.sub-frac { display:inline-flex; flex-direction:column; align-items:center; }
+.sub-frac > :first-child { margin-bottom:4px; }
+.sub-frac > :last-child { align-self:stretch; display:flex; justify-content:center; padding:5px 2px 0; border-top:1.5px solid currentColor; }
+/* The frame button lies beneath the parts it contains, so a click on its gaps selects the whole chunk. */
+.sub-chunk { position:relative; display:inline-flex; padding:4px 9px; }
+.sub-frame, .sub-leaf { font:inherit; color:inherit; cursor:pointer; transition:border-color .15s, background .15s; }
+.sub-frame { position:absolute; inset:0; z-index:0; padding:0; border:1.5px dashed #b9d3cc; border-radius:10px; background:none; }
+.sub-inner { position:relative; z-index:1; display:inline-flex; align-items:baseline; pointer-events:none; }
+.sub-leaf { position:relative; padding:0 3px; border:1.5px dashed #cfdfda; border-radius:7px; background:none; pointer-events:auto; }
+.sub-bin { margin:0 .22em; }
+.sub-rest .sub-bin { margin:0 .16em 0 .12em; }
+.sub-frame:hover, .sub-leaf:hover { border-color:var(--teal); background:rgba(255,255,255,.7); }
+.sub-frame[aria-pressed="true"], .sub-leaf[aria-pressed="true"] { border-style:solid; border-color:var(--teal); background:#eaf6f2; }
+.sub-chunk:has(.sub-frame[aria-pressed="true"]) .sub-leaf:not(:hover) { border-color:transparent; }
+.sub-tag { position:absolute; top:calc(100% + 7px); left:50%; transform:translateX(-50%); min-width:26px; padding:0 8px; border-radius:999px; background:var(--teal); color:#fff; font:italic 17px/24px KaTeX_Math,"Times New Roman",serif; text-align:center; pointer-events:none; }
+.sub-tag::before { content:''; position:absolute; bottom:100%; left:50%; width:1.5px; height:7px; background:var(--teal); }
+.sub-pending { margin:0; padding:10px 16px; border:1.5px dashed #cfe1dc; border-radius:12px; color:#9aaba6; font-size:14px; }
+.sub-table { display:grid; grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr); align-items:center; gap:10px 14px; width:100%; max-width:520px; padding:14px 18px 16px; border:1px solid #dbe9e4; border-radius:14px; background:#fff; }
+.sub-head, .sub-row { display:contents; }
+.sub-def { grid-column:1 / -1; justify-self:center; padding:3px 14px; border-radius:999px; background:#eaf6f2; color:var(--teal); font-size:15px; }
+.sub-head > span { font-size:12px; color:#8a9b95; text-align:center; }
+.sub-label { font-size:12px; color:#70857d; white-space:nowrap; }
+.sub-row > [data-math-text] { font-size:19px; text-align:center; white-space:nowrap; }
+.sub-arrow { color:var(--teal); font-size:22px; line-height:1; text-align:center; }
+@media(max-width:600px) {
+  .sub-board { padding:16px 12px 18px; }
+  .sub-source { gap:8px; padding:4px 6px 28px; font-size:22px; }
+  .sub-table { grid-template-columns:auto auto auto; justify-content:center; gap:4px 8px; padding:12px 10px 14px; }
+  .sub-head > :first-child { display:none; }
+  .sub-label { grid-column:1 / -1; margin-top:6px; padding-top:6px; border-top:1px dashed #e1ece8; font-size:11px; }
+  .sub-row > [data-math-text] { font-size:16px; }
+  .sub-arrow { font-size:18px; }
+}
+@media(max-width:380px) {
+  .sub-board { padding:14px 8px 16px; }
+  .sub-table { gap:4px 6px; padding:10px 6px 12px; }
+  .sub-row > [data-math-text] { font-size:13px; }
+}
+@media(max-width:600px) {
+  .deg-board { padding:16px 12px 14px; }
+  .deg-equation { flex-wrap:wrap; }
+  .deg-expr { height:60px; font-size:19px; }
+  .deg-op { height:60px; font-size:20px; }
+  .deg-op-equal { display:none; }
+  .deg-result { flex:1 0 100%; flex-direction:row; flex-wrap:wrap; justify-content:center; gap:4px 12px; margin-top:6px; padding-top:12px; border-top:1px dashed #cfe1dc; }
+  .deg-result .deg-label, .deg-result .deg-total-value, .deg-result .deg-total-sum { height:auto; }
+  .deg-result .deg-total-value { font-size:22px; }
+  .deg-sep { display:none; }
+  .deg-board-terms .deg-condition { flex:1 0 100%; margin-top:6px; padding-top:12px; border-top:1px dashed #cfe1dc; }
+  .rewrite-equation { font-size:18px; gap:8px; }
+  .rw-board { padding:16px 12px 18px; }
+  .rw-source { padding:22px 14px 14px; }
+  .rw-terms { gap:8px; font-size:20px; }
+  .rw-term { padding:5px 10px; }
+  .rw-result { gap:8px; font-size:19px; }
+  .rw-focus { gap:8px; padding:4px 8px; }
+  .rewrite-focus, .rewrite-result { gap:8px; }
 }

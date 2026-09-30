@@ -4,9 +4,8 @@
   const escape = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[char]));
   const radical = content => `<span class="radical"><span class="root-sign">√</span><span class="radicand">${content}</span></span>`;
   const hintIcon = '<svg class="hint-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6m-5 3h4M9 15c0-2-3-3-3-7a6 6 0 0 1 12 0c0 4-3 5-3 7v1H9Z"/></svg>';
-  function slot({stage, index, value, label, title, occurrence = ''}) {
-    const shape = index === 0 ? 'square' : 'circle';
-    const name = index === 0 ? '方框' : '圆圈';
+  function slot({stage, index, value, label, title, occurrence = '', shape = index === 0 ? 'square' : 'circle'}) {
+    const name = shape === 'square' ? '方框' : '圆圈';
     return `<button type="button" class="shape ${shape} ${label ? 'expression-slot' : ''} ${value ? '' : 'empty'}" data-stage="${stage}" data-slot="${index}" data-occurrence="${escape(occurrence)}" aria-haspopup="dialog" aria-expanded="false" aria-label="${escape(title)}：${escape(occurrence)}${name}，${escape(value || '未填写')}"><span data-math-text>${escape(label || value || '?')}</span></button>`;
   }
   function choices(component, selected, title) {
@@ -44,8 +43,48 @@
     if (inline !== board) return inline;
     return board + `<div class="symmetry-judgments">${slotLabels.map((label, index) => `<div class="symmetry-judgment"><span>${escape(label)}交换后</span>${options(index)}</div>`).join('')}</div>`;
   }
-  function substitution({slot, slotLabels}) {
+  function substitution({component, pair, board, scopeBoard, slot, slotLabels}) {
+    if (scopeBoard) {
+      // New variables are named by position in the target expression, not by click order.
+      const chosen = pair[0] ? pair[0].split('|') : [];
+      const at = value => scopeBoard.indexOf(`data-sub-target="${escape(value)}"`);
+      const names = new Map([...chosen].sort((a, b) => at(a) - at(b)).map((value, i) => [escape(value), component.slots[0].names[i]]));
+      const targets = scopeBoard.replace(/<button([^>]*?) data-sub-target="([^"]+)"([^>]*)>/g, (_, before, value, after) =>
+        `<button${before} data-sub-target="${value}"${after} aria-pressed="${names.has(value)}">${names.has(value) ? `<span class="sub-tag" aria-hidden="true">${escape(names.get(value))}</span>` : ''}`);
+      return targets.replace(/<span data-sub-result(?:="")?><\/span>/, board || `<p class="sub-pending">${chosen.length ? '确认后看看这样换元是否合适' : '先在上面的表达式里点选要看成整体的部分'}</p>`);
+    }
     return `<div class="visual-board"><div class="board-caption">用和与积定义新变量</div><div class="substitution-definitions">${slotLabels.map((label, index) => `<div class="formula"><span data-math-text>$${escape(label)}$</span><span>=</span>${slot(index, `${label} 对应的`)}</div>`).join('')}</div></div>`;
+  }
+  function homogeneity({component, board, slot, pair}) {
+    const degrees = board.replace(/<span data-degree="(\d)"><\/span>/g, (_, index) => slot(Number(index)));
+    // Degrees of added terms are compared, not summed; only a two-slot product shows a total.
+    if ((component.slot_labels?.length ?? 2) !== 2) return degrees;
+    const ready = pair[0] && pair[1];
+    const sum = ready ? Number(pair[0]) + Number(pair[1]) : null;
+    const signed = value => value > 0 ? `+${value}` : `${value}`;
+    const marker = /<span data-degree-total(?:="")?><\/span>/;
+    if (marker.test(degrees)) {
+      const part = value => value ? `(${signed(Number(value))})` : '(?)';
+      const formula = `$${part(pair[0])}+${part(pair[1])}=${ready ? signed(sum) : '?'}$`;
+      return degrees.replace(marker, `<div class="deg-total" aria-live="polite"><span class="deg-total-value${ready ? '' : ' pending'}">${ready ? signed(sum).replace('-', '−') : '?'} 次</span><span class="deg-total-sum" data-math-text>${escape(formula)}</span></div>`);
+    }
+    return degrees + `<div class="degree-total" aria-live="polite"><span>相乘后的次数</span><span>${escape(pair[0] || '?')} + (${escape(pair[1] || '?')}) = ${ready ? sum : '?'}</span></div>`;
+  }
+  function fill({board, slot, slotLabels = []}) {
+    const inline = board.replace(/<span data-fill="(\d+)"><\/span>/g, (_, index) => slot(Number(index)));
+    if (inline !== board) return inline;
+    return board + `<div class="visual-board"><div class="formula">${slotLabels.map((_, index) => slot(index)).join('')}</div></div>`;
+  }
+  function rewrite({component, pair, board, scopeBoard, slot}) {
+    const scopes = component.slots[0];
+    const factor = board ? board.replace(/<span data-rewrite-factor(?:="")?><\/span>/g, slot(1)) : '';
+    // The expression board marks each selectable part with data-rewrite-scope: the whole, one term, or a single constant.
+    if (scopeBoard) {
+      const targets = scopeBoard.replace(/<button([^>]*?) data-rewrite-scope="([^"]+)"/g, (_, attrs, value) => `<button${attrs} data-pair-answer="0" data-value="${escape(value)}" aria-pressed="${pair[0] === value}"`);
+      return targets.replace(/<span data-rewrite-result(?:="")?><\/span>/, factor || '<div class="rw-result rw-pending"><span class="rw-placeholder">先在上面的式子里点选要乘入的部分</span></div>');
+    }
+    return `<div class="rewrite-scopes" role="group" aria-label="${escape(scopes.label)}">${scopes.options.map(({value, label}) => `<button type="button" data-pair-answer="0" data-value="${escape(value)}" aria-pressed="${pair[0] === value}"><span data-math-text>${escape(label)}</span></button>`).join('')}</div>` +
+      (factor || '<p class="calculation-note">选定作用范围后，补全乘入的表达式。</p>');
   }
   // Read-only quadratic in vertex form: coefficient * (x - h)^2 + k.
   // Bounds are the visible window; domain (when supplied) limits the actual curve.
@@ -83,5 +122,5 @@
       </g>
     </svg>`;
   }
-  window.PracticeComponents = {slot, choices, controls, structure, amgm, completedAmgm, equality, symmetry, substitution, quadraticGraph, radical, hintIcon};
+  window.PracticeComponents = {slot, choices, controls, structure, amgm, completedAmgm, equality, symmetry, substitution, homogeneity, fill, rewrite, quadraticGraph, radical, hintIcon};
 })();

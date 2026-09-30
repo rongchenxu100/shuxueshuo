@@ -1,0 +1,306 @@
+{
+  "id": "q19",
+  "version": 1,
+  "problem": {
+    "statement": "已知 $a>0,\\ b>0$，$9a+b=ab$，则 $a+4b$ 的最小值为？",
+    "conditions": [
+      "a>0",
+      "b>0",
+      "9a+b=ab"
+    ],
+    "target": "min(a+4b)"
+  },
+  "methods": [
+    {
+      "id": "elimination",
+      "label": "消参法"
+    }
+  ],
+  "routes": {
+    "elimination": {
+      "label": "消参法",
+      "nodes": [
+        {
+          "id": "eliminate",
+          "title": "消参",
+          "question": "由条件用 $a$ 表示 $b$，应该是哪一个？",
+          "interaction": {
+            "type": "choice",
+            "field": "eliminate_form",
+            "options": [
+              {
+                "value": "correct",
+                "label": "$b=\\frac{9a}{a-1}$"
+              },
+              {
+                "value": "wrong_sign",
+                "label": "$b=\\frac{9a}{a+1}$"
+              },
+              {
+                "value": "flipped",
+                "label": "$b=\\frac{a-1}{9a}$"
+              }
+            ],
+            "description": "correct由ab-b=9a得b(a-1)=9a再除以a-1；wrong_sign把b移项时未变号；flipped除反，得到的是1/b。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "correct"
+            ]
+          },
+          "feedback": {
+            "answer": "把含 $b$ 的项移到同一边：$ab-b=9a$，提出 $b$ 后再除。"
+          },
+          "required_evidence": [
+            "eliminate_expression"
+          ],
+          "criteria": "学生要用a表示b：接受b=9a/(a-1)，或b(a-1)=9a并说明除以a-1。只说消参（也叫条件消元、消元）而没有表达式不足。b=9a/(a+1)是移项未变号；b=(a-1)/(9a)除反；这些不是本步证据。a=1时条件为9+b=b不成立，所以a≠1；范围a>1与代入后的a+36a/(a-1)由系统补出，不要求学生写出，但学生直接除以a-1时可提醒依据。本页固定消b：条件中a、b都是一次，消哪个都可以。题目给出a、b为正数；由b=9a/(a-1)>0且a>0得a-1>0，即a>1，所以a-1与36/(a-1)都为正。学生若提出其他成立的思路，认可并说明当前页面只提供消b这一条消参路线：消a得a=b/(b-9)（b>9），a+4b=4(b-9)+9/(b-9)+37≥49；乘1法：条件两边除以ab得1/a+9/b=1，(a+4b)(1/a+9/b)=37+4b/a+9a/b≥49；配因式：(a-1)(b-9)=9，a+4b=(a-1)+4(b-9)+37，(a-1)·4(b-9)=36为定积。直接用a+4b≥2√(4ab)，ab不固定，不能得出最小值。",
+          "completion_reply": "消参正确。$b(a-1)=9a$，所以 $b=\\frac{9a}{a-1}$；由 $a,b>0$ 得 $a>1$，目标化为 $a+\\frac{36a}{a-1}$。",
+          "results": [
+            "b(a-1)=9a",
+            "b=9a/(a-1)",
+            "a>0,b>0 ⇒ a-1>0 ⇒ a>1",
+            "a+4b=a+36a/(a-1)"
+          ]
+        },
+        {
+          "id": "split",
+          "title": "分式分离",
+          "question": "把分子 $36a$ 用分母 $a-1$ 表示，方框和圆圈各填什么？",
+          "interaction": {
+            "type": "fill",
+            "terms": [
+              "-36",
+              "9",
+              "35",
+              "36",
+              "37"
+            ],
+            "term_labels": {
+              "-36": "$-36$",
+              "9": "$9$",
+              "35": "$35$",
+              "36": "$36$",
+              "37": "$37$"
+            },
+            "slot_labels": [
+              "分母的倍数",
+              "余下的常数"
+            ],
+            "slot_shapes": [
+              "square",
+              "circle"
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "36",
+              "36"
+            ]
+          },
+          "feedback": {
+            "terms": "按你填入的数展开，分别核对 $a$ 的系数与常数项，是否恒等于 $36a$。"
+          },
+          "required_evidence": [
+            "denominator_multiple",
+            "remainder_constant"
+          ],
+          "criteria": "意图先于数值判定：学生引用自己的槽位值并问哪里错、要求按实际填写展开、说明不要替我改时，是提问（intent=question），evidence为空，不将其中的正确倍数记成新作答证据，也不修改槽位。应先按current_inputs展开，例如36和-36得到36(a-1)-36=36a-72，指出系数正确、常数未抵消。只有学生主动确认某个答案（如“倍数是36，常数还没确定”）才记录相应证据。学生要把36a写成36(a-1)+36。倍数36是denominator_multiple，常数36是remainder_constant，可分轮积累；直接给出36a/(a-1)=36+36/(a-1)两项齐全。只有倍数正确则只记该证据，常数由学生补充；逐项除以分母是系统计算。当前槽位值见current_inputs，严禁借用expected_answer替换学生的选择。倍数9是漏乘4（把4b代成9a/(a-1)）；常数-36是把36(a-1)展开后的-36当成余数；35、37是常数算错；恒等改写需要系数和常数都匹配。本步不要求凑配或判断和积结构。题目给出a、b为正数；由b=9a/(a-1)>0且a>0得a-1>0，即a>1，所以a-1与36/(a-1)都为正。学生若提出其他成立的思路，认可并说明当前页面只提供消b这一条消参路线：消a得a=b/(b-9)（b>9），a+4b=4(b-9)+9/(b-9)+37≥49；乘1法：条件两边除以ab得1/a+9/b=1，(a+4b)(1/a+9/b)=37+4b/a+9a/b≥49；配因式：(a-1)(b-9)=9，a+4b=(a-1)+4(b-9)+37，(a-1)·4(b-9)=36为定积。直接用a+4b≥2√(4ab)，ab不固定，不能得出最小值。",
+          "completion_reply": "分离正确。$36a=36(a-1)+36$，所以 $\\frac{36a}{a-1}=36+\\frac{36}{a-1}$，$a+4b=a+\\frac{36}{a-1}+36$。",
+          "results": [
+            "36a=36(a-1)+36",
+            "36a/(a-1)=36+36/(a-1)",
+            "a+4b=a+36/(a-1)+36"
+          ]
+        },
+        {
+          "id": "rewrite",
+          "title": "凑配表达式",
+          "question": "怎样改写 $a+\\frac{36}{a-1}+36$，让其中两个正项的积固定？",
+          "interaction": {
+            "type": "choice",
+            "field": "rewrite_form",
+            "options": [
+              {
+                "value": "fixed_product",
+                "label": "$(a-1)+\\frac{36}{a-1}+37$"
+              },
+              {
+                "value": "unchanged",
+                "label": "$a+\\frac{36}{a-1}+36$"
+              },
+              {
+                "value": "wrong_constant",
+                "label": "$(a-1)+\\frac{36}{a-1}+36$"
+              }
+            ],
+            "description": "fixed_product把a写成(a-1)+1并调整常数；unchanged未凑配，a与36/(a-1)积不固定；wrong_constant凑出a-1后常数未调整。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "fixed_product"
+            ]
+          },
+          "feedback": {
+            "answer": "要让积固定，$\\frac{36}{a-1}$ 需要和 $a-1$ 配对：$a=(a-1)+1$，常数随之变为 $36+1=37$。"
+          },
+          "required_evidence": [
+            "fixed_product_rewrite"
+          ],
+          "criteria": "本步只要求等价凑配，不要连过观察结构节点。接受a+4b=(a-1)+36/(a-1)+37；或说明a=(a-1)+1且常数37；或令t=a-1，写出t+36/t+37。以上满足fixed_product_rewrite。只说方法、a>1或最小值49不足。常数36是凑出a-1后常数未调整，不等价。学生问能否直接对a和36/(a-1)应用基本不等式：运算成立，但右侧2√(36a/(a-1))随a变化，这一步尚未证明本题的最优下界，需要继续变形。题目给出a、b为正数；由b=9a/(a-1)>0且a>0得a-1>0，即a>1，所以a-1与36/(a-1)都为正。学生若提出其他成立的思路，认可并说明当前页面只提供消b这一条消参路线：消a得a=b/(b-9)（b>9），a+4b=4(b-9)+9/(b-9)+37≥49；乘1法：条件两边除以ab得1/a+9/b=1，(a+4b)(1/a+9/b)=37+4b/a+9a/b≥49；配因式：(a-1)(b-9)=9，a+4b=(a-1)+4(b-9)+37，(a-1)·4(b-9)=36为定积。直接用a+4b≥2√(4ab)，ab不固定，不能得出最小值。",
+          "completion_reply": "改写正确。$a=(a-1)+1$，所以 $a+4b=(a-1)+\\frac{36}{a-1}+37$，两项的积固定。",
+          "results": [
+            "a=(a-1)+1",
+            "a+4b=(a-1)+36/(a-1)+37"
+          ]
+        },
+        {
+          "id": "structure",
+          "title": "观察和积结构",
+          "question": "这两项是定和求积，还是定积求和？",
+          "interaction": {
+            "type": "structure",
+            "terms": [
+              "a-1",
+              "36/(a-1)"
+            ],
+            "term_labels": {
+              "a-1": "$a-1$",
+              "36/(a-1)": "$\\frac{36}{a-1}$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "a-1",
+              "36/(a-1)"
+            ],
+            "fixed": "product",
+            "target": "sum"
+          },
+          "feedback": {
+            "terms": "请核对改写后含 $a$ 的两个正项；常数 $37$ 不参与。",
+            "structure": "两项的积固定为 $36$，要求它们和的最小值。"
+          },
+          "required_evidence": [
+            "fixed_product_structure"
+          ],
+          "criteria": "学生需识别a-1与36/(a-1)定积求和，常数37不参与基本不等式。前一步已给出改写，简答定积求和可以通过，积36由系统计算。只说乘积为36未表达求和，可引导目标。把a与36/(a-1)当作两项不通过，它们的积不固定。定和求积不通过，老师不能自动改正后计为学生证据。题目给出a、b为正数；由b=9a/(a-1)>0且a>0得a-1>0，即a>1，所以a-1与36/(a-1)都为正。",
+          "completion_reply": "判断正确。$a-1$ 与 $\\frac{36}{a-1}$ 的积为 $36$，这是定积求和；常数 $37$ 最后再加。",
+          "results": [
+            "a>1 ⇒ a-1>0,36/(a-1)>0",
+            "(a-1)·36/(a-1)=36",
+            "定积求和，常数37不参与"
+          ]
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对这两个正项应用基本不等式，能得到什么关系？",
+          "interaction": {
+            "type": "amgm",
+            "terms": [
+              "a-1",
+              "36/(a-1)"
+            ],
+            "term_labels": {
+              "a-1": "$a-1$",
+              "36/(a-1)": "$\\frac{36}{a-1}$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "a-1",
+              "36/(a-1)"
+            ]
+          },
+          "feedback": {
+            "terms": "请核对改写后含 $a$ 的两个正项；常数 $37$ 最后再加。"
+          },
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "接受(a-1)+36/(a-1)≥2√36=12，或明确这两项和≥12，或a+4b≥49。学生只猜49而没有基本不等式关系不足。系统计算根号。漏加37写成最小值12、或误算成≥2√36=6应纠正。此时只证明下界，不先认定可取到，不追问下一步骤。",
+          "completion_reply": "关系正确。$(a-1)+\\frac{36}{a-1}\\ge12$，所以 $a+4b\\ge49$。",
+          "results": [
+            "(a-1)+36/(a-1)≥2√36=12",
+            "a+4b≥12+37=49"
+          ]
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，这个下界可以取到？",
+          "interaction": {
+            "type": "equality",
+            "terms": [
+              "a-1",
+              "36/(a-1)"
+            ],
+            "term_labels": {
+              "a-1": "$a-1$",
+              "36/(a-1)": "$\\frac{36}{a-1}$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "a-1",
+              "36/(a-1)"
+            ]
+          },
+          "feedback": {
+            "terms": "取等要求应用基本不等式的两个正项相等。"
+          },
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "接受a-1=36/(a-1)、(a-1)²=36、a-1=6、a=7，或a=7且b=21/2。系统完成解方程、检查a=7满足a>1、求出b=21/2并验证原条件。a-1=-6即a=-5不满足a>1，不能接受。只猜49、只说两数为正或提问为什么相等不足。",
+          "completion_reply": "取等条件正确。$(a-1)^2=36$，结合 $a>1$ 得 $a=7$，此时 $b=\\frac{21}2$，$a+4b=49$。",
+          "results": [
+            "a-1=36/(a-1) ⇒ (a-1)²=36",
+            "a>1 ⇒ a-1=6 ⇒ a=7",
+            "b=63/6=21/2",
+            "9·7+21/2=147/2=7·21/2",
+            "a+4b=7+42=49，最小值49"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {
+      "eliminate_form": null,
+      "rewrite_form": null
+    },
+    "feedback": "",
+    "hint": false
+  }
+}

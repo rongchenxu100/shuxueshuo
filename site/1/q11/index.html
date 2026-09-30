@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q11 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q11</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知 $a>0,\ b>0$，且 $a+b=2$，求 $\frac2{a+1}+\frac4b$ 的最小值。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$a>0,\quad b>0,\quad a+b=2$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$\left(\frac2{a+1}+\frac4b\right)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：换元</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q11",
+  "version": 1,
+  "variables": [
+    "a",
+    "b"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "substitution",
+      "label": "换元法"
+    }
+  ],
+  "routes": {
+    "substitution": [
+      {
+        "id": "substitution",
+        "title": "换元",
+        "question": "目标中哪一部分适合看成一个整体，换成新变量？",
+        "interaction": {
+          "type": "substitution",
+          "slots": [
+            {
+              "label": "换元对象",
+              "names": [
+                "t"
+              ],
+              "options": [
+                {
+                  "value": "a+1",
+                  "label": "$a+1$"
+                },
+                {
+                  "value": "a",
+                  "label": "$a$"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "a+1"
+          ]
+        },
+        "feedback": {
+          "terms": "只把 $a$ 换成 $t$，分母仍是 $t+1$，只是换了个名字。把 $a+1$ 看成整体，新目标的两个分母 $t$、$b$ 正好是新条件 $t+b=3$ 中的两个量。"
+        },
+        "display": "substitution-done",
+        "submit_label": "确认换元",
+        "board": "substitution-board",
+        "scope_boards": {
+          "a+1": "substitution-shift",
+          "a": "substitution-rename"
+        }
+      },
+      {
+        "id": "homogeneity",
+        "title": "识别齐次结构",
+        "question": "目标表达式与条件表达式分别是几次？相乘后能配成零次齐次式吗？",
+        "interaction": {
+          "type": "homogeneity",
+          "terms": [
+            "-1",
+            "0",
+            "1"
+          ],
+          "term_labels": {
+            "-1": "$-1$",
+            "0": "$0$",
+            "1": "$+1$"
+          },
+          "slot_labels": [
+            "目标表达式的次数",
+            "条件表达式的次数"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "-1",
+            "1"
+          ]
+        },
+        "feedback": {
+          "terms": "判断次数时，先看每一项中变量的指数，数字系数不计入次数。$\\frac2t=2t^{-1}$、$\\frac4b=4b^{-1}$，目标是负一次；$t$、$b$ 的指数都是 $1$，条件表达式 $t+b$ 是正一次。只有相乘时才把次数相加。"
+        },
+        "display": "homogeneity-done",
+        "submit_label": "确认结构",
+        "board": "degree-board"
+      },
+      {
+        "id": "rewrite",
+        "title": "配齐次式",
+        "question": "对原式的哪一部分乘入什么表达式，才能保持值不变并配成零次齐次式？",
+        "interaction": {
+          "type": "rewrite",
+          "slots": [
+            {
+              "label": "作用范围",
+              "options": [
+                {
+                  "value": "whole",
+                  "label": "整个式子"
+                },
+                {
+                  "value": "first",
+                  "label": "第一项 $\\frac2t$"
+                },
+                {
+                  "value": "second",
+                  "label": "第二项 $\\frac4b$"
+                }
+              ]
+            },
+            {
+              "label": "乘入的表达式",
+              "options": [
+                {
+                  "value": "(t+b)/3",
+                  "label": "$\\frac{t+b}3$"
+                },
+                {
+                  "value": "t+b",
+                  "label": "$t+b$"
+                },
+                {
+                  "value": "1",
+                  "label": "$1$"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "whole",
+            "(t+b)/3"
+          ]
+        },
+        "feedback": {
+          "terms": "要同时满足“值不变”和“整体变成零次”。条件是 $t+b=3$，等于 $1$ 的正一次表达式是 $\\frac{t+b}3$；两项都是负一次，需要乘给整个式子。"
+        },
+        "display": "rewrite-done",
+        "submit_label": "确认配式",
+        "board": "rewrite-scope",
+        "scope_boards": {
+          "whole": "rewrite-whole",
+          "first": "rewrite-first",
+          "second": "rewrite-second"
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "2b/t",
+            "4t/b"
+          ],
+          "term_labels": {
+            "2b/t": "$\\frac{2b}{t}$",
+            "4t/b": "$\\frac{4t}{b}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "2b/t",
+            "4t/b"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对展开后的两个比值项。",
+          "structure": "两项的积固定为 $8$，要求它们和的最小值。"
+        },
+        "display": "structure-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "2b/t",
+            "4t/b"
+          ],
+          "term_labels": {
+            "2b/t": "$\\frac{2b}{t}$",
+            "4t/b": "$\\frac{4t}{b}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "2b/t",
+            "4t/b"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对展开后的两个正项。"
+        },
+        "display": "amgm-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "2b/t",
+            "4t/b"
+          ],
+          "term_labels": {
+            "2b/t": "$\\frac{2b}{t}$",
+            "4t/b": "$\\frac{4t}{b}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "2b/t",
+            "4t/b"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两个比值项相等。"
+        },
+        "display": "equality-done",
+        "submit_label": "确认判断"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="substitution-board">
+<div class="visual-board sub-board"><span class="sub-caption">目标 · 点选要看成整体的部分</span><div class="sub-source" role="group" aria-label="换元对象"><span class="sub-frac"><span>2</span><span><span class="sub-chunk"><button type="button" class="sub-frame" data-sub-target="a+1" aria-label="分母 a+1 整体"></button><span class="sub-inner"><button type="button" class="sub-leaf" data-sub-target="a" aria-label="字母 a"><var>a</var></button><span class="sub-rest"><span class="sub-bin">+</span>1</span></span></span></span></span><span class="sub-bin">+</span><span class="sub-frac"><span>4</span><span><var>b</var></span></span></div><span data-sub-result></span></div>
+  </template>
+  <template id="substitution-shift">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $t=a+1$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$\textcolor{#087f79}{a}+b=2$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{t}+b=3$</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$\textcolor{#087f79}{a}>0,\ b>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{t}>1,\ b>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$\dfrac2{\textcolor{#087f79}{a+1}}+\dfrac4b$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac2{\textcolor{#087f79}{t}}+\dfrac4b$</span></div></div>
+  </template>
+  <template id="substitution-rename">
+<div class="sub-table"><span class="sub-def" data-math-text>设 $t=a$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$\textcolor{#087f79}{a}+b=2$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{t}+b=2$</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$\textcolor{#087f79}{a}>0,\ b>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{t}>0,\ b>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$\dfrac2{\textcolor{#087f79}{a}+1}+\dfrac4b$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac2{\textcolor{#087f79}{t}+1}+\dfrac4b$</span></div></div>
+  </template>
+  <template id="substitution-done">
+<div class="visual-board sub-board completed-visual"><div class="sub-table"><span class="sub-def" data-math-text>设 $t=a+1$</span><div class="sub-head"><span></span><span>原变量</span><span></span><span>新变量</span></div><div class="sub-row"><span class="sub-label">条件</span><span data-math-text>$\textcolor{#087f79}{a}+b=2$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{t}+b=3$</span></div><div class="sub-row"><span class="sub-label">范围</span><span data-math-text>$\textcolor{#087f79}{a}>0,\ b>0$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\textcolor{#087f79}{t}>1,\ b>0$</span></div><div class="sub-row"><span class="sub-label">目标</span><span data-math-text>$\dfrac2{\textcolor{#087f79}{a+1}}+\dfrac4b$</span><span class="sub-arrow" aria-hidden="true">⟶</span><span data-math-text>$\dfrac2{\textcolor{#087f79}{t}}+\dfrac4b$</span></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 改写条件、范围与目标</span><p data-math-text>$t=a+1\ \Longrightarrow\ a=t-1$</p><p data-math-text>$a+b=2\ \Longrightarrow\ (t-1)+b=2\ \Longrightarrow\ t+b=3$</p><p data-math-text>$a>0\ \Longrightarrow\ t>1$；又 $b=3-t>0$，所以 $1&lt;t&lt;3$。</p><p data-math-text>新目标 $\frac2t+\frac4b$ 的两个分母，正是新条件 $t+b=3$ 中的两个量。</p></div>
+  </template>
+  <template id="degree-board">
+<div class="visual-board deg-board"><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">目标</span><span class="deg-expr" data-math-text>$\dfrac2t+\dfrac4b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="0"></span></span></div><span class="deg-op" aria-hidden="true">×</span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 3</span><span class="deg-expr" data-math-text>$t+b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="1"></span></span></div><span class="deg-op deg-op-equal" aria-hidden="true">=</span><div class="deg-factor deg-result"><span class="deg-label">相乘后</span><span data-degree-total></span></div></div></div>
+  </template>
+  <template id="homogeneity-done">
+<div class="visual-board deg-board completed-visual"><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">目标</span><span class="deg-expr" data-math-text>$\dfrac2t+\dfrac4b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">−1</span></span></div><span class="deg-op" aria-hidden="true">×</span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 3</span><span class="deg-expr" data-math-text>$t+b$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">+1</span></span></div><span class="deg-op deg-op-equal" aria-hidden="true">=</span><div class="deg-factor deg-result"><span class="deg-label">相乘后</span><div class="deg-total"><span class="deg-total-value">0 次</span><span class="deg-total-sum" data-math-text>$(-1)+(+1)=0$</span></div></div></div></div><div class="reasoning"><span class="section-label">根据你的判断，整理思路</span><p data-math-text>目标为负一次，条件表达式为正一次，相乘可配成零次齐次式。</p><p data-math-text>$t+b=3$，所以 $\frac{t+b}3=1$，乘入它可以保持原式的值不变。</p></div>
+  </template>
+  <template id="rewrite-scope">
+<div class="visual-board rw-board"><span class="rw-caption">原式 · 点选要乘入的部分</span><div class="rw-source" role="group" aria-label="作用范围"><button type="button" class="rw-target rw-whole" data-rewrite-scope="whole"><span class="rw-legend">整个式子</span></button><div class="rw-terms"><button type="button" class="rw-target rw-term" data-rewrite-scope="first" aria-label="第一项 2/t"><span data-math-text>$\dfrac2t$</span></button><span class="rw-op">+</span><button type="button" class="rw-target rw-term" data-rewrite-scope="second" aria-label="第二项 4/b"><span data-math-text>$\dfrac4b$</span></button></div></div><span data-rewrite-result></span></div>
+  </template>
+  <template id="rewrite-whole">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$\left(\dfrac2t+\dfrac4b\right)$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-first">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$\dfrac2t$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span><span class="rw-op">+</span><span data-math-text>$\dfrac4b$</span></div>
+  </template>
+  <template id="rewrite-second">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span data-math-text>$\dfrac2t$</span><span class="rw-op">+</span><span class="rw-focus"><span data-math-text>$\dfrac4b$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-done">
+<div class="visual-board completed-visual"><div class="board-caption">乘入定值 1，配成零次齐次式</div><div class="rewrite-equation" data-math-text>$\left(\frac2t+\frac4b\right)\cdot\frac{t+b}3$</div><div class="rewrite-equation"><span data-math-text>$=2+\dfrac13\Big($</span><span class="shape square expression-slot" data-math-text>$\frac{2b}{t}$</span><span>+</span><span class="shape circle expression-slot" data-math-text>$\frac{4t}{b}$</span><span data-math-text>$\Big)$</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 展开整理</span><p data-math-text>$\frac2t+\frac4b=\left(\frac2t+\frac4b\right)\cdot\frac{t+b}3$</p><p data-math-text>$=\frac13\left(2+\frac{2b}t+\frac{4t}b+4\right)$</p><p data-math-text>$=2+\frac13\left(\frac{2b}t+\frac{4t}b\right)$</p></div>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span>= 8</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>$t>1,\ b>0\ \Longrightarrow\ \frac{2b}{t}>0,\quad\frac{4t}{b}>0$</p><p data-math-text>$\frac{2b}{t}\cdot\frac{4t}{b}=8$</p><p data-math-text>两项的积固定，要求和的最小值；原式是 $2+\frac13(\cdots)$，系数 $\frac13$ 为正，和最小时原式也最小。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界，再代回原式</span><p data-math-text>$\frac{2b}{t}+\frac{4t}{b}\ge2\sqrt{\frac{2b}{t}\cdot\frac{4t}{b}}=2\sqrt8=4\sqrt2$</p><p data-math-text>$\frac2t+\frac4b=2+\frac13\left(\frac{2b}t+\frac{4t}b\right)\ge2+\frac{4\sqrt2}3$</p></div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 联立取等条件</span><p data-math-text>$\frac{2b}{t}=\frac{4t}{b}\ \Longrightarrow\ b^2=2t^2$</p><p data-math-text>$t,b>0\ \Longrightarrow\ b=\sqrt2\,t$</p><p data-math-text>$b=\sqrt2\,t,\quad t+b=3\ \Longrightarrow\ t=3\sqrt2-3,\quad b=6-3\sqrt2$</p></div><div class="reasoning"><span class="section-label">系统计算 · 验证范围与原条件</span><p data-math-text>$t=3\sqrt2-3\approx1.24>1$，在换元后的范围内。</p><p data-math-text>$a=t-1=3\sqrt2-4>0,\quad b=6-3\sqrt2>0,\quad a+b=2$</p><p data-math-text>$\frac2t+\frac4b=\frac{2\sqrt2+2}3+\frac{4+2\sqrt2}3=2+\frac{4\sqrt2}3$</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$\frac2{a+1}+\frac4b$ 的最小值为 $2+\frac{4\sqrt2}3$</h2><p data-math-text>当 $a=3\sqrt2-4,\ b=6-3\sqrt2$ 时取到。</p></section>
+  </template>
+</body>
+</html>

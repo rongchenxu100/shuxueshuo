@@ -16,7 +16,7 @@
     },
     {
       "id": "1",
-      "label": "条件消元法"
+      "label": "消参法"
     }
   ],
   "routes": {
@@ -129,8 +129,8 @@
           "required_evidence": [
             "elimination_relation"
           ],
-          "criteria": "n=2-m时variable=m；m=2-n时variable=n（variable指保留的变量）。只说条件消元法，仅选择方法，需继续问用哪一个变量表示另一个。",
-          "completion_reply": "消元关系正确。",
+          "criteria": "n=2-m时variable=m；m=2-n时variable=n（variable指保留的变量）。只说消参法（也叫条件消元），仅选择方法，需继续问用哪一个变量表示另一个。",
+          "completion_reply": "消参关系正确。",
           "interaction": {
             "type": "choice",
             "field": "variable",
@@ -235,7 +235,7 @@
           ]
         }
       ],
-      "label": "条件消元法"
+      "label": "消参法"
     }
   },
   "initial_state": {

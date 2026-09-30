@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q10 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q10</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知 $x,y>0$，且 $x+5y=1$，则 $\frac5x+\frac4y$ 的最小值为？</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$x>0,\quad y>0,\quad x+5y=1$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$\left(\frac5x+\frac4y\right)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：识别齐次结构</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q10",
+  "version": 1,
+  "variables": [
+    "x",
+    "y"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "homogeneous",
+      "label": "配齐次式"
+    }
+  ],
+  "routes": {
+    "homogeneous": [
+      {
+        "id": "homogeneity",
+        "title": "识别齐次结构",
+        "question": "目标表达式与条件表达式分别是几次？相乘后能配成零次齐次式吗？",
+        "interaction": {
+          "type": "homogeneity",
+          "terms": [
+            "-1",
+            "0",
+            "1"
+          ],
+          "term_labels": {
+            "-1": "$-1$",
+            "0": "$0$",
+            "1": "$+1$"
+          },
+          "slot_labels": [
+            "目标表达式的次数",
+            "条件表达式的次数"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "-1",
+            "1"
+          ]
+        },
+        "feedback": {
+          "terms": "判断次数时，先看每一项中变量的指数，数字系数不计入次数。$5/x=5x^{-1}$、$4/y=4y^{-1}$，两项都是负一次，所以目标是负一次齐次式；$x$、$5y$ 中变量的指数都是 $1$，所以条件表达式是正一次齐次式。相加时不把次数相加，只有相乘时才把次数相加。"
+        },
+        "display": "homogeneity-done",
+        "submit_label": "确认结构",
+        "board": "degree-board"
+      },
+      {
+        "id": "rewrite",
+        "title": "配齐次式",
+        "question": "对原式的哪一部分乘入什么表达式，才能保持值不变并配成零次齐次式？",
+        "interaction": {
+          "type": "rewrite",
+          "slots": [
+            {
+              "label": "作用范围",
+              "options": [
+                {
+                  "value": "whole",
+                  "label": "整个式子"
+                },
+                {
+                  "value": "first",
+                  "label": "第一项 $\\frac5x$"
+                },
+                {
+                  "value": "second",
+                  "label": "第二项 $\\frac4y$"
+                }
+              ]
+            },
+            {
+              "label": "乘入的表达式",
+              "options": [
+                {
+                  "value": "x+5y",
+                  "label": "$x+5y$"
+                },
+                {
+                  "value": "x+y",
+                  "label": "$x+y$"
+                },
+                {
+                  "value": "1",
+                  "label": "$1$"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "whole",
+            "x+5y"
+          ]
+        },
+        "feedback": {
+          "terms": "要同时满足“值不变”和“整体变成零次”。本题两项都是负一次，需要对整个式子乘入等于 $1$ 的正一次表达式 $x+5y$。"
+        },
+        "display": "rewrite-done",
+        "submit_label": "确认配式",
+        "board": "rewrite-scope",
+        "scope_boards": {
+          "whole": "rewrite-whole",
+          "first": "rewrite-first",
+          "second": "rewrite-second"
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "25y/x",
+            "4x/y"
+          ],
+          "term_labels": {
+            "25y/x": "$\\frac{25y}{x}$",
+            "4x/y": "$\\frac{4x}{y}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "25y/x",
+            "4x/y"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对展开后的两个比值项。",
+          "structure": "两项的积固定为 $100$，要求它们和的最小值。"
+        },
+        "display": "structure-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "25y/x",
+            "4x/y"
+          ],
+          "term_labels": {
+            "25y/x": "$\\frac{25y}{x}$",
+            "4x/y": "$\\frac{4x}{y}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "25y/x",
+            "4x/y"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对展开后的两个正项。"
+        },
+        "display": "amgm-done",
+        "submit_label": "确认判断"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "25y/x",
+            "4x/y"
+          ],
+          "term_labels": {
+            "25y/x": "$\\frac{25y}{x}$",
+            "4x/y": "$\\frac{4x}{y}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "25y/x",
+            "4x/y"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两个比值项相等。"
+        },
+        "display": "equality-done",
+        "submit_label": "确认判断"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="degree-board">
+<div class="visual-board deg-board"><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">目标</span><span class="deg-expr" data-math-text>$\dfrac5x+\dfrac4y$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="0"></span></span></div><span class="deg-op" aria-hidden="true">×</span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 1</span><span class="deg-expr" data-math-text>$x+5y$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span data-degree="1"></span></span></div><span class="deg-op deg-op-equal" aria-hidden="true">=</span><div class="deg-factor deg-result"><span class="deg-label">相乘后</span><span data-degree-total></span></div></div></div>
+  </template>
+  <template id="homogeneity-done">
+<div class="visual-board deg-board completed-visual"><div class="deg-equation"><div class="deg-factor deg-target"><span class="deg-label">目标</span><span class="deg-expr" data-math-text>$\dfrac5x+\dfrac4y$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">−1</span></span></div><span class="deg-op" aria-hidden="true">×</span><div class="deg-factor deg-condition"><span class="deg-label">条件表达式 = 1</span><span class="deg-expr" data-math-text>$x+5y$</span><span class="deg-degree"><span class="deg-degree-label">次数</span><span class="deg-badge">+1</span></span></div><span class="deg-op deg-op-equal" aria-hidden="true">=</span><div class="deg-factor deg-result"><span class="deg-label">相乘后</span><div class="deg-total"><span class="deg-total-value">0 次</span><span class="deg-total-sum" data-math-text>$(-1)+(+1)=0$</span></div></div></div></div><div class="reasoning"><span class="section-label">根据你的判断，整理思路</span><p data-math-text>目标为负一次，条件表达式为正一次，相乘可配成零次齐次式。</p><p data-math-text>$x+5y=1$，乘入这个定值可以保持原式的值不变。</p></div>
+  </template>
+  <template id="rewrite-scope">
+<div class="visual-board rw-board"><span class="rw-caption">原式 · 点选要乘入的部分</span><div class="rw-source" role="group" aria-label="作用范围"><button type="button" class="rw-target rw-whole" data-rewrite-scope="whole"><span class="rw-legend">整个式子</span></button><div class="rw-terms"><button type="button" class="rw-target rw-term" data-rewrite-scope="first" aria-label="第一项 5/x"><span data-math-text>$\dfrac5x$</span></button><span class="rw-op">+</span><button type="button" class="rw-target rw-term" data-rewrite-scope="second" aria-label="第二项 4/y"><span data-math-text>$\dfrac4y$</span></button></div></div><span data-rewrite-result></span></div>
+  </template>
+  <template id="rewrite-whole">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$\left(\dfrac5x+\dfrac4y\right)$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-first">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span class="rw-focus"><span data-math-text>$\dfrac5x$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span><span class="rw-op">+</span><span data-math-text>$\dfrac4y$</span></div>
+  </template>
+  <template id="rewrite-second">
+<div class="rw-result"><span class="rw-preview-label">尝试改写</span><span data-math-text>$\dfrac5x$</span><span class="rw-op">+</span><span class="rw-focus"><span data-math-text>$\dfrac4y$</span><span class="rw-times">×</span><span data-rewrite-factor></span></span></div>
+  </template>
+  <template id="rewrite-done">
+<div class="visual-board completed-visual"><div class="board-caption">乘入定值 1，配成零次齐次式</div><div class="rewrite-equation" data-math-text>$\left(\frac5x+\frac4y\right)(x+5y)$</div><div class="rewrite-equation"><span>= 25 +</span><span class="shape square expression-slot" data-math-text>$\frac{25y}{x}$</span><span>+</span><span class="shape circle expression-slot" data-math-text>$\frac{4x}{y}$</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 展开整理</span><p data-math-text>$\frac5x+\frac4y=\left(\frac5x+\frac4y\right)(x+5y)$</p><p data-math-text>$=5+\frac{25y}{x}+\frac{4x}{y}+20$</p><p data-math-text>$=25+\frac{25y}{x}+\frac{4x}{y}$</p></div>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span>= 100</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>$x,y>0\ \Longrightarrow\ \frac{25y}{x}>0,\quad\frac{4x}{y}>0$</p><p data-math-text>$\frac{25y}{x}\cdot\frac{4x}{y}=100$</p><p data-math-text>两项的积固定，要求和的最小值；原式还包含常数 $25$。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界，再加回常数</span><p data-math-text>$\frac{25y}{x}+\frac{4x}{y}\ge2\sqrt{\frac{25y}{x}\cdot\frac{4x}{y}}=20$</p><p data-math-text>$\frac5x+\frac4y=25+\frac{25y}{x}+\frac{4x}{y}\ge25+20=45$</p></div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 联立取等条件</span><p data-math-text>$\frac{25y}{x}=\frac{4x}{y}\ \Longrightarrow\ 25y^2=4x^2$</p><p data-math-text>$x,y>0\ \Longrightarrow\ 2x=5y$</p><p data-math-text>$2x=5y,\quad x+5y=1\ \Longrightarrow\ x=\frac13,\quad y=\frac2{15}$</p></div><div class="reasoning"><span class="section-label">系统计算 · 验证原条件</span><p data-math-text>$x=\frac13>0,\quad y=\frac2{15}>0$</p><p data-math-text>$x+5y=\frac13+5\cdot\frac2{15}=1$</p><p data-math-text>$\frac5x+\frac4y=15+30=45$</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$\frac5x+\frac4y$ 的最小值为 $45$</h2><p data-math-text>当 $x=\frac13,\ y=\frac2{15}$ 时取到。</p></section>
+  </template>
+</body>
+</html>

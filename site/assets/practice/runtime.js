@@ -38,7 +38,18 @@
 
   function conversation(stage, attempt = null) {
     const attemptId = attempt?.id || snapshot?.attempt_id;
-    const messages = (attempt?.messages || snapshot?.messages || []).filter(m => m.attempt_id === attemptId && m.stage === stage && m.kind !== 'ui');
+    const source = attempt?.messages || snapshot?.messages || [];
+    const node = lesson.routes[attempt?.route || state.method]?.[stage];
+    const messages = source.filter((m, i) => {
+      if (m.attempt_id !== attemptId || m.stage !== stage || m.kind === 'ui') return false;
+      // Automatic feedback already has a place beside the exercise. Only hide
+      // the reply to that UI submit; keep genuine dialogue and Context intact.
+      const previous = source[i - 1];
+      const automaticFeedback = node?.interaction.type === 'choice' ? node.feedback?.answer
+        : node?.attempt_calculations ? node.feedback?.terms : null;
+      return !(automaticFeedback && m.role === 'assistant' && m.text === automaticFeedback &&
+        previous?.kind === 'ui' && previous.action?.kind === 'submit' && previous.attempt_id === attemptId && previous.stage === stage);
+    });
     if (!messages.length) return '';
     const content = `<div class="node-conversation" aria-label="本步骤的对话">${messages.map(m => `<div class="chat-message ${m.role === 'student' ? 'student' : 'assistant'}" role="group" aria-label="${m.role === 'student' ? '学生消息' : '老师回复'}"><p data-math-text>${escapeHTML(m.text)}</p></div>`).join('')}</div>`;
     if (attempt || stage < state.active) return `<details class="conversation-history" id="conversation-${attemptId}-${stage}"><summary>查看本步对话<span class="conversation-count">${messages.length} 条</span></summary>${content}</details>`;
@@ -209,12 +220,14 @@
   const completed = () => PracticeContext.done(lesson, state);
   const nodeAt = stage => lesson.routes[state.method]?.[stage];
   const ready = stage => nodeAt(stage).interaction.type === 'choice'
-    ? state.choices[nodeAt(stage).interaction.field] != null : state.pairs[stage].every(Boolean);
+    ? state.choices[nodeAt(stage).interaction.field] != null : Array.from({length: PracticeContext.slotCount(nodeAt(stage).interaction)}, (_, index) => state.pairs[stage][index]).every(Boolean);
   const announce = (text) => { announcement.textContent = text; };
 
   function slot(stage, index, occurrence = '') {
     const value = state.pairs[stage][index];
-    return UI.slot({stage, index, occurrence, value, label: nodeAt(stage).interaction.term_labels?.[value], title: titles[stage]});
+    const component = nodeAt(stage).interaction;
+    const label = component.slots ? component.slots[index].options.find(option => option.value === value)?.label : component.term_labels?.[value];
+    return UI.slot({stage, index, occurrence, value, label, shape: component.slot_shapes?.[index], title: component.slot_labels?.[index] || component.slots?.[index]?.label || titles[stage]});
   }
 
   function template(id, displayState = state, stage = 0, prefix = snapshot.attempt_id) {
@@ -234,13 +247,21 @@
       <div class="method-options">${methods.map(({id, label}) => `<button type="button" class="method-choice" data-method="${escapeHTML(id)}"><span class="radio-mark" aria-hidden="true"></span>${escapeHTML(label)}<span class="option-arrow" aria-hidden="true">›</span></button>`).join('')}</div>
       <button type="button" class="hint-button" data-hint="0">${hintIcon}还没想好，给点提示</button>`;
     const node = nodeAt(stage), component = node.interaction;
-    const props = {slot: (index, occurrence) => slot(stage, index, occurrence), terms: component.terms, positiveTerms: component.positive_terms, termLabels: component.term_labels, caption: component.caption, swapped: state.swapped, slotLabels: component.slot_labels, pair: state.pairs[stage], board: template(node.board, state, stage)};
+    const boardId = node.scope_boards ? node.scope_boards[state.pairs[stage][0]] : node.board;
+    const props = {slot: (index, occurrence) => slot(stage, index, occurrence), component, terms: component.terms, positiveTerms: component.positive_terms, termLabels: component.term_labels, caption: component.caption, swapped: state.swapped, slotLabels: component.slot_labels, pair: state.pairs[stage], board: template(boardId, state, stage),
+      scopeBoard: node.scope_boards ? template(node.board, state, stage) : ''};
     const tabs = stage === 0 ? `<div class="method-tabs" role="group" aria-label="解题方案">${methods.map(({id, label}) => `<button type="button" class="method-tab" data-method="${escapeHTML(id)}" aria-pressed="${state.method === id}">${escapeHTML(label)}</button>`).join('')}</div>` : '';
     const board = component.type === 'choice'
       ? template(node.board) + UI.choices(component, state.choices[component.field], node.title) + template(node.preview?.[state.choices[component.field]])
       : UI[component.type](props);
+    const confirmedPair = ['rewrite', 'fill'].includes(component.type) && node.attempt_calculations
+      ? PracticeContext.confirmedPair(snapshot) : null;
+    const calculationEntry = confirmedPair ? node.attempt_calculations?.[confirmedPair[0]] : null;
+    const calculationId = PracticeContext.slotCount(component) === 1
+      ? calculationEntry : calculationEntry?.[confirmedPair?.[1]];
     return tabs + `<p class="question" data-math-text>${escapeHTML(node.question)}</p>` + board +
-      UI.controls({stage, label: node.submit_label, ready: ready(stage), feedback: state.feedback, hint: state.hint});
+      UI.controls({stage, label: node.submit_label, ready: ready(stage), feedback: calculationId ? '' : state.feedback, hint: state.hint}) +
+      template(calculationId, state, stage);
   }
 
   function renderDisplay(stage, displayState = state, prefix = snapshot.attempt_id) {
@@ -316,7 +337,8 @@
     button.setAttribute('aria-expanded', 'true');
     picker.hidden = false;
     const component = nodeAt(stage).interaction;
-    picker.querySelector('.picker-options').innerHTML = component.terms.map(term => `<button type="button" data-token="${escapeHTML(term)}" aria-label="选择 ${escapeHTML(term)}"><span data-math-text>${escapeHTML(component.term_labels?.[term] || term)}</span></button>`).join('');
+    const candidates = component.slots ? component.slots[picking.index].options : component.terms.map(value => ({value, label: component.term_labels?.[value] || value}));
+    picker.querySelector('.picker-options').innerHTML = candidates.map(({value, label}) => `<button type="button" data-token="${escapeHTML(value)}" aria-label="选择 ${escapeHTML(value)}"><span data-math-text>${escapeHTML(label)}</span></button>`).join('');
     renderMath(picker);
     const rect = button.getBoundingClientRect();
     const height = picker.offsetHeight;
@@ -328,10 +350,32 @@
     picker.querySelector('button').focus({ preventScroll: true });
   }
 
+  // Toggle one substitution target. Nested targets overlap (a sits inside a+1), so choosing one clears the other.
+  function toggleTarget(button) {
+    const slotSpec = nodeAt(state.active).interaction.slots[0];
+    const order = slotSpec.options.map(option => option.value);
+    const source = button.closest('.sub-source');
+    const region = element => element.classList.contains('sub-frame') ? element.parentElement : element;
+    const value = button.dataset.subTarget, mine = region(button);
+    let chosen = state.pairs[state.active][0] ? state.pairs[state.active][0].split('|') : [];
+    if (chosen.includes(value)) chosen = chosen.filter(item => item !== value);
+    else {
+      chosen = chosen.filter(item => {
+        const other = region(source.querySelector(`[data-sub-target="${CSS.escape(item)}"]`));
+        return !mine.contains(other) && !other.contains(mine);
+      });
+      chosen.push(value);
+      if (chosen.length > slotSpec.names.length) chosen.shift();
+    }
+    chosen.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+    sendEvent('ui', {kind: 'fill', index: 0, value: chosen.join('|')});
+  }
+
   steps.addEventListener('click', event => {
     const button = event.target.closest('button');
     if (!button || busy) return;
     if (button.hasAttribute('data-method')) sendEvent('ui', {kind: 'method', value: button.dataset.method});
+    else if (button.hasAttribute('data-sub-target')) toggleTarget(button);
     else if (button.hasAttribute('data-choice')) sendEvent('ui', {kind: 'choice', value: button.dataset.value});
     else if (button.hasAttribute('data-pair-answer')) sendEvent('ui', {kind: 'fill', index: Number(button.dataset.pairAnswer), value: button.dataset.value});
     else if (button.hasAttribute('data-slot')) openPicker(button);

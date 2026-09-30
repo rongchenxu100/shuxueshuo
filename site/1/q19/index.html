@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q19 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q19</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知 $a>0,\ b>0$，$9a+b=ab$，则 $a+4b$ 的最小值为？</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$a,b>0$，</span><span class="nowrap" data-math-text>$9a+b=ab$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$(a+4b)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：消参</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q19",
+  "version": 1,
+  "variables": [
+    "a",
+    "b"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "elimination",
+      "label": "消参法"
+    }
+  ],
+  "routes": {
+    "elimination": [
+      {
+        "id": "eliminate",
+        "title": "消参",
+        "question": "由条件用 $a$ 表示 $b$，应该是哪一个？",
+        "interaction": {
+          "type": "choice",
+          "field": "eliminate_form",
+          "options": [
+            {
+              "value": "correct",
+              "label": "$b=\\frac{9a}{a-1}$"
+            },
+            {
+              "value": "wrong_sign",
+              "label": "$b=\\frac{9a}{a+1}$"
+            },
+            {
+              "value": "flipped",
+              "label": "$b=\\frac{a-1}{9a}$"
+            }
+          ],
+          "description": "correct由ab-b=9a得b(a-1)=9a再除以a-1；wrong_sign把b移项时未变号；flipped除反，得到的是1/b。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "correct"
+          ]
+        },
+        "feedback": {
+          "answer": "把含 $b$ 的项移到同一边：$ab-b=9a$，提出 $b$ 后再除。"
+        },
+        "submit_label": "确认消参",
+        "display": "eliminate-done",
+        "board": "eliminate-board",
+        "preview": {
+          "correct": "preview-eliminate-correct",
+          "wrong_sign": "preview-eliminate-wrong_sign",
+          "flipped": "preview-eliminate-flipped"
+        }
+      },
+      {
+        "id": "split",
+        "title": "分式分离",
+        "question": "把分子 $36a$ 用分母 $a-1$ 表示，方框和圆圈各填什么？",
+        "interaction": {
+          "type": "fill",
+          "terms": [
+            "-36",
+            "9",
+            "35",
+            "36",
+            "37"
+          ],
+          "term_labels": {
+            "-36": "$-36$",
+            "9": "$9$",
+            "35": "$35$",
+            "36": "$36$",
+            "37": "$37$"
+          },
+          "slot_labels": [
+            "分母的倍数",
+            "余下的常数"
+          ],
+          "slot_shapes": [
+            "square",
+            "circle"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "36",
+            "36"
+          ]
+        },
+        "feedback": {
+          "terms": "按你填入的数展开，分别核对 $a$ 的系数与常数项，是否恒等于 $36a$。"
+        },
+        "submit_label": "确认分离",
+        "display": "split-done",
+        "board": "split-board",
+        "attempt_calculations": {
+          "-36": {
+            "-36": "split-attempt-neg36-neg36",
+            "9": "split-attempt-neg36-9",
+            "35": "split-attempt-neg36-35",
+            "36": "split-attempt-neg36-36",
+            "37": "split-attempt-neg36-37"
+          },
+          "9": {
+            "-36": "split-attempt-9-neg36",
+            "9": "split-attempt-9-9",
+            "35": "split-attempt-9-35",
+            "36": "split-attempt-9-36",
+            "37": "split-attempt-9-37"
+          },
+          "35": {
+            "-36": "split-attempt-35-neg36",
+            "9": "split-attempt-35-9",
+            "35": "split-attempt-35-35",
+            "36": "split-attempt-35-36",
+            "37": "split-attempt-35-37"
+          },
+          "36": {
+            "-36": "split-attempt-36-neg36",
+            "9": "split-attempt-36-9",
+            "35": "split-attempt-36-35",
+            "36": "split-done",
+            "37": "split-attempt-36-37"
+          },
+          "37": {
+            "-36": "split-attempt-37-neg36",
+            "9": "split-attempt-37-9",
+            "35": "split-attempt-37-35",
+            "36": "split-attempt-37-36",
+            "37": "split-attempt-37-37"
+          }
+        }
+      },
+      {
+        "id": "rewrite",
+        "title": "凑配表达式",
+        "question": "怎样改写 $a+\\frac{36}{a-1}+36$，让其中两个正项的积固定？",
+        "interaction": {
+          "type": "choice",
+          "field": "rewrite_form",
+          "options": [
+            {
+              "value": "fixed_product",
+              "label": "$(a-1)+\\frac{36}{a-1}+37$"
+            },
+            {
+              "value": "unchanged",
+              "label": "$a+\\frac{36}{a-1}+36$"
+            },
+            {
+              "value": "wrong_constant",
+              "label": "$(a-1)+\\frac{36}{a-1}+36$"
+            }
+          ],
+          "description": "fixed_product把a写成(a-1)+1并调整常数；unchanged未凑配，a与36/(a-1)积不固定；wrong_constant凑出a-1后常数未调整。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "fixed_product"
+          ]
+        },
+        "feedback": {
+          "answer": "要让积固定，$\\frac{36}{a-1}$ 需要和 $a-1$ 配对：$a=(a-1)+1$，常数随之变为 $36+1=37$。"
+        },
+        "submit_label": "确认改写",
+        "display": "rewrite-done",
+        "board": "rewrite-board",
+        "preview": {
+          "fixed_product": "preview-rewrite-fixed_product",
+          "unchanged": "preview-rewrite-unchanged",
+          "wrong_constant": "preview-rewrite-wrong_constant"
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "a-1",
+            "36/(a-1)"
+          ],
+          "term_labels": {
+            "a-1": "$a-1$",
+            "36/(a-1)": "$\\frac{36}{a-1}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "a-1",
+            "36/(a-1)"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对改写后含 $a$ 的两个正项；常数 $37$ 不参与。",
+          "structure": "两项的积固定为 $36$，要求它们和的最小值。"
+        },
+        "submit_label": "确认判断",
+        "display": "structure-done"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "a-1",
+            "36/(a-1)"
+          ],
+          "term_labels": {
+            "a-1": "$a-1$",
+            "36/(a-1)": "$\\frac{36}{a-1}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "a-1",
+            "36/(a-1)"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对改写后含 $a$ 的两个正项；常数 $37$ 最后再加。"
+        },
+        "submit_label": "确认判断",
+        "display": "amgm-done"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "a-1",
+            "36/(a-1)"
+          ],
+          "term_labels": {
+            "a-1": "$a-1$",
+            "36/(a-1)": "$\\frac{36}{a-1}$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "a-1",
+            "36/(a-1)"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两个正项相等。"
+        },
+        "submit_label": "确认判断",
+        "display": "equality-done"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="eliminate-board">
+<div class="visual-board"><div class="board-caption">条件 · 用 a 表示 b</div><div class="formula" data-math-text>$9a+b=ab$</div></div>
+  </template>
+  <template id="preview-eliminate-correct">
+<div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>移项：$ab-b=9a$，即 $b(a-1)=9a$</p><p data-math-text>$a=1$ 时条件变成 $9+b=b$，不成立，所以可以除以 $a-1$。</p></div>
+  </template>
+  <template id="preview-eliminate-wrong_sign">
+<div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>把 $b$ 移到右边要变号：$ab-b=9a$，提出 $b$ 后括号里是 $a-1$，不是 $a+1$。</p></div>
+  </template>
+  <template id="preview-eliminate-flipped">
+<div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>由 $b(a-1)=9a$，两边除以 $a-1$ 得到的是 $b$；$\frac{a-1}{9a}$ 是 $\frac1b$。</p></div>
+  </template>
+  <template id="eliminate-done">
+<div class="visual-board completed-visual"><div class="board-caption">消参：用 a 表示 b</div><div class="function-conversion"><div><span class="conversion-label">条件</span><div class="math" data-math-text>$9a+b=ab$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">用 a 表示 b</span><div class="math" data-math-text>$b=\dfrac{9a}{a-1}$</div></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 范围与代入</span><p data-math-text>$a=1$ 时条件为 $9+b=b$，不成立，所以 $a\ne1$</p><p data-math-text>由 $b&gt;0$、$9a&gt;0$ 得 $a-1&gt;0$，即 $a&gt;1$</p><p data-math-text>$a+4b=a+\frac{36a}{a-1}$</p><p data-math-text>条件中 $a$、$b$ 都是一次，消哪个都可以；本页消去 $b$，再对 $\frac{36a}{a-1}$ 分式分离。</p></div>
+  </template>
+  <template id="split-board">
+<div class="visual-board"><div class="board-caption">尝试配式 · 确认后展开核对</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$36a\ \stackrel{?}{=}$</span></span><span class="fill-group"><span data-fill="0"></span><span data-math-text>$\cdot\,(a-1)$</span></span><span class="fill-group"><span data-math-text>$+$</span><span data-fill="1"></span></span></div></div>
+  </template>
+  <template id="split-attempt-neg36-neg36">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-36(a-1)-36=-36a$</p><p data-math-text>$-36a\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $-36$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $0$，与原式的 $0$ 一致。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg36-9">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-36(a-1)+9=-36a+45$</p><p data-math-text>$-36a+45\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $-36$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $45$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg36-35">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-36(a-1)+35=-36a+71$</p><p data-math-text>$-36a+71\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $-36$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $71$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg36-36">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-36(a-1)+36=-36a+72$</p><p data-math-text>$-36a+72\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $-36$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $72$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-neg36-37">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-36(a-1)+37=-36a+73$</p><p data-math-text>$-36a+73\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $-36$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $73$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-neg36">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(a-1)-36=9a-45$</p><p data-math-text>$9a-45\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $9$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $-45$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-9">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(a-1)+9=9a$</p><p data-math-text>$9a\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $9$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $0$，与原式的 $0$ 一致。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-35">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(a-1)+35=9a+26$</p><p data-math-text>$9a+26\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $9$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $26$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-36">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(a-1)+36=9a+27$</p><p data-math-text>$9a+27\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $9$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $27$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-9-37">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$9(a-1)+37=9a+28$</p><p data-math-text>$9a+28\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $9$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $28$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-35-neg36">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$35(a-1)-36=35a-71$</p><p data-math-text>$35a-71\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $35$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $-71$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-35-9">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$35(a-1)+9=35a-26$</p><p data-math-text>$35a-26\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $35$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $-26$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-35-35">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$35(a-1)+35=35a$</p><p data-math-text>$35a\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $35$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $0$，与原式的 $0$ 一致。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-35-36">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$35(a-1)+36=35a+1$</p><p data-math-text>$35a+1\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $35$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $1$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-35-37">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$35(a-1)+37=35a+2$</p><p data-math-text>$35a+2\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $35$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $2$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-36-neg36">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$36(a-1)-36=36a-72$</p><p data-math-text>$36a-72\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $36$，与原式的 $36$ 一致。</p><p data-math-text>常数项是 $-72$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-36-9">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$36(a-1)+9=36a-27$</p><p data-math-text>$36a-27\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $36$，与原式的 $36$ 一致。</p><p data-math-text>常数项是 $-27$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-36-35">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$36(a-1)+35=36a-1$</p><p data-math-text>$36a-1\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $36$，与原式的 $36$ 一致。</p><p data-math-text>常数项是 $-1$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-36-37">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$36(a-1)+37=36a+1$</p><p data-math-text>$36a+1\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $36$，与原式的 $36$ 一致。</p><p data-math-text>常数项是 $1$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-37-neg36">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$37(a-1)-36=37a-73$</p><p data-math-text>$37a-73\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $37$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $-73$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-37-9">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$37(a-1)+9=37a-28$</p><p data-math-text>$37a-28\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $37$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $-28$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-37-35">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$37(a-1)+35=37a-2$</p><p data-math-text>$37a-2\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $37$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $-2$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-37-36">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$37(a-1)+36=37a-1$</p><p data-math-text>$37a-1\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $37$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $-1$，与原式的 $0$ 不同。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-attempt-37-37">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">按你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$37(a-1)+37=37a$</p><p data-math-text>$37a\not\equiv 36a$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>$a$ 的系数是 $37$，与原式的 $36$ 不同。</p><p data-math-text>常数项是 $0$，与原式的 $0$ 一致。</p><p>本步需要恒等改写，请调整不匹配的倍数或常数。</p></div></section>
+  </template>
+  <template id="split-done">
+<div class="visual-board completed-visual"><div class="board-caption">用分母表示分子，再逐项除以分母</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$36a\ =$</span></span><span class="fill-group"><span class="shape square expression-slot" data-math-text>$36$</span><span data-math-text>$\cdot\,(a-1)$</span></span><span class="fill-group"><span data-math-text>$+$</span><span class="shape circle expression-slot" data-math-text>$36$</span></span></div></div><div class="reasoning"><span class="section-label">系统计算 · 分式分离</span><p data-math-text>$36(a-1)+36=36a-36+36=36a$</p><p data-math-text>$\frac{36a}{a-1}=\frac{36(a-1)+36}{a-1}=36+\frac{36}{a-1}$</p><p data-math-text>$a+4b=a+\frac{36}{a-1}+36$</p></div>
+  </template>
+  <template id="rewrite-board">
+<div class="visual-board"><div class="board-caption">分式分离后的目标式</div><div class="formula fill-formula"><span class="fill-group" data-math-text>$a+4b\ =$</span><span class="fill-group" data-math-text>$a+\dfrac{36}{a-1}+36$</span></div></div>
+  </template>
+  <template id="preview-rewrite-fixed_product">
+<div class="reasoning choice-preview"><span class="section-label">展开核对</span><p data-math-text>$(a-1)+\frac{36}{a-1}+37=a+\frac{36}{a-1}+36$</p><p data-math-text>$(a-1)\cdot\frac{36}{a-1}=36$，积固定。</p></div>
+  </template>
+  <template id="preview-rewrite-unchanged">
+<div class="reasoning choice-preview"><span class="section-label">展开核对</span><p data-math-text>$a\cdot\frac{36}{a-1}=\frac{36a}{a-1}$，随 $a$ 变化，积不固定。</p></div>
+  </template>
+  <template id="preview-rewrite-wrong_constant">
+<div class="reasoning choice-preview"><span class="section-label">展开核对</span><p data-math-text>$(a-1)+\frac{36}{a-1}+36=a+\frac{36}{a-1}+35$</p><p data-math-text>比原式少了 $1$，与原式不等价。</p></div>
+  </template>
+  <template id="rewrite-done">
+<div class="visual-board completed-visual"><div class="board-caption">凑配：让 a−1 与分式配对，再调整常数</div><div class="function-conversion"><div><span class="conversion-label">分式分离后</span><div class="math" data-math-text>$a+\frac{36}{a-1}+36$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">配成两项，常数随之调整</span><div class="formula conversion-terms"><span class="shape square expression-slot" data-math-text>$a-1$</span><span>+</span><span class="shape circle expression-slot" data-math-text>$\frac{36}{a-1}$</span><span data-math-text>$+\,37$</span></div></div></div></div><div class="reasoning"><span class="section-label">核对等价改写</span><p data-math-text>由 $a=(a-1)+1$ 得 ${a+\frac{36}{a-1}+36=(a-1)+\frac{36}{a-1}+37}$</p><p data-math-text>两项的积 $(a-1)\cdot\frac{36}{a-1}=36$ 已经固定。</p></div>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span data-math-text>$=36$</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>由 $a&gt;1$ 得 $a-1&gt;0$，$\frac{36}{a-1}&gt;0$</p><p data-math-text>$(a-1)\cdot\frac{36}{a-1}=36$</p><p data-math-text>两个正项的积固定，求和的最小值；常数 $37$ 不参与，最后再加。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界</span><p data-math-text>$(a-1)+\frac{36}{a-1}\ge2\sqrt{(a-1)\cdot\frac{36}{a-1}}=2\sqrt{36}=12$</p><p data-math-text>$a+4b\ge12+37=49$</p></div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 联立取等条件</span><p data-math-text>由 $a-1=\frac{36}{a-1}$ 得 $(a-1)^2=36$</p><p data-math-text>又 $a&gt;1$，所以 $a-1=6$，$a=7$</p><p data-math-text>$b=\frac{9\cdot7}{7-1}=\frac{21}2&gt;0$</p></div><div class="reasoning"><span class="section-label">系统计算 · 验证原条件</span><p data-math-text>$9\cdot7+\frac{21}2=\frac{147}2$，$7\cdot\frac{21}2=\frac{147}2$</p><p data-math-text>$a+4b=7+42=49$</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$a+4b$ 的最小值为 $49$</h2><p data-math-text>当 $a=7,\ b=\frac{21}2$ 时取到。</p></section>
+  </template>
+</body>
+</html>

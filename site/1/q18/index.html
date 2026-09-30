@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q18 · 基本不等式 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=10" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">基本不等式</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/1/">← 返回题库</a> <span class="separator">/</span> Q18</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知正数 $a,b$ 满足 $2ab+2a+b=3$，则 $\frac1{2a+1}+\frac1b$ 的最小值为？</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning" aria-label="题意的数学表达">
+          <div class="meaning-row"><dt>条件</dt><dd><span data-math-text>$a,b>0$，</span><span class="nowrap" data-math-text>$2ab+2a+b=3$</span></dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd><span data-math-text>$\left(\frac1{2a+1}+\frac1b\right)_{\min}$</span></dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：配因式</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+  <script type="application/json" id="practice-config">
+{
+  "id": "q18",
+  "version": 1,
+  "variables": [
+    "a",
+    "b"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方案？",
+  "methods": [
+    {
+      "id": "elimination",
+      "label": "消参法"
+    }
+  ],
+  "routes": {
+    "elimination": [
+      {
+        "id": "factor",
+        "title": "配因式",
+        "question": "由条件配成 $(2a+1)(b+1)$ 后，这个乘积的值是多少？",
+        "interaction": {
+          "type": "fill",
+          "terms": [
+            "2",
+            "3",
+            "4",
+            "5",
+            "6"
+          ],
+          "term_labels": {
+            "2": "$2$",
+            "3": "$3$",
+            "4": "$4$",
+            "5": "$5$",
+            "6": "$6$"
+          },
+          "slot_labels": [
+            "乘积的值"
+          ],
+          "slot_shapes": [
+            "square"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "4"
+          ]
+        },
+        "feedback": {
+          "terms": "展开 $(2a+1)(b+1)$，与条件左边 $2ab+2a+b$ 比较，看多出了哪一项，再由条件求值。"
+        },
+        "submit_label": "确认配因式",
+        "display": "factor-done",
+        "board": "factor-board",
+        "attempt_calculations": {
+          "2": "factor-check-2",
+          "3": "factor-check-3",
+          "4": "factor-done",
+          "5": "factor-check-5",
+          "6": "factor-check-6"
+        }
+      },
+      {
+        "id": "eliminate",
+        "title": "消参",
+        "question": "把 $2a+1$ 看成整体，用 $b$ 表示 $\\frac1{2a+1}$，应该是哪一个？",
+        "interaction": {
+          "type": "choice",
+          "field": "eliminate_form",
+          "options": [
+            {
+              "value": "correct",
+              "label": "$\\frac1{2a+1}=\\frac{b+1}4$"
+            },
+            {
+              "value": "flipped",
+              "label": "$\\frac1{2a+1}=\\frac4{b+1}$"
+            },
+            {
+              "value": "stale",
+              "label": "$\\frac1{2a+1}=\\frac{b+1}3$"
+            }
+          ],
+          "description": "correct由(2a+1)(b+1)=4两边除以4(2a+1)得到；flipped求成了2a+1本身；stale沿用原条件右边的3，没有用配因式后的4。"
+        },
+        "expected_answer": {
+          "one_of": [
+            "correct"
+          ]
+        },
+        "feedback": {
+          "answer": "由 $(2a+1)(b+1)=4$ 先得 $2a+1=\\frac4{b+1}$，目标里要的是它的倒数。"
+        },
+        "submit_label": "确认消参",
+        "display": "eliminate-done",
+        "board": "eliminate-board",
+        "preview": {
+          "correct": "preview-eliminate-correct",
+          "flipped": "preview-eliminate-flipped",
+          "stale": "preview-eliminate-stale"
+        }
+      },
+      {
+        "id": "structure",
+        "title": "观察和积结构",
+        "question": "这两项是定和求积，还是定积求和？",
+        "interaction": {
+          "type": "structure",
+          "terms": [
+            "b/4",
+            "1/b"
+          ],
+          "term_labels": {
+            "b/4": "$\\frac b4$",
+            "1/b": "$\\frac1b$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "b/4",
+            "1/b"
+          ],
+          "fixed": "product",
+          "target": "sum"
+        },
+        "feedback": {
+          "terms": "请核对拆项后含 $b$ 的两个正项；常数 $\\frac14$ 不参与。",
+          "structure": "两项的积固定为 $\\frac14$，要求它们和的最小值。"
+        },
+        "submit_label": "确认判断",
+        "display": "structure-done"
+      },
+      {
+        "id": "amgm",
+        "title": "应用基本不等式",
+        "question": "对这两个正项应用基本不等式，能得到什么关系？",
+        "interaction": {
+          "type": "amgm",
+          "terms": [
+            "b/4",
+            "1/b"
+          ],
+          "term_labels": {
+            "b/4": "$\\frac b4$",
+            "1/b": "$\\frac1b$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "b/4",
+            "1/b"
+          ]
+        },
+        "feedback": {
+          "terms": "请核对拆项后含 $b$ 的两个正项；常数 $\\frac14$ 最后再加。"
+        },
+        "submit_label": "确认判断",
+        "display": "amgm-done"
+      },
+      {
+        "id": "equality",
+        "title": "验证取等",
+        "question": "什么条件下，这个下界可以取到？",
+        "interaction": {
+          "type": "equality",
+          "terms": [
+            "b/4",
+            "1/b"
+          ],
+          "term_labels": {
+            "b/4": "$\\frac b4$",
+            "1/b": "$\\frac1b$"
+          }
+        },
+        "expected_answer": {
+          "terms": [
+            "b/4",
+            "1/b"
+          ]
+        },
+        "feedback": {
+          "terms": "取等要求应用基本不等式的两个正项相等。"
+        },
+        "submit_label": "确认判断",
+        "display": "equality-done"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+  </script>
+  <template id="factor-board">
+<div class="visual-board"><div class="board-caption">尝试配因式 · 确认后展开核对</div><div class="formula" data-math-text>$2ab+2a+b=3$</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$(2a+1)(b+1)\stackrel{?}{=}$</span><span data-fill="0"></span></span></div></div>
+  </template>
+  <template id="factor-check-2">
+<div class="reasoning" role="group" aria-label="本次填写的展开核对"><span class="section-label">展开核对 · 你填的乘积值为 2</span><p data-math-text>$(2a+1)(b+1)=2ab+2a+b+1$</p><p data-math-text>$=3+1=4\ne 2$</p><p data-math-text>展开后比条件表达式多 $1$，乘积的值也应比 $3$ 多 $1$。请核对你填写的 $2$。</p></div>
+  </template>
+  <template id="factor-check-3">
+<div class="reasoning" role="group" aria-label="本次填写的展开核对"><span class="section-label">展开核对 · 你填的乘积值为 3</span><p data-math-text>$(2a+1)(b+1)=2ab+2a+b+1$</p><p data-math-text>$=3+1=4\ne 3$</p><p data-math-text>展开后比条件表达式多 $1$，乘积的值也应比 $3$ 多 $1$。请核对你填写的 $3$。</p></div>
+  </template>
+  <template id="factor-check-5">
+<div class="reasoning" role="group" aria-label="本次填写的展开核对"><span class="section-label">展开核对 · 你填的乘积值为 5</span><p data-math-text>$(2a+1)(b+1)=2ab+2a+b+1$</p><p data-math-text>$=3+1=4\ne 5$</p><p data-math-text>展开后比条件表达式多 $1$，乘积的值也应比 $3$ 多 $1$。请核对你填写的 $5$。</p></div>
+  </template>
+  <template id="factor-check-6">
+<div class="reasoning" role="group" aria-label="本次填写的展开核对"><span class="section-label">展开核对 · 你填的乘积值为 6</span><p data-math-text>$(2a+1)(b+1)=2ab+2a+b+1$</p><p data-math-text>$=3+1=4\ne 6$</p><p data-math-text>展开后比条件表达式多 $1$，乘积的值也应比 $3$ 多 $1$。请核对你填写的 $6$。</p></div>
+  </template>
+  <template id="factor-done">
+<div class="visual-board completed-visual"><div class="board-caption">配因式</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$(2a+1)(b+1)=$</span><span class="shape square expression-slot" data-math-text>$4$</span></span></div></div><div class="reasoning"><span class="section-label">系统计算 · 展开核对</span><p data-math-text>$(2a+1)(b+1)=2ab+2a+b+1$</p><p data-math-text>由条件 $2ab+2a+b=3$，得 ${(2a+1)(b+1)=3+1=4}$</p><p data-math-text>条件左边加 $1$，恰好配成两个一次因式的积；目标里的 $2a+1$ 正是其中一个因式。</p></div>
+  </template>
+  <template id="eliminate-board">
+<div class="visual-board"><div class="board-caption">配因式后的条件 · 把 2a+1 看成整体</div><div class="formula" data-math-text>$(2a+1)(b+1)=4$</div></div>
+  </template>
+  <template id="preview-eliminate-correct">
+<div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>$b+1&gt;0$，所以 $2a+1=\frac4{b+1}$</p><p data-math-text>取倒数：$\frac1{2a+1}=\frac{b+1}4$</p></div>
+  </template>
+  <template id="preview-eliminate-flipped">
+<div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>由 $(2a+1)(b+1)=4$ 得 $2a+1=\frac4{b+1}$，这是 $2a+1$ 本身；目标里要的是 $\frac1{2a+1}$。</p></div>
+  </template>
+  <template id="preview-eliminate-stale">
+<div class="reasoning choice-preview"><span class="section-label">整理核对</span><p data-math-text>配因式后乘积是 $4$：$(2a+1)(b+1)=4$，不是原条件右边的 $3$。</p></div>
+  </template>
+  <template id="eliminate-done">
+<div class="visual-board completed-visual"><div class="board-caption">消参：用 b 表示整体 2a+1</div><div class="function-conversion"><div><span class="conversion-label">条件</span><div class="math" data-math-text>$(2a+1)(b+1)=4$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">用 b 表示</span><div class="math" data-math-text>$\dfrac1{2a+1}=\dfrac{b+1}4$</div></div></div></div><div class="reasoning"><span class="section-label">系统计算 · 范围与拆项</span><p data-math-text>由 $a&gt;0$ 得 $2a+1&gt;1$，所以 ${b+1=\frac4{2a+1}&lt;4}$；又 $b&gt;0$，所以 ${0&lt;b&lt;3}$</p><p data-math-text>$\frac1{2a+1}+\frac1b=\frac{b+1}4+\frac1b$</p><p data-math-text>$=\frac b4+\frac1b+\frac14$</p><p data-math-text>目标中 $a$ 只以整体 $2a+1$ 出现，用 $b$ 表示这个整体即可，不必解出 $a$。若反过来保留 $a$，会得到 ${\frac1{2a+1}+\frac{2a+1}{3-2a}}$，不便配成定积。</p></div>
+  </template>
+  <template id="structure-done">
+<div class="visual-board completed-visual"><div class="board-caption">定积求和</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span>·</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span><span data-math-text>$=\frac14$</span></div></div><div class="reasoning"><span class="section-label">根据你的选择，整理思路</span><p data-math-text>由 $b&gt;0$ 得 $\frac b4&gt;0$，$\frac1b&gt;0$</p><p data-math-text>$\frac b4\cdot\frac1b=\frac14$</p><p data-math-text>两个正项的积固定，求和的最小值；常数 $\frac14$ 不参与，最后再加。</p></div>
+  </template>
+  <template id="amgm-done">
+<div data-completed-amgm data-first="{{first}}" data-second="{{second}}" data-first-label="{{first_math}}" data-second-label="{{second_math}}"></div><div class="reasoning"><span class="section-label">系统计算 · 求和的下界</span><p data-math-text>$\frac b4+\frac1b\ge2\sqrt{\frac b4\cdot\frac1b}=2\sqrt{\frac14}=1$</p><p data-math-text>$\frac1{2a+1}+\frac1b=\frac b4+\frac1b+\frac14\ge\frac54$</p></div><p class="calculation-note">下界已经得到，还需要检查它能否取到。</p>
+  </template>
+  <template id="equality-done">
+<div class="visual-board completed-visual"><div class="board-caption">基本不等式取等</div><div class="formula"><span class="shape square expression-slot" data-math-text>{{first_math}}</span><span class="equal-sign">=</span><span class="shape circle expression-slot" data-math-text>{{second_math}}</span></div></div><div class="reasoning"><span class="section-label">系统计算 · 联立取等条件</span><p data-math-text>由 $\frac b4=\frac1b$ 得 $b^2=4$</p><p data-math-text>又 $b&gt;0$，所以 $b=2$，在 ${0&lt;b&lt;3}$ 内</p><p data-math-text>$2a+1=\frac4{b+1}=\frac43$，所以 $a=\frac16&gt;0$</p></div><div class="reasoning"><span class="section-label">系统计算 · 验证原条件</span><p data-math-text>$2\cdot\frac16\cdot2+2\cdot\frac16+2=\frac23+\frac13+2=3$</p><p data-math-text>$\frac1{2a+1}+\frac1b=\frac34+\frac12=\frac54$</p></div>
+  </template>
+  <template id="lesson-completion">
+<section class="completion-card" tabindex="-1"><h2 data-math-text>$\frac1{2a+1}+\frac1b$ 的最小值为 $\frac54$</h2><p data-math-text>当 $a=\frac16,\ b=2$ 时取到。</p></section>
+  </template>
+</body>
+</html>

@@ -3,17 +3,39 @@
 import re
 from collections import Counter
 from copy import deepcopy
+from itertools import combinations
 
 
 class InvalidAction(ValueError):
     pass
 
 
-ORDERED_COMPONENTS = {"symmetry", "substitution"}
+ORDERED_COMPONENTS = {"symmetry", "substitution", "homogeneity", "fill", "rewrite"}
 PAIR_COMPONENTS = {"structure", "amgm", "equality"} | ORDERED_COMPONENTS
 
 
+def slot_count(component):
+    return len(component.get("slots") or slot_labels(component))
+
+
+def slot_labels(component):
+    return component.get("slot_labels", ("方框", "圆圈"))
+
+
+def slot_values(slot):
+    """A slot with names selects up to len(names) targets, joined by "|" in option order."""
+    values = [o["value"] for o in slot["options"]]
+    if "names" not in slot:
+        return values
+    return [""] + [
+        "|".join(chosen)
+        for size in range(1, len(slot["names"]) + 1)
+        for chosen in combinations(values, size)
+    ]
+
+
 def pair_matches(component, actual, expected):
+    actual = actual[: slot_count(component)]
     if component["type"] in ORDERED_COMPONENTS:
         return actual == expected
     return Counter(actual) == Counter(expected)
@@ -38,15 +60,31 @@ def current_node(lesson, state):
 def allowed_actions(node):
     component = node["interaction"]
     if component["type"] in PAIR_COMPONENTS:
-        actions = [
-            {
-                "kind": "fill",
-                "index": i,
-                "values": component["terms"],
-                "description": name,
-            }
-            for i, name in enumerate(component.get("slot_labels", ("方框", "圆圈")))
-        ]
+        if "slots" in component:
+            actions = [
+                {
+                    "kind": "fill",
+                    "index": i,
+                    "values": slot_values(slot),
+                    "description": slot["label"]
+                    + (
+                        "；可多选，多个对象按候选顺序用|连接，空字符串表示清除"
+                        if "names" in slot
+                        else ""
+                    ),
+                }
+                for i, slot in enumerate(component["slots"])
+            ]
+        else:
+            actions = [
+                {
+                    "kind": "fill",
+                    "index": i,
+                    "values": component["terms"],
+                    "description": name,
+                }
+                for i, name in enumerate(slot_labels(component))
+            ]
         if component["type"] == "structure":
             actions.append(
                 {
@@ -103,7 +141,7 @@ def accept_text_answer(node, state):
     if component["type"] in PAIR_COMPONENTS:
         pair = state["pairs"][state["active"]]
         if not pair_matches(component, pair, expected["terms"]):
-            state["pairs"][state["active"]] = list(expected["terms"])
+            pair[: len(expected["terms"])] = expected["terms"]
         if component["type"] == "structure":
             state["swapped"] = expected["fixed"] == "product"
     elif component["type"] == "choice" and len(expected["one_of"]) == 1:
@@ -134,7 +172,9 @@ def apply_action(state, action, lesson):
             if action.value not in spec["values"]:
                 raise InvalidAction("这个值不属于当前组件的候选项。")
             if action.kind == "fill":
-                state["pairs"][state["active"]][action.index] = action.value
+                pair = state["pairs"][state["active"]]
+                pair.extend([""] * (action.index + 1 - len(pair)))
+                pair[action.index] = action.value
             elif action.kind == "swap":
                 state["swapped"] = action.value == "product"
             elif action.kind == "choice":
@@ -175,6 +215,18 @@ def node_contract(node, state):
     contract["allowed_actions"] = allowed_actions(node)
     contract["reference_results"] = node_results(node, state)
     contract["answer_values"] = deepcopy(state.get("choices", {}))
+    if node["interaction"]["type"] in PAIR_COMPONENTS:
+        component = node["interaction"]
+        labels = (
+            [slot["label"] for slot in component["slots"]]
+            if component.get("slots")
+            else slot_labels(component)
+        )
+        pair = state["pairs"][state["active"]]
+        contract["current_inputs"] = [
+            {"index": i, "label": label, "value": pair[i] if i < len(pair) else ""}
+            for i, label in enumerate(labels)
+        ]
     return contract
 
 

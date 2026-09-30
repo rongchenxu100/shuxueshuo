@@ -1,0 +1,251 @@
+{
+  "id": "q26",
+  "version": 1,
+  "problem": {
+    "statement": "若 $x>0$，求函数 $y=\\frac{2x}{x^2+4}$ 的最大值。",
+    "conditions": [
+      "x>0"
+    ],
+    "target": "y=2x/(x^2+4)的最大值"
+  },
+  "methods": [
+    {
+      "id": "reciprocal",
+      "label": "取倒数后分式分离"
+    }
+  ],
+  "routes": {
+    "reciprocal": {
+      "label": "取倒数后分式分离",
+      "nodes": [
+        {
+          "id": "transform",
+          "title": "转化目标",
+          "question": "要求 $y$ 的最大值，可以先转化成求什么？",
+          "interaction": {
+            "type": "choice",
+            "field": "transform_target",
+            "options": [
+              {
+                "value": "min_reciprocal",
+                "label": "求 $\\frac1y$ 的最小值"
+              },
+              {
+                "value": "max_reciprocal",
+                "label": "求 $\\frac1y$ 的最大值"
+              },
+              {
+                "value": "min_denominator",
+                "label": "求分母 $x^2+4$ 的最小值"
+              }
+            ],
+            "description": "min_reciprocal为x>0时y>0，y越大1/y越小，y的最大值对应1/y的最小值；max_reciprocal方向反了；本题1/y无最大值，y无最小值；min_denominator忽略了分子2x也随x变化。"
+          },
+          "expected_answer": {
+            "one_of": [
+              "min_reciprocal"
+            ]
+          },
+          "feedback": {
+            "answer": "$x>0$ 时 $y>0$，$y$ 越大，$\\frac1y$ 越小；分子 $2x$ 也在变，不能只看分母。把 $y$ 的最大值转化成 $\\frac1y$ 的最小值，$\\frac1y=\\frac{x^2+4}{2x}$ 就是熟悉的二次比一次。"
+          },
+          "required_evidence": [
+            "reciprocal_target"
+          ],
+          "criteria": "本步只判断转化目标。原函数y=(2x)/(x²+4)，原分子是2x，原分母是x²+4；倒数1/y才交换二者。解释“只看原分母不行”时必须指明原函数y的分子、分母都在变，不得混用y和1/y的分子分母。\n接受“求1/y的最小值”“求(x²+4)/(2x)的最小值”，返回reciprocal_target。只说“取倒数”而未明确方向时追问；求1/y最大值、只求原分母最小值均不通过。\n下界问题：x>0，所以x²+4>4。x从正侧趋于0时原分母趋于4，但4取不到，是下界不是最小值，不得说“分母最小时”。\n最值问题：x趋于正无穷时y趋于0，y始终为正，因此y没有最小值；1/y无上界，没有最大值。此极限不表示y在整个正半轴递减，不得说“x越大y越小”。y>0时y越大1/y越小，所以最大化y应最小化1/y。\n其他合法做法可认可，不要将非当前路线说成数学错误。本步不要求后续换元、拆分或最终答案。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "转化正确。$x>0$ 时 $y>0$，$y$ 越大 $\\frac1y$ 越小，所以求 $\\frac1y=\\frac{x^2+4}{2x}$ 的最小值。",
+          "results": [
+            "x>0 ⇒ y>0",
+            "y越大，1/y越小：求y的最大值 ⇔ 求1/y的最小值",
+            "1/y=(x²+4)/(2x)"
+          ]
+        },
+        {
+          "id": "split",
+          "title": "分式分离",
+          "question": "把分子逐项除以 $2x$，方框和圆圈各填什么？",
+          "interaction": {
+            "type": "fill",
+            "terms": [
+              "1/2",
+              "1",
+              "2",
+              "4"
+            ],
+            "term_labels": {
+              "1/2": "$\\frac12$",
+              "1": "$1$",
+              "2": "$2$",
+              "4": "$4$"
+            },
+            "slot_labels": [
+              "x 的系数",
+              "1/x 的系数"
+            ],
+            "slot_shapes": [
+              "square",
+              "circle"
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "1/2",
+              "2"
+            ]
+          },
+          "feedback": {
+            "terms": "把你填的式子乘回 $2x$，分别核对二次项与常数项，是否与分子 $x^2+4$ 相同。"
+          },
+          "required_evidence": [
+            "x_coefficient",
+            "reciprocal_coefficient"
+          ],
+          "criteria": "学生把(x²+4)/(2x)分离成x/2+2/x。两格依次为x的系数1/2（x_coefficient）、1/x的系数2（reciprocal_coefficient）。明确一格只记录该格证据，另一格待定时不补填；分轮可积累。完整式子也接受。\n错误核对必须用current_inputs中的学生实际值。若填A、B，尝试式为Ax+B/x，乘回2x得2Ax²+2B，核对二次项系数1、常数项4。填2和4时：2x(2x+4/x)=4x²+8，二次项系数4不等于1，常数8不等于4，所以不恒等。4x²+8不是x²+4的4倍（4倍是4x²+16），不要添加错误的倍数结论。禁止写1/y=2x+4/x这类错误等式；只称“你填的式子”或用问号等号。\n本步只判断分离，不要求和积结构或基本不等式。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "分离正确。$\\frac1y=\\frac{x^2+4}{2x}=\\frac x2+\\frac2x$。",
+          "results": [
+            "1/y=(x²+4)/(2x)=x/2+2/x"
+          ]
+        },
+        {
+          "id": "structure",
+          "title": "观察和积结构",
+          "question": "这两项是定和求积，还是定积求和？",
+          "interaction": {
+            "type": "structure",
+            "terms": [
+              "x/2",
+              "2/x"
+            ],
+            "term_labels": {
+              "x/2": "$\\frac x2$",
+              "2/x": "$\\frac2x$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "x/2",
+              "2/x"
+            ],
+            "fixed": "product",
+            "target": "sum"
+          },
+          "feedback": {
+            "terms": "请核对分离后 $\\frac1y$ 的两项。",
+            "structure": "两项的积固定为 $1$，要求它们和的最小值。"
+          },
+          "required_evidence": [
+            "fixed_product_structure"
+          ],
+          "criteria": "判定当前学生原话，不能判定老师自己纠正后的结论。学生说“定和求积”时一定不通过，evidence=[]、actions=[]，尤其不能返回fixed_product_structure或swap。只有学生表达“定积求和”才返回fixed_product_structure。学生需识别x/2与2/x定积求和。已由前一步明确两项，简答定积求和可以通过，积1由系统计算。只说两个正数或乘积为1未表达求和，可引导目标；只猜答案不足；定和求积不通过，老师不能自动改正后计为学生证据。这里求的是1/y的最小值，y的最大值在基本不等式之后由系统换回。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "判断正确。$\\frac x2$ 与 $\\frac2x$ 的积是 $1$，目标是求和的最小值。",
+          "results": [
+            "x>0 ⇒ x/2>0,2/x>0",
+            "(x/2)·(2/x)=1",
+            "1/y=两项和，定积求和"
+          ]
+        },
+        {
+          "id": "amgm",
+          "title": "应用基本不等式",
+          "question": "对这两个正项应用基本不等式，能得到什么关系？",
+          "interaction": {
+            "type": "amgm",
+            "terms": [
+              "x/2",
+              "2/x"
+            ],
+            "term_labels": {
+              "x/2": "$\\frac x2$",
+              "2/x": "$\\frac2x$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "x/2",
+              "2/x"
+            ]
+          },
+          "feedback": {
+            "terms": "请核对分离后的两个正项。"
+          },
+          "required_evidence": [
+            "amgm_relation"
+          ],
+          "criteria": "接受x/2+2/x≥2√(x/2·2/x)=2，或明确以这两个正项用基本不等式得到1/y≥2、y≤1/2。根号化简、由1/y≥2换回y≤1/2由系统完成，不要求学生再提交计算。只猜答案不足。2是1/y的下界，不是y的最大值；若学生已正确给出两项和≥2，则已满足本步。把1/y≥2写成y≥1/2是方向错误。此时只证明上界，不先认定可取到，不追问下一步骤。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "关系正确。$\\frac x2+\\frac2x\\ge2$，即 $\\frac1y\\ge2$，所以 $y\\le\\frac12$。",
+          "results": [
+            "x/2+2/x≥2√1=2",
+            "1/y≥2，y>0 ⇒ y≤1/2"
+          ]
+        },
+        {
+          "id": "equality",
+          "title": "验证取等",
+          "question": "什么条件下，这个界可以取到？",
+          "interaction": {
+            "type": "equality",
+            "terms": [
+              "x/2",
+              "2/x"
+            ],
+            "term_labels": {
+              "x/2": "$\\frac x2$",
+              "2/x": "$\\frac2x$"
+            }
+          },
+          "expected_answer": {
+            "terms": [
+              "x/2",
+              "2/x"
+            ]
+          },
+          "feedback": {
+            "terms": "取等要求应用基本不等式的两项相等。"
+          },
+          "required_evidence": [
+            "equal_terms"
+          ],
+          "criteria": "直接答x=2时取等已经正确，应返回equal_terms，actions=[]，不能再要求补写两项相等方程。接受x/2=2/x、x²=4结合x>0、或直接x=2。学生只需给取等关系，系统求根、根据范围筛选并算出y。由x²=4得x=±2，但-2不满足x>0；只答x=-2不通过。若正确给出取等方程后列出两个代数根而尚未筛选，可由系统完成，不声称两个根都可取。只猜最大值1/2不足，需要说明在哪里取到。提问为什么两项相等也不足。纯提问返回intent=question、evidence=[]、actions=[]，不修改选择、不推进。错误作答也返回evidence=[]、actions=[]，不得把老师解释出的正确结论记为学生证据。学生明确给出正确答案时，只返回相应evidence，actions=[]，系统负责填入与推进，无需要求学生再点选或重复写式子。",
+          "completion_reply": "取等条件正确。$x=2$ 时 $\\frac x2=\\frac2x=1$，$y=\\frac12$，所以最大值 $\\frac12$ 可以取到。",
+          "results": [
+            "x/2=2/x ⇒ x²=4",
+            "x>0 ⇒ x=2",
+            "y=4/(4+4)=1/2，最大值为1/2"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {
+      "transform_target": null
+    },
+    "feedback": "",
+    "hint": false
+  }
+}

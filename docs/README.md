@@ -47,7 +47,8 @@
 - [基本不等式表达式优先 Method 实施计划](basic-inequality-expression-method-implementation-plan.md)：Parser、证明内核、8 个 Method、31 题网页生成、代表性集成测试和切换门禁的分阶段计划。
 - `basic-inequality-minimal-learning-space.md`：基本不等式最小学习空间（Hasse 前提、向下闭包、差分补齐）与对称结构用 \(s,p\) 替换的实质。
 - `frontend-parallel-development-with-mock-api-plan.md`：工作台真实接入与 API/事件测试合同，Mock 仅用于测试和显式开发。
-- `student-tutor-chat-system-design.md`：受控教学状态图、学习证据和学生长期知识图谱设计；后续学生端阶段实施。
+- [学生交互与个性化教学系统设计](student-tutor-chat-system-design.md)：文本表达解题思路（可使用系统语音输入法）、系统代办基础计算、受验证的解题 workflow、识别/求解/交互并行与五阶段实施验收；长期知识图谱作为后续扩展，目标设计待实施。
+- [Q01 交互 Demo 讨论稿](q01-interaction-demo.md)：三个节点及通过条件、单栏可视化点选与默认可见对话框、Method 教学单元分别声明交互组件和展示组件；待实现。
 - `translations/educational-knowledge-graph-reading-list.md`：教育知识图谱外文阅读清单与中文全文译文入口（ACE / 学习空间 / GbKT / LLM 建图等）。
 
 ## 文档维护规则

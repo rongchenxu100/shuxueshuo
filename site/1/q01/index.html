@@ -7,13 +7,13 @@
   <meta name="theme-color" content="#f5f7f5">
   <title>Q01 · 基本不等式 · 数学说</title>
   <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
-  <link rel="stylesheet" href="/assets/practice/practice.css?v=17">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=32">
   <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
   <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
   <script src="/assets/practice/math-text.js?v=10" defer></script>
-  <script src="/assets/practice/components.js?v=14" defer></script>
-  <script src="/assets/practice/context.js?v=7" defer></script>
-  <script src="/assets/practice/runtime.js?v=12" defer></script>
+  <script src="/assets/practice/components.js?v=20" defer></script>
+  <script src="/assets/practice/context.js?v=13" defer></script>
+  <script src="/assets/practice/runtime.js?v=22" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -76,7 +76,7 @@
     },
     {
       "id": "1",
-      "label": "条件消元法"
+      "label": "消参法"
     }
   ],
   "routes": {
@@ -183,7 +183,7 @@
         "feedback": {
           "answer": "还需要表达你对这个问题的判断。"
         },
-        "submit_label": "确认消元",
+        "submit_label": "确认消参",
         "board": "eliminate-board",
         "display": "eliminate-done"
       },
@@ -265,7 +265,7 @@
 }
   </script>
   <template id="eliminate-done">
-<div class="selected-method"><span>你选择的方案</span><span class="method-pill">条件消元法</span></div>
+<div class="selected-method"><span>你选择的方案</span><span class="method-pill">消参法</span></div>
       <div class="visual-board completed-visual"><div class="board-caption">消去一个变量</div><div class="formula"><span><i>{{other}}</i> = 2 − <i>{{variable}}</i></span></div></div>
       <div class="reasoning"><span class="section-label">系统计算 · 代入目标式</span><p class="math"><i>mn</i> = <i>{{variable}}</i>(2 − <i>{{variable}}</i>) = 2<i>{{variable}}</i> − <i>{{variable}}</i><sup>2</sup></p><p class="math">∵ <i>{{variable}}</i> &gt; 0，2 − <i>{{variable}}</i> &gt; 0</p><p class="math">∴ 0 &lt; <i>{{variable}}</i> &lt; 2</p></div>
   </template>
@@ -328,7 +328,7 @@
 
   </template>
   <template id="quadratic-board">
-<div class="visual-board"><div class="board-caption">消元后的目标式</div><div class="formula"><span><i>mn</i> = 2<i>{{variable}}</i> − <i>{{variable}}</i><sup>2</sup></span></div></div>
+<div class="visual-board"><div class="board-caption">消参后的目标式</div><div class="formula"><span><i>mn</i> = 2<i>{{variable}}</i> − <i>{{variable}}</i><sup>2</sup></span></div></div>
   </template>
   <template id="feasible-board">
 <div class="visual-board"><div class="board-caption">取得上界时的取值</div><div class="formula"><i>m</i> = <i>n</i> = 1</div></div>
@@ -337,7 +337,7 @@
 <section class="completion-card" tabindex="-1"><h2><span class="math"><i>mn</i></span> 的最大值为 <span class="math">1</span></h2><p>当 <span class="math"><i>m</i> = <i>n</i> = 1</span> 时取到。</p></section>
   </template>
   <template id="comparison">
-<aside class="route-comparison"><h3>再看一种思路</h3><p>你用条件消元，把目标转成了二次式。观察到两正数的和固定，也可以直接用基本不等式得到上界。</p><p class="math">2 = <i>m</i> + <i>n</i> ≥ 2<span class="radical"><span class="root-sign">√</span><span class="radicand"><i>mn</i></span></span>，所以 <i>mn</i> ≤ 1。</p><p>两种方法都在 <span class="math"><i>m</i> = <i>n</i> = 1</span> 时取得最大值。</p></aside>
+<aside class="route-comparison"><h3>再看一种思路</h3><p>你用消参法，把目标转成了二次式。观察到两正数的和固定，也可以直接用基本不等式得到上界。</p><p class="math">2 = <i>m</i> + <i>n</i> ≥ 2<span class="radical"><span class="root-sign">√</span><span class="radicand"><i>mn</i></span></span>，所以 <i>mn</i> ≤ 1。</p><p>两种方法都在 <span class="math"><i>m</i> = <i>n</i> = 1</span> 时取得最大值。</p></aside>
   </template>
 </body>
 </html>
