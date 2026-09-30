@@ -23,6 +23,13 @@ internal/solver-runs/*/
 internal/review-runs/
 internal/review-analysis/
 
+# Local BP slides and presentation drafts.
+/internal/marketing/bp/
+
+# Local Xiaohongshu content packages and generated outputs.
+/internal/marketing/xiaohongshu*/
+/site/assets/xiaohongshu/
+
 # Large acceptance evidence archives (keep locally / out of band; not for Git)
 docs/validation/**/evidence.tar.gz
 # Frozen source/template copies stay with local evidence; reports remain reviewable.
@@ -54,6 +61,3 @@ docs/validation/**/frozen-files/
 
 # Local Manim video experiments and rendered deliverables
 videos/basic-inequality-proof/
-site/assets/xiaohongshu/basic-inequality-why-carousel/basic-inequality-proof.mp4
-site/assets/xiaohongshu/basic-inequality-why-carousel/basic-inequality-proof.srt
-site/assets/xiaohongshu/basic-inequality-why-carousel/basic-inequality-proof-cover.png
