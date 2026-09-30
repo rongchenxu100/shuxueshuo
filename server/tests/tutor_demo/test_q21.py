@@ -88,7 +88,7 @@ def test_page_and_teacher_contract():
         for math in re.findall(r"\$[^$]*\$", block):
             assert "<" not in math, math
     home = (ROOT / "site/1/index.html").read_text()
-    assert home.count('href="/1/q21/"') == 1
+    assert home.count('class="problem-card" href="/1/q21/"') == 1
     cards = len(re.findall(r'class="problem-card" href="/1/q\d+/"', home))
     assert f"共 <strong>{cards}</strong> 题" in home
 

@@ -79,7 +79,7 @@ def test_contract_templates_and_primary_route():
             ) <= templates
             if n.get("board"):
                 assert n["board"] in templates
-    assert (ROOT / "site/1/index.html").read_text().count('href="/1/q09/"') == 1
+    assert (ROOT / "site/1/index.html").read_text().count('class="problem-card" href="/1/q09/"') == 1
 
 
 @pytest.mark.parametrize(

@@ -83,7 +83,7 @@ def test_page_and_teacher_contract():
         assert (
             r"\left(\dfrac ba+\dfrac ab\right)+\left(\dfrac1a+\dfrac1b\right)" in block
         )
-    assert (ROOT / "site/1/index.html").read_text().count('href="/1/q15/"') == 1
+    assert (ROOT / "site/1/index.html").read_text().count('class="problem-card" href="/1/q15/"') == 1
 
 
 def test_rewrite_candidates():

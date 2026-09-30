@@ -92,7 +92,7 @@ def test_page_and_teacher_contract():
     split = re.search(r'<template id="split-board">(.*?)</template>', text, re.S)[1]
     assert re.findall(r'data-fill="(\d+)"', split) == ["0", "1"]
     home = (ROOT / "site/1/index.html").read_text()
-    assert home.count('href="/1/q16/"') == 1
+    assert home.count('class="problem-card" href="/1/q16/"') == 1
     assert "消参法求最值" in home and "条件消元" not in home
 
 

@@ -76,7 +76,7 @@ def test_page_and_teacher_contract():
     for block in re.findall(r"<template[^>]*>(.*?)</template>", text, re.S):
         for math in re.findall(r"\$[^$]*\$", block):
             assert "<" not in math, math
-    assert (ROOT / "site/1/index.html").read_text().count('href="/1/q17/"') == 1
+    assert (ROOT / "site/1/index.html").read_text().count('class="problem-card" href="/1/q17/"') == 1
 
 
 def test_local_and_server_replay_wrong_answers_and_restart():

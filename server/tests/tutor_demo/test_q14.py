@@ -107,7 +107,7 @@ def test_page_and_teacher_contract():
                     o["value"] for o in node["interaction"]["slots"][0]["options"]
                 ]
     assert len(teacher["initial_state"]["pairs"]) == 6
-    assert (ROOT / "site/1/index.html").read_text().count('href="/1/q14/"') == 1
+    assert (ROOT / "site/1/index.html").read_text().count('class="problem-card" href="/1/q14/"') == 1
 
 
 def test_substitution_candidates_are_single_targets():

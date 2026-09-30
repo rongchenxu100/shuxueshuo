@@ -82,7 +82,7 @@ def test_page_and_teacher_contract():
     board = re.search(r'<template id="degree-board">(.*?)</template>', text, re.S)[1]
     assert re.findall(r'data-degree="(\d)"', board) == ["0", "1", "2"]
     assert len(homogeneity["interaction"]["slot_labels"]) == 3
-    assert (ROOT / "site/1/index.html").read_text().count('href="/1/q13/"') == 1
+    assert (ROOT / "site/1/index.html").read_text().count('class="problem-card" href="/1/q13/"') == 1
 
 
 def test_local_and_server_replay_three_degrees_and_wrong_scopes():

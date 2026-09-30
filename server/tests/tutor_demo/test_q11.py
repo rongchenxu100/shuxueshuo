@@ -115,7 +115,7 @@ def test_page_and_teacher_contract():
     substitution = page["routes"]["substitution"][0]
     assert set(substitution["scope_boards"]) == {"a+1", "a"}
     assert len(teacher["initial_state"]["pairs"]) == len(page["routes"]["substitution"])
-    assert (ROOT / "site/1/index.html").read_text().count('href="/1/q11/"') == 1
+    assert (ROOT / "site/1/index.html").read_text().count('class="problem-card" href="/1/q11/"') == 1
 
 
 def test_local_and_server_replay_wrong_target_and_restart():

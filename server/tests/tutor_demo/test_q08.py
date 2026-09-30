@@ -84,7 +84,7 @@ def test_page_teacher_contract_and_templates_agree():
             assert set(node.get("preview", {}).values()) <= templates
             if node.get("board"):
                 assert node["board"] in templates
-    assert (ROOT / "site/1/index.html").read_text().count('href="/1/q08/"') == 1
+    assert (ROOT / "site/1/index.html").read_text().count('class="problem-card" href="/1/q08/"') == 1
 
 
 def test_local_and_server_replay_errors_and_switch_preserve_completed_attempt():

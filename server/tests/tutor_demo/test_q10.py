@@ -81,7 +81,7 @@ def test_page_and_teacher_contract():
             board = re.search(rf'<template id="{node["board"]}">(.*?)</template>', text, re.S).group(1)
             targets = set(re.findall(r'data-rewrite-scope="([^"]+)"', board))
             assert targets == {option["value"] for option in node["interaction"]["slots"][0]["options"]}
-    assert (ROOT / "site/1/index.html").read_text().count('href="/1/q10/"') == 1
+    assert (ROOT / "site/1/index.html").read_text().count('class="problem-card" href="/1/q10/"') == 1
 
 
 def test_local_and_server_replay_wrong_scopes_factors_and_restart():

@@ -87,7 +87,7 @@ def test_page_and_teacher_contract():
     assert combos == ["2m+1", "n+1", "2m+1|n+1"]
     assert set(page["routes"]["substitution"][0]["scope_boards"]) == set(combos)
     assert len(teacher["initial_state"]["pairs"]) == len(page["routes"]["substitution"])
-    assert (ROOT / "site/1/index.html").read_text().count('href="/1/q12/"') == 1
+    assert (ROOT / "site/1/index.html").read_text().count('class="problem-card" href="/1/q12/"') == 1
 
 
 def test_local_and_server_replay_single_substitutions_fail():
