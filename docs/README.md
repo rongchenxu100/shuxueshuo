@@ -32,6 +32,7 @@
 
 ## 课程页与交互
 
+- [全站手机号登录与题目学习标记计划](site-login-and-learning-marks-plan.md)：手机号验证码登录、AI 接口登录校验，以及是否练习过和学习状态（未标记／熟练掌握／需要再次练习）；当前范围已确认，待实施。
 - [基本不等式章节题库首版计划](basic-inequality-practice-bank-plan.md)：`/1` 章节入口、题目与 JSON 清单、个人做题状态、登录的四阶段计划；静态入口已实现、待发布。
 - [交互题目公共运行时设计](interactive-lesson-shared-runtime-design.md)：HTML 承担学生课程，教师 JSON + Context 支撑一对一对话；Q01 已实现本地练习和发起对话时批量同步，未部署。
 
