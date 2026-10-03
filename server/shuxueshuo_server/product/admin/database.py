@@ -17,6 +17,9 @@ from ..repositories import insert, row, UserContext
 from ..storage import LocalArtifactStorage
 
 MUTABLE = {
+    'student_login_sessions': 'revoked_at',
+    'student_sms_challenges': 'status attempts consumed_at',
+    'student_auth_limits': 'count expires_at',
     'batches': 'name updated_at', 'batch_items': 'initial_build_id', 'sources': 'normalized_artifact_id',
     'problems': 'title visibility current_revision_id latest_build_id current_page_build_id lock_version updated_at current_source_version_id current_candidate_id latest_extraction_run_id understanding_generation latest_runtime_binding_run_id',
     'problem_sources': 'matched_revision_id', 'builds': 'resolved_revision_id status started_at finished_at error_code',
@@ -82,7 +85,7 @@ def grant(c):
         columns = ','.join('"' + x.name + '"' for x in m.metadata.tables[table].c)
         c.exec_driver_sql(f'REVOKE UPDATE ({columns}) ON "{table}" FROM product_app')
         c.exec_driver_sql(f'GRANT SELECT ON "{table}" TO product_app')
-        if table not in ('users', 'workspaces', 'workspace_members'):
+        if table not in ('users', 'workspaces', 'workspace_members', 'student_phone_identities'):
             c.exec_driver_sql(f'GRANT INSERT ON "{table}" TO product_app')
         if table in MUTABLE:
             columns = ','.join('"' + x + '"' for x in MUTABLE[table].split())

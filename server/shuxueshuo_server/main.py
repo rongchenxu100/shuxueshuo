@@ -9,6 +9,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Query
 
+from shuxueshuo_server.auth.api import install_auth
 from shuxueshuo_server.wechat_jssdk import WeChatJsSdkSigner
 from shuxueshuo_server.tutor_demo.api import create_router as create_tutor_demo_router
 
@@ -35,6 +36,8 @@ else:
     app = create_app()
 
 app.include_router(create_tutor_demo_router())
+
+install_auth(app)
 
 _signer: WeChatJsSdkSigner | None = None
 

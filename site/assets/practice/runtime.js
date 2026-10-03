@@ -1,4 +1,6 @@
 /* Shared practice runtime: HTML owns course content; dialogue sync is opt-in. */
+// Shared account UI; failure must never prevent local practice.
+if (typeof document !== 'undefined' && document.currentScript?.src) import(new URL('../auth/site-auth.js?v=2', document.currentScript.src).href).catch(() => {});
 (() => {
   'use strict';
   const lesson = JSON.parse(document.getElementById('practice-config').textContent);
@@ -466,6 +468,12 @@
   window.addEventListener('resize', closePicker);
   window.addEventListener('scroll', closePicker, { passive: true });
   document.querySelector('#reset').addEventListener('click', restart);
+  let accountId;
+  window.addEventListener('site-auth-change', event => {
+    const nextId = event.detail.user?.id || null;
+    if (accountId && accountId !== nextId) restart();
+    accountId = nextId;
+  });
   document.querySelector('#completion').addEventListener('click', event => {
     const button = event.target.closest('[data-switch-route]');
     if (button) sendEvent('ui', {kind:'switch_route', value:button.dataset.switchRoute});

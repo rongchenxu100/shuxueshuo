@@ -315,3 +315,22 @@ sa.Index('ix_jobs_active', jobs.c.workspace_id, jobs.c.status, jobs.c.created_at
 sa.Index('ix_outbox_pending', outbox_messages.c.available_at, outbox_messages.c.created_at, postgresql_where=outbox_messages.c.status.in_(['pending', 'publishing']))
 sa.Index('ix_diagnostics_code', diagnostics.c.workspace_id, diagnostics.c.code, diagnostics.c.created_at)
 sa.Index('ix_calls_provider', model_calls.c.workspace_id, model_calls.c.provider, model_calls.c.created_at)
+
+# Student identity is site-wide and deliberately has no workspace membership.
+student_phone_identities = sa.Table('student_phone_identities', metadata,
+    sa.Column('phone', sa.Text, primary_key=True),
+    sa.Column('user_id', UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False, unique=True),
+    col('created_at', sa.DateTime(timezone=True), default=sa.text('now()')))
+student_login_sessions = sa.Table('student_login_sessions', metadata,
+    sa.Column('token_hash', sa.Text, primary_key=True),
+    sa.Column('user_id', UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False),
+    col('created_at', sa.DateTime(timezone=True), default=sa.text('now()')),
+    col('expires_at', sa.DateTime(timezone=True)), stamp('revoked_at'))
+student_sms_challenges = sa.Table('student_sms_challenges', metadata,
+    sa.Column('id', UUID(as_uuid=True), primary_key=True), col('phone'), col('code_hash'),
+    col('created_at', sa.DateTime(timezone=True), default=sa.text('now()')),
+    col('expires_at', sa.DateTime(timezone=True)), col('status'),
+    col('attempts', sa.Integer, default=sa.text('0')), stamp('consumed_at'))
+student_auth_limits = sa.Table('student_auth_limits', metadata,
+    sa.Column('key', sa.Text, primary_key=True), col('count', sa.Integer),
+    col('expires_at', sa.DateTime(timezone=True)))
