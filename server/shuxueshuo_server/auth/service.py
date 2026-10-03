@@ -65,14 +65,16 @@ class AuthService:
 
     def send(self, phone, ip):
         now, challenge_id = self.clock(), uuid4()
-        code = f"{secrets.randbelow(1000000):06d}"
+        dev_code = getattr(self.sms, "dev_code", None) if self.config.mode == "mock" else None
+        code = dev_code or f"{secrets.randbelow(1000000):06d}"
         t = m.student_sms_challenges
         # Commit reservations before the network call; failures still consume budget.
         with transaction(self.db) as c:
-            self.rate(c, "sms-global", "all", self.config.daily_limit, 86400, now)
-            self.rate(c, "sms-ip", ip, 20, 3600, now)
-            self.rate(c, "sms-phone", phone, 10, 86400, now)
-            self.rate(c, "sms-cooldown", phone, 1, self.config.cooldown_seconds, now)
+            if not dev_code:
+                self.rate(c, "sms-global", "all", self.config.daily_limit, 86400, now)
+                self.rate(c, "sms-ip", ip, 20, 3600, now)
+                self.rate(c, "sms-phone", phone, 10, 86400, now)
+                self.rate(c, "sms-cooldown", phone, 1, self.config.cooldown_seconds, now)
             c.execute(
                 t.insert().values(
                     id=challenge_id,
@@ -95,11 +97,14 @@ class AuthService:
             ) from None
         with transaction(self.db) as c:
             c.execute(t.update().where(t.c.id == challenge_id).values(status="sent"))
-        return {
+        result = {
             "challenge_id": str(challenge_id),
-            "retry_after": self.config.cooldown_seconds,
+            "retry_after": 0 if dev_code else self.config.cooldown_seconds,
             "expires_in": self.config.code_seconds,
         }
+        if dev_code:
+            result["dev_code"] = dev_code
+        return result
 
     def verify(self, phone, challenge_id, code, ip, old_token=None):
         now = self.clock()

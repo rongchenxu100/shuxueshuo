@@ -239,12 +239,15 @@
       if (!/^1[3-9]\d{9}$/.test(phone.value)) { say('请输入 11 位手机号。', 'error'); phone.focus(); return; }
       busy = true; say(''); send.classList.add('is-sending'); send.textContent = '发送中…'; renderControls();
       const ticket = ++epoch, number = phone.value;
+      let autoSubmit = false;
       try {
         const data = await api('sms/send', {phone: number});
         if (ticket !== epoch) return;
         challenge = {id: data.challenge_id, phone: number};
         retryAt = Date.now() + data.retry_after * 1000;
         say(`验证码已发送至 ${number.slice(0, 3)}****${number.slice(-4)}，5 分钟内有效。`, 'success');
+        // Only the loopback-only local mock returns this.
+        if (/^\d{6}$/.test(data.dev_code || '')) { code.value = data.dev_code; autoSubmit = true; }
       } catch (failure) {
         if (ticket !== epoch) return;
         say(failure.message, 'error');
@@ -252,7 +255,8 @@
       } finally {
         send.classList.remove('is-sending');
         settle(ticket);
-        if (dialog.open && challenge) code.focus();
+        if (autoSubmit && dialog.open) dialog.querySelector('form').requestSubmit();
+        else if (dialog.open && challenge) code.focus();
       }
     });
     dialog.querySelector('form').addEventListener('submit', async event => {

@@ -12,7 +12,7 @@ from sqlalchemy.exc import DBAPIError
 from shuxueshuo_server.auth.api import install_auth
 from shuxueshuo_server.auth.config import AuthConfig
 from shuxueshuo_server.auth.service import AuthError, AuthService
-from shuxueshuo_server.auth.sms import SmsUnavailable
+from shuxueshuo_server.auth.sms import MockSms, SmsUnavailable
 from shuxueshuo_server.product import models as m
 from shuxueshuo_server.product.db import transaction
 
@@ -234,3 +234,16 @@ def test_disabled_service():
             client.post("/api/auth/sms/send", json={"phone": "13900000000"}).status_code
             == 503
         )
+
+
+def test_local_dev_mock_uses_fixed_code_without_send_limits(auth, phone, tmp_path):
+    auth.sms = MockSms(tmp_path / "mock-sms")
+    for _ in range(12):  # Beyond the per-phone cooldown and daily cap.
+        sent = auth.send(phone, "one")
+        assert sent["dev_code"] == "000000" and sent["retry_after"] == 0
+    user, _ = auth.verify(phone, UUID(sent["challenge_id"]), "000000", "one")
+    assert user["phone"].endswith(phone[-4:])
+
+
+def test_in_memory_mock_keeps_random_codes(auth, phone):
+    assert "dev_code" not in auth.send(phone, "one")

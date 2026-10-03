@@ -21,6 +21,9 @@ class MockSms:
     def __init__(self, directory=None):
         self.directory = Path(directory) if directory else None
         self.messages = {}  # Only injected test fixtures can inspect this; no HTTP route.
+        # File-backed mock = local dev site (loopback-only): fixed code, no send limits.
+        # In-memory test fixtures keep random codes so OTP and rate-limit tests stay real.
+        self.dev_code = "000000" if self.directory else None
 
     def send(self, phone, code, challenge_id):
         if self.directory:
