@@ -5,6 +5,8 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from sqlalchemy import text
+
 import httpx
 import pytest
 from fastapi.testclient import TestClient
@@ -20,9 +22,9 @@ def start(client):
     return client.post('/api/tutor-demo/sessions', json={'lesson_id': 'q01'}).json()
 
 
-def test_session_budget_includes_help_and_text_but_not_ui_or_replay(tmp_path):
+def test_session_budget_includes_help_and_text_but_not_ui_or_replay(budget_db):
     tutor = Tutor()
-    client = TestClient(create_app(tutor, CallBudget(tmp_path / 'usage', session_limit=2)))
+    client = TestClient(create_app(tutor, CallBudget(budget_db, session_limit=2)))
     view = start(client)
     view = send(client, view, action('method', 'direct')).json()
     before = view
@@ -36,12 +38,11 @@ def test_session_budget_includes_help_and_text_but_not_ui_or_replay(tmp_path):
     assert send(client, view, action('fill', 'm', 0)).status_code == 200
 
 
-def test_daily_budget_survives_new_sessions_routers_and_day_rollover(tmp_path):
+def test_daily_budget_survives_new_sessions_routers_and_day_rollover(budget_db):
     now = [datetime(2026, 9, 30, 23, 59, 59, tzinfo=ZoneInfo('Asia/Shanghai')).timestamp()]
-    path = tmp_path / 'usage'
     for i in range(2):
         tutor = Tutor()
-        client = TestClient(create_app(tutor, CallBudget(path, daily_limit=1, clock=lambda: now[0])))
+        client = TestClient(create_app(tutor, CallBudget(budget_db, daily_limit=1, clock=lambda: now[0])))
         view = start(client)
         response = send(client, view, kind='help')
         assert response.status_code == (200 if i == 0 else 429)
@@ -51,12 +52,11 @@ def test_daily_budget_survives_new_sessions_routers_and_day_rollover(tmp_path):
     assert send(client, view, kind='help').status_code == 200
 
 
-def test_atomic_reservations_cannot_overspend(tmp_path):
-    path = tmp_path / 'usage'
+def test_atomic_reservations_cannot_overspend(budget_db):
     # Independent instances represent separate workers sharing one ledger.
     def reserve(i):
         try:
-            CallBudget(path, daily_limit=3).reserve(str(i))
+            CallBudget(budget_db, daily_limit=3).reserve(str(i), user_id="00000000-0000-0000-0000-000000000001")
             return True
         except DialogueLimited:
             return False
@@ -64,7 +64,7 @@ def test_atomic_reservations_cannot_overspend(tmp_path):
         assert sum(pool.map(reserve, range(20))) == 3
 
 
-def test_provider_failure_is_charged_and_retry_has_cooldown(tmp_path):
+def test_provider_failure_is_charged_and_retry_has_cooldown(budget_db):
     class Failing(Tutor):
         async def respond(self, **data):
             self.calls.append(data)
@@ -72,7 +72,7 @@ def test_provider_failure_is_charged_and_retry_has_cooldown(tmp_path):
 
     now = [1000.0]
     tutor = Failing()
-    client = TestClient(create_app(tutor, CallBudget(tmp_path / 'usage', session_limit=2,
+    client = TestClient(create_app(tutor, CallBudget(budget_db, session_limit=2,
                                                    failure_cooldown=5, clock=lambda: now[0])))
     view = start(client)
     assert send(client, view, kind='help').status_code == 503
@@ -85,11 +85,9 @@ def test_provider_failure_is_charged_and_retry_has_cooldown(tmp_path):
     assert len(tutor.calls) == 2
 
 
-def test_budget_storage_failure_blocks_model(tmp_path):
-    path = tmp_path / 'directory'
-    path.mkdir()
+def test_budget_storage_failure_blocks_model():
     tutor = Tutor()
-    client = TestClient(create_app(tutor, CallBudget(path)))
+    client = TestClient(create_app(tutor, CallBudget()))
     assert send(client, start(client), kind='help').status_code == 503
     assert not tutor.calls
 
@@ -106,7 +104,7 @@ def test_other_is_fixed_reply_and_cannot_forge_evidence():
     assert result['messages'][-1]['text'] == OFF_TOPIC_REPLY
 
 
-def test_inflight_dialogue_rejected_without_second_provider_call(tmp_path):
+def test_inflight_dialogue_rejected_without_second_provider_call(budget_db):
     async def run():
         entered, release = asyncio.Event(), asyncio.Event()
 
@@ -118,7 +116,7 @@ def test_inflight_dialogue_rejected_without_second_provider_call(tmp_path):
                 return self.proposal
 
         tutor = Slow()
-        app = create_app(tutor, CallBudget(tmp_path / 'usage'))
+        app = create_app(tutor, CallBudget(budget_db))
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url='http://test') as client:
             view = (await client.post('/api/tutor-demo/sessions', json={'lesson_id': 'q01'})).json()
             url = f"/api/tutor-demo/sessions/{view['session_id']}/events"
@@ -137,24 +135,24 @@ def test_inflight_dialogue_rejected_without_second_provider_call(tmp_path):
 
 @pytest.mark.parametrize('blank', ['', ' ', '\t'])
 def test_blank_budget_settings_use_defaults_and_router_starts(monkeypatch, blank):
-    for key in ('TUTOR_SESSION_CALL_LIMIT', 'TUTOR_DAILY_CALL_LIMIT', 'TUTOR_FAILURE_COOLDOWN_SECONDS'):
+    for key in ('TUTOR_SESSION_CALL_LIMIT', 'TUTOR_DAILY_CALL_LIMIT', 'TUTOR_USER_DAILY_CALL_LIMIT', 'TUTOR_FAILURE_COOLDOWN_SECONDS'):
         monkeypatch.setenv(key, blank)
     budget = CallBudget()
-    assert (budget.session_limit, budget.daily_limit, budget.failure_cooldown) == (20, 200, 5)
+    assert (budget.session_limit, budget.daily_limit, budget.user_daily_limit, budget.failure_cooldown) == (50, 200, 50, 5)
     with TestClient(create_app(Tutor())) as client:
         assert client.post('/api/tutor-demo/sessions', json={'lesson_id': 'q01'}).status_code == 201
 
 
-def test_zero_budget_settings_remain_explicit_zero(monkeypatch):
-    for key in ('TUTOR_SESSION_CALL_LIMIT', 'TUTOR_DAILY_CALL_LIMIT', 'TUTOR_FAILURE_COOLDOWN_SECONDS'):
+def test_zero_budget_settings_remain_explicit_zero(monkeypatch, budget_db):
+    for key in ('TUTOR_SESSION_CALL_LIMIT', 'TUTOR_DAILY_CALL_LIMIT', 'TUTOR_USER_DAILY_CALL_LIMIT', 'TUTOR_FAILURE_COOLDOWN_SECONDS'):
         monkeypatch.setenv(key, '0')
-    budget = CallBudget()
-    assert (budget.session_limit, budget.daily_limit, budget.failure_cooldown) == (0, 0, 0)
+    budget = CallBudget(budget_db)
+    assert (budget.session_limit, budget.daily_limit, budget.user_daily_limit, budget.failure_cooldown) == (0, 0, 0, 0)
     with pytest.raises(DialogueLimited):
-        budget.reserve('zero-budget')
+        budget.reserve('zero-budget', user_id='00000000-0000-0000-0000-000000000001')
 
 
-def test_busy_retry_same_event_returns_original_result_without_second_charge(tmp_path):
+def test_busy_retry_same_event_returns_original_result_without_second_charge(budget_db):
     async def run():
         entered, release = asyncio.Event(), asyncio.Event()
 
@@ -166,7 +164,7 @@ def test_busy_retry_same_event_returns_original_result_without_second_charge(tmp
                 return self.proposal
 
         tutor = Slow()
-        budget = CallBudget(tmp_path / 'usage', session_limit=1, daily_limit=1)
+        budget = CallBudget(budget_db, session_limit=1, daily_limit=1)
         async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app(tutor, budget)), base_url='http://test') as client:
             view = (await client.post('/api/tutor-demo/sessions', json={'lesson_id': 'q01'})).json()
             url = f"/api/tutor-demo/sessions/{view['session_id']}/events"
@@ -182,9 +180,10 @@ def test_busy_retry_same_event_returns_original_result_without_second_charge(tmp
             retry = await client.post(url, json=body)
             assert retry.status_code == 200 and retry.json() == original.json()
             assert len(tutor.calls) == 1
-            with budget.connect() as db:
-                assert db.execute('SELECT calls FROM sessions').fetchone()[0] == 1
-                assert db.execute('SELECT calls FROM daily').fetchone()[0] == 1
+            with budget.db.connect() as db:
+                assert db.execute(text('SELECT calls FROM tutor_session_usage')).fetchone()[0] == 1
+                assert db.execute(text('SELECT calls FROM tutor_daily_usage')).fetchone()[0] == 1
+                assert db.execute(text('SELECT calls FROM tutor_user_daily_usage')).fetchone()[0] == 1
     asyncio.run(run())
 
 

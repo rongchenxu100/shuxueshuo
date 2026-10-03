@@ -334,3 +334,20 @@ student_sms_challenges = sa.Table('student_sms_challenges', metadata,
 student_auth_limits = sa.Table('student_auth_limits', metadata,
     sa.Column('key', sa.Text, primary_key=True), col('count', sa.Integer),
     col('expires_at', sa.DateTime(timezone=True)))
+
+# AI call counters share the site's PostgreSQL database; no conversation content.
+tutor_daily_usage = sa.Table('tutor_daily_usage', metadata,
+    sa.Column('day', sa.Date, primary_key=True),
+    col('calls', sa.BigInteger, default=sa.text('0')),
+    sa.CheckConstraint('calls >= 0', name='calls_nonnegative'))
+tutor_user_daily_usage = sa.Table('tutor_user_daily_usage', metadata,
+    sa.Column('user_id', UUID(as_uuid=True), sa.ForeignKey('users.id'), primary_key=True),
+    sa.Column('day', sa.Date, primary_key=True),
+    col('calls', sa.BigInteger, default=sa.text('0')),
+    sa.CheckConstraint('calls >= 0', name='calls_nonnegative'))
+tutor_session_usage = sa.Table('tutor_session_usage', metadata,
+    sa.Column('session_id', sa.Text, primary_key=True),
+    sa.Column('user_id', UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False),
+    col('calls', sa.BigInteger, default=sa.text('0')),
+    col('retry_at', sa.Double, default=sa.text('0')),
+    sa.CheckConstraint('calls >= 0', name='calls_nonnegative'), sa.CheckConstraint('retry_at >= 0', name='retry_nonnegative'))

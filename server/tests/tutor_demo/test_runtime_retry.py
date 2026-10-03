@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 
 
-@pytest.mark.parametrize('code', ['session_busy', 'retry_cooldown', 'session_limit', 'daily_limit',
+@pytest.mark.parametrize('code', ['session_busy', 'retry_cooldown', 'session_limit', 'daily_limit', 'user_daily_limit',
                                  'cancel_login', 'resume_login', 'expired', 'expired_cancel', 'account_changed'])
 def test_auth_gate_and_timeout_retry(code):
     runtime = Path(__file__).resolve().parents[3] / 'site/assets/practice/runtime.js'
@@ -46,14 +46,14 @@ const scope = {
   acceptSnapshot(data) { scope.snapshot = data; scope.state = data.state; },
   fetch: async (url, options) => {
     posted.push(JSON.parse(options.body));
-    if (mode === 'expired' && posted.length === 1) return {ok: false, status: 401, json: async () => ({detail: '请先登录'})};
+    if (mode === 'expired' && posted.length === 1) return {headers: new Headers(), ok: false, status: 401, json: async () => ({detail: '请先登录'})};
     if (mode === 'timeout') return new Promise((resolve, reject) => {
       options.signal.addEventListener('abort', () => {
         const error = new Error('timeout'); error.name = 'AbortError'; reject(error);
       });
     });
-    if (mode === 'limited') return {ok: false, json: async () => ({code, detail: code, retry_after: 2})};
-    return {ok: true, json: async () => ({session_id: 'session', revision: 1,
+    if (mode === 'limited') return {headers: new Headers(), ok: false, json: async () => ({code, detail: code, retry_after: 2})};
+    return {headers: new Headers({'X-Tutor-Calls-Remaining': '3'}), ok: true, json: async () => ({session_id: 'session', revision: 1,
       attempt_id: 'attempt', state: {active: 0}, messages: [{text: '回复'}]})};
   },
 };
@@ -82,6 +82,7 @@ const runTimer = delay => {
       assert.equal(posted.length, 1);
       assert.deepEqual(posted[0], payload);
       assert.equal(scope.messageInput.value, '');
+      assert.equal(scope.networkStatus.textContent, '今天还可以向老师提问或要提示 3 次。');
     } else {
       assert.equal(posted.length, 0);
       assert.equal(scope.messageInput.value, '为什么？');
@@ -134,10 +135,51 @@ const runTimer = delay => {
     assert.equal(posted.length, 3);
   } else {
     assert.equal(scope.retryRequest, null);
-    if (code === 'daily_limit') runTimer(2000);
+    if (['daily_limit', 'user_daily_limit'].includes(code)) runTimer(2000);
     assert.equal(scope.retryButton.hidden, true);
   }
   for (const body of posted) assert.deepEqual(body, payload);
 })().catch(error => { console.error(error); process.exitCode = 1; });
 '''
     subprocess.run(['node', '-e', script, str(runtime), code], check=True, capture_output=True, text=True)
+
+
+def test_personal_pause_survives_restart_but_clears_on_account_switch():
+    runtime = Path(__file__).resolve().parents[3] / 'site/assets/practice/runtime.js'
+    script = r'''
+const assert = require('node:assert/strict');
+const vm = require('node:vm');
+const source = require('node:fs').readFileSync(process.argv[1], 'utf8');
+let onAuthChange, cleared = 0;
+const scope = {
+  generation: 0, requestController: null, busy: false, dialoguePause: null, dialogueTimer: 9,
+  remote: null, pendingOperations: [], retryRequest: null, retryButton: {}, networkStatus: {},
+  messageInput: {value: '', placeholder: ''}, steps: {}, attemptHistory: {},
+  invitedQuestions: new Set(), idleQuestion: null, lesson: {},
+  clearTimeout: () => cleared++, pauseIdle() {}, acceptSnapshot() {},
+  PracticeContext: {create() {}}, crypto: {randomUUID: () => 'test'},
+  window: {scrollTo() {}, SiteAuth: {enabled: true}, addEventListener: (name, cb) => {onAuthChange = cb;}},
+};
+vm.createContext(scope);
+vm.runInContext(source.slice(source.indexOf('  function restart('), source.indexOf("  retryButton.addEventListener")) +
+  source.slice(source.indexOf('  let accountId;'), source.indexOf("  document.querySelector('#completion').addEventListener")), scope);
+onAuthChange({detail: {user: {id: 'alice'}}});
+const pause = {code: 'user_daily_limit', message: '个人次数已用完', until: 5000};
+scope.dialoguePause = pause;
+scope.restart();
+assert.equal(scope.dialoguePause, pause);
+assert.equal(cleared, 0);
+onAuthChange({detail: {user: null, reason: 'expired'}});
+onAuthChange({detail: {user: {id: 'alice'}, reason: 'login'}});
+assert.equal(scope.dialoguePause, pause);
+onAuthChange({detail: {user: {id: 'bob'}, reason: 'login'}});
+assert.equal(scope.dialoguePause, null);
+assert.equal(cleared, 1);
+scope.dialoguePause = pause;
+onAuthChange({detail: {user: null, reason: 'logout'}});
+assert.equal(scope.dialoguePause, null);
+scope.dialoguePause = {code: 'daily_limit', until: 5000};
+scope.restart({accountChanged: true});
+assert.equal(scope.dialoguePause.code, 'daily_limit');
+'''
+    subprocess.run(['node', '-e', script, str(runtime)], check=True, capture_output=True, text=True)

@@ -3,10 +3,13 @@
 import runpy
 from datetime import timedelta
 from types import SimpleNamespace
+from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 
+from shuxueshuo_server.product import models as m
 from shuxueshuo_server.tutor_demo.api import create_app
 from shuxueshuo_server.tutor_demo.limits import CallBudget
 from shuxueshuo_server.tutor_demo.llm import Proposal
@@ -34,9 +37,11 @@ def login(client, auth, phone):
 
 
 @pytest.fixture(params=["standalone", "main"])
-def tutor_app(auth, tmp_path, request, monkeypatch):
+def tutor_app(auth, budget_db, request, monkeypatch):
     tutor = Tutor()
-    budget = CallBudget(tmp_path / "usage.sqlite3")
+    # Exercise the default ledger binding to the login service pool.
+    auth.db = budget_db
+    budget = None
     if request.param == "standalone":
         app = create_app(tutor, budget, auth=auth)
     else:
@@ -144,3 +149,39 @@ def test_one_account_cannot_fill_the_global_session_cap():
     owned = [s for s in sessions.items.values() if s.owner_user_id == "alice"]
     assert len(owned) == 8 and mine[-1] in owned and mine[0] not in owned
     assert sessions.get(other.id, owner_user_id="bob") is other
+
+
+def test_account_quota_follows_login_across_devices_and_lessons(auth, phone, budget_db):
+    tutor = Tutor()
+    budget = CallBudget(budget_db, user_daily_limit=1)
+    app = create_app(tutor, budget, auth=auth)
+    with client_for(app) as alice, client_for(app) as other_device, client_for(app) as bob:
+        first_user = login(alice, auth, phone)
+        auth.test_time[0] += timedelta(seconds=61)
+        assert login(other_device, auth, phone) == first_user
+        login(bob, auth, "138" + phone[3:])
+        view = start(alice)
+        url = f"/api/tutor-demo/sessions/{view['session_id']}/events"
+        response = alice.post(url, json=event(view))
+        assert response.status_code == 200
+        assert response.headers["x-tutor-calls-remaining"] == "0"
+        replay = other_device.post(url, json=event(view))
+        assert replay.json() == response.json() and "x-tutor-calls-remaining" not in replay.headers
+        assert len(tutor.calls) == 1  # Replaying an accepted event costs nothing.
+        fresh = other_device.post("/api/tutor-demo/sessions", json={"lesson_id": "q02"})
+        assert fresh.status_code == 201
+        fresh = fresh.json()
+        blocked_url = f"/api/tutor-demo/sessions/{fresh['session_id']}/events"
+        blocked = other_device.post(blocked_url, json=event(fresh, "text"))
+        assert blocked.status_code == 429 and blocked.json()["code"] == "user_daily_limit"
+        assert int(blocked.headers["retry-after"]) > 0
+        assert other_device.post("/api/auth/logout").status_code == 204
+        auth.test_time[0] += timedelta(seconds=61)
+        assert login(other_device, auth, phone) == first_user
+        assert other_device.post(blocked_url, json=event(fresh)).json()["code"] == "user_daily_limit"
+        bobs_view = start(bob)
+        assert bob.post(f"/api/tutor-demo/sessions/{bobs_view['session_id']}/events", json=event(bobs_view)).status_code == 200
+        assert len(tutor.calls) == 2
+        with budget.db.connect() as db:
+            assert db.execute(select(m.tutor_user_daily_usage.c.calls).where(m.tutor_user_daily_usage.c.user_id == UUID(first_user["id"]))).fetchone()[0] == 1
+            assert db.execute(select(m.tutor_daily_usage.c.calls)).fetchone()[0] == 2

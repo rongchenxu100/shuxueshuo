@@ -97,9 +97,12 @@ const practiceAuthReady = typeof document !== 'undefined' && document.currentScr
       intro: asking ? '登录后会自动发送你刚才写的问题，当前练习不会丢失。' : '登录后老师会针对这一步给你提示，当前练习不会丢失。',
       onPrompt: () => { networkStatus.textContent = '请先登录，登录后会自动继续。'; },
     };
+    let remainingCalls = null;
     const post = async (url, body) => {
       const response = await fetch(url, {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body), signal: controller.signal});
+      const remaining = response.headers.get('X-Tutor-Calls-Remaining');
+      if (remaining !== null) remainingCalls = Number(remaining);
       const data = await response.json();
       if (!response.ok) {
         const error = Error(typeof data.detail === 'string' ? data.detail : '暂时无法连接老师，请重试。');
@@ -156,7 +159,8 @@ const practiceAuthReady = typeof document !== 'undefined' && document.currentScr
       pendingOperations = merged.remaining;
       acceptSnapshot(merged.view);
       if (payload.kind === 'text' && messageInput.value.trim() === payload.text) messageInput.value = '';
-      networkStatus.textContent = '';
+      networkStatus.textContent = remainingCalls === 0 ? '今天的 AI 提问与提示次数已用完，明天零点恢复；仍可继续点选练习。'
+        : remainingCalls > 0 && remainingCalls <= 5 ? `今天还可以向老师提问或要提示 ${remainingCalls} 次。` : '';
       showProgress(oldActive, oldAttempt);
       if (state.active === oldActive && oldAttempt === snapshot.attempt_id) {
         document.querySelector(completed() ? '#completion .chat-message:last-child' : `#step-${state.active} .chat-message:last-child`)?.scrollIntoView({behavior: 'smooth', block: 'center'});
@@ -164,8 +168,8 @@ const practiceAuthReady = typeof document !== 'undefined' && document.currentScr
       announce(data.messages.at(-1)?.text || '老师已回复。');
     } catch (error) {
       if (thisGeneration !== generation) return;
-      const limited = ['session_limit', 'daily_limit', 'retry_cooldown', 'session_busy'].includes(error.code);
-      const exhausted = ['session_limit', 'daily_limit'].includes(error.code);
+      const limited = ['session_limit', 'user_daily_limit', 'daily_limit', 'retry_cooldown', 'session_busy'].includes(error.code);
+      const exhausted = ['session_limit', 'user_daily_limit', 'daily_limit'].includes(error.code);
       retryRequest = exhausted ? null : payload; retryButton.hidden = limited;
       if (limited) {
         dialoguePause = {code: error.code, message: error.message, until: error.code === 'session_limit' ? Infinity : Date.now() + Math.max(1, error.retryAfter || 5) * 1000};
@@ -201,9 +205,9 @@ const practiceAuthReady = typeof document !== 'undefined' && document.currentScr
       lesson_version: lesson.version, pending_operations: structuredClone(pendingOperations), kind, text});
   }
 
-  function restart() {
+  function restart({accountChanged = false} = {}) {
     generation++; requestController?.abort(); busy = false;
-    if (dialoguePause?.code !== 'daily_limit') {
+    if (dialoguePause?.code !== 'daily_limit' && !(dialoguePause?.code === 'user_daily_limit' && !accountChanged)) {
       dialoguePause = null; clearTimeout(dialogueTimer);
     }
     remote = null; pendingOperations = []; retryRequest = null;
@@ -513,7 +517,7 @@ const practiceAuthReady = typeof document !== 'undefined' && document.currentScr
     const nextId = event.detail.user?.id || null;
     messageInput.placeholder = window.SiteAuth?.enabled && !nextId ? '登录后可以在这里向老师提问…' : defaultPlaceholder;
     if (event.detail.reason === 'logout' || (accountId && nextId && accountId !== nextId)) {
-      restart();
+      restart({accountChanged: true});
       accountId = nextId;
     } else if (nextId) accountId = nextId;
   });

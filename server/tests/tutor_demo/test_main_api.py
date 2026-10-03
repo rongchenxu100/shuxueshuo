@@ -9,6 +9,8 @@ from shuxueshuo_server.product import api as product_api
 from shuxueshuo_server.tutor_demo import api as tutor_api
 from shuxueshuo_server.tutor_demo.llm import Proposal, TutorUnavailable
 
+from .auth_helpers import TeachingOnlyBudget
+
 
 @pytest.mark.parametrize('blank_limits', [False, True])
 def test_main_hosts_tutor_api_and_preserves_lifecycles(monkeypatch, blank_limits):
@@ -46,6 +48,8 @@ def test_main_hosts_tutor_api_and_preserves_lifecycles(monkeypatch, blank_limits
     monkeypatch.setenv("AUTH_SMS_MODE", "disabled")
     monkeypatch.setattr(product_api, "load_application", load_product)
     monkeypatch.setattr(tutor_api, "DeepSeekTutor", lambda: tutor)
+    factory = tutor_api.create_router
+    monkeypatch.setattr(tutor_api, "create_router", lambda: factory(tutor, TeachingOnlyBudget()))
     app = runpy.run_module("shuxueshuo_server.main")["app"]
 
     with TestClient(app) as client:

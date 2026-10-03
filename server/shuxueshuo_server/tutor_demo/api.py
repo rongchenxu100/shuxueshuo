@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict
@@ -39,7 +39,6 @@ def create_router(tutor=None, budget=None):
     """Share the same API and cleanup lifecycle with the production app."""
     tutor = tutor or DeepSeekTutor()
     sessions = Sessions()
-    budget = budget if budget is not None else CallBudget()
 
     @asynccontextmanager
     async def lifespan(app):
@@ -69,12 +68,19 @@ def create_router(tutor=None, budget=None):
             raise HTTPException(404, "会话已过期，请重新体验。") from None
 
     @router.post("/sessions/{session_id}/events")
-    async def event(session_id: str, body: Event, user: TutorUser):
+    async def event(session_id: str, body: Event, user: TutorUser, request: Request, response: Response):
         try:
             session = sessions.get(session_id, owner_user_id=user['id'])
             if body.kind != "ui" and session.lock.locked():
                 raise DialogueLimited("session_busy", "老师正在回复，请稍后再试。", 2)
-            return await session.handle(body, BudgetedTutor(tutor, budget, session_id))
+            # Reuse the site's authenticated database pool; no second database URL.
+            ledger = budget if budget is not None else CallBudget(service(request).db)
+            budgeted = BudgetedTutor(tutor, ledger, session_id, user_id=user['id'])
+            result = await session.handle(body, budgeted)
+            # A header keeps idempotent replays byte-identical to the original body.
+            if isinstance(budgeted.remaining, int):
+                response.headers["X-Tutor-Calls-Remaining"] = str(budgeted.remaining)
+            return result
         except DialogueLimited as exc:
             return JSONResponse(status_code=429, content={
                 "detail": str(exc), "code": exc.code, "retry_after": exc.retry_after,

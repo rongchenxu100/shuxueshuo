@@ -31,7 +31,7 @@ def create_local_app(settings, config):
             with db.connect() as connection:
                 if (
                     connection.scalar(text("SELECT version_num FROM alembic_version"))
-                    != "0005_student_auth"
+                    != "0006_tutor_usage"
                 ):
                     raise RuntimeError(
                         "Migrate the local database before starting the login site"
