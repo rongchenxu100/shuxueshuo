@@ -11,7 +11,7 @@ import subprocess
 from uuid import uuid4
 
 import psycopg
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from .. import models as m
 from ..db import engine, transaction
@@ -49,6 +49,13 @@ def pg_tool(settings, tool, *args):
     subprocess.run([str(settings.pg_bin / tool), *map(str, args)], env=env, check=True, capture_output=True)
 
 
+def table_counts(c):
+    # deploy backs up before migrating, so newer models may not have tables yet.
+    existing = set(c.exec_driver_sql("SELECT tablename FROM pg_tables WHERE schemaname='public'").scalars())
+    return {name: c.scalar(select(func.count()).select_from(t))
+            for name, t in m.metadata.tables.items() if name in existing}
+
+
 def backup(settings, *, fenced=False):
     identity = uuid4().hex
     temp = settings.root / 'backups' / (identity + '.incomplete')
@@ -60,7 +67,7 @@ def backup(settings, *, fenced=False):
         try:
             with transaction(db) as c:
                 rows = c.execute(select(m.artifacts)).mappings().all()
-                counts = {name: c.scalar(select(__import__('sqlalchemy').func.count()).select_from(t)) for name, t in m.metadata.tables.items()}
+                counts = table_counts(c)
                 revision = c.exec_driver_sql('SELECT version_num FROM alembic_version').scalar_one()
             pg_tool(settings, 'pg_dump', '--format=custom', '--no-owner', '--no-acl', '--file', temp / 'database.dump')
             artifacts = []
@@ -112,7 +119,7 @@ def restore_data(settings, source):
         with transaction(db) as c:
             grant(c)
             for name, expected in manifest['counts'].items():
-                actual = c.scalar(select(__import__('sqlalchemy').func.count()).select_from(m.metadata.tables[name]))
+                actual = c.scalar(select(func.count()).select_from(m.metadata.tables[name]))
                 if actual != expected:
                     raise IntegrityFailure('restore.row_count')
             if c.exec_driver_sql('SELECT version_num FROM alembic_version').scalar_one() != manifest['revision']:

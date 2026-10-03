@@ -28,6 +28,24 @@ def test_status_does_not_initialize_config(tmp_path):
     assert not root.exists()
 
 
+def test_backup_counts_skip_tables_from_later_migrations(settings):
+    import sqlalchemy as sa
+    from shuxueshuo_server.product import models as m
+    from shuxueshuo_server.product.admin.backup import table_counts
+    from shuxueshuo_server.product.db import engine, transaction
+
+    pending = sa.Table('not_yet_migrated', m.metadata, sa.Column('id', sa.Integer))
+    db = engine(settings.url('migration'))
+    try:
+        with transaction(db) as c:
+            counts = table_counts(c)
+    finally:
+        m.metadata.remove(pending)
+        db.dispose()
+    assert 'not_yet_migrated' not in counts
+    assert counts['users'] >= 1
+
+
 def test_release_packaged_manage_dispatches_without_repository(tmp_path):
     # Validate the offline package's relative layout without invoking Docker.
     package = tmp_path / 'release' / 'scripts'
