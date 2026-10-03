@@ -1,22 +1,38 @@
-"""Run locally: uv run uvicorn shuxueshuo_server.tutor_demo.api:app --port 8766."""
+"""Authenticated teaching API. Local login: uv run python tools/run_site.py --help."""
 
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import APIRouter, FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict
 
-from .llm import DeepSeekTutor, TutorUnavailable
+from ..auth.api import install_auth, require_origin, require_user, service
+from ..auth.config import AuthConfig
+from ..auth.service import AuthService
 from .limits import BudgetedTutor, BudgetUnavailable, CallBudget, DialogueLimited
+from .llm import DeepSeekTutor, TutorUnavailable
 from .session import Conflict, Event, InvalidAction, Sessions
 
 
 class Start(BaseModel):
     model_config = ConfigDict(extra="forbid")
     lesson_id: str = "q01"
+
+
+def require_tutor_user(
+    request: Request,
+    user: Annotated[dict, Depends(require_user)],
+    auth: Annotated[AuthService, Depends(service)],
+):
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        require_origin(request, auth)
+    return user
+
+
+TutorUser = Annotated[dict, Depends(require_tutor_user)]
 
 
 def create_router(tutor=None, budget=None):
@@ -33,28 +49,29 @@ def create_router(tutor=None, budget=None):
             if hasattr(tutor, "close"):
                 await tutor.close()
 
-    router = APIRouter(prefix="/api/tutor-demo", lifespan=lifespan)
+    router = APIRouter(prefix="/api/tutor-demo", lifespan=lifespan,
+                       dependencies=[Depends(require_tutor_user)])
 
     @router.post("/sessions", status_code=201)
-    async def start(body: Start):
+    async def start(body: Start, user: TutorUser):
         try:
-            return sessions.create(body.lesson_id).view()
+            return sessions.create(body.lesson_id, owner_user_id=user['id']).view()
         except KeyError:
             raise HTTPException(404, "没有找到这道题。") from None
         except InvalidAction as exc:
             raise HTTPException(429, str(exc)) from None
 
     @router.get("/sessions/{session_id}")
-    async def read(session_id: str):
+    async def read(session_id: str, user: TutorUser):
         try:
-            return sessions.get(session_id).view()
+            return sessions.get(session_id, owner_user_id=user['id']).view()
         except KeyError:
             raise HTTPException(404, "会话已过期，请重新体验。") from None
 
     @router.post("/sessions/{session_id}/events")
-    async def event(session_id: str, body: Event):
+    async def event(session_id: str, body: Event, user: TutorUser):
         try:
-            session = sessions.get(session_id)
+            session = sessions.get(session_id, owner_user_id=user['id'])
             if body.kind != "ui" and session.lock.locked():
                 raise DialogueLimited("session_busy", "老师正在回复，请稍后再试。", 2)
             return await session.handle(body, BudgetedTutor(tutor, budget, session_id))
@@ -79,22 +96,18 @@ def create_router(tutor=None, budget=None):
     return router
 
 
-def create_app(tutor=None, budget=None):
-    """Standalone local development entry point; production uses create_router."""
+def create_app(tutor=None, budget=None, *, auth=None):
+    """Standalone entry fails closed without auth; use tools/run_site.py for login."""
     app = FastAPI(title="数学说 Q01 tutor demo")
+    install_auth(app, auth=auth, config=auth.config if auth else AuthConfig())
     app.include_router(create_router(tutor, budget))
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["http://127.0.0.1:8765", "http://localhost:8765"],
-        allow_methods=["GET", "POST"],
-        allow_headers=["Content-Type"],
-    )
     site = Path(__file__).resolve().parents[3] / "site"
     for url, relative, name in (
         ("/1", "1", "basic-inequality"),
         ("/2", "2", "quadratic-always"),
         ("/topics", "topics", "topics"),
         ("/assets/practice", "assets/practice", "practice-assets"),
+        ("/assets/auth", "assets/auth", "auth-assets"),
         ("/demo", "demo", "legacy-demo"),
     ):
         directory = site / relative

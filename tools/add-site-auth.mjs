@@ -27,6 +27,6 @@ for (const page of pages) {
   if (source.includes('/auth/site-auth.js')) continue;
   const relative = path.relative(path.dirname(file), path.join(root, 'site/assets/auth/site-auth.js'));
   source = source.replace(/^([ \t]*)<\/head>/m, (_, indent) =>
-    `${indent}  <script type="module" src="${relative}?v=1"></script>\n${indent}</head>`);
+    `${indent}  <script type="module" src="${relative}?v=4"></script>\n${indent}</head>`);
   fs.writeFileSync(file, source);
 }

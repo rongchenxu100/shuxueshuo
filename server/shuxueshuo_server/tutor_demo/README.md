@@ -10,10 +10,10 @@
 
 ```sh
 cd server
-uv run uvicorn shuxueshuo_server.tutor_demo.api:app --host 127.0.0.1 --port 8766
+uv run python tools/run_site.py --data-dir /private/tmp/sss-auth-stage1 --instance auth-stage1
 ```
 
-直接打开 `http://127.0.0.1:8766/1/q01/`，同源访问 API。已有的 `http://127.0.0.1:8765/1/q01/` 也可使用：页面在本地 8765 时调用同主机的 8766，后端仅允许这两个本地 8765 origin。其他地址默认使用同源 `/api/tutor-demo`。
+先按 [登录本地测试文档](../../../docs/site-login-local-testing.md) 安装独立数据库，再打开 `http://127.0.0.1:8767/1/q01/`。登录和教学 API 均同源。旧 8765/8766 跨端口方式已移除；单独启动 `tutor_demo.api:app` 未配置登录服务时 AI 返回 503，本地点选仍可用。
 
 ```sh
 uv run pytest tests/tutor_demo -q
@@ -27,11 +27,13 @@ uv run pytest tests/tutor_demo -q
 2. 将 `site/1/`、`site/assets/practice/` 与旧地址兼容页 `site/demo/q01.html` 随主站静态文件发布，访问 `/1/q01/`。页面使用同源 `/api/tutor-demo`；现有 Nginx 的 `/api/` 转发到 8000，无需新增服务、端口或转发规则。
 3. 服务器现有 `server/.env` 只读挂载到 API 容器，配置 `DEEPSEEK_API_KEY` 及需要的模型覆盖。修改配置后重启 API 容器。
 
-发布后检查 `POST /api/tutor-demo/sessions`（JSON 请求体 `{"lesson_id":"q01"}`）返回 201，再在页面发送一句话验证实际 DeepSeek 配置。`/api/health` 仅说明后台存活，不验证模型密钥。
+发布需同时包含登录迁移、公共登录静态资源与真实短信配置。发布后检查匿名 `POST /api/tutor-demo/sessions` 返回 401，登录后携带 Cookie 和本站 Origin、发送 JSON `{"lesson_id":"q01"}` 返回 201，再在页面发送一句话验证实际 DeepSeek 配置。`/api/health` 仅说明后台存活，不验证模型密钥。
 
 当前会话在进程内存中，沿用现有 Compose 的单进程 API；不能直接增加 Uvicorn workers 或 API 副本。重启会清空会话，已有页面需重新体验。未来多实例与进度恢复需要共享存储。
 
 ## 会话契约
+
+整组路由使用 `require_tutor_user` → `require_user` 校验登录 Cookie；写入同时校验精确 Origin。创建会话绑定服务端取得的用户 ID，读取和发送事件必须属于当前账号；其他账号的会话统一返回 404。登录无效返回 401，登录服务未配置返回 503，所有教学响应禁止缓存。前端登录成功后继续原提问，取消保留输入；同账号过期重登保留原请求 ID，退出或换号则重置并丢弃迟到响应。
 
 - `POST /api/tutor-demo/sessions`：`{"lesson_id":"q01"}`，返回新的 session_id、revision=0、页面配置和空状态。
 - `POST /api/tutor-demo/sessions/{id}/events`：event_id、revision、kind（ui/text/help）、action 或 text。返回完整权威状态和对话记录。
@@ -47,7 +49,7 @@ UI action 分为 method、fill、swap、choice、submit，只能作用于当前�
 
 ## 按需同步协议
 
-首次文字或主动提示先创建会话，再发送 events；后续仅发送 events。页面启动和点选均不访问 API，旧的单 UI 事件接口保持兼容。
+首次文字或主动提示先创建会话，再发送 events；后续仅发送 events。页面启动只查询公共登录状态，本地点选不访问教学 API；旧的单 UI 事件接口也要求登录和会话归属。
 
 对话事件携带 `lesson_version`、`revision`、本轮 `event_id`、`pending_operations` 和本次输入。每个待同步操作有独立 ID、action，以及所属 route、stage 和 attempt 序号。每批最多 400 条，按发生顺序重放，不接受浏览器直接上报的完成状态。
 
@@ -61,11 +63,11 @@ HTML 与教师 JSON 的组件配置、答案、反馈及两条路径的执行结
 
 前端等待 55 秒超时后保留原请求。重试遇到 `session_busy` / `retry_cooldown` 时，只在等待期隐藏重试按钮；等待结束恢复按钮，并沿用原 event_id、revision 和待同步操作。原请求已完成时返回缓存结果，不再调用模型或扣额度。`session_limit` / `daily_limit` 才清除待重试请求，保留输入和本地进度。
 
-重新练习先清空本地 Context、输入、对话和提示计时，不调用 API；下次对话才创建新会话。旧响应通过前端会话代数丢弃，不会写入新页面。旧会话不再参与教学，内存中最多保留2小时；会话上限200、每会话消息上限400。刷新页面重开本地练习。服务重启丢失内存记录不影响本地点选，恢复对话需重新练习。
+重新练习先清空本地 Context、输入、对话和提示计时，不调用 API；下次对话才创建新会话。旧响应通过前端会话代数丢弃，不会写入新页面。旧会话不再参与教学，内存中最多保留2小时；会话上限200，每个账号最多保留8个（超出时淘汰本账号最旧的空闲会话），每会话消息上限400。刷新页面重开本地练习。服务重启丢失内存记录不影响本地点选，恢复对话需重新练习。
 
 ## 当前边界
 
-定位为教学演示。未实现用户认证、持久化、按用户的调用配额、分布式会话、真正的token流式输出；公开地址上的访客可触发模型调用，现有 product 接口的权限边界不会自动覆盖 `/api/tutor-demo`。有限字段校验不能取代完整数学语义验证，后续需用错答/歧义输入回放评测迭代。已有10秒邀请提示仍是前端交互，只在学生主动点提示后调用模型。
+已接入手机号登录和按账号隔离教学会话。未实现学习标记持久化、按用户的调用配额、分布式会话或真正的 token 流式输出；教学状态仍在内存，学生登录不授予 product 后台权限。有限字段校验不能取代完整数学语义验证，后续需用错答/歧义输入回放评测迭代。已有10秒邀请提示仍是前端交互，只在学生主动点提示后调用模型。
 
 ## 多路径尝试与节点契约（v2）
 
@@ -115,6 +117,6 @@ RUN_TUTOR_LIVE=1 uv run pytest tests/tutor_demo/test_tutor_live.py -q -s
 
 教学范围是当前题目与必要基础知识/其他有效解法。无关聊天、其他题目、伪造管理员或证据请求标为 other；服务端忽略其动作/证据并替换为固定引导回复。正常省略提问、学习挫折仍可得到本题提示。分类依赖模型，不是绝对防注入保障，执行器继续独立校验允许的操作。
 
-本版没有账号、邀请码和 IP 限流；新建 session 可重新获得会话额度，但仍受全站日上限约束，恶意请求仍可能提前耗尽大家的日额度。日请求数上限也不是精确金额上限。适用于短期小范围反馈，不是完整公开服务的安全方案。只发布静态页面不会启动这些服务端控制，需同时部署并重启后端。
+本版已有账号登录，但教学调用尚无按账号或 IP 的独立配额；同一账号新建 session 可重新获得会话额度，但仍受全站日上限约束，恶意请求仍可能提前耗尽大家的日额度。日请求数上限也不是精确金额上限。适用于短期小范围反馈，不是完整公开服务的安全方案。只发布静态页面不会启动这些服务端控制，需同时部署并重启后端。
 
 验证：`uv run pytest tests/tutor_demo/test_pilot_limits.py -m 'not live_llm' -q`。真实教学边界验证需显式开启：`RUN_TUTOR_LIVE=1 uv run pytest tests/tutor_demo/test_pilot_limits.py -m live_llm -q -s`。

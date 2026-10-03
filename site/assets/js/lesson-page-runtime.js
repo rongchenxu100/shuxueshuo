@@ -5,7 +5,7 @@
  *
  * 暴露：window.LessonPageRuntime
  */
-if (typeof document !== 'undefined' && document.currentScript?.src) import(new URL('../auth/site-auth.js?v=2', document.currentScript.src).href).catch(() => {});
+if (typeof document !== 'undefined' && document.currentScript?.src) import(new URL('../auth/site-auth.js?v=4', document.currentScript.src).href).catch(() => {});
 (function (global) {
   "use strict";
 

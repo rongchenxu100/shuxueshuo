@@ -65,6 +65,7 @@ def load_lesson(lesson_id):
 @dataclass
 class Session:
     lesson: dict
+    owner_user_id: str | None = None
     id: str = field(default_factory=lambda: uuid4().hex)
     revision: int = 0
     state: dict = field(init=False)
@@ -409,20 +410,27 @@ class Sessions:
     def __init__(self):
         self.items = {}
 
-    def create(self, lesson_id):
+    def create(self, lesson_id, *, owner_user_id):
         lesson = load_lesson(lesson_id)
         now = time.monotonic()
         for key, value in list(self.items.items()):
             if now - value.updated > 7200 and not value.lock.locked():
                 del self.items[key]
+        # One account must not crowd others out of the global cap; drop its own oldest idle sessions.
+        owned = sorted((value.updated, key) for key, value in self.items.items()
+                       if value.owner_user_id == owner_user_id and not value.lock.locked())
+        for _, key in owned[:max(0, len(owned) - 7)]:
+            del self.items[key]
         if len(self.items) >= 200:
             raise InvalidAction("演示会话已满，请稍后再试。")
-        session = Session(lesson)
+        session = Session(lesson, owner_user_id=owner_user_id)
         self.items[session.id] = session
         return session
 
-    def get(self, session_id):
+    def get(self, session_id, *, owner_user_id):
         session = self.items[session_id]
+        if session.owner_user_id != owner_user_id:
+            raise KeyError(session_id)
         if time.monotonic() - session.updated > 7200:
             del self.items[session_id]
             raise KeyError(session_id)

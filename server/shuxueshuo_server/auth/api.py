@@ -60,7 +60,9 @@ class VerifyBody(SendBody):
 
 class AuthBoundary(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
-        if not request.url.path.startswith("/api/auth/"):
+        auth_path = request.url.path.startswith("/api/auth/")
+        tutor_path = request.url.path.startswith("/api/tutor-demo/")
+        if not (auth_path or tutor_path):
             return await call_next(request)
         auth = getattr(request.app.state, "student_auth", None)
         if auth and auth.config.mode == "mock":
@@ -78,7 +80,8 @@ class AuthBoundary(BaseHTTPMiddleware):
                     headers={"Cache-Control": "no-store"},
                 )
         length = request.headers.get("content-length", "0")
-        if not length.isdigit() or int(length) > 4096:
+        max_bytes = 4096 if auth_path else 512 * 1024
+        if not length.isdigit() or int(length) > max_bytes:
             return JSONResponse(
                 {"detail": "请求过大。"}, 413, headers={"Cache-Control": "no-store"}
             )
@@ -86,7 +89,7 @@ class AuthBoundary(BaseHTTPMiddleware):
         body = bytearray()
         async for chunk in request.stream():
             body.extend(chunk)
-            if len(body) > 4096:
+            if len(body) > max_bytes:
                 return JSONResponse(
                     {"detail": "请求过大。"}, 413, headers={"Cache-Control": "no-store"}
                 )

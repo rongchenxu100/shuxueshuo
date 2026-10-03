@@ -1,6 +1,8 @@
 /* Shared practice runtime: HTML owns course content; dialogue sync is opt-in. */
 // Shared account UI; failure must never prevent local practice.
-if (typeof document !== 'undefined' && document.currentScript?.src) import(new URL('../auth/site-auth.js?v=2', document.currentScript.src).href).catch(() => {});
+const practiceAuthReady = typeof document !== 'undefined' && document.currentScript?.src
+  ? import(new URL('../auth/site-auth.js?v=4', document.currentScript.src).href).then(() => window.SiteAuth?.ready).catch(() => {})
+  : Promise.resolve();
 (() => {
   'use strict';
   const lesson = JSON.parse(document.getElementById('practice-config').textContent);
@@ -21,8 +23,7 @@ if (typeof document !== 'undefined' && document.currentScript?.src) import(new U
   let retryRequest = null;
   let dialoguePause = null;
   let dialogueTimer = null;
-  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  const api = local && location.port === '8765' ? `${location.protocol}//${location.hostname}:8766/api/tutor-demo` : '/api/tutor-demo';
+  const api = '/api/tutor-demo';
   const messageInput = document.querySelector('#message');
   const sendButton = document.querySelector('.send-button');
   const networkStatus = document.querySelector('#network-status');
@@ -84,36 +85,74 @@ if (typeof document !== 'undefined' && document.currentScript?.src) import(new U
   async function request(payload) {
     if (busy || (dialoguePause && dialoguePause.until > Date.now())) return;
     const thisGeneration = generation, oldActive = state.active, oldAttempt = snapshot.attempt_id;
+    const retrying = retryRequest === payload;
     const controller = new AbortController();
     requestController = controller;
-    const timeout = setTimeout(() => controller.abort(), 55000);
+    let timeout;
     busy = true; pauseIdle(); retryRequest = null; retryButton.hidden = true;
-    networkStatus.textContent = '老师正在思考…'; updateBusy();
+    networkStatus.textContent = ''; updateBusy();
+    const asking = payload.kind === 'text';
+    const loginPrompt = {
+      title: asking ? '登录后向老师提问' : '登录后获取提示',
+      intro: asking ? '登录后会自动发送你刚才写的问题，当前练习不会丢失。' : '登录后老师会针对这一步给你提示，当前练习不会丢失。',
+      onPrompt: () => { networkStatus.textContent = '请先登录，登录后会自动继续。'; },
+    };
     const post = async (url, body) => {
-      const response = await fetch(url, {method: 'POST', headers: {'Content-Type': 'application/json'},
+      const response = await fetch(url, {method: 'POST', credentials: 'same-origin', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(body), signal: controller.signal});
       const data = await response.json();
       if (!response.ok) {
         const error = Error(typeof data.detail === 'string' ? data.detail : '暂时无法连接老师，请重试。');
-        error.code = data.code; error.retryAfter = data.retry_after;
+        error.status = response.status; error.code = data.code; error.retryAfter = data.retry_after;
         throw error;
       }
       return data;
     };
     try {
-      if (!remote) {
-        const started = await post(`${api}/sessions`, {lesson_id: lesson.id});
-        if (thisGeneration !== generation) return;
-        remote = {session_id: started.session_id, revision: started.revision};
+      await practiceAuthReady;
+      if (!window.SiteAuth?.requireLogin) throw new Error('登录组件暂不可用，请刷新后重试。');
+      let user = await window.SiteAuth.requireLogin(loginPrompt);
+      if (thisGeneration !== generation) return;
+      if (!user) {
+        if (retrying) { retryRequest = payload; retryButton.hidden = false; }
+        networkStatus.textContent = asking ? '未登录，问题还留在输入框里；可以继续点选练习。' : '未登录，可以继续点选练习。';
+        return;
       }
-      const data = await post(`${api}/sessions/${remote.session_id}/events`, payload);
+      let data;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        networkStatus.textContent = '老师正在思考…';
+        timeout = setTimeout(() => controller.abort(), 55000);
+        try {
+          if (!remote) {
+            const started = await post(`${api}/sessions`, {lesson_id: lesson.id});
+            if (thisGeneration !== generation) return;
+            remote = {session_id: started.session_id, revision: started.revision, user_id: user.id};
+          }
+          if (remote.user_id !== user.id) { restart(); return; }
+          data = await post(`${api}/sessions/${remote.session_id}/events`, payload);
+          break;
+        } catch (error) {
+          if (thisGeneration !== generation) return;
+          if (error.status !== 401 || attempt > 0) throw error;
+          clearTimeout(timeout);
+          user = await window.SiteAuth.requireLogin({...loginPrompt, force: true, title: '登录已过期',
+            onPrompt: () => { networkStatus.textContent = '登录已过期，重新登录后会自动继续。'; },
+            intro: '重新验证手机号后会继续刚才的请求，当前练习不会丢失。'});
+          if (thisGeneration !== generation) return;
+          if (!user) {
+            retryRequest = payload; retryButton.hidden = false;
+            networkStatus.textContent = '重新登录后可重试，当前输入和练习已保留。';
+            return;
+          }
+        } finally { clearTimeout(timeout); }
+      }
       if (thisGeneration !== generation) return;
       // A failed request can be retried after more local work. Replay that tail onto
       // the acknowledged state, rather than erasing the student's newer choices.
       const acknowledged = new Set(payload.pending_operations.map(operation => operation.event_id));
       const tail = pendingOperations.filter(operation => !acknowledged.has(operation.event_id));
       const merged = PracticeContext.reconcile(data, tail, lesson);
-      remote = {session_id: data.session_id, revision: data.revision};
+      remote = {session_id: data.session_id, revision: data.revision, user_id: user.id};
       pendingOperations = merged.remaining;
       acceptSnapshot(merged.view);
       if (payload.kind === 'text' && messageInput.value.trim() === payload.text) messageInput.value = '';
@@ -469,10 +508,14 @@ if (typeof document !== 'undefined' && document.currentScript?.src) import(new U
   window.addEventListener('scroll', closePicker, { passive: true });
   document.querySelector('#reset').addEventListener('click', restart);
   let accountId;
+  const defaultPlaceholder = messageInput.placeholder;
   window.addEventListener('site-auth-change', event => {
     const nextId = event.detail.user?.id || null;
-    if (accountId && accountId !== nextId) restart();
-    accountId = nextId;
+    messageInput.placeholder = window.SiteAuth?.enabled && !nextId ? '登录后可以在这里向老师提问…' : defaultPlaceholder;
+    if (event.detail.reason === 'logout' || (accountId && nextId && accountId !== nextId)) {
+      restart();
+      accountId = nextId;
+    } else if (nextId) accountId = nextId;
   });
   document.querySelector('#completion').addEventListener('click', event => {
     const button = event.target.closest('[data-switch-route]');

@@ -8,7 +8,7 @@ import subprocess
 
 import pytest
 from fastapi.testclient import TestClient
-from shuxueshuo_server.tutor_demo.api import create_app
+from .auth_helpers import create_app
 from shuxueshuo_server.tutor_demo.session import Event, Session, load_lesson
 from .test_local_practice import ROOT, operation, pending
 from .test_q11 import local_replay, template

@@ -9,7 +9,7 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
-from shuxueshuo_server.tutor_demo.api import create_app
+from .auth_helpers import create_app
 from shuxueshuo_server.tutor_demo.limits import CallBudget, DialogueLimited
 from shuxueshuo_server.tutor_demo.llm import Action, DeepSeekTutor, Proposal, TutorUnavailable
 from shuxueshuo_server.tutor_demo.session import Event, OFF_TOPIC_REPLY, Session, load_lesson

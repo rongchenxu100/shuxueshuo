@@ -4,8 +4,13 @@
   if (window.SiteAuth || window.self !== window.top) return;
   let user = null, enabled = false, reachable = false, epoch = 0, busy = false, challenge = null, retryAt = 0;
   let refreshPending = false, toastTimer = 0;
-  let dialog, host, trigger, menu, menuPhone, menuNote, logout, phone, code, send, submit, message, toast;
+  const refreshWaiters = [];
+  let dialog, host, trigger, menu, menuPhone, menuNote, logout, phone, code, send, submit, message, toast, titleText, introText;
+  const DEFAULT_TITLE = '手机号登录';
+  const DEFAULT_INTRO = '验证手机号即可登录，未注册的手机号会自动创建账号。';
   const listeners = new Set();
+  let mounted;
+  const ready = new Promise(resolve => { mounted = resolve; });
   const scriptURL = new URL(document.currentScript?.src || import.meta.url);
   const css = document.createElement('link');
   css.rel = 'stylesheet';
@@ -51,16 +56,16 @@
     if (!user) closeMenu();
   }
 
-  function publish(next) {
+  function publish(next, reason = 'refresh') {
     user = next;
     render();
     for (const listener of listeners) listener(user);
-    window.dispatchEvent(new CustomEvent('site-auth-change', {detail: {user}}));
+    window.dispatchEvent(new CustomEvent('site-auth-change', {detail: {user, reason}}));
   }
 
-  function broadcast() {
-    // A timestamp only: never persist user details, tokens or verification codes.
-    try { localStorage.setItem('sss-auth-change', String(Date.now())); } catch { /* Storage may be disabled. */ }
+  function broadcast(reason) {
+    // Only change metadata: never persist user details, tokens or verification codes.
+    try { localStorage.setItem('sss-auth-change', JSON.stringify({at: Date.now(), reason})); } catch { /* Storage may be disabled. */ }
   }
 
   function notify(text) {
@@ -70,14 +75,14 @@
     toastTimer = setTimeout(() => { toast.hidden = true; }, 2400);
   }
 
-  async function refresh() {
-    if (busy) { refreshPending = true; return; }
+  async function refresh(reason = 'refresh') {
+    if (busy) { refreshPending = true; return new Promise(resolve => refreshWaiters.push(resolve)); }
     const ticket = ++epoch;
     try {
       const data = await api('me');
       if (ticket !== epoch) return;
       enabled = data.enabled; reachable = true;
-      publish(data.user);
+      publish(data.user, reason);
       if (user && dialog.open) dialog.close();
     } catch {
       if (ticket !== epoch) return;
@@ -90,7 +95,11 @@
   function settle(ticket) {
     busy = false;
     renderControls();
-    if (ticket !== epoch || refreshPending) { refreshPending = false; refresh(); }
+    if (ticket !== epoch || refreshPending) {
+      refreshPending = false;
+      const waiting = refreshWaiters.splice(0);
+      refresh().finally(() => waiting.forEach(resolve => resolve()));
+    }
   }
 
   function say(text, tone = 'info') {
@@ -115,6 +124,34 @@
     closeMenu();
     if (!dialog.open) dialog.showModal();
     (challenge ? code : phone).focus();
+  }
+
+  async function requireLogin({force = false, title, intro, onPrompt} = {}) {
+    await ready;
+    if (force) publish(null, 'expired');
+    // A known user skips the round trip: API calls still verify the cookie and
+    // a 401 comes back here with force.
+    else if (user && reachable && enabled) return user;
+    await refresh();
+    if (!reachable || !enabled) throw new Error('登录服务暂不可用。');
+    if (user) return user;
+    return new Promise(resolve => {
+      const finish = value => {
+        listeners.delete(onUser);
+        dialog.removeEventListener('close', onClose);
+        titleText.textContent = DEFAULT_TITLE;
+        introText.textContent = DEFAULT_INTRO;
+        resolve(value);
+      };
+      const onUser = next => { if (next) finish(next); };
+      const onClose = () => finish(null);
+      listeners.add(onUser);
+      dialog.addEventListener('close', onClose);
+      titleText.textContent = title || DEFAULT_TITLE;
+      introText.textContent = !intro ? DEFAULT_INTRO : force ? intro : `${intro}未注册的手机号会自动创建账号。`;
+      onPrompt?.();
+      open();
+    });
   }
 
   function openMenu() {
@@ -153,10 +190,10 @@
     dialog.setAttribute('aria-labelledby', 'sss-auth-title');
     dialog.innerHTML = `<div class="sss-auth-inner">
       <header class="sss-auth-head">
-        <h2 id="sss-auth-title">手机号登录</h2>
+        <h2 id="sss-auth-title">${DEFAULT_TITLE}</h2>
         <button type="button" class="sss-auth-close" aria-label="关闭登录"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
       </header>
-      <p class="sss-auth-intro">验证手机号即可登录，未注册的手机号会自动创建账号。</p>
+      <p class="sss-auth-intro">${DEFAULT_INTRO}</p>
       <form class="sss-auth-form" novalidate>
         <label class="sss-auth-label" for="sss-auth-phone">手机号</label>
         <div class="sss-auth-field"><span class="sss-auth-prefix" aria-hidden="true">+86</span><input id="sss-auth-phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel-national" maxlength="11" placeholder="11 位手机号" required></div>
@@ -175,6 +212,7 @@
     phone = dialog.querySelector('#sss-auth-phone'); code = dialog.querySelector('#sss-auth-code');
     send = dialog.querySelector('.sss-auth-send'); submit = dialog.querySelector('.sss-auth-submit');
     message = dialog.querySelector('.sss-auth-message');
+    titleText = dialog.querySelector('#sss-auth-title'); introText = dialog.querySelector('.sss-auth-intro');
 
     trigger.addEventListener('click', () => {
       if (!user) open();
@@ -226,7 +264,7 @@
         const data = await api('sms/verify', {phone: challenge.phone, challenge_id: challenge.id, code: code.value});
         if (ticket !== epoch) return;
         reachable = true; challenge = null; retryAt = 0;
-        publish(data.user); broadcast(); dialog.close();
+        publish(data.user, 'login'); broadcast('login'); dialog.close();
         notify('登录成功');
       } catch (failure) {
         if (ticket === epoch) { say(failure.message, 'error'); code.select(); }
@@ -238,21 +276,28 @@
       try {
         await api('logout', {});
         if (ticket !== epoch) return;
-        challenge = null; code.value = ''; closeMenu(); publish(null); broadcast();
+        challenge = null; code.value = ''; closeMenu(); publish(null, 'logout'); broadcast('logout');
         notify('已退出登录');
       } catch (failure) { if (ticket === epoch) menuNote.textContent = failure.message; }
       finally { settle(ticket); }
     });
     setInterval(() => { if (dialog.open) renderControls(); }, 1000);
-    window.addEventListener('storage', event => { if (event.key === 'sss-auth-change') refresh(); });
+    window.addEventListener('storage', event => {
+      if (event.key !== 'sss-auth-change') return;
+      let reason = 'refresh';
+      try { if (JSON.parse(event.newValue)?.reason === 'logout') reason = 'logout'; } catch { /* Older tabs send a timestamp. */ }
+      if (reason === 'logout') publish(null, 'logout');
+      refresh(reason);
+    });
     window.addEventListener('pageshow', event => { if (event.persisted) refresh(); });
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
     render();
     renderControls();
+    mounted();
     refresh();
   }
 
-  window.SiteAuth = {open, refresh, get user() { return user; }, get enabled() { return enabled; },
+  window.SiteAuth = {open, refresh, requireLogin, ready, get user() { return user; }, get enabled() { return enabled; },
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); }};
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, {once: true});
   else mount();

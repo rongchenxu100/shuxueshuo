@@ -6,8 +6,9 @@ from pathlib import Path
 import pytest
 
 
-@pytest.mark.parametrize('code', ['session_busy', 'retry_cooldown', 'session_limit', 'daily_limit'])
-def test_timeout_retry_survives_temporary_limits(code):
+@pytest.mark.parametrize('code', ['session_busy', 'retry_cooldown', 'session_limit', 'daily_limit',
+                                 'cancel_login', 'resume_login', 'expired', 'expired_cancel', 'account_changed'])
+def test_auth_gate_and_timeout_retry(code):
     runtime = Path(__file__).resolve().parents[3] / 'site/assets/practice/runtime.js'
     script = r'''
 const assert = require('node:assert/strict');
@@ -17,6 +18,7 @@ const code = process.argv[2];
 const timers = new Map();
 let timerId = 0, now = 1000, mode = 'timeout';
 const posted = [];
+let loginCalls = 0, finishLogin;
 const scope = {
   Date: {now: () => now}, AbortController,
   setTimeout: (callback, delay) => { timers.set(++timerId, {callback, delay}); return timerId; },
@@ -24,7 +26,16 @@ const scope = {
   busy: false, dialoguePause: null, dialogueTimer: null, generation: 0,
   retryRequest: null, requestController: null,
   state: {active: 0}, snapshot: {attempt_id: 'attempt'},
-  remote: {session_id: 'session', revision: 0}, pendingOperations: [],
+  remote: {session_id: 'session', revision: 0, user_id: 'student'}, pendingOperations: [],
+  practiceAuthReady: Promise.resolve(), window: {SiteAuth: {requireLogin: async options => {
+    loginCalls++;
+    if (['cancel_login', 'resume_login', 'account_changed'].includes(code)) return new Promise(resolve => { finishLogin = resolve; });
+    if (loginCalls > 1 && ['expired', 'expired_cancel'].includes(code)) {
+      assert.equal(options.force, true);
+      if (code === 'expired_cancel') return null;
+    }
+    return {id: 'student'};
+  }}},
   api: '/api/tutor-demo', lesson: {},
   steps: {querySelectorAll: () => [], setAttribute: () => {}},
   picker: {querySelectorAll: () => []},
@@ -35,6 +46,7 @@ const scope = {
   acceptSnapshot(data) { scope.snapshot = data; scope.state = data.state; },
   fetch: async (url, options) => {
     posted.push(JSON.parse(options.body));
+    if (mode === 'expired' && posted.length === 1) return {ok: false, status: 401, json: async () => ({detail: '请先登录'})};
     if (mode === 'timeout') return new Promise((resolve, reject) => {
       options.signal.addEventListener('abort', () => {
         const error = new Error('timeout'); error.name = 'AbortError'; reject(error);
@@ -56,7 +68,47 @@ const runTimer = delay => {
   timers.delete(entry[0]); now += delay; entry[1].callback();
 };
 (async () => {
+  if (['cancel_login', 'resume_login', 'account_changed'].includes(code)) {
+    mode = 'success';
+    scope.retryRequest = payload; // Preserve the identity of an uncertain earlier request.
+    const gated = scope.request(payload);
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(posted.length, 0);
+    assert.equal(timers.size, 0); // SMS entry never consumes the AI timeout.
+    if (code === 'account_changed') scope.generation++; // Logout/switch invalidates pending work.
+    finishLogin(code === 'cancel_login' ? null : {id: 'student'});
+    await gated;
+    if (code === 'resume_login') {
+      assert.equal(posted.length, 1);
+      assert.deepEqual(posted[0], payload);
+      assert.equal(scope.messageInput.value, '');
+    } else {
+      assert.equal(posted.length, 0);
+      assert.equal(scope.messageInput.value, '为什么？');
+      if (code === 'cancel_login') {
+        assert.equal(scope.retryRequest, payload);
+        assert.equal(scope.retryButton.hidden, false);
+        assert.equal(scope.busy, false);
+      }
+    }
+    return;
+  }
+  if (['expired', 'expired_cancel'].includes(code)) {
+    mode = 'expired';
+    await scope.request(payload);
+    assert.equal(loginCalls, 2);
+    assert.equal(posted.length, code === 'expired' ? 2 : 1);
+    for (const body of posted) assert.deepEqual(body, payload);
+    if (code === 'expired_cancel') {
+      assert.equal(scope.retryRequest, payload);
+      assert.equal(scope.retryButton.hidden, false);
+      assert.equal(scope.messageInput.value, '为什么？');
+    } else assert.equal(scope.messageInput.value, '');
+    assert.equal(scope.busy, false);
+    return;
+  }
   const waiting = scope.request(payload);
+  await new Promise(resolve => setImmediate(resolve)); // Login check precedes the model timeout.
   runTimer(55000);
   await waiting;
   assert.equal(scope.retryRequest, payload);

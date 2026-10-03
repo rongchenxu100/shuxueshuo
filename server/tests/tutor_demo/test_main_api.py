@@ -43,6 +43,7 @@ def test_main_hosts_tutor_api_and_preserves_lifecycles(monkeypatch, blank_limits
 
     tutor = Tutor()
     monkeypatch.setenv("REVIEW_BACKEND", "product")
+    monkeypatch.setenv("AUTH_SMS_MODE", "disabled")
     monkeypatch.setattr(product_api, "load_application", load_product)
     monkeypatch.setattr(tutor_api, "DeepSeekTutor", lambda: tutor)
     app = runpy.run_module("shuxueshuo_server.main")["app"]
@@ -51,6 +52,9 @@ def test_main_hosts_tutor_api_and_preserves_lifecycles(monkeypatch, blank_limits
         assert lifecycle == ["product.started"]
         assert client.get("/api/health").json() == {"status": "ok"}
         assert "/api/product/v1/health" in client.get("/openapi.json").json()["paths"]
+        assert client.post("/api/tutor-demo/sessions", json={"lesson_id": "q01"}).status_code == 503
+        # Lifecycle/teaching behavior below is independent of authentication.
+        app.dependency_overrides[tutor_api.require_tutor_user] = lambda: {"id": "test-student"}
         response = client.post("/api/tutor-demo/sessions", json={"lesson_id": "q01"})
         assert response.status_code == 201
         view = response.json()

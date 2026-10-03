@@ -54,7 +54,7 @@
 
 - `deploy/nginx/shuxueshuo.conf`：主站静态页面由 Nginx 直接返回，`/api/` 转发到 `127.0.0.1:8000`。
 - `server/shuxueshuo_server/main.py`：生产 FastAPI 入口，注册教学 API 等路由。
-- `server/shuxueshuo_server/tutor_demo/api.py`：现有 `/api/tutor-demo` 路由，当前没有学生登录校验。
+- `server/shuxueshuo_server/tutor_demo/api.py`：现有 `/api/tutor-demo` 路由，已接入学生登录校验与会话所有者检查。
 - `site/assets/practice/runtime.js`：公共交互运行时，本地练习与按需 AI 请求的接入点。
 
 ### 计划采用的检查位置
@@ -66,10 +66,10 @@
 | 路由 | 登录要求 | 用途 |
 | --- | --- | --- |
 | `/`、题库页、题目页、静态资源 | 公开 | 浏览和本地练习 |
-| `POST /api/auth/sms/send`（拟新增） | 公开，受短信发送限制 | 发送验证码 |
-| `POST /api/auth/sms/verify`（拟新增） | 公开，受核验限制 | 核验并创建登录会话 |
-| `GET /api/auth/me`（拟新增） | 可匿名，返回游客或当前用户 | 公共组件查询登录状态 |
-| `POST /api/auth/logout`（拟新增） | 可幂等退出 | 撤销当前会话并清除 Cookie |
+| `POST /api/auth/sms/send` | 公开，受短信发送限制 | 发送验证码 |
+| `POST /api/auth/sms/verify` | 公开，受核验限制 | 核验并创建登录会话 |
+| `GET /api/auth/me` | 可匿名，返回游客或当前用户 | 公共组件查询登录状态 |
+| `POST /api/auth/logout` | 可幂等退出 | 撤销当前会话并清除 Cookie |
 | `/api/learning/marks` 及单题读写接口（拟新增） | 必须登录 | 读取和修改本人标记 |
 | `/api/tutor-demo/sessions` 及会话读取、事件接口 | 必须登录 | 创建、读取和使用本人的 AI 教学会话 |
 | `/api/health`、现有微信分享配置 | 保持公开接口语义 | 健康检查与分享支持 |
@@ -107,6 +107,8 @@ AI 教学 `session_id` 和登录 session 是两种不同对象。登录 session 
 
 ## 6. 三阶段实施与验收
 
+当前进展（2026-10-03）：阶段 1、2 已实现并完成本地模拟验收；真实短信投递待配置后联调，本次改动尚未部署。阶段 3 尚未开始。测试步骤和结果见 [本地运行与测试](site-login-local-testing.md)。
+
 | 阶段 | 实施内容 | 验收结果 |
 | --- | --- | --- |
 | 1. 手机号登录与登出 | 确认阿里云接口、签名和模板；完成用户与会话迁移、发码、核验、当前用户查询、退出及全站公共登录组件 | 登录后切换主站页面仍保持身份；退出后旧凭证失效；支持本地模拟短信和真实短信联调 |
@@ -134,7 +136,7 @@ AI 教学 `session_id` 和登录 session 是两种不同对象。登录 session 
 
 本地 HTTP 与生产 HTTPS 分开配置 Cookie：本地开发可关闭 `Secure`，仍保留 `HttpOnly`、`SameSite=Lax` 和 `Path=/`；生产必须启用 `Secure`。开发配置不能带入生产。测试时统一使用 `localhost` 或 `127.0.0.1`，不要混用不同主机名。
 
-若保留 8765/8766 跨端口开发方式，需要前端显式携带凭据，后端允许精确的开发 origin 和 credentials，并让 auth、教学、学习标记接口共享会话存储；优先采用同源入口减少此类配置差异。
+已采用 `tools/run_site.py` 的 8767 同源开发入口，移除旧 8765/8766 跨端口访问。独立教学入口未配置登录服务时返回 503，不提供匿名 AI 通道。
 
 本地验收覆盖：发码 → 登录 → 切换题页仍登录 → 使用 AI（阶段 2）→ 保存标记（阶段 3）→ 退出 → 旧 Cookie 请求被拒绝。使用两个独立浏览器上下文验证用户隔离，测试账号切换及退出后的迟到响应不会显示旧账号数据。再通过一次真实短信联调验证阿里云接入；模拟测试通过不代表真实投递已验证。
 

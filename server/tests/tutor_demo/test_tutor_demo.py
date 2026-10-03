@@ -4,7 +4,7 @@ from copy import deepcopy
 import pytest
 from fastapi.testclient import TestClient
 
-from shuxueshuo_server.tutor_demo.api import create_app
+from .auth_helpers import create_app
 from shuxueshuo_server.tutor_demo.llm import (
     Action,
     DeepSeekTutor,
