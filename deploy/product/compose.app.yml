@@ -81,7 +81,9 @@ services:
       - ${PRODUCT_DATA_DIR:?data root required}:/var/lib/shuxueshuo
       - ${PRODUCT_REPO_HOST}/server/.env:/app/server/.env:ro
     working_dir: /app/server
-    command: ["uvicorn", "shuxueshuo_server.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    # Nginx reaches the container through the Docker bridge (172.19.0.1 on the server);
+    # trusting the private Docker pool lets rate limits see the real client IP.
+    command: ["uvicorn", "shuxueshuo_server.main:app", "--host", "0.0.0.0", "--port", "8000", "--forwarded-allow-ips", "172.16.0.0/12"]
     depends_on:
       postgres:
         condition: service_healthy
