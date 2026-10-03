@@ -1,0 +1,37 @@
+.learning-mark { margin: 24px 0; padding: 24px; border: 1px solid #d9e2dd; border-radius: 18px; background: #fff; scroll-margin-top: 90px; }
+.learning-mark[hidden], .learning-mark [hidden], .learning-list-notice[hidden], .learning-summary[hidden] { display: none !important; }
+.learning-actions .learning-primary { color: #fff; background: #1f7a68; border-color: #1f7a68; font-weight: 600; }
+.learning-summary { margin: -6px 0 14px; font-size: 13px; color: #5d6f68; font-variant-numeric: tabular-nums; }
+.learning-mark h2 { margin: 16px 0 8px; font-size: 20px; line-height: 1.5; color: #243b36; }
+.learning-mark-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.learning-save, .learning-note { font-size: 14px; line-height: 1.6; color: #61736c; }
+.learning-note { margin: 0 0 16px; }
+.learning-badge { display: inline-block; width: fit-content; white-space: nowrap; font-size: 12px; font-weight: 600; line-height: 1.5; padding: 4px 9px; border-radius: 7px; }
+.learning-badge[data-tone="new"] { color: #737e78; background: transparent; }
+.learning-badge[data-tone="pending"] { color: #4e5953; background: #eef0ee; }
+.learning-badge[data-tone="mastered"] { color: #216b46; background: #e8f3e9; }
+.learning-badge[data-tone="review"] { color: #95531c; background: #fff0dc; }
+.learning-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.learning-actions button, .learning-list-notice button { font: inherit; font-size: 14px; padding: 10px 16px; color: #315a49; background: #f6f9f6; border: 1px solid #ccdcd0; border-radius: 9px; cursor: pointer; }
+.learning-actions button[aria-pressed="true"] { background: #e8f3e9; border-color: #55986a; }
+.learning-actions button[data-learning-status="needs_review"][aria-pressed="true"] { color: #95531c; background: #fff0dc; border-color: #cf995a; }
+.learning-actions button:disabled { opacity: .55; cursor: wait; }
+.learning-actions button:focus-visible, .learning-return:focus-visible { outline: 2px solid #256b51; outline-offset: 3px; }
+.learning-actions .learning-clear { border-color: transparent; background: transparent; color: #69736d; }
+.learning-return { display: inline-block; margin-top: 20px; font-size: 14px; color: #33765d; text-decoration: none; }
+.learning-list-notice { color: #69736d; font-size: 14px; }
+/* Status on the number circle: solid / tinted / dashed, so it reads without colour. Kept on hover. */
+.problem-card[data-learning="mastered"] .problem-number { border: 1.5px solid #2b7d50; background: #2b7d50; color: #fff; }
+.problem-card[data-learning="review"] .problem-number { border: 2px solid #d07a24; background: #fff1de; color: #8f4b10; }
+.problem-card[data-learning="pending"] .problem-number { border: 2px dashed #74867f; background: #f2f5f3; color: #3f4a45; }
+.learning-legend { display: inline-flex; align-items: center; gap: 5px; margin-left: 12px; color: inherit; text-decoration: none; }
+.learning-legend::before { content: ""; width: 10px; height: 10px; border-radius: 50%; box-sizing: border-box; }
+.learning-legend[data-tone="mastered"]::before { background: #2b7d50; }
+.learning-legend[data-tone="review"]::before { border: 2px solid #d07a24; background: #fff1de; }
+.learning-legend[data-tone="pending"]::before { border: 1.5px dashed #74867f; background: #f2f5f3; }
+a.learning-legend { color: #33765d; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 600px) {
+  .learning-mark { padding: 18px; }
+  .learning-mark h2 { font-size: 18px; }
+  .learning-legend { margin-left: 10px; }
+}

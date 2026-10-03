@@ -114,6 +114,7 @@ def create_app(tutor=None, budget=None, *, auth=None):
         ("/topics", "topics", "topics"),
         ("/assets/practice", "assets/practice", "practice-assets"),
         ("/assets/auth", "assets/auth", "auth-assets"),
+        ("/assets/learning", "assets/learning", "learning-assets"),
         ("/demo", "demo", "legacy-demo"),
     ):
         directory = site / relative

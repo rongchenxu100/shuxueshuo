@@ -351,3 +351,12 @@ tutor_session_usage = sa.Table('tutor_session_usage', metadata,
     col('calls', sa.BigInteger, default=sa.text('0')),
     col('retry_at', sa.Double, default=sa.text('0')),
     sa.CheckConstraint('calls >= 0', name='calls_nonnegative'), sa.CheckConstraint('retry_at >= 0', name='retry_nonnegative'))
+
+
+student_learning_marks = sa.Table('student_learning_marks', metadata,
+    sa.Column('user_id', UUID(as_uuid=True), sa.ForeignKey('users.id'), primary_key=True),
+    sa.Column('problem_id', sa.Text, primary_key=True),
+    col('practiced', sa.Boolean, default=sa.text('false')),
+    col('learning_status', sa.Text, default=sa.text("'unmarked'")),
+    sa.CheckConstraint("learning_status IN ('unmarked','mastered','needs_review')", name='learning_status'),
+    sa.CheckConstraint("practiced OR learning_status = 'unmarked'", name='learning_practiced'))

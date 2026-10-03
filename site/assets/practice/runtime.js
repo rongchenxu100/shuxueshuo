@@ -7,6 +7,9 @@ const practiceAuthReady = typeof document !== 'undefined' && document.currentScr
   'use strict';
   const lesson = JSON.parse(document.getElementById('practice-config').textContent);
   const methods = lesson.methods;
+  if (document.currentScript?.src) {
+    import(new URL('../learning/learning-marks.js?v=1', document.currentScript.src).href).catch(() => {});
+  }
   let titles = [];
   let remote = null;
   let pendingOperations = [];
@@ -73,11 +76,18 @@ const practiceAuthReady = typeof document !== 'undefined' && document.currentScr
     snapshot = data;
     state = data.state;
     render();
+    if (completed()) {
+      document.getElementById('completion').dataset.learningCompleted = 'true';
+      window.dispatchEvent(new CustomEvent('practice-completed', {detail: {problemId: lesson.id}}));
+    }
   }
 
   function showProgress(oldActive, oldAttempt) {
     if (state.active > oldActive || oldAttempt !== snapshot.attempt_id) requestAnimationFrame(() => {
-      document.querySelector(completed() ? '.completion-card' : `#step-${state.active}`)?.scrollIntoView({
+      const target = completed()
+        ? document.querySelector('#learning-mark:not([hidden])') || document.querySelector('.completion-card')
+        : document.querySelector(`#step-${state.active}`);
+      target?.scrollIntoView({
         behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'center'});
     });
   }
@@ -207,6 +217,7 @@ const practiceAuthReady = typeof document !== 'undefined' && document.currentScr
 
   function restart({accountChanged = false} = {}) {
     generation++; requestController?.abort(); busy = false;
+    document.getElementById('completion').dataset.learningCompleted = 'false';
     if (dialoguePause?.code !== 'daily_limit' && !(dialoguePause?.code === 'user_daily_limit' && !accountChanged)) {
       dialoguePause = null; clearTimeout(dialogueTimer);
     }

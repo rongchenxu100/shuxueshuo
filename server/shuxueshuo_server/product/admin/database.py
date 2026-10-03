@@ -17,6 +17,7 @@ from ..repositories import insert, row, UserContext
 from ..storage import LocalArtifactStorage
 
 MUTABLE = {
+    'student_learning_marks': 'practiced learning_status',
     'tutor_daily_usage': 'calls',
     'tutor_user_daily_usage': 'calls',
     'tutor_session_usage': 'calls retry_at',

@@ -62,7 +62,8 @@ class AuthBoundary(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         auth_path = request.url.path.startswith("/api/auth/")
         tutor_path = request.url.path.startswith("/api/tutor-demo/")
-        if not (auth_path or tutor_path):
+        learning_path = request.url.path.startswith("/api/learning/")
+        if not (auth_path or tutor_path or learning_path):
             return await call_next(request)
         auth = getattr(request.app.state, "student_auth", None)
         if auth and auth.config.mode == "mock":
@@ -80,7 +81,7 @@ class AuthBoundary(BaseHTTPMiddleware):
                     headers={"Cache-Control": "no-store"},
                 )
         length = request.headers.get("content-length", "0")
-        max_bytes = 4096 if auth_path else 512 * 1024
+        max_bytes = 512 * 1024 if tutor_path else 4096
         if not length.isdigit() or int(length) > max_bytes:
             return JSONResponse(
                 {"detail": "请求过大。"}, 413, headers={"Cache-Control": "no-store"}
@@ -202,5 +203,8 @@ def install_auth(app, *, auth=None, config=None):
         )
         return response
 
+    from ..learning.api import router as learning_router
+
+    app.include_router(learning_router)
     app.include_router(router)
     app.add_middleware(AuthBoundary)
