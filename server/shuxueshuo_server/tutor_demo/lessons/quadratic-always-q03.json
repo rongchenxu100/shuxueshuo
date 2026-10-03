@@ -1,0 +1,393 @@
+{
+    "id": "quadratic-always-q03",
+    "version": 1,
+    "problem": {
+        "statement": "已知不等式 $(a^2-1)x^2-(a-1)x-1<0$ 恒成立，求实数 $a$ 的取值范围。",
+        "conditions": [
+            "$x\\in\\mathbb R$，$a\\in\\mathbb R$",
+            "对所有实数 $x$，$(a^2-1)x^2-(a-1)x-1<0$"
+        ],
+        "target": "求参数a的取值范围"
+    },
+    "methods": [
+        {
+            "id": "discriminant",
+            "label": "判别式法"
+        }
+    ],
+    "initial_state": {
+        "active": 0,
+        "method": null,
+        "swapped": false,
+        "pairs": [
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ]
+        ],
+        "choices": {
+            "d_degenerate": null,
+            "d_position": null,
+            "d_delta": null,
+            "d_range": null,
+            "d_merge": null
+        },
+        "feedback": "",
+        "hint": false
+    },
+    "routes": {
+        "discriminant": {
+            "label": "判别式法",
+            "nodes": [
+                {
+                    "id": "d_basis",
+                    "title": "判断适用条件",
+                    "question": "判别式法需要两个前提。逐项看看，本题是否满足？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "判别式法的两个前提",
+                        "slots": [
+                            {
+                                "label": "$x$ 的取值范围",
+                                "hint": "看题目要求对哪些 $x$ 成立",
+                                "options": [
+                                    {
+                                        "value": "all_real",
+                                        "label": "全体实数",
+                                        "note": "在全体实数上，可以看整条图像与横轴的位置关系。"
+                                    },
+                                    {
+                                        "value": "interval",
+                                        "label": "某个区间",
+                                        "note": "只在某个区间上成立时，要看顶点与区间的位置，只看判别式不够。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "$x^2$ 的系数",
+                                "hint": "只看 $x$，把 $a$ 当作常数",
+                                "options": [
+                                    {
+                                        "value": "nonzero",
+                                        "label": "确定非零",
+                                        "note": "若系数确定非零，才可把它看作二次函数；请核对题目是否已排除系数为零。"
+                                    },
+                                    {
+                                        "value": "maybe_zero",
+                                        "label": "含参数，可能为零",
+                                        "note": "系数可能为零时，要先单独讨论退化成一次式或常数的情形。"
+                                    },
+                                    {
+                                        "value": "not_quadratic",
+                                        "label": "没有 $x^2$ 项",
+                                        "note": "没有 $x^2$ 项就不是二次函数，判别式用不上。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "all_real",
+                            "maybe_zero"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "题目要求对任意实数 $x$ 成立；$x^2$ 的系数是 $a^2-1$，$a^2-1=0$ 时不再是二次式，要单独讨论。"
+                    },
+                    "required_evidence": [
+                        "all_real_domain",
+                        "parameter_coefficient"
+                    ],
+                    "criteria": "本步只判学生已表达的依据，不代学生作答。路径已选定时，始终actions=[]，由服务端根据有效evidence更新清单。尤其在纠错回复中，不允许生成fill/maybe_zero来替换学生的错误选择。\n学生须指出x遍历全体实数（题目只写“恒成立”，默认对任意实数x），以及关于x的二次项系数是a²-1、可能为零，因此要先分a²-1=0与a²-1≠0讨论。分别给出证据，只有一项时不能自动补全另一项。只说用判别式、或直接写开口向下且Δ<0而不提a²-1=0，都不足。说“系数确定非零”是错误的。 作答证据只取学生本轮或此前主动表达、实际正确选择的信息，不取题干、老师解释或老师纠错后的结论。判例：学生只说“系数是a²，肯定非零，直接用判别式”时，必须evidence=[]、actions=[]；不能因题干写了恒成立就给all_real_domain。学生只说“x取全体实数”只给all_real_domain；只说明a²-1可能为零和分类讨论，只给parameter_coefficient，可结合此前已接受的all_real_domain完成本步。",
+                    "completion_reply": "二次项系数 $a^2-1$ 可能为零，先讨论 $a^2-1=0$，再讨论 $a^2-1\\ne0$。",
+                    "results": [
+                        "$x\\in\\mathbb R$；二次项系数 $a^2-1$ 可能为零。",
+                        "先讨论 $a^2-1=0$，再讨论 $a^2-1\\ne0$。"
+                    ]
+                },
+                {
+                    "id": "d_degenerate",
+                    "title": "讨论 a²−1 = 0",
+                    "question": "当 $a^2-1=0$ 时，原不等式变成什么？它对所有实数 $x$ 成立吗？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_degenerate",
+                        "options": [
+                            {
+                                "value": "one_holds",
+                                "label": "$a=1$ 时变为 $-1<0$，成立；$a=-1$ 时变为 $2x-1<0$，不恒成立"
+                            },
+                            {
+                                "value": "both_hold",
+                                "label": "$a=\\pm1$ 时都变为 $-1<0$，都成立"
+                            },
+                            {
+                                "value": "only_one",
+                                "label": "只有 $a=1$，变为 $-1<0$，成立"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "one_holds"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "先解出 $a^2-1=0$ 的所有 $a$，再逐个代入原不等式；一次项 $-(a-1)x$ 也含 $a$。"
+                    },
+                    "required_evidence": [
+                        "degenerate_cases"
+                    ],
+                    "criteria": "先判断学生原始作答是否符合本步全部要求，再写回复。若有错误或遗漏，本步只有一个完整证据标识，不给部分证据：evidence=[]、actions=[]。老师在reply中纠正得到的结论不算学生证据，不能一边指出错误一边发出通过证据。\n须由a²-1=0得a=1或a=-1，并分别代入原不等式：a=1时为-1<0，恒成立，保留；a=-1时为2x-1<0，只在x<1/2时成立，舍去。只讨论a=1遗漏了a=-1；认为a=-1时也成立，通常是漏掉了一次项-(a-1)x，a=-1时它等于2x。认为“不是二次不等式就舍去”是错误：题目没有限定二次。只给结论、没有代入依据不足。 关键反例：学生说“a²-1=0只有a=1，代入-1<0成立”是遗漏a=-1的错误，必须evidence=[]、actions=[]，留在本步；老师回复补充a=-1的计算，不代表学生已经完成讨论，不能给degenerate_cases。同样，学生说“a=±1都剩-1<0，都保留”必须不给证据。询问a=-1时一次项为何未消失，只解释-(a-1)x代入后为-(-2)x=2x，intent=question，evidence=[]、actions=[]。只有学生主动补齐两个值的代入及是否恒成立的判断，才给degenerate_cases。文字完整改正后即使页面还选着only_one或both_hold，也接受新作答，actions=[]，服务端据证据同步正确选项；不要求重复点击。",
+                    "completion_reply": "$a=1$ 时原式为 $-1<0$，保留；$a=-1$ 时原式为 $2x-1<0$，不恒成立，舍去。",
+                    "results": [
+                        "$a=1$ 时原式为 $-1<0$，恒成立，$a=1$ 满足。",
+                        "$a=-1$ 时原式为 $2x-1<0$，不恒成立，舍去。"
+                    ]
+                },
+                {
+                    "id": "d_position",
+                    "title": "判断图像位置",
+                    "question": "当 $a^2-1\\ne0$ 时，$f(x)$ 是二次函数，开口方向由 $a^2-1$ 决定。要使 $f(x)<0$ 对所有实数 $x$ 成立，图像应满足什么？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_position",
+                        "options": [
+                            {
+                                "value": "down_below",
+                                "label": "开口向下（$a^2-1<0$），全部在横轴下方，不允许相切"
+                            },
+                            {
+                                "value": "down_touch",
+                                "label": "开口向下（$a^2-1<0$），在横轴下方或横轴上，允许相切"
+                            },
+                            {
+                                "value": "up_apart",
+                                "label": "开口向上（$a^2-1>0$），与横轴没有公共点"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "down_below"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "$<0$ 不允许函数值等于零，也不允许正值。开口方向由 $a^2-1$ 决定；区分“相切”和“不相交”。"
+                    },
+                    "required_evidence": [
+                        "graph_position"
+                    ],
+                    "criteria": "先判断学生原始作答是否符合本步全部要求，再写回复。若有错误或遗漏，本步只有一个完整证据标识，不给部分证据：evidence=[]、actions=[]。老师在reply中纠正得到的结论不算学生证据，不能一边指出错误一边发出通过证据。\n须说明a²-1≠0时图像开口向下（a²-1<0），且与x轴没有公共点（整条图像在x轴下方）。允许相切是错误：切点处f(x)=0，不满足严格不等式；开口向上不可能恒小于0。只说“在x轴下方”而不提开口方向时，追问开口方向由什么决定。直接给出a²-1<0且Δ<0也接受，它已包含图像位置的结论。 针对系数误认必须先纠正：若学生说“a<0就开口向下”，不能只说还需无交点，也不能肯定其开口判断；本题二次项系数是a²-1，开口向下要求a²-1<0，即-1<a<1，不是a<0。例如a=-2<0但a²-1=3>0，反而开口向上；a=1/2>0却开口向下。回复至少写明正确开口条件，并指出原说法错误；evidence=[]、actions=[]，再提示还需无公共点。 学生说“开口向下，但允许相切”仍是错误作答，必须evidence=[]、actions=[]；回复解释相切处为0即可，禁止替学生选择down_below，即使不提交也不能把错误选择自动改成正确选择。只有学生自己完整改正，才给graph_position，由服务端同步选择。",
+                    "completion_reply": "$a^2-1\\ne0$ 时，$f(x)<0$ 恒成立 $\\iff$ 开口向下（$a^2-1<0$）且图像与 $x$ 轴无公共点。",
+                    "results": [
+                        "$a^2-1\\ne0$ 时：开口向下（$a^2-1<0$），图像与 $x$ 轴无公共点。"
+                    ]
+                },
+                {
+                    "id": "d_delta",
+                    "title": "建立判别式条件",
+                    "question": "上一步：开口向下（$a^2-1<0$），图像与横轴没有公共点。这对应哪个判别式条件？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_delta",
+                        "options": [
+                            {
+                                "value": "le",
+                                "label": "$\\Delta\\le0$"
+                            },
+                            {
+                                "value": "lt",
+                                "label": "$\\Delta<0$"
+                            },
+                            {
+                                "value": "ge",
+                                "label": "$\\Delta\\ge0$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "lt"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "不相交对应 $\\Delta<0$，相切对应 $\\Delta=0$。上一步不允许相切。"
+                    },
+                    "required_evidence": [
+                        "discriminant_condition"
+                    ],
+                    "criteria": "明确不通过判例：学生“判别式≤0即可”或选择le，必须evidence=[]、actions=[]；回复解释Δ=0的切点不满足严格<0，但不能把解释中的Δ<0当作学生答案。\n先判断学生原始作答是否符合本步全部要求，再写回复。若有错误或遗漏，本步只有一个完整证据标识，不给部分证据：evidence=[]、actions=[]。老师在reply中纠正得到的结论不算学生证据，不能一边指出错误一边发出通过证据。\n组件同步约定：本节点正确答案唯一，模型只返回学生已表达的evidence，actions始终为[]，正确时由服务端绑定并推进。错误、不足或提问均不自动改选，老师纠错的内容不得转成choice/fill动作。\n须由“与x轴无公共点”得到Δ<0，并与a²-1<0联立。Δ≤0包含相切，不满足严格不等式；Δ≥0方向相反。接受直接写出Δ=5a²-2a-3<0或(5a+3)(a-1)<0。计算时常数项c=-1要连同负号代入：Δ=[-(a-1)]²-4(a²-1)(-1)=(a-1)²+4(a²-1)=5a²-2a-3；写成(a-1)²-4(a²-1)是符号错误。 若学生主动给出了错误的判别式展开，即使同时写对Δ<0和开口条件，整份当前作答仍不通过：例如“Δ=(a-1)²-4(a²-1)<0，同时a²-1<0”必须evidence=[]、actions=[]，解释c=-1带来的加号后等待学生改正。不能忽略错误计算只按不等号方向通过，不能把老师纠正的5a²-2a-3当作学生证据。学生文字明确改正后，即使页面仍是旧选项le，也按新答案给discriminant_condition、actions=[]，不要求重新点击。",
+                    "completion_reply": "$\\begin{cases}a^2-1<0,\\\\ \\Delta=5a^2-2a-3<0.\\end{cases}$",
+                    "results": [
+                        "$a^2-1<0$ 且 $\\Delta=5a^2-2a-3<0$。"
+                    ]
+                },
+                {
+                    "id": "d_range",
+                    "title": "求参数范围",
+                    "question": "把 $5a^2-2a-3<0$ 看成关于 $a$ 的一元二次不等式，并结合 $-1<a<1$，$a$ 在什么范围内？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_range",
+                        "options": [
+                            {
+                                "value": "between",
+                                "label": "$-\\frac35<a<1$"
+                            },
+                            {
+                                "value": "outside",
+                                "label": "$a<-\\frac35$ 或 $a>1$"
+                            },
+                            {
+                                "value": "closed_left",
+                                "label": "$-\\frac35\\le a<1$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "between"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "$h(a)=(5a+3)(a-1)$ 开口向上：两根之间小于零，端点处等于零。解出后再与 $-1<a<1$ 取交集。"
+                    },
+                    "required_evidence": [
+                        "discriminant_range"
+                    ],
+                    "criteria": "先判断学生原始作答是否符合本步全部要求，再写回复。若有错误或遗漏，本步只有一个完整证据标识，不给部分证据：evidence=[]、actions=[]。老师在reply中纠正得到的结论不算学生证据，不能一边指出错误一边发出通过证据。\n组件同步约定：本节点正确答案唯一，模型只返回学生已表达的evidence，actions始终为[]，正确时由服务端绑定并推进。错误、不足或提问均不自动改选，老师纠错的内容不得转成choice/fill动作。\n须由(5a+3)(a-1)<0得-3/5<a<1，并说明它满足a²-1<0即-1<a<1（与开口条件取交集）。取两根外侧方向错；写成-3/5≤a<1忽略Δ<0的严格性。只解出Δ<0而不提开口条件时，结果虽相同也应提醒交集这一步。",
+                    "completion_reply": "解得 $-\\frac35<a<1$，满足 $-1<a<1$，故 $-\\frac35<a<1$。",
+                    "results": [
+                        "情况②：$-\\frac35<a<1$。"
+                    ]
+                },
+                {
+                    "id": "d_merge",
+                    "title": "合并两种情况",
+                    "question": "情况①得到 $a=1$，情况②得到 $-\\frac35<a<1$。把两种情况的结果合并，$a$ 的取值范围是什么？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_merge",
+                        "options": [
+                            {
+                                "value": "union",
+                                "label": "$-\\frac35<a\\le1$"
+                            },
+                            {
+                                "value": "only_second",
+                                "label": "$-\\frac35<a<1$"
+                            },
+                            {
+                                "value": "intersection",
+                                "label": "无解，没有 $a$ 同时满足两种情况"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "union"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "两种情况是“或”的关系，满足任意一种即可，合并时取并集。"
+                    },
+                    "required_evidence": [
+                        "case_union"
+                    ],
+                    "criteria": "先判断学生原始作答是否符合本步全部要求，再写回复。若有错误或遗漏，本步只有一个完整证据标识，不给部分证据：evidence=[]、actions=[]。老师在reply中纠正得到的结论不算学生证据，不能一边指出错误一边发出通过证据。\n组件同步约定：本节点正确答案唯一，模型只返回学生已表达的evidence，actions始终为[]，正确时由服务端绑定并推进。错误、不足或提问均不自动改选，老师纠错的内容不得转成choice/fill动作。\n须把情况①a=1与情况②-3/5<a<1取并集，得-3/5<a≤1。只写-3/5<a<1漏掉a=1；把a=-1也并进来是错误，它在情况①中已舍去；认为要同时满足两种情况而得出无解，是把分类讨论误当作交集。",
+                    "completion_reply": "合并两种情况，得 $-\\frac35<a\\le1$。",
+                    "results": [
+                        "$-\\frac35<a\\le1$。"
+                    ]
+                },
+                {
+                    "id": "d_boundary",
+                    "title": "检查边界",
+                    "question": "上一步的范围以 $a=-\\frac35$、$a=1$ 为边界。逐个代回原不等式，它们要保留吗？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "逐个检查边界",
+                        "slots": [
+                            {
+                                "label": "$a=-\\frac35$",
+                                "hint": "此时原不等式变为 $-\\frac{16}{25}x^2+\\frac85x-1<0$",
+                                "options": [
+                                    {
+                                        "value": "holds",
+                                        "label": "对所有 $x$ 成立，保留",
+                                        "note": "最终范围包含 $a=-\\frac35$。"
+                                    },
+                                    {
+                                        "value": "fails",
+                                        "label": "有 $x$ 不成立，排除",
+                                        "note": "最终范围不含 $a=-\\frac35$。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "$a=1$",
+                                "hint": "此时原不等式变为 $-1<0$",
+                                "options": [
+                                    {
+                                        "value": "holds",
+                                        "label": "对所有 $x$ 成立，保留",
+                                        "note": "最终范围包含 $a=1$。"
+                                    },
+                                    {
+                                        "value": "fails",
+                                        "label": "有 $x$ 不成立，排除",
+                                        "note": "最终范围不含 $a=1$。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "fails",
+                            "holds"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$a=-\\frac35$ 时原不等式为 $-\\left(\\frac45x-1\\right)^2<0$，$x=\\frac54$ 时左边等于 $0$，不成立；$a=1$ 时为 $-1<0$，对所有 $x$ 成立。"
+                    },
+                    "required_evidence": [
+                        "boundary_check"
+                    ],
+                    "criteria": "先判断学生原始作答是否符合本步全部要求，再写回复。若有错误或遗漏，本步只有一个完整证据标识，不给部分证据：evidence=[]、actions=[]。老师在reply中纠正得到的结论不算学生证据，不能一边指出错误一边发出通过证据。\n组件同步约定：本节点正确答案唯一，模型只返回学生已表达的evidence，actions始终为[]，正确时由服务端绑定并推进。错误、不足或提问均不自动改选，老师纠错的内容不得转成choice/fill动作。\n须说明a=-3/5时原式为-(4x/5-1)²<0，在x=5/4处为0<0不成立，排除；a=1时为-1<0恒成立，保留。只检查一个边界不足。说a=-3/5时“Δ=0所以排除”也接受，但应能对应到切点处函数值为0。问为什么排除属于question，不自动通过。 本题端点计算必须按以下已核对过程解释，避免二次项系数或一次项变号：a=-3/5时，a²-1=9/25-1=-16/25；-(a-1)=-(-3/5-1)=-(-8/5)=+8/5。故f(x)=-(16/25)x²+(8/5)x-1=-(4x/5-1)²=-(16/25)(x-5/4)²。在x=+5/4时等于0。不能写一次项-8x/5、不能写(x+5/4)²或零点-5/4，也不能把平方外系数写成-4/5。学生误说“负的平方恒小于零”或询问原因时，使用这条正确恒等式，明确举x=5/4使f(x)=0，保持本步不通过，evidence=[]、actions=[]。负平方只能保证≤0，平方内部非零才有<0。",
+                    "completion_reply": "最终范围为 $a\\in\\left(-\\frac35,1\\right]$。",
+                    "results": [
+                        "$a=-\\frac35$ 时原式在 $x=\\frac54$ 处不成立；$a=1$ 时恒成立。",
+                        "最终范围为 $a\\in\\left(-\\frac35,1\\right]$。"
+                    ]
+                }
+            ]
+        }
+    }
+}

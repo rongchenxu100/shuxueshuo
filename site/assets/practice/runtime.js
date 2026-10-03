@@ -237,6 +237,7 @@
   }
 
   const UI = PracticeComponents;
+  const axisPositions = new Map();
   const {hintIcon} = UI;
   const routeNodes = () => lesson.routes[state.method] || lesson.routes[methods[0].id];
   const completed = () => PracticeContext.done(lesson, state);
@@ -333,9 +334,40 @@
     for (const graph of workspace.querySelectorAll('[data-quadratic-graph]')) {
       graph.innerHTML = UI.quadraticGraph(JSON.parse(graph.dataset.quadraticGraph));
     }
+    for (const graph of workspace.querySelectorAll('[data-reciprocal-sum-graph]')) {
+      graph.innerHTML = UI.reciprocalSumGraph(JSON.parse(graph.dataset.reciprocalSumGraph));
+    }
+    for (const graph of workspace.querySelectorAll('[data-linear-graph]')) {
+      graph.innerHTML = UI.linearGraph(JSON.parse(graph.dataset.linearGraph));
+    }
+    for (const host of workspace.querySelectorAll('[data-axis-explorer]')) mountAxisExplorer(host);
     renderMath(workspace);
     updateBusy();
     syncIdleQuestion();
+  }
+
+  // A full render rebuilds the explorer, so its axis position is kept per graph uid.
+  function mountAxisExplorer(host) {
+    const spec = JSON.parse(host.dataset.axisExplorer);
+    const {min, max, step} = spec.axis;
+    host.innerHTML = UI.axisExplorer(spec, axisPositions.get(spec.uid) ?? spec.axis.value);
+    const svg = host.querySelector('svg'), input = host.querySelector('[data-axis-input]');
+    const move = value => {
+      const h = Math.min(max, Math.max(min, min + Math.round((value - min) / step) * step));
+      const rounded = Number(h.toFixed(6));
+      axisPositions.set(spec.uid, rounded);
+      host.querySelector('[data-axis-layer]').innerHTML = UI.axisExplorerLayer(spec, rounded);
+      input.value = rounded;
+    };
+    const fromPointer = event => {
+      const box = svg.getBoundingClientRect();
+      const px = (event.clientX - box.left) / box.width * 360;
+      const [xmin, xmax] = spec.bounds;
+      move(xmin + (px - 48) / 270 * (xmax - xmin));
+    };
+    input.addEventListener('input', () => move(Number(input.value)));
+    svg.addEventListener('pointerdown', event => { fromPointer(event); svg.setPointerCapture(event.pointerId); });
+    svg.addEventListener('pointermove', event => { if (svg.hasPointerCapture(event.pointerId)) fromPointer(event); });
   }
 
   function closePicker() {

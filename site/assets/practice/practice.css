@@ -432,12 +432,17 @@ button:disabled {
   align-items:center;
 }
 
+@media(min-width:701px) {
+  .vertex-reasoning > .reasoning { border-top:0; margin-top:0; padding-top:0; }
+}
+
 .quadratic-graph {
   min-width:0;
   margin:0;
 }
 
-.quadratic-graph svg {
+/* Captions may hold KaTeX, whose root signs are SVGs sized by KaTeX itself. */
+.quadratic-graph svg:not(.katex *) {
   display:block;
   width:100%;
   height:auto;
@@ -602,6 +607,10 @@ button:disabled {
 }
 .fill-formula { flex-wrap:wrap; row-gap:10px; }
 .fill-group { display:inline-flex; align-items:center; gap:inherit; }
+.formula.case-lines { flex-direction:column; gap:8px; font-size:24px; white-space:normal; }
+.case-line { margin:0; display:flex; flex-wrap:wrap; justify-content:center; align-items:baseline; column-gap:.35em; row-gap:2px; }
+.case-line > span { white-space:nowrap; }
+@media(max-width:600px) { .formula.case-lines { font-size:17px; } }
 
 .shape {
   display:inline-grid;
@@ -701,6 +710,8 @@ button.shape[aria-expanded=true] {
   transform:rotate(180deg);
   transition:transform .25s;
 }
+
+.board-focus { margin:16px 0 0; color:var(--teal-dark); font-size:16px; font-weight:650; text-align:center; }
 
 .board-note {
   font-size:11px;
@@ -1064,6 +1075,7 @@ button.shape[aria-expanded=true] {
   color:#4a6057;
   margin:7px 0;
 }
+
 
 .completion-card {
   text-align:center;
@@ -1680,4 +1692,85 @@ button.shape[aria-expanded=true] {
   .rw-result { gap:8px; font-size:19px; }
   .rw-focus { gap:8px; padding:4px 8px; }
   .rewrite-focus, .rewrite-result { gap:8px; }
+}
+
+/* Shared reasoning boards: method prerequisites and graph comparisons. */
+.checklist { margin:16px 0 4px; border:1px solid #d6e6e1; border-radius:16px; background:#fbfdfc; overflow:hidden; }
+.checklist-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 18px; border-bottom:1px solid #e3ede9; background:#f1f8f5; }
+.checklist-title { color:var(--teal-dark); font-size:14px; font-weight:700; letter-spacing:.04em; }
+.checklist-progress { color:var(--muted); font-size:12.5px; font-variant-numeric:tabular-nums; }
+.checklist-row { display:grid; grid-template-columns:28px 1fr; gap:12px; padding:16px 18px; }
+.checklist-row + .checklist-row { border-top:1px dashed #dbe7e3; }
+.checklist-index { display:grid; place-items:center; width:26px; height:26px; margin-top:1px; border:1.5px solid #bcd3cc; border-radius:50%; background:#fff; color:var(--muted); font-size:13px; font-weight:700; }
+.checklist-row.answered .checklist-index { border-color:var(--teal); background:var(--teal); color:#fff; }
+.checklist-body { min-width:0; }
+.checklist-label { margin:0; font-size:16px; font-weight:650; }
+.checklist-hint { margin:2px 0 0; color:var(--muted); font-size:13.5px; }
+.checklist-options { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.checklist-options button { min-height:42px; padding:8px 16px; border:1px solid var(--line); border-radius:999px; background:var(--paper); color:var(--ink); font-size:14.5px; transition:border-color .15s, background .15s, color .15s; }
+.checklist-options button:hover { border-color:#9fcfc5; }
+.checklist-options button[aria-pressed="true"] { border-color:var(--teal); background:#eaf6f2; color:var(--teal-dark); font-weight:600; }
+.checklist-note { margin:10px 0 0; padding:8px 12px; border-left:3px solid #9fcfc5; border-radius:0 8px 8px 0; background:#f3f8f6; color:#4d615c; font-size:13.5px; }
+.checklist-done .checklist-row { padding:12px 18px; }
+.checklist-done .checklist-label { font-size:15px; }
+.checklist-verdict { position:relative; margin:0; padding:12px 18px 12px 50px; border-top:1px solid #d6e6e1; background:var(--teal); color:#fff; font-size:15px; font-weight:650; line-height:1.6; }
+.checklist-verdict::before { content:"✓"; position:absolute; left:18px; top:50%; transform:translateY(-50%); display:grid; place-items:center; width:22px; height:22px; border-radius:50%; background:rgba(255,255,255,.22); font-size:13px; }
+@media(max-width:600px) {
+  .checklist-head, .checklist-row, .checklist-verdict { padding-left:14px; padding-right:14px; }
+  .checklist-verdict { padding-left:46px; }
+  .checklist-verdict::before { left:14px; }
+  .checklist-row { grid-template-columns:24px 1fr; gap:10px; }
+  .checklist-index { width:24px; height:24px; }
+  .checklist-options button { flex:1 1 auto; padding:8px 12px; }
+}
+.graph-comparison { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:16px; margin:20px 0; }
+.graph-comparison .quadratic-graph { width:100%; max-width:380px; justify-self:center; }
+.graph-comparison .quadratic-graph figcaption { font-size:12.5px; }
+.axis-explorer { display:grid; gap:6px; width:100%; max-width:440px; margin:0 auto; }
+.axis-explorer svg:not(.katex *) { display:block; width:100%; height:auto; cursor:ew-resize; touch-action:pan-y; user-select:none; }
+.axis-slider { justify-self:center; width:min(100%,320px); accent-color:#b6782c; }
+.graph-cases { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:16px 0 0; }
+.graph-case { margin:0; padding:8px 8px 10px; border:1px solid #cfe3dd; border-radius:14px; background:#fff; }
+.graph-case svg:not(.katex *) { display:block; width:100%; height:auto; }
+.graph-case figcaption { display:grid; justify-items:center; gap:2px; text-align:center; }
+.graph-case-name { font-size:14px; font-weight:700; }
+.graph-case-fact { color:var(--muted); font-size:12.5px; }
+.graph-case-verdict { margin-top:4px; padding:2px 10px; border-radius:999px; background:#e3f3ee; color:var(--teal-dark); font-size:12px; font-weight:650; }
+.graph-case.rejected { border-color:#ecd5ce; background:#fdf8f6; }
+.graph-case.rejected svg { opacity:.72; }
+.graph-case.rejected .graph-case-verdict { background:#f8e4de; color:#a8432f; }
+.graph-case-delta { font-size:15px; font-weight:650; color:var(--teal-dark); }
+.graph-case.excluded { border-color:#e3e8e6; background:#f6f8f7; }
+.graph-case.excluded svg { opacity:.45; }
+.graph-case.excluded .graph-case-name, .graph-case.excluded .graph-case-delta { color:var(--muted); }
+.graph-case.excluded .graph-case-verdict { background:#eceff0; color:var(--muted); }
+.graph-case.included { border-color:var(--teal); box-shadow:inset 0 0 0 1px var(--teal); }
+.case-merge { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:8px; align-items:start; margin:14px 0 0; }
+.case-merge-group { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; padding:6px; border:1.5px solid var(--teal); border-radius:14px; background:#eef8f5; }
+.case-merge-cell { display:grid; justify-items:center; gap:2px; padding:8px 4px; border:1px solid #d6e6e1; border-radius:10px; background:#fff; }
+.case-merge-name { color:var(--muted); font-size:13px; text-align:center; }
+.case-merge-value { font-size:17px; font-weight:650; color:var(--teal-dark); white-space:nowrap; }
+.case-merge-group:only-child { grid-column:1/-1; }
+.case-merge-group:has(> .case-merge-cell:nth-child(3)) { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.case-merge:has(> .case-merge-cell.rejected + .case-merge-cell.rejected) { grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(0,1fr)); }
+.case-merge-group:has(> .case-merge-cell:first-child + .case-merge-total) { grid-template-columns:minmax(0,1fr); }
+.case-merge-group:has(> .case-merge-cell:first-child + .case-merge-total) .case-merge-total { white-space:nowrap; }
+.case-merge-total { grid-column:1/-1; padding:2px 0; color:var(--teal-dark); font-size:14.5px; font-weight:700; text-align:center; }
+.case-merge-cell.rejected { margin-top:7px; border-color:#ecd5ce; background:#fdf8f6; }
+.case-merge-cell.rejected .case-merge-value { color:#a8432f; }
+.case-merge-out { color:#a8432f; font-size:12px; font-weight:650; }
+.case-merge-caption { margin:14px 0 0; color:var(--muted); font-size:13px; text-align:center; }
+.case-merge-caption + .case-merge { margin-top:6px; }
+.graph-cases-verdict { margin:10px 0 0; padding:12px 16px; border-radius:12px; background:#eaf6f2; color:var(--teal-dark); font-size:15px; font-weight:650; text-align:center; }
+@media(max-width:600px) {
+  .graph-cases { gap:6px; }
+  .graph-case { padding:6px 4px 8px; border-radius:10px; }
+  .graph-case-name { font-size:12px; white-space:nowrap; }
+  .graph-case-fact { font-size:11.5px; }
+  .case-merge-total { font-size:13.5px; }
+  .case-merge { grid-template-columns:minmax(0,2.4fr) minmax(0,1fr); }
+  .case-merge-value { font-size:15px; }
+  .graph-case-verdict { padding:1px 8px; font-size:11px; }
+  .graph-cases-verdict { font-size:14px; }
+  .graph-case-delta { font-size:13px; }
 }

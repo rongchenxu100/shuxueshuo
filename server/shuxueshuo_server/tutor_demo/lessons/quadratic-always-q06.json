@@ -1,0 +1,689 @@
+{
+    "id": "quadratic-always-q06",
+    "version": 1,
+    "problem": {
+        "statement": "“$\\forall x<0,\\ x^2+ax+2\\ge0$”为真命题，求实数 $a$ 的取值范围。",
+        "conditions": [
+            "$x\\in(-\\infty,0)$，$a\\in\\mathbb R$",
+            "恒成立：对任意 $x<0$，$x^2+ax+2\\ge0$"
+        ],
+        "target": "求参数a的取值范围"
+    },
+    "methods": [
+        {
+            "id": "extremum",
+            "label": "分离参数法"
+        },
+        {
+            "id": "interval",
+            "label": "区间最值法"
+        }
+    ],
+    "routes": {
+        "extremum": {
+            "label": "分离参数法",
+            "nodes": [
+                {
+                    "id": "e_basis",
+                    "title": "判断适用条件",
+                    "question": "分离参数法需要两个前提。逐项看看，本题是否满足？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "分离参数法的两个前提",
+                        "slots": [
+                            {
+                                "label": "参数能否单独放到一边",
+                                "hint": "看含参数的项能否移到不等号的一边",
+                                "options": [
+                                    {
+                                        "value": "separated",
+                                        "label": "已经分离",
+                                        "note": "参数和 $x$ 已在不等号两边，可以直接比较。"
+                                    },
+                                    {
+                                        "value": "movable",
+                                        "label": "移项后可以分离",
+                                        "note": "把含参数的项移到一边，必要时再除以它的系数。"
+                                    },
+                                    {
+                                        "value": "tangled",
+                                        "label": "无法分离",
+                                        "note": "参数和 $x$ 拆不开时，分离参数法用不上。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "是否要除以含 $x$ 的式子",
+                                "hint": "除以负数时，不等号要变向",
+                                "options": [
+                                    {
+                                        "value": "no_division",
+                                        "label": "不需要除",
+                                        "note": "不涉及除法，不等号方向不变。"
+                                    },
+                                    {
+                                        "value": "fixed_sign",
+                                        "label": "需要除，符号确定",
+                                        "note": "符号确定，就能确定不等号是否变向。"
+                                    },
+                                    {
+                                        "value": "unknown_sign",
+                                        "label": "需要除，符号不定",
+                                        "note": "符号不定时要分类讨论，不能直接除。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "movable",
+                            "fixed_sign"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "含 $a$ 的只有 $ax$ 一项，移项后要除以 $x$；而 $x<0$，符号确定。"
+                    },
+                    "required_evidence": [
+                        "separable_with_negative_divisor"
+                    ],
+                    "criteria": "优先拒绝规则：学生本轮文字没有同时说到“除以x”和“x<0（除以负数）”时，evidence=[]，即使你在回复里补出这两点也不得授证据；例如只说“移项就可以分离a”时evidence=[]。学生须说明两点：含a的项只有ax，移项后可以把a单独放到一边；分离时要除以x，而x<0，符号确定（除以负数，不等号要变向）。只说“可以分离”而没说x<0不足；说“x符号不定，要分类讨论”或“不需要做除法”是错误。 提问只解释，evidence=[]、actions=[]。不完整或错误作答不得补齐证据；教师纠正不算学生证据。文字纠正优先于旧错误选项，按当前轮意图判定，不沿用此前“只解释”的要求。所有轮次actions=[]，完整证据由服务端绑定答案并推进。不得在可见回复中暴露候选值内部标识。 单独移项只能留下ax，还没有把a单独留下；必须再除以x。解释这一层时不能误说只移项就能单独留下a。",
+                    "completion_reply": "移项后除以 $x$ 即可分离参数；$x<0$，符号确定，除以负数时不等号变向。",
+                    "results": [
+                        "移项后除以 $x$ 即可分离参数；$x<0$，符号确定，除以负数时不等号变向。"
+                    ]
+                },
+                {
+                    "id": "e_separate",
+                    "title": "分离参数",
+                    "question": "移项得 $ax\\ge-x^2-2$。两边同除以 $x$，得到哪个不等式？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "e_separate",
+                        "options": [
+                            {
+                                "value": "keep",
+                                "label": "$a\\ge-x-\\frac2x$"
+                            },
+                            {
+                                "value": "flip",
+                                "label": "$a\\le-x-\\frac2x$"
+                            },
+                            {
+                                "value": "partial",
+                                "label": "$a\\le-x-2$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "flip"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "$x<0$，两边除以负数，不等号方向要改变；右边每一项都要除以 $x$。"
+                    },
+                    "required_evidence": [
+                        "separated_inequality"
+                    ],
+                    "criteria": "接受a≤-x-2/x，或等价写法a≤-(x+2/x)。须说明x<0，两边除以负数，不等号变向。写成a≥-x-2/x是除以负数时没有变号（本题最关键的错误）；写成a≤-x-2漏除常数项。后续系统统一记h(x)=-x-2/x，即a≤h(x)。 提问只解释，evidence=[]、actions=[]。不完整或错误作答不得补齐证据；教师纠正不算学生证据。文字纠正优先于旧错误选项，按当前轮意图判定，不沿用此前“只解释”的要求。所有轮次actions=[]，完整证据由服务端绑定答案并推进。不得在可见回复中暴露候选值内部标识。",
+                    "completion_reply": "$x<0$，两边同除以 $x$，不等号变向，得 $a\\le-x-\\frac2x$；记 $h(x)=-x-\\frac2x$，则 $a\\le h(x)$。",
+                    "results": [
+                        "$x<0$，两边同除以 $x$，不等号变向，得 $a\\le-x-\\frac2x$；记 $h(x)=-x-\\frac2x$，则 $a\\le h(x)$。"
+                    ]
+                },
+                {
+                    "id": "e_condition",
+                    "title": "转化为最值条件",
+                    "question": "要使 $a\\le h(x)$ 对所有 $x<0$ 成立，$a$ 应满足哪个条件？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "e_condition",
+                        "options": [
+                            {
+                                "value": "max",
+                                "label": "$x<0$ 时，$a\\le h(x)_{\\max}$"
+                            },
+                            {
+                                "value": "min",
+                                "label": "$x<0$ 时，$a\\le h(x)_{\\min}$"
+                            },
+                            {
+                                "value": "one_point",
+                                "label": "$a\\le h(-1)$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "min"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "$a\\le h(x)$ 即水平线 $y=a$ 不高于 $h(x)$ 的图像。所有 $x<0$ 都要满足，只需比 $h(x)$ 的最低点；只检查一个点，不能保证所有点都满足。"
+                    },
+                    "required_evidence": [
+                        "minimum_comparison"
+                    ],
+                    "criteria": "接受a≤h(x)min，或“水平线y=a不高于h(x)图像的最低点”。写a≤h(x)max是错误：x→-∞或x→0⁻时h(x)无限增大，没有最大值，比最大值也不能保证所有点满足；a≤h(-1)只看一个点。只说“求最值”而没说比较哪一个不足。h(x)在x=-√2处取到最小值，可以写最小值。 提问只解释，evidence=[]、actions=[]。不完整或错误作答不得补齐证据；教师纠正不算学生证据。文字纠正优先于旧错误选项，按当前轮意图判定，不沿用此前“只解释”的要求。所有轮次actions=[]，完整证据由服务端绑定答案并推进。不得在可见回复中暴露候选值内部标识。 解释单点不足时直接使用已核算反例：a=3满足f(-1)=0，但x=-3/2时f(-3/2)=-1/4<0，故不能保证恒成立。不要先列出仍满足条件的无效反例再试探。",
+                    "completion_reply": "$a\\le h(x)$ 对所有 $x<0$ 成立，等价于 $a\\le h(x)_{\\min}$。",
+                    "results": [
+                        "$a\\le h(x)$ 对所有 $x<0$ 成立，等价于 $a\\le h(x)_{\\min}$。"
+                    ]
+                },
+                {
+                    "id": "e_graph",
+                    "title": "画函数图像",
+                    "question": "$h(x)=-x-\\frac2x$（$x<0$）是对勾函数。逐项确定它的图像特征。",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "对勾函数的图像特征",
+                        "slots": [
+                            {
+                                "label": "最低点",
+                                "hint": "$x<0$ 时 $-x>0$，$-\\frac2x>0$，用基本不等式求它们的和的最小值",
+                                "options": [
+                                    {
+                                        "value": "low_neg",
+                                        "label": "$(-\\sqrt2,2\\sqrt2)$",
+                                        "note": "图像在 $x=-\\sqrt2$ 处最低。"
+                                    },
+                                    {
+                                        "value": "low_pos",
+                                        "label": "$(\\sqrt2,2\\sqrt2)$",
+                                        "note": "图像在 $x=\\sqrt2$ 处最低。"
+                                    },
+                                    {
+                                        "value": "low_one",
+                                        "label": "$(-1,3)$",
+                                        "note": "图像在 $x=-1$ 处最低。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "$x\\to0^-$ 时",
+                                "hint": "$x$ 从左边靠近 $0$，$-\\frac2x$ 怎样变化？",
+                                "options": [
+                                    {
+                                        "value": "y_axis",
+                                        "label": "贴近 $y$ 轴向上",
+                                        "note": "图像右端沿 $y$ 轴越升越高。"
+                                    },
+                                    {
+                                        "value": "x_axis",
+                                        "label": "贴近 $x$ 轴",
+                                        "note": "图像右端越来越平，贴着 $x$ 轴。"
+                                    },
+                                    {
+                                        "value": "origin",
+                                        "label": "趋近原点",
+                                        "note": "图像右端落到原点附近。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "$x\\to-\\infty$ 时",
+                                "hint": "$x$ 越来越小，$-\\frac2x$ 怎样变化？",
+                                "options": [
+                                    {
+                                        "value": "line",
+                                        "label": "贴近直线 $y=-x$",
+                                        "note": "图像左端沿直线 $y=-x$ 斜向上。"
+                                    },
+                                    {
+                                        "value": "line_pos",
+                                        "label": "贴近直线 $y=x$",
+                                        "note": "图像左端沿直线 $y=x$ 斜向下。"
+                                    },
+                                    {
+                                        "value": "flat",
+                                        "label": "贴近直线 $y=2\\sqrt2$",
+                                        "note": "图像左端越来越平。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "low_neg",
+                            "y_axis",
+                            "line"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$-x>0$，$-\\frac2x>0$，$(-x)+\\left(-\\frac2x\\right)\\ge2\\sqrt{(-x)\\cdot\\left(-\\frac2x\\right)}=2\\sqrt2$，$-x=-\\frac2x$ 即 $x=-\\sqrt2$ 时取等，最低点 $(-\\sqrt2,2\\sqrt2)$。$x\\to0^-$ 时 $-\\frac2x$ 越来越大，图像贴近 $y$ 轴向上；$x\\to-\\infty$ 时 $-\\frac2x\\to0$，$h(x)$ 越来越接近 $-x$，图像贴近直线 $y=-x$。"
+                    },
+                    "required_evidence": [
+                        "hook_lowest_point",
+                        "hook_near_y_axis",
+                        "hook_near_line"
+                    ],
+                    "criteria": "回复优先规则：学生已用文字答对并记录的项目，不得因为界面还保留旧选项而要求重新点击、改选或重复确认。部分证据会在服务端累计，全部齐全后才一次绑定UI，因此旧UI并不表示学生仍答错。回复只确认本轮内容并追问缺失的数学信息，不要求手工操作。三项分别给证据，只有部分时不能自动补全其余。最低点：x<0时-x>0、-2/x>0，由基本不等式(-x)+(-2/x)≥2√2、-x=-2/x即x=-√2时取等，得最低点(-√2,2√2)；说最低点在x=√2是忘了x<0；只说x=-√2而没给取等依据时可接受，但可追问为什么。x→0⁻：-2/x越来越大，图像贴近y轴向上；说贴近x轴或趋近原点是错误。x→-∞：-2/x→0，h(x)越来越接近-x，图像贴近直线y=-x；说贴近y=x或y=2√2是错误。不要求“渐近线”术语。明确证据对应：最低点(-√2,2√2)只记录hook_lowest_point；x从左边趋于0时贴近y轴向上只记录hook_near_y_axis；x趋于负无穷时贴近y=-x只记录hook_near_line。证据可跨轮累积，文字纠正优先于此前错误选项。缺哪项只追问哪项。所有轮次actions=[]，完整证据由服务端绑定并推进。",
+                    "completion_reply": "$h(x)$ 的最低点为 $(-\\sqrt2,2\\sqrt2)$，左端贴近直线 $y=-x$，右端贴近 $y$ 轴向上：在 $(-\\infty,-\\sqrt2]$ 上递减，在 $[-\\sqrt2,0)$ 上递增。",
+                    "results": [
+                        "$(-x)+\\left(-\\frac2x\\right)\\ge2\\sqrt2$，$x=-\\sqrt2$ 时取等，最低点为 $(-\\sqrt2,2\\sqrt2)$。",
+                        "$x\\to0^-$ 时图像贴近 $y$ 轴向上，$x\\to-\\infty$ 时贴近直线 $y=-x$。",
+                        "$h(x)$ 在 $(-\\infty,-\\sqrt2]$ 上递减，在 $[-\\sqrt2,0)$ 上递增。"
+                    ]
+                },
+                {
+                    "id": "e_extremum",
+                    "title": "求最值",
+                    "question": "$h(x)$ 在 $(-\\infty,0)$ 上的最小值是多少？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "区间与最低点的位置",
+                        "slots": [
+                            {
+                                "label": "$(-\\infty,0)$ 在最低点 $x=-\\sqrt2$ 的",
+                                "hint": "对照上一步的图像",
+                                "options": [
+                                    {
+                                        "value": "left",
+                                        "label": "左侧",
+                                        "note": "这一段图像一直下降。"
+                                    },
+                                    {
+                                        "value": "right",
+                                        "label": "右侧",
+                                        "note": "这一段图像一直上升。"
+                                    },
+                                    {
+                                        "value": "around",
+                                        "label": "两侧都有",
+                                        "note": "这一段图像先降后升。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "最小值",
+                                "hint": "最低点能取到吗？",
+                                "options": [
+                                    {
+                                        "value": "vertex",
+                                        "label": "$h(-\\sqrt2)=2\\sqrt2$",
+                                        "note": "在最低点处取到。"
+                                    },
+                                    {
+                                        "value": "one",
+                                        "label": "$h(-1)=3$",
+                                        "note": "这是 $x=-1$ 处的值。"
+                                    },
+                                    {
+                                        "value": "none",
+                                        "label": "没有最小值",
+                                        "note": "最低处取不到。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "around",
+                            "vertex"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$-\\sqrt2<0$，$(-\\infty,0)$ 在最低点 $x=-\\sqrt2$ 两侧都有，图像先降后升，最小值在最低点处取到。"
+                    },
+                    "required_evidence": [
+                        "lowest_inside",
+                        "minimum_value"
+                    ],
+                    "criteria": "回复优先规则：学生已用文字答对并记录的项目，不得因为界面还保留旧选项而要求重新点击、改选或重复确认。部分证据会在服务端累计，全部齐全后才一次绑定UI，因此旧UI并不表示学生仍答错。回复只确认本轮内容并追问缺失的数学信息，不要求手工操作。须指出最低点x=-√2在(-∞,0)内（即区间在最低点两侧都有，图像先降后升），给lowest_inside；并给出最小值h(-√2)=2√2，给minimum_value。说最低点不在区间内、区间只在最低点一侧（单调）或“没有最小值”是错误；h(-1)=3只是一个点的值。由最小值2√2直接得a≤2√2，参数一侧不用再解。 提问只解释，evidence=[]、actions=[]。不完整或错误作答不得补齐证据；教师纠正不算学生证据。文字纠正优先于旧错误选项，按当前轮意图判定，不沿用此前“只解释”的要求。所有轮次actions=[]，完整证据由服务端绑定答案并推进。不得在可见回复中暴露候选值内部标识。",
+                    "completion_reply": "最低点 $x=-\\sqrt2$ 在 $(-\\infty,0)$ 内，$h(x)_{\\min}=h(-\\sqrt2)=2\\sqrt2$，所以 $a\\le2\\sqrt2$。",
+                    "results": [
+                        "$-\\sqrt2\\in(-\\infty,0)$，$h(x)_{\\min}=h(-\\sqrt2)=2\\sqrt2$。",
+                        "$a\\le2\\sqrt2$。"
+                    ]
+                },
+                {
+                    "id": "e_boundary",
+                    "title": "检查边界",
+                    "question": "上一步的范围以 $a=2\\sqrt2$ 为边界。代回原不等式，它要保留吗？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "逐个检查边界",
+                        "slots": [
+                            {
+                                "label": "$a=2\\sqrt2$",
+                                "hint": "此时原不等式变为 $x^2+2\\sqrt2x+2\\ge0$",
+                                "options": [
+                                    {
+                                        "value": "holds",
+                                        "label": "对所有 $x$ 成立，保留",
+                                        "note": "最终范围包含 $a=2\\sqrt2$。"
+                                    },
+                                    {
+                                        "value": "fails",
+                                        "label": "有 $x$ 不成立，排除",
+                                        "note": "最终范围不含 $a=2\\sqrt2$。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "holds"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$a=2\\sqrt2$ 时原不等式为 $x^2+2\\sqrt2x+2\\ge0$，左边可以配成完全平方式；原题的不等号是 $\\ge$，允许取等。"
+                    },
+                    "required_evidence": [
+                        "boundary_included"
+                    ],
+                    "criteria": "先按学生自身表达是否覆盖整个定义域判定，再解释；禁止将本轮教师补充的平方式证明计为学生证据。特别地，“x=-√2时等于0，满足≥0，所以可以保留边界”只验证一个点，必须evidence=[]、actions=[]并留在本步，即使此前老师已展示完整证明也不放行。只有学生明确说平方恒非负、区间最小值为0，或全体x<0均满足，才能给boundary_included。须指出a=2√2时原不等式为(x+√2)²≥0，对所有x<0都成立（x=-√2时取等，≥允许取等），所以保留a=2√2；接受“h(x)≥2√2=a对所有x<0成立”或“最小值f(-√2)=0≥0”。说“边界要排除”或“取等时不满足”是错误：原题是≥。本步为单槽位checklist。学生明确说明a=2√2时仍对所有x<0成立时，只返回evidence=[\"boundary_included\"]、actions=[]，由服务端把槽位绑定为holds并推进。 只验证某个x成立不足以证明恒成立（例如只说x=-√2时等于0，所以保留）；须说明整个x<0范围都非负。错误或仅提问不给证据；老师补充的证明不算学生完成。",
+                    "completion_reply": "最终范围为 $a\\in(-\\infty,2\\sqrt2]$。",
+                    "results": [
+                        "$a=2\\sqrt2$ 时原不等式为 $(x+\\sqrt2)^2\\ge0$，对所有 $x<0$ 成立，保留。",
+                        "最终范围为 $a\\in(-\\infty,2\\sqrt2]$。"
+                    ]
+                }
+            ]
+        },
+        "interval": {
+            "label": "区间最值法",
+            "nodes": [
+                {
+                    "id": "i_basis",
+                    "title": "判断适用条件",
+                    "question": "区间最值法需要一个前提。看看本题是否满足？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "区间最值法的前提",
+                        "slots": [
+                            {
+                                "label": "$x$ 的取值范围",
+                                "hint": "看题目要求对哪些 $x$ 成立",
+                                "options": [
+                                    {
+                                        "value": "all_real",
+                                        "label": "全体实数",
+                                        "note": "在全体实数上，看整条图像与横轴的位置。"
+                                    },
+                                    {
+                                        "value": "interval",
+                                        "label": "某个区间",
+                                        "note": "只看区间上的那一段图像，比较区间上的最值。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "interval"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "题目只要求对 $x<0$ 成立，$x$ 的取值范围是区间 $(-\\infty,0)$。"
+                    },
+                    "required_evidence": [
+                        "interval_domain"
+                    ],
+                    "criteria": "学生须指出x只在区间(-∞,0)上取值（只要求对x<0成立）。说“x取全体实数”是错误。只说“用区间最值法”不足。开口方向不是本步的前提；学生顺带说出开口向上不扣分。本步为单槽位checklist。学生明确指出x∈(-∞,0)时，只返回evidence=[\"interval_domain\"]、actions=[]，由服务端把槽位绑定为interval并推进。",
+                    "completion_reply": "$x$ 只在 $(-\\infty,0)$ 上取值，只看这一段图像。",
+                    "results": [
+                        "$x\\in(-\\infty,0)$：只看 $y$ 轴左侧的那一段图像。"
+                    ]
+                },
+                {
+                    "id": "i_condition",
+                    "title": "转化为范围条件",
+                    "question": "要使 $f(x)\\ge0$ 对所有 $x\\in(-\\infty,0)$ 成立，$f(x)$ 应满足哪个条件？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "i_condition",
+                        "options": [
+                            {
+                                "value": "max",
+                                "label": "$x\\in(-\\infty,0)$ 时，$f(x)$ 取值范围的上端 $\\ge0$"
+                            },
+                            {
+                                "value": "min",
+                                "label": "$x\\in(-\\infty,0)$ 时，$f(x)$ 取值范围的下端 $\\ge0$"
+                            },
+                            {
+                                "value": "one_point",
+                                "label": "$f(-1)\\ge0$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "min"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "恒成立要求区间上所有点都满足，要看图像的最低处。$x\\to-\\infty$ 时 $f(x)$ 越来越大，没有上端；只看一个点，别处仍可能不满足。"
+                    },
+                    "required_evidence": [
+                        "lower_end_condition"
+                    ],
+                    "criteria": "接受“f(x)在(-∞,0)上取值范围的下端≥0”“最低处不在横轴下方”。上端≥0是错误：x→-∞时f(x)→+∞，没有上端，而且只能保证一处；f(-1)≥0只看一个点。学生说“f(x)min≥0”时接受方向，但要提醒：对称轴在y轴右侧时，f(x)在(-∞,0)上取不到最小值，所以说取值范围的下端。不要求“下确界”术语。 提问只解释，evidence=[]、actions=[]。不完整或错误作答不得补齐证据；教师纠正不算学生证据。文字纠正优先于旧错误选项，按当前轮意图判定，不沿用此前“只解释”的要求。所有轮次actions=[]，完整证据由服务端绑定答案并推进。不得在可见回复中暴露候选值内部标识。",
+                    "completion_reply": "$f(x)\\ge0$ 对所有 $x<0$ 成立，等价于 $f(x)$ 在 $(-\\infty,0)$ 上取值范围的下端不小于 $0$。",
+                    "results": [
+                        "$f(x)\\ge0$ 对所有 $x<0$ 成立，等价于 $f(x)$ 在 $(-\\infty,0)$ 上取值范围的下端不小于 $0$。"
+                    ]
+                },
+                {
+                    "id": "i_extremum",
+                    "title": "分类讨论取值范围",
+                    "question": "$x^2$ 的系数为 $1$，$f(x)$ 开口向上，对称轴为 $x=-\\frac a2$。拖动对称轴观察图像，逐项确定 $f(x)$ 在 $(-\\infty,0)$ 上取值范围的下端。",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "按对称轴的位置分类",
+                        "slots": [
+                            {
+                                "label": "对称轴和谁比较",
+                                "hint": "开口向上时顶点最低，但顶点不一定在区间内",
+                                "options": [
+                                    {
+                                        "value": "endpoint",
+                                        "label": "区间端点 $x=0$",
+                                        "note": "对称轴在 $0$ 的哪一侧，决定顶点在不在区间内。"
+                                    },
+                                    {
+                                        "value": "vertex_always",
+                                        "label": "不用比较，下端总在顶点处",
+                                        "note": "顶点不在区间内时，区间上取不到顶点处的值。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "对称轴在 $0$ 右侧或 $0$ 上（$a\\le0$）时，下端为",
+                                "hint": "区间上的那一段是升还是降？",
+                                "options": [
+                                    {
+                                        "value": "f0",
+                                        "label": "$f(0)=2$",
+                                        "note": "在右端点 $x=0$ 处，取不到。"
+                                    },
+                                    {
+                                        "value": "vertex",
+                                        "label": "顶点处的值",
+                                        "note": "顶点最低。"
+                                    },
+                                    {
+                                        "value": "none",
+                                        "label": "没有下端",
+                                        "note": "图像一直往下。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "对称轴在 $0$ 左侧（$a>0$）时，下端为",
+                                "hint": "顶点在不在区间内？",
+                                "options": [
+                                    {
+                                        "value": "f0",
+                                        "label": "$f(0)=2$",
+                                        "note": "这是端点 $x=0$ 对应的函数值；端点不包含，不代表这个函数值在区间内取不到。"
+                                    },
+                                    {
+                                        "value": "vertex",
+                                        "label": "顶点处的值",
+                                        "note": "顶点最低。"
+                                    },
+                                    {
+                                        "value": "none",
+                                        "label": "没有下端",
+                                        "note": "图像一直往下。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "endpoint",
+                            "f0",
+                            "vertex"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "开口向上时顶点最低，但要看顶点在不在区间 $(-\\infty,0)$ 内，所以对称轴和端点 $0$ 比较。对称轴在 $0$ 右侧或 $0$ 上时，$f(x)$ 在 $(-\\infty,0)$ 上一直下降，越靠近 $0$ 越低，下端为 $f(0)=2$，取不到；对称轴在 $0$ 左侧时，顶点在区间内，下端就是顶点处的最小值。"
+                    },
+                    "required_evidence": [
+                        "endpoint_split",
+                        "right_case_lower",
+                        "left_case_lower"
+                    ],
+                    "criteria": "回复优先规则：学生已用文字答对并记录的项目，不得因为界面还保留旧选项而要求重新点击、改选或重复确认。部分证据会在服务端累计，全部齐全后才一次绑定UI，因此旧UI并不表示学生仍答错。回复只确认本轮内容并追问缺失的数学信息，不要求手工操作。三项分别给证据，只有部分时不能自动补全其余。endpoint_split：开口向上找最低处，要看顶点是否在区间(-∞,0)内，比较对称轴与端点0；说“下端总是顶点处的值”是忽略了顶点可能在区间外。right_case_lower：-a/2≥0即a≤0时f(x)在(-∞,0)上递减，下端为f(0)=2，取不到。left_case_lower：-a/2<0即a>0时顶点在区间内，下端为最小值f(-a/2)=2-a²/4。分界点a=0归入哪一侧都可以（此时顶点在x=0，取不到，下端仍是2），学生写a<0与a≥0也接受。 必须区分端点不可取与函数值不可达：a>0时x=-a<0且f(-a)=2，所以2能够取到，只是不是下端；a≤0时f(x)>2，下端2才取不到。学生询问f(-a)=2是否矛盾时应明确肯定其计算并解释，不能给作答证据或推进。a=0时顶点在排除的端点，只有下端2，没有最小值；接受a<0与a≥0分法的前提是没有错误声称a=0时取得最小值。 提问只解释，evidence=[]、actions=[]。不完整或错误作答不得补齐证据；教师纠正不算学生证据。文字纠正优先于旧错误选项，按当前轮意图判定，不沿用此前“只解释”的要求。所有轮次actions=[]，完整证据由服务端绑定答案并推进。不得在可见回复中暴露候选值内部标识。 Context已接受的endpoint_split等证据优先于尚未绑定的旧UI选项；不要要求学生重复纠正已用文字纠正并记录的项目，只追问尚缺的证据。",
+                    "completion_reply": "$a\\le0$ 时下端为 $f(0)=2$，取不到；$a>0$ 时下端为最小值 $f\\left(-\\frac a2\\right)=2-\\frac{a^2}4$。",
+                    "results": [
+                        "开口向上，对称轴与区间端点 $x=0$ 比较。",
+                        "$a\\le0$ 时下端为 $f(0)=2$（取不到）；$a>0$ 时下端为最小值 $f\\left(-\\frac a2\\right)=2-\\frac{a^2}4$。"
+                    ]
+                },
+                {
+                    "id": "i_range",
+                    "title": "求参数范围",
+                    "question": "两种情况下，都要求下端不小于 $0$。$a$ 的取值范围是什么？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "i_range",
+                        "options": [
+                            {
+                                "value": "union",
+                                "label": "$a\\le2\\sqrt2$"
+                            },
+                            {
+                                "value": "second_only",
+                                "label": "$0<a\\le2\\sqrt2$"
+                            },
+                            {
+                                "value": "vertex_only",
+                                "label": "$-2\\sqrt2\\le a\\le2\\sqrt2$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "union"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "每种情况内部，解出的范围要与这种情况的前提取交集；两种情况是“或”的关系，合并时取并集。情况①的下端是 $2$，这种情况下的 $a$ 都满足。"
+                    },
+                    "required_evidence": [
+                        "merged_range"
+                    ],
+                    "criteria": "接受a≤2√2，须体现分支内取交集、分支间取并集：情况①a≤0时下端2>0，a≤0都满足；情况②a>0与2-a²/4≥0得0<a≤2√2；取并集得a≤2√2。0<a≤2√2漏了情况①；-2√2≤a≤2√2是不分情况、只用顶点值2-a²/4≥0的结果。 提问只解释，evidence=[]、actions=[]。不完整或错误作答不得补齐证据；教师纠正不算学生证据。文字纠正优先于旧错误选项，按当前轮意图判定，不沿用此前“只解释”的要求。所有轮次actions=[]，完整证据由服务端绑定答案并推进。不得在可见回复中暴露候选值内部标识。",
+                    "completion_reply": "情况①得 $a\\le0$，情况②得 $0<a\\le2\\sqrt2$，取并集得 $a\\le2\\sqrt2$。",
+                    "results": [
+                        "情况①：$a\\le0$ 时下端 $2>0$，得 $a\\le0$；情况②：$a>0$ 且 $2-\\frac{a^2}4\\ge0$，得 $0<a\\le2\\sqrt2$。",
+                        "取并集得 $a\\le2\\sqrt2$。"
+                    ]
+                },
+                {
+                    "id": "i_boundary",
+                    "title": "检查边界",
+                    "question": "上一步的范围以 $a=2\\sqrt2$ 为边界。代回原不等式，它要保留吗？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "逐个检查边界",
+                        "slots": [
+                            {
+                                "label": "$a=2\\sqrt2$",
+                                "hint": "此时原不等式变为 $x^2+2\\sqrt2x+2\\ge0$",
+                                "options": [
+                                    {
+                                        "value": "holds",
+                                        "label": "对所有 $x$ 成立，保留",
+                                        "note": "最终范围包含 $a=2\\sqrt2$。"
+                                    },
+                                    {
+                                        "value": "fails",
+                                        "label": "有 $x$ 不成立，排除",
+                                        "note": "最终范围不含 $a=2\\sqrt2$。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "holds"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$a=2\\sqrt2$ 时原不等式为 $x^2+2\\sqrt2x+2\\ge0$，左边可以配成完全平方式；原题的不等号是 $\\ge$，允许取等。"
+                    },
+                    "required_evidence": [
+                        "boundary_included"
+                    ],
+                    "criteria": "先按学生自身表达是否覆盖整个定义域判定，再解释；禁止将本轮教师补充的平方式证明计为学生证据。特别地，“x=-√2时等于0，满足≥0，所以可以保留边界”只验证一个点，必须evidence=[]、actions=[]并留在本步，即使此前老师已展示完整证明也不放行。只有学生明确说平方恒非负、区间最小值为0，或全体x<0均满足，才能给boundary_included。须指出a=2√2时原不等式为(x+√2)²≥0，对所有x<0都成立（x=-√2时取等，≥允许取等），所以保留a=2√2；接受“h(x)≥2√2=a对所有x<0成立”或“最小值f(-√2)=0≥0”。说“边界要排除”或“取等时不满足”是错误：原题是≥。本步为单槽位checklist。学生明确说明a=2√2时仍对所有x<0成立时，只返回evidence=[\"boundary_included\"]、actions=[]，由服务端把槽位绑定为holds并推进。 只验证某个x成立不足以证明恒成立（例如只说x=-√2时等于0，所以保留）；须说明整个x<0范围都非负。错误或仅提问不给证据；老师补充的证明不算学生完成。",
+                    "completion_reply": "最终范围为 $a\\in(-\\infty,2\\sqrt2]$。",
+                    "results": [
+                        "$a=2\\sqrt2$ 时原不等式为 $(x+\\sqrt2)^2\\ge0$，对所有 $x<0$ 成立，保留。",
+                        "最终范围为 $a\\in(-\\infty,2\\sqrt2]$。"
+                    ]
+                }
+            ]
+        }
+    },
+    "initial_state": {
+        "active": 0,
+        "method": null,
+        "swapped": false,
+        "pairs": [
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ]
+        ],
+        "choices": {
+            "e_separate": null,
+            "e_condition": null,
+            "i_condition": null,
+            "i_range": null
+        },
+        "feedback": "",
+        "hint": false
+    }
+}

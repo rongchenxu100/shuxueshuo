@@ -10,7 +10,7 @@ class InvalidAction(ValueError):
     pass
 
 
-ORDERED_COMPONENTS = {"symmetry", "substitution", "homogeneity", "fill", "rewrite"}
+ORDERED_COMPONENTS = {"symmetry", "substitution", "homogeneity", "fill", "checklist", "rewrite"}
 PAIR_COMPONENTS = {"structure", "amgm", "equality"} | ORDERED_COMPONENTS
 
 

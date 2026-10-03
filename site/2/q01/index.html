@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q01 · 恒成立问题 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=55">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=12" defer></script>
+  <script src="/assets/practice/components.js?v=37" defer></script>
+  <script src="/assets/practice/context.js?v=14" defer></script>
+  <script src="/assets/practice/runtime.js?v=27" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">恒成立问题</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/2/">← 返回题库</a> <span class="separator">/</span> Q01</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>若不等式 $-x^2+2x+3\le a^2-3a$ 对任意实数 $x$ 恒成立，求实数 $a$ 的取值范围。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning">
+          <div class="meaning-row"><dt>范围</dt><dd data-math-text>$x\in\mathbb R,\quad a\in\mathbb R$</dd></div>
+          <div class="meaning-row"><dt>条件</dt><dd data-math-text>$\forall x\in\mathbb R,$ $-x^2+2x+3\le a^2-3a$</dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd data-math-text>$\{a\in\mathbb R\mid\text{上述条件成立}\}$</dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：判断适用条件</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+<script type="application/json" id="practice-config">
+{
+  "id": "quadratic-always-q01",
+  "version": 1,
+  "variables": [
+    "x",
+    "a"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方法？",
+  "methods": [
+    {
+      "id": "discriminant",
+      "label": "判别式法"
+    },
+    {
+      "id": "extremum",
+      "label": "分离参数法"
+    }
+  ],
+  "routes": {
+    "discriminant": [
+      {
+        "id": "d_basis",
+        "title": "判断适用条件",
+        "question": "判别式法需要两个前提。逐项看看，本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "判别式法的两个前提",
+          "slots": [
+            {
+              "label": "$x$ 的取值范围",
+              "hint": "看题目要求对哪些 $x$ 成立",
+              "options": [
+                {
+                  "value": "all_real",
+                  "label": "全体实数",
+                  "note": "在全体实数上，可以看整条图像与横轴的位置关系。"
+                },
+                {
+                  "value": "interval",
+                  "label": "某个区间",
+                  "note": "只在某个区间上成立时，要看顶点与区间的位置，只看判别式不够。"
+                }
+              ]
+            },
+            {
+              "label": "$x^2$ 的系数",
+              "hint": "只看 $x$，把 $a$ 当作常数",
+              "options": [
+                {
+                  "value": "nonzero",
+                  "label": "确定非零",
+                  "note": "若系数确定非零，才可把它看作二次函数；请核对题目是否已排除系数为零。"
+                },
+                {
+                  "value": "maybe_zero",
+                  "label": "含参数，可能为零",
+                  "note": "系数可能为零时，要先单独讨论退化成一次式或常数的情形。"
+                },
+                {
+                  "value": "not_quadratic",
+                  "label": "没有 $x^2$ 项",
+                  "note": "没有 $x^2$ 项就不是二次函数，判别式用不上。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "all_real",
+            "nonzero"
+          ]
+        },
+        "feedback": {
+          "terms": "题目要求对任意实数 $x$ 成立；原式中 $x^2$ 的系数是 $-1$，确定非零。$a$ 是参数，$a^2$ 属于常数项，不是二次项系数。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_basis-done",
+        "board": "discriminant-board"
+      },
+      {
+        "id": "d_rewrite",
+        "title": "整理不等式",
+        "question": "哪一个式子与原不等式等价？",
+        "interaction": {
+          "type": "choice",
+          "field": "d_rewrite",
+          "options": [
+            {
+              "value": "nonnegative",
+              "label": "$x^2-2x+a^2-3a-3\\ge0$"
+            },
+            {
+              "value": "sign",
+              "label": "$x^2-2x+a^2-3a-3\\le0$"
+            },
+            {
+              "value": "constant",
+              "label": "$x^2-2x+a^2-3a+3\\ge0$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "nonnegative"
+          ]
+        },
+        "feedback": {
+          "answer": "把左侧移到右侧：$a^2-3a-(-x^2+2x+3)\\ge0$。留意常数项和不等号方向。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_rewrite-done"
+      },
+      {
+        "id": "d_position",
+        "title": "判断图像位置",
+        "question": "$g(x)$ 开口向上。要使 $g(x)\\ge0$ 对所有实数 $x$ 成立，图像应满足什么？",
+        "interaction": {
+          "type": "choice",
+          "field": "d_position",
+          "options": [
+            {
+              "value": "above_or_touch",
+              "label": "全部在横轴上方或横轴上，允许相切"
+            },
+            {
+              "value": "strict_above",
+              "label": "只能在横轴上方，不允许相切"
+            },
+            {
+              "value": "crossing",
+              "label": "允许穿过横轴，部分图像可以在下方"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "above_or_touch"
+          ]
+        },
+        "feedback": {
+          "answer": "$\\ge0$ 允许函数值等于零，但不允许负值。区分“相切”和“穿过”。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_position-done"
+      },
+      {
+        "id": "d_delta",
+        "title": "建立判别式条件",
+        "question": "上一步：图像与横轴至多有一个公共点。这对应哪个判别式条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "d_delta",
+          "options": [
+            {
+              "value": "le",
+              "label": "$\\Delta\\le0$"
+            },
+            {
+              "value": "lt",
+              "label": "$\\Delta<0$"
+            },
+            {
+              "value": "ge",
+              "label": "$\\Delta\\ge0$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "le"
+          ]
+        },
+        "feedback": {
+          "answer": "相切对应 $\\Delta=0$，不相交对应 $\\Delta<0$。两种允许情况需要合并。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_delta-done"
+      },
+      {
+        "id": "d_range",
+        "title": "求参数范围",
+        "question": "把 $a^2-3a-4\\ge0$ 看成关于 $a$ 的一元二次不等式，$a$ 在什么范围内？",
+        "interaction": {
+          "type": "choice",
+          "field": "d_range",
+          "options": [
+            {
+              "value": "outside",
+              "label": "$a\\le-1$ 或 $a\\ge4$"
+            },
+            {
+              "value": "inside",
+              "label": "$-1\\le a\\le4$"
+            },
+            {
+              "value": "open",
+              "label": "$a<-1$ 或 $a>4$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "outside"
+          ]
+        },
+        "feedback": {
+          "answer": "$h(a)=(a+1)(a-4)$ 开口向上：两根外侧图像在横轴上方，两根之间在下方；端点处 $h(a)=0$，也满足 $\\ge0$。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_range-done",
+        "board": "range-board"
+      },
+      {
+        "id": "d_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $a=-1$、$a=4$ 为边界。逐个代回原不等式，它们要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$a=-1$",
+              "hint": "此时 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $a=-1$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $a=-1$。"
+                }
+              ]
+            },
+            {
+              "label": "$a=4$",
+              "hint": "此时 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $a=4$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $a=4$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "holds",
+            "holds"
+          ]
+        },
+        "feedback": {
+          "terms": "两个边界 $a=-1$、$a=4$ 都使 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$，即 $(x-1)^2\\ge0$，对所有实数 $x$ 成立。"
+        },
+        "submit_label": "确认检查",
+        "display": "d_boundary-done",
+        "board": "boundary-board"
+      }
+    ],
+    "extremum": [
+      {
+        "id": "e_basis",
+        "title": "判断适用条件",
+        "question": "分离参数法需要两个前提。逐项看看，本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "分离参数法的两个前提",
+          "slots": [
+            {
+              "label": "参数能否单独放到一边",
+              "hint": "看含参数的项能否移到不等号的一边",
+              "options": [
+                {
+                  "value": "separated",
+                  "label": "已经分离",
+                  "note": "参数和 $x$ 已在不等号两边，可以直接比较。"
+                },
+                {
+                  "value": "movable",
+                  "label": "移项后可以分离",
+                  "note": "把含参数的项移到一边，必要时再除以它的系数。"
+                },
+                {
+                  "value": "tangled",
+                  "label": "无法分离",
+                  "note": "参数和 $x$ 拆不开时，分离参数法用不上。"
+                }
+              ]
+            },
+            {
+              "label": "是否要除以含 $x$ 的式子",
+              "hint": "除以负数时，不等号要变向",
+              "options": [
+                {
+                  "value": "no_division",
+                  "label": "不需要除",
+                  "note": "不涉及除法，不等号方向不变。"
+                },
+                {
+                  "value": "fixed_sign",
+                  "label": "需要除，符号确定",
+                  "note": "符号确定，就能确定不等号是否变向。"
+                },
+                {
+                  "value": "unknown_sign",
+                  "label": "需要除，符号不定",
+                  "note": "符号不定时要分类讨论，不能直接除。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "separated",
+            "no_division"
+          ]
+        },
+        "feedback": {
+          "terms": "左边 $-x^2+2x+3$ 只含 $x$，右边 $a^2-3a$ 只含参数 $a$：参数已经分离，也不需要做除法。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_basis-done",
+        "board": "separation-board"
+      },
+      {
+        "id": "e_condition",
+        "title": "转化为最值条件",
+        "question": "要使 $f(x)\\le c$ 对所有实数 $x$ 成立，$c$ 应满足哪个条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "e_condition",
+          "options": [
+            {
+              "value": "max",
+              "label": "$x\\in\\mathbb R$ 时，$c\\ge f(x)_{\\max}$"
+            },
+            {
+              "value": "min",
+              "label": "$x\\in\\mathbb R$ 时，$c\\ge f(x)_{\\min}$"
+            },
+            {
+              "value": "one_point",
+              "label": "$c\\ge f(0)$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "max"
+          ]
+        },
+        "feedback": {
+          "answer": "恒成立要求所有点都满足。水平线需要不低于最高点；只检查一个点不够。本题左侧向下无界，没有最小值。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_condition-done"
+      },
+      {
+        "id": "e_extremum",
+        "title": "求最值",
+        "question": "把 $f(x)=-x^2+2x+3$ 配方成「常数减平方」的形式，方框和圆圈各填什么？",
+        "interaction": {
+          "type": "fill",
+          "terms": [
+            "-1",
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "term_labels": {
+            "-1": "$-1$",
+            "1": "$1$",
+            "2": "$2$",
+            "3": "$3$",
+            "4": "$4$"
+          },
+          "slot_labels": [
+            "常数",
+            "平方里减去的数"
+          ],
+          "slot_shapes": [
+            "square",
+            "circle"
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "4",
+            "1"
+          ]
+        },
+        "feedback": {
+          "terms": "把你填的式子展开，分别核对一次项和常数项，是否与 $-x^2+2x+3$ 相同。"
+        },
+        "submit_label": "确认配方",
+        "display": "e_extremum-done",
+        "board": "e_extremum-board",
+        "attempt_calculations": {
+          "-1": {
+            "-1": "e_extremum-attempt-neg1-neg1",
+            "1": "e_extremum-attempt-neg1-1",
+            "2": "e_extremum-attempt-neg1-2",
+            "3": "e_extremum-attempt-neg1-3",
+            "4": "e_extremum-attempt-neg1-4"
+          },
+          "1": {
+            "-1": "e_extremum-attempt-1-neg1",
+            "1": "e_extremum-attempt-1-1",
+            "2": "e_extremum-attempt-1-2",
+            "3": "e_extremum-attempt-1-3",
+            "4": "e_extremum-attempt-1-4"
+          },
+          "2": {
+            "-1": "e_extremum-attempt-2-neg1",
+            "1": "e_extremum-attempt-2-1",
+            "2": "e_extremum-attempt-2-2",
+            "3": "e_extremum-attempt-2-3",
+            "4": "e_extremum-attempt-2-4"
+          },
+          "3": {
+            "-1": "e_extremum-attempt-3-neg1",
+            "1": "e_extremum-attempt-3-1",
+            "2": "e_extremum-attempt-3-2",
+            "3": "e_extremum-attempt-3-3",
+            "4": "e_extremum-attempt-3-4"
+          },
+          "4": {
+            "-1": "e_extremum-attempt-4-neg1",
+            "1": "e_extremum-done",
+            "2": "e_extremum-attempt-4-2",
+            "3": "e_extremum-attempt-4-3",
+            "4": "e_extremum-attempt-4-4"
+          }
+        }
+      },
+      {
+        "id": "e_range",
+        "title": "求参数范围",
+        "question": "把 $a^2-3a-4\\ge0$ 看成关于 $a$ 的一元二次不等式，$a$ 在什么范围内？",
+        "interaction": {
+          "type": "choice",
+          "field": "e_range",
+          "options": [
+            {
+              "value": "outside",
+              "label": "$a\\le-1$ 或 $a\\ge4$"
+            },
+            {
+              "value": "inside",
+              "label": "$-1\\le a\\le4$"
+            },
+            {
+              "value": "open",
+              "label": "$a<-1$ 或 $a>4$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "outside"
+          ]
+        },
+        "feedback": {
+          "answer": "$h(a)=(a+1)(a-4)$ 开口向上：两根外侧图像在横轴上方，两根之间在下方；端点处 $h(a)=0$，也满足 $\\ge0$。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_range-done",
+        "board": "range-board"
+      },
+      {
+        "id": "e_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $a=-1$、$a=4$ 为边界。逐个代回原不等式，它们要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$a=-1$",
+              "hint": "此时 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $a=-1$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $a=-1$。"
+                }
+              ]
+            },
+            {
+              "label": "$a=4$",
+              "hint": "此时 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $a=4$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $a=4$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "holds",
+            "holds"
+          ]
+        },
+        "feedback": {
+          "terms": "两个边界 $a=-1$、$a=4$ 都使 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$，即 $(x-1)^2\\ge0$，对所有实数 $x$ 成立。"
+        },
+        "submit_label": "确认检查",
+        "display": "e_boundary-done",
+        "board": "boundary-board"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+</script>
+<template id="discriminant-board">
+<div class="visual-board"><div class="board-caption">判别式法</div><div class="formula" data-math-text>$-x^2+2x+3\le a^2-3a$</div><p class="board-focus" data-math-text>看题目对哪些 $x$ 提出要求，再看 $x^2$ 的系数</p></div>
+</template>
+<template id="d_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title">判别式法的两个前提</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x$ 的取值范围：全体实数</p><p class="checklist-hint" data-math-text>题目要求对任意实数 $x$ 成立。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x^2$ 的系数：$-1$，确定非零</p><p class="checklist-hint" data-math-text>$a$ 是参数，$a^2$ 属于常数项。</p></div></div><p class="checklist-verdict">两个前提都满足，可以直接用判别式法</p></div><details class="details" id="{{uid}}-d_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，对任意 $x\in\mathbb R$，$-x^2+2x+3\le a^2-3a$ 恒成立。</p></details>
+</template>
+<template id="d_rewrite-done">
+<div class="visual-board"><div class="formula fill-formula"><span class="fill-group" data-math-text>$g(x)=x^2-2x$</span><span class="fill-group" data-math-text>$+\,a^2-3a-3\ge0$</span></div></div><details class="details" id="{{uid}}-d_rewrite-derivation" open><summary>完整推导</summary><p data-math-text>移项得 $x^2-2x+a^2-3a-3\ge0$ 对任意 $x\in\mathbb R$ 恒成立。</p><p data-math-text>令 $g(x)=x^2-2x+a^2-3a-3$。</p></details>
+</template>
+<template id="d_position-done">
+<div class="graph-cases"><figure class="graph-case"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [1, 1], &quot;bounds&quot;: [-1.2, 3.2, -2.2, 3.6], &quot;xTicks&quot;: [], &quot;yLabel&quot;: &quot;1&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;二次函数图像&quot;, &quot;description&quot;: &quot;图像与横轴没有公共点，所有函数值都大于零。&quot;, &quot;uid&quot;: &quot;{{uid}}-apart-mini&quot;, &quot;showVertex&quot;: false, &quot;markSign&quot;: true}"></div><figcaption><span class="graph-case-name">不相交</span><span class="graph-case-fact" data-math-text>$g(x)&gt;0$</span><span class="graph-case-verdict">✓ 满足</span></figcaption></figure><figure class="graph-case"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [1, 0], &quot;bounds&quot;: [-1.2, 3.2, -2.2, 3.6], &quot;xTicks&quot;: [], &quot;yLabel&quot;: &quot;0&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;二次函数图像&quot;, &quot;description&quot;: &quot;图像与横轴相切，切点处函数值等于零，其余大于零。&quot;, &quot;uid&quot;: &quot;{{uid}}-touch-mini&quot;, &quot;showVertex&quot;: false, &quot;markSign&quot;: true}"></div><figcaption><span class="graph-case-name">相切</span><span class="graph-case-fact" data-math-text>切点 $g(x)=0$</span><span class="graph-case-verdict">✓ 满足</span></figcaption></figure><figure class="graph-case rejected"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [1, -1.2], &quot;bounds&quot;: [-1.2, 3.2, -2.2, 3.6], &quot;xTicks&quot;: [], &quot;yLabel&quot;: &quot;-1.2&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;二次函数图像&quot;, &quot;description&quot;: &quot;图像穿过横轴，两个交点之间函数值小于零。&quot;, &quot;uid&quot;: &quot;{{uid}}-cross-mini&quot;, &quot;showVertex&quot;: false, &quot;markSign&quot;: true}"></div><figcaption><span class="graph-case-name">穿过</span><span class="graph-case-fact" data-math-text>部分 $g(x)&lt;0$</span><span class="graph-case-verdict">✗ 不满足</span></figcaption></figure></div><p class="graph-cases-verdict"><span class="nowrap" data-math-text>$g(x)\ge0$ 恒成立</span> ⇔ <span class="nowrap">图像与横轴至多有一个公共点</span></p><details class="details" id="{{uid}}-d_position-derivation" open><summary>完整推导</summary><p data-math-text>$\because$ $g(x)$ 的二次项系数 $1&gt;0$，图像开口向上，</p><p data-math-text>$\therefore$ $g(x)\ge0$ 恒成立 $\iff$ $g(x)$ 的图像与 $x$ 轴至多有一个公共点。</p></details>
+</template>
+<template id="d_delta-done">
+<p class="case-merge-caption" data-math-text>$g(x)$ 开口向上</p><div class="case-merge"><div class="case-merge-group"><span class="case-merge-cell"><span class="case-merge-name">不相交</span><span class="case-merge-value" data-math-text>$\Delta&lt;0$</span></span><span class="case-merge-cell"><span class="case-merge-name">相切</span><span class="case-merge-value" data-math-text>$\Delta=0$</span></span><span class="case-merge-total" data-math-text>取并集：$\Delta\le0$</span></div><span class="case-merge-cell rejected"><span class="case-merge-name">穿过</span><span class="case-merge-value" data-math-text>$\Delta&gt;0$</span><span class="case-merge-out">✗ 不满足</span></span></div><details class="details" id="{{uid}}-d_delta-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore\ \Delta=(-2)^2-4\times1\times(a^2-3a-3)\le0$，</p><p data-math-text>整理得 $a^2-3a-4\ge0$。</p></details>
+</template>
+<template id="range-board">
+<div class="visual-board"><div class="formula fill-formula"><span class="fill-group" data-math-text>$h(a)=a^2-3a-4$</span><span class="fill-group" data-math-text>$=(a+1)(a-4)$</span></div></div>
+</template>
+<template id="boundary-board">
+<div class="visual-board"><div class="board-caption">上一步得到的范围</div><div class="formula" data-math-text>$a\le\boxed{-1}$ 或 $a\ge\boxed{4}$</div><p class="board-focus" data-math-text>要检查的边界：$a=-1$ 和 $a=4$</p></div>
+</template>
+<template id="d_range-done">
+<div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [1.5, -6.25], &quot;bounds&quot;: [-2.5, 5.5, -7.5, 7.5], &quot;xTicks&quot;: [[-1, &quot;−1&quot;], [4, &quot;4&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;a&quot;, &quot;title&quot;: &quot;h(a) 的图像&quot;, &quot;description&quot;: &quot;h(a) 开口向上，两根外侧及端点处 h(a)≥0。&quot;, &quot;uid&quot;: &quot;{{uid}}-range-done&quot;, &quot;showVertex&quot;: false, &quot;markSign&quot;: true, &quot;solution&quot;: {&quot;intervals&quot;: [[null, -1], [4, null]], &quot;closed&quot;: true}}"></div><figcaption data-math-text>$h(a)\ge0$ 的部分：两根外侧，含端点</figcaption></figure><div class="reasoning"><p data-math-text>$h(a)=(a+1)(a-4)$ 开口向上，零点 $a=-1$、$a=4$。</p></div></div><details class="details" id="{{uid}}-d_range-derivation" open><summary>完整推导</summary><p data-math-text>即 $(a+1)(a-4)\ge0$，</p><p data-math-text>$\therefore\ a\le-1$ 或 $a\ge4$。</p></details>
+</template>
+<template id="d_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$a=-1$ 和 $a=4$</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$a=-1$：保留</p><p class="checklist-hint" data-math-text>$a^2-3a=(-1)^2-3\times(-1)=4$</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$a=4$：保留</p><p class="checklist-hint" data-math-text>$a^2-3a=4^2-3\times4=4$</p></div></div><p class="checklist-verdict">两个边界都保留</p></div><div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [1, 0], &quot;bounds&quot;: [-2, 4, -3, 6], &quot;xTicks&quot;: [[0, &quot;0&quot;], [1, &quot;1&quot;]], &quot;yLabel&quot;: &quot;0&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;端点处 g(x) 的图像&quot;, &quot;description&quot;: &quot;端点处 g(x)=(x-1)^2，图像与横轴相切于 x=1。&quot;, &quot;uid&quot;: &quot;{{uid}}-boundary-touch&quot;, &quot;showVertex&quot;: false, &quot;markSign&quot;: true}"></div><figcaption data-math-text>端点处 $g(x)=(x-1)^2$，与横轴相切</figcaption></figure><div class="reasoning"><p data-math-text>两个边界都使 $\Delta=0$。</p></div></div><details class="details" id="{{uid}}-d_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $a=-1$ 或 $a=4$ 时，$a^2-3a=4$，原不等式化为 $(x-1)^2\ge0$，对任意 $x\in\mathbb R$ 成立。</p><p data-math-text>综上，实数 $a$ 的取值范围是 $(-\infty,-1]\cup[4,+\infty)$。</p></details>
+</template>
+<template id="separation-board">
+<div class="visual-board"><div class="board-caption">分离参数法</div><div class="formula" data-math-text>$-x^2+2x+3\le a^2-3a$</div><p class="board-focus" data-math-text>把含 $a$ 的项单独放到一边，另一边只含 $x$</p></div>
+</template>
+<template id="e_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title">分离参数法的两个前提</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label">参数能否单独放到一边：已经分离</p><p class="checklist-hint" data-math-text>左边 $-x^2+2x+3$ 只含 $x$，右边 $a^2-3a$ 只含 $a$。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>是否要除以含 $x$ 的式子：不需要除</p><p class="checklist-hint">两边已经分开，不用做除法。</p></div></div><p class="checklist-verdict">两个前提都满足，可以用分离参数法</p></div><details class="details" id="{{uid}}-e_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，对任意 $x\in\mathbb R$，$-x^2+2x+3\le a^2-3a$ 恒成立。</p><p data-math-text>记 $f(x)=-x^2+2x+3$，$c=a^2-3a$，$c$ 与 $x$ 无关。</p></details>
+</template>
+<template id="e_condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">恒成立转化为最值条件</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>对所有实数 $x$ 都成立</span><div class="math" data-math-text>$f(x)\le a^2-3a$</div></div><span class="conversion-arrow" aria-hidden="true">⇔</span><div><span class="conversion-label" data-math-text>只需比 $f(x)$ 的最高点</span><div class="math" data-math-text>$a^2-3a\ge\textcolor{#087f79}{f(x)_{\max}}$</div><span class="conversion-label">不小于最大的，就不小于每一个</span></div></div></div><details class="details" id="{{uid}}-e_condition-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore$ 原不等式恒成立 $\iff a^2-3a\ge f(x)_{\max}$。</p></details>
+</template>
+<template id="e_extremum-done">
+<div class="visual-board completed-visual"><div class="board-caption">配方求最大值</div><div class="function-conversion"><div><span class="conversion-label">原式</span><div class="math" data-math-text>$-x^2+2x+3$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label">常数减平方项</span><div class="math"><span data-math-text>$4-$</span><span class="square-term" data-math-text>$(x-1)^2$</span></div><span class="conversion-label" data-math-text>平方项 $\ge0$，所以 $f(x)_{\max}=4$，$x=1$ 时取到</span></div></div></div><details class="details" id="{{uid}}-e_extremum-derivation" open><summary>完整推导</summary><p data-math-text>$f(x)=-x^2+2x+3=4-(x-1)^2$，</p><p data-math-text>$\because\ (x-1)^2\ge0$，$\therefore\ f(x)\le4$，当 $x=1$ 时取等，</p><p data-math-text>$\therefore\ f(x)_{\max}=4$，故 $a^2-3a\ge4$，即 $a^2-3a-4\ge0$。</p></details>
+</template>
+<template id="e_extremum-board">
+<div class="visual-board"><div class="board-caption">尝试配方 · 确认后展开核对</div><div class="formula fill-formula"><span class="fill-group"><span data-math-text>$-x^2+2x+3\ \stackrel{?}{=}$</span></span><span class="fill-group"><span data-fill="0"></span><span data-math-text>$-\,(x-$</span><span data-fill="1"></span><span data-math-text>$)^2$</span></span></div></div>
+</template>
+<template id="e_extremum-attempt-neg1-neg1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-1-(x+1)^2=-x^2-2x-2$</p><p data-math-text>$-x^2-2x-2\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-2$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-2$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-neg1-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-1-(x-1)^2=-x^2+2x-2$</p><p data-math-text>$-x^2+2x-2\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>常数项是 $-2$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-neg1-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-1-(x-2)^2=-x^2+4x-5$</p><p data-math-text>$-x^2+4x-5\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $4$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-5$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-neg1-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-1-(x-3)^2=-x^2+6x-10$</p><p data-math-text>$-x^2+6x-10\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $6$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-10$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-neg1-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$-1-(x-4)^2=-x^2+8x-17$</p><p data-math-text>$-x^2+8x-17\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $8$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-17$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-1-neg1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$1-(x+1)^2=-x^2-2x$</p><p data-math-text>$-x^2-2x\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-2$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $0$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-1-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$1-(x-1)^2=-x^2+2x$</p><p data-math-text>$-x^2+2x\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>常数项是 $0$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-1-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$1-(x-2)^2=-x^2+4x-3$</p><p data-math-text>$-x^2+4x-3\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $4$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-3$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-1-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$1-(x-3)^2=-x^2+6x-8$</p><p data-math-text>$-x^2+6x-8\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $6$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-8$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-1-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$1-(x-4)^2=-x^2+8x-15$</p><p data-math-text>$-x^2+8x-15\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $8$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-15$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-2-neg1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2-(x+1)^2=-x^2-2x+1$</p><p data-math-text>$-x^2-2x+1\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-2$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $1$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-2-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2-(x-1)^2=-x^2+2x+1$</p><p data-math-text>$-x^2+2x+1\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>常数项是 $1$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-2-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2-(x-2)^2=-x^2+4x-2$</p><p data-math-text>$-x^2+4x-2\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $4$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-2$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-2-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2-(x-3)^2=-x^2+6x-7$</p><p data-math-text>$-x^2+6x-7\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $6$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-7$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-2-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$2-(x-4)^2=-x^2+8x-14$</p><p data-math-text>$-x^2+8x-14\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $8$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-14$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-3-neg1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3-(x+1)^2=-x^2-2x+2$</p><p data-math-text>$-x^2-2x+2\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-2$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $2$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-3-1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3-(x-1)^2=-x^2+2x+2$</p><p data-math-text>$-x^2+2x+2\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>常数项是 $2$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-3-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3-(x-2)^2=-x^2+4x-1$</p><p data-math-text>$-x^2+4x-1\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $4$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-1$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-3-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3-(x-3)^2=-x^2+6x-6$</p><p data-math-text>$-x^2+6x-6\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $6$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-6$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-3-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$3-(x-4)^2=-x^2+8x-13$</p><p data-math-text>$-x^2+8x-13\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $8$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-13$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-4-neg1">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4-(x+1)^2=-x^2-2x+3$</p><p data-math-text>$-x^2-2x+3\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $-2$，与原式的 $2$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-4-2">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4-(x-2)^2=-x^2+4x$</p><p data-math-text>$-x^2+4x\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $4$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $0$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-4-3">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4-(x-3)^2=-x^2+6x-5$</p><p data-math-text>$-x^2+6x-5\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $6$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-5$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_extremum-attempt-4-4">
+<section class="rewrite-calculation" aria-label="本次填空的展开核对"><span class="section-label">把你的填写展开</span><div class="rewrite-calculation-math"><p data-math-text>$4-(x-4)^2=-x^2+8x-12$</p><p data-math-text>$-x^2+8x-12\not\equiv -x^2+2x+3$</p></div><div class="rewrite-calculation-feedback"><p data-math-text>一次项系数是 $8$，与原式的 $2$ 不同。</p><p data-math-text>常数项是 $-12$，与原式的 $3$ 不同。</p><p data-math-text>本步需要恒等变形，请调整不匹配的数。</p></div></section>
+</template>
+<template id="e_range-done">
+<div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [1.5, -6.25], &quot;bounds&quot;: [-2.5, 5.5, -7.5, 7.5], &quot;xTicks&quot;: [[-1, &quot;−1&quot;], [4, &quot;4&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;a&quot;, &quot;title&quot;: &quot;h(a) 的图像&quot;, &quot;description&quot;: &quot;h(a) 开口向上，两根外侧及端点处 h(a)≥0。&quot;, &quot;uid&quot;: &quot;{{uid}}-range-done&quot;, &quot;showVertex&quot;: false, &quot;markSign&quot;: true, &quot;solution&quot;: {&quot;intervals&quot;: [[null, -1], [4, null]], &quot;closed&quot;: true}}"></div><figcaption data-math-text>$h(a)\ge0$ 的部分：两根外侧，含端点</figcaption></figure><div class="reasoning"><p data-math-text>$h(a)=(a+1)(a-4)$ 开口向上，零点 $a=-1$、$a=4$。</p></div></div><details class="details" id="{{uid}}-e_range-derivation" open><summary>完整推导</summary><p data-math-text>即 $(a+1)(a-4)\ge0$，</p><p data-math-text>$\therefore\ a\le-1$ 或 $a\ge4$。</p></details>
+</template>
+<template id="e_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$a=-1$ 和 $a=4$</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$a=-1$：保留</p><p class="checklist-hint" data-math-text>$a^2-3a=(-1)^2-3\times(-1)=4$</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$a=4$：保留</p><p class="checklist-hint" data-math-text>$a^2-3a=4^2-3\times4=4$</p></div></div><p class="checklist-verdict">两个边界都保留</p></div><div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: -1, &quot;vertex&quot;: [1, 4], &quot;bounds&quot;: [-2, 4, -2, 7], &quot;xTicks&quot;: [[0, &quot;0&quot;], [1, &quot;1&quot;]], &quot;yLabel&quot;: &quot;4&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;端点处左侧函数的图像&quot;, &quot;description&quot;: &quot;端点处右侧等于 4，正好是左侧的最大值。&quot;, &quot;uid&quot;: &quot;{{uid}}-boundary-peak&quot;, &quot;showVertex&quot;: false, &quot;referenceLines&quot;: [{&quot;value&quot;: 4, &quot;label&quot;: &quot;右侧 = 4&quot;}], &quot;points&quot;: [{&quot;x&quot;: 1, &quot;label&quot;: &quot;x = 1 取等&quot;}]}"></div><figcaption data-math-text>端点处右侧 $a^2-3a=4$，碰到最大值</figcaption></figure><div class="reasoning"><p data-math-text>两个边界都使右侧等于 $4$，正好等于左侧的最大值。</p></div></div><details class="details" id="{{uid}}-e_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $a=-1$ 或 $a=4$ 时，$a^2-3a=4=f(x)_{\max}$，$f(x)\le4$ 对任意 $x\in\mathbb R$ 成立。</p><p data-math-text>综上，实数 $a$ 的取值范围是 $(-\infty,-1]\cup[4,+\infty)$。</p></details>
+</template>
+<template id="lesson-completion">
+<section class="completion-card"><p class="completion-eyebrow">本题已完成</p><h2>从“对所有实数成立”到参数范围</h2><div class="visual-board"><div class="formula" data-math-text>$a\in(-\infty,-1]\cup[4,+\infty)$</div></div><p data-math-text>判别式法看整条图像与横轴的位置；分离参数法让参数那边不低于另一边的最大值。两个端点都允许取等。</p><a class="chapter-return" href="/2/">← 返回恒成立题库</a></section>
+</template>
+</body>
+</html>

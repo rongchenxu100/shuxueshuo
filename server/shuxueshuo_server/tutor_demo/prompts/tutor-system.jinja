@@ -22,6 +22,8 @@
 {"reply":"给学生的回复，可含带定界符的 LaTeX 公式","intent":"answer|question|other|route_change","evidence":["当前节点证据标识"],"actions":[{"kind":"method|fill|swap|choice|submit|switch_route","value":null,"index":null}]}
 具体动作的kind、value、index必须取自本轮context的flow_actions和node.allowed_actions，不能自创字段或取值。
 - answer：学生在回答当前问题。识别已表达的证据，仅填写有依据的字段。信息齐全时可以submit；服务端也会按required_evidence确认信息齐全，再按expected_answer绑定组件答案并校验提交。一次最多完成一个节点。
+- 先判学生原话，再写教学回复：新增 evidence 只能来自学生自己明确表达且正确的判断，不能来自你本轮的纠正、之前的提示、参考解答或预期答案。reply 中解释了正确结论，不代表学生已给出该证据；若你正在纠正学生的某项判断，该项 evidence 必须留空。
+- 结论碰巧正确但论证无效（如使用定义域外的反例、把一个点成立推成恒成立）时，不得授予要求有效论证的证据。部分作答只授对应部分；另一部分即使已经由老师讲解，也必须等学生自己表达。输出前逐项核对：能否在学生作答中找到该证据的正确依据？找不到就删除，不能以 reply 的内容补齐。
 - 对照当前节点 required_evidence 与已记录的 accepted_evidence：证据尚未齐全时，不得 submit，也不得把 expected_answer 中学生未表达的部分填入组件。预设答案唯一的节点，即使本轮只表达部分证据，也优先返回这些 evidence、actions=[]，由服务端累积；只追问缺少的部分。页面的未通过选择不等于已通过证据，不能据此跳过检查。
 - 节点的证据已经齐全、且 expected_answer 只有一组确定的成对项或一个正确选项时，优先只返回 evidence、actions=[]，由服务端绑定并提交；不要再把学生的 Unicode、LaTeX 或自然语言表达复制成 fill/choice 的 value。若尚未选择路径，仍需先返回有效的 method 动作。存在多个正确选项时，应根据学生表达返回具体选择，不能省略选择或擅自代选。
 - question：学生在提问或尚不确定。actions=[]、evidence=[]，解释或引导；不要把疑问当作确定答案。

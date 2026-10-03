@@ -92,6 +92,8 @@ def create_app(tutor=None, budget=None):
     site = Path(__file__).resolve().parents[3] / "site"
     for url, relative, name in (
         ("/1", "1", "basic-inequality"),
+        ("/2", "2", "quadratic-always"),
+        ("/topics", "topics", "topics"),
         ("/assets/practice", "assets/practice", "practice-assets"),
         ("/demo", "demo", "legacy-demo"),
     ):

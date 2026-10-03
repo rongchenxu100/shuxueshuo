@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q05 · 恒成立问题 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=55">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=12" defer></script>
+  <script src="/assets/practice/components.js?v=37" defer></script>
+  <script src="/assets/practice/context.js?v=14" defer></script>
+  <script src="/assets/practice/runtime.js?v=27" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">恒成立问题</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/2/">← 返回题库</a> <span class="separator">/</span> Q05</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>当 $1&lt;x&lt;2$ 时，关于 $x$ 的不等式 $x^2+mx+4&gt;0$ 有解，求实数 $m$ 的取值范围。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning">
+          <div class="meaning-row"><dt>范围</dt><dd data-math-text>$x\in(1,2),\quad m\in\mathbb R$</dd></div>
+          <div class="meaning-row"><dt>条件</dt><dd data-math-text>有解即存在：$\exists x\in(1,2),$ $x^2+mx+4&gt;0$</dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd data-math-text>$\{m\in\mathbb R\mid\text{上述条件成立}\}$</dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：判断适用条件</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+<script type="application/json" id="practice-config">
+{
+  "id": "quadratic-always-q05",
+  "version": 1,
+  "variables": [
+    "x",
+    "m"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方法？",
+  "methods": [
+    {
+      "id": "interval",
+      "label": "区间最值法"
+    },
+    {
+      "id": "extremum",
+      "label": "分离参数法"
+    }
+  ],
+  "routes": {
+    "interval": [
+      {
+        "id": "i_basis",
+        "title": "判断适用条件",
+        "question": "区间最值法需要一个前提。看看本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "区间最值法的前提",
+          "slots": [
+            {
+              "label": "$x$ 的取值范围",
+              "hint": "看题目要求对哪些 $x$ 成立",
+              "options": [
+                {
+                  "value": "all_real",
+                  "label": "全体实数",
+                  "note": "在全体实数上，看整条图像与横轴的位置。"
+                },
+                {
+                  "value": "interval",
+                  "label": "某个区间",
+                  "note": "只看区间上的那一段图像，比较区间上的最值。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "interval"
+          ]
+        },
+        "feedback": {
+          "terms": "题目只看 $1<x<2$ 时有没有解，$x$ 的取值范围是区间 $(1,2)$。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_basis-done",
+        "board": "interval-board"
+      },
+      {
+        "id": "i_condition",
+        "title": "转化为范围条件",
+        "question": "要使存在 $x\\in(1,2)$，使 $f(x)>0$，$f(x)$ 应满足哪个条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "i_condition",
+          "options": [
+            {
+              "value": "max",
+              "label": "$x\\in(1,2)$ 时，$f(x)$ 取值范围的上端 $>0$"
+            },
+            {
+              "value": "min",
+              "label": "$x\\in(1,2)$ 时，$f(x)$ 取值范围的下端 $>0$"
+            },
+            {
+              "value": "one_point",
+              "label": "$f\\left(\\frac32\\right)>0$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "max"
+          ]
+        },
+        "feedback": {
+          "answer": "存在只要求区间内有一个 $x$ 满足，看图像的最高处是否在横轴上方。所有点都满足是恒成立的要求；一个点不满足，别处仍可能满足。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_condition-done"
+      },
+      {
+        "id": "i_extremum",
+        "title": "分类讨论取值范围",
+        "question": "$x^2$ 的系数为 $1$，$f(x)$ 开口向上，对称轴为 $x=-\\frac m2$。拖动对称轴观察图像，逐项确定 $f(x)$ 在 $(1,2)$ 上取值范围的上端。",
+        "interaction": {
+          "type": "checklist",
+          "title": "按对称轴的位置分类",
+          "slots": [
+            {
+              "label": "对称轴和谁比较",
+              "hint": "开口向上时，离对称轴越远，函数值越大",
+              "options": [
+                {
+                  "value": "midpoint",
+                  "label": "区间中点 $x=\\frac32$",
+                  "note": "对称轴在中点哪一侧，决定哪个端点离它更远。"
+                },
+                {
+                  "value": "endpoints",
+                  "label": "端点 $x=1$ 和 $x=2$",
+                  "note": "对称轴在区间左侧、内部还是右侧，决定最低处在哪里。"
+                }
+              ]
+            },
+            {
+              "label": "对称轴在中点左侧或中点上（$m\\ge-3$）时，上端为",
+              "hint": "哪个端点离对称轴更远？",
+              "options": [
+                {
+                  "value": "f1",
+                  "label": "$f(1)$",
+                  "note": "左端更高。"
+                },
+                {
+                  "value": "f2",
+                  "label": "$f(2)$",
+                  "note": "右端更高。"
+                },
+                {
+                  "value": "vertex",
+                  "label": "顶点处的值",
+                  "note": "顶点最高。"
+                }
+              ]
+            },
+            {
+              "label": "对称轴在中点右侧（$m<-3$）时，上端为",
+              "hint": "哪个端点离对称轴更远？",
+              "options": [
+                {
+                  "value": "f1",
+                  "label": "$f(1)$",
+                  "note": "左端更高。"
+                },
+                {
+                  "value": "f2",
+                  "label": "$f(2)$",
+                  "note": "右端更高。"
+                },
+                {
+                  "value": "vertex",
+                  "label": "顶点处的值",
+                  "note": "顶点最高。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "midpoint",
+            "f2",
+            "f1"
+          ]
+        },
+        "feedback": {
+          "terms": "开口向上时，离对称轴越远的端点越高，所以对称轴和区间中点 $\\frac32$ 比较。对称轴在中点左侧或中点上时，右端点 $x=2$ 更远；在中点右侧时，左端点 $x=1$ 更远。端点取不到，但函数值能无限接近它。顶点是最低处。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_extremum-done",
+        "board": "i_extremum-board"
+      },
+      {
+        "id": "i_range",
+        "title": "求参数范围",
+        "question": "两种情况下，都要求上端大于 $0$。$m$ 的取值范围是什么？",
+        "interaction": {
+          "type": "choice",
+          "field": "i_range",
+          "options": [
+            {
+              "value": "union",
+              "label": "$m>-5$"
+            },
+            {
+              "value": "second_only",
+              "label": "$-5<m<-3$"
+            },
+            {
+              "value": "always",
+              "label": "$m\\ge-4$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "union"
+          ]
+        },
+        "feedback": {
+          "answer": "每种情况内部，解出的范围要与这种情况的前提取交集；两种情况是“或”的关系，合并时取并集。题目问的是存在，不是恒成立。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_range-done",
+        "board": "i_range-board"
+      },
+      {
+        "id": "i_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $m=-5$ 为边界。代回原不等式，它要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$m=-5$",
+              "hint": "此时原不等式变为 $x^2-5x+4>0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "存在 $x$ 成立，保留",
+                  "note": "最终范围包含 $m=-5$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "没有 $x$ 成立，排除",
+                  "note": "最终范围不含 $m=-5$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "fails"
+          ]
+        },
+        "feedback": {
+          "terms": "$m=-5$ 时原不等式为 $(x-1)(x-4)>0$。当 $1<x<2$ 时，$x-1>0$，$x-4<0$。"
+        },
+        "submit_label": "确认检查",
+        "display": "i_boundary-done",
+        "board": "boundary-board"
+      }
+    ],
+    "extremum": [
+      {
+        "id": "e_basis",
+        "title": "判断适用条件",
+        "question": "分离参数法需要两个前提。逐项看看，本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "分离参数法的两个前提",
+          "slots": [
+            {
+              "label": "参数能否单独放到一边",
+              "hint": "看含参数的项能否移到不等号的一边",
+              "options": [
+                {
+                  "value": "separated",
+                  "label": "已经分离",
+                  "note": "参数和 $x$ 已在不等号两边，可以直接比较。"
+                },
+                {
+                  "value": "movable",
+                  "label": "移项后可以分离",
+                  "note": "把含参数的项移到一边，必要时再除以它的系数。"
+                },
+                {
+                  "value": "tangled",
+                  "label": "无法分离",
+                  "note": "参数和 $x$ 拆不开时，分离参数法用不上。"
+                }
+              ]
+            },
+            {
+              "label": "是否要除以含 $x$ 的式子",
+              "hint": "除以负数时，不等号要变向",
+              "options": [
+                {
+                  "value": "no_division",
+                  "label": "不需要除",
+                  "note": "不涉及除法，不等号方向不变。"
+                },
+                {
+                  "value": "fixed_sign",
+                  "label": "需要除，符号确定",
+                  "note": "符号确定，就能确定不等号是否变向。"
+                },
+                {
+                  "value": "unknown_sign",
+                  "label": "需要除，符号不定",
+                  "note": "符号不定时要分类讨论，不能直接除。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "movable",
+            "fixed_sign"
+          ]
+        },
+        "feedback": {
+          "terms": "含 $m$ 的只有 $mx$ 一项，移项后要除以 $x$；而 $x\\in(1,2)$，$x>0$，符号确定。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_basis-done",
+        "board": "separation-board"
+      },
+      {
+        "id": "e_separate",
+        "title": "分离参数",
+        "question": "移项得 $mx>-x^2-4$。两边同除以 $x$，得到哪个不等式？",
+        "interaction": {
+          "type": "choice",
+          "field": "e_separate",
+          "options": [
+            {
+              "value": "keep",
+              "label": "$m>-\\left(x+\\frac4x\\right)$"
+            },
+            {
+              "value": "flip",
+              "label": "$m<-\\left(x+\\frac4x\\right)$"
+            },
+            {
+              "value": "partial",
+              "label": "$m>-(x+4)$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "keep"
+          ]
+        },
+        "feedback": {
+          "answer": "$x>0$，两边除以正数，不等号方向不变；右边每一项都要除以 $x$。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_separate-done",
+        "board": "e_separate-board"
+      },
+      {
+        "id": "e_condition",
+        "title": "转化为范围条件",
+        "question": "要使存在 $x\\in(1,2)$，使 $m>-h(x)$，$m$ 应满足哪个条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "e_condition",
+          "options": [
+            {
+              "value": "max",
+              "label": "$x\\in(1,2)$ 时，$m>-\\bigl(h(x)\\text{ 的取值上端}\\bigr)$"
+            },
+            {
+              "value": "min",
+              "label": "$x\\in(1,2)$ 时，$m>-\\bigl(h(x)\\text{ 的取值下端}\\bigr)$"
+            },
+            {
+              "value": "one_point",
+              "label": "$m>-h(2)$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "max"
+          ]
+        },
+        "feedback": {
+          "answer": "$m>-h(x)$ 即 $h(x)>-m$。存在只要求区间内有一个 $x$ 满足：水平线 $y=-m$ 上方有 $h(x)$ 的图像即可。因此 $-m$ 小于 $h(x)$ 的取值上端，等价于 $m$ 大于这个上端的相反数。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_condition-done"
+      },
+      {
+        "id": "e_graph",
+        "title": "画函数图像",
+        "question": "$h(x)=x+\\frac4x$（$x>0$）是对勾函数。逐项确定它的图像特征。",
+        "interaction": {
+          "type": "checklist",
+          "title": "对勾函数的图像特征",
+          "slots": [
+            {
+              "label": "最低点",
+              "hint": "用基本不等式求 $x+\\frac4x$ 的最小值",
+              "options": [
+                {
+                  "value": "low_2",
+                  "label": "$(2,4)$",
+                  "note": "图像在 $x=2$ 处最低。"
+                },
+                {
+                  "value": "low_4",
+                  "label": "$(4,5)$",
+                  "note": "图像在 $x=4$ 处最低。"
+                },
+                {
+                  "value": "low_1",
+                  "label": "$(1,5)$",
+                  "note": "图像在 $x=1$ 处最低。"
+                }
+              ]
+            },
+            {
+              "label": "$x\\to0^+$ 时",
+              "hint": "$x$ 越来越小，$\\frac4x$ 怎样变化？",
+              "options": [
+                {
+                  "value": "y_axis",
+                  "label": "贴近 $y$ 轴向上",
+                  "note": "图像左端沿 $y$ 轴越升越高。"
+                },
+                {
+                  "value": "x_axis",
+                  "label": "贴近 $x$ 轴",
+                  "note": "图像左端越来越平，贴着 $x$ 轴。"
+                },
+                {
+                  "value": "origin",
+                  "label": "趋近原点",
+                  "note": "图像左端落到原点附近。"
+                }
+              ]
+            },
+            {
+              "label": "$x\\to+\\infty$ 时",
+              "hint": "$x$ 越来越大，$\\frac4x$ 怎样变化？",
+              "options": [
+                {
+                  "value": "line",
+                  "label": "贴近直线 $y=x$",
+                  "note": "图像右端沿直线 $y=x$ 斜向上。"
+                },
+                {
+                  "value": "flat",
+                  "label": "贴近直线 $y=4$",
+                  "note": "图像右端越来越平。"
+                },
+                {
+                  "value": "fall",
+                  "label": "贴近 $x$ 轴",
+                  "note": "图像右端回落到 $x$ 轴附近。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "low_2",
+            "y_axis",
+            "line"
+          ]
+        },
+        "feedback": {
+          "terms": "$x+\\frac4x\\ge2\\sqrt{x\\cdot\\frac4x}=4$，$x=\\frac4x$ 即 $x=2$ 时取等，最低点 $(2,4)$。$x\\to0^+$ 时 $\\frac4x$ 越来越大，图像贴近 $y$ 轴向上；$x\\to+\\infty$ 时 $\\frac4x\\to0$，$h(x)$ 越来越接近 $x$，图像贴近直线 $y=x$。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_graph-done",
+        "board": "e_graph-board"
+      },
+      {
+        "id": "e_extremum",
+        "title": "求取值范围",
+        "question": "$h(x)$ 在 $(1,2)$ 上的取值范围是什么？",
+        "interaction": {
+          "type": "checklist",
+          "title": "区间与最低点的位置",
+          "slots": [
+            {
+              "label": "$(1,2)$ 在最低点 $x=2$ 的",
+              "hint": "对照上一步的图像",
+              "options": [
+                {
+                  "value": "left",
+                  "label": "左侧",
+                  "note": "这一段图像一直下降。"
+                },
+                {
+                  "value": "right",
+                  "label": "右侧",
+                  "note": "这一段图像一直上升。"
+                },
+                {
+                  "value": "around",
+                  "label": "两侧都有",
+                  "note": "这一段图像先降后升。"
+                }
+              ]
+            },
+            {
+              "label": "取值范围",
+              "hint": "端点 $x=1$、$x=2$ 在不在区间里？",
+              "options": [
+                {
+                  "value": "open",
+                  "label": "$(4,5)$",
+                  "note": "两端都取不到。"
+                },
+                {
+                  "value": "closed",
+                  "label": "$[4,5]$",
+                  "note": "两端都取到。"
+                },
+                {
+                  "value": "amgm",
+                  "label": "$[4,+\\infty)$",
+                  "note": "只用了基本不等式 $h(x)\\ge4$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "left",
+            "open"
+          ]
+        },
+        "feedback": {
+          "terms": "$(1,2)$ 在最低点 $x=2$ 左侧，这一段图像一直下降，函数值在 $h(2)=4$ 与 $h(1)=5$ 之间；$x=1$、$x=2$ 不在区间内，两端都取不到。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_extremum-done",
+        "board": "e_extremum-board"
+      },
+      {
+        "id": "e_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $m=-5$ 为边界。代回原不等式，它要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$m=-5$",
+              "hint": "此时原不等式变为 $x^2-5x+4>0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "存在 $x$ 成立，保留",
+                  "note": "最终范围包含 $m=-5$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "没有 $x$ 成立，排除",
+                  "note": "最终范围不含 $m=-5$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "fails"
+          ]
+        },
+        "feedback": {
+          "terms": "$m=-5$ 时原不等式为 $(x-1)(x-4)>0$。当 $1<x<2$ 时，$x-1>0$，$x-4<0$。"
+        },
+        "submit_label": "确认检查",
+        "display": "e_boundary-done",
+        "board": "boundary-board"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+</script>
+<template id="interval-board">
+<div class="visual-board"><div class="board-caption">区间最值法</div><div class="formula" data-math-text>$x^2+mx+4&gt;0$</div><p class="board-focus" data-math-text>看题目对哪些 $x$ 提出要求</p></div>
+</template>
+<template id="i_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>区间最值法的前提</span><span class="checklist-progress">1 / 1</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x$ 的取值范围：某个区间 $(1,2)$</p><p class="checklist-hint" data-math-text>题目只要求在 $1&lt;x&lt;2$ 内有解。</p></div></div><p class="checklist-verdict">前提满足，可以用区间最值法</p></div><details class="details" id="{{uid}}-i_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，存在 $x\in(1,2)$，使 $x^2+mx+4&gt;0$。</p><p data-math-text>记 $f(x)=x^2+mx+4$，$x\in(1,2)$。</p></details>
+</template>
+<template id="i_condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">存在性转化为范围条件</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>存在 $x\in(1,2)$ 使之成立</span><div class="math" data-math-text>$f(x)&gt;0$</div></div><span class="conversion-arrow" aria-hidden="true">⇔</span><div><span class="conversion-label" data-math-text>只需看 $(1,2)$ 上的最高处</span><div class="math" data-math-text>$\textcolor{#087f79}{f(x)\text{ 上端}}&gt;0$</div><span class="conversion-label" data-math-text>上端大于 $0$，靠近上端的值也大于 $0$；上端取不到也可以</span></div></div></div><details class="details" id="{{uid}}-i_condition-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore$ 原不等式在 $(1,2)$ 上有解 $\iff$ $f(x)$ 在 $(1,2)$ 上取值范围的上端大于 $0$。</p></details>
+</template>
+<template id="i_extremum-board">
+<div class="visual-board"><div class="board-caption">拖动对称轴，观察区间上的最高处</div><div data-axis-explorer="{&quot;coefficient&quot;: 1, &quot;constant&quot;: 4, &quot;axis&quot;: {&quot;min&quot;: 0.5, &quot;max&quot;: 3, &quot;step&quot;: 0.05, &quot;value&quot;: 1}, &quot;interval&quot;: [1, 2], &quot;open&quot;: true, &quot;bounds&quot;: [-0.6, 4.6, -5.8, 7], &quot;marks&quot;: [{&quot;x&quot;: 1.5, &quot;label&quot;: &quot;3/2&quot;}], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;f(x) = x² + mx + 4 的图像（可拖动对称轴）&quot;, &quot;description&quot;: &quot;拖动对称轴 x = −m/2 改变 m；开区间 (1,2) 的两个端点取不到，两端中较高的一端标为上端；虚线 x = 3/2 是区间中点。&quot;, &quot;uid&quot;: &quot;{{uid}}-axis&quot;}"></div></div>
+</template>
+<template id="i_extremum-done">
+<div class="graph-comparison"><figure class="quadratic-graph"><div data-axis-explorer="{&quot;coefficient&quot;: 1, &quot;constant&quot;: 4, &quot;axis&quot;: {&quot;min&quot;: 0.5, &quot;max&quot;: 1.5, &quot;step&quot;: 0.05, &quot;value&quot;: 1}, &quot;interval&quot;: [1, 2], &quot;open&quot;: true, &quot;bounds&quot;: [-0.6, 4.6, -5.8, 7], &quot;marks&quot;: [{&quot;x&quot;: 1.5, &quot;label&quot;: &quot;3/2&quot;}], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;情况①：对称轴在中点左侧或中点上&quot;, &quot;description&quot;: &quot;对称轴 x = −m/2 只能在 x = 3/2 及其左侧拖动，右端 x=2 离对称轴更远，上端为 f(2)，取不到。&quot;, &quot;uid&quot;: &quot;{{uid}}-axis-left&quot;}"></div><figcaption data-math-text>情况①：$-\dfrac m2\le\dfrac32$，上端为 $f(2)$</figcaption></figure><figure class="quadratic-graph"><div data-axis-explorer="{&quot;coefficient&quot;: 1, &quot;constant&quot;: 4, &quot;axis&quot;: {&quot;min&quot;: 1.55, &quot;max&quot;: 3, &quot;step&quot;: 0.05, &quot;value&quot;: 2.5}, &quot;interval&quot;: [1, 2], &quot;open&quot;: true, &quot;bounds&quot;: [-0.6, 4.6, -5.8, 7], &quot;marks&quot;: [{&quot;x&quot;: 1.5, &quot;label&quot;: &quot;3/2&quot;}], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;情况②：对称轴在中点右侧&quot;, &quot;description&quot;: &quot;对称轴 x = −m/2 只能在 x = 3/2 右侧拖动，左端 x=1 离对称轴更远，上端为 f(1)，取不到。&quot;, &quot;uid&quot;: &quot;{{uid}}-axis-right&quot;}"></div><figcaption data-math-text>情况②：$-\dfrac m2&gt;\dfrac32$，上端为 $f(1)$</figcaption></figure></div><p class="graph-cases-verdict">开口向上，离对称轴更远的一端更高；端点取不到，函数值无限接近它</p><details class="details" id="{{uid}}-i_extremum-derivation" open><summary>完整推导</summary><p data-math-text>$f(x)$ 的图像开口向上，对称轴为 $x=-\dfrac m2$。</p><p data-math-text>① 当 $-\dfrac m2\le\dfrac32$，即 $m\ge-3$ 时，$f(x)$ 在 $(1,2)$ 上取值范围的上端为 $f(2)=2m+8$；</p><p data-math-text>② 当 $-\dfrac m2&gt;\dfrac32$，即 $m&lt;-3$ 时，$f(x)$ 在 $(1,2)$ 上取值范围的上端为 $f(1)=m+5$。</p></details>
+</template>
+<template id="i_range-board">
+<div class="visual-board"><div class="board-caption">两种情况各自要满足</div><div class="formula case-lines"><p class="case-line"><span data-math-text>① $m\ge-3$：</span><span data-math-text>$f(2)=2m+8&gt;0$</span></p><p class="case-line"><span data-math-text>② $m&lt;-3$：</span><span data-math-text>$f(1)=m+5&gt;0$</span></p></div></div>
+</template>
+<template id="i_range-done">
+<div class="case-merge"><div class="case-merge-group"><span class="case-merge-cell"><span class="case-merge-name" data-math-text>情况①（$m\ge-3$）</span><span class="case-merge-value" data-math-text>$m\ge-3$</span></span><span class="case-merge-cell"><span class="case-merge-name" data-math-text>情况②（$m&lt;-3$）</span><span class="case-merge-value" data-math-text>$-5&lt;m&lt;-3$</span></span><span class="case-merge-total" data-math-text>取并集：$m&gt;-5$</span></div></div><details class="details" id="{{uid}}-i_range-derivation" open><summary>完整推导</summary><p data-math-text>① 由 $\begin{cases}m\ge-3,\\ 2m+8&gt;0,\end{cases}$ 得 $m\ge-3$；</p><p data-math-text>② 由 $\begin{cases}m&lt;-3,\\ m+5&gt;0,\end{cases}$ 得 $-5&lt;m&lt;-3$。</p><p data-math-text>综上，取并集得 $m&gt;-5$。</p></details>
+</template>
+<template id="boundary-board">
+<div class="visual-board"><div class="board-caption">上一步得到的范围</div><div class="formula" data-math-text>$m&gt;\boxed{-5}$</div><p class="board-focus" data-math-text>要检查的边界：$m=-5$</p></div>
+</template>
+<template id="i_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$m=-5$</span><span class="checklist-progress">1 / 1</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$m=-5$：排除</p><p class="checklist-hint" data-math-text>$(1,2)$ 内 $(x-1)(x-4)&lt;0$，没有 $x$ 满足 $&gt;0$。</p></div></div><p class="checklist-verdict">边界排除</p></div><div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [2.5, -2.25], &quot;bounds&quot;: [-0.6, 4.6, -5.8, 4.8], &quot;xTicks&quot;: [[1, &quot;1&quot;], [2, &quot;2&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;m = −5 时 f(x) 的图像&quot;, &quot;description&quot;: &quot;m=−5 时 f(x)=(x−1)(x−4)，(1,2) 上整段在横轴下方；最高处在 x=1，函数值为 0，但 x=1 不在区间内。&quot;, &quot;uid&quot;: &quot;{{uid}}-boundary&quot;, &quot;showVertex&quot;: false, &quot;interval&quot;: [1, 2], &quot;points&quot;: [{&quot;x&quot;: 1, &quot;label&quot;: &quot;(1, 0) 取不到&quot;, &quot;place&quot;: &quot;above-left&quot;, &quot;open&quot;: true}, {&quot;x&quot;: 2, &quot;label&quot;: &quot;(2, −2)&quot;, &quot;place&quot;: &quot;below-right&quot;, &quot;open&quot;: true}]}"></div><figcaption data-math-text>$m=-5$ 时 $(1,2)$ 上整段在横轴下方</figcaption></figure><div class="reasoning"><p data-math-text>最高处 $f(1)=0$ 在左端，但 $x=1$ 不在区间内，取不到。</p></div></div><details class="details" id="{{uid}}-i_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $m=-5$ 时，原不等式为 $x^2-5x+4&gt;0$，即 $(x-1)(x-4)&gt;0$；</p><p data-math-text>当 $1&lt;x&lt;2$ 时，$(x-1)(x-4)&lt;0$，无解，舍去。</p><p data-math-text>综上，实数 $m$ 的取值范围是 $(-5,+\infty)$。</p></details>
+</template>
+<template id="separation-board">
+<div class="visual-board"><div class="board-caption">分离参数法</div><div class="formula" data-math-text>$x^2+mx+4&gt;0$</div><p class="board-focus" data-math-text>把含 $m$ 的项单独放到一边，另一边只含 $x$</p></div>
+</template>
+<template id="e_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>分离参数法的两个前提</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>参数能否单独放到一边：移项后可以分离</p><p class="checklist-hint" data-math-text>含 $m$ 的只有 $mx$ 一项。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>是否要除以含 $x$ 的式子：需要除，符号确定</p><p class="checklist-hint" data-math-text>要除以 $x$，而 $x\in(1,2)$，$x&gt;0$。</p></div></div><p class="checklist-verdict">两个前提都满足，可以用分离参数法</p></div><details class="details" id="{{uid}}-e_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，存在 $x\in(1,2)$，使 $x^2+mx+4&gt;0$。</p></details>
+</template>
+<template id="e_separate-board">
+<div class="visual-board"><div class="board-caption">移项后</div><div class="formula" data-math-text>$mx&gt;-x^2-4$</div><p class="board-focus" data-math-text>$x\in(1,2)$，所以 $x&gt;0$</p></div>
+</template>
+<template id="e_separate-done">
+<div class="visual-board completed-visual"><div class="board-caption">两边同除以正数</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>移项后</span><div class="math" data-math-text>$mx&gt;-x^2-4$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label" data-math-text>两边除以 $x$</span><div class="math" data-math-text>$m&gt;-\left(x+\dfrac4x\right)$</div><span class="conversion-label" data-math-text>$x&gt;0$，不等号方向不变</span></div></div></div><details class="details" id="{{uid}}-e_separate-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ x\in(1,2)$，$\therefore\ x&gt;0$，</p><p data-math-text>移项得 $mx&gt;-x^2-4$，两边同除以 $x$ 得 $m&gt;-\left(x+\dfrac4x\right)$。</p><p data-math-text>记 $h(x)=x+\dfrac4x$，$x\in(1,2)$，则 $m&gt;-h(x)$。</p></details>
+</template>
+<template id="e_condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">存在性转化为范围条件</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>存在 $x\in(1,2)$ 使之成立</span><div class="math" data-math-text>$m&gt;-h(x)$</div></div><span class="conversion-arrow" aria-hidden="true">⇔</span><div><span class="conversion-label" data-math-text>只需看 $h(x)$ 在 $(1,2)$ 上的最高处</span><div class="math" data-math-text>$m&gt;-\bigl(\textcolor{#087f79}{h(x)\text{ 的取值上端}}\bigr)$</div><span class="conversion-label" data-math-text>大于下端，就大于靠近下端的值；$-h(x)$ 最低处，正是 $h(x)$ 最高处</span></div></div></div><details class="details" id="{{uid}}-e_condition-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore$ 原不等式在 $(1,2)$ 上有解 $\iff m&gt;-\bigl(h(x)\text{ 的取值上端}\bigr)$。</p></details>
+</template>
+<template id="e_graph-board">
+<div class="visual-board"><div class="board-caption">要画的函数</div><div class="formula" data-math-text>$h(x)=x+\dfrac4x,\quad x&gt;0$</div><p class="board-focus" data-math-text>基本不等式：$a,b&gt;0$ 时 $a+b\ge2\sqrt{ab}$，$a=b$ 时取等</p></div>
+</template>
+<template id="e_graph-done">
+<div class="vertex-reasoning"><figure class="quadratic-graph"><div data-reciprocal-sum-graph="{&quot;a&quot;: 1, &quot;b&quot;: 4, &quot;bounds&quot;: [-0.5, 8.5, -0.9, 9.5], &quot;asymptotes&quot;: true, &quot;xTicks&quot;: [[2, &quot;2&quot;]], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;h(x) = x + 4/x 的图像&quot;, &quot;description&quot;: &quot;h(x)=x+4/x 在 x&gt;0 上的图像：最低点 (2,4)，左端贴近 y 轴向上，右端贴近直线 y=x。&quot;, &quot;uid&quot;: &quot;{{uid}}-hook&quot;, &quot;points&quot;: [{&quot;x&quot;: 2, &quot;label&quot;: &quot;(2, 4)&quot;, &quot;place&quot;: &quot;below-left&quot;}]}"></div><figcaption data-math-text>$h(x)=x+\frac4x$（$x&gt;0$）的图像</figcaption></figure><div class="reasoning"><p data-math-text>左端贴着 $y$ 轴下降，在 $(2,4)$ 处最低，右端贴着直线 $y=x$ 上升。</p></div></div><details class="details" id="{{uid}}-e_graph-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ x&gt;0$，$\therefore\ h(x)=x+\dfrac4x\ge2\sqrt{x\cdot\dfrac4x}=4$，</p><p data-math-text>当且仅当 $x=\dfrac4x$，即 $x=2$ 时取等号。</p><p data-math-text>由对勾函数的性质，$h(x)$ 在 $(0,2]$ 上单调递减，在 $[2,+\infty)$ 上单调递增。</p></details>
+</template>
+<template id="e_extremum-board">
+<div class="visual-board"><div class="board-caption">上一步画出的图像</div><div class="formula" data-math-text>$h(x)=x+\dfrac4x,\quad x\in(1,2)$</div><p class="board-focus" data-math-text>最低点 $(2,4)$；$(0,2]$ 上递减，$[2,+\infty)$ 上递增</p></div>
+</template>
+<template id="e_extremum-done">
+<div class="vertex-reasoning"><figure class="quadratic-graph"><div data-reciprocal-sum-graph="{&quot;a&quot;: 1, &quot;b&quot;: 4, &quot;bounds&quot;: [-0.3, 4.7, -0.6, 7.4], &quot;interval&quot;: [1, 2], &quot;xTicks&quot;: [[1, &quot;1&quot;], [2, &quot;2&quot;]], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;h(x) 的图像&quot;, &quot;description&quot;: &quot;(1,2) 在最低点 x=2 的左侧，h(x) 在这一段一直下降，函数值在 4 与 5 之间；x=1、x=2 不在区间内，两端都取不到。&quot;, &quot;uid&quot;: &quot;{{uid}}-range&quot;, &quot;points&quot;: [{&quot;x&quot;: 1, &quot;label&quot;: &quot;(1, 5) 取不到&quot;, &quot;open&quot;: true}, {&quot;x&quot;: 2, &quot;label&quot;: &quot;(2, 4) 取不到&quot;, &quot;place&quot;: &quot;below-right&quot;, &quot;open&quot;: true}]}"></div><figcaption data-math-text>$(1,2)$ 上取值范围为 $(4,5)$</figcaption></figure><div class="reasoning"><p data-math-text>$(1,2)$ 在最低点左侧，这一段一直下降，上端是左端的 $5$；$x=1$、$x=2$ 不在区间内，$5$ 和 $4$ 都取不到。</p></div></div><details class="details" id="{{uid}}-e_extremum-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ (1,2)\subseteq(0,2]$，$\therefore\ h(x)$ 在 $(1,2)$ 上单调递减，</p><p data-math-text>$\therefore\ h(2)&lt;h(x)&lt;h(1)$，即 $4&lt;h(x)&lt;5$，$h(x)$ 上端为 $5$，</p><p data-math-text>$\therefore\ m&gt;-5$。</p></details>
+</template>
+<template id="e_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$m=-5$</span><span class="checklist-progress">1 / 1</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$m=-5$：排除</p><p class="checklist-hint" data-math-text>$(1,2)$ 内 $(x-1)(x-4)&lt;0$，没有 $x$ 满足 $&gt;0$。</p></div></div><p class="checklist-verdict">边界排除</p></div><div class="vertex-reasoning"><figure class="quadratic-graph"><div data-reciprocal-sum-graph="{&quot;a&quot;: 1, &quot;b&quot;: 4, &quot;bounds&quot;: [-0.3, 4.7, -0.6, 7.4], &quot;interval&quot;: [1, 2], &quot;xTicks&quot;: [[1, &quot;1&quot;], [2, &quot;2&quot;]], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;h(x) 的图像&quot;, &quot;description&quot;: &quot;m=−5 时 −m=5，h(x) 在 (1,2) 上都小于 5，整段在水平线 y=5 下方，只在取不到的端点 (1,5) 处碰到。&quot;, &quot;uid&quot;: &quot;{{uid}}-boundary-line&quot;, &quot;points&quot;: [{&quot;x&quot;: 1, &quot;label&quot;: &quot;(1, 5) 取不到&quot;, &quot;open&quot;: true}], &quot;referenceLines&quot;: [{&quot;value&quot;: 5, &quot;label&quot;: &quot;y = −m&quot;}]}"></div><figcaption data-math-text>$m=-5$ 时整段在 $y=-m$ 下方</figcaption></figure><div class="reasoning"><p data-math-text>$h(x)&lt;5$，没有 $x$ 满足 $h(x)&gt;5$。</p></div></div><details class="details" id="{{uid}}-e_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $m=-5$ 时，$m&gt;-h(x)$ 即 $h(x)&gt;5$，而 $x\in(1,2)$ 时 $h(x)&lt;5$，无解，舍去。</p><p data-math-text>综上，实数 $m$ 的取值范围是 $(-5,+\infty)$。</p></details>
+</template>
+<template id="lesson-completion">
+<section class="completion-card"><p class="completion-eyebrow">本题已完成</p><h2>存在：只要有一点满足</h2><div class="visual-board"><div class="formula" data-math-text>$m\in(-5,+\infty)$</div></div><p data-math-text>“有解”就是存在 $x\in(1,2)$ 使不等式成立，只需比较取值范围的上端。区间最值法按对称轴与区间中点的位置找上端；分离参数法得 $h(x)\in(4,5)$，$m&gt;-\bigl(h(x)\text{ 的取值上端}\bigr)$，即 $m&gt;-5$。$m=-5$ 时上端取不到，排除。</p><a class="chapter-return" href="/2/">← 返回恒成立题库</a></section>
+</template>
+</body>
+</html>

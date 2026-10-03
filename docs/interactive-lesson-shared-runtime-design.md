@@ -63,6 +63,80 @@ Q01 不再使用专属 `q01.js`。专属公式、推导、图形和完成结论�
 
 ## 4. 组件与未来探索能力
 
+### 恒成立专题复用补记（2026-10-02）
+
+`/2/q01/` 复用 `choice` 与公共页面流程，后台 lesson ID 为 `quadratic-always-q01`，与 `/1/q01/` 分开。
+
+本题新增 1 个公共作答组件，扩展 1 个只读展示组件，另有 2 组公共样式。新增能力必须能被其他题直接复用：命名不带题目或方法名，配置只描述数学内容，本题内至少两处使用。
+
+| 能力 | 类型 | 配置 | 本题使用 | 可复用场景 |
+| --- | --- | --- | --- | --- |
+| `checklist` 条件清单 | 作答组件（新增） | `title`；可选页面 `board`（显示在清单上方）；`slots[i]` 为 `label`、可选 `hint`、`options:[{value,label,note}]`；`expected_answer.terms` 按行位置校验 | 两条路线的“判断适用条件”与“检查边界”（共 4 个节点） | 方法前提、端点／特殊值逐个检查、分类讨论各分支是否成立 |
+| `quadraticGraph` 的 `markSign` | 只读展示（扩展） | `markSign:true`／`"below"`／`"above"`，可选 `strict:true` | Q01 图像位置、Δ 条件、参数范围、边界；Q02 全部图像（`"above"` 加 `strict`） | 任何看“函数值正负”的二次图像，≥0、>0、≤0、<0 四种不等号 |
+| `quadraticGraph` 的 `solution` | 只读展示（扩展） | `solution:{intervals:[[from,to],…],closed}`，`null` 表示无界 | 两条路线的“求参数范围” | 解一元二次不等式、在图上标出解集 |
+| `.graph-cases` 情形卡片 | 模板样式 | `.graph-case`，可加 `.rejected`（不满足）、`.included`／`.excluded`（所选条件包含／排除）；结论用 `.graph-cases-verdict` | 图像位置完成态；Δ 条件预览 | 几种情形并排对照，如开口方向、顶点与区间位置 |
+| `.case-merge` 情形合并 | 模板样式 | `.case-merge-group` 内放若干 `.case-merge-cell` 与 `.case-merge-total`，被排除的情形单列 `.case-merge-cell.rejected`；保留一项、排除两项时自动排成三栏；组内有三格时排成一行三栏；前面可放 `.case-merge-caption` 小标题，写明所讨论的情形（如“开口向下（$k<0$）时”） | Q01、Q02 Δ 条件完成态；Q02 合并两种情况；Q07 合并三种情况 | 多个情形合并成一个条件，如分类讨论求并集 |
+
+`quadraticGraph` 此前已为本专题扩展可选 `referenceLines:[{value,label}]`（水平参考线）、`points:[{x,label}]`（曲线上的标记点，纵坐标由曲线计算）与 `showVertex`（默认 true，false 时隐藏顶点、辅助线与顶点注释）。
+
+`checklist` 候选常驻显示（不弹层），选中项的 `note` 只陈述该选择的后果，不标对错，正误在确认时校验；沿用 fill 事件（`data-pair-answer`），前后端归入有序组件。`markSign` 浅红铺出 y<0 区域，曲线低于横轴的部分改为红色，与横轴的公共点画空心点（相切一个用深绿，相交两个用红色），落在根上的刻度标签移到曲线未下穿的一侧，避免被红色曲线压住；`solution` 在横轴上画粗线，`closed` 决定端点实心或空心，与 `markSign` 同用时只画区间端点。图像仍由题目作者提供数值，不解析数学式、不以采样图像证明恒成立；原 Q01、Q09 的默认图像行为不变。
+
+两条路线的“求参数范围”共用 `range-board` 模板，只有完成态各自说明；“检查边界”的交互配置两条路线相同，共用 `boundary-board` 写出上一步范围并框出要检查的边界 $a=-1$、$a=4$，完成态清单标题再写一次检查对象；完成态分别回扣判别式法的“相切”和分离参数法的“碰到最大值”。
+
+Q02（`quadratic-always-q02`，$kx^2+2kx-(k+2)<0$ 恒成立）只有判别式法一条路线，共 7 步，不新增作答组件：复用 `checklist`（判断适用条件、检查边界）、`choice`、`.graph-cases`、`.case-merge` 与 `solution`。为它扩展的公共能力：`markSign:"above"` 标出 y>0 一侧、`strict:true` 把与横轴的公共点也算违规、`solution.closed` 可按端点逐个指定、`coefficient:0` 可画退化后的水平直线（后来用于 Q02、Q03 检查边界中系数为零的边界）。同时修了三处共享排版：公式后紧跟的中文标点不再单独换行（`math-text.js` 把公式与标点包进 `.nowrap`）；`.checklist-verdict` 改为非 flex 排版，结论里的公式不再被拉开间距；`.case-merge-group` 没有排除项时占满整行。Q01 图像与布局不变。
+
+此后两题的判别式法按同一张标准步骤表对齐（见[恒成立题库设计](quadratic-inequality-always-true-practice-design.md)的“判别式法标准步骤”）：Q02 拆出“判断图像位置”与“建立判别式条件”，删去单独的“计算判别式”，求参数范围改用 `range-board` 模板名。为 Q02 的判别式条件，`.case-merge` 支持保留一项、排除两项的三栏排法；窄屏下情形卡片名不再折行。跨题一致性由 `server/tests/tutor_demo/test_quadratic_always_consistency.py` 检查。
+
+Q03（`quadratic-always-q03`，$(a^2-1)x^2-(a-1)x-1<0$ 恒成立）沿用 Q02 的 7 步与全部组件，不新增作答组件或 JS。共享样式只调整窄屏下的 `.case-merge`：组与排除格按 2.4:1 分栏，格内数值改为 15px，使 $-\tfrac35<a<1$ 这类分数区间不顶到边框。
+
+Q04（`quadratic-always-q04`，当 $1\le x\le2$ 时 $x^2+mx+4<0$ 恒成立）有区间最值法与分离参数法两条路线，不新增作答组件，新增与扩展两项只读展示：
+
+- `quadraticGraph` 新增可选 `interval:[a,b]`：区间两端画竖直虚线，区间外的曲线淡化，`markSign` 的违规弧线、浅红底色和与横轴的公共点只在区间内判断。`points` 新增可选 `place`（`above-right` 默认、`above-left`、`below-right`、`below-left`）调整标签位置。不传 `interval` 时图像与原来相同。
+- 新增只读展示组件 `reciprocalSumGraph`（挂载点 `data-reciprocal-sum-graph`，`runtime.js` 与 `data-quadratic-graph` 一同渲染）：画 $y=ax+\frac bx$ 在 $x>0$ 的一支，$a,b>0$ 时即对勾函数；`bounds`、`interval`、`xTicks`、`points`、`referenceLines` 与 `quadraticGraph` 用法相同；可选 `asymptotes` 画出 $y$ 轴与 $y=ax$ 两条渐近线。Q04 用它画 $h(x)=x+\frac4x$：“画函数图像”一步画完整对勾图（渐近线、最低点 $(2,4)$），其余步骤画区间 $[1,2]$ 上的一段及水平线 $y=-m$。
+- 新增探索组件 `axisExplorer`（挂载点 `data-axis-explorer`）：画 $f(x)=a(x-h)^2+c-ah^2$（对称轴 $x=h$ 可动、$f(0)$ 不变），学生拖动图中的对称轴或下方滑块，区间上的一段、顶点、较高端点（标“最高”）随之更新，不显示数值读数。它只供观察，不产生作答事件，也不进服务端状态。`runtime.js` 挂载时绑定指针与滑块事件，拖动中只重绘 `[data-axis-layer]`，不触发整页 `render()`；位置按 `uid` 存在 `axisPositions` 中，清单点选引起整页重绘后保持原位置。`axis.min/max` 限定拖动范围（顶部浅色轨道显示，指针和滑块都不能越界）。Q04 的“分类讨论最值”题板放一张全范围的；完成态按 $-\frac m2$ 与 $\frac32$ 的关系放两张，各自限定在本情况内。
+- 开区间端点（Q05）：`quadraticGraph` 与 `reciprocalSumGraph` 的 `points` 新增可选 `open:true`，标记点画成空心，表示取不到；`axisExplorer` 新增 `open:true`，区间两端都画空心，较高一端改标“上端”。Q05“当 $1<x<2$ 时有解”用它们表示取值范围的上端取不到。
+- 无界区间与最低处（Q06，$\forall x<0$）：`quadraticGraph`、`reciprocalSumGraph`、`axisExplorer` 的 `interval` 一端可写 `null`，表示该侧无界，不画竖直虚线，曲线延伸到窗口外。`reciprocalSumGraph` 新增 `negative:true`，改画 $x<0$ 的一支（如 $-x-\frac2x$，$a<0,b<0$，开口向上的对勾），渐近线标注随 $a$ 写成 $y=-x$。`axisExplorer` 新增 `target:"min"`，改找区间上的最低处：顶点在区间内时标顶点为“最低”，否则较低的端点标“最低”（`open` 时为“下端”）；默认 `"max"` 不变。
+- 二次项系数含参、对称轴固定（Q07，$mx^2-mx-1$ 在 $[2,3]$ 上）：区间最值法按系数的符号分三种情况，`i_extremum` 用 `.graph-cases` 三张真实实例图（`coefficient:0` 画出退化的直线）代替 `axisExplorer`，不新增组件。`.case-merge-group` 内有三格时排成一行三栏；窄屏下情况名过长时，名称里的“（条件）”放进 `<span class="nowrap" data-math-text>`，外层名称不加 `data-math-text`（渲染按 `textContent` 重写，嵌套标签会丢失），使换行落在条件之前。
+- 新增只读展示组件 `linearGraph`（挂载点 `data-linear-graph`，`runtime.js` 与其他图像一同渲染）：画 $y=\text{slope}\cdot t+\text{intercept}$，用于更换主元后关于主元的一次函数（Q08 的 $f(m)=(x^2-x+1)m-6$ 取 $x=0,2$ 的实例与边界处 $f(m)=2m-6$）。`bounds`、`interval`（区间外淡化）、`xTicks`、`points`（含 `place`）、`markSign`／`strict`、`variable` 与 `quadraticGraph` 用法相同；斜率为 $0$ 时画水平线，整段落在横轴上（$f\equiv0$）且 `strict` 时整段标红（Q09 边界 $x=1$）。Q09 用三张 `linearGraph` 放进 `.graph-cases`，对照斜率为正、零、负时最低点的位置。
+- `quadraticGraph` 在 `markSign` 下会把根的刻度标签移到曲线不在横轴下方的一侧；只有刻度值与根相差不到 $10^{-9}$ 时才识别为根，无理根（Q08 的 $\frac{1\pm\sqrt5}2$）的刻度值要写精确的浮点值，不能四舍五入。
+- 题板公式在窄屏放不下时用 `.formula.case-lines`（窄屏 17px），每段 `<span data-math-text>` 不断行、段间可换行（Q08 的 `v_extremum` 题板）；完整推导里的长等式拆成两段 `$…$ $…$`，让换行落在等号前。
+- 图注可以含 KaTeX 公式。KaTeX 的根号是自带尺寸的 SVG，组件里给图像 `svg` 定宽高的样式用 `svg:not(.katex *)` 排除它，否则图注中的 $\sqrt2$ 不显示根号。
+
+Q04 的区间最值法按新的标准步骤表编写：“转化为最值条件”（与分离参数法的 `e_condition` 同构）→“分类讨论最值”（`checklist` 先选分类依据，再逐个情况选最大值；题板是探索组件 `axisExplorer`，见上）→“求参数范围”（`.case-merge` 列出两种情况的结果，“取并集：…”）。分离参数法按新的标准步骤表编写（Q04 增加可选的 `e_graph`“画函数图像”，用条件清单逐行确定最低点和两端趋近的直线；`e_extremum` 用两行清单判断区间与最低点的位置），Q01 同步改名 `e_maximum` → `e_extremum` 并换用通用的 `e_basis` 清单；各路线的“检查边界”交互统一，一致性测试同时覆盖这两点。
+
+/2/ 的单选步骤（Q01–Q04）去掉了全部选项预览：选中只高亮，提交后按 `feedback` 给提示，解释和图像只在完成态出现。运行时仍保留 `preview` 能力，/1/ 的题目不受影响。
+
+分离参数法的“求最值”（原“求左侧最大值”）不新增组件，复用 Q16 的双格 `fill` 与 `attempt_calculations`：-x²+2x+3 ≟ □-(x-○)²，候选 -1–4，答案 4、1；24 个错误组合把所填式展开，比较一次项系数与常数项，未确认使用问号等号。完成态复用 `.function-conversion` 与 `.square-term`，只写“原式 → 常数减平方项”与“平方项 ≥0，所以最大值为 4”，配方与取等过程放在完整推导里。
+
+### 恒成立专题组件统计（/2/ Q01–Q09，2026-10-03）
+
+统计范围为 `site/2/q01/` 至 `site/2/q09/`，以 `components.js` 导出、`runtime.js` 接线和各题 `practice-config` 为准；“新增”相对于开始做 `/2/` 之前的公共组件（`PracticeComponents` 当时 15 个导出项）。
+
+**9 道题共新增 4 个公共组件：1 个作答交互组件、1 个探索组件、2 个只读展示组件；另扩展 1 个已有展示组件，新增 4 种公共版式。** `PracticeComponents` 导出项由 15 个增至 20 个，多出的 `axisExplorerLayer` 是 `axisExplorer` 拖动时的局部重绘函数，不另计组件。
+
+| 组件 | 类别 | 首次使用 | 使用题目 | 使用量 |
+| --- | --- | --- | --- | ---: |
+| `checklist` 条件清单 | 作答交互（新增） | Q01 | Q01–Q09 | 41 个节点 |
+| `axisExplorer` 可拖动对称轴的抛物线 | 探索（新增；只供观察，不计答案） | Q04 | Q04–Q06 | 9 张（题板 3、完成态 6） |
+| `reciprocalSumGraph` 对勾函数图像 | 只读展示（新增） | Q04 | Q04–Q06 | 9 张 |
+| `linearGraph` 一次函数线段 | 只读展示（新增） | Q08 | Q08、Q09 | 8 张 |
+| `quadraticGraph` 二次函数图像 | 只读展示（扩展） | `/1/` 已有 | Q01–Q09 | 34 张 |
+
+`quadraticGraph` 为本专题扩展的配置：`referenceLines`、`points`（含 `open`、`place`）、`showVertex`、`markSign`／`strict`、`solution`、`interval`（一端 `null` 表示无界）、`coefficient:0`（退化为水平线）。
+
+| 公共版式（CSS；内容由每题 HTML 编写） | 状态 | 使用题目 | 使用量 |
+| --- | --- | --- | ---: |
+| `.graph-cases` 情形卡片（三图对照） | 新增 | Q01–Q03、Q07、Q09 | 6 处 |
+| `.case-merge` 情形合并 | 新增 | Q01–Q07 | 9 处（Q01–Q03 的判别式条件另带 `.case-merge-caption` 小标题） |
+| `.graph-comparison` 两图并排 | 新增 | Q02–Q06、Q08、Q09 | 8 处 |
+| `.formula.case-lines` 窄屏分段公式 | 新增 | Q04–Q09 | 7 处 |
+| `.function-conversion` 变形对照 | 复用 | Q01、Q04–Q09 | 18 处 |
+| `.vertex-reasoning` 图像与说明并排 | 复用 | Q01–Q08 | 23 处 |
+
+9 道题共 14 条路线、80 个节点。作答只用三种交互：`checklist` 41 个节点、`choice` 38 个、`fill` 1 个（Q01 配方，复用 `/1/` 的组件）；80 个节点的完成态都有“完整推导”。节点数按路线分别计数；图像与版式按页面模板中的出现次数计数，同页两条路线共用的题板只计一次。这些是组件的使用量，不是独立组件的数量。同一步骤在各题的重复次数见[恒成立题库设计](quadratic-inequality-always-true-practice-design.md)的“同一步骤的跨题重复次数”。
+
+新专题的题型、教学节点与使用表见[恒成立题库设计](quadratic-inequality-always-true-practice-design.md)。下面 Q01–Q30 的数量仍只统计基本不等式专题，不包括 `/2/`。
+
 ### 当前公共组件清单（2026-09-29）
 
 统计范围为 `site/1/q01/` 至 `site/1/q30/` 的练习系统，以 `components.js` 导出、`runtime.js` 接线和各题 `practice-config` 为准，不包含另一套几何／二次函数编译题解页的组件。

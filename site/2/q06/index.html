@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q06 · 恒成立问题 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=55">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=12" defer></script>
+  <script src="/assets/practice/components.js?v=37" defer></script>
+  <script src="/assets/practice/context.js?v=14" defer></script>
+  <script src="/assets/practice/runtime.js?v=27" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">恒成立问题</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/2/">← 返回题库</a> <span class="separator">/</span> Q06</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>“$\forall x&lt;0,\ x^2+ax+2\ge0$”为真命题，求实数 $a$ 的取值范围。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning">
+          <div class="meaning-row"><dt>范围</dt><dd data-math-text>$x\in(-\infty,0),\quad a\in\mathbb R$</dd></div>
+          <div class="meaning-row"><dt>条件</dt><dd data-math-text>$\forall x&lt;0,$ $x^2+ax+2\ge0$</dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd data-math-text>$\{a\in\mathbb R\mid\text{上述条件成立}\}$</dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：判断适用条件</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+<script type="application/json" id="practice-config">
+{
+  "id": "quadratic-always-q06",
+  "version": 1,
+  "variables": [
+    "x",
+    "a"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方法？",
+  "methods": [
+    {
+      "id": "extremum",
+      "label": "分离参数法"
+    },
+    {
+      "id": "interval",
+      "label": "区间最值法"
+    }
+  ],
+  "routes": {
+    "extremum": [
+      {
+        "id": "e_basis",
+        "title": "判断适用条件",
+        "question": "分离参数法需要两个前提。逐项看看，本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "分离参数法的两个前提",
+          "slots": [
+            {
+              "label": "参数能否单独放到一边",
+              "hint": "看含参数的项能否移到不等号的一边",
+              "options": [
+                {
+                  "value": "separated",
+                  "label": "已经分离",
+                  "note": "参数和 $x$ 已在不等号两边，可以直接比较。"
+                },
+                {
+                  "value": "movable",
+                  "label": "移项后可以分离",
+                  "note": "把含参数的项移到一边，必要时再除以它的系数。"
+                },
+                {
+                  "value": "tangled",
+                  "label": "无法分离",
+                  "note": "参数和 $x$ 拆不开时，分离参数法用不上。"
+                }
+              ]
+            },
+            {
+              "label": "是否要除以含 $x$ 的式子",
+              "hint": "除以负数时，不等号要变向",
+              "options": [
+                {
+                  "value": "no_division",
+                  "label": "不需要除",
+                  "note": "不涉及除法，不等号方向不变。"
+                },
+                {
+                  "value": "fixed_sign",
+                  "label": "需要除，符号确定",
+                  "note": "符号确定，就能确定不等号是否变向。"
+                },
+                {
+                  "value": "unknown_sign",
+                  "label": "需要除，符号不定",
+                  "note": "符号不定时要分类讨论，不能直接除。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "movable",
+            "fixed_sign"
+          ]
+        },
+        "feedback": {
+          "terms": "含 $a$ 的只有 $ax$ 一项，移项后要除以 $x$；而 $x<0$，符号确定。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_basis-done",
+        "board": "separation-board"
+      },
+      {
+        "id": "e_separate",
+        "title": "分离参数",
+        "question": "移项得 $ax\\ge-x^2-2$。两边同除以 $x$，得到哪个不等式？",
+        "interaction": {
+          "type": "choice",
+          "field": "e_separate",
+          "options": [
+            {
+              "value": "keep",
+              "label": "$a\\ge-x-\\frac2x$"
+            },
+            {
+              "value": "flip",
+              "label": "$a\\le-x-\\frac2x$"
+            },
+            {
+              "value": "partial",
+              "label": "$a\\le-x-2$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "flip"
+          ]
+        },
+        "feedback": {
+          "answer": "$x<0$，两边除以负数，不等号方向要改变；右边每一项都要除以 $x$。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_separate-done",
+        "board": "e_separate-board"
+      },
+      {
+        "id": "e_condition",
+        "title": "转化为最值条件",
+        "question": "要使 $a\\le h(x)$ 对所有 $x<0$ 成立，$a$ 应满足哪个条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "e_condition",
+          "options": [
+            {
+              "value": "max",
+              "label": "$x<0$ 时，$a\\le h(x)_{\\max}$"
+            },
+            {
+              "value": "min",
+              "label": "$x<0$ 时，$a\\le h(x)_{\\min}$"
+            },
+            {
+              "value": "one_point",
+              "label": "$a\\le h(-1)$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "min"
+          ]
+        },
+        "feedback": {
+          "answer": "$a\\le h(x)$ 即水平线 $y=a$ 不高于 $h(x)$ 的图像。所有 $x<0$ 都要满足，只需比 $h(x)$ 的最低点；只检查一个点，不能保证所有点都满足。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_condition-done"
+      },
+      {
+        "id": "e_graph",
+        "title": "画函数图像",
+        "question": "$h(x)=-x-\\frac2x$（$x<0$）是对勾函数。逐项确定它的图像特征。",
+        "interaction": {
+          "type": "checklist",
+          "title": "对勾函数的图像特征",
+          "slots": [
+            {
+              "label": "最低点",
+              "hint": "$x<0$ 时 $-x>0$，$-\\frac2x>0$，用基本不等式求它们的和的最小值",
+              "options": [
+                {
+                  "value": "low_neg",
+                  "label": "$(-\\sqrt2,2\\sqrt2)$",
+                  "note": "图像在 $x=-\\sqrt2$ 处最低。"
+                },
+                {
+                  "value": "low_pos",
+                  "label": "$(\\sqrt2,2\\sqrt2)$",
+                  "note": "图像在 $x=\\sqrt2$ 处最低。"
+                },
+                {
+                  "value": "low_one",
+                  "label": "$(-1,3)$",
+                  "note": "图像在 $x=-1$ 处最低。"
+                }
+              ]
+            },
+            {
+              "label": "$x\\to0^-$ 时",
+              "hint": "$x$ 从左边靠近 $0$，$-\\frac2x$ 怎样变化？",
+              "options": [
+                {
+                  "value": "y_axis",
+                  "label": "贴近 $y$ 轴向上",
+                  "note": "图像右端沿 $y$ 轴越升越高。"
+                },
+                {
+                  "value": "x_axis",
+                  "label": "贴近 $x$ 轴",
+                  "note": "图像右端越来越平，贴着 $x$ 轴。"
+                },
+                {
+                  "value": "origin",
+                  "label": "趋近原点",
+                  "note": "图像右端落到原点附近。"
+                }
+              ]
+            },
+            {
+              "label": "$x\\to-\\infty$ 时",
+              "hint": "$x$ 越来越小，$-\\frac2x$ 怎样变化？",
+              "options": [
+                {
+                  "value": "line",
+                  "label": "贴近直线 $y=-x$",
+                  "note": "图像左端沿直线 $y=-x$ 斜向上。"
+                },
+                {
+                  "value": "line_pos",
+                  "label": "贴近直线 $y=x$",
+                  "note": "图像左端沿直线 $y=x$ 斜向下。"
+                },
+                {
+                  "value": "flat",
+                  "label": "贴近直线 $y=2\\sqrt2$",
+                  "note": "图像左端越来越平。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "low_neg",
+            "y_axis",
+            "line"
+          ]
+        },
+        "feedback": {
+          "terms": "$-x>0$，$-\\frac2x>0$，$(-x)+\\left(-\\frac2x\\right)\\ge2\\sqrt{(-x)\\cdot\\left(-\\frac2x\\right)}=2\\sqrt2$，$-x=-\\frac2x$ 即 $x=-\\sqrt2$ 时取等，最低点 $(-\\sqrt2,2\\sqrt2)$。$x\\to0^-$ 时 $-\\frac2x$ 越来越大，图像贴近 $y$ 轴向上；$x\\to-\\infty$ 时 $-\\frac2x\\to0$，$h(x)$ 越来越接近 $-x$，图像贴近直线 $y=-x$。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_graph-done",
+        "board": "e_graph-board"
+      },
+      {
+        "id": "e_extremum",
+        "title": "求最值",
+        "question": "$h(x)$ 在 $(-\\infty,0)$ 上的最小值是多少？",
+        "interaction": {
+          "type": "checklist",
+          "title": "区间与最低点的位置",
+          "slots": [
+            {
+              "label": "$(-\\infty,0)$ 在最低点 $x=-\\sqrt2$ 的",
+              "hint": "对照上一步的图像",
+              "options": [
+                {
+                  "value": "left",
+                  "label": "左侧",
+                  "note": "这一段图像一直下降。"
+                },
+                {
+                  "value": "right",
+                  "label": "右侧",
+                  "note": "这一段图像一直上升。"
+                },
+                {
+                  "value": "around",
+                  "label": "两侧都有",
+                  "note": "这一段图像先降后升。"
+                }
+              ]
+            },
+            {
+              "label": "最小值",
+              "hint": "最低点能取到吗？",
+              "options": [
+                {
+                  "value": "vertex",
+                  "label": "$h(-\\sqrt2)=2\\sqrt2$",
+                  "note": "在最低点处取到。"
+                },
+                {
+                  "value": "one",
+                  "label": "$h(-1)=3$",
+                  "note": "这是 $x=-1$ 处的值。"
+                },
+                {
+                  "value": "none",
+                  "label": "没有最小值",
+                  "note": "最低处取不到。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "around",
+            "vertex"
+          ]
+        },
+        "feedback": {
+          "terms": "$-\\sqrt2<0$，$(-\\infty,0)$ 在最低点 $x=-\\sqrt2$ 两侧都有，图像先降后升，最小值在最低点处取到。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_extremum-done",
+        "board": "e_extremum-board"
+      },
+      {
+        "id": "e_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $a=2\\sqrt2$ 为边界。代回原不等式，它要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$a=2\\sqrt2$",
+              "hint": "此时原不等式变为 $x^2+2\\sqrt2x+2\\ge0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $a=2\\sqrt2$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $a=2\\sqrt2$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "holds"
+          ]
+        },
+        "feedback": {
+          "terms": "$a=2\\sqrt2$ 时原不等式为 $x^2+2\\sqrt2x+2\\ge0$，左边可以配成完全平方式；原题的不等号是 $\\ge$，允许取等。"
+        },
+        "submit_label": "确认检查",
+        "display": "e_boundary-done",
+        "board": "boundary-board"
+      }
+    ],
+    "interval": [
+      {
+        "id": "i_basis",
+        "title": "判断适用条件",
+        "question": "区间最值法需要一个前提。看看本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "区间最值法的前提",
+          "slots": [
+            {
+              "label": "$x$ 的取值范围",
+              "hint": "看题目要求对哪些 $x$ 成立",
+              "options": [
+                {
+                  "value": "all_real",
+                  "label": "全体实数",
+                  "note": "在全体实数上，看整条图像与横轴的位置。"
+                },
+                {
+                  "value": "interval",
+                  "label": "某个区间",
+                  "note": "只看区间上的那一段图像，比较区间上的最值。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "interval"
+          ]
+        },
+        "feedback": {
+          "terms": "题目只要求对 $x<0$ 成立，$x$ 的取值范围是区间 $(-\\infty,0)$。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_basis-done",
+        "board": "interval-board"
+      },
+      {
+        "id": "i_condition",
+        "title": "转化为范围条件",
+        "question": "要使 $f(x)\\ge0$ 对所有 $x\\in(-\\infty,0)$ 成立，$f(x)$ 应满足哪个条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "i_condition",
+          "options": [
+            {
+              "value": "max",
+              "label": "$x\\in(-\\infty,0)$ 时，$f(x)$ 取值范围的上端 $\\ge0$"
+            },
+            {
+              "value": "min",
+              "label": "$x\\in(-\\infty,0)$ 时，$f(x)$ 取值范围的下端 $\\ge0$"
+            },
+            {
+              "value": "one_point",
+              "label": "$f(-1)\\ge0$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "min"
+          ]
+        },
+        "feedback": {
+          "answer": "恒成立要求区间上所有点都满足，要看图像的最低处。$x\\to-\\infty$ 时 $f(x)$ 越来越大，没有上端；只看一个点，别处仍可能不满足。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_condition-done"
+      },
+      {
+        "id": "i_extremum",
+        "title": "分类讨论取值范围",
+        "question": "$x^2$ 的系数为 $1$，$f(x)$ 开口向上，对称轴为 $x=-\\frac a2$。拖动对称轴观察图像，逐项确定 $f(x)$ 在 $(-\\infty,0)$ 上取值范围的下端。",
+        "interaction": {
+          "type": "checklist",
+          "title": "按对称轴的位置分类",
+          "slots": [
+            {
+              "label": "对称轴和谁比较",
+              "hint": "开口向上时顶点最低，但顶点不一定在区间内",
+              "options": [
+                {
+                  "value": "endpoint",
+                  "label": "区间端点 $x=0$",
+                  "note": "对称轴在 $0$ 的哪一侧，决定顶点在不在区间内。"
+                },
+                {
+                  "value": "vertex_always",
+                  "label": "不用比较，下端总在顶点处",
+                  "note": "顶点不在区间内时，区间上取不到顶点处的值。"
+                }
+              ]
+            },
+            {
+              "label": "对称轴在 $0$ 右侧或 $0$ 上（$a\\le0$）时，下端为",
+              "hint": "区间上的那一段是升还是降？",
+              "options": [
+                {
+                  "value": "f0",
+                  "label": "$f(0)=2$",
+                  "note": "在右端点 $x=0$ 处，取不到。"
+                },
+                {
+                  "value": "vertex",
+                  "label": "顶点处的值",
+                  "note": "顶点最低。"
+                },
+                {
+                  "value": "none",
+                  "label": "没有下端",
+                  "note": "图像一直往下。"
+                }
+              ]
+            },
+            {
+              "label": "对称轴在 $0$ 左侧（$a>0$）时，下端为",
+              "hint": "顶点在不在区间内？",
+              "options": [
+                {
+                  "value": "f0",
+                  "label": "$f(0)=2$",
+                  "note": "这是端点 $x=0$ 对应的函数值；端点不包含，不代表这个函数值在区间内取不到。"
+                },
+                {
+                  "value": "vertex",
+                  "label": "顶点处的值",
+                  "note": "顶点最低。"
+                },
+                {
+                  "value": "none",
+                  "label": "没有下端",
+                  "note": "图像一直往下。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "endpoint",
+            "f0",
+            "vertex"
+          ]
+        },
+        "feedback": {
+          "terms": "开口向上时顶点最低，但要看顶点在不在区间 $(-\\infty,0)$ 内，所以对称轴和端点 $0$ 比较。对称轴在 $0$ 右侧或 $0$ 上时，$f(x)$ 在 $(-\\infty,0)$ 上一直下降，越靠近 $0$ 越低，下端为 $f(0)=2$，取不到；对称轴在 $0$ 左侧时，顶点在区间内，下端就是顶点处的最小值。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_extremum-done",
+        "board": "i_extremum-board"
+      },
+      {
+        "id": "i_range",
+        "title": "求参数范围",
+        "question": "两种情况下，都要求下端不小于 $0$。$a$ 的取值范围是什么？",
+        "interaction": {
+          "type": "choice",
+          "field": "i_range",
+          "options": [
+            {
+              "value": "union",
+              "label": "$a\\le2\\sqrt2$"
+            },
+            {
+              "value": "second_only",
+              "label": "$0<a\\le2\\sqrt2$"
+            },
+            {
+              "value": "vertex_only",
+              "label": "$-2\\sqrt2\\le a\\le2\\sqrt2$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "union"
+          ]
+        },
+        "feedback": {
+          "answer": "每种情况内部，解出的范围要与这种情况的前提取交集；两种情况是“或”的关系，合并时取并集。情况①的下端是 $2$，这种情况下的 $a$ 都满足。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_range-done",
+        "board": "i_range-board"
+      },
+      {
+        "id": "i_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $a=2\\sqrt2$ 为边界。代回原不等式，它要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$a=2\\sqrt2$",
+              "hint": "此时原不等式变为 $x^2+2\\sqrt2x+2\\ge0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $a=2\\sqrt2$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $a=2\\sqrt2$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "holds"
+          ]
+        },
+        "feedback": {
+          "terms": "$a=2\\sqrt2$ 时原不等式为 $x^2+2\\sqrt2x+2\\ge0$，左边可以配成完全平方式；原题的不等号是 $\\ge$，允许取等。"
+        },
+        "submit_label": "确认检查",
+        "display": "i_boundary-done",
+        "board": "boundary-board"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+</script>
+<template id="separation-board">
+<div class="visual-board"><div class="board-caption">分离参数法</div><div class="formula" data-math-text>$x^2+ax+2\ge0$</div><p class="board-focus" data-math-text>把含 $a$ 的项单独放到一边，另一边只含 $x$</p></div>
+</template>
+<template id="e_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>分离参数法的两个前提</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>参数能否单独放到一边：移项后可以分离</p><p class="checklist-hint" data-math-text>含 $a$ 的只有 $ax$ 一项。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>是否要除以含 $x$ 的式子：需要除，符号确定</p><p class="checklist-hint" data-math-text>要除以 $x$，而 $x&lt;0$。</p></div></div><p class="checklist-verdict">两个前提都满足，可以用分离参数法</p></div><details class="details" id="{{uid}}-e_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，对任意 $x&lt;0$，$x^2+ax+2\ge0$ 恒成立。</p></details>
+</template>
+<template id="e_separate-board">
+<div class="visual-board"><div class="board-caption">移项后</div><div class="formula" data-math-text>$ax\ge-x^2-2$</div><p class="board-focus" data-math-text>$x&lt;0$</p></div>
+</template>
+<template id="e_separate-done">
+<div class="visual-board completed-visual"><div class="board-caption">两边同除以负数</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>移项后</span><div class="math" data-math-text>$ax\ge-x^2-2$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label" data-math-text>两边除以 $x$</span><div class="math" data-math-text>$a\le-x-\dfrac2x$</div><span class="conversion-label" data-math-text>$x&lt;0$，不等号方向改变</span></div></div></div><details class="details" id="{{uid}}-e_separate-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ x&lt;0$，</p><p data-math-text>移项得 $ax\ge-x^2-2$，两边同除以 $x$，不等号变向，得 $a\le-x-\dfrac2x$。</p><p data-math-text>记 $h(x)=-x-\dfrac2x$，$x&lt;0$，则 $a\le h(x)$。</p></details>
+</template>
+<template id="e_condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">恒成立转化为最值条件</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>对所有 $x&lt;0$ 都成立</span><div class="math" data-math-text>$a\le h(x)$</div></div><span class="conversion-arrow" aria-hidden="true">⇔</span><div><span class="conversion-label" data-math-text>只需比 $h(x)$ 在 $(-\infty,0)$ 上的最低点</span><div class="math" data-math-text>$a\le\textcolor{#087f79}{h(x)_{\min}}$</div><span class="conversion-label" data-math-text>不大于最小的，就不大于每一个</span></div></div></div><details class="details" id="{{uid}}-e_condition-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore$ 原不等式恒成立 $\iff a\le h(x)_{\min}$。</p></details>
+</template>
+<template id="e_graph-board">
+<div class="visual-board"><div class="board-caption">要画的函数</div><div class="formula" data-math-text>$h(x)=-x-\dfrac2x,\quad x&lt;0$</div><p class="board-focus" data-math-text>基本不等式：$p,q&gt;0$ 时 $p+q\ge2\sqrt{pq}$，$p=q$ 时取等</p></div>
+</template>
+<template id="e_graph-done">
+<div class="vertex-reasoning"><figure class="quadratic-graph"><div data-reciprocal-sum-graph="{&quot;a&quot;: -1, &quot;b&quot;: -2, &quot;negative&quot;: true, &quot;bounds&quot;: [-5.6, 0.9, -0.9, 7.6], &quot;xTicks&quot;: [[-1.4142, &quot;−√2&quot;]], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;h(x) = −x − 2/x 的图像&quot;, &quot;description&quot;: &quot;h(x)=−x−2/x 在 x&lt;0 上的图像：最低点 (−√2, 2√2)，左端贴近直线 y=−x，右端贴近 y 轴向上。&quot;, &quot;uid&quot;: &quot;{{uid}}-hook&quot;, &quot;asymptotes&quot;: true, &quot;points&quot;: [{&quot;x&quot;: -1.4142, &quot;label&quot;: &quot;(−√2, 2√2)&quot;, &quot;place&quot;: &quot;below-right&quot;}]}"></div><figcaption data-math-text>$h(x)=-x-\frac2x$（$x&lt;0$）的图像</figcaption></figure><div class="reasoning"><p data-math-text>左端贴着直线 $y=-x$ 下降，在 $(-\sqrt2,2\sqrt2)$ 处最低，右端贴着 $y$ 轴上升。</p></div></div><details class="details" id="{{uid}}-e_graph-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ x&lt;0$，$\therefore\ -x&gt;0$，$-\dfrac2x&gt;0$，</p><p data-math-text>$\therefore\ h(x)=(-x)+\left(-\dfrac2x\right)$ $\ge2\sqrt{(-x)\cdot\left(-\dfrac2x\right)}=2\sqrt2$，</p><p data-math-text>当且仅当 $-x=-\dfrac2x$，即 $x=-\sqrt2$ 时取等号。</p><p data-math-text>由对勾函数的性质，$h(x)$ 在 $(-\infty,-\sqrt2]$ 上单调递减，在 $[-\sqrt2,0)$ 上单调递增。</p></details>
+</template>
+<template id="e_extremum-board">
+<div class="visual-board"><div class="board-caption">上一步画出的图像</div><div class="formula" data-math-text>$h(x)=-x-\dfrac2x,\quad x&lt;0$</div><p class="board-focus" data-math-text>最低点 $(-\sqrt2,2\sqrt2)$；$(-\infty,-\sqrt2]$ 上递减，$[-\sqrt2,0)$ 上递增</p></div>
+</template>
+<template id="e_extremum-done">
+<div class="vertex-reasoning"><figure class="quadratic-graph"><div data-reciprocal-sum-graph="{&quot;a&quot;: -1, &quot;b&quot;: -2, &quot;negative&quot;: true, &quot;bounds&quot;: [-5.6, 0.9, -0.9, 7.6], &quot;xTicks&quot;: [[-1.4142, &quot;−√2&quot;]], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;h(x) = −x − 2/x 的图像&quot;, &quot;description&quot;: &quot;最低点 x=−√2 在区间 (−∞,0) 内，h(x) 在这里取到最小值 2√2。&quot;, &quot;uid&quot;: &quot;{{uid}}-extremum&quot;, &quot;points&quot;: [{&quot;x&quot;: -1.4142, &quot;label&quot;: &quot;(−√2, 2√2)&quot;, &quot;place&quot;: &quot;below-right&quot;}]}"></div><figcaption data-math-text>最低点在 $(-\infty,0)$ 内</figcaption></figure><div class="reasoning"><p data-math-text>$(-\infty,0)$ 在最低点两侧都有，先降后升，最小值 $2\sqrt2$ 在最低点取到。</p></div></div><details class="details" id="{{uid}}-e_extremum-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ -\sqrt2\in(-\infty,0)$，$\therefore\ h(x)_{\min}=h(-\sqrt2)=2\sqrt2$，</p><p data-math-text>$\therefore\ a\le2\sqrt2$。</p></details>
+</template>
+<template id="boundary-board">
+<div class="visual-board"><div class="board-caption">上一步得到的范围</div><div class="formula" data-math-text>$a\le\boxed{2\sqrt2}$</div><p class="board-focus" data-math-text>要检查的边界：$a=2\sqrt2$</p></div>
+</template>
+<template id="e_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$a=2\sqrt2$</span><span class="checklist-progress">1 / 1</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$a=2\sqrt2$：保留</p><p class="checklist-hint" data-math-text>原不等式为 $(x+\sqrt2)^2\ge0$，对所有 $x&lt;0$ 成立。</p></div></div><p class="checklist-verdict">边界保留</p></div><div class="vertex-reasoning"><figure class="quadratic-graph"><div data-reciprocal-sum-graph="{&quot;a&quot;: -1, &quot;b&quot;: -2, &quot;negative&quot;: true, &quot;bounds&quot;: [-5.6, 0.9, -0.9, 7.6], &quot;xTicks&quot;: [[-1.4142, &quot;−√2&quot;]], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;h(x) = −x − 2/x 的图像&quot;, &quot;description&quot;: &quot;a=2√2 时水平线 y=a 碰到 h(x) 的最低点 (−√2, 2√2)，整条图像都不低于这条线。&quot;, &quot;uid&quot;: &quot;{{uid}}-boundary-line&quot;, &quot;points&quot;: [{&quot;x&quot;: -1.4142, &quot;label&quot;: &quot;(−√2, 2√2)&quot;, &quot;place&quot;: &quot;below-right&quot;}], &quot;referenceLines&quot;: [{&quot;value&quot;: 2.8284, &quot;label&quot;: &quot;y = a&quot;}]}"></div><figcaption data-math-text>$a=2\sqrt2$ 时 $y=a$ 碰到最低点</figcaption></figure><div class="reasoning"><p data-math-text>$h(x)\ge2\sqrt2=a$ 对所有 $x&lt;0$ 成立，取等也满足 $\le$。</p></div></div><details class="details" id="{{uid}}-e_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $a=2\sqrt2$ 时，原不等式为 $x^2+2\sqrt2x+2\ge0$，即 $(x+\sqrt2)^2\ge0$，对所有 $x&lt;0$ 成立，保留。</p><p data-math-text>综上，实数 $a$ 的取值范围是 $(-\infty,2\sqrt2]$。</p></details>
+</template>
+<template id="interval-board">
+<div class="visual-board"><div class="board-caption">区间最值法</div><div class="formula" data-math-text>$x^2+ax+2\ge0$</div><p class="board-focus" data-math-text>看题目对哪些 $x$ 提出要求</p></div>
+</template>
+<template id="i_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>区间最值法的前提</span><span class="checklist-progress">1 / 1</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x$ 的取值范围：某个区间 $(-\infty,0)$</p><p class="checklist-hint" data-math-text>题目只要求对 $x&lt;0$ 成立。</p></div></div><p class="checklist-verdict">前提满足，可以用区间最值法</p></div><details class="details" id="{{uid}}-i_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，对任意 $x&lt;0$，$x^2+ax+2\ge0$ 恒成立。</p><p data-math-text>记 $f(x)=x^2+ax+2$，$x\in(-\infty,0)$。</p></details>
+</template>
+<template id="i_condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">恒成立转化为范围条件</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>对所有 $x&lt;0$ 都成立</span><div class="math" data-math-text>$f(x)\ge0$</div></div><span class="conversion-arrow" aria-hidden="true">⇔</span><div><span class="conversion-label" data-math-text>只需看 $(-\infty,0)$ 上的最低处</span><div class="math" data-math-text>$\textcolor{#087f79}{f(x)\text{ 下端}}\ge0$</div><span class="conversion-label" data-math-text>下端不小于 $0$，每个值都不小于 $0$；下端取不到也可以</span></div></div></div><details class="details" id="{{uid}}-i_condition-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore$ 原不等式恒成立 $\iff$ $f(x)$ 在 $(-\infty,0)$ 上取值范围的下端不小于 $0$。</p></details>
+</template>
+<template id="i_extremum-board">
+<div class="visual-board"><div class="board-caption">拖动对称轴，观察区间上的最低处</div><div data-axis-explorer="{&quot;coefficient&quot;: 1, &quot;constant&quot;: 2, &quot;axis&quot;: {&quot;min&quot;: -2.5, &quot;max&quot;: 1.5, &quot;step&quot;: 0.05, &quot;value&quot;: -1}, &quot;interval&quot;: [null, 0], &quot;open&quot;: true, &quot;target&quot;: &quot;min&quot;, &quot;bounds&quot;: [-4.2, 2.2, -4.8, 6.4], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;f(x) = x² + ax + 2 的图像（可拖动对称轴）&quot;, &quot;description&quot;: &quot;拖动对称轴 x = −a/2 改变 a；区间 (−∞,0) 的右端点 x=0 取不到。顶点在区间内时标为最低，否则端点 x=0 处标为下端。&quot;, &quot;uid&quot;: &quot;{{uid}}-axis&quot;}"></div></div>
+</template>
+<template id="i_extremum-done">
+<div class="graph-comparison"><figure class="quadratic-graph"><div data-axis-explorer="{&quot;coefficient&quot;: 1, &quot;constant&quot;: 2, &quot;axis&quot;: {&quot;min&quot;: 0, &quot;max&quot;: 1.5, &quot;step&quot;: 0.05, &quot;value&quot;: 0.8}, &quot;interval&quot;: [null, 0], &quot;open&quot;: true, &quot;target&quot;: &quot;min&quot;, &quot;bounds&quot;: [-4.2, 2.2, -4.8, 6.4], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;情况①：对称轴在 0 右侧或 0 上&quot;, &quot;description&quot;: &quot;对称轴 x = −a/2 只能在 x = 0 及其右侧拖动，f(x) 在 (−∞,0) 上一直下降，下端为 f(0)=2，取不到。&quot;, &quot;uid&quot;: &quot;{{uid}}-axis-right&quot;}"></div><figcaption data-math-text>情况①：$-\dfrac a2\ge0$，下端为 $f(0)$</figcaption></figure><figure class="quadratic-graph"><div data-axis-explorer="{&quot;coefficient&quot;: 1, &quot;constant&quot;: 2, &quot;axis&quot;: {&quot;min&quot;: -2.5, &quot;max&quot;: -0.05, &quot;step&quot;: 0.05, &quot;value&quot;: -1.2}, &quot;interval&quot;: [null, 0], &quot;open&quot;: true, &quot;target&quot;: &quot;min&quot;, &quot;bounds&quot;: [-4.2, 2.2, -4.8, 6.4], &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;情况②：对称轴在 0 左侧&quot;, &quot;description&quot;: &quot;对称轴 x = −a/2 只能在 x = 0 左侧拖动，顶点在区间内，下端为顶点处的最小值。&quot;, &quot;uid&quot;: &quot;{{uid}}-axis-left&quot;}"></div><figcaption data-math-text>情况②：$-\dfrac a2&lt;0$，下端为顶点处的值</figcaption></figure></div><p class="graph-cases-verdict">顶点在区间内，下端就是最小值；顶点在区间右侧，下端在端点 0 处，取不到</p><details class="details" id="{{uid}}-i_extremum-derivation" open><summary>完整推导</summary><p data-math-text>$f(x)$ 的图像开口向上，对称轴为 $x=-\dfrac a2$。</p><p data-math-text>① 当 $-\dfrac a2\ge0$，即 $a\le0$ 时，$f(x)$ 在 $(-\infty,0)$ 上单调递减，取值范围的下端为 $f(0)=2$；</p><p data-math-text>② 当 $-\dfrac a2&lt;0$，即 $a&gt;0$ 时，下端为最小值 $f\left(-\dfrac a2\right)=2-\dfrac{a^2}4$。</p></details>
+</template>
+<template id="i_range-board">
+<div class="visual-board"><div class="board-caption">两种情况各自要满足</div><div class="formula case-lines"><p class="case-line"><span data-math-text>① $a\le0$：</span><span data-math-text>$f(0)=2\ge0$</span></p><p class="case-line"><span data-math-text>② $a&gt;0$：</span><span data-math-text>$f(x)_{\min}=f\left(-\frac a2\right)=2-\frac{a^2}4\ge0$</span></p></div></div>
+</template>
+<template id="i_range-done">
+<div class="case-merge"><div class="case-merge-group"><span class="case-merge-cell"><span class="case-merge-name" data-math-text>情况①（$a\le0$）</span><span class="case-merge-value" data-math-text>$a\le0$</span></span><span class="case-merge-cell"><span class="case-merge-name" data-math-text>情况②（$a&gt;0$）</span><span class="case-merge-value" data-math-text>$0&lt;a\le2\sqrt2$</span></span><span class="case-merge-total" data-math-text>取并集：$a\le2\sqrt2$</span></div></div><details class="details" id="{{uid}}-i_range-derivation" open><summary>完整推导</summary><p data-math-text>① 当 $a\le0$ 时，下端 $2&gt;0$，恒成立，得 $a\le0$；</p><p data-math-text>② 由 $\begin{cases}a&gt;0,\\ 2-\dfrac{a^2}4\ge0,\end{cases}$ 得 $0&lt;a\le2\sqrt2$。</p><p data-math-text>综上，取并集得 $a\le2\sqrt2$。</p></details>
+</template>
+<template id="i_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$a=2\sqrt2$</span><span class="checklist-progress">1 / 1</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$a=2\sqrt2$：保留</p><p class="checklist-hint" data-math-text>原不等式为 $(x+\sqrt2)^2\ge0$，对所有 $x&lt;0$ 成立。</p></div></div><p class="checklist-verdict">边界保留</p></div><div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [-1.4142, 0], &quot;bounds&quot;: [-4.2, 1.2, -1.2, 6.2], &quot;xTicks&quot;: [], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;a = 2√2 时 f(x) 的图像&quot;, &quot;uid&quot;: &quot;{{uid}}-boundary&quot;, &quot;showVertex&quot;: false, &quot;interval&quot;: [null, 0], &quot;description&quot;: &quot;a=2√2 时 f(x)=(x+√2)²，在 x&lt;0 上最低点 (−√2, 0) 在横轴上，其余部分都在横轴上方。&quot;, &quot;points&quot;: [{&quot;x&quot;: -1.4142, &quot;label&quot;: &quot;(−√2, 0)&quot;, &quot;place&quot;: &quot;below-left&quot;}, {&quot;x&quot;: 0, &quot;label&quot;: &quot;(0, 2) 取不到&quot;, &quot;open&quot;: true}]}"></div><figcaption data-math-text>$a=2\sqrt2$ 时最低点在横轴上</figcaption></figure><div class="reasoning"><p data-math-text>最低处 $f(-\sqrt2)=0$，满足 $\ge0$。</p></div></div><details class="details" id="{{uid}}-i_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $a=2\sqrt2$ 时，原不等式为 $x^2+2\sqrt2x+2\ge0$，即 $(x+\sqrt2)^2\ge0$，对所有 $x&lt;0$ 成立，保留。</p><p data-math-text>综上，实数 $a$ 的取值范围是 $(-\infty,2\sqrt2]$。</p></details>
+</template>
+<template id="lesson-completion">
+<section class="completion-card"><p class="completion-eyebrow">本题已完成</p><h2>除以负数，不等号变向</h2><div class="visual-board"><div class="formula" data-math-text>$a\in(-\infty,2\sqrt2]$</div></div><p data-math-text>分离参数法除以 $x&lt;0$ 时不等号变向，得 $a\le h(x)_{\min}=2\sqrt2$；区间最值法按对称轴与端点 $0$ 的位置分两种情况，取并集。原题是 $\ge$，$a=2\sqrt2$ 时取等也成立，保留。</p><a class="chapter-return" href="/2/">← 返回恒成立题库</a></section>
+</template>
+</body>
+</html>

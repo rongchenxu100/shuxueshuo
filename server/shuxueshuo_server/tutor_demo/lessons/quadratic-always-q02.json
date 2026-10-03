@@ -1,0 +1,392 @@
+{
+    "id": "quadratic-always-q02",
+    "version": 1,
+    "problem": {
+        "statement": "已知不等式 $kx^2+2kx-(k+2)<0$ 恒成立，求实数 $k$ 的取值范围。",
+        "conditions": [
+            "$x\\in\\mathbb R$，$k\\in\\mathbb R$",
+            "对所有实数 $x$，$kx^2+2kx-(k+2)<0$"
+        ],
+        "target": "求参数k的取值范围"
+    },
+    "methods": [
+        {
+            "id": "discriminant",
+            "label": "判别式法"
+        }
+    ],
+    "initial_state": {
+        "active": 0,
+        "method": null,
+        "swapped": false,
+        "pairs": [
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ]
+        ],
+        "choices": {
+            "d_degenerate": null,
+            "d_position": null,
+            "d_delta": null,
+            "d_range": null,
+            "d_merge": null
+        },
+        "feedback": "",
+        "hint": false
+    },
+    "routes": {
+        "discriminant": {
+            "label": "判别式法",
+            "nodes": [
+                {
+                    "id": "d_basis",
+                    "title": "判断适用条件",
+                    "question": "判别式法需要两个前提。逐项看看，本题是否满足？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "判别式法的两个前提",
+                        "slots": [
+                            {
+                                "label": "$x$ 的取值范围",
+                                "hint": "看题目要求对哪些 $x$ 成立",
+                                "options": [
+                                    {
+                                        "value": "all_real",
+                                        "label": "全体实数",
+                                        "note": "在全体实数上，可以看整条图像与横轴的位置关系。"
+                                    },
+                                    {
+                                        "value": "interval",
+                                        "label": "某个区间",
+                                        "note": "只在某个区间上成立时，要看顶点与区间的位置，只看判别式不够。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "$x^2$ 的系数",
+                                "hint": "只看 $x$，把 $k$ 当作常数",
+                                "options": [
+                                    {
+                                        "value": "nonzero",
+                                        "label": "确定非零",
+                                        "note": "若系数确定非零，才可把它看作二次函数；请核对题目是否已排除系数为零。"
+                                    },
+                                    {
+                                        "value": "maybe_zero",
+                                        "label": "含参数，可能为零",
+                                        "note": "系数可能为零时，要先单独讨论退化成一次式或常数的情形。"
+                                    },
+                                    {
+                                        "value": "not_quadratic",
+                                        "label": "没有 $x^2$ 项",
+                                        "note": "没有 $x^2$ 项就不是二次函数，判别式用不上。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "all_real",
+                            "maybe_zero"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "题目要求对任意实数 $x$ 成立；$x^2$ 的系数是 $k$，$k=0$ 时不再是二次式，要单独讨论。"
+                    },
+                    "required_evidence": [
+                        "all_real_domain",
+                        "parameter_coefficient"
+                    ],
+                    "criteria": "学生须指出x遍历全体实数（题目只写“恒成立”，默认对任意实数x），以及关于x的二次项系数是参数k、可能为零，因此要先分k=0与k≠0讨论。分别给出证据，只有一项时不能自动补全另一项。只说用判别式、或直接写k<0且Δ<0而不提k=0，都不足。说“系数确定非零”是错误的。",
+                    "completion_reply": "二次项系数可能为零，先讨论 $k=0$，再讨论 $k\\ne0$。",
+                    "results": [
+                        "$x\\in\\mathbb R$；二次项系数 $k$ 可能为零。",
+                        "先讨论 $k=0$，再讨论 $k\\ne0$。"
+                    ]
+                },
+                {
+                    "id": "d_degenerate",
+                    "title": "讨论 k = 0",
+                    "question": "当 $k=0$ 时，原不等式变成什么？它对所有实数 $x$ 成立吗？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_degenerate",
+                        "options": [
+                            {
+                                "value": "holds",
+                                "label": "变为 $-2<0$，对所有 $x$ 成立"
+                            },
+                            {
+                                "value": "discard",
+                                "label": "不是二次不等式，直接舍去"
+                            },
+                            {
+                                "value": "linear",
+                                "label": "变为 $2x-2<0$，只在 $x<1$ 时成立"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "holds"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "把 $k=0$ 代入原不等式：$kx^2$ 和 $2kx$ 都变为 $0$，只剩常数项 $-(0+2)$。"
+                    },
+                    "required_evidence": [
+                        "degenerate_holds"
+                    ],
+                    "criteria": "须说明k=0时原不等式化为-2<0，对所有x成立，所以k=0满足。认为“不是二次不等式就舍去”是错误：题目没有限定二次。代入时保留2x、得到2x-2<0是代入错误。只说“k=0成立”而没有代入依据不足。",
+                    "completion_reply": "$k=0$ 时原式为 $-2<0$，恒成立，$k=0$ 满足。",
+                    "results": [
+                        "$k=0$ 时原式为 $-2<0$，恒成立，$k=0$ 满足。"
+                    ]
+                },
+                {
+                    "id": "d_position",
+                    "title": "判断图像位置",
+                    "question": "当 $k\\ne0$ 时，$f(x)$ 是二次函数，开口方向由 $k$ 决定。要使 $f(x)<0$ 对所有实数 $x$ 成立，图像应满足什么？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_position",
+                        "options": [
+                            {
+                                "value": "down_below",
+                                "label": "开口向下（$k<0$），全部在横轴下方，不允许相切"
+                            },
+                            {
+                                "value": "down_touch",
+                                "label": "开口向下（$k<0$），在横轴下方或横轴上，允许相切"
+                            },
+                            {
+                                "value": "up_apart",
+                                "label": "开口向上（$k>0$），与横轴没有公共点"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "down_below"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "$<0$ 不允许函数值等于零，也不允许正值。开口方向由 $k$ 决定；区分“相切”和“不相交”。"
+                    },
+                    "required_evidence": [
+                        "graph_position"
+                    ],
+                    "criteria": "须说明k≠0时图像开口向下（k<0），且与x轴没有公共点（整条图像在x轴下方）。允许相切是错误：切点处f(x)=0，不满足严格不等式；开口向上不可能恒小于0。只说“在x轴下方”而不提开口方向时，追问开口方向由什么决定。直接给出k<0且Δ<0也接受，它已包含图像位置的结论。",
+                    "completion_reply": "$k\\ne0$ 时，$f(x)<0$ 恒成立 $\\iff$ 开口向下（$k<0$）且图像与 $x$ 轴无公共点。",
+                    "results": [
+                        "$k\\ne0$ 时：开口向下（$k<0$），图像与 $x$ 轴无公共点。"
+                    ]
+                },
+                {
+                    "id": "d_delta",
+                    "title": "建立判别式条件",
+                    "question": "上一步：开口向下（$k<0$），图像与横轴没有公共点。这对应哪个判别式条件？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_delta",
+                        "options": [
+                            {
+                                "value": "le",
+                                "label": "$\\Delta\\le0$"
+                            },
+                            {
+                                "value": "lt",
+                                "label": "$\\Delta<0$"
+                            },
+                            {
+                                "value": "ge",
+                                "label": "$\\Delta\\ge0$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "lt"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "不相交对应 $\\Delta<0$，相切对应 $\\Delta=0$。上一步不允许相切。"
+                    },
+                    "required_evidence": [
+                        "discriminant_condition"
+                    ],
+                    "criteria": "须由“与x轴无公共点”得到Δ<0，并与k<0联立。Δ≤0包含相切，不满足严格不等式；Δ≥0方向相反。接受直接写出Δ=8k²+8k<0或8k(k+1)<0。计算Δ时把c当成k+2（得到-8k）或漏掉b²属于计算错误：c=-(k+2)要连同负号代入，Δ=(2k)²-4k·[-(k+2)]=8k²+8k。",
+                    "completion_reply": "$\\begin{cases}k<0,\\\\ \\Delta=8k^2+8k<0.\\end{cases}$",
+                    "results": [
+                        "$k<0$ 且 $\\Delta=8k^2+8k<0$。"
+                    ]
+                },
+                {
+                    "id": "d_range",
+                    "title": "求参数范围",
+                    "question": "把 $8k^2+8k<0$ 看成关于 $k$ 的一元二次不等式，并结合 $k<0$，$k$ 在什么范围内？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_range",
+                        "options": [
+                            {
+                                "value": "between",
+                                "label": "$-1<k<0$"
+                            },
+                            {
+                                "value": "outside",
+                                "label": "$k<-1$ 或 $k>0$"
+                            },
+                            {
+                                "value": "closed_left",
+                                "label": "$-1\\le k<0$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "between"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "$h(k)=8k(k+1)$ 开口向上：两根之间小于零，端点处等于零。解出后再与 $k<0$ 取交集。"
+                    },
+                    "required_evidence": [
+                        "discriminant_range"
+                    ],
+                    "criteria": "须由8k(k+1)<0得-1<k<0，并说明它满足k<0（与k<0取交集）。取两根外侧方向错；写成-1≤k<0忽略Δ<0的严格性。只解出不等式而不提k<0时，结果虽相同也应提醒交集这一步。",
+                    "completion_reply": "解得 $-1<k<0$，满足 $k<0$，故 $-1<k<0$。",
+                    "results": [
+                        "情况②：$-1<k<0$。"
+                    ]
+                },
+                {
+                    "id": "d_merge",
+                    "title": "合并两种情况",
+                    "question": "情况①得到 $k=0$，情况②得到 $-1<k<0$。把两种情况的结果合并，$k$ 的取值范围是什么？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "d_merge",
+                        "options": [
+                            {
+                                "value": "union",
+                                "label": "$-1<k\\le0$"
+                            },
+                            {
+                                "value": "only_second",
+                                "label": "$-1<k<0$"
+                            },
+                            {
+                                "value": "intersection",
+                                "label": "无解，没有 $k$ 同时满足两种情况"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "union"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "两种情况是“或”的关系，满足任意一种即可，合并时取并集。"
+                    },
+                    "required_evidence": [
+                        "case_union"
+                    ],
+                    "criteria": "须把情况①k=0与情况②-1<k<0取并集，得-1<k≤0。只写-1<k<0漏掉情况①；认为要同时满足两种情况而得出无解，是把分类讨论误当作交集。",
+                    "completion_reply": "合并两种情况，得 $-1<k\\le0$。",
+                    "results": [
+                        "$-1<k\\le0$。"
+                    ]
+                },
+                {
+                    "id": "d_boundary",
+                    "title": "检查边界",
+                    "question": "上一步的范围以 $k=-1$、$k=0$ 为边界。逐个代回原不等式，它们要保留吗？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "逐个检查边界",
+                        "slots": [
+                            {
+                                "label": "$k=-1$",
+                                "hint": "此时原不等式变为 $-x^2-2x-1<0$",
+                                "options": [
+                                    {
+                                        "value": "holds",
+                                        "label": "对所有 $x$ 成立，保留",
+                                        "note": "最终范围包含 $k=-1$。"
+                                    },
+                                    {
+                                        "value": "fails",
+                                        "label": "有 $x$ 不成立，排除",
+                                        "note": "最终范围不含 $k=-1$。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "$k=0$",
+                                "hint": "此时原不等式变为 $-2<0$",
+                                "options": [
+                                    {
+                                        "value": "holds",
+                                        "label": "对所有 $x$ 成立，保留",
+                                        "note": "最终范围包含 $k=0$。"
+                                    },
+                                    {
+                                        "value": "fails",
+                                        "label": "有 $x$ 不成立，排除",
+                                        "note": "最终范围不含 $k=0$。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "fails",
+                            "holds"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$k=-1$ 时原不等式为 $-(x+1)^2<0$，$x=-1$ 时左边等于 $0$，不成立；$k=0$ 时为 $-2<0$，对所有 $x$ 成立。"
+                    },
+                    "required_evidence": [
+                        "boundary_check"
+                    ],
+                    "criteria": "须说明k=-1时原式为-(x+1)²<0，在x=-1处为0<0不成立，排除；k=0时为-2<0恒成立，保留。只检查一个边界不足。说k=-1时“Δ=0所以排除”也接受，但应能对应到切点处函数值为0。问为什么排除属于question，不自动通过。",
+                    "completion_reply": "最终范围为 $k\\in(-1,0]$。",
+                    "results": [
+                        "$k=-1$ 时原式在 $x=-1$ 处不成立；$k=0$ 时恒成立。",
+                        "最终范围为 $k\\in(-1,0]$。"
+                    ]
+                }
+            ]
+        }
+    }
+}

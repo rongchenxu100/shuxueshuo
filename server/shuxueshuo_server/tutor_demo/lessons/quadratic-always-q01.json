@@ -1,0 +1,616 @@
+{
+  "id": "quadratic-always-q01",
+  "version": 1,
+  "problem": {
+    "statement": "若不等式 $-x^2+2x+3\\le a^2-3a$ 对任意实数 $x$ 恒成立，求实数 $a$ 的取值范围。",
+    "conditions": [
+      "$x\\in\\mathbb R$，$a\\in\\mathbb R$",
+      "对所有实数 $x$，$-x^2+2x+3\\le a^2-3a$"
+    ],
+    "target": "求参数a的取值范围"
+  },
+  "methods": [
+    {
+      "id": "discriminant",
+      "label": "判别式法"
+    },
+    {
+      "id": "extremum",
+      "label": "分离参数法"
+    }
+  ],
+  "routes": {
+    "discriminant": {
+      "label": "判别式法",
+      "nodes": [
+        {
+          "id": "d_basis",
+          "title": "判断适用条件",
+          "question": "判别式法需要两个前提。逐项看看，本题是否满足？",
+          "interaction": {
+            "type": "checklist",
+            "title": "判别式法的两个前提",
+            "slots": [
+              {
+                "label": "$x$ 的取值范围",
+                "hint": "看题目要求对哪些 $x$ 成立",
+                "options": [
+                  {
+                    "value": "all_real",
+                    "label": "全体实数",
+                    "note": "在全体实数上，可以看整条图像与横轴的位置关系。"
+                  },
+                  {
+                    "value": "interval",
+                    "label": "某个区间",
+                    "note": "只在某个区间上成立时，要看顶点与区间的位置，只看判别式不够。"
+                  }
+                ]
+              },
+              {
+                "label": "$x^2$ 的系数",
+                "hint": "只看 $x$，把 $a$ 当作常数",
+                "options": [
+                  {
+                    "value": "nonzero",
+                    "label": "确定非零",
+                    "note": "若系数确定非零，才可把它看作二次函数；请核对题目是否已排除系数为零。"
+                  },
+                  {
+                    "value": "maybe_zero",
+                    "label": "含参数，可能为零",
+                    "note": "系数可能为零时，要先单独讨论退化成一次式或常数的情形。"
+                  },
+                  {
+                    "value": "not_quadratic",
+                    "label": "没有 $x^2$ 项",
+                    "note": "没有 $x^2$ 项就不是二次函数，判别式用不上。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "all_real",
+              "nonzero"
+            ]
+          },
+          "feedback": {
+            "terms": "题目要求对任意实数 $x$ 成立；原式中 $x^2$ 的系数是 $-1$，确定非零。$a$ 是参数，$a^2$ 属于常数项，不是二次项系数。"
+          },
+          "required_evidence": [
+            "all_real_domain",
+            "nonzero_quadratic"
+          ],
+          "criteria": "学生须指出x遍历全体实数，以及关于x的二次项系数确定非零（原左减右为-1，反向作差为1，都接受）。分别给出证据，只有一项时不能自动补全另一项。只说用判别式、出现平方、或只猜a范围不足。a²是常数项的一部分，不能说关于x的二次项系数是a²。两个条件支持直接利用全实数上的图像与判别式，不表示分离参数法不可用。 作答判例：学生说“二次项系数是a平方，所以可能为零”是错误回答，必须 evidence=[]、actions=[]，停在本步。回复可以解释正确系数是-1，但老师解释中的-1以及题干自带的x∈R都不是学生证据。学生只说“全体实数x”时只给all_real_domain；学生只说“关于x系数-1非零”时只给nonzero_quadratic；不得因老师上一轮已经解释过而补齐另一项。",
+          "completion_reply": "可以结合开口方向和判别式，判断图像是否始终满足要求。",
+          "results": [
+            "$x\\in\\mathbb R$；关于 $x$ 的二次项系数确定非零。",
+            "可以结合开口方向和判别式，判断图像是否始终满足要求。"
+          ]
+        },
+        {
+          "id": "d_rewrite",
+          "title": "整理不等式",
+          "question": "哪一个式子与原不等式等价？",
+          "interaction": {
+            "type": "choice",
+            "field": "d_rewrite",
+            "options": [
+              {
+                "value": "nonnegative",
+                "label": "$x^2-2x+a^2-3a-3\\ge0$"
+              },
+              {
+                "value": "sign",
+                "label": "$x^2-2x+a^2-3a-3\\le0$"
+              },
+              {
+                "value": "constant",
+                "label": "$x^2-2x+a^2-3a+3\\ge0$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "nonnegative"
+            ]
+          },
+          "feedback": {
+            "answer": "把左侧移到右侧：$a^2-3a-(-x^2+2x+3)\\ge0$。留意常数项和不等号方向。"
+          },
+          "required_evidence": [
+            "equivalent_quadratic"
+          ],
+          "criteria": "接受x²-2x+a²-3a-3≥0；也接受其整体相反数≤0并说明等价。不能混淆a与x。错误常数+3或反向≤0不能过关。后续系统统一记g(x)=x²-2x+a²-3a-3。",
+          "completion_reply": "原不等式等价于 $g(x)=x^2-2x+a^2-3a-3\\ge0$ 对所有实数 $x$ 成立。",
+          "results": [
+            "原不等式等价于 $g(x)=x^2-2x+a^2-3a-3\\ge0$ 对所有实数 $x$ 成立。"
+          ]
+        },
+        {
+          "id": "d_position",
+          "title": "判断图像位置",
+          "question": "$g(x)$ 开口向上。要使 $g(x)\\ge0$ 对所有实数 $x$ 成立，图像应满足什么？",
+          "interaction": {
+            "type": "choice",
+            "field": "d_position",
+            "options": [
+              {
+                "value": "above_or_touch",
+                "label": "全部在横轴上方或横轴上，允许相切"
+              },
+              {
+                "value": "strict_above",
+                "label": "只能在横轴上方，不允许相切"
+              },
+              {
+                "value": "crossing",
+                "label": "允许穿过横轴，部分图像可以在下方"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "above_or_touch"
+            ]
+          },
+          "feedback": {
+            "answer": "$\\ge0$ 允许函数值等于零，但不允许负值。区分“相切”和“穿过”。"
+          },
+          "required_evidence": [
+            "nonnegative_graph"
+          ],
+          "criteria": "须表达整条图像不在横轴下方且允许与横轴接触。只说开口向上不足，严格在上方是充分但不必要条件，会遗漏相切；不能说它数学上不成立，而应指出未包含全部允许情况。允许穿过则有负值，错误。图为位置示意而非已经求得某个a。",
+          "completion_reply": "开口向上，整条图像不低于横轴；可以相切，也可以不相交。",
+          "results": [
+            "开口向上，整条图像不低于横轴；可以相切，也可以不相交。"
+          ]
+        },
+        {
+          "id": "d_delta",
+          "title": "建立判别式条件",
+          "question": "上一步：图像与横轴至多有一个公共点。这对应哪个判别式条件？",
+          "interaction": {
+            "type": "choice",
+            "field": "d_delta",
+            "options": [
+              {
+                "value": "le",
+                "label": "$\\Delta\\le0$"
+              },
+              {
+                "value": "lt",
+                "label": "$\\Delta<0$"
+              },
+              {
+                "value": "ge",
+                "label": "$\\Delta\\ge0$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "le"
+            ]
+          },
+          "feedback": {
+            "answer": "相切对应 $\\Delta=0$，不相交对应 $\\Delta<0$。两种允许情况需要合并。"
+          },
+          "required_evidence": [
+            "discriminant_nonpositive"
+          ],
+          "criteria": "接受Δ≤0或无两个不同实根并允许重根；只给Δ<0遗漏边界。接受直接正确列4-4(a²-3a-3)≤0。不要要求学生重复系统展开；仅写判别式数值未给方向不足。 学生通过文字明确改正为“相切等于0，不相交小于0，所以判别式≤0”时，这是新的正确作答，给discriminant_nonpositive，actions=[]；即使页面仍选着旧的Δ<0，也不得要求学生再手动改选才能通过，服务端会依据证据同步正确选项。",
+          "completion_reply": "$\\Delta=4-4(a^2-3a-3)\\le0$，整理得 $a^2-3a-4\\ge0$。",
+          "results": [
+            "$\\Delta=4-4(a^2-3a-3)\\le0$，整理得 $a^2-3a-4\\ge0$。"
+          ]
+        },
+        {
+          "id": "d_range",
+          "title": "求参数范围",
+          "question": "把 $a^2-3a-4\\ge0$ 看成关于 $a$ 的一元二次不等式，$a$ 在什么范围内？",
+          "interaction": {
+            "type": "choice",
+            "field": "d_range",
+            "options": [
+              {
+                "value": "outside",
+                "label": "$a\\le-1$ 或 $a\\ge4$"
+              },
+              {
+                "value": "inside",
+                "label": "$-1\\le a\\le4$"
+              },
+              {
+                "value": "open",
+                "label": "$a<-1$ 或 $a>4$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "outside"
+            ]
+          },
+          "feedback": {
+            "answer": "$h(a)=(a+1)(a-4)$ 开口向上：两根外侧图像在横轴上方，两根之间在下方；端点处 $h(a)=0$，也满足 $\\ge0$。"
+          },
+          "required_evidence": [
+            "parameter_range"
+          ],
+          "criteria": "接受a≤-1或a≥4，或对应区间并集。只写一个分支不足；-1≤a≤4方向错；严格外侧遗漏等号。不把变量范围x∈R当作a无约束。",
+          "completion_reply": "$(a-4)(a+1)\\ge0\\Rightarrow a\\le-1\\text{ 或 }a\\ge4$。",
+          "results": [
+            "$(a-4)(a+1)\\ge0\\Rightarrow a\\le-1\\text{ 或 }a\\ge4$。"
+          ]
+        },
+        {
+          "id": "d_boundary",
+          "title": "检查边界",
+          "question": "上一步的范围以 $a=-1$、$a=4$ 为边界。逐个代回原不等式，它们要保留吗？",
+          "interaction": {
+            "type": "checklist",
+            "title": "逐个检查边界",
+            "slots": [
+              {
+                "label": "$a=-1$",
+                "hint": "此时 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$",
+                "options": [
+                  {
+                    "value": "holds",
+                    "label": "对所有 $x$ 成立，保留",
+                    "note": "最终范围包含 $a=-1$。"
+                  },
+                  {
+                    "value": "fails",
+                    "label": "有 $x$ 不成立，排除",
+                    "note": "最终范围不含 $a=-1$。"
+                  }
+                ]
+              },
+              {
+                "label": "$a=4$",
+                "hint": "此时 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$",
+                "options": [
+                  {
+                    "value": "holds",
+                    "label": "对所有 $x$ 成立，保留",
+                    "note": "最终范围包含 $a=4$。"
+                  },
+                  {
+                    "value": "fails",
+                    "label": "有 $x$ 不成立，排除",
+                    "note": "最终范围不含 $a=4$。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "holds",
+              "holds"
+            ]
+          },
+          "feedback": {
+            "terms": "两个边界 $a=-1$、$a=4$ 都使 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$，即 $(x-1)^2\\ge0$，对所有实数 $x$ 成立。"
+          },
+          "required_evidence": [
+            "boundary_valid"
+          ],
+          "criteria": "须确认两个端点均成立并有全体x的依据：平方非负、左侧≤4，或已知最大值4。只代x=1验证一个点不能独自证明对所有x恒成立，应补全平方非负的全体结论。问端点为什么保留属于question，不自动通过。 本步为两个槽位的checklist，不是choice组件。学生明确说明两端点都满足且给出全体x的依据时，只返回evidence=[\"boundary_valid\"]、actions=[]，由服务端把两个槽位绑定为holds并推进，不要求学生重复点击，不生成choice/holds动作。",
+          "completion_reply": "最终范围为 $a\\in(-\\infty,-1]\\cup[4,+\\infty)$。",
+          "results": [
+            "$a=-1,4$ 时，原式等价于 $(x-1)^2\\ge0$，对所有实数成立；$x=1$ 时取等。",
+            "最终范围为 $a\\in(-\\infty,-1]\\cup[4,+\\infty)$。"
+          ]
+        }
+      ]
+    },
+    "extremum": {
+      "label": "分离参数法",
+      "nodes": [
+        {
+          "id": "e_basis",
+          "title": "判断适用条件",
+          "question": "分离参数法需要两个前提。逐项看看，本题是否满足？",
+          "interaction": {
+            "type": "checklist",
+            "title": "分离参数法的两个前提",
+            "slots": [
+              {
+                "label": "参数能否单独放到一边",
+                "hint": "看含参数的项能否移到不等号的一边",
+                "options": [
+                  {
+                    "value": "separated",
+                    "label": "已经分离",
+                    "note": "参数和 $x$ 已在不等号两边，可以直接比较。"
+                  },
+                  {
+                    "value": "movable",
+                    "label": "移项后可以分离",
+                    "note": "把含参数的项移到一边，必要时再除以它的系数。"
+                  },
+                  {
+                    "value": "tangled",
+                    "label": "无法分离",
+                    "note": "参数和 $x$ 拆不开时，分离参数法用不上。"
+                  }
+                ]
+              },
+              {
+                "label": "是否要除以含 $x$ 的式子",
+                "hint": "除以负数时，不等号要变向",
+                "options": [
+                  {
+                    "value": "no_division",
+                    "label": "不需要除",
+                    "note": "不涉及除法，不等号方向不变。"
+                  },
+                  {
+                    "value": "fixed_sign",
+                    "label": "需要除，符号确定",
+                    "note": "符号确定，就能确定不等号是否变向。"
+                  },
+                  {
+                    "value": "unknown_sign",
+                    "label": "需要除，符号不定",
+                    "note": "符号不定时要分类讨论，不能直接除。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "separated",
+              "no_division"
+            ]
+          },
+          "feedback": {
+            "terms": "左边 $-x^2+2x+3$ 只含 $x$，右边 $a^2-3a$ 只含参数 $a$：参数已经分离，也不需要做除法。"
+          },
+          "required_evidence": [
+            "fixed_parameter_side"
+          ],
+          "criteria": "学生须说明本题参数已经分离（左边只含x、右边只含参数a，或右侧与x无关、固定a后右侧是一条水平线），并且分离时不需要除以含x的式子。说出“左边只含x、右边只含a”即可视为两项都满足，因为两边已分开自然不必做除法。不能说a无论取多少右侧都是同一个数，只是固定a后相对于x不变。只猜最大值4不足以说明。本步不提前要求最值方向，留给下一步。第一行选“移项后可以分离”不对：本题不用移项，参数已经分离。点评学生的选择时用选项原文（“已经分离”“移项后可以分离”“不需要除”等），不要用行标题“参数能否单独放到一边”代指所选项。",
+          "completion_reply": "左边只含 $x$，右边只含参数 $a$，参数已经分离；固定 $a$ 后 $c=a^2-3a$ 与 $x$ 无关。",
+          "results": [
+            "左边只含 $x$，右边只含参数 $a$，参数已经分离；固定 $a$ 后 $c=a^2-3a$ 与 $x$ 无关。"
+          ]
+        },
+        {
+          "id": "e_condition",
+          "title": "转化为最值条件",
+          "question": "要使 $f(x)\\le c$ 对所有实数 $x$ 成立，$c$ 应满足哪个条件？",
+          "interaction": {
+            "type": "choice",
+            "field": "e_condition",
+            "options": [
+              {
+                "value": "max",
+                "label": "$x\\in\\mathbb R$ 时，$c\\ge f(x)_{\\max}$"
+              },
+              {
+                "value": "min",
+                "label": "$x\\in\\mathbb R$ 时，$c\\ge f(x)_{\\min}$"
+              },
+              {
+                "value": "one_point",
+                "label": "$c\\ge f(0)$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "max"
+            ]
+          },
+          "feedback": {
+            "answer": "恒成立要求所有点都满足。水平线需要不低于最高点；只检查一个点不够。本题左侧向下无界，没有最小值。"
+          },
+          "required_evidence": [
+            "maximum_comparison"
+          ],
+          "criteria": "接受a²-3a≥max f、c≥fmax或右侧不小于左侧最大值。严禁把恒成立当存在；本题没有最小值，不能机械写c≥fmin。若学生问存在成立，解释左侧无下界所以任何实数a都存在合适x，但按question，不把此结论用于本题。如果只说用分离参数法、求最值或最大值4而未表达比较关系，不足；可以结合其主动表达的上下文判断。 本题存在性答疑的完整结论：f(x)=4-(x-1)²向下无界，对任意有限实数c都能选到足够远离1的x使f(x)≤c。因此若改成存在x成立，则所有实数a都可以。这里f没有最小值，fmin未定义；不能写“c≥fmin即可”，也不能说“与不存在的最小值比较对任何c都成立”。只有最小值确实存在且可取到时，存在x使f(x)≤c才等价于c≥fmin。本题应直接用向下无界解释，提问保持question、evidence=[]、actions=[]。 回复“本题改成存在成立”时，直接使用本题的向下无界结论，不要先套用“存在就比较最小值”的通用口诀（即使后面再说没有最小值也会自相矛盾）。推荐回复：不需要与最大值比较；本题f(x)=4-(x-1)²向下无界，对任意固定a都可以选足够远离1的x使f(x)≤a²-3a，所以存在成立时a∈R。本题恒成立才需要右侧不小于最大值。",
+          "completion_reply": "$f(x)\\le c$ 对所有实数成立，等价于 $c\\ge f(x)_{\\max}$。",
+          "results": [
+            "$f(x)\\le c$ 对所有实数成立，等价于 $c\\ge f(x)_{\\max}$。"
+          ]
+        },
+        {
+          "id": "e_extremum",
+          "title": "求最值",
+          "question": "把 $f(x)=-x^2+2x+3$ 配方成「常数减平方」的形式，方框和圆圈各填什么？",
+          "interaction": {
+            "type": "fill",
+            "terms": [
+              "-1",
+              "1",
+              "2",
+              "3",
+              "4"
+            ],
+            "term_labels": {
+              "-1": "$-1$",
+              "1": "$1$",
+              "2": "$2$",
+              "3": "$3$",
+              "4": "$4$"
+            },
+            "slot_labels": [
+              "常数",
+              "平方里减去的数"
+            ],
+            "slot_shapes": [
+              "square",
+              "circle"
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "4",
+              "1"
+            ]
+          },
+          "feedback": {
+            "terms": "把你填的式子展开，分别核对一次项和常数项，是否与 $-x^2+2x+3$ 相同。"
+          },
+          "required_evidence": [
+            "maximum_value"
+          ],
+          "criteria": "学生须给出配方结果 -x²+2x+3=4-(x-1)²（或 -(x-1)²+4），即方框4、圆圈1；直接说出最大值4且x=1时取得也接受。只说平方非负仍缺数值；写成 3-(x-1)² 漏了常数调整，写成 4-(x+1)² 符号错误；最小值4方向错误，不能纠正后算作正确证据。 对错误填写常数3、平方内减去1，必须按分步展开核对：3-(x-1)²=3-(x²-2x+1)=-x²+2x+2。平方前的负号使括号内的-2x变为+2x；展开后一次项是+2x，和原式一致，只有常数2与原式3不同。不得说“展开后一次项-2x没问题”。学生请求检查仍属question，不替学生填4或推进。",
+          "completion_reply": "代入最值条件得 $a^2-3a\\ge4$，即 $a^2-3a-4\\ge0$。",
+          "results": [
+            "$f(x)=4-(x-1)^2\\le4$，在 $x=1$ 时取得最大值 $4$。",
+            "代入最值条件得 $a^2-3a\\ge4$，即 $a^2-3a-4\\ge0$。"
+          ]
+        },
+        {
+          "id": "e_range",
+          "title": "求参数范围",
+          "question": "把 $a^2-3a-4\\ge0$ 看成关于 $a$ 的一元二次不等式，$a$ 在什么范围内？",
+          "interaction": {
+            "type": "choice",
+            "field": "e_range",
+            "options": [
+              {
+                "value": "outside",
+                "label": "$a\\le-1$ 或 $a\\ge4$"
+              },
+              {
+                "value": "inside",
+                "label": "$-1\\le a\\le4$"
+              },
+              {
+                "value": "open",
+                "label": "$a<-1$ 或 $a>4$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "outside"
+            ]
+          },
+          "feedback": {
+            "answer": "$h(a)=(a+1)(a-4)$ 开口向上：两根外侧图像在横轴上方，两根之间在下方；端点处 $h(a)=0$，也满足 $\\ge0$。"
+          },
+          "required_evidence": [
+            "parameter_range"
+          ],
+          "criteria": "接受a≤-1或a≥4，或对应区间并集。只写一个分支不足；-1≤a≤4方向错；严格外侧遗漏等号。不把变量范围x∈R当作a无约束。",
+          "completion_reply": "$(a-4)(a+1)\\ge0\\Rightarrow a\\le-1\\text{ 或 }a\\ge4$。",
+          "results": [
+            "$(a-4)(a+1)\\ge0\\Rightarrow a\\le-1\\text{ 或 }a\\ge4$。"
+          ]
+        },
+        {
+          "id": "e_boundary",
+          "title": "检查边界",
+          "question": "上一步的范围以 $a=-1$、$a=4$ 为边界。逐个代回原不等式，它们要保留吗？",
+          "interaction": {
+            "type": "checklist",
+            "title": "逐个检查边界",
+            "slots": [
+              {
+                "label": "$a=-1$",
+                "hint": "此时 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$",
+                "options": [
+                  {
+                    "value": "holds",
+                    "label": "对所有 $x$ 成立，保留",
+                    "note": "最终范围包含 $a=-1$。"
+                  },
+                  {
+                    "value": "fails",
+                    "label": "有 $x$ 不成立，排除",
+                    "note": "最终范围不含 $a=-1$。"
+                  }
+                ]
+              },
+              {
+                "label": "$a=4$",
+                "hint": "此时 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$",
+                "options": [
+                  {
+                    "value": "holds",
+                    "label": "对所有 $x$ 成立，保留",
+                    "note": "最终范围包含 $a=4$。"
+                  },
+                  {
+                    "value": "fails",
+                    "label": "有 $x$ 不成立，排除",
+                    "note": "最终范围不含 $a=4$。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "holds",
+              "holds"
+            ]
+          },
+          "feedback": {
+            "terms": "两个边界 $a=-1$、$a=4$ 都使 $a^2-3a=4$，原不等式变为 $-x^2+2x+3\\le4$，即 $(x-1)^2\\ge0$，对所有实数 $x$ 成立。"
+          },
+          "required_evidence": [
+            "boundary_valid"
+          ],
+          "criteria": "须确认两个端点均成立并有全体x的依据：平方非负、左侧≤4，或已知最大值4。只代x=1验证一个点不能独自证明对所有x恒成立，应补全平方非负的全体结论。问端点为什么保留属于question，不自动通过。 本步为两个槽位的checklist，不是choice组件。学生明确说明两端点都满足且给出全体x的依据时，只返回evidence=[\"boundary_valid\"]、actions=[]，由服务端把两个槽位绑定为holds并推进，不要求学生重复点击，不生成choice/holds动作。",
+          "completion_reply": "最终范围为 $a\\in(-\\infty,-1]\\cup[4,+\\infty)$。",
+          "results": [
+            "$a=-1,4$ 时，原式等价于 $(x-1)^2\\ge0$，对所有实数成立；$x=1$ 时取等。",
+            "最终范围为 $a\\in(-\\infty,-1]\\cup[4,+\\infty)$。"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {
+      "d_rewrite": null,
+      "d_position": null,
+      "d_delta": null,
+      "d_range": null,
+      "e_condition": null,
+      "e_range": null
+    },
+    "feedback": "",
+    "hint": false
+  }
+}

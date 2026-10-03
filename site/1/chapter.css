@@ -45,6 +45,8 @@ var { font-family: var(--math); font-style: italic; font-size: 1.1em; }
 .eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 13px; letter-spacing: .06em; color: var(--muted); }
 .eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
 .eyebrow-sep { color: var(--faint); }
+.eyebrow a { color: var(--teal-dark); text-decoration: underline; text-decoration-color: #b9dcd3; text-underline-offset: 4px; transition: color .15s, text-decoration-color .15s; }
+.eyebrow a:hover { color: var(--teal); text-decoration-color: currentColor; }
 h1 { margin: 0; font-size: clamp(32px, 5vw, 44px); line-height: 1.2; font-weight: 800; letter-spacing: .01em; }
 .title-mark { background: linear-gradient(transparent 64%, #cfe9e2 64%, #cfe9e2 92%, transparent 92%); padding: 0 2px; }
 .lead { margin: 12px 0 20px; color: var(--muted); font-size: 15px; }
@@ -89,6 +91,7 @@ html { scroll-behavior: smooth; }
 .type-title h3 { margin: 0; font-size: 17px; font-weight: 700; line-height: 1.5; }
 .type-hint { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
 .type-count { flex-shrink: 0; margin-top: 3px; color: var(--muted); font-size: 12px; }
+.type-empty { margin: -4px 0 0 46px; padding: 12px 16px; border: 1px dashed #cfdcd7; border-radius: 14px; background: #fafcfb; color: var(--faint); font-size: 13px; }
 
 .type-side { flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
 .type-side .type-count { margin-top: 0; }
@@ -202,6 +205,7 @@ body:has(.method-sheet[open]) { overflow: hidden; }
   .toc-link { min-height: 42px; font-size: 14.5px; }
   .type-group { padding: 16px; border-radius: 16px; }
   .type-side { flex-direction: column; align-items: flex-end; gap: 6px; }
+  .type-empty { margin-left: 0; }
   .method-sheet { width: 100%; max-width: none; max-height: 88vh; margin: auto 0 0; border-radius: 20px 20px 0 0; }
   .method-sheet[open] { animation: method-up .22s ease-out; }
   .method-sheet-inner { padding: 0 16px calc(18px + env(safe-area-inset-bottom)); }

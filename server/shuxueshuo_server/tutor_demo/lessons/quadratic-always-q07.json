@@ -1,0 +1,589 @@
+{
+  "id": "quadratic-always-q07",
+  "version": 1,
+  "problem": {
+    "statement": "$\\forall x\\in\\{x\\mid2\\le x\\le3\\}$，不等式 $mx^2-mx-1<0$ 恒成立，求实数 $m$ 的取值范围。",
+    "conditions": [
+      "$x\\in[2,3]$，$m\\in\\mathbb R$",
+      "恒成立：对任意 $x\\in[2,3]$，$mx^2-mx-1<0$"
+    ],
+    "target": "求参数m的取值范围"
+  },
+  "methods": [
+    {
+      "id": "extremum",
+      "label": "分离参数法"
+    },
+    {
+      "id": "interval",
+      "label": "区间最值法"
+    }
+  ],
+  "routes": {
+    "extremum": {
+      "label": "分离参数法",
+      "nodes": [
+        {
+          "id": "e_basis",
+          "title": "判断适用条件",
+          "question": "分离参数法需要两个前提。逐项看看，本题是否满足？",
+          "interaction": {
+            "type": "checklist",
+            "title": "分离参数法的两个前提",
+            "slots": [
+              {
+                "label": "参数能否单独放到一边",
+                "hint": "看含参数的项能否移到不等号的一边",
+                "options": [
+                  {
+                    "value": "separated",
+                    "label": "已经分离",
+                    "note": "参数和 $x$ 已在不等号两边，可以直接比较。"
+                  },
+                  {
+                    "value": "movable",
+                    "label": "移项后可以分离",
+                    "note": "把含参数的项移到一边，必要时再除以它的系数。"
+                  },
+                  {
+                    "value": "tangled",
+                    "label": "无法分离",
+                    "note": "参数和 $x$ 拆不开时，分离参数法用不上。"
+                  }
+                ]
+              },
+              {
+                "label": "是否要除以含 $x$ 的式子",
+                "hint": "除以负数时，不等号要变向",
+                "options": [
+                  {
+                    "value": "no_division",
+                    "label": "不需要除",
+                    "note": "不涉及除法，不等号方向不变。"
+                  },
+                  {
+                    "value": "fixed_sign",
+                    "label": "需要除，符号确定",
+                    "note": "符号确定，就能确定不等号是否变向。"
+                  },
+                  {
+                    "value": "unknown_sign",
+                    "label": "需要除，符号不定",
+                    "note": "符号不定时要分类讨论，不能直接除。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "movable",
+              "fixed_sign"
+            ]
+          },
+          "feedback": {
+            "terms": "含 $m$ 的两项提出 $m$，得 $m(x^2-x)<1$；要除以 $x^2-x=x(x-1)$，而 $x\\in[2,3]$ 时它为正，符号确定。"
+          },
+          "required_evidence": [
+            "separable_with_positive_divisor"
+          ],
+          "criteria": "学生须说明两点：含m的两项可以提出m，移项后写成m(x²-x)<1，把m单独放到一边；分离时要除以x²-x=x(x-1)，x∈[2,3]时它为正，符号确定。只说“可以分离”而没说除数的符号不足；说“除数符号不定，要分类讨论”或“不需要做除法”是错误。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。 提出m之后是m(x²-x)，并未将m单独分离，还须除以x²-x；学生只说提出m不足，仍须判断除数为正。",
+          "completion_reply": "提出 $m$ 后除以 $x^2-x$ 即可分离参数；$x\\in[2,3]$ 时 $x^2-x>0$，符号确定。",
+          "results": [
+            "提出 $m$ 后除以 $x^2-x$ 即可分离参数；$x\\in[2,3]$ 时 $x^2-x>0$，符号确定。"
+          ]
+        },
+        {
+          "id": "e_separate",
+          "title": "分离参数",
+          "question": "移项、提出 $m$ 得 $m(x^2-x)<1$。两边同除以 $x^2-x$，得到哪个不等式？",
+          "interaction": {
+            "type": "choice",
+            "field": "e_separate",
+            "options": [
+              {
+                "value": "keep",
+                "label": "$m<\\frac1{x^2-x}$"
+              },
+              {
+                "value": "flip",
+                "label": "$m>\\frac1{x^2-x}$"
+              },
+              {
+                "value": "invert",
+                "label": "$m<x^2-x$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "keep"
+            ]
+          },
+          "feedback": {
+            "answer": "$x\\in[2,3]$ 时 $x^2-x>0$，两边除以正数，不等号方向不变；右边是 $1$ 除以 $x^2-x$。"
+          },
+          "required_evidence": [
+            "separated_inequality"
+          ],
+          "criteria": "接受m<1/(x²-x)。须说明x∈[2,3]时x²-x>0，两边除以正数，不等号不变向。写成m>1/(x²-x)是误以为要变号；写成m<x²-x是把除法做反了。后续系统统一记h(x)=1/(x²-x)，即m<h(x)。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。",
+          "completion_reply": "$x^2-x>0$，两边同除以 $x^2-x$，不等号不变，得 $m<\\frac1{x^2-x}$；记 $h(x)=\\frac1{x^2-x}$，则 $m<h(x)$。",
+          "results": [
+            "$x^2-x>0$，两边同除以 $x^2-x$，不等号不变，得 $m<\\frac1{x^2-x}$；记 $h(x)=\\frac1{x^2-x}$，则 $m<h(x)$。"
+          ]
+        },
+        {
+          "id": "e_condition",
+          "title": "转化为最值条件",
+          "question": "要使 $m<h(x)$ 对所有 $x\\in[2,3]$ 成立，$m$ 应满足哪个条件？",
+          "interaction": {
+            "type": "choice",
+            "field": "e_condition",
+            "options": [
+              {
+                "value": "max",
+                "label": "$x\\in[2,3]$ 时，$m<h(x)_{\\max}$"
+              },
+              {
+                "value": "min",
+                "label": "$x\\in[2,3]$ 时，$m<h(x)_{\\min}$"
+              },
+              {
+                "value": "one_point",
+                "label": "$m<h(2)$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "min"
+            ]
+          },
+          "feedback": {
+            "answer": "$m$ 要比 $[2,3]$ 上每一个 $h(x)$ 都小，只需比其中最小的那个；比最大值小，不能保证比每个都小；只检查一个点，别处仍可能不满足。"
+          },
+          "required_evidence": [
+            "minimum_comparison"
+          ],
+          "criteria": "接受m<h(x)min，或“m比h(x)在[2,3]上的最小值还小”。写m<h(x)max是错误：只保证m比最大的那个小；m<h(2)只看一个点（h(2)恰好是最大值）。只说“求最值”而没说比较哪一个不足。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。 单点h(2)不足的反例：m=1/4<h(2)=1/2，但m>h(3)=1/6，原式在x=3时为1/2>0。",
+          "completion_reply": "$m<h(x)$ 对所有 $x\\in[2,3]$ 成立，等价于 $m<h(x)_{\\min}$。",
+          "results": [
+            "$m<h(x)$ 对所有 $x\\in[2,3]$ 成立，等价于 $m<h(x)_{\\min}$。"
+          ]
+        },
+        {
+          "id": "e_extremum",
+          "title": "求最值",
+          "question": "$h(x)=\\frac1{x^2-x}$ 在 $[2,3]$ 上的最小值是多少？",
+          "interaction": {
+            "type": "checklist",
+            "title": "看分母怎样变化",
+            "slots": [
+              {
+                "label": "分母 $x^2-x$ 在 $[2,3]$ 上",
+                "hint": "$x^2-x$ 的对称轴为 $x=\\frac12$",
+                "options": [
+                  {
+                    "value": "increasing",
+                    "label": "单调递增",
+                    "note": "$x$ 越大，分母越大。"
+                  },
+                  {
+                    "value": "decreasing",
+                    "label": "单调递减",
+                    "note": "$x$ 越大，分母越小。"
+                  },
+                  {
+                    "value": "mixed",
+                    "label": "先减后增",
+                    "note": "区间内含有最低点。"
+                  }
+                ]
+              },
+              {
+                "label": "$h(x)$ 的最小值",
+                "hint": "分子是正数 $1$，分母越大，分数越小",
+                "options": [
+                  {
+                    "value": "h3",
+                    "label": "$h(3)=\\frac16$",
+                    "note": "在分母最大的右端点处取到。"
+                  },
+                  {
+                    "value": "h2",
+                    "label": "$h(2)=\\frac12$",
+                    "note": "在分母最小的左端点处取到。"
+                  },
+                  {
+                    "value": "vertex",
+                    "label": "$h\\left(\\frac12\\right)=-4$",
+                    "note": "在分母的最低点 $x=\\frac12$ 处取到。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "increasing",
+              "h3"
+            ]
+          },
+          "feedback": {
+            "terms": "$x^2-x$ 的对称轴 $x=\\frac12$ 在区间左侧，它在 $[2,3]$ 上单调递增，从 $2$ 增大到 $6$；分子是正数 $1$，分母越大 $h(x)$ 越小，所以最小值为 $h(3)=\\frac16$。$x=\\frac12$ 不在 $[2,3]$ 内。"
+          },
+          "required_evidence": [
+            "denominator_increasing",
+            "minimum_value"
+          ],
+          "criteria": "两项分别给证据，只有部分时不能自动补全其余。denominator_increasing：x²-x的对称轴x=1/2在区间左侧，在[2,3]上单调递增（取值2到6）。minimum_value：分子为正，分母越大h(x)越小，h(x)min=h(3)=1/6。说最小值是h(2)=1/2是把分母最小处当成h最小；说h(1/2)=-4是忘了x只在[2,3]上取值。由最小值1/6直接得m<1/6，参数一侧不用再解。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。",
+          "completion_reply": "$x^2-x$ 在 $[2,3]$ 上递增，取值范围 $[2,6]$，所以 $h(x)_{\\min}=h(3)=\\frac16$，得 $m<\\frac16$。",
+          "results": [
+            "$x^2-x$ 在 $[2,3]$ 上递增，$2\\le x^2-x\\le6$。",
+            "$h(x)_{\\min}=h(3)=\\frac16$，$m<\\frac16$。"
+          ]
+        },
+        {
+          "id": "e_boundary",
+          "title": "检查边界",
+          "question": "上一步的范围以 $m=\\frac16$ 为边界。代回原不等式，它要保留吗？",
+          "interaction": {
+            "type": "checklist",
+            "title": "逐个检查边界",
+            "slots": [
+              {
+                "label": "$m=\\frac16$",
+                "hint": "此时原不等式变为 $\\frac16x^2-\\frac16x-1<0$",
+                "options": [
+                  {
+                    "value": "holds",
+                    "label": "对所有 $x$ 成立，保留",
+                    "note": "最终范围包含 $m=\\frac16$。"
+                  },
+                  {
+                    "value": "fails",
+                    "label": "有 $x$ 不成立，排除",
+                    "note": "最终范围不含 $m=\\frac16$。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "fails"
+            ]
+          },
+          "feedback": {
+            "terms": "$m=\\frac16$ 时原不等式为 $\\frac16x^2-\\frac16x-1<0$。代入 $x=3$ 得 $\\frac96-\\frac36-1=0$，不满足 $<0$。"
+          },
+          "required_evidence": [
+            "boundary_excluded"
+          ],
+          "criteria": "须指出m=1/6时存在x=3使左边等于0，不满足严格不等号<0，所以排除m=1/6；接受“f(3)=0不小于0”或“h(3)=1/6，m<h(3)变成1/6<1/6不成立”。只说“端点不取”而没有给出不成立的x不足。说m=1/6时对所有x都成立是错误。本步为单槽位checklist。学生明确给出x=3处等于0、不满足<0时，只返回evidence=[\"boundary_excluded\"]、actions=[]，由服务端把槽位绑定为fails并推进。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。 必须给出定义域[2,3]内的反例；x=4不在定义域，其不成立不能用于排除。仅证实x=2成立不能保留边界。只解释“x=3不在区间内吗”等问题须指出3包含在闭区间，但不授予证据。",
+          "completion_reply": "最终范围为 $m\\in\\left(-\\infty,\\frac16\\right)$。",
+          "results": [
+            "$m=\\frac16$ 时 $x=3$ 处左边等于 $0$，不满足 $<0$，排除。",
+            "最终范围为 $m\\in\\left(-\\infty,\\frac16\\right)$。"
+          ]
+        }
+      ]
+    },
+    "interval": {
+      "label": "区间最值法",
+      "nodes": [
+        {
+          "id": "i_basis",
+          "title": "判断适用条件",
+          "question": "区间最值法需要一个前提。看看本题是否满足？",
+          "interaction": {
+            "type": "checklist",
+            "title": "区间最值法的前提",
+            "slots": [
+              {
+                "label": "$x$ 的取值范围",
+                "hint": "看题目要求对哪些 $x$ 成立",
+                "options": [
+                  {
+                    "value": "all_real",
+                    "label": "全体实数",
+                    "note": "在全体实数上，看整条图像与横轴的位置。"
+                  },
+                  {
+                    "value": "interval",
+                    "label": "某个区间",
+                    "note": "只看区间上的那一段图像，比较区间上的最值。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "interval"
+            ]
+          },
+          "feedback": {
+            "terms": "题目只要求对 $2\\le x\\le3$ 成立，$x$ 的取值范围是区间 $[2,3]$。"
+          },
+          "required_evidence": [
+            "interval_domain"
+          ],
+          "criteria": "学生须指出x只在区间[2,3]上取值。说“x取全体实数”是错误。只说“用区间最值法”不足。二次项系数m可能为0或为负不是本步的前提，留到分类讨论；学生顺带说出不扣分。本步为单槽位checklist。学生明确指出x∈[2,3]时，只返回evidence=[\"interval_domain\"]、actions=[]，由服务端把槽位绑定为interval并推进。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。",
+          "completion_reply": "$x$ 只在 $[2,3]$ 上取值，只看这一段图像。",
+          "results": [
+            "$x\\in[2,3]$：只看区间上的那一段图像。"
+          ]
+        },
+        {
+          "id": "i_condition",
+          "title": "转化为最值条件",
+          "question": "要使 $f(x)<0$ 对所有 $x\\in[2,3]$ 成立，$f(x)$ 应满足哪个条件？",
+          "interaction": {
+            "type": "choice",
+            "field": "i_condition",
+            "options": [
+              {
+                "value": "max",
+                "label": "$x\\in[2,3]$ 时，$f(x)_{\\max}<0$"
+              },
+              {
+                "value": "min",
+                "label": "$x\\in[2,3]$ 时，$f(x)_{\\min}<0$"
+              },
+              {
+                "value": "one_point",
+                "label": "$f(2)<0$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "max"
+            ]
+          },
+          "feedback": {
+            "answer": "要区间上所有点都小于 $0$，只需最高点小于 $0$；最小值小于 $0$ 只能保证一处；只看 $x=2$，$x=3$ 处仍可能不满足。"
+          },
+          "required_evidence": [
+            "maximum_condition"
+          ],
+          "criteria": "接受“f(x)在[2,3]上的最大值小于0”或“最高点在横轴下方”。只要求最小值小于0不够；只要求f(2)<0不够。答疑要举反例时取m=1/4：f(2)=-1/2<0，f(3)=1/2>0。学生直接说“f(2)<0且f(3)<0”时，说明方向对，但本步只确认“最大值小于0”，最大值在哪里取到留到下一步讨论。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。 本题m≠0时轴为1/2，在[2,3]外；不能举“本题最小值在区间内部，两端为正”的不存在的图像情形。用m=1/4的已核算反例即可。说两个端点都为负在本题足够，因为m≠0时区间上单调、m=0时为常数；不要泛称检查端点不够，须明确是只查一个端点不足。",
+          "completion_reply": "$f(x)<0$ 对所有 $x\\in[2,3]$ 成立，等价于 $f(x)_{\\max}<0$。",
+          "results": [
+            "$f(x)<0$ 对所有 $x\\in[2,3]$ 成立，等价于 $f(x)_{\\max}<0$。"
+          ]
+        },
+        {
+          "id": "i_extremum",
+          "title": "分类讨论最值",
+          "question": "$x^2$ 的系数为 $m$；$m\\ne0$ 时，对称轴为 $x=\\frac12$，在区间 $[2,3]$ 左侧。观察图像，逐项确定 $f(x)$ 在 $[2,3]$ 上的最大值。",
+          "interaction": {
+            "type": "checklist",
+            "title": "按什么分类",
+            "slots": [
+              {
+                "label": "分类依据",
+                "hint": "对称轴固定在区间左侧，区间上的一段是升还是降？",
+                "options": [
+                  {
+                    "value": "sign",
+                    "label": "$m$ 的符号：$m=0$、$m>0$、$m<0$",
+                    "note": "开口方向决定这一段是升还是降，$m=0$ 时不是二次函数。"
+                  },
+                  {
+                    "value": "midpoint",
+                    "label": "对称轴与区间中点 $\\frac52$ 比较",
+                    "note": "对称轴固定是 $x=\\frac12$，不会移动。"
+                  }
+                ]
+              },
+              {
+                "label": "$m>0$（开口向上）时，最大值为",
+                "hint": "区间在对称轴右侧",
+                "options": [
+                  {
+                    "value": "f3",
+                    "label": "$f(3)=6m-1$",
+                    "note": "在右端点 $x=3$ 处取到。"
+                  },
+                  {
+                    "value": "f2",
+                    "label": "$f(2)=2m-1$",
+                    "note": "在左端点 $x=2$ 处取到。"
+                  },
+                  {
+                    "value": "vertex",
+                    "label": "顶点处的值",
+                    "note": "顶点在 $x=\\frac12$ 处。"
+                  }
+                ]
+              },
+              {
+                "label": "$m<0$（开口向下）时，最大值为",
+                "hint": "区间在对称轴右侧",
+                "options": [
+                  {
+                    "value": "f3",
+                    "label": "$f(3)=6m-1$",
+                    "note": "在右端点 $x=3$ 处取到。"
+                  },
+                  {
+                    "value": "f2",
+                    "label": "$f(2)=2m-1$",
+                    "note": "在左端点 $x=2$ 处取到。"
+                  },
+                  {
+                    "value": "vertex",
+                    "label": "顶点处的值",
+                    "note": "顶点在 $x=\\frac12$ 处。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "sign",
+              "f3",
+              "f2"
+            ]
+          },
+          "feedback": {
+            "terms": "对称轴 $x=\\frac12$ 固定在区间左侧，$f(x)$ 在 $[2,3]$ 上单调，升还是降由开口决定，所以按 $m$ 的符号分类，别漏了 $m=0$。$m>0$ 时开口向上，这一段一直上升，最大值为 $f(3)=6m-1$；$m<0$ 时开口向下，一直下降，最大值为 $f(2)=2m-1$；$m=0$ 时 $f(x)=-1$。"
+          },
+          "required_evidence": [
+            "sign_split",
+            "positive_case_max",
+            "negative_case_max"
+          ],
+          "criteria": "sign_split必须包含m=0的考虑；“只分m>0和m<0，m=0不用考虑”明确漏掉一种情况，不得授予sign_split，即使老师回复补出了m=0也不能放行。若学生在当前轮纠正为三种情况才给证据。三项分别给证据，只有部分时不能自动补全其余。sign_split：对称轴x=1/2固定在区间左侧，f(x)在[2,3]上单调，按m的符号分m=0、m>0、m<0三种情况；说“对称轴与区间中点比较”是错误，对称轴不动。漏掉m=0时追问。positive_case_max：m>0时开口向上，在[2,3]上递增，最大值f(3)=6m-1。negative_case_max：m<0时开口向下，在[2,3]上递减，最大值f(2)=2m-1。说顶点处的值是最大值是忘了顶点x=1/2不在区间内。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。",
+          "completion_reply": "$m=0$ 时 $f(x)=-1$；$m>0$ 时最大值为 $f(3)=6m-1$；$m<0$ 时最大值为 $f(2)=2m-1$。",
+          "results": [
+            "对称轴 $x=\\frac12$ 固定在区间左侧，按 $m$ 的符号分三种情况。",
+            "$m=0$ 时 $f(x)=-1$；$m>0$ 时 $f(x)_{\\max}=f(3)=6m-1$；$m<0$ 时 $f(x)_{\\max}=f(2)=2m-1$。"
+          ]
+        },
+        {
+          "id": "i_range",
+          "title": "求参数范围",
+          "question": "三种情况下，都要求最大值小于 $0$。$m$ 的取值范围是什么？",
+          "interaction": {
+            "type": "choice",
+            "field": "i_range",
+            "options": [
+              {
+                "value": "union",
+                "label": "$m<\\frac16$"
+              },
+              {
+                "value": "positive_only",
+                "label": "$0<m<\\frac16$"
+              },
+              {
+                "value": "missing_zero",
+                "label": "$m<0$ 或 $0<m<\\frac16$"
+              }
+            ]
+          },
+          "expected_answer": {
+            "one_of": [
+              "union"
+            ]
+          },
+          "feedback": {
+            "answer": "每种情况内部，解出的范围要与这种情况的前提取交集；三种情况是“或”的关系，合并时取并集，$m=0$ 这种情况也要并进来。"
+          },
+          "required_evidence": [
+            "merged_range"
+          ],
+          "criteria": "接受m<1/6，须体现分支内取交集、分支间取并集：m=0时-1<0成立；m>0与6m-1<0得0<m<1/6；m<0与2m-1<0得m<0；取并集得m<1/6。0<m<1/6只保留了m>0；“m<0或0<m<1/6”漏了m=0。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。",
+          "completion_reply": "情况①得 $m=0$，情况②得 $0<m<\\frac16$，情况③得 $m<0$，取并集得 $m<\\frac16$。",
+          "results": [
+            "情况①：$m=0$ 时 $-1<0$，成立；情况②：$0<m<\\frac16$；情况③：$m<0$。",
+            "取并集得 $m<\\frac16$。"
+          ]
+        },
+        {
+          "id": "i_boundary",
+          "title": "检查边界",
+          "question": "上一步的范围以 $m=\\frac16$ 为边界。代回原不等式，它要保留吗？",
+          "interaction": {
+            "type": "checklist",
+            "title": "逐个检查边界",
+            "slots": [
+              {
+                "label": "$m=\\frac16$",
+                "hint": "此时原不等式变为 $\\frac16x^2-\\frac16x-1<0$",
+                "options": [
+                  {
+                    "value": "holds",
+                    "label": "对所有 $x$ 成立，保留",
+                    "note": "最终范围包含 $m=\\frac16$。"
+                  },
+                  {
+                    "value": "fails",
+                    "label": "有 $x$ 不成立，排除",
+                    "note": "最终范围不含 $m=\\frac16$。"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected_answer": {
+            "terms": [
+              "fails"
+            ]
+          },
+          "feedback": {
+            "terms": "$m=\\frac16$ 时原不等式为 $\\frac16x^2-\\frac16x-1<0$。代入 $x=3$ 得 $\\frac96-\\frac36-1=0$，不满足 $<0$。"
+          },
+          "required_evidence": [
+            "boundary_excluded"
+          ],
+          "criteria": "须指出m=1/6时存在x=3使左边等于0，不满足严格不等号<0，所以排除m=1/6；接受“f(3)=0不小于0”或“h(3)=1/6，m<h(3)变成1/6<1/6不成立”。只说“端点不取”而没有给出不成立的x不足。说m=1/6时对所有x都成立是错误。本步为单槽位checklist。学生明确给出x=3处等于0、不满足<0时，只返回evidence=[\"boundary_excluded\"]、actions=[]，由服务端把槽位绑定为fails并推进。 只解释的提问不授予证据、不执行动作；当前轮错误或不完整的内容不能用教师补充的解释补齐。当前路径已选择，不返回method动作；其余作答也只返回语义证据，actions=[]，由服务端绑定与推进。证据跨轮累计，文字纠正优先于旧UI选项，不能要求重选已纠正并接受的项目。按当前输入判断提问或作答，不沿用上一轮“只解释”。不得暴露keep、flip等内部候选标识。 必须给出定义域[2,3]内的反例；x=4不在定义域，其不成立不能用于排除。仅证实x=2成立不能保留边界。只解释“x=3不在区间内吗”等问题须指出3包含在闭区间，但不授予证据。",
+          "completion_reply": "最终范围为 $m\\in\\left(-\\infty,\\frac16\\right)$。",
+          "results": [
+            "$m=\\frac16$ 时 $x=3$ 处左边等于 $0$，不满足 $<0$，排除。",
+            "最终范围为 $m\\in\\left(-\\infty,\\frac16\\right)$。"
+          ]
+        }
+      ]
+    }
+  },
+  "initial_state": {
+    "active": 0,
+    "method": null,
+    "swapped": false,
+    "pairs": [
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ],
+      [
+        "",
+        ""
+      ]
+    ],
+    "choices": {
+      "e_separate": null,
+      "e_condition": null,
+      "i_condition": null,
+      "i_range": null
+    },
+    "feedback": "",
+    "hint": false
+  }
+}

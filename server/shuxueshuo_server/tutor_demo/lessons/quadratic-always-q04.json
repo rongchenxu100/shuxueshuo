@@ -1,0 +1,684 @@
+{
+    "id": "quadratic-always-q04",
+    "version": 1,
+    "problem": {
+        "statement": "当 $1\\le x\\le2$ 时，不等式 $x^2+mx+4<0$ 恒成立，求实数 $m$ 的取值范围。",
+        "conditions": [
+            "$x\\in[1,2]$，$m\\in\\mathbb R$",
+            "对所有 $x\\in[1,2]$，$x^2+mx+4<0$"
+        ],
+        "target": "求参数m的取值范围"
+    },
+    "methods": [
+        {
+            "id": "interval",
+            "label": "区间最值法"
+        },
+        {
+            "id": "extremum",
+            "label": "分离参数法"
+        }
+    ],
+    "routes": {
+        "interval": {
+            "label": "区间最值法",
+            "nodes": [
+                {
+                    "id": "i_basis",
+                    "title": "判断适用条件",
+                    "question": "区间最值法需要一个前提。看看本题是否满足？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "区间最值法的前提",
+                        "slots": [
+                            {
+                                "label": "$x$ 的取值范围",
+                                "hint": "看题目要求对哪些 $x$ 成立",
+                                "options": [
+                                    {
+                                        "value": "all_real",
+                                        "label": "全体实数",
+                                        "note": "在全体实数上，看整条图像与横轴的位置。"
+                                    },
+                                    {
+                                        "value": "interval",
+                                        "label": "某个区间",
+                                        "note": "只看区间上的那一段图像，比较区间上的最值。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "interval"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "题目只要求 $1\\le x\\le2$ 时成立，$x$ 的取值范围是区间 $[1,2]$。"
+                    },
+                    "required_evidence": [
+                        "interval_domain"
+                    ],
+                    "criteria": "学生须指出x只在闭区间[1,2]上取值（只要求1≤x≤2时成立）。说“x取全体实数”是错误。只说“用区间最值法”不足。开口方向不是本步的前提，它决定下一步最大值在哪里取到；学生顺带说出开口向上不扣分。本步为单槽位checklist。学生明确指出x∈[1,2]时，只返回evidence=[\"interval_domain\"]、actions=[]，由服务端把槽位绑定为interval并推进。",
+                    "completion_reply": "$x$ 只在 $[1,2]$ 上取值，只看这一段图像，比较区间上的最值。",
+                    "results": [
+                        "$x\\in[1,2]$：只看 $[1,2]$ 上的那一段图像，比较区间上的最值。"
+                    ]
+                },
+                {
+                    "id": "i_condition",
+                    "title": "转化为最值条件",
+                    "question": "要使 $f(x)<0$ 对所有 $x\\in[1,2]$ 成立，$f(x)$ 应满足哪个条件？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "i_condition",
+                        "options": [
+                            {
+                                "value": "max",
+                                "label": "$x\\in[1,2]$ 时，$f(x)_{\\max}<0$"
+                            },
+                            {
+                                "value": "min",
+                                "label": "$x\\in[1,2]$ 时，$f(x)_{\\min}<0$"
+                            },
+                            {
+                                "value": "one_point",
+                                "label": "$f(2)<0$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "max"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "恒成立要求区间上每一点都满足：最高点在横轴下方，整段才在下方。只比最低点或一个点，别处仍可能不满足。"
+                    },
+                    "required_evidence": [
+                        "maximum_condition"
+                    ],
+                    "criteria": "接受“f(x)在[1,2]上的最大值小于0”或“最高点在横轴下方”。只要求最小值（顶点值）小于0不够；只要求某一点（如f(2)<0）不够。严禁把恒成立当存在。学生直接说“f(1)<0且f(2)<0”时，说明方向对，但本步只确认“最大值小于0”，最大值在哪里取到留到下一步讨论。 答疑要举反例时，优先保持本题函数不变，取m=-9/2：f(1)=1/2>0，f(2)=-1<0，足以说明有负值不代表处处为负；不要临时改写常数项并反复试错。",
+                    "completion_reply": "$f(x)<0$ 在 $[1,2]$ 上恒成立，等价于 $f(x)$ 在 $[1,2]$ 上的最大值小于 $0$。",
+                    "results": [
+                        "$f(x)<0$ 在 $[1,2]$ 上恒成立，等价于 $f(x)_{\\max}<0$。"
+                    ]
+                },
+                {
+                    "id": "i_extremum",
+                    "title": "分类讨论最值",
+                    "question": "$x^2$ 的系数为 $1$，$f(x)$ 开口向上，对称轴为 $x=-\\frac m2$。拖动对称轴观察图像，逐项确定 $f(x)$ 在 $[1,2]$ 上的最大值。",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "按对称轴的位置分类",
+                        "slots": [
+                            {
+                                "label": "对称轴和谁比较",
+                                "hint": "开口向上时，离对称轴越远，函数值越大",
+                                "options": [
+                                    {
+                                        "value": "midpoint",
+                                        "label": "区间中点 $x=\\frac32$",
+                                        "note": "对称轴在中点哪一侧，决定哪个端点离它更远。"
+                                    },
+                                    {
+                                        "value": "endpoints",
+                                        "label": "端点 $x=1$ 和 $x=2$",
+                                        "note": "对称轴在区间左侧、内部还是右侧，决定最低点在哪里。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "对称轴在中点左侧或中点上（$m\\ge-3$）时，最大值为",
+                                "hint": "哪个端点离对称轴更远？",
+                                "options": [
+                                    {
+                                        "value": "f1",
+                                        "label": "$f(1)$",
+                                        "note": "左端点最高。"
+                                    },
+                                    {
+                                        "value": "f2",
+                                        "label": "$f(2)$",
+                                        "note": "右端点最高。"
+                                    },
+                                    {
+                                        "value": "vertex",
+                                        "label": "顶点处的值",
+                                        "note": "顶点最高。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "对称轴在中点右侧（$m<-3$）时，最大值为",
+                                "hint": "哪个端点离对称轴更远？",
+                                "options": [
+                                    {
+                                        "value": "f1",
+                                        "label": "$f(1)$",
+                                        "note": "左端点最高。"
+                                    },
+                                    {
+                                        "value": "f2",
+                                        "label": "$f(2)$",
+                                        "note": "右端点最高。"
+                                    },
+                                    {
+                                        "value": "vertex",
+                                        "label": "顶点处的值",
+                                        "note": "顶点最高。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "midpoint",
+                            "f2",
+                            "f1"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "开口向上时，离对称轴越远的端点越高，所以对称轴和区间中点 $\\frac32$ 比较。对称轴在中点左侧或中点上时，右端点 $x=2$ 更远，最大值为 $f(2)$；在中点右侧时，左端点 $x=1$ 更远，最大值为 $f(1)$。顶点是最低点。"
+                    },
+                    "required_evidence": [
+                        "midpoint_split",
+                        "left_case_max",
+                        "right_case_max"
+                    ],
+                    "criteria": "三项分别给证据，只有部分时不能自动补全其余。midpoint_split：开口向上求最大值，比较对称轴与区间中点3/2（离对称轴越远的端点越高）；说和端点1、2比较是把求最小值的分类用到了最大值上。left_case_max：-m/2≤3/2即m≥-3时最大值为f(2)。right_case_max：-m/2>3/2即m<-3时最大值为f(1)。说最大值是顶点处的值是错误：开口向上时顶点是最低点。分界点m=-3归入哪一侧都可以（此时f(1)=f(2)），学生写m>-3与m≤-3也接受。学生直接说“最大值是f(1)、f(2)中较大的，只需两个都小于0”时，承认结论正确，并说明本路线练习按对称轴分类。",
+                    "completion_reply": "$m\\ge-3$ 时 $f(x)_{\\max}=f(2)$；$m<-3$ 时 $f(x)_{\\max}=f(1)$。",
+                    "results": [
+                        "开口向上，对称轴与区间中点 $x=\\frac32$ 比较。",
+                        "$m\\ge-3$ 时 $f(x)_{\\max}=f(2)=2m+8$；$m<-3$ 时 $f(x)_{\\max}=f(1)=m+5$。"
+                    ]
+                },
+                {
+                    "id": "i_range",
+                    "title": "求参数范围",
+                    "question": "两种情况下，都要求区间上的最大值小于 $0$。$m$ 的取值范围是什么？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "i_range",
+                        "options": [
+                            {
+                                "value": "union",
+                                "label": "$m<-5$"
+                            },
+                            {
+                                "value": "loose",
+                                "label": "$m<-4$"
+                            },
+                            {
+                                "value": "empty",
+                                "label": "无解"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "union"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "每种情况内部，解出的范围要与这种情况的前提取交集；两种情况是“或”的关系，合并时取并集。"
+                    },
+                    "required_evidence": [
+                        "merged_range"
+                    ],
+                    "criteria": "接受m<-5，须体现分支内取交集、分支间取并集：情况①m≥-3与m<-4无公共部分，情况②得m<-5，取并集得m<-5。m<-4是没有把情况①的m<-4与m≥-3取交集；“无解”是把两种情况取了交集。不要求学生重复展开f(1)、f(2)。",
+                    "completion_reply": "情况①无解，情况②得 $m<-5$，取并集得 $m<-5$。",
+                    "results": [
+                        "情况①：$m\\ge-3$ 且 $m<-4$，无解；情况②：$m<-3$ 且 $m<-5$，得 $m<-5$。",
+                        "取并集得 $m<-5$。"
+                    ]
+                },
+                {
+                    "id": "i_boundary",
+                    "title": "检查边界",
+                    "question": "上一步的范围以 $m=-5$ 为边界。代回原不等式，它要保留吗？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "逐个检查边界",
+                        "slots": [
+                            {
+                                "label": "$m=-5$",
+                                "hint": "此时原不等式变为 $x^2-5x+4<0$",
+                                "options": [
+                                    {
+                                        "value": "holds",
+                                        "label": "对所有 $x$ 成立，保留",
+                                        "note": "最终范围包含 $m=-5$。"
+                                    },
+                                    {
+                                        "value": "fails",
+                                        "label": "有 $x$ 不成立，排除",
+                                        "note": "最终范围不含 $m=-5$。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "fails"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$m=-5$ 时原不等式为 $x^2-5x+4<0$。代入 $x=1$ 得 $1-5+4=0$，不满足 $<0$。"
+                    },
+                    "required_evidence": [
+                        "boundary_excluded"
+                    ],
+                    "criteria": "须指出m=-5时存在x=1使左边等于0，不满足严格不等号<0，所以排除m=-5；接受“f(1)=0不小于0”或“h(1)=5，m<-h(1)变成-5<-5不成立”。只说“端点不取”而没有给出不成立的x不足。说m=-5时对所有x都成立是错误。本步为单槽位checklist。学生明确给出x=1处等于0、不满足<0时，只返回evidence=[\"boundary_excluded\"]、actions=[]，由服务端把槽位绑定为fails并推进。",
+                    "completion_reply": "最终范围为 $m\\in(-\\infty,-5)$。",
+                    "results": [
+                        "$m=-5$ 时 $x=1$ 处左边等于 $0$，不满足 $<0$，排除。",
+                        "最终范围为 $m\\in(-\\infty,-5)$。"
+                    ]
+                }
+            ]
+        },
+        "extremum": {
+            "label": "分离参数法",
+            "nodes": [
+                {
+                    "id": "e_basis",
+                    "title": "判断适用条件",
+                    "question": "分离参数法需要两个前提。逐项看看，本题是否满足？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "分离参数法的两个前提",
+                        "slots": [
+                            {
+                                "label": "参数能否单独放到一边",
+                                "hint": "看含参数的项能否移到不等号的一边",
+                                "options": [
+                                    {
+                                        "value": "separated",
+                                        "label": "已经分离",
+                                        "note": "参数和 $x$ 已在不等号两边，可以直接比较。"
+                                    },
+                                    {
+                                        "value": "movable",
+                                        "label": "移项后可以分离",
+                                        "note": "把含参数的项移到一边，必要时再除以它的系数。"
+                                    },
+                                    {
+                                        "value": "tangled",
+                                        "label": "无法分离",
+                                        "note": "参数和 $x$ 拆不开时，分离参数法用不上。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "是否要除以含 $x$ 的式子",
+                                "hint": "除以负数时，不等号要变向",
+                                "options": [
+                                    {
+                                        "value": "no_division",
+                                        "label": "不需要除",
+                                        "note": "不涉及除法，不等号方向不变。"
+                                    },
+                                    {
+                                        "value": "fixed_sign",
+                                        "label": "需要除，符号确定",
+                                        "note": "符号确定，就能确定不等号是否变向。"
+                                    },
+                                    {
+                                        "value": "unknown_sign",
+                                        "label": "需要除，符号不定",
+                                        "note": "符号不定时要分类讨论，不能直接除。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "movable",
+                            "fixed_sign"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "含 $m$ 的只有 $mx$ 一项，移项后要除以 $x$；而 $x\\in[1,2]$，$x>0$，符号确定。"
+                    },
+                    "required_evidence": [
+                        "separable_with_positive_divisor"
+                    ],
+                    "criteria": "学生须说明两点：含m的项只有mx，移项后可以把m单独放到一边；分离时要除以x，而x∈[1,2]所以x>0，不等号不变向。只说“可以分离”而没说x>0不足；说“x符号不定，要分类讨论”或“不需要做除法”是错误。 separable_with_positive_divisor是两个判断合在一起的完整证据，不是只代表“可分离”。学生仅说“移项后可以分离m”时，即使题干写了x∈[1,2]或老师之前提示过x>0，也必须evidence=[]、actions=[]并留在当前步，不能自行替学生完成除数符号的判断。只有学生明确说明要除以x且x>0、不变向，连同可分离这一点都齐全，才能给此证据。仅提问不记证据。",
+                    "completion_reply": "移项后除以 $x$ 即可分离参数；$x\\in[1,2]$ 时 $x>0$，不等号方向不变。",
+                    "results": [
+                        "移项后除以 $x$ 即可分离参数；$x\\in[1,2]$ 时 $x>0$，不等号方向不变。"
+                    ]
+                },
+                {
+                    "id": "e_separate",
+                    "title": "分离参数",
+                    "question": "移项得 $mx<-x^2-4$。两边同除以 $x$，得到哪个不等式？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "e_separate",
+                        "options": [
+                            {
+                                "value": "keep",
+                                "label": "$m<-\\left(x+\\frac4x\\right)$"
+                            },
+                            {
+                                "value": "flip",
+                                "label": "$m>-\\left(x+\\frac4x\\right)$"
+                            },
+                            {
+                                "value": "partial",
+                                "label": "$m<-(x+4)$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "keep"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "$x>0$，两边除以正数，不等号方向不变；右边每一项都要除以 $x$。"
+                    },
+                    "required_evidence": [
+                        "separated_inequality"
+                    ],
+                    "criteria": "接受m<-(x+4/x)，或等价写法m<-x-4/x、-m>x+4/x。须说明x>0所以不等号不变向。把不等号变成>是错误；写成m<-(x+4)漏除常数项。后续系统统一记h(x)=x+4/x，即m<-h(x)。",
+                    "completion_reply": "$x>0$，两边同除以 $x$ 得 $m<-\\left(x+\\frac4x\\right)$；记 $h(x)=x+\\frac4x$，即 $m<-h(x)$。",
+                    "results": [
+                        "$x>0$，两边同除以 $x$ 得 $m<-\\left(x+\\frac4x\\right)$；记 $h(x)=x+\\frac4x$，即 $m<-h(x)$。"
+                    ]
+                },
+                {
+                    "id": "e_condition",
+                    "title": "转化为最值条件",
+                    "question": "要使 $m<-h(x)$ 对所有 $x\\in[1,2]$ 成立，$m$ 应满足哪个条件？",
+                    "interaction": {
+                        "type": "choice",
+                        "field": "e_condition",
+                        "options": [
+                            {
+                                "value": "max",
+                                "label": "$x\\in[1,2]$ 时，$m<-h(x)_{\\max}$"
+                            },
+                            {
+                                "value": "min",
+                                "label": "$x\\in[1,2]$ 时，$m<-h(x)_{\\min}$"
+                            },
+                            {
+                                "value": "one_point",
+                                "label": "$m<-h(2)$"
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "one_of": [
+                            "max"
+                        ]
+                    },
+                    "feedback": {
+                        "answer": "$m<-h(x)$ 即 $h(x)<-m$：区间上整段图像都要在 $y=-m$ 下方，只需比 $h(x)$ 的最高点。加负号后，最大变最小。"
+                    },
+                    "required_evidence": [
+                        "maximum_comparison"
+                    ],
+                    "criteria": "接受m<-h(x)max、-m>h(x)max，或“-h(x)的最小值是-h(x)max，m小于它”。写m<-h(x)min是把加负号后的最大、最小弄反；m<-h(2)只看一个点。严禁把恒成立当存在。只说“求最值”而没说比较哪一个不足。闭区间[1,2]上h连续，最大值可以取到。 解释必须区分max(-h)与-max(h)：m要小于每一个-h(x)，应小于其中最小的值，即m<min(-h)=-max(h)；绝不能说“比-h的最大值小就比所有值小”。也可统一改写为h(x)<-m，故max(h)<-m。若需数值说明，本题h在[1,2]上值域[4,5]，-h值域[-5,-4]，最严格的是m<-5，不是m<-4。纠错或回答为什么时给出上述等价链，不能只有含混的“-h(x)max”写法。学生错误或仅提问时evidence=[]、actions=[]，老师自己的解释不能计入学生证据。 特别纠错：“h的最小值的相反数”是-max不成立的误读，它实际是-min(h)=-4，这是错误条件；“h的最大值的相反数”才是-max(h)=-5。学生说前者时必须明确否定，禁止随后又说“你这句话正好对应正确条件”。可验证m=-4.5<-4却不恒成立：x=1时f(1)=1-4.5+4=0.5>0。学生举m=-4.5时必须给出这个反例。所有解释用min(-h)=-max(h)、-min(h)=-4这类括号清晰的写法，不写含混的-h(x)min=-h(x)max。",
+                    "completion_reply": "$m<-h(x)$ 对所有 $x\\in[1,2]$ 成立，等价于 $m<-h(x)_{\\max}$。",
+                    "results": [
+                        "$m<-h(x)$ 对所有 $x\\in[1,2]$ 成立，等价于 $m<-h(x)_{\\max}$。"
+                    ]
+                },
+                {
+                    "id": "e_graph",
+                    "title": "画函数图像",
+                    "question": "$h(x)=x+\\frac4x$（$x>0$）是对勾函数。逐项确定它的图像特征。",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "对勾函数的图像特征",
+                        "slots": [
+                            {
+                                "label": "最低点",
+                                "hint": "用基本不等式求 $x+\\frac4x$ 的最小值",
+                                "options": [
+                                    {
+                                        "value": "low_2",
+                                        "label": "$(2,4)$",
+                                        "note": "图像在 $x=2$ 处最低。"
+                                    },
+                                    {
+                                        "value": "low_4",
+                                        "label": "$(4,5)$",
+                                        "note": "图像在 $x=4$ 处最低。"
+                                    },
+                                    {
+                                        "value": "low_1",
+                                        "label": "$(1,5)$",
+                                        "note": "图像在 $x=1$ 处最低。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "$x\\to0^+$ 时",
+                                "hint": "$x$ 越来越小，$\\frac4x$ 怎样变化？",
+                                "options": [
+                                    {
+                                        "value": "y_axis",
+                                        "label": "贴近 $y$ 轴向上",
+                                        "note": "图像左端沿 $y$ 轴越升越高。"
+                                    },
+                                    {
+                                        "value": "x_axis",
+                                        "label": "贴近 $x$ 轴",
+                                        "note": "图像左端越来越平，贴着 $x$ 轴。"
+                                    },
+                                    {
+                                        "value": "origin",
+                                        "label": "趋近原点",
+                                        "note": "图像左端落到原点附近。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "$x\\to+\\infty$ 时",
+                                "hint": "$x$ 越来越大，$\\frac4x$ 怎样变化？",
+                                "options": [
+                                    {
+                                        "value": "line",
+                                        "label": "贴近直线 $y=x$",
+                                        "note": "图像右端沿直线 $y=x$ 斜向上。"
+                                    },
+                                    {
+                                        "value": "flat",
+                                        "label": "贴近直线 $y=4$",
+                                        "note": "图像右端越来越平。"
+                                    },
+                                    {
+                                        "value": "fall",
+                                        "label": "贴近 $x$ 轴",
+                                        "note": "图像右端回落到 $x$ 轴附近。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "low_2",
+                            "y_axis",
+                            "line"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$x+\\frac4x\\ge2\\sqrt{x\\cdot\\frac4x}=4$，$x=\\frac4x$ 即 $x=2$ 时取等，最低点 $(2,4)$。$x\\to0^+$ 时 $\\frac4x$ 越来越大，图像贴近 $y$ 轴向上；$x\\to+\\infty$ 时 $\\frac4x\\to0$，$h(x)$ 越来越接近 $x$，图像贴近直线 $y=x$。"
+                    },
+                    "required_evidence": [
+                        "hook_lowest_point",
+                        "hook_near_y_axis",
+                        "hook_near_line"
+                    ],
+                    "criteria": "三项分别给证据，只有部分时不能自动补全其余。最低点：由基本不等式x+4/x≥2√(x·4/x)=4、x=4/x时取等，得最低点(2,4)；只说x=2而没给取等依据时可接受，但可追问为什么。说最低点在x=4是把取等条件弄错。x→0⁺：4/x越来越大，图像贴近y轴向上；说贴近x轴或趋近原点是错误。x→+∞：4/x→0，h(x)越来越接近x，图像贴近直线y=x；说贴近y=4或x轴是错误。不要求“渐近线”术语。 明确证据对应：学生给出最低点(2,4)只记录hook_lowest_point；说x趋于0正侧时贴近y轴向上只记录hook_near_y_axis；说x趋于正无穷时贴近y=x只记录hook_near_line。证据可跨轮累积，文字纠正优先于此前错误选项，即使页面仍显示low_4也必须记录学生明确改正的最低点，不要求重复点选。缺哪项只追问哪项，不补全其余证据。所有轮次actions=[]，完整证据由服务端绑定并推进；错误或仅提问时不增加证据。 对极限的解释只需说明本题x趋于正无穷、4/x趋于0且两项为正，故h也趋于正无穷，但h-x趋于0。不要说“只有两项都趋于0，和才趋于0”，这一般不成立（两项可以相消）。",
+                    "completion_reply": "$h(x)$ 的最低点为 $(2,4)$，左端贴近 $y$ 轴向上，右端贴近直线 $y=x$：在 $(0,2]$ 上递减，在 $[2,+\\infty)$ 上递增。",
+                    "results": [
+                        "$x+\\frac4x\\ge4$，$x=2$ 时取等，最低点为 $(2,4)$。",
+                        "$x\\to0^+$ 时图像贴近 $y$ 轴向上，$x\\to+\\infty$ 时贴近直线 $y=x$。",
+                        "$h(x)$ 在 $(0,2]$ 上递减，在 $[2,+\\infty)$ 上递增。"
+                    ]
+                },
+                {
+                    "id": "e_extremum",
+                    "title": "求最值",
+                    "question": "$h(x)$ 在 $[1,2]$ 上的最大值在哪里取到？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "区间与最低点的位置",
+                        "slots": [
+                            {
+                                "label": "$[1,2]$ 在最低点 $x=2$ 的",
+                                "hint": "对照上一步的图像",
+                                "options": [
+                                    {
+                                        "value": "left",
+                                        "label": "左侧",
+                                        "note": "这一段图像一直下降。"
+                                    },
+                                    {
+                                        "value": "right",
+                                        "label": "右侧",
+                                        "note": "这一段图像一直上升。"
+                                    },
+                                    {
+                                        "value": "around",
+                                        "label": "两侧都有",
+                                        "note": "这一段图像先降后升。"
+                                    }
+                                ]
+                            },
+                            {
+                                "label": "最大值",
+                                "hint": "看这一段图像哪一端更高",
+                                "options": [
+                                    {
+                                        "value": "at_left",
+                                        "label": "$h(1)=5$",
+                                        "note": "最大值在左端点取到。"
+                                    },
+                                    {
+                                        "value": "at_right",
+                                        "label": "$h(2)=4$",
+                                        "note": "最大值在右端点取到。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "left",
+                            "at_left"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$[1,2]\\subseteq(0,2]$，在最低点左侧，这一段图像一直下降，最高点在左端：$h(1)=5$。$h(2)=4$ 是最小值。"
+                    },
+                    "required_evidence": [
+                        "left_of_lowest",
+                        "maximum_at_left"
+                    ],
+                    "criteria": "须指出[1,2]在最低点x=2的左侧（[1,2]⊆(0,2]），h在[1,2]上单调递减，给left_of_lowest；并给出最大值h(1)=5，给maximum_at_left。说最大值是h(2)=4，或“由x+4/x≥4得最大值4”是错误：4是最小值。只代入x=1算出5而没有单调性依据时只给maximum_at_left，可追问为什么最高点在x=1。",
+                    "completion_reply": "$h(x)$ 在 $[1,2]$ 上单调递减，$h(x)_{\\max}=h(1)=5$，所以 $m<-5$。",
+                    "results": [
+                        "$[1,2]\\subseteq(0,2]$，$h(x)$ 在 $[1,2]$ 上单调递减。",
+                        "$h(x)_{\\max}=h(1)=5$，所以 $m<-5$。"
+                    ]
+                },
+                {
+                    "id": "e_boundary",
+                    "title": "检查边界",
+                    "question": "上一步的范围以 $m=-5$ 为边界。代回原不等式，它要保留吗？",
+                    "interaction": {
+                        "type": "checklist",
+                        "title": "逐个检查边界",
+                        "slots": [
+                            {
+                                "label": "$m=-5$",
+                                "hint": "此时原不等式变为 $x^2-5x+4<0$",
+                                "options": [
+                                    {
+                                        "value": "holds",
+                                        "label": "对所有 $x$ 成立，保留",
+                                        "note": "最终范围包含 $m=-5$。"
+                                    },
+                                    {
+                                        "value": "fails",
+                                        "label": "有 $x$ 不成立，排除",
+                                        "note": "最终范围不含 $m=-5$。"
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "expected_answer": {
+                        "terms": [
+                            "fails"
+                        ]
+                    },
+                    "feedback": {
+                        "terms": "$m=-5$ 时原不等式为 $x^2-5x+4<0$。代入 $x=1$ 得 $1-5+4=0$，不满足 $<0$。"
+                    },
+                    "required_evidence": [
+                        "boundary_excluded"
+                    ],
+                    "criteria": "须指出m=-5时存在x=1使左边等于0，不满足严格不等号<0，所以排除m=-5；接受“f(1)=0不小于0”或“h(1)=5，m<-h(1)变成-5<-5不成立”。只说“端点不取”而没有给出不成立的x不足。说m=-5时对所有x都成立是错误。本步为单槽位checklist。学生明确给出x=1处等于0、不满足<0时，只返回evidence=[\"boundary_excluded\"]、actions=[]，由服务端把槽位绑定为fails并推进。",
+                    "completion_reply": "最终范围为 $m\\in(-\\infty,-5)$。",
+                    "results": [
+                        "$m=-5$ 时 $x=1$ 处左边等于 $0$，不满足 $<0$，排除。",
+                        "最终范围为 $m\\in(-\\infty,-5)$。"
+                    ]
+                }
+            ]
+        }
+    },
+    "initial_state": {
+        "active": 0,
+        "method": null,
+        "swapped": false,
+        "pairs": [
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ],
+            [
+                "",
+                ""
+            ]
+        ],
+        "choices": {
+            "i_condition": null,
+            "i_range": null,
+            "e_separate": null,
+            "e_condition": null
+        },
+        "feedback": "",
+        "hint": false
+    }
+}

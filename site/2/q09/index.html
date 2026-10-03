@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q09 · 恒成立问题 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=55">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=12" defer></script>
+  <script src="/assets/practice/components.js?v=37" defer></script>
+  <script src="/assets/practice/context.js?v=14" defer></script>
+  <script src="/assets/practice/runtime.js?v=27" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">恒成立问题</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/2/">← 返回题库</a> <span class="separator">/</span> Q09</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知 $y=ax^2-(a+1)x+1$，若对任意 $-1\le a\le1$，$y&gt;0$ 恒成立，求 $x$ 的取值范围。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning">
+          <div class="meaning-row"><dt>范围</dt><dd data-math-text>$a\in[-1,1],\quad x\in\mathbb R$</dd></div>
+          <div class="meaning-row"><dt>条件</dt><dd data-math-text>$\forall a\in[-1,1],$ $ax^2-(a+1)x+1&gt;0$</dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd data-math-text>$\{x\in\mathbb R\mid\text{上述条件成立}\}$</dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：判断适用条件</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+<script type="application/json" id="practice-config">
+{
+  "id": "quadratic-always-q09",
+  "version": 1,
+  "variables": [
+    "a",
+    "x"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方法？",
+  "methods": [
+    {
+      "id": "variable",
+      "label": "更换主元法"
+    }
+  ],
+  "routes": {
+    "variable": [
+      {
+        "id": "v_basis",
+        "title": "判断适用条件",
+        "question": "更换主元法需要两个前提。逐项看看，本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "更换主元法的两个前提",
+          "slots": [
+            {
+              "label": "题目要求对哪个变量的所有取值都成立",
+              "hint": "区分恒成立针对的变量与待求取值范围的变量",
+              "options": [
+                {
+                  "value": "given",
+                  "label": "$a$：对任意 $a\\in[-1,1]$",
+                  "note": "把 $a$ 当作自变量，$x$ 当作常数。"
+                },
+                {
+                  "value": "asked",
+                  "label": "$x$：对任意实数 $x$",
+                  "note": "把 $x$ 当作自变量，$a$ 当作常数。"
+                }
+              ]
+            },
+            {
+              "label": "固定另一个字母后，表达式关于所选主元是几次式",
+              "hint": "只数所选主元的次数，另一个字母按常数处理",
+              "options": [
+                {
+                  "value": "linear",
+                  "label": "一次形式，可退化为常数",
+                  "note": "一次项系数为零时是常数；两种情况下，最值都在闭区间的端点取到。"
+                },
+                {
+                  "value": "quadratic",
+                  "label": "二次式",
+                  "note": "还要看开口和对称轴。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "given",
+            "linear"
+          ]
+        },
+        "feedback": {
+          "terms": "恒成立针对任意 $a\\in[-1,1]$，并非任意实数 $x$；$x$ 是待求取值范围的变量。固定 $x$ 后，$y=(x^2-x)a-x+1$ 关于 $a$ 是一次形式；$x=0$ 或 $1$ 时退化为常数。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_basis-done",
+        "board": "variable-board"
+      },
+      {
+        "id": "v_rewrite",
+        "title": "更换主元",
+        "question": "把 $x$ 当作常数、$a$ 当作自变量，$y$ 可以整理成哪个函数？",
+        "interaction": {
+          "type": "choice",
+          "field": "v_rewrite",
+          "options": [
+            {
+              "value": "collect",
+              "label": "$f(a)=(x^2-x)a-x+1$"
+            },
+            {
+              "value": "sign",
+              "label": "$f(a)=(x^2-x)a+x+1$"
+            },
+            {
+              "value": "merged",
+              "label": "$f(a)=(x^2-2x)a+1$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "collect"
+          ]
+        },
+        "feedback": {
+          "answer": "先去括号：$-(a+1)x=-ax-x$。含 $a$ 的项有 $ax^2$、$-ax$，提出 $a$ 得 $(x^2-x)a$；$-x$ 和 $1$ 不含 $a$，是常数项，不能并进 $a$ 的系数。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_rewrite-done",
+        "board": "v_rewrite-board"
+      },
+      {
+        "id": "v_condition",
+        "title": "转化为最值条件",
+        "question": "要使 $f(a)>0$ 对所有 $a\\in[-1,1]$ 成立，$f(a)$ 应满足哪个条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "v_condition",
+          "options": [
+            {
+              "value": "max",
+              "label": "$a\\in[-1,1]$ 时，$f(a)_{\\max}>0$"
+            },
+            {
+              "value": "min",
+              "label": "$a\\in[-1,1]$ 时，$f(a)_{\\min}>0$"
+            },
+            {
+              "value": "one_point",
+              "label": "$f(0)>0$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "min"
+          ]
+        },
+        "feedback": {
+          "answer": "要 $[-1,1]$ 上所有的 $a$ 都使 $f(a)>0$，只需最小值大于 $0$；最大值大于 $0$ 只能保证一处；只看 $a=0$，别的 $a$ 仍可能不满足。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_condition-done"
+      },
+      {
+        "id": "v_extremum",
+        "title": "求最值",
+        "question": "$f(a)=(x^2-x)a-x+1$ 的斜率为 $x^2-x$，可能为 $0$。$f(a)$ 在 $[-1,1]$ 上的最小值在哪里取到？",
+        "interaction": {
+          "type": "checklist",
+          "title": "看斜率判断最值",
+          "slots": [
+            {
+              "label": "斜率 $x^2-x$ 的符号",
+              "hint": "$x^2-x=x(x-1)$，$x$ 取不同的值试试",
+              "options": [
+                {
+                  "value": "positive",
+                  "label": "恒为正",
+                  "note": "$f(a)$ 在 $[-1,1]$ 上递增。"
+                },
+                {
+                  "value": "unknown",
+                  "label": "随 $x$ 变化，符号不定",
+                  "note": "递增、递减、不变都可能出现。"
+                },
+                {
+                  "value": "negative",
+                  "label": "恒为负",
+                  "note": "$f(a)$ 在 $[-1,1]$ 上递减。"
+                }
+              ]
+            },
+            {
+              "label": "$f(a)$ 在 $[-1,1]$ 上的最小值",
+              "hint": "图像是线段；斜率为零时，所有点的函数值相同",
+              "options": [
+                {
+                  "value": "left",
+                  "label": "$f(-1)=1-x^2$",
+                  "note": "在左端点 $a=-1$ 处取到。"
+                },
+                {
+                  "value": "right",
+                  "label": "$f(1)=(x-1)^2$",
+                  "note": "在右端点 $a=1$ 处取到。"
+                },
+                {
+                  "value": "ends",
+                  "label": "$f(-1)$、$f(1)$ 中较小的一个",
+                  "note": "两端都大于 $0$，最小值才大于 $0$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "unknown",
+            "ends"
+          ]
+        },
+        "feedback": {
+          "terms": "$x^2-x=x(x-1)$：$x<0$ 或 $x>1$ 时为正，$0<x<1$ 时为负，$x=0$ 或 $1$ 时为 $0$。斜率符号不定，最低点可能在任一端，最小值是 $f(-1)$、$f(1)$ 中较小的一个，所以两端都要大于 $0$。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_extremum-done",
+        "board": "v_extremum-board"
+      },
+      {
+        "id": "v_range",
+        "title": "解关于 x 的不等式",
+        "question": "由 $f(-1)=1-x^2>0$ 且 $f(1)=(x-1)^2>0$，$x$ 在什么范围内？",
+        "interaction": {
+          "type": "choice",
+          "field": "v_range",
+          "options": [
+            {
+              "value": "intersect",
+              "label": "$-1<x<1$"
+            },
+            {
+              "value": "only_right",
+              "label": "$x\\ne1$"
+            },
+            {
+              "value": "closed",
+              "label": "$-1\\le x\\le1$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "intersect"
+          ]
+        },
+        "feedback": {
+          "answer": "$1-x^2>0$ 得 $-1<x<1$；$(x-1)^2>0$ 得 $x\\ne1$。两个条件要同时成立，取交集；端点处 $1-x^2=0$，不满足 $>0$。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_range-done",
+        "board": "range-board"
+      },
+      {
+        "id": "v_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $x=-1$、$x=1$ 为边界。逐个代回原不等式，它们要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$x=-1$",
+              "hint": "此时原不等式变为 $2a+2>0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $a$ 成立，保留",
+                  "note": "最终范围包含这个边界。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $a$ 不成立，排除",
+                  "note": "最终范围不含这个边界。"
+                }
+              ]
+            },
+            {
+              "label": "$x=1$",
+              "hint": "此时原不等式变为 $0>0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $a$ 成立，保留",
+                  "note": "最终范围包含这个边界。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $a$ 不成立，排除",
+                  "note": "最终范围不含这个边界。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "fails",
+            "fails"
+          ]
+        },
+        "feedback": {
+          "terms": "$x=-1$ 时原不等式为 $2a+2>0$，取 $a=-1$，左边 $=0$，不成立；$x=1$ 时 $y=0$，对所有 $a$ 都不满足 $>0$。两个都排除。"
+        },
+        "submit_label": "确认检查",
+        "display": "v_boundary-done",
+        "board": "boundary-board"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+</script>
+<template id="variable-board">
+<div class="visual-board"><div class="board-caption">更换主元法</div><div class="formula" data-math-text>$y=ax^2-(a+1)x+1$</div><p class="board-focus" data-math-text>先看恒成立针对哪个变量，再把另一个字母固定</p></div>
+</template>
+<template id="v_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>更换主元法的两个前提</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>恒成立针对的变量：$a$</p><p class="checklist-hint" data-math-text>对任意 $a\in[-1,1]$ 都要成立，$x$ 是待求取值范围的变量。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$y$ 关于 $a$ 是：一次形式，可退化为常数</p><p class="checklist-hint" data-math-text>把 $x$ 当作常数；$x=0$ 或 $1$ 时，$a$ 的系数为零，分别得到常数 $1$ 或 $0$。</p></div></div><p class="checklist-verdict" data-math-text>两个前提都满足，把 $a$ 作为主元</p></div><details class="details" id="{{uid}}-v_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，对任意 $a\in[-1,1]$，$ax^2-(a+1)x+1&gt;0$ 恒成立。</p></details>
+</template>
+<template id="v_rewrite-board">
+<div class="visual-board"><div class="board-caption">把 x 当作常数</div><div class="formula" data-math-text>$y=ax^2-(a+1)x+1$</div><p class="board-focus" data-math-text>先去括号，再找出所有含 $a$ 的项，提出 $a$</p></div>
+</template>
+<template id="v_rewrite-done">
+<div class="visual-board completed-visual"><div class="board-caption">把 a 当作自变量</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>原函数</span><div class="math" data-math-text>$y=ax^2-(a+1)x+1$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label" data-math-text>按 $a$ 整理</span><div class="math" data-math-text>$(x^2-x)a-x+1$</div><span class="conversion-label" data-math-text>记作 $f(a)$，$a\in[-1,1]$</span></div></div></div><details class="details" id="{{uid}}-v_rewrite-derivation" open><summary>完整推导</summary><p data-math-text>$y=ax^2-ax-x+1$，把 $y$ 看成关于 $a$ 的函数，记 $f(a)=(x^2-x)a-x+1$，$a\in[-1,1]$，</p><p data-math-text>则原问题等价于：$f(a)&gt;0$ 对任意 $a\in[-1,1]$ 恒成立。</p></details>
+</template>
+<template id="v_condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">恒成立转化为最值条件</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>对所有 $a\in[-1,1]$ 都成立</span><div class="math" data-math-text>$f(a)&gt;0$</div></div><span class="conversion-arrow" aria-hidden="true">⇔</span><div><span class="conversion-label" data-math-text>只需比 $[-1,1]$ 上的最低点</span><div class="math" data-math-text>$\textcolor{#087f79}{f(a)_{\min}}&gt;0$</div><span class="conversion-label" data-math-text>最小值大于 $0$，其余的值都大于 $0$</span></div></div></div><details class="details" id="{{uid}}-v_condition-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore$ 原不等式恒成立 $\iff$ $f(a)$ 在 $[-1,1]$ 上的最小值大于 $0$。</p></details>
+</template>
+<template id="v_extremum-board">
+<div class="visual-board"><div class="board-caption">一次或常数函数</div><div class="formula case-lines"><p class="case-line"><span data-math-text>$f(a)=(x^2-x)a-x+1$，</span><span data-math-text>$a\in[-1,1]$</span></p></div><p class="board-focus" data-math-text>图像是一条线段，斜率的符号决定哪一端更低；斜率为零时各点等高</p></div>
+</template>
+<template id="v_extremum-done">
+<div class="graph-cases"><figure class="graph-case"><div data-linear-graph="{&quot;slope&quot;: 0.75, &quot;intercept&quot;: 1.5, &quot;bounds&quot;: [-1.8, 1.8, -0.6, 2.8], &quot;interval&quot;: [-1, 1], &quot;xTicks&quot;: [[-1, &quot;−1&quot;], [1, &quot;1&quot;]], &quot;variable&quot;: &quot;a&quot;, &quot;title&quot;: &quot;x = −1/2 时 f(a) 的图像&quot;, &quot;description&quot;: &quot;x=−1/2 时斜率 3/4 为正，f(a)=3/4·a+3/2 在 [−1,1] 上递增，左端 a=−1 处最低。&quot;, &quot;points&quot;: [{&quot;x&quot;: -1, &quot;label&quot;: &quot;最低&quot;, &quot;place&quot;: &quot;above-left&quot;}], &quot;uid&quot;: &quot;{{uid}}-slope-up&quot;}"></div><figcaption><span class="graph-case-name" data-math-text>$x=-\frac12$</span><span class="graph-case-fact" data-math-text>斜率 $\frac34&gt;0$，左端最低</span></figcaption></figure><figure class="graph-case"><div data-linear-graph="{&quot;slope&quot;: 0, &quot;intercept&quot;: 1, &quot;bounds&quot;: [-1.8, 1.8, -0.6, 2.8], &quot;interval&quot;: [-1, 1], &quot;xTicks&quot;: [[-1, &quot;−1&quot;], [1, &quot;1&quot;]], &quot;variable&quot;: &quot;a&quot;, &quot;title&quot;: &quot;x = 0 时 f(a) 的图像&quot;, &quot;description&quot;: &quot;x=0 时斜率为 0，f(a)=1，两端一样高。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-slope-flat&quot;}"></div><figcaption><span class="graph-case-name" data-math-text>$x=0$</span><span class="graph-case-fact" data-math-text>斜率 $0$，两端一样高</span></figcaption></figure><figure class="graph-case"><div data-linear-graph="{&quot;slope&quot;: -0.25, &quot;intercept&quot;: 0.5, &quot;bounds&quot;: [-1.8, 1.8, -0.6, 2.8], &quot;interval&quot;: [-1, 1], &quot;xTicks&quot;: [[-1, &quot;−1&quot;], [1, &quot;1&quot;]], &quot;variable&quot;: &quot;a&quot;, &quot;title&quot;: &quot;x = 1/2 时 f(a) 的图像&quot;, &quot;description&quot;: &quot;x=1/2 时斜率 −1/4 为负，f(a)=−1/4·a+1/2 在 [−1,1] 上递减，右端 a=1 处最低。&quot;, &quot;points&quot;: [{&quot;x&quot;: 1, &quot;label&quot;: &quot;最低&quot;, &quot;place&quot;: &quot;above-right&quot;}], &quot;uid&quot;: &quot;{{uid}}-slope-down&quot;}"></div><figcaption><span class="graph-case-name" data-math-text>$x=\frac12$</span><span class="graph-case-fact" data-math-text>斜率 $-\frac14&lt;0$，右端最低</span></figcaption></figure></div><p class="graph-cases-verdict" data-math-text>斜率 $x^2-x$ 符号不定，最低点可能在任一端：两端都要大于 $0$</p><details class="details" id="{{uid}}-v_extremum-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ x^2-x=x(x-1)$ 的符号随 $x$ 变化，$f(a)$ 在 $[-1,1]$ 上的最小值是 $f(-1)$、$f(1)$ 中较小的一个，</p><p data-math-text>$\therefore\ f(a)&gt;0$ 恒成立 $\iff$ $\begin{cases}f(-1)=1-x^2&gt;0,\\f(1)=(x-1)^2&gt;0.\end{cases}$</p></details>
+</template>
+<template id="range-board">
+<div class="visual-board"><div class="formula case-lines"><p class="case-line"><span data-math-text>$1-x^2&gt;0$，</span><span data-math-text>$(x-1)^2&gt;0$</span></p></div><p class="board-focus" data-math-text>两个条件要同时成立</p></div>
+</template>
+<template id="v_range-done">
+<div class="graph-comparison"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: -1, &quot;vertex&quot;: [0, 1], &quot;bounds&quot;: [-2.2, 2.2, -1.6, 2.2], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;xTicks&quot;: [[-1, &quot;−1&quot;], [1, &quot;1&quot;]], &quot;title&quot;: &quot;1 − x² 的图像&quot;, &quot;description&quot;: &quot;1−x² 开口向下，两根 −1、1 之间大于零，不含端点。&quot;, &quot;solution&quot;: {&quot;intervals&quot;: [[-1, 1]], &quot;closed&quot;: false}, &quot;markSign&quot;: &quot;below&quot;, &quot;strict&quot;: true, &quot;uid&quot;: &quot;{{uid}}-range-left&quot;}"></div><figcaption data-math-text>$1-x^2&gt;0$：$-1&lt;x&lt;1$</figcaption></figure><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [1, 0], &quot;bounds&quot;: [-2.2, 2.2, -1.6, 2.2], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;xTicks&quot;: [[1, &quot;1&quot;]], &quot;title&quot;: &quot;(x − 1)² 的图像&quot;, &quot;description&quot;: &quot;(x−1)² 开口向上，只在 x=1 处等于零，其余都大于零。&quot;, &quot;solution&quot;: {&quot;intervals&quot;: [[null, 1], [1, null]], &quot;closed&quot;: false}, &quot;markSign&quot;: &quot;below&quot;, &quot;strict&quot;: true, &quot;uid&quot;: &quot;{{uid}}-range-right&quot;}"></div><figcaption data-math-text>$(x-1)^2&gt;0$：$x\ne1$</figcaption></figure></div><p class="graph-cases-verdict" data-math-text>两个条件同时成立，取交集：$-1&lt;x&lt;1$</p><details class="details" id="{{uid}}-v_range-derivation" open><summary>完整推导</summary><p data-math-text>由 $1-x^2&gt;0$，得 $-1&lt;x&lt;1$；由 $(x-1)^2&gt;0$，得 $x\ne1$，</p><p data-math-text>$\therefore\ -1&lt;x&lt;1$。</p></details>
+</template>
+<template id="boundary-board">
+<div class="visual-board"><div class="board-caption">上一步得到的范围</div><div class="formula" data-math-text>$\boxed{-1}&lt;x&lt;\boxed{1}$</div><p class="board-focus" data-math-text>要检查的边界：$x=-1$ 和 $x=1$</p></div>
+</template>
+<template id="v_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$x=-1$ 和 $x=1$</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x=-1$：排除</p><p class="checklist-hint" data-math-text>原不等式为 $2a+2&gt;0$，$a=-1$ 时左边 $=0$。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x=1$：排除</p><p class="checklist-hint" data-math-text>原不等式为 $0&gt;0$，对所有 $a$ 都不成立。</p></div></div><p class="checklist-verdict">两个边界都排除</p></div><div class="graph-comparison"><figure class="quadratic-graph"><div data-linear-graph="{&quot;slope&quot;: 2, &quot;intercept&quot;: 2, &quot;bounds&quot;: [-1.8, 1.8, -1, 4.4], &quot;interval&quot;: [-1, 1], &quot;xTicks&quot;: [[-1, &quot;−1&quot;], [1, &quot;1&quot;]], &quot;variable&quot;: &quot;a&quot;, &quot;title&quot;: &quot;x = −1 时 f(a) 的图像&quot;, &quot;description&quot;: &quot;x=−1 时 f(a)=2a+2，左端点 (−1,0) 落在横轴上，不满足 f(a)&gt;0。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-boundary-low&quot;, &quot;markSign&quot;: &quot;below&quot;, &quot;strict&quot;: true}"></div><figcaption data-math-text>$x=-1$ 时 $f(a)=2a+2$</figcaption></figure><figure class="quadratic-graph"><div data-linear-graph="{&quot;slope&quot;: 0, &quot;intercept&quot;: 0, &quot;bounds&quot;: [-1.8, 1.8, -1, 4.4], &quot;interval&quot;: [-1, 1], &quot;xTicks&quot;: [[-1, &quot;−1&quot;], [1, &quot;1&quot;]], &quot;variable&quot;: &quot;a&quot;, &quot;title&quot;: &quot;x = 1 时 f(a) 的图像&quot;, &quot;description&quot;: &quot;x=1 时 f(a)=0，整段落在横轴上，处处不满足 f(a)&gt;0。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-boundary-high&quot;, &quot;markSign&quot;: &quot;below&quot;, &quot;strict&quot;: true}"></div><figcaption data-math-text>$x=1$ 时 $f(a)=0$</figcaption></figure></div><details class="details" id="{{uid}}-v_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $x=-1$ 时，原不等式为 $2a+2&gt;0$，取 $a=-1$，左边 $=0$，不成立，舍去；</p><p data-math-text>当 $x=1$ 时，原不等式为 $0&gt;0$，不成立，舍去。</p><p data-math-text>综上，实数 $x$ 的取值范围是 $(-1,1)$。</p></details>
+</template>
+<template id="lesson-completion">
+<section class="completion-card"><p class="completion-eyebrow">本题已完成</p><h2>斜率不定，两端都要看</h2><div class="visual-board"><div class="formula" data-math-text>$x\in(-1,1)$</div></div><p data-math-text>恒成立针对任意 $a\in[-1,1]$，固定 $x$，把 $a$ 当作自变量，$f(a)=(x^2-x)a-x+1$ 是一次或常数函数；斜率 $x^2-x$ 符号不定，最低点可能在任一端，只需 $f(-1)&gt;0$ 且 $f(1)&gt;0$。两个边界处原不等式都不成立，都排除。</p><a class="chapter-return" href="/2/">← 返回恒成立题库</a></section>
+</template>
+</body>
+</html>

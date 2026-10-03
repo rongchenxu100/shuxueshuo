@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q02 · 恒成立问题 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=55">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=12" defer></script>
+  <script src="/assets/practice/components.js?v=37" defer></script>
+  <script src="/assets/practice/context.js?v=14" defer></script>
+  <script src="/assets/practice/runtime.js?v=27" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">恒成立问题</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/2/">← 返回题库</a> <span class="separator">/</span> Q02</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知不等式 $kx^2+2kx-(k+2)&lt;0$ 恒成立，求实数 $k$ 的取值范围。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning">
+          <div class="meaning-row"><dt>范围</dt><dd data-math-text>$x\in\mathbb R,\quad k\in\mathbb R$</dd></div>
+          <div class="meaning-row"><dt>条件</dt><dd data-math-text>$\forall x\in\mathbb R,$ $kx^2+2kx-(k+2)&lt;0$</dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd data-math-text>$\{k\in\mathbb R\mid\text{上述条件成立}\}$</dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：判断适用条件</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+<script type="application/json" id="practice-config">
+{
+  "id": "quadratic-always-q02",
+  "version": 1,
+  "variables": [
+    "x",
+    "k"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方法？",
+  "methods": [
+    {
+      "id": "discriminant",
+      "label": "判别式法"
+    }
+  ],
+  "routes": {
+    "discriminant": [
+      {
+        "id": "d_basis",
+        "title": "判断适用条件",
+        "question": "判别式法需要两个前提。逐项看看，本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "判别式法的两个前提",
+          "slots": [
+            {
+              "label": "$x$ 的取值范围",
+              "hint": "看题目要求对哪些 $x$ 成立",
+              "options": [
+                {
+                  "value": "all_real",
+                  "label": "全体实数",
+                  "note": "在全体实数上，可以看整条图像与横轴的位置关系。"
+                },
+                {
+                  "value": "interval",
+                  "label": "某个区间",
+                  "note": "只在某个区间上成立时，要看顶点与区间的位置，只看判别式不够。"
+                }
+              ]
+            },
+            {
+              "label": "$x^2$ 的系数",
+              "hint": "只看 $x$，把 $k$ 当作常数",
+              "options": [
+                {
+                  "value": "nonzero",
+                  "label": "确定非零",
+                  "note": "若系数确定非零，才可把它看作二次函数；请核对题目是否已排除系数为零。"
+                },
+                {
+                  "value": "maybe_zero",
+                  "label": "含参数，可能为零",
+                  "note": "系数可能为零时，要先单独讨论退化成一次式或常数的情形。"
+                },
+                {
+                  "value": "not_quadratic",
+                  "label": "没有 $x^2$ 项",
+                  "note": "没有 $x^2$ 项就不是二次函数，判别式用不上。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "all_real",
+            "maybe_zero"
+          ]
+        },
+        "feedback": {
+          "terms": "题目要求对任意实数 $x$ 成立；$x^2$ 的系数是 $k$，$k=0$ 时不再是二次式，要单独讨论。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_basis-done",
+        "board": "discriminant-board"
+      },
+      {
+        "id": "d_degenerate",
+        "title": "讨论 k = 0",
+        "question": "当 $k=0$ 时，原不等式变成什么？它对所有实数 $x$ 成立吗？",
+        "interaction": {
+          "type": "choice",
+          "field": "d_degenerate",
+          "options": [
+            {
+              "value": "holds",
+              "label": "变为 $-2<0$，对所有 $x$ 成立"
+            },
+            {
+              "value": "discard",
+              "label": "不是二次不等式，直接舍去"
+            },
+            {
+              "value": "linear",
+              "label": "变为 $2x-2<0$，只在 $x<1$ 时成立"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "holds"
+          ]
+        },
+        "feedback": {
+          "answer": "把 $k=0$ 代入原不等式：$kx^2$ 和 $2kx$ 都变为 $0$，只剩常数项 $-(0+2)$。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_degenerate-done"
+      },
+      {
+        "id": "d_position",
+        "title": "判断图像位置",
+        "question": "当 $k\\ne0$ 时，$f(x)$ 是二次函数，开口方向由 $k$ 决定。要使 $f(x)<0$ 对所有实数 $x$ 成立，图像应满足什么？",
+        "interaction": {
+          "type": "choice",
+          "field": "d_position",
+          "options": [
+            {
+              "value": "down_below",
+              "label": "开口向下（$k<0$），全部在横轴下方，不允许相切"
+            },
+            {
+              "value": "down_touch",
+              "label": "开口向下（$k<0$），在横轴下方或横轴上，允许相切"
+            },
+            {
+              "value": "up_apart",
+              "label": "开口向上（$k>0$），与横轴没有公共点"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "down_below"
+          ]
+        },
+        "feedback": {
+          "answer": "$<0$ 不允许函数值等于零，也不允许正值。开口方向由 $k$ 决定；区分“相切”和“不相交”。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_position-done"
+      },
+      {
+        "id": "d_delta",
+        "title": "建立判别式条件",
+        "question": "上一步：开口向下（$k<0$），图像与横轴没有公共点。这对应哪个判别式条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "d_delta",
+          "options": [
+            {
+              "value": "le",
+              "label": "$\\Delta\\le0$"
+            },
+            {
+              "value": "lt",
+              "label": "$\\Delta<0$"
+            },
+            {
+              "value": "ge",
+              "label": "$\\Delta\\ge0$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "lt"
+          ]
+        },
+        "feedback": {
+          "answer": "不相交对应 $\\Delta<0$，相切对应 $\\Delta=0$。上一步不允许相切。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_delta-done"
+      },
+      {
+        "id": "d_range",
+        "title": "求参数范围",
+        "question": "把 $8k^2+8k<0$ 看成关于 $k$ 的一元二次不等式，并结合 $k<0$，$k$ 在什么范围内？",
+        "interaction": {
+          "type": "choice",
+          "field": "d_range",
+          "options": [
+            {
+              "value": "between",
+              "label": "$-1<k<0$"
+            },
+            {
+              "value": "outside",
+              "label": "$k<-1$ 或 $k>0$"
+            },
+            {
+              "value": "closed_left",
+              "label": "$-1\\le k<0$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "between"
+          ]
+        },
+        "feedback": {
+          "answer": "$h(k)=8k(k+1)$ 开口向上：两根之间小于零，端点处等于零。解出后再与 $k<0$ 取交集。"
+        },
+        "submit_label": "确认判断",
+        "display": "d_range-done",
+        "board": "range-board"
+      },
+      {
+        "id": "d_merge",
+        "title": "合并两种情况",
+        "question": "情况①得到 $k=0$，情况②得到 $-1<k<0$。把两种情况的结果合并，$k$ 的取值范围是什么？",
+        "interaction": {
+          "type": "choice",
+          "field": "d_merge",
+          "options": [
+            {
+              "value": "union",
+              "label": "$-1<k\\le0$"
+            },
+            {
+              "value": "only_second",
+              "label": "$-1<k<0$"
+            },
+            {
+              "value": "intersection",
+              "label": "无解，没有 $k$ 同时满足两种情况"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "union"
+          ]
+        },
+        "feedback": {
+          "answer": "两种情况是“或”的关系，满足任意一种即可，合并时取并集。"
+        },
+        "submit_label": "确认合并",
+        "display": "d_merge-done"
+      },
+      {
+        "id": "d_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $k=-1$、$k=0$ 为边界。逐个代回原不等式，它们要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$k=-1$",
+              "hint": "此时原不等式变为 $-x^2-2x-1<0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $k=-1$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $k=-1$。"
+                }
+              ]
+            },
+            {
+              "label": "$k=0$",
+              "hint": "此时原不等式变为 $-2<0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $k=0$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $k=0$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "fails",
+            "holds"
+          ]
+        },
+        "feedback": {
+          "terms": "$k=-1$ 时原不等式为 $-(x+1)^2<0$，$x=-1$ 时左边等于 $0$，不成立；$k=0$ 时为 $-2<0$，对所有 $x$ 成立。"
+        },
+        "submit_label": "确认检查",
+        "display": "d_boundary-done",
+        "board": "boundary-board"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+</script>
+<template id="discriminant-board">
+<div class="visual-board"><div class="board-caption">判别式法</div><div class="formula" data-math-text>$kx^2+2kx-(k+2)&lt;0$</div><p class="board-focus" data-math-text>看题目对哪些 $x$ 提出要求，再看 $x^2$ 的系数</p></div>
+</template>
+<template id="d_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>判别式法的两个前提</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x$ 的取值范围：全体实数</p><p class="checklist-hint" data-math-text>题目要求对任意实数 $x$ 成立。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x^2$ 的系数：$k$，可能为零</p><p class="checklist-hint" data-math-text>$k=0$ 时退化为常数，不再是二次函数。</p></div></div><p class="checklist-verdict" data-math-text>先讨论 $k=0$，再讨论 $k\ne0$</p></div><details class="details" id="{{uid}}-d_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，对任意 $x\in\mathbb R$，$kx^2+2kx-(k+2)&lt;0$ 恒成立。</p><p data-math-text>记 $f(x)=kx^2+2kx-(k+2)$，二次项系数为 $k$，分 $k=0$ 与 $k\ne0$ 两种情况讨论。</p></details>
+</template>
+<template id="d_degenerate-done">
+<div class="visual-board"><div class="board-caption">二次项系数为零的情况</div><div class="formula" data-math-text>$k=0\ \Rightarrow\ -2&lt;0\ \checkmark$</div><p class="board-focus" data-math-text>不是二次不等式，也不能跳过</p></div><details class="details" id="{{uid}}-d_degenerate-derivation" open><summary>完整推导</summary><p data-math-text>① 当 $k=0$ 时，原不等式为 $-2&lt;0$，对任意 $x\in\mathbb R$ 恒成立，符合题意；</p></details>
+</template>
+<template id="d_position-done">
+<div class="graph-cases"><figure class="graph-case"><div data-quadratic-graph="{&quot;xTicks&quot;: [], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;二次函数图像&quot;, &quot;showVertex&quot;: false, &quot;description&quot;: &quot;开口向下，图像与横轴没有公共点，所有函数值都小于零。&quot;, &quot;coefficient&quot;: -0.5, &quot;vertex&quot;: [-1, -1], &quot;bounds&quot;: [-3.2, 1.2000000000000002, -3.6, 2.2], &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true, &quot;uid&quot;: &quot;{{uid}}-cond-apart-mini&quot;}"></div><figcaption><span class="graph-case-name">开口向下·不相交</span><span class="graph-case-fact" data-math-text>$f(x)&lt;0$</span><span class="graph-case-verdict">✓ 满足</span></figcaption></figure><figure class="graph-case rejected"><div data-quadratic-graph="{&quot;xTicks&quot;: [], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;二次函数图像&quot;, &quot;showVertex&quot;: false, &quot;description&quot;: &quot;开口向下，图像与横轴相切，切点处函数值等于零。&quot;, &quot;coefficient&quot;: -1, &quot;vertex&quot;: [-1, 0], &quot;bounds&quot;: [-3.2, 1.2000000000000002, -3.6, 2.2], &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true, &quot;uid&quot;: &quot;{{uid}}-cond-touch-mini&quot;}"></div><figcaption><span class="graph-case-name">开口向下·相切</span><span class="graph-case-fact" data-math-text>切点 $f(x)=0$</span><span class="graph-case-verdict">✗ 不满足</span></figcaption></figure><figure class="graph-case rejected"><div data-quadratic-graph="{&quot;xTicks&quot;: [], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;二次函数图像&quot;, &quot;showVertex&quot;: false, &quot;description&quot;: &quot;开口向上，函数值可以大于零。&quot;, &quot;coefficient&quot;: 1, &quot;vertex&quot;: [-1, -4], &quot;bounds&quot;: [-4, 2, -5, 5], &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true, &quot;uid&quot;: &quot;{{uid}}-cond-up-mini&quot;}"></div><figcaption><span class="graph-case-name">开口向上</span><span class="graph-case-fact" data-math-text>$f(x)$ 取到正值</span><span class="graph-case-verdict">✗ 不满足</span></figcaption></figure></div><p class="graph-cases-verdict"><span class="nowrap" data-math-text>$f(x)&lt;0$ 恒成立</span> ⇔ <span class="nowrap">开口向下且与横轴没有公共点</span></p><details class="details" id="{{uid}}-d_position-derivation" open><summary>完整推导</summary><p data-math-text>② 当 $k\ne0$ 时，$f(x)$ 为二次函数，</p><p data-math-text>$\therefore$ $f(x)&lt;0$ 恒成立 $\iff$ 图像开口向下且与 $x$ 轴无公共点，</p></details>
+</template>
+<template id="d_delta-done">
+<p class="case-merge-caption" data-math-text>开口向下（$k&lt;0$）时</p><div class="case-merge"><div class="case-merge-group"><span class="case-merge-cell"><span class="case-merge-name">不相交</span><span class="case-merge-value" data-math-text>$\Delta&lt;0$</span></span><span class="case-merge-total" data-math-text>只保留：$\Delta&lt;0$</span></div><span class="case-merge-cell rejected"><span class="case-merge-name">相切</span><span class="case-merge-value" data-math-text>$\Delta=0$</span><span class="case-merge-out">✗ 不满足</span></span><span class="case-merge-cell rejected"><span class="case-merge-name">穿过</span><span class="case-merge-value" data-math-text>$\Delta&gt;0$</span><span class="case-merge-out">✗ 不满足</span></span></div><details class="details" id="{{uid}}-d_delta-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore\ \begin{cases}k&lt;0,\\ \Delta=(2k)^2-4k\cdot[-(k+2)]&lt;0,\end{cases}$</p><p data-math-text>整理得 $8k^2+8k&lt;0$。</p></details>
+</template>
+<template id="range-board">
+<div class="visual-board"><div class="formula fill-formula"><span class="fill-group" data-math-text>$h(k)=8k^2+8k$</span><span class="fill-group" data-math-text>$=8k(k+1)$</span></div><p class="board-focus" data-math-text>同时要满足 $k&lt;0$</p></div>
+</template>
+<template id="d_range-done">
+<div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;xTicks&quot;: [[-1, &quot;−1&quot;], [0, &quot;0&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;k&quot;, &quot;title&quot;: &quot;h(k) 的图像&quot;, &quot;showVertex&quot;: false, &quot;coefficient&quot;: 8, &quot;vertex&quot;: [-0.5, -2], &quot;bounds&quot;: [-2, 1.2, -3.5, 5], &quot;description&quot;: &quot;h(k)=8k(k+1) 开口向上，两根之间 h(k) 小于零，不含端点。&quot;, &quot;solution&quot;: {&quot;intervals&quot;: [[-1, 0]], &quot;closed&quot;: false}, &quot;uid&quot;: &quot;{{uid}}-range-done&quot;, &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true}"></div><figcaption data-math-text>$h(k)&lt;0$ 的部分：两根之间，不含端点</figcaption></figure><div class="reasoning"><p data-math-text>$h(k)=8k(k+1)$ 开口向上，零点 $k=-1$、$k=0$；两根之间的 $k$ 都满足 $k&lt;0$。</p></div></div><details class="details" id="{{uid}}-d_range-derivation" open><summary>完整推导</summary><p data-math-text>即 $8k(k+1)&lt;0$，解得 $-1&lt;k&lt;0$，满足 $k&lt;0$，</p><p data-math-text>$\therefore\ -1&lt;k&lt;0$；</p></details>
+</template>
+<template id="d_merge-done">
+<div class="case-merge"><div class="case-merge-group"><span class="case-merge-cell"><span class="case-merge-name">情况①</span><span class="case-merge-value" data-math-text>$k=0$</span></span><span class="case-merge-cell"><span class="case-merge-name">情况②</span><span class="case-merge-value" data-math-text>$-1&lt;k&lt;0$</span></span><span class="case-merge-total" data-math-text>取并集：$-1&lt;k\le0$</span></div></div><details class="details" id="{{uid}}-d_merge-derivation" open><summary>完整推导</summary><p data-math-text>将①②取并集，得 $-1&lt;k\le0$。</p></details>
+</template>
+<template id="boundary-board">
+<div class="visual-board"><div class="board-caption">上一步得到的范围</div><div class="formula" data-math-text>$\boxed{-1}&lt;k\le\boxed{0}$</div><p class="board-focus" data-math-text>要检查的边界：$k=-1$ 和 $k=0$</p></div>
+</template>
+<template id="d_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$k=-1$ 和 $k=0$</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$k=-1$：排除</p><p class="checklist-hint" data-math-text>$-(x+1)^2&lt;0$ 在 $x=-1$ 时为 $0&lt;0$，不成立</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$k=0$：保留</p><p class="checklist-hint" data-math-text>$-2&lt;0$ 对所有 $x$ 成立</p></div></div><p class="checklist-verdict" data-math-text>排除 $k=-1$，保留 $k=0$</p></div><div class="graph-comparison"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;xTicks&quot;: [[-1, &quot;−1&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;k=-1 时 f(x) 的图像&quot;, &quot;showVertex&quot;: false, &quot;coefficient&quot;: -1, &quot;vertex&quot;: [-1, 0], &quot;bounds&quot;: [-3.2, 1.2, -3.6, 2.2], &quot;description&quot;: &quot;k=-1 时 f(x)=-(x+1)^2，图像与横轴相切于 x=-1，切点处函数值等于零。&quot;, &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true, &quot;uid&quot;: &quot;{{uid}}-boundary-touch&quot;}"></div><figcaption data-math-text>$k=-1$ 时 $f(x)=-(x+1)^2$，与横轴相切</figcaption></figure><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;xTicks&quot;: [], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;title&quot;: &quot;k=0 时 f(x) 的图像&quot;, &quot;showVertex&quot;: false, &quot;coefficient&quot;: 0, &quot;vertex&quot;: [-1, -2], &quot;bounds&quot;: [-3.2, 1.2, -3.6, 2.2], &quot;description&quot;: &quot;k=0 时 f(x)=-2，是一条水平直线，整条在横轴下方。&quot;, &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true, &quot;uid&quot;: &quot;{{uid}}-boundary-flat&quot;}"></div><figcaption data-math-text>$k=0$ 时 $f(x)=-2$，整条在横轴下方</figcaption></figure></div><details class="details" id="{{uid}}-d_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：$k=-1$ 时，原不等式为 $-(x+1)^2&lt;0$，当 $x=-1$ 时不成立，故 $k\ne-1$；$k=0$ 时由①知成立。</p><p data-math-text>综上，实数 $k$ 的取值范围是 $(-1,0]$。</p></details>
+</template>
+<template id="lesson-completion">
+<section class="completion-card"><p class="completion-eyebrow">本题已完成</p><h2>从“系数含参”到分类讨论</h2><div class="visual-board"><div class="formula" data-math-text>$k\in(-1,0]$</div></div><p data-math-text>二次项系数含参数，先单独讨论 $k=0$；严格小于零要求开口向下且 $\Delta&lt;0$，不允许相切。两种情况最后取并集。</p><a class="chapter-return" href="/2/">← 返回恒成立题库</a></section>
+</template>
+</body>
+</html>

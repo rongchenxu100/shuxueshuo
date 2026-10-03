@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q08 · 恒成立问题 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=55">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=12" defer></script>
+  <script src="/assets/practice/components.js?v=37" defer></script>
+  <script src="/assets/practice/context.js?v=14" defer></script>
+  <script src="/assets/practice/runtime.js?v=27" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">恒成立问题</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/2/">← 返回题库</a> <span class="separator">/</span> Q08</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>已知函数 $y=mx^2-mx-6+m$，若对于 $1\le m\le3$，$y&lt;0$ 恒成立，求实数 $x$ 的取值范围。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning">
+          <div class="meaning-row"><dt>范围</dt><dd data-math-text>$m\in[1,3],\quad x\in\mathbb R$</dd></div>
+          <div class="meaning-row"><dt>条件</dt><dd data-math-text>$\forall m\in[1,3],$ $mx^2-mx-6+m&lt;0$</dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd data-math-text>$\{x\in\mathbb R\mid\text{上述条件成立}\}$</dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：判断适用条件</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+<script type="application/json" id="practice-config">
+{
+  "id": "quadratic-always-q08",
+  "version": 1,
+  "variables": [
+    "m",
+    "x"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方法？",
+  "methods": [
+    {
+      "id": "variable",
+      "label": "更换主元法"
+    }
+  ],
+  "routes": {
+    "variable": [
+      {
+        "id": "v_basis",
+        "title": "判断适用条件",
+        "question": "更换主元法需要两个前提。逐项看看，本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "更换主元法的两个前提",
+          "slots": [
+            {
+              "label": "题目要求对哪个变量的所有取值都成立",
+              "hint": "区分恒成立针对的变量与待求取值范围的变量",
+              "options": [
+                {
+                  "value": "given",
+                  "label": "$m$：对任意 $m\\in[1,3]$",
+                  "note": "把 $m$ 当作自变量，$x$ 当作常数。"
+                },
+                {
+                  "value": "asked",
+                  "label": "$x$：对任意实数 $x$",
+                  "note": "把 $x$ 当作自变量，$m$ 当作常数。"
+                }
+              ]
+            },
+            {
+              "label": "固定另一个字母后，表达式关于所选主元是几次式",
+              "hint": "只数所选主元的次数，另一个字母按常数处理",
+              "options": [
+                {
+                  "value": "linear",
+                  "label": "一次形式，可退化为常数",
+                  "note": "一次项系数为零时是常数；两种情况下，最值都在闭区间的端点取到。"
+                },
+                {
+                  "value": "quadratic",
+                  "label": "二次式",
+                  "note": "还要看开口和对称轴。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "given",
+            "linear"
+          ]
+        },
+        "feedback": {
+          "terms": "恒成立针对任意 $m\\in[1,3]$，并非任意实数 $x$；$x\\in\\mathbb R$ 说明待求对象是实数。固定 $x$ 后，$y=(x^2-x+1)m-6$ 关于 $m$ 是一次式。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_basis-done",
+        "board": "variable-board"
+      },
+      {
+        "id": "v_rewrite",
+        "title": "更换主元",
+        "question": "把 $x$ 当作常数、$m$ 当作自变量，$y$ 可以整理成哪个函数？",
+        "interaction": {
+          "type": "choice",
+          "field": "v_rewrite",
+          "options": [
+            {
+              "value": "collect",
+              "label": "$f(m)=(x^2-x+1)m-6$"
+            },
+            {
+              "value": "missing",
+              "label": "$f(m)=(x^2-x)m-6$"
+            },
+            {
+              "value": "merged",
+              "label": "$f(m)=(x^2-x-5)m$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "collect"
+          ]
+        },
+        "feedback": {
+          "answer": "含 $m$ 的项有 $mx^2$、$-mx$、$m$ 三项，提出 $m$ 得 $(x^2-x+1)m$；$-6$ 不含 $m$，是常数项，不能并进 $m$ 的系数。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_rewrite-done",
+        "board": "v_rewrite-board"
+      },
+      {
+        "id": "v_condition",
+        "title": "转化为最值条件",
+        "question": "要使 $f(m)<0$ 对所有 $m\\in[1,3]$ 成立，$f(m)$ 应满足哪个条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "v_condition",
+          "options": [
+            {
+              "value": "max",
+              "label": "$m\\in[1,3]$ 时，$f(m)_{\\max}<0$"
+            },
+            {
+              "value": "min",
+              "label": "$m\\in[1,3]$ 时，$f(m)_{\\min}<0$"
+            },
+            {
+              "value": "one_point",
+              "label": "$f(2)<0$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "max"
+          ]
+        },
+        "feedback": {
+          "answer": "要 $[1,3]$ 上所有的 $m$ 都使 $f(m)<0$，只需最大值小于 $0$；最小值小于 $0$ 只能保证一处；只看 $m=2$，别的 $m$ 仍可能不满足。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_condition-done"
+      },
+      {
+        "id": "v_extremum",
+        "title": "求最值",
+        "question": "$f(m)$ 是关于 $m$ 的一次函数，斜率为 $x^2-x+1$。$f(m)$ 在 $[1,3]$ 上的最大值是什么？",
+        "interaction": {
+          "type": "checklist",
+          "title": "看斜率判断最值",
+          "slots": [
+            {
+              "label": "斜率 $x^2-x+1$ 的符号",
+              "hint": "把 $x^2-x+1$ 配方",
+              "options": [
+                {
+                  "value": "positive",
+                  "label": "恒为正",
+                  "note": "$f(m)$ 在 $[1,3]$ 上递增。"
+                },
+                {
+                  "value": "unknown",
+                  "label": "随 $x$ 变化，符号不定",
+                  "note": "递增、递减、不变都可能出现。"
+                },
+                {
+                  "value": "negative",
+                  "label": "恒为负",
+                  "note": "$f(m)$ 在 $[1,3]$ 上递减。"
+                }
+              ]
+            },
+            {
+              "label": "$f(m)$ 在 $[1,3]$ 上的最大值",
+              "hint": "一次函数的最值在端点处取到",
+              "options": [
+                {
+                  "value": "left",
+                  "label": "$f(1)=x^2-x-5$",
+                  "note": "在左端点 $m=1$ 处取到。"
+                },
+                {
+                  "value": "right",
+                  "label": "$f(3)=3x^2-3x-3$",
+                  "note": "在右端点 $m=3$ 处取到。"
+                },
+                {
+                  "value": "ends",
+                  "label": "$f(1)$、$f(3)$ 中较大的一个",
+                  "note": "两端都小于 $0$，最大值才小于 $0$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "positive",
+            "right"
+          ]
+        },
+        "feedback": {
+          "terms": "$x^2-x+1=\\left(x-\\frac12\\right)^2+\\frac34>0$，斜率恒为正，$f(m)$ 在 $[1,3]$ 上递增，最大值在右端点：$f(3)=3(x^2-x+1)-6=3x^2-3x-3$。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_extremum-done",
+        "board": "v_extremum-board"
+      },
+      {
+        "id": "v_range",
+        "title": "解关于 x 的不等式",
+        "question": "由 $f(3)=3x^2-3x-3<0$，即 $x^2-x-1<0$，$x$ 在什么范围内？",
+        "interaction": {
+          "type": "choice",
+          "field": "v_range",
+          "options": [
+            {
+              "value": "between",
+              "label": "$\\frac{1-\\sqrt5}2<x<\\frac{1+\\sqrt5}2$"
+            },
+            {
+              "value": "outside",
+              "label": "$x<\\frac{1-\\sqrt5}2$ 或 $x>\\frac{1+\\sqrt5}2$"
+            },
+            {
+              "value": "closed",
+              "label": "$\\frac{1-\\sqrt5}2\\le x\\le\\frac{1+\\sqrt5}2$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "between"
+          ]
+        },
+        "feedback": {
+          "answer": "$x^2-x-1$ 开口向上，两根为 $x=\\frac{1\\pm\\sqrt5}2$，小于 $0$ 的部分在两根之间；根处等于 $0$，不满足 $<0$。"
+        },
+        "submit_label": "确认判断",
+        "display": "v_range-done",
+        "board": "range-board"
+      },
+      {
+        "id": "v_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $x=\\frac{1-\\sqrt5}2$、$x=\\frac{1+\\sqrt5}2$ 为边界。逐个代回原不等式，它们要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$x=\\frac{1-\\sqrt5}2$",
+              "hint": "此时 $x^2-x=1$，原不等式变为 $2m-6<0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $m$ 成立，保留",
+                  "note": "最终范围包含这个边界。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $m$ 不成立，排除",
+                  "note": "最终范围不含这个边界。"
+                }
+              ]
+            },
+            {
+              "label": "$x=\\frac{1+\\sqrt5}2$",
+              "hint": "此时 $x^2-x=1$，原不等式变为 $2m-6<0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $m$ 成立，保留",
+                  "note": "最终范围包含这个边界。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $m$ 不成立，排除",
+                  "note": "最终范围不含这个边界。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "fails",
+            "fails"
+          ]
+        },
+        "feedback": {
+          "terms": "两个边界处都有 $x^2-x=1$，原不等式变为 $2m-6<0$；取 $m=3$，左边 $=0$，不满足 $<0$，两个都排除。"
+        },
+        "submit_label": "确认检查",
+        "display": "v_boundary-done",
+        "board": "boundary-board"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+</script>
+<template id="variable-board">
+<div class="visual-board"><div class="board-caption">更换主元法</div><div class="formula" data-math-text>$y=mx^2-mx-6+m$</div><p class="board-focus" data-math-text>先看恒成立针对哪个变量，再把另一个字母固定</p></div>
+</template>
+<template id="v_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>更换主元法的两个前提</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>恒成立针对的变量：$m$</p><p class="checklist-hint" data-math-text>对任意 $m\in[1,3]$ 都要成立，$x$ 是待求取值范围的变量。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$y$ 关于 $m$ 是：一次式</p><p class="checklist-hint" data-math-text>把 $x$ 当作常数，$m$ 只有一次。</p></div></div><p class="checklist-verdict" data-math-text>两个前提都满足，把 $m$ 作为主元</p></div><details class="details" id="{{uid}}-v_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，对任意 $m\in[1,3]$，$mx^2-mx-6+m&lt;0$ 恒成立。</p></details>
+</template>
+<template id="v_rewrite-board">
+<div class="visual-board"><div class="board-caption">把 x 当作常数</div><div class="formula" data-math-text>$y=mx^2-mx-6+m$</div><p class="board-focus" data-math-text>找出所有含 $m$ 的项，提出 $m$</p></div>
+</template>
+<template id="v_rewrite-done">
+<div class="visual-board completed-visual"><div class="board-caption">把 m 当作自变量</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>原函数</span><div class="math" data-math-text>$y=mx^2-mx-6+m$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label" data-math-text>按 $m$ 整理</span><div class="math" data-math-text>$(x^2-x+1)m-6$</div><span class="conversion-label" data-math-text>记作 $f(m)$，$m\in[1,3]$</span></div></div></div><details class="details" id="{{uid}}-v_rewrite-derivation" open><summary>完整推导</summary><p data-math-text>把 $y$ 看成关于 $m$ 的函数，记 $f(m)=(x^2-x+1)m-6$，$m\in[1,3]$，</p><p data-math-text>则原问题等价于：$f(m)&lt;0$ 对任意 $m\in[1,3]$ 恒成立。</p></details>
+</template>
+<template id="v_condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">恒成立转化为最值条件</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>对所有 $m\in[1,3]$ 都成立</span><div class="math" data-math-text>$f(m)&lt;0$</div></div><span class="conversion-arrow" aria-hidden="true">⇔</span><div><span class="conversion-label" data-math-text>只需比 $[1,3]$ 上的最高点</span><div class="math" data-math-text>$\textcolor{#087f79}{f(m)_{\max}}&lt;0$</div><span class="conversion-label" data-math-text>最大值小于 $0$，其余的值都小于 $0$</span></div></div></div><details class="details" id="{{uid}}-v_condition-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore$ 原不等式恒成立 $\iff$ $f(m)$ 在 $[1,3]$ 上的最大值小于 $0$。</p></details>
+</template>
+<template id="v_extremum-board">
+<div class="visual-board"><div class="board-caption">一次函数</div><div class="formula case-lines"><p class="case-line"><span data-math-text>$f(m)=(x^2-x+1)m-6$，</span><span data-math-text>$m\in[1,3]$</span></p></div><p class="board-focus" data-math-text>图像是一条线段，斜率的符号决定哪一端更高</p></div>
+</template>
+<template id="v_extremum-done">
+<div class="graph-comparison"><figure class="quadratic-graph"><div data-linear-graph="{&quot;slope&quot;: 1, &quot;intercept&quot;: -6, &quot;bounds&quot;: [-0.6, 3.8, -6.6, 3.8], &quot;interval&quot;: [1, 3], &quot;xTicks&quot;: [[1, &quot;1&quot;], [3, &quot;3&quot;]], &quot;variable&quot;: &quot;m&quot;, &quot;title&quot;: &quot;x = 0 时 f(m) 的图像&quot;, &quot;description&quot;: &quot;x=0 时 f(m)=m−6，斜率为 1，在 [1,3] 上上升，右端点 m=3 处最高。&quot;, &quot;points&quot;: [{&quot;x&quot;: 3, &quot;label&quot;: &quot;最高&quot;, &quot;place&quot;: &quot;above-left&quot;}], &quot;uid&quot;: &quot;{{uid}}-slope-x0&quot;}"></div><figcaption data-math-text>$x=0$ 时 $f(m)=m-6$</figcaption></figure><figure class="quadratic-graph"><div data-linear-graph="{&quot;slope&quot;: 3, &quot;intercept&quot;: -6, &quot;bounds&quot;: [-0.6, 3.8, -6.6, 3.8], &quot;interval&quot;: [1, 3], &quot;xTicks&quot;: [[1, &quot;1&quot;], [3, &quot;3&quot;]], &quot;variable&quot;: &quot;m&quot;, &quot;title&quot;: &quot;x = 2 时 f(m) 的图像&quot;, &quot;description&quot;: &quot;x=2 时 f(m)=3m−6，斜率为 3，在 [1,3] 上上升，右端点 m=3 处最高。&quot;, &quot;points&quot;: [{&quot;x&quot;: 3, &quot;label&quot;: &quot;最高&quot;, &quot;place&quot;: &quot;above-left&quot;}], &quot;uid&quot;: &quot;{{uid}}-slope-x2&quot;}"></div><figcaption data-math-text>$x=2$ 时 $f(m)=3m-6$</figcaption></figure></div><p class="graph-cases-verdict" data-math-text>斜率 $x^2-x+1$ 恒为正，不论 $x$ 取何值，右端 $m=3$ 处最高</p><details class="details" id="{{uid}}-v_extremum-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ x^2-x+1=\left(x-\dfrac12\right)^2+\dfrac34&gt;0$，</p><p data-math-text>$\therefore\ f(m)$ 在 $[1,3]$ 上单调递增，$f(m)_{\max}=f(3)$ $=3(x^2-x+1)-6=3x^2-3x-3$。</p></details>
+</template>
+<template id="range-board">
+<div class="visual-board"><div class="formula fill-formula"><span class="fill-group" data-math-text>$3x^2-3x-3&lt;0$</span><span class="fill-group" data-math-text>$\Leftrightarrow x^2-x-1&lt;0$</span></div><p class="board-focus" data-math-text>方程 $x^2-x-1=0$ 的两根为 $x=\frac{1\pm\sqrt5}2$</p></div>
+</template>
+<template id="v_range-done">
+<div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [0.5, -1.25], &quot;bounds&quot;: [-2, 3, -1.6, 1], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;xTicks&quot;: [[-0.6180339887498949, &quot;(1−√5)/2&quot;], [1.618033988749895, &quot;(1+√5)/2&quot;]], &quot;title&quot;: &quot;x² − x − 1 的图像&quot;, &quot;description&quot;: &quot;x²−x−1 开口向上，两根 (1±√5)/2 之间小于零，不含端点。&quot;, &quot;solution&quot;: {&quot;intervals&quot;: [[-0.6180339887498949, 1.618033988749895]], &quot;closed&quot;: false}, &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true, &quot;uid&quot;: &quot;{{uid}}-range-done&quot;}"></div><figcaption data-math-text>$x^2-x-1&lt;0$ 的部分：两根之间，不含端点</figcaption></figure><div class="reasoning"><p data-math-text>$x^2-x-1$ 开口向上，两根之间小于 $0$。</p></div></div><details class="details" id="{{uid}}-v_range-derivation" open><summary>完整推导</summary><p data-math-text>由 $3x^2-3x-3&lt;0$，得 $x^2-x-1&lt;0$，</p><p data-math-text>方程 $x^2-x-1=0$ 的两根为 $x=\dfrac{1\pm\sqrt5}2$，</p><p data-math-text>$\therefore\ \dfrac{1-\sqrt5}2&lt;x&lt;\dfrac{1+\sqrt5}2$。</p></details>
+</template>
+<template id="boundary-board">
+<div class="visual-board"><div class="board-caption">上一步得到的范围</div><div class="formula" data-math-text>$\boxed{\frac{1-\sqrt5}2}&lt;x&lt;\boxed{\frac{1+\sqrt5}2}$</div><p class="board-focus" data-math-text>要检查的边界：$x=\frac{1\pm\sqrt5}2$</p></div>
+</template>
+<template id="v_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$x=\frac{1\pm\sqrt5}2$</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x=\frac{1-\sqrt5}2$：排除</p><p class="checklist-hint" data-math-text>原不等式为 $2m-6&lt;0$，$m=3$ 时左边 $=0$。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x=\frac{1+\sqrt5}2$：排除</p><p class="checklist-hint" data-math-text>原不等式为 $2m-6&lt;0$，$m=3$ 时左边 $=0$。</p></div></div><p class="checklist-verdict">两个边界都排除</p></div><div class="vertex-reasoning"><figure class="quadratic-graph"><div data-linear-graph="{&quot;slope&quot;: 2, &quot;intercept&quot;: -6, &quot;bounds&quot;: [-0.6, 3.8, -6.6, 3.8], &quot;interval&quot;: [1, 3], &quot;xTicks&quot;: [[1, &quot;1&quot;], [3, &quot;3&quot;]], &quot;variable&quot;: &quot;m&quot;, &quot;title&quot;: &quot;边界处 f(m) 的图像&quot;, &quot;description&quot;: &quot;x=(1±√5)/2 时 f(m)=2m−6，在 [1,3] 上右端点 (3,0) 落在横轴上，不满足 f(m)&lt;0。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-boundary&quot;, &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true}"></div><figcaption data-math-text>$x=\frac{1\pm\sqrt5}2$ 时 $f(m)=2m-6$</figcaption></figure><div class="reasoning"><p data-math-text>$f(3)=0$，不满足 $&lt;0$。</p></div></div><details class="details" id="{{uid}}-v_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $x=\dfrac{1-\sqrt5}2$ 或 $x=\dfrac{1+\sqrt5}2$ 时，$x^2-x=1$，原不等式为 $2m-6&lt;0$，取 $m=3$，左边 $=0$，不成立，舍去。</p><p data-math-text>综上，实数 $x$ 的取值范围是 $\left(\dfrac{1-\sqrt5}2,\dfrac{1+\sqrt5}2\right)$。</p></details>
+</template>
+<template id="lesson-completion">
+<section class="completion-card"><p class="completion-eyebrow">本题已完成</p><h2>先看恒成立针对谁</h2><div class="visual-board"><div class="formula" data-math-text>$x\in\left(\frac{1-\sqrt5}2,\frac{1+\sqrt5}2\right)$</div></div><p data-math-text>恒成立针对任意 $m\in[1,3]$，固定 $x$，把 $m$ 当作自变量，$f(m)=(x^2-x+1)m-6$ 是一次函数；斜率恒正，只需 $f(3)&lt;0$。两个边界处 $f(3)=0$，原题是 $&lt;$，都排除。</p><a class="chapter-return" href="/2/">← 返回恒成立题库</a></section>
+</template>
+</body>
+</html>

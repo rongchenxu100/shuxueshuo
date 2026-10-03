@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#f5f7f5">
+  <title>Q07 · 恒成立问题 · 数学说</title>
+  <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
+  <link rel="stylesheet" href="/assets/practice/practice.css?v=55">
+  <script src="/assets/practice/vendor/katex-0.18.9/katex.min.js" defer></script>
+  <script src="/assets/practice/vendor/katex-0.18.9/auto-render.min.js" defer></script>
+  <script src="/assets/practice/math-text.js?v=12" defer></script>
+  <script src="/assets/practice/components.js?v=37" defer></script>
+  <script src="/assets/practice/context.js?v=14" defer></script>
+  <script src="/assets/practice/runtime.js?v=27" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="数学说首页"><span class="brand-mark" aria-hidden="true">数</span>数学说</a>
+      <span class="demo-label">恒成立问题</span>
+      <button type="button" class="reset-button" id="reset">↺ <span>重新练习</span></button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <div class="eyebrow"><span><a class="chapter-return" href="/2/">← 返回题库</a> <span class="separator">/</span> Q07</span></div>
+    <section class="problem-card" aria-labelledby="problem-title">
+      <h1 id="problem-title">原题</h1>
+      <p data-math-text>$\forall x\in\{x\mid2\le x\le3\}$，不等式 $mx^2-mx-1&lt;0$ 恒成立，求实数 $m$ 的取值范围。</p>
+      <section class="meaning-panel" aria-labelledby="meaning-title">
+        <div class="meaning-heading"><h2 id="meaning-title">题意整理</h2><span>根据原题转写</span></div>
+        <dl class="problem-meaning">
+          <div class="meaning-row"><dt>范围</dt><dd data-math-text>$x\in[2,3],\quad m\in\mathbb R$</dd></div>
+          <div class="meaning-row"><dt>条件</dt><dd data-math-text>$\forall x\in[2,3],$ $mx^2-mx-1&lt;0$</dd></div>
+          <div class="meaning-row"><dt>目标</dt><dd data-math-text>$\{m\in\mathbb R\mid\text{上述条件成立}\}$</dd></div>
+        </dl>
+      </section>
+    </section>
+    <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+    <section id="attempt-history" aria-label="之前的路径尝试"></section>
+    <section id="steps" aria-label="逐步解题"></section>
+    <div id="completion" hidden></div>
+  </main>
+
+  <footer class="composer">
+    <div class="composer-inner">
+      <div class="composer-heading"><span class="focus-dot" aria-hidden="true"></span><span id="conversation-focus">正在讨论：判断适用条件</span></div>
+      <div class="input-shell">
+        <textarea id="message" rows="1" placeholder="也可以在这里说说你的思路…" aria-label="你的思路"></textarea>
+        <button class="send-button" type="button" disabled aria-label="发送"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-5 14-2-6-7-1Zm7 1 7-8"/></svg></button>
+      </div>
+      <div class="network-feedback"><span id="network-status" role="status" aria-live="polite"></span><button id="request-retry" type="button" hidden>重试</button></div>
+    </div>
+  </footer>
+  <div id="picker" class="token-picker" role="dialog" aria-label="选择数学项" hidden>
+    <span class="picker-label">选择数学项</span>
+    <div class="picker-options"></div>
+  </div>
+  <div id="announcement" class="sr-only" aria-live="polite" role="status"></div>
+
+<script type="application/json" id="practice-config">
+{
+  "id": "quadratic-always-q07",
+  "version": 1,
+  "variables": [
+    "x",
+    "m"
+  ],
+  "method_question": "这道题，你准备采用哪种解题方法？",
+  "methods": [
+    {
+      "id": "extremum",
+      "label": "分离参数法"
+    },
+    {
+      "id": "interval",
+      "label": "区间最值法"
+    }
+  ],
+  "routes": {
+    "extremum": [
+      {
+        "id": "e_basis",
+        "title": "判断适用条件",
+        "question": "分离参数法需要两个前提。逐项看看，本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "分离参数法的两个前提",
+          "slots": [
+            {
+              "label": "参数能否单独放到一边",
+              "hint": "看含参数的项能否移到不等号的一边",
+              "options": [
+                {
+                  "value": "separated",
+                  "label": "已经分离",
+                  "note": "参数和 $x$ 已在不等号两边，可以直接比较。"
+                },
+                {
+                  "value": "movable",
+                  "label": "移项后可以分离",
+                  "note": "把含参数的项移到一边，必要时再除以它的系数。"
+                },
+                {
+                  "value": "tangled",
+                  "label": "无法分离",
+                  "note": "参数和 $x$ 拆不开时，分离参数法用不上。"
+                }
+              ]
+            },
+            {
+              "label": "是否要除以含 $x$ 的式子",
+              "hint": "除以负数时，不等号要变向",
+              "options": [
+                {
+                  "value": "no_division",
+                  "label": "不需要除",
+                  "note": "不涉及除法，不等号方向不变。"
+                },
+                {
+                  "value": "fixed_sign",
+                  "label": "需要除，符号确定",
+                  "note": "符号确定，就能确定不等号是否变向。"
+                },
+                {
+                  "value": "unknown_sign",
+                  "label": "需要除，符号不定",
+                  "note": "符号不定时要分类讨论，不能直接除。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "movable",
+            "fixed_sign"
+          ]
+        },
+        "feedback": {
+          "terms": "含 $m$ 的两项提出 $m$，得 $m(x^2-x)<1$；要除以 $x^2-x=x(x-1)$，而 $x\\in[2,3]$ 时它为正，符号确定。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_basis-done",
+        "board": "separation-board"
+      },
+      {
+        "id": "e_separate",
+        "title": "分离参数",
+        "question": "移项、提出 $m$ 得 $m(x^2-x)<1$。两边同除以 $x^2-x$，得到哪个不等式？",
+        "interaction": {
+          "type": "choice",
+          "field": "e_separate",
+          "options": [
+            {
+              "value": "keep",
+              "label": "$m<\\frac1{x^2-x}$"
+            },
+            {
+              "value": "flip",
+              "label": "$m>\\frac1{x^2-x}$"
+            },
+            {
+              "value": "invert",
+              "label": "$m<x^2-x$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "keep"
+          ]
+        },
+        "feedback": {
+          "answer": "$x\\in[2,3]$ 时 $x^2-x>0$，两边除以正数，不等号方向不变；右边是 $1$ 除以 $x^2-x$。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_separate-done",
+        "board": "e_separate-board"
+      },
+      {
+        "id": "e_condition",
+        "title": "转化为最值条件",
+        "question": "要使 $m<h(x)$ 对所有 $x\\in[2,3]$ 成立，$m$ 应满足哪个条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "e_condition",
+          "options": [
+            {
+              "value": "max",
+              "label": "$x\\in[2,3]$ 时，$m<h(x)_{\\max}$"
+            },
+            {
+              "value": "min",
+              "label": "$x\\in[2,3]$ 时，$m<h(x)_{\\min}$"
+            },
+            {
+              "value": "one_point",
+              "label": "$m<h(2)$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "min"
+          ]
+        },
+        "feedback": {
+          "answer": "$m$ 要比 $[2,3]$ 上每一个 $h(x)$ 都小，只需比其中最小的那个；比最大值小，不能保证比每个都小；只检查一个点，别处仍可能不满足。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_condition-done"
+      },
+      {
+        "id": "e_extremum",
+        "title": "求最值",
+        "question": "$h(x)=\\frac1{x^2-x}$ 在 $[2,3]$ 上的最小值是多少？",
+        "interaction": {
+          "type": "checklist",
+          "title": "看分母怎样变化",
+          "slots": [
+            {
+              "label": "分母 $x^2-x$ 在 $[2,3]$ 上",
+              "hint": "$x^2-x$ 的对称轴为 $x=\\frac12$",
+              "options": [
+                {
+                  "value": "increasing",
+                  "label": "单调递增",
+                  "note": "$x$ 越大，分母越大。"
+                },
+                {
+                  "value": "decreasing",
+                  "label": "单调递减",
+                  "note": "$x$ 越大，分母越小。"
+                },
+                {
+                  "value": "mixed",
+                  "label": "先减后增",
+                  "note": "区间内含有最低点。"
+                }
+              ]
+            },
+            {
+              "label": "$h(x)$ 的最小值",
+              "hint": "分子是正数 $1$，分母越大，分数越小",
+              "options": [
+                {
+                  "value": "h3",
+                  "label": "$h(3)=\\frac16$",
+                  "note": "在分母最大的右端点处取到。"
+                },
+                {
+                  "value": "h2",
+                  "label": "$h(2)=\\frac12$",
+                  "note": "在分母最小的左端点处取到。"
+                },
+                {
+                  "value": "vertex",
+                  "label": "$h\\left(\\frac12\\right)=-4$",
+                  "note": "在分母的最低点 $x=\\frac12$ 处取到。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "increasing",
+            "h3"
+          ]
+        },
+        "feedback": {
+          "terms": "$x^2-x$ 的对称轴 $x=\\frac12$ 在区间左侧，它在 $[2,3]$ 上单调递增，从 $2$ 增大到 $6$；分子是正数 $1$，分母越大 $h(x)$ 越小，所以最小值为 $h(3)=\\frac16$。$x=\\frac12$ 不在 $[2,3]$ 内。"
+        },
+        "submit_label": "确认判断",
+        "display": "e_extremum-done",
+        "board": "e_extremum-board"
+      },
+      {
+        "id": "e_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $m=\\frac16$ 为边界。代回原不等式，它要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$m=\\frac16$",
+              "hint": "此时原不等式变为 $\\frac16x^2-\\frac16x-1<0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $m=\\frac16$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $m=\\frac16$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "fails"
+          ]
+        },
+        "feedback": {
+          "terms": "$m=\\frac16$ 时原不等式为 $\\frac16x^2-\\frac16x-1<0$。代入 $x=3$ 得 $\\frac96-\\frac36-1=0$，不满足 $<0$。"
+        },
+        "submit_label": "确认检查",
+        "display": "e_boundary-done",
+        "board": "boundary-board"
+      }
+    ],
+    "interval": [
+      {
+        "id": "i_basis",
+        "title": "判断适用条件",
+        "question": "区间最值法需要一个前提。看看本题是否满足？",
+        "interaction": {
+          "type": "checklist",
+          "title": "区间最值法的前提",
+          "slots": [
+            {
+              "label": "$x$ 的取值范围",
+              "hint": "看题目要求对哪些 $x$ 成立",
+              "options": [
+                {
+                  "value": "all_real",
+                  "label": "全体实数",
+                  "note": "在全体实数上，看整条图像与横轴的位置。"
+                },
+                {
+                  "value": "interval",
+                  "label": "某个区间",
+                  "note": "只看区间上的那一段图像，比较区间上的最值。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "interval"
+          ]
+        },
+        "feedback": {
+          "terms": "题目只要求对 $2\\le x\\le3$ 成立，$x$ 的取值范围是区间 $[2,3]$。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_basis-done",
+        "board": "interval-board"
+      },
+      {
+        "id": "i_condition",
+        "title": "转化为最值条件",
+        "question": "要使 $f(x)<0$ 对所有 $x\\in[2,3]$ 成立，$f(x)$ 应满足哪个条件？",
+        "interaction": {
+          "type": "choice",
+          "field": "i_condition",
+          "options": [
+            {
+              "value": "max",
+              "label": "$x\\in[2,3]$ 时，$f(x)_{\\max}<0$"
+            },
+            {
+              "value": "min",
+              "label": "$x\\in[2,3]$ 时，$f(x)_{\\min}<0$"
+            },
+            {
+              "value": "one_point",
+              "label": "$f(2)<0$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "max"
+          ]
+        },
+        "feedback": {
+          "answer": "要区间上所有点都小于 $0$，只需最高点小于 $0$；最小值小于 $0$ 只能保证一处；只看 $x=2$，$x=3$ 处仍可能不满足。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_condition-done"
+      },
+      {
+        "id": "i_extremum",
+        "title": "分类讨论最值",
+        "question": "$x^2$ 的系数为 $m$；$m\\ne0$ 时，对称轴为 $x=\\frac12$，在区间 $[2,3]$ 左侧。观察图像，逐项确定 $f(x)$ 在 $[2,3]$ 上的最大值。",
+        "interaction": {
+          "type": "checklist",
+          "title": "按什么分类",
+          "slots": [
+            {
+              "label": "分类依据",
+              "hint": "对称轴固定在区间左侧，区间上的一段是升还是降？",
+              "options": [
+                {
+                  "value": "sign",
+                  "label": "$m$ 的符号：$m=0$、$m>0$、$m<0$",
+                  "note": "开口方向决定这一段是升还是降，$m=0$ 时不是二次函数。"
+                },
+                {
+                  "value": "midpoint",
+                  "label": "对称轴与区间中点 $\\frac52$ 比较",
+                  "note": "对称轴固定是 $x=\\frac12$，不会移动。"
+                }
+              ]
+            },
+            {
+              "label": "$m>0$（开口向上）时，最大值为",
+              "hint": "区间在对称轴右侧",
+              "options": [
+                {
+                  "value": "f3",
+                  "label": "$f(3)=6m-1$",
+                  "note": "在右端点 $x=3$ 处取到。"
+                },
+                {
+                  "value": "f2",
+                  "label": "$f(2)=2m-1$",
+                  "note": "在左端点 $x=2$ 处取到。"
+                },
+                {
+                  "value": "vertex",
+                  "label": "顶点处的值",
+                  "note": "顶点在 $x=\\frac12$ 处。"
+                }
+              ]
+            },
+            {
+              "label": "$m<0$（开口向下）时，最大值为",
+              "hint": "区间在对称轴右侧",
+              "options": [
+                {
+                  "value": "f3",
+                  "label": "$f(3)=6m-1$",
+                  "note": "在右端点 $x=3$ 处取到。"
+                },
+                {
+                  "value": "f2",
+                  "label": "$f(2)=2m-1$",
+                  "note": "在左端点 $x=2$ 处取到。"
+                },
+                {
+                  "value": "vertex",
+                  "label": "顶点处的值",
+                  "note": "顶点在 $x=\\frac12$ 处。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "sign",
+            "f3",
+            "f2"
+          ]
+        },
+        "feedback": {
+          "terms": "对称轴 $x=\\frac12$ 固定在区间左侧，$f(x)$ 在 $[2,3]$ 上单调，升还是降由开口决定，所以按 $m$ 的符号分类，别漏了 $m=0$。$m>0$ 时开口向上，这一段一直上升，最大值为 $f(3)=6m-1$；$m<0$ 时开口向下，一直下降，最大值为 $f(2)=2m-1$；$m=0$ 时 $f(x)=-1$。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_extremum-done",
+        "board": "i_extremum-board"
+      },
+      {
+        "id": "i_range",
+        "title": "求参数范围",
+        "question": "三种情况下，都要求最大值小于 $0$。$m$ 的取值范围是什么？",
+        "interaction": {
+          "type": "choice",
+          "field": "i_range",
+          "options": [
+            {
+              "value": "union",
+              "label": "$m<\\frac16$"
+            },
+            {
+              "value": "positive_only",
+              "label": "$0<m<\\frac16$"
+            },
+            {
+              "value": "missing_zero",
+              "label": "$m<0$ 或 $0<m<\\frac16$"
+            }
+          ]
+        },
+        "expected_answer": {
+          "one_of": [
+            "union"
+          ]
+        },
+        "feedback": {
+          "answer": "每种情况内部，解出的范围要与这种情况的前提取交集；三种情况是“或”的关系，合并时取并集，$m=0$ 这种情况也要并进来。"
+        },
+        "submit_label": "确认判断",
+        "display": "i_range-done",
+        "board": "i_range-board"
+      },
+      {
+        "id": "i_boundary",
+        "title": "检查边界",
+        "question": "上一步的范围以 $m=\\frac16$ 为边界。代回原不等式，它要保留吗？",
+        "interaction": {
+          "type": "checklist",
+          "title": "逐个检查边界",
+          "slots": [
+            {
+              "label": "$m=\\frac16$",
+              "hint": "此时原不等式变为 $\\frac16x^2-\\frac16x-1<0$",
+              "options": [
+                {
+                  "value": "holds",
+                  "label": "对所有 $x$ 成立，保留",
+                  "note": "最终范围包含 $m=\\frac16$。"
+                },
+                {
+                  "value": "fails",
+                  "label": "有 $x$ 不成立，排除",
+                  "note": "最终范围不含 $m=\\frac16$。"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": {
+          "terms": [
+            "fails"
+          ]
+        },
+        "feedback": {
+          "terms": "$m=\\frac16$ 时原不等式为 $\\frac16x^2-\\frac16x-1<0$。代入 $x=3$ 得 $\\frac96-\\frac36-1=0$，不满足 $<0$。"
+        },
+        "submit_label": "确认检查",
+        "display": "i_boundary-done",
+        "board": "boundary-board"
+      }
+    ]
+  },
+  "completion": "lesson-completion"
+}
+</script>
+<template id="separation-board">
+<div class="visual-board"><div class="board-caption">分离参数法</div><div class="formula" data-math-text>$mx^2-mx-1&lt;0$</div><p class="board-focus" data-math-text>把含 $m$ 的项单独放到一边，另一边只含 $x$</p></div>
+</template>
+<template id="e_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>分离参数法的两个前提</span><span class="checklist-progress">2 / 2</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>参数能否单独放到一边：移项后可以分离</p><p class="checklist-hint" data-math-text>含 $m$ 的两项提出 $m$：$m(x^2-x)&lt;1$。</p></div></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>是否要除以含 $x$ 的式子：需要除，符号确定</p><p class="checklist-hint" data-math-text>要除以 $x^2-x=x(x-1)$，$x\in[2,3]$ 时为正。</p></div></div><p class="checklist-verdict">两个前提都满足，可以用分离参数法</p></div><details class="details" id="{{uid}}-e_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，对任意 $x\in[2,3]$，$mx^2-mx-1&lt;0$ 恒成立。</p></details>
+</template>
+<template id="e_separate-board">
+<div class="visual-board"><div class="board-caption">移项、提出 m 后</div><div class="formula" data-math-text>$m(x^2-x)&lt;1$</div><p class="board-focus" data-math-text>$x\in[2,3]$ 时 $x^2-x=x(x-1)&gt;0$</p></div>
+</template>
+<template id="e_separate-done">
+<div class="visual-board completed-visual"><div class="board-caption">两边同除以正数</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>移项、提出 $m$ 后</span><div class="math" data-math-text>$m(x^2-x)&lt;1$</div></div><span class="conversion-arrow" aria-hidden="true">→</span><div><span class="conversion-label" data-math-text>两边除以 $x^2-x$</span><div class="math" data-math-text>$m&lt;\dfrac1{x^2-x}$</div><span class="conversion-label" data-math-text>$x^2-x&gt;0$，不等号方向不变</span></div></div></div><details class="details" id="{{uid}}-e_separate-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ x\in[2,3]$，$\therefore\ x^2-x=x(x-1)&gt;0$，</p><p data-math-text>移项、提出 $m$ 得 $m(x^2-x)&lt;1$，两边同除以 $x^2-x$，得 $m&lt;\dfrac1{x^2-x}$。</p><p data-math-text>记 $h(x)=\dfrac1{x^2-x}$，$x\in[2,3]$，则 $m&lt;h(x)$。</p></details>
+</template>
+<template id="e_condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">恒成立转化为最值条件</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>对所有 $x\in[2,3]$ 都成立</span><div class="math" data-math-text>$m&lt;h(x)$</div></div><span class="conversion-arrow" aria-hidden="true">⇔</span><div><span class="conversion-label" data-math-text>只需比 $h(x)$ 在 $[2,3]$ 上的最低点</span><div class="math" data-math-text>$m&lt;\textcolor{#087f79}{h(x)_{\min}}$</div><span class="conversion-label" data-math-text>小于最小的，就小于每一个</span></div></div></div><details class="details" id="{{uid}}-e_condition-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore$ 原不等式恒成立 $\iff m&lt;h(x)_{\min}$。</p></details>
+</template>
+<template id="e_extremum-board">
+<div class="visual-board"><div class="board-caption">要求最小值的函数</div><div class="formula" data-math-text>$h(x)=\dfrac1{x^2-x},\quad x\in[2,3]$</div><p class="board-focus" data-math-text>分子是正数 $1$，看分母 $x^2-x$ 怎样变化</p></div>
+</template>
+<template id="e_extremum-done">
+<div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 1, &quot;vertex&quot;: [0.5, -0.25], &quot;bounds&quot;: [-1, 4, -1.2, 7.6], &quot;interval&quot;: [2, 3], &quot;xTicks&quot;: [[2, &quot;2&quot;], [3, &quot;3&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;title&quot;: &quot;x² − x 的图像&quot;, &quot;uid&quot;: &quot;{{uid}}-denominator&quot;, &quot;description&quot;: &quot;分母 x²−x 的图像：对称轴 x=1/2 在区间左侧，[2,3] 上从 (2,2) 上升到 (3,6)。&quot;, &quot;points&quot;: [{&quot;x&quot;: 2, &quot;label&quot;: &quot;(2, 2)&quot;, &quot;place&quot;: &quot;below-right&quot;}, {&quot;x&quot;: 3, &quot;label&quot;: &quot;(3, 6)&quot;, &quot;place&quot;: &quot;above-left&quot;}]}"></div><figcaption data-math-text>分母 $x^2-x$ 在 $[2,3]$ 上的图像</figcaption></figure><div class="reasoning"><p data-math-text>分母从 $2$ 增大到 $6$，$h(x)$ 从 $\frac12$ 减小到 $\frac16$，右端点处最小。</p></div></div><details class="details" id="{{uid}}-e_extremum-derivation" open><summary>完整推导</summary><p data-math-text>$\because\ x^2-x=\left(x-\dfrac12\right)^2-\dfrac14$ 在 $[2,3]$ 上单调递增，$\therefore\ 2\le x^2-x\le6$，</p><p data-math-text>$\therefore\ \dfrac16\le h(x)\le\dfrac12$，$h(x)_{\min}=h(3)=\dfrac16$，</p><p data-math-text>$\therefore\ m&lt;\dfrac16$。</p></details>
+</template>
+<template id="boundary-board">
+<div class="visual-board"><div class="board-caption">上一步得到的范围</div><div class="formula" data-math-text>$m&lt;\boxed{\frac16}$</div><p class="board-focus" data-math-text>要检查的边界：$m=\frac16$</p></div>
+</template>
+<template id="e_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$m=\frac16$</span><span class="checklist-progress">1 / 1</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$m=\frac16$：排除</p><p class="checklist-hint" data-math-text>$x=3$ 时左边 $=\frac96-\frac36-1=0$，不满足 $&lt;0$。</p></div></div><p class="checklist-verdict">边界排除</p></div><div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 0.166667, &quot;vertex&quot;: [0.5, -1.041667], &quot;bounds&quot;: [-1, 4, -1.6, 1.2], &quot;interval&quot;: [2, 3], &quot;xTicks&quot;: [[2, &quot;2&quot;], [3, &quot;3&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;title&quot;: &quot;m = 1/6 时 f(x) 的图像&quot;, &quot;description&quot;: &quot;m=1/6 时 f(x)=x²/6−x/6−1，在 [2,3] 上右端点 (3,0) 落在横轴上，不满足 f(x)&lt;0。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-e_boundary-graph&quot;, &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true}"></div><figcaption data-math-text>$m=\frac16$ 时右端点在横轴上</figcaption></figure><div class="reasoning"><p data-math-text>$f(3)=0$，不满足 $&lt;0$。</p></div></div><details class="details" id="{{uid}}-e_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $m=\dfrac16$ 时，原不等式为 $\dfrac16x^2-\dfrac16x-1&lt;0$，取 $x=3$，左边 $=0$，不成立，舍去。</p><p data-math-text>综上，实数 $m$ 的取值范围是 $\left(-\infty,\dfrac16\right)$。</p></details>
+</template>
+<template id="interval-board">
+<div class="visual-board"><div class="board-caption">区间最值法</div><div class="formula" data-math-text>$mx^2-mx-1&lt;0$</div><p class="board-focus" data-math-text>看题目对哪些 $x$ 提出要求</p></div>
+</template>
+<template id="i_basis-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>区间最值法的前提</span><span class="checklist-progress">1 / 1</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$x$ 的取值范围：某个区间 $[2,3]$</p><p class="checklist-hint" data-math-text>题目只要求对 $2\le x\le3$ 成立。</p></div></div><p class="checklist-verdict">前提满足，可以用区间最值法</p></div><details class="details" id="{{uid}}-i_basis-derivation" open><summary>完整推导</summary><p data-math-text>由题意，对任意 $x\in[2,3]$，$mx^2-mx-1&lt;0$ 恒成立。</p><p data-math-text>记 $f(x)=mx^2-mx-1$，$x\in[2,3]$。</p></details>
+</template>
+<template id="i_condition-done">
+<div class="visual-board completed-visual"><div class="board-caption">恒成立转化为最值条件</div><div class="function-conversion"><div><span class="conversion-label" data-math-text>对所有 $x\in[2,3]$ 都成立</span><div class="math" data-math-text>$f(x)&lt;0$</div></div><span class="conversion-arrow" aria-hidden="true">⇔</span><div><span class="conversion-label" data-math-text>只需比 $[2,3]$ 上的最高点</span><div class="math" data-math-text>$\textcolor{#087f79}{f(x)_{\max}}&lt;0$</div><span class="conversion-label" data-math-text>最大值小于 $0$，其余的值都小于 $0$</span></div></div></div><details class="details" id="{{uid}}-i_condition-derivation" open><summary>完整推导</summary><p data-math-text>$\therefore$ 原不等式恒成立 $\iff$ $f(x)$ 在 $[2,3]$ 上的最大值小于 $0$。</p></details>
+</template>
+<template id="i_extremum-board">
+<div class="visual-board"><div class="board-caption">对称轴 x = 1/2 固定，看区间 [2,3] 上的一段</div><div class="graph-cases"><figure class="graph-case"><div data-quadratic-graph="{&quot;coefficient&quot;: 0, &quot;vertex&quot;: [0.5, -1.0], &quot;bounds&quot;: [-1, 4, -1.6, 0.7], &quot;interval&quot;: [2, 3], &quot;xTicks&quot;: [[2, &quot;2&quot;], [3, &quot;3&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;title&quot;: &quot;m = 0 时 f(x) 的图像&quot;, &quot;description&quot;: &quot;m=0 时 f(x)=−1，是一条水平直线。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-board-flat&quot;}"></div><figcaption><span class="graph-case-name" data-math-text>$m=0$</span><span class="graph-case-fact" data-math-text>直线 $y=-1$</span></figcaption></figure><figure class="graph-case"><div data-quadratic-graph="{&quot;coefficient&quot;: 0.1, &quot;vertex&quot;: [0.5, -1.025], &quot;bounds&quot;: [-1, 4, -1.6, 0.7], &quot;interval&quot;: [2, 3], &quot;xTicks&quot;: [[2, &quot;2&quot;], [3, &quot;3&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;title&quot;: &quot;m = 1/10 时 f(x) 的图像&quot;, &quot;description&quot;: &quot;m=1/10 时开口向上，对称轴 x=1/2 在区间左侧，[2,3] 上一直上升，右端点 x=3 处最高。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-board-up&quot;}"></div><figcaption><span class="graph-case-name" data-math-text>$m&gt;0$</span><span class="graph-case-fact" data-math-text>开口向上</span></figcaption></figure><figure class="graph-case"><div data-quadratic-graph="{&quot;coefficient&quot;: -0.5, &quot;vertex&quot;: [0.5, -0.875], &quot;bounds&quot;: [-1, 4, -5, 0.7], &quot;interval&quot;: [2, 3], &quot;xTicks&quot;: [[2, &quot;2&quot;], [3, &quot;3&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;title&quot;: &quot;m = −1/2 时 f(x) 的图像&quot;, &quot;description&quot;: &quot;m=−1/2 时开口向下，对称轴 x=1/2 在区间左侧，[2,3] 上一直下降，左端点 x=2 处最高。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-board-down&quot;}"></div><figcaption><span class="graph-case-name" data-math-text>$m&lt;0$</span><span class="graph-case-fact" data-math-text>开口向下</span></figcaption></figure></div></div>
+</template>
+<template id="i_extremum-done">
+<div class="graph-cases"><figure class="graph-case"><div data-quadratic-graph="{&quot;coefficient&quot;: 0, &quot;vertex&quot;: [0.5, -1.0], &quot;bounds&quot;: [-1, 4, -1.6, 0.7], &quot;interval&quot;: [2, 3], &quot;xTicks&quot;: [[2, &quot;2&quot;], [3, &quot;3&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;title&quot;: &quot;m = 0 时 f(x) 的图像&quot;, &quot;description&quot;: &quot;m=0 时 f(x)=−1，是一条水平直线。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-done-flat&quot;}"></div><figcaption><span class="graph-case-name" data-math-text>$m=0$</span><span class="graph-case-fact" data-math-text>$f(x)=-1$</span></figcaption></figure><figure class="graph-case"><div data-quadratic-graph="{&quot;coefficient&quot;: 0.1, &quot;vertex&quot;: [0.5, -1.025], &quot;bounds&quot;: [-1, 4, -1.6, 0.7], &quot;interval&quot;: [2, 3], &quot;xTicks&quot;: [[2, &quot;2&quot;], [3, &quot;3&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;title&quot;: &quot;m = 1/10 时 f(x) 的图像&quot;, &quot;description&quot;: &quot;m=1/10 时开口向上，对称轴 x=1/2 在区间左侧，[2,3] 上一直上升，右端点 x=3 处最高。&quot;, &quot;points&quot;: [{&quot;x&quot;: 3, &quot;label&quot;: &quot;最高&quot;, &quot;place&quot;: &quot;below-right&quot;}], &quot;uid&quot;: &quot;{{uid}}-done-up&quot;}"></div><figcaption><span class="graph-case-name" data-math-text>$m&gt;0$</span><span class="graph-case-fact" data-math-text>$f(x)_{\max}=f(3)$</span></figcaption></figure><figure class="graph-case"><div data-quadratic-graph="{&quot;coefficient&quot;: -0.5, &quot;vertex&quot;: [0.5, -0.875], &quot;bounds&quot;: [-1, 4, -5, 0.7], &quot;interval&quot;: [2, 3], &quot;xTicks&quot;: [[2, &quot;2&quot;], [3, &quot;3&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;title&quot;: &quot;m = −1/2 时 f(x) 的图像&quot;, &quot;description&quot;: &quot;m=−1/2 时开口向下，对称轴 x=1/2 在区间左侧，[2,3] 上一直下降，左端点 x=2 处最高。&quot;, &quot;points&quot;: [{&quot;x&quot;: 2, &quot;label&quot;: &quot;最高&quot;, &quot;place&quot;: &quot;above-right&quot;}], &quot;uid&quot;: &quot;{{uid}}-done-down&quot;}"></div><figcaption><span class="graph-case-name" data-math-text>$m&lt;0$</span><span class="graph-case-fact" data-math-text>$f(x)_{\max}=f(2)$</span></figcaption></figure></div><p class="graph-cases-verdict">对称轴在区间左侧，区间上单调：开口向上右端最高，开口向下左端最高</p><details class="details" id="{{uid}}-i_extremum-derivation" open><summary>完整推导</summary><p data-math-text>$m\ne0$ 时，$f(x)=m\left(x-\dfrac12\right)^2-\dfrac m4-1$，对称轴为 $x=\dfrac12$，在 $[2,3]$ 左侧。</p><p data-math-text>① 当 $m=0$ 时，$f(x)=-1$，$f(x)_{\max}=-1$；</p><p data-math-text>② 当 $m&gt;0$ 时，$f(x)$ 在 $[2,3]$ 上单调递增，$f(x)_{\max}=f(3)=6m-1$；</p><p data-math-text>③ 当 $m&lt;0$ 时，$f(x)$ 在 $[2,3]$ 上单调递减，$f(x)_{\max}=f(2)=2m-1$。</p></details>
+</template>
+<template id="i_range-board">
+<div class="visual-board"><div class="board-caption">三种情况各自要满足</div><div class="formula case-lines"><p class="case-line"><span data-math-text>① $m=0$：</span><span data-math-text>$f(x)_{\max}=-1&lt;0$</span></p><p class="case-line"><span data-math-text>② $m&gt;0$：</span><span data-math-text>$f(x)_{\max}=f(3)=6m-1&lt;0$</span></p><p class="case-line"><span data-math-text>③ $m&lt;0$：</span><span data-math-text>$f(x)_{\max}=f(2)=2m-1&lt;0$</span></p></div></div>
+</template>
+<template id="i_range-done">
+<div class="case-merge"><div class="case-merge-group"><span class="case-merge-cell"><span class="case-merge-name">情况①<span class="nowrap" data-math-text>（$m=0$）</span></span><span class="case-merge-value" data-math-text>$m=0$</span></span><span class="case-merge-cell"><span class="case-merge-name">情况②<span class="nowrap" data-math-text>（$m&gt;0$）</span></span><span class="case-merge-value" data-math-text>$0&lt;m&lt;\frac16$</span></span><span class="case-merge-cell"><span class="case-merge-name">情况③<span class="nowrap" data-math-text>（$m&lt;0$）</span></span><span class="case-merge-value" data-math-text>$m&lt;0$</span></span><span class="case-merge-total" data-math-text>取并集：$m&lt;\frac16$</span></div></div><details class="details" id="{{uid}}-i_range-derivation" open><summary>完整推导</summary><p data-math-text>① 当 $m=0$ 时，$-1&lt;0$，成立；</p><p data-math-text>② 由 $\begin{cases}m&gt;0,\\ 6m-1&lt;0,\end{cases}$ 得 $0&lt;m&lt;\dfrac16$；</p><p data-math-text>③ 由 $\begin{cases}m&lt;0,\\ 2m-1&lt;0,\end{cases}$ 得 $m&lt;0$。</p><p data-math-text>综上，取并集得 $m&lt;\dfrac16$。</p></details>
+</template>
+<template id="i_boundary-done">
+<div class="checklist checklist-done"><div class="checklist-head"><span class="checklist-title" data-math-text>检查的边界：$m=\frac16$</span><span class="checklist-progress">1 / 1</span></div><div class="checklist-row answered"><span class="checklist-index" aria-hidden="true">✓</span><div class="checklist-body"><p class="checklist-label" data-math-text>$m=\frac16$：排除</p><p class="checklist-hint" data-math-text>$x=3$ 时左边 $=\frac96-\frac36-1=0$，不满足 $&lt;0$。</p></div></div><p class="checklist-verdict">边界排除</p></div><div class="vertex-reasoning"><figure class="quadratic-graph"><div data-quadratic-graph="{&quot;coefficient&quot;: 0.166667, &quot;vertex&quot;: [0.5, -1.041667], &quot;bounds&quot;: [-1, 4, -1.6, 1.2], &quot;interval&quot;: [2, 3], &quot;xTicks&quot;: [[2, &quot;2&quot;], [3, &quot;3&quot;]], &quot;yLabel&quot;: &quot;&quot;, &quot;variable&quot;: &quot;x&quot;, &quot;showVertex&quot;: false, &quot;title&quot;: &quot;m = 1/6 时 f(x) 的图像&quot;, &quot;description&quot;: &quot;m=1/6 时 f(x)=x²/6−x/6−1，在 [2,3] 上右端点 (3,0) 落在横轴上，不满足 f(x)&lt;0。&quot;, &quot;points&quot;: [], &quot;uid&quot;: &quot;{{uid}}-i_boundary-graph&quot;, &quot;markSign&quot;: &quot;above&quot;, &quot;strict&quot;: true}"></div><figcaption data-math-text>$m=\frac16$ 时右端点在横轴上</figcaption></figure><div class="reasoning"><p data-math-text>$f(3)=0$，不满足 $&lt;0$。</p></div></div><details class="details" id="{{uid}}-i_boundary-derivation" open><summary>完整推导</summary><p data-math-text>检验：当 $m=\dfrac16$ 时，原不等式为 $\dfrac16x^2-\dfrac16x-1&lt;0$，取 $x=3$，左边 $=0$，不成立，舍去。</p><p data-math-text>综上，实数 $m$ 的取值范围是 $\left(-\infty,\dfrac16\right)$。</p></details>
+</template>
+<template id="lesson-completion">
+<section class="completion-card"><p class="completion-eyebrow">本题已完成</p><h2>除以正数，不用讨论开口</h2><div class="visual-board"><div class="formula" data-math-text>$m\in\left(-\infty,\frac16\right)$</div></div><p data-math-text>分离参数法先确认 $x^2-x&gt;0$，除以正数不变向，得 $m&lt;h(x)_{\min}=\frac16$；区间最值法要按 $m$ 的符号分三种情况，取并集。$m=\frac16$ 时 $x=3$ 处取等，原题是 $&lt;$，排除。</p><a class="chapter-return" href="/2/">← 返回恒成立题库</a></section>
+</template>
+</body>
+</html>
