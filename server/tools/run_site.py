@@ -18,6 +18,7 @@ from sqlalchemy import text
 
 from shuxueshuo_server.auth.api import install_auth
 from shuxueshuo_server.auth.config import AuthConfig
+from shuxueshuo_server.product.application import schema_head
 from shuxueshuo_server.product.config import REPO, Settings, write_private
 from shuxueshuo_server.product.db import engine
 from shuxueshuo_server.tutor_demo.api import create_router
@@ -31,7 +32,7 @@ def create_local_app(settings, config):
             with db.connect() as connection:
                 if (
                     connection.scalar(text("SELECT version_num FROM alembic_version"))
-                    != "0007_learning_marks"
+                    != schema_head()
                 ):
                     raise RuntimeError(
                         "Migrate the local database before starting the login site"

@@ -1,6 +1,7 @@
 """Product request use cases. Network/model work belongs exclusively to the worker."""
 from .pipelines import CURRENT_PIPELINE_VERSION
 from datetime import datetime
+from functools import lru_cache
 from hashlib import sha256
 import json
 import os
@@ -9,6 +10,8 @@ import urllib.error
 import urllib.request
 from uuid import UUID
 
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import select, func, text
 
@@ -165,6 +168,11 @@ def dependencies(source, revision_id, snapshot):
     return {'dependencies': target, 'config': config, 'deployment_version': version}
 
 
+@lru_cache(maxsize=1)
+def schema_head():
+    return ScriptDirectory.from_config(Config(str(REPO / 'server/alembic.ini'))).get_current_head()
+
+
 class Application:
     def __init__(self, settings, service=None, context=None, discover=dependencies):
         self.settings = settings
@@ -172,7 +180,7 @@ class Application:
         self.db = self.service.db
         self.discover = discover
         with transaction(self.db) as c:
-            if c.scalar(text('SELECT version_num FROM alembic_version')) != '0005_student_auth':
+            if c.scalar(text('SELECT version_num FROM alembic_version')) != schema_head():
                 raise Conflict('migration.upgrade_required')
             if context is None:
                 user = row(c, m.users, key='internal')
