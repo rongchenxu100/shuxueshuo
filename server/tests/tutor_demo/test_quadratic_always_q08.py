@@ -185,7 +185,7 @@ assert.ok(!flat.includes('NaN')&&!flat.includes('Infinity'));
 def test_chapter_lists_and_serves_q08():
     with TestClient(create_app(Tutor())) as client:
         home = client.get('/2/').text
-        assert home.count('href="/2/q08/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
+        assert home.count('class="problem-card" href="/2/q08/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
         group = home[home.index('id="group-variable"'):]
         group = group[:group.index('</section>')]
         assert 'href="/2/q08/"' in group and f'<span class="type-count">{group.count(CARD)} 题</span>' in group

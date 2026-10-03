@@ -171,7 +171,7 @@ def test_graphs_are_instances_of_the_problem_or_marked_hypothetical():
 def test_chapter_lists_and_serves_q03():
     with TestClient(create_app(Tutor())) as client:
         home = client.get('/2/').text
-        assert home.count('href="/2/q03/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
+        assert home.count('class="problem-card" href="/2/q03/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
         assert client.get('/2/q03/').status_code == 200
         response = client.post('/api/tutor-demo/sessions', json={'lesson_id': ID})
         assert response.status_code == 201 and response.json()['lesson_id'] == ID

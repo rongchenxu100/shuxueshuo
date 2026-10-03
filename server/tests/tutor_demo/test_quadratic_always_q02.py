@@ -130,7 +130,7 @@ def test_strict_graphs_mark_the_upper_side():
 def test_chapter_lists_and_serves_q02():
     with TestClient(create_app(Tutor())) as client:
         home = client.get('/2/').text
-        assert home.count('href="/2/q02/"') == 1
+        assert home.count('class="problem-card" href="/2/q02/"') == 1
         assert client.get('/2/q02/').status_code == 200
         response = client.post('/api/tutor-demo/sessions', json={'lesson_id': ID})
         assert response.status_code == 201 and response.json()['lesson_id'] == ID

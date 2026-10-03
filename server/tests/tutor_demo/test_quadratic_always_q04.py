@@ -248,7 +248,7 @@ assert.ok(!svg.includes('NaN')&&!svg.includes('Infinity'));
 def test_chapter_lists_and_serves_q04():
     with TestClient(create_app(Tutor())) as client:
         home = client.get('/2/').text
-        assert home.count('href="/2/q04/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
+        assert home.count('class="problem-card" href="/2/q04/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
         group = home[home.index('id="group-interval"'):home.index('id="group-separation"')]
         assert 'href="/2/q04/"' in group and 'type-empty' not in group
         assert client.get('/2/q04/').status_code == 200

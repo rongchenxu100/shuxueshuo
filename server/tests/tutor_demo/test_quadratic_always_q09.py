@@ -184,7 +184,7 @@ assert.ok(!PracticeComponents.linearGraph({...base,slope:2,intercept:2,strict:tr
 def test_chapter_lists_and_serves_q09():
     with TestClient(create_app(Tutor())) as client:
         home = client.get('/2/').text
-        assert home.count('href="/2/q09/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
+        assert home.count('class="problem-card" href="/2/q09/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
         group = home[home.index('id="group-variable"'):]
         group = group[:group.index('</section>')]
         assert group.index('href="/2/q08/"') < group.index('href="/2/q09/"')

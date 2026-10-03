@@ -11,7 +11,7 @@
   <meta property="og:url" content="https://shuxueshuo.com/2/">
   <meta property="og:image" content="https://shuxueshuo.com/assets/images/share-default.png">
   <link rel="canonical" href="https://shuxueshuo.com/2/">
-  <link rel="stylesheet" href="/1/chapter.css?v=20261002b">
+  <link rel="stylesheet" href="/1/chapter.css?v=20261003a">
   <title>一元二次不等式应用之恒成立问题 · 数学说</title>
 </head>
 <body>
@@ -65,9 +65,9 @@
           <span class="type-index" aria-hidden="true">01</span>
           <div class="type-title">
             <h3 id="type-discriminant">判别式法</h3>
-            <p class="type-hint">全体实数上的恒成立，结合开口方向与判别式判断。</p>
+            <p class="type-hint"><var>x</var> 取全体实数时用：结合开口方向与判别式判断。</p>
           </div>
-          <div class="type-side"><span class="type-count">3 题</span></div>
+          <div class="type-side"><span class="type-count">3 题</span><button class="method-chip" type="button" data-method-dialog="method-discriminant" aria-haspopup="dialog" hidden><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><line x1="1" y1="9.5" x2="15" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".55"/><path d="M2.5 2.5 Q8 17 13.5 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>图解</button></div>
         </div>
         <ol class="problem-list">
           <li>
@@ -99,9 +99,9 @@
           <span class="type-index" aria-hidden="true">02</span>
           <div class="type-title">
             <h3 id="type-interval">区间最值法（分类讨论）</h3>
-            <p class="type-hint">观察顶点与区间的位置，确定最值在哪里取得。</p>
+            <p class="type-hint"><var>x</var> 只在某个区间上取值时用：看对称轴与区间的位置，分类求最值。</p>
           </div>
-          <div class="type-side"><span class="type-count">2 题</span></div>
+          <div class="type-side"><span class="type-count">2 题</span><button class="method-chip" type="button" data-method-dialog="method-interval" aria-haspopup="dialog" hidden><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><line x1="1" y1="9.5" x2="15" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".55"/><path d="M2.5 2.5 Q8 17 13.5 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>图解</button></div>
         </div>
         <ol class="problem-list">
           <li>
@@ -126,9 +126,9 @@
           <span class="type-index" aria-hidden="true">03</span>
           <div class="type-title">
             <h3 id="type-separation">分离参数法</h3>
-            <p class="type-hint">分离参数，转化为参数与函数上下界的比较。</p>
+            <p class="type-hint">参数能单独移到一边、除数符号确定时用：比较参数与函数的最值。</p>
           </div>
-          <div class="type-side"><span class="type-count">2 题</span></div>
+          <div class="type-side"><span class="type-count">2 题</span><button class="method-chip" type="button" data-method-dialog="method-separation" aria-haspopup="dialog" hidden><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><line x1="1" y1="9.5" x2="15" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".55"/><path d="M2.5 2.5 Q8 17 13.5 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>图解</button></div>
         </div>
         <ol class="problem-list">
           <li>
@@ -153,9 +153,9 @@
           <span class="type-index" aria-hidden="true">04</span>
           <div class="type-title">
             <h3 id="type-variable">更换主元法</h3>
-            <p class="type-hint">换一个量作为研究变量，寻找更简单的表达式。</p>
+            <p class="type-hint">给出范围的是参数、要求的是 <var>x</var> 时用：把参数当主元，看两端。</p>
           </div>
-          <div class="type-side"><span class="type-count">2 题</span></div>
+          <div class="type-side"><span class="type-count">2 题</span><button class="method-chip" type="button" data-method-dialog="method-variable" aria-haspopup="dialog" hidden><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><line x1="1" y1="9.5" x2="15" y2="9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".55"/><path d="M2.5 2.5 Q8 17 13.5 2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>图解</button></div>
         </div>
         <ol class="problem-list">
           <li>
@@ -190,6 +190,261 @@
       addEventListener('scroll', update, {passive: true});
       update();
     })();
+  </script>
+  <dialog class="method-sheet" id="method-discriminant" aria-labelledby="method-discriminant-title">
+    <div class="method-sheet-inner">
+      <header class="method-head">
+        <span class="type-index" aria-hidden="true">01</span>
+        <h2 id="method-discriminant-title" tabindex="-1" autofocus>判别式法 · 图解</h2>
+        <button class="method-close" type="button" aria-label="关闭图解"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </header>
+      <p class="method-core"><span class="method-tag">核心</span><span>对全体实数恒成立，就看整条抛物线与横轴的位置，用开口方向和判别式 Δ 表示出来。</span></p>
+      <section class="method-judge" aria-labelledby="method-discriminant-judge">
+        <h3 class="method-judge-title" id="method-discriminant-judge"><span class="method-tag">判断</span>两个前提都满足，才用判别式法</h3>
+        <div class="method-signal">
+          <span class="method-signal-tag">读题信号 · 第 02 题</span>
+          已知不等式 <mark><math><mi>k</mi><msup><mi>x</mi><mn>2</mn></msup></math></mark><math><mo>+</mo><mn>2</mn><mi>k</mi><mi>x</mi><mo>−</mo><mo stretchy="false">(</mo><mi>k</mi><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo>&lt;</mo><mn>0</mn></math> <mark>恒成立</mark>，求实数 <var>k</var> 的取值范围。
+          <ul class="method-signal-notes">
+            <li>没写 <var>x</var> 的范围：<var>x</var> 取全体实数</li>
+            <li><var>x</var><sup>2</sup> 的系数是 <var>k</var>：可能为 0，要先单独讨论</li>
+          </ul>
+        </div>
+        <ol class="method-checks">
+          <li><span class="method-check-no" aria-hidden="true">1</span><b><var>x</var> 的取值范围：全体实数</b><small>题目没写范围，或写“对任意实数 <var>x</var>”</small></li>
+          <li><span class="method-check-no" aria-hidden="true">2</span><b><var>x</var><sup>2</sup> 的系数：确定非零</b><small>含参数、可能为零时，先讨论系数为 0 的情形，再用判别式</small></li>
+        </ol>
+        <ul class="method-else">
+          <li><span class="method-else-tag">不满足</span><span><var>x</var> 只在某个区间上</span><span aria-hidden="true">→</span><button class="method-switch" type="button" data-method-switch="method-interval">区间最值法</button><button class="method-switch" type="button" data-method-switch="method-separation">分离参数法</button></li>
+        </ul>
+      </section>
+      <div class="method-figure">
+        <ul class="method-graphs" aria-label="开口向上时，抛物线与横轴的三种位置">
+          <li><svg viewBox="0 0 120 84" aria-hidden="true"><line class="g-axis" x1="6" y1="60" x2="114" y2="60"/><path class="g-curve" d="M14 8 Q60 92 106 8"/></svg><b>Δ &lt; 0</b><span>不相交 <span class="ok-mark">✓</span></span></li>
+          <li><svg viewBox="0 0 120 84" aria-hidden="true"><line class="g-axis" x1="6" y1="60" x2="114" y2="60"/><path class="g-curve" d="M14 8 Q60 112 106 8"/><circle class="g-dot" cx="60" cy="60" r="3.6"/></svg><b>Δ = 0</b><span>相切，允许取等时 <span class="ok-mark">✓</span></span></li>
+          <li class="bad"><svg viewBox="0 0 120 84" aria-hidden="true"><line class="g-axis" x1="6" y1="60" x2="114" y2="60"/><line class="g-bad" x1="37.7" y1="60" x2="82.3" y2="60"/><path class="g-curve" d="M14 8 Q60 144 106 8"/></svg><b>Δ &gt; 0</b><span>穿过横轴 <span class="bad-mark">✗</span></span></li>
+        </ul>
+        <p class="method-graph-caption">开口向上时，要 <math><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>≥</mo><mn>0</mn></math> 恒成立，图像不能到横轴下方</p>
+        <ul class="method-cases">
+          <li><span class="method-case-tag">恒 ≥ 0</span><span>开口向上</span><span class="method-case-arrow" aria-hidden="true">+</span><span>Δ ≤ 0</span></li>
+          <li><span class="method-case-tag">恒 ≤ 0</span><span>开口向下</span><span class="method-case-arrow" aria-hidden="true">+</span><span>Δ ≤ 0</span></li>
+        </ul>
+        <p class="method-pill">不等号不带等号（&gt;、&lt;）时，只取 Δ &lt; 0</p>
+      </div>
+      <ol class="method-steps" aria-label="解题三步">
+        <li><span class="method-step-no" aria-hidden="true">1</span><strong>定开口</strong><span>系数可能为 0 先讨论，再看开口方向</span></li>
+        <li><span class="method-step-no" aria-hidden="true">2</span><strong>位置化成 Δ</strong><span>不相交 Δ &lt; 0，允许相切 Δ ≤ 0</span></li>
+        <li><span class="method-step-no" aria-hidden="true">3</span><strong>解范围，查边界</strong><span>边界值代回原不等式检验</span></li>
+      </ol>
+      <div class="method-examples">
+        <span class="method-tag">示范</span>
+        <a href="/2/q01/">系数确定 · 第 01 题<span aria-hidden="true"> →</span></a>
+        <a href="/2/q02/">系数含参 · 第 02 题<span aria-hidden="true"> →</span></a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="method-sheet" id="method-interval" aria-labelledby="method-interval-title">
+    <div class="method-sheet-inner">
+      <header class="method-head">
+        <span class="type-index" aria-hidden="true">02</span>
+        <h2 id="method-interval-title" tabindex="-1" autofocus>区间最值法（分类讨论） · 图解</h2>
+        <button class="method-close" type="button" aria-label="关闭图解"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </header>
+      <p class="method-core"><span class="method-tag">核心</span><span><var>x</var> 只在某个区间上取值，就只看这一段图像：最高点小于 0，整段都小于 0。</span></p>
+      <section class="method-judge" aria-labelledby="method-interval-judge">
+        <h3 class="method-judge-title" id="method-interval-judge"><span class="method-tag">判断</span>一个前提满足，就能用区间最值法</h3>
+        <div class="method-signal">
+          <span class="method-signal-tag">读题信号 · 第 04 题</span>
+          当 <mark><math><mn>1</mn><mo>≤</mo><mi>x</mi><mo>≤</mo><mn>2</mn></math></mark> 时，不等式 <math><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mi>m</mi><mi>x</mi><mo>+</mo><mn>4</mn><mo>&lt;</mo><mn>0</mn></math> 恒成立，求实数 <var>m</var> 的取值范围。
+          <ul class="method-signal-notes">
+            <li>只要求 <span class="nowrap">1 ≤ <var>x</var> ≤ 2</span>：只看区间上的那一段图像</li>
+            <li>判别式管的是整条图像，这里用不上</li>
+          </ul>
+        </div>
+        <ol class="method-checks">
+          <li><span class="method-check-no" aria-hidden="true">1</span><b><var>x</var> 的取值范围：某个区间</b><small>如“当 1 ≤ <var>x</var> ≤ 2 时”“∀<var>x</var> &lt; 0”；开口方向不是前提，它决定最值在哪里取到</small></li>
+        </ol>
+        <ul class="method-else">
+          <li><span class="method-else-tag">不满足</span><span><var>x</var> 取全体实数</span><span aria-hidden="true">→</span><button class="method-switch" type="button" data-method-switch="method-discriminant">判别式法</button></li>
+          <li><span class="method-else-tag alt">也可以</span><span>参数容易单独移到一边</span><span aria-hidden="true">→</span><button class="method-switch" type="button" data-method-switch="method-separation">分离参数法</button></li>
+        </ul>
+      </section>
+      <div class="method-figure">
+        <svg class="method-graph" viewBox="0 0 300 140" role="img" aria-label="第 04 题 m 等于负 5.5 时，f(x) 在区间 1 到 2 上的一段全部在横轴下方，左端 f(1) 等于负 0.5 最高">
+          <rect class="g-band" x="85" y="6" width="55" height="128" rx="3"/>
+          <line class="g-axis" x1="10" y1="70" x2="290" y2="70"/>
+          <line class="g-axis" x1="30" y1="4" x2="30" y2="136"/>
+          <text class="g-math" x="282" y="64">x</text>
+          <text class="g-text" x="85" y="64" text-anchor="middle">1</text>
+          <text class="g-text" x="140" y="64" text-anchor="middle">2</text>
+          <path class="g-faint" d="M30.0 14.0 L35.5 21.6 L41.0 28.8 L46.5 35.8 L52.0 42.6 L57.5 49.0 L63.0 55.2 L68.5 61.0 L74.0 66.6 L79.5 72.0 L85.0 77.0 M140.0 112.0 L145.5 114.0 L151.0 115.6 L156.5 117.0 L162.0 118.2 L167.5 119.0 L173.0 119.6 L178.5 119.8 L184.0 119.8 L189.5 119.6 L195.0 119.0 L200.5 118.2 L206.0 117.0 L211.5 115.6 L217.0 114.0 L222.5 112.0 L228.0 109.8 L233.5 107.2 L239.0 104.4 L244.5 101.4 L250.0 98.0 L255.5 94.4 L261.0 90.4 L266.5 86.2"/>
+          <path class="g-curve" d="M85.0 77.0 L90.5 81.8 L96.0 86.2 L101.5 90.4 L107.0 94.4 L112.5 98.0 L118.0 101.4 L123.5 104.4 L129.0 107.2 L134.5 109.8 L140.0 112.0"/>
+          <circle class="g-dot" cx="85" cy="77" r="4"/>
+          <circle class="g-dot" cx="140" cy="112" r="4"/>
+          <text class="g-text ok" x="78" y="94" text-anchor="end">最高 f(1) = −0.5</text>
+          <text class="g-text" x="134" y="130" text-anchor="end">f(2) = −3</text>
+        </svg>
+        <p class="method-graph-caption">第 04 题，<span class="nowrap"><var>m</var> = −5.5</span> 时：区间外有正有负不要紧，区间内最高点 f(1) &lt; 0</p>
+        <ul class="method-cases">
+          <li><span class="method-case-tag">恒 &lt; 0</span><span>区间上的最大值 &lt; 0</span></li>
+          <li><span class="method-case-tag">恒 &gt; 0</span><span>区间上的最小值 &gt; 0</span></li>
+        </ul>
+        <p class="method-pill">最值在顶点还是端点，看对称轴与区间的位置</p>
+      </div>
+      <ol class="method-steps" aria-label="解题三步">
+        <li><span class="method-step-no" aria-hidden="true">1</span><strong>转化为最值条件</strong><span>&lt; 0 比最高点，&gt; 0 比最低点</span></li>
+        <li><span class="method-step-no" aria-hidden="true">2</span><strong>分类讨论最值</strong><span>对称轴与区间比较，分情况写最值</span></li>
+        <li><span class="method-step-no" aria-hidden="true">3</span><strong>合并，查边界</strong><span>情况内取交集，情况间取并集</span></li>
+      </ol>
+      <div class="method-examples">
+        <span class="method-tag">示范</span>
+        <a href="/2/q04/">闭区间恒成立 · 第 04 题<span aria-hidden="true"> →</span></a>
+        <a href="/2/q05/">开区间有解 · 第 05 题<span aria-hidden="true"> →</span></a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="method-sheet" id="method-separation" aria-labelledby="method-separation-title">
+    <div class="method-sheet-inner">
+      <header class="method-head">
+        <span class="type-index" aria-hidden="true">03</span>
+        <h2 id="method-separation-title" tabindex="-1" autofocus>分离参数法 · 图解</h2>
+        <button class="method-close" type="button" aria-label="关闭图解"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </header>
+      <p class="method-core"><span class="method-tag">核心</span><span>把参数单独放到一边，问题就变成水平线 <span class="nowrap"><var>y</var> = 参数</span> 与函数 <var>h</var>(<var>x</var>) 比高低。</span></p>
+      <section class="method-judge" aria-labelledby="method-separation-judge">
+        <h3 class="method-judge-title" id="method-separation-judge"><span class="method-tag">判断</span>两个前提都满足，才用分离参数法</h3>
+        <div class="method-signal">
+          <span class="method-signal-tag">读题信号 · 第 06 题</span>
+          “<math><mo>∀</mo></math><mark><math><mi>x</mi><mo>&lt;</mo><mn>0</mn></math></mark><math><mo separator="true">,</mo><mspace width="0.3em"/><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo></math><mark><math><mi>a</mi><mi>x</mi></math></mark><math><mo>+</mo><mn>2</mn><mo>≥</mo><mn>0</mn></math>”为真命题，求实数 <var>a</var> 的取值范围。
+          <ul class="method-signal-notes">
+            <li>参数只出现在 <var>ax</var> 中：移项后除以 <var>x</var>，就能把 <var>a</var> 单独放到一边</li>
+            <li><var>x</var> &lt; 0：除数符号确定，除以负数时不等号变向</li>
+          </ul>
+        </div>
+        <ol class="method-checks">
+          <li><span class="method-check-no" aria-hidden="true">1</span><b>参数能单独放到一边</b><small>已经分离，或移项后可以分离</small></li>
+          <li><span class="method-check-no" aria-hidden="true">2</span><b>要除的式子，符号确定</b><small>不需要除，或需要除但符号确定；符号不定就不能直接除</small></li>
+        </ol>
+        <ul class="method-else">
+          <li><span class="method-else-tag">不满足</span><span>除数符号不定（如第 02 题的 <span class="nowrap"><var>x</var><sup>2</sup> + 2<var>x</var> − 1</span>）</span><span aria-hidden="true">→</span><button class="method-switch" type="button" data-method-switch="method-discriminant">判别式法</button><button class="method-switch" type="button" data-method-switch="method-interval">区间最值法</button></li>
+        </ul>
+      </section>
+      <div class="method-figure">
+        <svg class="method-graph" viewBox="0 0 300 160" role="img" aria-label="第 06 题 h(x) 等于负 x 减 x 分之 2 在 x 小于 0 时的图像，最低点为负根号 2、2 倍根号 2，水平线 y 等于 a 在最低点下方">
+          <line class="g-axis" x1="20" y1="140" x2="290" y2="140"/>
+          <line class="g-axis" x1="262" y1="6" x2="262" y2="146"/>
+          <text class="g-math" x="282" y="134">x</text>
+          <text class="g-math" x="268" y="16">y</text>
+          <path class="g-curve" d="M46.0 32.3 L50.3 34.3 L54.6 36.2 L59.0 38.1 L63.3 40.0 L67.6 41.9 L71.9 43.8 L76.2 45.7 L80.6 47.6 L84.9 49.4 L89.2 51.3 L93.5 53.2 L97.8 55.0 L102.2 56.9 L106.5 58.7 L110.8 60.5 L115.1 62.3 L119.4 64.1 L123.8 65.9 L128.1 67.6 L132.4 69.4 L136.7 71.1 L141.0 72.8 L145.4 74.4 L149.7 76.1 L154.0 77.7 L158.3 79.2 L162.6 80.8 L167.0 82.2 L171.3 83.7 L175.6 85.0 L179.9 86.3 L184.2 87.5 L188.6 88.7 L192.9 89.7 L197.2 90.5 L201.5 91.2 L205.8 91.7 L210.2 91.9 L214.5 91.8 L218.8 91.3 L223.1 90.2 L227.4 88.3 L231.8 85.2 L236.1 80.5 L240.4 73.1 L244.7 61.0 L249.0 39.4"/>
+          <line class="g-guide" x1="211.1" y1="92" x2="211.1" y2="140"/>
+          <line class="g-alt" x1="30" y1="106" x2="256" y2="106"/>
+          <circle class="g-dot" cx="211.1" cy="91.9" r="4"/>
+          <text class="g-text ok" x="211" y="124" text-anchor="middle">最低点 2√2</text>
+          <text class="g-text" x="211" y="155" text-anchor="middle">−√2</text>
+          <text class="g-text alt" x="34" y="100">y = a，不高于最低点</text>
+        </svg>
+        <p class="method-graph-caption">第 06 题，<span class="nowrap"><var>h</var>(<var>x</var>) = −<var>x</var> − 2/<var>x</var></span>（<var>x</var> &lt; 0）：<span class="nowrap"><var>a</var> ≤ <var>h</var>(<var>x</var>)</span> 恒成立 ⇔ <span class="nowrap"><var>a</var> ≤ 2√2</span></p>
+        <ul class="method-cases">
+          <li><span class="method-case-tag">参数 ≤ <var>h</var>(<var>x</var>)</span><span class="method-case-arrow" aria-hidden="true">→</span><span>比 <var>h</var>(<var>x</var>) 的最小值</span></li>
+          <li><span class="method-case-tag">参数 ≥ <var>h</var>(<var>x</var>)</span><span class="method-case-arrow" aria-hidden="true">→</span><span>比 <var>h</var>(<var>x</var>) 的最大值</span></li>
+        </ul>
+        <p class="method-pill">除以负数，不等号要变向</p>
+      </div>
+      <ol class="method-steps" aria-label="解题三步">
+        <li><span class="method-step-no" aria-hidden="true">1</span><strong>分离参数</strong><span>看除数符号，定不等号方向</span></li>
+        <li><span class="method-step-no" aria-hidden="true">2</span><strong>转化为最值条件</strong><span>≤ 比最小值，≥ 比最大值</span></li>
+        <li><span class="method-step-no" aria-hidden="true">3</span><strong>求最值，查边界</strong><span>用图像、单调性或基本不等式</span></li>
+      </ol>
+      <div class="method-examples">
+        <span class="method-tag">示范</span>
+        <a href="/2/q06/">除以负数 · 第 06 题<span aria-hidden="true"> →</span></a>
+        <a href="/2/q07/">除以正数 · 第 07 题<span aria-hidden="true"> →</span></a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="method-sheet" id="method-variable" aria-labelledby="method-variable-title">
+    <div class="method-sheet-inner">
+      <header class="method-head">
+        <span class="type-index" aria-hidden="true">04</span>
+        <h2 id="method-variable-title" tabindex="-1" autofocus>更换主元法 · 图解</h2>
+        <button class="method-close" type="button" aria-label="关闭图解"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+      </header>
+      <p class="method-core"><span class="method-tag">核心</span><span>对哪个字母恒成立，就把它当自变量（主元）；另一个字母当常数，常常变成一次函数，只看两端。</span></p>
+      <section class="method-judge" aria-labelledby="method-variable-judge">
+        <h3 class="method-judge-title" id="method-variable-judge"><span class="method-tag">判断</span>两个前提都满足，才用更换主元法</h3>
+        <div class="method-signal">
+          <span class="method-signal-tag">读题信号 · 第 08 题</span>
+          已知函数 <math><mi>y</mi><mo>=</mo><mi>m</mi><msup><mi>x</mi><mn>2</mn></msup><mo>−</mo><mi>m</mi><mi>x</mi><mo>−</mo><mn>6</mn><mo>+</mo><mi>m</mi></math>，若对于 <mark><math><mn>1</mn><mo>≤</mo><mi>m</mi><mo>≤</mo><mn>3</mn></math></mark>，<span class="nowrap"><var>y</var> &lt; 0</span> 恒成立，求实数 <mark><var>x</var></mark> 的取值范围。
+          <ul class="method-signal-notes">
+            <li>给出范围的是 <var>m</var>，要求的是 <var>x</var>：把 <var>m</var> 当作主元</li>
+            <li><span class="nowrap"><var>y</var> = (<var>x</var><sup>2</sup> − <var>x</var> + 1)<var>m</var> − 6</span>：关于 <var>m</var> 是一次函数</li>
+          </ul>
+        </div>
+        <ol class="method-checks">
+          <li><span class="method-check-no" aria-hidden="true">1</span><b>恒成立针对的是给出范围的字母</b><small>它不是要求范围的那个字母，就把它当作主元</small></li>
+          <li><span class="method-check-no" aria-hidden="true">2</span><b>固定另一个字母后，关于主元是一次形式</b><small>可退化为常数；最值都在区间端点取到</small></li>
+        </ol>
+        <ul class="method-else">
+          <li><span class="method-else-tag">不满足</span><span>恒成立针对的就是 <var>x</var></span><span aria-hidden="true">→</span><button class="method-switch" type="button" data-method-switch="method-discriminant">判别式法</button><button class="method-switch" type="button" data-method-switch="method-interval">区间最值法</button><button class="method-switch" type="button" data-method-switch="method-separation">分离参数法</button></li>
+        </ul>
+      </section>
+      <div class="method-figure">
+        <svg class="method-graph" viewBox="0 0 280 150" role="img" aria-label="第 08 题，x 等于 0 时 f(m) 等于 m 减 6 在 m 属于 1 到 3 上两端都在横轴下方；x 等于 2 时 f(m) 等于 3m 减 6 右端在横轴上方">
+          <rect class="g-band" x="90" y="4" width="100" height="142" rx="3"/>
+          <line class="g-axis" x1="20" y1="60" x2="264" y2="60"/>
+          <line class="g-axis" x1="40" y1="4" x2="40" y2="146"/>
+          <text class="g-math" x="256" y="54">m</text>
+          <text class="g-text" x="90" y="54" text-anchor="middle">1</text>
+          <text class="g-text" x="190" y="54" text-anchor="middle">3</text>
+          <line class="g-faint" x1="65" y1="131.5" x2="210" y2="93.8"/>
+          <line class="g-curve" x1="90" y1="125" x2="190" y2="99"/>
+          <circle class="g-dot" cx="90" cy="125" r="4"/>
+          <circle class="g-dot" cx="190" cy="99" r="4"/>
+          <line class="g-alt" x1="65" y1="118.5" x2="210" y2="5.4"/>
+          <circle class="g-dot-alt" cx="90" cy="99" r="3.6"/>
+          <circle class="g-dot-bad" cx="190" cy="21" r="4.4"/>
+          <text class="g-text ok" x="196" y="128">x = 0 ✓</text>
+          <text class="g-text bad" x="200" y="30">x = 2 ✗</text>
+        </svg>
+        <p class="method-graph-caption">第 08 题：<span class="nowrap"><var>x</var> = 0</span> 时 <span class="nowrap"><var>f</var>(<var>m</var>) = <var>m</var> − 6</span>，两端都在横轴下方；<span class="nowrap"><var>x</var> = 2</span> 时 <span class="nowrap"><var>f</var>(<var>m</var>) = 3<var>m</var> − 6</span>，右端跑到上方</p>
+        <ul class="method-cases">
+          <li><span class="method-case-tag">斜率恒正／恒负</span><span class="method-case-arrow" aria-hidden="true">→</span><span>最值在确定的一端</span></li>
+          <li><span class="method-case-tag">斜率符号不定</span><span class="method-case-arrow" aria-hidden="true">→</span><span>两端都要看</span></li>
+        </ul>
+        <p class="method-pill">一次函数在区间上恒 &lt; 0 ⇔ 两个端点值都 &lt; 0</p>
+      </div>
+      <ol class="method-steps" aria-label="解题三步">
+        <li><span class="method-step-no" aria-hidden="true">1</span><strong>定主元，整理</strong><span>写成 f(主元) = (…)·主元 + (…)</span></li>
+        <li><span class="method-step-no" aria-hidden="true">2</span><strong>看斜率定端点</strong><span>恒正、恒负看一端，不定看两端</span></li>
+        <li><span class="method-step-no" aria-hidden="true">3</span><strong>解不等式，查边界</strong><span>解关于原来字母的不等式</span></li>
+      </ol>
+      <div class="method-examples">
+        <span class="method-tag">示范</span>
+        <a href="/2/q08/">斜率恒正 · 第 08 题<span aria-hidden="true"> →</span></a>
+        <a href="/2/q09/">斜率不定 · 第 09 题<span aria-hidden="true"> →</span></a>
+      </div>
+    </div>
+  </dialog>
+  <script>
+    document.querySelectorAll('[data-method-dialog]').forEach((button) => {
+      const dialog = document.getElementById(button.dataset.methodDialog);
+      if (!dialog || typeof dialog.showModal !== 'function') return;
+      button.hidden = false;
+      button.addEventListener('click', () => dialog.showModal());
+      dialog.addEventListener('click', (event) => {
+        if (event.target === dialog || event.target.closest('.method-close')) dialog.close();
+      });
+    });
+    document.querySelectorAll('[data-method-switch]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = document.getElementById(button.dataset.methodSwitch);
+        if (!target || typeof target.showModal !== 'function') return;
+        button.closest('dialog').close();
+        target.showModal();
+      });
+    });
   </script>
 </body>
 </html>

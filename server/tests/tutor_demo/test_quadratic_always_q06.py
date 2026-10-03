@@ -230,7 +230,7 @@ assert.ok(/class="graph-interval" d="M[\d.]+ 48V222"/.test(parabola)&&!parabola.
 def test_chapter_lists_and_serves_q06():
     with TestClient(create_app(Tutor())) as client:
         home = client.get('/2/').text
-        assert home.count('href="/2/q06/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
+        assert home.count('class="problem-card" href="/2/q06/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
         group = home[home.index('id="group-separation"'):home.index('id="group-variable"')]
         assert 'href="/2/q06/"' in group and f'<span class="type-count">{group.count(CARD)} 题</span>' in group
         assert client.get('/2/q06/').status_code == 200

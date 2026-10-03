@@ -163,7 +163,7 @@ def test_chapter_and_development_mounts():
     with TestClient(create_app(Tutor())) as client:
         home = client.get('/2/').text
         assert home.count('class="type-group"') == 4
-        assert home.count('href="/2/q01/"') == 1 and home.count('href="/2/q02/"') == 1
+        assert home.count('class="problem-card" href="/2/q01/"') == 1 and home.count('class="problem-card" href="/2/q02/"') == 1
         assert f'<strong>{home.count(CARD)}</strong>' in home
         assert client.get('/2/q01/').status_code == 200
         assert client.get('/1/').status_code == 200

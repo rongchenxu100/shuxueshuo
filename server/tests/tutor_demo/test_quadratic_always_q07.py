@@ -215,7 +215,7 @@ assert.ok(!flat.includes('NaN')&&!flat.includes('Infinity'), 'm = 0 draws the li
 def test_chapter_lists_and_serves_q07():
     with TestClient(create_app(Tutor())) as client:
         home = client.get('/2/').text
-        assert home.count('href="/2/q07/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
+        assert home.count('class="problem-card" href="/2/q07/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
         group = home[home.index('id="group-separation"'):home.index('id="group-variable"')]
         assert 'href="/2/q07/"' in group and f'<span class="type-count">{group.count(CARD)} 题</span>' in group
         toc = home[home.index('href="#group-separation"'):]

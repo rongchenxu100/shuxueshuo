@@ -225,7 +225,7 @@ assert.ok(/class="quadratic-point"[^>]*fill="#fff"/.test(svg));
 def test_chapter_lists_and_serves_q05():
     with TestClient(create_app(Tutor())) as client:
         home = client.get('/2/').text
-        assert home.count('href="/2/q05/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
+        assert home.count('class="problem-card" href="/2/q05/"') == 1 and f'<strong>{home.count(CARD)}</strong>' in home
         group = home[home.index('id="group-interval"'):home.index('id="group-separation"')]
         assert group.index('href="/2/q04/"') < group.index('href="/2/q05/"') and '<span class="type-count">2 题</span>' in group
         assert client.get('/2/q05/').status_code == 200
