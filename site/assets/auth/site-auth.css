@@ -22,6 +22,7 @@
 .sss-account-floating .sss-account-trigger { box-shadow:0 8px 22px -12px rgba(16,52,48,.45); }
 .home-v2-nav > .sss-account { justify-self:end; }
 .lesson-topbar > .sss-account { font-weight:400; }
+.reset-button + .sss-account { margin-left:0; padding-left:0; }
 
 .sss-auth-dialog { box-sizing:border-box; width:min(400px, calc(100vw - 32px)); max-height:calc(100dvh - 32px); padding:0; overflow:auto; border:0; border-radius:20px; color:var(--sss-ink); background:#fff; box-shadow:0 30px 80px -30px rgba(10,50,45,.55); font-size:15px; line-height:1.6; overscroll-behavior:contain; }
 .sss-auth-dialog[open] { animation:sss-in .18s ease-out; }
