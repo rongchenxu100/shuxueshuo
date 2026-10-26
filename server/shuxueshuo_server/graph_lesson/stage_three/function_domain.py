@@ -9,15 +9,48 @@ from itertools import pairwise
 
 import sympy as sp
 
+from ...problem_understanding.notation_parser import NotationError
+from ...problem_understanding.notation_semantics import bounded_expand
 from ..stage_one.function_domain import (
     ARGUMENT,
-    _affine,
+    MAX_RADICAND_DEGREE,
+    _fixed_poly,
     _input_domain,
     _inspect_expression,
     _integer_exponent,
     inspect_domain_target,
 )
 from .math_values import math_value
+
+
+def _is_zero(value):
+    """Exact algebraic zero; unsimplified radicals at roots must not slip through."""
+    expanded = bounded_expand(value)
+    return expanded == 0 or expanded.is_zero is True
+
+
+def _is_negative(value):
+    expanded = bounded_expand(value)
+    return expanded.is_negative is True
+
+
+def _poly_roots(ast, max_degree=MAX_RADICAND_DEGREE):
+    """Exact real roots of a fixed rational univariate polynomial AST."""
+    coeffs = _fixed_poly(ast, max_degree=max_degree)
+    if len(coeffs) <= 1:
+        return []
+    variable = sp.Dummy("x")
+    expr = sum(
+        (sp.Rational(c.numerator, c.denominator) * variable**i for i, c in enumerate(coeffs)),
+        sp.Integer(0),
+    )
+    poly = sp.Poly(expr, variable, domain=sp.QQ)
+    roots = list(dict.fromkeys(sp.polys.polytools.real_roots(poly)))
+    if any(root.has(sp.CRootOf) for root in roots):
+        raise ValueError("domain.parameter_root_checkpoint_unavailable")
+    if poly.count_roots(-sp.oo, sp.oo) != len(roots):
+        raise ValueError("domain.parameter_root_count")
+    return roots
 
 
 def expression(ast, variable):
@@ -109,6 +142,17 @@ def extract_domain_conditions(context):
             }
         )
 
+    def add_denominator(ast, path):
+        # Product and zero-power factors keep one ≠0 condition per solvable piece;
+        # a^0 itself is never 0 once the base is nonzero.
+        if ast[0] == "*":
+            add_denominator(ast[1], (*path, 1))
+            add_denominator(ast[2], (*path, 2))
+            return
+        if ast[0] == "^" and _integer_exponent(ast[2]) == 0:
+            return
+        add(ast, path, "denominator_nonzero", "rational-expression#meaning")
+
     def visit(ast, path=()):
         if ast[0] == "^" and _integer_exponent(ast[2]) == 0:
             add(ast[1], (*path, 1), "zero_power_base_nonzero", "integer-power#zero-exponent")
@@ -122,9 +166,7 @@ def extract_domain_conditions(context):
         if ast[0] == "/":
             # Traverse numerator first, matching the original reading order.
             visit(ast[1], (*path, 1))
-            add(
-                ast[2], (*path, 2), "denominator_nonzero", "rational-expression#meaning"
-            )
+            add_denominator(ast[2], (*path, 2))
             visit(ast[2], (*path, 2))
             return
         for index, child in enumerate(ast[1:], 1):
@@ -259,18 +301,18 @@ def _evaluate(ast, point):
         return defined, -value if defined else None
     if ast[:2] == ["call", "sqrt"]:
         defined, value = _evaluate(ast[2], point)
-        if not defined or value < 0:
+        if not defined or _is_negative(value):
             return False, None
-        return True, sp.sqrt(value)
+        return True, sp.Integer(0) if _is_zero(value) else sp.sqrt(value)
     if ast[0] == "^":
         defined, value = _evaluate(ast[1], point)
         exponent = _integer_exponent(ast[2])
-        if not defined or (exponent == 0 and value == 0):
+        if not defined or (exponent == 0 and _is_zero(value)):
             return False, None
         return True, value ** exponent
     lhs_ok, lhs = _evaluate(ast[1], point)
     rhs_ok, rhs = _evaluate(ast[2], point)
-    if not lhs_ok or not rhs_ok or (ast[0] == "/" and rhs == 0):
+    if not lhs_ok or not rhs_ok or (ast[0] == "/" and _is_zero(rhs)):
         return False, None
     return True, {
         "+": lambda: lhs + rhs,
@@ -283,39 +325,82 @@ def _evaluate(ast, point):
 def _critical(description):
     rows, points, by_path = [], set(), {}
 
-    def visit(ast, path=()):
-        if ast[:2] == ["call", "sqrt"] or ast[0] == "/" or (ast[0] == "^" and _integer_exponent(ast[2]) == 0):
-            index = 1 if ast[0] == "^" else 2
-            kind = ("zero_power_base_nonzero" if ast[0] == "^" else
-                    "radicand_nonnegative" if ast[:2] == ["call", "sqrt"] else "denominator_nonzero")
-            child, polynomial_path = ast[index], (*path, index)
-            if child[:2] == ["call", "sqrt"]:
-                child, polynomial_path = child[2], (*polynomial_path, 2)
-            source = {
+    def record(child, polynomial_path, source, max_degree=MAX_RADICAND_DEGREE):
+        # A sqrt divisor and its own real-definedness condition use the
+        # same polynomial at the same original position. Keep both
+        # requirements, but produce its critical-polynomial evidence once.
+        key = (description["source_ref"], polynomial_path)
+        row = by_path.get(key)
+        if row is None:
+            roots = _poly_roots(child, max_degree=max_degree)
+            points.update(roots)
+            row = {
                 "source_ref": description["source_ref"],
-                "ast_path": [*path, index],
-                "kind": kind,
+                "ast_path": list(polynomial_path),
+                "expression_ast": deepcopy(child),
+                "roots": [math_value(p) for p in roots],
+                "condition_sources": [],
             }
-            # A sqrt divisor and its own real-definedness condition use the
-            # same polynomial at the same original position. Keep both
-            # requirements, but produce its critical-polynomial evidence once.
-            key = (description["source_ref"], polynomial_path)
-            row = by_path.get(key)
-            if row is None:
-                slope, constant = _affine(child)
-                roots = [] if not slope else [sp.Rational(-constant / slope)]
-                points.update(roots)
-                row = {
+            rows.append(row)
+            by_path[key] = row
+        if source not in row["condition_sources"]:
+            row["condition_sources"].append(source)
+
+    def record_divisor(ast, path):
+        if ast[0] == "*":
+            record_divisor(ast[1], (*path, 1))
+            record_divisor(ast[2], (*path, 2))
+            return
+        if ast[:2] == ["call", "sqrt"]:
+            # Polynomial evidence is the radicand; the nonzero condition points
+            # at the whole square-root divisor in the original tree.
+            record(
+                ast[2],
+                (*path, 2),
+                {
                     "source_ref": description["source_ref"],
-                    "ast_path": list(polynomial_path),
-                    "expression_ast": deepcopy(child),
-                    "roots": [math_value(p) for p in roots],
-                    "condition_sources": [],
-                }
-                rows.append(row)
-                by_path[key] = row
-            if source not in row["condition_sources"]:
-                row["condition_sources"].append(source)
+                    "ast_path": list(path),
+                    "kind": "denominator_nonzero",
+                },
+            )
+            return
+        if ast[0] == "^" and _integer_exponent(ast[2]) == 0:
+            return
+        record(
+            ast,
+            path,
+            {
+                "source_ref": description["source_ref"],
+                "ast_path": list(path),
+                "kind": "denominator_nonzero",
+            },
+            max_degree=1,
+        )
+
+    def visit(ast, path=()):
+        if ast[:2] == ["call", "sqrt"]:
+            record(
+                ast[2],
+                (*path, 2),
+                {
+                    "source_ref": description["source_ref"],
+                    "ast_path": [*path, 2],
+                    "kind": "radicand_nonnegative",
+                },
+            )
+        elif ast[0] == "^" and _integer_exponent(ast[2]) == 0:
+            record(
+                ast[1],
+                (*path, 1),
+                {
+                    "source_ref": description["source_ref"],
+                    "ast_path": [*path, 1],
+                    "kind": "zero_power_base_nonzero",
+                },
+                max_degree=1,
+            )
+        elif ast[0] == "/":
+            record_divisor(ast[2], (*path, 2))
         for index, child in enumerate(ast[1:], 1):
             if isinstance(child, list):
                 visit(child, (*path, index))
@@ -392,14 +477,14 @@ def verify_domain(candidate, target_ref, context, proposed):
         result_value.update(
             status="verified" if mismatch is None else "math_failed",
             proof={
-                "category": "original-fixed-affine-function-domain/v2",
+                "category": "original-fixed-affine-function-domain/v3",
                 "source_refs": [description["source_ref"]],
                 "expression_ast": description["expression_ast"],
                 "critical_polynomials": roots,
                 "critical_points": [math_value(p) for p in points],
                 "invariance": {
                     "proved": True,
-                    "reason": "Every original radicand, divisor and zero-power base has fixed sign between all affine roots; positive integer powers retain their base's definedness. Original syntax and explicit interval membership are evaluated independently at every critical point.",
+                    "reason": "Every original radicand (degree ≤2), affine divisor factor and zero-power base has fixed sign between all polynomial roots; positive integer powers retain their base's definedness. Original syntax and explicit interval membership are evaluated independently at every critical point.",
                 },
                 "cells": cells,
                 "reconstructed_set": math_value(rebuilt),
@@ -428,7 +513,7 @@ def verify_domain(candidate, target_ref, context, proposed):
                 }
             ],
         )
-    except VerificationGap as exc:
+    except (VerificationGap, ValueError, NotationError) as exc:
         result_value["diagnostics"] = [
             {"code": "verification_incomplete", "message": str(exc), "path": target_ref}
         ]
@@ -455,7 +540,12 @@ def domain_endpoints(candidate, target_ref, proposed):
                 zero_power = ast[0] == "^"
                 index = 1 if zero_power else 2
                 defined, value = _evaluate(ast[index], at)
-                holds_here = bool(defined and (value >= 0 if radical else value != 0))
+                holds_here = bool(
+                    defined
+                    and (
+                        not _is_negative(value) if radical else not _is_zero(value)
+                    )
+                )
                 evidence_rows.append(
                     {
                         "source_ref": description["source_ref"],
@@ -466,6 +556,7 @@ def domain_endpoints(candidate, target_ref, proposed):
                             "integer-power#zero-exponent" if zero_power else
                             "square-root-expression#meaning" if radical else "rational-expression#meaning"
                         ],
+                        "expression_defined": defined,
                         "holds": holds_here,
                     }
                 )

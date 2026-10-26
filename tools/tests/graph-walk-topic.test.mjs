@@ -147,6 +147,37 @@ test('native topic publication derives its steps from the verified course withou
   } finally { await fs.rm(root, {recursive: true, force: true}); }
 });
 
+test('rebuilding published courses preserves their immutable native contracts', async () => {
+  // These are published identities, not regenerable snapshots. Changed teaching
+  // contracts need a new problem ID instead of replacing either frozen course.
+  const publishedHashes = {
+    'function-concepts-q15': '90ac818ed6f449351e329fa4d23060c876789badb7c30e364687d5483cf14094',
+    'function-concepts-q01': 'a6247acf31a3c4e08e98c3dbabd2211e7b9ad7b1eb9b0997d1f9ff329a897847',
+  };
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'frozen-course-export-'));
+  try {
+    await fs.mkdir(path.join(root, 'site/data'), {recursive: true});
+    await fs.symlink(path.join(repoRoot, 'server'), path.join(root, 'server'));
+    for (const name of ['assets', '1', '2', 'topics']) await fs.symlink(path.join(repoRoot, 'site', name), path.join(root, 'site', name));
+    await fs.symlink(path.join(repoRoot, 'site/data/knowledge-next'), path.join(root, 'site/data/knowledge-next'));
+    await fs.cp(path.join(repoRoot, 'site/data/graph-walk'), path.join(root, 'site/data/graph-walk'), {recursive: true});
+    const {nodes} = await loadSources();
+    const graph = await json('site/knowledge/graph.json');
+    for (const id of Object.keys(publishedHashes)) {
+      const source = await json(`site/data/graph-walk/${id}.source.json`);
+      const {bundle} = compileCourse(source, await json(source.evidence), graph, nodes);
+      await fs.writeFile(path.join(root, 'site/data/graph-walk', `${id}.json`), JSON.stringify(bundle));
+    }
+    const exported = await exportContent(root);
+    for (const [id, hash] of Object.entries(publishedHashes)) {
+      const published = exported.practice_problems.find(row => row.id === id);
+      assert.ok(published, `${id} must remain in the formal publication`);
+      assert.equal(published.problem_data._graph_walk.schema, 'graph-walk-practice/v1');
+      assert.equal(published.contract_hash, hash, `${id} cannot replace its published native contract during a rebuild`);
+    }
+  } finally { await fs.rm(root, {recursive: true, force: true}); }
+});
+
 
 test('Q01 photo course preserves zero-power and uncancelled-denominator restrictions', async () => {
   const bundle = await json('site/data/graph-walk/function-concepts-q01.json');

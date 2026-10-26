@@ -740,6 +740,9 @@
                   "explicit_input_domain"
                 ]
               },
+              "expression_defined": {
+                "type": "boolean"
+              },
               "holds": {
                 "type": "boolean"
               }

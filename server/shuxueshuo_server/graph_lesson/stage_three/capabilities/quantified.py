@@ -2,7 +2,7 @@
 
 import sympy as sp
 
-from . import CapabilityGap, relation, result
+from . import CapabilityGap, relation, residual, result
 
 
 def select_quantifier_policy(quantifier, operator, domain):
@@ -70,18 +70,26 @@ def apply_quantifier_policy(policy, range, parameter_expression):
 def solve_conditions(conditions, combiner, variable, purpose="quantified"):
     if purpose not in ("quantified", "domain"):
         raise CapabilityGap("condition_purpose_unknown")
-    from .cases import _relation_set
+    from .cases import _rational_poly, _relation_set
 
     if not conditions or combiner not in ("all", "any"):
         raise CapabilityGap("condition_combination_required")
     solutions, checks = [], []
+    operations = ["domain_condition_sets" if purpose == "domain" else "quantified_condition_sets"]
     for condition in conditions:
         solution, evidence = _relation_set(condition, variable)
         solutions.append(solution)
         checks.append({"kind": "domain_condition_solution" if purpose == "domain" else "endpoint_condition_solution", "passed": True,
                        "condition": condition, "solution": solution, "evidence": evidence})
+        if (
+            purpose == "domain"
+            and getattr(condition, "rel_op", None) in (">", ">=", "<", "<=")
+            and _rational_poly(residual(condition), variable).degree() == 2
+            and "quadratic_signs" not in operations
+        ):
+            # Lights quadratic-inequality#signs via basis-operations.
+            operations.append("quadratic_signs")
     solution = (sp.Intersection if combiner == "all" else sp.Union)(*solutions)
     checks.append({"kind": "domain_condition_combination" if purpose == "domain" else "quantified_condition_combination", "passed": True,
                    "combiner": combiner, "condition_sets": solutions})
-    return result({"solution": solution, "solutions": solutions},
-                  ["domain_condition_sets" if purpose == "domain" else "quantified_condition_sets"], checks)
+    return result({"solution": solution, "solutions": solutions}, operations, checks)

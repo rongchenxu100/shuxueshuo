@@ -121,12 +121,22 @@ def endpoint_checks(rows, variable):
             else "代入原式无意义，排除该点。"
         )
         if not row['included'] and evidence['input_domain_member']:
-            failures = {source['kind'] for source in evidence['sources'] if not source['holds']}
-            causes = [text for kind, text in (
-                ('radicand_nonnegative', '被开方数为负'),
-                ('denominator_nonzero', '分母为 0'),
-                ('zero_power_base_nonzero', '零次幂的底数为 0，出现 $0^0$'),
-            ) if kind in failures]
+            causes = []
+            for kind, numeric_failure, undefined, unknown in (
+                ('radicand_nonnegative', '被开方数为负', '被开方数无意义', '被开方数非负条件不满足'),
+                ('denominator_nonzero', '分母为 0', '分母无意义', '分母非零条件不满足'),
+                ('zero_power_base_nonzero', '零次幂的底数为 0，出现 $0^0$',
+                 '零次幂的底数无意义', '零次幂的底数非零条件不满足'),
+            ):
+                for source in evidence['sources']:
+                    if source['kind'] != kind or source['holds']:
+                        continue
+                    defined = source.get('expression_defined')
+                    # Older seeds have no definedness evidence. Keep them
+                    # readable without inferring that an undefined divisor is 0.
+                    cause = numeric_failure if defined is True else undefined if defined is False else unknown
+                    if cause not in causes:
+                        causes.append(cause)
             if causes:
                 reason = '代入后' + '；'.join(causes) + '，原式无意义，排除该点。'
         result.append(

@@ -61,6 +61,10 @@ def recognized(value):
     ("((u-1)/(u-1))^2", "u", None),
     ("sqrt(x-1)^2", "x", None),
     ("(x^8)^8", "x", None),
+    ("sqrt(x^2-1)", "x", None),
+    ("sqrt(x*x-1)", "x", None),
+    ("sqrt(3-2*x-x^2)", "x", None),
+    ("(2*x+1)/((2*x-1)^0*sqrt(3-2*x-x^2))", "x", None),
 ])
 def test_supported_boundary_is_structural_and_keeps_original_source(expression, variable, domain):
     value = candidate(expression, variable=variable, domain=domain)
@@ -90,10 +94,23 @@ def test_source_paths_point_to_original_radical_and_divisor_even_if_redundant():
     assert "solution" not in value
 
 
+@pytest.mark.parametrize("expression,latex", [
+    ("sqrt(x-1)/(x-2)", r"\frac{\sqrt{x-1}}{x-2}"),
+    ("(2*x+1)/sqrt(3-2*x-x^2)+(2*x-1)^0",
+     r"\frac{2\cdot x+1}{\sqrt{3-2\cdot x-x^{2}}}+(2\cdot x-1)^{0}"),
+    ("(x+4)^0*(x^2-1)/(x-1)", r"\frac{(x+4)^{0}\cdot (x^{2}-1)}{x-1}"),
+])
+def test_expression_latex_uses_precedence_not_universal_wrapping(expression, latex):
+    assert inspect_domain_target(candidate(expression), TARGET)["expression_latex"] == latex
+
+
 @pytest.mark.parametrize("expression", [
-    "sqrt(x^2-1)", "sqrt(x*x-1)", "sqrt(m*x-1)/(x-2)",
+    "sqrt(m*x-1)/(x-2)",
     "sqrt((x-1)/(x-2))", "sqrt(sqrt(x-1))", "abs(x)/(x-1)",
     "1/(x*x-1)", "1/(sqrt(x)+1)", "(x^2-1)^0", "1/(x^2-1)",
+    "sqrt(x^3-1)", "sqrt(1/(x-1))",
+    "sqrt(x^2+x-1)", "sqrt(x^2-2)", "1/sqrt(x^2+x-1)",
+    "sqrt((x-1)^0+1)", "sqrt(((2^12)^12)^12)",
 ])
 def test_out_of_scope_structure_is_not_silently_partially_admitted(expression):
     value = candidate(expression)
@@ -168,6 +185,85 @@ def test_feature_value_schema_and_only_actual_knowledge_are_used():
     assert {item["ref"] for item in knowledge["items"]} == {
         "function-concept#elements", "square-root-expression#meaning", "rational-expression#meaning"}
     assert not any(item["ref"].startswith(("quantifiers#", "quadratic-inequality#")) for item in knowledge["items"])
+    assert next(row for row in features if row["feature_id"] == "function_domain")["value"][
+        "has_quadratic_condition"
+    ] is False
+
+
+@pytest.mark.parametrize("expression,expected", [
+    ("sqrt(x^2-1)", True),
+    ("sqrt(3-2*x-x^2)", True),
+    ("(2*x+1)/sqrt(3-2*x-x^2)+(2*x-1)^0", True),
+    ("sqrt(x-1)/(x-2)", False),
+    ("(x+4)^0*(x^2-1)/(x-1)", False),
+])
+def test_quadratic_radicand_lights_quadratic_inequality_knowledge(expression, expected):
+    features = rows(candidate(expression))
+    feature = next(row for row in features if row["feature_id"] == "function_domain")
+    assert feature["value"]["has_quadratic_condition"] is expected
+    refs = {item["ref"] for item in derive_knowledge(features, "type-function-domain")["items"]}
+    assert ("quadratic-inequality#signs" in refs) is expected
+
+
+def test_domain_solve_emits_quadratic_signs_only_for_quadratic_conditions():
+    import sympy as sp
+
+    from shuxueshuo_server.graph_lesson.stage_three.capabilities import REGISTRY
+
+    x = sp.Symbol("x", real=True)
+    linear = REGISTRY["solve_conditions"](
+        conditions=[sp.Ge(x - 1, 0, evaluate=False)],
+        combiner="all",
+        variable=x,
+        purpose="domain",
+    )
+    assert linear["operations"] == ["domain_condition_sets"]
+    quadratic = REGISTRY["solve_conditions"](
+        conditions=[sp.Ge(3 - 2 * x - x**2, 0, evaluate=False)],
+        combiner="all",
+        variable=x,
+        purpose="domain",
+    )
+    assert quadratic["operations"] == ["domain_condition_sets", "quadratic_signs"]
+
+
+def test_verifier_uses_algebraic_zero_at_radical_roots():
+    """Regression: unsimplified radicands at exact roots must stay undefined."""
+    import sympy as sp
+
+    from shuxueshuo_server.graph_lesson.stage_three.context import build_context
+    from shuxueshuo_server.graph_lesson.stage_three.function_domain import (
+        _critical,
+        _evaluate,
+        verify_domain,
+    )
+
+    expression = "1/sqrt(x^2-1)"
+    value = candidate(expression)
+    context = build_context(value, TARGET)
+    correct = sp.Union(sp.Interval.open(-sp.oo, -1), sp.Interval.open(1, sp.oo))
+    wrong = sp.Union(sp.Interval(-sp.oo, -1), sp.Interval(1, sp.oo))
+    assert verify_domain(value, TARGET, context, correct)["status"] == "verified"
+    assert verify_domain(value, TARGET, context, wrong)["status"] == "math_failed"
+    points, rows = _critical(context["domain_goal"])
+    assert points == [-1, 1]
+    assert [source["ast_path"] for source in rows[0]["condition_sources"]] == [[2], [2, 2]]
+    # Even irrational algebraic roots must evaluate as undefined (not verified as open).
+    radical = [
+        "/",
+        ["number", "1"],
+        [
+            "call",
+            "sqrt",
+            [
+                "-",
+                ["+", ["^", ["bound", "function_argument"], ["number", "2"]], ["bound", "function_argument"]],
+                ["number", "1"],
+            ],
+        ],
+    ]
+    for root in ((-1 - sp.sqrt(5)) / 2, (-1 + sp.sqrt(5)) / 2):
+        assert _evaluate(radical, root) == (False, None)
 
 
 @pytest.mark.parametrize("expression,expected", [

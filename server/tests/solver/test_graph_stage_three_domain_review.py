@@ -3,9 +3,12 @@ from copy import deepcopy
 
 import pytest
 import sympy as sp
+from jsonschema import ValidationError
+
 from shuxueshuo_server.graph_lesson.stage_one.function_domain import (
     inspect_domain_target,
 )
+from shuxueshuo_server.graph_lesson.stage_three import interaction
 from shuxueshuo_server.graph_lesson.stage_three.domain_visuals import number_lines
 from shuxueshuo_server.graph_lesson.stage_three.function_domain import _critical
 from shuxueshuo_server.graph_lesson.stage_three.math_values import latex
@@ -96,3 +99,82 @@ def test_unrestricted_real_line_is_rendered_from_its_verified_value():
     assert decode_value(lines[0]["exact_set"]["exact"]) == sp.S.Reals
     assert lines[1]["condition_id"] == "input-domain"
     assert lines[2]["label"] == "D_{f}=" + latex(sp.Interval(0, 1))
+
+
+@pytest.mark.parametrize(
+    "formula,point,causes,absent,denominator_defined",
+    [
+        (
+            "(2*x+1)/((2*x-1)^0*sqrt(3-2*x-x^2))",
+            sp.Rational(1, 2),
+            ["分母无意义", "零次幂的底数为 0，出现 $0^0$"],
+            ["分母为 0"],
+            [False],
+        ),
+        ("1/(x-2)", sp.Integer(2), ["分母为 0"], ["分母无意义"], [True]),
+        (
+            "1/sqrt(x-2)+sqrt(x-1)",
+            sp.Integer(1),
+            ["被开方数为负", "分母无意义"],
+            ["分母为 0"],
+            [False],
+        ),
+        (
+            "1/sqrt(x-2)+1/(x-1)",
+            sp.Integer(1),
+            ["被开方数为负", "分母无意义", "分母为 0"],
+            [],
+            [False, True],
+        ),
+    ],
+)
+def test_endpoint_reason_distinguishes_undefined_divisors_from_zero(
+    formula, point, causes, absent, denominator_defined
+):
+    _, state = execute(candidate(formula))
+    assert state["verification"]["status"] == "verified"
+    chunks, pending = interaction.compile_route(
+        state["interaction_seeds"], interaction.load_registry()
+    )
+    assert not pending
+    for chunk, diagnostics in chunks:
+        assert chunk["status"] == "interactive", diagnostics
+        interaction.validate_chunk(chunk)
+    checks = chunks[-1][0]["parts"][0]["endpoint_checks"]
+    row = next(r for r in checks if decode_value(r["exact"]["exact"]) == point)
+    assert not row["included"] and not row["holds"] and row["passed"]
+    assert all(cause in row["reason"] for cause in causes)
+    assert all(cause not in row["reason"] for cause in absent)
+    divisors = [s for s in row["sources"] if s["kind"] == "denominator_nonzero"]
+    assert [s["expression_defined"] for s in divisors] == denominator_defined
+    assert all(not s["holds"] for s in divisors)
+    assert all(s["source_ref"] == "/root/definitions/0" for s in row["sources"])
+
+
+def test_legacy_endpoint_seeds_remain_readable_without_inventing_numeric_causes():
+    _, state = execute(candidate())
+    seeds = deepcopy(state["interaction_seeds"])
+
+    def remove_definedness(value):
+        if isinstance(value, dict):
+            value.pop("expression_defined", None)
+            for child in value.values():
+                remove_definedness(child)
+        elif isinstance(value, list):
+            for child in value:
+                remove_definedness(child)
+
+    remove_definedness(seeds)
+    chunks, pending = interaction.compile_route(seeds, interaction.load_registry())
+    assert not pending
+    for chunk, diagnostics in chunks:
+        assert chunk["status"] == "interactive", diagnostics
+        interaction.validate_chunk(chunk)
+    chunk = chunks[-1][0]
+    row = next(r for r in chunk["parts"][0]["endpoint_checks"] if r["at"] == 2)
+    assert "分母非零条件不满足" in row["reason"]
+    assert "分母为 0" not in row["reason"]
+    assert all("expression_defined" not in source for source in row["sources"])
+    row["sources"][0]["expression_defined"] = "unknown"
+    with pytest.raises(ValidationError):
+        interaction.validate_chunk(chunk)

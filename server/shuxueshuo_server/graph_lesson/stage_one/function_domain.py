@@ -7,14 +7,17 @@ The AST is never simplified: a cancelled divisor still has its own position.
 import re
 from copy import deepcopy
 from fractions import Fraction
+from math import isqrt
 
 from ...problem_understanding.notation_parser import NotationError, definition
 
-VERSION = "fixed-affine-function-domain/v2"
+VERSION = "fixed-affine-function-domain/v3"
 ARGUMENT = ["bound", "function_argument"]
 # Match the canonical notation service's existing single-exponent bound.
 MAX_INTEGER_EXPONENT = 12
 MAX_NESTED_POWER = 64
+MAX_RADICAND_DEGREE = 2
+MAX_COEFFICIENT_BITS = 128
 
 
 def source_pointer(path):
@@ -23,32 +26,141 @@ def source_pointer(path):
     return re.sub(r"\[(\d+)\]", r"/\1", path.replace(".", "/"))
 
 
-def _affine(ast, depth=0):
-    """Exact rational slope/intercept; reject symbolic coefficients and holes."""
+def _trim_coeffs(coeffs):
+    while len(coeffs) > 1 and coeffs[-1] == 0:
+        coeffs.pop()
+    return coeffs
+
+
+def _add_coeffs(left, right):
+    size = max(len(left), len(right))
+    return [
+        (left[i] if i < len(left) else Fraction(0))
+        + (right[i] if i < len(right) else Fraction(0))
+        for i in range(size)
+    ]
+
+
+def _mul_coeffs(left, right):
+    out = [Fraction(0)] * (len(left) + len(right) - 1)
+    for i, a in enumerate(left):
+        for j, b in enumerate(right):
+            out[i + j] += a * b
+    return out
+
+
+def _coefficient_budget(value):
+    if max(value.numerator.bit_length(), value.denominator.bit_length()) > MAX_COEFFICIENT_BITS:
+        raise NotationError("domain.coefficient_limit")
+
+
+def _perfect_square(value):
+    if value < 0:
+        return False
+    root = isqrt(value)
+    return root * root == value
+
+
+def _rational_root_radicand(coeffs):
+    """Degree ≤2 radicands must have rational real roots when the discriminant is positive.
+
+    Irrational endpoints break interactive set checks and were incorrectly verified
+    when structural equality missed algebraic zeros.
+    """
+    coeffs = _trim_coeffs(list(coeffs))
+    if len(coeffs) - 1 <= 1:
+        return True
+    c, b, a = (coeffs + [Fraction(0), Fraction(0)])[:3]
+    disc = b * b - 4 * a * c
+    if disc < 0:
+        return True
+    if disc == 0:
+        return True
+    return _perfect_square(disc.numerator) and _perfect_square(disc.denominator)
+
+
+def _fixed_poly(ast, max_degree=1, depth=0):
+    """Exact rational univariate polynomial coeffs in ARGUMENT; low to high degree."""
     if depth > 24:
         raise NotationError("domain.structure_limit")
     if ast == ARGUMENT:
-        return Fraction(1), Fraction(0)
-    if ast[0] == "number":
+        coeffs = [Fraction(0), Fraction(1)]
+    elif ast[0] == "number":
         value = Fraction(ast[1])
-        if max(value.numerator.bit_length(), value.denominator.bit_length()) > 128:
-            raise NotationError("domain.coefficient_limit")
-        return Fraction(0), value
-    if ast[0] == "neg":
-        a, b = _affine(ast[1], depth + 1)
-        return -a, -b
-    if ast[0] in ("+", "-", "*", "/"):
-        a, b = _affine(ast[1], depth + 1)
-        c, d = _affine(ast[2], depth + 1)
+        _coefficient_budget(value)
+        coeffs = [value]
+    elif ast[0] == "neg":
+        coeffs = [-c for c in _fixed_poly(ast[1], max_degree, depth + 1)]
+    elif ast[0] == "^":
+        # Positive integer powers only; zero powers stay outside condition polynomials.
+        exponent = _integer_exponent(ast[2])
+        if exponent == 0:
+            raise NotationError("domain.fixed_affine_condition_required")
+        base = _fixed_poly(ast[1], max_degree, depth + 1)
+        base_degree = len(_trim_coeffs(list(base))) - 1
+        if base_degree * exponent > max_degree:
+            raise NotationError("domain.fixed_affine_condition_required")
+        if base_degree == 0:
+            value = base[0] ** exponent
+            _coefficient_budget(value)
+            coeffs = [value]
+        else:
+            coeffs = [Fraction(1)]
+            for _ in range(exponent):
+                coeffs = _mul_coeffs(coeffs, base)
+                coeffs = _trim_coeffs(coeffs)
+                if any(
+                    max(c.numerator.bit_length(), c.denominator.bit_length()) > MAX_COEFFICIENT_BITS
+                    for c in coeffs
+                ):
+                    raise NotationError("domain.coefficient_limit")
+    elif ast[0] in ("+", "-", "*", "/"):
+        left = _fixed_poly(ast[1], max_degree, depth + 1)
+        right = _fixed_poly(ast[2], max_degree, depth + 1)
         if ast[0] == "+":
-            return a + c, b + d
-        if ast[0] == "-":
-            return a - c, b - d
-        if ast[0] == "*" and not a * c:
-            return a * d + b * c, b * d
-        if ast[0] == "/" and not c and d:
-            return a / d, b / d
-    raise NotationError("domain.fixed_affine_condition_required")
+            coeffs = _add_coeffs(left, right)
+        elif ast[0] == "-":
+            coeffs = _add_coeffs(left, [-c for c in right])
+        elif ast[0] == "*":
+            coeffs = _mul_coeffs(left, right)
+        else:
+            right = _trim_coeffs(list(right))
+            if len(right) != 1 or right[0] == 0:
+                raise NotationError("domain.fixed_affine_condition_required")
+            coeffs = [c / right[0] for c in left]
+    else:
+        raise NotationError("domain.fixed_affine_condition_required")
+    coeffs = _trim_coeffs(coeffs)
+    if len(coeffs) - 1 > max_degree:
+        raise NotationError("domain.fixed_affine_condition_required")
+    return coeffs
+
+
+def _affine(ast, depth=0):
+    """Exact rational slope/intercept; reject symbolic coefficients and holes."""
+    coeffs = _fixed_poly(ast, max_degree=1, depth=depth)
+    while len(coeffs) < 2:
+        coeffs.append(Fraction(0))
+    return coeffs[1], coeffs[0]
+
+
+def _require_nonzero_expression(ast, depth=0):
+    """Divisors must decompose into affine, zero-power, or sqrt(poly≤2) factors."""
+    if depth > 24:
+        raise NotationError("domain.structure_limit")
+    if ast[:2] == ["call", "sqrt"]:
+        coeffs = _fixed_poly(ast[2], max_degree=MAX_RADICAND_DEGREE, depth=depth + 1)
+        if not _rational_root_radicand(coeffs):
+            raise NotationError("domain.fixed_affine_condition_required")
+        return
+    if ast[0] == "*":
+        _require_nonzero_expression(ast[1], depth + 1)
+        _require_nonzero_expression(ast[2], depth + 1)
+        return
+    if ast[0] == "^" and _integer_exponent(ast[2]) == 0:
+        _affine(ast[1], depth + 1)
+        return
+    _affine(ast, depth + 1)
 
 
 def _integer_exponent(ast):
@@ -64,7 +176,13 @@ def _integer_exponent(ast):
 
 
 def _inspect_expression(ast):
-    counts = {"nodes": 0, "has_radical": False, "has_division": False, "has_zero_power": False}
+    counts = {
+        "nodes": 0,
+        "has_radical": False,
+        "has_division": False,
+        "has_zero_power": False,
+        "has_quadratic_condition": False,
+    }
 
     def walk(value, depth=0, power_weight=1):
         counts["nodes"] += 1
@@ -96,16 +214,18 @@ def _inspect_expression(ast):
             return
         if kind == "call" and value[1] == "sqrt":
             counts["has_radical"] = True
-            _affine(value[2])
+            coeffs = _fixed_poly(value[2], max_degree=MAX_RADICAND_DEGREE)
+            if not _rational_root_radicand(coeffs):
+                raise NotationError("domain.fixed_affine_condition_required")
+            if len(coeffs) - 1 == 2:
+                # Radicand ≥ 0 becomes a unary quadratic inequality at solve time.
+                counts["has_quadratic_condition"] = True
             walk(value[2], depth + 1, power_weight)
             return
         if kind == "/":
             counts["has_division"] = True
             divisor = value[2]
-            if divisor[:2] == ["call", "sqrt"]:
-                _affine(divisor[2])
-            else:
-                _affine(divisor)
+            _require_nonzero_expression(divisor)
             walk(value[1], depth + 1, power_weight)
             walk(divisor, depth + 1, power_weight)
             return
@@ -130,23 +250,46 @@ def _input_domain(ast):
             raise NotationError("domain.fixed_interval_required")
 
 
-def expression_latex(ast, variable):
-    """Display the source tree, preserving every radical and division node."""
+# Display-only precedence; never changes the AST or admission.
+_PREC_SUM = 1
+_PREC_PROD = 2
+_PREC_POW = 3
+_PREC_ATOM = 4
+
+
+def expression_latex(ast, variable, parent=_PREC_SUM):
+    """Readable LaTeX for the source tree; parentheses follow precedence only."""
     if ast == ARGUMENT:
         return variable
     if ast[0] == "number":
         return ast[1]
     if ast[0] == "neg":
-        return r"-\left(" + expression_latex(ast[1], variable) + r"\right)"
+        body = "-" + expression_latex(ast[1], variable, _PREC_POW)
+        return f"({body})" if parent > _PREC_SUM else body
     if ast[:2] == ["call", "sqrt"]:
-        return r"\sqrt{" + expression_latex(ast[2], variable) + "}"
+        return r"\sqrt{" + expression_latex(ast[2], variable, _PREC_SUM) + "}"
     if ast[0] == "/":
-        return r"\frac{" + expression_latex(ast[1], variable) + "}{" + expression_latex(ast[2], variable) + "}"
+        return (
+            r"\frac{"
+            + expression_latex(ast[1], variable, _PREC_SUM)
+            + "}{"
+            + expression_latex(ast[2], variable, _PREC_SUM)
+            + "}"
+        )
     if ast[0] == "^":
-        return r"\left(" + expression_latex(ast[1], variable) + r"\right)^{" + expression_latex(ast[2], variable) + "}"
+        base = expression_latex(ast[1], variable, _PREC_POW + 1)
+        expo = expression_latex(ast[2], variable, _PREC_SUM)
+        body = f"{base}^{{{expo}}}"
+        return f"({body})" if parent > _PREC_POW else body
     if ast[0] in ("+", "-", "*"):
+        prec = _PREC_PROD if ast[0] == "*" else _PREC_SUM
+        # Left-associative: the right child of - needs a stricter bind so
+        # a-(b-c) keeps parentheses without wrapping every atom.
+        left = expression_latex(ast[1], variable, prec)
+        right = expression_latex(ast[2], variable, prec + (0 if ast[0] == "+" else 1))
         op = r"\cdot " if ast[0] == "*" else ast[0]
-        return r"\left(" + expression_latex(ast[1], variable) + op + expression_latex(ast[2], variable) + r"\right)"
+        body = left + op + right
+        return f"({body})" if parent > prec else body
     # Unsupported syntax is still represented by the original expression text;
     # it never gains a fabricated display or becomes admissible via rendering.
     return ""
@@ -185,7 +328,7 @@ def describe_domain_goal(report, scope, ancestors, goal_index):
         "expression_ast": deepcopy(body), "input_domain_ast": deepcopy(domain),
         "input_domain_source_ref": target_ref + "/input_domain" if "input_domain" in goal else "",
         "structure_supported": False, "reason": "", "has_radical": False, "has_division": False,
-        "has_zero_power": False,
+        "has_zero_power": False, "has_quadratic_condition": False,
     }
     try:
         if any(visible.get("uncertainties") for visible in [*ancestors, scope]):
@@ -197,7 +340,8 @@ def describe_domain_goal(report, scope, ancestors, goal_index):
         counts = _inspect_expression(body)
         _input_domain(domain)
         value.update(structure_supported=True, **{key: counts[key] for key in
-                                                ("has_radical", "has_division", "has_zero_power")})
+                                                ("has_radical", "has_division", "has_zero_power",
+                                                 "has_quadratic_condition")})
     except (NotationError, ValueError, ZeroDivisionError) as exc:
         value["reason"] = getattr(exc, "code", "domain.invalid_exact_arithmetic")
     return value

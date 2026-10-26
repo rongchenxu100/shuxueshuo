@@ -112,6 +112,14 @@ def test_day_zero_real_shared_not_equal_capability():
         ("sqrt(0)", None, sp.S.Reals),
         ("sqrt(4)", None, sp.S.Reals),
         ("1/0", None, sp.S.EmptySet),
+        ("sqrt(x^2-1)", None, sp.Union(sp.Interval(-sp.oo, -1), sp.Interval(1, sp.oo))),
+        ("sqrt(3-2*x-x^2)", None, sp.Interval(-3, 1)),
+        ("1/sqrt(3-2*x-x^2)", None, sp.Interval.open(-3, 1)),
+        (
+            "(2*x+1)/((2*x-1)^0*sqrt(3-2*x-x^2))",
+            None,
+            sp.Union(sp.Interval.open(-3, sp.Rational(1, 2)), sp.Interval.open(sp.Rational(1, 2), 1)),
+        ),
     ],
 )
 def test_original_domain_exact_boundary_cases(expr, interval, expected):
@@ -190,7 +198,7 @@ def test_verifier_rejects_tampered_context_and_ignores_forged_features():
 
 @pytest.mark.parametrize(
     "expression",
-    ["sqrt(a*x-1)/(x-2)", "sqrt(x*x-1)", "sqrt(1/(x-1))", "abs(x)", "(x^2-1)^0"],
+    ["sqrt(a*x-1)/(x-2)", "sqrt(x^3-1)", "sqrt(1/(x-1))", "abs(x)", "(x^2-1)^0"],
 )
 def test_direct_type_and_method_overrides_cannot_bypass_admission(expression):
     c = candidate(expression)

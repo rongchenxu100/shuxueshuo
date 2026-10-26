@@ -48,6 +48,10 @@
 .topic-empty h2 { font-size: 17px; }
 .topic-empty p { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
 .topic-knowledge-entry { margin-top: 36px; margin-bottom: 12px; }
+/* Topic pages no longer put cards under the lead; keep the jump to 题目 tight. */
+.topic-overview-page .hero { padding-bottom: 8px; }
+.topic-overview-page .hero .lead { margin-bottom: 0; }
+.topic-overview-page .bank { padding-top: 8px; }
 .topic-overview-page .toc-map { display: inline-flex; margin-top: 12px; color: var(--teal-dark); font-size: 13.5px; font-weight: 600; }
 .topic-knowledge-entry .bank-heading a, .topic-type-link { color: var(--teal-dark); font-size: 14px; }
 .topic-knowledge-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
