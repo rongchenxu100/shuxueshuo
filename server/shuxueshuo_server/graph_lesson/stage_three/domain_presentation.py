@@ -1,10 +1,25 @@
 """Mathematical card wording, versioned with the execution fingerprint."""
 
+from fractions import Fraction
+
 from .math_values import latex
 
 
-def _kind_name(kind):
-    return "被开方数" if kind == "radicand_nonnegative" else "分母"
+def condition_label(kind):
+    return {
+        "radicand_nonnegative": "被开方数",
+        "denominator_nonzero": "分母",
+        "zero_power_base_nonzero": "零次幂的底数",
+    }[kind]
+
+
+def _has_positive_power(ast):
+    """Read admitted original syntax for wording only; never derive restrictions."""
+    if not isinstance(ast, list):
+        return False
+    if ast[0] == "^" and ast[2][0] == "number" and Fraction(ast[2][1]) > 0:
+        return True
+    return any(_has_positive_power(child) for child in ast[1:] if isinstance(child, list))
 
 
 def presentation(values):
@@ -13,7 +28,7 @@ def presentation(values):
     expression = description["expression_latex"]
     if phase == "locations":
         lines = [
-            {"label": _kind_name(row["kind"]), "math": latex(row["condition"].lhs)}
+            {"label": condition_label(row["kind"]), "math": latex(row["condition"].lhs)}
             for row in rows
         ] or [{"label": "限制", "math": r"\mathbb{R}"}]
         steps = [rf"原式为 $\displaystyle {expression}$。"]
@@ -21,23 +36,27 @@ def presentation(values):
             piece = latex(row["condition"].lhs)
             if row["kind"] == "radicand_nonnegative":
                 steps.append(rf"根号要求被开方数有意义，故须检查 ${piece}$。")
+            elif row["kind"] == "zero_power_base_nonzero":
+                steps.append(rf"零次幂要求底数不为零，故须检查 ${piece}$。")
             else:
                 steps.append(rf"分母不能为零，故须检查 ${piece}$。")
+        if _has_positive_power(description["expression_ast"]):
+            steps.append("正整数次幂本身不增加输入限制，底式中的限制仍须保留。")
         if not rows:
-            steps.append("原式没有根号或分母带来的输入限制。")
+            steps.append("原式没有额外的输入限制。")
         else:
             steps.append("以上位置的限制都要保留。")
     elif phase == "conditions":
         lines = [
             {
-                "label": _kind_name(row["kind"]),
+                "label": condition_label(row["kind"]),
                 "math": latex(row["condition"]),
             }
             for row in rows
         ] or [{"label": "条件", "math": r"\mathbb{R}"}]
         steps = [rf"原式为 $\displaystyle {expression}$。"]
         for row in rows:
-            name = _kind_name(row["kind"])
+            name = condition_label(row["kind"])
             piece = latex(row["condition"].lhs)
             condition = latex(row["condition"])
             if row["kind"] == "radicand_nonnegative":

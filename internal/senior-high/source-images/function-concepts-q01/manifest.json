@@ -1,0 +1,10 @@
+{
+  "problem_id": "function-concepts-q01",
+  "source": "用户在当前对话上传的第1题截图",
+  "original_filename": "codex-clipboard-e5eabc6d-1a8b-4b4c-9f46-a2d5e349a35b.png",
+  "question": {
+    "file": "source-question.png",
+    "sha256": "d0882cf0c523a8f4773276d4e02e49d7fa03603fac6f604a284d690195a34405"
+  },
+  "processing": "完整保留用户上传截图，未裁切、重绘、改字或注入识别文本。"
+}

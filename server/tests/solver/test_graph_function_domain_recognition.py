@@ -56,6 +56,11 @@ def recognized(value):
     ("sqrt(5-t)/(t+3)", "t", "(-∞,5]"),
     ("sqrt(0.5*u-1/3)/(2*u+7)", "u", None),
     ("sqrt(x-1)+sqrt(x-1)", "x", None),
+    ("(x+4)^0*(x^2-1)/(x-1)", "x", None),
+    ("(t-3)^0+t^12", "t", None),
+    ("((u-1)/(u-1))^2", "u", None),
+    ("sqrt(x-1)^2", "x", None),
+    ("(x^8)^8", "x", None),
 ])
 def test_supported_boundary_is_structural_and_keeps_original_source(expression, variable, domain):
     value = candidate(expression, variable=variable, domain=domain)
@@ -88,7 +93,7 @@ def test_source_paths_point_to_original_radical_and_divisor_even_if_redundant():
 @pytest.mark.parametrize("expression", [
     "sqrt(x^2-1)", "sqrt(x*x-1)", "sqrt(m*x-1)/(x-2)",
     "sqrt((x-1)/(x-2))", "sqrt(sqrt(x-1))", "abs(x)/(x-1)",
-    "(x+4)^0*(x^2-1)/(x-1)", "1/(x*x-1)", "1/(sqrt(x)+1)",
+    "1/(x*x-1)", "1/(sqrt(x)+1)", "(x^2-1)^0", "1/(x^2-1)",
 ])
 def test_out_of_scope_structure_is_not_silently_partially_admitted(expression):
     value = candidate(expression)
@@ -163,6 +168,41 @@ def test_feature_value_schema_and_only_actual_knowledge_are_used():
     assert {item["ref"] for item in knowledge["items"]} == {
         "function-concept#elements", "square-root-expression#meaning", "rational-expression#meaning"}
     assert not any(item["ref"].startswith(("quantifiers#", "quadratic-inequality#")) for item in knowledge["items"])
+
+
+@pytest.mark.parametrize("expression,expected", [
+    ("(x+4)^0*(x^2-1)/(x-1)", True),
+    ("x^2", False),
+    ("((x+4)^0)^2", True),
+    ("sqrt(x-1)/(x-2)", False),
+])
+def test_zero_power_feature_and_knowledge_follow_original_syntax(expression, expected):
+    features = rows(candidate(expression))
+    feature = next(row for row in features if row["feature_id"] == "function_domain")
+    assert feature["value"]["has_zero_power"] is expected
+    refs = {item["ref"] for item in derive_knowledge(features, "type-function-domain")["items"]}
+    assert ("integer-power#zero-exponent" in refs) is expected
+    if expected:
+        assert "^{0}" in feature["value"]["expression_latex"]
+
+
+@pytest.mark.parametrize("expression,reason", [
+    ("x^-1", "domain.fixed_nonnegative_integer_exponent_required"),
+    ("x^(1/2)", "domain.fixed_nonnegative_integer_exponent_required"),
+    ("x^0.5", "domain.fixed_nonnegative_integer_exponent_required"),
+    ("x^m", "domain.fixed_nonnegative_integer_exponent_required"),
+    ("x^13", "domain.integer_exponent_limit"),
+    ("(x^9)^8", "domain.nested_power_limit"),
+    ("(sqrt(x-1))^0", "domain.fixed_affine_condition_required"),
+    ("(x^2-1)^0", "domain.fixed_affine_condition_required"),
+    ("abs(x)", "domain.unsupported_expression"),
+])
+def test_power_limits_and_unsupported_reasons_remain_explicit(expression, reason):
+    value = candidate(expression)
+    description = inspect_domain_target(value, TARGET)
+    assert description["structure_supported"] is False
+    assert description["reason"] == reason
+    assert "type-function-domain" not in recognized(value)
 
 
 def test_d1_uses_unique_original_definition_and_goal_quotes():

@@ -736,6 +736,7 @@
                 "enum": [
                   "radicand_nonnegative",
                   "denominator_nonzero",
+                  "zero_power_base_nonzero",
                   "explicit_input_domain"
                 ]
               },

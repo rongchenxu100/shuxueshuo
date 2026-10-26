@@ -19,22 +19,23 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def revalidate_recording():
-    manifest = read(RECORDING / "recording.json")
+def revalidate_recording(recording=RECORDING, *, problem_id="function-concepts-q15"):
+    recording = Path(recording)
+    manifest = read(recording / "recording.json")
     for name, digest in manifest["files"].items():
-        assert sha256((RECORDING / name).read_bytes()).hexdigest() == digest
-    ledger = read(RECORDING / "workflow/ledger.json")
-    image_hash = sha256((RECORDING / "question.png").read_bytes()).hexdigest()
+        assert sha256((recording / name).read_bytes()).hexdigest() == digest
+    ledger = read(recording / "workflow/ledger.json")
+    image_hash = sha256((recording / "question.png").read_bytes()).hexdigest()
     assert ledger["identity"]["binding"]["images"] == [image_hash]
     assert [call["stage"] for call in ledger["calls"]] == ["extract", "review"]
     responses = []
     for call in ledger["calls"]:
-        response = read(RECORDING / "workflow" / call["response_file"])
+        response = read(recording / "workflow" / call["response_file"])
         assert response["metadata"]["provider"] == "deepseek"
         assert response["finish_reason"] == "stop"
         assert response["raw_payload"]["usage"]["total_tokens"] > 0
         assert response["network_attempts"] == call["network_attempts"] == 1
-        request = read(RECORDING / "workflow" / call["directory"] / "request.json")
+        request = read(recording / "workflow" / call["directory"] / "request.json")
         images = [part["image"] for message in request["messages"]
                   if isinstance(message["content"], list)
                   for part in message["content"] if "image" in part]
@@ -43,7 +44,7 @@ def revalidate_recording():
     extracted, reviewed = responses
     public = json.loads(extracted["text"])
     contract = SearchStageOneContract()
-    validation = contract.parse(extracted["text"], problem_id="function-concepts-q15",
+    validation = contract.parse(extracted["text"], problem_id=problem_id,
                                 source_hash=image_hash, registry=[], store=None)
     assert validation["contract_valid"], validation
     review = contract.validate_review(reviewed["text"], public)

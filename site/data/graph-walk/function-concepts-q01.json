@@ -1,0 +1,3449 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q01",
+  "graphVersion": "f33e629caeb61354f65d0bd90f4d3a668b5adeea658f06453beebdfd449b225f",
+  "problem": {
+    "text": "1. 函数 $y=(x+4)^0\\frac{x^2-1}{x-1}$ 的定义域是 ______。",
+    "givens": [
+      {
+        "id": "/root/goals/0:expression",
+        "kind": "expression",
+        "quote": [
+          {
+            "start": 7,
+            "end": 33,
+            "text": "$y=(x+4)^0\\frac{x^2-1}{x-1}$"
+          }
+        ],
+        "fragment_ids": [
+          "/root/goals/0:d1:1"
+        ],
+        "knowledge_refs": [
+          "function-concept#elements",
+          "integer-power#zero-exponent",
+          "rational-expression#meaning"
+        ],
+        "source_refs": [
+          "/root/definitions/0",
+          "/root/goals/0"
+        ],
+        "signature": "97aac4b87556fb02",
+        "source_ref": "/root/definitions/0"
+      }
+    ]
+  },
+  "notation": {},
+  "intro": [
+    {
+      "id": "D1",
+      "title": "读题",
+      "question": "题目要求“定义域”，也就是要确定什么？",
+      "source": "authored",
+      "submit_label": "读懂了，看图谱怎么走",
+      "interaction": {
+        "type": "choice",
+        "field": "reading",
+        "options": [
+          {
+            "value": "/root/goals/0:goal:o0",
+            "label": "自变量 $x$ 的取值范围"
+          },
+          {
+            "value": "/root/goals/0:goal:o1",
+            "label": "函数值 $f(x)$ 的取值范围",
+            "feedback": "函数值 $f(x)$ 的取值范围是值域；定义域是自变量 $x$ 的取值集合。"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "/root/goals/0:goal:o0"
+        ]
+      },
+      "feedback": {
+        "answer": "再想一想，定义域描述的是输入还是输出的取值范围。"
+      },
+      "candidateNodes": [
+        "function-concept",
+        "integer-power",
+        "rational-expression",
+        "type-function-domain",
+        "type-abstract-function-domain",
+        "type-function-equality",
+        "type-function-evaluation",
+        "type-function-range"
+      ],
+      "effects": {
+        "nodes": [
+          "function-concept",
+          "integer-power",
+          "rational-expression"
+        ],
+        "edges": [],
+        "calls": [],
+        "results": [
+          "定义域是自变量的取值集合。本题需要找出所有使原解析式有意义的 $x$。"
+        ],
+        "log": "图谱查询：从 3 个知识线索反查，找到 5 个相关题型；最高覆盖 3/3。"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "确定题型",
+      "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+      "source": "authored",
+      "submit_label": "确认题型",
+      "interaction": {
+        "type": "choice",
+        "field": "problem_type",
+        "options": [
+          {
+            "value": "type-function-domain",
+            "label": "具体函数的定义域问题"
+          }
+        ]
+      },
+      "expected_answer": {
+        "one_of": [
+          "type-function-domain"
+        ]
+      },
+      "feedback": {
+        "answer": "再对照这一问的条件和问法想一想。"
+      },
+      "alternatives": {},
+      "candidateNodes": [
+        "type-function-domain"
+      ],
+      "effects": {
+        "nodes": [
+          "type-function-domain"
+        ],
+        "edges": [
+          "type-function-domain|involves|function-concept",
+          "type-function-domain|involves|integer-power",
+          "type-function-domain|involves|rational-expression"
+        ],
+        "calls": [],
+        "results": [
+          "判断依据：已知具体函数表达式，要求全部合法输入；题设可以另外限定范围。"
+        ],
+        "log": "作答判断：选择主要题型「具体函数的定义域问题」；另外 0 个题型保留为对照。"
+      }
+    },
+    {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read",
+        "methods": [
+          {
+            "value": "direct",
+            "label": "列条件求交集法",
+            "target": "method-domain-intersection",
+            "cells": [],
+            "route_plan": "planned",
+            "route": "domain-intersection"
+          }
+        ]
+      },
+      "query": {
+        "from": "type-function-domain",
+        "op": "methods"
+      },
+      "question": "使用列条件求交集法：按原式列出有意义的条件，分别求解，再取交集。",
+      "submit_label": "用列条件求交集法解题",
+      "title": "选择解题方法",
+      "verdicts": {},
+      "source": "authored",
+      "alternatives": {},
+      "candidateNodes": [
+        "method-domain-intersection"
+      ],
+      "effects": {
+        "nodes": [
+          "method-domain-intersection"
+        ],
+        "edges": [
+          "type-function-domain|candidate|method-domain-intersection"
+        ],
+        "calls": [],
+        "results": [],
+        "log": "本题可直接使用这条已验证的方法路线。"
+      },
+      "route_by_answer": {
+        "read": "domain-intersection"
+      }
+    }
+  ],
+  "routes": {
+    "domain-intersection": {
+      "id": "domain-intersection",
+      "method": "method-domain-intersection",
+      "label": "列条件求交集法",
+      "streaming": true,
+      "route_plan": "planned",
+      "steps": [
+        {
+          "expected_answer": {
+            "allowed": [
+              "o1",
+              "o2"
+            ],
+            "required": [
+              "o1",
+              "o2"
+            ]
+          },
+          "feedback": {
+            "answer": "请按原式位置及有意义条件检查。"
+          },
+          "id": "1a09655b160bdf0ae0c4a66a#1",
+          "interaction": {
+            "options": [
+              {
+                "label": "分母：$x - 1$",
+                "value": "o2"
+              },
+              {
+                "label": "零次幂的底数：$x + 4$",
+                "value": "o1"
+              },
+              {
+                "label": "只需排除函数值为 0 的输入",
+                "value": "o3"
+              }
+            ],
+            "type": "multi"
+          },
+          "question": "哪些位置需要检查有意义的条件？可多选。",
+          "source_regions": {
+            "bound_symbols": {
+              "function_argument": "x"
+            },
+            "expression": "\\frac{\\left(\\left(\\left(x+4\\right)\\right)^{0}\\cdot \\left(\\left(x\\right)^{2}-1\\right)\\right)}{\\left(x-1\\right)}",
+            "expression_ast": [
+              "/",
+              [
+                "*",
+                [
+                  "^",
+                  [
+                    "+",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "4"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "0"
+                  ]
+                ],
+                [
+                  "-",
+                  [
+                    "^",
+                    [
+                      "bound",
+                      "function_argument"
+                    ],
+                    [
+                      "number",
+                      "2"
+                    ]
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ],
+              [
+                "-",
+                [
+                  "bound",
+                  "function_argument"
+                ],
+                [
+                  "number",
+                  "1"
+                ]
+              ]
+            ],
+            "regions": [
+              {
+                "ast_path": [
+                  1,
+                  1,
+                  1
+                ],
+                "basis_refs": [
+                  "integer-power#zero-exponent"
+                ],
+                "condition_id": "c1",
+                "label": "零次幂的底数",
+                "option_value": "o1",
+                "source_ref": "/root/definitions/0"
+              },
+              {
+                "ast_path": [
+                  2
+                ],
+                "basis_refs": [
+                  "rational-expression#meaning"
+                ],
+                "condition_id": "c2",
+                "label": "分母",
+                "option_value": "o2",
+                "source_ref": "/root/definitions/0"
+              }
+            ]
+          },
+          "submit_label": "确认判断",
+          "title": "找到限制位置",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "8c24b52d0c57283a8ea32b0e39fbb94ecb1158a755bcad6ab6cfe7ffebfe96bc",
+              "step_id": "39e5646dcb-domain-intersection-001-domain_locations"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "1a09655b160bdf0ae0c4a66a",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "找到原式的限制位置",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：找到限制位置"
+          }
+        },
+        {
+          "expected_answer": {
+            "terms": [
+              "s1o1",
+              "s2o1"
+            ]
+          },
+          "feedback": {
+            "terms": "零次幂的底数必须排除 0；分母必须排除 0。"
+          },
+          "id": "115ac47817ccd589498d0049#1",
+          "interaction": {
+            "slots": [
+              {
+                "label": "零次幂的底数 $x + 4$",
+                "options": [
+                  {
+                    "label": "$x + 4 < 0$",
+                    "value": "s1o4"
+                  },
+                  {
+                    "label": "$x + 4 > 0$",
+                    "value": "s1o2"
+                  },
+                  {
+                    "label": "$x + 4 \\geq 0$",
+                    "value": "s1o3"
+                  },
+                  {
+                    "label": "$x + 4 \\neq 0$",
+                    "value": "s1o1"
+                  }
+                ]
+              },
+              {
+                "label": "分母 $x - 1$",
+                "options": [
+                  {
+                    "label": "$x - 1 \\neq 0$",
+                    "value": "s2o1"
+                  },
+                  {
+                    "label": "$x - 1 > 0$",
+                    "value": "s2o2"
+                  },
+                  {
+                    "label": "$x - 1 < 0$",
+                    "value": "s2o4"
+                  },
+                  {
+                    "label": "$x - 1 \\geq 0$",
+                    "value": "s2o3"
+                  }
+                ]
+              }
+            ],
+            "title": "逐条判断",
+            "type": "checklist"
+          },
+          "question": "每一处限制对应什么条件？",
+          "submit_label": "确认判断",
+          "title": "列出条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "b08b569f71d4b5d236d82589afba47894d7b2e0b73eaf0e831d93ecf3d91bc7d",
+              "step_id": "39e5646dcb-domain-intersection-002-domain_conditions"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "115ac47817ccd589498d0049",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "列出有意义的条件",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：列出条件"
+          }
+        },
+        {
+          "condition_number_lines": [
+            {
+              "ast_path": [
+                1,
+                1,
+                1
+              ],
+              "basis_refs": [
+                "integer-power#zero-exponent"
+              ],
+              "bounds": [
+                -5.25,
+                2.25
+              ],
+              "condition_id": "c1",
+              "exact_set": {
+                "exact": {
+                  "$math": "Union",
+                  "args": [
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "expression": "Union(Interval.open(-oo, -4), Interval.open(-4, oo))",
+                "latex": "\\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(-oo, -4)",
+                    "latex": "\\left(-\\infty, -4\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": -4,
+                  "right_closed": false
+                },
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(-4, oo)",
+                    "latex": "\\left(-4, \\infty\\right)"
+                  },
+                  "left": -4,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "x + 4 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)",
+              "points": [],
+              "source_ref": "/root/definitions/0",
+              "ticks": [
+                {
+                  "at": -4,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-4"
+                    },
+                    "expression": "-4",
+                    "latex": "-4"
+                  },
+                  "label": "-4"
+                },
+                {
+                  "at": 1,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            },
+            {
+              "ast_path": [
+                2
+              ],
+              "basis_refs": [
+                "rational-expression#meaning"
+              ],
+              "bounds": [
+                -5.25,
+                2.25
+              ],
+              "condition_id": "c2",
+              "exact_set": {
+                "exact": {
+                  "$math": "Union",
+                  "args": [
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "expression": "Union(Interval.open(-oo, 1), Interval.open(1, oo))",
+                "latex": "\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(-oo, 1)",
+                    "latex": "\\left(-\\infty, 1\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": 1,
+                  "right_closed": false
+                },
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(1, oo)",
+                    "latex": "\\left(1, \\infty\\right)"
+                  },
+                  "left": 1,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "x - 1 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)",
+              "points": [],
+              "source_ref": "/root/definitions/0",
+              "ticks": [
+                {
+                  "at": -4,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-4"
+                    },
+                    "expression": "-4",
+                    "latex": "-4"
+                  },
+                  "label": "-4"
+                },
+                {
+                  "at": 1,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            }
+          ],
+          "expected_answer": {
+            "terms": [
+              "s1o1",
+              "s2o1"
+            ]
+          },
+          "feedback": {
+            "terms": "零次幂的底数必须排除 0；分母必须排除 0。"
+          },
+          "id": "61d3ac2c1906bdf3da7eea92#1",
+          "interaction": {
+            "slots": [
+              {
+                "label": "$x + 4 \\neq 0$",
+                "options": [
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "s1o2"
+                  },
+                  {
+                    "label": "$\\left\\{-4\\right\\}$",
+                    "value": "s1o4"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)$",
+                    "value": "s1o1"
+                  },
+                  {
+                    "label": "$\\emptyset$",
+                    "value": "s1o3"
+                  }
+                ]
+              },
+              {
+                "label": "$x - 1 \\neq 0$",
+                "options": [
+                  {
+                    "label": "$\\mathbb{R}$",
+                    "value": "s2o2"
+                  },
+                  {
+                    "label": "$\\emptyset$",
+                    "value": "s2o3"
+                  },
+                  {
+                    "label": "$\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$",
+                    "value": "s2o1"
+                  },
+                  {
+                    "label": "$\\left\\{1\\right\\}$",
+                    "value": "s2o4"
+                  }
+                ]
+              }
+            ],
+            "title": "逐条判断",
+            "type": "checklist"
+          },
+          "question": "每个条件分别得到什么解集？",
+          "submit_label": "确认判断",
+          "title": "解每个条件",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "e2e60d17ac9372b8f39b593cd65c281416b1ed6d84c31011b037eded7ac1cb4c",
+              "step_id": "39e5646dcb-domain-intersection-003-domain_solutions"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "61d3ac2c1906bdf3da7eea92",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "解每个条件",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：解每个条件"
+          }
+        },
+        {
+          "completion_number_line": {
+            "bounds": [
+              -5.25,
+              2.25
+            ],
+            "exact_set": {
+              "exact": {
+                "$math": "Union",
+                "args": [
+                  {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "NegativeInfinity"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "-4"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-4"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "1"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "1"
+                      },
+                      {
+                        "$math": "Infinity"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  }
+                ]
+              },
+              "expression": "Union(Interval.open(-oo, -4), Interval.open(-4, 1), Interval.open(1, oo))",
+              "latex": "\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)"
+            },
+            "intervals": [
+              {
+                "exact": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "NegativeInfinity"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "-4"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  "expression": "Interval.open(-oo, -4)",
+                  "latex": "\\left(-\\infty, -4\\right)"
+                },
+                "left": null,
+                "left_closed": false,
+                "right": -4,
+                "right_closed": false
+              },
+              {
+                "exact": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "-4"
+                      },
+                      {
+                        "$math": "Integer",
+                        "value": "1"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  "expression": "Interval.open(-4, 1)",
+                  "latex": "\\left(-4, 1\\right)"
+                },
+                "left": -4,
+                "left_closed": false,
+                "right": 1,
+                "right_closed": false
+              },
+              {
+                "exact": {
+                  "exact": {
+                    "$math": "Interval",
+                    "args": [
+                      {
+                        "$math": "Integer",
+                        "value": "1"
+                      },
+                      {
+                        "$math": "Infinity"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      },
+                      {
+                        "$math": "BooleanTrue"
+                      }
+                    ]
+                  },
+                  "expression": "Interval.open(1, oo)",
+                  "latex": "\\left(1, \\infty\\right)"
+                },
+                "left": 1,
+                "left_closed": false,
+                "right": null,
+                "right_closed": false
+              }
+            ],
+            "label": "D_{f}=\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)",
+            "points": [],
+            "ticks": [
+              {
+                "at": -4,
+                "exact": {
+                  "exact": {
+                    "$math": "Integer",
+                    "value": "-4"
+                  },
+                  "expression": "-4",
+                  "latex": "-4"
+                },
+                "label": "-4"
+              },
+              {
+                "at": 1,
+                "exact": {
+                  "exact": {
+                    "$math": "Integer",
+                    "value": "1"
+                  },
+                  "expression": "1",
+                  "latex": "1"
+                },
+                "label": "1"
+              }
+            ],
+            "variable": "x"
+          },
+          "condition_number_lines": [
+            {
+              "ast_path": [
+                1,
+                1,
+                1
+              ],
+              "basis_refs": [
+                "integer-power#zero-exponent"
+              ],
+              "bounds": [
+                -5.25,
+                2.25
+              ],
+              "condition_id": "c1",
+              "exact_set": {
+                "exact": {
+                  "$math": "Union",
+                  "args": [
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "expression": "Union(Interval.open(-oo, -4), Interval.open(-4, oo))",
+                "latex": "\\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(-oo, -4)",
+                    "latex": "\\left(-\\infty, -4\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": -4,
+                  "right_closed": false
+                },
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(-4, oo)",
+                    "latex": "\\left(-4, \\infty\\right)"
+                  },
+                  "left": -4,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "x + 4 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)",
+              "points": [],
+              "source_ref": "/root/definitions/0",
+              "ticks": [
+                {
+                  "at": -4,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-4"
+                    },
+                    "expression": "-4",
+                    "latex": "-4"
+                  },
+                  "label": "-4"
+                },
+                {
+                  "at": 1,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            },
+            {
+              "ast_path": [
+                2
+              ],
+              "basis_refs": [
+                "rational-expression#meaning"
+              ],
+              "bounds": [
+                -5.25,
+                2.25
+              ],
+              "condition_id": "c2",
+              "exact_set": {
+                "exact": {
+                  "$math": "Union",
+                  "args": [
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "expression": "Union(Interval.open(-oo, 1), Interval.open(1, oo))",
+                "latex": "\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(-oo, 1)",
+                    "latex": "\\left(-\\infty, 1\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": 1,
+                  "right_closed": false
+                },
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(1, oo)",
+                    "latex": "\\left(1, \\infty\\right)"
+                  },
+                  "left": 1,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "x - 1 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)",
+              "points": [],
+              "source_ref": "/root/definitions/0",
+              "ticks": [
+                {
+                  "at": -4,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-4"
+                    },
+                    "expression": "-4",
+                    "latex": "-4"
+                  },
+                  "label": "-4"
+                },
+                {
+                  "at": 1,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            }
+          ],
+          "endpoint_checks": [
+            {
+              "at": -4,
+              "exact": {
+                "exact": {
+                  "$math": "Integer",
+                  "value": "-4"
+                },
+                "expression": "-4",
+                "latex": "-4"
+              },
+              "holds": false,
+              "included": false,
+              "label": "x=-4",
+              "passed": true,
+              "reason": "代入后零次幂的底数为 0，出现 $0^0$，原式无意义，排除该点。",
+              "sources": [
+                {
+                  "ast_path": [
+                    2
+                  ],
+                  "basis_refs": [
+                    "rational-expression#meaning"
+                  ],
+                  "holds": true,
+                  "kind": "denominator_nonzero",
+                  "source_ref": "/root/definitions/0"
+                },
+                {
+                  "ast_path": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "basis_refs": [
+                    "integer-power#zero-exponent"
+                  ],
+                  "holds": false,
+                  "kind": "zero_power_base_nonzero",
+                  "source_ref": "/root/definitions/0"
+                }
+              ]
+            },
+            {
+              "at": 1,
+              "exact": {
+                "exact": {
+                  "$math": "Integer",
+                  "value": "1"
+                },
+                "expression": "1",
+                "latex": "1"
+              },
+              "holds": false,
+              "included": false,
+              "label": "x=1",
+              "passed": true,
+              "reason": "代入后分母为 0，原式无意义，排除该点。",
+              "sources": [
+                {
+                  "ast_path": [
+                    2
+                  ],
+                  "basis_refs": [
+                    "rational-expression#meaning"
+                  ],
+                  "holds": false,
+                  "kind": "denominator_nonzero",
+                  "source_ref": "/root/definitions/0"
+                },
+                {
+                  "ast_path": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "basis_refs": [
+                    "integer-power#zero-exponent"
+                  ],
+                  "holds": true,
+                  "kind": "zero_power_base_nonzero",
+                  "source_ref": "/root/definitions/0"
+                }
+              ]
+            }
+          ],
+          "expected_answer": {
+            "one_of": [
+              "o1",
+              "o5"
+            ]
+          },
+          "feedback": {
+            "answer": "请按原式位置及有意义条件检查。"
+          },
+          "id": "a74a6c6291a12d04fdc31818#1",
+          "interaction": {
+            "field": "answer",
+            "options": [
+              {
+                "label": "$\\{x\\in\\mathbb{R}\\mid \\left(-4 < x < 1\\right) \\quad\\text{或}\\quad x > 1 \\quad\\text{或}\\quad x < -4\\}$",
+                "value": "o5"
+              },
+              {
+                "label": "$\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)$",
+                "value": "o1"
+              },
+              {
+                "label": "$\\left(-\\infty, \\infty\\right)$",
+                "value": "o2"
+              },
+              {
+                "label": "$\\emptyset$",
+                "value": "o3"
+              },
+              {
+                "label": "$\\left\\{-4, 1\\right\\}$",
+                "value": "o4"
+              }
+            ],
+            "type": "choice"
+          },
+          "question": "哪些表示给出了同一个完整定义域？任选一种正确表示。",
+          "submit_label": "确认判断",
+          "title": "取交集，写定义域",
+          "source": "stream",
+          "stream_steps": [
+            {
+              "math_step_sha256": "3fb43c9cc8a972f465469024c24ede938b47d7c29b401bc7e69a8e7455102357",
+              "step_id": "39e5646dcb-domain-intersection-004-domain_intersection"
+            }
+          ],
+          "stream_last_part": true,
+          "stream_interaction_id": "a74a6c6291a12d04fdc31818",
+          "stream_part_index": 0,
+          "stream_part_count": 1,
+          "stream_group_title": "求交集并写定义域",
+          "effects": {
+            "nodes": [],
+            "edges": [],
+            "calls": [],
+            "results": [],
+            "log": "完成判断：取交集，写定义域"
+          }
+        }
+      ],
+      "takeaway": "",
+      "status": "verified",
+      "available": true,
+      "math_complete": true,
+      "completion": {
+        "answer": {
+          "kind": "find_domain",
+          "set": {
+            "expression": "Union(Interval.open(-oo, -4), Interval.open(-4, 1), Interval.open(1, oo))",
+            "latex": "\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Union(Interval.open(-oo, -4), Interval.open(-4, 1), Interval.open(1, oo))",
+          "latex": "\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)"
+        },
+        "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+        "math_steps": [
+          {
+            "math_step_sha256": "8c24b52d0c57283a8ea32b0e39fbb94ecb1158a755bcad6ab6cfe7ffebfe96bc",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-domain-intersection-001-domain_locations"
+          },
+          {
+            "math_step_sha256": "b08b569f71d4b5d236d82589afba47894d7b2e0b73eaf0e831d93ecf3d91bc7d",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-domain-intersection-002-domain_conditions"
+          },
+          {
+            "math_step_sha256": "e2e60d17ac9372b8f39b593cd65c281416b1ed6d84c31011b037eded7ac1cb4c",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-domain-intersection-003-domain_solutions"
+          },
+          {
+            "math_step_sha256": "3fb43c9cc8a972f465469024c24ede938b47d7c29b401bc7e69a8e7455102357",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-domain-intersection-004-domain_intersection"
+          }
+        ],
+        "route_id": "domain-intersection",
+        "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+        "status": "verified",
+        "target_ref": "/root/goals/0",
+        "task_id": "c370cfecae220f477a839a5e9a76b0e527b2df726530e120f1d7616ee4f51170",
+        "verified_route_sha256": "0f89babe52ae3ad7727b495d26e2d7fd1eb0775003de86cc11cf424b0dbb2075"
+      },
+      "interactions_complete": true,
+      "pending_count": 0
+    }
+  },
+  "templates": {},
+  "pending": {
+    "title": "解题步骤",
+    "status": "准备中",
+    "text": "正在准备这一步的练习"
+  },
+  "feedbackLabels": {
+    "uncovered": "也能做 · 这节课先不展开"
+  },
+  "completion": {
+    "answer": "",
+    "back": {
+      "href": "/topics/function-concepts/",
+      "label": "返回专题"
+    }
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "function-concept",
+        "kind": "knowledge",
+        "label": "函数的概念",
+        "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+        "aliases": [
+          "函数定义",
+          "函数三要素"
+        ],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "integer-power",
+        "kind": "knowledge",
+        "label": "整数幂",
+        "summary": "理解正整数次幂与零次幂的意义，区分底数为零时的条件，并保留底数表达式原有的限制。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "junior-knowledge"
+      },
+      {
+        "id": "rational-expression",
+        "kind": "knowledge",
+        "label": "分式",
+        "summary": "分式以分母非零为有意义的前提，约分后的表达式仍受原分母限制。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "junior-knowledge"
+      },
+      {
+        "id": "type-function-domain",
+        "kind": "problem_type",
+        "label": "具体函数的定义域问题",
+        "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+        "aliases": [],
+        "status": "active",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-abstract-function-domain",
+        "kind": "problem_type",
+        "label": "抽象函数的定义域问题",
+        "summary": "根据已知的函数输入范围，确定新复合表达式的合法输入，并合并其他表达式限制。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-equality",
+        "kind": "problem_type",
+        "label": "判断是否为相同函数",
+        "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-evaluation",
+        "kind": "problem_type",
+        "label": "求函数值",
+        "summary": "根据对应关系求数值或表达式输入的输出，包含复合、函数值组合及逆向求输入。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "type-function-range",
+        "kind": "problem_type",
+        "label": "求函数的值域",
+        "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+        "aliases": [],
+        "status": "planned",
+        "home": "compulsory-1-ch3"
+      },
+      {
+        "id": "method-domain-intersection",
+        "kind": "method",
+        "label": "列条件求交集法",
+        "summary": "求具体函数定义域时，按原式列出有意义的条件，分别求解，再与题给范围取交集并检查端点。",
+        "aliases": [],
+        "steps": [
+          {
+            "id": "extract",
+            "title": "找限制位置并列条件",
+            "calls": [
+              "skill-expression-defined"
+            ]
+          },
+          {
+            "id": "solve",
+            "title": "解每个条件",
+            "calls": [
+              "skill-inequality-transform"
+            ]
+          },
+          {
+            "id": "intersect",
+            "title": "把全部条件与题给范围取交集",
+            "calls": []
+          },
+          {
+            "id": "verify",
+            "title": "检查原式与端点",
+            "calls": []
+          }
+        ]
+      },
+      {
+        "id": "skill-expression-defined",
+        "kind": "skill",
+        "label": "提取表达式有意义的条件",
+        "summary": "按原式结构找到根号、分母、零次幂底数等限制位置，逐条列出有意义的条件并保留出处。",
+        "aliases": []
+      },
+      {
+        "id": "skill-inequality-transform",
+        "kind": "skill",
+        "label": "不等式变形与推导",
+        "summary": "对不等式两边加减、乘除或取倒数时，先看乘除的数是正是负，再决定不等号要不要改方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "inequality-properties",
+        "kind": "knowledge",
+        "label": "不等式的性质",
+        "summary": "不等式的方向随运算条件变化，同乘或同除负数必须改变方向。",
+        "aliases": [],
+        "home": "compulsory-1-ch2"
+      },
+      {
+        "id": "set-intersection-union",
+        "kind": "knowledge",
+        "label": "集合的交集与并集",
+        "summary": "交集表达同时满足的条件，并集表达至少满足一种条件的范围。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch1"
+      },
+      {
+        "id": "interval-notation",
+        "kind": "knowledge",
+        "label": "区间的概念",
+        "summary": "区间用端点和开闭符号表示连续的实数范围，端点是否属于集合必须明确。",
+        "aliases": [],
+        "status": "knowledge_only",
+        "home": "compulsory-1-ch3"
+      }
+    ],
+    "edges": [
+      {
+        "id": "inequality-properties|prerequisite|interval-notation",
+        "from": "inequality-properties",
+        "to": "interval-notation",
+        "type": "prerequisite",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "method-domain-intersection|calls|skill-expression-defined",
+        "from": "method-domain-intersection",
+        "to": "skill-expression-defined",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "extract",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "method-domain-intersection|calls|skill-inequality-transform",
+        "from": "method-domain-intersection",
+        "to": "skill-inequality-transform",
+        "type": "calls",
+        "occurrences": [
+          {
+            "step": "solve",
+            "when": ""
+          }
+        ]
+      },
+      {
+        "id": "skill-expression-defined|uses|integer-power",
+        "from": "skill-expression-defined",
+        "to": "integer-power",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "positive-exponent"
+          },
+          {
+            "entry": "zero-exponent"
+          }
+        ]
+      },
+      {
+        "id": "skill-expression-defined|uses|rational-expression",
+        "from": "skill-expression-defined",
+        "to": "rational-expression",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "meaning"
+          }
+        ]
+      },
+      {
+        "id": "skill-inequality-transform|uses|inequality-properties",
+        "from": "skill-inequality-transform",
+        "to": "inequality-properties",
+        "type": "uses",
+        "occurrences": [
+          {
+            "entry": "addition"
+          },
+          {
+            "entry": "multiplication"
+          },
+          {
+            "entry": "reciprocal"
+          }
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|function-concept",
+        "from": "type-abstract-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|interval-notation",
+        "from": "type-abstract-function-domain",
+        "to": "interval-notation",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-abstract-function-domain|involves|set-intersection-union",
+        "from": "type-abstract-function-domain",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|candidate|method-domain-intersection",
+        "from": "type-function-domain",
+        "to": "method-domain-intersection",
+        "type": "candidate",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|function-concept",
+        "from": "type-function-domain",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|integer-power",
+        "from": "type-function-domain",
+        "to": "integer-power",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|interval-notation",
+        "from": "type-function-domain",
+        "to": "interval-notation",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|rational-expression",
+        "from": "type-function-domain",
+        "to": "rational-expression",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-domain|involves|set-intersection-union",
+        "from": "type-function-domain",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-equality|involves|function-concept",
+        "from": "type-function-equality",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-evaluation|involves|function-concept",
+        "from": "type-function-evaluation",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|function-concept",
+        "from": "type-function-range",
+        "to": "function-concept",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|interval-notation",
+        "from": "type-function-range",
+        "to": "interval-notation",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      },
+      {
+        "id": "type-function-range|involves|set-intersection-union",
+        "from": "type-function-range",
+        "to": "set-intersection-union",
+        "type": "involves",
+        "occurrences": [
+          {}
+        ]
+      }
+    ],
+    "lanes": [
+      {
+        "label": "知识线索",
+        "ids": [
+          "function-concept",
+          "integer-power",
+          "rational-expression"
+        ]
+      },
+      {
+        "label": "题型",
+        "kind": "problem_type"
+      },
+      {
+        "label": "选法判断",
+        "kind": "judgment_rule"
+      },
+      {
+        "label": "方法",
+        "kind": "method"
+      },
+      {
+        "label": "本步调用与依据",
+        "ids": [
+          "skill-expression-defined",
+          "skill-inequality-transform",
+          "inequality-properties",
+          "set-intersection-union",
+          "interval-notation"
+        ]
+      }
+    ]
+  },
+  "bundleVersion": "[\"stream\",\"8f3a0463814094246c4b4d3a9b4becf23468bbe2de452444aa9fe8626d0de1b4\",\"90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf\",\"a0828f4cbe654cc9bcc5686e8c05d9bc\",\"/root/goals/0\"]",
+  "stream": {
+    "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+    "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+    "stream_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+    "target_ref": "/root/goals/0",
+    "base_bundle_version": "8f3a0463814094246c4b4d3a9b4becf23468bbe2de452444aa9fe8626d0de1b4",
+    "d3": {
+      "expected_answer": {},
+      "id": "D3",
+      "interaction": {
+        "type": "read"
+      },
+      "query": {
+        "from": "type-function-domain",
+        "op": "methods"
+      },
+      "question": "按原式列出有意义的条件，分别求解，再取交集。",
+      "submit_label": "用列条件求交集法解题",
+      "title": "选择解题方法",
+      "verdicts": {}
+    },
+    "d4": {
+      "id": "D4",
+      "options": [
+        {
+          "branch": "direct",
+          "message": "开始解题",
+          "method": "method-domain-intersection",
+          "recommendation": "preferred",
+          "route_id": "domain-intersection",
+          "route_plan": "planned"
+        }
+      ],
+      "title": "解题路线"
+    },
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_locations",
+        "explanation": "原式为 $\\displaystyle \\frac{\\left(\\left(\\left(x+4\\right)\\right)^{0}\\cdot \\left(\\left(x\\right)^{2}-1\\right)\\right)}{\\left(x-1\\right)}$。\n零次幂要求底数不为零，故须检查 $x + 4$。\n分母不能为零，故须检查 $x - 1$。\n正整数次幂本身不增加输入限制，底式中的限制仍须保留。\n以上位置的限制都要保留。",
+        "highlight": {
+          "caption": "找到原式的限制位置",
+          "items": [
+            {
+              "label": "零次幂的底数",
+              "math": "x + 4"
+            },
+            {
+              "label": "分母",
+              "math": "x - 1"
+            }
+          ]
+        },
+        "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+        "local_check": "passed",
+        "math_step_sha256": "8c24b52d0c57283a8ea32b0e39fbb94ecb1158a755bcad6ab6cfe7ffebfe96bc",
+        "method_ref": "method-domain-intersection#extract",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "4a9e430d286bb645c5f48dae27036c043bf778006e2d16cd7b1833eedcec92a9",
+        "route_id": "domain-intersection",
+        "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-intersection-001-domain_locations",
+        "target_ref": "/root/goals/0",
+        "title": "找到原式的限制位置",
+        "used_basis": [
+          "integer-power#zero-exponent",
+          "rational-expression#meaning"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_conditions",
+        "explanation": "原式为 $\\displaystyle \\frac{\\left(\\left(\\left(x+4\\right)\\right)^{0}\\cdot \\left(\\left(x\\right)^{2}-1\\right)\\right)}{\\left(x-1\\right)}$。\n零次幂的底数 $x + 4$ 须非零，即 $x + 4 \\neq 0$。\n分母 $x - 1$ 须非零，即 $x - 1 \\neq 0$。\n以上条件须同时成立。",
+        "highlight": {
+          "caption": "列出有意义的条件",
+          "items": [
+            {
+              "label": "零次幂的底数",
+              "math": "x + 4 \\neq 0"
+            },
+            {
+              "label": "分母",
+              "math": "x - 1 \\neq 0"
+            }
+          ]
+        },
+        "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+        "local_check": "passed",
+        "math_step_sha256": "b08b569f71d4b5d236d82589afba47894d7b2e0b73eaf0e831d93ecf3d91bc7d",
+        "method_ref": "method-domain-intersection#extract",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "4a9e430d286bb645c5f48dae27036c043bf778006e2d16cd7b1833eedcec92a9",
+        "route_id": "domain-intersection",
+        "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-intersection-002-domain_conditions",
+        "target_ref": "/root/goals/0",
+        "title": "列出有意义的条件",
+        "used_basis": [
+          "integer-power#zero-exponent",
+          "rational-expression#meaning"
+        ]
+      },
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_solutions",
+        "explanation": "由 $x + 4 \\neq 0$ 得 $\\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)$。\n由 $x - 1 \\neq 0$ 得 $\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$。",
+        "highlight": {
+          "caption": "解每个条件",
+          "items": [
+            {
+              "label": "解集",
+              "math": "x + 4 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)"
+            },
+            {
+              "label": "解集",
+              "math": "x - 1 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+            }
+          ]
+        },
+        "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+        "local_check": "passed",
+        "math_step_sha256": "e2e60d17ac9372b8f39b593cd65c281416b1ed6d84c31011b037eded7ac1cb4c",
+        "method_ref": "method-domain-intersection#solve",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "4a9e430d286bb645c5f48dae27036c043bf778006e2d16cd7b1833eedcec92a9",
+        "route_id": "domain-intersection",
+        "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+        "source_refs": [
+          "/steps/1/calls/0",
+          "/steps/1/calls/1"
+        ],
+        "step_id": "39e5646dcb-domain-intersection-003-domain_solutions",
+        "target_ref": "/root/goals/0",
+        "title": "解每个条件",
+        "used_basis": [
+          "inequality-properties#addition",
+          "inequality-properties#multiplication",
+          "set-intersection-union#intersection"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Union(Interval.open(-oo, -4), Interval.open(-4, 1), Interval.open(1, oo))",
+            "latex": "\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_intersection",
+        "explanation": "各条件解集与题给范围求交：$\\displaystyle \\left(\\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)\\right)\\cap\\left(\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)\\right)\\cap\\left(\\mathbb{R}\\right)$。\n得定义域 $\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)$。",
+        "highlight": {
+          "caption": "求交集并写定义域",
+          "items": [
+            {
+              "label": "定义域",
+              "math": "\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)"
+            }
+          ]
+        },
+        "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+        "local_check": "passed",
+        "math_step_sha256": "3fb43c9cc8a972f465469024c24ede938b47d7c29b401bc7e69a8e7455102357",
+        "method_ref": "method-domain-intersection#verify",
+        "ordinal": 4,
+        "premise_refs": [],
+        "revisions_ref": "4a9e430d286bb645c5f48dae27036c043bf778006e2d16cd7b1833eedcec92a9",
+        "route_id": "domain-intersection",
+        "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+        "source_refs": [
+          "/steps/0/calls/0",
+          "/steps/1/calls/0",
+          "/steps/1/calls/1",
+          "/steps/2/calls/0",
+          "/finalization/2"
+        ],
+        "step_id": "39e5646dcb-domain-intersection-004-domain_intersection",
+        "target_ref": "/root/goals/0",
+        "title": "求交集并写定义域",
+        "used_basis": [
+          "function-concept#elements",
+          "interval-notation#finite",
+          "set-intersection-union#intersection"
+        ]
+      }
+    ],
+    "step_calls": {
+      "[\"domain-intersection\",\"39e5646dcb-domain-intersection-001-domain_locations\"]": [
+        {
+          "method": "method-domain-intersection",
+          "step": "extract",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "integer-power#zero-exponent",
+            "rational-expression#meaning"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"domain-intersection\",\"39e5646dcb-domain-intersection-002-domain_conditions\"]": [
+        {
+          "method": "method-domain-intersection",
+          "step": "extract",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "integer-power#zero-exponent",
+            "rational-expression#meaning"
+          ],
+          "source": "/steps/0/calls/0"
+        }
+      ],
+      "[\"domain-intersection\",\"39e5646dcb-domain-intersection-003-domain_solutions\"]": [
+        {
+          "method": "method-domain-intersection",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/1/calls/0"
+        },
+        {
+          "method": "method-domain-intersection",
+          "step": "solve",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/1/calls/1"
+        }
+      ],
+      "[\"domain-intersection\",\"39e5646dcb-domain-intersection-004-domain_intersection\"]": [
+        {
+          "method": "method-domain-intersection",
+          "step": "extract",
+          "ref": "skill-expression-defined",
+          "usedBasis": [
+            "integer-power#zero-exponent",
+            "rational-expression#meaning"
+          ],
+          "source": "/steps/0/calls/0"
+        },
+        {
+          "method": "method-domain-intersection",
+          "step": "solve",
+          "ref": null,
+          "usedBasis": [],
+          "source": "/steps/1/calls/0"
+        },
+        {
+          "method": "method-domain-intersection",
+          "step": "solve",
+          "ref": "skill-inequality-transform",
+          "usedBasis": [
+            "inequality-properties#addition",
+            "inequality-properties#multiplication",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/1/calls/1"
+        },
+        {
+          "method": "method-domain-intersection",
+          "step": "intersect",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#elements",
+            "set-intersection-union#intersection"
+          ],
+          "source": "/steps/2/calls/0"
+        },
+        {
+          "method": "method-domain-intersection",
+          "step": "verify",
+          "ref": null,
+          "usedBasis": [
+            "function-concept#elements",
+            "interval-notation#finite"
+          ],
+          "source": "/finalization/2"
+        }
+      ]
+    },
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-intersection",
+        "step_id": "39e5646dcb-domain-intersection-001-domain_locations",
+        "ordinal": 1,
+        "math_step_sha256": "8c24b52d0c57283a8ea32b0e39fbb94ecb1158a755bcad6ab6cfe7ffebfe96bc",
+        "status": "interactive",
+        "interaction_id": "1a09655b160bdf0ae0c4a66a"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-intersection",
+        "step_id": "39e5646dcb-domain-intersection-002-domain_conditions",
+        "ordinal": 2,
+        "math_step_sha256": "b08b569f71d4b5d236d82589afba47894d7b2e0b73eaf0e831d93ecf3d91bc7d",
+        "status": "interactive",
+        "interaction_id": "115ac47817ccd589498d0049"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-intersection",
+        "step_id": "39e5646dcb-domain-intersection-003-domain_solutions",
+        "ordinal": 3,
+        "math_step_sha256": "e2e60d17ac9372b8f39b593cd65c281416b1ed6d84c31011b037eded7ac1cb4c",
+        "status": "interactive",
+        "interaction_id": "61d3ac2c1906bdf3da7eea92"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-intersection",
+        "step_id": "39e5646dcb-domain-intersection-004-domain_intersection",
+        "ordinal": 4,
+        "math_step_sha256": "3fb43c9cc8a972f465469024c24ede938b47d7c29b401bc7e69a8e7455102357",
+        "status": "interactive",
+        "interaction_id": "a74a6c6291a12d04fdc31818"
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "1a09655b160bdf0ae0c4a66a",
+        "interaction_revision": "95e6b625e801081a3fd3fe677da862842385d8fb50f67dd332fb522b36f9f92c",
+        "interaction_sha256": "98d022f1c0859833c5c98db556fb20d8013f77a1d8c3d307fbc98df68090a16a",
+        "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+        "parts": [
+          {
+            "expected_answer": {
+              "allowed": [
+                "o1",
+                "o2"
+              ],
+              "required": [
+                "o1",
+                "o2"
+              ]
+            },
+            "feedback": {
+              "answer": "请按原式位置及有意义条件检查。"
+            },
+            "id": "1a09655b160bdf0ae0c4a66a#1",
+            "interaction": {
+              "options": [
+                {
+                  "label": "分母：$x - 1$",
+                  "value": "o2"
+                },
+                {
+                  "label": "零次幂的底数：$x + 4$",
+                  "value": "o1"
+                },
+                {
+                  "label": "只需排除函数值为 0 的输入",
+                  "value": "o3"
+                }
+              ],
+              "type": "multi"
+            },
+            "question": "哪些位置需要检查有意义的条件？可多选。",
+            "source_regions": {
+              "bound_symbols": {
+                "function_argument": "x"
+              },
+              "expression": "\\frac{\\left(\\left(\\left(x+4\\right)\\right)^{0}\\cdot \\left(\\left(x\\right)^{2}-1\\right)\\right)}{\\left(x-1\\right)}",
+              "expression_ast": [
+                "/",
+                [
+                  "*",
+                  [
+                    "^",
+                    [
+                      "+",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "4"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "0"
+                    ]
+                  ],
+                  [
+                    "-",
+                    [
+                      "^",
+                      [
+                        "bound",
+                        "function_argument"
+                      ],
+                      [
+                        "number",
+                        "2"
+                      ]
+                    ],
+                    [
+                      "number",
+                      "1"
+                    ]
+                  ]
+                ],
+                [
+                  "-",
+                  [
+                    "bound",
+                    "function_argument"
+                  ],
+                  [
+                    "number",
+                    "1"
+                  ]
+                ]
+              ],
+              "regions": [
+                {
+                  "ast_path": [
+                    1,
+                    1,
+                    1
+                  ],
+                  "basis_refs": [
+                    "integer-power#zero-exponent"
+                  ],
+                  "condition_id": "c1",
+                  "label": "零次幂的底数",
+                  "option_value": "o1",
+                  "source_ref": "/root/definitions/0"
+                },
+                {
+                  "ast_path": [
+                    2
+                  ],
+                  "basis_refs": [
+                    "rational-expression#meaning"
+                  ],
+                  "condition_id": "c2",
+                  "label": "分母",
+                  "option_value": "o2",
+                  "source_ref": "/root/definitions/0"
+                }
+              ]
+            },
+            "submit_label": "确认判断",
+            "title": "找到限制位置"
+          }
+        ],
+        "route_id": "domain-intersection",
+        "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "8c24b52d0c57283a8ea32b0e39fbb94ecb1158a755bcad6ab6cfe7ffebfe96bc",
+            "step_id": "39e5646dcb-domain-intersection-001-domain_locations"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "115ac47817ccd589498d0049",
+        "interaction_revision": "95e6b625e801081a3fd3fe677da862842385d8fb50f67dd332fb522b36f9f92c",
+        "interaction_sha256": "2529e1e0443bb64338cab5ec575dcce41e16c739f12a4a3a61386e7bb6ca5706",
+        "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "s1o1",
+                "s2o1"
+              ]
+            },
+            "feedback": {
+              "terms": "零次幂的底数必须排除 0；分母必须排除 0。"
+            },
+            "id": "115ac47817ccd589498d0049#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "零次幂的底数 $x + 4$",
+                  "options": [
+                    {
+                      "label": "$x + 4 < 0$",
+                      "value": "s1o4"
+                    },
+                    {
+                      "label": "$x + 4 > 0$",
+                      "value": "s1o2"
+                    },
+                    {
+                      "label": "$x + 4 \\geq 0$",
+                      "value": "s1o3"
+                    },
+                    {
+                      "label": "$x + 4 \\neq 0$",
+                      "value": "s1o1"
+                    }
+                  ]
+                },
+                {
+                  "label": "分母 $x - 1$",
+                  "options": [
+                    {
+                      "label": "$x - 1 \\neq 0$",
+                      "value": "s2o1"
+                    },
+                    {
+                      "label": "$x - 1 > 0$",
+                      "value": "s2o2"
+                    },
+                    {
+                      "label": "$x - 1 < 0$",
+                      "value": "s2o4"
+                    },
+                    {
+                      "label": "$x - 1 \\geq 0$",
+                      "value": "s2o3"
+                    }
+                  ]
+                }
+              ],
+              "title": "逐条判断",
+              "type": "checklist"
+            },
+            "question": "每一处限制对应什么条件？",
+            "submit_label": "确认判断",
+            "title": "列出条件"
+          }
+        ],
+        "route_id": "domain-intersection",
+        "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "b08b569f71d4b5d236d82589afba47894d7b2e0b73eaf0e831d93ecf3d91bc7d",
+            "step_id": "39e5646dcb-domain-intersection-002-domain_conditions"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "61d3ac2c1906bdf3da7eea92",
+        "interaction_revision": "95e6b625e801081a3fd3fe677da862842385d8fb50f67dd332fb522b36f9f92c",
+        "interaction_sha256": "df83ff481e91d9fe2ef52b09f3d5f4df98f6aab1c639f277eb5f6dc4f036212f",
+        "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+        "parts": [
+          {
+            "condition_number_lines": [
+              {
+                "ast_path": [
+                  1,
+                  1,
+                  1
+                ],
+                "basis_refs": [
+                  "integer-power#zero-exponent"
+                ],
+                "bounds": [
+                  -5.25,
+                  2.25
+                ],
+                "condition_id": "c1",
+                "exact_set": {
+                  "exact": {
+                    "$math": "Union",
+                    "args": [
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "-4"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "-4"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "expression": "Union(Interval.open(-oo, -4), Interval.open(-4, oo))",
+                  "latex": "\\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "-4"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.open(-oo, -4)",
+                      "latex": "\\left(-\\infty, -4\\right)"
+                    },
+                    "left": null,
+                    "left_closed": false,
+                    "right": -4,
+                    "right_closed": false
+                  },
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "-4"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.open(-4, oo)",
+                      "latex": "\\left(-4, \\infty\\right)"
+                    },
+                    "left": -4,
+                    "left_closed": false,
+                    "right": null,
+                    "right_closed": false
+                  }
+                ],
+                "label": "x + 4 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)",
+                "points": [],
+                "source_ref": "/root/definitions/0",
+                "ticks": [
+                  {
+                    "at": -4,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "-4"
+                      },
+                      "expression": "-4",
+                      "latex": "-4"
+                    },
+                    "label": "-4"
+                  },
+                  {
+                    "at": 1,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "1"
+                      },
+                      "expression": "1",
+                      "latex": "1"
+                    },
+                    "label": "1"
+                  }
+                ],
+                "variable": "x"
+              },
+              {
+                "ast_path": [
+                  2
+                ],
+                "basis_refs": [
+                  "rational-expression#meaning"
+                ],
+                "bounds": [
+                  -5.25,
+                  2.25
+                ],
+                "condition_id": "c2",
+                "exact_set": {
+                  "exact": {
+                    "$math": "Union",
+                    "args": [
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "1"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "1"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "expression": "Union(Interval.open(-oo, 1), Interval.open(1, oo))",
+                  "latex": "\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "1"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.open(-oo, 1)",
+                      "latex": "\\left(-\\infty, 1\\right)"
+                    },
+                    "left": null,
+                    "left_closed": false,
+                    "right": 1,
+                    "right_closed": false
+                  },
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "1"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.open(1, oo)",
+                      "latex": "\\left(1, \\infty\\right)"
+                    },
+                    "left": 1,
+                    "left_closed": false,
+                    "right": null,
+                    "right_closed": false
+                  }
+                ],
+                "label": "x - 1 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)",
+                "points": [],
+                "source_ref": "/root/definitions/0",
+                "ticks": [
+                  {
+                    "at": -4,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "-4"
+                      },
+                      "expression": "-4",
+                      "latex": "-4"
+                    },
+                    "label": "-4"
+                  },
+                  {
+                    "at": 1,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "1"
+                      },
+                      "expression": "1",
+                      "latex": "1"
+                    },
+                    "label": "1"
+                  }
+                ],
+                "variable": "x"
+              }
+            ],
+            "expected_answer": {
+              "terms": [
+                "s1o1",
+                "s2o1"
+              ]
+            },
+            "feedback": {
+              "terms": "零次幂的底数必须排除 0；分母必须排除 0。"
+            },
+            "id": "61d3ac2c1906bdf3da7eea92#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "$x + 4 \\neq 0$",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "s1o2"
+                    },
+                    {
+                      "label": "$\\left\\{-4\\right\\}$",
+                      "value": "s1o4"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)$",
+                      "value": "s1o1"
+                    },
+                    {
+                      "label": "$\\emptyset$",
+                      "value": "s1o3"
+                    }
+                  ]
+                },
+                {
+                  "label": "$x - 1 \\neq 0$",
+                  "options": [
+                    {
+                      "label": "$\\mathbb{R}$",
+                      "value": "s2o2"
+                    },
+                    {
+                      "label": "$\\emptyset$",
+                      "value": "s2o3"
+                    },
+                    {
+                      "label": "$\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)$",
+                      "value": "s2o1"
+                    },
+                    {
+                      "label": "$\\left\\{1\\right\\}$",
+                      "value": "s2o4"
+                    }
+                  ]
+                }
+              ],
+              "title": "逐条判断",
+              "type": "checklist"
+            },
+            "question": "每个条件分别得到什么解集？",
+            "submit_label": "确认判断",
+            "title": "解每个条件"
+          }
+        ],
+        "route_id": "domain-intersection",
+        "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e2e60d17ac9372b8f39b593cd65c281416b1ed6d84c31011b037eded7ac1cb4c",
+            "step_id": "39e5646dcb-domain-intersection-003-domain_solutions"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "a74a6c6291a12d04fdc31818",
+        "interaction_revision": "95e6b625e801081a3fd3fe677da862842385d8fb50f67dd332fb522b36f9f92c",
+        "interaction_sha256": "0e12961cd7a2756511db086da023edcd64b3ec518b94a068b8f1d095ca8252cc",
+        "lesson_version": "90682692a67de142b65331abeee3ba9ffac9bcfbfcde0cb4facea7b883105aaf",
+        "parts": [
+          {
+            "completion_number_line": {
+              "bounds": [
+                -5.25,
+                2.25
+              ],
+              "exact_set": {
+                "exact": {
+                  "$math": "Union",
+                  "args": [
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                "expression": "Union(Interval.open(-oo, -4), Interval.open(-4, 1), Interval.open(1, oo))",
+                "latex": "\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)"
+              },
+              "intervals": [
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "NegativeInfinity"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(-oo, -4)",
+                    "latex": "\\left(-\\infty, -4\\right)"
+                  },
+                  "left": null,
+                  "left_closed": false,
+                  "right": -4,
+                  "right_closed": false
+                },
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "-4"
+                        },
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(-4, 1)",
+                    "latex": "\\left(-4, 1\\right)"
+                  },
+                  "left": -4,
+                  "left_closed": false,
+                  "right": 1,
+                  "right_closed": false
+                },
+                {
+                  "exact": {
+                    "exact": {
+                      "$math": "Interval",
+                      "args": [
+                        {
+                          "$math": "Integer",
+                          "value": "1"
+                        },
+                        {
+                          "$math": "Infinity"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        },
+                        {
+                          "$math": "BooleanTrue"
+                        }
+                      ]
+                    },
+                    "expression": "Interval.open(1, oo)",
+                    "latex": "\\left(1, \\infty\\right)"
+                  },
+                  "left": 1,
+                  "left_closed": false,
+                  "right": null,
+                  "right_closed": false
+                }
+              ],
+              "label": "D_{f}=\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)",
+              "points": [],
+              "ticks": [
+                {
+                  "at": -4,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "-4"
+                    },
+                    "expression": "-4",
+                    "latex": "-4"
+                  },
+                  "label": "-4"
+                },
+                {
+                  "at": 1,
+                  "exact": {
+                    "exact": {
+                      "$math": "Integer",
+                      "value": "1"
+                    },
+                    "expression": "1",
+                    "latex": "1"
+                  },
+                  "label": "1"
+                }
+              ],
+              "variable": "x"
+            },
+            "condition_number_lines": [
+              {
+                "ast_path": [
+                  1,
+                  1,
+                  1
+                ],
+                "basis_refs": [
+                  "integer-power#zero-exponent"
+                ],
+                "bounds": [
+                  -5.25,
+                  2.25
+                ],
+                "condition_id": "c1",
+                "exact_set": {
+                  "exact": {
+                    "$math": "Union",
+                    "args": [
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "-4"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "-4"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "expression": "Union(Interval.open(-oo, -4), Interval.open(-4, oo))",
+                  "latex": "\\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "-4"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.open(-oo, -4)",
+                      "latex": "\\left(-\\infty, -4\\right)"
+                    },
+                    "left": null,
+                    "left_closed": false,
+                    "right": -4,
+                    "right_closed": false
+                  },
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "-4"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.open(-4, oo)",
+                      "latex": "\\left(-4, \\infty\\right)"
+                    },
+                    "left": -4,
+                    "left_closed": false,
+                    "right": null,
+                    "right_closed": false
+                  }
+                ],
+                "label": "x + 4 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, -4\\right) \\cup \\left(-4, \\infty\\right)",
+                "points": [],
+                "source_ref": "/root/definitions/0",
+                "ticks": [
+                  {
+                    "at": -4,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "-4"
+                      },
+                      "expression": "-4",
+                      "latex": "-4"
+                    },
+                    "label": "-4"
+                  },
+                  {
+                    "at": 1,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "1"
+                      },
+                      "expression": "1",
+                      "latex": "1"
+                    },
+                    "label": "1"
+                  }
+                ],
+                "variable": "x"
+              },
+              {
+                "ast_path": [
+                  2
+                ],
+                "basis_refs": [
+                  "rational-expression#meaning"
+                ],
+                "bounds": [
+                  -5.25,
+                  2.25
+                ],
+                "condition_id": "c2",
+                "exact_set": {
+                  "exact": {
+                    "$math": "Union",
+                    "args": [
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "1"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "1"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  "expression": "Union(Interval.open(-oo, 1), Interval.open(1, oo))",
+                  "latex": "\\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)"
+                },
+                "intervals": [
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "NegativeInfinity"
+                          },
+                          {
+                            "$math": "Integer",
+                            "value": "1"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.open(-oo, 1)",
+                      "latex": "\\left(-\\infty, 1\\right)"
+                    },
+                    "left": null,
+                    "left_closed": false,
+                    "right": 1,
+                    "right_closed": false
+                  },
+                  {
+                    "exact": {
+                      "exact": {
+                        "$math": "Interval",
+                        "args": [
+                          {
+                            "$math": "Integer",
+                            "value": "1"
+                          },
+                          {
+                            "$math": "Infinity"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          },
+                          {
+                            "$math": "BooleanTrue"
+                          }
+                        ]
+                      },
+                      "expression": "Interval.open(1, oo)",
+                      "latex": "\\left(1, \\infty\\right)"
+                    },
+                    "left": 1,
+                    "left_closed": false,
+                    "right": null,
+                    "right_closed": false
+                  }
+                ],
+                "label": "x - 1 \\neq 0\\quad\\Longrightarrow\\quad \\left(-\\infty, 1\\right) \\cup \\left(1, \\infty\\right)",
+                "points": [],
+                "source_ref": "/root/definitions/0",
+                "ticks": [
+                  {
+                    "at": -4,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "-4"
+                      },
+                      "expression": "-4",
+                      "latex": "-4"
+                    },
+                    "label": "-4"
+                  },
+                  {
+                    "at": 1,
+                    "exact": {
+                      "exact": {
+                        "$math": "Integer",
+                        "value": "1"
+                      },
+                      "expression": "1",
+                      "latex": "1"
+                    },
+                    "label": "1"
+                  }
+                ],
+                "variable": "x"
+              }
+            ],
+            "endpoint_checks": [
+              {
+                "at": -4,
+                "exact": {
+                  "exact": {
+                    "$math": "Integer",
+                    "value": "-4"
+                  },
+                  "expression": "-4",
+                  "latex": "-4"
+                },
+                "holds": false,
+                "included": false,
+                "label": "x=-4",
+                "passed": true,
+                "reason": "代入后零次幂的底数为 0，出现 $0^0$，原式无意义，排除该点。",
+                "sources": [
+                  {
+                    "ast_path": [
+                      2
+                    ],
+                    "basis_refs": [
+                      "rational-expression#meaning"
+                    ],
+                    "holds": true,
+                    "kind": "denominator_nonzero",
+                    "source_ref": "/root/definitions/0"
+                  },
+                  {
+                    "ast_path": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "basis_refs": [
+                      "integer-power#zero-exponent"
+                    ],
+                    "holds": false,
+                    "kind": "zero_power_base_nonzero",
+                    "source_ref": "/root/definitions/0"
+                  }
+                ]
+              },
+              {
+                "at": 1,
+                "exact": {
+                  "exact": {
+                    "$math": "Integer",
+                    "value": "1"
+                  },
+                  "expression": "1",
+                  "latex": "1"
+                },
+                "holds": false,
+                "included": false,
+                "label": "x=1",
+                "passed": true,
+                "reason": "代入后分母为 0，原式无意义，排除该点。",
+                "sources": [
+                  {
+                    "ast_path": [
+                      2
+                    ],
+                    "basis_refs": [
+                      "rational-expression#meaning"
+                    ],
+                    "holds": false,
+                    "kind": "denominator_nonzero",
+                    "source_ref": "/root/definitions/0"
+                  },
+                  {
+                    "ast_path": [
+                      1,
+                      1,
+                      1
+                    ],
+                    "basis_refs": [
+                      "integer-power#zero-exponent"
+                    ],
+                    "holds": true,
+                    "kind": "zero_power_base_nonzero",
+                    "source_ref": "/root/definitions/0"
+                  }
+                ]
+              }
+            ],
+            "expected_answer": {
+              "one_of": [
+                "o1",
+                "o5"
+              ]
+            },
+            "feedback": {
+              "answer": "请按原式位置及有意义条件检查。"
+            },
+            "id": "a74a6c6291a12d04fdc31818#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "label": "$\\{x\\in\\mathbb{R}\\mid \\left(-4 < x < 1\\right) \\quad\\text{或}\\quad x > 1 \\quad\\text{或}\\quad x < -4\\}$",
+                  "value": "o5"
+                },
+                {
+                  "label": "$\\left(-\\infty, -4\\right) \\cup \\left(-4, 1\\right) \\cup \\left(1, \\infty\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "label": "$\\left(-\\infty, \\infty\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\emptyset$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$\\left\\{-4, 1\\right\\}$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "哪些表示给出了同一个完整定义域？任选一种正确表示。",
+            "submit_label": "确认判断",
+            "title": "取交集，写定义域"
+          }
+        ],
+        "route_id": "domain-intersection",
+        "run_id": "a0828f4cbe654cc9bcc5686e8c05d9bc",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "3fb43c9cc8a972f465469024c24ede938b47d7c29b401bc7e69a8e7455102357",
+            "step_id": "39e5646dcb-domain-intersection-004-domain_intersection"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

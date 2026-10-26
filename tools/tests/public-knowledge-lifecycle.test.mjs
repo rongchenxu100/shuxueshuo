@@ -39,7 +39,7 @@ test('entry references validate existing knowledge anchors without creating glob
 });
 
 test('junior collection owns the same members in flat projection, three-dimensional placement and metadata',()=>{
-  const id='junior-knowledge', members=['rational-expression','square-root-expression','absolute-value-concept','reciprocal-function'];
+  const id='junior-knowledge', members=['integer-power','rational-expression','square-root-expression','absolute-value-concept','reciprocal-function'];
   const city=buildCity(outline,graph), homes=homeChapters(outline,graph), collection=city.collections.find(c=>c.id===id);
   assert.equal(collection.kind,'collection');assert.deepEqual(collection.sections,[]);
   assert.deepEqual(new Set(collection.members),new Set(members));
@@ -64,7 +64,7 @@ test('published views expose the collection and planned labels without fake exer
   assert.match(outputs.get('index.html'),/id="collection-junior-knowledge"/);
   const directory=outputs.get('nodes/index.html');
   assert.match(directory,/<option value="junior-knowledge">初中知识<\/option>/);
-  for(const id of ['junior-knowledge','rational-expression','square-root-expression','absolute-value-concept','reciprocal-function'])assert.match(directory,new RegExp(`data-directory-node="${id}" data-home="junior-knowledge"`));
+  for(const id of ['junior-knowledge','integer-power','rational-expression','square-root-expression','absolute-value-concept','reciprocal-function'])assert.match(directory,new RegExp(`data-directory-node="${id}" data-home="junior-knowledge"`));
   const data=JSON.parse(outputs.get('graph.json'));
   assert.equal(data.collections[0].id,'junior-knowledge');
   for(const n of planned){

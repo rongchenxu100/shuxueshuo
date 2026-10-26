@@ -28,7 +28,10 @@
       "label": "求函数的定义域",
       "type": "type-function-domain",
       "description": "结合题设范围与表达式有意义的条件，确定允许的输入。",
-      "problems": ["function-concepts-q15"]
+      "problems": [
+        "function-concepts-q15",
+        "function-concepts-q01"
+      ]
     },
     {
       "id": "equality",
@@ -65,7 +68,18 @@
       "path": "/topics/function-concepts/q15/",
       "runtime": "graph-walk",
       "bundle": "/data/graph-walk/function-concepts-q15.json",
-      "types": ["type-function-domain"]
+      "types": [
+        "type-function-domain"
+      ]
+    },
+    "function-concepts-q01": {
+      "label": "零次幂与分式的定义域 · Q01",
+      "path": "/topics/function-concepts/q01/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q01.json",
+      "types": [
+        "type-function-domain"
+      ]
     }
   }
 }

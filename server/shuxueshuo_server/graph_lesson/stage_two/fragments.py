@@ -36,7 +36,10 @@ def _domain_formula_body_matches(body, expected):
                 return "".join(output), index + 1
             if char == "{":
                 inner, index = read(index + 1, depth + 1, True)
-                output.append("(" + inner + ")")
+                # Canonical notation writes fixed integer exponents without
+                # TeX braces; keep the following juxtaposed factor outside it.
+                output.append(inner.strip() + " " if "".join(output).rstrip().endswith("^") and re.fullmatch(r"\s*\d+\s*", inner)
+                              else "(" + inner + ")")
                 continue
             if char != "\\":
                 output.append({"−": "-", "（": "(", "）": ")"}.get(char, char))
@@ -68,9 +71,30 @@ def _domain_formula_body_matches(body, expected):
             raise ValueError("unfinished group")
         return "".join(output), index
 
+    def original_structure(tree):
+        # TeX a\frac{b}{c} and a*b/c differ only in product grouping.
+        # Keep every divisor as an intact expression: never cancel factors
+        # or turn a/(b/c) into a*c/b (which would lose the c != 0 condition).
+        if tree[0] in ("*", "/"):
+            numerators, divisors = [], []
+
+            def collect(item):
+                if item[0] == "*":
+                    collect(item[1])
+                    collect(item[2])
+                elif item[0] == "/":
+                    collect(item[1])
+                    divisors.append(original_structure(item[2]))
+                else:
+                    numerators.append(original_structure(item))
+
+            collect(tree)
+            return ["original_product", numerators, divisors]
+        return [original_structure(item) if isinstance(item, list) else item for item in tree]
+
     try:
         normalized, _ = read()
-        return parse(normalized) == parse(expected)
+        return original_structure(parse(normalized)) == original_structure(parse(expected))
     except (NotationError, ValueError, RecursionError):
         return False
 
@@ -351,7 +375,9 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         # Require one matching function/argument identity, then bind its exact
         # arithmetic tree; cancellation or an unrelated RHS cannot pass.
         name, argument = re.escape(domain["function_name"]), re.escape(domain["variable"])
-        head = re.compile(rf"^\s*{name}\s*(?:\\left\s*)?\(\s*{argument}\s*(?:\\right\s*)?\)\s*=")
+        # Extraction may name the explicitly given y=... correspondence f(x).
+        # The full original RHS must still match, and multiple definitions fail.
+        head = re.compile(rf"^\s*(?:{name}\s*(?:\\left\s*)?\(\s*{argument}\s*(?:\\right\s*)?\)|y)\s*=")
         definitions = []
         for begin, end in ranges:
             for formula in re.finditer(r"\$([^$\n]+)\$", text[begin:end]):

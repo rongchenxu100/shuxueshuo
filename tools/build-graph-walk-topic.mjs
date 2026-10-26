@@ -66,9 +66,9 @@ export async function generateCourse({root = repoRoot, sourcePath = SOURCE} = {}
   const config = {problemId: source.problemId, bundleUrl, replayUrl, topicHref: source.topicHref};
   let html = await fs.readFile(path.join(root, 'tools/templates/graph-walk.html'), 'utf8');
   html = html.replace('<body class="gw-page">', '<body class="gw-page" data-walk="mount">')
-    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261026-mobile-math"')
+    .replace('/assets/graph-walk/walk.css"', '/assets/graph-walk/walk.css?v=20261026-domain-powers"')
     .replace('<script type="module" src="/assets/graph-walk/walk.mjs"></script>',
-      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261026-mobile-math"></script>')
+      '<script type="module" src="/assets/auth/site-auth.js?v=4"></script>\n  <script type="module" src="/assets/graph-walk/topic-page.mjs?v=20261026-domain-powers"></script>')
     .replace('<title>跟着图谱解一道题 · 数学说</title>', `<title>${h(source.title)} · 数学说</title>`)
     .replace('恒成立 Q01 · 解题过程', h(source.title))
     .replace('<h1>跟着图谱解一道题</h1>', `<h1>${h(source.title)}</h1>`)
@@ -94,6 +94,21 @@ export async function buildCourse({root = repoRoot, check = false, sourcePath = 
   return {changed};
 }
 
+export async function buildCourses({root = repoRoot, check = false} = {}) {
+  const directory = 'site/data/knowledge-next/topics', problems = new Set();
+  for (const name of (await fs.readdir(path.join(root, directory))).filter(name => name.endsWith('.json'))) {
+    const topic = await json(path.join(root, directory, name));
+    for (const [id, problem] of Object.entries(topic.problems || {})) {
+      if (problem.runtime === 'graph-walk') problems.add(id);
+    }
+  }
+  let changed = 0;
+  for (const id of [...problems].sort()) {
+    changed += (await buildCourse({root, check, sourcePath: `site/data/graph-walk/${id}.source.json`})).changed;
+  }
+  return {changed};
+}
+
 if (process.argv[1] && await fs.realpath(process.argv[1]).catch(() => null) === await fs.realpath(fileURLToPath(import.meta.url))) {
   try {
     const args = process.argv.slice(2), settings = {};
@@ -102,7 +117,7 @@ if (process.argv[1] && await fs.realpath(process.argv[1]).catch(() => null) === 
       else if (args[index] === '--source' && args[index + 1]) settings.sourcePath = args[++index];
       else throw Error('Usage: node tools/build-graph-walk-topic.mjs [--check] [--source site/data/graph-walk/id.source.json]');
     }
-    console.log(JSON.stringify(await buildCourse(settings)));
+    console.log(JSON.stringify(await (settings.sourcePath ? buildCourse(settings) : buildCourses(settings))));
   }
   catch (error) { console.error(error.message); process.exitCode = 1; }
 }

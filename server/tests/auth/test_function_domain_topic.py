@@ -1,9 +1,10 @@
-"""The published Q15 course records actual native answers through student APIs."""
+"""Published domain courses record actual native answers through student APIs."""
 
 import json
 import os
 from uuid import uuid4
 
+import pytest
 from test_auth import login
 
 from shuxueshuo_server.learning.content import ROOT, load_content, publish
@@ -11,7 +12,8 @@ from shuxueshuo_server.product.config import Settings
 from shuxueshuo_server.product.db import engine
 
 
-def test_published_domain_course_records_each_step_and_restores(client, auth, phone):
+@pytest.mark.parametrize("problem_id", ["function-concepts-q15", "function-concepts-q01"])
+def test_published_domain_course_records_each_step_and_restores(client, auth, phone, problem_id):
     settings = Settings.load("local", os.environ["PRODUCT_TEST_DATA_DIR"], os.environ["PRODUCT_TEST_INSTANCE"])
     publisher = engine(settings.url("migration"))
     try:
@@ -19,7 +21,6 @@ def test_published_domain_course_records_each_step_and_restores(client, auth, ph
     finally:
         publisher.dispose()
     login(client, auth, phone)
-    problem_id = "function-concepts-q15"
     bundle = json.loads((ROOT / f"site/data/graph-walk/{problem_id}.json").read_text())
     replay = json.loads((ROOT / f"site/data/graph-walk/{problem_id}.replay.json").read_text())
     mark = f"/api/learning/marks/{problem_id}"

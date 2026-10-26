@@ -227,13 +227,14 @@
       "partial": false,
       "sections": [],
       "members": [
+        "integer-power",
         "rational-expression",
         "square-root-expression",
         "absolute-value-concept",
         "reciprocal-function"
       ],
       "counts": {
-        "knowledge": 4,
+        "knowledge": 5,
         "skill": 0,
         "method": 0,
         "problem_type": 0,
@@ -369,6 +370,15 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "integer-power",
+      "kind": "knowledge",
+      "label": "整数幂",
+      "summary": "理解正整数次幂与零次幂的意义，区分底数为零时的条件，并保留底数表达式原有的限制。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "junior-knowledge"
+    },
+    {
       "id": "interval-notation",
       "kind": "knowledge",
       "label": "区间的概念",
@@ -381,7 +391,7 @@
       "id": "junior-knowledge",
       "kind": "collection",
       "label": "初中知识",
-      "summary": "回顾高中学习中会用到的初中知识，理解分式、二次根式、绝对值和反比例函数的基本概念。",
+      "summary": "回顾高中学习中会用到的初中知识，理解整数幂、分式、二次根式、绝对值和反比例函数的基本概念。",
       "aliases": [],
       "home": "junior-knowledge"
     },
@@ -1261,7 +1271,7 @@
       "id": "skill-expression-defined",
       "kind": "skill",
       "label": "提取表达式有意义的条件",
-      "summary": "按原式结构找到根号、分母等限制位置，逐条列出有意义的条件并保留出处。",
+      "summary": "按原式结构找到根号、分母、零次幂底数等限制位置，逐条列出有意义的条件并保留出处。",
       "aliases": []
     },
     {
@@ -1653,6 +1663,15 @@
       "id": "junior-knowledge|contains|absolute-value-concept",
       "from": "junior-knowledge",
       "to": "absolute-value-concept",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "junior-knowledge|contains|integer-power",
+      "from": "junior-knowledge",
+      "to": "integer-power",
       "type": "contains",
       "occurrences": [
         {}
@@ -3619,6 +3638,20 @@
       ]
     },
     {
+      "id": "skill-expression-defined|uses|integer-power",
+      "from": "skill-expression-defined",
+      "to": "integer-power",
+      "type": "uses",
+      "occurrences": [
+        {
+          "entry": "positive-exponent"
+        },
+        {
+          "entry": "zero-exponent"
+        }
+      ]
+    },
+    {
       "id": "skill-expression-defined|uses|rational-expression",
       "from": "skill-expression-defined",
       "to": "rational-expression",
@@ -4054,6 +4087,15 @@
       "id": "type-function-domain|involves|function-concept",
       "from": "type-function-domain",
       "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-domain|involves|integer-power",
+      "from": "type-function-domain",
+      "to": "integer-power",
       "type": "involves",
       "occurrences": [
         {}

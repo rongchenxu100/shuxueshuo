@@ -736,7 +736,7 @@ for (const action of ['retryLesson', 'start', 'resume']) for (const failure of [
 });
 
 test('camera and problem pages load the versioned pure notice helper before their updated scripts', () => {
-  for (const [name, version] of [['camera', '20261025-admission-review'], ['problem', '20261026-domain-review']]) {
+  for (const [name, version] of [['camera', '20261025-admission-review'], ['problem', '20261026-domain-powers']]) {
     const html = fs.readFileSync(new URL(`../../site/lab/search/${name}.html`, import.meta.url), 'utf8');
     const helper = html.indexOf('src="search-errors.js?v=20261025-admission-review" defer');
     assert.ok(helper >= 0);

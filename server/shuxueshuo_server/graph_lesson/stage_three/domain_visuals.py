@@ -122,10 +122,13 @@ def endpoint_checks(rows, variable):
         )
         if not row['included'] and evidence['input_domain_member']:
             failures = {source['kind'] for source in evidence['sources'] if not source['holds']}
-            if 'radicand_nonnegative' in failures:
-                reason = '代入后被开方数为负，原式无意义，排除该点。'
-            elif 'denominator_nonzero' in failures:
-                reason = '代入后分母为 0，原式无意义，排除该点。'
+            causes = [text for kind, text in (
+                ('radicand_nonnegative', '被开方数为负'),
+                ('denominator_nonzero', '分母为 0'),
+                ('zero_power_base_nonzero', '零次幂的底数为 0，出现 $0^0$'),
+            ) if kind in failures]
+            if causes:
+                reason = '代入后' + '；'.join(causes) + '，原式无意义，排除该点。'
         result.append(
             {
                 "at": _float(point),

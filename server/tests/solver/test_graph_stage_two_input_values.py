@@ -52,6 +52,34 @@ def test_find_domain_requires_its_new_feature_even_in_saved_result_envelope():
                for row in checked["diagnostics"])
 
 
+def test_saved_domain_feature_may_omit_new_zero_power_metadata():
+    candidate = {"original_text": "求函数 f(x)=sqrt(x-1)/(x-2) 的定义域。", "root": {
+        "definitions": ["f(x)=sqrt(x-1)/(x-2)"], "goals": [{"kind": "find_domain", "object": "f"}],
+    }}
+    value = accepted()
+    value.update(candidate=candidate, features=extract_features(candidate)["features"])
+    domain = next(row["value"] for row in value["features"] if row["feature_id"] == "function_domain")
+    assert domain.pop("has_zero_power") is False
+    checked = validate_input(value)
+    assert checked["ok"], checked
+
+
+@pytest.mark.parametrize("metadata", [0, "true", None, {}])
+def test_present_zero_power_metadata_must_be_boolean(metadata):
+    candidate = {"original_text": "求函数 f(x)=(x+4)^0*(x^2-1)/(x-1) 的定义域。", "root": {
+        "definitions": ["f(x)=(x+4)^0*(x^2-1)/(x-1)"], "goals": [{"kind": "find_domain", "object": "f"}],
+    }}
+    value = accepted()
+    value.update(candidate=candidate, features=extract_features(candidate)["features"])
+    domain = next(row["value"] for row in value["features"] if row["feature_id"] == "function_domain")
+    assert domain["has_zero_power"] is True
+    assert validate_input(value)["ok"]
+    domain["has_zero_power"] = metadata
+    checked = validate_input(value)
+    assert any(row["code"] == "input.feature_value" and row["path"].endswith("/has_zero_power")
+               for row in checked["diagnostics"])
+
+
 def student_upload(value):
     value["statuses"] = {key: value["statuses"][key] for key in ("extraction", "source_reviewed", "features")}
     value["statuses"]["admission"] = "student_upload"

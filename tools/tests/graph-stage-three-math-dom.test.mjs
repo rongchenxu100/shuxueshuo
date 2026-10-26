@@ -141,7 +141,7 @@ test('parallel case conclusions preserve an explicit empty connector instead of 
   assert.equal(find('conversion-arrow', createMathCard(document, {...step, highlight: {...highlight, connector: '⇔'}}).node)[0].textContent, '⇔');
 });
 
-for (const display_unit of ['domain_conditions', 'domain_solutions']) test(`${display_unit} keeps independent restrictions on separate lines`, () => {
+for (const display_unit of ['domain_locations', 'domain_conditions', 'domain_solutions']) test(`${display_unit} keeps independent restrictions on separate lines`, () => {
   const {document, find} = documentFixture();
   const value = {...step, display_unit, highlight: {caption: '原式的条件', items: [
     {label: '被开方数', math: 'x-1\\ge0'}, {label: '分母', math: 'x-2\\ne0'}]}};

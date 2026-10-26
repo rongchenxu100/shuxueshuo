@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "problemId": "function-concepts-q01",
+  "title": "零次幂与分式的定义域 · Q01",
+  "page": "/topics/function-concepts/q01/",
+  "topicHref": "/topics/function-concepts/",
+  "targetRef": "/root/goals/0",
+  "evidence": "site/data/graph-walk/function-concepts-q01.evidence.json"
+}

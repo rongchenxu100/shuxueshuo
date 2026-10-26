@@ -1,5 +1,5 @@
-import {mountWalk, restoreWalkProgress, disposeWalk} from './walk.mjs?v=20261026-mobile-math';
-import {createRecorder} from '../learning/practice-records.js?v=20261026-mobile-math';
+import {mountWalk, restoreWalkProgress, disposeWalk} from './walk.mjs?v=20261026-domain-powers';
+import {createRecorder} from '../learning/practice-records.js?v=20261026-domain-powers';
 import {isPreview} from '../practice/learning-mode.mjs';
 
 const config = JSON.parse(document.querySelector('#graph-walk-page').textContent);
@@ -44,7 +44,7 @@ try {
     disposeWalk(); void mount().catch(showError);
   });
   await mount();
-  await import('../learning/learning-marks.js?v=20261026-mobile-math');
+  await import('../learning/learning-marks.js?v=20261026-domain-powers');
 } catch (error) { showError(error); }
 
 function showError(error) {

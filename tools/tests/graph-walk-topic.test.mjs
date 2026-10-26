@@ -6,7 +6,7 @@ import os from 'node:os';
 import vm from 'node:vm';
 import {expressionRegionsHTML} from '../../site/assets/graph-walk/expression-regions.mjs';
 import {domainNumberLineGraph, endpointChecksHTML} from '../../site/assets/graph-walk/domain-visuals.mjs';
-import {compileCourse, buildCourse} from '../build-graph-walk-topic.mjs';
+import {compileCourse, buildCourse, buildCourses} from '../build-graph-walk-topic.mjs';
 import {repoRoot, loadSources} from '../lib/public-knowledge-sources.mjs';
 import {exportContent} from '../export-public-knowledge.mjs';
 import {createState, currentDecision, gradeDecision, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
@@ -126,7 +126,6 @@ test('native topic publication derives its steps from the verified course withou
     await fs.cp(path.join(repoRoot, 'site/data/knowledge-next'), path.join(root, 'site/data/knowledge-next'), {recursive: true});
     const topicFile = path.join(root, 'site/data/knowledge-next/topics/function-concepts.json');
     const topic = JSON.parse(await fs.readFile(topicFile, 'utf8'));
-    topic.groups.find(group => group.id === 'domain').problems = ['function-concepts-q15'];
     topic.problems['function-concepts-q15'] = {label: '求函数的定义域 · Q15', path: '/topics/function-concepts/q15/',
       runtime: 'graph-walk', bundle: '/data/graph-walk/function-concepts-q15.json', types: ['type-function-domain']};
     await fs.writeFile(topicFile, JSON.stringify(topic));
@@ -146,4 +145,32 @@ test('native topic publication derives its steps from the verified course withou
     assert.equal(rows.practice_steps.filter(step => step.problem_id === published.id).length, 7);
     assert.ok(rows.practice_step_nodes.some(step => step.problem_id === published.id && step.node_id === 'skill-expression-defined'));
   } finally { await fs.rm(root, {recursive: true, force: true}); }
+});
+
+
+test('Q01 photo course preserves zero-power and uncancelled-denominator restrictions', async () => {
+  const bundle = await json('site/data/graph-walk/function-concepts-q01.json');
+  const replay = await json('site/data/graph-walk/function-concepts-q01.replay.json');
+  const steps = [...bundle.intro, ...bundle.routes['domain-intersection'].steps];
+  assert.equal(steps.length, 7);
+  assert.equal(replay.actions.length, 7);
+  assert.match(bundle.problem.text, /y=.*\^0/);
+  assert.ok(steps[0].effects.nodes.includes('integer-power'));
+  const locations = steps[3];
+  assert.deepEqual(locations.source_regions.regions.map(region => region.basis_refs),
+    [['integer-power#zero-exponent'], ['rational-expression#meaning']]);
+  assert.deepEqual(locations.source_regions.regions.map(region => region.ast_path), [[1, 1, 1], [2]]);
+  const last = steps.at(-1);
+  assert.deepEqual(last.endpoint_checks.map(check => [check.at, check.included, check.passed]),
+    [[-4, false, true], [1, false, true]]);
+  assert.match(last.endpoint_checks[0].reason, /零次幂/);
+  assert.match(last.endpoint_checks[1].reason, /分母/);
+  let state = createState(bundle);
+  for (const action of replay.actions) state = submitAnswer(bundle, state, action);
+  assert.equal(state.done, true);
+  const exported = await exportContent();
+  const contract = exported.practice_problems.find(row => row.id === bundle.problemId).problem_data._graph_walk;
+  assert.equal(contract.bundleVersion, replay.bundleVersion);
+  assert.deepEqual(contract.routes['domain-intersection'].steps.at(-1).expected_answer, last.expected_answer);
+  assert.deepEqual(await buildCourses({check: true}), {changed: 0});
 });

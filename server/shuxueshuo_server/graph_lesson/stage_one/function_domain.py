@@ -10,8 +10,11 @@ from fractions import Fraction
 
 from ...problem_understanding.notation_parser import NotationError, definition
 
-VERSION = "fixed-affine-function-domain/v1"
+VERSION = "fixed-affine-function-domain/v2"
 ARGUMENT = ["bound", "function_argument"]
+# Match the canonical notation service's existing single-exponent bound.
+MAX_INTEGER_EXPONENT = 12
+MAX_NESTED_POWER = 64
 
 
 def source_pointer(path):
@@ -48,10 +51,22 @@ def _affine(ast, depth=0):
     raise NotationError("domain.fixed_affine_condition_required")
 
 
-def _inspect_expression(ast):
-    counts = {"nodes": 0, "has_radical": False, "has_division": False}
+def _integer_exponent(ast):
+    """A bounded literal integer, never an expression to simplify or evaluate."""
+    if ast[0] != "number":
+        raise NotationError("domain.fixed_nonnegative_integer_exponent_required")
+    value = Fraction(ast[1])
+    if value.denominator != 1 or value < 0:
+        raise NotationError("domain.fixed_nonnegative_integer_exponent_required")
+    if value > MAX_INTEGER_EXPONENT:
+        raise NotationError("domain.integer_exponent_limit")
+    return int(value)
 
-    def walk(value, depth=0):
+
+def _inspect_expression(ast):
+    counts = {"nodes": 0, "has_radical": False, "has_division": False, "has_zero_power": False}
+
+    def walk(value, depth=0, power_weight=1):
         counts["nodes"] += 1
         if counts["nodes"] > 256 or depth > 24:
             raise NotationError("domain.structure_limit")
@@ -60,16 +75,29 @@ def _inspect_expression(ast):
             _affine(value)
             return
         if kind == "neg":
-            walk(value[1], depth + 1)
+            walk(value[1], depth + 1, power_weight)
             return
         if kind in ("+", "-", "*"):
-            walk(value[1], depth + 1)
-            walk(value[2], depth + 1)
+            walk(value[1], depth + 1, power_weight)
+            walk(value[2], depth + 1, power_weight)
+            return
+        if kind == "^":
+            exponent = _integer_exponent(value[2])
+            if exponent == 0:
+                # Only the zero power adds a new nonzero condition, whose
+                # expression must stay within the existing affine solver.
+                _affine(value[1])
+                counts["has_zero_power"] = True
+            weight = power_weight * max(1, exponent)
+            if weight > MAX_NESTED_POWER:
+                raise NotationError("domain.nested_power_limit")
+            walk(value[1], depth + 1, weight)
+            walk(value[2], depth + 1, power_weight)
             return
         if kind == "call" and value[1] == "sqrt":
             counts["has_radical"] = True
             _affine(value[2])
-            walk(value[2], depth + 1)
+            walk(value[2], depth + 1, power_weight)
             return
         if kind == "/":
             counts["has_division"] = True
@@ -78,10 +106,10 @@ def _inspect_expression(ast):
                 _affine(divisor[2])
             else:
                 _affine(divisor)
-            walk(value[1], depth + 1)
-            walk(divisor, depth + 1)
+            walk(value[1], depth + 1, power_weight)
+            walk(divisor, depth + 1, power_weight)
             return
-        raise NotationError("domain.unsupported_expression:" + kind)
+        raise NotationError("domain.unsupported_expression", kind)
 
     walk(ast)
     return counts
@@ -114,6 +142,8 @@ def expression_latex(ast, variable):
         return r"\sqrt{" + expression_latex(ast[2], variable) + "}"
     if ast[0] == "/":
         return r"\frac{" + expression_latex(ast[1], variable) + "}{" + expression_latex(ast[2], variable) + "}"
+    if ast[0] == "^":
+        return r"\left(" + expression_latex(ast[1], variable) + r"\right)^{" + expression_latex(ast[2], variable) + "}"
     if ast[0] in ("+", "-", "*"):
         op = r"\cdot " if ast[0] == "*" else ast[0]
         return r"\left(" + expression_latex(ast[1], variable) + op + expression_latex(ast[2], variable) + r"\right)"
@@ -155,6 +185,7 @@ def describe_domain_goal(report, scope, ancestors, goal_index):
         "expression_ast": deepcopy(body), "input_domain_ast": deepcopy(domain),
         "input_domain_source_ref": target_ref + "/input_domain" if "input_domain" in goal else "",
         "structure_supported": False, "reason": "", "has_radical": False, "has_division": False,
+        "has_zero_power": False,
     }
     try:
         if any(visible.get("uncertainties") for visible in [*ancestors, scope]):
@@ -165,7 +196,8 @@ def describe_domain_goal(report, scope, ancestors, goal_index):
             raise NotationError("domain.additional_conditions_unsupported")
         counts = _inspect_expression(body)
         _input_domain(domain)
-        value.update(structure_supported=True, has_radical=counts["has_radical"], has_division=counts["has_division"])
+        value.update(structure_supported=True, **{key: counts[key] for key in
+                                                ("has_radical", "has_division", "has_zero_power")})
     except (NotationError, ValueError, ZeroDivisionError) as exc:
         value["reason"] = getattr(exc, "code", "domain.invalid_exact_arithmetic")
     return value

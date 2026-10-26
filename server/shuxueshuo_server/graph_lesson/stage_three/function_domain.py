@@ -14,6 +14,7 @@ from ..stage_one.function_domain import (
     _affine,
     _input_domain,
     _inspect_expression,
+    _integer_exponent,
     inspect_domain_target,
 )
 from .math_values import math_value
@@ -37,6 +38,7 @@ def expression(ast, variable):
         "-": lambda: left - right,
         "*": lambda: left * right,
         "/": lambda: left / right,
+        "^": lambda: sp.Pow(left, right, evaluate=False),
     }[kind]()
 
 
@@ -108,6 +110,8 @@ def extract_domain_conditions(context):
         )
 
     def visit(ast, path=()):
+        if ast[0] == "^" and _integer_exponent(ast[2]) == 0:
+            add(ast[1], (*path, 1), "zero_power_base_nonzero", "integer-power#zero-exponent")
         if ast[:2] == ["call", "sqrt"]:
             add(
                 ast[2],
@@ -138,9 +142,11 @@ def extract_domain_conditions(context):
         },
         sorted(
             {
-                "domain_radicand_conditions"
-                if row["kind"] == "radicand_nonnegative"
-                else "domain_denominator_conditions"
+                {
+                    "radicand_nonnegative": "domain_radicand_conditions",
+                    "denominator_nonzero": "domain_denominator_conditions",
+                    "zero_power_base_nonzero": "domain_zero_power_conditions",
+                }[row["kind"]]
                 for row in rows
             }
         )
@@ -256,6 +262,12 @@ def _evaluate(ast, point):
         if not defined or value < 0:
             return False, None
         return True, sp.sqrt(value)
+    if ast[0] == "^":
+        defined, value = _evaluate(ast[1], point)
+        exponent = _integer_exponent(ast[2])
+        if not defined or (exponent == 0 and value == 0):
+            return False, None
+        return True, value ** exponent
     lhs_ok, lhs = _evaluate(ast[1], point)
     rhs_ok, rhs = _evaluate(ast[2], point)
     if not lhs_ok or not rhs_ok or (ast[0] == "/" and rhs == 0):
@@ -272,14 +284,17 @@ def _critical(description):
     rows, points, by_path = [], set(), {}
 
     def visit(ast, path=()):
-        if ast[:2] == ["call", "sqrt"] or ast[0] == "/":
-            child, polynomial_path = ast[2], (*path, 2)
+        if ast[:2] == ["call", "sqrt"] or ast[0] == "/" or (ast[0] == "^" and _integer_exponent(ast[2]) == 0):
+            index = 1 if ast[0] == "^" else 2
+            kind = ("zero_power_base_nonzero" if ast[0] == "^" else
+                    "radicand_nonnegative" if ast[:2] == ["call", "sqrt"] else "denominator_nonzero")
+            child, polynomial_path = ast[index], (*path, index)
             if child[:2] == ["call", "sqrt"]:
                 child, polynomial_path = child[2], (*polynomial_path, 2)
             source = {
                 "source_ref": description["source_ref"],
-                "ast_path": [*path, 2],
-                "kind": "radicand_nonnegative" if ast[:2] == ["call", "sqrt"] else "denominator_nonzero",
+                "ast_path": [*path, index],
+                "kind": kind,
             }
             # A sqrt divisor and its own real-definedness condition use the
             # same polynomial at the same original position. Keep both
@@ -377,14 +392,14 @@ def verify_domain(candidate, target_ref, context, proposed):
         result_value.update(
             status="verified" if mismatch is None else "math_failed",
             proof={
-                "category": "original-fixed-affine-radical-division-domain/v1",
+                "category": "original-fixed-affine-function-domain/v2",
                 "source_refs": [description["source_ref"]],
                 "expression_ast": description["expression_ast"],
                 "critical_polynomials": roots,
                 "critical_points": [math_value(p) for p in points],
                 "invariance": {
                     "proved": True,
-                    "reason": "Every original radicand and divisor has fixed sign between all affine roots; original syntax and explicit interval membership are evaluated independently at every critical point.",
+                    "reason": "Every original radicand, divisor and zero-power base has fixed sign between all affine roots; positive integer powers retain their base's definedness. Original syntax and explicit interval membership are evaluated independently at every critical point.",
                 },
                 "cells": cells,
                 "reconstructed_set": math_value(rebuilt),
@@ -435,21 +450,21 @@ def domain_endpoints(candidate, target_ref, proposed):
         sources = []
 
         def visit(ast, path=(), *, at=point, evidence_rows=sources):
-            if ast[:2] == ["call", "sqrt"] or ast[0] == "/":
+            if ast[:2] == ["call", "sqrt"] or ast[0] == "/" or (ast[0] == "^" and _integer_exponent(ast[2]) == 0):
                 radical = ast[:2] == ["call", "sqrt"]
-                defined, value = _evaluate(ast[2], at)
+                zero_power = ast[0] == "^"
+                index = 1 if zero_power else 2
+                defined, value = _evaluate(ast[index], at)
                 holds_here = bool(defined and (value >= 0 if radical else value != 0))
                 evidence_rows.append(
                     {
                         "source_ref": description["source_ref"],
-                        "ast_path": [*path, 2],
-                        "kind": "radicand_nonnegative"
-                        if radical
-                        else "denominator_nonzero",
+                        "ast_path": [*path, index],
+                        "kind": "zero_power_base_nonzero" if zero_power else
+                        "radicand_nonnegative" if radical else "denominator_nonzero",
                         "basis_refs": [
-                            "square-root-expression#meaning"
-                            if radical
-                            else "rational-expression#meaning"
+                            "integer-power#zero-exponent" if zero_power else
+                            "square-root-expression#meaning" if radical else "rational-expression#meaning"
                         ],
                         "holds": holds_here,
                     }

@@ -4,6 +4,7 @@ import secrets
 import shutil
 import time
 
+import pytest
 from PIL import Image
 
 from shuxueshuo_server.problem_understanding.workflow_ledger import save
@@ -14,25 +15,25 @@ from tests.search.function_domain_recording import RECORDING, revalidate_recordi
 from tests.search.support import authenticated_client, session_for
 
 
-def seed_photo_recording(root):
+def seed_photo_recording(root, *, recording=RECORDING, problem_id="function-concepts-q15"):
     session = session_for(root)
     page_id, search_id = secrets.token_hex(6), secrets.token_hex(6)
     session.search_id = search_id
     directory = root / "submissions" / search_id
     directory.mkdir(parents=True)
-    result = revalidate_recording()
+    result = revalidate_recording(recording, problem_id=problem_id)
     save(directory / dev_api.RESULT_FILE, result)
-    with Image.open(RECORDING / "question.png") as image:
+    with Image.open(recording / "question.png") as image:
         size = list(image.size)
     save(directory / "crop.json", {
         "page_id": page_id, "box": [0, 0, 1, 1],
-        "crop_size": size, "bytes": (RECORDING / "question.png").stat().st_size,
+        "crop_size": size, "bytes": (recording / "question.png").stat().st_size,
     })
     for name in ("question.png", "original.png"):
-        shutil.copyfile(RECORDING / "question.png", directory / name)
+        shutil.copyfile(recording / "question.png", directory / name)
     page = root / "pages" / page_id
     page.mkdir(parents=True)
-    shutil.copyfile(RECORDING / "question.png", page / "page.png")
+    shutil.copyfile(recording / "question.png", page / "page.png")
     session.repository.register_page(session.user, page_id, {})
     session.repository.create_submission(session.user, search_id, page_id, [0, 0, 1, 1])
     assert session.repository.associate(search_id, build_identity(result))
@@ -45,11 +46,15 @@ def forbidden(*args, **kwargs):
     raise AssertionError("recorded API replay must not call a model")
 
 
-def test_photo_domain_starts_verified_lesson_and_reopens_without_reexecution(tmp_path, monkeypatch):
+@pytest.mark.parametrize("problem_id,recording", [
+    ("function-concepts-q15", RECORDING),
+    ("function-concepts-q01", RECORDING.parent / "q01-recorded-20261026"),
+])
+def test_photo_domain_starts_verified_lesson_and_reopens_without_reexecution(tmp_path, monkeypatch, problem_id, recording):
     monkeypatch.setattr("shuxueshuo_server.problem_understanding.batch_smoke.live_provider_factory", forbidden)
     monkeypatch.setattr(dev_api, "run_question_image", forbidden)
     root = tmp_path / "private-search"
-    _session, directory = seed_photo_recording(root)
+    _session, directory = seed_photo_recording(root, recording=recording, problem_id=problem_id)
     base = f"/api/search/problems/{directory.name}"
     with authenticated_client(root) as client:
         first = client.get(base)

@@ -2164,6 +2164,20 @@
       "conditions": {}
     },
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "61d3ac2c1906bdf3da7eea92#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "discriminant",
@@ -2254,6 +2268,20 @@
       "problem": "function-concepts-q15",
       "route": "domain-intersection",
       "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "61d3ac2c1906bdf3da7eea92#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
       "conditions": {}
     },
     {
@@ -2949,6 +2977,10 @@
     {
       "topic": "function-concepts",
       "problem": "function-concepts-q15"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01"
     }
   ],
   "function-concept": [
@@ -2958,12 +2990,26 @@
       "route": "domain-intersection",
       "step": "D1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "D1",
+      "conditions": {}
     }
   ],
   "rational-expression": [
     {
       "topic": "function-concepts",
       "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
       "route": "domain-intersection",
       "step": "D1",
       "conditions": {}
@@ -2985,6 +3031,13 @@
       "route": "domain-intersection",
       "step": "D3",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "D3",
+      "conditions": {}
     }
   ],
   "method-domain-intersection#extract": [
@@ -3000,6 +3053,20 @@
       "problem": "function-concepts-q15",
       "route": "domain-intersection",
       "step": "7c0cd721b55d7844c7e1e3b5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "1a09655b160bdf0ae0c4a66a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "115ac47817ccd589498d0049#1",
       "conditions": {}
     }
   ],
@@ -3024,6 +3091,27 @@
       "route": "domain-intersection",
       "step": "7447f26b4132dc87eecebede#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "1a09655b160bdf0ae0c4a66a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "115ac47817ccd589498d0049#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
+      "conditions": {}
     }
   ],
   "rational-expression#meaning": [
@@ -3046,6 +3134,27 @@
       "problem": "function-concepts-q15",
       "route": "domain-intersection",
       "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "1a09655b160bdf0ae0c4a66a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "115ac47817ccd589498d0049#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
       "conditions": {}
     }
   ],
@@ -3079,6 +3188,13 @@
       "route": "domain-intersection",
       "step": "41bb4433ec8f428e19b74f81#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "61d3ac2c1906bdf3da7eea92#1",
+      "conditions": {}
     }
   ],
   "inequality-properties#addition": [
@@ -3094,6 +3210,20 @@
       "problem": "function-concepts-q15",
       "route": "domain-intersection",
       "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "61d3ac2c1906bdf3da7eea92#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
       "conditions": {}
     }
   ],
@@ -3111,6 +3241,20 @@
       "route": "domain-intersection",
       "step": "7447f26b4132dc87eecebede#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "61d3ac2c1906bdf3da7eea92#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
+      "conditions": {}
     }
   ],
   "method-domain-intersection#verify": [
@@ -3119,6 +3263,13 @@
       "problem": "function-concepts-q15",
       "route": "domain-intersection",
       "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
       "conditions": {}
     }
   ],
@@ -3129,6 +3280,13 @@
       "route": "domain-intersection",
       "step": "7447f26b4132dc87eecebede#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
+      "conditions": {}
     }
   ],
   "interval-notation#finite": [
@@ -3137,6 +3295,45 @@
       "problem": "function-concepts-q15",
       "route": "domain-intersection",
       "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
+      "conditions": {}
+    }
+  ],
+  "integer-power": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "D1",
+      "conditions": {}
+    }
+  ],
+  "integer-power#zero-exponent": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "1a09655b160bdf0ae0c4a66a#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "115ac47817ccd589498d0049#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q01",
+      "route": "domain-intersection",
+      "step": "a74a6c6291a12d04fdc31818#1",
       "conditions": {}
     }
   ],

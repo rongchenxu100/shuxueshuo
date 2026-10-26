@@ -423,6 +423,9 @@
         },
         "has_division": {
           "type": "boolean"
+        },
+        "has_zero_power": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false

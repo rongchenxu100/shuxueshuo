@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "content_version": "796d05236b54cba66cd9f7ad0fc09ded67959e4cef0af9fa865411bd13fa9f07",
+  "content_version": "32dd1d8a3c7f123ad379dda7ae2c0592480a34751761bc4c19085aec3fbab21f",
   "counts": {
-    "nodes": 92,
-    "edges": 285,
-    "problems": 40,
-    "routes": 51,
-    "steps": 266,
+    "nodes": 93,
+    "edges": 288,
+    "problems": 41,
+    "routes": 52,
+    "steps": 273,
     "tips": 219,
     "drills": 177,
     "drill_nodes": 29,

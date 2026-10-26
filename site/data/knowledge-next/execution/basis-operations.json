@@ -125,6 +125,9 @@
     "domain_denominator_conditions": [
       "rational-expression#meaning"
     ],
+    "domain_zero_power_conditions": [
+      "integer-power#zero-exponent"
+    ],
     "domain_unrestricted_expression": [
       "function-concept#elements"
     ]

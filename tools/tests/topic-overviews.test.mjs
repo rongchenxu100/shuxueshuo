@@ -123,13 +123,31 @@ test('overview prefers original problem statement over short labels', () => {
     types: [topic.groups[0].type],
   };
   // Planned types cannot publish practice; mark active for overview rendering only.
-  nodes.find(node => node.id === topic.groups[0].type).status = 'active';
-  const page = topicOverviewOutputs([topic], nodes, indexHtml).get('topics/function-concepts/index.html');
+  const activeNodes = nodes.map(node => node.id === topic.groups[0].type ? {...node, status:'active'} : node);
+  const page = topicOverviewOutputs([topic], activeNodes, indexHtml).get('topics/function-concepts/index.html');
   assert.match(page, /data-problem-id="function-concepts-q15"/);
   assert.match(page, /定义域为/);
   assert.doesNotMatch(page, /problem-stem">求函数的定义域 · Q15/);
   assert.ok(page.includes('katex') || page.includes('\\frac') === false);
   assert.ok(page.indexOf('class="bank"') < page.indexOf('id="knowledge-map"'));
+});
+
+test('real topic lists Q15 then Q01 with distinct original formulas and shared domain grouping', async () => {
+  const ids = ['function-concepts-q15', 'function-concepts-q01'];
+  assert.deepEqual(currentTopic.groups.find(group => group.id === 'domain').problems, ids);
+  assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids].sort());
+  const page = (await generateTopicOverviews()).get('topics/function-concepts/index.html');
+  assert.equal((page.match(/data-problem-id=/g) || []).length, 2);
+  assert.ok(page.indexOf(`data-problem-id="${ids[0]}"`) < page.indexOf(`data-problem-id="${ids[1]}"`));
+  for (const suffix of ['q15', 'q01']) {
+    assert.match(page, new RegExp(`href="/topics/function-concepts/${suffix}/"`));
+    assert.equal(currentTopic.problems[`function-concepts-${suffix}`].runtime, 'graph-walk');
+  }
+  assert.match(page, /x\+4/);
+  assert.match(page, /x\^2-1/);
+  assert.match(page, /sqrt\{x-1\}/);
+  assert.match(page, /5 个题型 · 2 道题/);
+  assert.ok(currentTopic.groups.filter(group => group.id !== 'domain').every(group => group.problems.length === 0));
 });
 
 test('topic builder is deterministic and check mode reports staleness without writing', async t => {

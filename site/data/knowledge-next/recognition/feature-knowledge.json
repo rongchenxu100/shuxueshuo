@@ -179,6 +179,29 @@
       "fragment_kinds": [
         "expression"
       ]
+    },
+    {
+      "rule_id": "domain-zero-power",
+      "ref": "integer-power#zero-exponent",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "find_domain"
+          },
+          {
+            "feature_id": "function_domain",
+            "op": "eq",
+            "path": "has_zero_power",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "expression"
+      ]
     }
   ]
 }

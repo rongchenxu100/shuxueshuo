@@ -104,15 +104,30 @@ def test_direct_publishing_rejects_invalid_graph_before_transaction(invalid):
 
 
 def test_shared_export_has_complete_next_content(authored):
-    assert len(authored['practice_problems']) == 40
-    assert len(authored['practice_routes']) == 51
-    assert len(authored['practice_steps']) == 266
-    assert len(authored['knowledge_nodes']) == 92
+    assert len(authored['practice_problems']) == 41
+    assert len(authored['practice_routes']) == 52
+    assert len(authored['practice_steps']) == 273
+    assert len(authored['knowledge_nodes']) == 93
     assert len(authored['knowledge_drill_items']) == 177
     assert authored['_meta']['counts']['eligible_drill_nodes'] == 16
     assert len({q['item_id'] for q in authored['knowledge_drill_items']}) == 177
     assert len([q for q in authored['knowledge_drill_items'] if q['node_id'] == 'amgm-formula']) == 1
     assert len(set(validate_graph(authored['knowledge_nodes'], authored['knowledge_edges']).values())) == 9
+    domain_ids = {'function-concepts-q15', 'function-concepts-q01'}
+    assert {row['problem_id'] for row in authored['practice_topic_problems']
+            if row['topic_id'] == 'function-concepts'} == domain_ids
+    for problem_id, basis in (
+        ('function-concepts-q15', 'square-root-expression#meaning'),
+        ('function-concepts-q01', 'integer-power#zero-exponent'),
+    ):
+        problem = next(row for row in authored['practice_problems'] if row['id'] == problem_id)
+        contract = problem['problem_data']['_graph_walk']
+        assert contract['problemId'] == problem_id
+        assert list(contract['routes']) == ['domain-intersection']
+        assert len(contract['routes']['domain-intersection']['steps']) == 4
+        steps = [row for row in authored['practice_steps'] if row['problem_id'] == problem_id]
+        assert len(steps) == 7
+        assert any(basis in step['refs'] for step in steps)
 
 
 @pytest.mark.parametrize('change', ['missing_entry', 'missing_resource', 'unmapped_tip', 'wrong_method_kind', 'invalid_answer', 'version'])

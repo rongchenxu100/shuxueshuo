@@ -694,13 +694,14 @@
       "partial": false,
       "sections": [],
       "members": [
+        "integer-power",
         "rational-expression",
         "square-root-expression",
         "absolute-value-concept",
         "reciprocal-function"
       ],
       "counts": {
-        "knowledge": 4,
+        "knowledge": 5,
         "skill": 0,
         "method": 0,
         "problem_type": 0,
@@ -803,7 +804,7 @@
       "from": "compulsory-1-ch3",
       "to": "junior-knowledge",
       "type": "relation",
-      "count": 4
+      "count": 5
     },
     {
       "from": "compulsory-1-ch2",

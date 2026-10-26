@@ -117,7 +117,7 @@ export function createMathCard(document, step, options = {}) {
   node.append(heading);
   let conclusion = null, caption = null;
   if (step.highlight) {
-    conclusion = highlightBoard(document, step.highlight, ['domain_conditions', 'domain_solutions'].includes(step.display_unit));
+    conclusion = highlightBoard(document, step.highlight, ['domain_locations', 'domain_conditions', 'domain_solutions'].includes(step.display_unit));
     if (step.highlight.layout !== 'merge') caption = conclusion.children[0];
     node.append(conclusion);
     if (!step.highlight.conclusion_only) node.append(derivationDetails(document, step.explanation || ''));

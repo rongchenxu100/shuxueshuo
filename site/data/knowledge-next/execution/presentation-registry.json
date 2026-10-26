@@ -2151,7 +2151,7 @@
     },
     "domain_conditions": {
       "title": "列出有意义的条件",
-      "explanation": "每个根号与分母的条件都必须同时成立。",
+      "explanation": "原式每一处有意义的条件都必须同时成立。",
       "required_bindings": [
         "before",
         "after",

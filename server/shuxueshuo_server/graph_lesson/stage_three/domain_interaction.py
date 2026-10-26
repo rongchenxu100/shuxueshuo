@@ -6,6 +6,7 @@ from copy import deepcopy
 import sympy as sp
 
 from .capabilities.cases import _relation_set, exact_set_equal
+from .domain_presentation import condition_label
 from .domain_visuals import endpoint_checks, number_lines
 from .math_values import latex
 from .trajectory import decode_value
@@ -66,7 +67,7 @@ def compile_domain(seeds, interaction_id):
                 k: deepcopy(row[k])
                 for k in ("source_ref", "ast_path", "condition_id", "basis_refs")
             }
-            kind = "被开方数" if row["kind"] == "radicand_nonnegative" else "分母"
+            kind = condition_label(row["kind"])
             region.update(label=kind, option_value=value)
             regions.append(region)
             options.append(
@@ -78,7 +79,7 @@ def compile_domain(seeds, interaction_id):
         decoy = "o" + str(len(options) + 1)
         options.append({"value": decoy, "label": "只需排除函数值为 0 的输入"})
         if not rows:
-            options.append({"value": "o2", "label": "没有根号或分母带来的限制"})
+            options.append({"value": "o2", "label": "原式没有额外的输入限制"})
             required = ["o2"]
         else:
             required = [r["option_value"] for r in regions]
@@ -154,7 +155,7 @@ def compile_domain(seeds, interaction_id):
                         },
                     ]
                 label = (
-                    ("被开方数" if row["kind"] == "radicand_nonnegative" else "分母")
+                    condition_label(row["kind"])
                     + " "
                     + _math(condition.lhs)
                 )
@@ -187,7 +188,11 @@ def compile_domain(seeds, interaction_id):
             else "每个条件分别得到什么解集？",
             interaction={"type": "checklist", "title": "逐条判断", "slots": slots},
             expected_answer={"terms": terms},
-            feedback={"terms": "根号允许被开方数为 0；分母必须排除 0。"},
+            feedback={"terms": "；".join(dict.fromkeys({
+                "radicand_nonnegative": "根号允许被开方数为 0",
+                "denominator_nonzero": "分母必须排除 0",
+                "zero_power_base_nonzero": "零次幂的底数必须排除 0",
+            }[row["kind"]] for row in rows)) + "。" if rows else "原式没有额外的输入限制。"},
         )
     else:
         correct = values["domain"]

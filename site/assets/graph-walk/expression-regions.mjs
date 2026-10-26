@@ -32,7 +32,10 @@ export function expressionRegionsHTML(source, selected = []) {
     else if (type === 'call' && node[1] === 'sqrt') html = `<span class="gw-expr-root"><span aria-hidden="true">√</span><span>${child(2)}</span></span>`;
     else if (['+', '-', '*'].includes(type)) html = `<span class="gw-expr-binary">${at.length ? '(' : ''}${child(1)}<span>${type === '*' ? '·' : type === '-' ? '−' : '+'}</span>${child(2)}${at.length ? ')' : ''}</span>`;
     else if (type === 'neg') html = `<span>−${child(1)}</span>`;
-    else if (type === '^') html = `<span>${child(1)}<sup>${child(2)}</sup></span>`;
+    else if (type === '^') {
+      const group = ['neg', '^', '/'].includes(node[1]?.[0]) || node[1]?.[0] === 'number' && String(node[1][1]).startsWith('-');
+      html = `<span>${group ? '(' : ''}${child(1)}${group ? ')' : ''}<sup>${child(2)}</sup></span>`;
+    }
     else throw Error('expression_regions.unsupported_ast');
     const related = regions.get(key(at)) || [];
     const active = related.filter(region => selected.includes(region.option_value || region.condition_id));

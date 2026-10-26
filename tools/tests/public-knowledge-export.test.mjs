@@ -28,11 +28,12 @@ test('release checks execute through a symlinked source directory', async () => 
 });
 
 test('structured export contains current ontology and private drills without HTML rendering', () => {
-  assert.equal(data.knowledge_nodes.length, 92);
+  assert.equal(data.knowledge_nodes.length, 93);
   assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
-  assert.equal(data.practice_routes.length, 51);
-  assert.equal(data.practice_steps.length, 266);
+  assert.equal(data.practice_problems.length, 41);
+  assert.equal(data.practice_routes.length, 52);
+  assert.equal(data.practice_steps.length, 273);
   assert.equal(data.knowledge_drill_items.length, 177);
   assert.equal(new Set(data.knowledge_drill_items.map((q) => q.item_id)).size, 177);
   assert.equal(data.knowledge_drill_items.filter((q) => q.node_id === 'amgm-formula').length, 1);
@@ -41,18 +42,30 @@ test('structured export contains current ontology and private drills without HTM
   assert.ok(data.knowledge_edges.some((e) => e.occurrences.length > 1));
 });
 
-test('chapter 3.1 exposes only its verified representative and keeps other types planned', () => {
+test('chapter 3.1 exposes both domain courses with their own knowledge sources and keeps other types planned', () => {
   const topic = data.practice_topics.find((row) => row.id === 'function-concepts');
   assert.equal(topic.label, '函数的概念');
   assert.equal(topic.path, '/topics/function-concepts/');
   assert.equal(topic.groups.length, 5);
-  assert.deepEqual(topic.groups.find((group) => group.id === 'domain').problems, ['function-concepts-q15']);
+  const ids = ['function-concepts-q15', 'function-concepts-q01'];
+  assert.deepEqual(topic.groups.find((group) => group.id === 'domain').problems, ids);
   assert.ok(topic.groups.filter((group) => group.id !== 'domain').every((group) => group.problems.length === 0));
-  assert.equal(data.practice_topic_problems.filter((row) => row.topic_id === topic.id).length, 1);
-  const representative = data.practice_problems.find((row) => row.id === 'function-concepts-q15');
-  assert.equal(representative.problem_data._graph_walk.schema, 'graph-walk-practice/v1');
-  assert.equal(data.practice_steps.filter((row) => row.problem_id === representative.id).length, 7);
-  assert.ok(data.practice_problem_types.some((row) => row.problem_id === representative.id && row.node_id === 'type-function-domain'));
+  assert.deepEqual(data.practice_topic_problems.filter((row) => row.topic_id === topic.id).map(row => row.problem_id).sort(), [...ids].sort());
+  for (const [id, basis] of [[ids[0], 'square-root-expression#meaning'], [ids[1], 'integer-power#zero-exponent']]) {
+    const problem = data.practice_problems.find((row) => row.id === id);
+    const course = problem.problem_data._graph_walk;
+    assert.equal(course.schema, 'graph-walk-practice/v1');
+    assert.equal(course.problemId, id);
+    assert.deepEqual(Object.keys(course.routes), ['domain-intersection']);
+    assert.deepEqual(course.intro.map(step => step.id), ['D1', 'D2', 'D3']);
+    assert.equal(course.routes['domain-intersection'].steps.length, 4);
+    const regions = course.routes['domain-intersection'].steps[0].source_regions.regions;
+    assert.deepEqual(regions.flatMap(region => region.basis_refs).sort(), [basis, 'rational-expression#meaning'].sort());
+    const steps = data.practice_steps.filter((row) => row.problem_id === id);
+    assert.equal(steps.length, 7);
+    assert.ok(steps.some(step => step.refs.includes(basis)), `${id} exports its own mathematical basis`);
+    assert.ok(data.practice_problem_types.some((row) => row.problem_id === id && row.node_id === 'type-function-domain'));
+  }
   const types = data.knowledge_nodes.filter((node) => node.body.status === 'planned');
   assert.equal(types.length, 4);
   for (const type of types) {

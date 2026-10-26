@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"1. 函数 $y=(x+4)^0\\\\frac{x^2-1}{x-1}$ 的定义域是 ______。\",\"root\":{\"definitions\":[\"f(x)=(x+4)^0*(x^2-1)/(x-1)\"],\"goals\":[{\"kind\":\"find_domain\",\"object\":\"f\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $y=(x+4)^0\\\\frac{x^2-1}{x-1}$ 的定义域是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1022,
+      "prompt_tokens": 9313,
+      "total_tokens": 10335,
+      "prompt_cache_hit_tokens": 8960,
+      "prompt_cache_miss_tokens": 353
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 450,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-eb7f10f7-1c7f-43c8-9b87-b9d8a47c38d2",
+        "sha256": "d0882cf0c523a8f4773276d4e02e49d7fa03603fac6f604a284d690195a34405",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 19162,
+        "expires_at": 1793106578,
+        "uploaded_at": 1793020178.5801501
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "d0882cf0c523a8f4773276d4e02e49d7fa03603fac6f604a284d690195a34405",
+        "api_calls": 1,
+        "file_id": "file-api-eb7f10f7-1c7f-43c8-9b87-b9d8a47c38d2",
+        "expires_at": 1793106578,
+        "elapsed_ms": 452
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 6879,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1022,
+          "prompt_tokens": 9313,
+          "total_tokens": 10335,
+          "completion_tokens_details": {
+            "reasoning_tokens": 854
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 8960
+          },
+          "prompt_cache_hit_tokens": 8960,
+          "prompt_cache_miss_tokens": 353
+        },
+        "raw_payload": {
+          "id": "47de8b49-64de-4de9-b000-7fe675518ebf",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1022,
+            "prompt_tokens": 9313,
+            "total_tokens": 10335,
+            "completion_tokens_details": {
+              "reasoning_tokens": 854
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 8960
+            },
+            "prompt_cache_hit_tokens": 8960,
+            "prompt_cache_miss_tokens": 353
+          },
+          "created": 1793020178,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"1. 函数 $y=(x+4)^0\\\\frac{x^2-1}{x-1}$ 的定义域是 ______。\",\"root\":{\"definitions\":[\"f(x)=(x+4)^0*(x^2-1)/(x-1)\"],\"goals\":[{\"kind\":\"find_domain\",\"object\":\"f\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $y=(x+4)^0\\\\frac{x^2-1}{x-1}$ 的定义域是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+                "reasoning_content": "我们需要提取题目：图片显示“1. 函数 y=(x+4)^0 * (x^2-1)/(x-1) 的定义域是 ______。” 需要判断表达式：可能是 y = (x+4)^0 · (x^2-1)/(x-1)。需要定义域。题面只写 y=解析式，记作 f(x)=原解析式并以 f 为目标。original_text 要完整。root definitions: f(x)=(x+4)^0*(x^2-1)/(x-1) 还是 (x+4)^0 * 分数？图中是 (x+4)^0 后面分数 \\frac{x^2-1}{x-1}，乘法。需要保留原解析式，不化简。定义域目标 find_domain object f。注意函数是 y=... 没有给 f，可以记作 f(x)=原解析式。不要化简。\n\n需要 original_text 转录：1. 函数 $y=(x+4)^0 \\frac{x^2-1}{x-1}$ 的定义域是 ______。 需要用 $...$。图片有题号 1. 这是试卷题号，可以保留原文？ original_text 保留完整题干，包括题号？ 是的转录题干，保留题号没问题。public_content 不包含来源题号等；公开题干 statement 不含题号。 root.label 可以省略，或者 \"1\"？ 题号不是题意，若存在可 label source? 但可以省略 label。public_content root scope statement 只写题目自身。completeness complete。figure not_required。privacy separated？ 图片只有题目和题号，无姓名等。题号属于来源/试卷题号，可以在公开字段去掉。separated 可以。public_content scopes 一个 root，statement 为“函数 $y=(x+4)^0 \\frac{x^2-1}{x-1}$ 的定义域是 ______。” 注意 choices status none。\n\nroot definitions 应该用受控数学字符串: f(x)=(x+4)^0*(x^2-1)/(x-1)。不要用 $。目标 {\"kind\":\"find_domain\",\"object\":\"f\"}。 input_domain 未明确另给，省略。uncertainties? 表达式 (x+4)^0 是零次幂，底数不能为0；但求定义域问题保留原式。无需 uncertainty。可能根号没有。原式中的 0 是上标，没问题。\n\npublic_content statement 公式用 $…$，需 LaTeX。原式：$y=(x+4)^0\\frac{x^2-1}{x-1}$。注意分母 x-1。这题要求定义域是 ______。\n\n注意 original_text 中 “1. 函数 ...” 题号属于题面，可以保留。若题号在公开中去掉。privacy separated？题号不是隐私。source? 可以不加 label。\n\npublic_content.scopes[0].scope_ref = \"/root\"; statement 不含题号。choices target_ref \"/root/goals/0\"; status \"none\"; selection_mode \"none\"; options [].\n\ncompleteness complete。figure not_required。privacy separated。root_label_role 不填，因为没有 label。\n\n需要检查是否 public_content 不包含题号。可以。\n\nJSON 输出。确保 original_text 中的反斜杠转义。用 LaTeX：$y=(x+4)^0\\\\frac{x^2-1}{x-1}$。JSON 字符串里 \\f 需要写成 \\\\frac。公式括起来。original_text 完整包括中文。注意空格。定义域是 ______。题号“1.”。 \n\nroot definitions 字符串不能包含 $ 或反斜杠。受控记法：f(x)=(x+4)^0*(x^2-1)/(x-1)。注意 (x^2-1)/(x-1) 等价分数；乘法显式 *。可以。\n\n需要不要输出额外字段。好的。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 7333
+  },
+  "raw_payload": {
+    "id": "47de8b49-64de-4de9-b000-7fe675518ebf",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"1. 函数 $y=(x+4)^0\\\\frac{x^2-1}{x-1}$ 的定义域是 ______。\",\"root\":{\"definitions\":[\"f(x)=(x+4)^0*(x^2-1)/(x-1)\"],\"goals\":[{\"kind\":\"find_domain\",\"object\":\"f\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $y=(x+4)^0\\\\frac{x^2-1}{x-1}$ 的定义域是 ______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要提取题目：图片显示“1. 函数 y=(x+4)^0 * (x^2-1)/(x-1) 的定义域是 ______。” 需要判断表达式：可能是 y = (x+4)^0 · (x^2-1)/(x-1)。需要定义域。题面只写 y=解析式，记作 f(x)=原解析式并以 f 为目标。original_text 要完整。root definitions: f(x)=(x+4)^0*(x^2-1)/(x-1) 还是 (x+4)^0 * 分数？图中是 (x+4)^0 后面分数 \\frac{x^2-1}{x-1}，乘法。需要保留原解析式，不化简。定义域目标 find_domain object f。注意函数是 y=... 没有给 f，可以记作 f(x)=原解析式。不要化简。\n\n需要 original_text 转录：1. 函数 $y=(x+4)^0 \\frac{x^2-1}{x-1}$ 的定义域是 ______。 需要用 $...$。图片有题号 1. 这是试卷题号，可以保留原文？ original_text 保留完整题干，包括题号？ 是的转录题干，保留题号没问题。public_content 不包含来源题号等；公开题干 statement 不含题号。 root.label 可以省略，或者 \"1\"？ 题号不是题意，若存在可 label source? 但可以省略 label。public_content root scope statement 只写题目自身。completeness complete。figure not_required。privacy separated？ 图片只有题目和题号，无姓名等。题号属于来源/试卷题号，可以在公开字段去掉。separated 可以。public_content scopes 一个 root，statement 为“函数 $y=(x+4)^0 \\frac{x^2-1}{x-1}$ 的定义域是 ______。” 注意 choices status none。\n\nroot definitions 应该用受控数学字符串: f(x)=(x+4)^0*(x^2-1)/(x-1)。不要用 $。目标 {\"kind\":\"find_domain\",\"object\":\"f\"}。 input_domain 未明确另给，省略。uncertainties? 表达式 (x+4)^0 是零次幂，底数不能为0；但求定义域问题保留原式。无需 uncertainty。可能根号没有。原式中的 0 是上标，没问题。\n\npublic_content statement 公式用 $…$，需 LaTeX。原式：$y=(x+4)^0\\frac{x^2-1}{x-1}$。注意分母 x-1。这题要求定义域是 ______。\n\n注意 original_text 中 “1. 函数 ...” 题号属于题面，可以保留。若题号在公开中去掉。privacy separated？题号不是隐私。source? 可以不加 label。\n\npublic_content.scopes[0].scope_ref = \"/root\"; statement 不含题号。choices target_ref \"/root/goals/0\"; status \"none\"; selection_mode \"none\"; options [].\n\ncompleteness complete。figure not_required。privacy separated。root_label_role 不填，因为没有 label。\n\n需要检查是否 public_content 不包含题号。可以。\n\nJSON 输出。确保 original_text 中的反斜杠转义。用 LaTeX：$y=(x+4)^0\\\\frac{x^2-1}{x-1}$。JSON 字符串里 \\f 需要写成 \\\\frac。公式括起来。original_text 完整包括中文。注意空格。定义域是 ______。题号“1.”。 \n\nroot definitions 字符串不能包含 $ 或反斜杠。受控记法：f(x)=(x+4)^0*(x^2-1)/(x-1)。注意 (x^2-1)/(x-1) 等价分数；乘法显式 *。可以。\n\n需要不要输出额外字段。好的。"
+        }
+      }
+    ],
+    "created": 1793020178,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+    "usage": {
+      "completion_tokens": 1022,
+      "prompt_tokens": 9313,
+      "total_tokens": 10335,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 854,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 8960
+      },
+      "prompt_cache_hit_tokens": 8960,
+      "prompt_cache_miss_tokens": 353
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 7.334
+}
