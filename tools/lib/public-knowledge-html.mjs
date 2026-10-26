@@ -1,5 +1,5 @@
 import {createRequire} from 'node:module';
-import {KINDS, RELATIONS, VIEWS, splitRef, nodeHref, chapterPath, chapterTag, inheritedKnowledge, scopeMembers} from '../../site/assets/knowledge-next/model.mjs';
+import {KINDS, RELATIONS, VIEWS, splitRef, nodeHref, chapterPath, groupPath, chapterTag, lifecycleLabel, inheritedKnowledge, scopeMembers} from '../../site/assets/knowledge-next/model.mjs';
 import {strandColor} from '../../site/assets/knowledge-next/city.mjs';
 import {wrapLabel} from '../../site/assets/knowledge-next/layout.mjs';
 import {escapeHtml as h} from '../../site/assets/knowledge-next/resource-links.mjs';
@@ -24,8 +24,14 @@ export function textHtml(text, {legacy = false} = {}) {
   }).join('');
 }
 const paragraphs = texts => (texts || []).map(t => `<p>${textHtml(t)}</p>`).join('');
+const entryBody = texts => {
+  if (texts?.length >= 2 && texts.every(t => /^\d+\.\s/.test(t))) {
+    return `<ol class="entry-points">${texts.map(t => `<li>${textHtml(t.replace(/^\d+\.\s/, ''))}</li>`).join('')}</ol>`;
+  }
+  return paragraphs(texts);
+};
 const jsonScript = data => JSON.stringify(data).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028');
-const badge = n => `<span class="kind-badge" data-kind="${n.kind}">${KINDS[n.kind]}${n.subtype ? ` · ${n.subtype === 'method_selection' ? '选法规则':'步骤选择规则'}` : ''}</span>`;
+const badge = n => `${lifecycleLabel(n) ? `<span class="lifecycle-badge" data-status="${n.status}">${lifecycleLabel(n)}</span>` : ''}<span class="kind-badge" data-kind="${n.kind}">${KINDS[n.kind]}${n.subtype ? ` · ${n.subtype === 'method_selection' ? '选法规则':'步骤选择规则'}` : ''}</span>`;
 
 const GRAPH_ICON = '<svg viewBox="0 0 48 48" width="32" height="32"><path d="M11 25 24 12M11 25l13 13M24 12l13 13M24 38l13-13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="25" r="5" fill="currentColor"/><circle cx="24" cy="12" r="4.5" fill="#fff" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="38" r="4.5" fill="#fff" stroke="currentColor" stroke-width="2"/><rect x="31.5" y="19.5" width="11" height="11" rx="3" fill="#e2a43b"/></svg>';
 const crumbs = (...parts) => `<p class="eyebrow">${parts.map((p, i) => `${i ? '<span class="eyebrow-sep" aria-hidden="true">/</span>' : ''}${p}`).join('')}</p>`;
@@ -39,23 +45,25 @@ export function shell(title, content, extra = '', bodyClass = '', footer = true,
 ${content}<script type="module" src="/assets/knowledge-next/learning.mjs"></script>${footer ? '<div class="workspace"><footer class="chapter-footer"><span>数学说 · 高中数学公共知识图谱</span></footer></div>' : ''}</body></html>\n`;
 }
 
-const ORG = ['textbook','chapter','section'];
+const ORG = ['textbook','chapter','section','collection'];
 
 export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
   const byId = new Map(nodes.map(n => [n.id,n]));
   const graph = {nodes,edges,defaultScope:manifest.defaultScope};
-  const chapterById = new Map(chapters.map(c => [c.id,c])), cityChapter = new Map(city.chapters.map(c => [c.id,c]));
+  const allGroups = [...chapters, ...(city.collections || [])];
+  const chapterById = new Map(allGroups.map(c => [c.id,c])), cityChapter = new Map([...city.chapters, ...(city.collections || [])].map(c => [c.id,c]));
   const homeOf = id => chapterById.get(homes.get(id));
   const status = c => c.built ? '已录入' : c.partial ? '部分录入' : '建设中';
   const statusClass = c => c.built ? 'is-built' : c.partial ? 'is-partial' : 'is-ghost';
   const crossLinks = id => city.links.filter(l => l.type === 'relation' && (l.from === id || l.to === id)).map(l => ({other: chapterById.get(l.from === id ? l.to : l.from), count: l.count}));
-  const chapterLink = (c, note = '') => c.recorded ? `<a class="kx-chapter-link" href="${chapterPath(c.id)}">${h(chapterTag(c))} ${h(c.label)}${note}</a>` : `<span class="kx-chapter-link">${h(chapterTag(c))} ${h(c.label)}${note}</span>`;
+  const groupLabel = c => c.kind === 'collection' ? c.label : `${chapterTag(c)} ${c.label}`;
+  const chapterLink = (c, note = '') => c.recorded ? `<a class="kx-chapter-link" href="${groupPath(c)}">${h(groupLabel(c))}${note}</a>` : `<span class="kx-chapter-link">${h(groupLabel(c))}${note}</span>`;
   // Textbook, chapter and section pages live on the chapter graph, so links to them go there directly.
   const pageHref = ref => {
     const {id} = splitRef(ref), n = byId.get(id);
     if (!ORG.includes(n.kind)) return nodeHref(ref);
     const c = homeOf(id);
-    return !c ? '/knowledge/' : n.kind === 'chapter' ? chapterPath(c.id) : `${chapterPath(c.id)}?scope=${id}`;
+    return !c ? '/knowledge/' : n.kind === 'chapter' ? groupPath(c) : `${groupPath(c)}?scope=${id}`;
   };
   const nodeAttr = n => ORG.includes(n.kind) ? '' : ' data-node-link';
   const link = (ref, label) => { const {id,entry} = splitRef(ref), n = byId.get(id); return `<a${nodeAttr(n)} href="${pageHref(ref)}">${h(label || n.label)}${entry && !label ? ` · ${h(n.entries?.find(e=>e.id===entry)?.title || n.operations?.find(e=>e.id===entry)?.title || entry)}`:''}</a>`; };
@@ -64,13 +72,14 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
   const anchorTitle = (n, entry) => [...(n.entries || []), ...(n.operations || []), ...(n.steps || [])].find(e => e.id === entry)?.title || entry;
   const chip = (ref, here, withEntry = false) => {
     const {id, entry} = splitRef(ref), n = byId.get(id), c = homeOf(id), away = here && c && c.id !== here && !ORG.includes(n.kind);
-    return `<a class="node-chip" data-kind="${n.kind}"${nodeAttr(n)} href="${pageHref(ref)}"><i aria-hidden="true"></i>${h(n.label)}${withEntry && entry ? ` · ${h(anchorTitle(n, entry))}` : ''}${away ? `<small>${h(c.book)}·${c.number}章</small>` : ''}</a>`;
+    return `<a class="node-chip" data-kind="${n.kind}"${nodeAttr(n)} href="${pageHref(ref)}"><i aria-hidden="true"></i>${h(n.label)}${withEntry && entry ? ` · ${h(anchorTitle(n, entry))}` : ''}${away ? `<small>${c.kind === 'collection' ? h(c.label) : `${h(c.book)}·${c.number}章`}</small>` : ''}</a>`;
   };
-  const directory = (list, tagged) => `<ul class="node-directory">${list.map(n => `<li data-directory-node="${n.id}">${badge(n)}${tagged ? homeTag(n) : ''}${link(n.id)}<p>${h(n.summary)}</p></li>`).join('')}</ul>`;
-  const groups = (list = nodes) => Object.entries(KINDS).filter(([kind])=>list.some(n=>n.kind===kind)).map(([kind,label])=>`<section id="kind-${kind}"><h2>${label} <span class="count">${list.filter(n=>n.kind===kind).length}</span></h2>${directory(list.filter(n=>n.kind===kind), true)}</section>`).join('');
+  const directory = (list, tagged) => `<ul class="node-directory">${list.map(n => `<li data-directory-node="${n.id}" data-home="${homes.get(n.id) || ''}" data-search="${h([n.label,...(n.aliases || [])].join(' '))}">${badge(n)}${tagged ? homeTag(n) : ''}${link(n.id)}<p>${textHtml(n.summary)}</p></li>`).join('')}</ul>`;
+  const groups = (list = nodes) => Object.entries(KINDS).filter(([kind])=>list.some(n=>n.kind===kind)).map(([kind,label])=>`<section id="kind-${kind}" data-directory-kind="${kind}"><h2>${label} <span class="count">${list.filter(n=>n.kind===kind).length}</span></h2>${directory(list.filter(n=>n.kind===kind), true)}</section>`).join('');
   const kindOrder = Object.keys(KINDS), byKind = list => [...list].sort((a, b) => kindOrder.indexOf(a.kind) - kindOrder.indexOf(b.kind));
   // Each node is listed under the first section that reaches it; later sections cite it instead of repeating the card.
   function sectionDirectory(c, own) {
+    if (c.kind === 'collection') return directory(own, false);
     const placed = new Set();
     const parts = c.sections.map(s => {
       const members = scopeMembers(graph, s.id), all = own.filter(n => members.has(n.id)), fresh = all.filter(n => !placed.has(n.id));
@@ -86,7 +95,7 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
     if (!c) return '/knowledge/';
     const scope = ORG.includes(n.kind) ? n.id : c.sections.find(s=>scopeMembers(graph,s.id).has(n.id))?.id || c.node;
     const view = ORG.includes(n.kind) ? 'curriculum' : n.kind==='knowledge' ? 'knowledge' : 'solution';
-    return `${chapterPath(c.id)}?scope=${scope}&view=${view}&node=${n.id}&expand=${n.id}`;
+    return `${groupPath(c)}?scope=${scope}&view=${view}&node=${n.id}&expand=${n.id}`;
   }
   // Every relation except prerequisite points from the node that relies on something to the thing it relies on.
   const SHORT = {knowledge: '知识', skill: '技能', method: '方法', problem_type: '题型', judgment_rule: '判断'};
@@ -133,6 +142,7 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
   }
   const branchList = (rule, here) => `<ul class="branch-list">${rule.branches.map(b => `<li><span>${textHtml(b.condition)}</span><b aria-hidden="true">→</b>${chip(b.target, here)}</li>`).join('')}</ul>`;
   function choose(n) {
+    if (n.status === 'planned') return '<section id="choose"><h2>题型建设中</h2><p>已整理题型特征和知识依据，方法、交互练习及拍题能力将在代表题验收后开放。</p></section>';
     const here = homes.get(n.id), rules = (n.rules || []).map(id => byId.get(id)), methods = (n.methods || []).map(id => byId.get(id));
     if (!rules.length && !methods.length) return '';
     return `<section id="choose"><h2>怎么选方法</h2>${rules.map(r => `<div class="choose-rule"><p>用${link(r.id)}来选：满足哪一条，就可以用对应的方法；几条同时满足时，挑顺手的。</p>${branchList(r, here)}</div>`).join('')}${methods.length ? `<h3>可选用的方法</h3><div class="choose-methods">${methods.map(m => `<article class="choose-method"><h4>${chip(m.id, here)}</h4><p class="choose-when"><strong>适合什么题：</strong>${textHtml(m.input)}</p><p>${textHtml(m.summary)}</p></article>`).join('')}</div>` : ''}</section>`;
@@ -164,7 +174,7 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
   }
   function redirect(n) {
     const target = pageHref(n.id);
-    return shell(n.label, `<main id="main" class="workspace"><section class="hero"><h1>${h(n.label)}</h1><p class="lead">这一页已并入知识图谱，正在跳转；如未自动跳转，请<a href="${target}">点这里打开</a>。</p></section></main><script id="node-page-config" type="application/json">${jsonScript({id:n.id,kind:n.kind,redirectHref:target})}</script>`, `<link rel="canonical" href="${target}">${noScriptRedirect(target)}`);
+    return shell(n.label, `<main id="main" class="workspace"><section class="hero"><h1>${h(n.label)}</h1>${lifecycleLabel(n) ? `<p class="lifecycle-badge" data-status="${n.status}">${lifecycleLabel(n)}</p>` : ''}<p class="lead">这一页已并入知识图谱，正在跳转；如未自动跳转，请<a href="${target}">点这里打开</a>。</p></section></main><script id="node-page-config" type="application/json">${jsonScript({id:n.id,kind:n.kind,redirectHref:target})}</script>`, `<link rel="canonical" href="${target}">${noScriptRedirect(target)}`);
   }
   function detailBody(n, resourceHtml = {}, {includeResources = true} = {}) {
     const basis = n.kind==='method' ? inheritedKnowledge(n.id,nodes,edges) : null;
@@ -173,7 +183,7 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
     const placed = entry => placedAfter(entry).map(id => resourceSection(id, resourceHtml[id], true)).join('');
     let body = '';
     if (n.input) { const c = CONTRACT[n.kind]; body+=`<section class="contract" id="contract"><h2>${c.title}</h2><dl><dt>${c.input}</dt><dd>${textHtml(n.input)}</dd><dt>${c.output}</dt><dd>${textHtml(n.output)}</dd><dt>要注意</dt><dd>${textHtml(n.conditions)}</dd></dl></section>`; }
-    if (n.entries) body+=`<section id="entries"><h2>知识条目</h2>${n.entries.map(e=>`<article class="entry" id="${e.id}"><p class="eyebrow">${h(e.type)}</p><h3>${h(e.title)} <a class="anchor" href="#${e.id}" aria-label="定位到${h(e.title)}">#</a></h3>${paragraphs(e.body)}<p class="condition"><strong>成立条件：</strong>${textHtml(e.conditions)}</p>${entryUsers(n, e.id)}</article>${placed(e.id)}`).join('')}</section>`;
+    if (n.entries) body+=`<section id="entries"><h2>知识条目</h2>${n.entries.map(e=>`<article class="entry" id="${e.id}"><p class="eyebrow">${h(e.type)}</p><h3>${h(e.title)} <a class="anchor" href="#${e.id}" aria-label="定位到${h(e.title)}">#</a></h3>${entryBody(e.body)}<p class="condition"><strong>成立条件：</strong>${textHtml(e.conditions)}</p>${e.references?.length ? `<div class="entry-references"><p>相关知识条目</p>${pills(e.references)}</div>` : ''}${entryUsers(n, e.id)}</article>${placed(e.id)}`).join('')}</section>`;
     if (n.operations) body+=`<section id="operations"><h2>操作步骤</h2><ol class="operations">${n.operations.map(o=>`<li id="${o.id}"><h3>${h(o.title)} <a class="anchor" href="#${o.id}">#</a></h3>${paragraphs(o.body)}${placed(o.id)}</li>`).join('')}</ol></section>`;
     if (n.steps) body+=path(n, placed);
     if (n.features) body+=features(n)+choose(n);
@@ -198,7 +208,7 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
     const localLinks = `${n.input?`<li><a href="#contract">${CONTRACT[n.kind].title}</a></li>`:''}${toc.map(a=>`<li><a href="#${a.id}">${h(a.title)}</a></li>${placedAfter(a.id).map(resourceLink).join('')}`).join('')}${n.features?'<li><a href="#features">题型特征</a></li>':''}${n.features&&(n.methods?.length||n.rules?.length)?'<li><a href="#choose">怎么选方法</a></li>':''}${basis?.length?'<li><a href="#basis">背后用到的知识</a></li>':''}${n.pitfalls?.length?'<li><a href="#pitfalls">易错</a></li>':''}${n.examples?.length?`<li><a href="#examples">${n.kind==='method'?'例题':'说明与题例'}</a></li>`:''}${unplaced.map(resourceLink).join('')}`;
     const drill = manifest.drills?.includes(n.id);
     const extra=n.resources?.length ? '<link rel="stylesheet" href="/assets/explain/explain.css?v=1">'+n.resources.map(id=>manifest.resources[id]).filter(r=>r.stylesheet).map(r=>`<link rel="stylesheet" href="${r.stylesheet}?v=${r.version}">`).join('') : '';
-    return shell(n.label,`<main id="main" class="workspace kx-detail"><section class="hero detail-hero" data-kind="${n.kind}">${crumbs('<span>高中数学</span>',...trail,`<span class="kind-text" aria-current="page">${KINDS[n.kind]}${n.subtype ? ` · ${n.subtype === 'method_selection' ? '选法规则':'步骤选择规则'}` : ''}</span>`)}<h1>${h(n.label)}</h1><p class="lead">${h(n.summary)}</p>${n.aliases?.length ? `<p class="aliases">也称：${n.aliases.map(h).join('、')}</p>`:''}${appears.length ? `<p class="appears"><span>出现在</span>${appears.join('')}</p>` : ''}${mapHtml(n, sides)}<div class="detail-actions"><a class="primary-link" data-graph-locate href="${href}">在图谱中查看 ↗</a>${drill ? '<button type="button" class="drill-open" data-drill-open hidden>刷题 · 5 题</button>' : ''}</div></section>
+    return shell(n.label,`<main id="main" class="workspace kx-detail"><section class="hero detail-hero" data-kind="${n.kind}">${crumbs('<span>高中数学</span>',...trail,`<span class="kind-text" aria-current="page">${KINDS[n.kind]}${n.subtype ? ` · ${n.subtype === 'method_selection' ? '选法规则':'步骤选择规则'}` : ''}</span>`)}<h1>${h(n.label)}</h1>${lifecycleLabel(n) ? `<p class="lifecycle-badge" data-status="${n.status}">${lifecycleLabel(n)}</p>` : ''}<p class="lead">${textHtml(n.summary)}</p>${n.aliases?.length ? `<p class="aliases">也称：${n.aliases.map(h).join('、')}</p>`:''}${appears.length ? `<p class="appears"><span>出现在</span>${appears.join('')}</p>` : ''}${mapHtml(n, sides)}<div class="detail-actions"><a class="primary-link" data-graph-locate href="${href}">在图谱中查看 ↗</a>${drill ? '<button type="button" class="drill-open" data-drill-open hidden>刷题 · 5 题</button>' : ''}</div></section>
 <div class="detail-layout"><aside class="detail-toc"><details open><summary>本页目录</summary><ul>${localLinks}</ul></details></aside><article class="detail-body" data-node-id="${n.id}">${body}<p class="source">内容出处：${h(n.source)}</p></article></div></main>
 <script id="node-page-config" type="application/json">${jsonScript({id:n.id,kind:n.kind,label:n.label,entryIds:toc.map(entry=>entry.id),drill,resources:(n.resources || []).map(id=>({id,...manifest.resources[id]})),links:manifest.resourceLinks,labels:Object.fromEntries(nodes.map(n=>[n.id,n.label]))})}</script><script type="module" src="/assets/knowledge-next/detail.mjs"></script>`,extra,'kx-detail-page');
   }
@@ -212,7 +222,7 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
       return `<g class="map-link is-${l.type}" data-a="${l.from}" data-b="${l.to}"><path d="${d}"${l.type === 'outline' ? ' marker-end="url(#map-arrow)"' : ''}/>${badge}<title>${h(chapterTag(chapterById.get(l.from)))} ${l.type === 'outline' ? '→ 先修 →' : `↔ ${l.count} 条节点关联 ↔`} ${h(chapterTag(chapterById.get(l.to)))}</title></g>`;
     }).join('');
     const boxes = city.chapters.map(c => {
-      const b = box.get(c.id), info = chapterById.get(c.id), href = info.recorded ? chapterPath(c.id) : `#chapter-${c.id}`;
+      const b = box.get(c.id), info = chapterById.get(c.id), href = info.recorded ? groupPath(c) : `#chapter-${c.id}`;
       const label = lines(c.label).map((line, i) => `<tspan x="14" dy="${i ? 16 : 0}">${h(line)}</tspan>`).join('');
       return `<a href="${href}" class="map-chapter ${statusClass(c)}" data-map-chapter="${c.id}" style="--kg:${strandColor(city, c.strand)}" aria-label="${h(chapterTag(info))} ${h(c.label)}，${status(c)}"><g transform="translate(${b.x},${b.y})"><rect width="${W}" height="${H}" rx="12"/><text class="map-meta" x="14" y="20">${h(meta(info, c))}</text><text class="map-label" x="14" y="40">${label}</text></g></a>`;
     }).join('');
@@ -230,7 +240,7 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
       return {d: `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`, mid: {x: (x1 + x2) / 2, y: (y1 + y2) / 2}};
     };
     const heads = city.strands.map((s, col) => `<text class="map-strand" x="${PAD + col * (W + GX)}" y="${TOP - 22}" style="--kg:${strandColor(city, s.id)}">${h(s.label)}</text>`).join('');
-    return mapSvg({cls: 'is-wide', box, W, H, width, height, heads, links: city.links, route, meta: (info, c) => `${chapterTag(info)} · ${status(c)}`, lines: label => [label]});
+    return mapSvg({cls: 'is-wide', box, W, H, width, height, heads, links: city.links.filter(l => box.has(l.from) && box.has(l.to)), route, meta: (info, c) => `${chapterTag(info)} · ${status(c)}`, lines: label => [label]});
   }
   // Phone map: strands stacked, two chapters per row, sized to the screen. Only node relations are drawn;
   // outline prerequisites would cross every band, so the cards list them instead.
@@ -249,21 +259,21 @@ export function makeRenderer(nodes, edges, manifest, city, homes, chapters) {
       const [t, u] = a.y < b.y ? [a, b] : [b, a], x1 = t.x + W / 2, y1 = t.y + H, x2 = u.x + W / 2, y2 = u.y, dy = (y2 - y1) / 2;
       return {d: `M${x1},${y1} C${x1},${y1 + dy} ${x2},${y2 - dy} ${x2},${y2}`, mid: {x: (x1 + x2) / 2, y: (y1 + y2) / 2}};
     };
-    return mapSvg({cls: 'is-narrow', box, W, H, width: VW, height: y - BAND + PAD, heads, links: city.links.filter(l => l.type === 'relation'), route, meta: info => chapterTag(info), lines: label => wrapLabel(label, 20).slice(0, 2)});
+    return mapSvg({cls: 'is-narrow', box, W, H, width: VW, height: y - BAND + PAD, heads, links: city.links.filter(l => l.type === 'relation' && box.has(l.from) && box.has(l.to)), route, meta: info => chapterTag(info), lines: label => wrapLabel(label, 20).slice(0, 2)});
   }
   function chapterCard(c) {
     const info = chapterById.get(c.id), own = nodes.filter(n => homes.get(n.id) === c.id && !ORG.includes(n.kind)), cross = crossLinks(c.id);
     const before = city.links.filter(l => l.type === 'outline' && l.to === c.id).map(l => chapterById.get(l.from));
     const counts = Object.entries(c.counts).filter(([, v]) => v).map(([k, v]) => `<span data-kind="${k}"><i aria-hidden="true"></i>${KINDS[k]} ${v}</span>`).join('');
-    const sections = c.sections.map(s => `<li${s.node ? ' class="is-recorded"' : ''}>${s.node ? `<a href="${chapterPath(c.id)}?scope=${s.node}"><b>${h(s.number)}</b> ${h(s.label)}</a>` : `<b>${h(s.number)}</b> ${h(s.label)}`}</li>`).join('');
+    const sections = c.sections.map(s => `<li${s.node ? ' class="is-recorded"' : ''}>${s.node ? `<a href="${groupPath(c)}?scope=${s.node}"><b>${h(s.number)}</b> ${h(s.label)}</a>` : `<b>${h(s.number)}</b> ${h(s.label)}`}</li>`).join('');
     return `<article class="chapter-card ${statusClass(c)}" id="chapter-${c.id}" style="--kg:${strandColor(city, c.strand)}">
 <p class="chapter-meta"><span>${h(city.books.find(b => b.id === c.book).label)} · 第 ${c.number} 章</span><span class="chapter-status">${status(c)}</span></p>
-<h3>${info.recorded ? `<a href="${chapterPath(c.id)}">${h(c.label)}</a>` : h(c.label)}</h3>
+<h3>${info.recorded ? `<a href="${groupPath(c)}">${h(c.label)}</a>` : h(c.label)}</h3>
 <p class="chapter-counts">${info.recorded ? `<b>${own.length}</b> 个节点${counts ? `<span class="chapter-kinds">${counts}</span>` : ''}` : `按教材目录预留 ${c.sections.length} 节，尚未录入`}</p>
 <ol class="chapter-sections">${sections}</ol>${c.node ? `<div data-progress-scope="${c.node}" data-progress-compact></div>` : ''}
 ${before.length ? `<p class="chapter-cross"><span>先修</span>${before.map(b => chapterLink(b)).join('')}</p>` : ''}
 ${cross.length ? `<p class="chapter-cross"><span>跨章关联</span>${cross.map(x => chapterLink(x.other, ` · ${x.count} 条`)).join('')}</p>` : ''}
-<div class="chapter-actions">${info.recorded ? `<a class="primary-link" href="${chapterPath(c.id)}">打开本章图谱 →</a>` : ''}<a class="chapter-3d" href="/knowledge/3d/?chapter=${c.id}">在 3D 中查看 ↗</a></div></article>`;
+<div class="chapter-actions">${info.recorded ? `<a class="primary-link" href="${groupPath(c)}">打开本章图谱 →</a>` : ''}<a class="chapter-3d" href="/knowledge/3d/?chapter=${c.id}">在 3D 中查看 ↗</a></div></article>`;
   }
   function overview() {
     const content = nodes.filter(n => !ORG.includes(n.kind)), built = city.chapters.filter(c => c.built).length, partial = city.chapters.filter(c => c.partial).length;
@@ -271,10 +281,11 @@ ${cross.length ? `<p class="chapter-cross"><span>跨章关联</span>${cross.map(
       const list = city.chapters.filter(c => c.strand === s.id), done = list.filter(c => c.built || c.partial).length;
       return `<section class="strand" id="strand-${s.id}" style="--kg:${strandColor(city, s.id)}"><header class="strand-head"><h2>${h(s.label)}</h2><p>${list.length} 章${done ? ` · 已录入或部分录入 ${done} 章` : ' · 建设中'}</p></header><div class="chapter-grid">${list.map(chapterCard).join('')}</div></section>`;
     }).join('');
+    const collections = (city.collections || []).map(c => `<section class="strand" id="collection-${c.id}"><header class="strand-head"><h2>${h(c.label)}</h2><p>跨学段知识集合</p></header><article class="chapter-card is-built"><p>${c.members.length} 个知识点；按高中学习需要逐步收录。</p><div class="chapter-actions"><a class="primary-link" href="${groupPath(c)}">打开集合图谱 →</a><a href="/knowledge/3d/?chapter=${c.id}">在 3D 中查看 ↗</a></div>${directory(nodes.filter(n => c.members.includes(n.id)), false)}</article></section>`).join('');
     return shell('知识图谱',`<main id="main" class="workspace kx-overview"><section class="hero kx-hero" aria-labelledby="page-title">${crumbs('<span>高中数学</span>','<span>人教 A 版</span>','<span aria-current="page">知识图谱</span>')}<h1 id="page-title" class="kg-heading"><span class="kg-heading-icon" aria-hidden="true">${GRAPH_ICON}</span><span class="title-mark">知识图谱</span><small class="kg-sub">整个高中 · ${city.books.length} 册 ${city.chapters.length} 章</small></h1><p class="formula-strip"><span class="formula-label">进度</span><span class="kx-stats"><span><b>${built}</b> 章已录入</span><span><b>${partial}</b> 章部分录入</span>${statsHtml(content)}<span><b>${edges.length}</b> 条关系</span></span><a class="formula-tips" href="/knowledge/nodes/">全部节点目录 →</a><a class="tower-entry" href="/knowledge/3d/">3D 知识图谱 ↗</a></p></section>
 <div class="kx-controls"><nav class="strand-nav" aria-label="按主线跳转">${city.strands.map(s => `<a href="#strand-${s.id}" style="--kg:${strandColor(city, s.id)}"><i aria-hidden="true"></i>${h(s.label)}</a>`).join('')}</nav>${searchBox('搜索整个高中的节点，如：基本不等式')}</div>
 <section class="kx-map" aria-labelledby="map-title"><header class="map-head"><h2 id="map-title">章与章的关系</h2><p class="map-legend"><span class="key is-built"><i aria-hidden="true"></i>已录入</span><span class="key is-partial"><i aria-hidden="true"></i>部分录入</span><span class="key is-ghost"><i aria-hidden="true"></i>建设中</span><span class="key is-relation"><i aria-hidden="true"></i>跨章知识关联（数字为节点级关联条数）</span><span class="key is-outline"><i aria-hidden="true"></i>章间先修（教材目录）</span></p></header><div class="map-body">${chapterMap()}${chapterMapNarrow()}</div><p class="map-help"><span class="is-wide">悬停一章，只看与它相连的关系；点击进入该章图谱。</span><span class="is-narrow">点一章进入它的图谱；章间先修写在下方各章卡片里。</span></p></section>
-<div class="kx-strands">${strands}</div></main><script type="module" src="/assets/knowledge-next/overview.mjs"></script>`,'','kx-graph',true,'graph');
+<div class="kx-strands">${collections}${strands}</div></main><script type="module" src="/assets/knowledge-next/overview.mjs"></script>`,'','kx-graph',true,'graph');
   }
 
   function chapter(c) {
@@ -282,36 +293,38 @@ ${cross.length ? `<p class="chapter-cross"><span>跨章关联</span>${cross.map(
     const touching = edges.filter(e => !['contains','extends'].includes(e.type) && own.some(n => n.id === e.from || n.id === e.to)).length;
     const defaultScope = c.sections.some(s => s.id === manifest.defaultScope) ? manifest.defaultScope : c.sections[0]?.id || c.node;
     const scopeButton = (id, num, text) => `<button type="button" data-scope="${id}" aria-pressed="${id===defaultScope}"><b>${h(num)}</b><span>${h(text)}</span></button>`;
+    const collection = c.kind === 'collection';
     const pending = full.sections.length - c.sections.length;
-    const scopes = c.sections.map(s=>scopeButton(s.id,s.number,s.label)).join('')+scopeButton(c.node,'全章',`第 ${c.number} 章`)+(pending ? `<span class="scope-pending">其余 ${pending} 节建设中</span>` : '');
-    const index = chapters.findIndex(x => x.id === c.id), near = [chapters[index - 1], chapters[index + 1]];
+    const scopes = c.sections.map(s=>scopeButton(s.id,s.number,s.label)).join('')+scopeButton(c.node,collection ? '集合' : '全章',collection ? c.label : `第 ${c.number} 章`)+(pending ? `<span class="scope-pending">其余 ${pending} 节建设中</span>` : '');
+    const index = chapters.findIndex(x => x.id === c.id), near = collection ? [] : [chapters[index - 1], chapters[index + 1]];
     const pager = near.map((x, i) => x ? `<a class="chapter-pager-${i ? 'next' : 'prev'}" href="${x.recorded ? chapterPath(x.id) : `/knowledge/#chapter-${x.id}`}">${i ? '' : '← '}${h(chapterTag(x))} ${h(x.label)}${x.recorded ? '' : '（建设中）'}${i ? ' →' : ''}</a>` : '<span></span>').join('');
-    const viewNotes = {curriculum:'按节分组',knowledge:'题型 · 知识 · 技能',solution:'题型 → 方法 → 技能'};
+    const viewNotes = {curriculum:collection ? '集合成员' : '按节分组',knowledge:'题型 · 知识 · 技能',solution:'题型 → 方法 → 技能'};
     const marker = (id, color) => `<marker id="arrow-${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 1L10 5L0 9z" fill="${color}"/></marker>`;
-    return shell(`${chapterTag(c)} ${c.label} · 知识图谱`,`<main id="main" class="workspace kx-graph-page"><section class="hero kx-hero" aria-labelledby="page-title">${crumbs('<span>高中数学</span>','<a href="/knowledge/">知识图谱</a>',`<span aria-current="page">${h(chapterTag(c))}</span>`)}<h1 id="page-title" class="kg-heading"><span class="kg-heading-icon" aria-hidden="true">${GRAPH_ICON}</span><span class="title-mark">${h(c.label)}</span><small class="kg-sub">${status(full)}</small></h1><p class="formula-strip"><span class="formula-label">本章</span><span class="kx-stats">${statsHtml(own)}<span><b>${touching}</b> 条关系</span></span><a class="formula-tips" href="/knowledge/nodes/">全部节点目录 →</a><a class="tower-entry" href="/knowledge/3d/?chapter=${c.id}">在 3D 中查看 ↗</a></p>${cross.length ? `<p class="chapter-cross"><span>跨章关联</span>${cross.map(x => chapterLink(x.other, ` · ${x.count} 条`)).join('')}</p>` : ''}</section>
+    return shell(`${groupLabel(c)} · 知识图谱`,`<main id="main" class="workspace kx-graph-page"><section class="hero kx-hero" aria-labelledby="page-title">${crumbs('<span>高中数学</span>','<a href="/knowledge/">知识图谱</a>',`<span aria-current="page">${h(chapterTag(c))}</span>`)}<h1 id="page-title" class="kg-heading"><span class="kg-heading-icon" aria-hidden="true">${GRAPH_ICON}</span><span class="title-mark">${h(c.label)}</span><small class="kg-sub">${status(full)}</small></h1><p class="formula-strip"><span class="formula-label">${collection ? '集合' : '本章'}</span><span class="kx-stats">${statsHtml(own)}<span><b>${touching}</b> 条关系</span></span><a class="formula-tips" href="/knowledge/nodes/">全部节点目录 →</a><a class="tower-entry" href="/knowledge/3d/?chapter=${c.id}">在 3D 中查看 ↗</a></p>${cross.length ? `<p class="chapter-cross"><span>跨章关联</span>${cross.map(x => chapterLink(x.other, ` · ${x.count} 条`)).join('')}</p>` : ''}</section>
 <div class="kx-controls"><div class="scope-tabs" role="group" aria-label="教学范围">${scopes}</div><div class="kx-search"><label class="visually-hidden" for="search">搜索名称或别名</label><input id="search" type="search" placeholder="搜索节点，如：配方、对勾函数" autocomplete="off"><ul id="search-results" class="search-results" aria-label="搜索结果" hidden></ul></div></div>
 <section class="kx-board" aria-label="知识图谱画布"><div class="kx-canvas-head"><div class="view-tabs" role="group" aria-label="图谱视图">${Object.entries(VIEWS).map(([v,l])=>`<button type="button" data-view="${v}" aria-pressed="${v==='curriculum'}"><b>${l}</b><span>${viewNotes[v]}</span></button>`).join('')}</div><div class="kind-chips" role="group" aria-label="按节点类型筛选，全不选表示全部">${Object.entries(KINDS).map(([k,label])=>`<label class="kind-chip" data-kind="${k}"><input type="checkbox" name="kind" value="${k}"><i aria-hidden="true"></i>${label}<span data-kind-count="${k}"></span></label>`).join('')}</div><div class="kx-tools"><details class="kx-more"><summary>关系筛选<span id="filters-active" class="filters-active" hidden aria-label="已启用筛选"></span></summary><div class="kx-more-panel"><p>全不选表示当前视图的全部关系。</p>${Object.entries(RELATIONS).map(([k,label])=>`<label class="filter"><input type="checkbox" name="relation" value="${k}">${label}</label>`).join('')}<button type="button" data-reset-filters>清除全部筛选</button></div></details><div class="zoom-buttons"><button id="zoom-out" type="button" aria-label="缩小">−</button><button id="zoom-in" type="button" aria-label="放大">＋</button><button id="fit" type="button">适应画布</button></div></div></div>
 <div class="canvas-wrap"><svg id="graph" role="group" aria-label="知识图谱，节点可用 Tab 键选择，Enter 打开摘要" tabindex="0"><defs>${marker('org','#8aa3b6')}${marker('know','#2dd4bf')}${marker('solve','#f5b54a')}${marker('rule','#c4a1ff')}</defs><g id="viewport"></g></svg>
 <aside id="drawer" class="kx-drawer" aria-label="节点摘要" hidden><button type="button" id="drawer-close" class="drawer-close" aria-label="关闭节点摘要">×</button><div id="selection" aria-live="polite"></div></aside>
 <p class="canvas-help">拖动平移 · 滚轮缩放 · 悬停看关联 · 点选看说明 · Esc 取消选择</p></div>
 <div class="kx-canvas-foot"><p id="graph-status" role="status">正在加载图谱；下方目录可直接访问全部节点。</p><button id="retry-graph" type="button" hidden>重试加载图谱</button><button type="button" class="link-button" data-reset-filters>清除筛选</button></div></section>
-<details class="fallback-directory" open><summary>本章节点目录 <span class="count">${own.length}</span></summary>${sectionDirectory(c, own)}</details>
+<details class="fallback-directory" open><summary>${collection ? '集合节点目录' : '本章节点目录'} <span class="count">${own.length}</span></summary>${sectionDirectory(c, own)}</details>
 <nav class="chapter-pager" aria-label="相邻章节">${pager}</nav></main>
-<script id="graph-config" type="application/json">${jsonScript({chapter:c.id,node:c.node,base:chapterPath(c.id),defaultScope,scopes:[...c.sections.map(s=>s.id),c.node]})}</script><script type="module" src="/assets/knowledge-next/graph.mjs"></script>`,'<link rel="preload" href="/knowledge/graph.json" as="fetch" crossorigin>','kx-graph',true,'graph');
+<script id="graph-config" type="application/json">${jsonScript({chapter:c.id,node:c.node,base:groupPath(c),defaultScope,scopes:[...c.sections.map(s=>s.id),c.node]})}</script><script type="module" src="/assets/knowledge-next/graph.mjs"></script>`,'<link rel="preload" href="/knowledge/graph.json" as="fetch" crossorigin>','kx-graph',true,'graph');
   }
   function list() {
     const recordedCount = chapters.filter(c => c.recorded).length;
-    return shell('全部公共节点',`<main id="main" class="workspace node-list-page"><section class="hero">${crumbs('<span>高中数学</span>','<a href="/knowledge/">知识图谱</a>','<span aria-current="page">全部节点</span>')}<h1><span class="title-mark">节点目录</span></h1><p class="lead">整个高中目前共 ${nodes.length} 个公共节点，分属 ${recordedCount} 章，按类型查阅完整正文。每个节点标出它归属的章；同一节点可由不同节、不同章引用。</p><nav class="kind-nav">${Object.entries(KINDS).map(([k,l])=>`<a href="#kind-${k}" data-kind="${k}"><i aria-hidden="true"></i>${l} <span>${nodes.filter(n=>n.kind===k).length}</span></a>`).join('')}</nav></section>${groups()}</main>`,'','',true,'nodes');
+    const filter = `<div class="directory-filter"><label for="node-group-filter">所属章／集合</label><select id="node-group-filter"><option value="">全部节点</option>${allGroups.filter(c => c.recorded).map(c => `<option value="${c.id}">${h(groupLabel(c))}</option>`).join('')}</select><label for="node-directory-search">搜索</label><input id="node-directory-search" type="search" placeholder="名称或别名" autocomplete="off"><span id="node-directory-status" role="status">共 ${nodes.length} 个节点</span></div>`;
+    return shell('全部公共节点',`<main id="main" class="workspace node-list-page"><section class="hero">${crumbs('<span>高中数学</span>','<a href="/knowledge/">知识图谱</a>','<span aria-current="page">全部节点</span>')}<h1><span class="title-mark">节点目录</span></h1><p class="lead">目前共 ${nodes.length} 个公共节点，分属 ${recordedCount} 章${city.collections?.length ? `及 ${city.collections.length} 个知识集合` : ''}，按类型查阅完整正文。每个节点标出它归属的章或知识集合；同一节点可由不同节、不同章引用。</p>${filter}<nav class="kind-nav">${Object.entries(KINDS).map(([k,l])=>`<a href="#kind-${k}" data-kind="${k}"><i aria-hidden="true"></i>${l} <span>${nodes.filter(n=>n.kind===k).length}</span></a>`).join('')}</nav></section>${groups()}</main><script type="module" src="/assets/knowledge-next/directory.mjs"></script>`,'','',true,'nodes');
   }
   function tower() {
     const count = kind => nodes.filter(n=>n.kind===kind).length;
     const built = city.chapters.filter(c=>c.built).length, partial = city.chapters.filter(c=>c.partial).length;
     const floors = [['problem_type','题型','塔顶'],['judgment_rule','判断规则','层间'],['method','方法',''],['skill','技能',''],['knowledge','知识点','地基']].map(([k,l,note])=>`<label class="tower-check" data-kind="${k}"><input type="checkbox" name="floor" value="${k}" checked><i aria-hidden="true"></i>${l}<span>${note ? `${note} · ` : ''}${count(k)}</span></label>`).join('')
-      +`<label class="tower-check" data-kind="chapter"><input type="checkbox" name="floor" value="org" checked><i aria-hidden="true"></i>章节结构<span>塔尖</span></label>`;
+      +`<label class="tower-check" data-kind="chapter"><input type="checkbox" name="floor" value="org" checked><i aria-hidden="true"></i>章节与集合<span>塔尖</span></label>`;
     const families = [['know','知识依据','前置 · 涉及 · 依据'],['solve','解题调用','可选用 · 调用'],['rule','判断分支','选法 · 步骤判断']].map(([k,l,note])=>`<label class="tower-check" data-family="${k}"><input type="checkbox" name="family" value="${k}" checked><i aria-hidden="true"></i>${l}<span>${note}</span></label>`).join('');
     const cityLegend = `<p>章</p><span class="tower-key is-built"><i aria-hidden="true"></i>已录入的章<span>${built} 章</span></span>${partial ? `<span class="tower-key is-partial"><i aria-hidden="true"></i>部分录入的章<span>${partial} 章</span></span>` : ''}<span class="tower-key is-ghost"><i aria-hidden="true"></i>建设中的章<span>${city.chapters.length - built - partial} 章</span></span><span class="tower-key is-cross"><i aria-hidden="true"></i>跨章知识关联<span>节点级</span></span><span class="tower-key is-link"><i aria-hidden="true"></i>章间先修<span>目录级</span></span>`;
     return shell('3D 知识图谱',`<main id="main" class="kx-tower-page"><section class="tower-stage" aria-labelledby="tower-title"><div id="tower" class="tower-canvas"></div>
-<header class="tower-hud tower-head">${crumbs('<span>高中数学</span>','<a href="/knowledge/">知识图谱</a>','<span aria-current="page">3D 全景</span>')}<h1 id="tower-title"><span class="title-mark">知识图谱</span><small>人教 A 版 · 整个高中</small></h1><nav id="city-crumbs" class="city-crumbs" aria-label="所在层级"><button type="button" data-go-city aria-current="page">全高中</button></nav><p class="tower-lead">每一章是一座塔：中心广场是预备知识，三条主线向外延伸，同一条街上必修与选择性必修各走一侧。亮起的塔已录入知识节点，半亮的塔只录入了被其他章引用的知识点，线框塔仍在建设中；塔与塔之间的弧线是跨章的知识关联。</p></header>
+<header class="tower-hud tower-head">${crumbs('<span>高中数学</span>','<a href="/knowledge/">知识图谱</a>','<span aria-current="page">3D 全景</span>')}<h1 id="tower-title"><span class="title-mark">知识图谱</span><small>人教 A 版 · 整个高中</small></h1><nav id="city-crumbs" class="city-crumbs" aria-label="所在层级"><button type="button" data-go-city aria-current="page">全高中</button></nav><p class="tower-lead">每一章是一座塔：中心广场是预备知识，三条主线向外延伸，同一条街上必修与选择性必修各走一侧。亮起的塔已录入知识节点，半亮的塔只录入了被其他章引用的知识点，线框塔仍在建设中；塔与塔之间的弧线是跨章的知识关联。初中知识以独立集合展示，保留与高中知识的前置关系。</p></header>
 <div class="tower-hud tower-search"><label class="visually-hidden" for="tower-search">搜索名称或别名</label><input id="tower-search" type="search" placeholder="搜索节点，飞到它身边" autocomplete="off"><ul id="tower-results" class="search-results" aria-label="搜索结果" hidden></ul></div>
 <aside class="tower-hud tower-legend" aria-label="图例与显示的楼层、关系">${cityLegend}<div class="legend-tower"><p>塔的楼层</p>${floors}<p>塔内关系线</p>${families}</div></aside>
 <nav id="tower-sections" class="tower-hud tower-sections" aria-label="聚焦主线或节"></nav>

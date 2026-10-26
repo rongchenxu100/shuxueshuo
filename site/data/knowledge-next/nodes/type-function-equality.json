@@ -1,0 +1,24 @@
+{
+  "id": "type-function-equality",
+  "kind": "problem_type",
+  "status": "planned",
+  "label": "判断是否为相同函数",
+  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "features": [
+    "题目给出两个函数或若干候选表示，目标是判断是否为同一函数。",
+    "需要同时比较定义域和整个定义域上的对应关系，不能只看表达式外观、变量字母或值域。"
+  ],
+  "confuse": [
+    {
+      "text": "只要求求出合法输入的集合",
+      "ref": "type-function-domain"
+    }
+  ],
+  "knowledge": [
+    "function-concept"
+  ],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

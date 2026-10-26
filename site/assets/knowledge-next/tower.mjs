@@ -1,6 +1,6 @@
 // Knowledge tower: sections are sectors around a vertical axis, node kinds are floors.
 // Pure geometry shared by the 3D page and the tests; world units, y points up.
-const ORG = ['textbook', 'chapter', 'section'];
+const ORG = ['textbook', 'chapter', 'section', 'collection'];
 export const FLOORS = [
   {key: 'knowledge', label: '知识点', note: '地基', y: -270},
   {key: 'skill', label: '技能', note: '基本功', y: -90},
@@ -20,7 +20,7 @@ export function towerLayout(graph) {
   const out = (id, types) => graph.edges.filter(e => e.from === id && types.includes(e.type)).map(e => e.to);
   const textbooks = graph.nodes.filter(n => n.kind === 'textbook');
   const chapters = [...textbooks.flatMap(t => out(t.id, ['contains'])), ...graph.nodes.filter(n => n.kind === 'chapter').map(n => n.id)].filter((id, i, a) => a.indexOf(id) === i);
-  const sectionIds = chapters.flatMap(c => out(c, ['contains']).filter(id => byId.get(id)?.kind === 'section'));
+  const sectionIds = [...chapters.flatMap(c => out(c, ['contains']).filter(id => byId.get(id)?.kind === 'section')), ...graph.nodes.filter(n => n.kind === 'collection').map(n => n.id)];
   const chapterOf = new Map(chapters.flatMap(c => out(c, ['contains']).map(s => [s, c])));
 
   // Home sections: direct membership wins over "extends"; rules live where they are referenced.

@@ -3,15 +3,16 @@ import {isPreview, modeHref} from '../practice/learning-mode.mjs';
    scaffolding from the textbook outline. Three levels: city → tower → node. Names are DOM buttons over the
    WebGL canvas so they stay sharp, clickable and reachable with Tab. */
 import * as THREE from '/assets/vendor/three-0.186.1/three-graph.min.js';
-import {KINDS, RELATIONS, nodeHref, detailLabel, chapterPath} from './model.mjs';
+import {KINDS, RELATIONS, nodeHref, detailLabel, chapterPath, groupPath, lifecycleLabel} from './model.mjs';
 import {towerLayout, TOWER, FLOORS} from './tower.mjs';
-import {cityLayout, chapterGraph, homeChapters, scaffoldLayout, recorded, strandColor as strandColorOf, CITY} from './city.mjs';
+import {cityLayout, cityGroups, chapterGraph, homeChapters, scaffoldLayout, recorded, strandColor as strandColorOf, CITY} from './city.mjs';
 import {escapeHtml as h} from './resource-links.mjs';
+import {renderLearningMath} from './learning-model.mjs';
 
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
-const ORG = ['textbook', 'chapter', 'section'];
+const ORG = ['textbook', 'chapter', 'section', 'collection'];
 const TAU = Math.PI * 2;
-const GLOW = {textbook: '#cfe0ee', chapter: '#ffe3a3', section: '#9fd3c7', knowledge: '#2dd4bf', skill: '#7cb8ff', method: '#f5b54a', problem_type: '#ff8f7a', judgment_rule: '#c4a1ff'};
+const GLOW = {collection: '#9fd3c7', textbook: '#cfe0ee', chapter: '#ffe3a3', section: '#9fd3c7', knowledge: '#2dd4bf', skill: '#7cb8ff', method: '#f5b54a', problem_type: '#ff8f7a', judgment_rule: '#c4a1ff'};
 const FAMILY = {contains: 'org', extends: 'org', prerequisite: 'know', uses: 'know', involves: 'know', candidate: 'solve', calls: 'solve', method_rule: 'rule', step_rule: 'rule', selects: 'rule'};
 const FAMILY_COLOR = {org: '#9fb7c9', know: '#2dd4bf', solve: '#f5b54a', rule: '#c4a1ff'};
 const SECTION_COLORS = ['#5eead4', '#a78bfa', '#fbbf24', '#60a5fa', '#f472b6', '#34d399', '#fb923c'];
@@ -32,7 +33,7 @@ const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const touch = matchMedia('(pointer: coarse)').matches;
 const lerp = (a, b, t) => a + (b - a) * t;
 const ease = t => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-const kindText = n => `${KINDS[n.kind]}${n.subtype ? ` · ${n.subtype === 'method_selection' ? '选法规则' : '步骤选择规则'}` : ''}`;
+const kindText = n => `${KINDS[n.kind]}${lifecycleLabel(n) ? ` · ${lifecycleLabel(n)}` : ''}${n.subtype ? ` · ${n.subtype === 'method_selection' ? '选法规则' : '步骤选择规则'}` : ''}`;
 const floorOf = n => ORG.includes(n.kind) ? 'org' : n.kind;
 const facing = angle => Math.PI / 2 - angle;
 
@@ -72,7 +73,7 @@ const state = {level: 'city', chapter: '', node: '', hover: '', hoverTower: '', 
 const status = text => { $('#tower-status').textContent = text; };
 const sectionsOf = id => towers.get(nodeTower.get(id))?.layout?.sectionsOf(id) || [];
 const nodeCount = c => Object.values(c.counts).reduce((a, b) => a + b, 0);
-const chapterName = c => `${city.books.find(b => b.id === c.book).short} · 第 ${c.number} 章`;
+const chapterName = c => c.kind === 'collection' ? '知识集合' : `${city.books.find(b => b.id === c.book).short} · 第 ${c.number} 章`;
 const strandColor = id => strandColorOf(city, id);
 
 function mount() {
@@ -462,7 +463,7 @@ function mount() {
     const set = new Set([id]);
     for (const entry of edges) if (!entry.out) { if (entry.edge.from === id) set.add(entry.edge.to); if (entry.edge.to === id) set.add(entry.edge.from); }
     const n = byId.get(id);
-    if (n?.kind === 'section') for (const [key] of items) if (sectionsOf(key).includes(id)) set.add(key);
+    if (['section','collection'].includes(n?.kind)) for (const [key] of items) if (sectionsOf(key).includes(id)) set.add(key);
     if (n && !ORG.includes(n.kind)) for (const s of sectionsOf(id)) set.add(s);
     return set;
   }
@@ -784,10 +785,10 @@ const graph2D = n => {
   if (!n.home) return '/knowledge/';
   const scope = ORG.includes(n.kind) ? n.id : sectionsOf(n.id)[0] || chapters.get(n.home).node;
   const v = ORG.includes(n.kind) ? 'curriculum' : n.kind === 'knowledge' ? 'knowledge' : 'solution';
-  return `${chapterPath(n.home)}?scope=${scope}&view=${v}&node=${n.id}&expand=${n.id}`;
+  return `${groupPath(chapters.get(n.home))}?scope=${scope}&view=${v}&node=${n.id}&expand=${n.id}`;
 };
 const chip = n => `<button type="button" class="rel-node" data-kind="${n.kind}" data-select="${n.id}"><i aria-hidden="true"></i>${h(n.label)}</button>`;
-const chapterChip = (c, note = '') => `<button type="button" class="rel-node chapter-chip" data-chapter-pick="${c.id}" style="--kg:${strandColor(c.strand)}"><i aria-hidden="true"></i>${h(chapterName(c))} ${h(c.label)}${note}</button>`;
+const chapterChip = (c, note = '') => `<button type="button" class="rel-node chapter-chip" data-chapter-pick="${c.id}" style="--kg:${strandColor(c.strand)}"><i aria-hidden="true"></i>${c.kind === 'collection' ? h(c.label) : `${h(chapterName(c))} ${h(c.label)}`}${note}</button>`;
 const stepTargets = s => [...s.calls, ...(s.rule ? [s.rule] : [])];
 function relationGroups(list, outgoing) {
   const groups = new Map();
@@ -804,15 +805,16 @@ function showChapterCard(c) {
   const outline = city.links.filter(l => l.type === 'outline');
   const before = outline.filter(l => l.to === c.id).map(l => chapters.get(l.from)), after = outline.filter(l => l.from === c.id).map(l => chapters.get(l.to));
   const linked = city.links.filter(l => l.type !== 'outline' && (l.from === c.id || l.to === c.id));
+  const collection = c.kind === 'collection';
   const book = city.books.find(b => b.id === c.book), strand = city.strands.find(s => s.id === c.strand);
   drawer().hidden = false;
   state.card = true;
   const own = towers.get(c.id).graph?.nodes.filter(n => !ORG.includes(n.kind)) || [];
-  selection().innerHTML = `<p class="drawer-kind" data-kind="chapter"><i aria-hidden="true"></i>章 · ${c.built ? '已录入' : c.partial ? '部分录入' : '建设中'}</p><h2>${h(c.label)}</h2>${c.node ? `<div data-progress-scope="${c.node}"></div>` : ''}
-<p class="tower-home">${h(book.label)} · 第 ${c.number} 章<span>· ${h(strand.label)}${strand.center ? '' : '主线'}</span></p>
-<p class="drawer-summary">${c.built ? '本章的公共知识节点已录入，可以在塔里逐个查看。' : c.partial ? `本章目前只录入了被其他章引用的 ${own.length} 个节点，其余各节仍按教材目录预留。跨章连线从这里通向引用它们的塔。` : `本章尚未录入公共知识节点。塔身按教材目录预留了 ${c.sections.length} 节的位置，录入后会像第二章一样点亮。`}</p>
-${recorded(c) ? `<div class="drawer-actions"><a class="drawer-primary" href="${chapterPath(c.id)}">打开本章平面图谱 ↗</a></div>` : ''}
-<section class="drawer-path"><h3>本章的节 <span>${c.sections.length}</span></h3><ol>${c.sections.map((s, i) => `<li><span class="step-dot">${h(s.number.split('.')[1] || i + 1)}</span><div>${s.node ? `<button type="button" class="rel-node" data-kind="section" data-section-pick="${s.node}"><i aria-hidden="true"></i>${h(s.number)} ${h(s.label)}</button>` : `<b>${h(s.number)} ${h(s.label)}</b>`}</div></li>`).join('')}</ol></section>
+  selection().innerHTML = `<p class="drawer-kind" data-kind="chapter"><i aria-hidden="true"></i>${collection ? '知识集合' : '章'} · ${c.built ? '已录入' : c.partial ? '部分录入' : '建设中'}</p><h2>${h(c.label)}</h2>${c.node ? `<div data-progress-scope="${c.node}"></div>` : ''}
+<p class="tower-home">${collection ? '按高中学习需要逐步收录的初中知识' : `${h(book.label)} · 第 ${c.number} 章<span>· ${h(strand.label)}${strand.center ? '' : '主线'}</span>`}</p>
+<p class="drawer-summary">${collection ? '集合成员保留初中知识身份，跨学段前置关系连接高中知识。' : c.built ? '本章的公共知识节点已录入，可以在塔里逐个查看。' : c.partial ? `本章目前只录入了被其他章引用的 ${own.length} 个节点，其余各节仍按教材目录预留。跨章连线从这里通向引用它们的塔。` : `本章尚未录入公共知识节点。塔身按教材目录预留了 ${c.sections.length} 节的位置，录入后会像第二章一样点亮。`}</p>
+${recorded(c) ? `<div class="drawer-actions"><a class="drawer-primary" href="${groupPath(c)}">打开${collection ? '集合' : '本章'}平面图谱 ↗</a></div>` : ''}
+${collection ? '' : `<section class="drawer-path"><h3>本章的节 <span>${c.sections.length}</span></h3><ol>${c.sections.map((s, i) => `<li><span class="step-dot">${h(s.number.split('.')[1] || i + 1)}</span><div>${s.node ? `<button type="button" class="rel-node" data-kind="section" data-section-pick="${s.node}"><i aria-hidden="true"></i>${h(s.number)} ${h(s.label)}</button>` : `<b>${h(s.number)} ${h(s.label)}</b>`}</div></li>`).join('')}</ol></section>`}
 ${own.length ? `<h3>已录入的节点 <span>${own.length}</span></h3><ul class="rel-groups"><li data-family="know"><span class="rel-type">本章</span><span class="rel-targets">${own.map(chip).join('')}</span></li></ul>` : ''}
 ${linked.length ? `<h3>跨章知识关联 <span>节点级</span></h3><ul class="rel-groups"><li data-family="know"><span class="rel-type">连向</span><span class="rel-targets">${linked.map(l => chapterChip(chapters.get(l.from === c.id ? l.to : l.from), ` · ${l.count} 条`)).join('')}</span></li></ul>` : ''}
 ${before.length ? `<h3>章间先修 <span>目录级</span></h3><ul class="rel-groups"><li data-family="org"><span class="rel-type">先学</span><span class="rel-targets">${before.map(chapterChip).join('')}</span></li></ul>` : ''}
@@ -827,19 +829,21 @@ function showSelection() {
   const out = graph.edges.filter(e => e.from === n.id), inc = graph.edges.filter(e => e.to === n.id), sections = sectionsOf(n.id).map(id => byId.get(id));
   selection().innerHTML = `<p class="drawer-kind" data-kind="${n.kind}"><i aria-hidden="true"></i>${kindText(n)}</p><h2>${h(n.label)}</h2>${ORG.includes(n.kind)?`<div data-progress-scope="${n.id}"></div>`:`<div data-learning-node="${n.id}" data-learning-full></div>`}
 ${sections.length ? `<p class="tower-home">位于 ${sections.map(s => `<button type="button" data-section-pick="${s.id}">${h(s.label.split(' ')[0])}</button>`).join('')}${sections.length > 1 ? '<span>· 多节共用</span>' : ''}</p>` : ''}
-<p class="drawer-summary">${h(n.summary)}</p>
+<p class="drawer-summary" data-math-text>${h(n.summary)}</p>
 <div class="drawer-actions">${ORG.includes(n.kind) ? `<a class="drawer-primary" href="${graph2D(n)}">在平面图谱中查看 ↗</a>` : `<a class="drawer-primary" href="${nodeHref(n.id)}">${detailLabel(n)} ↗</a><a class="drawer-secondary" href="${graph2D(n)}">在平面图谱中查看</a>`}${n.steps?.length ? '<button type="button" id="tower-play" class="drawer-play">▶ 演示解题路径</button>' : ''}</div>
 ${n.steps?.length ? `<section class="drawer-path"><h3>解题路径</h3><ol>${n.steps.map((s, i) => `<li data-step="${i}"><span class="step-dot">${i + 1}</span><div><b>${h(s.title)}</b>${stepTargets(s).map(id => chip(byId.get(id))).join('')}</div></li>`).join('')}</ol></section>` : ''}
 ${out.length ? `<h3>它指向 <span>${out.length}</span></h3><ul class="rel-groups">${relationGroups(out, true)}</ul>` : ''}
 ${inc.length ? `<h3>指向它 <span>${inc.length}</span></h3><ul class="rel-groups">${relationGroups(inc, false)}</ul>` : ''}`;
   $('#tower-play')?.addEventListener('click', () => playPath(n));
   placeDrawer();
+  renderLearningMath(selection()).catch(() => {});
 }
 function renderChrome() {
   const c = chapters.get(state.chapter), inTower = state.level === 'tower' && c;
-  $('#city-crumbs').innerHTML = `<button type="button" data-go-city${inTower ? '' : ' aria-current="page"'}>全高中</button>${inTower ? `<span aria-hidden="true">›</span><span>${h(city.books.find(b => b.id === c.book).label)}</span><span aria-hidden="true">›</span><span aria-current="page">第 ${c.number} 章 ${h(c.label)}</span>` : ''}`;
+  $('#city-crumbs').innerHTML = `<button type="button" data-go-city${inTower ? '' : ' aria-current="page"'}>全高中</button>${inTower ? `<span aria-hidden="true">›</span><span>${c.kind === 'collection' ? '知识集合' : h(city.books.find(b => b.id === c.book).label)}</span><span aria-hidden="true">›</span><span aria-current="page">${c.kind === 'collection' ? '' : `第 ${c.number} 章 `}${h(c.label)}</span>` : ''}`;
   const bar = $('#tower-sections');
-  if (!inTower) bar.innerHTML = [['', '全景'], ...city.strands.map(s => [s.id, s.label])].map(([id, text]) => `<button type="button" data-strand="${id}" aria-pressed="${state.strand === id}"><b>${h(text)}</b></button>`).join('');
+  if (!inTower) bar.innerHTML = [['', '全景'], ...city.strands.map(s => [s.id, s.label])].map(([id, text]) => `<button type="button" data-strand="${id}" aria-pressed="${state.strand === id}"><b>${h(text)}</b></button>`).join('') + (city.collections || []).map(c => `<button type="button" data-chapter="${c.id}"><b>${h(c.label)}</b></button>`).join('');
+  else if (c.kind === 'collection') bar.innerHTML = `<button type="button" data-go-city class="bar-back">← 全景</button><span>${h(c.label)} · ${nodeCount(c)} 个知识点</span>`;
   else if (recorded(c)) bar.innerHTML = `<button type="button" data-go-city class="bar-back">← 全景</button><button type="button" data-section-filter="" aria-pressed="${!state.section}"><b>全塔</b></button>${c.sections.filter(s => s.node).map(s => `<button type="button" data-section-filter="${s.node}" aria-pressed="${state.section === s.node}"><b>${h(s.number)}</b><span>${h(s.label)}</span></button>`).join('')}${c.partial ? `<span class="bar-note">其余 ${c.sections.filter(s => !s.node).length} 节建设中</span>` : ''}`;
   else bar.innerHTML = `<button type="button" data-go-city class="bar-back">← 全景</button><span class="bar-note">建设中 · ${c.sections.length} 节已按目录预留</span>`;
 }
@@ -935,6 +939,12 @@ function wire() {
     const id = event.target.closest('[data-select]')?.dataset.select, section = event.target.closest('[data-section-pick]')?.dataset.sectionPick, chapter = event.target.closest('[data-chapter-pick]')?.dataset.chapterPick;
     if (id) select(id); else if (section) chooseSection(section); else if (chapter) enterTower(chapter);
   });
+  // The HUD is outside the CSS2D label root; keep its delegation separate so
+  // canvas labels are not handled twice when their click bubbles to document.
+  $('#tower-sections').addEventListener('click', event => {
+    const chapter = event.target.closest('[data-chapter]');
+    if (chapter) enterTower(chapter.dataset.chapter);
+  });
   document.addEventListener('click', event => {
     if (event.target.closest('[data-go-city]')) goCity();
     const strand = event.target.closest('[data-strand]');
@@ -953,7 +963,7 @@ function wire() {
   const input = $('#tower-search'), results = $('#tower-results');
   const entries = [
     ...graph.nodes.filter(n => nodeTower.has(n.id)).map(n => ({key: n.id, label: n.label, aliases: n.aliases || [], kind: n.kind, note: KINDS[n.kind], run: () => select(n.id)})),
-    ...city.chapters.map(c => ({key: c.id, label: c.label, aliases: [`第${c.number}章`], kind: 'chapter', note: `${chapterName(c)}${c.built ? '' : c.partial ? ' · 部分录入' : ' · 建设中'}`, run: () => enterTower(c.id)})),
+    ...cityGroups(city).map(c => ({key: c.id, label: c.label, aliases: c.kind === 'collection' ? [] : [`第${c.number}章`], kind: c.kind || 'chapter', note: `${chapterName(c)}${c.built ? '' : c.partial ? ' · 部分录入' : ' · 建设中'}`, run: () => enterTower(c.id)})),
     ...city.chapters.flatMap(c => c.sections.filter(s => !s.node).map(s => ({key: `${c.id}-${s.number}`, label: `${s.number} ${s.label}`, aliases: [], kind: 'section', note: `节 · ${chapterName(c)} · 建设中`, run: () => enterTower(c.id)}))),
   ];
   let found = [];
@@ -990,7 +1000,7 @@ async function boot() {
   byId = new Map(graph.nodes.map(n => [n.id, n]));
   plan = cityLayout(city);
   const homes = homeChapters(city, graph), floorY = {sectionY: TOWER.sectionY, y: Object.fromEntries(FLOORS.map(f => [f.key, f.y]))};
-  for (const c of city.chapters) {
+  for (const c of cityGroups(city)) {
     chapters.set(c.id, c);
     const info = {chapter: c, pos: plan.towers.get(c.id)};
     if (recorded(c)) {
@@ -1003,13 +1013,13 @@ async function boot() {
   view = mount();
   wire();
   const built = city.chapters.filter(c => c.built), partial = city.chapters.filter(c => c.partial);
-  const total = [...built, ...partial].reduce((sum, c) => sum + nodeCount(c), 0);
-  status(`${city.chapters.length} 章 · 已录入 ${built.length} 章${partial.length ? `、部分录入 ${partial.length} 章` : ''}（${total} 个节点）· ${touch ? '单指旋转，双指缩放' : '拖动旋转，滚轮缩放，右键平移'}`);
+  const total = [...built, ...partial, ...(city.collections || [])].reduce((sum, c) => sum + nodeCount(c), 0);
+  status(`${city.chapters.length} 章${city.collections?.length ? ` · ${city.collections.length} 个知识集合` : ''} · 已录入 ${built.length} 章${partial.length ? `、部分录入 ${partial.length} 章` : ''}（${total} 个节点）· ${touch ? '单指旋转，双指缩放' : '拖动旋转，滚轮缩放，右键平移'}`);
   document.body.classList.add('tower-ready');
   const p = new URLSearchParams(location.search);
   renderChrome();
   if (nodeTower.has(p.get('node'))) select(p.get('node'));
-  else if (byId.get(p.get('section'))?.kind === 'section' && nodeTower.has(p.get('section'))) chooseSection(p.get('section'));
+  else if (['section', 'collection'].includes(byId.get(p.get('section'))?.kind) && nodeTower.has(p.get('section'))) chooseSection(p.get('section'));
   else if (chapters.has(p.get('chapter'))) enterTower(p.get('chapter'));
   else if (city.strands.some(s => s.id === p.get('strand'))) chooseStrand(p.get('strand'));
   else view.apply();

@@ -1,0 +1,34 @@
+{
+  "id": "type-function-range",
+  "kind": "problem_type",
+  "status": "planned",
+  "label": "求函数的值域",
+  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "features": [
+    "目标是函数的全部输出，输入可能由解析式、抽象关系、有限集合或指定区间给出。",
+    "值域必须同时说明输出不能超出的范围以及范围内输出的可达性，不能只给一个界或某个最值。",
+    "换元、周期关系和参数等结构属于选法条件，不能因结构相近就忽略原定义域。"
+  ],
+  "confuse": [
+    {
+      "text": "要求原式有意义的全部输入",
+      "ref": "type-function-domain"
+    },
+    {
+      "text": "只求指定输入的输出或函数值组合",
+      "ref": "type-function-evaluation"
+    }
+  ],
+  "knowledge": [
+    "function-concept",
+    "interval-notation",
+    "set-intersection-union",
+    "absolute-value-function",
+    "reciprocal-function",
+    "quadratic-function-properties"
+  ],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

@@ -1,0 +1,38 @@
+{
+  "id": "interval-notation",
+  "kind": "knowledge",
+  "status": "knowledge_only",
+  "label": "区间的概念",
+  "summary": "区间用端点和开闭符号表示连续的实数范围，端点是否属于集合必须明确。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "prerequisites": [
+    "set-concept",
+    "inequality-properties"
+  ],
+  "entries": [
+    {
+      "id": "finite",
+      "title": "有限区间与端点表示",
+      "type": "定义",
+      "body": [
+        "设 $a<b$。闭区间 $[a,b]$、开区间 $(a,b)$、半开半闭区间 $[a,b)$、$(a,b]$ 分别表示 $a\\le x\\le b$、$a<x<b$、$a\\le x<b$、$a<x\\le b$。",
+        "$a$、$b$ 为端点；包含端点用方括号及数轴实心点，不包含用圆括号及空心点。多段范围用集合并集表示，离散集合不补成连续区间。"
+      ],
+      "conditions": "$a,b$ 为实数且 $a<b$。"
+    },
+    {
+      "id": "unbounded",
+      "title": "无界区间与无穷符号",
+      "type": "表达形式",
+      "body": [
+        "$[a,+\\infty)$、$(a,+\\infty)$、$(-\\infty,b]$、$(-\\infty,b)$ 分别表示 $x\\ge a$、$x>a$、$x\\le b$、$x<b$；$\\mathbb R=(-\\infty,+\\infty)$。",
+        "无穷符号不是实数，其一侧只能用圆括号，不能将无穷写成可取得的端点。"
+      ],
+      "conditions": "$a,b$ 为实数。"
+    }
+  ],
+  "resources": [
+    "interval-number-line"
+  ],
+  "examples": []
+}

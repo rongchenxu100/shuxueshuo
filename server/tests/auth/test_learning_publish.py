@@ -107,12 +107,12 @@ def test_shared_export_has_complete_next_content(authored):
     assert len(authored['practice_problems']) == 39
     assert len(authored['practice_routes']) == 50
     assert len(authored['practice_steps']) == 259
-    assert len(authored['knowledge_nodes']) == 67
+    assert len(authored['knowledge_nodes']) == 89
     assert len(authored['knowledge_drill_items']) == 177
     assert authored['_meta']['counts']['eligible_drill_nodes'] == 16
     assert len({q['item_id'] for q in authored['knowledge_drill_items']}) == 177
     assert len([q for q in authored['knowledge_drill_items'] if q['node_id'] == 'amgm-formula']) == 1
-    assert len(set(validate_graph(authored['knowledge_nodes'], authored['knowledge_edges']).values())) == 8
+    assert len(set(validate_graph(authored['knowledge_nodes'], authored['knowledge_edges']).values())) == 9
 
 
 @pytest.mark.parametrize('change', ['missing_entry', 'missing_resource', 'unmapped_tip', 'wrong_method_kind', 'invalid_answer', 'version'])
@@ -404,6 +404,7 @@ def test_removed_content_is_retired_and_memberships_pruned(connection, authored)
     c = connection
     expanded = deepcopy(authored)
     extra = {**deepcopy(authored['knowledge_nodes'][0]), 'id': 'temporary-publisher-node'}
+    extra['body'] = {**extra['body'], 'id': extra['id']}
     expanded['knowledge_nodes'].append(extra)
     expanded['practice_topics'].append({'id': 'temporary-topic', 'label': 'temporary', 'path': '/temporary/', 'body': {}, 'groups': [], 'is_active': True})
     expanded['practice_topic_problems'].append({'topic_id': 'temporary-topic', 'problem_id': authored['practice_problems'][0]['id'], 'position': 0})

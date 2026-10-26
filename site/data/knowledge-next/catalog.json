@@ -1,16 +1,17 @@
 {
   "schemaVersion": 1,
-  "title": "第二章公共知识图谱",
+  "title": "高中数学公共知识图谱",
   "defaultScope": "section-2-1",
   "expectedCounts": {
     "textbook": 1,
     "chapter": 3,
-    "section": 5,
-    "knowledge": 13,
+    "section": 9,
+    "knowledge": 25,
     "skill": 20,
     "method": 14,
-    "problem_type": 9,
-    "judgment_rule": 2
+    "problem_type": 14,
+    "judgment_rule": 2,
+    "collection": 1
   },
   "resources": {
     "amgm-semicircle": {
@@ -185,6 +186,93 @@
       "scope": "linear-interval-extremum",
       "title": "斜率与区间端点",
       "note": "图解同时展示一次函数与斜率为零的常函数情形。"
+    },
+    "reciprocal-hyperbola": {
+      "module": "/assets/explain/knowledge/reciprocal-function.js",
+      "part": "figure",
+      "scope": "reciprocal-function",
+      "title": "双曲线与 xy = k",
+      "note": "切换 k；拖动点看象限与 xy = k。",
+      "after": "graph"
+    },
+    "absolute-value-v": {
+      "module": "/assets/explain/knowledge/absolute-value-function.js",
+      "part": "figure",
+      "scope": "absolute-value-function",
+      "title": "V 形图像 y = |x|",
+      "note": "拖动点：原点两侧各一条射线。",
+      "after": "graph"
+    },
+    "floor-steps": {
+      "module": "/assets/explain/knowledge/floor-function.js",
+      "part": "figure",
+      "scope": "floor-function",
+      "title": "阶梯图像 ⌊x⌋",
+      "note": "拖动看左实右空；整数 n 处取 n，属于从 n 开始的阶梯。",
+      "after": "graph"
+    },
+    "piecewise-example": {
+      "module": "/assets/explain/knowledge/piecewise-function.js",
+      "part": "figure",
+      "scope": "piecewise-function",
+      "title": "分段示例",
+      "note": "拖动看当前落在哪一段；分界点只归左段。",
+      "after": "definition"
+    },
+    "function-mapping": {
+      "module": "/assets/explain/knowledge/function-concept.js",
+      "part": "figure",
+      "scope": "function-concept",
+      "title": "对应关系示意",
+      "note": "切换一对一、多对一、一对多，看是否仍是函数。",
+      "after": "definition"
+    },
+    "interval-number-line": {
+      "module": "/assets/explain/knowledge/interval-notation.js",
+      "part": "figure",
+      "scope": "interval-notation",
+      "title": "区间的数轴表示",
+      "note": "切换开闭与无界区间，看实心／空心端点。",
+      "after": "finite"
+    },
+    "function-three-views": {
+      "module": "/assets/explain/knowledge/function-representations.js",
+      "part": "figure",
+      "scope": "function-representations",
+      "title": "同一函数的三种表示",
+      "note": "切换解析、列表、图像，看同一对应关系。",
+      "after": "graph"
+    },
+    "graph-translate": {
+      "module": "/assets/explain/knowledge/function-graph-transformations.js",
+      "part": "translation",
+      "scope": "function-graph-transformations",
+      "title": "平移示意",
+      "note": "浅色为原图；切换左移／右移／上移／下移。",
+      "after": "translation"
+    },
+    "graph-symmetry": {
+      "module": "/assets/explain/knowledge/function-graph-transformations.js",
+      "part": "symmetry",
+      "scope": "function-graph-transformations",
+      "title": "对称示意",
+      "note": "浅色为原图；切换关于 x 轴／y 轴／原点。",
+      "after": "symmetry"
+    },
+    "graph-fold": {
+      "module": "/assets/explain/knowledge/function-graph-transformations.js",
+      "part": "fold",
+      "scope": "function-graph-transformations",
+      "title": "翻折示意",
+      "note": "浅色为原图；切换 |f(x)| 与 f(|x|)。",
+      "after": "absolute-fold"
+    },
+    "graph-transforms": {
+      "module": "/assets/explain/knowledge/function-graph-transformations.js",
+      "part": "figure",
+      "scope": "function-graph-transformations",
+      "title": "变换总览",
+      "note": "同一原图；汇总切换平移、对称与翻折。"
     },
     "reciprocal-range": {
       "module": "/assets/explain/knowledge/reciprocal-sum-function.js",

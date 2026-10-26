@@ -112,6 +112,18 @@ def test_fixture_summary_excludes_credentials_and_student_identifiers(tmp_path):
     assert rehearsal.fixture_summary(tmp_path) == public
 
 
+def test_database_evidence_follows_the_extracted_image_migration_head(tmp_path):
+    migrations = tmp_path / 'server/alembic/versions'
+    migrations.mkdir(parents=True)
+    (migrations / 'first.py').write_text("revision = 'fixture-base'\ndown_revision = None\n")
+    (migrations / 'next.py').write_text("revision = 'fixture-next'\ndown_revision = 'fixture-base'\n")
+    evidence = {'revision': 'fixture-next', 'product_jobs': 0, 'product_builds': 0}
+    rehearsal.validate_database(evidence, tmp_path)
+    for changed in ({'revision': 'fixture-base'}, {'product_jobs': 1}, {'product_builds': 1}):
+        with pytest.raises(RuntimeError, match='Unexpected migration revision or product work'):
+            rehearsal.validate_database(evidence | changed, tmp_path)
+
+
 def test_early_build_failure_writes_failed_report_without_command_credentials(tmp_path, monkeypatch):
     output = tmp_path / 'output'
     arguments = ['rehearse-search', '--output', str(output)]

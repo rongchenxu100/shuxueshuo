@@ -15,7 +15,7 @@ from ..product.db import canonical, digest, lock, transaction
 
 ROOT = Path(__file__).resolve().parents[3]
 CAPABILITY_KINDS = {'knowledge', 'skill', 'method', 'problem_type'}
-KINDS = CAPABILITY_KINDS | {'textbook', 'chapter', 'section', 'judgment_rule'}
+KINDS = CAPABILITY_KINDS | {'textbook', 'chapter', 'section', 'collection', 'judgment_rule'}
 KEYS = {
     'knowledge_nodes': ['id'],
     'knowledge_entries': ['node_id', 'entry_id'],
@@ -48,6 +48,24 @@ def validate_graph(nodes, edges):
         kind, subtype = node['kind'], node.get('subtype')
         if kind not in KINDS or (kind == 'judgment_rule' and subtype not in {'method_selection', 'step_selection'}) or (kind != 'judgment_rule' and subtype is not None):
             raise ValueError('invalid node kind/subtype')
+        body = node.get('body', {})
+        status = body.get('status', 'active')
+        if status not in {'active', 'planned', 'knowledge_only'}:
+            raise ValueError('invalid node lifecycle')
+        if body and (body.get('id') != node['id'] or body.get('kind') != kind):
+            raise ValueError('node body identity mismatch')
+        if status == 'planned':
+            if kind != 'problem_type' or any(body.get(key) != [] for key in ('methods', 'rules', 'examples')):
+                raise ValueError('planned problem type cannot expose executable routes or examples')
+            if not body.get('knowledge') or not body.get('features'):
+                raise ValueError('planned problem type requires knowledge and features')
+        if status == 'knowledge_only' and (kind != 'knowledge' or body.get('examples') != [] or not body.get('entries')):
+            raise ValueError('knowledge-only node requires substantive entries without examples')
+        if body and status == 'active':
+            if kind in CAPABILITY_KINDS | {'judgment_rule'} and (not isinstance(body.get('examples'), list) or not body['examples']):
+                raise ValueError('active capability requires examples')
+            if kind == 'problem_type' and not (body.get('methods') or body.get('rules')):
+                raise ValueError('active problem type requires a method entry')
         by_id[node['id']] = node
     seen, adjacency = set(), {node: [] for node in by_id}
     for edge in edges:
@@ -56,7 +74,7 @@ def validate_graph(nodes, edges):
             raise ValueError('invalid edge endpoint')
         ak, bk = by_id[a]['kind'], by_id[b]['kind']
         valid = {
-            'contains': (ak == 'textbook' and bk == 'chapter') or (ak == 'chapter' and bk == 'section') or (ak == 'section' and bk in CAPABILITY_KINDS),
+            'contains': (ak == 'textbook' and bk == 'chapter') or (ak == 'chapter' and bk == 'section') or (ak == 'section' and bk in CAPABILITY_KINDS) or (ak == 'collection' and bk == 'knowledge'),
             'extends': ak == 'section' and bk in CAPABILITY_KINDS,
             'prerequisite': ak == bk == 'knowledge',
             'involves': ak == 'problem_type' and bk == 'knowledge',
@@ -67,6 +85,8 @@ def validate_graph(nodes, edges):
             'selects': ak == 'judgment_rule' and (bk == 'method' or (by_id[a].get('subtype') == 'step_selection' and bk == 'skill')),
             'uses': ak == 'skill' and bk == 'knowledge',
         }.get(relation, False)
+        if by_id[a].get('body', {}).get('status') == 'planned' and relation in {'candidate', 'method_rule'}:
+            raise ValueError('planned problem type cannot expose method edges')
         if not valid:
             raise ValueError('invalid edge types')
         key = (a, b, relation)
@@ -145,6 +165,13 @@ def validate_content(rows):
     for node, _ in entries:
         if node not in types:
             raise ValueError('entry references removed node')
+    for row in rows['knowledge_entries']:
+        refs = row['body'].get('references')
+        if refs is not None:
+            if not isinstance(refs, list) or not refs or len(set(refs)) != len(refs):
+                raise ValueError('invalid entry references')
+            for ref in refs:
+                reference(ref, {'knowledge'})
     for edge in rows['knowledge_edges']:
         for occurrence in edge['occurrences']:
             if occurrence.get('entry'):
@@ -159,7 +186,10 @@ def validate_content(rows):
     for row in rows['practice_topic_problems']:
         if row['topic_id'] not in topics or row['problem_id'] not in problems:
             raise ValueError('topic membership references removed content')
+    planned_types = {node['id'] for node in rows['knowledge_nodes'] if node.get('body', {}).get('status') == 'planned'}
     for row in rows['practice_problem_types']:
+        if row['node_id'] in planned_types:
+            raise ValueError('practice problem cannot publish a planned type')
         if row['problem_id'] not in problems:
             raise ValueError('problem type references removed problem')
         reference(row['node_id'], {'problem_type'})

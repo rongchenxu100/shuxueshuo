@@ -12,6 +12,21 @@
       "node": "chapter-sets-logic",
       "sections": [
         {
+          "id": "section-1-1",
+          "number": "1.1",
+          "label": "集合的概念"
+        },
+        {
+          "id": "section-1-2",
+          "number": "1.2",
+          "label": "集合间的基本关系"
+        },
+        {
+          "id": "section-1-3",
+          "number": "1.3",
+          "label": "集合的基本运算"
+        },
+        {
           "id": "section-1-5",
           "number": "1.5",
           "label": "全称量词与存在量词"
@@ -53,6 +68,11 @@
       "recorded": true,
       "node": "chapter-functions",
       "sections": [
+        {
+          "id": "section-3-1",
+          "number": "3.1",
+          "label": "函数的概念及其表示"
+        },
         {
           "id": "section-3-2",
           "number": "3.2",
@@ -196,7 +216,49 @@
       "sections": []
     }
   ],
+  "collections": [
+    {
+      "id": "junior-knowledge",
+      "node": "junior-knowledge",
+      "kind": "collection",
+      "label": "初中知识",
+      "built": true,
+      "recorded": true,
+      "partial": false,
+      "sections": [],
+      "members": [
+        "rational-expression",
+        "absolute-value-concept",
+        "reciprocal-function"
+      ],
+      "counts": {
+        "knowledge": 3,
+        "skill": 0,
+        "method": 0,
+        "problem_type": 0,
+        "judgment_rule": 0
+      }
+    }
+  ],
   "nodes": [
+    {
+      "id": "absolute-value-concept",
+      "kind": "knowledge",
+      "label": "绝对值的概念与运算",
+      "summary": "绝对值表示数轴上到原点的距离，按被取绝对值的数的正负确定表达式。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "junior-knowledge"
+    },
+    {
+      "id": "absolute-value-function",
+      "kind": "knowledge",
+      "label": "绝对值函数",
+      "summary": "$f(x)=|x|$，图像呈 V 形，输出非负。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "compulsory-1-ch3"
+    },
     {
       "id": "amgm-formula",
       "kind": "knowledge",
@@ -212,7 +274,7 @@
       "id": "chapter-functions",
       "kind": "chapter",
       "label": "第三章 函数的概念与性质",
-      "summary": "本章尚未完整录入；目前只登记 3.2 中被第二章引用的函数单调性与最值。",
+      "summary": "本章登记 3.1 函数概念及其表示的知识与题型，并沿用 3.2 已有函数单调性与最值；方法和题目按题型逐步建设。",
       "aliases": [],
       "home": "compulsory-1-ch3"
     },
@@ -228,7 +290,7 @@
       "id": "chapter-sets-logic",
       "kind": "chapter",
       "label": "第一章 集合与常用逻辑用语",
-      "summary": "本章尚未完整录入；目前只登记 1.5 中被第二章引用的全称量词与存在量词。",
+      "summary": "本章登记 1.1–1.3 中函数学习所需的集合基础，并保留 1.5 已有全称量词与存在量词；其他内容未完整录入。",
       "aliases": [],
       "home": "compulsory-1-ch1"
     },
@@ -239,6 +301,38 @@
       "summary": "等式可经合法运算推导新等式；逆向使用时要检查非零、定义域等条件。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "floor-function",
+      "kind": "knowledge",
+      "label": "取整函数",
+      "summary": "$\\lfloor x\\rfloor$ 是不超过 $x$ 的最大整数；图像为左实右空的阶梯。",
+      "aliases": [
+        "向下取整函数"
+      ],
+      "status": "knowledge_only",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "function-concept",
+      "kind": "knowledge",
+      "label": "函数的概念",
+      "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+      "aliases": [
+        "函数定义",
+        "函数三要素"
+      ],
+      "status": "knowledge_only",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "function-graph-transformations",
+      "kind": "knowledge",
+      "label": "函数的图像及其变换",
+      "summary": "图像是输入输出点对的集合；变换同时保留对应规则、定义域和端点归属。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "compulsory-1-ch3"
     },
     {
       "id": "function-monotonicity",
@@ -257,12 +351,38 @@
       "home": "compulsory-1-ch3"
     },
     {
+      "id": "function-representations",
+      "kind": "knowledge",
+      "label": "函数的表示法",
+      "summary": "解析法、列表法和图像法从不同角度表达同一输入输出关系。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "inequality-properties",
       "kind": "knowledge",
       "label": "不等式的性质",
       "summary": "不等式的方向随运算条件变化，同乘或同除负数必须改变方向。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "interval-notation",
+      "kind": "knowledge",
+      "label": "区间的概念",
+      "summary": "区间用端点和开闭符号表示连续的实数范围，端点是否属于集合必须明确。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "junior-knowledge",
+      "kind": "collection",
+      "label": "初中知识",
+      "summary": "回顾高中学习中会用到的初中知识，理解分式、绝对值和反比例函数的基本概念。",
+      "aliases": [],
+      "home": "junior-knowledge"
     },
     {
       "id": "linear-interval-extremum",
@@ -851,6 +971,15 @@
       ]
     },
     {
+      "id": "piecewise-function",
+      "kind": "knowledge",
+      "label": "分段函数",
+      "summary": "同一函数可在不同输入范围用不同表达式；各段合起来定定义域与值域。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "quadratic-equation",
       "kind": "knowledge",
       "label": "一元二次方程",
@@ -935,12 +1064,30 @@
       "home": "compulsory-1-ch1"
     },
     {
+      "id": "rational-expression",
+      "kind": "knowledge",
+      "label": "分式",
+      "summary": "分式以分母非零为有意义的前提，约分后的表达式仍受原分母限制。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "junior-knowledge"
+    },
+    {
       "id": "real-order",
       "kind": "knowledge",
       "label": "不等式与实数大小关系",
       "summary": "用不等式表达大小关系，把两个实数的比较转化为它们的差与零的比较。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "reciprocal-function",
+      "kind": "knowledge",
+      "label": "反比例函数",
+      "summary": "两个变量的积为非零常数；自然定义域和值域都不含零。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "junior-knowledge"
     },
     {
       "id": "reciprocal-sum-function",
@@ -969,6 +1116,30 @@
       "summary": "遇到含参数的一元二次不等式，先看清「哪个字母在什么范围里变化」，再挑能用的方法，常常不止一种方法可用。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "section-1-1",
+      "kind": "section",
+      "label": "1.1 集合的概念",
+      "summary": "登记函数概念所需的集合、元素与表示基础；集合节点与 1.2 共享。",
+      "aliases": [],
+      "home": "compulsory-1-ch1"
+    },
+    {
+      "id": "section-1-2",
+      "kind": "section",
+      "label": "1.2 集合间的基本关系",
+      "summary": "复用集合节点中的子集与集合相等条目，不复制同一知识身份。",
+      "aliases": [],
+      "home": "compulsory-1-ch1"
+    },
+    {
+      "id": "section-1-3",
+      "kind": "section",
+      "label": "1.3 集合的基本运算",
+      "summary": "登记本批函数内容使用的交集与并集，其他集合运算不在本批范围内。",
+      "aliases": [],
+      "home": "compulsory-1-ch1"
     },
     {
       "id": "section-1-5",
@@ -1003,12 +1174,38 @@
       "home": "compulsory-1-ch2"
     },
     {
+      "id": "section-3-1",
+      "kind": "section",
+      "label": "3.1 函数的概念及其表示",
+      "summary": "认识函数的三要素、区间与表示方法，了解常用函数及定义域、求值、值域等题型。",
+      "aliases": [],
+      "home": "compulsory-1-ch3"
+    },
+    {
       "id": "section-3-2",
       "kind": "section",
       "label": "3.2 函数的基本性质",
       "summary": "用单调性描述函数的增减，用最大值与最小值描述函数的取值范围。",
       "aliases": [],
       "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "set-concept",
+      "kind": "knowledge",
+      "label": "集合的概念、表示、元素与子集",
+      "summary": "用确定的元素组成集合，以元素关系和包含关系描述输入、输出的范围。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "compulsory-1-ch1"
+    },
+    {
+      "id": "set-intersection-union",
+      "kind": "knowledge",
+      "label": "集合的交集与并集",
+      "summary": "交集表达同时满足的条件，并集表达至少满足一种条件的范围。",
+      "aliases": [],
+      "status": "knowledge_only",
+      "home": "compulsory-1-ch1"
     },
     {
       "id": "skill-apply-amgm",
@@ -1118,8 +1315,17 @@
       "id": "textbook-pep-a-compulsory-1",
       "kind": "textbook",
       "label": "人教 A 版必修第一册",
-      "summary": "本批公共图谱完整覆盖第二章，并纳入两个专题和相关补充练习；第一、三章目前只登记被第二章引用的知识点。同一数学对象跨节、跨章共享。",
+      "summary": "公共图谱覆盖第二章，登记第一章必要集合基础及量词知识、第三章 3.1 知识与题型和 3.2 已有知识；同一数学对象跨节、跨章共享，题型能力按批建设。",
       "aliases": []
+    },
+    {
+      "id": "type-abstract-function-domain",
+      "kind": "problem_type",
+      "label": "抽象函数的定义域问题",
+      "summary": "根据已知的函数输入范围，确定新复合表达式的合法输入，并合并其他表达式限制。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
     },
     {
       "id": "type-amgm-quantified",
@@ -1144,6 +1350,42 @@
       "summary": "给两个代数式，判断哪个大，或者在什么条件下哪个大。",
       "aliases": [],
       "home": "compulsory-1-ch2"
+    },
+    {
+      "id": "type-function-domain",
+      "kind": "problem_type",
+      "label": "具体函数的定义域问题",
+      "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-function-equality",
+      "kind": "problem_type",
+      "label": "判断是否为相同函数",
+      "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-function-evaluation",
+      "kind": "problem_type",
+      "label": "求函数值",
+      "summary": "根据对应关系求数值或表达式输入的输出，包含复合、函数值组合及逆向求输入。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
+    },
+    {
+      "id": "type-function-range",
+      "kind": "problem_type",
+      "label": "求函数的值域",
+      "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+      "aliases": [],
+      "status": "planned",
+      "home": "compulsory-1-ch3"
     },
     {
       "id": "type-parameter-quadratic-solve",
@@ -1196,6 +1438,24 @@
   ],
   "edges": [
     {
+      "id": "absolute-value-concept|prerequisite|absolute-value-function",
+      "from": "absolute-value-concept",
+      "to": "absolute-value-function",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "chapter-functions|contains|section-3-1",
+      "from": "chapter-functions",
+      "to": "section-3-1",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "chapter-functions|contains|section-3-2",
       "from": "chapter-functions",
       "to": "section-3-2",
@@ -1232,9 +1492,135 @@
       ]
     },
     {
+      "id": "chapter-sets-logic|contains|section-1-1",
+      "from": "chapter-sets-logic",
+      "to": "section-1-1",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "chapter-sets-logic|contains|section-1-2",
+      "from": "chapter-sets-logic",
+      "to": "section-1-2",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "chapter-sets-logic|contains|section-1-3",
+      "from": "chapter-sets-logic",
+      "to": "section-1-3",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "chapter-sets-logic|contains|section-1-5",
       "from": "chapter-sets-logic",
       "to": "section-1-5",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "function-concept|prerequisite|absolute-value-function",
+      "from": "function-concept",
+      "to": "absolute-value-function",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "function-concept|prerequisite|floor-function",
+      "from": "function-concept",
+      "to": "floor-function",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "function-concept|prerequisite|function-representations",
+      "from": "function-concept",
+      "to": "function-representations",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "function-representations|prerequisite|function-graph-transformations",
+      "from": "function-representations",
+      "to": "function-graph-transformations",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "function-representations|prerequisite|piecewise-function",
+      "from": "function-representations",
+      "to": "piecewise-function",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "inequality-properties|prerequisite|interval-notation",
+      "from": "inequality-properties",
+      "to": "interval-notation",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "interval-notation|prerequisite|floor-function",
+      "from": "interval-notation",
+      "to": "floor-function",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "interval-notation|prerequisite|piecewise-function",
+      "from": "interval-notation",
+      "to": "piecewise-function",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "junior-knowledge|contains|absolute-value-concept",
+      "from": "junior-knowledge",
+      "to": "absolute-value-concept",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "junior-knowledge|contains|rational-expression",
+      "from": "junior-knowledge",
+      "to": "rational-expression",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "junior-knowledge|contains|reciprocal-function",
+      "from": "junior-knowledge",
+      "to": "reciprocal-function",
       "type": "contains",
       "occurrences": [
         {}
@@ -2219,6 +2605,15 @@
       ]
     },
     {
+      "id": "rational-expression|prerequisite|reciprocal-function",
+      "from": "rational-expression",
+      "to": "reciprocal-function",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "real-order|prerequisite|inequality-properties",
       "from": "real-order",
       "to": "inequality-properties",
@@ -2309,6 +2704,33 @@
           "branch": "swap",
           "condition": "给出范围的是参数（如 $m\\in[1,3]$），要求的却是 $x$；把式子按这个参数整理后是一次式或常数，就看区间两端。"
         }
+      ]
+    },
+    {
+      "id": "section-1-1|contains|set-concept",
+      "from": "section-1-1",
+      "to": "set-concept",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-1-2|extends|set-concept",
+      "from": "section-1-2",
+      "to": "set-concept",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-1-3|contains|set-intersection-union",
+      "from": "section-1-3",
+      "to": "set-intersection-union",
+      "type": "contains",
+      "occurrences": [
+        {}
       ]
     },
     {
@@ -2897,6 +3319,141 @@
       ]
     },
     {
+      "id": "section-3-1|contains|absolute-value-function",
+      "from": "section-3-1",
+      "to": "absolute-value-function",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|floor-function",
+      "from": "section-3-1",
+      "to": "floor-function",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|function-concept",
+      "from": "section-3-1",
+      "to": "function-concept",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|function-graph-transformations",
+      "from": "section-3-1",
+      "to": "function-graph-transformations",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|function-representations",
+      "from": "section-3-1",
+      "to": "function-representations",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|interval-notation",
+      "from": "section-3-1",
+      "to": "interval-notation",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|piecewise-function",
+      "from": "section-3-1",
+      "to": "piecewise-function",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|type-abstract-function-domain",
+      "from": "section-3-1",
+      "to": "type-abstract-function-domain",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|type-function-domain",
+      "from": "section-3-1",
+      "to": "type-function-domain",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|type-function-equality",
+      "from": "section-3-1",
+      "to": "type-function-equality",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|type-function-evaluation",
+      "from": "section-3-1",
+      "to": "type-function-evaluation",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|contains|type-function-range",
+      "from": "section-3-1",
+      "to": "type-function-range",
+      "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|extends|linear-interval-extremum",
+      "from": "section-3-1",
+      "to": "linear-interval-extremum",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|extends|quadratic-function-properties",
+      "from": "section-3-1",
+      "to": "quadratic-function-properties",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "section-3-1|extends|reciprocal-function",
+      "from": "section-3-1",
+      "to": "reciprocal-function",
+      "type": "extends",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "section-3-2|contains|function-monotonicity",
       "from": "section-3-2",
       "to": "function-monotonicity",
@@ -2910,6 +3467,42 @@
       "from": "section-3-2",
       "to": "function-range-extrema",
       "type": "contains",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "set-concept|prerequisite|function-concept",
+      "from": "set-concept",
+      "to": "function-concept",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "set-concept|prerequisite|interval-notation",
+      "from": "set-concept",
+      "to": "interval-notation",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "set-concept|prerequisite|set-intersection-union",
+      "from": "set-concept",
+      "to": "set-intersection-union",
+      "type": "prerequisite",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "set-intersection-union|prerequisite|piecewise-function",
+      "from": "set-intersection-union",
+      "to": "piecewise-function",
+      "type": "prerequisite",
       "occurrences": [
         {}
       ]
@@ -3218,6 +3811,33 @@
       ]
     },
     {
+      "id": "type-abstract-function-domain|involves|function-concept",
+      "from": "type-abstract-function-domain",
+      "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-abstract-function-domain|involves|interval-notation",
+      "from": "type-abstract-function-domain",
+      "to": "interval-notation",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-abstract-function-domain|involves|set-intersection-union",
+      "from": "type-abstract-function-domain",
+      "to": "set-intersection-union",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
       "id": "type-amgm-quantified|candidate|method-amgm-parameter",
       "from": "type-amgm-quantified",
       "to": "method-amgm-parameter",
@@ -3311,6 +3931,132 @@
       "id": "type-expression-comparison|involves|square-nonnegative",
       "from": "type-expression-comparison",
       "to": "square-nonnegative",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-domain|involves|function-concept",
+      "from": "type-function-domain",
+      "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-domain|involves|interval-notation",
+      "from": "type-function-domain",
+      "to": "interval-notation",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-domain|involves|quadratic-inequality",
+      "from": "type-function-domain",
+      "to": "quadratic-inequality",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-domain|involves|quantifiers",
+      "from": "type-function-domain",
+      "to": "quantifiers",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-domain|involves|rational-expression",
+      "from": "type-function-domain",
+      "to": "rational-expression",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-domain|involves|set-intersection-union",
+      "from": "type-function-domain",
+      "to": "set-intersection-union",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-equality|involves|function-concept",
+      "from": "type-function-equality",
+      "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-evaluation|involves|function-concept",
+      "from": "type-function-evaluation",
+      "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|involves|absolute-value-function",
+      "from": "type-function-range",
+      "to": "absolute-value-function",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|involves|function-concept",
+      "from": "type-function-range",
+      "to": "function-concept",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|involves|interval-notation",
+      "from": "type-function-range",
+      "to": "interval-notation",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|involves|quadratic-function-properties",
+      "from": "type-function-range",
+      "to": "quadratic-function-properties",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|involves|reciprocal-function",
+      "from": "type-function-range",
+      "to": "reciprocal-function",
+      "type": "involves",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-range|involves|set-intersection-union",
+      "from": "type-function-range",
+      "to": "set-intersection-union",
       "type": "involves",
       "occurrences": [
         {}

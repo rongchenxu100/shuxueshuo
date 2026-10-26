@@ -42,7 +42,23 @@
 
 .topic-more { margin: 16px 0 0; padding: 14px 18px; border: 1px dashed #cfdcd7; border-radius: 16px; background: #fafcfb; color: var(--faint); font-size: 13px; text-align: center; }
 
+.topic-overview-chapter { margin-top: 36px; }
+.topic-building { margin-left: auto; padding: 2px 8px; border-radius: 999px; background: #fdf1dc; color: #8b5b0b; font-size: 12px; }
+.topic-empty { padding: 18px 20px; border: 1px dashed #b8cec5; border-radius: 16px; background: rgba(255, 255, 255, .7); }
+.topic-empty h2 { font-size: 17px; }
+.topic-empty p { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
+.topic-knowledge-entry { margin-bottom: 28px; }
+.topic-knowledge-entry .bank-heading a, .topic-type-link { color: var(--teal-dark); font-size: 14px; }
+.topic-knowledge-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.topic-knowledge-links a { display: grid; gap: 5px; height: 100%; padding: 14px 16px; border: 1px solid #cfe3de; border-radius: 12px; background: var(--paper); }
+.topic-knowledge-title { color: var(--teal-dark); font-size: 15px; font-weight: 650; }
+.topic-knowledge-summary { color: var(--muted); font-size: 13px; }
+.topic-type-link { display: inline-block; min-height: 44px; padding: 10px 0; }
+.topic-group-empty { margin: 4px 0 0; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.topic-overview-page .type-group + .type-group { margin-top: 16px; }
+
 @media (max-width: 720px) {
+  .topic-knowledge-links { grid-template-columns: 1fr; }
   .topic-grid { grid-template-columns: 1fr; }
   .topic-card { padding: 16px 16px 14px; border-radius: 16px; }
   .topic-card h3 { font-size: 18px; }

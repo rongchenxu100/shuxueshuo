@@ -67,7 +67,7 @@ def test_local_0010_rebuild_is_atomic_and_preserves_other_data(tmp_path, monkeyp
         assert result['ok'] and result['cleared']['knowledge_drill_attempts'] == 1
         assert (Path(result['backup']) / 'database.dump').is_file()
         with db.connect() as c:
-            assert c.scalar(text('SELECT count(*) FROM knowledge_nodes WHERE is_active')) == 67
+            assert c.scalar(text('SELECT count(*) FROM knowledge_nodes WHERE is_active')) == len(rows['knowledge_nodes'])
             assert c.scalar(text('SELECT count(*) FROM knowledge_drill_attempts')) == 0
             assert c.scalar(text('SELECT count(*) FROM users WHERE id=:u'), {'u': user}) == 1
             assert c.execute(text('SELECT problem_id FROM student_learning_marks')).scalars().all() == ['unrelated-problem']

@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 
 ABILITY_KINDS = ('knowledge', 'skill', 'method', 'problem_type')
-DIRECTORY_KINDS = ('textbook', 'chapter', 'section')
+DIRECTORY_KINDS = ('textbook', 'chapter', 'section', 'collection')
 
 
 def content_metadata(c):
@@ -84,7 +84,7 @@ def directory_progress_batch(c, scopes, statuses):
     nodes = {n['id']: dict(n) for n in c.execute(text(
         'SELECT id,kind,label FROM knowledge_nodes WHERE is_active')).mappings()}
     if any(scope not in nodes or nodes[scope]['kind'] not in DIRECTORY_KINDS for scope in scopes):
-        raise HTTPException(404, '没有找到教材、章或节。')
+        raise HTTPException(404, '没有找到教材、章、节或知识集合。')
     edges = list(c.execute(text("SELECT source_id,target_id,relation_type FROM knowledge_edges WHERE relation_type IN ('contains','extends')")).mappings())
     index = {n['node_id']: n for n in statuses}
 
@@ -100,7 +100,7 @@ def directory_progress_batch(c, scopes, statuses):
             if source in visited:
                 continue
             visited.add(source)
-            if nodes[source]['kind'] == 'section':
+            if nodes[source]['kind'] in {'section', 'collection'}:
                 sections.add(source)
             else:
                 pending.extend(e['target_id'] for e in edges if e['source_id'] == source

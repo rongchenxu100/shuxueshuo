@@ -14,7 +14,7 @@ if(params.has('graph')) {
   locate.searchParams.set('node',config.id);
   const view=locate.searchParams.get('view') || 'curriculum';
   if(!VIEW_KINDS[view]?.includes(config.kind)) {
-    locate.searchParams.set('view',config.kind==='knowledge'?'knowledge':['textbook','chapter','section'].includes(config.kind)?'curriculum':'solution');
+    locate.searchParams.set('view',config.kind==='knowledge'?'knowledge':['textbook','chapter','section','collection'].includes(config.kind)?'curriculum':'solution');
     locate.searchParams.delete('relations');
   }
   const kinds=(locate.searchParams.get('kinds') || '').split(',').filter(Boolean);

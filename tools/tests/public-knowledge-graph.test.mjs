@@ -14,15 +14,17 @@ const sources=await loadSources(),{nodes,manifest}=sources,edges=validateGraph(n
 const clone=()=>structuredClone(nodes);
 const byId=id=>nodes.find(n=>n.id===id);
 
-test('67 substantive originals; every mathematical node is in a section or is a referenced rule',()=>{
-  assert.equal(nodes.length,67);assert.equal(Object.keys(KINDS).length,8);
+test('substantive originals retain explicit lifecycle states and curriculum or collection membership',()=>{
+  assert.equal(nodes.length,89);assert.equal(Object.keys(KINDS).length,9);
   const whole=scopeMembers(graph,'chapter-quadratic-equations-inequalities');
   assert.equal(whole.size,63);
   for(const id of ['quantifiers','function-monotonicity','function-range-extrema'])assert.ok(whole.has(id),`${id} 仍由 2.3 拓展引用`);
   assert.equal(byId('method-complete-square').kind,'skill');
   assert.equal(byId('method-square-extremum').kind,'method');
-  for(const n of nodes.filter(n=>!['textbook','chapter','section'].includes(n.kind))) {
-    assert.ok(n.examples.length);assert.ok(n.summary.length>10);
+  for(const n of nodes.filter(n=>!['textbook','chapter','section','collection'].includes(n.kind))) {
+    if (!['planned','knowledge_only'].includes(n.status)) assert.ok(n.examples.length);
+    else assert.deepEqual(n.examples,[]);
+    assert.ok(n.summary.length>10);
   }
 });
 
@@ -183,7 +185,7 @@ test('3D tower: floors stack by kind, solo nodes stay in their section sector, s
   assert.deepEqual(t.sectors.map(s=>s.id),['section-2-1','section-2-2','section-2-3']);
   assert.ok(y('square-nonnegative')<y('skill-simplify')&&y('skill-simplify')<y('method-interval-extremum')&&y('method-interval-extremum')<y('type-quantified-quadratic')&&y('type-quantified-quadratic')<y('section-2-3')&&y('section-2-3')<y('chapter-quadratic-equations-inequalities'));
   const inside=(a,s)=>{const d=Math.atan2(Math.sin(a-s.mid),Math.cos(a-s.mid));return Math.abs(d)<=(s.end-s.start)/2+1e-9;};
-  for (const n of sub.nodes.filter(n=>!['textbook','chapter','section'].includes(n.kind))) {
+  for (const n of sub.nodes.filter(n=>!['textbook','chapter','section','collection'].includes(n.kind))) {
     const owners=t.sectionsOf(n.id),p=t.positions.get(n.id);
     assert.ok(owners.length,`${n.id} 没有所属节`);
     if(owners.length===1) assert.ok(inside(p.angle,t.sectors.find(s=>s.id===owners[0])),`${n.id} 越出所属扇区`);
@@ -195,7 +197,7 @@ test('3D tower: floors stack by kind, solo nodes stay in their section sector, s
 
 test('rendered HTML is complete, pre-renders math and links every entry, step and branch',async()=>{
   const a=await generate(),b=await generate();assert.deepEqual(a.outputs,b.outputs);
-  for(const n of nodes.filter(n=>!['textbook','chapter','section'].includes(n.kind))){
+  for(const n of nodes.filter(n=>!['textbook','chapter','section','collection'].includes(n.kind))){
     const html=a.outputs.get(`${n.id}/index.html`);assert.ok(html.includes(`<h1>${n.label}</h1>`));assert.ok(!/待补充|TODO/.test(html));
     for(const part of [...(n.entries||[]),...(n.operations||[]),...(n.steps||[]),...(n.branches||[])])assert.ok(html.includes(`id="${part.id}"`));
     assert.ok(!/api\/learning|learning-marks|drill\.js|\/assets\/explain\/explain\.js/.test(html));
@@ -239,7 +241,7 @@ test('detail pages: position chain, two-sided relations, compact method path, me
   assert.match(outputs.get('skill-apply-amgm/index.html'),/<li id="apply">.*?id="resource-apply-amgm-slots"/s);
   assert.match(outputs.get('method-interval-extremum/index.html'),/<li id="conditions">.*?id="resource-case-merge-union"/s);
   assert.match(outputs.get('skill-reciprocal-range/index.html'),/<li id="bounds">.*?id="resource-reciprocal-window-range".*?<li id="merge">.*?id="resource-reciprocal-split-range"/s);
-  for (const [file, html] of outputs) if (/^type-[^/]+\/index\.html$/.test(file)) {
+  for (const [file, html] of outputs) if (/^type-[^/]+\/index\.html$/.test(file) && byId(file.split('/')[0]).status !== 'planned') {
     assert.match(html,/<section id="features"><h2>题型特征<\/h2><div class="feature-sample">/,file);
     assert.match(html,/class="cue-example"/,file);
     assert.match(html,/class="feature-confuse".*?class="node-chip"/s,file);
@@ -279,9 +281,9 @@ test('2D pages: whole-curriculum overview, one graph page per recorded chapter, 
   const {outputs}=await generate();
   assert.deepEqual([...outputs.keys()].filter(k=>k.startsWith('chapters/')).sort(),['chapters/compulsory-1-ch1/index.html','chapters/compulsory-1-ch2/index.html','chapters/compulsory-1-ch3/index.html']);
   const overview=outputs.get('index.html');
-  assert.equal(overview.match(/class="chapter-card /g).length,18);
+  assert.equal(overview.match(/class="chapter-card /g).length,19);
   const wide=overview.match(/<svg class="map-svg is-wide"[\s\S]*?<\/svg>/)[0],narrow=overview.match(/<svg class="map-svg is-narrow"[\s\S]*?<\/svg>/)[0];
-  for(const map of [wide,narrow]){assert.equal(map.match(/class="map-chapter /g).length,18);assert.equal(map.match(/class="map-link is-relation"/g).length,2);}
+  for(const map of [wide,narrow]){assert.equal(map.match(/class="map-chapter /g).length,18);assert.equal(map.match(/class="map-link is-relation"/g).length,JSON.parse(outputs.get('city.json')).links.filter(l=>l.type==='relation'&&!l.from.includes('junior')&&!l.to.includes('junior')).length);}
   assert.ok(wide.includes('is-outline')&&!narrow.includes('is-outline'),'手机版关系图只画跨章知识关联');
   assert.match(overview,/id="chapter-compulsory-1-ch3"[\s\S]*?<span>先修<\/span>/);
   assert.match(overview,/href="\/knowledge\/chapters\/compulsory-1-ch2\/\?scope=section-2-3"/);
@@ -295,7 +297,7 @@ test('2D pages: whole-curriculum overview, one graph page per recorded chapter, 
   assert.equal(sections.reduce((s,m)=>s+Number(m[2]),0),(ch2.match(/data-directory-node=/g)||[]).length);
   assert.equal(new Set(ch2.match(/data-directory-node="[^"]+"/g)).size,(ch2.match(/data-directory-node=/g)||[]).length);
   const ch3=outputs.get('chapters/compulsory-1-ch3/index.html');
-  assert.match(ch3,/data-scope="section-3-2"/);assert.match(ch3,/其余 3 节建设中/);
+  assert.match(ch3,/data-scope="section-3-2"/);assert.match(ch3,/其余 2 节建设中/);
   const json=JSON.parse(outputs.get('graph.json')),home=new Map(json.nodes.map(n=>[n.id,n.home]));
   assert.equal(home.get('quantifiers'),'compulsory-1-ch1');assert.equal(home.get('textbook-pep-a-compulsory-1'),undefined);
   assert.equal(json.chapters.length,18);assert.deepEqual(json.chapters.filter(c=>c.recorded).map(c=>c.id),['compulsory-1-ch1','compulsory-1-ch2','compulsory-1-ch3']);
@@ -329,18 +331,18 @@ test('knowledge city: whole-curriculum outline, chapter 2 built, towers inside t
   assert.equal(homes.get('rule-quadratic-method'),'compulsory-1-ch2');
   const sub=chapterGraph(graph,homes,'compulsory-1-ch2');
   assert.ok(!sub.nodes.some(n=>n.kind==='textbook'||n.id==='quantifiers'));
-  assert.deepEqual(city.links.filter(l=>l.type==='relation').map(l=>[l.from,l.to,l.count]),[['compulsory-1-ch2','compulsory-1-ch3',6],['compulsory-1-ch1','compulsory-1-ch2',3]]);
+  assert.deepEqual(city.links.filter(l=>l.type==='relation').map(l=>[l.from,l.to,l.count]),[['compulsory-1-ch3','junior-knowledge',3],['compulsory-1-ch2','compulsory-1-ch3',9],['compulsory-1-ch1','compulsory-1-ch3',7],['compulsory-1-ch1','compulsory-1-ch2',3]]);
   const crossing=graph.edges.filter(e=>!['contains','extends'].includes(e.type)&&homes.get(e.from)!==homes.get(e.to));
   assert.ok(crossing.some(e=>e.from==='type-quantified-quadratic'&&e.to==='quantifiers'));
   const ch3=city.chapters.find(c=>c.id==='compulsory-1-ch3'),r=towerRadius(ch3);
   const scaffold=scaffoldLayout(ch3,chapterGraph(graph,homes,ch3.id),r,{sectionY:420,y:{knowledge:-270}});
-  assert.deepEqual(scaffold.sectors.map(s=>s.id),['section-3-2']);
+  assert.deepEqual(scaffold.sectors.map(s=>s.id),['section-3-1','section-3-2']);
   for(const id of ['function-monotonicity','function-range-extrema']){
-    const p=scaffold.positions.get(id),s=scaffold.sectors[0];
+    const p=scaffold.positions.get(id),s=scaffold.sectors.find(s=>s.id==='section-3-2');
     assert.ok(p.radius<r&&p.angle>=s.start&&p.angle<=s.end&&p.y===-270,`${id} 应在 3.2 扇区的地基层`);
     assert.deepEqual(scaffold.sectionsOf(id),['section-3-2']);
   }
-  const towers=[...plan.towers.entries()];assert.equal(towers.length,18);
+  const towers=[...plan.towers.entries()];assert.equal(towers.length,19);
   for(let i=0;i<towers.length;i++)for(let j=i+1;j<towers.length;j++){
     const [a,p]=towers[i],[b,q]=towers[j];
     assert.ok(Math.hypot(p.x-q.x,p.z-q.z)>p.radius+q.radius+60,`${a} 与 ${b} 重叠`);

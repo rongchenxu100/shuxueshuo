@@ -1,0 +1,13 @@
+{
+  "id": "section-1-2",
+  "kind": "section",
+  "label": "1.2 集合间的基本关系",
+  "summary": "复用集合节点中的子集与集合相等条目，不复制同一知识身份。",
+  "source": "人教 A 版必修第一册第一章 1.2",
+  "members": [
+    {
+      "ref": "set-concept",
+      "relation": "extends"
+    }
+  ]
+}

@@ -157,6 +157,13 @@ def fixture_summary(data):
     return {name: state[name] for name in ('limits', 'usage', 'fixture_seeded_tickets')}
 
 
+def validate_database(evidence, source):
+    revision = run(sys.executable, str(REPO / 'deploy/product/alembic-head.py'),
+                   str(source / 'server/alembic/versions'), capture=True)
+    if evidence != {'revision': revision, 'product_jobs': 0, 'product_builds': 0}:
+        raise RuntimeError('Unexpected migration revision or product work during offline rehearsal')
+
+
 def validate_configuration(configuration, output):
     services = configuration['services']
     for name, service in services.items():
@@ -367,8 +374,7 @@ def rehearse(args, output):
             '"product_builds":connection.scalar(text("SELECT count(*) FROM builds"))}; '
             'connection.close(); database.dispose(); print(json.dumps(evidence))', capture=True)
         report['database'] = json.loads(evidence)
-        if report['database'] != {'revision': '0016_search_admission', 'product_jobs': 0, 'product_builds': 0}:
-            raise RuntimeError('Unexpected migration revision or product work during offline rehearsal')
+        validate_database(report['database'], source)
         report['passed'] = True
     finally:
         failed = sys.exc_info()[0] is not None

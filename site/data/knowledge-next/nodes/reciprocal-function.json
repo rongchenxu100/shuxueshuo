@@ -1,0 +1,50 @@
+{
+  "id": "reciprocal-function",
+  "kind": "knowledge",
+  "status": "knowledge_only",
+  "label": "反比例函数",
+  "summary": "两个变量的积为非零常数；自然定义域和值域都不含零。",
+  "source": "初中数学：反比例函数；人教 A 版必修第一册 3.1 复用；3.1 知识图谱设计 K8",
+  "prerequisites": [
+    "rational-expression"
+  ],
+  "entries": [
+    {
+      "id": "definition",
+      "title": "定义",
+      "type": "定义",
+      "body": [
+        "$f(x)=\\frac{k}{x}$（$k\\ne0$），等价于 $xy=k$。与对勾函数 $x+\\frac{k}{x}$ 不是同一对象。"
+      ],
+      "conditions": "$k\\ne0$，$x\\ne0$。"
+    },
+    {
+      "id": "domain-range",
+      "title": "定义域与值域",
+      "type": "性质",
+      "body": [
+        "自然定义域、值域均为 $\\mathbb R\\setminus\\{0\\}$。另限定义域时，值域只取该范围内的实际输出。"
+      ],
+      "conditions": "$k\\ne0$。",
+      "references": [
+        "function-concept#elements"
+      ]
+    },
+    {
+      "id": "graph",
+      "title": "图像",
+      "type": "性质",
+      "body": [
+        "双曲线两支，不与坐标轴相交，不跨 $x=0$ 连线。$k>0$ 在一、三象限，$k<0$ 在二、四象限。"
+      ],
+      "conditions": "$k\\ne0$。",
+      "references": [
+        "function-graph-transformations#graph"
+      ]
+    }
+  ],
+  "resources": [
+    "reciprocal-hyperbola"
+  ],
+  "examples": []
+}

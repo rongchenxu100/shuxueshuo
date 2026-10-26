@@ -1,0 +1,69 @@
+{
+  "id": "section-3-1",
+  "kind": "section",
+  "label": "3.1 函数的概念及其表示",
+  "summary": "认识函数的三要素、区间与表示方法，了解常用函数及定义域、求值、值域等题型。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "members": [
+    {
+      "ref": "function-concept",
+      "relation": "contains"
+    },
+    {
+      "ref": "interval-notation",
+      "relation": "contains"
+    },
+    {
+      "ref": "function-representations",
+      "relation": "contains"
+    },
+    {
+      "ref": "piecewise-function",
+      "relation": "contains"
+    },
+    {
+      "ref": "function-graph-transformations",
+      "relation": "contains"
+    },
+    {
+      "ref": "absolute-value-function",
+      "relation": "contains"
+    },
+    {
+      "ref": "floor-function",
+      "relation": "contains"
+    },
+    {
+      "ref": "type-function-equality",
+      "relation": "contains"
+    },
+    {
+      "ref": "type-function-domain",
+      "relation": "contains"
+    },
+    {
+      "ref": "type-abstract-function-domain",
+      "relation": "contains"
+    },
+    {
+      "ref": "type-function-evaluation",
+      "relation": "contains"
+    },
+    {
+      "ref": "type-function-range",
+      "relation": "contains"
+    },
+    {
+      "ref": "reciprocal-function",
+      "relation": "extends"
+    },
+    {
+      "ref": "linear-interval-extremum",
+      "relation": "extends"
+    },
+    {
+      "ref": "quadratic-function-properties",
+      "relation": "extends"
+    }
+  ]
+}

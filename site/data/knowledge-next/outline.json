@@ -17,13 +17,13 @@
   ],
   "chapters": [
     {"id": "compulsory-1-ch1", "book": "compulsory-1", "number": 1, "strand": "preliminary", "label": "集合与常用逻辑用语", "node": "chapter-sets-logic", "sections": [
-      {"number": "1.1", "label": "集合的概念"}, {"number": "1.2", "label": "集合间的基本关系"}, {"number": "1.3", "label": "集合的基本运算"},
+      {"number": "1.1", "label": "集合的概念", "node": "section-1-1"}, {"number": "1.2", "label": "集合间的基本关系", "node": "section-1-2"}, {"number": "1.3", "label": "集合的基本运算", "node": "section-1-3"},
       {"number": "1.4", "label": "充分条件与必要条件"}, {"number": "1.5", "label": "全称量词与存在量词", "node": "section-1-5"}]},
     {"id": "compulsory-1-ch2", "book": "compulsory-1", "number": 2, "strand": "preliminary", "label": "一元二次函数、方程和不等式", "node": "chapter-quadratic-equations-inequalities", "sections": [
       {"number": "2.1", "label": "等式性质与不等式性质", "node": "section-2-1"}, {"number": "2.2", "label": "基本不等式", "node": "section-2-2"},
       {"number": "2.3", "label": "二次函数与一元二次方程、不等式", "node": "section-2-3"}]},
     {"id": "compulsory-1-ch3", "book": "compulsory-1", "number": 3, "strand": "function", "label": "函数的概念与性质", "node": "chapter-functions", "sections": [
-      {"number": "3.1", "label": "函数的概念及其表示"}, {"number": "3.2", "label": "函数的基本性质", "node": "section-3-2"}, {"number": "3.3", "label": "幂函数"}, {"number": "3.4", "label": "函数的应用（一）"}]},
+      {"number": "3.1", "label": "函数的概念及其表示", "node": "section-3-1"}, {"number": "3.2", "label": "函数的基本性质", "node": "section-3-2"}, {"number": "3.3", "label": "幂函数"}, {"number": "3.4", "label": "函数的应用（一）"}]},
     {"id": "compulsory-1-ch4", "book": "compulsory-1", "number": 4, "strand": "function", "label": "指数函数与对数函数", "sections": [
       {"number": "4.1", "label": "指数"}, {"number": "4.2", "label": "指数函数"}, {"number": "4.3", "label": "对数"}, {"number": "4.4", "label": "对数函数"}, {"number": "4.5", "label": "函数的应用（二）"}]},
     {"id": "compulsory-1-ch5", "book": "compulsory-1", "number": 5, "strand": "function", "label": "三角函数", "sections": [

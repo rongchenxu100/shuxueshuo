@@ -97,9 +97,10 @@ button { font: inherit; }
   background-image: radial-gradient(1px 1px at 24px 36px, rgba(255, 255, 255, .4), transparent 60%), radial-gradient(1px 1px at 110px 140px, rgba(255, 255, 255, .25), transparent 60%), radial-gradient(1.5px 1.5px at 180px 64px, rgba(180, 255, 244, .4), transparent 60%), radial-gradient(1px 1px at 246px 196px, rgba(255, 255, 255, .22), transparent 60%), radial-gradient(1px 1px at 62px 210px, rgba(196, 161, 255, .35), transparent 60%);
   background-size: 280px 240px;
 }
-#graph { display: block; width: 100%; height: clamp(560px, calc(100vh - 220px), 880px); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
-#graph.is-dragging { cursor: grabbing; }
-#graph:focus-visible { outline: 2px solid #2dd4bf; outline-offset: -2px; }
+/* Scoped under .canvas-wrap: detail entries also use id="graph" (图像). */
+.canvas-wrap #graph { display: block; width: 100%; height: clamp(560px, calc(100vh - 220px), 880px); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.canvas-wrap #graph.is-dragging { cursor: grabbing; }
+.canvas-wrap #graph:focus-visible { outline: 2px solid #2dd4bf; outline-offset: -2px; }
 .canvas-help { position: absolute; bottom: 12px; left: 16px; margin: 0; color: rgba(200, 220, 230, .5); font-size: 12px; pointer-events: none; }
 .kx-canvas-foot { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid var(--sky-line); color: var(--sky-muted); font-size: 12.5px; }
 #graph-status { flex: 1; margin: 0; }
@@ -233,6 +234,10 @@ button { font: inherit; }
 .dir-locate:hover { border-color: var(--teal); background: var(--teal-soft); }
 .kind-badge { display: inline-block; padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--kc) 10%, white); color: var(--kc); font-size: 11.5px; font-weight: 700; letter-spacing: .04em; }
 .kind-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.directory-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 16px 0; font-size: 13px; }
+.directory-filter select, .directory-filter input { max-width: 100%; padding: 7px 12px; border: 1px solid #cfe3de; border-radius: 8px; background: #fff; color: var(--ink); font: inherit; }
+.directory-filter [role="status"] { color: var(--muted); }
+.node-list-page [hidden] { display: none !important; }
 .kind-nav a { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border: 1px solid #cfe3de; border-radius: 999px; background: #fff; color: var(--ink-soft); font-size: 13px; transition: border-color .15s; }
 .kind-nav a:hover { border-color: var(--kc); }
 .kind-nav i { width: 7px; height: 7px; border-radius: 50%; background: var(--kc); }
@@ -270,6 +275,9 @@ button { font: inherit; }
 .hero .eyebrow { flex-wrap: wrap; row-gap: 4px; }
 .hero .eyebrow > * { white-space: nowrap; }
 .entry p:last-child { margin-bottom: 0; }
+.entry-points { display: grid; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; counter-reset: entry-point; }
+.entry-points li { position: relative; margin: 0; padding: 10px 12px 10px 42px; border: 1px solid #d9e8e2; border-radius: 12px; background: #fff; font-size: 14.5px; line-height: 1.75; }
+.entry-points li::before { counter-increment: entry-point; content: counter(entry-point); position: absolute; left: 12px; top: 12px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--teal); color: #fff; font-size: 12.5px; font-weight: 700; }
 .condition { margin: 10px 0 0; padding: 9px 14px; border-left: 3px solid var(--amber); border-radius: 0 10px 10px 0; background: #fdf6e9; color: #6b5320; font-size: 13.5px !important; }
 .contract { padding: 18px 22px 20px; border: 1px solid #cfe6de; border-radius: 16px; background: linear-gradient(180deg, #eef8f4, #f7fbfa); }
 .detail-body .contract h2 { padding-bottom: 0; border-bottom: 0; color: var(--teal-dark); }
@@ -394,7 +402,7 @@ button { font: inherit; }
   .kind-chips { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
   .kind-chip { flex: none; }
   .kx-tools { justify-content: space-between; width: 100%; margin-left: 0; }
-  #graph { height: 520px; }
+  .canvas-wrap #graph { height: 520px; }
   .canvas-help { font-size: 0; }
   .canvas-help::after { content: "单指拖动查看全图 · 点选节点看说明"; font-size: 11px; }
   .kx-drawer { position: static; width: auto; margin: 0 12px 12px; animation: none; }
@@ -706,3 +714,6 @@ a.kx-chapter-link:hover { border-color: var(--teal); color: var(--teal-dark); }
   .node-body, .kx-drawer, .graph-node.path-current .node-body, .layer-surfaced .edge { animation: none; }
   .edge.lit .edge-line, .edge.path-on .edge-line { animation: none; }
 }
+
+[data-kind="collection"] { --kg: #9fd3c7; }
+.lifecycle-badge { display: inline-block; margin: .25rem .5rem .25rem 0; padding: .2rem .55rem; border: 1px solid currentColor; border-radius: 1rem; font-size: .8rem; color: #586e66; }

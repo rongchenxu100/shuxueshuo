@@ -1,0 +1,52 @@
+{
+  "id": "absolute-value-function",
+  "kind": "knowledge",
+  "status": "knowledge_only",
+  "label": "绝对值函数",
+  "summary": "$f(x)=|x|$，图像呈 V 形，输出非负。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "prerequisites": [
+    "function-concept",
+    "absolute-value-concept"
+  ],
+  "entries": [
+    {
+      "id": "definition",
+      "title": "定义",
+      "type": "定义",
+      "body": [
+        "$f(x)=|x|$：$x<0$ 时等于 $-x$，$x\\ge0$ 时等于 $x$。两段在 $x=0$ 相接，合为一个函数。"
+      ],
+      "conditions": "$x\\in\\mathbb R$。",
+      "references": [
+        "absolute-value-concept#definition",
+        "piecewise-function#definition"
+      ]
+    },
+    {
+      "id": "domain-range",
+      "title": "定义域与值域",
+      "type": "性质",
+      "body": [
+        "自然定义域 $\\mathbb R$，值域 $[0,+\\infty)$。另限定义域时只取该范围内的实际输出。"
+      ],
+      "conditions": "未另限输入时用自然定义域。"
+    },
+    {
+      "id": "graph",
+      "title": "图像",
+      "type": "性质",
+      "body": [
+        "原点两侧各一条射线，呈 V 形，关于 $y$ 轴对称。"
+      ],
+      "conditions": "$x\\in\\mathbb R$。",
+      "references": [
+        "function-graph-transformations#graph"
+      ]
+    }
+  ],
+  "resources": [
+    "absolute-value-v"
+  ],
+  "examples": []
+}

@@ -1,0 +1,22 @@
+/* piecewise-function explainer; scoped to .explain-piecewise-function. */
+.explain-piecewise-function .pw-problem { display:flex; align-items:baseline; gap:8px; margin:0 0 10px; padding:8px 12px; border:1px solid #f0dcc0; border-radius:10px; background:#fffaf2; color:#5e4520; font-size:13.5px; line-height:1.6; }
+.explain-piecewise-function .pw-badge { flex:none; padding:1px 7px; border-radius:6px; background:#d98a1f; color:#fff; font-size:11px; font-weight:700; }
+.explain-piecewise-function .pw-explorer { display:grid; gap:8px; padding:12px; border:1px solid #dbe8e4; border-radius:14px; background:#f7fbfa; }
+.explain-piecewise-function .pw-formula { margin:0; text-align:center; font-size:14.5px; font-weight:650; }
+.explain-piecewise-function .pw-graph { display:block; width:100%; max-width:520px; height:auto; margin:0 auto; touch-action:none; cursor:ew-resize; user-select:none; }
+.explain-piecewise-function .pw-plot { fill:#fff; stroke:#e0ebe8; }
+.explain-piecewise-function .pw-axis { fill:none; stroke:#9dafaa; stroke-width:1.2; }
+.explain-piecewise-function .pw-axis-label, .explain-piecewise-function .pw-tick { fill:#6a7f79; font-size:12px; }
+.explain-piecewise-function .pw-curve { fill:none; stroke-width:2.6; stroke-linecap:round; }
+.explain-piecewise-function .pw-curve.left { stroke:#087f79; }
+.explain-piecewise-function .pw-curve.right { stroke:#1d6fa5; }
+.explain-piecewise-function .pw-closed { fill:#087f79; stroke:#fff; stroke-width:1.5; }
+.explain-piecewise-function .pw-caption { fill:#6a7f79; font-size:12px; }
+.explain-piecewise-function .pw-guide { fill:none; stroke:#82b8b0; stroke-width:1.2; stroke-dasharray:4 3; }
+.explain-piecewise-function .pw-point { fill:#c2410c; stroke:#fff; stroke-width:2; }
+.explain-piecewise-function .pw-point-label { fill:#9a3412; font-size:12px; font-weight:650; }
+.explain-piecewise-function .pw-status { margin:0; text-align:center; color:#33504a; font-size:13.5px; font-weight:600; }
+.explain-piecewise-function .pw-foot { margin:10px 0 0; color:var(--muted); font-size:13px; line-height:1.55; }
+@media(max-width:600px) {
+  .explain-piecewise-function .pw-explorer { padding:8px; }
+}

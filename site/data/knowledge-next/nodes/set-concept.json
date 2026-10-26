@@ -1,0 +1,41 @@
+{
+  "id": "set-concept",
+  "kind": "knowledge",
+  "status": "knowledge_only",
+  "label": "集合的概念、表示、元素与子集",
+  "summary": "用确定的元素组成集合，以元素关系和包含关系描述输入、输出的范围。",
+  "source": "人教 A 版必修第一册第一章 1.1、1.2；3.1 知识图谱设计 P1",
+  "entries": [
+    {
+      "id": "definition",
+      "title": "集合与元素",
+      "type": "定义",
+      "body": [
+        "把研究对象统称为元素，一些确定的元素组成集合。元素具有确定性、互异性和无序性。",
+        "$a\\in A$ 表示元素 $a$ 属于集合 $A$；$a\\notin A$ 表示不属于。不含任何元素的集合为空集，记作 $\\varnothing$。"
+      ],
+      "conditions": "讨论对象与判断元素归属的标准已经明确。"
+    },
+    {
+      "id": "representations",
+      "title": "集合的表示",
+      "type": "表达形式",
+      "body": [
+        "列举法把全部元素列在大括号内；描述法用共同特征刻画元素，如 $\\{x\\in\\mathbb R\\mid P(x)\\}$。",
+        "常用数集有自然数集 $\\mathbb N$、整数集 $\\mathbb Z$、有理数集 $\\mathbb Q$ 和实数集 $\\mathbb R$；离散元素逐个列出，不把有限集合写成包含中间数的连续范围。"
+      ],
+      "conditions": "列举法用于能够完整列举的集合；描述法须说明对象范围与共同特征。"
+    },
+    {
+      "id": "subset",
+      "title": "子集与集合相等",
+      "type": "定义",
+      "body": [
+        "若集合 $A$ 的每个元素都属于 $B$，则 $A\\subseteq B$；空集是任意集合的子集。",
+        "$A=B$ 当且仅当 $A\\subseteq B$ 且 $B\\subseteq A$，即两集合的元素完全相同。元素属于集合与集合包含于集合是不同关系。"
+      ],
+      "conditions": "比较两个集合中的全部元素。"
+    }
+  ],
+  "examples": []
+}

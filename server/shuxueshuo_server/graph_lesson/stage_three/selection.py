@@ -12,6 +12,8 @@ from .premises import check_premise
 
 def load_contract(primary):
     nodes = load_nodes()
+    if nodes.get(primary, {}).get("status") == "planned":
+        return None
     for rule in nodes.get(primary, {}).get("rules", []):
         path = DATA / "selection" / f"{rule}.json"
         if path.exists():

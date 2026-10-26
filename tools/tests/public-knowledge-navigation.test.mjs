@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import vm from 'node:vm';
 import {isPreview, modeHref} from '../../site/assets/practice/learning-mode.mjs';
-import {safeGraphReturn, VIEW_KINDS, writeState, nodeHref, chapterPath} from '../../site/assets/knowledge-next/model.mjs';
+import {safeGraphReturn, VIEW_KINDS, writeState, nodeHref, chapterPath, groupPath} from '../../site/assets/knowledge-next/model.mjs';
 
 const origin = 'https://site';
 const chapter = '/knowledge/chapters/compulsory-1-ch2/';
 const detailSource = (await fs.readFile(new URL('../../site/assets/knowledge-next/detail.mjs', import.meta.url), 'utf8'))
   .replace(/^import .*;\n/gm, '');
 const graphSource = await fs.readFile(new URL('../../site/assets/knowledge-next/graph.mjs', import.meta.url), 'utf8');
+const towerSource = await fs.readFile(new URL('../../site/assets/knowledge-next/tower-view.mjs', import.meta.url), 'utf8');
 
 function detailLinks(href, kind = 'skill') {
   const links = {
@@ -87,7 +88,7 @@ function graphNavigation(search) {
     graphSource.slice(graphSource.indexOf('function locate('), graphSource.indexOf('function relationGroups('));
   const updates = [];
   const context = vm.createContext({
-    URL, URLSearchParams, location, state, config, isPreview, modeHref, writeState, nodeHref, chapterPath,
+    URL, URLSearchParams, location, state, config, isPreview, modeHref, writeState, nodeHref, chapterPath, groupPath,
     byId:new Map([['quantifiers',{kind:'knowledge',home:'compulsory-1-ch1'}]]),
     chapters:new Map([['compulsory-1-ch1',{id:'compulsory-1-ch1',node:'chapter-sets-logic',sections:[{id:'section-1-5'}]}]]),
     graph:{}, scopeMembers:() => new Set(['quantifiers']), elsewhere:() => true,
@@ -125,5 +126,105 @@ test('graph state updates and detail round-trips keep mode, state and hash', () 
     const detail = new URL(context.run("detailHref('method-complete-square')"), origin);
     const returned = detailLinks(detail.href)['[data-graph-return]'];
     assert.equal(returned.href, updated.href);
+  }
+});
+
+test('3D collection HUD enters its tower once and does not double-handle canvas labels', () => {
+  // Keep the HUD and CSS2D labels as sibling event roots, as in the generated
+  // page. Exercise their real event registrations, including click bubbling.
+  class Element {
+    constructor(parent = null, dataset = {}) { this.parent = parent; this.dataset = dataset; this.events = new Map(); this.innerHTML = ''; }
+    addEventListener(type, callback) { this.events.set(type, [...(this.events.get(type) || []), callback]); }
+    setAttribute() {}
+    closest(selector) {
+      const attribute = selector.match(/^\[data-([a-z-]+)\]$/)?.[1];
+      const key = attribute?.replace(/-([a-z])/g, (_match, letter) => letter.toUpperCase());
+      for (let node = this; node; node = node.parent) if (key && Object.hasOwn(node.dataset, key)) return node;
+      return null;
+    }
+    click() {
+      const event = {target: this};
+      for (let node = this; node; node = node.parent) for (const callback of node.events.get('click') || []) callback(event);
+    }
+  }
+  const document = new Element(), hud = new Element(document), labels = new Element(document), selection = new Element(document);
+  const elements = new Map([['#tower-sections', hud]]);
+  const $ = selector => { if (!elements.has(selector)) elements.set(selector, new Element(document)); return elements.get(selector); };
+  const collection = {id:'junior-knowledge', kind:'collection', label:'初中知识', built:true, sections:[]};
+  const entered = [], context = vm.createContext({
+    $, $$:() => [], document, labels:{domElement:labels}, selection:() => selection,
+    state:{level:'city',chapter:'',strand:'',spin:false}, chapters:new Map(),
+    city:{chapters:[],strands:[],collections:[collection]}, graph:{nodes:[]}, nodeTower:new Map(),
+    cityGroups:city => [...city.chapters,...city.collections], chapterName:() => '知识集合', h:text => text,
+    enterTower:id => entered.push(id), addEventListener() {},
+    select:() => assert.fail('A collection shortcut must enter its group, not select a knowledge node')
+  });
+  const wire = towerSource.slice(towerSource.indexOf('function wire()'), towerSource.indexOf('async function boot()'));
+  const chrome = towerSource.slice(towerSource.indexOf('function renderChrome()'), towerSource.indexOf('function updateURL()'));
+  const canvasClicks = towerSource.slice(towerSource.indexOf('  const nodeOf = event =>'), towerSource.indexOf("  labels.domElement.addEventListener('pointerover'"));
+  vm.runInContext(chrome + wire + canvasClicks + '\nwire(); renderChrome();', context);
+  const id = hud.innerHTML.match(/data-chapter="([^"]+)"/)?.[1];
+  assert.equal(id, collection.id, 'the visible bottom bar offers the collection shortcut');
+  const hudButton = new Element(hud, {chapter:id});
+  new Element(hudButton).click(); // Click the nested bold label, not just its button.
+  assert.deepEqual(entered, [collection.id]);
+  const canvasButton = new Element(labels, {chapter:id});
+  new Element(canvasButton).click();
+  assert.deepEqual(entered, [collection.id,collection.id], 'CSS2D clicks must not also trigger the HUD handler');
+  vm.runInContext('renderChrome()', context); // Re-rendering the bar keeps its delegation.
+  new Element(new Element(hud, {chapter:id})).click();
+  assert.deepEqual(entered, [collection.id,collection.id,collection.id]);
+});
+
+const towerRestore = towerSource.slice(towerSource.lastIndexOf('  const p = new URLSearchParams(location.search);'), towerSource.indexOf("\n}\n$('#tower-retry')"));
+
+function towerFocusNavigation(search = '') {
+  const state = {level:'city',chapter:'',node:'',section:'',strand:''};
+  const location = new URL('/knowledge/3d/' + search, origin), focused = [];
+  const context = vm.createContext({
+    URLSearchParams, state, location, isPreview, modeHref,
+    byId:new Map([
+      ['junior-knowledge',{kind:'collection'}], ['section-3-1',{kind:'section'}],
+      ['function-concept',{kind:'knowledge'}], ['unplaced-collection',{kind:'collection'}]
+    ]),
+    nodeTower:new Map([['junior-knowledge','junior-knowledge'],['section-3-1','compulsory-1-ch3'],['function-concept','compulsory-1-ch3']]),
+    chapters:new Map(), city:{strands:[]},
+    history:{replaceState(_state, _title, href) {location.href = new URL(href, location.href).href;}},
+    stopPath() {}, showSelection() {}, renderChrome() {},
+    view:{focusSection:id => focused.push(id),apply:() => focused.push('city')},
+    select:() => assert.fail('A section URL must not select a node'),
+    enterTower:() => assert.fail('A section URL must preserve its focused scope'),
+    chooseStrand:() => assert.fail('A section URL must not select a strand')
+  });
+  const update = towerSource.slice(towerSource.indexOf('function updateURL()'), towerSource.indexOf('function refresh()'));
+  const choose = towerSource.slice(towerSource.indexOf('function chooseSection('), towerSource.indexOf('function back()'));
+  vm.runInContext(update + choose + '\nfunction refresh() { updateURL(); }', context);
+  return {state,location,focused,run:expression => vm.runInContext(expression, context)};
+}
+
+test('3D collection and chapter section focus survives serializing and restoring its URL', () => {
+  for (const id of ['junior-knowledge','section-3-1']) {
+    for (const search of ['', '?preview=1', '?knowledge=next']) {
+      const context = towerFocusNavigation(search);
+      context.run(`chooseSection(${JSON.stringify(id)})`);
+      assert.equal(context.location.searchParams.get('section'), id);
+      assert.equal(isPreview(context.location.search), Boolean(search));
+      const selected = {...context.state};
+      Object.assign(context.state, {level:'city',chapter:'',node:'',section:'',strand:''});
+      context.run(towerRestore);
+      assert.deepEqual(context.state, selected, `${id} must restore its focused group after reload`);
+      assert.deepEqual(context.focused, [id,id]);
+      assert.equal(isPreview(context.location.search), Boolean(search));
+    }
+  }
+});
+
+test('3D section URL rejects missing, non-scope and unplaced collection IDs', () => {
+  for (const id of ['missing','function-concept','unplaced-collection']) {
+    const context = towerFocusNavigation(`?section=${id}`);
+    context.run(towerRestore);
+    assert.deepEqual(context.focused, ['city']);
+    assert.equal(context.state.level, 'city');
+    assert.equal(context.state.section, '');
   }
 });

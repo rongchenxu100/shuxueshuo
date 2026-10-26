@@ -13,7 +13,9 @@ def load_nodes():
 
 
 def load_contracts():
-    return [json.loads(p.read_text()) for p in sorted((DATA / "recognition").glob("type-*.json"))]
+    nodes = load_nodes()
+    contracts = [json.loads(p.read_text()) for p in sorted((DATA / "recognition").glob("type-*.json"))]
+    return [contract for contract in contracts if nodes.get(contract["type_id"], {}).get("status") != "planned"]
 
 
 def _index(features):
@@ -77,6 +79,8 @@ def evaluate_types(features, verification=None, contracts=None):
     reports, identifiers = [], set()
     for contract in load_contracts() if contracts is None else contracts:
         type_id = contract["type_id"]
+        if nodes.get(type_id, {}).get("status") == "planned":
+            continue
         branches = []
         for branch in contract["branches"]:
             checks = []

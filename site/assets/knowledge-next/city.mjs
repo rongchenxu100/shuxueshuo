@@ -5,7 +5,8 @@ import {scopeMembers} from './model.mjs';
 import {TOWER} from './tower.mjs';
 
 const TAU = Math.PI * 2;
-const ORG = ['textbook', 'chapter', 'section'];
+const ORG = ['textbook', 'chapter', 'section', 'collection'];
+export const cityGroups = city => [...city.chapters, ...(city.collections || [])];
 export const CITY = {plaza: 820, start: 1650, step: 1300, lane: 480, wedge: 0.5};
 export const towerRadius = ch => ch.built ? TOWER.radius : 290 + 26 * ch.sections.length;
 export const recorded = ch => ch.built || ch.partial;
@@ -43,7 +44,8 @@ export function buildCity(outline, graph) {
   const homes = homeChapters(outline, graph);
   // Node relations between two chapters merge into one link, earlier chapter first; directions differ
   // by relation type, so the link itself carries no direction.
-  const relationCounts = new Map(), order = new Map(outline.chapters.map((c, i) => [c.id, i]));
+  const collections = graph.nodes.filter(n => n.kind === 'collection');
+  const relationCounts = new Map(), order = new Map([...outline.chapters, ...collections].map((c, i) => [c.id, i]));
   for (const e of graph.edges) {
     if (['contains', 'extends'].includes(e.type)) continue;
     const a = homes.get(e.from), b = homes.get(e.to);
@@ -63,6 +65,8 @@ export function buildCity(outline, graph) {
         counts: Object.fromEntries(kinds.map(k => [k, members.filter(n => n.kind === k).length])),
         sections: c.sections.map(s => ({number: s.number, label: s.label, ...(s.node ? {node: s.node} : {})}))};
     }),
+    collections: collections.map(n => ({id: n.id, node: n.id, kind: 'collection', label: n.label, built: true, recorded: true, partial: false, sections: [],
+      members: n.members.map(m => m.ref), counts: Object.fromEntries(kinds.map(k => [k, graph.nodes.filter(member => homes.get(member.id) === n.id && member.kind === k).length]))})),
     links: [
       ...outline.prerequisites.map(([from, to]) => ({from, to, type: 'outline'})),
       ...[...relationCounts].map(([key, count]) => { const [from, to] = key.split('|'); return {from, to, type: 'relation', count}; }),
@@ -75,6 +79,11 @@ export function buildCity(outline, graph) {
 export function homeChapters(outline, graph) {
   const kinds = new Map(graph.nodes.map(n => [n.id, n.kind])), homes = new Map();
   const listed = outline.chapters.filter(c => c.node);
+  // Collections own their direct members before a high-school section borrows them.
+  for (const n of graph.nodes.filter(n => n.kind === 'collection')) {
+    homes.set(n.id, n.id);
+    for (const e of graph.edges) if (e.from === n.id && e.type === 'contains') homes.set(e.to, n.id);
+  }
   for (const relation of ['contains', 'extends']) for (const c of listed) for (const s of c.sections.filter(s => s.node)) {
     for (const e of graph.edges) if (e.from === s.node && e.type === relation && !homes.has(e.to)) homes.set(e.to, c.id);
   }
@@ -144,6 +153,8 @@ export function cityLayout(city) {
     const a = gaps[(i + 1) % gaps.length] , r = CITY.plaza * (1 + Math.floor(i / gaps.length) * 0.8);
     put(c, Math.cos(a) * r, Math.sin(a) * r, {strand: c.strand, lane: 'plaza'});
   });
+  // Independent collections occupy a separate place near the plaza, not a textbook chapter.
+  (city.collections || []).forEach((c, i) => put(c, (i - ((city.collections || []).length - 1) / 2) * 1200, CITY.plaza * 2.45, {lane: 'collection'}));
   const extent = Math.max(CITY.plaza, ...[...towers.values()].map(t => t.distance + t.radius + 120));
   return {towers, districts, plaza: CITY.plaza, extent};
 }

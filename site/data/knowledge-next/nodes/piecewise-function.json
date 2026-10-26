@@ -1,0 +1,40 @@
+{
+  "id": "piecewise-function",
+  "kind": "knowledge",
+  "status": "knowledge_only",
+  "label": "分段函数",
+  "summary": "同一函数可在不同输入范围用不同表达式；各段合起来定定义域与值域。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "prerequisites": [
+    "function-representations",
+    "interval-notation",
+    "set-intersection-union"
+  ],
+  "entries": [
+    {
+      "id": "definition",
+      "title": "定义",
+      "type": "定义",
+      "body": [
+        "用大括号合写各段表达式及范围。各段须盖住定义域，分界点归属明确；重叠处对同一输入须给出相同输出。几段表达式仍是一个函数。"
+      ],
+      "conditions": "每个允许输入恰有一个输出。",
+      "references": [
+        "function-graph-transformations#graph"
+      ]
+    },
+    {
+      "id": "domain-range",
+      "title": "定义域与值域",
+      "type": "性质",
+      "body": [
+        "定义域是各段输入的并，值域是各段实际输出的并。表达式只在本段范围内有效。"
+      ],
+      "conditions": "先核各段合法，再合并。"
+    }
+  ],
+  "resources": [
+    "piecewise-example"
+  ],
+  "examples": []
+}

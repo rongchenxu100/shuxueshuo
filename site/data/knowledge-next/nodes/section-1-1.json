@@ -1,0 +1,13 @@
+{
+  "id": "section-1-1",
+  "kind": "section",
+  "label": "1.1 集合的概念",
+  "summary": "登记函数概念所需的集合、元素与表示基础；集合节点与 1.2 共享。",
+  "source": "人教 A 版必修第一册第一章 1.1",
+  "members": [
+    {
+      "ref": "set-concept",
+      "relation": "contains"
+    }
+  ]
+}

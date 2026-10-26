@@ -56,7 +56,7 @@ if (config?.redirectHref) {
     bindPersonalOverlay(store);
     const graphConfig = document.querySelector('#graph-config');
     const graph = graphConfig ? JSON.parse(graphConfig.textContent) : null;
-    const scope = () => config && ['textbook', 'chapter', 'section'].includes(config.kind) ? config.id : progressScope(location.search, graph);
+    const scope = () => config && ['textbook', 'chapter', 'section', 'collection'].includes(config.kind) ? config.id : progressScope(location.search, graph);
     // Only an entry anchor narrows the records; other in-page anchors change nothing.
     const entryAnchor = () => {
       const anchor = location.hash.slice(1);

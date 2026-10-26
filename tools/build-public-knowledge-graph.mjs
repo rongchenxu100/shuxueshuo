@@ -65,12 +65,13 @@ export async function generate(root = repoRoot) {
   // Pages load scripts and styles straight from site/assets/knowledge-next. Those
   // are served no-cache, so editing a module never rewrites the generated pages.
   const render=makeRenderer(nodes,edges,manifest,city,homes,chapters);
-  const graph={schemaVersion:1,defaultScope:manifest.defaultScope,chapters,nodes:nodes.map(n=>({id:n.id,kind:n.kind,subtype:n.subtype,label:n.label,summary:n.summary,aliases:n.aliases || [],...(homes.has(n.id)?{home:homes.get(n.id)}:{}),...(n.kind==='method'?{steps:n.steps.map(s=>({id:s.id,title:s.title,calls:(s.calls || []).map(c=>c.ref),...(s.rule?{rule:s.rule}:{})}))}:{})})),edges};
+  const graph={schemaVersion:1,defaultScope:manifest.defaultScope,chapters,collections:city.collections || [],nodes:nodes.map(n=>({id:n.id,kind:n.kind,subtype:n.subtype,label:n.label,summary:n.summary,aliases:n.aliases || [],...(n.status?{status:n.status}:{}),...(homes.has(n.id)?{home:homes.get(n.id)}:{}),...(n.kind==='method'?{steps:n.steps.map(s=>({id:s.id,title:s.title,calls:(s.calls || []).map(c=>c.ref),...(s.rule?{rule:s.rule}:{})}))}:{})})),edges};
   const outputs=new Map([
     ['index.html',render.overview()],['nodes/index.html',render.list()],['3d/index.html',render.tower()],
     ['graph.json',JSON.stringify(graph,null,2)+'\n'],['city.json',JSON.stringify(city,null,2)+'\n'],
   ]);
   for (const c of chapters.filter(c=>c.recorded)) outputs.set(`chapters/${c.id}/index.html`,render.chapter(c));
+  for (const c of city.collections || []) outputs.set(`collections/${c.id}/index.html`,render.chapter(c));
   for (const n of nodes) outputs.set(`${n.id}/index.html`,render.detail(n,resourceHtml));
   for (const [file,body] of teachingOutputs(teaching,nodes,manifest,resourceHtml,render)) outputs.set(file,body);
   outputs.set('teaching/version.json',JSON.stringify(release,null,2)+'\n');
@@ -80,6 +81,8 @@ export async function generate(root = repoRoot) {
   }, null, 2) + '\n');
   for (const topic of teaching.topics) outputs.set(`teaching/topics/${topic.id}.json`, JSON.stringify({
     id: topic.id, label: topic.label, groups: topic.groups, problems: topic.problems,
+    ...(topic.path ? {path: topic.path} : {}),
+    ...(topic.presentation ? {presentation: topic.presentation} : {}),
     content_version: release.content_version,
   }, null, 2) + '\n');
   for (const [name,body] of outputs) if (/^teaching\/problems\/.+\.json$/.test(name)) {

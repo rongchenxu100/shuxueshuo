@@ -1,0 +1,24 @@
+/* interval-notation explainer; scoped to .explain-interval-notation. */
+.explain-interval-notation .iv-problem { display:flex; align-items:baseline; gap:8px; margin:0 0 10px; padding:8px 12px; border:1px solid #f0dcc0; border-radius:10px; background:#fffaf2; color:#5e4520; font-size:13.5px; line-height:1.6; }
+.explain-interval-notation .iv-badge { flex:none; padding:1px 7px; border-radius:6px; background:#d98a1f; color:#fff; font-size:11px; font-weight:700; }
+.explain-interval-notation .iv-explorer { display:grid; gap:8px; padding:12px; border:1px solid #dbe8e4; border-radius:14px; background:#f7fbfa; }
+.explain-interval-notation .iv-switch { display:flex; flex-wrap:wrap; gap:2px; padding:2px; border:1px solid #d6e6e1; border-radius:10px; background:#fff; }
+.explain-interval-notation .iv-switch button { padding:5px 9px; border:0; border-radius:8px; background:none; color:#46605a; font:inherit; font-size:12.5px; cursor:pointer; }
+.explain-interval-notation .iv-switch button[aria-pressed="true"] { background:#e2f3ee; color:var(--teal-dark); font-weight:650; box-shadow:inset 0 0 0 1px var(--teal); }
+.explain-interval-notation .iv-switch button:focus-visible { outline:3px solid #82cfc7; outline-offset:2px; }
+.explain-interval-notation .iv-graph { display:block; width:100%; max-width:520px; height:auto; margin:0 auto; user-select:none; }
+.explain-interval-notation .iv-plot { fill:#fff; stroke:#e0ebe8; }
+.explain-interval-notation .iv-axis { fill:none; stroke:#9dafaa; stroke-width:1.3; }
+.explain-interval-notation .iv-axis-arrow { fill:#9dafaa; }
+.explain-interval-notation .iv-tick { fill:#6a7f79; font-size:12px; }
+.explain-interval-notation .iv-bar { fill:none; stroke:#087f79; stroke-width:5; stroke-linecap:butt; }
+.explain-interval-notation .iv-dot.closed { fill:#087f79; stroke:#fff; stroke-width:1.5; }
+.explain-interval-notation .iv-dot.open { fill:#fff; stroke:#087f79; stroke-width:2; }
+.explain-interval-notation .iv-arrow { fill:#087f79; }
+.explain-interval-notation .iv-end { fill:#33504a; font-size:13px; font-weight:650; }
+.explain-interval-notation .iv-status { margin:0; text-align:center; color:#33504a; font-size:13.5px; font-weight:600; }
+.explain-interval-notation .iv-foot { margin:10px 0 0; color:var(--muted); font-size:13px; line-height:1.55; }
+@media(max-width:600px) {
+  .explain-interval-notation .iv-explorer { padding:8px; }
+  .explain-interval-notation .iv-switch button { padding:5px 7px; font-size:12px; }
+}

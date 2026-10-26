@@ -1,0 +1,25 @@
+{
+  "id": "type-function-evaluation",
+  "kind": "problem_type",
+  "status": "planned",
+  "label": "求函数值",
+  "summary": "根据对应关系求数值或表达式输入的输出，包含复合、函数值组合及逆向求输入。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "features": [
+    "给定函数的对应关系，要求数值输入、表达式输入或嵌套复合输入对应的输出。",
+    "函数值的组合与求和属于本型；已知函数值反求全部合法输入是逆向子情形。",
+    "输入顺序与原有合法范围均参与判断，不能仅凭字母相同就替换对应位置。"
+  ],
+  "confuse": [
+    {
+      "text": "要求收集定义域中所有输入产生的全部输出",
+      "ref": "type-function-range"
+    }
+  ],
+  "knowledge": [
+    "function-concept"
+  ],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

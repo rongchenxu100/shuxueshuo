@@ -1,4 +1,4 @@
-import {KINDS,chapterPath,chapterTag,scopeMembers,searchNodes} from './model.mjs';
+import {KINDS,groupPath,chapterTag,scopeMembers,searchNodes} from './model.mjs';
 import {escapeHtml as h} from './resource-links.mjs';
 import {bindSearchFocus} from './search-focus.mjs';
 import {legacyGraphHref} from './compat.mjs';
@@ -6,20 +6,20 @@ import {isPreview, modeHref} from '../practice/learning-mode.mjs';
 
 const $=selector=>document.querySelector(selector);
 const input=$('#search'),results=$('#search-results');
-const ORG=['textbook','chapter','section'];
+const ORG=['textbook','chapter','section','collection'];
 let graph,chapters,byId,open=false;
 
 const loadGraph=async()=>{
   if(graph)return graph;
   const res=await fetch('/knowledge/graph.json',{cache:'no-cache'});if(!res.ok)throw new Error(String(res.status));
-  graph=await res.json();byId=new Map(graph.nodes.map(n=>[n.id,n]));chapters=new Map(graph.chapters.map(c=>[c.id,c]));
+  graph=await res.json();byId=new Map(graph.nodes.map(n=>[n.id,n]));chapters=new Map([...graph.chapters,...(graph.collections||[])].map(c=>[c.id,c]));
   return graph;
 };
 function nodeHome(id){
   const n=byId.get(id),c=chapters.get(n?.home);if(!c)return '';
   const scope=ORG.includes(n.kind)?n.id:c.sections.find(s=>scopeMembers(graph,s.id).has(id))?.id||c.node;
   const view=ORG.includes(n.kind)?'curriculum':n.kind==='knowledge'?'knowledge':'solution';
-  return `${chapterPath(c.id)}?scope=${scope}&view=${view}&node=${id}&expand=${id}`;
+  return `${groupPath(c)}?scope=${scope}&view=${view}&node=${id}&expand=${id}`;
 }
 
 // Links from before chapter pages existed (?scope=…&node=…) land on the chapter that owns them.

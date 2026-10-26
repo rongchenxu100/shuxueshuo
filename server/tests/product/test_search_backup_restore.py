@@ -181,7 +181,7 @@ def test_pre_admission_v2_backup_upgrades_and_starts_with_generation_closed(clus
     assert recovered.submission(owner, original['id'])['id'] == original['id']
     assert not SearchAdmission(recovered.db).generation_enabled()
     with recovered.db.connect() as connection:
-        assert connection.exec_driver_sql('SELECT version_num FROM alembic_version').scalar_one() == '0016_search_admission'
+        assert connection.exec_driver_sql('SELECT version_num FROM alembic_version').scalar_one() == '0017_knowledge_collections'
         assert connection.scalar(sa.select(sa.func.count()).select_from(TICKETS)) == 0
 
 

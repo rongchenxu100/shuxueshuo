@@ -28,6 +28,44 @@ export function checkRef(ref, nodes, kinds = ['knowledge', 'skill', 'method']) {
   return node;
 }
 
+// New topics declare their own location, including before any exercise exists.
+// Older sources keep the original library location without needing a migration.
+export function topicPath(topic) {
+  const value = topic.path ?? topic.legacyPath ?? Object.values(topic.problems || {})[0]?.path?.replace(/q\d+\/$/, '');
+  insist(typeof value === 'string' && /^\/(?:[a-z0-9][a-z0-9-]*\/)+$/.test(value), `专题缺少有效站内目录路径：${topic.id}`);
+  return value;
+}
+
+export function validateTopicSource(source, nodes) {
+  insist(source.schemaVersion === 1 && typeof source.id === 'string' && /^[a-z][a-z0-9-]*$/.test(source.id), `专题身份不符：${source.id}`);
+  insist(typeof source.label === 'string' && source.label.trim(), `专题名称缺失：${source.id}`);
+  topicPath(source);
+  insist(Array.isArray(source.groups), `专题分组缺失：${source.id}`);
+  insist(source.problems && typeof source.problems === 'object' && !Array.isArray(source.problems), `专题题目清单无效：${source.id}`);
+  insist(new Set(source.groups.map(g => g.id)).size === source.groups.length, `训练分组重复：${source.id}`);
+  for (const group of source.groups) {
+    insist(typeof group.id === 'string' && /^[a-z][a-z0-9-]*$/.test(group.id) && typeof group.label === 'string' && group.label.trim(), `专题分组无效：${source.id}`);
+    insist(Array.isArray(group.problems), `分组题目清单无效：${source.id}/${group.id}`);
+    if (group.type) checkRef(group.type, nodes, ['problem_type']);
+  }
+  equal([...new Set(source.groups.flatMap(g => g.problems))].sort(), Object.keys(source.problems).sort(), `训练分组未覆盖题目：${source.id}`);
+  if (source.presentation !== undefined) {
+    insist(source.presentation === 'topic-overview', `未知专题呈现方式：${source.id}`);
+    insist(source.path?.startsWith('/topics/') && source.path !== '/topics/', `专题总览必须声明独立路径：${source.id}`);
+    insist(typeof source.introduction === 'string' && source.introduction.trim(), `专题引入缺失：${source.id}`);
+    insist(source.chapter && ['label', 'book', 'number', 'section'].every(key => typeof source.chapter[key] === 'string' && source.chapter[key].trim()), `专题章节信息缺失：${source.id}`);
+    checkRef(source.chapter.ref, nodes, ['section']);
+    insist(Array.isArray(source.knowledge) && source.knowledge.length > 0, `专题知识入口缺失：${source.id}`);
+    insist(new Set(source.knowledge).size === source.knowledge.length, `专题知识入口重复：${source.id}`);
+    source.knowledge.forEach(ref => {
+      checkRef(ref, nodes, ['knowledge']);
+      insist(!ref.includes('#'), `专题知识入口须引用完整节点：${source.id}/${ref}`);
+    });
+    insist(source.groups.every(group => group.type), `专题总览分组缺少题型：${source.id}`);
+  }
+  return source;
+}
+
 export function validateSelector(tree, fields, validateLeaf, label) {
   insist(tree && typeof tree === 'object', `缺少关联：${label}`);
   function walk(t, used = new Set()) {
@@ -65,13 +103,7 @@ export async function loadTeaching(root, nodes, manifest) {
     const source = await json(path.join(dir, name)),
       topic = structuredClone(source);
     insist(source.schemaVersion === 1 && name === `${source.id}.json`, `专题身份不符：${name}`);
-    const groupProblems = source.groups.flatMap((g) => g.problems);
-    insist(new Set(source.groups.map((g) => g.id)).size === source.groups.length, `训练分组重复：${name}`);
-    equal(
-      [...new Set(groupProblems)].sort(),
-      Object.keys(source.problems).sort(),
-      `训练分组未覆盖题目：${name}`
-    );
+    validateTopicSource(source, nodes);
     for (const [pid, problem] of Object.entries(topic.problems)) {
       counts.problems++;
       insist(/^\/(?:[a-z0-9][a-z0-9-]*\/)+$/.test(problem.path), `题页必须使用站内目录路径：${pid}`);
@@ -93,7 +125,8 @@ export async function loadTeaching(root, nodes, manifest) {
       problem.statement = teacher.problem.statement;
       insist(problem.types.length > 0, `题型缺失：${pid}`);
       for (const ref of problem.types) {
-        checkRef(ref, nodes, ['problem_type']);
+        const type = checkRef(ref, nodes, ['problem_type']);
+        insist(type.status !== 'planned', `练习不能关联待建设题型：${pid}/${ref}`);
         add(ref, { topic: topic.id, problem: pid });
       }
       for (const [rid, route] of Object.entries(problem.routes)) {

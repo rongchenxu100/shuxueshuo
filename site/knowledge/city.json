@@ -64,7 +64,7 @@
       "built": false,
       "partial": true,
       "counts": {
-        "knowledge": 1,
+        "knowledge": 3,
         "skill": 0,
         "method": 0,
         "problem_type": 0,
@@ -73,15 +73,18 @@
       "sections": [
         {
           "number": "1.1",
-          "label": "集合的概念"
+          "label": "集合的概念",
+          "node": "section-1-1"
         },
         {
           "number": "1.2",
-          "label": "集合间的基本关系"
+          "label": "集合间的基本关系",
+          "node": "section-1-2"
         },
         {
           "number": "1.3",
-          "label": "集合的基本运算"
+          "label": "集合的基本运算",
+          "node": "section-1-3"
         },
         {
           "number": "1.4",
@@ -138,16 +141,17 @@
       "built": false,
       "partial": true,
       "counts": {
-        "knowledge": 2,
+        "knowledge": 9,
         "skill": 0,
         "method": 0,
-        "problem_type": 0,
+        "problem_type": 5,
         "judgment_rule": 0
       },
       "sections": [
         {
           "number": "3.1",
-          "label": "函数的概念及其表示"
+          "label": "函数的概念及其表示",
+          "node": "section-3-1"
         },
         {
           "number": "3.2",
@@ -679,6 +683,30 @@
       ]
     }
   ],
+  "collections": [
+    {
+      "id": "junior-knowledge",
+      "node": "junior-knowledge",
+      "kind": "collection",
+      "label": "初中知识",
+      "built": true,
+      "recorded": true,
+      "partial": false,
+      "sections": [],
+      "members": [
+        "rational-expression",
+        "absolute-value-concept",
+        "reciprocal-function"
+      ],
+      "counts": {
+        "knowledge": 3,
+        "skill": 0,
+        "method": 0,
+        "problem_type": 0,
+        "judgment_rule": 0
+      }
+    }
+  ],
   "links": [
     {
       "from": "compulsory-1-ch1",
@@ -771,10 +799,22 @@
       "type": "outline"
     },
     {
+      "from": "compulsory-1-ch3",
+      "to": "junior-knowledge",
+      "type": "relation",
+      "count": 3
+    },
+    {
       "from": "compulsory-1-ch2",
       "to": "compulsory-1-ch3",
       "type": "relation",
-      "count": 6
+      "count": 9
+    },
+    {
+      "from": "compulsory-1-ch1",
+      "to": "compulsory-1-ch3",
+      "type": "relation",
+      "count": 7
     },
     {
       "from": "compulsory-1-ch1",

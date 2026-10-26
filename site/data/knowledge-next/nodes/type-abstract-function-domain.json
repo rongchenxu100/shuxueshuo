@@ -1,0 +1,27 @@
+{
+  "id": "type-abstract-function-domain",
+  "kind": "problem_type",
+  "status": "planned",
+  "label": "抽象函数的定义域问题",
+  "summary": "根据已知的函数输入范围，确定新复合表达式的合法输入，并合并其他表达式限制。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "features": [
+    "未给出完整解析式，而是给出函数或某种复合形式的定义域。",
+    "目标是让交给函数的完整输入落在已知允许范围内；反推原函数定义域时必须有足够的输入覆盖条件。",
+    "目标表达式同时含分母、根式等结构时，还要保留各部分自身的合法条件。"
+  ],
+  "confuse": [
+    {
+      "text": "已知具体解析式并直接由原式确定合法输入",
+      "ref": "type-function-domain"
+    }
+  ],
+  "knowledge": [
+    "function-concept",
+    "interval-notation",
+    "set-intersection-union"
+  ],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}

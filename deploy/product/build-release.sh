@@ -26,6 +26,7 @@ alembic_revision=$(python3 "$source_tree/repo/deploy/product/alembic-head.py" "$
 # The site is served from the server repository (git pull), not from this package;
 # its committed pages must still match the content shipped in the images.
 node "$source_tree/repo/tools/build-public-knowledge-graph.mjs" --check
+node "$source_tree/repo/tools/build-topic-overviews.mjs" --check
 node "$source_tree/repo/tools/export-public-knowledge.mjs" --check > "$source_tree/content-version.json"
 python3 - "$source_tree/content-version.json" "$source_tree/repo/site/knowledge/teaching/version.json" <<'PYVERSION'
 import json, sys

@@ -1,0 +1,45 @@
+{
+  "id": "function-concepts",
+  "label": "函数的概念",
+  "groups": [
+    {
+      "id": "domain",
+      "label": "求函数的定义域",
+      "type": "type-function-domain",
+      "description": "结合题设范围与表达式有意义的条件，确定允许的输入。",
+      "problems": []
+    },
+    {
+      "id": "equality",
+      "label": "判断是否为同一函数",
+      "type": "type-function-equality",
+      "description": "比较定义域与对应关系，保留原式的输入限制。",
+      "problems": []
+    },
+    {
+      "id": "abstract-domain",
+      "label": "求抽象函数的定义域",
+      "type": "type-abstract-function-domain",
+      "description": "区分自变量与函数的实际输入，转换已知的输入范围。",
+      "problems": []
+    },
+    {
+      "id": "evaluation",
+      "label": "求函数值",
+      "type": "type-function-evaluation",
+      "description": "根据定义和对应关系求值，处理逐层代入与输入输出关系。",
+      "problems": []
+    },
+    {
+      "id": "range",
+      "label": "求函数的值域",
+      "type": "type-function-range",
+      "description": "在定义域内确定所有可能的输出，并核对边界能否取到。",
+      "problems": []
+    }
+  ],
+  "problems": {},
+  "path": "/topics/function-concepts/",
+  "presentation": "topic-overview",
+  "content_version": "c2d326a5b8b54ba156f21a8c51657a5923c9fb4e9065776f837e7701f1f968f9"
+}

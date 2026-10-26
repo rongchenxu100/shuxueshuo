@@ -1,12 +1,13 @@
 import {isPreview, modeHref} from '../practice/learning-mode.mjs';
-import {KINDS,RELATIONS,VIEWS,VIEW_KINDS,VIEW_RELATIONS,nodeHref,detailLabel,chapterPath,chapterTag,readState,writeState,projectGraph,scopeMembers,searchNodes,curriculumStructure,normalizeViewFilters} from './model.mjs';
+import {KINDS,RELATIONS,VIEWS,VIEW_KINDS,VIEW_RELATIONS,nodeHref,detailLabel,chapterPath,groupPath,chapterTag,lifecycleLabel,readState,writeState,projectGraph,scopeMembers,searchNodes,curriculumStructure,normalizeViewFilters} from './model.mjs';
 import {layoutGraph,fitGraph} from './layout.mjs';
 import {escapeHtml as h} from './resource-links.mjs';
 import {bindSearchFocus} from './search-focus.mjs';
+import {renderLearningMath} from './learning-model.mjs';
 
 const $=selector=>document.querySelector(selector);
 const svg=$('#graph'),viewport=$('#viewport'),status=$('#graph-status'),drawer=$('#drawer'),selection=$('#selection'),results=$('#search-results');
-const NS='http://www.w3.org/2000/svg',ORG=['textbook','chapter','section'];
+const NS='http://www.w3.org/2000/svg',ORG=['textbook','chapter','section','collection'];
 const FAMILY={contains:'org',extends:'org',prerequisite:'know',uses:'know',involves:'know',candidate:'solve',calls:'solve',method_rule:'rule',step_rule:'rule',selects:'rule'};
 const RULES={method_selection:'选法规则',step_selection:'步骤选择规则'};
 const reduced=matchMedia('(prefers-reduced-motion: reduce)'),narrow=matchMedia('(max-width: 760px)');
@@ -14,14 +15,14 @@ const config=JSON.parse($('#graph-config').textContent),scopeOptions={scopes:con
 let graph,byId,chapters,inChapter,state,projection,layout,transform={x:0,y:0,k:1},loading=false,hoverId='',camera=0,pathTimer=0,searchOpen=false,drag,autoView=true;
 
 function el(tag,attrs={},text){const item=document.createElementNS(NS,tag);for(const [k,v]of Object.entries(attrs))item.setAttribute(k,v);if(text!==undefined)item.textContent=text;return item;}
-const kindText=n=>`${KINDS[n.kind]}${n.subtype?` · ${RULES[n.subtype]}`:''}`;
-const shortTag=id=>{const c=chapters.get(id);return `${c.book}·${c.number}章`;};
+const kindText=n=>`${KINDS[n.kind]}${lifecycleLabel(n) ? ` · ${lifecycleLabel(n)}` : ''}${n.subtype?` · ${RULES[n.subtype]}`:''}`;
+const shortTag=id=>{const c=chapters.get(id);return chapterTag(c);};
 // Nodes another chapter owns and this chapter never references open on their own chapter page.
 const elsewhere=id=>{const home=byId.get(id)?.home;return Boolean(home&&home!==config.chapter&&!inChapter.has(id));};
 function homeHref(id){
   const n=byId.get(id),c=chapters.get(n.home),scope=c.sections.find(s=>scopeMembers(graph,s.id).has(id))?.id||c.node;
-  const view=n.kind==='knowledge'?'knowledge':['textbook','chapter','section'].includes(n.kind)?'curriculum':'solution';
-  return modeHref(`${chapterPath(c.id)}?scope=${scope}&view=${view}&node=${id}&expand=${id}${location.hash}`,{preview:isPreview(location.search)},location.href);
+  const view=n.kind==='knowledge'?'knowledge':ORG.includes(n.kind)?'curriculum':'solution';
+  return modeHref(`${groupPath(c)}?scope=${scope}&view=${view}&node=${id}&expand=${id}${location.hash}`,{preview:isPreview(location.search)},location.href);
 }
 const nodeEl=id=>viewport.querySelector(`[data-node="${CSS.escape(id)}"]`);
 const stepTargets=s=>[...(s.calls||[]),...(s.rule?[s.rule]:[])];
@@ -118,12 +119,12 @@ function showSelection(){
   drawer.hidden=!n;if(!n){selection.replaceChildren();return;}
   const visible=layout.positions.has(n.id),out=graph.edges.filter(e=>e.from===n.id),inc=graph.edges.filter(e=>e.to===n.id);
   const home=n.home&&n.home!==config.chapter?chapters.get(n.home):null;
-  const orgHref=n.kind==='textbook'?'/knowledge/':`${chapterPath(n.home)}${n.kind==='section'?`?scope=${n.id}`:''}`;
+  const orgHref=n.kind==='textbook'?'/knowledge/':`${groupPath(chapters.get(n.home))}${n.kind==='section'?`?scope=${n.id}`:''}`;
   const primary=!ORG.includes(n.kind)?`<a class="drawer-primary" href="${detailHref(n.id)}">${detailLabel(n)} ↗</a>`
-    :config.scopes.includes(n.id)?(n.id===state.scope?'':`<button type="button" id="enter-scope" class="drawer-primary">只看${n.kind==='chapter'?'全章':'这一节'}</button>`)
-    :`<a class="drawer-primary" href="${orgHref}">${n.kind==='textbook'?'打开知识图谱总览':'打开所在章的图谱'} ↗</a>`;
-  selection.innerHTML=`<p class="drawer-kind" data-kind="${n.kind}"><i aria-hidden="true"></i>${kindText(n)}${n.related?' · 展开内容':''}</p><h2>${h(n.label)}</h2>${ORG.includes(n.kind)?`<div data-progress-scope="${n.id}"></div>`:`<div data-learning-node="${n.id}" data-learning-full></div>`}<p class="drawer-summary">${h(n.summary)}</p>
-${home?`<p class="drawer-home">归属 <b>${h(chapterTag(home))} ${h(home.label)}</b>，与本章内容直接相关。<a href="${homeHref(n.id)}">去那一章的图谱 →</a></p>`:''}
+    :config.scopes.includes(n.id)?(n.id===state.scope?'':`<button type="button" id="enter-scope" class="drawer-primary">只看${n.kind==='collection'?'这个集合':n.kind==='chapter'?'全章':'这一节'}</button>`)
+    :`<a class="drawer-primary" href="${orgHref}">${n.kind==='textbook'?'打开知识图谱总览':'打开所属图谱'} ↗</a>`;
+  selection.innerHTML=`<p class="drawer-kind" data-kind="${n.kind}"><i aria-hidden="true"></i>${kindText(n)}${n.related?' · 展开内容':''}</p><h2>${h(n.label)}</h2>${ORG.includes(n.kind)?`<div data-progress-scope="${n.id}"></div>`:`<div data-learning-node="${n.id}" data-learning-full></div>`}<p class="drawer-summary" data-math-text>${h(n.summary)}</p>
+${home?`<p class="drawer-home">归属 <b>${home.kind === 'collection' ? h(home.label) : `${h(chapterTag(home))} ${h(home.label)}`}</b>，与本章内容直接相关。<a href="${homeHref(n.id)}">打开所属图谱 →</a></p>`:''}
 <div class="drawer-actions">${primary}${n.steps?.length?'<button type="button" id="play-path" class="drawer-play">▶ 演示解题路径</button>':''}</div>
 ${visible?'':`<p class="drawer-note">该节点不在当前视图或筛选范围内。<button type="button" data-select-related="${n.id}">在图中显示</button></p>`}
 ${n.steps?.length?`<section class="drawer-path"><h3>解题路径</h3><ol>${n.steps.map((s,i)=>`<li data-step="${i}"><span class="step-dot">${i+1}</span><div><b>${h(s.title)}</b>${stepTargets(s).map(id=>chip(byId.get(id))).join('')}</div></li>`).join('')}</ol></section>`:''}
@@ -134,6 +135,7 @@ ${inc.length?`<h3>指向它 <span>${inc.length}</span></h3><ul class="rel-groups
   $('#play-path')?.addEventListener('click',()=>playPath(n));
   $('#enter-scope')?.addEventListener('click',()=>{state.scope=n.id;state.expanded=[];state.node='';updateURL();draw();});
   selection.querySelectorAll('[data-select-related]').forEach(button=>button.addEventListener('click',()=>{const id=button.dataset.selectRelated;layout.positions.has(id)&&id!==n.id?select(id,{focus:true}):locate(id);}));
+  renderLearningMath(selection).catch(()=>{});
 }
 
 function stopPath(){
@@ -266,7 +268,7 @@ async function load(){
   try{
     const res=await fetch('/knowledge/graph.json',{cache:'no-cache'});if(!res.ok)throw new Error(String(res.status));
     graph=await res.json();if(!Array.isArray(graph.nodes)||!Array.isArray(graph.edges))throw new Error('Invalid graph');
-    byId=new Map(graph.nodes.map(n=>[n.id,n]));chapters=new Map(graph.chapters.map(c=>[c.id,c]));inChapter=scopeMembers(graph,config.node);
+    byId=new Map(graph.nodes.map(n=>[n.id,n]));chapters=new Map([...graph.chapters,...(graph.collections||[])].map(c=>[c.id,c]));inChapter=scopeMembers(graph,config.node);
     state=readState(location.search,graph,scopeOptions);
     // A node arriving without a scope opens in the section that holds it.
     if(state.node&&!scopeMembers(graph,state.scope).has(state.node))state.scope=config.scopes.find(s=>scopeMembers(graph,s).has(state.node))||state.scope;

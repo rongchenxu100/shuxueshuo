@@ -15,7 +15,7 @@ test('release checks execute through a symlinked source directory', async () => 
   try {
     const linkedRoot = path.join(temp, 'source');
     await symlink(repoRoot, linkedRoot, 'dir');
-    for (const tool of ['build-public-knowledge-graph.mjs', 'export-public-knowledge.mjs']) {
+    for (const tool of ['build-public-knowledge-graph.mjs', 'build-topic-overviews.mjs', 'export-public-knowledge.mjs']) {
       const script = path.join(linkedRoot, 'tools', tool);
       const output = JSON.parse(execFileSync(process.execPath, [script, '--check'], { encoding: 'utf8' }));
       if (tool.startsWith('export-')) assert.equal(output.content_version, data._meta.content_version);
@@ -28,8 +28,8 @@ test('release checks execute through a symlinked source directory', async () => 
 });
 
 test('structured export contains current ontology and private drills without HTML rendering', () => {
-  assert.equal(data.knowledge_nodes.length, 67);
-  assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 8);
+  assert.equal(data.knowledge_nodes.length, 89);
+  assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
   assert.equal(data.practice_routes.length, 50);
   assert.equal(data.practice_steps.length, 259);
@@ -39,6 +39,25 @@ test('structured export contains current ontology and private drills without HTM
   assert.ok(data.knowledge_drill_items.every((q) => q.answer_spec.selected.length));
   assert.ok(data.knowledge_entries.some((e) => e.entry_type === 'branch'));
   assert.ok(data.knowledge_edges.some((e) => e.occurrences.length > 1));
+});
+
+test('chapter 3.1 exports knowledge and planned types without adding runnable exercises', () => {
+  const topic = data.practice_topics.find((row) => row.id === 'function-concepts');
+  assert.equal(topic.label, '函数的概念');
+  assert.equal(topic.path, '/topics/function-concepts/');
+  assert.equal(topic.groups.length, 5);
+  assert.ok(topic.groups.every((group) => group.problems.length === 0));
+  assert.equal(data.practice_topic_problems.filter((row) => row.topic_id === topic.id).length, 0);
+  const types = data.knowledge_nodes.filter((node) => node.body.status === 'planned');
+  assert.equal(types.length, 5);
+  for (const type of types) {
+    assert.equal(type.kind, 'problem_type');
+    assert.deepEqual(type.body.examples, []);
+    assert.deepEqual(type.body.methods, []);
+    assert.deepEqual(type.body.rules, []);
+    assert.ok(!data.practice_problem_types.some((row) => row.node_id === type.id));
+    assert.ok(!data.knowledge_drill_items.some((row) => row.node_id === type.id));
+  }
 });
 
 test('exports are reproducible and preserve conditional route associations', async () => {

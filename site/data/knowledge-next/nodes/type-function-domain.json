@@ -1,0 +1,34 @@
+{
+  "id": "type-function-domain",
+  "kind": "problem_type",
+  "status": "planned",
+  "label": "具体函数的定义域问题",
+  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+  "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "features": [
+    "已知具体函数表达式，要求全部合法输入；题设可以另外限定范围。",
+    "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。",
+    "实际问题可以先建立函数关系，再根据表达式和情境共同确定定义域。"
+  ],
+  "confuse": [
+    {
+      "text": "只知道抽象函数的输入范围，要求新复合表达式的定义域",
+      "ref": "type-abstract-function-domain"
+    },
+    {
+      "text": "要求的是全部实际输出，而非合法输入",
+      "ref": "type-function-range"
+    }
+  ],
+  "knowledge": [
+    "function-concept",
+    "interval-notation",
+    "set-intersection-union",
+    "rational-expression",
+    "quantifiers",
+    "quadratic-inequality"
+  ],
+  "methods": [],
+  "rules": [],
+  "examples": []
+}
