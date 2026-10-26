@@ -10,7 +10,7 @@ from ..product.db import lock, transaction
 from ..tutor_demo.contracts import InvalidAction, apply_action, fresh_state, slot_count
 from ..tutor_demo.llm import Action
 from ..tutor_demo.session import load_lesson
-from . import associations
+from . import associations, graph_walk
 from .drills import one
 from .identity import canonical_id
 
@@ -34,10 +34,14 @@ def owned(c, aid, user):
 def lesson(a):
     # Retired problems may no longer have a teacher file. The private contract was
     # fixed with the attempt, so history never depends on today's filesystem.
+    if graph_walk.snapshot(a):
+        raise HTTPException(409, '本题使用图谱交互课包，请从题页继续。')
     return a['problem_context'].get('_lesson') or load_lesson(a['problem_id'])
 
 
 def nodes(a):
+    if contract := graph_walk.snapshot(a):
+        return graph_walk.route_steps(contract, a['route_id'])
     return lesson(a)['routes'][a['route_id']]['nodes']
 
 
@@ -95,7 +99,7 @@ def context(c, a, step):
         eid(a["id"], step + ":context"),
         step,
         "context",
-        {k: n[k] for k in ("question", "interaction", "expected_answer", "criteria")},
+        {k: n[k] for k in ("question", "interaction", "expected_answer", "criteria") if k in n},
     )
 
 
@@ -140,12 +144,18 @@ def confirmed_choices(c, a):
 
 
 def choices_from_rule_answers(a, answers):
+    if graph_walk.snapshot(a):
+        # Native routes already fix their references; they have no legacy
+        # conditional-association fields to synthesize from student answers.
+        return {}
     return {n['interaction']['field']: answers[n['id']]['value'] for n in nodes(a)
             if n['interaction']['type'] == 'choice' and n['id'] in answers}
 
 
 def passed_answers(c, a):
     """Use the exact passing rule submission, or an established standard conclusion."""
+    if graph_walk.snapshot(a):
+        return passing_rule_answers(c, a)
     route = {n["id"]: n for n in nodes(a)}
     answers = {}
     for row in c.execute(
@@ -348,8 +358,22 @@ def submit(db, user, aid, identity, step, answer):
         a = owned(c, aid, user)
         old = one(c, "SELECT * FROM student_practice_events WHERE id=:id", id=identity)
         if not old:
-            ensure_current(c, a, step)
+            revisiting = graph_walk.snapshot(a) and a['status'] != 'closed' and one(c,
+                'SELECT step_id FROM student_step_results WHERE attempt_id=:a AND step_id=:s AND passed', a=aid, s=step)
+            if not revisiting:
+                ensure_current(c, a, step)
         n = node(a, step)
+        if graph_walk.snapshot(a):
+            outcome = graph_walk.grade(n, answer, a['route_id'])
+            ctx = context(c, a, step)
+            append(c, a, identity, step, 'answer', answer, ctx['id'])
+            if not old:
+                grade(c, a, step, identity, outcome, 'rule')
+            updated = owned(c, aid, user)
+            next_step = active_step(c, updated)
+            if next_step:
+                context(c, updated, next_step)
+            return result(c, updated)
         contract = lesson(a)
         state = fresh_state(contract)
         state["method"] = a["route_id"]
@@ -593,7 +617,8 @@ def shown_reference(db, user, aid, identity, step, node_id, ref=None, resource_i
             raise HTTPException(422, '节点与条目引用不一致。')
         snapshot = a['association_snapshot']['steps'].get(step)
         choices = confirmed_choices(c, a)
-        choice_nodes = [n for n in nodes(a) if n['interaction']['type'] == 'choice']
+        choice_nodes = [n for n in nodes(a) if n['interaction']['type'] == 'choice'
+                        and 'field' in n['interaction']]
         options = {n['interaction']['field']: [o['value'] for o in n['interaction']['options']]
                    for n in choice_nodes}
         passed_steps = set(c.execute(text('''SELECT step_id FROM student_step_results

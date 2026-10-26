@@ -1,6 +1,8 @@
-import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261022-original-choice';
+import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261026-domain-review';
 import {createWalkGraph, nodeHref} from './walk-graph.mjs?v=20261015-view-tabs';
-import {createMathCard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261023-active-premises';
+import {createMathCard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261026-domain-review';
+import {expressionRegionsHTML} from './expression-regions.mjs?v=20261026-domain-review';
+import {domainNumberLineGraph, endpointChecksHTML} from './domain-visuals.mjs?v=20261026-domain-review';
 
 const BUNDLE_URL = '/data/graph-walk/quadratic-always-q01.json';
 const REPLAY_INDEX_URL = '/data/graph-walk/replays/index.json';
@@ -167,10 +169,39 @@ function caseFiguresHTML(decision, uid) {
 function completionFiguresHTML(decision, uid, answer) {
   if (decision.source !== 'stream') return '';
   const figures = (decision.completion_graph ? figureHTML(decision.completion_graph, uid, 'completion') : '') +
-    caseFiguresHTML(decision, uid);
+    caseFiguresHTML(decision, uid) + domainCompletionHTML(decision, uid);
   if (!decision.completion_group) return figures;
   const heading = `${uid}-group`;
   return `<section class="gw-completion-group" aria-labelledby="${escapeHTML(heading)}"><h3 id="${escapeHTML(heading)}">${escapeHTML(decision.completion_group)}</h3>${figures || partAnswerHTML(decision, answer)}</section>`;
+}
+
+function conditionLinesHTML(decision, uid) {
+  return (decision.condition_number_lines || []).map((line, index) => domainLineHTML(line, `${uid}-condition-${index}`, 'condition')).join('');
+}
+
+function domainLineHTML(line, uid, kind) {
+  const graph = domainNumberLineGraph(line);
+  return graph ? figureHTML(graph, uid, kind)
+    : `<div class="gw-number-line-fallback"><p data-math-text>$${escapeHTML(line.label)}$</p><p>端点过近，改用集合式展示。</p></div>`;
+}
+
+function domainCompletionHTML(decision, uid) {
+  return conditionLinesHTML(decision, uid)
+    + (decision.completion_number_line ? domainLineHTML(decision.completion_number_line, `${uid}-intersection`, 'completion') : '')
+    + (decision.endpoint_checks === undefined ? '' : domainEndpointCardHTML(decision.endpoint_checks));
+}
+
+function domainEndpointCardHTML(checks) {
+  try { return endpointChecksHTML(checks); }
+  catch (error) {
+    if (!['domain_visuals.endpoint_checks', 'domain_visuals.unverified_endpoint'].includes(error?.message)) throw error;
+    return '<section class="gw-endpoint-checks" data-state="unavailable" role="status"><h3>端点检查暂不可用</h3><p>端点数据未通过校验，本卡片不展示取舍结论。请刷新重试。</p></section>';
+  }
+}
+
+function domainPremisesHTML(decision, uid) {
+  if (!decision.completion_number_line || !decision.condition_number_lines) return '';
+  return `<div class="gw-condition-lines"><p>已求出的各条件解集</p>${conditionLinesHTML(decision, uid)}</div>`;
 }
 
 // A server board states what the question works from, in place of the card's own premises.
@@ -252,7 +283,11 @@ function choiceLabel(component, answer, index = 0) {
 }
 
 function answerSummary(decision, answer) {
-  if (decision.interaction.type === 'read') return '已阅读';
+  if (decision.interaction.type === 'read') {
+    const method = decision.interaction.methods?.find(item => item.route) || decision.interaction.methods?.[0];
+    if (method?.label) return method.label;
+    return decision.question || '已阅读';
+  }
   if (decision.interaction.type === 'grid') {
     const {optionX, optionY, zone} = gridChoice(decision, answer);
     return zone ? `${zone.label}（${optionX.label}，${optionY.label}）` : '';
@@ -335,13 +370,16 @@ function completedHTML(record, number, runId, route) {
   const uid = `gw-${runId}-${decision.id}`;
   // A grid keeps its map as the record; only the page's collapsible derivation is borrowed from the display.
   const derivation = () => decision.display ? /<details[\s\S]*<\/details>/.exec(template(decision.display, uid))?.[0] || '' : '';
+  const summary = answerSummary(decision, record.answer);
+  const methodNote = decision.interaction.type === 'read' && decision.question && decision.question !== summary
+    ? `<p class="gw-result" data-math-text>${escapeHTML(decision.question.replace(/^使用[^：]+：/, ''))}</p>` : '';
   const body = decision.source === 'stream' && decision.stream_last_part
     ? `<div data-stream-completed="${escapeHTML(decision.id)}"></div>`
     : decision.interaction.type === 'grid' ? gridHTML(decision, record.answer, false) + derivation()
     : decision.display ? template(decision.display, uid)
     : decision.interaction.type === 'checklist' ? checklistAnswerHTML(decision, record.answer)
     : decision.interaction.type === 'plane' ? planeHTML(decision, record.answer, false)
-    : `<p class="gw-answer" data-math-text>${escapeHTML(answerSummary(decision, record.answer))}</p>`;
+    : `<p class="gw-answer" data-math-text>${escapeHTML(summary)}</p>${methodNote}`;
   const results = decision.source !== 'stream' && !decision.display ? (record.results || []).map(resultText).filter(Boolean).map(text => `<p class="gw-result" data-math-text>${escapeHTML(text)}</p>`).join('') : '';
   const figure = completionFiguresHTML(decision, `${uid}-done`, record.answer);
   return `<details class="gw-completed" data-completed-decision="${escapeHTML(decision.id)}"><summary class="step-heading"><span class="step-number" aria-label="第 ${number} 步">✓</span><span class="gw-step-title">${escapeHTML(decision.title || decision.question)}</span><span class="status">已完成</span></summary><div class="gw-completed-body">${figure}${body}${results}</div></details>`;
@@ -553,11 +591,21 @@ function renderInteraction(decision, {focus, pending = null} = {}) {
   const head = `<header class="step-heading"><span class="step-number" aria-hidden="true">${number}</span><h2 id="gw-current-title" tabindex="-1">${escapeHTML(title)}</h2><span class="status">进行中</span></header>${carryHTML()}`;
   const parts = grouped ? partStepperHTML(decision) + (open ? `<div class="gw-part-done">${partRowsHTML(open.records)}</div>` : '') : '';
   const label = grouped ? `<p class="gw-part-current" id="gw-part-title" tabindex="-1">第 ${decision.stream_part_index + 1} 问 · ${escapeHTML(decision.title || '')}</p>` : '';
-  host.innerHTML = head + parts + (pending ?? `${label}<p class="question" data-math-text>${escapeHTML(decision.question || '')}</p>${decision.source === 'stream' && decision.graph ? figureHTML(decision.graph, `gw-${activeRunId()}-${decision.id}-stem`, 'stem') : ''}${decision.source === 'stream' && decision.stem_board ? boardHTML(decision.stem_board) : decision.source === 'stream' && decision.interaction.type === 'read' ? '<div class="gw-stream-context" data-stream-context></div>' : ''}<div class="gw-interaction" ${disabled ? 'inert' : ''}>${interactionHTML(decision)}</div>${feedbackHTML()}${attemptedCalculation(decision)}<div class="gw-submit-row"><button type="button" class="primary" id="gw-submit" ${disabled || busy || !ready(decision) ? 'disabled' : ''}>${escapeHTML(decision.interaction.type === 'read' ? '读完了，下一步' : decision.submit_label || '确认，看看图谱如何变化')} <span aria-hidden="true">→</span></button>${disabled ? '<span>正在查看 AI 回放</span>' : ''}</div>`);
+  host.innerHTML = head + parts + (pending ?? `${label}<p class="question" data-math-text>${escapeHTML(decision.question || '')}</p>${decision.source === 'stream' && decision.graph ? figureHTML(decision.graph, `gw-${activeRunId()}-${decision.id}-stem`, 'stem') : ''}${decision.source === 'stream' && decision.stem_board ? boardHTML(decision.stem_board) : decision.source === 'stream' && decision.interaction.type === 'read' ? '<div class="gw-stream-context" data-stream-context></div>' : ''}<div class="gw-interaction" ${disabled ? 'inert' : ''}>${interactionHTML(decision)}</div>${feedbackHTML()}${attemptedCalculation(decision)}<div class="gw-submit-row"><button type="button" class="primary" id="gw-submit" ${disabled || busy || !ready(decision) ? 'disabled' : ''}>${escapeHTML(decision.submit_label || (decision.interaction.type === 'read' ? '读完了，下一步' : '确认，看看图谱如何变化'))} <span aria-hidden="true">→</span></button>${disabled ? '<span>正在查看 AI 回放</span>' : ''}</div>`);
   // Frozen before formulas are derivation inputs, not necessarily givens: they can be
   // the answer being asked for. Interactive premises belong in question/graph/stem_board
   // or the completed-step carry above; only read cards reveal the mathematical record.
   const context = pending == null && host.querySelector('[data-stream-context]');
+  if (pending == null && decision.source_regions) {
+    const selected = Array.isArray(draft) ? draft : draft == null ? [] : [draft];
+    const question = host.querySelector('.question');
+    question?.insertAdjacentHTML('afterend', expressionRegionsHTML(decision.source_regions, selected));
+  }
+  // The final choice may use already solved condition sets. Its own intersection
+  // and endpoint checks only appear in completedHTML after an accepted answer.
+  if (pending == null && decision.completion_number_line && decision.condition_number_lines) {
+    host.querySelector('.question')?.insertAdjacentHTML('afterend', domainPremisesHTML(decision, `gw-${activeRunId()}-${decision.id}-premise`));
+  }
   if (context) {
     const folded = new Set(decision.stream_folded || []);
     const steps = decisionMathSteps(decision).filter(step => !folded.has(step.step_id));
@@ -901,7 +949,7 @@ function render({focus = false, scroll = focus} = {}) {
   const target = (openPart && $('#gw-part-title')) || $('#gw-current-title') || $('#gw-completion h2');
   if (target && focus) { target.tabIndex = -1; target.focus({preventScroll: true}); }
   if (scroll) revealStep();
-  if (options.stream) park();
+  if (options.stream || options.progressScope) park();
   options.onState?.(walkView());
 }
 
@@ -977,11 +1025,38 @@ function streamRouteTabsHTML() {
     `<button type="button" data-stream-route="${escapeHTML(route.id)}" aria-pressed="${route.id === state.run.route}" ${route.available === false ? 'disabled' : ''}>${escapeHTML(route.label)}</button>`).join('')}</nav>`;
 }
 
+const GRAPH_FOLDED_KEY = 'graph-walk:graph-folded';
+
+function graphFolded() {
+  try { return localStorage.getItem(GRAPH_FOLDED_KEY) === '1'; } catch { return false; }
+}
+
+function syncGraphToggle() {
+  const button = $('#gw-graph-toggle');
+  if (!button) return;
+  const folded = document.body.hasAttribute('data-graph-folded');
+  button.textContent = folded ? '展开图谱' : '收起图谱';
+  button.setAttribute('aria-expanded', String(!folded));
+}
+
+/* On a wide screen the student can fold the graph away; phones keep the modal open/close path. */
+function foldGraph(folded) {
+  if (narrow.matches) return;
+  document.body.toggleAttribute('data-graph-folded', folded);
+  try { localStorage.setItem(GRAPH_FOLDED_KEY, folded ? '1' : '0'); } catch { /* private mode */ }
+  syncGraphToggle();
+}
+
 /* With revealGraph, the graph column waits until the first step is confirmed, then opens beside the steps. */
 function revealGraph() {
-  if (!options.revealGraph) return;
+  if (!options.revealGraph) {
+    document.body.dataset.graph = 'shown';
+    syncGraphToggle();
+    return;
+  }
   const shown = (state.introCompleted?.length || 0) > 0 || Boolean(state.run?.route);
   document.body.dataset.graph = shown ? 'shown' : 'hidden';
+  syncGraphToggle();
 }
 
 function replayPendingHTML(current) {
@@ -1001,7 +1076,7 @@ function completionHTML(archives) {
   const route = bundle.routes[state.run?.route], {answer, back} = bundle.completion;
   if (bundle.stream) {
     const others = actor === 'student' ? Object.values(bundle.routes).filter(item => item.id !== route?.id && item.available !== false && item.route_plan === 'planned') : [];
-    return `<section class="gw-completion"><h2>${escapeHTML(route?.label || '本路线')} · 练习已完成</h2><div data-stream-completion></div><div class="gw-toolbar">${others.map(item => `<button type="button" data-route="${escapeHTML(item.id)}">再用${escapeHTML(item.label)}做一遍</button>`).join('')}</div></section>`;
+    return `<section class="gw-completion"><h2>${escapeHTML(route?.label || '本路线')} · ${actor === 'student' ? '练习已完成' : '回放已结束'}</h2><div data-stream-completion></div><div class="gw-toolbar">${others.map(item => `<button type="button" data-route="${escapeHTML(item.id)}">再用${escapeHTML(item.label)}做一遍</button>`).join('')}${back?.href ? `<a class="gw-completion-back" href="${escapeHTML(back.href)}">${escapeHTML(back.label)}</a>` : ''}</div></section>`;
   }
   const walked = [...new Set([...archives.map(run => run.route), route?.id])].map(id => bundle.routes[id]).filter(Boolean);
   const others = actor === 'student' ? Object.values(bundle.routes).filter(item => item.id !== route?.id) : [];
@@ -1020,7 +1095,7 @@ function changeDraft(action) {
   ensureDraft(decision); submitted = null;
   action(decision);
   renderInteraction(decision);
-  if (options.stream) park();
+  if (options.stream || options.progressScope) park();
 }
 
 function submit() {
@@ -1030,9 +1105,10 @@ function submit() {
   stopPreview(); preview = null;
   state = submitAnswer(bundle, state, {decision: decision.id, answer}); studentState = state;
   submitted = {decision: decision.id, answer};
+  options.onAnswer?.({decision: decision.id, answer: structuredClone(answer)}, walkView());
   const feedback = state.lastFeedback;
   $('#gw-announcement').textContent = feedback?.message || (feedback?.status === 'passed' ? '已确认，进入下一步。' : '请再想一想。');
-  if (feedback?.status !== 'passed') { renderInteraction(decision); renderGraph(); if (bundle.stream) park(); return; }
+  if (feedback?.status !== 'passed') { renderInteraction(decision); renderGraph(); if (bundle.stream || options.progressScope) park(); return; }
   busy = true;
   $('#gw-submit').disabled = true;
   renderGraph();
@@ -1217,6 +1293,11 @@ function chooseActor(next, {autoplay = true, from = 0} = {}) {
 }
 
 function closeGraph() {
+  if (!narrow.matches) {
+    foldGraph(true);
+    focusBeforeGraph?.focus({preventScroll: true}); focusBeforeGraph = null;
+    return;
+  }
   $('#gw-graph-panel').classList.remove('is-open');
   $('#gw-graph-panel').removeAttribute('role'); $('#gw-graph-panel').removeAttribute('aria-modal');
   $('#gw-open-graph').setAttribute('aria-expanded', 'false');
@@ -1226,7 +1307,11 @@ function closeGraph() {
 }
 
 function openGraph() {
-  if (!narrow.matches) return;
+  if (!narrow.matches) {
+    foldGraph(false);
+    requestAnimationFrame(() => { graph?.focus(); scrollTimeline('auto'); });
+    return;
+  }
   focusBeforeGraph = document.activeElement;
   $('#gw-graph-panel').classList.add('is-open');
   $('#gw-graph-panel').setAttribute('role', 'dialog'); $('#gw-graph-panel').setAttribute('aria-modal', 'true');
@@ -1269,7 +1354,7 @@ function savedProgress(value) {
   const scope = options.progressScope || null;
   let kept = saved.get(progressKey(value, scope));
   const storageKey = storedProgressKey(value, scope);
-  if (!kept && value.stream && storageKey) try { kept = JSON.parse(localStorage.getItem(storageKey) || 'null'); } catch {}
+  if (!kept && storageKey) try { kept = JSON.parse(localStorage.getItem(storageKey) || 'null'); } catch {}
   // The previous stage can be parked just before this run receives its identity.
   return kept || (value.stream && saved.get(progressKey({...value, bundleVersion: value.stream.base_bundle_version}, scope)));
 }
@@ -1378,7 +1463,7 @@ function park() {
     draft: draftNow ?? (previous?.bundleVersion === bundle.bundleVersion ? previous.draft : null)};
   saved.set(progressKey(bundle), value);
   const storageKey = storedProgressKey(bundle, bundleScope);
-  if (bundle.stream && storageKey) try { localStorage.setItem(storageKey, JSON.stringify(value)); } catch {}
+  if (storageKey) try { localStorage.setItem(storageKey, JSON.stringify(value)); } catch {}
 }
 
 async function load({replayFollowing} = {}) {
@@ -1425,7 +1510,7 @@ async function load({replayFollowing} = {}) {
     if (!await installGraph(() => ticket === loadTicket)) return;
     mountCaption(); mountPlayer();
     // A phone opens on the AI player, paused at the start; the visitor presses ▶ to watch.
-    if (options.stream && kept?.actor) chooseActor(kept.actor, {autoplay: !migrated || replayWasFollowing,
+    if ((options.stream || options.progressScope) && kept?.actor) chooseActor(kept.actor, {autoplay: !migrated || replayWasFollowing,
       from: migrated ? replayPosition : 0});
     else if (options.actor) chooseActor(options.actor);
     else if (narrow.matches) chooseActor('replay', {autoplay: false}); else render();
@@ -1441,6 +1526,16 @@ function bind() {
   document.body.dataset.actor = actor;
   $('#gw-open-graph span:last-child').textContent = '展开图谱 ⤢';
   $('#gw-reset').innerHTML = '<span aria-hidden="true">↺</span> 重新练习';
+  if (!$('#gw-graph-toggle')) {
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.id = 'gw-graph-toggle';
+    toggle.setAttribute('aria-controls', 'gw-graph-panel');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.textContent = '收起图谱';
+    $('#gw-reset').before(toggle);
+  }
+  foldGraph(graphFolded());
   $('#gw-retry').addEventListener('click', load);
   $('#gw-steps').addEventListener('click', event => {
     const button = event.target.closest('button');
@@ -1492,16 +1587,39 @@ function bind() {
     studentState = createState(bundle); state = studentState; replayPosition = 0; replayRoutes = {}; replayRoute = null;
     const kept = saved.get(progressKey(bundle));
     if (kept) saved.set(progressKey(bundle), {...kept, studentState, replayPosition: 0, draft: null});
+    options.onReset?.();
     chooseActor('student');
   });
   $('#gw-student').addEventListener('click', () => { if (!busy) chooseActor('student'); });
   $('#gw-ai').addEventListener('click', () => { if (!busy) chooseActor('replay'); });
   $('#gw-open-graph').addEventListener('click', openGraph);
   $('#gw-close-graph').addEventListener('click', closeGraph);
-  narrow.addEventListener('change', () => { if (!narrow.matches) { closeGraph(); toggleSteps(false); } });
+  $('#gw-graph-toggle').addEventListener('click', () => {
+    if (narrow.matches) return;
+    foldGraph(!document.body.hasAttribute('data-graph-folded'));
+  });
+  narrow.addEventListener('change', () => {
+    if (narrow.matches) {
+      document.body.removeAttribute('data-graph-folded');
+      syncGraphToggle();
+      return;
+    }
+    // Leaving the phone modal must not fold the desktop column.
+    $('#gw-graph-panel').classList.remove('is-open');
+    $('#gw-graph-panel').removeAttribute('role');
+    $('#gw-graph-panel').removeAttribute('aria-modal');
+    $('#gw-open-graph').setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('gw-modal-open');
+    $('.gw-lesson').inert = false;
+    toggleSteps(false);
+  });
   document.addEventListener('keydown', event => {
-    if (!$('#gw-graph-panel').classList.contains('is-open')) return;
+    const modal = $('#gw-graph-panel').classList.contains('is-open');
+    const desktop = !narrow.matches && document.body.dataset.graph !== 'hidden'
+      && !document.body.hasAttribute('data-graph-folded');
+    if (!modal && !desktop) return;
     if (event.key === 'Escape') { event.preventDefault(); closeGraph(); }
+    if (!modal) return;
     if (event.key !== 'Tab') return;
     const focusable = [...$('#gw-graph-panel').querySelectorAll('button,a[href],summary,[tabindex="0"]')].filter(node => node.getClientRects().length);
     const first = focusable[0], last = focusable.at(-1);
@@ -1557,7 +1675,7 @@ export function disposeWalk() {
   bundle = null; bundleScope = null; streamView = null; studentState = null; state = null;
   keptDraft = null; draft = null; submitted = null; replay = null; busy = false;
   draftKey = ''; selectedSlot = null; preview = null; story = null; replayRoutes = {}; replayRoute = null;
-  options = {...options, bundle: null, replay: null, stream: null, onState: null, progressScope: null, fetch: undefined};
+  options = {...options, bundle: null, replay: null, stream: null, onState: null, onAnswer: null, onReset: null, progressScope: null, fetch: undefined};
 }
 
 /* The actor the walk currently shows, so a host can carry it across bundles. */
@@ -1568,8 +1686,8 @@ function streamReplay() {
   const plane = bundle.intro.find(item => item.id === 'D3');
   const route = [replayRoute, state?.run?.route].find(id => bundle.routes[id]?.route_plan === 'planned' && bundle.routes[id]?.available !== false)
     || Object.keys(bundle.routes).find(id => bundle.routes[id].route_plan === 'planned' && bundle.routes[id].available !== false);
-  const method = route && plane?.interaction.methods.find(item => item.route === route);
-  if (method) actions.push({decision: 'D3', answer: [...plane.expected_answer.cell, method.value]});
+  const method = route && plane?.interaction.methods?.find(item => item.route === route);
+  if (method) actions.push({decision: 'D3', answer: plane.interaction.type === 'read' ? 'read' : [...plane.expected_answer.cell, method.value]});
   if (method) for (const decision of bundle.routes[route].steps || []) {
     const expected = decision.expected_answer || {};
     const answer = decision.interaction.type === 'read' ? 'read'
@@ -1585,10 +1703,29 @@ function streamReplay() {
 
 export function walkView() {
   return {actor, route: state?.run?.route || null, target_ref: options.stream?.target_ref,
+    bundle_version: bundle?.bundleVersion, done: Boolean(state?.done),
     problem_id: bundle?.problemId, teaching_context: teachingContext(bundle, state),
     base_bundle_version: bundle?.stream?.base_bundle_version || bundle?.bundleVersion,
     intro_complete: Boolean(bundle?.intro.some(item => item.id === 'D3') && state?.introCompleted.length === bundle.intro.length),
     intro_completed: state?.introCompleted.map(item => item.decision) || []};
+}
+
+/** Restore only server-confirmed student answers; AI playback keeps its own position. */
+export function restoreWalkProgress(history) {
+  if (!bundle || !bundle.routes[history.route_id]) return false;
+  const answers = new Map((history.steps || []).filter(step => step.passed).map(step => [step.step_id, step.answer]));
+  let restored = createState(bundle);
+  for (let decision = currentDecision(bundle, restored); decision && answers.has(decision.id); decision = currentDecision(bundle, restored)) {
+    const value = answers.get(decision.id);
+    if (!value || !Object.hasOwn(value, 'value')) return false;
+    const next = submitAnswer(bundle, restored, {decision: decision.id, answer: value.value});
+    if (next.lastFeedback?.status !== 'passed') return false;
+    restored = next;
+  }
+  studentState = restored;
+  if (actor === 'student') { state = studentState; keptDraft = null; draftKey = ''; submitted = null; render(); }
+  else park();
+  return true;
 }
 
 /** Extend the same decision engine; existing answers/draft retain their identity. */

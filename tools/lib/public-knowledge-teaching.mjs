@@ -3,6 +3,7 @@ import path from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { splitRef } from '../../site/assets/knowledge-next/model.mjs';
 import { branches } from '../../site/assets/knowledge-next/teaching-model.mjs';
+import { loadGraphWalkProblem } from './graph-walk-practice.mjs';
 
 const json = async (file) => JSON.parse(await fs.readFile(file, 'utf8'));
 const equal = (a, b, message) => {
@@ -108,6 +109,30 @@ export async function loadTeaching(root, nodes, manifest) {
       counts.problems++;
       insist(/^\/(?:[a-z0-9][a-z0-9-]*\/)+$/.test(problem.path), `题页必须使用站内目录路径：${pid}`);
       insist(!lessons.has(pid), `题目身份在多个专题中重复：${pid}`);
+      if (problem.runtime === 'graph-walk') {
+        const projected = await loadGraphWalkProblem(root, pid, problem, nodes);
+        problem.statement = projected.statement;
+        problem.routes = projected.routes;
+        lessons.set(pid, {runtime: 'graph-walk', ...projected.contract});
+        insist(problem.types?.length, `题型缺失：${pid}`);
+        for (const ref of problem.types) {
+          insist(checkRef(ref, nodes, ['problem_type']).status !== 'planned', `练习不能关联待建设题型：${pid}/${ref}`);
+          add(ref, {topic: topic.id, problem: pid});
+        }
+        for (const [rid, route] of Object.entries(problem.routes)) {
+          counts.routes++;
+          route.methods.forEach(ref => checkRef(ref, nodes, ['method']));
+          for (const [sid, step] of Object.entries(route.steps)) {
+            counts.steps++;
+            for (const ref of step.refs) {
+              checkRef(ref, nodes);
+              add(ref, {topic: topic.id, problem: pid, route: rid, step: sid, conditions: {}});
+            }
+          }
+        }
+        continue;
+      }
+      insist(problem.runtime === undefined, `未知题页运行时：${pid}`);
       const html = await fs.readFile(path.join(root, `site${problem.path}index.html`), 'utf8');
       const config = html.match(/<script[^>]*id="practice-config"[^>]*>([\s\S]*?)<\/script>/);
       insist(config, `题页缺少 practice-config：${pid} / ${problem.path}`);

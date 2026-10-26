@@ -109,6 +109,14 @@ def _goal(goal, features, text, candidate=None):
         return section
     known = {key: row["value"] for key, row in features.items() if row.get("status") == "known"}
     section["d1"] = d1_rows(goal["target_ref"], goal["d1"]["fragments"], known, text, candidate=candidate)
+    if known.get("goal", {}).get("kind") == "find_domain":
+        # The domain locator proves the original arithmetic tree separately
+        # from the generic polynomial reader (which can reject valid \frac).
+        diagnostics = [item for item in goal["d1"].get("diagnostics", [])
+                       if item["code"] in {"d1.scope_or_features_ambiguous",
+                                           "d1.function_definition_not_uniquely_located"}]
+        if diagnostics:
+            section["d1"]["diagnostics"] = diagnostics
     section["d2"] = d2_options(goal)
     section["knowledge"] = [knowledge_label(item["ref"]) for item in goal["knowledge"]["items"]]
     section["links"] = goal["knowledge"]["links"]
@@ -368,6 +376,8 @@ def _goal_row(case, v, s, kind):
 
 def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
+    if known.get("goal", {}).get("kind") == "find_domain":
+        return _domain_d1_rows(target, fragments, known, text, candidate=candidate)
     transform, diagnostics = transformation(target, fragments, known, tex, text=text, candidate=candidate)
     extra = {"transformation": transform} if transform else {}
     if diagnostics:
@@ -431,6 +441,61 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
         summary = (f"合起来：{transform['source_meaning']}" if transform else
                    f"合起来：{pieces['relation']}{pieces['quantifier']}，{pieces['goal']}。")
     return {"rows": rows, "summary": summary, **extra}
+
+
+def _domain_d1_rows(target, fragments, known, text, *, candidate=None):
+    """Read the input-set task from reviewed features, without solving it."""
+    domain = known.get("function_domain") or {}
+    variable, function = domain.get("variable"), domain.get("function_name")
+    if not domain.get("structure_supported") or not variable or not function:
+        return {"rows": [], "summary": ""}
+    variable, function = tex(variable), tex(function)
+    options = [
+        _option(f"自变量 ${variable}$ 的取值范围"),
+        _option(f"函数值 ${function}({variable})$ 的取值范围", "goal",
+                f"函数值 ${function}({variable})$ 的取值范围是值域；定义域是自变量 ${variable}$ 的取值集合。"),
+    ]
+    rows, givens = [], []
+    for kind in ("expression", "goal", "given_domain"):
+        selected = [fragment for fragment in fragments if fragment["fragment_kind"] == kind]
+        if not selected:
+            continue
+        row_id = f"{target}:{kind}"
+        spans = [_spans([fragment], text) for fragment in selected]
+        signature = sha256(json.dumps([kind, spans, domain], sort_keys=True,
+                                      ensure_ascii=False).encode()).hexdigest()[:16]
+        item = {"id": row_id, "kind": kind, "quote": spans,
+                "fragment_ids": [fragment["id"] for fragment in selected],
+                "knowledge_refs": list(dict.fromkeys(ref for fragment in selected
+                                                     for ref in fragment["knowledge_refs"])),
+                "source_refs": list(dict.fromkeys(ref for fragment in selected
+                                                  for ref in fragment.get("source_refs", []))),
+                "signature": signature}
+        if kind == "goal":
+            rows.append({**item, "options": _shuffle(row_id, options)})
+        else:
+            item["source_ref"] = domain["source_ref"] if kind == "expression" else domain["input_domain_source_ref"]
+            givens.append(item)
+    if domain.get("input_domain_source_ref"):
+        given = next((item for item in givens if item["kind"] == "given_domain"), None)
+        if given is None:
+            given = {"id": f"{target}:given_domain", "kind": "given_domain", "quote": [],
+                     "fragment_ids": [], "knowledge_refs": [],
+                     "source_ref": domain["input_domain_source_ref"],
+                     "source_refs": [domain["input_domain_source_ref"]]}
+            givens.append(given)
+        given["input_domain_ast"] = domain["input_domain_ast"]
+        if candidate is not None:
+            value = candidate
+            for part in domain["input_domain_source_ref"].strip("/").split("/"):
+                value = value[int(part)] if isinstance(value, list) else value[part]
+            given["text"] = f"题设输入范围：${variable}\\in {tex(value)}$。"
+    summary = (f"定义域是自变量的取值集合。本题需要找出所有使原解析式有意义的 ${variable}$。"
+               if rows else "")
+    if summary and domain.get("input_domain_source_ref"):
+        summary += "题设另给的输入范围也要同时满足。"
+    return {"rows": rows, "givens": givens, "interaction": "choice",
+            "question": "题目要求“定义域”，也就是要确定什么？", "summary": summary}
 
 
 def d2_options(goal):

@@ -148,9 +148,10 @@
       "properties": {
         "repeat": {"$ref": "#/$defs/repeat"},
         "fold": {"const": true},
+        "compiler": {"const": "function_domain"},
         "parts": {"type": "array", "items": {"$ref": "#/$defs/part"}}
       },
-      "if": {"properties": {"repeat": {"const": "never"}}},
+      "if": {"anyOf": [{"properties": {"repeat": {"const": "never"}}}, {"required": ["compiler"]}]},
       "else": {"properties": {"parts": {"minItems": 1}}}
     },
     "templateRule": {"allOf": [{"$ref": "#/$defs/rule"}], "unevaluatedProperties": false},

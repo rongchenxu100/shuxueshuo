@@ -28,7 +28,7 @@
       "label": "求函数的定义域",
       "type": "type-function-domain",
       "description": "结合题设范围与表达式有意义的条件，确定允许的输入。",
-      "problems": []
+      "problems": ["function-concepts-q15"]
     },
     {
       "id": "equality",
@@ -59,5 +59,13 @@
       "problems": []
     }
   ],
-  "problems": {}
+  "problems": {
+    "function-concepts-q15": {
+      "label": "求函数的定义域 · Q15",
+      "path": "/topics/function-concepts/q15/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q15.json",
+      "types": ["type-function-domain"]
+    }
+  }
 }

@@ -1,12 +1,15 @@
 {
-  "version": "graph-stage-one-expressions/v3",
+  "version": "graph-stage-one-expressions/v4",
   "base": "problem-math-notation-expressions.json",
   "overrides": {
     "domain_and_interval": {
       "id": "domain_and_interval",
       "syntax": "ℝ；[a,b]；(a,b)；[a,b)；(a,b]；(-∞,b)；[a,∞)",
       "meaning": "ℝ为实数域；方括号包含端点，圆括号不包含。无穷仅可作为区间边界且必须开端点，不是普通标量或可取值。集合描述区间转成等价区间。题面只说恒成立而未写出量词变量范围时，量词域取 ℝ。",
-      "examples": ["∀t∈(-∞,5): t^2+c>0", "u∈[3,∞)"]
+      "examples": [
+        "∀t∈(-∞,5): t^2+c>0",
+        "u∈[3,∞)"
+      ]
     }
   },
   "additions": [
@@ -14,19 +17,44 @@
       "id": "finite_set",
       "syntax": "{1,2,a}；{x∈ℝ | 条件}；∅；⊆；⊊；⊇；⊋；∈；∉；∩；∪",
       "meaning": "由数或小写字母元素组成的集合；{A,B}这类大写元素仍表示点集。描述法写成{x∈定义域 | 条件}，必须写出变量的定义域，x只在花括号内有效。大写集合名由⊆、=、∩、∪等关系识别，无需另作声明。⊆为子集，⊊为真子集（题面⫋同义），二者不能互换；题面写⊂且含义不明时在uncertainties报告ambiguous_symbol，不自行改写。连续包含关系可直接连写。求满足条件的集合个数用目标{\"kind\":\"find_count\",\"symbol\":\"M\"}，条件写在facts，不写|{M:…}|或集合族记法。",
-      "examples": ["{a} ⊆ M ⊊ {a,b,c,d}", "A = {1,2,3}", "∅ ⊊ M ⊆ A", "M ∪ {1,2} = {1,2,3}", "3 ∉ M", "A = {x∈ℝ | x^2-3*x+2 = 0}", "{x∈ℝ | x > a} ⊆ {x∈ℝ | x > 1}"]
+      "examples": [
+        "{a} ⊆ M ⊊ {a,b,c,d}",
+        "A = {1,2,3}",
+        "∅ ⊊ M ⊆ A",
+        "M ∪ {1,2} = {1,2,3}",
+        "3 ∉ M",
+        "A = {x∈ℝ | x^2-3*x+2 = 0}",
+        "{x∈ℝ | x > a} ⊆ {x∈ℝ | x > 1}"
+      ]
     },
     {
       "id": "absolute_value",
       "syntax": "abs(表达式)；|表达式|",
       "meaning": "绝对值，两种写法等价，首选abs(x-1)。",
-      "examples": ["abs(x-1) <= 1", "B = {x∈ℝ | abs(x-1) <= 1}", "|2*a-1| > 3"]
+      "examples": [
+        "abs(x-1) <= 1",
+        "B = {x∈ℝ | abs(x-1) <= 1}",
+        "|2*a-1| > 3"
+      ]
     },
     {
       "id": "set_sum_and_remainder",
       "syntax": "sum(S)；mod(整数表达式,正整数)",
       "meaning": "sum(S)为有限集合S全部元素之和；mod(n,k)为整数n除以正整数k的余数。“元素之和为3的倍数”写mod(sum(S),3) = 0，“除以4余1”写mod(n,4) = 1。不写Σ、≡、(mod k)或k|n。",
-      "examples": ["mod(sum(S),3) = 0", "sum(S) = 6", "mod(n,4) = 1"]
+      "examples": [
+        "mod(sum(S),3) = 0",
+        "sum(S) = 6",
+        "mod(n,4) = 1"
+      ]
+    },
+    {
+      "id": "concrete_function_domain_goal",
+      "syntax": "g(t)=sqrt(5-t)/(t+3)；目标 {\"kind\":\"find_domain\",\"object\":\"g\"}",
+      "meaning": "求具体函数全部合法实数输入。保留未化简的原函数定义；仅题面明确另给输入范围时增加目标input_domain，如[0,1]。不得填入求解所得自然定义域，不添加根式或分母条件；求参、函数值和值域不是此目标。",
+      "examples": [
+        "f(t)=sqrt(3-t)/(t-2)",
+        "g(u)=1/sqrt(u-2)"
+      ]
     }
   ]
 }

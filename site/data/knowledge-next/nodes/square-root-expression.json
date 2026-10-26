@@ -1,0 +1,22 @@
+{
+  "id": "square-root-expression",
+  "kind": "knowledge",
+  "status": "knowledge_only",
+  "label": "二次根式",
+  "summary": "在实数范围内，二次根式要求被开方数非负，结果表示非负的算术平方根。",
+  "source": "初中数学：二次根式；函数定义域题型的根式知识依据",
+  "entries": [
+    {
+      "id": "meaning",
+      "title": "有意义的条件与算术平方根",
+      "type": "性质",
+      "body": [
+        "在实数范围内，$\\sqrt{u}$ 有意义当且仅当 $u\\ge0$；$u=0$ 允许，此时 $\\sqrt{u}=0$。",
+        "$\\sqrt{u}$ 表示非负的算术平方根。对于 $u\\ge0$，$\\sqrt{u}=0$ 当且仅当 $u=0$；若根式作为分母，还须满足该分母不为 $0$，因此要求 $u>0$。"
+      ],
+      "conditions": "$u$ 是在当前输入下可以计算的实数表达式；其内部运算也必须有意义。",
+      "references": ["rational-expression#meaning"]
+    }
+  ],
+  "examples": []
+}

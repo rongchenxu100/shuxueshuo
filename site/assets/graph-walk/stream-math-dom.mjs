@@ -12,9 +12,9 @@ const text = (document, tag, value, className) => {
 };
 
 export function routeAnswerSummary(answer = {}) {
-  if (answer.kind === 'find_range' && answer.status === 'set') {
+  if (['find_range', 'find_domain'].includes(answer.kind) && answer.status === 'set') {
     const formula = expressionText(answer.set);
-    return formula ? {label: '参数范围：', formula} : null;
+    return formula ? {label: answer.kind === 'find_domain' ? '定义域：' : '参数范围：', formula} : null;
   }
   if (!['find_minimum', 'find_maximum'].includes(answer.kind)) return null;
   const minimum = answer.kind === 'find_minimum', name = minimum ? '最小值' : '最大值';
@@ -33,15 +33,15 @@ export function routeAnswerSummary(answer = {}) {
 }
 
 /* The conclusion first: a caption over labelled formulas joined by arrows, as in the authored lessons. */
-function highlightBoard(document, highlight) {
+function highlightBoard(document, highlight, parallel = false) {
   if (highlight.layout === 'merge') return mergeBoard(document, highlight);
   const board = document.createElement('div');
   board.className = 'visual-board completed-visual stage-three-highlight';
   board.append(text(document, 'div', highlight.caption, 'board-caption'));
   const row = document.createElement('div');
-  row.className = 'function-conversion';
+  row.className = parallel ? 'gw-domain-parallel' : 'function-conversion';
   highlight.items.forEach((item, index) => {
-    if (index) {
+    if (index && !parallel) {
       const arrow = text(document, 'span', highlight.connector === undefined ? '→' : highlight.connector, 'conversion-arrow');
       arrow.setAttribute('aria-hidden', 'true'); row.append(arrow);
     }
@@ -117,7 +117,7 @@ export function createMathCard(document, step, options = {}) {
   node.append(heading);
   let conclusion = null, caption = null;
   if (step.highlight) {
-    conclusion = highlightBoard(document, step.highlight);
+    conclusion = highlightBoard(document, step.highlight, ['domain_conditions', 'domain_solutions'].includes(step.display_unit));
     if (step.highlight.layout !== 'merge') caption = conclusion.children[0];
     node.append(conclusion);
     if (!step.highlight.conclusion_only) node.append(derivationDetails(document, step.explanation || ''));

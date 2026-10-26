@@ -4,6 +4,7 @@ import re
 
 import sympy as sp
 
+from ...problem_understanding.notation_parser import NotationError, parse
 from .proposition_surface import negated_propositions, proposition_parts
 from .surface_math import (
     PolynomialReader,
@@ -12,6 +13,66 @@ from .surface_math import (
     normalize_surface,
     split_relation,
 )
+
+
+def _domain_formula_body_matches(body, expected):
+    """Compare original arithmetic trees, never simplified domain equivalents.
+
+    This bounded display adapter accepts only the elementary TeX needed by
+    this first domain route. Unknown markup omits the D1 quote conservatively.
+    """
+    if max(len(body), len(expected)) > 4096:
+        return False
+
+    def read(index=0, depth=0, grouped=False):
+        if depth > 24:
+            raise ValueError("display nesting limit")
+        output = []
+        while index < len(body):
+            char = body[index]
+            if char == "}":
+                if not grouped:
+                    raise ValueError("unmatched group")
+                return "".join(output), index + 1
+            if char == "{":
+                inner, index = read(index + 1, depth + 1, True)
+                output.append("(" + inner + ")")
+                continue
+            if char != "\\":
+                output.append({"−": "-", "（": "(", "）": ")"}.get(char, char))
+                index += 1
+                continue
+            command = re.match(r"\\([A-Za-z]+|[,;! ])", body[index:])
+            if not command:
+                raise ValueError("unknown display command")
+            word = command.group(1)
+            index += command.end()
+            if word in ("left", "right", ",", ";", "!", " ", "quad", "qquad"):
+                continue
+            if word in ("cdot", "times"):
+                output.append("*")
+                continue
+            if word not in ("sqrt", "frac", "dfrac", "tfrac"):
+                raise ValueError("unsupported display command")
+            operands = []
+            for _ in range(1 if word == "sqrt" else 2):
+                while index < len(body) and body[index].isspace():
+                    index += 1
+                if index >= len(body) or body[index] != "{":
+                    raise ValueError("display operand must be grouped")
+                inner, index = read(index + 1, depth + 1, True)
+                operands.append(inner)
+            output.append("sqrt(" + operands[0] + ")" if word == "sqrt" else
+                          "((" + operands[0] + ")/(" + operands[1] + "))")
+        if grouped:
+            raise ValueError("unfinished group")
+        return "".join(output), index
+
+    try:
+        normalized, _ = read()
+        return parse(normalized) == parse(expected)
+    except (NotationError, ValueError, RecursionError):
+        return False
 
 
 def _scope_ranges(candidate, target_ref):
@@ -285,6 +346,27 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
             **({"reading_transform": transform} if transform else {}),
         })
 
+    domain = values.get("function_domain", {})
+    if values.get("goal", {}).get("kind") == "find_domain" and domain.get("structure_supported"):
+        # Require one matching function/argument identity, then bind its exact
+        # arithmetic tree; cancellation or an unrelated RHS cannot pass.
+        name, argument = re.escape(domain["function_name"]), re.escape(domain["variable"])
+        head = re.compile(rf"^\s*{name}\s*(?:\\left\s*)?\(\s*{argument}\s*(?:\\right\s*)?\)\s*=")
+        definitions = []
+        for begin, end in ranges:
+            for formula in re.finditer(r"\$([^$\n]+)\$", text[begin:end]):
+                matched = head.match(formula.group(1))
+                if matched and formula.group(1)[matched.end():].strip():
+                    definitions.append((begin + formula.start(1), begin + formula.end(1),
+                                        formula.group(1)[matched.end():]))
+        if len(definitions) == 1 and _domain_formula_body_matches(definitions[0][2], domain["expression"]):
+            first, last, _ = definitions[0]
+            surface = normalize_surface(text, first, last)
+            if surface.text:
+                add(surface, 0, len(surface.text), "expression", ["function_domain"])
+        else:
+            diagnostics.append({"code": "d1.function_definition_not_uniquely_located", "target_ref": target_ref})
+
     for begin, end in ranges:
         surface = normalize_surface(text, begin, end)
         normalized = surface.text
@@ -355,6 +437,9 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
             for match in re.finditer(pattern, normalized):
                 add(surface, match.start(1), match.end(1), "domain", ["domain", "bound_vars"])
         goal = values.get("goal", {})
+        if goal.get("kind") == "find_domain" and values.get("function_domain", {}).get("structure_supported"):
+            for match in re.finditer(r"定义域", normalized):
+                add(surface, match.start(), match.end(), "goal", ["goal", "function_domain"])
         if goal.get("kind") in ("find_range", "find_minimum", "find_maximum") and isinstance(goal.get("symbol"), str):
             symbol = re.escape(goal["symbol"])
             if goal["kind"] == "find_range":

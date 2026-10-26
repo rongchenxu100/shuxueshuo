@@ -1,0 +1,14 @@
+{
+  "original_text": "求函数 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域。",
+  "root": {
+    "definitions": [
+      "f(x)=sqrt(x-1)/(x-2)"
+    ],
+    "goals": [
+      {
+        "kind": "find_domain",
+        "object": "f"
+      }
+    ]
+  }
+}

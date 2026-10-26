@@ -404,7 +404,10 @@ def _affine_restore_view(values):
 
 # Preparation functions only select supplied evidence or construct equivalent
 # mathematical objects. They contain no prose and never perform solving.
+from .domain_presentation import presentation as domain_presentation
+
 PREPARERS = {
+    "domain_view": domain_presentation,
     "normalize_view": _normalize_view,
     "variable_swap": _variable_swap,
     "variable_range": _variable_range, "variable_conditions": _variable_conditions,
@@ -428,6 +431,7 @@ _DISCRIMINANT_FIELDS = {"display_expression", "display_coefficient", "display_op
                         "delta_opening", "delta_vertex", "target_side", "target_sign_text",
                         "opening_mode", "opening_summary", "vertex_position", "opening_determined"}
 PREPARED_FIELDS = {
+    "domain_view": {"domain_lines", "domain_explanation"},
     "normalize_view": {"normalization_chain", "normalization_relations"},
     "variable_swap": {"swap_identity"},
     "variable_range": {"after", "square", "has_square", "multiple"},

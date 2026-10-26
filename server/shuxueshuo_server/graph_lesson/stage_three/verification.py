@@ -951,6 +951,9 @@ def _set_mismatch(left, right):
 
 def verify(candidate, target_ref, constraint_context, feasible_set):
     """Prove the entire proposed set by an original-input critical partition."""
+    if _source(candidate, target_ref).get("kind") == "find_domain":
+        from .function_domain import verify_domain
+        return verify_domain(candidate, target_ref, constraint_context, feasible_set)
     result = {"status": "capability_gap", "proof": {}, "diagnostics": []}
     try:
         problem = read_problem(candidate, target_ref, constraint_context)
@@ -1026,6 +1029,9 @@ def verify(candidate, target_ref, constraint_context, feasible_set):
 @_sympy_gap_boundary
 def endpoint_check(candidate, target_ref, feasible_set):
     """Independent exact boundary evidence, including excluded candidate ends."""
+    if _source(candidate, target_ref).get("kind") == "find_domain":
+        from .function_domain import domain_endpoints
+        return domain_endpoints(candidate, target_ref, feasible_set)
     problem = read_problem(candidate, target_ref)
     _supported_set(feasible_set)
     boundaries = feasible_set.boundary

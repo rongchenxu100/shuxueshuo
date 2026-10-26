@@ -140,8 +140,13 @@ def validate_input(value, admission="acceptance"):
                     issue("input.feature_source_scope", source_path,
                           "出处仅可引用本作用域及祖先的事实、定义，或当前目标。")
     for target, found in grouped.items():
-        if found != registry:
-            issue("input.features_incomplete", target, "缺少阶段①特征：" + ", ".join(sorted(registry - found)))
+        # Saved v1 results predate concrete-domain extraction. Its additional
+        # feature is mandatory for that new goal, but cannot invalidate older
+        # reviewed goals that never used it. Present rows still receive every
+        # ordinary shape/source check above.
+        required = registry if expected[target]["goal"]["kind"] == "find_domain" else registry - {"function_domain"}
+        if missing := required - found:
+            issue("input.features_incomplete", target, "缺少阶段①特征：" + ", ".join(sorted(missing)))
     return {"ok": not diagnostics, "diagnostics": diagnostics}
 
 

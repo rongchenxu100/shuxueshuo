@@ -1,0 +1,29 @@
+{
+  "schema_version": "graph-type-recognition/v1",
+  "type_id": "type-function-domain",
+  "branches": [
+    {
+      "branch_id": "fixed-affine-expression-domain",
+      "checks": [
+        {
+          "id": "domain-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "find_domain",
+          "role": "required",
+          "student_cue": 0
+        },
+        {
+          "id": "complete-supported-expression",
+          "feature_id": "function_domain",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 0
+        }
+      ]
+    }
+  ]
+}

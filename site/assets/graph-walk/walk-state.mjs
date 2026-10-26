@@ -687,7 +687,9 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
       for (const occurrence of edge.occurrences || []) selectedByBranch.set(occurrence.branch, edge.to);
     }
     const options = d4.options || [];
-    const methods = Object.entries(d3.interaction.coverage).map(([branch, cells]) => {
+    const direct = d3.interaction.type === 'read';
+    const coverage = direct ? Object.fromEntries(options.map(option => [option.branch, []])) : d3.interaction.coverage;
+    const methods = Object.entries(coverage).map(([branch, cells]) => {
       const option = options.find(item => item.branch === branch);
       const target = option?.method || selectedByBranch.get(branch);
       if (!target || !nodes.has(target)) throw new Error('stream.unknown_method');
@@ -706,6 +708,16 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
     const selection = {...copy(d3), source: 'authored', interaction: {...copy(d3.interaction), methods}, alternatives,
       candidateNodes: [...rules, ...methods.map(method => method.target)],
       effects: {nodes: [...rules], edges: ruleEdges.map(edge => edge.id), calls: [], results: [], log: '根据本题条件选择解题方法。'}};
+    if (direct) {
+      const runnable = methods.filter(method => method.route);
+      if (runnable.length !== 1) throw new Error('stream.direct_method_requires_one_route');
+      selection.question = `使用${runnable[0].label}：${d3.question || ''}`;
+      selection.route_by_answer = {read: runnable[0].route};
+      selection.candidateNodes = [runnable[0].target];
+      selection.effects = {nodes: [runnable[0].target],
+        edges: [...edges.values()].filter(edge => edge.from === d3.query.from && edge.type === 'candidate' && edge.to === runnable[0].target).map(edge => edge.id),
+        calls: [], results: [], log: '本题可直接使用这条已验证的方法路线。'};
+    }
     bundle.intro = [...bundle.intro.filter(item => !['D3', 'D4'].includes(item.id)), selection];
     bundle.routes = Object.fromEntries(options.map(option => [option.route_id, {
       id: option.route_id, method: option.method, label: nodes.get(option.method)?.label || option.method,

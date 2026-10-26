@@ -138,7 +138,8 @@ def test_scalar_parameter_extrema_keep_goal_kind_and_quantified_structure(
     frozen = deepcopy(candidate)
     features = feature_values(candidate)
     assert candidate == frozen
-    assert all(item["status"] == "known" for item in features.values())
+    assert all(item["status"] == "known" for key, item in features.items() if key != "function_domain")
+    assert features["function_domain"]["status"] == "unknown"
     assert features["goal"]["value"] == {"kind": kind, "symbol": "a"}
     assert features["goal"]["source_refs"] == ["/root/goals/0"]
     assert features["quantifier"]["value"] == "∀"
@@ -210,9 +211,9 @@ def test_extremum_sub_questions_keep_goals_and_quantifiers_in_their_own_scope():
         assert features[target, "bound_vars"]["value"] == [bound]
         assert features[target, "free_vars"]["value"] == [parameter]
         assert features[target, "domain"]["value"]["expression"] == domain
-        for (target_ref, _), feature in features.items():
+        for (target_ref, feature_id), feature in features.items():
             if target_ref == target:
-                assert feature["status"] == "known"
+                assert feature["status"] == ("unknown" if feature_id == "function_domain" else "known")
                 assert feature["scope"] == scope
                 assert feature["source_refs"]
                 assert all(ref.startswith(scope + "/") for ref in feature["source_refs"])

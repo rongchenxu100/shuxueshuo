@@ -38,6 +38,11 @@ export function renderTopicIndex(topics) {
   }).join('\n');
 }
 
+function problemStem(problem, position) {
+  const text = problem.statement || problem.label;
+  return `<span class="problem-number">${String(position).padStart(2, '0')}</span><span class="problem-stem"><span class="visually-hidden">第 ${position} 题：</span>${textHtml(text)}</span><span class="problem-go" aria-hidden="true">→</span>`;
+}
+
 export function renderTopicOverview(topic, nodes) {
   validateTopicSource(topic, nodes);
   const count = problemCount(topic), byId = new Map(nodes.map(node => [node.id, node]));
@@ -45,7 +50,7 @@ export function renderTopicOverview(topic, nodes) {
   const groups = topic.groups.map((group, index) => `<section class="type-group" id="group-${group.id}" aria-labelledby="title-${group.id}">
   <div class="type-heading"><span class="type-index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><div class="type-title"><h3 id="title-${group.id}">${h(group.label)}</h3><p class="type-hint">${h(group.description || '')}</p></div></div>
   <a class="topic-type-link" href="${typeLink(group)}">了解题型 <span aria-hidden="true">→</span></a>
-  ${group.problems.length ? `<ol class="problem-list">${group.problems.map(id => {const p = topic.problems[id]; return `<li><a class="problem-card" href="${h(p.path)}" data-problem-id="${h(id)}"><span class="problem-stem">${h(p.label)}</span><span aria-hidden="true">→</span></a></li>`;}).join('')}</ol>` : '<p class="topic-group-empty">题目建设中</p>'}
+  ${group.problems.length ? `<ol class="problem-list">${group.problems.map((id, position) => {const p = topic.problems[id]; return `<li><a class="problem-card" href="${h(p.path)}" data-problem-id="${h(id)}">${problemStem(p, position + 1)}</a></li>`;}).join('')}</ol>` : '<p class="topic-group-empty">题目建设中</p>'}
 </section>`).join('\n');
   return `<!doctype html>
 <html lang="zh-CN">
@@ -57,9 +62,10 @@ export function renderTopicOverview(topic, nodes) {
   <link rel="canonical" href="https://shuxueshuo.com${topicPath(topic)}">
   <link rel="stylesheet" href="/assets/practice/vendor/katex-0.18.9/katex.min.css">
   <link rel="stylesheet" href="/1/chapter.css?v=20261005a">
-  <link rel="stylesheet" href="/topics/topics.css?v=20261026a">
+  <link rel="stylesheet" href="/topics/topics.css?v=20261026b">
   <link rel="stylesheet" href="${SITE_HEADER_CSS}">
   <script type="module" src="/assets/auth/site-auth.js?v=4"></script>
+  ${count ? '<script type="module" src="/assets/learning/learning-marks.js?v=20261026-graph-walk"></script>' : ''}
   <title>${h(topic.label)} · 高中专题 · 数学说</title>
 </head>
 <body class="topic-overview-page">
@@ -71,13 +77,13 @@ export function renderTopicOverview(topic, nodes) {
       <p class="eyebrow">${h(topic.chapter.book)} · ${h(topic.chapter.number)} · ${h(topic.chapter.section)}</p>
       <h1 id="topic-title"><span class="title-mark">${h(topic.label)}</span></h1>
       <p class="lead">${h(topic.introduction)}</p>
-      ${count ? '' : '<div class="topic-empty"><h2>题目建设中</h2><p>先了解本专题的知识与题型，练习题将逐步加入。</p></div>'}
+${count ? '' : '      <div class="topic-empty"><h2>题目建设中</h2><p>先了解本专题的知识与题型，练习题将逐步加入。</p></div>'}
     </section>
-    <section class="topic-knowledge-entry" aria-labelledby="knowledge-title"><div class="bank-heading"><h2 id="knowledge-title">知识梳理</h2><a href="/knowledge/${topic.chapter.ref}/">查看本节知识 →</a></div><ul class="topic-knowledge-links">${knowledge}</ul></section>
-    <section class="bank" aria-labelledby="types-title"><div class="bank-heading"><h2 id="types-title">题型目录</h2><p class="bank-count">${topic.groups.length} 个题型${count ? ` · ${count} 道题` : ''}</p></div>
-      <nav class="toc" aria-label="题型目录"><ol class="toc-list">${topic.groups.map((group, index) => `<li><a class="toc-link" href="#group-${group.id}"><span class="toc-index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span class="toc-name">${h(group.label)}</span></a></li>`).join('')}</ol></nav>
+    <section class="bank" aria-labelledby="types-title"><div class="bank-heading"><h2 id="types-title">题目</h2><p class="bank-count">${topic.groups.length} 个题型${count ? ` · ${count} 道题` : ''}</p></div>
+      <nav class="toc" aria-label="题型目录"><div class="toc-heading"><h3 id="toc-title">题型目录</h3><span class="toc-meta">点击跳到对应题型</span></div><ol class="toc-list">${topic.groups.map((group, index) => `<li><a class="toc-link" href="#group-${group.id}"><span class="toc-index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span class="toc-name">${h(group.label)}</span></a></li>`).join('')}</ol><a class="toc-map" href="#knowledge-map">本专题的知识梳理 <span aria-hidden="true">↓</span></a></nav>
       ${groups}
     </section>
+    <section class="topic-knowledge-entry" id="knowledge-map" aria-labelledby="knowledge-title"><div class="bank-heading"><h2 id="knowledge-title">知识梳理</h2><a href="/knowledge/${topic.chapter.ref}/">查看本节知识 →</a></div><ul class="topic-knowledge-links">${knowledge}</ul></section>
     <footer class="chapter-footer"><span>数学说 · 高中专题</span><a href="/topics/">返回专题目录 →</a></footer>
   </main>
 </body>

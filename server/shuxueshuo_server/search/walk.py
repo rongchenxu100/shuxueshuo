@@ -50,7 +50,9 @@ def subgraph(clues, types, primary):
     ranked = sorted(involving, key=lambda t: (-len(involving[t]), t))
     shown = list(dict.fromkeys([t for t in types if t in graph["nodes"]] + ranked))[:max(MAX_TYPES, len(types))]
     rules = [e["to"] for e in edges if e["type"] == "method_rule" and e["from"] == primary]
-    methods = [e["to"] for e in edges if e["type"] == "selects" and e["from"] in rules
+    methods = [e["to"] for e in edges
+               if ((e["type"] == "selects" and e["from"] in rules)
+                   or (e["type"] == "candidate" and e["from"] == primary))
                and graph["nodes"].get(e["to"], {}).get("kind") == "method"]
     ids = list(dict.fromkeys([c for c in clues if c in graph["nodes"]] + shown + rules + methods))
     keep = set(ids)
@@ -71,7 +73,7 @@ def _d1(goal, clues, shown, best):
                           for o in row["options"]]} for row in rows]
     answer = [next(o["id"] for o in row["options"] if o["correct"]) for row in rows]
     summary = goal["d1"]["summary"]
-    return {
+    decision = {
         "id": "D1", "title": "读题", "question": "这一问在说什么？逐句选出你的理解。", "source": "authored",
         "submit_label": "读懂了，看图谱怎么走",
         "interaction": {"type": "checklist", "title": "逐句读题", "slots": slots},
@@ -81,7 +83,16 @@ def _d1(goal, clues, shown, best):
         "effects": {"nodes": clues, "edges": [], "calls": [], "results": [summary] if summary else [],
                     "log": f"图谱查询：从 {len(clues)} 个知识线索反查，找到 {len(shown)} 个相关题型；"
                            f"最高覆盖 {best}/{len(clues)}。"},
-    }, answer
+    }
+    if goal["d1"].get("interaction") == "choice":
+        (slot,), (answer,) = slots, answer
+        givens = [item["text"] for item in goal["d1"].get("givens", [])
+                  if item["kind"] == "given_domain" and item.get("text")]
+        decision.update(question="\n\n".join([*givens, goal["d1"]["question"]]),
+                        interaction={"type": "choice", "field": "reading", "options": slot["options"]},
+                        expected_answer={"one_of": [answer]},
+                        feedback={"answer": "再想一想，定义域描述的是输入还是输出的取值范围。"})
+    return decision, answer
 
 
 def _d2(goal, clues, edges):
@@ -138,7 +149,8 @@ def walk(goal, text, problem_id):
         return None
     graph = _graph()
     transformation = goal["d1"].get("transformation")
-    refs = [r for row in goal["d1"]["rows"] for r in row["knowledge_refs"]] or [k["ref"] for k in goal["knowledge"]]
+    reading_items = goal["d1"]["rows"] + goal["d1"].get("givens", [])
+    refs = [r for item in reading_items for r in item["knowledge_refs"]] or [k["ref"] for k in goal["knowledge"]]
     if transformation:
         refs += transformation["knowledge_refs"]
     clues = list(dict.fromkeys(r.partition("#")[0] for r in refs if r.partition("#")[0] in graph["nodes"]))
@@ -149,9 +161,13 @@ def walk(goal, text, problem_id):
     if goal["d1"]["rows"]:
         d1, answer = _d1(goal, clues, shown, best)
         intro.append(d1)
-        reading = "；".join(f"{slot['label']}——{next(o['label'] for o in slot['options'] if o['value'] == value)}"
-                            for slot, value in zip(d1["interaction"]["slots"], answer))
-        actions.append({"decision": "D1", "answer": answer, "reason": f"逐句读题：{reading}。"})
+        if d1["interaction"]["type"] == "choice":
+            reason = goal["d1"]["summary"]
+        else:
+            reading = "；".join(f"{slot['label']}——{next(o['label'] for o in slot['options'] if o['value'] == value)}"
+                                for slot, value in zip(d1["interaction"]["slots"], answer))
+            reason = f"逐句读题：{reading}。"
+        actions.append({"decision": "D1", "answer": answer, "reason": reason})
     if transformation:
         nodes = ["quantifiers"] if "quantifiers" in clues else []
         step, answer = _transformation(transformation, nodes)
@@ -170,6 +186,8 @@ def walk(goal, text, problem_id):
         "completion": {"answer": "", "back": {"href": "/lab/search/", "label": "再拍一题"}},
         "graph": shown_graph,
     }
+    if goal["d1"].get("givens"):
+        bundle["problem"]["givens"] = goal["d1"]["givens"]
     if transformation:
         bundle["problem"].update(source_text=text, source_meaning=transformation["source_meaning"],
                                  normalized_text=transformation["normalized_text"],

@@ -232,6 +232,9 @@ def _context_atoms(context):
 @_sympy_gap_boundary
 def apply_visible_constraints(constraint_context, feasible_set):
     """Compute the route's restriction intersection from its own context only."""
+    if constraint_context.get("goal", {}).get("kind") == "find_domain":
+        from .function_domain import process_context
+        return process_context(constraint_context, feasible_set)
     algebra = _RouteArithmetic(constraint_context)
     atoms = _context_atoms(constraint_context)
     quantified = [ast for _, ast in atoms if ast[0] == "quantifier"]

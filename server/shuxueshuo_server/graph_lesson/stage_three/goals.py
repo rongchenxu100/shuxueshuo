@@ -68,15 +68,15 @@ def finalize_goal_with_evidence(goal, feasible_set):
     Range answers retain their existing wire format, including empty sets.
     """
     kind = goal["kind"]
-    if kind not in ("find_range", "find_minimum", "find_maximum"):
+    if kind not in ("find_range", "find_domain", "find_minimum", "find_maximum"):
         raise VerificationGap("goal_finalize.unsupported_kind:" + kind)
     if not isinstance(feasible_set, sp.Set):
         raise TypeError("goal_finalize.expected_set")
-    if kind == "find_range":
+    if kind in ("find_range", "find_domain"):
         answer = {"kind": kind, "status": "set", "set": math_value(feasible_set)}
         return answer, {"kind": "goal_closure", "goal_kind": kind, "status": "set",
                         "feasible_set": math_value(feasible_set), "direction": None,
-                        "checks": [{"kind": "range_identity", "passed": True}]}
+                        "checks": [{"kind": "domain_identity" if kind == "find_domain" else "range_identity", "passed": True}]}
 
     _supported_set(feasible_set)
     components = _components(feasible_set)
@@ -155,7 +155,7 @@ def equivalent_answers(first, second):
     kind, status = first.get("kind"), first.get("status")
     if (kind, status) != (second.get("kind"), second.get("status")):
         return False
-    if kind == "find_range" and status == "set":
+    if kind in ("find_range", "find_domain") and status == "set":
         if not all(set(answer) == {"kind", "status", "set"}
                    and isinstance(answer["set"], dict) for answer in (first, second)):
             raise _InvalidGoalAnswer("goal_finalize.range_answer_required")
@@ -193,7 +193,7 @@ def verify_goal_answer(goal, feasible_set, answer):
         raise GoalClosureMismatch("goal_finalize.answer_mismatch") from exc
     if not matches:
         raise GoalClosureMismatch("goal_finalize.answer_mismatch")
-    if goal["kind"] == "find_range" and answer["set"].get("expression") != expected["set"]["expression"]:
+    if goal["kind"] in ("find_range", "find_domain") and answer["set"].get("expression") != expected["set"]["expression"]:
         raise GoalClosureMismatch("goal_finalize.answer_mismatch")
     evidence["checks"].append({"kind": "goal_answer_matches_feasible_set", "passed": True,
                                "answer_kind": expected["kind"], "answer_status": expected["status"]})

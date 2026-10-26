@@ -949,11 +949,19 @@ class NotationValidator:
                     "find_coordinates": ("point",),
                     "find_equation": ("curve", "function"),
                     "find_range": ("scalar",),
+                    "find_domain": ("function",),
                     "find_count": ("set",),
                 }.get(goal["kind"], ("scalar", "length", "angle", "area"))
                 if typ not in expected:
                     raise NotationError("type.goal_target")
                 result = {"kind": goal["kind"], "target": value}
+                if "input_domain" in goal:
+                    domain = env.bind(parse(goal["input_domain"]))
+                    if domain[0] == "tuple":
+                        domain = node("interval", False, False, *domain[1:])
+                    if typecheck(domain) not in ("domain", "set"):
+                        raise NotationError("type.goal_input_domain")
+                    result["input_domain"] = domain
                 for field in ("variables", "in_terms_of"):
                     if field in goal:
                         result[field] = [env.reference(p) for p in goal[field]]

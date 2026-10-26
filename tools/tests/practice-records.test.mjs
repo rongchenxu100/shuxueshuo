@@ -318,3 +318,17 @@ test('pending submissions from an old association version are never relabeled an
   await tick();
   assert.equal(h.posted.length, 0);
 });
+
+for (const value of [['radical', 'denominator'], 'input_domain']) test(`native graph answers preserve ${Array.isArray(value) ? 'structured' : 'single-choice'} values and retry event identity`, async () => {
+  let unavailable = true;
+  const h = harness((url, body) => url.endsWith('/practice') ? response({...history(), id: body.id})
+    : unavailable ? response({}, 503) : response(history()));
+  h.recorder.graphAnswer('direct', 'first', value, 'graph-answer');
+  await assert.rejects(h.recorder.flush(), error => error.status === 503);
+  unavailable = false;
+  await h.recorder.flush();
+  const answers = h.posted.filter(op => op.url.endsWith('/answers'));
+  assert.equal(answers.length, 2);
+  assert.deepEqual(answers[0].body, {id: 'graph-answer', step_id: 'first', answer: {value}});
+  assert.deepEqual(answers[1].body, answers[0].body);
+});

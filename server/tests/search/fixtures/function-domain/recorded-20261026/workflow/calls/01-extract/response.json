@@ -1,0 +1,150 @@
+{
+  "text": "{\"original_text\":\"15. 函数$f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$的定义域为____\",\"root\":{\"definitions\":[\"f(x)=sqrt(x-1)/(x-2)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_domain\",\"object\":\"f\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 1961,
+      "prompt_tokens": 9319,
+      "total_tokens": 11280,
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 9319
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 469,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-e04fe618-a162-4e86-81a4-1d4c2afb5e41",
+        "sha256": "eab3b34377252e527c6efa0f9e951efe69ce141036d5dc38ba17a2d213f0b2bf",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 23242,
+        "expires_at": 1793091429,
+        "uploaded_at": 1793005029.167616
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "eab3b34377252e527c6efa0f9e951efe69ce141036d5dc38ba17a2d213f0b2bf",
+        "file_id": "file-api-e04fe618-a162-4e86-81a4-1d4c2afb5e41",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 13464,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 1961,
+          "prompt_tokens": 9319,
+          "total_tokens": 11280,
+          "completion_tokens_details": {
+            "reasoning_tokens": 1800
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          },
+          "prompt_cache_hit_tokens": 0,
+          "prompt_cache_miss_tokens": 9319
+        },
+        "raw_payload": {
+          "id": "1f68ae42-2909-4d5c-9211-a0f4606ef6e4",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 1961,
+            "prompt_tokens": 9319,
+            "total_tokens": 11280,
+            "completion_tokens_details": {
+              "reasoning_tokens": 1800
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 0
+            },
+            "prompt_cache_hit_tokens": 0,
+            "prompt_cache_miss_tokens": 9319
+          },
+          "created": 1793005382,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"15. 函数$f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$的定义域为____\",\"root\":{\"definitions\":[\"f(x)=sqrt(x-1)/(x-2)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_domain\",\"object\":\"f\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+                "reasoning_content": "我们需要回答 JSON。需要提取题目。图片显示：“15. 函数 f(x)= (√(x-1))/(x-2) 的定义域为____.” 需要识别。求定义域。根号覆盖 x-1? 图片 \\frac{\\sqrt{x-1}}{x-2}，根号应为 x-1。求定义域。目标 find_domain object f。原解析式定义保留：f(x)=\\frac{\\sqrt{x-1}}{x-2}。题面只写函数f(x)=...的定义域。root definitions 函数定义。goals find_domain object f。original_text 完整转录，包括题号15. 可能有下划线填空。public_content scopes root statement 不含题号，公式。需要 root_label_role? root.label 是否设置？题号15. 是来源/题号。是否设为 label \"15.\"？ root.label 存在时标明来源。通常题号可作为 source，但公开题干不能包含题号，privacy separated 若排除题号。需要决定。指令：original_text 保留完整题干，可以带15.；public_content statement 不包含题号。root.label 存在时，用 root_label_role 区分来源题号与有题意的标签：仅原图明确是来源或试卷题号时为 source。这里 \"15.\" 明显题号。因此可以 root.label=\"15.\"，root_label_role=\"source\"。但 root 中的 label 会影响？ root scope label 可省略。如果设置 label 为 \"15.\" 且 role source，公开内容中不包含? public content scopes statement 不含题号。privacy separated 如果题号来源分离。可以 separated。需要确保 root.definitions 不含中文解释。definition: \"f(x)=sqrt(x-1)/(x-2)\"? 受控语法：function_definition_and_reference f(t)=表达式。保留原解析式不化简。 根号首选用 sqrt 或 √。根号覆盖 x-1，分母。写 \"f(x)=sqrt(x-1)/(x-2)\" 可以。 但需注意原式是 \\frac{\\sqrt{x-1}}{x-2}，如果写 sqrt(x-1)/(x-2) 由于乘法除法优先级，视为 (sqrt(x-1))/(x-2) 吗？通常是的。也可 \"f(x)=sqrt(x-1)/(x-2)\"。目标 {\"kind\":\"find_domain\",\"object\":\"f\"}。无需 input_domain，因为没有另给输入范围。 facts 空。uncertainties? 可能题号是否题源。无。\n\noriginal_text: “15. 函数$f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$的定义域为____。” 需要 JSON 反斜杠双写。 使用 $…$ 包围，LaTeX 中 frac。 图片显示等号后分数。下划线可能横线。末尾句号？图片“定义域为.”似乎有 \".\" 或下划线? 看裁剪： \"的定义域为\" 后面有下划线。可以 \"____\" 然后 \"。\" 或 \"．\" 需保留。 原图可能有 \"定义域为______\" no period visible. 写 \"____\" 即可。 题干中有 \"15.\" 题号。需要 root label 15. source 吗，如果 label 是 \"15.\" 可以。 public_content scopes statement: \"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____。\" 这不包括题号。 choices: target_ref \"/root/goals/0\", status none, selection_mode none, options [].\n\ncompleteness complete? 题目有函数和求定义域，完整。privacy separated? 题目无姓名等。题号分离，且手写无。答案如果横线上没有写。图片显示没有手写。可 separated。figure not_required。root_label_role source。但 root.label \"15.\" 如果在 root 中 label 存在，public_content root_label_role source。root 也包含 label? schema label optional。如果 root.label 设置，需要 root_label_role。可以设 root label \"15.\"。不确定是否要求 label 不包含在 statement。应该可以。如果不想设 label，可省略 root.label，那 root_label_role 必须? 只有 root.label 存在时填写。那么 public_content.root_label_role 可省略。但题号在 original_text 保留，public_content statement 不含题号。privacy 可 separated。为了减少复杂，可以省略 root.label，不设置 root_label_role。但题号“15.”是来源，需要排除公开。statement 不含即可。root label 可以作为题号，但若省略，无 root_label_role，OK。指令特别说 root.label 存在时... 不是必须。所以省略 label。但隐私 separated 可以。\n\n需要注意：public_content.scopes 按 root 先序对应所有作用域。只有一个 root。scope_ref \"/root\"。 statement 自身题干和所求，不重复父级。 可以 \"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____。\"这是完整题面。choices per goal.\n\nroot definitions: [\"f(x)=sqrt(x-1)/(x-2)\"]。 facts: []。goals: [{\"kind\":\"find_domain\",\"object\":\"f\"}]。uncertainties: []。\n\n有没有可能根号只覆盖 x 不是 x-1? 图片：√x-1 的横线覆盖 x-1? 看图片 \\sqrt{x-1} 横线较长覆盖 x-1。确定。\n\n需要 JSON only。输出必须符合 schema。 original_text pattern \\S. Use escaped backslashes. 如果使用 LaTeX，需要 \"\\\\frac\", \"\\\\sqrt\" 在 JSON 中变成 \\frac? Need two backslashes in JSON string to represent one. 输出中必须是 \"\\\\frac\" 如 JSON 文本。 我会在最终给 JSON。 数学公式中 original_text 用 $...$，内部 \\frac。 JSON 里写 \"\\\\frac\"。 函数定义 root 不使用 $ 和反斜杠，用 sqrt。 分母写法：f(x)=sqrt(x-1)/(x-2)。 会不会误解为 sqrt(x-1)/(x-2) 是根号下整个分式？在受控语法中 sqrt(表达式)/(x-2) 明确。没问题。\n\n需要 public_content statement 公式用 $…$，内部 \\frac, \\sqrt，JSON 转义。 statement \"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____。\" 这里 \"____\" 是填空横线。 原始文字明确“定义域为.”? 图片中“定义域为”后面有下划线，无句号。添加句号? 原题转录不应添加标点? 可以包含句号。 public_content statement可以稍微规范。 original_text 不添加解释。如果加句号无伤？ 应保留题干，不补充。图片没有句号，写 \"____\" 即可。 也许“定义域为”后是空白下划线。 写 \"____\"。\n\npublic_content scopes item: {\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}。\n\n完整性 complete。 privacy separated? 题号去除，没有个人信息。但原图有没有手写“15.” no. 可 separated。 figure not_required。 root_label_role omitted. Good.\n\nNeed original_text maybe include \"15. 函数$f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$的定义域为____.\" 原文有句号? 图片中末尾看起来有下划线后可能有 \".\"? 实际图片裁剪： “定义域为.” 屏幕右侧可能有下划线。 为保真，转录题号： \"15. 函数$f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$的定义域为____\" no trailing. original_text需要完整题干，可以保留下划线。 Okay.\n\nuncertainties: [] allowed? root schema uncertainties optional; can include empty. Fine.\n\nNeed only JSON.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 13465
+  },
+  "raw_payload": {
+    "id": "1f68ae42-2909-4d5c-9211-a0f4606ef6e4",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"15. 函数$f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$的定义域为____\",\"root\":{\"definitions\":[\"f(x)=sqrt(x-1)/(x-2)\"],\"facts\":[],\"goals\":[{\"kind\":\"find_domain\",\"object\":\"f\"}],\"uncertainties\":[]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要回答 JSON。需要提取题目。图片显示：“15. 函数 f(x)= (√(x-1))/(x-2) 的定义域为____.” 需要识别。求定义域。根号覆盖 x-1? 图片 \\frac{\\sqrt{x-1}}{x-2}，根号应为 x-1。求定义域。目标 find_domain object f。原解析式定义保留：f(x)=\\frac{\\sqrt{x-1}}{x-2}。题面只写函数f(x)=...的定义域。root definitions 函数定义。goals find_domain object f。original_text 完整转录，包括题号15. 可能有下划线填空。public_content scopes root statement 不含题号，公式。需要 root_label_role? root.label 是否设置？题号15. 是来源/题号。是否设为 label \"15.\"？ root.label 存在时标明来源。通常题号可作为 source，但公开题干不能包含题号，privacy separated 若排除题号。需要决定。指令：original_text 保留完整题干，可以带15.；public_content statement 不包含题号。root.label 存在时，用 root_label_role 区分来源题号与有题意的标签：仅原图明确是来源或试卷题号时为 source。这里 \"15.\" 明显题号。因此可以 root.label=\"15.\"，root_label_role=\"source\"。但 root 中的 label 会影响？ root scope label 可省略。如果设置 label 为 \"15.\" 且 role source，公开内容中不包含? public content scopes statement 不含题号。privacy separated 如果题号来源分离。可以 separated。需要确保 root.definitions 不含中文解释。definition: \"f(x)=sqrt(x-1)/(x-2)\"? 受控语法：function_definition_and_reference f(t)=表达式。保留原解析式不化简。 根号首选用 sqrt 或 √。根号覆盖 x-1，分母。写 \"f(x)=sqrt(x-1)/(x-2)\" 可以。 但需注意原式是 \\frac{\\sqrt{x-1}}{x-2}，如果写 sqrt(x-1)/(x-2) 由于乘法除法优先级，视为 (sqrt(x-1))/(x-2) 吗？通常是的。也可 \"f(x)=sqrt(x-1)/(x-2)\"。目标 {\"kind\":\"find_domain\",\"object\":\"f\"}。无需 input_domain，因为没有另给输入范围。 facts 空。uncertainties? 可能题号是否题源。无。\n\noriginal_text: “15. 函数$f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$的定义域为____。” 需要 JSON 反斜杠双写。 使用 $…$ 包围，LaTeX 中 frac。 图片显示等号后分数。下划线可能横线。末尾句号？图片“定义域为.”似乎有 \".\" 或下划线? 看裁剪： \"的定义域为\" 后面有下划线。可以 \"____\" 然后 \"。\" 或 \"．\" 需保留。 原图可能有 \"定义域为______\" no period visible. 写 \"____\" 即可。 题干中有 \"15.\" 题号。需要 root label 15. source 吗，如果 label 是 \"15.\" 可以。 public_content scopes statement: \"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____。\" 这不包括题号。 choices: target_ref \"/root/goals/0\", status none, selection_mode none, options [].\n\ncompleteness complete? 题目有函数和求定义域，完整。privacy separated? 题目无姓名等。题号分离，且手写无。答案如果横线上没有写。图片显示没有手写。可 separated。figure not_required。root_label_role source。但 root.label \"15.\" 如果在 root 中 label 存在，public_content root_label_role source。root 也包含 label? schema label optional。如果 root.label 设置，需要 root_label_role。可以设 root label \"15.\"。不确定是否要求 label 不包含在 statement。应该可以。如果不想设 label，可省略 root.label，那 root_label_role 必须? 只有 root.label 存在时填写。那么 public_content.root_label_role 可省略。但题号在 original_text 保留，public_content statement 不含题号。privacy 可 separated。为了减少复杂，可以省略 root.label，不设置 root_label_role。但题号“15.”是来源，需要排除公开。statement 不含即可。root label 可以作为题号，但若省略，无 root_label_role，OK。指令特别说 root.label 存在时... 不是必须。所以省略 label。但隐私 separated 可以。\n\n需要注意：public_content.scopes 按 root 先序对应所有作用域。只有一个 root。scope_ref \"/root\"。 statement 自身题干和所求，不重复父级。 可以 \"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____。\"这是完整题面。choices per goal.\n\nroot definitions: [\"f(x)=sqrt(x-1)/(x-2)\"]。 facts: []。goals: [{\"kind\":\"find_domain\",\"object\":\"f\"}]。uncertainties: []。\n\n有没有可能根号只覆盖 x 不是 x-1? 图片：√x-1 的横线覆盖 x-1? 看图片 \\sqrt{x-1} 横线较长覆盖 x-1。确定。\n\n需要 JSON only。输出必须符合 schema。 original_text pattern \\S. Use escaped backslashes. 如果使用 LaTeX，需要 \"\\\\frac\", \"\\\\sqrt\" 在 JSON 中变成 \\frac? Need two backslashes in JSON string to represent one. 输出中必须是 \"\\\\frac\" 如 JSON 文本。 我会在最终给 JSON。 数学公式中 original_text 用 $...$，内部 \\frac。 JSON 里写 \"\\\\frac\"。 函数定义 root 不使用 $ 和反斜杠，用 sqrt。 分母写法：f(x)=sqrt(x-1)/(x-2)。 会不会误解为 sqrt(x-1)/(x-2) 是根号下整个分式？在受控语法中 sqrt(表达式)/(x-2) 明确。没问题。\n\n需要 public_content statement 公式用 $…$，内部 \\frac, \\sqrt，JSON 转义。 statement \"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____。\" 这里 \"____\" 是填空横线。 原始文字明确“定义域为.”? 图片中“定义域为”后面有下划线，无句号。添加句号? 原题转录不应添加标点? 可以包含句号。 public_content statement可以稍微规范。 original_text 不添加解释。如果加句号无伤？ 应保留题干，不补充。图片没有句号，写 \"____\" 即可。 也许“定义域为”后是空白下划线。 写 \"____\"。\n\npublic_content scopes item: {\"scope_ref\":\"/root\",\"statement\":\"函数 $f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$ 的定义域为____。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}。\n\n完整性 complete。 privacy separated? 题号去除，没有个人信息。但原图有没有手写“15.” no. 可 separated。 figure not_required。 root_label_role omitted. Good.\n\nNeed original_text maybe include \"15. 函数$f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$的定义域为____.\" 原文有句号? 图片中末尾看起来有下划线后可能有 \".\"? 实际图片裁剪： “定义域为.” 屏幕右侧可能有下划线。 为保真，转录题号： \"15. 函数$f(x)=\\\\frac{\\\\sqrt{x-1}}{x-2}$的定义域为____\" no trailing. original_text需要完整题干，可以保留下划线。 Okay.\n\nuncertainties: [] allowed? root schema uncertainties optional; can include empty. Fine.\n\nNeed only JSON."
+        }
+      }
+    ],
+    "created": 1793005382,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+    "usage": {
+      "completion_tokens": 1961,
+      "prompt_tokens": 9319,
+      "total_tokens": 11280,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 1800,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 0
+      },
+      "prompt_cache_hit_tokens": 0,
+      "prompt_cache_miss_tokens": 9319
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 13.467
+}

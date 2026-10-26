@@ -35,9 +35,10 @@ async function initializeMarks() {
     } finally { clearTimeout(timer); }
   }
 
-  const config = document.getElementById('practice-config');
+  const config = document.getElementById('practice-config') || document.getElementById('graph-walk-page');
   if (config) {
-    const id = JSON.parse(config.textContent).id;
+    const settings = JSON.parse(config.textContent), id = settings.id || settings.problemId;
+    const completion = document.getElementById('completion') || document.getElementById('gw-completion');
     const panel = document.createElement('section');
     panel.id = 'learning-mark'; panel.className = 'learning-mark'; panel.hidden = true;
     panel.setAttribute('aria-label', '本题学习记录');
@@ -52,7 +53,7 @@ async function initializeMarks() {
         <button type="button" data-learning-retry>重试保存</button>
       </div>
       <a class="learning-return">返回题库，继续选题 →</a>`;
-    document.getElementById('completion').after(panel);
+    completion.after(panel);
     panel.querySelector('.learning-return').href = modeHref('../', {}, location.href);
     let scrolledToMark = false;
     const state = new LearningMark(async (kind, status, user) => {
@@ -109,7 +110,7 @@ async function initializeMarks() {
     window.addEventListener('site-auth-change', event => { void state.setUser(event.detail.user?.id || null, event.detail.reason); });
     window.addEventListener('practice-completed', event => { if (event.detail.problemId === id) state.complete(); });
     // The local completion event can precede loading this optional module.
-    if (document.getElementById('completion').dataset.learningCompleted === 'true') state.complete();
+    if (completion.dataset.learningCompleted === 'true') state.complete();
     void state.setUser(auth?.user?.id || null);
     const refresh = () => { if (!document.hidden && !state.pending) void state.reload(); };
     window.addEventListener('storage', event => { if (event.key === 'sss-learning-change') refresh(); });

@@ -75,13 +75,16 @@ export async function exportRows(root, { nodes, edges, manifest, teaching }) {
     const { problems, ...body } = topic;
     rows.practice_topics.push({ id: topic.id, label: topic.label, path: topicPath(topic), body, groups: topic.groups, is_active: true });
     for (const [position, [pid, problem]] of Object.entries(problems).entries()) {
-      const teacher = await read(path.join(root, `server/shuxueshuo_server/tutor_demo/lessons/${pid}.json`));
-      const contracts = Object.fromEntries(Object.entries(teacher.routes).map(([rid, route]) => [rid,
+      const native = problem.runtime === 'graph-walk' ? teaching.lessons.get(pid) : null;
+      const teacher = native ? null : await read(path.join(root, `server/shuxueshuo_server/tutor_demo/lessons/${pid}.json`));
+      const contracts = native || Object.fromEntries(Object.entries(teacher.routes).map(([rid, route]) => [rid,
         route.nodes.map(({ tip, ...node }) => node)]));
-      const contract_hash = digest({ problem: teacher.problem, version: teacher.version, methods: teacher.methods, routes: contracts });
+      const contract_hash = native ? digest(native) : digest({ problem: teacher.problem, version: teacher.version, methods: teacher.methods, routes: contracts });
       const association_hash = digest({ types: problem.types, routes: Object.fromEntries(Object.entries(problem.routes).map(([rid, route]) => [rid, associations(route)])) });
       rows.practice_problems.push({ id: pid, label: problem.label, path: problem.path, lesson_file: `${pid}.json`,
-        statement_md: teacher.problem.statement, problem_data: { ...teacher.problem, contract_hash, _lesson: teacher }, contract_hash, association_hash, is_active: true });
+        statement_md: native ? problem.statement : teacher.problem.statement,
+        problem_data: native ? {statement: problem.statement, contract_hash, _graph_walk: native}
+          : { ...teacher.problem, contract_hash, _lesson: teacher }, contract_hash, association_hash, is_active: true });
       rows.practice_topic_problems.push({ topic_id: topic.id, problem_id: pid, position });
       rows.practice_problem_types.push(...problem.types.map((node_id) => ({ problem_id: pid, node_id })));
       for (const [route_id, route] of Object.entries(problem.routes)) {

@@ -8,7 +8,7 @@ import pytest
 import sympy as sp
 
 from shuxueshuo_server.graph_lesson.stage_one.features import extract_features
-from shuxueshuo_server.graph_lesson.stage_three import fragments, premises
+from shuxueshuo_server.graph_lesson.stage_three import fragments, premises, selection
 from shuxueshuo_server.graph_lesson.stage_three.premises import (
     check_premise,
     parse_expression,
@@ -45,6 +45,40 @@ def evaluate(value, target=TARGET):
     rows = extract_features(value)
     assert rows["ok"], rows
     return evaluate_goal(value, target, rows["features"], PRIMARY)
+
+
+@pytest.mark.parametrize("admission", [None, "another_problem_type"])
+def test_unknown_direct_admission_cannot_fall_through_to_function_domain(monkeypatch, admission):
+    from shuxueshuo_server.graph_lesson.stage_three import function_domain
+
+    contract = load_contract("type-function-domain")
+    if admission is None:
+        contract.pop("admission")
+    else:
+        contract["admission"] = admission
+    # Simulate a future loader/schema accepting a new category. Runtime must
+    # reject it before interpreting the candidate with the current domain guard.
+    monkeypatch.setattr(selection, "load_contract", lambda primary: contract)
+
+    def unexpected_domain_check(context):
+        pytest.fail("unknown direct admission used the function-domain check")
+
+    monkeypatch.setattr(function_domain, "admitted", unexpected_domain_check)
+    with pytest.raises(ValueError, match="^selection.unsupported_direct_admission$"):
+        evaluate_goal({}, TARGET, [], "type-function-domain")
+
+
+@pytest.mark.parametrize("expression,expected", [
+    ("sqrt(x-1)/(x-2)", "no_verified_route"),
+    ("sqrt(x-a)/(x-2)", "no_applicable_method"),
+])
+def test_declared_function_domain_admission_rechecks_original_candidate(expression, expected):
+    value = {"original_text": "求函数定义域", "root": {
+        "definitions": ["f(x)=" + expression], "facts": [],
+        "goals": [{"kind": "find_domain", "object": "f"}],
+    }}
+    result = evaluate_goal(value, TARGET, [], "type-function-domain")
+    assert result["status"] == expected
 
 
 def branch(result, key):

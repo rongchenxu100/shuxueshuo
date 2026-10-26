@@ -1,0 +1,42 @@
+{
+  "id": "skill-expression-defined",
+  "kind": "skill",
+  "label": "提取表达式有意义的条件",
+  "summary": "按原式结构找到根号、分母等限制位置，逐条列出有意义的条件并保留出处。",
+  "source": "人教 A 版必修第一册第三章",
+  "input": "一个需要在实数范围内有意义的具体表达式。",
+  "output": "限制位置、原始条件和各条件对应的知识依据；此步骤不求解条件或取交集。",
+  "conditions": "读取未经约分或抵消的原式；本批支持有理常数系数的一元仿射被开方数、分母及其简单组合。",
+  "basis": [
+    "square-root-expression#meaning",
+    "rational-expression#meaning"
+  ],
+  "operations": [
+    {
+      "id": "locate",
+      "title": "找到原式的限制位置",
+      "body": [
+        "从原式逐层找偶次根号的被开方数、除法的分母，避免漏掉根号同时作为分母的情况。"
+      ]
+    },
+    {
+      "id": "conditions",
+      "title": "逐处写有意义的条件",
+      "body": [
+        "二次根号要求被开方数 $\\ge0$；分母要求 $\\ne0$。分子为零允许，不能把所有根号条件写为 $>0$。"
+      ]
+    }
+  ],
+  "examples": [
+    {
+      "title": "根式与分式同时有意义",
+      "prompt": "求 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域。",
+      "solution": [
+        "列条件 $x-1\\ge0$ 且 $x-2\\ne0$。",
+        "解得 $x\\ge1$ 且 $x\\ne2$，取交集为 $[1,2)\\cup(2,+\\infty)$。"
+      ],
+      "source": "函数专题第 15 题"
+    }
+  ],
+  "resources": []
+}

@@ -299,7 +299,7 @@
           ],
           "properties": {
             "kind": {
-              "const": "find_range"
+              "enum": ["find_range", "find_domain"]
             },
             "status": {
               "const": "set"

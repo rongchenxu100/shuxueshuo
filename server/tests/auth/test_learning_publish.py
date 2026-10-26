@@ -104,10 +104,10 @@ def test_direct_publishing_rejects_invalid_graph_before_transaction(invalid):
 
 
 def test_shared_export_has_complete_next_content(authored):
-    assert len(authored['practice_problems']) == 39
-    assert len(authored['practice_routes']) == 50
-    assert len(authored['practice_steps']) == 259
-    assert len(authored['knowledge_nodes']) == 89
+    assert len(authored['practice_problems']) == 40
+    assert len(authored['practice_routes']) == 51
+    assert len(authored['practice_steps']) == 266
+    assert len(authored['knowledge_nodes']) == 92
     assert len(authored['knowledge_drill_items']) == 177
     assert authored['_meta']['counts']['eligible_drill_nodes'] == 16
     assert len({q['item_id'] for q in authored['knowledge_drill_items']}) == 177

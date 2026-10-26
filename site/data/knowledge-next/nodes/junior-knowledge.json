@@ -2,11 +2,15 @@
   "id": "junior-knowledge",
   "kind": "collection",
   "label": "初中知识",
-  "summary": "回顾高中学习中会用到的初中知识，理解分式、绝对值和反比例函数的基本概念。",
+  "summary": "回顾高中学习中会用到的初中知识，理解分式、二次根式、绝对值和反比例函数的基本概念。",
   "source": "初中数学；3.1 函数的概念及其表示知识图谱设计",
   "members": [
     {
       "ref": "rational-expression",
+      "relation": "contains"
+    },
+    {
+      "ref": "square-root-expression",
       "relation": "contains"
     },
     {

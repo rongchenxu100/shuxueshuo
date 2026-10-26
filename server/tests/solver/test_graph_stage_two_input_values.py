@@ -29,6 +29,29 @@ def test_all_actual_stage_one_value_shapes_remain_accepted(case, sample):
     assert checked["ok"], checked
 
 
+def test_legacy_goals_accept_absent_new_domain_feature_but_keep_existing_requirements():
+    value = accepted()
+    assert not any(row["feature_id"] == "function_domain" for row in value["features"])
+    assert validate_input(value)["ok"]
+    value["features"] = [row for row in value["features"] if row["feature_id"] != "relation"]
+    checked = validate_input(value)
+    assert any(row["code"] == "input.features_incomplete" and "relation" in row["message"]
+               for row in checked["diagnostics"])
+
+
+def test_find_domain_requires_its_new_feature_even_in_saved_result_envelope():
+    candidate = {"original_text": "求函数 f(x)=sqrt(x-1)/(x-2) 的定义域。", "root": {
+        "definitions": ["f(x)=sqrt(x-1)/(x-2)"], "goals": [{"kind": "find_domain", "object": "f"}],
+    }}
+    value = accepted()
+    value.update(candidate=candidate, features=extract_features(candidate)["features"])
+    assert validate_input(value)["ok"]
+    value["features"] = [row for row in value["features"] if row["feature_id"] != "function_domain"]
+    checked = validate_input(value)
+    assert any(row["code"] == "input.features_incomplete" and "function_domain" in row["message"]
+               for row in checked["diagnostics"])
+
+
 def student_upload(value):
     value["statuses"] = {key: value["statuses"][key] for key in ("extraction", "source_reviewed", "features")}
     value["statuses"]["admission"] = "student_upload"

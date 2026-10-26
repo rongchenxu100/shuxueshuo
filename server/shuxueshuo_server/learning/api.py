@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import select, update
+from sqlalchemy import select, text, update
 from sqlalchemy.dialects.postgresql import insert
 
 from ..auth.api import require_origin, require_user, service
@@ -39,13 +39,16 @@ Auth = Annotated[AuthService, Depends(service)]
 router = APIRouter(prefix='/api/learning', dependencies=[Depends(learning_user)])
 
 
-def problem_ids():
+def problem_ids(connection=None):
     # Reuse the global lesson IDs: basic-inequality-q01 and quadratic-always-q01 are different.
-    return {p.stem for p in (Path(__file__).parents[1] / 'tutor_demo/lessons').glob('*.json')}
+    result = {p.stem for p in (Path(__file__).parents[1] / 'tutor_demo/lessons').glob('*.json')}
+    if connection is not None:
+        result.update(connection.execute(text('SELECT id FROM practice_problems WHERE is_active')).scalars())
+    return result
 
 
-def known(problem_id):
-    if problem_id not in problem_ids():
+def known(problem_id, connection=None):
+    if problem_id not in problem_ids(connection):
         raise HTTPException(404, '没有找到这道题。')
 
 
@@ -66,15 +69,15 @@ def list_marks(user: User, auth: Auth):
         rows = c.execute(select(m.student_learning_marks).where(
             m.student_learning_marks.c.user_id == UUID(user['id'])
         )).mappings().all()
-    known_ids = problem_ids()
+        known_ids = problem_ids(c)
     return {'marks': [view(row) for row in rows if row['problem_id'] in known_ids]}
 
 
 @router.get('/marks/{problem_id}')
 def read_mark(problem_id: str, user: User, auth: Auth):
     problem_id = canonical_id(problem_id)
-    known(problem_id)
     with transaction(auth.db) as c:
+        known(problem_id, c)
         row = c.execute(select(m.student_learning_marks).where(key(user, problem_id))).mappings().first()
     return view(row, problem_id)
 
@@ -82,9 +85,16 @@ def read_mark(problem_id: str, user: User, auth: Auth):
 @router.post('/marks/{problem_id}/complete')
 def complete(problem_id: str, body: CompleteBody, user: User, auth: Auth):
     problem_id = canonical_id(problem_id)
-    known(problem_id)
     t = m.student_learning_marks
     with transaction(auth.db) as c:
+        known(problem_id, c)
+        problem = c.execute(text('SELECT problem_data FROM practice_problems WHERE id=:p'), {'p': problem_id}).scalar_one_or_none()
+        if problem and problem.get('_graph_walk'):
+            completed = c.execute(text('''SELECT id FROM student_practice_attempts
+                WHERE user_id=:u AND problem_id=:p AND status='completed' LIMIT 1'''),
+                {'u': UUID(user['id']), 'p': problem_id}).first()
+            if not completed:
+                raise HTTPException(409, '请先完成并保存一次自己做的练习。')
         row = c.execute(insert(t).values(user_id=UUID(user['id']), problem_id=problem_id, practiced=True)
                         .on_conflict_do_update(index_elements=[t.c.user_id, t.c.problem_id],
                                                set_={'practiced': True})
@@ -95,9 +105,9 @@ def complete(problem_id: str, body: CompleteBody, user: User, auth: Auth):
 @router.put('/marks/{problem_id}/status')
 def set_status(problem_id: str, body: StatusBody, user: User, auth: Auth):
     problem_id = canonical_id(problem_id)
-    known(problem_id)
     t = m.student_learning_marks
     with transaction(auth.db) as c:
+        known(problem_id, c)
         row = c.execute(update(t).where(key(user, problem_id), t.c.practiced.is_(True))
                         .values(learning_status=body.learning_status).returning(t)).mappings().first()
         if row is None:

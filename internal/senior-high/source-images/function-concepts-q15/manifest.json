@@ -1,0 +1,26 @@
+{
+  "problem_id": "function-concepts-q15",
+  "source": "用户上传的《函数的概念与性质小条（6）》第15题",
+  "source_thread": "01a142d6-1e4f-7a62-aa2b-b6f799302aa4",
+  "source_message": "01a167f4-e8df-7a40-a519-b8eaf1f58b7d",
+  "original_filename": "codex-clipboard-4cf3f861-7ed4-43fd-947e-e5b9f137436c.png",
+  "page": {
+    "file": "source-page.png",
+    "size": [
+      1279,
+      1706
+    ],
+    "sha256": "fd2bdcae07a11c0bd117edf4736f9e5c7959514e3dbb14cf3d302360b3e573ee"
+  },
+  "question": {
+    "file": "source-question.png",
+    "crop_xyxy": [
+      145,
+      920,
+      461,
+      995
+    ],
+    "sha256": "eab3b34377252e527c6efa0f9e951efe69ce141036d5dc38ba17a2d213f0b2bf"
+  },
+  "processing": "仅按像素边界裁取原印刷题面，右边手写答案不进入题图；未重绘、改字、OCR注入。"
+}

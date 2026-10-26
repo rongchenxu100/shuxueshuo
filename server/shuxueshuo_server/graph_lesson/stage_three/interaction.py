@@ -20,6 +20,7 @@ from jsonschema import Draft202012Validator, ValidationError
 
 from . import interaction_graph_contract as graph_contract
 from . import interaction_graphs as drawing
+from . import domain_interaction, domain_visuals
 from .capabilities import CapabilityGap
 from .capabilities.cases import exact_set_equal
 from .capabilities.parametric import _compare
@@ -50,7 +51,7 @@ REGISTRY_SCHEMA = ROOT / "internal/schemas/graph-interaction-registry-v1.schema.
 CHUNK_SCHEMA = ROOT / "internal/schemas/graph-step-interaction-v1.schema.json"
 # Interaction-only code, revisioned apart from the mathematical fingerprint.
 ENGINE_FILES = (Path(__file__).resolve(), Path(drawing.__file__).resolve(),
-                Path(graph_contract.__file__).resolve(), CHUNK_SCHEMA)
+                Path(graph_contract.__file__).resolve(), Path(domain_interaction.__file__).resolve(), Path(domain_visuals.__file__).resolve(), CHUNK_SCHEMA)
 MAX_REPRESENTATIVES = 12
 # Policies can need exact equality witnesses outside the generic constant grid.
 MAX_POLICY_REPRESENTATIVES = 2 * MAX_REPRESENTATIVES
@@ -1642,6 +1643,8 @@ def compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     their exact thresholds and the fixed grid feed representatives; later cards
     are never read.
     """
+    if rule.get("compiler") == "function_domain":
+        return domain_interaction.compile_domain(seeds, interaction_id)
     first_values = decode_value(seeds[0]["values"])
     if not _repeat_allows(rule, first_values, repeat_context):
         raise NotInteractive("repeat")

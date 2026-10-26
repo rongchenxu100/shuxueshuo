@@ -145,7 +145,7 @@ def read_practice(attempt_id: UUID, user: User, auth: Auth):
             events.append(row)
         return practice.result(c, a) | {
             "problem_context": {
-                k: v for k, v in a["problem_context"].items() if k not in ("contract_hash", "_lesson")
+                k: v for k, v in a["problem_context"].items() if k not in ("contract_hash", "_lesson", "_graph_walk")
             },
             "events": events,
         }

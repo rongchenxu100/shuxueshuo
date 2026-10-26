@@ -200,6 +200,12 @@ def append_boundary(state, evidence, *, feasible_set=None):
     index = len(records)
     records.append(operation)
     updated["trajectory"]["finalization"] = deepcopy(records)
+    if updated["trajectory"].get("constraint_context", {}).get("goal", {}).get("kind") == "find_domain":
+        operation["used_basis"] = ["function-concept#elements", "interval-notation#finite"]
+        records[index] = deepcopy(operation)
+        updated["trajectory"]["finalization"] = deepcopy(records)
+        from .domain_presentation import append_verified_intersection
+        return append_verified_intersection(updated, feasible_set, evidence, index)
     specification = read("presentation-registry")["templates"]["boundary"]
     bindings = {"before": [], "after": [], "checks": checks, "parameter": _parameter(updated),
                 "feasible": feasible_set}
@@ -258,7 +264,7 @@ def append_goal_finalization(state, answer, evidence):
     updated = deepcopy(state)
     records = updated.setdefault("finalization", deepcopy(updated["trajectory"]["finalization"]))
     kind = answer.get("kind")
-    if kind == "find_range":
+    if kind in ("find_range", "find_domain"):
         if answer.get("status") != "set":
             raise ValueError("presentation.goal_answer_invalid")
         records.append({"capability": "finalize_goal", "answer": deepcopy(answer)})

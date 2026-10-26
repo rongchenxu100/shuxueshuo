@@ -1,0 +1,7 @@
+{
+  "schema_version": "graph-direct-method-selection/v1",
+  "type": "type-function-domain",
+  "method": "method-domain-intersection",
+  "route_id": "domain-intersection",
+  "admission": "function_domain"
+}

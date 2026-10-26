@@ -33,7 +33,9 @@
 ## 课程页与交互
 
 - [新专题与拍题学能力同步建设：开发流程](topic-and-photo-learning-development-workflow.md)：先建章节知识、题型节点与空专题；逐题型完成代表题双验收、其余题全量扩能力及专题精选，旧专题不迁移。
-- [函数的概念：专题与拍题学同步建设计划](function-concepts-topic-and-photo-learning-plan.md)：首个应用；P0 已在本地建立 3.1 图谱与零题专题，后续按 T2、T1、T3、T4、T5 逐型建设能力并精选展示；包含正式节点 ID、构建入口与阶段记录。
+- [函数的概念：专题与拍题学同步建设计划](function-concepts-topic-and-photo-learning-plan.md)：P0 已交付 3.1 图谱与零题专题；本次唯一收录 Q15，之后按 T2、T1、T3、T4、T5 逐型扩能力并精选；保留历史与当前完成口径。
+- [T2 具体函数的定义域问题：题型与代表题设计](function-domain-problem-type-design.md)：列条件求交集法、条件提取技能、知识依据、来源驱动交互及受限准入；首题数学和照片回放已接通，完整题型仍待扩充。
+- [函数定义域 Q15 验收记录](function-domain-q15-acceptance.md)：原图、真实 extract/review 两次调用、边界与兼容回归；最终课包、专题与拍题双入口及学习记录已通过本地验收。
 - [全站手机号登录与题目学习标记计划](site-login-and-learning-marks-plan.md)：手机号验证码登录、AI 接口登录校验，以及是否练习过和学习状态（未标记／熟练掌握／需要再次练习）；第一阶段登录与登出已实现，后续阶段待实施，尚未上线。
 - [手机号登录本地测试说明](site-login-local-testing.md)：独立数据库、同源本地站点、模拟短信及阿里云 SendSms 真实联调。
 - [基本不等式章节题库首版计划](basic-inequality-practice-bank-plan.md)：`/1` 章节入口、题目与 JSON 清单、个人做题状态、登录的四阶段计划；静态入口已实现、待发布。

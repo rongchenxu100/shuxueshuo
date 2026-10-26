@@ -2124,13 +2124,117 @@
         ],
         "result": "${case_answer}$"
       }
+    },
+    "domain_locations": {
+      "title": "找到原式的限制位置",
+      "explanation": "先看原式中哪些位置对输入有限制。",
+      "required_bindings": [
+        "before",
+        "after",
+        "constraints",
+        "description",
+        "phase"
+      ],
+      "prepare": "domain_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "caption": "找到原式的限制位置",
+        "items": [
+          {
+            "for": "domain_lines",
+            "as": "line",
+            "math": "{line.math}",
+            "label": "{line.label}"
+          }
+        ]
+      }
+    },
+    "domain_conditions": {
+      "title": "列出有意义的条件",
+      "explanation": "每个根号与分母的条件都必须同时成立。",
+      "required_bindings": [
+        "before",
+        "after",
+        "constraints",
+        "description",
+        "phase"
+      ],
+      "prepare": "domain_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "caption": "列出有意义的条件",
+        "items": [
+          {
+            "for": "domain_lines",
+            "as": "line",
+            "math": "{line.math}",
+            "label": "{line.label}"
+          }
+        ]
+      }
+    },
+    "domain_solutions": {
+      "title": "解每个条件",
+      "explanation": "分别解条件，保留非零限制与端点等号。",
+      "required_bindings": [
+        "before",
+        "after",
+        "constraints",
+        "description",
+        "solutions",
+        "normalized",
+        "phase",
+        "input_domain"
+      ],
+      "prepare": "domain_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "caption": "解每个条件",
+        "items": [
+          {
+            "for": "domain_lines",
+            "as": "line",
+            "math": "{line.math}",
+            "label": "{line.label}"
+          }
+        ]
+      }
+    },
+    "domain_intersection": {
+      "title": "求交集并写定义域",
+      "explanation": "把所有条件与题给范围取交集。",
+      "required_bindings": [
+        "before",
+        "after",
+        "constraints",
+        "description",
+        "solutions",
+        "domain",
+        "input_domain",
+        "variable",
+        "phase"
+      ],
+      "prepare": "domain_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "caption": "求交集并写定义域",
+        "items": [
+          {
+            "for": "domain_lines",
+            "as": "line",
+            "math": "{line.math}",
+            "label": "{line.label}"
+          }
+        ]
+      }
     }
   },
   "boundary_steps": {
     "method-discriminant": "merge",
     "method-separation": "restore",
     "method-interval-extremum": "verify",
-    "method-variable-swap": "merge"
+    "method-variable-swap": "merge",
+    "method-domain-intersection": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

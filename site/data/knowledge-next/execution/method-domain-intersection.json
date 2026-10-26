@@ -1,0 +1,189 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-domain-intersection",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "extract",
+      "calls": [
+        {
+          "id": "extract",
+          "capability": "extract_domain_conditions",
+          "public_ref": "skill-expression-defined",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "constraints": "constraints",
+            "conditions": "conditions",
+            "description": "description",
+            "variable": "variable",
+            "input_domain": "input_domain"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "domain_locations",
+          "after": "extract",
+          "template": "domain_locations",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "constraints": "$constraints",
+            "description": "$description",
+            "phase": "locations"
+          },
+          "depends_on": [
+            "constraints",
+            "description"
+          ]
+        },
+        {
+          "id": "domain_conditions",
+          "after": "extract",
+          "template": "domain_conditions",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "constraints": "$constraints",
+            "description": "$description",
+            "phase": "conditions"
+          },
+          "depends_on": [
+            "constraints",
+            "description"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "solve",
+      "calls": [
+        {
+          "id": "normalize",
+          "capability": "prepare_domain_conditions",
+          "public_ref": null,
+          "inputs": {
+            "constraints": "$constraints",
+            "variable": "$variable"
+          },
+          "outputs": {
+            "normalized": "conditions"
+          },
+          "order": 0
+        },
+        {
+          "id": "solve",
+          "capability": "solve_conditions",
+          "public_ref": "skill-inequality-transform",
+          "inputs": {
+            "conditions": "$normalized",
+            "combiner": "all",
+            "variable": "$variable",
+            "purpose": "domain"
+          },
+          "outputs": {
+            "solution": "solution",
+            "solutions": "solutions"
+          },
+          "order": 1
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "domain_solutions",
+          "after": "solve",
+          "template": "domain_solutions",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "constraints": "$constraints",
+            "description": "$description",
+            "solutions": "$solutions",
+            "normalized": "$normalized",
+            "phase": "solutions",
+            "input_domain": "$input_domain"
+          },
+          "depends_on": [
+            "constraints",
+            "description",
+            "normalized",
+            "solutions",
+            "input_domain"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "intersect",
+      "calls": [
+        {
+          "id": "intersect",
+          "capability": "intersect_domain",
+          "public_ref": null,
+          "inputs": {
+            "solution": "$solution",
+            "input_domain": "$input_domain"
+          },
+          "outputs": {
+            "domain": "domain"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "candidate_set": "$domain",
+    "domain_evidence": {
+      "description": "$description",
+      "constraints": "$constraints",
+      "solutions": "$solutions",
+      "domain": "$domain",
+      "input_domain": "$input_domain",
+      "variable": "$variable"
+    }
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_domain",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

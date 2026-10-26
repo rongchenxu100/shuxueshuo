@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "type",
+    "method",
+    "route_id",
+    "admission"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "graph-direct-method-selection/v1"
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "method": {
+      "type": "string",
+      "minLength": 1
+    },
+    "route_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "admission": {
+      "const": "function_domain"
+    }
+  }
+}

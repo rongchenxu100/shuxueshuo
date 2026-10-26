@@ -183,6 +183,14 @@ def validate_content(rows):
     problems = {row['id'] for row in rows['practice_problems']}
     routes = {(row['problem_id'], row['route_id']) for row in rows['practice_routes']}
     steps = {(row['problem_id'], row['route_id'], row['step_id']) for row in rows['practice_steps']}
+    from .graph_walk import validate_contract, route_steps
+    for problem in rows['practice_problems']:
+        contract = problem['problem_data'].get('_graph_walk')
+        if contract is not None:
+            validate_contract(contract, problem['id'])
+            expected = {(problem['id'], route, step['id']) for route in contract['routes'] for step in route_steps(contract, route)}
+            if expected != {step for step in steps if step[0] == problem['id']}:
+                raise ValueError('graph-walk grading steps differ from published associations')
     for row in rows['practice_topic_problems']:
         if row['topic_id'] not in topics or row['problem_id'] not in problems:
             raise ValueError('topic membership references removed content')

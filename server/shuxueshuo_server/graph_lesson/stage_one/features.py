@@ -14,6 +14,8 @@ from ...problem_understanding.notation_compile import NotationValidator, childre
 from ...problem_understanding.notation_parser import NotationError, parse
 from ...problem_understanding.notation_semantics import Canonical, bounded_expand
 from . import contracts
+from .function_domain import VERSION as DOMAIN_VERSION
+from .function_domain import describe_domain_goal
 
 SCHEMA_VERSION = "graph-stage-one-features/v1"
 EXTRACTOR_VERSION = "structural-polynomial/v1"
@@ -35,6 +37,13 @@ class FeatureSpec:
 
 
 FEATURE_REGISTRY = (
+    FeatureSpec(
+        "function_domain", ("goal",), "function_domain",
+        ("function-concept#elements",), "具体函数的原始输入结构为 {value}",
+        version=DOMAIN_VERSION,
+        supported_structures=("fixed_affine_function_domain",),
+        computation_boundary="original bound AST and exact rational affine syntax only; no condition solving",
+    ),
     FeatureSpec(
         "quantifier",
         (),
@@ -414,6 +423,18 @@ def _scope_features(report, candidate, scope, ancestors, features):
             features.append(feature)
 
         goal_ast = goal["target"]
+        if goal["kind"] == "find_domain":
+            add("goal", {"kind": "find_domain", "symbol": objects[goal_ast[1]]["name"]}, source_refs=[target_ref])
+            produced["goal"]["knowledge_refs"] = ["function-concept#elements"]
+            try:
+                description = describe_domain_goal(report, scope, ancestors, goal_index)
+                add("function_domain", description, source_refs=[target_ref, description["source_ref"]])
+            except (NotationError, ValueError, TypeError) as exc:
+                add("function_domain", diagnostic={"code": getattr(exc, "code", "domain.invalid_structure")}, source_refs=[target_ref])
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={"code": "feature.not_quantified_domain_goal"}, source_refs=[target_ref])
+            continue
         if (
             goal["kind"] not in ("find_range", "find_minimum", "find_maximum")
             or goal_ast[0] != "ref"

@@ -292,6 +292,33 @@
                 },
                 "additionalProperties": false,
                 "description": "求一个参数的取值范围。symbol填写参数名，不输出解出的区间。"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "object"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "find_domain",
+                    "description": "求具体函数全部允许的实数输入"
+                  },
+                  "object": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "已定义函数的符号，如f；不填解析式、输入变量或答案。"
+                  },
+                  "input_domain": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "仅在题面明确另限输入范围时填写原给定范围，如[0,1]；否则省略。不得填写由根式、分母推导的自然定义域或求解答案。"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "求具体函数定义域，保留函数原定义；可选input_domain仅转录题设另给的输入范围。"
               }
             ]
           },

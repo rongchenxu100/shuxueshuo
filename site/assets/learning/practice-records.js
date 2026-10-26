@@ -25,7 +25,7 @@ export function createRecorder(lesson, onResume, {contentVersion = null, onConfi
   const notice = document.createElement('div');
   notice.className = 'practice-record-status'; notice.setAttribute('role', 'status');
   notice.innerHTML = '<span></span> <button type="button" data-retry hidden>重试保存</button> <button type="button" data-reload hidden>刷新并继续</button> <button type="button" data-continue hidden>继续旧路线</button> <button type="button" data-restart hidden>按所选路线重新开始</button>';
-  document.querySelector('.workspace')?.append(notice);
+  document.querySelector('.workspace, .gw-workspace')?.append(notice);
   const buttons = Object.fromEntries(['retry', 'reload', 'continue', 'restart'].map(name => [name, notice.querySelector(`[data-${name}]`)]));
   const say = (text, retry = false) => {
     notice.querySelector('span').textContent = text;
@@ -225,6 +225,13 @@ export function createRecorder(lesson, onResume, {contentVersion = null, onConfi
         ...(component.type === 'structure' ? {fixed: before.state.swapped ? 'product' : 'sum'} : {})};
     queue.push({kind: 'answer', id: operation.event_id, route: before.state.method, step: step.id, answer}); save(); flush().catch(() => {});
   }
+  // Native graph-walk decisions use their own versioned contract, not tutor actions.
+  function graphAnswer(routeId, step, value, id = crypto.randomUUID()) {
+    if (recovery) return showRecovery();
+    ensureRoute(routeId);
+    queue.push({kind: 'answer', id, route: routeId, step, answer: {value}});
+    save(); flush().catch(() => {});
+  }
   async function dialogue(view) {
     if (!owner || !view.state.method) return {};
     await restored;
@@ -286,5 +293,5 @@ export function createRecorder(lesson, onResume, {contentVersion = null, onConfi
       if (ticket === epoch) onConfirmed(history);
     } catch (error) { if (ticket === epoch) say(error.message, Boolean(error.retryable)); }
   }
-  return {action, dialogue, displayed, reset, start, flush, reference, routed};
+  return {action, graphAnswer, dialogue, displayed, reset, start, flush, reference, routed};
 }

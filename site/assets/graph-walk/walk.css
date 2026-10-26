@@ -83,9 +83,19 @@
 .gw-folded > summary { padding: 9px 14px; color: #4b6e65; font-size: 13px; cursor: pointer; }
 .gw-folded > .stage-three-math-step { margin: 0; padding: 4px 14px 14px; }
 .gw-folded > .stage-three-math-step + .stage-three-math-step { border-top: 1px dashed #d9e6e0; }
-.stage-three-highlight .function-conversion .math { font-size: 18px; white-space: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
+.stage-three-highlight .function-conversion { min-width: 0; }
+.stage-three-highlight .function-conversion > div { min-width: 0; max-width: 100%; }
+.stage-three-highlight .function-conversion .math {
+  max-width: 100%; font-size: 18px; line-height: 1.7; overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: thin; scrollbar-color: #c5d8d0 transparent; -webkit-overflow-scrolling: touch;
+}
+.stage-three-highlight .function-conversion .math .katex { max-width: 100%; }
 .stage-three-conclusion .stage-three-after { margin: 8px 0; color: #1f5a4c; font-size: 18px; overflow-x: auto; overflow-y: hidden; }
-.stage-three-derivation .stage-three-before { margin: 10px 0; overflow-x: auto; overflow-y: hidden; }
+.stage-three-derivation .stage-three-before,
+.stage-three-derivation .stage-three-explanation {
+  margin: 10px 0; max-width: 100%; overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: thin; scrollbar-color: #c5d8d0 transparent; -webkit-overflow-scrolling: touch;
+}
 .gw-stream-routes { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
 .gw-stream-routes button { padding: 8px 13px; border: 1px solid #ccddd7; border-radius: 9px; background: #fff; color: #315b52; font: inherit; font-size: 13px; }
 .gw-stream-routes button[aria-pressed="true"] { border-color: #087f79; background: #eaf5f1; color: #075f5a; font-weight: 650; }
@@ -230,10 +240,22 @@
 .gw-completion-back { margin-left: auto; font-size: 13px; color: #2f7a55; text-decoration: none; }
 .gw-completion-back:hover { text-decoration: underline; }
 .gw-graph-panel { position: sticky; top: 20px; min-width: 0; border: 1px solid #d0dfd8; background: #fff; border-radius: 18px; padding: 21px; box-shadow: 0 4px 16px #214b3705; }
-.gw-graph-heading { display: flex; justify-content: space-between; align-items: flex-start; }
+.gw-graph-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .gw-graph-heading .eyebrow { font-size: 10px; color: #7b9287; margin: 0 0 7px; }
 .gw-graph-heading h2 { font-size: 18px; margin: 0; line-height: 1.45; }
-#gw-close-graph { display: none; }
+#gw-close-graph { display: none; width: 36px; height: 36px; flex: none; font-size: 25px; line-height: 1; background: #f1f5f0; border: 1px solid #d7e1d5; border-radius: 9px; color: #496b51; }
+#gw-graph-toggle { display: none; margin-left: 8px; color: #647a74; background: transparent; }
+/* Desktop: hide the graph until the first confirmed step (revealGraph), and let the student fold it away. */
+@media (min-width: 960px) {
+  .gw-page[data-graph="hidden"] .gw-graph-panel { display: none; }
+  .gw-page[data-graph="hidden"] .gw-layout { grid-template-columns: minmax(0, 720px); justify-content: center; }
+  .gw-page[data-graph="hidden"] :is(#gw-close-graph, #gw-graph-toggle) { display: none; }
+  .gw-page:not([data-graph="hidden"]) #gw-close-graph { display: block; }
+  .gw-page:not([data-graph="hidden"]) #gw-graph-toggle { display: inline-flex; }
+  .gw-page[data-graph-folded] .gw-graph-panel { display: none; }
+  .gw-page[data-graph-folded] .gw-layout { grid-template-columns: minmax(0, 1080px); justify-content: center; }
+  .gw-page[data-graph-folded] #gw-close-graph { display: none; }
+}
 .gw-graph-controls { display: flex; align-items: center; gap: 6px; margin: 16px 0 10px; }
 .gw-graph-controls button { padding: 7px 10px; font-size: 12px; }
 .gw-graph-controls > :nth-child(3) { margin-left: auto; }
@@ -468,7 +490,8 @@
   .gw-path-toggle > span:last-child { flex-shrink: 0; font-size: 11px; }
   .gw-graph-panel { display: none; }
   .gw-graph-panel.is-open { display: block; position: fixed; inset: 0; z-index: 100; border: none; border-radius: 0; padding: max(20px, env(safe-area-inset-top)) 18px max(24px, env(safe-area-inset-bottom)); overflow: auto; }
-  #gw-close-graph { display: block; width: 36px; height: 36px; font-size: 25px; line-height: 1; background: #f1f5f0; border: 1px solid #d7e1d5; border-radius: 9px; color: #496b51; }
+  .gw-graph-panel.is-open #gw-close-graph { display: block; }
+  #gw-graph-toggle { display: none !important; }
   .gw-svg { height: 51dvh; min-height: 300px; }
   .gw3-stage { height: max(320px, calc(100dvh - 290px)); }
   .gw3-hint { display: none; }
@@ -552,6 +575,16 @@
   .gw-path-toggle { padding: 11px; gap: 8px; font-size: 11px; }
   .gw-lesson .katex-display { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
   .gw-lesson .details { font-size: 13px; overflow-wrap: anywhere; }
+  .stage-three-highlight .function-conversion {
+    display: grid; grid-template-columns: minmax(0, 1fr); justify-items: stretch; gap: 10px;
+  }
+  .stage-three-highlight .function-conversion .conversion-arrow { transform: rotate(90deg); justify-self: center; }
+  .stage-three-highlight .function-conversion .math {
+    font-size: 15px; text-align: center; padding-bottom: 2px;
+  }
+  .stage-three-highlight .function-conversion .math .katex { font-size: 1.05em; }
+  .gw-domain-parallel .math { font-size: 15px; overflow-x: auto; scrollbar-width: thin; scrollbar-color: #c5d8d0 transparent; }
+  .stage-three-derivation .stage-three-explanation { font-size: 13px; }
   .gw-submit-row .primary { font-size: 13px; }
   .gw-toolbar button { padding: 9px 10px; font-size: 12px; }
   .gw-graph-heading h2 { font-size: 17px; }
@@ -560,3 +593,27 @@
 @media (prefers-reduced-motion: reduce) {
   .gw-page *, .gw-page *::before, .gw-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+/* S3-owned AST positions; no answer is highlighted before the student selects it. */
+.gw-expression-regions { margin: 14px 0; padding: 18px; border-radius: 12px; background: #f4f8f6; text-align: center; }
+.gw-expression-regions figcaption { margin-bottom: 14px; color: #536b60; font-size: 12px; }
+.gw-expression-regions [role="img"] { font-family: Georgia, "Times New Roman", serif; font-size: 24px; line-height: 1.5; }
+.gw-expr-node { display: inline-block; border-radius: 4px; }
+.gw-expr-node.is-highlighted { background: #ccf0e7; outline: 2px solid #158b75; outline-offset: 2px; }
+.gw-expr-fraction { display: inline-flex; flex-direction: column; vertical-align: middle; align-items: stretch; margin: 0 .2em; }
+.gw-expr-fraction > span { padding: 0 .35em; text-align: center; }
+.gw-expr-fraction > span + span { border-top: 1.5px solid currentColor; }
+.gw-expr-root { display: inline-flex; align-items: stretch; }
+.gw-expr-root > span:first-child { font-size: 1.25em; line-height: 1.15; }
+.gw-expr-root > span + span { border-top: 1.5px solid currentColor; padding: 0 .12em; }
+.gw-expr-binary { display: inline-flex; align-items: center; gap: .12em; }
+.gw-condition-lines {margin: 16px 0; padding: 12px 16px; border-radius: 12px; background: #f4f8f6;}
+.gw-condition-lines > p {margin: 0 0 8px; color: #526e64; font-size: 14px;}
+.gw-endpoint-checks {margin: 18px 0; padding: 14px 18px; border: 1px solid #d8e5df; border-radius: 12px;}
+.gw-endpoint-checks h3 {margin: 0 0 10px; font-size: 16px;}
+.gw-endpoint-checks ul {margin: 0; padding-left: 20px;}
+.gw-endpoint-checks li + li {margin-top: 12px;}
+.gw-endpoint-checks p {margin: 4px 0 0;}
+.gw-domain-parallel {display: grid; gap: 16px; margin: 12px 0;}
+.gw-domain-parallel > div {display: grid; gap: 6px; min-width: 0;}
+.gw-number-line-fallback {margin: 12px 0; padding: 12px; border-radius: 10px; background: #f4f8f6;}
+.gw-number-line-fallback > p:last-child {font-size: 13px; color: #526e64;}

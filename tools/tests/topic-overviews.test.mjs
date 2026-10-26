@@ -8,7 +8,9 @@ import {exportRows} from '../lib/public-knowledge-export.mjs';
 import {topicOverviewOutputs, INDEX_BEGIN, INDEX_END, PAGE_MARKER} from '../lib/topic-overview-html.mjs';
 import {generateTopicOverviews, publishTopicOverviews} from '../build-topic-overviews.mjs';
 
-const source = JSON.parse(await fs.readFile(new URL('../../site/data/knowledge-next/topics/function-concepts.json', import.meta.url), 'utf8'));
+const currentTopic = JSON.parse(await fs.readFile(new URL('../../site/data/knowledge-next/topics/function-concepts.json', import.meta.url), 'utf8'));
+// Keep the P0 empty-topic compiler contract covered as the real topic grows.
+const source = {...currentTopic, problems:{}, groups:currentTopic.groups.map(group => ({...group, problems:[]}))};
 const nodes = [
   {id:source.chapter.ref, kind:'section', label:'3.1 函数的概念及其表示', summary:'章节知识'},
   ...source.knowledge.map(id => ({id, kind:'knowledge', label:id, summary:'输入与输出的对应关系。'})),
@@ -99,6 +101,8 @@ test('empty overview and catalog expose real knowledge/type links without exerci
   assert.match(page, /题目建设中/);
   for (const ref of [...source.knowledge, ...source.groups.map(group => group.type)]) assert.ok(page.includes(`href="/knowledge/${ref}/"`), ref);
   assert.equal((page.match(/class="type-group"/g) || []).length, 5);
+  assert.ok(page.indexOf('class="bank"') < page.indexOf('id="knowledge-map"'));
+  assert.match(page, /href="#knowledge-map"/);
   assert.doesNotMatch(page, /0\s*\/\s*0|已完成|开始答题|data-problem-id|progressbar|practice-config|\/api\//);
   const index = outputs.get('topics/index.html');
   assert.ok(index.includes('<section id="old-topic"><a href="/1/">基本不等式</a></section>'));
@@ -106,6 +110,26 @@ test('empty overview and catalog expose real knowledge/type links without exerci
   assert.match(index, /题目建设中/);
   assert.deepEqual(topicOverviewOutputs([source], nodes, index), outputs);
   assert.throws(() => topicOverviewOutputs([source, source], nodes, index), /路径重复/);
+});
+
+test('overview prefers original problem statement over short labels', () => {
+  const topic = structuredClone(source);
+  const id = 'function-concepts-q15';
+  topic.groups[0].problems = [id];
+  topic.problems[id] = {
+    label: '求函数的定义域 · Q15',
+    path: '/topics/function-concepts/q15/',
+    statement: '15. 函数$f(x)=\\frac{\\sqrt{x-1}}{x-2}$的定义域为____',
+    types: [topic.groups[0].type],
+  };
+  // Planned types cannot publish practice; mark active for overview rendering only.
+  nodes.find(node => node.id === topic.groups[0].type).status = 'active';
+  const page = topicOverviewOutputs([topic], nodes, indexHtml).get('topics/function-concepts/index.html');
+  assert.match(page, /data-problem-id="function-concepts-q15"/);
+  assert.match(page, /定义域为/);
+  assert.doesNotMatch(page, /problem-stem">求函数的定义域 · Q15/);
+  assert.ok(page.includes('katex') || page.includes('\\frac') === false);
+  assert.ok(page.indexOf('class="bank"') < page.indexOf('id="knowledge-map"'));
 });
 
 test('topic builder is deterministic and check mode reports staleness without writing', async t => {

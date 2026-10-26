@@ -104,7 +104,13 @@ def _linear_parameter_range(expression, variable, parameter, domain, quantifier,
     return True
 
 
+def _function_domain(context):
+    from .function_domain import admitted
+    return admitted(context)
+
+
 CHECKS = {
+    "function_domain": _function_domain,
     "quantifier": _quantifier,
     "polynomial_degree": _polynomial_degree,
     "quantified_reals": _quantified_reals,

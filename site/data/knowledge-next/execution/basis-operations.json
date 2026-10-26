@@ -105,6 +105,28 @@
     ],
     "union_case_conditions": [
       "method-discriminant#solve"
+    ],
+    "domain_condition_normalization": [
+      "square-root-expression#meaning",
+      "rational-expression#meaning"
+    ],
+    "domain_intersection": [
+      "set-intersection-union#intersection",
+      "function-concept#elements"
+    ],
+    "domain_condition_sets": [
+      "inequality-properties#addition",
+      "inequality-properties#multiplication",
+      "set-intersection-union#intersection"
+    ],
+    "domain_radicand_conditions": [
+      "square-root-expression#meaning"
+    ],
+    "domain_denominator_conditions": [
+      "rational-expression#meaning"
+    ],
+    "domain_unrestricted_expression": [
+      "function-concept#elements"
     ]
   }
 }

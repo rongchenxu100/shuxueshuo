@@ -109,6 +109,76 @@
       "fragment_kinds": [
         "relation"
       ]
+    },
+    {
+      "rule_id": "concrete-function-domain",
+      "ref": "function-concept#elements",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "find_domain"
+          },
+          {
+            "feature_id": "function_domain",
+            "op": "eq",
+            "path": "structure_supported",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "expression",
+        "goal"
+      ]
+    },
+    {
+      "rule_id": "domain-square-root",
+      "ref": "square-root-expression#meaning",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "find_domain"
+          },
+          {
+            "feature_id": "function_domain",
+            "op": "eq",
+            "path": "has_radical",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "expression"
+      ]
+    },
+    {
+      "rule_id": "domain-divisor",
+      "ref": "rational-expression#meaning",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "find_domain"
+          },
+          {
+            "feature_id": "function_domain",
+            "op": "eq",
+            "path": "has_division",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "expression"
+      ]
     }
   ]
 }

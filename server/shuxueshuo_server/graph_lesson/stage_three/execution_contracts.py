@@ -29,6 +29,8 @@ def route_methods():
     methods = set()
     for path in sorted((DATA / "selection").glob("*.json")):
         selection = json.loads(path.read_text())
+        if selection.get("schema_version") == "graph-direct-method-selection/v1":
+            methods.add(selection["method"])
         if selection.get("schema_version") == "graph-method-selection/v1":
             methods.update(branch["target"] for branch in selection["branches"])
     return methods

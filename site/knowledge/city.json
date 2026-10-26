@@ -695,11 +695,12 @@
       "sections": [],
       "members": [
         "rational-expression",
+        "square-root-expression",
         "absolute-value-concept",
         "reciprocal-function"
       ],
       "counts": {
-        "knowledge": 3,
+        "knowledge": 4,
         "skill": 0,
         "method": 0,
         "problem_type": 0,
@@ -802,7 +803,7 @@
       "from": "compulsory-1-ch3",
       "to": "junior-knowledge",
       "type": "relation",
-      "count": 3
+      "count": 4
     },
     {
       "from": "compulsory-1-ch2",

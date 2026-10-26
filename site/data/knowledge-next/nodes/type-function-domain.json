@@ -1,14 +1,22 @@
 {
   "id": "type-function-domain",
   "kind": "problem_type",
-  "status": "planned",
+  "status": "active",
   "label": "具体函数的定义域问题",
   "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
   "source": "3.1 函数的概念及其表示：知识图谱设计（2026-10-24）；人教 A 版必修第一册第三章",
+  "sample": "求函数 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域。",
   "features": [
-    "已知具体函数表达式，要求全部合法输入；题设可以另外限定范围。",
-    "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。",
-    "实际问题可以先建立函数关系，再根据表达式和情境共同确定定义域。"
+    {
+      "cue": "已知具体函数表达式，要求全部合法输入；题设可以另外限定范围。",
+      "example": "题目问 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域，就是找出使这个原式有意义的全部实数 $x$。"
+    },
+    {
+      "cue": "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+    },
+    {
+      "cue": "实际问题可以先建立函数关系，再根据表达式和情境共同确定定义域。"
+    }
   ],
   "confuse": [
     {
@@ -25,10 +33,21 @@
     "interval-notation",
     "set-intersection-union",
     "rational-expression",
+    "square-root-expression",
     "quantifiers",
     "quadratic-inequality"
   ],
-  "methods": [],
+  "methods": ["method-domain-intersection"],
   "rules": [],
-  "examples": []
+  "examples": [
+    {
+      "title": "根式与分母条件同时满足",
+      "prompt": "求函数 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域。",
+      "solution": [
+        "根式要求 $x-1\\ge0$，分母要求 $x-2\\ne0$，即 $x\\ge1$ 且 $x\\ne2$。",
+        "将两个条件的解集取交集，得到 $[1,2)\\cup(2,+\\infty)$。$x=1$ 时分子为零且分母非零，允许；$x=2$ 使分母为零，必须排除。"
+      ],
+      "source": "3.1 知识图谱设计第 15 题；function-concepts-q15"
+    }
+  ]
 }

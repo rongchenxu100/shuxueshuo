@@ -141,6 +141,17 @@ test('parallel case conclusions preserve an explicit empty connector instead of 
   assert.equal(find('conversion-arrow', createMathCard(document, {...step, highlight: {...highlight, connector: '⇔'}}).node)[0].textContent, '⇔');
 });
 
+for (const display_unit of ['domain_conditions', 'domain_solutions']) test(`${display_unit} keeps independent restrictions on separate lines`, () => {
+  const {document, find} = documentFixture();
+  const value = {...step, display_unit, highlight: {caption: '原式的条件', items: [
+    {label: '被开方数', math: 'x-1\\ge0'}, {label: '分母', math: 'x-2\\ne0'}]}};
+  const card = createMathCard(document, value);
+  assert.equal(find('gw-domain-parallel', card.node).length, 1);
+  assert.equal(find('conversion-arrow', card.node).length, 0, 'independent conditions never imply one another');
+  assert.deepEqual(find('math', card.node).map(item => item.textContent), ['\\displaystyle x-1\\ge0', '\\displaystyle x-2\\ne0']);
+  assert.deepEqual(card.step, value, 'display layout leaves the verified mathematical source untouched');
+});
+
 test('an ordinary conclusion board displays a result only when explicitly requested', () => {
   const {document, find} = documentFixture(), rendered = [];
   const highlight = {caption: '检查退化情况', items: [{label: '代入后', math: '0\\ge0'}],
@@ -271,6 +282,14 @@ test('range completion preserves readable math and calls the injected renderer',
   assert.equal(value.node.hidden, false);
   assert.equal(find('stage-three-answer', value.node)[0].textContent, '[0,+\\infty)');
   assert.deepEqual(rendered, [value.node]);
+});
+
+test('domain completion labels the verified set as the domain', () => {
+  const {document, find} = documentFixture();
+  const value = createRouteCompletion(document, {answer: {kind: 'find_domain', status: 'set', set: {latex: '[1,2)\\cup(2,+\\infty)'}}});
+  assert.equal(value.complete, true);
+  assert.equal(value.node.children[0].textContent, '定义域：');
+  assert.equal(find('stage-three-answer', value.node)[0].textContent, '[1,2)\\cup(2,+\\infty)');
 });
 
 for (const [kind, status, field, label, formula] of [

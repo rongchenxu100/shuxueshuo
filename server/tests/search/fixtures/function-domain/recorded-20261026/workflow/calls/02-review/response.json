@@ -1,0 +1,150 @@
+{
+  "text": "{\"status\":\"confirmed\",\"findings\":[]}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 544,
+      "prompt_tokens": 5762,
+      "total_tokens": 6306,
+      "prompt_cache_hit_tokens": 4992,
+      "prompt_cache_miss_tokens": 770
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 36,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-review/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-e04fe618-a162-4e86-81a4-1d4c2afb5e41",
+        "sha256": "eab3b34377252e527c6efa0f9e951efe69ce141036d5dc38ba17a2d213f0b2bf",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 23242,
+        "expires_at": 1793091429,
+        "uploaded_at": 1793005029.167616
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "eab3b34377252e527c6efa0f9e951efe69ce141036d5dc38ba17a2d213f0b2bf",
+        "file_id": "file-api-e04fe618-a162-4e86-81a4-1d4c2afb5e41",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 3870,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 544,
+          "prompt_tokens": 5762,
+          "total_tokens": 6306,
+          "completion_tokens_details": {
+            "reasoning_tokens": 533
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 4992
+          },
+          "prompt_cache_hit_tokens": 4992,
+          "prompt_cache_miss_tokens": 770
+        },
+        "raw_payload": {
+          "id": "fc2cce97-d80d-4654-921f-66b193a51535",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 544,
+            "prompt_tokens": 5762,
+            "total_tokens": 6306,
+            "completion_tokens_details": {
+              "reasoning_tokens": 533
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 4992
+            },
+            "prompt_cache_hit_tokens": 4992,
+            "prompt_cache_miss_tokens": 770
+          },
+          "created": 1793005395,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+                "reasoning_content": "我们需要复核候选。题目图片显示：15. 函数 f(x)=√(x-1)/(x-2) 的定义域为____。候选 original_text 是 \"15. 函数$f(x)=\\frac{\\sqrt{x-1}}{x-2}$的定义域为____\"。注意图片中根号是 √(x-1)，分数线下面的分母是 x-2，整体是分子根号除以分母。候选 LaTeX \\frac{\\sqrt{x-1}}{x-2} 正确。root 定义 f(x)=sqrt(x-1)/(x-2)，目标 find_domain。无额外条件。题面没有说定义域是什么范围？求定义域，root 正确。\n\n需要检查 original_text 是否遗漏/改写文字。原图文字：15. 函数f(x)=√(x-1)/(x-2)的定义域为____。候选 \"15. 函数$f(x)=\\frac{\\sqrt{x-1}}{x-2}$的定义域为____\" 数学公式转录正确。空格/标点差异不算。无问题。\n\npublic_content：statement \"函数 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域为____\" 保留了题干。选项无。completeness complete，privacy separated，figure not_required。注意 public_content 的 statement 不包含题号15，符合公开题面排除题号。root.label 不存在？candidate.root 没有 label。public scopes scope_ref /root。choices 中 target_ref /root/goals/0 status none selection_mode none options []。正确。\n\nroot.definitions 使用 sqrt(x-1)/(x-2) 与题面一致。目标 find_domain object f。无遗漏条件。题面只求定义域。没有量词问题。\n\n需要确认 figure not_required：不需要图形。complete 完整题干。original_text 中 \"15.\" 是题号，公开 content 中已排除，privacy separated 合适。\n\n有没有 public_content.scopes 按 root 先序遍历逐个对应所有作用域？root 只有一个作用域。scope_ref /root。statement 只保留该作用域自己的题干、条件和所求。父题干只写一次。此处只有 root 题干。choices 对应 goals。正确。\n\n需要输出 status confirmed, findings []。但必须注意 code_validation image_alignment_verified false? 这表示未自动验证，但我们可以对照图片人工判断。题图完整。confirmed 可以。\n\n输出严格 JSON 只有 status, findings。",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 3871
+  },
+  "raw_payload": {
+    "id": "fc2cce97-d80d-4654-921f-66b193a51535",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"status\":\"confirmed\",\"findings\":[]}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要复核候选。题目图片显示：15. 函数 f(x)=√(x-1)/(x-2) 的定义域为____。候选 original_text 是 \"15. 函数$f(x)=\\frac{\\sqrt{x-1}}{x-2}$的定义域为____\"。注意图片中根号是 √(x-1)，分数线下面的分母是 x-2，整体是分子根号除以分母。候选 LaTeX \\frac{\\sqrt{x-1}}{x-2} 正确。root 定义 f(x)=sqrt(x-1)/(x-2)，目标 find_domain。无额外条件。题面没有说定义域是什么范围？求定义域，root 正确。\n\n需要检查 original_text 是否遗漏/改写文字。原图文字：15. 函数f(x)=√(x-1)/(x-2)的定义域为____。候选 \"15. 函数$f(x)=\\frac{\\sqrt{x-1}}{x-2}$的定义域为____\" 数学公式转录正确。空格/标点差异不算。无问题。\n\npublic_content：statement \"函数 $f(x)=\\frac{\\sqrt{x-1}}{x-2}$ 的定义域为____\" 保留了题干。选项无。completeness complete，privacy separated，figure not_required。注意 public_content 的 statement 不包含题号15，符合公开题面排除题号。root.label 不存在？candidate.root 没有 label。public scopes scope_ref /root。choices 中 target_ref /root/goals/0 status none selection_mode none options []。正确。\n\nroot.definitions 使用 sqrt(x-1)/(x-2) 与题面一致。目标 find_domain object f。无遗漏条件。题面只求定义域。没有量词问题。\n\n需要确认 figure not_required：不需要图形。complete 完整题干。original_text 中 \"15.\" 是题号，公开 content 中已排除，privacy separated 合适。\n\n有没有 public_content.scopes 按 root 先序遍历逐个对应所有作用域？root 只有一个作用域。scope_ref /root。statement 只保留该作用域自己的题干、条件和所求。父题干只写一次。此处只有 root 题干。choices 对应 goals。正确。\n\n需要输出 status confirmed, findings []。但必须注意 code_validation image_alignment_verified false? 这表示未自动验证，但我们可以对照图片人工判断。题图完整。confirmed 可以。\n\n输出严格 JSON 只有 status, findings。"
+        }
+      }
+    ],
+    "created": 1793005395,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+    "usage": {
+      "completion_tokens": 544,
+      "prompt_tokens": 5762,
+      "total_tokens": 6306,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 533,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 4992
+      },
+      "prompt_cache_hit_tokens": 4992,
+      "prompt_cache_miss_tokens": 770
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 3.871
+}

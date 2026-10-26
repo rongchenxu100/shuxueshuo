@@ -24,6 +24,8 @@ server/tests/**
 !site/data/
 !site/data/knowledge-next/
 !site/data/knowledge-next/**
+!site/data/graph-walk/
+!site/data/graph-walk/**
 !site/assets/knowledge-next/
 !site/assets/knowledge-next/model.mjs
 !site/assets/knowledge-next/teaching-model.mjs
@@ -34,9 +36,12 @@ server/tests/**
 !site/1/**
 !site/2/
 !site/2/**
+!site/topics/
+!site/topics/**
 !tools/
 !tools/export-public-knowledge.mjs
 !tools/lib/
 !tools/lib/public-knowledge-sources.mjs
 !tools/lib/public-knowledge-export.mjs
 !tools/lib/public-knowledge-teaching.mjs
+!tools/lib/graph-walk-practice.mjs

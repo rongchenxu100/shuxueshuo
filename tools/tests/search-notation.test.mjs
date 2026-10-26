@@ -18,6 +18,13 @@ vm.runInContext(fs.readFileSync(new URL('site/lab/search/problem.js', base), 'ut
 const tex = expression => context.tex(expression);
 const render = expression => katex.renderToString(tex(expression), {throwOnError: true, output: 'mathml', strict: 'ignore'});
 
+test('domain goal renders the input question and preserves an explicitly given range', () => {
+  const plain = context.meaningBlocks({goals: [{kind: 'find_domain', object: 'f'}]}, '', []);
+  assert.match(plain.join(''), /求 \$f\$ 的定义域/);
+  const limited = context.meaningBlocks({goals: [{kind: 'find_domain', object: 'g', input_domain: '[0,1]'}]}, '', []);
+  assert.match(limited.join(''), /求 \$g\$ 的定义域（题设范围 \$\[0,1\]\$）/);
+});
+
 for (const [expression, expected] of [
   ['2sqrt(4)=a', '2\\sqrt{4}=a'],
   ['2 sqrt(4)=a', '2\\sqrt{4}=a'],
@@ -73,21 +80,25 @@ test('set sums remain a single operand when multiplied or raised to a power', ()
   assert.doesNotThrow(() => render('mod(sum({1,2,3}),4)=2'));
 });
 
-test('multiplication after inline division cannot merge into the denominator', () => {
-  for (const [expression, expected] of [
-    ['a/2*x=b', 'a/2\\cdot x=b'],
-    ['a/(2*x)=b', 'a/(2\\cdot x)=b'],
-  ]) {
-    assert.equal(tex(expression), expected);
-    assert.match(render(expression), /<mo>⋅<\/mo>/);
-  }
+test('multiplication after a fraction cannot merge into the denominator', () => {
+  assert.equal(tex('a/2*x=b'), '\\frac{a}{2}x=b');
+  assert.equal(tex('a/(2*x)=b'), '\\frac{a}{2x}=b');
+  assert.match(render('a/2*x=b'), /<mfrac>/);
+  assert.match(render('a/(2*x)=b'), /<mfrac>/);
 });
 
 test('a number over a number displays as a fraction', () => {
   assert.equal(tex('∀x∈(0,1/2]: x^2+a*x+1>=0'), '\\forall x\\in (0,\\frac{1}{2}]\\colon x^{2}+ax+1\\ge 0');
   assert.match(render('x∈(0,1/2]'), /<mfrac>/);
   assert.equal(tex('2/3sqrt(4)=a'), '\\frac{2}{3}\\sqrt{4}=a');
-  assert.equal(tex('2^1/2'), '2^{1}/2');
+  assert.equal(tex('2^1/2'), '\\frac{2^{1}}{2}');
+});
+
+test('algebraic division displays as a vertical fraction', () => {
+  assert.equal(tex('(x^2-1)/(x-1)'), '\\frac{x^{2}-1}{x-1}');
+  assert.equal(tex('f(x)=(x+4)^0*(x^2-1)/(x-1)'), 'f(x)=(x+4)^{0}\\frac{x^{2}-1}{x-1}');
+  assert.match(render('(x^2-1)/(x-1)'), /<mfrac>/);
+  assert.match(render('f(x)=(x+4)^0*(x^2-1)/(x-1)'), /<mfrac>/);
 });
 
 test('chained division keeps every slash, so a/2/3 never reads as a over two thirds', () => {

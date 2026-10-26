@@ -6,13 +6,15 @@ RUN /opt/product/bin/pip install --no-cache-dir --require-hashes -r /tmp/require
 COPY server /app/server
 COPY internal/schemas /app/internal/schemas
 COPY tools/export-public-knowledge.mjs /app/tools/export-public-knowledge.mjs
-COPY tools/lib/public-knowledge-sources.mjs tools/lib/public-knowledge-export.mjs tools/lib/public-knowledge-teaching.mjs /app/tools/lib/
-# Import structured originals; neither generated pages nor legacy graph data are needed.
+COPY tools/lib/public-knowledge-sources.mjs tools/lib/public-knowledge-export.mjs tools/lib/public-knowledge-teaching.mjs tools/lib/graph-walk-practice.mjs /app/tools/lib/
+# Import structured originals and the page identities checked by the publisher.
 COPY site/data/knowledge-next /app/site/data/knowledge-next
+COPY site/data/graph-walk /app/site/data/graph-walk
 COPY site/assets/knowledge-next/model.mjs site/assets/knowledge-next/teaching-model.mjs /app/site/assets/knowledge-next/
 COPY site/assets/explain /app/site/assets/explain
 COPY site/1 /app/site/1
 COPY site/2 /app/site/2
+COPY site/topics /app/site/topics
 WORKDIR /app/server
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 # Exercise the actual image's Node/Python runtime and fail on missing publication inputs.

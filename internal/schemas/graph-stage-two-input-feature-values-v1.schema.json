@@ -36,7 +36,12 @@
       ],
       "properties": {
         "kind": {
-          "enum": ["find_range", "find_minimum", "find_maximum"]
+          "enum": [
+            "find_range",
+            "find_minimum",
+            "find_maximum",
+            "find_domain"
+          ]
         },
         "symbol": {
           "type": "string",
@@ -361,6 +366,66 @@
     },
     "range_var_is_principal": {
       "type": "boolean"
+    },
+    "function_domain": {
+      "type": "object",
+      "required": [
+        "function_ref",
+        "function_name",
+        "variable",
+        "source_ref",
+        "expression",
+        "expression_latex",
+        "input_domain_source_ref",
+        "reason",
+        "expression_ast",
+        "input_domain_ast",
+        "structure_supported",
+        "has_radical",
+        "has_division"
+      ],
+      "properties": {
+        "function_ref": {
+          "type": "string"
+        },
+        "function_name": {
+          "type": "string"
+        },
+        "variable": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string"
+        },
+        "expression": {
+          "type": "string"
+        },
+        "expression_latex": {
+          "type": "string"
+        },
+        "input_domain_source_ref": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "expression_ast": {
+          "type": "array"
+        },
+        "input_domain_ast": {
+          "type": "array"
+        },
+        "structure_supported": {
+          "type": "boolean"
+        },
+        "has_radical": {
+          "type": "boolean"
+        },
+        "has_division": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

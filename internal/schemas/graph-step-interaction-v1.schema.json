@@ -512,6 +512,241 @@
         }
       ]
     },
+    "domainExact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "expression",
+        "latex",
+        "exact"
+      ],
+      "properties": {
+        "expression": {
+          "type": "string"
+        },
+        "latex": {
+          "type": "string"
+        },
+        "exact": {
+          "type": "object"
+        }
+      }
+    },
+    "domainNumberLine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "variable",
+        "label",
+        "bounds",
+        "intervals",
+        "points",
+        "ticks",
+        "exact_set"
+      ],
+      "properties": {
+        "variable": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "bounds": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "number"
+          }
+        },
+        "intervals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "left",
+              "right",
+              "left_closed",
+              "right_closed",
+              "exact"
+            ],
+            "properties": {
+              "left": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "right": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "left_closed": {
+                "type": "boolean"
+              },
+              "right_closed": {
+                "type": "boolean"
+              },
+              "exact": {
+                "$ref": "#/$defs/domainExact"
+              }
+            }
+          }
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "at",
+              "label",
+              "exact"
+            ],
+            "properties": {
+              "at": {
+                "type": "number"
+              },
+              "label": {
+                "type": "string"
+              },
+              "exact": {
+                "$ref": "#/$defs/domainExact"
+              }
+            }
+          }
+        },
+        "ticks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "at",
+              "label",
+              "exact"
+            ],
+            "properties": {
+              "at": {
+                "type": "number"
+              },
+              "label": {
+                "type": "string"
+              },
+              "exact": {
+                "$ref": "#/$defs/domainExact"
+              }
+            }
+          }
+        },
+        "exact_set": {
+          "$ref": "#/$defs/domainExact"
+        },
+        "condition_id": {
+          "type": "string"
+        },
+        "source_ref": {
+          "type": "string",
+          "pattern": "^/root/"
+        },
+        "ast_path": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "basis_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "domainEndpointCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "at",
+        "label",
+        "exact",
+        "included",
+        "holds",
+        "passed",
+        "reason",
+        "sources"
+      ],
+      "properties": {
+        "at": {
+          "type": "number"
+        },
+        "label": {
+          "type": "string"
+        },
+        "exact": {
+          "$ref": "#/$defs/domainExact"
+        },
+        "included": {
+          "type": "boolean"
+        },
+        "holds": {
+          "type": "boolean"
+        },
+        "passed": {
+          "const": true
+        },
+        "reason": {
+          "type": "string"
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "source_ref",
+              "ast_path",
+              "basis_refs",
+              "kind",
+              "holds"
+            ],
+            "properties": {
+              "source_ref": {
+                "type": "string",
+                "pattern": "^/root/"
+              },
+              "ast_path": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "basis_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "kind": {
+                "enum": [
+                  "radicand_nonnegative",
+                  "denominator_nonzero",
+                  "explicit_input_domain"
+                ]
+              },
+              "holds": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
     "part": {
       "type": "object",
       "additionalProperties": false,
@@ -525,6 +760,71 @@
         "completion_graph": {"$ref": "#/$defs/graph"},
         "completion_graphs": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/graph"}},
         "completion_group": {"$ref": "#/$defs/text"},
+        "condition_number_lines": {"type": "array", "items": {"$ref": "#/$defs/domainNumberLine"}},
+        "completion_number_line": {"$ref": "#/$defs/domainNumberLine"},
+        "endpoint_checks": {"type": "array", "items": {"$ref": "#/$defs/domainEndpointCheck"}},
+        "source_regions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expression",
+            "expression_ast",
+            "bound_symbols",
+            "regions"
+          ],
+          "properties": {
+            "expression": {
+              "type": "string"
+            },
+            "expression_ast": {
+              "type": "array"
+            },
+            "bound_symbols": {"type": "object", "required": ["function_argument"], "additionalProperties": {"type": "string", "minLength": 1}},
+            "regions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "source_ref",
+                  "ast_path",
+                  "condition_id",
+                  "basis_refs",
+                  "label",
+                  "option_value"
+                ],
+                "properties": {
+                  "source_ref": {
+                    "type": "string",
+                    "pattern": "^/root/"
+                  },
+                  "ast_path": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  },
+                  "condition_id": {
+                    "type": "string"
+                  },
+                  "basis_refs": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "option_value": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
         "stem_board": {
           "type": "object",
           "additionalProperties": false,

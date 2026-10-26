@@ -7,7 +7,9 @@
       "label": "求函数的定义域",
       "type": "type-function-domain",
       "description": "结合题设范围与表达式有意义的条件，确定允许的输入。",
-      "problems": []
+      "problems": [
+        "function-concepts-q15"
+      ]
     },
     {
       "id": "equality",
@@ -38,8 +40,98 @@
       "problems": []
     }
   ],
-  "problems": {},
+  "problems": {
+    "function-concepts-q15": {
+      "label": "求函数的定义域 · Q15",
+      "path": "/topics/function-concepts/q15/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q15.json",
+      "types": [
+        "type-function-domain"
+      ],
+      "statement": "15. 函数$f(x)=\\frac{\\sqrt{x-1}}{x-2}$的定义域为____",
+      "routes": {
+        "domain-intersection": {
+          "label": "列条件求交集法",
+          "methods": [
+            "method-domain-intersection"
+          ],
+          "steps": {
+            "D1": {
+              "title": "读题",
+              "position": 1,
+              "refs": [
+                "function-concept",
+                "rational-expression",
+                "square-root-expression"
+              ]
+            },
+            "D2": {
+              "title": "确定题型",
+              "position": 2,
+              "refs": [],
+              "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+            },
+            "D3": {
+              "title": "选择解题方法",
+              "position": 3,
+              "refs": [
+                "method-domain-intersection"
+              ]
+            },
+            "b9a3ec819909ff484a05d790#1": {
+              "title": "找到限制位置",
+              "position": 4,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "rational-expression#meaning",
+                "square-root-expression#meaning"
+              ]
+            },
+            "7c0cd721b55d7844c7e1e3b5#1": {
+              "title": "列出条件",
+              "position": 5,
+              "refs": [
+                "method-domain-intersection#extract",
+                "skill-expression-defined",
+                "rational-expression#meaning",
+                "square-root-expression#meaning"
+              ]
+            },
+            "41bb4433ec8f428e19b74f81#1": {
+              "title": "解每个条件",
+              "position": 6,
+              "refs": [
+                "method-domain-intersection#solve",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "set-intersection-union#intersection"
+              ]
+            },
+            "7447f26b4132dc87eecebede#1": {
+              "title": "取交集，写定义域",
+              "position": 7,
+              "refs": [
+                "method-domain-intersection#verify",
+                "skill-expression-defined",
+                "rational-expression#meaning",
+                "square-root-expression#meaning",
+                "skill-inequality-transform",
+                "inequality-properties#addition",
+                "inequality-properties#multiplication",
+                "set-intersection-union#intersection",
+                "function-concept#elements",
+                "interval-notation#finite"
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
   "path": "/topics/function-concepts/",
   "presentation": "topic-overview",
-  "content_version": "c2d326a5b8b54ba156f21a8c51657a5923c9fb4e9065776f837e7701f1f968f9"
+  "content_version": "796d05236b54cba66cd9f7ad0fc09ded67959e4cef0af9fa865411bd13fa9f07"
 }

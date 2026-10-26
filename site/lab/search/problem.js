@@ -199,16 +199,142 @@ function normalizeNotation(expr) {
   }).join('');
 }
 
-/* A number over a number becomes \frac only when that pair is a whole division chain.
-   Division is left-associative, so a number that is the denominator of an earlier slash
-   (a/2/3, a/--2/3, a/+-2/3) or whose own denominator is divided again (1/2/3) stays inline. */
-function fractions(s) {
+/* Drop one outer (...) when it only groups the whole factor for division. */
+function unwrapParens(body) {
+  const text = body.trim();
+  return text[0] === '(' && closing(text, 0) === text.length - 1 ? text.slice(1, -1) : text;
+}
+
+/* Matching '{' for the '}' at close, or -1 when unbalanced. */
+function openingBrace(text, close) {
+  for (let j = close - 1, depth = 1; j >= 0; j--) {
+    if (text[j] === '}') depth++;
+    else if (text[j] === '{' && --depth === 0) return j;
+  }
+  return -1;
+}
+
+/* Index after the '}' that closes the '{' at open, or -1 when unbalanced. */
+function closingBrace(text, open) {
+  for (let j = open + 1, depth = 1; j < text.length; j++) {
+    if (text[j] === '{') depth++;
+    else if (text[j] === '}' && --depth === 0) return j + 1;
+  }
+  return -1;
+}
+
+/* One display factor ending just before `end` (usually a top-level /): primary, then ^{}/_{}. */
+function leftFactor(text, end) {
+  let edge = end;
+  while (edge > 0 && text[edge - 1] === ' ') edge--;
+  let p = edge;
+  while (p > 0 && text[p - 1] === '}') {
+    const open = openingBrace(text, p - 1);
+    if (open < 1 || (text[open - 1] !== '^' && text[open - 1] !== '_')) break;
+    p = open - 1;
+  }
+  if (p <= 0) return null;
+  if (text[p - 1] === ')') {
+    for (let j = p - 2, depth = 1; j >= 0; j--) {
+      if (text[j] === ')') depth++;
+      else if (text[j] === '(' && --depth === 0) return {start: j, end: edge};
+    }
+    return null;
+  }
+  if (text.slice(Math.max(0, p - 7), p) === '\\right|') {
+    const open = text.lastIndexOf('\\left|', p);
+    return open >= 0 ? {start: open, end: edge} : null;
+  }
+  if (text[p - 1] === '}') {
+    const open = openingBrace(text, p - 1);
+    if (open >= 5 && text.slice(open - 5, open) === '\\sqrt') return {start: open - 5, end: edge};
+  }
+  if (/\d/.test(text[p - 1])) {
+    let j = p - 1;
+    while (j > 0 && /[\d.]/.test(text[j - 1])) j--;
+    return {start: j, end: edge};
+  }
+  if (/[A-Za-z\u0370-\u03ff]/.test(text[p - 1])) {
+    let j = p - 1;
+    while (j > 0 && /[A-Za-z0-9_\u0370-\u03ff]/.test(text[j - 1])) j--;
+    return {start: j, end: edge};
+  }
+  return null;
+}
+
+/* One display factor starting at `start` (just after /): optional signs, primary, ^{}/_{}. */
+function rightFactor(text, start) {
+  let p = skip(text, start);
+  const from = p;
+  while (text[p] && '+-−'.includes(text[p])) p = skip(text, p + 1);
+  let end = -1;
+  if (text.startsWith('\\sqrt{', p)) end = closingBrace(text, p + 5);
+  else if (text.startsWith('\\left|', p)) {
+    const close = text.indexOf('\\right|', p + 6);
+    end = close < 0 ? -1 : close + 7;
+  } else if ('([{'.includes(text[p])) end = closing(text, p) + 1 || -1;
+  else {
+    const number = /^\d+(?:\.\d+)?/.exec(text.slice(p));
+    if (number) end = p + number[0].length;
+    else {
+      const name = /^[A-Za-z\u0370-\u03ff][A-Za-z0-9_\u0370-\u03ff]*/.exec(text.slice(p));
+      end = name ? p + name[0].length : -1;
+    }
+  }
+  if (end < 0) return null;
+  while (true) {
+    const q = skip(text, end);
+    if (!text.startsWith('^{', q) && !text.startsWith('_{', q)) break;
+    end = closingBrace(text, q + 1);
+    if (end < 0) return null;
+  }
+  return {start: from, end};
+}
+
+/* A lone digit/digit becomes \frac even inside intervals; chained 1/2/3 stays inline. */
+function numberFractions(s) {
   return s.replace(/(\d+)\/(\d+)/g, (match, top, bottom, at) => {
     const before = s.slice(0, at), after = s.slice(at + match.length);
     if (/[\w.^]$/.test(before) || /^[\w.^/]/.test(after)) return match;
     if (/\/[+\-−\s]*$/.test(before)) return match;
     return `\\frac{${top}}{${bottom}}`;
   });
+}
+
+/* Top-level algebraic a/b becomes \frac when that slash is not part of a longer chain.
+   Division is left-associative, so a/2/3 and sqrt(4)/2/3 keep every slash. */
+function algebraicFractions(s) {
+  const slashes = [];
+  for (let i = 0, depth = 0; i < s.length; i++) {
+    if ('([{'.includes(s[i])) depth++;
+    else if (')]}'.includes(s[i])) depth--;
+    else if (s[i] === '/' && depth === 0) slashes.push(i);
+  }
+  if (!slashes.length) return s;
+  let out = '', cursor = 0;
+  for (const at of slashes) {
+    if (at < cursor) continue;
+    const left = leftFactor(s, at), right = rightFactor(s, at + 1);
+    if (!left || !right || s.slice(left.end, at).trim() !== '') continue;
+    let before = left.start;
+    while (before > 0 && s[before - 1] === ' ') before--;
+    while (before > 0 && '+-−'.includes(s[before - 1])) before--;
+    while (before > 0 && s[before - 1] === ' ') before--;
+    if (before > 0 && s[before - 1] === '/') continue;
+    let next = right.end;
+    while (next < s.length && s[next] === ' ') next++;
+    while (next < s.length && '+-−'.includes(s[next])) next++;
+    while (next < s.length && s[next] === ' ') next++;
+    if (next < s.length && s[next] === '/') continue;
+    out += s.slice(cursor, left.start)
+      + `\\frac{${unwrapParens(s.slice(left.start, left.end))}}{${unwrapParens(s.slice(right.start, right.end))}}`;
+    cursor = right.end;
+  }
+  return out + s.slice(cursor);
+}
+
+function fractions(s) {
+  return algebraicFractions(numberFractions(s));
 }
 
 /* Catalog notation (Unicode, explicit or numeric implicit multiplication) to display TeX. */
@@ -246,6 +372,7 @@ function tex(expr) {
 const math = expr => `$${escape(tex(expr))}$`;
 const knownLine = expr => (/[\u4e00-\u9fff]/.test(expr) ? escape(expr) : math(expr));
 const GOALS = {
+  find_domain: g => `${math(g.object)} 的定义域${g.input_domain ? `（题设范围 ${math(g.input_domain)}）` : ''}`,
   find_range: g => `${math(g.symbol)} 的取值范围`,
   find_value: g => `${math(g.expression)} 的值`,
   find_count: g => `满足条件的集合 ${math(g.symbol)} 的个数`,
@@ -353,7 +480,7 @@ function withdraw(fail) {
    student picks 自己做 or 看 AI 解题; the problem card then moves into the walk layout and the
    Demo engine renders the steps and the graph. Part buttons switch bundles; the engine keeps each
    part's progress. */
-const WALK = '/assets/graph-walk/walk.mjs?v=20261023-active-premises';
+const WALK = '/assets/graph-walk/walk.mjs?v=20261026-domain-review';
 const STREAM = '/assets/graph-walk/stage-three-stream.mjs?v=20261022-original-choice';
 const lesson = {data: null, actor: null, part: -1, engine: null, opened: false};
 let streamMount = null, streamTransport = null, streamIdentity = '', streamTicket = 0, partTicket = 0;

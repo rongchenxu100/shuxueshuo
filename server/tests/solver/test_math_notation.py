@@ -124,6 +124,7 @@ def test_schema_documents_each_goal_and_uncertainty_kind():
         "find_minimum",
         "find_maximum",
         "find_range",
+        "find_domain",
     }
     for goal in goals:
         assert goal["description"]

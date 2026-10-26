@@ -110,7 +110,7 @@ def build_context(candidate, target_ref):
     for symbol in symbols:
         if any(ast[0] == "ref" and ast[1] == symbol["ref"] for ast, _ in _walk(goal_ast["target"])):
             symbol["source_refs"].append(target_ref)
-    return {
+    context = {
         "target_ref": target_ref, "scope": scope_ref, "visible_scopes": visible,
         "goal": goal, "goal_ast": goal_ast, "entries": entries,
         "symbols": symbols, "bound_symbols": bound_symbols,
@@ -118,3 +118,8 @@ def build_context(candidate, target_ref):
         "well_definedness": obligations,
         "processing": {"status": "pending", "unprocessed_source_refs": [entry["source_ref"] for entry in entries]},
     }
+
+    if goal['kind'] == 'find_domain':
+        from ..stage_one.function_domain import inspect_domain_target
+        context['domain_goal'] = inspect_domain_target(candidate, target_ref)
+    return context

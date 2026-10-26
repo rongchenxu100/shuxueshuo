@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {RELATIONS, createWalkGraph, laneMembers, nodeHref, panoramaLayout, treeLayout} from '../../site/assets/graph-walk/walk-graph.mjs';
-import {createState, replayState} from '../../site/assets/graph-walk/walk-state.mjs';
+import {createState, replayState, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
+import {domainNumberLineGraph, endpointChecksHTML} from '../../site/assets/graph-walk/domain-visuals.mjs';
 
 const source = fs.readFileSync(new URL('../../site/assets/graph-walk/walk.mjs', import.meta.url), 'utf8');
 const components = fs.readFileSync(new URL('../../site/assets/practice/components.js', import.meta.url), 'utf8');
@@ -24,6 +25,130 @@ function viewContext() {
   vm.runInContext('bundle = fixture; state = {run: {id: 1}, events: [], lastFeedback: null};', context);
   return {context, nodes, run: code => vm.runInContext(code, context)};
 }
+
+test('direct-method live replay enters the route without a judgment plane', () => {
+  const {run, context} = viewContext();
+  const bridge = source.slice(source.indexOf('function streamReplay()'), source.indexOf('/** The same safe text/LaTeX renderer'));
+  vm.runInContext(bridge.replace(/^export /gm, ''), context);
+  run(`options = {replay: {actions: [{decision: 'D1', answer: 'seen'}]}};
+    bundle = {problemId: 'domain', bundleVersion: 'v1', intro: [{id: 'D3', interaction: {
+      type: 'read', methods: [{value: 'direct', route: 'domain'}]}, expected_answer: {}}],
+      routes: {domain: {route_plan: 'planned', steps: [{id: 'intersection',
+        interaction: {type: 'choice'}, expected_answer: {one_of: ['interval', 'set']}}]}}};`);
+  const replay = JSON.parse(run('JSON.stringify(streamReplay())'));
+  assert.deepEqual(replay.actions, [{decision: 'D1', answer: 'seen'}, {decision: 'D3', answer: 'read'},
+    {decision: 'intersection', answer: 'interval'}]);
+  assert.deepEqual(replay.routes, ['domain']);
+});
+
+test('completed direct-method card shows the method name, not a bare read receipt', () => {
+  const {run} = viewContext();
+  run(`bundle = {problemId: 'domain', intro: [{id: 'D3', title: '选择解题方法', source: 'authored',
+    question: '使用列条件求交集法：按原式列出有意义的条件，分别求解，再取交集。',
+    interaction: {type: 'read', methods: [{value: 'direct', label: '列条件求交集法', route: 'domain'}]},
+    expected_answer: {}}], routes: {}};
+    state = {introCompleted: [{decision: 'D3', answer: 'read'}], run: null};`);
+  const reviewed = run('completedHTML(state.introCompleted[0], 3, 1, null)');
+  assert.match(reviewed, /列条件求交集法/);
+  assert.match(reviewed, /按原式列出有意义的条件/);
+  assert.doesNotMatch(reviewed, />已阅读</);
+});
+
+test('AI completion never claims student practice completion', () => {
+  const {run} = viewContext();
+  run(`bundle.stream = {}; state.run.route = 'discriminant'; actor = 'replay';`);
+  assert.match(run('completionHTML([])'), /回放已结束/);
+  assert.doesNotMatch(run('completionHTML([])'), /练习已完成/);
+});
+
+test('single-choice D1 keeps the chosen meaning and its explanation in the completed review and replay', () => {
+  const {run, context} = viewContext();
+  const summary = '求定义域，就是找出使原解析式有意义的全部实数 $x$。';
+  const reading = {id: 'D1', title: '读题', source: 'authored', question: '定义域是在求什么？',
+    interaction: {type: 'choice', field: 'domain_reading', options: [
+      {value: 'input', label: '自变量 $x$ 的取值范围'},
+      {value: 'output', label: '函数值 $f(x)$ 的取值范围', feedback: '输出的集合是值域。'}]},
+    expected_answer: {one_of: ['input']}, effects: {results: [summary]}};
+  context.fixture.intro[0] = reading;
+  const wrong = submitAnswer(context.fixture, createState(context.fixture), {decision: 'D1', answer: 'output'});
+  assert.equal(wrong.introCompleted.length, 0);
+  assert.match(wrong.lastFeedback.message, /值域/);
+  context.readingState = submitAnswer(context.fixture, wrong, {decision: 'D1', answer: 'input'});
+  run('bundle = fixture; state = readingState; draft = null;');
+  assert.doesNotMatch(run('interactionHTML(bundle.intro[0])'), /原解析式有意义|checklist/);
+  const reviewed = run('completedHTML(state.introCompleted[0], 1, 1, null)');
+  assert.match(reviewed, /自变量 \$x\$ 的取值范围/);
+  assert.match(reviewed, /原解析式有意义/);
+  assert.doesNotMatch(reviewed, /函数值|gw-answer-rows/);
+  assert.match(run('carryHTML()'), /原解析式有意义/);
+  const replay = {schemaVersion: 2, problemId: context.fixture.problemId, bundleVersion: context.fixture.bundleVersion,
+    status: 'partial', routes: [], actions: [{decision: 'D1', answer: 'input'}]};
+  const replayed = replayState(context.fixture, replay, 1);
+  assert.equal(replayed.introCompleted[0].answer, 'input');
+  assert.deepEqual(replayed.introCompleted[0].results, [summary]);
+});
+
+test('domain self-mode only shows solved conditions before the final answer is accepted', () => {
+  const {run, context} = viewContext();
+  Object.assign(context, {domainNumberLineGraph, endpointChecksHTML});
+  run(`line = {label: 'CONDITION', variable: 'x', bounds: [0, 3], intervals: [
+      {left: 1, right: null, left_closed: true, right_closed: false}], points: [], ticks: [{at: 1, label: '1'}]};
+    testDecision = {source: 'stream', condition_number_lines: [line],
+      completion_number_line: {...line, label: 'FINAL_RESULT'}, endpoint_checks: [
+        {at: 1, label: 'x=1', included: true, holds: true, passed: true, reason: 'ENDPOINT_REASON', sources: []}]};`);
+  const before = run(`domainPremisesHTML(testDecision, 'test')`);
+  assert.match(before, /CONDITION/);
+  assert.doesNotMatch(before, /FINAL_RESULT|ENDPOINT_REASON/);
+  assert.doesNotMatch(run(`domainPremisesHTML({condition_number_lines: [line]}, 'solve')`), /CONDITION/);
+  const after = run(`completionFiguresHTML(testDecision, 'test', 'accepted')`);
+  assert.match(after, /FINAL_RESULT/);
+  assert.match(after, /ENDPOINT_REASON/);
+});
+
+test('nearby domain endpoints fall back to the checked set formula without overlapping markers', () => {
+  const {run, context} = viewContext();
+  Object.assign(context, {domainNumberLineGraph, endpointChecksHTML});
+  const html = run(`domainLineHTML({label: '[1,1.01) \\u222a (1.01,+\\u221e)', variable: 'x', bounds: [0.25, 1.76],
+    intervals: [{left: 1, right: 1.01, left_closed: true, right_closed: false},
+      {left: 1.01, right: null, left_closed: false, right_closed: false}], points: [],
+    ticks: [{at: 1, label: '1'}, {at: 1.01, label: '101/100'}]}, 'close', 'completion')`);
+  assert.match(html, /端点过近，改用集合式展示/);
+  assert.match(html, /\[1,1\.01\)/);
+  assert.doesNotMatch(html, /data-graph|<svg/);
+});
+
+for (const badChecks of [null, {}, [null], [{at: 2, label: 'UNVERIFIED_ENDPOINT', included: true,
+  holds: false, passed: false, reason: 'UNVERIFIED_REASON', sources: []}]]) {
+  test(`invalid endpoint cards fail closed without breaking the other completed figures: ${JSON.stringify(badChecks)}`, () => {
+    const {run, context} = viewContext();
+    Object.assign(context, {domainNumberLineGraph, endpointChecksHTML, badChecks});
+    run(`line = {label: 'VERIFIED_CONDITION', variable: 'x', bounds: [0, 3], intervals: [
+      {left: 1, right: null, left_closed: true, right_closed: false}], points: [], ticks: [{at: 1, label: '1'}]};
+      testDecision = {source: 'stream', condition_number_lines: [line], endpoint_checks: badChecks};`);
+    const html = run(`completionFiguresHTML(testDecision, 'bad-endpoint', 'accepted')`);
+    assert.match(html, /VERIFIED_CONDITION/);
+    assert.match(html, /data-state="unavailable".*端点检查暂不可用.*未通过校验/s);
+    assert.doesNotMatch(html, /UNVERIFIED_|可以取到|不能取到/);
+    const repaired = run(`domainEndpointCardHTML([{at: 1, label: 'x=1', included: true,
+      holds: true, passed: true, reason: '已验证原式有意义', sources: []}])`);
+    assert.match(repaired, /可以取到/);
+    assert.doesNotMatch(repaired, /unavailable/);
+  });
+}
+
+test('one unverified endpoint prevents partial endpoint conclusions and does not hide unrelated code errors', () => {
+  const {run, context} = viewContext();
+  Object.assign(context, {endpointChecksHTML});
+  const html = run(`domainEndpointCardHTML([{at: 1, label: 'VALID_ENDPOINT', included: true,
+    holds: true, passed: true, reason: 'VALID_REASON', sources: []},
+    {at: 2, label: 'BAD_ENDPOINT', included: false, holds: false, passed: false, reason: 'BAD_REASON', sources: []}])`);
+  assert.match(html, /端点检查暂不可用/);
+  assert.doesNotMatch(html, /VALID_|BAD_|可以取到|不能取到/);
+  context.endpointChecksHTML = () => { throw Error('unexpected renderer bug'); };
+  assert.throws(() => run('domainEndpointCardHTML([])'), /unexpected renderer bug/);
+  context.endpointChecksHTML = () => { throw Error('domain_visuals.unknown_validation'); };
+  assert.throws(() => run('domainEndpointCardHTML([])'), /domain_visuals.unknown_validation/);
+});
 
 test('stream arrival preserves the AI replay reading position and chooses an executable route', async () => {
   const {context, run} = viewContext();

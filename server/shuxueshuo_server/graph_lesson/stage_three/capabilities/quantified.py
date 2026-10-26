@@ -67,7 +67,9 @@ def apply_quantifier_policy(policy, range, parameter_expression):
     )
 
 
-def solve_conditions(conditions, combiner, variable):
+def solve_conditions(conditions, combiner, variable, purpose="quantified"):
+    if purpose not in ("quantified", "domain"):
+        raise CapabilityGap("condition_purpose_unknown")
     from .cases import _relation_set
 
     if not conditions or combiner not in ("all", "any"):
@@ -76,10 +78,10 @@ def solve_conditions(conditions, combiner, variable):
     for condition in conditions:
         solution, evidence = _relation_set(condition, variable)
         solutions.append(solution)
-        checks.append({"kind": "endpoint_condition_solution", "passed": True,
+        checks.append({"kind": "domain_condition_solution" if purpose == "domain" else "endpoint_condition_solution", "passed": True,
                        "condition": condition, "solution": solution, "evidence": evidence})
     solution = (sp.Intersection if combiner == "all" else sp.Union)(*solutions)
-    checks.append({"kind": "quantified_condition_combination", "passed": True,
+    checks.append({"kind": "domain_condition_combination" if purpose == "domain" else "quantified_condition_combination", "passed": True,
                    "combiner": combiner, "condition_sets": solutions})
     return result({"solution": solution, "solutions": solutions},
-                  ["quantified_condition_sets"], checks)
+                  ["domain_condition_sets" if purpose == "domain" else "quantified_condition_sets"], checks)

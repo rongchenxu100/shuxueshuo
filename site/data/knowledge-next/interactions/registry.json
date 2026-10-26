@@ -1676,6 +1676,26 @@
           "submit_label": "确认本情况"
         }
       ]
+    },
+    "domain_locations": {
+      "repeat": "always",
+      "compiler": "function_domain",
+      "parts": []
+    },
+    "domain_conditions": {
+      "repeat": "always",
+      "compiler": "function_domain",
+      "parts": []
+    },
+    "domain_solutions": {
+      "repeat": "always",
+      "compiler": "function_domain",
+      "parts": []
+    },
+    "domain_intersection": {
+      "repeat": "always",
+      "compiler": "function_domain",
+      "parts": []
     }
   },
   "overrides": {

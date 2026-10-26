@@ -94,6 +94,9 @@ def decode_value(value):
         raise ValueError("checkpoint.unknown_math_type")
     arguments = [decode_value(v) for v in value["args"]]
     if name in {
+        # Preserve an original radical even when its constant radicand is
+        # negative. Its real definedness is checked before arithmetic.
+        "Pow",
         "Equality",
         "Unequality",
         "GreaterThan",

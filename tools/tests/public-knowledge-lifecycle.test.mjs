@@ -11,7 +11,7 @@ const edges=validateGraph(nodes,manifest),graph={nodes,edges,defaultScope:manife
 const planned=nodes.filter(n=>n.status==='planned');
 
 test('only explicit planned types and knowledge-only nodes may omit examples or method entry',()=>{
-  assert.equal(planned.length,5);
+  assert.equal(planned.length,4);
   const check=(id,change,pattern)=>{const copy=structuredClone(nodes);change(copy.find(n=>n.id===id));assert.throws(()=>validateGraph(copy,manifest),pattern);};
   const id=planned[0].id, knowledge=nodes.find(n=>n.status==='knowledge_only').id;
   check(id,n=>delete n.status,/缺少 examples|题型缺少方法入口/);
@@ -39,7 +39,7 @@ test('entry references validate existing knowledge anchors without creating glob
 });
 
 test('junior collection owns the same members in flat projection, three-dimensional placement and metadata',()=>{
-  const id='junior-knowledge', members=['rational-expression','absolute-value-concept','reciprocal-function'];
+  const id='junior-knowledge', members=['rational-expression','square-root-expression','absolute-value-concept','reciprocal-function'];
   const city=buildCity(outline,graph), homes=homeChapters(outline,graph), collection=city.collections.find(c=>c.id===id);
   assert.equal(collection.kind,'collection');assert.deepEqual(collection.sections,[]);
   assert.deepEqual(new Set(collection.members),new Set(members));
@@ -64,7 +64,7 @@ test('published views expose the collection and planned labels without fake exer
   assert.match(outputs.get('index.html'),/id="collection-junior-knowledge"/);
   const directory=outputs.get('nodes/index.html');
   assert.match(directory,/<option value="junior-knowledge">初中知识<\/option>/);
-  for(const id of ['junior-knowledge','rational-expression','absolute-value-concept','reciprocal-function'])assert.match(directory,new RegExp(`data-directory-node="${id}" data-home="junior-knowledge"`));
+  for(const id of ['junior-knowledge','rational-expression','square-root-expression','absolute-value-concept','reciprocal-function'])assert.match(directory,new RegExp(`data-directory-node="${id}" data-home="junior-knowledge"`));
   const data=JSON.parse(outputs.get('graph.json'));
   assert.equal(data.collections[0].id,'junior-knowledge');
   for(const n of planned){

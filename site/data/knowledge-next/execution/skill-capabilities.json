@@ -55,6 +55,9 @@
     ],
     "method-square-extremum": [
       "submethod"
+    ],
+    "skill-expression-defined": [
+      "extract_domain_conditions"
     ]
   },
   "internal": {
@@ -93,9 +96,17 @@
     "merge_variable_cases": [
       "method-variable-swap#merge"
     ],
-    "quadratic_opening_solutions": ["method-discriminant#solve"],
+    "quadratic_opening_solutions": [
+      "method-discriminant#solve"
+    ],
     "combine_condition_solutions": [
       "method-discriminant#solve"
+    ],
+    "prepare_domain_conditions": [
+      "method-domain-intersection#solve"
+    ],
+    "intersect_domain": [
+      "method-domain-intersection#intersect"
     ]
   }
 }

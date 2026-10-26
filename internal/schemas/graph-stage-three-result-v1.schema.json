@@ -296,7 +296,10 @@
               ],
               "properties": {
                 "rule": {
-                  "type": "string",
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "minLength": 1
                 },
                 "branches": {
@@ -554,28 +557,64 @@
           "minLength": 1
         },
         "interaction": {
-          "type": "object",
-          "required": [
-            "type",
-            "x",
-            "y",
-            "coverage"
-          ],
-          "properties": {
-            "type": {
-              "const": "plane"
-            },
-            "x": {
-              "type": "object"
-            },
-            "y": {
-              "type": "object"
-            },
-            "coverage": {
+          "oneOf": [
+            {
               "type": "object",
-              "additionalProperties": {
-                "type": "array",
-                "items": {
+              "required": [
+                "type",
+                "x",
+                "y",
+                "coverage"
+              ],
+              "properties": {
+                "type": {
+                  "const": "plane"
+                },
+                "x": {
+                  "type": "object"
+                },
+                "y": {
+                  "type": "object"
+                },
+                "coverage": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "type"
+              ],
+              "properties": {
+                "type": {
+                  "const": "read"
+                }
+              }
+            }
+          ]
+        },
+        "expected_answer": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": [
+                "cell"
+              ],
+              "properties": {
+                "cell": {
                   "type": "array",
                   "minItems": 2,
                   "maxItems": 2,
@@ -585,25 +624,12 @@
                   }
                 }
               }
+            },
+            {
+              "type": "object",
+              "maxProperties": 0
             }
-          }
-        },
-        "expected_answer": {
-          "type": "object",
-          "required": [
-            "cell"
-          ],
-          "properties": {
-            "cell": {
-              "type": "array",
-              "minItems": 2,
-              "maxItems": 2,
-              "items": {
-                "type": "string",
-                "minLength": 1
-              }
-            }
-          }
+          ]
         },
         "verdicts": {
           "type": "object",
@@ -745,7 +771,10 @@
           ],
           "properties": {
             "kind": {
-              "const": "find_range"
+              "enum": [
+                "find_range",
+                "find_domain"
+              ]
             },
             "status": {
               "const": "set"

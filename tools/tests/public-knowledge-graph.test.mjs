@@ -15,7 +15,7 @@ const clone=()=>structuredClone(nodes);
 const byId=id=>nodes.find(n=>n.id===id);
 
 test('substantive originals retain explicit lifecycle states and curriculum or collection membership',()=>{
-  assert.equal(nodes.length,89);assert.equal(Object.keys(KINDS).length,9);
+  assert.equal(nodes.length,92);assert.equal(Object.keys(KINDS).length,9);
   const whole=scopeMembers(graph,'chapter-quadratic-equations-inequalities');
   assert.equal(whole.size,63);
   for(const id of ['quantifiers','function-monotonicity','function-range-extrema'])assert.ok(whole.has(id),`${id} 仍由 2.3 拓展引用`);
@@ -331,7 +331,7 @@ test('knowledge city: whole-curriculum outline, chapter 2 built, towers inside t
   assert.equal(homes.get('rule-quadratic-method'),'compulsory-1-ch2');
   const sub=chapterGraph(graph,homes,'compulsory-1-ch2');
   assert.ok(!sub.nodes.some(n=>n.kind==='textbook'||n.id==='quantifiers'));
-  assert.deepEqual(city.links.filter(l=>l.type==='relation').map(l=>[l.from,l.to,l.count]),[['compulsory-1-ch3','junior-knowledge',3],['compulsory-1-ch2','compulsory-1-ch3',9],['compulsory-1-ch1','compulsory-1-ch3',7],['compulsory-1-ch1','compulsory-1-ch2',3]]);
+  assert.deepEqual(city.links.filter(l=>l.type==='relation').map(l=>[l.from,l.to,l.count]),[['compulsory-1-ch3','junior-knowledge',4],['compulsory-1-ch2','compulsory-1-ch3',9],['compulsory-1-ch1','compulsory-1-ch3',7],['compulsory-1-ch1','compulsory-1-ch2',3]]);
   const crossing=graph.edges.filter(e=>!['contains','extends'].includes(e.type)&&homes.get(e.from)!==homes.get(e.to));
   assert.ok(crossing.some(e=>e.from==='type-quantified-quadratic'&&e.to==='quantifiers'));
   const ch3=city.chapters.find(c=>c.id==='compulsory-1-ch3'),r=towerRadius(ch3);

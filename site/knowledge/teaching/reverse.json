@@ -2150,6 +2150,20 @@
       "conditions": {}
     },
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "41bb4433ec8f428e19b74f81#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "discriminant",
@@ -2226,6 +2240,20 @@
       "problem": "basic-inequality-q07",
       "route": "matching",
       "step": "bound",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "41bb4433ec8f428e19b74f81#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
       "conditions": {}
     },
     {
@@ -2915,6 +2943,201 @@
       "conditions": {
         "inequality_form": "s_ge"
       }
+    }
+  ],
+  "type-function-domain": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15"
+    }
+  ],
+  "function-concept": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "D1",
+      "conditions": {}
+    }
+  ],
+  "rational-expression": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "D1",
+      "conditions": {}
+    }
+  ],
+  "square-root-expression": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "D1",
+      "conditions": {}
+    }
+  ],
+  "method-domain-intersection": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "D3",
+      "conditions": {}
+    }
+  ],
+  "method-domain-intersection#extract": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "b9a3ec819909ff484a05d790#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7c0cd721b55d7844c7e1e3b5#1",
+      "conditions": {}
+    }
+  ],
+  "skill-expression-defined": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "b9a3ec819909ff484a05d790#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7c0cd721b55d7844c7e1e3b5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    }
+  ],
+  "rational-expression#meaning": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "b9a3ec819909ff484a05d790#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7c0cd721b55d7844c7e1e3b5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    }
+  ],
+  "square-root-expression#meaning": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "b9a3ec819909ff484a05d790#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7c0cd721b55d7844c7e1e3b5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    }
+  ],
+  "method-domain-intersection#solve": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "41bb4433ec8f428e19b74f81#1",
+      "conditions": {}
+    }
+  ],
+  "inequality-properties#addition": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "41bb4433ec8f428e19b74f81#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    }
+  ],
+  "set-intersection-union#intersection": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "41bb4433ec8f428e19b74f81#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    }
+  ],
+  "method-domain-intersection#verify": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    }
+  ],
+  "function-concept#elements": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
+    }
+  ],
+  "interval-notation#finite": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q15",
+      "route": "domain-intersection",
+      "step": "7447f26b4132dc87eecebede#1",
+      "conditions": {}
     }
   ],
   "type-quantified-quadratic": [

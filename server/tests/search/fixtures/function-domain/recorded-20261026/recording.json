@@ -1,0 +1,16 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-concepts-q15/manifest.json",
+  "source_kind": "user_photograph_printed_question_crop",
+  "historical_semantic_calls": 2,
+  "historical_network_attempts": 2,
+  "files": {
+    "question.png": "eab3b34377252e527c6efa0f9e951efe69ce141036d5dc38ba17a2d213f0b2bf",
+    "result.json": "6bd8ca4434b62e2559a18a2be37521048ceefb435e9f7b093cf509621cfdf7b7",
+    "workflow/ledger.json": "d751a836fed38641b65aab4f3674d39237fadf37bf39882247bf9ff79e4d0555",
+    "workflow/calls/01-extract/request.json": "70b61574aad470c7a4852dc60907abd9d64122a36f014bf36a8ce26c66301b13",
+    "workflow/calls/01-extract/response.json": "ee5184c2d11defcd3e240fd116a7fb1481e252ecacef0ba49cd201521d6a014f",
+    "workflow/calls/02-review/request.json": "831dfdb97ebcacb7a4696e40c1d67cf9eb276663090e0a34681bfc13435834f2",
+    "workflow/calls/02-review/response.json": "107216a4dc199ddfe439f7448f16154e8ed9d85242771fbbab67a3e038eaa3ee"
+  }
+}
