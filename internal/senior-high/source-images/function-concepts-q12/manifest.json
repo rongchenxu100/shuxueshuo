@@ -1,0 +1,27 @@
+{
+  "problem_id": "function-concepts-q12",
+  "source": "用户上传的《函数的概念与性质小条（6）》第12题",
+  "source_thread": "01a142d6-1e4f-7a62-aa2b-b6f799302aa4",
+  "source_message": "01a167f4-eff3-7ba3-ab80-c8e74d4a9516",
+  "original_filename": "codex-clipboard-4cf3f861-7ed4-43fd-947e-e5b9f137436c.png",
+  "retained_source": "internal/senior-high/source-images/function-concepts-q15/source-page.png",
+  "page": {
+    "file": "source-page.png",
+    "size": [
+      1279,
+      1706
+    ],
+    "sha256": "fd2bdcae07a11c0bd117edf4736f9e5c7959514e3dbb14cf3d302360b3e573ee"
+  },
+  "question": {
+    "file": "source-question.png",
+    "crop_xyxy": [
+      180,
+      430,
+      848,
+      501
+    ],
+    "sha256": "53e8568ae622fe10c115fa283afd9ae79191a9bed0bdfc460f651c15a43844f2"
+  },
+  "processing": "仅按像素边界裁取第12题完整印刷题干至“是”，题号、填空横线与右侧手写答案不进入题图。未重绘、改字或注入识别文本。"
+}

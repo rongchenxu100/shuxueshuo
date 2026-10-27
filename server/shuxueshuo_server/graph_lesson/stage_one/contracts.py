@@ -13,6 +13,7 @@ RESULT_SCHEMA_PATH = ROOT / "internal/schemas/graph-stage-one-result-v2.schema.j
 SYSTEM_PATH = ROOT / "internal/llm-prompts/graph-stage-one-system.md"
 REVIEW_PATH = ROOT / "internal/llm-prompts/graph-stage-one-review.md"
 REPAIR_PATH = ROOT / "internal/llm-prompts/graph-stage-one-repair.md"
+SOURCE_RULES_PATH = ROOT / "internal/llm-prompts/graph-stage-one-source-rules.md"
 BASE_EXPRESSIONS_PATH = (
     ROOT / "internal/llm-prompts/problem-math-notation-expressions.json"
 )
@@ -24,6 +25,7 @@ TEMPLATE_FILES = (
     SYSTEM_PATH,
     REVIEW_PATH,
     REPAIR_PATH,
+    SOURCE_RULES_PATH,
     BASE_EXPRESSIONS_PATH,
     EXPRESSIONS_PATH,
 )
@@ -56,6 +58,13 @@ def expression_catalog():
     return catalog
 
 
-SYSTEM = SYSTEM_PATH.read_text(encoding="utf-8").strip()
-REVIEW_SYSTEM = REVIEW_PATH.read_text(encoding="utf-8").strip()
-REPAIR_SYSTEM = REPAIR_PATH.read_text(encoding="utf-8").strip()
+SOURCE_RULES = SOURCE_RULES_PATH.read_text(encoding="utf-8").strip()
+
+
+def _prompt(path):
+    return path.read_text(encoding="utf-8").strip() + "\n\n" + SOURCE_RULES
+
+
+SYSTEM = _prompt(SYSTEM_PATH)
+REVIEW_SYSTEM = _prompt(REVIEW_PATH)
+REPAIR_SYSTEM = _prompt(REPAIR_PATH)

@@ -9,11 +9,17 @@ from shuxueshuo_server.graph_lesson.stage_one.features import extract_features
 from shuxueshuo_server.graph_lesson.stage_one.function_domain_parameter import (
     inspect_match_domain_target,
 )
-from shuxueshuo_server.graph_lesson.stage_two.recognition import evaluate_types
 from shuxueshuo_server.graph_lesson.stage_three import driver, selection
 from shuxueshuo_server.graph_lesson.stage_three.context import build_context
-from shuxueshuo_server.graph_lesson.stage_three.goals import finalize_goal, verify_goal_answer
-from shuxueshuo_server.graph_lesson.stage_three.verification import endpoint_check, verify
+from shuxueshuo_server.graph_lesson.stage_three.goals import (
+    finalize_goal,
+    verify_goal_answer,
+)
+from shuxueshuo_server.graph_lesson.stage_three.verification import (
+    endpoint_check,
+    verify,
+)
+from shuxueshuo_server.graph_lesson.stage_two.recognition import evaluate_types
 from tests.solver.test_graph_stage_three_methods import finish
 
 TARGET = "/root/goals/0"
@@ -110,7 +116,7 @@ def test_match_domain_never_selects_intersection_method():
     [
         "sqrt(x-1)",  # no parameter
         "sqrt(k*x-1)/(x-2)",  # denominator
-        "1/sqrt(k*x^2+1)",  # not pure sqrt
+        "1/(sqrt(k*x^2+1)+1)",  # denominator is not a single square root
         "sqrt(k^2*x^2+1)",  # parameter degree >1 in a coefficient product path
     ],
 )
@@ -128,7 +134,7 @@ def test_same_formula_find_domain_does_not_become_match_domain():
 
 def test_q22_exact_parameter_range_via_discriminant_submethod():
     value = candidate()
-    context, state = execute(value)
+    _, state = execute(value)
     assert state["status"] == "method_complete", state.get("diagnostics") or state["trajectory"]
     actual = driver.export_values(state)["feasible_set"]
     assert actual == Q22

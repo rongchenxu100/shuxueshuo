@@ -62,6 +62,9 @@
     ],
     "method-discriminant": [
       "submethod"
+    ],
+    "method-separation": [
+      "submethod"
     ]
   },
   "internal": {

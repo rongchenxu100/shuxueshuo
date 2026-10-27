@@ -122,7 +122,7 @@ test('a highlighted card leads with the conclusion board and folds the prose int
   const [details] = find('details stage-three-derivation', node);
   assert.equal(details.open, true);
   assert.deepEqual(find('stage-three-explanation', details).map(line => line.textContent),
-    ['$\\because x<0$，$\\therefore x<0$。', '移项得 $ax\\ge-x^2-2$。']);
+    ['$\\because x<0$，$\\therefore x<0$', '移项得 $ax\\ge-x^2-2$。']);
   assert.equal(find('stage-three-after', node).length, 0);
 });
 
@@ -181,7 +181,31 @@ test('a newline in the derivation starts a new line, as each ∵/∴ step does',
     highlight: {caption: '对勾函数', items: [{label: '最高点', math: '(1,-2)'}]}};
   const [details] = find('details stage-three-derivation', createMathCard(document, chained).node);
   assert.deepEqual(find('stage-three-explanation', details).map(line => line.textContent),
-    ['$\\because x>0$，$\\therefore \\frac1x>0$，', '$\\therefore h(x)\\le-2$。', '由对勾函数的性质。']);
+    ['$\\because x>0$，$\\therefore \\frac1x>0$，', '$\\therefore h(x)\\le-2$', '由对勾函数的性质。']);
+});
+
+test('standalone derivations omit full stops without splitting math blocks or changing verified source', () => {
+  const {document, find} = documentFixture();
+  const formulas = [
+    '$\\begin{aligned}16m^2-12m\\le0&\\iff m\\in[0,3/4]\\\\\nm&\\in(0,3/4]\\end{aligned}$',
+    '$\\{0\\}\\cup(0,3/4]=[0,3/4]$',
+    '$$m\\in[0,3/4]$$', '\\[m\\in[0,3/4]\\]', '\\(m\\in[0,3/4]\\)',
+    '$\\text{保留句号。}\\quad m=0$',
+  ];
+  const original = {...step, explanation: formulas.map(formula => `${formula}。`).join('\n')};
+  const before = structuredClone(original);
+  const card = createMathCard(document, original);
+  assert.deepEqual(find('stage-three-explanation', card.node).map(line => line.textContent), formulas);
+  assert.deepEqual(original, before);
+  assert.deepEqual(card.step, before, 'punctuation is presentation only, not a new mathematical revision');
+});
+
+test('prose punctuation and unmatched math remain untouched', () => {
+  const {document, find} = documentFixture();
+  const lines = ['当 $m=0$ 时，条件成立。', '$m=0$ 时，条件成立。',
+    '因此：$m\\in[0,3/4]$。', '$m=0。', '\\(m=0。'];
+  const card = createMathCard(document, {...step, explanation: lines.join('\n')});
+  assert.deepEqual(find('stage-three-explanation', card.node).map(line => line.textContent), lines);
 });
 
 test('a derivation-only card skips before/after and opens the prose under 完整推导', () => {

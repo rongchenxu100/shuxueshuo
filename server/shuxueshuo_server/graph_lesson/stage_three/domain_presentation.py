@@ -4,6 +4,7 @@ from fractions import Fraction
 
 import sympy as sp
 
+from ..stage_two.recognition import load_nodes
 from .math_values import latex
 
 
@@ -15,47 +16,165 @@ def condition_label(kind):
     }[kind]
 
 
-def parameter_view(values):
-    """Present the checked square-root condition and its supplied quantifier.
+def _halfline(description):
+    return description.get("parameter_family") == "halfline_root_ratio"
 
-    This projection does not solve for the parameter or infer a new condition.
-    Its structural checks keep a mismatched seed from explaining another tree.
-    """
-    description, rows = values["description"], values["constraints"]
-    if (description.get("task") != "match_domain" or len(rows) != 1
-            or description["expression_ast"][:2] != ["call", "sqrt"]):
+
+def _parameter_root(description):
+    ast = description["expression_ast"]
+    reciprocal = ast[0] == "/"
+    root = ast[1] if _halfline(description) else ast[2] if reciprocal else ast
+    if (description.get("task") != "match_domain" or root[:2] != ["call", "sqrt"]
+            or description.get("has_division", False) is not reciprocal
+            or (_halfline(description) and (not reciprocal or ast[2][:2] != ["call", "sqrt"]))):
+        raise ValueError("domain.parameter_single_radicand_required")
+    return root, reciprocal
+
+
+def parameter_condition_rows(description, rows):
+    """Bind every original root/denominator restriction before its reduction."""
+    root, reciprocal = _parameter_root(description)
+    halfline = _halfline(description)
+    if len(rows) != (3 if halfline else 2 if reciprocal else 1):
         raise ValueError("domain.parameter_single_radicand_required")
     row = rows[0]
     condition = row["condition"]
-    if (row["kind"] != "radicand_nonnegative" or row["ast_path"] != [2]
+    if (row["kind"] != "radicand_nonnegative"
+            or row["ast_path"] != ([1, 2] if halfline else [2, 2] if reciprocal else [2])
             or row["source_ref"] != description["source_ref"]
-            or row["expression_ast"] != description["expression_ast"][2]
+            or row["expression_ast"] != root[2]
             or not isinstance(condition, sp.GreaterThan) or condition.rhs != 0):
         raise ValueError("domain.parameter_condition_source_mismatch")
+    if reciprocal:
+        denominator_root = description["expression_ast"][2]
+        radial = rows[1] if halfline else row
+        if halfline and (radial["kind"] != "radicand_nonnegative" or radial["ast_path"] != [2, 2]
+                         or radial["source_ref"] != description["source_ref"]
+                         or radial["expression_ast"] != denominator_root[2]
+                         or not isinstance(radial["condition"], sp.GreaterThan) or radial["condition"].rhs != 0):
+            raise ValueError("domain.parameter_condition_source_mismatch")
+        denominator = rows[-1]
+        if (denominator["kind"] != "denominator_nonzero" or denominator["ast_path"] != [2]
+                or denominator["source_ref"] != description["source_ref"]
+                or denominator["expression_ast"] != denominator_root
+                or denominator["condition"] != sp.Ne(sp.sqrt(radial["condition"].lhs, evaluate=False), 0, evaluate=False)):
+            raise ValueError("domain.parameter_condition_source_mismatch")
+    return reciprocal, condition
+
+
+def parameter_domain(values):
+    """Read the prescribed domain, and bind the checked denominator certificate."""
+    from .function_domain import input_set
+
+    description = values["description"]
+    expected = input_set({**description, "input_domain_ast": description["prescribed_domain_ast"]})
+    if values.get("domain") != expected:
+        raise ValueError("domain.parameter_return_domain_mismatch" if values["phase"] == "parameter_return"
+                         else "domain.parameter_universal_mismatch")
+    if _halfline(description):
+        proof = values.get("domain_equivalence")
+        if (not isinstance(proof, dict) or proof.get("passed") is not True
+                or proof.get("outside_excluded") is not True
+                or proof.get("prescribed_domain") != expected
+                or proof.get("denominator_domain") != expected
+                or values.get("denominator_domain") != expected
+                or proof.get("source_refs") != [description["source_ref"]]
+                or proof.get("condition_ids") != ["c1", "c2", "c3"]
+                or proof.get("denominator_condition_ids") != ["c2", "c3"]
+                or proof.get("denominator_ast_path") != [2]
+                or proof.get("radicand_ast_path") != [2, 2]
+                or proof.get("outside_domain") != sp.Complement(sp.S.Reals, expected)):
+            raise ValueError("domain.parameter_denominator_certificate_mismatch")
+    elif expected != sp.S.Reals:
+        raise ValueError("domain.parameter_return_domain_mismatch")
+    return expected
+
+
+def parameter_view(values):
+    """Project original restrictions and a checked equivalent universal problem."""
+    description = values["description"]
+    _parameter_root(description)
+    halfline = _halfline(description)
+    phase = values["phase"]
+    if phase != "parameter_conditions":
+        domain_value = parameter_domain(values)
+        domain = r"D_{" + description["function_name"] + "}=" + latex(domain_value)
+    if phase == "parameter_return":
+        if not isinstance(values.get("candidate_set"), sp.Set):
+            raise ValueError("domain.parameter_return_set_required")
+        method_label = load_nodes()[values["borrowed_method"]]["label"]
+        parameter, answer = latex(values["parameter"]), latex(values["candidate_set"])
+        return {
+            "domain_explanation": (
+                rf"{method_label}得到 ${parameter}\in {answer}$。"
+                rf"回到原题：这些参数恰好使 ${domain}$ 成立。"
+            ),
+            "domain_lines": [{"label": "参数范围", "math": rf"{parameter}\in {answer}"},
+                             {"label": "原题目标", "math": domain}],
+        }
+    rows = values["constraints"]
+    reciprocal, condition = parameter_condition_rows(description, rows)
     expression, relation = description["expression_latex"], latex(condition)
-    if values["phase"] == "parameter_conditions":
+    if phase == "parameter_conditions":
+        if reciprocal:
+            combined = r"\quad\text{且}\quad ".join(latex(row["condition"]) for row in rows)
+            explanation = (
+                "分子根号与分母根号都要求各自被开方数非负，分母还必须非零；三条限制须同时保留。"
+                if halfline else
+                rf"根号要求 ${relation}$，分母还要求 ${latex(rows[1]['condition'])}$；两条限制须同时保留。"
+            )
+            return {"domain_explanation": rf"原式为 ${expression}$。" + explanation,
+                    "domain_lines": [{"label": "原式", "math": expression},
+                                     {"label": "同时满足的原始条件", "math": combined}]}
         return {
             "domain_explanation": rf"原式为 ${expression}$。平方根有意义要求被开方数非负，因此须有 ${relation}$。",
             "domain_lines": [{"label": "原式", "math": expression},
                              {"label": "有意义的条件", "math": relation}],
         }
-    if (values["phase"] != "parameter_universal"
-            or description.get("prescribed_domain_ast") != ["real"]
-            or values["domain"] != sp.S.Reals or values["quantifier"] != "∀"
-            or values["relation"] != condition or values["universal_statement"] != condition
-            or str(values["x"]) != description["variable"]):
+    strict = reciprocal and not halfline
+    reduced = sp.Gt(condition.lhs, 0, evaluate=False) if strict else condition
+    if (phase not in ("parameter_universal", "parameter_borrow") or values["quantifier"] != "∀"
+            or values["relation"] != reduced or values["universal_statement"] != reduced
+            or values.get("strict") is not strict or str(values["x"]) != description["variable"]):
         raise ValueError("domain.parameter_universal_mismatch")
-    variable = latex(values["x"])
-    domain = r"D_{" + description["function_name"] + r"}=\mathbb{R}"
-    universal = rf"\forall {variable}\in\mathbb{{R}},\quad {relation}"
-    return {
-        "domain_explanation": (
-            rf"定义域恰为全体实数，意味着每一个实数 ${variable}$ 都使原式有意义。"
-            rf"因此 ${domain}$ 等价于 ${universal}$。接下来对这个恒成立条件求参数范围。"
-        ),
-        "domain_lines": [{"label": "已知定义域", "math": domain},
-                         {"label": "等价的全称条件", "math": universal}],
-    }
+    if halfline:
+        proof, radial = values["domain_equivalence"], rows[1]["condition"].lhs
+        if (proof.get("inside_condition") != reduced
+                or proof.get("denominator_condition") != sp.Gt(radial, 0, evaluate=False)
+                or proof.get("outside_condition") != sp.Le(radial, 0, evaluate=False)):
+            raise ValueError("domain.parameter_denominator_certificate_mismatch")
+    relation, variable = latex(reduced), latex(values["x"])
+    universal = rf"\forall {variable}\in{latex(domain_value)},\quad {relation}"
+    if phase == "parameter_borrow":
+        borrowed = values.get("borrowed_method")
+        nodes = load_nodes()
+        if not isinstance(borrowed, str) or borrowed not in nodes:
+            raise ValueError("domain.parameter_borrow_method_required")
+        method_label = nodes[borrowed]["label"]
+        return {
+            "domain_explanation": (rf"当前子问题是 ${universal}$。"
+                                   rf"在题给范围内求恒成立的参数，可借用{method_label}。"),
+            "domain_lines": [{"label": "恒成立子问题", "math": universal},
+                             {"label": "借用方法", "math": rf"\text{{{method_label}}}"}],
+        }
+    if halfline:
+        denominator = latex(values["domain_equivalence"]["denominator_condition"])
+        outside = latex(values["domain_equivalence"]["outside_domain"])
+        explanation = (
+            rf"分母的两条限制合为 ${denominator}$，其解集恰好是 ${latex(domain_value)}$。"
+            rf"在 ${outside}$ 内，分母根号无意义或分母为零，原式自动被排除。"
+            rf"因此只需保证域内每一个输入都使分子根号有意义，即 ${universal}$；无需要求域外的分子非负。"
+        )
+    else:
+        explanation = (
+            (rf"根号要求 ${latex(condition)}$，分母要求 ${latex(rows[1]['condition'])}$，合起来是 ${relation}$。"
+             if reciprocal else "")
+            + rf"定义域恰为全体实数，意味着每一个实数 ${variable}$ 都使原式有意义。"
+            + rf"因此 ${domain}$ 等价于恒成立问题 ${universal}$。"
+        )
+    return {"domain_explanation": explanation,
+            "domain_lines": [{"label": "已知定义域", "math": domain},
+                             {"label": "等价的恒成立问题", "math": universal}]}
 
 
 def _has_positive_power(ast):

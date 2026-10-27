@@ -1,0 +1,150 @@
+{
+  "text": "{\n  \"original_text\": \"12. 若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n  \"root\": {\n    \"definitions\": [\n      \"f(x)=1/sqrt(m*x^2-6*m*x+m+8)\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"match_domain\",\n        \"object\": \"f\",\n        \"domain\": \"ℝ\",\n        \"symbol\": \"m\"\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ]\n  }\n}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 3737,
+      "prompt_tokens": 10635,
+      "total_tokens": 14372,
+      "prompt_cache_hit_tokens": 10240,
+      "prompt_cache_miss_tokens": 395
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 824,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-8256286c-6abb-4480-b2e1-f59832bc42c3",
+        "sha256": "9e5973ded17580dde0282f95e324cf1f398ef25456e9bec256c025e0a318af7a",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 12292,
+        "expires_at": 1793191595,
+        "uploaded_at": 1793105195.945455
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "cache_hit",
+        "sha256": "9e5973ded17580dde0282f95e324cf1f398ef25456e9bec256c025e0a318af7a",
+        "file_id": "file-api-8256286c-6abb-4480-b2e1-f59832bc42c3",
+        "api_calls": 0
+      }
+    ],
+    "file_api_calls": 0,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 21804,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 3737,
+          "prompt_tokens": 10635,
+          "total_tokens": 14372,
+          "completion_tokens_details": {
+            "reasoning_tokens": 3454
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 10240
+          },
+          "prompt_cache_hit_tokens": 10240,
+          "prompt_cache_miss_tokens": 395
+        },
+        "raw_payload": {
+          "id": "de78831b-9895-4f11-9ed1-d558bd0a668e",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 3737,
+            "prompt_tokens": 10635,
+            "total_tokens": 14372,
+            "completion_tokens_details": {
+              "reasoning_tokens": 3454
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 10240
+            },
+            "prompt_cache_hit_tokens": 10240,
+            "prompt_cache_miss_tokens": 395
+          },
+          "created": 1793107901,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\n  \"original_text\": \"12. 若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n  \"root\": {\n    \"definitions\": [\n      \"f(x)=1/sqrt(m*x^2-6*m*x+m+8)\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"match_domain\",\n        \"object\": \"f\",\n        \"domain\": \"ℝ\",\n        \"symbol\": \"m\"\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ]\n  }\n}",
+                "reasoning_content": "我们需要从图片提取题意，不求解。需要输出 JSON 符合 schema。需要仔细看题面。\n\n图片文字：12. 若函数 f(x)= 1 / sqrt(m x^2 - 6 m x + m + 8) 的定义域为 R，则实数 m 的取值范围是 [手写 (0,1) 划掉?] 填空横线。手写答案不算题目内容。题干明确：若函数 \\(f(x)=\\frac{1}{\\sqrt{m x^2-6 m x+m+8}}\\) 的定义域为 \\(\\mathbf{R}\\)，则实数 \\(m\\) 的取值范围是 ______。\n\n需要提取 root: definitions? 这里是具体含参函数定义，定义域为 R，求参数范围。规则：已知含参具体函数的定义域恰为题给集合、求参数范围时，保留原函数定义，目标使用 match_domain，object 函数符号，domain 题给定义域，symbol 待求参数 m。需要 root.definitions 放 f(x)=1/sqrt(m*x^2-6*m*x+m+8)。facts 空？题面定义域为 R 是目标 match_domain 里 domain。目标：{\"kind\":\"match_domain\",\"object\":\"f\",\"domain\":\"ℝ\",\"symbol\":\"m\"}。不要解出范围。original_text 保留题号 12. 和完整题干。公开题干要去掉来源题号 12.，保留公式。public_content scopes 对应 root。statement 应是 \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\" 需要是否用 $\\mathbb{R}$ 还是 $\\mathbf{R}$? 原图定义域为 R 黑体？转录原图 \"R\" 粗体。公开公式可用 $\\mathbf{R}$ 或 $\\mathbb{R}$。原图看起来是 R 粗体。题目为中文，使用 R。original_text 可以 \"12. 若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\" 注意 $…$ 内反斜杠要 JSON 转义，输出实际 JSON 中反斜杠写 \\\\。需要确保字符串中 LaTeX 正确转义：在 JSON 中 \"$f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$\" 转义后呈现 \\(...\\)。必须只输出 JSON。root facts/definitions/goals/children? 无小问，只用 root。root.label? 题目本身有题号 12.，但 root.label 用于题面分问或图景标签，比如（1）。这里题号来源。是否应把 \"12.\" 放 root.label? 题号是来源，通常不放 root.label? schema root.label 存在时，用 root_label_role 区分。但 root.label 应该题面分问或图景标签，如（1）。原文题号 12. 是来源题号，不属于题意。我们可以把 original_text 保留 12.，root.label 省略，public_content 不需要 root_label_role? 若 root.label 不存在，root_label_role 可省略？ required public_content fields: completeness, privacy, figure, scopes; root_label_role optional. 所以 root 不放 label。公开内容 statement 去掉题号。\n\n需要 public_content.completeness: complete? 题目完整，有一个填空，没有截断。 complete. privacy: 图片中有手写答案和划掉，但公开字段排除手写；题目正文与手写答案、来源题号已分离？我们 original_text 保留题号，但 public_content 去掉题号；手写答案没有放入公开。可以 separated？ 需要声明 separated 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离。题号是来源，可以明确分离；手写作答也已分离（未转录）。所以 separated。figure: not_required，无需图形。scopes 一个 root 节点。statement 中不能包含来源题号 12.，不能包含手写答案。填空横线保留。choices 每个 goals 项都要在 choices 中恰好出现一次。目标一个，无选项，所以 choices:[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]。但 public_content.scopes 数组中的 choices 是为目标服务的，target_ref 必须指向目标。即使没有选项，也必须有 status none etc。是的每个 goals 项都在对应作用域 choices 中恰好出现一次。根 scope 有 goals 1，因此 choices 1。\n\nroot.definitions: 只能放函数定义原文。用受控数学字符串，数学式不写 $ 和反斜杠，仍用目录 Unicode 记法？ 规则：root 中使用 math_expression_catalog 的受控数学字符串；output defs/facts strings。公式中根号可以 sqrt()，乘法显式 *。定义：f(x)=1/sqrt(m*x^2-6*m*x+m+8)。注意原题是 m x^2 - 6 m x + m + 8，m 与 x 相乘需要 *，写 m*x^2-6*m*x+m+8。根号下整个多项式：sqrt(m*x^2 - 6*m*x + m + 8)。函数定义整个：f(x)=1/sqrt(m*x^2-6*m*x+m+8)。是否分母是根式，写除法 1/sqrt(...) 可以。定义里没有因定义域 R 补充条件。facts: 定义域为 R 信息放到目标 match_domain 的 domain，不放 facts。goals: match_domain object f, domain ℝ, symbol m。注意 domain 用 \"ℝ\" Unicode。可以。\n\noriginal_text 是否要精确转录图片完整题干。图片文字：“12. 若函数f(x)= 1/√(m x^2-6mx+m+8) 的定义域为 R，则实数 m 的取值范围是 [手写答案] .” 手写答案不是题目内容，但原题有填空横线，手写覆盖？ 填空处照印刷原样写横线。我们应原题转录为 \"12. 若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\" 这个可以。需要注意 \"m x^2\" 在 LaTeX 可以是 `mx^2`? 最好 \"m x^2\" 有空格会被忽略，意义是 m*x^2。原图 \"m x^2-6mx+m+8\" 第一个 m 和 x^2 有间距，后 6mx 无。转录可保留。但 JSON 反斜杠要双写。需要最终 JSON 字符串中包含一次反斜杠字符，所以写 `\\\\frac`。同时在 original_text 中 `$...$` 内反斜杠必须写成 `\\\\`。JSON 输出中每个反斜杠本身需要转义，因此实际文本中会呈现两个反斜杠? 我们按常规：在 JSON 值中写 `\\\\frac` 会产生字符串 `\\frac`。这正符合。不要输出 Markdown 代码块，只 JSON object。\n\npublic_content.statement 里面也要 LaTeX $…$，同样转义。使用 `$f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$`。其中 `\\mathbf{R}` 也要 `\\\\mathbf{R}`。 注意 \"定义域为 R\" 用 `$\\\\mathbf{R}$`。目标 domain 在 root 中不写 $ 和反斜杠，写 \"ℝ\"。\n\noriginal_text 可以保留题号 \"12. \"，public_content 去除题号。要保留开闭端点和不等号严格性？这里没有范围条件。填空横线。手写答案不可转录，即使可以辨认 (0,1) 也不转录。uncertainties? 图片清晰，没有不确定？手写答案不算。没有图。可省略 uncertainties 或空。root 可选 uncertainties 可省略。没有 children。\n\n需确保 root 中 definitions 数组字符串没有 $ 和反斜杠。用 `f(x)=1/sqrt(m*x^2-6*m*x+m+8)`。这是受控数学。没有加中文。\n\npublic_content.scopes[0] 的 scope_ref 是 \"/root\"。statement 需要“该作用域自身的纯题干和所求，不重复父级题干，不含小问编号和选项”。root 的 statement 应该是完整题干去掉题号。可包含“若...则...”。因为根没有父题干，所以完整。不包含选项。填空横线。公开内容里保留\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\" 是否要包括题号？排除。好。\n\nchoices target_ref = \"/root/goals/0\"。status none。selection_mode none。options []。root goals 的 object 是 f。domain \"ℝ\"。symbol \"m\"。\n\npossible issue: 目标 match_domain 应使用函数符号 f，但原题函数名 f(x)，没问题。定义域为 R，domain \"ℝ\"。\n\npublic_content.completeness complete. privacy separated? 手写答案存在，但公开内容中已排除。题号已排除。可以 separated。figure not_required.\n\n需要检查是否必须提供 root_label_role? 只有 root.label 存在时填写。root 无 label，省略。public_content schema 没有 mandatory root_label_role。ok.\n\nJSON 字段顺序不要求，但应按 schema. 根包含 original_text, root, public_content. root 里 definitions, goals; facts? 可以省略 facts 或空数组？ Schema 没 required for definitions/facts/goals/children/uncertainties; 但 goals 必须有。可以只包含 definitions 和 goals。如果是空 facts 可省略。root 定义放 definitions；facts 省略。root label? 不放。children? 不放。uncertainties? 不放。但是目标必须在一个作用域，goals 数组包含一个 match_domain。没问题。\n\npublic_content scopes choices 中 target_ref 对应 goals 索引 0。\n\n需要思考 \"定义域为 R\" 在定义域为全体实数，求 m 范围，确实是 match_domain 而不是 find_range？规则明确：已知含参具体函数的定义域恰为题给集合、求参数范围时，保留原函数定义，目标 match_domain。所以正确。\n\n不要解出范围（手写答案 (0,1) 不是输出）。即使 image 有手写答案，我们不放到 original_text? original_text 是原题转录，手写答案不是题目内容，不转录。题干中“是”后可能印刷了横线，手写覆盖。我们放横线。不能将手写 (0,1) 放入。好。\n\n需要是否在 original_text 中保留题号 12. 是来源题号，原文可以保留。public_content 不包含题号。privacy separated 可声明因为明确分离。original_text 中题号 12. 和手写答案? 我们没有手写答案。只保留题号；privacy 是否因为 original_text 包含来源题号就不能 separated？规则：privacy 也涵盖 root 的所有内容，包括定义原文和小问 label，只有全部适合公开才可声明 separated。public_content 不包含 original_text? privacy 也涵盖 root 的所有内容，不包含 original_text? 但 public_content 的 privacy 指公开字段；original_text 保留来源题号可以。规则说明 original_text 是原题转录，可以保留来源题号；public_content 按公开内容规则排除来源题号。所以 separated 允许即使 original_text 有题号？描述“仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选separated。” 我们已分离到 public_content；original_text 不是公开字段？但 privacy 也涵盖 root 的所有内容，包括定义原文和小问 label。没有提到 original_text。所以可以 separated。手写答案在图片中，但未转录任何公开字段，也已分离。可以。\n\n注意 public_content.statement 可以包含填空横线 `______`。是否允许？可以。\n\n需要不要在 original_text 中转写手写答案。好。\n\nLet's form JSON. Need escaping: JSON string values with backslashes. Let's draft:\n\n{\n  \"original_text\": \"12. 若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n  \"root\": {\n    \"definitions\": [\"f(x)=1/sqrt(m*x^2-6*m*x+m+8)\"],\n    \"goals\": [\n      {\"kind\": \"match_domain\", \"object\": \"f\", \"domain\": \"ℝ\", \"symbol\": \"m\"}\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n        \"choices\": [\n          {\"target_ref\": \"/root/goals/0\", \"status\": \"none\", \"selection_mode\": \"none\", \"options\": []}\n        ]\n      }\n    ]\n  }\n}\n\n需要检查 original_text formula: 原图中根号下 `mx^2 - 6mx + m + 8`，我写成 m x^2-6mx+m+8；是否 `-6mx` 中 6mx 可能 x 与 m 乘积；没问题。public statement 中写 `m x^2-6 m x+m+8` (spaces) okay.\n\n需要确保 public_content statement 中使用 `\\\\mathbf{R}` 输出为 $\\mathbf{R}$。 原图是 \\mathbf{R}? 可视粗体。中文题干 \"R\" 黑体。好。\n\nroot definitions: 规则函数定义使用稳定符号及受控数学式，不拼接中文说明。f(x)=1/sqrt(m*x^2-6*m*x+m+8)。这是未化简原解析式。注意原题中分母为√(m x^2 -6mx + m+8)，1/√...。好。\n\n是否需要 facts 中写入 \"m∈ℝ\"? 没有明确，题目求实数m范围，不必。参数 m 默认实数。不添加。定义域 R 信息已经在目标。\n\n是否存在 \"函数 f(x)=... 的定义域为 R\" 需要 match_domain domain \"ℝ\" 而不是 \"R\"。目录允许 ℝ。目标 domain 是题给定义域。可以。\n\nNeed complete. Yes.\n\nCould \"实数 m 的取值范围是 ______\" 目标 find_range? 但规则明确 match_domain. Good.\n\nPotential issue: \"若函数...的定义域为R，则实数m的取值范围是\" 这里其实是先给定义域条件，求参数范围，match_domain 目标正是。好。\n\nPotential issue: public_content.scopes must correspond to root preorder all scopes. Only root. choices target_ref for each goal exactly once. yes.\n\nNeed output only JSON. Use no markdown. Ensure JSON valid. final.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 21810
+  },
+  "raw_payload": {
+    "id": "de78831b-9895-4f11-9ed1-d558bd0a668e",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\n  \"original_text\": \"12. 若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n  \"root\": {\n    \"definitions\": [\n      \"f(x)=1/sqrt(m*x^2-6*m*x+m+8)\"\n    ],\n    \"goals\": [\n      {\n        \"kind\": \"match_domain\",\n        \"object\": \"f\",\n        \"domain\": \"ℝ\",\n        \"symbol\": \"m\"\n      }\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n        \"choices\": [\n          {\n            \"target_ref\": \"/root/goals/0\",\n            \"status\": \"none\",\n            \"selection_mode\": \"none\",\n            \"options\": []\n          }\n        ]\n      }\n    ]\n  }\n}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "我们需要从图片提取题意，不求解。需要输出 JSON 符合 schema。需要仔细看题面。\n\n图片文字：12. 若函数 f(x)= 1 / sqrt(m x^2 - 6 m x + m + 8) 的定义域为 R，则实数 m 的取值范围是 [手写 (0,1) 划掉?] 填空横线。手写答案不算题目内容。题干明确：若函数 \\(f(x)=\\frac{1}{\\sqrt{m x^2-6 m x+m+8}}\\) 的定义域为 \\(\\mathbf{R}\\)，则实数 \\(m\\) 的取值范围是 ______。\n\n需要提取 root: definitions? 这里是具体含参函数定义，定义域为 R，求参数范围。规则：已知含参具体函数的定义域恰为题给集合、求参数范围时，保留原函数定义，目标使用 match_domain，object 函数符号，domain 题给定义域，symbol 待求参数 m。需要 root.definitions 放 f(x)=1/sqrt(m*x^2-6*m*x+m+8)。facts 空？题面定义域为 R 是目标 match_domain 里 domain。目标：{\"kind\":\"match_domain\",\"object\":\"f\",\"domain\":\"ℝ\",\"symbol\":\"m\"}。不要解出范围。original_text 保留题号 12. 和完整题干。公开题干要去掉来源题号 12.，保留公式。public_content scopes 对应 root。statement 应是 \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\" 需要是否用 $\\mathbb{R}$ 还是 $\\mathbf{R}$? 原图定义域为 R 黑体？转录原图 \"R\" 粗体。公开公式可用 $\\mathbf{R}$ 或 $\\mathbb{R}$。原图看起来是 R 粗体。题目为中文，使用 R。original_text 可以 \"12. 若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\" 注意 $…$ 内反斜杠要 JSON 转义，输出实际 JSON 中反斜杠写 \\\\。需要确保字符串中 LaTeX 正确转义：在 JSON 中 \"$f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$\" 转义后呈现 \\(...\\)。必须只输出 JSON。root facts/definitions/goals/children? 无小问，只用 root。root.label? 题目本身有题号 12.，但 root.label 用于题面分问或图景标签，比如（1）。这里题号来源。是否应把 \"12.\" 放 root.label? 题号是来源，通常不放 root.label? schema root.label 存在时，用 root_label_role 区分。但 root.label 应该题面分问或图景标签，如（1）。原文题号 12. 是来源题号，不属于题意。我们可以把 original_text 保留 12.，root.label 省略，public_content 不需要 root_label_role? 若 root.label 不存在，root_label_role 可省略？ required public_content fields: completeness, privacy, figure, scopes; root_label_role optional. 所以 root 不放 label。公开内容 statement 去掉题号。\n\n需要 public_content.completeness: complete? 题目完整，有一个填空，没有截断。 complete. privacy: 图片中有手写答案和划掉，但公开字段排除手写；题目正文与手写答案、来源题号已分离？我们 original_text 保留题号，但 public_content 去掉题号；手写答案没有放入公开。可以 separated？ 需要声明 separated 仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离。题号是来源，可以明确分离；手写作答也已分离（未转录）。所以 separated。figure: not_required，无需图形。scopes 一个 root 节点。statement 中不能包含来源题号 12.，不能包含手写答案。填空横线保留。choices 每个 goals 项都要在 choices 中恰好出现一次。目标一个，无选项，所以 choices:[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]。但 public_content.scopes 数组中的 choices 是为目标服务的，target_ref 必须指向目标。即使没有选项，也必须有 status none etc。是的每个 goals 项都在对应作用域 choices 中恰好出现一次。根 scope 有 goals 1，因此 choices 1。\n\nroot.definitions: 只能放函数定义原文。用受控数学字符串，数学式不写 $ 和反斜杠，仍用目录 Unicode 记法？ 规则：root 中使用 math_expression_catalog 的受控数学字符串；output defs/facts strings。公式中根号可以 sqrt()，乘法显式 *。定义：f(x)=1/sqrt(m*x^2-6*m*x+m+8)。注意原题是 m x^2 - 6 m x + m + 8，m 与 x 相乘需要 *，写 m*x^2-6*m*x+m+8。根号下整个多项式：sqrt(m*x^2 - 6*m*x + m + 8)。函数定义整个：f(x)=1/sqrt(m*x^2-6*m*x+m+8)。是否分母是根式，写除法 1/sqrt(...) 可以。定义里没有因定义域 R 补充条件。facts: 定义域为 R 信息放到目标 match_domain 的 domain，不放 facts。goals: match_domain object f, domain ℝ, symbol m。注意 domain 用 \"ℝ\" Unicode。可以。\n\noriginal_text 是否要精确转录图片完整题干。图片文字：“12. 若函数f(x)= 1/√(m x^2-6mx+m+8) 的定义域为 R，则实数 m 的取值范围是 [手写答案] .” 手写答案不是题目内容，但原题有填空横线，手写覆盖？ 填空处照印刷原样写横线。我们应原题转录为 \"12. 若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\" 这个可以。需要注意 \"m x^2\" 在 LaTeX 可以是 `mx^2`? 最好 \"m x^2\" 有空格会被忽略，意义是 m*x^2。原图 \"m x^2-6mx+m+8\" 第一个 m 和 x^2 有间距，后 6mx 无。转录可保留。但 JSON 反斜杠要双写。需要最终 JSON 字符串中包含一次反斜杠字符，所以写 `\\\\frac`。同时在 original_text 中 `$...$` 内反斜杠必须写成 `\\\\`。JSON 输出中每个反斜杠本身需要转义，因此实际文本中会呈现两个反斜杠? 我们按常规：在 JSON 值中写 `\\\\frac` 会产生字符串 `\\frac`。这正符合。不要输出 Markdown 代码块，只 JSON object。\n\npublic_content.statement 里面也要 LaTeX $…$，同样转义。使用 `$f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$`。其中 `\\mathbf{R}` 也要 `\\\\mathbf{R}`。 注意 \"定义域为 R\" 用 `$\\\\mathbf{R}$`。目标 domain 在 root 中不写 $ 和反斜杠，写 \"ℝ\"。\n\noriginal_text 可以保留题号 \"12. \"，public_content 去除题号。要保留开闭端点和不等号严格性？这里没有范围条件。填空横线。手写答案不可转录，即使可以辨认 (0,1) 也不转录。uncertainties? 图片清晰，没有不确定？手写答案不算。没有图。可省略 uncertainties 或空。root 可选 uncertainties 可省略。没有 children。\n\n需确保 root 中 definitions 数组字符串没有 $ 和反斜杠。用 `f(x)=1/sqrt(m*x^2-6*m*x+m+8)`。这是受控数学。没有加中文。\n\npublic_content.scopes[0] 的 scope_ref 是 \"/root\"。statement 需要“该作用域自身的纯题干和所求，不重复父级题干，不含小问编号和选项”。root 的 statement 应该是完整题干去掉题号。可包含“若...则...”。因为根没有父题干，所以完整。不包含选项。填空横线。公开内容里保留\"函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\" 是否要包括题号？排除。好。\n\nchoices target_ref = \"/root/goals/0\"。status none。selection_mode none。options []。root goals 的 object 是 f。domain \"ℝ\"。symbol \"m\"。\n\npossible issue: 目标 match_domain 应使用函数符号 f，但原题函数名 f(x)，没问题。定义域为 R，domain \"ℝ\"。\n\npublic_content.completeness complete. privacy separated? 手写答案存在，但公开内容中已排除。题号已排除。可以 separated。figure not_required.\n\n需要检查是否必须提供 root_label_role? 只有 root.label 存在时填写。root 无 label，省略。public_content schema 没有 mandatory root_label_role。ok.\n\nJSON 字段顺序不要求，但应按 schema. 根包含 original_text, root, public_content. root 里 definitions, goals; facts? 可以省略 facts 或空数组？ Schema 没 required for definitions/facts/goals/children/uncertainties; 但 goals 必须有。可以只包含 definitions 和 goals。如果是空 facts 可省略。root 定义放 definitions；facts 省略。root label? 不放。children? 不放。uncertainties? 不放。但是目标必须在一个作用域，goals 数组包含一个 match_domain。没问题。\n\npublic_content scopes choices 中 target_ref 对应 goals 索引 0。\n\n需要思考 \"定义域为 R\" 在定义域为全体实数，求 m 范围，确实是 match_domain 而不是 find_range？规则明确：已知含参具体函数的定义域恰为题给集合、求参数范围时，保留原函数定义，目标 match_domain。所以正确。\n\n不要解出范围（手写答案 (0,1) 不是输出）。即使 image 有手写答案，我们不放到 original_text? original_text 是原题转录，手写答案不是题目内容，不转录。题干中“是”后可能印刷了横线，手写覆盖。我们放横线。不能将手写 (0,1) 放入。好。\n\n需要是否在 original_text 中保留题号 12. 是来源题号，原文可以保留。public_content 不包含题号。privacy separated 可声明因为明确分离。original_text 中题号 12. 和手写答案? 我们没有手写答案。只保留题号；privacy 是否因为 original_text 包含来源题号就不能 separated？规则：privacy 也涵盖 root 的所有内容，包括定义原文和小问 label，只有全部适合公开才可声明 separated。public_content 不包含 original_text? privacy 也涵盖 root 的所有内容，不包含 original_text? 但 public_content 的 privacy 指公开字段；original_text 保留来源题号可以。规则说明 original_text 是原题转录，可以保留来源题号；public_content 按公开内容规则排除来源题号。所以 separated 允许即使 original_text 有题号？描述“仅当题目正文与姓名、班级、手机号、批注、作答、来源、题号及指令性非题目文字已明确分离时选separated。” 我们已分离到 public_content；original_text 不是公开字段？但 privacy 也涵盖 root 的所有内容，包括定义原文和小问 label。没有提到 original_text。所以可以 separated。手写答案在图片中，但未转录任何公开字段，也已分离。可以。\n\n注意 public_content.statement 可以包含填空横线 `______`。是否允许？可以。\n\n需要不要在 original_text 中转写手写答案。好。\n\nLet's form JSON. Need escaping: JSON string values with backslashes. Let's draft:\n\n{\n  \"original_text\": \"12. 若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n  \"root\": {\n    \"definitions\": [\"f(x)=1/sqrt(m*x^2-6*m*x+m+8)\"],\n    \"goals\": [\n      {\"kind\": \"match_domain\", \"object\": \"f\", \"domain\": \"ℝ\", \"symbol\": \"m\"}\n    ]\n  },\n  \"public_content\": {\n    \"completeness\": \"complete\",\n    \"privacy\": \"separated\",\n    \"figure\": \"not_required\",\n    \"scopes\": [\n      {\n        \"scope_ref\": \"/root\",\n        \"statement\": \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{m x^2-6 m x+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是 ______。\",\n        \"choices\": [\n          {\"target_ref\": \"/root/goals/0\", \"status\": \"none\", \"selection_mode\": \"none\", \"options\": []}\n        ]\n      }\n    ]\n  }\n}\n\n需要检查 original_text formula: 原图中根号下 `mx^2 - 6mx + m + 8`，我写成 m x^2-6mx+m+8；是否 `-6mx` 中 6mx 可能 x 与 m 乘积；没问题。public statement 中写 `m x^2-6 m x+m+8` (spaces) okay.\n\n需要确保 public_content statement 中使用 `\\\\mathbf{R}` 输出为 $\\mathbf{R}$。 原图是 \\mathbf{R}? 可视粗体。中文题干 \"R\" 黑体。好。\n\nroot definitions: 规则函数定义使用稳定符号及受控数学式，不拼接中文说明。f(x)=1/sqrt(m*x^2-6*m*x+m+8)。这是未化简原解析式。注意原题中分母为√(m x^2 -6mx + m+8)，1/√...。好。\n\n是否需要 facts 中写入 \"m∈ℝ\"? 没有明确，题目求实数m范围，不必。参数 m 默认实数。不添加。定义域 R 信息已经在目标。\n\n是否存在 \"函数 f(x)=... 的定义域为 R\" 需要 match_domain domain \"ℝ\" 而不是 \"R\"。目录允许 ℝ。目标 domain 是题给定义域。可以。\n\nNeed complete. Yes.\n\nCould \"实数 m 的取值范围是 ______\" 目标 find_range? 但规则明确 match_domain. Good.\n\nPotential issue: \"若函数...的定义域为R，则实数m的取值范围是\" 这里其实是先给定义域条件，求参数范围，match_domain 目标正是。好。\n\nPotential issue: public_content.scopes must correspond to root preorder all scopes. Only root. choices target_ref for each goal exactly once. yes.\n\nNeed output only JSON. Use no markdown. Ensure JSON valid. final."
+        }
+      }
+    ],
+    "created": 1793107901,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "bc19ba97cbe016479903222bb1578db6",
+    "usage": {
+      "completion_tokens": 3737,
+      "prompt_tokens": 10635,
+      "total_tokens": 14372,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 3454,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 10240
+      },
+      "prompt_cache_hit_tokens": 10240,
+      "prompt_cache_miss_tokens": 395
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 21.813
+}

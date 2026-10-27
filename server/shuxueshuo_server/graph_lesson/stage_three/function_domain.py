@@ -12,6 +12,7 @@ from sympy.polys.polyerrors import BasePolynomialError
 
 from ...problem_understanding.notation_parser import NotationError
 from ...problem_understanding.notation_semantics import bounded_expand
+from ..domain_expression import expression
 from ..stage_one.function_domain import (
     ARGUMENT,
     MAX_RADICAND_DEGREE,
@@ -54,33 +55,6 @@ def _poly_roots(ast, max_degree=MAX_RADICAND_DEGREE):
     return roots
 
 
-def expression(ast, variable, symbols=None):
-    symbols = symbols or {}
-    if ast == ARGUMENT:
-        return variable
-    kind = ast[0]
-    if kind == "number":
-        return sp.Rational(ast[1])
-    if kind == "infinity":
-        return sp.oo
-    if kind == "ref":
-        if ast[1] in symbols:
-            return symbols[ast[1]]
-        return sp.Symbol(ast[1].rsplit(":", 1)[-1], real=True)
-    if kind == "neg":
-        return -expression(ast[1], variable, symbols)
-    if kind == "call" and ast[1] == "sqrt":
-        return sp.Pow(expression(ast[2], variable, symbols), sp.Rational(1, 2), evaluate=False)
-    left, right = (expression(a, variable, symbols) for a in ast[1:])
-    return {
-        "+": lambda: left + right,
-        "-": lambda: left - right,
-        "*": lambda: left * right,
-        "/": lambda: left / right,
-        "^": lambda: sp.Pow(left, right, evaluate=False),
-    }[kind]()
-
-
 def input_set(description):
     ast = description["input_domain_ast"]
     if ast == ["real"]:
@@ -121,7 +95,7 @@ def admitted(context):
 
 
 def admitted_parameter(context):
-    """Admit first-batch match_domain goals (Dom(f)=R, single parametric radicand)."""
+    """Recheck the original M6 source family and its prescribed input domain."""
     value = context.get("domain_goal", {})
     goal = context.get("goal", {})
     goal_ast = context.get("goal_ast", {})
@@ -129,7 +103,7 @@ def admitted_parameter(context):
         return False
     if value.get("task") != "match_domain":
         return False
-    if goal_ast.get("domain", ["real"]) != ["real"] or value.get("prescribed_domain_ast") != ["real"]:
+    if goal_ast.get("domain", ["real"]) != value.get("prescribed_domain_ast"):
         return False
     parameter = goal_ast.get("parameter")
     if not parameter or parameter[0] != "ref" or value.get("parameter_ref") != parameter[1]:
@@ -144,9 +118,13 @@ def admitted_parameter(context):
     if entries[0]["source_ref"] != value["source_ref"]:
         return False
     try:
-        from ..stage_one.function_domain_parameter import _inspect_parameter_radicand
+        from ..stage_one.function_domain_parameter import _inspect_parameter_structure
 
-        _inspect_parameter_radicand(value["expression_ast"], parameter[1])
+        counts = _inspect_parameter_structure(value["expression_ast"], parameter[1], value["prescribed_domain_ast"])
+        if any(value.get(key) != expected for key, expected in counts.items()):
+            return False
+        if value.get("parameter_family") != counts.get("parameter_family"):
+            return False
     except (NotationError, ValueError):
         return False
     return True
@@ -274,16 +252,16 @@ def extract_domain_parameter_conditions(context):
             }
         )
 
-    def visit(ast, path=()):
-        if ast[:2] == ["call", "sqrt"]:
-            add(ast[2], (*path, 2), "radicand_nonnegative", "square-root-expression#meaning")
-        for index, child in enumerate(ast[1:], 1):
-            if isinstance(child, list):
-                visit(child, (*path, index))
-
-    visit(description["expression_ast"])
-    if len(rows) != 1 or rows[0]["kind"] != "radicand_nonnegative":
-        raise CapabilityGap("domain.parameter_single_radicand_required")
+    body = description["expression_ast"]
+    denominator = body[0] == "/"
+    radical, path = (body[2], (2,)) if denominator else (body, ())
+    if description.get("parameter_family") == "halfline_root_ratio":
+        add(body[1][2], (1, 2), "radicand_nonnegative", "square-root-expression#meaning")
+    add(radical[2], (*path, 2), "radicand_nonnegative", "square-root-expression#meaning")
+    if denominator:
+        # Preserve the denominator itself and its source even when N is zero
+        # or shares polynomial factors with P. No simplified quotient is read.
+        add(radical, path, "denominator_nonzero", "rational-expression#meaning")
     return result(
         {
             "constraints": rows,
@@ -294,7 +272,7 @@ def extract_domain_parameter_conditions(context):
             "goal": context["goal"],
             "context": context,
         },
-        ["domain_radicand_conditions"],
+        ["domain_radicand_conditions", *(["domain_denominator_conditions"] if denominator else [])],
         [
             {
                 "kind": "original_syntax_conditions",
@@ -309,18 +287,26 @@ def extract_domain_parameter_conditions(context):
 
 
 def reduce_domain_equality_to_universal(constraints, description, variable, parameter, goal, context):
-    """Dom(f)=R and a single radicand ≥0 become ∀x∈R: poly(x) ≥ 0."""
-    from .capabilities import CapabilityGap, result
+    """Combine original root/denominator conditions before adding ∀x∈R."""
+    from .capabilities import CapabilityGap, LocalCheckFailed, result
 
     if not admitted_parameter(context):
         raise CapabilityGap("domain.parameter_structure_unsupported")
-    if description.get("prescribed_domain_ast") != ["real"]:
-        raise CapabilityGap("domain.parameter_domain_must_be_reals")
-    if len(constraints) != 1 or constraints[0]["kind"] != "radicand_nonnegative":
-        raise CapabilityGap("domain.parameter_single_radicand_required")
-    relation = constraints[0]["condition"]
-    if not isinstance(relation, sp.Rel) or relation.rel_op != ">=":
-        raise CapabilityGap("domain.parameter_relation_unsupported")
+    original = extract_domain_parameter_conditions(context)["outputs"]
+    if any(original[key] != value for key, value in (
+            ("constraints", constraints), ("description", description), ("variable", variable),
+            ("parameter", parameter), ("goal", goal))):
+        raise LocalCheckFailed("domain.parameter_source_mismatch")
+    halfline = description.get("parameter_family") == "halfline_root_ratio"
+    strict = description["expression_ast"][0] == "/" and not halfline
+    domain = input_set({**description, "input_domain_ast": description["prescribed_domain_ast"]})
+    equivalence = None
+    if halfline:
+        from .domain_halfline import domain_equivalence, source_problem
+
+        equivalence = domain_equivalence(source_problem(description, with_bound=False))
+    radicand = constraints[0]["condition"].lhs
+    relation = (sp.Gt if strict else sp.Ge)(radicand, 0, evaluate=False)
     expression_value = sp.together(relation.lhs - relation.rhs)
     return result(
         {
@@ -328,22 +314,28 @@ def reduce_domain_equality_to_universal(constraints, description, variable, para
             "expression": expression_value,
             "x": variable,
             "parameter": parameter,
-            "domain": sp.S.Reals,
+            "domain": domain,
             "quantifier": "∀",
-            "strict": False,
+            "strict": strict,
             "goal": goal,
             "constraint_context": context,
             "universal_statement": relation,
+            "borrowed_method": "method-separation" if halfline else "method-discriminant",
+            "denominator_domain": domain if halfline else None,
+            "domain_equivalence": equivalence,
         },
         ["domain_equality_to_universal"],
         [
             {
                 "kind": "domain_equality_to_universal",
                 "passed": True,
-                "prescribed_domain": "ℝ",
+                "prescribed_domain": domain if halfline else "ℝ",
                 "quantifier": "∀",
                 "relation": relation,
-            }
+                "strict": strict,
+                "condition_ids": [row["condition_id"] for row in constraints],
+            },
+            *([equivalence] if equivalence else []),
         ],
     )
 
@@ -435,7 +427,7 @@ def process_parameter_context(context, candidate_set):
     ]
 
 
-def _radicand_nonnegative_certificate(value, variable):
+def _radicand_nonnegative_certificate(value, variable, *, strict=False):
     """Decide the original real polynomial, including every degree degeneration."""
     from .verification import VerificationGap, _algebraic_sign
 
@@ -447,8 +439,8 @@ def _radicand_nonnegative_certificate(value, variable):
     discriminant = bounded_expand(b**2 - 4 * a * c)
     discriminant_sign = _algebraic_sign(discriminant)
     holds = (
-        signs[0] > 0 and discriminant_sign <= 0
-        or signs[0] == signs[1] == 0 and signs[2] >= 0
+        signs[0] > 0 and (discriminant_sign < 0 if strict else discriminant_sign <= 0)
+        or signs[0] == signs[1] == 0 and (signs[2] > 0 if strict else signs[2] >= 0)
     )
     return holds, {
         "degree": 2 if signs[0] else 1 if signs[1] else 0,
@@ -456,7 +448,9 @@ def _radicand_nonnegative_certificate(value, variable):
         "coefficient_signs": dict(zip("ABC", signs, strict=True)),
         "discriminant": math_value(discriminant),
         "discriminant_sign": discriminant_sign,
-        "criterion": "A>0 and discriminant<=0, or A=B=0 and C>=0",
+        "strict": strict,
+        "criterion": ("A>0 and discriminant<0, or A=B=0 and C>0" if strict else
+                      "A>0 and discriminant<=0, or A=B=0 and C>=0"),
     }
 
 
@@ -472,12 +466,18 @@ def _domain_parameter_problem(candidate, target_ref):
     description = inspect_match_domain_target(candidate, target_ref)
     if description["structure_supported"] is not True:
         raise VerificationGap(description["reason"] or "domain.parameter_structure_unsupported")
+    if description.get("parameter_family") == "halfline_root_ratio":
+        from .domain_halfline import source_problem
+
+        return source_problem(description)
     variable = sp.Symbol(description["variable"], real=True)
     parameter = sp.Symbol(description["parameter"], real=True)
     body = description["expression_ast"]
-    if body[:2] != ["call", "sqrt"]:
+    strict = body[0] == "/"
+    radical = body[2] if strict else body
+    if radical[:2] != ["call", "sqrt"]:
         raise VerificationGap("domain.parameter_structure_unsupported")
-    radicand = bounded_expand(expression(body[2], variable, {description["parameter_ref"]: parameter}))
+    radicand = bounded_expand(expression(radical[2], variable, {description["parameter_ref"]: parameter}))
     poly = sp.Poly(radicand, variable)
     if poly.degree() != 2:
         raise VerificationGap("domain.parameter_degree_unsupported")
@@ -485,7 +485,8 @@ def _domain_parameter_problem(candidate, target_ref):
     if any(_poly(value, parameter).degree() > 1 for value in coefficients):
         raise VerificationGap("domain.parameter_coefficients_unsupported")
     return {"description": description, "variable": variable, "parameter": parameter,
-            "radicand": radicand, "coefficients": coefficients}
+            "radicand": radicand, "coefficients": coefficients, "strict": strict,
+            "radicand_path": [2, 2] if strict else [2]}
 
 
 def _domain_parameter_critical(problem):
@@ -495,17 +496,28 @@ def _domain_parameter_critical(problem):
     sources = [(coefficient, problem["description"]["source_ref"], name)
                for coefficient, name in zip((a, b, c), ("coefficient_A", "coefficient_B", "coefficient_C"), strict=True)]
     sources.append((bounded_expand(b**2 - 4*a*c), problem["description"]["source_ref"], "discriminant"))
+    if problem.get("family") == "halfline_root_ratio":
+        from .domain_halfline import critical_expression
+
+        boundary_condition = critical_expression(problem)
+        if boundary_condition is not None:
+            sources.append((boundary_condition, problem["description"]["source_ref"], "halfline_infimum"))
     points, records = _critical_sources(sources, problem["parameter"])
     for record in records:
-        record["ast_path"] = [2]
+        record["ast_path"] = problem["radicand_path"]
     return points, records
 
 
 def _domain_parameter_at(problem, point):
+    if problem.get("family") == "halfline_root_ratio":
+        from .domain_halfline import at_parameter
+
+        return at_parameter(problem, point)
     value = bounded_expand(problem["radicand"].subs(problem["parameter"], point))
-    holds, certificate = _radicand_nonnegative_certificate(value, problem["variable"])
-    return holds, {"source_ref": problem["description"]["source_ref"], "ast_path": [2],
-                   "kind": "original_radicand_universally_nonnegative", "holds": holds,
+    holds, certificate = _radicand_nonnegative_certificate(value, problem["variable"], strict=problem["strict"])
+    return holds, {"source_ref": problem["description"]["source_ref"], "ast_path": problem["radicand_path"],
+                   "kind": ("original_denominator_radicand_universally_positive" if problem["strict"] else
+                            "original_radicand_universally_nonnegative"), "holds": holds,
                    "polynomial": math_value(value), "certificate": certificate}
 
 
@@ -578,16 +590,34 @@ def verify_domain_parameter(candidate, target_ref, constraint_context, feasible_
             "source_refs": [description["source_ref"], target_ref],
             "expression_ast": deepcopy(description["expression_ast"]),
             "prescribed_domain": "ℝ",
+            "strict": problem["strict"],
             "critical_polynomials": critical,
             "critical_points": [math_value(point) for point in points],
             "invariance": {
                 "proved": True,
-                "reason": "The signs of original A(k), B(k), C(k) and B(k)^2-4*A(k)*C(k) are constant between all their exact real roots. Every open cell and each critical point is checked using A>0 and discriminant<=0, or A=B=0 and C>=0, including affine and constant degeneration.",
+                "reason": ("The signs of original A(k), B(k), C(k) and B(k)^2-4*A(k)*C(k) are constant between all their exact real roots. Every open cell and each critical point is checked using "
+                           + ("A>0 and discriminant<0, or A=B=0 and C>0" if problem["strict"] else
+                              "A>0 and discriminant<=0, or A=B=0 and C>=0")
+                           + ", including affine and constant degeneration. Strict positivity is required when the original square root is a denominator, regardless of its numerator."),
             },
             "cells": cells,
             "reconstructed_set": math_value(reconstructed),
             "candidate_set": math_value(feasible_set),
         }
+        if problem.get("family") == "halfline_root_ratio":
+            from .domain_halfline import source_certificate
+
+            result["proof"].update(
+                category="original-domain-parameter-halfline-offset-partition/v1",
+                prescribed_domain=math_value(problem["domain"]),
+                domain_equivalence=source_certificate(problem),
+                invariance={"proved": True, "reason": (
+                    "The original denominator is defined and nonzero exactly on the prescribed halfline. "
+                    "The original numerator is a fixed quadratic, affine or constant polynomial plus d*m. "
+                    "Its infimum follows from the leading coefficient, tail direction, and exact vertex position; "
+                    "its sign is constant between the exact parameter roots. All open cells and roots are checked."
+                )},
+            )
         mismatch = _set_mismatch(reconstructed, feasible_set)
         if mismatch is None:
             result["status"] = "verified"

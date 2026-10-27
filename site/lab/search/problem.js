@@ -602,7 +602,12 @@ function markPartTabs() {
 function noteHtml(goal) {
   const which = goals().length > 1 ? '这一问' : '这道题';
   if (goal?.status === 'unsupported') return `<section class="pq-part" data-state="unsupported"><p class="pq-part-note">${which}暂不支持，可以换一道题。</p></section>`;
-  return `<section class="pq-part" data-state="failed"><p class="pq-part-note">${which}没判断出题型</p>
+  const message = goal?.status === 'resolved' && goal.primary
+    ? `${which}的学习页面生成失败，请重试。`
+    : goal?.status === 'selection_failed' && !goal.primary
+      ? `${which}没判断出题型，请重试。`
+      : `暂时无法获取${which}的解题步骤，请重试。`;
+  return `<section class="pq-part" data-state="failed"><p class="pq-part-note">${message}</p>
     <div class="pq-fail-actions"><button type="button" class="sq-primary" data-lesson-retry>重试</button><a class="sq-ghost" href="./">重新拍照</a></div></section>`;
 }
 
@@ -704,19 +709,6 @@ function loadPracticeStyles() {
   return loaded.then(() => link);
 }
 
-const GRAPH_FOLDED_KEY = 'search-walk:graph-folded';
-
-function graphFolded() {
-  try { return localStorage.getItem(GRAPH_FOLDED_KEY) === '1'; } catch { return false; }
-}
-
-function foldGraph(folded) {
-  document.body.toggleAttribute('data-graph-folded', folded);
-  const button = $('#pq-graph-toggle');
-  button.textContent = folded ? '展开图谱' : '收起图谱';
-  button.setAttribute('aria-expanded', String(!folded));
-}
-
 async function enterWalk(actor) {
   const ticket = liveTicket;
   if (privateStopped) return;
@@ -741,7 +733,6 @@ async function enterWalk(actor) {
     $('#main').hidden = true;
     $('#gw-main').hidden = false;
     $('#gw-ready').hidden = false;
-    foldGraph(graphFolded());
     window.scrollTo(0, 0);
   };
   if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1115,11 +1106,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (button) enterWalk(button.dataset.actor);
   });
   $('#pq-stream-action').addEventListener('click', continueCalculation);
-  $('#pq-graph-toggle').addEventListener('click', () => {
-    const folded = !document.body.hasAttribute('data-graph-folded');
-    foldGraph(folded);
-    try { localStorage.setItem(GRAPH_FOLDED_KEY, folded ? '1' : '0'); } catch {}
-  });
   document.addEventListener('click', event => {
     if (event.target.closest('[data-retry]')) retry();
     if (event.target.closest('[data-lesson-retry]')) retryLesson();

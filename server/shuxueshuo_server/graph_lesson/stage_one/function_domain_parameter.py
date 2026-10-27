@@ -1,15 +1,22 @@
-"""Structural admission for match_domain: Dom(f)=R, single parametric quadratic radicand.
+"""Structural admission for Dom(f)=R with sqrt(P) or N/sqrt(P).
 
-First batch contract: domain-parameter-reals-quadratic/v1.
+P is quadratic with affine parameter coefficients; N is a bounded polynomial.
 """
 
 from copy import deepcopy
 from fractions import Fraction
 
+import sympy as sp
+
 from ...problem_understanding.notation_parser import NotationError, definition
+from ...problem_understanding.notation_semantics import bounded_expand
+from ..domain_expression import expression
 from .function_domain import (
     ARGUMENT,
+    MAX_INTEGER_EXPONENT,
+    MAX_NESTED_POWER,
     MAX_RADICAND_DEGREE,
+    _affine,
     _coefficient_budget,
     _input_domain,
     expression_latex,
@@ -17,6 +24,7 @@ from .function_domain import (
 )
 
 VERSION = "domain-parameter-reals-quadratic/v1"
+HALFLINE_VERSION = "domain-parameter-halfline-root-ratio/v1"
 
 
 def _zero():
@@ -116,11 +124,89 @@ def _param_affine(ast, parameter_ref, depth=0):
     raise NotationError("domain.parameter_structure_unsupported")
 
 
+def _numerator_poly(ast, parameter_ref, depth=0, power_weight=1, budget=None):
+    """Bounded, everywhere-defined polynomial in the argument and parameter.
+
+    Inspect original syntax before any cancellation: 0/x and x^0 are not
+    everywhere-defined numerators. Monomial degrees and exact coefficients use
+    the same power and coefficient budgets as ordinary domain admission.
+    """
+    budget = {"nodes": 0, "has_zero_power": False} if budget is None else budget
+    budget["nodes"] += 1
+    if depth > 24 or budget["nodes"] > 256:
+        raise NotationError("domain.structure_limit")
+
+    def visit(child, weight=power_weight):
+        return _numerator_poly(child, parameter_ref, depth + 1, weight, budget)
+
+    if ast == ARGUMENT:
+        return {(1, 0): Fraction(1)}
+    if ast[:2] == ["ref", parameter_ref] and ast[2] == "scalar":
+        return {(0, 1): Fraction(1)}
+    if ast[0] == "number":
+        value = Fraction(ast[1])
+        _coefficient_budget(value)
+        return {(0, 0): value} if value else {}
+    if ast[0] == "neg":
+        return {key: -value for key, value in visit(ast[1]).items()}
+
+    def combine(left, right, multiply=False):
+        result = {} if multiply else dict(left)
+        for key, value in right.items():
+            terms = left.items() if multiply else [((0, 0), Fraction(1))]
+            for other, factor in terms:
+                target = (key[0] + other[0], key[1] + other[1])
+                if sum(target) > MAX_NESTED_POWER:
+                    raise NotationError("domain.structure_limit")
+                combined = result.get(target, Fraction(0)) + value * factor
+                _coefficient_budget(combined)
+                if combined:
+                    result[target] = combined
+                else:
+                    result.pop(target, None)
+        return result
+
+    if ast[0] == "^" and ast[2][0] == "number":
+        exponent = Fraction(ast[2][1])
+        if exponent.denominator != 1 or not 0 <= exponent <= MAX_INTEGER_EXPONENT:
+            raise NotationError("domain.parameter_numerator_unsupported")
+        weight = power_weight * max(1, int(exponent))
+        if weight > MAX_NESTED_POWER:
+            raise NotationError("domain.nested_power_limit")
+        base = visit(ast[1], weight)
+        if exponent == 0 and (set(base) != {(0, 0)} or not base[(0, 0)]):
+            raise NotationError("domain.parameter_numerator_unsupported")
+        budget["has_zero_power"] |= exponent == 0
+        result = {(0, 0): Fraction(1)}
+        for _ in range(int(exponent)):
+            result = combine(result, base, multiply=True)
+        return result
+    if ast[0] in ("+", "-", "*", "/"):
+        left = visit(ast[1])
+        right = visit(ast[2])
+        if ast[0] == "/":
+            if set(right) != {(0, 0)} or not right[(0, 0)]:
+                raise NotationError("domain.parameter_numerator_unsupported")
+            result = {key: value / right[(0, 0)] for key, value in left.items()}
+            for value in result.values():
+                _coefficient_budget(value)
+            return result
+        if ast[0] == "-":
+            right = {key: -value for key, value in right.items()}
+        return combine(left, right, multiply=ast[0] == "*")
+    raise NotationError("domain.parameter_numerator_unsupported")
+
+
 def _inspect_parameter_radicand(ast, parameter_ref):
-    """Require sqrt(poly) with deg_x = 2 and coefficients affine in the parameter."""
-    if ast[:2] != ["call", "sqrt"]:
+    """Admit sqrt(P) or N/sqrt(P), with a polynomial numerator and quadratic P."""
+    denominator = ast[0] == "/"
+    numerator_budget = {"nodes": 0, "has_zero_power": False}
+    if denominator:
+        _numerator_poly(ast[1], parameter_ref, budget=numerator_budget)
+    radical = ast[2] if denominator else ast
+    if radical[:2] != ["call", "sqrt"]:
         raise NotationError("domain.parameter_structure_unsupported")
-    coeffs = _trim(_param_affine(ast[2], parameter_ref))
+    coeffs = _trim(_param_affine(radical[2], parameter_ref))
     if len(coeffs) - 1 != 2:
         raise NotationError("domain.parameter_structure_unsupported")
     if not any(p != 0 for _, p in coeffs):
@@ -130,9 +216,57 @@ def _inspect_parameter_radicand(ast, parameter_ref):
     # those cases, but does not admit a polynomial that is already linear.
     return {
         "has_radical": True,
-        "has_division": False,
-        "has_zero_power": False,
+        "has_division": denominator,
+        "has_zero_power": numerator_budget["has_zero_power"],
         "has_quadratic_condition": True,
+    }
+
+
+def _inspect_parameter_structure(ast, parameter_ref, prescribed):
+    """Two admitted M6 source families; each proves its stated domain guard."""
+    if prescribed == ["real"]:
+        return _inspect_parameter_radicand(ast, parameter_ref)
+    if (ast[0] != "/" or ast[1][:2] != ["call", "sqrt"]
+            or ast[2][:2] != ["call", "sqrt"]):
+        raise NotationError("domain.parameter_halfline_root_ratio_required")
+    slope, intercept = _affine(ast[2][2])
+    _coefficient_budget(slope)
+    _coefficient_budget(intercept)
+    if not slope:
+        raise NotationError("domain.parameter_nonconstant_affine_denominator_required")
+    boundary = -intercept / slope
+    _input_domain(prescribed)
+    if prescribed[0] != "interval" or prescribed[1:3] != [False, False]:
+        raise NotationError("domain.parameter_denominator_domain_mismatch")
+    finite, infinite = (prescribed[3], prescribed[4]) if slope > 0 else (prescribed[4], prescribed[3])
+    def infinity_sign(node):
+        if node[0] == "infinity":
+            return node[1] if len(node) > 1 else 1
+        if node[0] == "neg" and infinity_sign(node[1]) is not None:
+            return -infinity_sign(node[1])
+        return None
+
+    if infinity_sign(infinite) != (1 if slope > 0 else -1) or infinity_sign(finite) is not None:
+        raise NotationError("domain.parameter_denominator_domain_mismatch")
+    finite_slope, finite_value = _affine(finite)
+    if finite_slope or finite_value != boundary:
+        raise NotationError("domain.parameter_denominator_domain_mismatch")
+    budget = {"nodes": 0, "has_zero_power": False}
+    coefficients = _numerator_poly(ast[1][2], parameter_ref, budget=budget)
+    if (set(coefficients) - {(2, 0), (1, 0), (0, 0), (0, 1)}
+            or not coefficients.get((0, 1))):
+        raise NotationError("domain.parameter_constant_offset_required")
+    # Coefficient cancellation can hide a large expansion in the original
+    # syntax. After the structural bounds pass, apply the execution budget to
+    # the same power-preserving expression that source_problem will expand.
+    variable, parameter = sp.symbols("domain_argument domain_parameter", real=True)
+    bounded_expand(expression(ast[1][2], variable, {parameter_ref: parameter}))
+    return {
+        "has_radical": True, "has_division": True,
+        "has_zero_power": budget["has_zero_power"],
+        "has_quadratic_condition": bool(coefficients.get((2, 0))),
+        "parameter_family": "halfline_root_ratio",
+        "structure_version": HALFLINE_VERSION,
     }
 
 
@@ -191,9 +325,7 @@ def describe_match_domain_goal(report, scope, ancestors, goal_index):
         if any(r is not record for r in records):
             raise NotationError("domain.additional_conditions_unsupported")
         _input_domain(prescribed)
-        if prescribed != ["real"]:
-            raise NotationError("domain.parameter_domain_must_be_reals")
-        counts = _inspect_parameter_radicand(body, parameter[1])
+        counts = _inspect_parameter_structure(body, parameter[1], prescribed)
         value.update(structure_supported=True, **counts)
     except (NotationError, ValueError, ZeroDivisionError) as exc:
         value["reason"] = getattr(exc, "code", "domain.invalid_exact_arithmetic")

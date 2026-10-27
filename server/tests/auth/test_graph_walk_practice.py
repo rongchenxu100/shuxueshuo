@@ -81,8 +81,15 @@ def test_native_recording_grades_retries_and_restores_without_a_teacher_file():
         'interaction': {'type': 'choice', 'options': [
             {'value': 'interval'}, {'value': 'set-builder'}, {'value': 'wrong'}]},
         'expected_answer': {'one_of': ['interval', 'set-builder']}}
+    borrowed = {'id': 'borrow', 'title': '选择子方法', 'question': '选择适用的方法',
+        'interaction': {'type': 'plane', 'x': {'options': [{'value': 'real'}]},
+            'y': {'options': [{'value': 'free'}]}, 'methods': [
+                {'value': 'discriminant', 'cells': [['real', 'free']], 'route': 'direct'},
+                {'value': 'separation', 'cells': [['real', 'free']]}]},
+        'expected_answer': {'cell': ['real', 'free'], 'method': 'discriminant'},
+        'alternatives': {'separation': {'message': '适用，但尚未展开。'}}}
     contract = {'schema': graph_walk.SCHEMA, 'problemId': pid, 'bundleVersion': 'verified-v1',
-        'intro': [intro], 'routes': {'direct': {'steps': [final]}}}
+        'intro': [intro], 'routes': {'direct': {'steps': [borrowed, final]}}}
     class RollbackProbe(Exception):
         pass
     try:
@@ -95,7 +102,7 @@ def test_native_recording_grades_retries_and_restores_without_a_teacher_file():
                 {'id': pid, 'body': json.dumps({'_graph_walk': contract})})
             c.execute(text('''INSERT INTO practice_routes(problem_id,route_id,label,methods,association_hash)
                 VALUES(:id,'direct','test','["method-amgm-direct"]','test')'''), {'id': pid})
-            for index, step in enumerate([intro, final]):
+            for index, step in enumerate([intro, borrowed, final]):
                 c.execute(text('''INSERT INTO practice_steps(problem_id,route_id,step_id,title,position,refs,reason)
                     VALUES(:id,'direct',:step,:title,:position,'[]','native test')'''),
                     {'id': pid, 'step': step['id'], 'title': step['title'], 'position': index + 1})
@@ -108,6 +115,19 @@ def test_native_recording_grades_retries_and_restores_without_a_teacher_file():
             with pytest.raises(HTTPException):
                 practice.submit(db, uid, aid, uuid4(), 'intersection', {'value': 'interval'})
             practice.submit(db, uid, aid, uuid4(), 'D3', {'value': 'read'})
+            uncovered_id = uuid4()
+            for _ in range(2):
+                uncovered = practice.submit(db, uid, aid, uncovered_id, 'borrow',
+                                            {'value': ['real', 'free', 'separation']})
+            step = next(row for row in uncovered['steps'] if row['step_id'] == 'borrow')
+            assert step['wrong_count'] == 0 and step['submit_count'] == 1
+            assert step['passed'] is False and 'answer' not in step
+            assert uncovered['active_step'] == 'borrow' and uncovered['status'] == 'in_progress'
+            assert not c.scalar(text('SELECT practiced FROM student_learning_marks WHERE user_id=:u AND problem_id=:p'),
+                                {'u': uid, 'p': pid})
+            assert c.scalar(text("SELECT payload->>'result' FROM student_practice_events WHERE related_event_id=:id AND event_type='grade'"),
+                            {'id': uncovered_id}) == 'uncovered'
+            practice.submit(db, uid, aid, uuid4(), 'borrow', {'value': ['real', 'free', 'discriminant']})
             wrong = uuid4()
             for _ in range(2):
                 result = practice.submit(db, uid, aid, wrong, 'intersection', {'value': 'wrong'})

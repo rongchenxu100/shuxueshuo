@@ -457,6 +457,10 @@
         },
         "structure_version": {
           "type": "string"
+        },
+        "parameter_family": {
+          "enum": ["halfline_root_ratio"],
+          "description": "M6 半轴根式比值契约；缺省沿用全实数根式契约。"
         }
       },
       "additionalProperties": false

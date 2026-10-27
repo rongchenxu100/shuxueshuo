@@ -1,0 +1,27 @@
+{
+  "problem_id": "function-concepts-q04",
+  "source": "用户上传的《函数的概念与性质小条（5）》第4题",
+  "source_thread": "01a142d6-1e4f-7a62-aa2b-b6f799302aa4",
+  "source_message": "01a167f4-eff3-7ba3-ab80-c8e74d4a9516",
+  "original_filename": "codex-clipboard-7bee6216-ac6f-4777-8860-bdead828a374.png",
+  "recovery": "原 PNG 临时文件已失效；此页从同一上传消息保留的 input_image JPEG 字节恢复，不声称与原 PNG 编码相同。",
+  "page": {
+    "file": "source-page.jpg",
+    "size": [
+      1279,
+      1706
+    ],
+    "sha256": "7a8ddb3688995ff1a965c125d5e7c100f45e10a5c008eef3c76631341fbe9203"
+  },
+  "question": {
+    "file": "source-question.png",
+    "crop_xyxy": [
+      180,
+      590,
+      836,
+      639
+    ],
+    "sha256": "8f586de0c89c7938c1924383615083b761ce05c3ca24216430fc5e63f15d038f"
+  },
+  "processing": "仅按像素边界裁取第4题完整印刷题干，题号与右侧手写答案不进入题图。未重绘、改字或注入识别文本。"
+}

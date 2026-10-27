@@ -5,8 +5,14 @@ const assert = (value, message) => { if (!value) throw Error(message); };
 const copy = value => structuredClone(value);
 
 export function nativePracticeContract(bundle) {
-  const decision = value => Object.fromEntries(['id', 'title', 'question', 'interaction', 'expected_answer',
-    'feedback', 'route_by_answer', 'source_regions', 'stream_steps', 'condition_number_lines', 'completion_number_line', 'endpoint_checks'].filter(key => Object.hasOwn(value, key)).map(key => [key, copy(value[key])]));
+  const decision = value => {
+    const contract = Object.fromEntries(['id', 'title', 'question', 'interaction', 'expected_answer',
+      'feedback', 'route_by_answer', 'source_regions', 'stream_steps', 'condition_number_lines', 'completion_number_line', 'endpoint_checks'].filter(key => Object.hasOwn(value, key)).map(key => [key, copy(value[key])]));
+    // Keep valid unexpanded choices in the server grading contract without
+    // changing the frozen identity of courses that have no such alternatives.
+    if (Object.keys(value.alternatives || {}).length) contract.alternatives = copy(value.alternatives);
+    return contract;
+  };
   return {schema: 'graph-walk-practice/v1', problemId: bundle.problemId, bundleVersion: bundle.bundleVersion,
     intro: bundle.intro.map(decision), routes: Object.fromEntries(Object.entries(bundle.routes).map(([id, route]) =>
       [id, {method: route.method, steps: route.steps.map(decision)}]))};

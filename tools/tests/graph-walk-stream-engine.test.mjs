@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import * as stateAPI from '../../site/assets/graph-walk/walk-state.mjs';
 import * as mathDOM from '../../site/assets/graph-walk/stream-math-dom.mjs';
+import {buildStreamReplay} from '../../site/assets/graph-walk/walk-replay.mjs';
 
 const source = fs.readFileSync(new URL('../../site/assets/graph-walk/walk.mjs', import.meta.url), 'utf8');
 const components = fs.readFileSync(new URL('../../site/assets/practice/components.js', import.meta.url), 'utf8');
@@ -140,7 +141,9 @@ test('original choices wait for pending mathematical interactions before being a
 // A small DOM fixture with real parent/child ownership. The engine's authored HTML
 // stays opaque; only mathematical hosts and their completion pictures need parsing.
 function documentFixture() {
-  const roots = new Map(), document = {body: {dataset: {}, classList: {contains: () => false, toggle() {}}}};
+  const roots = new Map(), document = {body: {dataset: {}, hasAttribute(name) {
+    return name.startsWith('data-') && Object.hasOwn(this.dataset, dataKey(name.slice(5)));
+  }, classList: {contains: () => false, toggle() {}}}};
   const dataKey = name => name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
   const decode = value => value.replace(/&(quot|amp|lt|gt|#39);/g,
     (_, entity) => ({quot: '"', amp: '&', lt: '<', gt: '>', '#39': "'"})[entity]);
@@ -198,7 +201,7 @@ function documentFixture() {
 function engine(value = fixture()) {
   const {document, roots} = documentFixture(), storage = new Map();
   const context = vm.createContext({document, matchMedia: () => ({matches: true}), URL, structuredClone,
-    setTimeout, clearTimeout, ...stateAPI, ...mathDOM,
+    setTimeout, clearTimeout, ...stateAPI, ...mathDOM, buildStreamReplay,
     PracticeMath: {render(node, text) { node.textContent = text; }},
     localStorage: {getItem: key => storage.get(key), setItem: (key, text) => storage.set(key, text)}});
   context.window = context;

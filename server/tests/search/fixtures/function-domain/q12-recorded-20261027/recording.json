@@ -1,0 +1,29 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-concepts-q12/manifest.json",
+  "source_kind": "user_photograph_printed_question_crop_from_retained_upload_png",
+  "recorded_date": "2026-10-27",
+  "historical_semantic_calls": 2,
+  "historical_network_attempts": 2,
+  "accepted_attempt": ".",
+  "attempts": [
+    {
+      "path": ".",
+      "status": "reviewed_candidate",
+      "source_reviewed": true,
+      "semantic_calls": 2,
+      "network_attempts": 2,
+      "elapsed_seconds": 38.298
+    }
+  ],
+  "notes": "从原上传整页裁取第12题印刷题干，排除题号、填空横线及右侧手写答案。首次真实 extract+review 即确认通过；原始请求、响应与工作流记录按原字节保留，未人工替换模型输出。",
+  "files": {
+    "question.png": "53e8568ae622fe10c115fa283afd9ae79191a9bed0bdfc460f651c15a43844f2",
+    "result.json": "0ebe419de8ae7e65a0c15dbe0b33455e03ace1c22f77866fc7f6481caca0e96c",
+    "workflow/ledger.json": "31717c69a10746d31058494c56f738377e10a48232bea14336eaad2ee37d3ff9",
+    "workflow/calls/01-extract/request.json": "92010a572fb3a7cfd631ac168802bcccdfddc9f2c3b316688a9018f7b7104434",
+    "workflow/calls/01-extract/response.json": "2978ba4c315d028d6a9ef5bd9b444d84f9b057621fb7797d91298aab5374af50",
+    "workflow/calls/02-review/request.json": "ed1bbe7d84b5efccd6cce0987111282805a0ec64d21c1e8076c9147d1370fed2",
+    "workflow/calls/02-review/response.json": "b4a25380a0d1c0bf2be80cb81e95e7d9e826164b3db38b012bf17d3e06e408fa"
+  }
+}

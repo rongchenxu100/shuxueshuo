@@ -409,6 +409,22 @@ test('unsupported feedback states the limitation without pretending to record a 
   assert.doesNotMatch(context.noteHtml({status: 'unsupported'}), /已记下|尽快支持/);
 });
 
+for (const [name, goal, message, retry] of [
+  ['resolved type without a walk', {status: 'resolved', primary: 'type-function-domain', walk: null}, '这道题的学习页面生成失败，请重试。', true],
+  ['failed selection', {status: 'selection_failed', primary: null}, '这道题没判断出题型，请重试。', true],
+  ['unsupported type', {status: 'unsupported', primary: null}, '这道题暂不支持，可以换一道题。', false],
+  ['missing result', null, '暂时无法获取这道题的解题步骤，请重试。', true],
+  ['unknown failure', {status: 'error'}, '暂时无法获取这道题的解题步骤，请重试。', true],
+]) test(`lesson failure feedback describes the available evidence: ${name}`, () => {
+  const {context, element} = setup('problem.js');
+  context.showLesson({status: goal ? 'completed' : 'error', goals: goal ? [goal] : []});
+  const html = element('#pq-lesson').innerHTML;
+  assert.ok(html.includes(message), html);
+  assert.equal(html.includes('data-lesson-retry'), retry);
+  if (goal?.status !== 'selection_failed') assert.doesNotMatch(html, /没判断出题型/);
+  assert.equal(element('#pq-start').hidden, true);
+});
+
 test('problem meaning follows the confirmed conversion and ignores another goal or bundle version', () => {
   const {context, element} = setup('problem.js');
   vm.runInContext(`renderMath = () => {}; lesson.part = 0;

@@ -13,7 +13,8 @@ from shuxueshuo_server.product.db import engine
 
 
 @pytest.mark.parametrize("problem_id", [
-    "function-concepts-q15", "function-concepts-q01", "function-concepts-q22",
+    "function-concepts-q15", "function-concepts-q01", "function-concepts-q22-v2", "function-concepts-q04",
+    "function-concepts-q12", "function-concepts-q23b",
 ])
 def test_published_domain_course_records_each_step_and_restores(client, auth, phone, problem_id):
     settings = Settings.load("local", os.environ["PRODUCT_TEST_DATA_DIR"], os.environ["PRODUCT_TEST_INSTANCE"])

@@ -2,6 +2,7 @@
 
 import json
 import os
+import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
 from pathlib import Path
@@ -18,6 +19,7 @@ from shuxueshuo_server.learning import (
     associations,
     content,
     drills,
+    graph_walk,
     practice,
 )
 from shuxueshuo_server.learning.content import (
@@ -104,16 +106,17 @@ def test_direct_publishing_rejects_invalid_graph_before_transaction(invalid):
 
 
 def test_shared_export_has_complete_next_content(authored):
-    assert len(authored['practice_problems']) == 42
-    assert len(authored['practice_routes']) == 53
-    assert len(authored['practice_steps']) == 285
+    assert len(authored['practice_problems']) == 45
+    assert len(authored['practice_routes']) == 56
+    assert len(authored['practice_steps']) == 329
     assert len(authored['knowledge_nodes']) == 94
     assert len(authored['knowledge_drill_items']) == 177
     assert authored['_meta']['counts']['eligible_drill_nodes'] == 16
     assert len({q['item_id'] for q in authored['knowledge_drill_items']}) == 177
     assert len([q for q in authored['knowledge_drill_items'] if q['node_id'] == 'amgm-formula']) == 1
     assert len(set(validate_graph(authored['knowledge_nodes'], authored['knowledge_edges']).values())) == 9
-    domain_ids = {'function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22'}
+    domain_ids = {'function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2',
+                  'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'}
     assert {row['problem_id'] for row in authored['practice_topic_problems']
             if row['topic_id'] == 'function-concepts'} == domain_ids
     for problem_id, basis in (
@@ -128,14 +131,19 @@ def test_shared_export_has_complete_next_content(authored):
         steps = [row for row in authored['practice_steps'] if row['problem_id'] == problem_id]
         assert len(steps) == 7
         assert any(basis in step['refs'] for step in steps)
-    q22 = next(row for row in authored['practice_problems'] if row['id'] == 'function-concepts-q22')
-    contract = q22['problem_data']['_graph_walk']
-    assert list(contract['routes']) == ['domain-parameter']
-    assert len(contract['routes']['domain-parameter']['steps']) == 9
-    steps = [row for row in authored['practice_steps'] if row['problem_id'] == 'function-concepts-q22']
-    assert len(steps) == 12
-    assert any(any(ref == 'method-discriminant' or ref.startswith('method-discriminant#')
-                    for ref in step['refs']) for step in steps)
+    for problem_id in ('function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'):
+        problem = next(row for row in authored['practice_problems'] if row['id'] == problem_id)
+        contract = problem['problem_data']['_graph_walk']
+        assert list(contract['routes']) == ['domain-parameter']
+        expected_steps = {'function-concepts-q12': 15, 'function-concepts-q23b': 13}.get(problem_id, 14)
+        assert len(contract['routes']['domain-parameter']['steps']) == expected_steps - 3
+        steps = [row for row in authored['practice_steps'] if row['problem_id'] == problem_id]
+        assert len(steps) == expected_steps
+        if problem_id in ('function-concepts-q12', 'function-concepts-q23b'):
+            assert any('rational-expression#meaning' in step['refs'] for step in steps)
+        borrowed = 'method-separation' if problem_id == 'function-concepts-q23b' else 'method-discriminant'
+        assert any(any(ref == borrowed or ref.startswith(borrowed + '#') for ref in step['refs'])
+                   for step in steps)
 
 
 @pytest.mark.parametrize('change', ['missing_entry', 'missing_resource', 'unmapped_tip', 'wrong_method_kind', 'invalid_answer', 'version'])
@@ -221,6 +229,89 @@ def student(c):
     c.execute(text('INSERT INTO users(id,key,display_name) VALUES(:id,:key,:name)'),
               {'id': user, 'key': 'publish-test-' + str(user), 'name': 'Publisher test'})
     return user
+
+
+def archived_q22_release():
+    """Project the frozen previous course with the same production exporter."""
+    script = """
+import fs from 'node:fs/promises';
+import {loadSources, repoRoot} from './tools/lib/public-knowledge-sources.mjs';
+import {loadTeaching} from './tools/lib/public-knowledge-teaching.mjs';
+import {projectGraphWalkTeaching} from './tools/lib/graph-walk-practice.mjs';
+import {exportRows} from './tools/lib/public-knowledge-export.mjs';
+import {validateGraph} from './site/assets/knowledge-next/model.mjs';
+const {nodes, manifest} = await loadSources();
+const teaching = await loadTeaching(repoRoot, nodes, manifest);
+const oldId = 'function-concepts-q22', newId = 'function-concepts-q22-v2';
+const bundle = JSON.parse(await fs.readFile(`site/data/graph-walk/${oldId}.json`));
+const old = projectGraphWalkTeaching(bundle, nodes);
+const topic = teaching.topics.find(topic => topic.id === 'function-concepts');
+const current = topic.problems[newId];
+teaching.counts.steps += Object.keys(old.routes['domain-parameter'].steps).length
+  - Object.keys(current.routes['domain-parameter'].steps).length;
+topic.problems = Object.fromEntries(Object.entries(topic.problems).map(([id, problem]) => id === newId
+  ? [oldId, {...problem, bundle: `/data/graph-walk/${oldId}.json`, statement: old.statement, routes: old.routes}]
+  : [id, problem]));
+for (const group of topic.groups) group.problems = group.problems.map(id => id === newId ? oldId : id);
+teaching.lessons.delete(newId);
+teaching.lessons.set(oldId, {runtime: 'graph-walk', ...old.contract});
+console.log(JSON.stringify(await exportRows(repoRoot, {
+  nodes, manifest, edges: validateGraph(nodes, manifest), teaching,
+})));
+"""
+    return json.loads(subprocess.check_output(
+        ['node', '--input-type=module', '-e', script], cwd=content.ROOT, text=True
+    ))
+
+
+def test_q22_version_upgrade_preserves_old_contract_and_practice_history(connection, authored):
+    c, old_id, new_id = connection, 'function-concepts-q22', 'function-concepts-q22-v2'
+    previous = archived_q22_release()
+    old_problem = next(row for row in previous['practice_problems'] if row['id'] == old_id)
+    assert old_problem['contract_hash'] == '62f1efcb1b17c2c1455579a9ff3fc1c604890d0955e0f74c8201398e0f494b14'
+    publish(c, previous)
+    replay = json.loads((content.ROOT / f'site/data/graph-walk/{old_id}.replay.json').read_text())
+    attempts = []
+    for complete in (False, True):
+        user, aid, route = student(c), uuid4(), 'domain-parameter'
+        snapshot = associations.snapshot(c, old_id, route)
+        c.execute(text("""INSERT INTO student_practice_attempts
+            (id,user_id,problem_id,route_id,problem_context,content_version,association_hash,association_snapshot)
+            VALUES(:id,:u,:p,:r,CAST(:ctx AS jsonb),:v,:h,CAST(:s AS jsonb))"""),
+            {'id': aid, 'u': user, 'p': old_id, 'r': route,
+             'ctx': json.dumps(old_problem['problem_data']), 'v': previous['_meta']['content_version'],
+             'h': snapshot['association_hash'], 's': json.dumps(snapshot)})
+        for action in replay['actions'] if complete else replay['actions'][:1]:
+            attempt = practice.owned(c, aid, user)
+            step, event_id = action['decision'], uuid4()
+            answer = {'value': action['answer']}
+            assert graph_walk.grade(practice.node(attempt, step), answer, route) == 'passed'
+            ctx = practice.context(c, attempt, step)
+            practice.append(c, attempt, event_id, step, 'answer', answer, ctx['id'])
+            practice.grade(c, attempt, step, event_id, 'passed', 'rule')
+        before = practice.result(c, practice.owned(c, aid, user))
+        assert before['status'] == ('completed' if complete else 'in_progress')
+        attempts.append((user, aid, complete, before))
+
+    publish(c, authored)
+    old_row = c.execute(text('SELECT * FROM practice_problems WHERE id=:id'), {'id': old_id}).mappings().one()
+    assert old_row['is_active'] is False
+    assert old_row['contract_hash'] == old_problem['contract_hash']
+    assert old_row['problem_data'] == old_problem['problem_data']
+    assert c.scalar(text('SELECT is_active FROM practice_problems WHERE id=:id'), {'id': new_id}) is True
+    for user, aid, complete, before in attempts:
+        attempt = practice.owned(c, aid, user)
+        after = practice.result(c, attempt)
+        assert after['status'] == ('completed' if complete else 'closed')
+        assert attempt['problem_context'] == old_problem['problem_data']
+        assert after['steps'] == before['steps']
+        assert after['associations'] == before['associations']
+        assert after['content_version'] == before['content_version']
+        assert len(practice.nodes(attempt)) == 12
+    assert c.scalar(text("""SELECT count(*) FROM practice_topic_problems
+        WHERE topic_id='function-concepts' AND problem_id=:id"""), {'id': old_id}) == 0
+    assert c.scalar(text("""SELECT count(*) FROM practice_topic_problems
+        WHERE topic_id='function-concepts' AND problem_id=:id"""), {'id': new_id}) == 1
 
 
 @pytest.fixture

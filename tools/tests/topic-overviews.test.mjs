@@ -132,23 +132,26 @@ test('overview prefers original problem statement over short labels', () => {
   assert.ok(page.indexOf('class="bank"') < page.indexOf('id="knowledge-map"'));
 });
 
-test('real topic lists Q15, Q01, then Q22 with distinct formulas and shared domain grouping', async () => {
-  const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22'];
+test('real topic lists six domain courses with distinct formulas and shared domain grouping', async () => {
+  const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'];
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'domain').problems, ids);
   assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids].sort());
   const page = (await generateTopicOverviews()).get('topics/function-concepts/index.html');
-  assert.equal((page.match(/data-problem-id=/g) || []).length, 3);
+  assert.equal((page.match(/data-problem-id=/g) || []).length, 6);
   assert.ok(page.indexOf(`data-problem-id="${ids[0]}"`) < page.indexOf(`data-problem-id="${ids[1]}"`));
   assert.ok(page.indexOf(`data-problem-id="${ids[1]}"`) < page.indexOf(`data-problem-id="${ids[2]}"`));
-  for (const suffix of ['q15', 'q01', 'q22']) {
+  assert.ok(page.indexOf(`data-problem-id="${ids[2]}"`) < page.indexOf(`data-problem-id="${ids[3]}"`));
+  assert.ok(page.indexOf(`data-problem-id="${ids[3]}"`) < page.indexOf(`data-problem-id="${ids[4]}"`));
+  assert.ok(page.indexOf(`data-problem-id="${ids[4]}"`) < page.indexOf(`data-problem-id="${ids[5]}"`));
+  for (const [index, suffix] of ['q15', 'q01', 'q22', 'q04', 'q12', 'q23b'].entries()) {
     assert.match(page, new RegExp(`href="/topics/function-concepts/${suffix}/"`));
-    assert.equal(currentTopic.problems[`function-concepts-${suffix}`].runtime, 'graph-walk');
+    assert.equal(currentTopic.problems[ids[index]].runtime, 'graph-walk');
   }
   assert.match(page, /x\+4/);
   assert.match(page, /x\^2-1/);
   assert.match(page, /sqrt\{x-1\}/);
   assert.match(page, /kx\^\{2\}/);
-  assert.match(page, /5 个题型 · 3 道题/);
+  assert.match(page, /5 个题型 · 6 道题/);
   assert.ok(currentTopic.groups.filter(group => group.id !== 'domain').every(group => group.problems.length === 0));
 });
 

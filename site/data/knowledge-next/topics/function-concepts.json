@@ -31,7 +31,10 @@
       "problems": [
         "function-concepts-q15",
         "function-concepts-q01",
-        "function-concepts-q22"
+        "function-concepts-q22-v2",
+        "function-concepts-q04",
+        "function-concepts-q12",
+        "function-concepts-q23b"
       ]
     },
     {
@@ -82,11 +85,38 @@
         "type-function-domain"
       ]
     },
-    "function-concepts-q22": {
+    "function-concepts-q22-v2": {
       "label": "定义域求参 · Q22",
       "path": "/topics/function-concepts/q22/",
       "runtime": "graph-walk",
-      "bundle": "/data/graph-walk/function-concepts-q22.json",
+      "bundle": "/data/graph-walk/function-concepts-q22-v2.json",
+      "types": [
+        "type-function-domain"
+      ]
+    },
+    "function-concepts-q04": {
+      "label": "定义域求参 · Q04",
+      "path": "/topics/function-concepts/q04/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q04.json",
+      "types": [
+        "type-function-domain"
+      ]
+    },
+    "function-concepts-q12": {
+      "label": "定义域求参 · Q12",
+      "path": "/topics/function-concepts/q12/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q12.json",
+      "types": [
+        "type-function-domain"
+      ]
+    },
+    "function-concepts-q23b": {
+      "label": "定义域求参 · Q23（2）",
+      "path": "/topics/function-concepts/q23b/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q23b.json",
       "types": [
         "type-function-domain"
       ]

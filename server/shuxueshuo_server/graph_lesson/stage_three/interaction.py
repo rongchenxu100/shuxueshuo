@@ -18,9 +18,9 @@ from types import SimpleNamespace
 import sympy as sp
 from jsonschema import Draft202012Validator, ValidationError
 
+from . import domain_borrow, domain_interaction, domain_visuals
 from . import interaction_graph_contract as graph_contract
 from . import interaction_graphs as drawing
-from . import domain_interaction, domain_visuals
 from .capabilities import CapabilityGap
 from .capabilities.cases import exact_set_equal
 from .capabilities.parametric import _compare
@@ -51,7 +51,8 @@ REGISTRY_SCHEMA = ROOT / "internal/schemas/graph-interaction-registry-v1.schema.
 CHUNK_SCHEMA = ROOT / "internal/schemas/graph-step-interaction-v1.schema.json"
 # Interaction-only code, revisioned apart from the mathematical fingerprint.
 ENGINE_FILES = (Path(__file__).resolve(), Path(drawing.__file__).resolve(),
-                Path(graph_contract.__file__).resolve(), Path(domain_interaction.__file__).resolve(), Path(domain_visuals.__file__).resolve(), CHUNK_SCHEMA)
+                Path(graph_contract.__file__).resolve(), Path(domain_borrow.__file__).resolve(),
+                Path(domain_interaction.__file__).resolve(), Path(domain_visuals.__file__).resolve(), CHUNK_SCHEMA)
 MAX_REPRESENTATIVES = 12
 # Policies can need exact equality witnesses outside the generic constant grid.
 MAX_POLICY_REPRESENTATIVES = 2 * MAX_REPRESENTATIVES
@@ -1646,6 +1647,19 @@ def compile_interaction(seeds, rule, repeat_context, *, interaction_id):
     if rule.get("compiler") == "function_domain":
         return domain_interaction.compile_domain(seeds, interaction_id)
     first_values = decode_value(seeds[0]["values"])
+    if rule.get("compiler") == "separated_read":
+        before, after = first_values.get("before"), first_values.get("after")
+        if (len(seeds) != 1 or seeds[0]["template"] != "separated" or not isinstance(before, list)
+                or not isinstance(after, list) or len(before) != 1 or len(after) != 1
+                or not isinstance(before[0], sp.Rel) or not isinstance(after[0], sp.Rel)
+                or (before[0] != after[0] and before[0].reversed != after[0])):
+            raise ValueError("interaction.already_separated_source_mismatch")
+        return {"parts": [{
+            "id": interaction_id + "#1", "title": "确认已分离的形式",
+            "question": f"当前关系为 ${_latex(after[0])}$，参数式与自变量式已分居两侧，可沿当前形式继续。",
+            "submit_label": "继续", "interaction": {"type": "read"}, "expected_answer": {},
+            "feedback": {"answer": "参数式与自变量式已经分居两侧。"},
+        }], "diagnostics": [{"kind": "checked_already_separated", "passed": True}]}
     if not _repeat_allows(rule, first_values, repeat_context):
         raise NotInteractive("repeat")
     parts, diagnostics, failures = [], [], []

@@ -8,6 +8,7 @@ import {projectGraphWalkTeaching} from './lib/graph-walk-practice.mjs';
 import {extendStreamBundle, createState, currentDecision, submitAnswer, replayState} from '../site/assets/graph-walk/walk-state.mjs';
 import {expressionRegionsHTML} from '../site/assets/graph-walk/expression-regions.mjs';
 import {domainNumberLineGraph, endpointChecksHTML} from '../site/assets/graph-walk/domain-visuals.mjs';
+import {replayAnswer} from '../site/assets/graph-walk/walk-replay.mjs';
 
 const assert = (ok, message) => { if (!ok) throw Error(message); };
 const json = async file => JSON.parse(await fs.readFile(file, 'utf8'));
@@ -16,7 +17,7 @@ const h = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&
 
 export function compileCourse(source, evidence, graph, nodes) {
   assert(source.schemaVersion === 1 && /^[a-z][a-z0-9-]*$/.test(source.problemId), 'Invalid course source');
-  assert(/^\/topics\/[a-z][a-z0-9-]*\/q\d+\/$/.test(source.page), 'Invalid topic problem path');
+  assert(/^\/topics\/[a-z][a-z0-9-]*\/q\d+[a-z]?\/$/.test(source.page), 'Invalid topic problem path');
   assert(typeof source.title === 'string' && source.title.trim(), 'Missing course title');
   assert(/^\/topics\/[a-z][a-z0-9-]*\/$/.test(source.topicHref) && source.page.startsWith(source.topicHref), 'Invalid course topic');
   const goal = evidence.lesson?.goals?.find(item => item.target_ref === source.targetRef);
@@ -25,22 +26,23 @@ export function compileCourse(source, evidence, graph, nodes) {
   base.problemId = source.problemId;
   base.completion = {...base.completion, back: {href: source.topicHref, label: '返回专题'}};
   base.bundleVersion = digest(base);
-  const bundle = extendStreamBundle(base, evidence.stream, source.targetRef, graph);
+  // Keep node metadata already captured by this course's execution. The live
+  // graph supplies additional called nodes without rewriting older lessons
+  // when a shared method later gains another supported branch.
+  const capturedNodes = new Map(base.graph.nodes.map(node => [node.id, node]));
+  const courseGraph = {...graph, nodes: graph.nodes.map(node => capturedNodes.get(node.id) || node)};
+  const bundle = extendStreamBundle(base, evidence.stream, source.targetRef, courseGraph);
   projectGraphWalkTeaching(bundle, nodes);
   const routeIds = Object.keys(bundle.routes);
   assert(routeIds.length === 1, 'Static first representative requires one verified route');
   const actions = [];
   let state = createState(bundle);
   for (let step = currentDecision(bundle, state); step; step = currentDecision(bundle, state)) {
-    const component = step.interaction, expected = step.expected_answer;
     if (step.source_regions) expressionRegionsHTML(step.source_regions);
     for (const line of step.condition_number_lines || []) domainNumberLineGraph(line);
     if (step.completion_number_line) domainNumberLineGraph(step.completion_number_line);
     endpointChecksHTML(step.endpoint_checks);
-    const answer = component.type === 'read' ? 'read' : component.type === 'choice' ? expected.one_of[0]
-      : component.type === 'multi' ? expected.required : ['fill', 'checklist'].includes(component.type) ? expected.terms
-        : component.type === 'grid' ? expected.cell : component.type === 'plane'
-          ? [...expected.cell, component.methods.find(method => method.route === routeIds[0]).value] : null;
+    const answer = replayAnswer(step, routeIds[0]);
     assert(answer !== null, `Unsupported replay interaction: ${step.id}`);
     const action = {decision: step.id, answer: structuredClone(answer)};
     actions.push(action);

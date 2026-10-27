@@ -74,7 +74,12 @@ def grade(decision, answer, route):
             method = next((item for item in component['methods'] if item['value'] == value[2]), None)
             if method is None:
                 raise HTTPException(422, '方法不属于本步。')
-            passed = passed and value[:2] in method['cells'] and method.get('route') == route
+            passed = passed and value[:2] in method['cells']
+            if passed and value[2] in decision.get('alternatives', {}):
+                return 'uncovered'
+            passed = passed and method.get('route') == route
+            if expected.get('method') is not None:
+                passed = passed and value[2] == expected['method']
     else:
         raise HTTPException(422, '本步交互尚未支持。')
     return 'passed' if passed else 'wrong'

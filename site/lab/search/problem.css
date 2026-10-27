@@ -92,18 +92,9 @@
 /* The graph opens beside the steps once step 1 is confirmed. */
 .gw-page[data-graph="shown"] .gw-graph-panel { animation: pq-graph-in .32s ease-out; }
 @keyframes pq-graph-in { from { opacity: 0; transform: translateX(12px); } }
-@media (min-width: 960px) {
-  .gw-page[data-graph="hidden"] .gw-graph-panel { display: none; }
-  .gw-page[data-graph="hidden"] .gw-layout { grid-template-columns: minmax(0, 720px); justify-content: center; }}
 @media (max-width: 959px) {
   .gw-page[data-graph="hidden"][data-actor="student"] :is(.gw-graph-panel:not(.is-open), .gw-path-toggle) { display: none; }
 }
-/* On a wide screen the student can fold the graph away; the steps then take the centred column. */
-#pq-graph-toggle { display: none; margin-left: 8px; color: #647a74; background: transparent; }
-@media (min-width: 960px) {
-  .gw-page[data-graph="shown"] #pq-graph-toggle { display: inline-flex; }
-  .gw-page[data-graph="shown"][data-graph-folded] .gw-graph-panel { display: none; }
-  .gw-page[data-graph="shown"][data-graph-folded] .gw-layout { grid-template-columns: minmax(0, 1080px); justify-content: center; }}
 
 /* Failure */
 .pq-fail { animation: pq-in .35s ease-out; }

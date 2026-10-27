@@ -1,0 +1,29 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-concepts-q23b/manifest.json",
+  "source_kind": "user_photograph_shared_stem_and_second_question_crops_composite",
+  "recorded_date": "2026-10-27",
+  "historical_semantic_calls": 2,
+  "historical_network_attempts": 2,
+  "accepted_attempt": ".",
+  "attempts": [
+    {
+      "path": ".",
+      "status": "reviewed_candidate",
+      "source_reviewed": true,
+      "semantic_calls": 2,
+      "network_attempts": 2,
+      "elapsed_seconds": 32.578
+    }
+  ],
+  "notes": "独立验收图由原上传第83页公共题干与第(2)问两段裁片组合，排除第(1)问m=10及原书答案；不是一次独立上传的原始照片。首次真实extract+review确认通过；原始请求、响应与工作流按原字节保存，未人工替换模型输出。",
+  "files": {
+    "question.png": "16f0cc800d462884f08585bff5aac2a0c46299a60c3b611bd94daacfd18a4d0f",
+    "result.json": "afcd4b45839f8b69a12ae3f6eef2e5dd481d610acd816b94deefc3d7c6ae328a",
+    "workflow/ledger.json": "b6a50ff71843041b0db6b7cd8a4b998ca62074ed8f5b38a7b7d2d30754075cea",
+    "workflow/calls/01-extract/request.json": "1fccce3000d145e97bbe6d5b1add34d1e8ff93a23084f4b1324a459c09f6dbb9",
+    "workflow/calls/01-extract/response.json": "64c909f9492d688fe505b0fbb01ef1204df154f0ba89f6d31ee5c134734d0873",
+    "workflow/calls/02-review/request.json": "be043986c16b6b2ca4f3fd343c8d3a436c6c43c13d7ae10f8bbe3fcbec83e2c4",
+    "workflow/calls/02-review/response.json": "f13e78b1d507ca08a413512d846b2e4ec7dc1690ba5a30b22a813379352e1be8"
+  }
+}

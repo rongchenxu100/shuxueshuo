@@ -28,6 +28,7 @@ from shuxueshuo_server.product.admin.cli import instance_lock
 from shuxueshuo_server.product.application import schema_head
 from shuxueshuo_server.product.config import REPO, Settings, write_private
 from shuxueshuo_server.product.db import engine
+from shuxueshuo_server.search.admission import SearchLimits
 from shuxueshuo_server.search.application import install_search
 from shuxueshuo_server.tutor_demo.api import create_router
 
@@ -95,7 +96,8 @@ def create_local_app(settings, config):
     app = FastAPI(lifespan=lifespan)
     install_auth(app, config=config)
     app.include_router(create_router(budget=LocalModelBudget(), enable_explanation=True))
-    install_search(app, settings=settings)
+    # Same loopback-only policy as LocalModelBudget: no daily search LLM quotas.
+    install_search(app, settings=settings, admission_config=SearchLimits.local_development())
     app.mount("/", SiteStaticFiles(directory=REPO / "site", html=True), name="site")
     return app
 

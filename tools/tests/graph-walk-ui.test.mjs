@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import {RELATIONS, createWalkGraph, laneMembers, nodeHref, panoramaLayout, treeLayout} from '../../site/assets/graph-walk/walk-graph.mjs';
 import {createState, replayState, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
 import {domainNumberLineGraph, endpointChecksHTML} from '../../site/assets/graph-walk/domain-visuals.mjs';
+import {buildStreamReplay} from '../../site/assets/graph-walk/walk-replay.mjs';
 
 const source = fs.readFileSync(new URL('../../site/assets/graph-walk/walk.mjs', import.meta.url), 'utf8');
 const components = fs.readFileSync(new URL('../../site/assets/practice/components.js', import.meta.url), 'utf8');
@@ -17,7 +18,7 @@ function viewContext() {
     return nodes.get(selector);
   }};
   const context = vm.createContext({document, matchMedia: () => ({matches: true}), URL,
-    location: {origin: 'http://127.0.0.1:8779'}, setTimeout, clearTimeout, structuredClone});
+    location: {origin: 'http://127.0.0.1:8779'}, setTimeout, clearTimeout, structuredClone, buildStreamReplay});
   context.window = context;
   vm.runInContext(components, context);
   vm.runInContext(source.replace(/^import .*;\n/gm, '').split("if (document.readyState === 'loading')")[0], context);
@@ -158,7 +159,7 @@ test('stream arrival preserves the AI replay reading position and chooses an exe
   context.refreshStreamState = (_bundle, value) => value;
   context.replayState = (_bundle, _replay, position) => ({introCompleted: [], run: {route: 'discriminant'}, readingPosition: position});
   run(`options = {bundle: {problemId: 'sample', bundleVersion: 'stable', graph: {nodes: [], edges: []},
-      intro: [{id: 'D3', expected_answer: {cell: ['real', 'free']}, interaction: {methods: [
+      intro: [{id: 'D3', expected_answer: {cell: ['real', 'free']}, interaction: {type: 'plane', methods: [
         {value: 'discriminant', route: 'discriminant'}, {value: 'unsupported', route: 'unsupported'}]}}],
       routes: {discriminant: {route_plan: 'planned'}, unsupported: {route_plan: 'capability_gap'}}},
       stream: {run_id: 'run', lesson_version: 'version', target_ref: '/root/goals/0'},
@@ -197,7 +198,7 @@ for (const entry of ['load', 'mount']) for (const mode of ['playing', 'at-end', 
   context.extendStreamBundle = value => ({...structuredClone(value), bundleVersion: 'stream-version',
     stream: {run_id: 'run', lesson_version: 'version', target_ref: '/root/goals/0', base_bundle_version: value.bundleVersion},
     intro: [...value.intro, {id: 'D3', expected_answer: {cell: ['real', 'free']},
-      interaction: {methods: [{value: 'discriminant', route: 'discriminant'}]}}],
+      interaction: {type: 'plane', methods: [{value: 'discriminant', route: 'discriminant'}]}}],
     routes: {discriminant: {route_plan: 'planned'}}});
   run(`options = {bundle: {problemId: 'sample', bundleVersion: 'base-version', graphVersion: 'graph',
       graph: {nodes: [], edges: [], layout: {}}, templates: {}, problem: {text: ''},

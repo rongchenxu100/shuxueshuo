@@ -2,10 +2,12 @@
 
 import json
 from copy import deepcopy
+from pathlib import Path
 
 import pytest
 import sympy as sp
 
+from shuxueshuo_server.graph_lesson import domain_expression
 from shuxueshuo_server.graph_lesson.stage_one.features import extract_features
 from shuxueshuo_server.graph_lesson.stage_three import runner
 from shuxueshuo_server.graph_lesson.stage_three.preview import open_store
@@ -181,6 +183,42 @@ def test_resume_rejects_changed_input_and_implementation(tmp_path, monkeypatch, 
         expected = "revisions_changed"
     with pytest.raises(ValueError, match=expected):
         runner.resume_sample(output)
+
+
+def test_domain_expression_change_rejects_resume_and_preserves_checkpoint(tmp_path, monkeypatch):
+    output = tmp_path / "out"
+    source = constructed_upstream(tmp_path, {
+        "original_text": "求函数定义域",
+        "root": {"definitions": ["f(x)=sqrt(x-1)/(x-2)"], "facts": [],
+                 "goals": [{"kind": "find_domain", "object": "f"}]},
+    })
+
+    def stop(state, durable):
+        raise Interrupted()
+
+    with pytest.raises(Interrupted):
+        runner.run_sample(source, output, hooks={"before_verification": stop})
+    prefix, frozen = events(output), read(output / "frozen.json")
+    checkpoint = store(output).checkpoint(TARGET, "domain-intersection")
+    conversion_source = Path(domain_expression.__file__).resolve()
+    read_bytes = Path.read_bytes
+
+    def changed_conversion(path):
+        content = read_bytes(path)
+        return content + b"\n# revised domain conversion\n" if path.resolve() == conversion_source else content
+
+    # Exercise the real fingerprint collector without changing workspace files.
+    with monkeypatch.context() as changed:
+        changed.setattr(Path, "read_bytes", changed_conversion)
+        with pytest.raises(ValueError, match=r"checkpoint\.revisions_changed"):
+            runner.resume_sample(output)
+        assert read(output / "frozen.json") == frozen
+        assert events(output) == prefix
+        assert store(output).checkpoint(TARGET, "domain-intersection") == checkpoint
+
+    resumed = runner.resume_sample(output)
+    assert resumed["goals"][0]["status"] == "solved"
+    assert events(output)[:len(prefix)] == prefix
 
 
 @pytest.mark.parametrize("failure,dispatch", [

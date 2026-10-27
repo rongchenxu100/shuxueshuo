@@ -1,0 +1,207 @@
+{
+  "topic": "function-concepts",
+  "id": "function-concepts-q22-v2",
+  "label": "定义域求参 · Q22",
+  "path": "/topics/function-concepts/q22/",
+  "runtime": "graph-walk",
+  "bundle": "/data/graph-walk/function-concepts-q22-v2.json",
+  "types": [
+    "type-function-domain"
+  ],
+  "statement": "函数 $f(x)=\\sqrt{kx^{2}+2x+1}$ 的定义域为 $\\mathbb R$，求实数 $k$ 的取值范围。",
+  "routes": {
+    "domain-parameter": {
+      "label": "定义域求参法",
+      "methods": [
+        "method-domain-parameter"
+      ],
+      "steps": {
+        "D1": {
+          "title": "读题",
+          "position": 1,
+          "refs": [
+            "function-concept",
+            "quantifiers",
+            "quadratic-inequality",
+            "square-root-expression"
+          ]
+        },
+        "D2": {
+          "title": "确定题型",
+          "position": 2,
+          "refs": [],
+          "reason": "读取题意、确认题型或方法；本步不记录具体能力掌握。"
+        },
+        "D3": {
+          "title": "选择解题方法",
+          "position": 3,
+          "refs": [
+            "method-domain-parameter"
+          ]
+        },
+        "b5026cd2d61a35a24ecc114f#1": {
+          "title": "列出根式有意义的条件",
+          "position": 4,
+          "refs": [
+            "method-domain-parameter#extract",
+            "skill-expression-defined",
+            "square-root-expression#meaning"
+          ]
+        },
+        "1dc6a5998c1c1de2146bc466#1": {
+          "title": "转化为恒成立问题",
+          "position": 5,
+          "refs": [
+            "method-domain-parameter#reduce",
+            "function-concept#elements",
+            "quantifiers#universal",
+            "square-root-expression#meaning"
+          ]
+        },
+        "0125fa006bb9db9574af32a9#1": {
+          "title": "选择已学方法",
+          "position": 6,
+          "refs": [
+            "method-discriminant",
+            "method-domain-parameter#reduce",
+            "function-concept#elements",
+            "quantifiers#universal",
+            "square-root-expression#meaning"
+          ]
+        },
+        "ce8fdd7795305d5e3ad845b5#1": {
+          "title": "判断二次项系数是否为 0",
+          "position": 7,
+          "refs": [
+            "method-discriminant#degree"
+          ]
+        },
+        "27cd4dd9907043bf64d7477e#1": {
+          "title": "检查二次项系数为 0 的情况",
+          "position": 8,
+          "refs": [
+            "method-discriminant#degree",
+            "linear-interval-extremum",
+            "quadratic-function-properties#definition"
+          ]
+        },
+        "ed1efc1ef051260fa8268afe#2": {
+          "title": "判断开口向上的情况",
+          "position": 9,
+          "refs": [
+            "method-discriminant#conditions",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "skill-simplify",
+            "equality-properties#identity",
+            "skill-quadratic-sign",
+            "quadratic-function-properties#zeros",
+            "quadratic-inequality#all-real"
+          ]
+        },
+        "ed1efc1ef051260fa8268afe#3": {
+          "title": "判断开口向下的情况",
+          "position": 10,
+          "refs": [
+            "method-discriminant#conditions",
+            "skill-inequality-transform",
+            "inequality-properties#addition",
+            "skill-simplify",
+            "equality-properties#identity",
+            "skill-quadratic-sign",
+            "quadratic-function-properties#zeros",
+            "quadratic-inequality#all-real"
+          ]
+        },
+        "33c10c622cdb2bcc2a7dab17#1": {
+          "title": "开口向上：建立判别式条件",
+          "position": 11,
+          "refs": [
+            "method-discriminant#conditions",
+            "skill-quadratic-sign",
+            "quadratic-equation#discriminant",
+            "quadratic-inequality#all-real",
+            "skill-simplify",
+            "equality-properties#identity",
+            "skill-inequality-transform",
+            "inequality-properties#multiplication"
+          ]
+        },
+        "9c6c0396d6189fbd040b6d4f#1": {
+          "title": "开口向上：求参数范围",
+          "position": 12,
+          "refs": [
+            "method-discriminant#solve",
+            "quadratic-inequality-solve",
+            "quadratic-inequality#all-real"
+          ]
+        },
+        "4353e955ab7442ab94c7ee33#1": {
+          "title": "合并二次项系数为 0 和不为 0 的情况",
+          "position": 13,
+          "refs": [
+            "method-discriminant#merge"
+          ]
+        },
+        "45b79873b0e30077e16e26a0#1": {
+          "title": "回到定义域求参",
+          "position": 14,
+          "refs": [
+            "method-domain-parameter",
+            "method-domain-parameter#solve",
+            "method-discriminant",
+            "method-discriminant#merge"
+          ]
+        }
+      }
+    }
+  },
+  "problemPaths": [
+    "/1/q01/",
+    "/1/q02/",
+    "/1/q03/",
+    "/1/q04/",
+    "/1/q05/",
+    "/1/q06/",
+    "/1/q07/",
+    "/1/q08/",
+    "/1/q09/",
+    "/1/q10/",
+    "/1/q11/",
+    "/1/q12/",
+    "/1/q13/",
+    "/1/q14/",
+    "/1/q15/",
+    "/1/q16/",
+    "/1/q17/",
+    "/1/q18/",
+    "/1/q19/",
+    "/1/q20/",
+    "/1/q21/",
+    "/1/q22/",
+    "/1/q23/",
+    "/1/q24/",
+    "/1/q25/",
+    "/1/q26/",
+    "/1/q27/",
+    "/1/q28/",
+    "/1/q29/",
+    "/1/q30/",
+    "/2/q01/",
+    "/2/q02/",
+    "/2/q03/",
+    "/2/q04/",
+    "/2/q05/",
+    "/2/q06/",
+    "/2/q07/",
+    "/2/q08/",
+    "/2/q09/",
+    "/topics/function-concepts/q01/",
+    "/topics/function-concepts/q04/",
+    "/topics/function-concepts/q12/",
+    "/topics/function-concepts/q15/",
+    "/topics/function-concepts/q22/",
+    "/topics/function-concepts/q23b/"
+  ],
+  "content_version": "52644daf8998e28bbcb1671423497ae3afa94874a69372431bde1395c63d9ee2"
+}

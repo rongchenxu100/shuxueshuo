@@ -4,6 +4,4 @@
 
 original_text 只用于展示。只有遗漏或改写了文字、公式时才报告 wrong_transcription（path=/original_text）；标点、空格、换行和公式排版差异不算错误。
 
-题面只说“恒成立”而未写出量词变量或范围时，root 按唯一自由变量和实数域补全是允许的，不算擅自新增。若原题以 y=… 给出公式，再在量词范围内使用 y 的不等式，root 将公式直接展开到量词关系内是正确表示；不能要求增加 y=… 的全局事实或定义。
-
-发现问题时给出 candidate 中实际存在位置的 JSON Pointer、原图依据和具体原因。confirmed 必须 findings=[]；有问题但无法确定修订方式时使用 uncertain。
+发现问题时给出 candidate 中实际存在位置的 JSON Pointer、原图依据和具体原因；按共用题意表示规则判断允许的内部别名、目标表示和每类诊断的修复操作。confirmed 必须 findings=[]；有问题但无法确定修订方式时使用 uncertain。

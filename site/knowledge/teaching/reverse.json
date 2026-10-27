@@ -1803,6 +1803,20 @@
       }
     },
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "0fe96712765811ea70cb0fa6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q04",
       "route": "interval",
@@ -2179,23 +2193,93 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#2",
+      "step": "ed1efc1ef051260fa8268afe#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#3",
+      "step": "ed1efc1ef051260fa8268afe#3",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "step": "33c10c622cdb2bcc2a7dab17#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fb626f3107f8568acbbdca27#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "23d5e440bd6efbdab66c1312#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "1cfccbf063aac1ebb92ec110#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "1cfccbf063aac1ebb92ec110#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
       "conditions": {}
     },
     {
@@ -2307,9 +2391,51 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "step": "33c10c622cdb2bcc2a7dab17#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fb626f3107f8568acbbdca27#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "23d5e440bd6efbdab66c1312#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "1cfccbf063aac1ebb92ec110#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "1cfccbf063aac1ebb92ec110#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
       "conditions": {}
     },
     {
@@ -2581,23 +2707,65 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#2",
+      "step": "ed1efc1ef051260fa8268afe#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#3",
+      "step": "ed1efc1ef051260fa8268afe#3",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "step": "33c10c622cdb2bcc2a7dab17#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fb626f3107f8568acbbdca27#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "23d5e440bd6efbdab66c1312#1",
       "conditions": {}
     },
     {
@@ -2948,9 +3116,37 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "89d08d69f6fee4b9ad8de1ba#1",
+      "step": "9c6c0396d6189fbd040b6d4f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "bf1521e0b245a74de81d2b63#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "136872df41ad37ba81ac7c3c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
       "conditions": {}
     },
     {
@@ -3040,7 +3236,19 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22"
+      "problem": "function-concepts-q22-v2"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b"
     }
   ],
   "function-concept": [
@@ -3060,7 +3268,28 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
       "route": "domain-parameter",
       "step": "D1",
       "conditions": {}
@@ -3092,7 +3321,28 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
       "route": "domain-parameter",
       "step": "D1",
       "conditions": {}
@@ -3189,9 +3439,30 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "9b7c0b2ab3f67920b5552808#1",
+      "step": "b5026cd2d61a35a24ecc114f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "2b75baac573f0566497af220#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "cd034f812005956084d2ad4f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5e05e4545d60b19cac3dcb20#1",
       "conditions": {}
     }
   ],
@@ -3237,6 +3508,20 @@
       "route": "domain-intersection",
       "step": "a74a6c6291a12d04fdc31818#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "cd034f812005956084d2ad4f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5e05e4545d60b19cac3dcb20#1",
+      "conditions": {}
     }
   ],
   "square-root-expression#meaning": [
@@ -3263,16 +3548,100 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "9b7c0b2ab3f67920b5552808#1",
+      "step": "b5026cd2d61a35a24ecc114f#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "632bbaa252456e2654cd4756#1",
+      "step": "1dc6a5998c1c1de2146bc466#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "0125fa006bb9db9574af32a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "2b75baac573f0566497af220#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "7162d400c110b3cfa36cbe62#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "4ed1156afe9dbc3039707724#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "cd034f812005956084d2ad4f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "76e14699d0c24fb9848b5018#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "76e14699d0c24fb9848b5018#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "9580b08c52f4559fc9a8ee11#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5e05e4545d60b19cac3dcb20#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "ee84dc06b5cb40b7a6d0533c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "ee84dc06b5cb40b7a6d0533c#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "700c1ada1f3e713e76852fac#1",
       "conditions": {}
     }
   ],
@@ -3323,16 +3692,72 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#2",
+      "step": "ed1efc1ef051260fa8268afe#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#3",
+      "step": "ed1efc1ef051260fa8268afe#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "1cfccbf063aac1ebb92ec110#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "1cfccbf063aac1ebb92ec110#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
       "conditions": {}
     }
   ],
@@ -3399,9 +3824,72 @@
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "632bbaa252456e2654cd4756#1",
+      "step": "1dc6a5998c1c1de2146bc466#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "0125fa006bb9db9574af32a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "7162d400c110b3cfa36cbe62#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "4ed1156afe9dbc3039707724#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "76e14699d0c24fb9848b5018#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "76e14699d0c24fb9848b5018#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "9580b08c52f4559fc9a8ee11#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "ee84dc06b5cb40b7a6d0533c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "ee84dc06b5cb40b7a6d0533c#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "700c1ada1f3e713e76852fac#1",
       "conditions": {}
     }
   ],
@@ -3456,7 +3944,28 @@
   "quantifiers": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
       "route": "domain-parameter",
       "step": "D1",
       "conditions": {}
@@ -3542,7 +4051,28 @@
   "quadratic-inequality": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
       "route": "domain-parameter",
       "step": "D1",
       "conditions": {}
@@ -3551,52 +4081,373 @@
   "method-domain-parameter": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
       "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "45b79873b0e30077e16e26a0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fdf17cd5b774fbc778a83c64#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "af8629218e0a34a493bb6068#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "D3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
       "conditions": {}
     }
   ],
   "method-domain-parameter#extract": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "9b7c0b2ab3f67920b5552808#1",
+      "step": "b5026cd2d61a35a24ecc114f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "2b75baac573f0566497af220#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "cd034f812005956084d2ad4f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5e05e4545d60b19cac3dcb20#1",
       "conditions": {}
     }
   ],
   "method-domain-parameter#reduce": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "632bbaa252456e2654cd4756#1",
+      "step": "1dc6a5998c1c1de2146bc466#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "0125fa006bb9db9574af32a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "7162d400c110b3cfa36cbe62#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "4ed1156afe9dbc3039707724#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "76e14699d0c24fb9848b5018#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "76e14699d0c24fb9848b5018#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "9580b08c52f4559fc9a8ee11#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "ee84dc06b5cb40b7a6d0533c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "ee84dc06b5cb40b7a6d0533c#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "700c1ada1f3e713e76852fac#1",
       "conditions": {}
     }
   ],
   "quantifiers#universal": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "632bbaa252456e2654cd4756#1",
+      "step": "1dc6a5998c1c1de2146bc466#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "0125fa006bb9db9574af32a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "7162d400c110b3cfa36cbe62#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "4ed1156afe9dbc3039707724#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "76e14699d0c24fb9848b5018#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "76e14699d0c24fb9848b5018#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "9580b08c52f4559fc9a8ee11#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "ee84dc06b5cb40b7a6d0533c#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "ee84dc06b5cb40b7a6d0533c#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "700c1ada1f3e713e76852fac#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "dee779d6414b72eff8e03900#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    }
+  ],
+  "method-discriminant": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "0125fa006bb9db9574af32a9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "45b79873b0e30077e16e26a0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "4ed1156afe9dbc3039707724#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fdf17cd5b774fbc778a83c64#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "9580b08c52f4559fc9a8ee11#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "af8629218e0a34a493bb6068#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q01",
+      "route": "discriminant",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q01",
+      "route": "discriminant",
+      "step": "d_basis",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_basis",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_basis",
       "conditions": {}
     }
   ],
   "method-discriminant#degree": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "70031a1ae2d6a6d069094137#1",
+      "step": "ce8fdd7795305d5e3ad845b5#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "77906ab6a89c394d1ae04ad5#1",
+      "step": "27cd4dd9907043bf64d7477e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "9541cc16dcc44b0422289217#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "e1df4dbafcb0a4fc9aa5abe9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "0b0c99a6262fa8a35fbe94cb#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "2313c97ccc75b0eb67726211#1",
       "conditions": {}
     },
     {
@@ -3617,9 +4468,23 @@
   "linear-interval-extremum": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "77906ab6a89c394d1ae04ad5#1",
+      "step": "27cd4dd9907043bf64d7477e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "e1df4dbafcb0a4fc9aa5abe9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "2313c97ccc75b0eb67726211#1",
       "conditions": {}
     },
     {
@@ -3640,9 +4505,23 @@
   "quadratic-function-properties#definition": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "77906ab6a89c394d1ae04ad5#1",
+      "step": "27cd4dd9907043bf64d7477e#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "e1df4dbafcb0a4fc9aa5abe9#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "2313c97ccc75b0eb67726211#1",
       "conditions": {}
     },
     {
@@ -3663,23 +4542,65 @@
   "method-discriminant#conditions": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#2",
+      "step": "ed1efc1ef051260fa8268afe#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#3",
+      "step": "ed1efc1ef051260fa8268afe#3",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "step": "33c10c622cdb2bcc2a7dab17#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fb626f3107f8568acbbdca27#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "23d5e440bd6efbdab66c1312#1",
       "conditions": {}
     },
     {
@@ -3707,62 +4628,188 @@
   "equality-properties#identity": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#2",
+      "step": "ed1efc1ef051260fa8268afe#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#3",
+      "step": "ed1efc1ef051260fa8268afe#3",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "step": "33c10c622cdb2bcc2a7dab17#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fb626f3107f8568acbbdca27#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "23d5e440bd6efbdab66c1312#1",
       "conditions": {}
     }
   ],
   "skill-quadratic-sign": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#2",
+      "step": "ed1efc1ef051260fa8268afe#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#3",
+      "step": "ed1efc1ef051260fa8268afe#3",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "step": "33c10c622cdb2bcc2a7dab17#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fb626f3107f8568acbbdca27#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "23d5e440bd6efbdab66c1312#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
       "conditions": {}
     }
   ],
   "quadratic-function-properties#zeros": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#2",
+      "step": "ed1efc1ef051260fa8268afe#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#3",
+      "step": "ed1efc1ef051260fa8268afe#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#3",
       "conditions": {}
     },
     {
@@ -3811,39 +4858,109 @@
   "quadratic-inequality#all-real": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#2",
+      "step": "ed1efc1ef051260fa8268afe#2",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "b3ac3c028022688ccaf81b1e#3",
+      "step": "ed1efc1ef051260fa8268afe#3",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "step": "33c10c622cdb2bcc2a7dab17#1",
       "conditions": {}
     },
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "89d08d69f6fee4b9ad8de1ba#1",
+      "step": "9c6c0396d6189fbd040b6d4f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "1290cc569d7970cb5d22d0d8#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fb626f3107f8568acbbdca27#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "bf1521e0b245a74de81d2b63#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "d8cbb78e8bb96e512061166b#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "23d5e440bd6efbdab66c1312#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "136872df41ad37ba81ac7c3c#1",
       "conditions": {}
     }
   ],
   "quadratic-equation#discriminant": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "step": "33c10c622cdb2bcc2a7dab17#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fb626f3107f8568acbbdca27#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "23d5e440bd6efbdab66c1312#1",
       "conditions": {}
     },
     {
@@ -3871,18 +4988,67 @@
   "method-discriminant#solve": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "89d08d69f6fee4b9ad8de1ba#1",
+      "step": "9c6c0396d6189fbd040b6d4f#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "bf1521e0b245a74de81d2b63#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "136872df41ad37ba81ac7c3c#1",
       "conditions": {}
     }
   ],
   "method-discriminant#merge": [
     {
       "topic": "function-concepts",
-      "problem": "function-concepts-q22",
+      "problem": "function-concepts-q22-v2",
       "route": "domain-parameter",
-      "step": "8ed39522d9673ab1e8b9fcf8#1",
+      "step": "4353e955ab7442ab94c7ee33#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "45b79873b0e30077e16e26a0#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "06831cc919ca48eca362fe27#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fdf17cd5b774fbc778a83c64#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "e927ab27ec860c2ff5e49545#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "af8629218e0a34a493bb6068#1",
       "conditions": {}
     },
     {
@@ -3900,110 +5066,52 @@
       "conditions": {}
     }
   ],
-  "type-quantified-quadratic": [
+  "method-domain-parameter#solve": [
     {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q01"
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02"
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03"
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q04"
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q05"
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q06"
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q07"
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q08"
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q09"
-    }
-  ],
-  "method-discriminant": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q01",
-      "route": "discriminant",
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22-v2",
+      "route": "domain-parameter",
+      "step": "45b79873b0e30077e16e26a0#1",
       "conditions": {}
     },
     {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q01",
-      "route": "discriminant",
-      "step": "d_basis",
+      "topic": "function-concepts",
+      "problem": "function-concepts-q04",
+      "route": "domain-parameter",
+      "step": "fdf17cd5b774fbc778a83c64#1",
       "conditions": {}
     },
     {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
+      "topic": "function-concepts",
+      "problem": "function-concepts-q12",
+      "route": "domain-parameter",
+      "step": "af8629218e0a34a493bb6068#1",
       "conditions": {}
     },
     {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_basis",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_basis",
-      "conditions": {}
-    }
-  ],
-  "quadratic-function-properties": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q01",
-      "route": "discriminant",
-      "step": "d_position",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_position",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_position",
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
       "conditions": {}
     }
   ],
   "method-separation": [
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "700c1ada1f3e713e76852fac#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "extremum",
@@ -4069,7 +5177,74 @@
       "conditions": {}
     }
   ],
+  "method-separation#separate": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "1cfccbf063aac1ebb92ec110#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "1cfccbf063aac1ebb92ec110#2",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q04",
+      "route": "extremum",
+      "step": "e_separate",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q05",
+      "route": "extremum",
+      "step": "e_separate",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q06",
+      "route": "extremum",
+      "step": "e_separate",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q07",
+      "route": "extremum",
+      "step": "e_separate",
+      "conditions": {}
+    }
+  ],
+  "method-separation#quantifier": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "dee779d6414b72eff8e03900#1",
+      "conditions": {}
+    }
+  ],
   "skill-quantified-range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "dee779d6414b72eff8e03900#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    },
     {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
@@ -4150,6 +5325,27 @@
   ],
   "function-range-extrema#quantified": [
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "dee779d6414b72eff8e03900#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "extremum",
@@ -4224,6 +5420,133 @@
       "problem": "quadratic-always-q09",
       "route": "variable",
       "step": "v_condition",
+      "conditions": {}
+    }
+  ],
+  "method-separation#range": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "0fe96712765811ea70cb0fa6#1",
+      "conditions": {}
+    }
+  ],
+  "method-separation#restore": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    }
+  ],
+  "skill-solve-quadratic": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    }
+  ],
+  "quadratic-equation#roots": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    }
+  ],
+  "quadratic-inequality#signs": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "5d20ca121c64232f04c52387#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q23b",
+      "route": "domain-parameter",
+      "step": "f8e65c3e4a1187e957b785be#1",
+      "conditions": {}
+    }
+  ],
+  "type-quantified-quadratic": [
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q01"
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02"
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03"
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q04"
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q05"
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q06"
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q07"
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q08"
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q09"
+    }
+  ],
+  "quadratic-function-properties": [
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q01",
+      "route": "discriminant",
+      "step": "d_position",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_position",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_position",
       "conditions": {}
     }
   ],
@@ -4308,36 +5631,6 @@
       "problem": "quadratic-always-q07",
       "route": "interval",
       "step": "i_range",
-      "conditions": {}
-    }
-  ],
-  "method-separation#separate": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q04",
-      "route": "extremum",
-      "step": "e_separate",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q05",
-      "route": "extremum",
-      "step": "e_separate",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q06",
-      "route": "extremum",
-      "step": "e_separate",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q07",
-      "route": "extremum",
-      "step": "e_separate",
       "conditions": {}
     }
   ],

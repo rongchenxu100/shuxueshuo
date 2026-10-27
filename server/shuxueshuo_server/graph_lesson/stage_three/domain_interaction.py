@@ -6,7 +6,13 @@ from copy import deepcopy
 import sympy as sp
 
 from .capabilities.cases import _relation_set, exact_set_equal
-from .domain_presentation import condition_label, parameter_view
+from .domain_borrow import compile_borrow_plane
+from .domain_presentation import (
+    _halfline,
+    condition_label,
+    parameter_domain,
+    parameter_view,
+)
 from .domain_visuals import endpoint_checks, number_lines
 from .math_values import latex
 from .trajectory import decode_value
@@ -45,7 +51,9 @@ def _set_options(correct, candidates, prefix="o"):
 def compile_domain(seeds, interaction_id):
     (seed,) = seeds
     values = decode_value(seed["values"])
-    if values["phase"] in ("parameter_conditions", "parameter_universal"):
+    if values["phase"] in (
+        "parameter_conditions", "parameter_universal", "parameter_borrow", "parameter_return",
+    ):
         return compile_parameter(values, interaction_id)
     rows, description, phase = (
         values["constraints"],
@@ -259,15 +267,71 @@ def compile_domain(seeds, interaction_id):
     return {"parts": [part], "diagnostics": diagnostics}
 
 
+def _reciprocal_parameter_conditions(values, interaction_id):
+    """Ask for the two original rules separately, before their strict reduction."""
+    rows, description = values["constraints"], values["description"]
+    slots = []
+    randomizer = random.Random(interaction_id)
+    for index, row in enumerate(rows, 1):
+        condition = row["condition"]
+        if row["kind"] == "radicand_nonnegative":
+            variants = [condition, sp.Gt(condition.lhs, 0, evaluate=False), sp.Ne(condition.lhs, 0, evaluate=False)]
+            feedback = "这里只填写平方根本身的要求：被开方数可以为 0，但不能为负。分母限制须另行保留。"
+        else:
+            variants = [condition, sp.Ge(condition.lhs, 0, evaluate=False), sp.Eq(condition.lhs, 0, evaluate=False)]
+            feedback = "分母不能为 0；只要求非负会遗漏分母为 0 的情形。"
+        options = [{"value": f"s{index}o{i}", "label": _math(value),
+                    **({"feedback": feedback} if i != 1 else {})}
+                   for i, value in enumerate(variants, 1)]
+        randomizer.shuffle(options)
+        slots.append({"label": condition_label(row["kind"]) + " " + _math(row["condition"].lhs),
+                      "options": options})
+    return {
+        "parts": [{
+            "id": interaction_id + "#1", "title": "列出根号与分母的条件",
+            "question": f"原式为 ${description['expression_latex']}$。按根号与分母的基本要求，分别填写各条原始条件。",
+            "submit_label": "确认判断", "interaction": {"type": "checklist", "title": "分别保留原式限制", "slots": slots},
+            "expected_answer": {"terms": [f"s{index}o1" for index in range(1, len(rows) + 1)]},
+            "feedback": {"answer": "根号要求被开方数非负，分母还须非零，各条条件都要保留。"},
+        }],
+        "diagnostics": [{"kind": "checked_original_domain_rules", "conditions": [row["condition_id"] for row in rows]}],
+    }
+
+
+def _reciprocal_parameter_reduction(values, interaction_id):
+    # Compare the rules on a generic real radicand. A particular polynomial
+    # can make >= and > equivalent, which must never create a false distractor.
+    u = sp.Dummy("radicand", real=True)
+    constructors = [sp.Gt, sp.Ge, sp.Ne]
+    meanings = [_relation_set(make(u, 0, evaluate=False), u)[0] for make in constructors]
+    witnesses = [_set_mismatch(meanings[0], other) for other in meanings[1:]]
+    if any(witness is None for witness in witnesses):
+        raise ValueError("domain.parameter_reduction_options_equivalent")
+    feedback = "实数平方根先要求被开方数非负；分母再排除平方根为 0，所以被开方数必须严格大于 0。"
+    options = [{"value": f"o{index}", "label": label, **({"feedback": feedback} if index != 1 else {})}
+               for index, label in enumerate([r"$u>0$", r"$u\geq 0$", r"$u\ne 0$"], 1)]
+    random.Random(interaction_id).shuffle(options)
+    part = {
+        "id": interaction_id + "#1", "title": "合并有意义的条件", "submit_label": "确认判断",
+        "question": (f"把分母根号的被开方数 ${latex(values['constraints'][1 if _halfline(values['description']) else 0]['condition'].lhs)}$ 记作 $u$。"
+                     r"对实数 $u$，把 $u\geq 0$ 与 $\sqrt{u}\ne 0$ 合在一起，相当于什么条件？"),
+        "interaction": {"type": "choice", "field": "answer", "options": options},
+        "expected_answer": {"one_of": ["o1"]}, "feedback": {"answer": feedback},
+    }
+    return part, [{"kind": "strict_radicand_rule_distinct", "witness": str(point)} for point in witnesses]
+
+
 def compile_parameter(values, interaction_id):
-    """Two choices from checked M6 extraction/reduction, before parameter solving."""
-    parameter_view(values)  # Validate the source binding and certified reduction.
+    """M6 narrative cards: extract, transform, borrow method, then return."""
+    view = parameter_view(values)  # Validate the source binding and certified reduction.
     description = values["description"]
-    condition = values["constraints"][0]["condition"]
     part = {"id": interaction_id + "#1", "submit_label": "确认判断"}
     if values["phase"] == "parameter_conditions":
+        if description.get("has_division"):
+            return _reciprocal_parameter_conditions(values, interaction_id)
         # Compare the square-root rule on a generic real radicand, rather than
         # solving the still-unknown parameter range to invent distractors.
+        condition = values["constraints"][0]["condition"]
         radicand = sp.Dummy("radicand", real=True)
         constructors = [sp.Ge, sp.Gt, sp.Ne]
         meanings = [_relation_set(make(radicand, 0, evaluate=False), radicand)[0]
@@ -284,20 +348,58 @@ def compile_parameter(values, interaction_id):
             question=f"原式为 ${description['expression_latex']}$。根号对被开方数要求什么条件？",
         )
         diagnostics = [{"kind": "radicand_rule_distinct", "witness": str(point)} for point in witnesses]
-    else:
+    elif values["phase"] == "parameter_universal":
         variable, relation = latex(values["x"]), latex(values["universal_statement"])
-        feedback = "定义域恰为全体实数，要求每一个实数输入都合法；只找到某个合法输入还不够。"
+        domain_value = parameter_domain(values)
+        domain_label = latex(domain_value)
+        if _halfline(description):
+            feedback = "分母已把域外输入排除；要使定义域恰为题给范围，域内每一个输入都必须使分子根号有意义。"
+            options = [
+                {"value": "o1", "label": rf"每一个 ${variable}\in {domain_label}$ 都应使分子根号有意义"},
+                {"value": "o2", "label": rf"只需找到一个 ${variable}\in {domain_label}$ 使分子根号有意义", "feedback": feedback},
+            ]
+            question = (
+                rf"分母的条件合为 ${latex(values['domain_equivalence']['denominator_condition'])}$，恰好允许 ${domain_label}$，"
+                "域外原式已因分母根号无意义或分母为零而被排除。"
+                rf"要使定义域恰为 ${domain_label}$，对域内输入应怎样检查分子的条件 ${relation}$？"
+            )
+        else:
+            feedback = "定义域恰为全体实数，要求条件对每一个实数输入恒成立；只找到某个合法输入还不够。"
+            options = [
+                {"value": "o1", "label": f"每一个实数 ${variable}$ 都应使原式有意义"},
+                {"value": "o2", "label": f"只需找到一个实数 ${variable}$ 使原式有意义", "feedback": feedback},
+            ]
+            question = (rf"原式有意义的条件为 ${relation}$。题目要求定义域恰为 $\mathbb{{R}}$，"
+                        "按照定义域的含义，应检查哪些实数输入？")
+        part.update(title="转化为恒成立问题", question=question)
+        diagnostics = [{"kind": "checked_domain_equality_quantifier", "quantifier": values["quantifier"]}]
+    elif values["phase"] == "parameter_borrow":
+        return compile_borrow_plane(values, interaction_id)
+    else:
+        parameter = latex(values["parameter"])
+        answer = latex(values["candidate_set"])
+        domain = r"D_{" + description["function_name"] + "}=" + latex(parameter_domain(values))
+        feedback = "子方法求出的是参数范围；它要保证原题的定义域恰为题给范围，而不是另求一个输入集合。"
         options = [
-            {"value": "o1", "label": f"每一个实数 ${variable}$ 都应使原式有意义"},
-            {"value": "o2", "label": f"只需找到一个实数 ${variable}$ 使原式有意义", "feedback": feedback},
+            {"value": "o1", "label": rf"使 ${domain}$ 成立的参数 ${parameter}$ 的取值范围"},
+            {"value": "o2", "label": rf"自变量的定义域，不再管参数 ${parameter}$", "feedback": feedback},
+            {"value": "o3", "label": "原式在某个真子集上有意义即可", "feedback": feedback},
         ]
         part.update(
-            title="把定义域条件化为恒成立",
-            question=(f"原式有意义的条件为 ${relation}$。题目说定义域为 $\\mathbb{{R}}$，"
-                      "按照定义域的含义，应检查哪些实数输入？"),
+            title="回到定义域求参",
+            question=(f"借用的方法已得到 ${parameter}\\in {answer}$。"
+                      "这个结果在原题中保证什么？"),
+            effects={"log": "回到定义域求参：参数范围保证定义域恰为题给范围。",
+                     "nodes": ["method-domain-parameter"]},
         )
-        diagnostics = [{"kind": "checked_domain_equality_quantifier", "quantifier": values["quantifier"]}]
+        diagnostics = [{"kind": "checked_domain_parameter_return", "answer": answer}]
+    # Keep the certified projection on the card for read-back and replay.
+    assert view["domain_explanation"]
     random.Random(interaction_id).shuffle(options)
     part.update(interaction={"type": "choice", "field": "answer", "options": options},
                 expected_answer={"one_of": ["o1"]}, feedback={"answer": feedback})
+    if values["phase"] == "parameter_universal" and description.get("has_division"):
+        reduction, checked = _reciprocal_parameter_reduction(values, interaction_id)
+        part["id"] = interaction_id + "#2"
+        return {"parts": [reduction, part], "diagnostics": [*checked, *diagnostics]}
     return {"parts": [part], "diagnostics": diagnostics}

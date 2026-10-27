@@ -1,5 +1,5 @@
 {
-  "version": "graph-stage-one-expressions/v4",
+  "version": "graph-stage-one-expressions/v5",
   "base": "problem-math-notation-expressions.json",
   "overrides": {
     "domain_and_interval": {
@@ -54,6 +54,34 @@
       "examples": [
         "f(t)=sqrt(3-t)/(t-2)",
         "g(u)=1/sqrt(u-2)"
+      ]
+    },
+    {
+      "id": "function_domain_parameter_goal",
+      "syntax": "g(t)=sqrt(a*t^2+2*a*t+5)；目标 {\"kind\":\"match_domain\",\"object\":\"g\",\"domain\":\"ℝ\",\"symbol\":\"a\"}",
+      "meaning": "已知具体函数的定义域恰为题给集合，求参数范围。保留原函数定义，domain转录题面自变量的全部取值范围，symbol转录待求参数。不得提前生成根式非负、分母非零或量词条件，不填参数答案。题面只写y时，内部可以用无冲突的函数名引用同一对应关系；原题转录仍保留y。若题面直接给量词不等式而非定义域条件，保留该关系并用find_range。",
+      "examples": [
+        "g(t)=sqrt(a*t^2+2*a*t+5)",
+        "h(u)=sqrt((u+b)/(u-3))"
+      ],
+      "few_shots": [
+        {
+          "input": "函数y=√(a*t^2+2*a*t+5)中t的取值范围为R，求a的取值范围。",
+          "output": {
+            "definitions": ["f(t)=sqrt(a*t^2+2*a*t+5)"],
+            "facts": [],
+            "goals": [{"kind": "match_domain", "object": "f", "domain": "ℝ", "symbol": "a"}]
+          },
+          "explanation": "只表示给定定义域，尚未求解；内部f是题面y对应关系的别名，不改写公开题干。"
+        },
+        {
+          "input": "对任意t∈R，a*t^2+2*a*t+5≥0恒成立，求a的取值范围。",
+          "output": {
+            "facts": ["∀t∈ℝ: a*t^2+2*a*t+5 ≥ 0"],
+            "goals": [{"kind": "find_range", "symbol": "a"}]
+          },
+          "explanation": "这是题面直接给出的量词不等式，保留原条件；不添加函数定义或改成match_domain。"
+        }
       ]
     }
   ]

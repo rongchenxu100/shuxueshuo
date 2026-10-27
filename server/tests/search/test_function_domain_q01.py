@@ -44,6 +44,13 @@ def test_real_q01_recording_binds_y_formula_and_power_knowledge(tmp_path):
     (r"\sqrt{kx^{2}+2x+1}", "sqrt(k*x^2+2*x+1)", True),
     (r"\sqrt{k*x^{2}+2*x+1}", "sqrt(k*x^2+2*x+1)", True),
     (r"\sqrt{kx^{2}+2x+1}", "sqrt(k*x^2+2*x+2)", False),
+    (r"\frac{1}{\sqrt{m x^2-6m x+m+8}}", "1/sqrt(m*x^2-6*m*x+m+8)", True),
+    ("sqrt(m\t x^2-6m\u00a0x+m+8)", "sqrt(m*x^2-6*m*x+m+8)", True),
+    (r"\frac{1}{\sqrt{m\,x^2-6m\cdot x+m+8}}", "1/sqrt(m*x^2-6*m*x+m+8)", True),
+    (r"\frac{1}{\sqrt{m x^2-6m x+m+9}}", "1/sqrt(m*x^2-6*m*x+m+8)", False),
+    (r"x^{1} 2", "x^12", False),
+    ("1 2*x", "12*x", False),
+    ("a / (b / c)", "a*c/b", False),
 ])
 def test_display_product_grouping_preserves_powers_and_each_original_divisor(display, expected, matches):
     assert _domain_formula_body_matches(display, expected) is matches

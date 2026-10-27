@@ -1,0 +1,62 @@
+{
+  "problem_id": "function-concepts-q23b",
+  "source": "用户上传的教材第83页例6变式2：共享题干与第(2)问，作为独立题",
+  "source_thread": "01a142d6-1e4f-7a62-aa2b-b6f799302aa4",
+  "source_message": "msg_01a16d08-d6da-78c1-85ca-2c36c45d03e2",
+  "source_message_timestamp": "2026-10-24T08:30:58.271Z",
+  "source_attachment_index": 3,
+  "original_filename": "codex-clipboard-b3be7935-8006-4791-a8b5-b6f15f2979cd.png",
+  "page": {
+    "file": "source-page.png",
+    "size": [
+      1279,
+      1706
+    ],
+    "sha256": "3ebeea693d8af94bbe6413f5dee5d9ab50bc5483f99be6d775ea9ba1bdc70ffd"
+  },
+  "parts": [
+    {
+      "file": "source-shared-stem.png",
+      "crop_xyxy": [
+        195,
+        334,
+        510,
+        408
+      ],
+      "paste_xy": [
+        16,
+        16
+      ],
+      "sha256": "c493a478606af5c13853d493abede74e76a5f19953cf76278016c07a33834137"
+    },
+    {
+      "file": "source-second-question.png",
+      "crop_xyxy": [
+        145,
+        465,
+        678,
+        513
+      ],
+      "paste_xy": [
+        16,
+        106
+      ],
+      "sha256": "ba31187620038a8dc3cb52dd90683efaf21414d319ce5620b3c2924921e45451"
+    }
+  ],
+  "question": {
+    "file": "source-question.png",
+    "size": [
+      565,
+      170
+    ],
+    "background_rgb": [
+      255,
+      255,
+      255
+    ],
+    "sha256": "16f0cc800d462884f08585bff5aac2a0c46299a60c3b611bd94daacfd18a4d0f"
+  },
+  "processing": "从原上传PNG分别裁取公共题干与第(2)问，保持两段像素不变，按所记坐标拼接到白色画布形成独立问题验收图；去除变式标题、小问编号、第(1)问m=10及原书解答。此图是两段原图裁片组合，不是一次独立上传的原始照片；未重绘、改字或注入识别文本。",
+  "standalone_statement": "已知函数 f(x)=sqrt(x^2-3*x-m)/sqrt(x-1)，若 f(x) 的定义域是 (1,+∞)，求实数 m 的取值范围。"
+}

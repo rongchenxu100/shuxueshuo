@@ -31,9 +31,9 @@ test('structured export contains current ontology and private drills without HTM
   assert.equal(data.knowledge_nodes.length, 94);
   assert.equal(new Set(data.knowledge_nodes.map((n) => n.kind)).size, 9);
   assert.equal(new Set(data.knowledge_edges.map((e) => e.relation_type)).size, 10);
-  assert.equal(data.practice_problems.length, 42);
-  assert.equal(data.practice_routes.length, 53);
-  assert.equal(data.practice_steps.length, 285);
+  assert.equal(data.practice_problems.length, 45);
+  assert.equal(data.practice_routes.length, 56);
+  assert.equal(data.practice_steps.length, 329);
   assert.equal(data.knowledge_drill_items.length, 177);
   assert.equal(new Set(data.knowledge_drill_items.map((q) => q.item_id)).size, 177);
   assert.equal(data.knowledge_drill_items.filter((q) => q.node_id === 'amgm-formula').length, 1);
@@ -47,7 +47,7 @@ test('chapter 3.1 exposes domain courses with their own knowledge sources and ke
   assert.equal(topic.label, '函数的概念');
   assert.equal(topic.path, '/topics/function-concepts/');
   assert.equal(topic.groups.length, 5);
-  const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22'];
+  const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b'];
   assert.deepEqual(topic.groups.find((group) => group.id === 'domain').problems, ids);
   assert.ok(topic.groups.filter((group) => group.id !== 'domain').every((group) => group.problems.length === 0));
   assert.deepEqual(data.practice_topic_problems.filter((row) => row.topic_id === topic.id).map(row => row.problem_id).sort(), [...ids].sort());
@@ -66,18 +66,22 @@ test('chapter 3.1 exposes domain courses with their own knowledge sources and ke
     assert.ok(steps.some(step => step.refs.includes(basis)), `${id} exports its own mathematical basis`);
     assert.ok(data.practice_problem_types.some((row) => row.problem_id === id && row.node_id === 'type-function-domain'));
   }
-  {
-    const id = 'function-concepts-q22';
+  for (const id of ['function-concepts-q22-v2', 'function-concepts-q04', 'function-concepts-q12', 'function-concepts-q23b']) {
     const problem = data.practice_problems.find((row) => row.id === id);
     const course = problem.problem_data._graph_walk;
     assert.equal(course.schema, 'graph-walk-practice/v1');
     assert.deepEqual(Object.keys(course.routes), ['domain-parameter']);
     assert.deepEqual(course.intro.map(step => step.id), ['D1', 'D2', 'D3']);
-    assert.equal(course.routes['domain-parameter'].steps.length, 9);
+    const expectedSteps = {'function-concepts-q12': 15, 'function-concepts-q23b': 13}[id] ?? 14;
+    assert.equal(course.routes['domain-parameter'].steps.length, expectedSteps - 3);
     const steps = data.practice_steps.filter((row) => row.problem_id === id);
-    assert.equal(steps.length, 12);
-    assert.ok(steps.some(step => step.refs.includes('method-discriminant')
-      || step.refs.some(ref => ref.startsWith('method-discriminant#'))), `${id} keeps discriminant submethod refs`);
+    assert.equal(steps.length, expectedSteps);
+    if (['function-concepts-q12', 'function-concepts-q23b'].includes(id)) {
+      assert.ok(steps.some(step => step.refs.includes('rational-expression#meaning')));
+    }
+    const borrowed = id === 'function-concepts-q23b' ? 'method-separation' : 'method-discriminant';
+    assert.ok(steps.some(step => step.refs.includes(borrowed)
+      || step.refs.some(ref => ref.startsWith(borrowed + '#'))), `${id} keeps its borrowed submethod refs`);
     assert.ok(data.practice_problem_types.some((row) => row.problem_id === id && row.node_id === 'type-function-domain'));
   }
   const types = data.knowledge_nodes.filter((node) => node.body.status === 'planned');

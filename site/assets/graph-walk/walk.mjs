@@ -1,8 +1,9 @@
 import {createState, currentDecision, submitAnswer, undo, switchRoute, graphState, replayState, extendStreamBundle, streamGraphState, migrateStageTwoState, refreshStreamState, setStreamDraft, streamDraft, teachingContext, CALL_LANE} from './walk-state.mjs?v=20261026-domain-powers';
 import {createWalkGraph, nodeHref} from './walk-graph.mjs?v=20261015-view-tabs';
-import {createMathCard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261026-domain-powers';
+import {createMathCard, setMathCardLayout, attachMathQA, createRouteCompletion} from './stream-math-dom.mjs?v=20261027-derivation-punctuation';
 import {expressionRegionsHTML} from './expression-regions.mjs?v=20261026-domain-powers';
 import {domainNumberLineGraph, endpointChecksHTML} from './domain-visuals.mjs?v=20261026-domain-powers';
+import {buildStreamReplay} from './walk-replay.mjs?v=20261027-submethods';
 
 const BUNDLE_URL = '/data/graph-walk/quadratic-always-q01.json';
 const REPLAY_INDEX_URL = '/data/graph-walk/replays/index.json';
@@ -1682,23 +1683,8 @@ export function disposeWalk() {
 export const walkActor = () => actor;
 
 function streamReplay() {
-  const actions = structuredClone(options.replay?.actions || []);
-  const plane = bundle.intro.find(item => item.id === 'D3');
-  const route = [replayRoute, state?.run?.route].find(id => bundle.routes[id]?.route_plan === 'planned' && bundle.routes[id]?.available !== false)
-    || Object.keys(bundle.routes).find(id => bundle.routes[id].route_plan === 'planned' && bundle.routes[id].available !== false);
-  const method = route && plane?.interaction.methods?.find(item => item.route === route);
-  if (method) actions.push({decision: 'D3', answer: plane.interaction.type === 'read' ? 'read' : [...plane.expected_answer.cell, method.value]});
-  if (method) for (const decision of bundle.routes[route].steps || []) {
-    const expected = decision.expected_answer || {};
-    const answer = decision.interaction.type === 'read' ? 'read'
-      : decision.interaction.type === 'choice' ? expected.one_of?.[0]
-        : decision.interaction.type === 'multi' ? expected.required
-          : ['fill', 'checklist'].includes(decision.interaction.type) ? expected.terms : null;
-    if (answer == null) break;
-    actions.push({decision: decision.id, answer: structuredClone(answer)});
-  }
-  return {schemaVersion: 2, problemId: bundle.problemId, bundleVersion: bundle.bundleVersion,
-    status: 'partial', routes: method ? [route] : [], actions};
+  return buildStreamReplay(bundle, {actions: options.replay?.actions,
+    replayRoute, currentRoute: state?.run?.route});
 }
 
 export function walkView() {

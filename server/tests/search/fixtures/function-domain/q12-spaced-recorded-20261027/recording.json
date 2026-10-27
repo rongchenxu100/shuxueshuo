@@ -1,0 +1,37 @@
+{
+  "contract": "student-search-recording/v1",
+  "source_kind": "unchanged_user_photo_with_spaced_math_transcription",
+  "source_submission": "aa3ec4a99234",
+  "recorded_date": "2026-10-27",
+  "historical_semantic_calls": 2,
+  "historical_network_attempts": 2,
+  "source_image_sha256": "9e5973ded17580dde0282f95e324cf1f398ef25456e9bec256c025e0a318af7a",
+  "notes": "Original successful extraction/review followed by failed reading presentation: m x^2 in original_text was rejected by the D1 display adapter although canonical math and type recognition were correct. This is retained evidence, not a fresh model call. Model responses are unmodified.",
+  "previous_stage_two": {
+    "status": "completed",
+    "primary": "type-function-domain",
+    "d1_diagnostics": [
+      {
+        "code": "d1.function_definition_not_uniquely_located",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "code": "d1.unsupported_surface_command",
+        "start": 9
+      },
+      {
+        "code": "d1.unsupported_surface_command",
+        "start": 53
+      }
+    ]
+  },
+  "files": {
+    "question.png": "9e5973ded17580dde0282f95e324cf1f398ef25456e9bec256c025e0a318af7a",
+    "result.json": "534c47b54960d914da8f0fd00f3b384f66e47b63b7470eff89179ba379a50c0e",
+    "workflow/ledger.json": "6f8e6e94703dcafda6222219ab8c61af0918b623a249060177f59d8f4ccf347d",
+    "workflow/calls/01-extract/request.json": "fbeecd023f7c234cd2729ce495d5079f0bbdf9c4590dadc644f31a229e7a9357",
+    "workflow/calls/01-extract/response.json": "a7d8c1948b81e396432841059223c5c694db81630ce0b2dbf247b2ed972caf3c",
+    "workflow/calls/02-review/request.json": "eb0a001e631333e41017ccc535e65d117e925b6477643d5b0d329058f4eab278",
+    "workflow/calls/02-review/response.json": "ee751f1db6a059d9ecef6473f2f211c7471f660385fbd41bac041b0bca4a0385"
+  }
+}

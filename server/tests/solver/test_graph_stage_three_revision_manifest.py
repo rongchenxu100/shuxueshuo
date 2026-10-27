@@ -2,10 +2,13 @@
 
 import json
 from copy import deepcopy
+from hashlib import sha256
+from pathlib import Path
 
 import pytest
 from jsonschema import Draft202012Validator, ValidationError
 
+from shuxueshuo_server.graph_lesson import domain_expression
 from shuxueshuo_server.graph_lesson.stage_three import (
     calculations,
     driver,
@@ -130,3 +133,8 @@ def test_fingerprint_freezes_new_contracts_and_manifest_hash_implementation():
     assert "internal/schemas/graph-math-step-v2.schema.json" in frozen
     assert "internal/schemas/graph-stage-three-route-v2.schema.json" in frozen
     assert "server/shuxueshuo_server/graph_lesson/stage_three/revision_manifest.py" in frozen
+
+
+def test_fingerprint_freezes_shared_domain_expression_implementation():
+    source = Path(domain_expression.__file__).resolve()
+    assert runner.fingerprint()[str(source.relative_to(ROOT))] == sha256(source.read_bytes()).hexdigest()

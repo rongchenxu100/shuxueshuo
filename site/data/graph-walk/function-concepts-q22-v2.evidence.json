@@ -1,0 +1,2897 @@
+{
+  "schemaVersion": 1,
+  "provenance": {
+    "run_id": "fe363ab2fae946169d32ea94fc3be965",
+    "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+    "input_sha256": "ea65c83cc7a6b92e6d9a36b5613fb496020b48da8a2d18a61430e80b7b07b436",
+    "checkpoint_sha256": "6863f3c9e0d5bd243ab0e629e9b72097f958eb64ccd797a46d78288d235efe31",
+    "result_sha256": "f738a02906025d2265dba98b18529a5697945ceb0e83dd56906d2feccad27329",
+    "stage_one_sha256": "00f9d2ea9724730a758d303e64c63dac36219b684c15936466cf9538e9ceda14",
+    "stage_two_sha256": "f5015dc9a070159f4bc30a867961143850736c06b3204ecbf935b28b440fdb03"
+  },
+  "lesson": {
+    "status": "completed",
+    "goals": [
+      {
+        "target_ref": "/root/goals/0",
+        "scope": "/root",
+        "label": "",
+        "status": "resolved",
+        "primary": "type-function-domain",
+        "supported": [
+          "type-function-domain"
+        ],
+        "d1": {
+          "rows": [
+            {
+              "id": "/root/goals/0:goal",
+              "kind": "goal",
+              "quote": [
+                {
+                  "start": 30,
+                  "end": 33,
+                  "text": "定义域"
+                },
+                {
+                  "start": 47,
+                  "end": 60,
+                  "text": "求实数 $k$ 的取值范围"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:2",
+                "/root/goals/0:d1:3"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements",
+                "quantifiers#universal"
+              ],
+              "source_refs": [
+                "/root/definitions/0",
+                "/root/goals/0"
+              ],
+              "signature": "87ba6c6084199710",
+              "options": [
+                {
+                  "text": "自变量 $x$ 的取值范围",
+                  "correct": false,
+                  "violates": "goal",
+                  "feedback": "题面已给出定义域，要求的是参数 $k$；不是再求自变量 $x$ 的集合。",
+                  "id": "/root/goals/0:goal:o0"
+                },
+                {
+                  "text": "使定义域恰为题给集合的参数 $k$ 的取值范围",
+                  "correct": true,
+                  "violates": null,
+                  "feedback": "",
+                  "id": "/root/goals/0:goal:o1"
+                }
+              ]
+            }
+          ],
+          "givens": [
+            {
+              "id": "/root/goals/0:expression",
+              "kind": "expression",
+              "quote": [
+                {
+                  "start": 4,
+                  "end": 27,
+                  "text": "$f(x)=\\sqrt{kx^{2}+2x+1}$"
+                }
+              ],
+              "fragment_ids": [
+                "/root/goals/0:d1:1"
+              ],
+              "knowledge_refs": [
+                "function-concept#elements",
+                "quadratic-inequality#signs",
+                "square-root-expression#meaning"
+              ],
+              "source_refs": [
+                "/root/definitions/0",
+                "/root/goals/0"
+              ],
+              "signature": "445cc5a24a6f0112",
+              "source_ref": "/root/definitions/0"
+            }
+          ],
+          "interaction": "choice",
+          "question": "题目已知定义域，实际要求确定什么？",
+          "summary": "定义域已给定为全体实数。本题要求使 $f(x)$ 的定义域恰为 $\\mathbb R$ 的参数 $k$ 的取值范围。"
+        },
+        "d2": [
+          {
+            "type_id": "type-function-domain",
+            "label": "具体函数的定义域问题",
+            "role": "primary",
+            "feedback": "",
+            "reasons": [
+              "已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+            ]
+          }
+        ],
+        "knowledge": [
+          {
+            "ref": "function-concept#elements",
+            "node": "function-concept",
+            "label": "函数的概念",
+            "title": "函数的三要素"
+          },
+          {
+            "ref": "square-root-expression#meaning",
+            "node": "square-root-expression",
+            "label": "二次根式",
+            "title": "有意义的条件与算术平方根"
+          },
+          {
+            "ref": "quantifiers#universal",
+            "node": "quantifiers",
+            "label": "全称量词与存在量词",
+            "title": "全称量词"
+          },
+          {
+            "ref": "quadratic-inequality#signs",
+            "node": "quadratic-inequality",
+            "label": "一元二次不等式",
+            "title": "开口与根决定符号"
+          }
+        ],
+        "links": [
+          {
+            "from": "function-concept",
+            "to": "type-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "function-concept#elements"
+            ]
+          },
+          {
+            "from": "quadratic-inequality",
+            "to": "type-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "quadratic-inequality#signs"
+            ]
+          },
+          {
+            "from": "quantifiers",
+            "to": "type-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "quantifiers#universal"
+            ]
+          },
+          {
+            "from": "square-root-expression",
+            "to": "type-function-domain",
+            "relation": "involves",
+            "knowledge_refs": [
+              "square-root-expression#meaning"
+            ]
+          }
+        ],
+        "walk": {
+          "bundle": {
+            "schemaVersion": 1,
+            "problemId": "function-concepts-q22-v2//root/goals/0",
+            "graphVersion": "4a5345c5443b73c2714222928602064111474231a2edb46ee92be4c38fcb582f",
+            "problem": {
+              "text": "函数 $f(x)=\\sqrt{kx^{2}+2x+1}$ 的定义域为 $\\mathbb R$，求实数 $k$ 的取值范围。",
+              "givens": [
+                {
+                  "id": "/root/goals/0:expression",
+                  "kind": "expression",
+                  "quote": [
+                    {
+                      "start": 4,
+                      "end": 27,
+                      "text": "$f(x)=\\sqrt{kx^{2}+2x+1}$"
+                    }
+                  ],
+                  "fragment_ids": [
+                    "/root/goals/0:d1:1"
+                  ],
+                  "knowledge_refs": [
+                    "function-concept#elements",
+                    "quadratic-inequality#signs",
+                    "square-root-expression#meaning"
+                  ],
+                  "source_refs": [
+                    "/root/definitions/0",
+                    "/root/goals/0"
+                  ],
+                  "signature": "445cc5a24a6f0112",
+                  "source_ref": "/root/definitions/0"
+                }
+              ]
+            },
+            "notation": {},
+            "intro": [
+              {
+                "id": "D1",
+                "title": "读题",
+                "question": "题目已知定义域，实际要求确定什么？",
+                "source": "authored",
+                "submit_label": "读懂了，看图谱怎么走",
+                "interaction": {
+                  "type": "choice",
+                  "field": "reading",
+                  "options": [
+                    {
+                      "value": "/root/goals/0:goal:o0",
+                      "label": "自变量 $x$ 的取值范围",
+                      "feedback": "题面已给出定义域，要求的是参数 $k$；不是再求自变量 $x$ 的集合。"
+                    },
+                    {
+                      "value": "/root/goals/0:goal:o1",
+                      "label": "使定义域恰为题给集合的参数 $k$ 的取值范围"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "/root/goals/0:goal:o1"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再想一想，定义域描述的是输入还是输出的取值范围。"
+                },
+                "candidateNodes": [
+                  "function-concept",
+                  "quantifiers",
+                  "quadratic-inequality",
+                  "square-root-expression",
+                  "type-function-domain",
+                  "type-quantified-quadratic",
+                  "type-abstract-function-domain",
+                  "type-amgm-quantified",
+                  "type-function-equality",
+                  "type-function-evaluation",
+                  "type-function-range",
+                  "type-parameter-quadratic-solve"
+                ],
+                "effects": {
+                  "nodes": [
+                    "function-concept",
+                    "quantifiers",
+                    "quadratic-inequality",
+                    "square-root-expression"
+                  ],
+                  "edges": [],
+                  "calls": [],
+                  "results": [
+                    "定义域已给定为全体实数。本题要求使 $f(x)$ 的定义域恰为 $\\mathbb R$ 的参数 $k$ 的取值范围。"
+                  ],
+                  "log": "图谱查询：从 4 个知识线索反查，找到 8 个相关题型；最高覆盖 4/4。"
+                }
+              },
+              {
+                "id": "D2",
+                "title": "确定题型",
+                "question": "哪一个题型最直接描述这一问的条件与求解目标？",
+                "source": "authored",
+                "submit_label": "确认题型",
+                "interaction": {
+                  "type": "choice",
+                  "field": "problem_type",
+                  "options": [
+                    {
+                      "value": "type-function-domain",
+                      "label": "具体函数的定义域问题"
+                    }
+                  ]
+                },
+                "expected_answer": {
+                  "one_of": [
+                    "type-function-domain"
+                  ]
+                },
+                "feedback": {
+                  "answer": "再对照这一问的条件和问法想一想。"
+                },
+                "alternatives": {},
+                "candidateNodes": [
+                  "type-function-domain"
+                ],
+                "effects": {
+                  "nodes": [
+                    "type-function-domain"
+                  ],
+                  "edges": [
+                    "type-function-domain|involves|function-concept",
+                    "type-function-domain|involves|quantifiers",
+                    "type-function-domain|involves|quadratic-inequality",
+                    "type-function-domain|involves|square-root-expression"
+                  ],
+                  "calls": [],
+                  "results": [
+                    "判断依据：已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+                  ],
+                  "log": "作答判断：选择主要题型「具体函数的定义域问题」；另外 0 个题型保留为对照。"
+                }
+              }
+            ],
+            "routes": {},
+            "templates": {},
+            "pending": {
+              "title": "选方法",
+              "status": "生成中",
+              "text": "接下来要在图谱里为这一问选方法、一步步解出来；这部分还在生成，先看看图谱里亮起的线索和题型。"
+            },
+            "feedbackLabels": {
+              "uncovered": "也能做 · 这节课先不展开"
+            },
+            "completion": {
+              "answer": "",
+              "back": {
+                "href": "/lab/search/",
+                "label": "再拍一题"
+              }
+            },
+            "graph": {
+              "nodes": [
+                {
+                  "id": "function-concept",
+                  "kind": "knowledge",
+                  "label": "函数的概念",
+                  "summary": "函数给定义域中的每个输入唯一确定一个输出；定义域和对应关系共同确定函数。",
+                  "aliases": [
+                    "函数定义",
+                    "函数三要素"
+                  ],
+                  "status": "knowledge_only",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "quantifiers",
+                  "kind": "knowledge",
+                  "label": "全称量词与存在量词",
+                  "summary": "先明确“对谁、在哪个范围内”，再区分全部满足与至少一次满足。",
+                  "aliases": [
+                    "恒成立",
+                    "存在成立",
+                    "任意",
+                    "有解"
+                  ],
+                  "home": "compulsory-1-ch1"
+                },
+                {
+                  "id": "quadratic-inequality",
+                  "kind": "knowledge",
+                  "label": "一元二次不等式",
+                  "summary": "二次不等式的解集由二次式的符号决定；图像在横轴上方或下方对应不同解集。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch2"
+                },
+                {
+                  "id": "square-root-expression",
+                  "kind": "knowledge",
+                  "label": "二次根式",
+                  "summary": "在实数范围内，二次根式要求被开方数非负，结果表示非负的算术平方根。",
+                  "aliases": [],
+                  "status": "knowledge_only",
+                  "home": "junior-knowledge"
+                },
+                {
+                  "id": "type-function-domain",
+                  "kind": "problem_type",
+                  "label": "具体函数的定义域问题",
+                  "summary": "由具体表达式或实际情境确定合法输入，也包括已知准确的定义域反求参数。",
+                  "aliases": [],
+                  "status": "active",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-quantified-quadratic",
+                  "kind": "problem_type",
+                  "label": "含参一元二次不等式的恒成立与存在成立问题",
+                  "summary": "在给定范围内，二次不等式要对所有取值都成立（或至少一个取值成立），求参数的范围、最小值或最大值。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch2"
+                },
+                {
+                  "id": "type-abstract-function-domain",
+                  "kind": "problem_type",
+                  "label": "抽象函数的定义域问题",
+                  "summary": "根据已知的函数输入范围，确定新复合表达式的合法输入，并合并其他表达式限制。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-amgm-quantified",
+                  "kind": "problem_type",
+                  "label": "应用基本不等式的恒成立与存在成立问题",
+                  "summary": "不等式要对所有取值（或某个取值）成立，求参数范围、最小值或最大值；参数另一边式子的最值用基本不等式求，再看最值取不取得到。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch2"
+                },
+                {
+                  "id": "type-function-equality",
+                  "kind": "problem_type",
+                  "label": "判断是否为相同函数",
+                  "summary": "比较两个函数的定义域及每个输入对应的输出，判断它们是否表示同一函数。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-evaluation",
+                  "kind": "problem_type",
+                  "label": "求函数值",
+                  "summary": "根据对应关系求数值或表达式输入的输出，包含复合、函数值组合及逆向求输入。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-function-range",
+                  "kind": "problem_type",
+                  "label": "求函数的值域",
+                  "summary": "确定全部实际可达的输出集合，保留原定义域、离散性和端点取舍。",
+                  "aliases": [],
+                  "status": "planned",
+                  "home": "compulsory-1-ch3"
+                },
+                {
+                  "id": "type-parameter-quadratic-solve",
+                  "kind": "problem_type",
+                  "label": "含参数的一元二次不等式求解问题",
+                  "summary": "二次不等式的系数里有参数，按参数的不同情况分别写出 x 的解集。",
+                  "aliases": [],
+                  "home": "compulsory-1-ch2"
+                },
+                {
+                  "id": "method-domain-intersection",
+                  "kind": "method",
+                  "label": "列条件求交集法",
+                  "summary": "求具体函数定义域时，按原式列出有意义的条件，分别求解，再与题给范围取交集并检查端点。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "extract",
+                      "title": "找限制位置并列条件",
+                      "calls": [
+                        "skill-expression-defined"
+                      ]
+                    },
+                    {
+                      "id": "solve",
+                      "title": "解每个条件",
+                      "calls": [
+                        "skill-inequality-transform"
+                      ]
+                    },
+                    {
+                      "id": "intersect",
+                      "title": "把全部条件与题给范围取交集",
+                      "calls": []
+                    },
+                    {
+                      "id": "verify",
+                      "title": "检查原式与端点",
+                      "calls": []
+                    }
+                  ]
+                },
+                {
+                  "id": "method-domain-parameter",
+                  "kind": "method",
+                  "label": "定义域求参法",
+                  "summary": "已知含参具体解析式的定义域恰为给定集合时，先按原式列出有意义条件，再要求其解集恰等于该集合，从而求出参数范围。",
+                  "aliases": [],
+                  "steps": [
+                    {
+                      "id": "extract",
+                      "title": "按原式列出有意义的条件",
+                      "calls": [
+                        "skill-expression-defined"
+                      ]
+                    },
+                    {
+                      "id": "reduce",
+                      "title": "把“定义域恰为给定集合”写成全称条件",
+                      "calls": []
+                    },
+                    {
+                      "id": "solve",
+                      "title": "用判别式法求参数",
+                      "calls": [
+                        "method-discriminant"
+                      ]
+                    },
+                    {
+                      "id": "verify",
+                      "title": "核验定义域条件",
+                      "calls": []
+                    }
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "id": "type-abstract-function-domain|involves|function-concept",
+                  "from": "type-abstract-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-amgm-quantified|involves|quantifiers",
+                  "from": "type-amgm-quantified",
+                  "to": "quantifiers",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|candidate|method-domain-intersection",
+                  "from": "type-function-domain",
+                  "to": "method-domain-intersection",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|candidate|method-domain-parameter",
+                  "from": "type-function-domain",
+                  "to": "method-domain-parameter",
+                  "type": "candidate",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|function-concept",
+                  "from": "type-function-domain",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|quadratic-inequality",
+                  "from": "type-function-domain",
+                  "to": "quadratic-inequality",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|quantifiers",
+                  "from": "type-function-domain",
+                  "to": "quantifiers",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-domain|involves|square-root-expression",
+                  "from": "type-function-domain",
+                  "to": "square-root-expression",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-equality|involves|function-concept",
+                  "from": "type-function-equality",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-evaluation|involves|function-concept",
+                  "from": "type-function-evaluation",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-function-range|involves|function-concept",
+                  "from": "type-function-range",
+                  "to": "function-concept",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-parameter-quadratic-solve|involves|quadratic-inequality",
+                  "from": "type-parameter-quadratic-solve",
+                  "to": "quadratic-inequality",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-quantified-quadratic|involves|quadratic-inequality",
+                  "from": "type-quantified-quadratic",
+                  "to": "quadratic-inequality",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                },
+                {
+                  "id": "type-quantified-quadratic|involves|quantifiers",
+                  "from": "type-quantified-quadratic",
+                  "to": "quantifiers",
+                  "type": "involves",
+                  "occurrences": [
+                    {}
+                  ]
+                }
+              ],
+              "lanes": [
+                {
+                  "label": "知识线索",
+                  "ids": [
+                    "function-concept",
+                    "quantifiers",
+                    "quadratic-inequality",
+                    "square-root-expression"
+                  ]
+                },
+                {
+                  "label": "题型",
+                  "kind": "problem_type"
+                },
+                {
+                  "label": "选法判断",
+                  "kind": "judgment_rule"
+                },
+                {
+                  "label": "方法",
+                  "kind": "method"
+                }
+              ]
+            },
+            "bundleVersion": "dcdcb60601552f6d820bcfd7200a64940ce7a38b3c208168caf697c073036598"
+          },
+          "replay": {
+            "schemaVersion": 2,
+            "problemId": "function-concepts-q22-v2//root/goals/0",
+            "bundleVersion": "dcdcb60601552f6d820bcfd7200a64940ce7a38b3c208168caf697c073036598",
+            "status": "partial",
+            "routes": [],
+            "actions": [
+              {
+                "decision": "D1",
+                "answer": "/root/goals/0:goal:o1",
+                "reason": "定义域已给定为全体实数。本题要求使 $f(x)$ 的定义域恰为 $\\mathbb R$ 的参数 $k$ 的取值范围。"
+              },
+              {
+                "decision": "D2",
+                "answer": "type-function-domain",
+                "reason": "选「具体函数的定义域问题」：已知含参表达式的定义域恰为指定集合时，目标是满足这一条件的全部参数。"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "stream": {
+    "run_id": "fe363ab2fae946169d32ea94fc3be965",
+    "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+    "input_sha256": "ea65c83cc7a6b92e6d9a36b5613fb496020b48da8a2d18a61430e80b7b07b436",
+    "stream_id": "fe363ab2fae946169d32ea94fc3be965",
+    "last_seq": 59,
+    "minimum_seq": 1,
+    "math_steps": [
+      {
+        "after": [],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_parameter_conditions",
+        "explanation": "原式为 $\\sqrt{k\\cdot x^{2}+2\\cdot x+1}$。平方根有意义要求被开方数非负，因此须有 $k x^{2} + 2 x + 1 \\geq 0$。",
+        "highlight": {
+          "caption": "列出根式有意义的条件",
+          "connector": "→",
+          "items": [
+            {
+              "label": "原式",
+              "math": "\\sqrt{k\\cdot x^{2}+2\\cdot x+1}"
+            },
+            {
+              "label": "有意义的条件",
+              "math": "k x^{2} + 2 x + 1 \\geq 0"
+            }
+          ]
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "138dfd2e7d57f9a3ccc539c434445c17cfccb47d8c3a6ba54892bfdeed436117",
+        "method_ref": "method-domain-parameter#extract",
+        "ordinal": 1,
+        "premise_refs": [],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/0/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-001-domain_parameter_conditions",
+        "target_ref": "/root/goals/0",
+        "title": "列出根式有意义的条件",
+        "used_basis": [
+          "square-root-expression#meaning"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "k*x**2 + 2*x + 1 >= 0",
+            "latex": "k x^{2} + 2 x + 1 \\geq 0"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_parameter_universal",
+        "explanation": "定义域恰为全体实数，意味着每一个实数 $x$ 都使原式有意义。因此 $D_{f}=\\mathbb{R}$ 等价于恒成立问题 $\\forall x\\in\\mathbb{R},\\quad k x^{2} + 2 x + 1 \\geq 0$。",
+        "highlight": {
+          "caption": "转化为恒成立问题",
+          "connector": "⇔",
+          "items": [
+            {
+              "label": "已知定义域",
+              "math": "D_{f}=\\mathbb{R}"
+            },
+            {
+              "label": "等价的恒成立问题",
+              "math": "\\forall x\\in\\mathbb{R},\\quad k x^{2} + 2 x + 1 \\geq 0"
+            }
+          ]
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "3879becb5543f6d688eff20fde261abcb673c49867ebe76c819cfc205e4b866e",
+        "method_ref": "method-domain-parameter#reduce",
+        "ordinal": 2,
+        "premise_refs": [],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-002-domain_parameter_universal",
+        "target_ref": "/root/goals/0",
+        "title": "转化为恒成立问题",
+        "used_basis": [
+          "function-concept#elements",
+          "quantifiers#universal",
+          "square-root-expression#meaning"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "k*x**2 + 2*x + 1 >= 0",
+            "latex": "k x^{2} + 2 x + 1 \\geq 0"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_parameter_borrow",
+        "explanation": "当前子问题是 $\\forall x\\in\\mathbb{R},\\quad k x^{2} + 2 x + 1 \\geq 0$。这是已学过的全实数二次恒成立，按选法判断可借用判别式法求参数。",
+        "highlight": {
+          "caption": "按选法判断借用方法",
+          "connector": "→",
+          "items": [
+            {
+              "label": "恒成立子问题",
+              "math": "\\forall x\\in\\mathbb{R},\\quad k x^{2} + 2 x + 1 \\geq 0"
+            },
+            {
+              "label": "借用方法",
+              "math": "\\text{判别式法}"
+            }
+          ]
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "760af358b45dabb541331566aba63a2bee88ecc7a127c6ff41402119ca385b88",
+        "method_ref": "method-domain-parameter#reduce",
+        "ordinal": 3,
+        "premise_refs": [],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/1/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-003-domain_parameter_borrow",
+        "target_ref": "/root/goals/0",
+        "title": "选择已学方法",
+        "used_basis": [
+          "function-concept#elements",
+          "quantifiers#universal",
+          "square-root-expression#meaning"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "k",
+            "latex": "k"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "case_basis",
+        "explanation": "二次项系数为 $k$，令其为零：$k = 0$。",
+        "highlight": {
+          "caption": "按二次项是否消失分类",
+          "connector": "",
+          "items": [
+            {
+              "label": "二次项消失，代入检查",
+              "math": "k = 0"
+            },
+            {
+              "label": "二次项保留，按二次式求解",
+              "math": "k \\neq 0"
+            }
+          ]
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "c59eb166c6909b13aca0db9fe5f2684d2cb397930638c4b980c1cc0a25cfa3ce",
+        "method_ref": "method-discriminant#degree",
+        "ordinal": 4,
+        "premise_refs": [
+          "/steps/3/judgments/0"
+        ],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/3/judgments/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-004-case_basis",
+        "target_ref": "/root/goals/0",
+        "title": "判断二次项系数是否为 0",
+        "used_basis": []
+      },
+      {
+        "after": [
+          {
+            "expression": "2*x + 1 >= 0",
+            "latex": "2 x + 1 \\geq 0"
+          },
+          {
+            "expression": "EmptySet",
+            "latex": "\\emptyset"
+          }
+        ],
+        "before": [
+          {
+            "expression": "k*x**2 + 2*x + 1 >= 0",
+            "latex": "k x^{2} + 2 x + 1 \\geq 0"
+          }
+        ],
+        "case_condition": {
+          "expression": "Eq(k, 0)",
+          "latex": "k = 0"
+        },
+        "case_path": [
+          "degenerate-0"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "degenerate_case",
+        "explanation": "$k = 0$ 时，原不等式化为 $2 x + 1 \\geq 0$。一次式的值域为 $\\mathbb{R}$，不能对所有实数成立。",
+        "highlight": {
+          "caption": "本情况的检验结果",
+          "connector": "→",
+          "items": [
+            {
+              "label": "代入参数值",
+              "math": "k = 0"
+            },
+            {
+              "label": "原不等式变为",
+              "math": "2 x + 1 \\geq 0"
+            }
+          ],
+          "result": "不满足原题，排除 $k = 0$。",
+          "show_result": true
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "0802ce81554f6a88a814d6b72638a367d0ec0e5387761c507ac722c4bf32a8e3",
+        "method_ref": "method-discriminant#degree",
+        "ordinal": 5,
+        "premise_refs": [
+          "/steps/3/judgments/0"
+        ],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/4/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-005-degenerate_case",
+        "target_ref": "/root/goals/0",
+        "title": "检查二次项系数为 0 的情况",
+        "used_basis": [
+          "linear-interval-extremum",
+          "method-discriminant#degree",
+          "quadratic-function-properties#definition"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "k*x**2 + 2*x + 1 >= 0",
+            "latex": "k x^{2} + 2 x + 1 \\geq 0"
+          }
+        ],
+        "before": [],
+        "case_condition": {
+          "expression": "Ne(k, 0)",
+          "latex": "k \\neq 0"
+        },
+        "case_path": [
+          "nondegenerate"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "opening",
+        "explanation": "在 $k \\neq 0$ 的情况下，$y=k x^{2} + 2 x + 1$，需要图像开口向上，且最低点不低于横轴。",
+        "highlight": {
+          "caption": "图像结论",
+          "items": [
+            {
+              "label": "研究的关系",
+              "math": "k x^{2} + 2 x + 1 \\geq 0"
+            },
+            {
+              "label": "图像条件",
+              "math": "\\begin{gathered}\\text{开口向上}\\\\\\text{最小值}\\geq0\\end{gathered}"
+            }
+          ]
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "8dafa8b4f74441294568569857f240ced6d34c84dfdb3eccde20a1169ca64a27",
+        "method_ref": "method-discriminant#conditions",
+        "ordinal": 6,
+        "premise_refs": [
+          "/steps/3/judgments/0"
+        ],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/9/calls/0",
+          "/steps/9/calls/1",
+          "/steps/10/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-006-opening",
+        "target_ref": "/root/goals/0",
+        "title": "判断图像位置",
+        "used_basis": [
+          "equality-properties#identity",
+          "inequality-properties#addition",
+          "quadratic-function-properties#zeros",
+          "quadratic-inequality#all-real"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "4 - 4*k <= 0",
+            "latex": "4 - 4 k \\leq 0"
+          }
+        ],
+        "before": [
+          {
+            "expression": "4 - 4*k <= 0",
+            "latex": "4 - 4 k \\leq 0"
+          }
+        ],
+        "branch_condition": {
+          "expression": "k > 0",
+          "latex": "k > 0"
+        },
+        "branch_id": "opening-up",
+        "case_condition": {
+          "expression": "Ne(k, 0)",
+          "latex": "k \\neq 0"
+        },
+        "case_path": [
+          "nondegenerate"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "discriminant",
+        "explanation": "在 $k \\neq 0$ 的情况下，在满足开口条件 $k > 0$ 的参数范围内，判别式必须小于或等于零。\n$\\Delta=\\left(2\\right)^2-4\\cdot\\left(k\\right)\\cdot\\left(1\\right)=4 - 4 k$。",
+        "highlight": {
+          "caption": "判别式判断",
+          "connector": "⇔",
+          "items": [
+            {
+              "label": "判别式条件",
+              "math": "\\Delta \\leq 0"
+            },
+            {
+              "label": "需判别式的分支条件",
+              "math": "4 - 4 k \\leq 0"
+            }
+          ]
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "0f1cb65ac2732ffc48bdf92323465e97a99c9f99cacc4bfe34872ed808084f5a",
+        "method_ref": "method-discriminant#conditions",
+        "ordinal": 7,
+        "premise_refs": [
+          "/steps/11/judgments/0",
+          "/steps/12/judgments/0",
+          "/steps/3/judgments/0"
+        ],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/10/calls/1",
+          "/steps/10/calls/2",
+          "/steps/10/calls/3"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-007-discriminant",
+        "target_ref": "/root/goals/0",
+        "title": "开口向上：建立判别式条件",
+        "used_basis": [
+          "equality-properties#identity",
+          "inequality-properties#multiplication",
+          "quadratic-equation#discriminant",
+          "quadratic-inequality#all-real"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval(1, oo)",
+            "latex": "\\left[1, \\infty\\right)"
+          }
+        ],
+        "before": [
+          {
+            "expression": "k > 0",
+            "latex": "k > 0"
+          },
+          {
+            "expression": "4 - 4*k <= 0",
+            "latex": "4 - 4 k \\leq 0"
+          }
+        ],
+        "branch_condition": {
+          "expression": "k > 0",
+          "latex": "k > 0"
+        },
+        "branch_id": "opening-up",
+        "case_condition": {
+          "expression": "Ne(k, 0)",
+          "latex": "k \\neq 0"
+        },
+        "case_path": [
+          "nondegenerate"
+        ],
+        "contract": "graph-math-step/v2",
+        "display_unit": "solution",
+        "explanation": "$\\begin{aligned}4 - 4 k \\leq 0&\\ \\Longleftrightarrow\\ k\\in \\left[1, \\infty\\right)\\\\k&\\in \\left(0, \\infty\\right)\\cap \\left[1, \\infty\\right)=\\left[1, \\infty\\right)\\end{aligned}$。",
+        "highlight": {
+          "caption": "开口向上",
+          "items": [
+            {
+              "label": "本分支的参数范围",
+              "math": "k\\in \\left[1, \\infty\\right)"
+            }
+          ]
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "4145161c558091b74da8cf33297548d573ea51d8d1720bdb79682e1e1fe26eaf",
+        "method_ref": "method-discriminant#solve",
+        "ordinal": 8,
+        "premise_refs": [
+          "/steps/11/judgments/0",
+          "/steps/12/judgments/0",
+          "/steps/3/judgments/0"
+        ],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/11/calls/0",
+          "/steps/11/calls/1",
+          "/steps/11/calls/2",
+          "/steps/11/calls/3",
+          "/steps/11/skipped_calls/0",
+          "/steps/11/skipped_calls/1",
+          "/steps/11/skipped_calls/2",
+          "/steps/11/judgments/0",
+          "/steps/11/merges/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-008-solution",
+        "target_ref": "/root/goals/0",
+        "title": "开口向上：求参数范围",
+        "used_basis": [
+          "method-discriminant#solve",
+          "quadratic-inequality#all-real"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval(1, oo)",
+            "latex": "\\left[1, \\infty\\right)"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "merge_cases",
+        "explanation": "$\\emptyset \\cup \\left[1, \\infty\\right) = \\left[1, \\infty\\right)$。",
+        "highlight": {
+          "caption": "取并集",
+          "items": [
+            {
+              "label": "$k = 0$",
+              "math": "\\emptyset"
+            },
+            {
+              "label": "$k \\neq 0$",
+              "math": "\\left[1, \\infty\\right)"
+            }
+          ],
+          "layout": "merge",
+          "result": "$k \\in \\left[1, \\infty\\right)$"
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "15f348ed2d00cb5a2afcd06a730f56eb06e35cdb44dc500f6cb7b8d6cef4cf2d",
+        "method_ref": "method-discriminant#merge",
+        "ordinal": 9,
+        "premise_refs": [
+          "/steps/11/judgments/0",
+          "/steps/12/judgments/0",
+          "/steps/3/judgments/0"
+        ],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/16/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-009-merge_cases",
+        "target_ref": "/root/goals/0",
+        "title": "合并二次项系数为 0 和不为 0 的情况",
+        "used_basis": [
+          "method-discriminant#merge"
+        ]
+      },
+      {
+        "after": [
+          {
+            "expression": "Interval(1, oo)",
+            "latex": "\\left[1, \\infty\\right)"
+          }
+        ],
+        "before": [],
+        "case_path": [],
+        "contract": "graph-math-step/v2",
+        "display_unit": "domain_parameter_return",
+        "explanation": "判别式法得到 $k\\in \\left[1, \\infty\\right)$。回到原题：这些参数恰好使 $D_{f}=\\mathbb{R}$ 成立。",
+        "highlight": {
+          "caption": "回到定义域求参",
+          "connector": "→",
+          "items": [
+            {
+              "label": "参数范围",
+              "math": "k\\in \\left[1, \\infty\\right)"
+            },
+            {
+              "label": "原题目标",
+              "math": "D_{f}=\\mathbb{R}"
+            }
+          ]
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "local_check": "passed",
+        "math_step_sha256": "e6ad8a10c83f8c91644ff89c4ef2ea3ccb1b57cc9c77ea6adeb2623402082bd3",
+        "method_ref": "method-domain-parameter#solve",
+        "ordinal": 10,
+        "premise_refs": [
+          "/steps/11/judgments/0",
+          "/steps/12/judgments/0",
+          "/steps/3/judgments/0"
+        ],
+        "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "source_refs": [
+          "/steps/2/calls/0",
+          "/steps/3/judgments/0",
+          "/steps/16/calls/0"
+        ],
+        "step_id": "39e5646dcb-domain-parameter-010-domain_parameter_return",
+        "target_ref": "/root/goals/0",
+        "title": "回到定义域求参",
+        "used_basis": [
+          "method-discriminant#merge"
+        ]
+      }
+    ],
+    "goals": {
+      "/root/goals/0": {
+        "answer": {
+          "kind": "match_domain",
+          "set": {
+            "expression": "Interval(1, oo)",
+            "latex": "\\left[1, \\infty\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "feasible_set": {
+          "expression": "Interval(1, oo)",
+          "latex": "\\left[1, \\infty\\right)"
+        },
+        "status": "solved"
+      }
+    },
+    "handoffs": [
+      {
+        "answer": {
+          "kind": "match_domain",
+          "set": {
+            "expression": "Interval(1, oo)",
+            "latex": "\\left[1, \\infty\\right)"
+          },
+          "status": "set"
+        },
+        "available": true,
+        "contract": "graph-stage-four-handoff/v1",
+        "feasible_set": {
+          "expression": "Interval(1, oo)",
+          "latex": "\\left[1, \\infty\\right)"
+        },
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "math_steps": [
+          {
+            "math_step_sha256": "138dfd2e7d57f9a3ccc539c434445c17cfccb47d8c3a6ba54892bfdeed436117",
+            "ordinal": 1,
+            "step_id": "39e5646dcb-domain-parameter-001-domain_parameter_conditions"
+          },
+          {
+            "math_step_sha256": "3879becb5543f6d688eff20fde261abcb673c49867ebe76c819cfc205e4b866e",
+            "ordinal": 2,
+            "step_id": "39e5646dcb-domain-parameter-002-domain_parameter_universal"
+          },
+          {
+            "math_step_sha256": "760af358b45dabb541331566aba63a2bee88ecc7a127c6ff41402119ca385b88",
+            "ordinal": 3,
+            "step_id": "39e5646dcb-domain-parameter-003-domain_parameter_borrow"
+          },
+          {
+            "math_step_sha256": "c59eb166c6909b13aca0db9fe5f2684d2cb397930638c4b980c1cc0a25cfa3ce",
+            "ordinal": 4,
+            "step_id": "39e5646dcb-domain-parameter-004-case_basis"
+          },
+          {
+            "math_step_sha256": "0802ce81554f6a88a814d6b72638a367d0ec0e5387761c507ac722c4bf32a8e3",
+            "ordinal": 5,
+            "step_id": "39e5646dcb-domain-parameter-005-degenerate_case"
+          },
+          {
+            "math_step_sha256": "8dafa8b4f74441294568569857f240ced6d34c84dfdb3eccde20a1169ca64a27",
+            "ordinal": 6,
+            "step_id": "39e5646dcb-domain-parameter-006-opening"
+          },
+          {
+            "math_step_sha256": "0f1cb65ac2732ffc48bdf92323465e97a99c9f99cacc4bfe34872ed808084f5a",
+            "ordinal": 7,
+            "step_id": "39e5646dcb-domain-parameter-007-discriminant"
+          },
+          {
+            "math_step_sha256": "4145161c558091b74da8cf33297548d573ea51d8d1720bdb79682e1e1fe26eaf",
+            "ordinal": 8,
+            "step_id": "39e5646dcb-domain-parameter-008-solution"
+          },
+          {
+            "math_step_sha256": "15f348ed2d00cb5a2afcd06a730f56eb06e35cdb44dc500f6cb7b8d6cef4cf2d",
+            "ordinal": 9,
+            "step_id": "39e5646dcb-domain-parameter-009-merge_cases"
+          },
+          {
+            "math_step_sha256": "e6ad8a10c83f8c91644ff89c4ef2ea3ccb1b57cc9c77ea6adeb2623402082bd3",
+            "ordinal": 10,
+            "step_id": "39e5646dcb-domain-parameter-010-domain_parameter_return"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "pending",
+        "target_ref": "/root/goals/0",
+        "task_id": "c0d9e2880ae6cf7e204ddb6371141d2632913abd50a9caf3a291a4d1ee46f4c0",
+        "verified_route_sha256": "a6f3bbb68ec967fad40de31bc4e6212a3dbd5a898e444daf2de2f0ce416a8804"
+      }
+    ],
+    "qa": [],
+    "selection_chunks": [
+      {
+        "chunk": {
+          "expected_answer": {},
+          "id": "D3",
+          "interaction": {
+            "type": "read"
+          },
+          "query": {
+            "from": "type-function-domain",
+            "op": "methods"
+          },
+          "question": "已知定义域恰为给定集合，列出有意义条件并化为参数范围。",
+          "submit_label": "用定义域求参法解题",
+          "title": "选择解题方法",
+          "verdicts": {}
+        },
+        "kind": "D3",
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "chunk": {
+          "id": "D4",
+          "options": [
+            {
+              "branch": "direct",
+              "message": "开始解题",
+              "method": "method-domain-parameter",
+              "recommendation": "preferred",
+              "route_id": "domain-parameter",
+              "route_plan": "planned"
+            }
+          ],
+          "title": "解题路线"
+        },
+        "kind": "D4",
+        "target_ref": "/root/goals/0"
+      }
+    ],
+    "interaction_protocol": "graph-step-interaction/v1",
+    "interaction_states": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-001-domain_parameter_conditions",
+        "ordinal": 1,
+        "math_step_sha256": "138dfd2e7d57f9a3ccc539c434445c17cfccb47d8c3a6ba54892bfdeed436117",
+        "status": "interactive",
+        "interaction_id": "b5026cd2d61a35a24ecc114f"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-002-domain_parameter_universal",
+        "ordinal": 2,
+        "math_step_sha256": "3879becb5543f6d688eff20fde261abcb673c49867ebe76c819cfc205e4b866e",
+        "status": "interactive",
+        "interaction_id": "1dc6a5998c1c1de2146bc466"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-003-domain_parameter_borrow",
+        "ordinal": 3,
+        "math_step_sha256": "760af358b45dabb541331566aba63a2bee88ecc7a127c6ff41402119ca385b88",
+        "status": "interactive",
+        "interaction_id": "0125fa006bb9db9574af32a9"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-004-case_basis",
+        "ordinal": 4,
+        "math_step_sha256": "c59eb166c6909b13aca0db9fe5f2684d2cb397930638c4b980c1cc0a25cfa3ce",
+        "status": "interactive",
+        "interaction_id": "ce8fdd7795305d5e3ad845b5"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-005-degenerate_case",
+        "ordinal": 5,
+        "math_step_sha256": "0802ce81554f6a88a814d6b72638a367d0ec0e5387761c507ac722c4bf32a8e3",
+        "status": "interactive",
+        "interaction_id": "27cd4dd9907043bf64d7477e"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-006-opening",
+        "ordinal": 6,
+        "math_step_sha256": "8dafa8b4f74441294568569857f240ced6d34c84dfdb3eccde20a1169ca64a27",
+        "status": "interactive",
+        "interaction_id": "ed1efc1ef051260fa8268afe"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-007-discriminant",
+        "ordinal": 7,
+        "math_step_sha256": "0f1cb65ac2732ffc48bdf92323465e97a99c9f99cacc4bfe34872ed808084f5a",
+        "status": "interactive",
+        "interaction_id": "33c10c622cdb2bcc2a7dab17"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-008-solution",
+        "ordinal": 8,
+        "math_step_sha256": "4145161c558091b74da8cf33297548d573ea51d8d1720bdb79682e1e1fe26eaf",
+        "status": "interactive",
+        "interaction_id": "9c6c0396d6189fbd040b6d4f"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-009-merge_cases",
+        "ordinal": 9,
+        "math_step_sha256": "15f348ed2d00cb5a2afcd06a730f56eb06e35cdb44dc500f6cb7b8d6cef4cf2d",
+        "status": "interactive",
+        "interaction_id": "4353e955ab7442ab94c7ee33"
+      },
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "step_id": "39e5646dcb-domain-parameter-010-domain_parameter_return",
+        "ordinal": 10,
+        "math_step_sha256": "e6ad8a10c83f8c91644ff89c4ef2ea3ccb1b57cc9c77ea6adeb2623402082bd3",
+        "status": "interactive",
+        "interaction_id": "45b79873b0e30077e16e26a0"
+      }
+    ],
+    "contract": "graph-stage-three-snapshot/v2",
+    "revisions_ref": "065b00828280c06271f12fa0a2db6beb013429b21196c6c7bcdffb3c3299128d",
+    "checkpoints": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "status": "verified",
+        "phase": "complete",
+        "commit_id": "/root/goals/0:domain-parameter:complete",
+        "last_seq": 59
+      }
+    ],
+    "trajectories": [
+      {
+        "target_ref": "/root/goals/0",
+        "route_id": "domain-parameter",
+        "steps": [
+          {
+            "seq": 1,
+            "method": "method-domain-parameter",
+            "step": "extract",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "skill-expression-defined",
+                "used_basis": [
+                  "square-root-expression#meaning"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 2,
+            "method": "method-domain-parameter",
+            "step": "reduce",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "function-concept#elements",
+                  "quantifiers#universal",
+                  "square-root-expression#meaning"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 3,
+            "method": "method-domain-parameter",
+            "step": "solve",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": "method-discriminant",
+                "used_basis": [],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 4,
+            "method": "method-discriminant",
+            "step": "degree",
+            "case_path": [],
+            "calls": []
+          },
+          {
+            "seq": 5,
+            "method": "method-discriminant",
+            "step": "degree",
+            "case_path": [
+              "degenerate-0"
+            ],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "linear-interval-extremum",
+                  "method-discriminant#degree",
+                  "quadratic-function-properties#definition"
+                ],
+                "case_path": [
+                  "degenerate-0"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 6,
+            "method": "method-discriminant",
+            "step": "normalize",
+            "case_path": [
+              "degenerate-0"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 7,
+            "method": "method-discriminant",
+            "step": "conditions",
+            "case_path": [
+              "degenerate-0"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 8,
+            "method": "method-discriminant",
+            "step": "solve",
+            "case_path": [
+              "degenerate-0"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 9,
+            "method": "method-discriminant",
+            "step": "degree",
+            "case_path": [
+              "nondegenerate"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 10,
+            "method": "method-discriminant",
+            "step": "normalize",
+            "case_path": [
+              "nondegenerate"
+            ],
+            "calls": [
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#addition"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "equality-properties#identity"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 11,
+            "method": "method-discriminant",
+            "step": "conditions",
+            "case_path": [
+              "nondegenerate"
+            ],
+            "calls": [
+              {
+                "public_ref": "skill-quadratic-sign",
+                "used_basis": [
+                  "quadratic-function-properties#zeros",
+                  "quadratic-inequality#all-real"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-quadratic-sign",
+                "used_basis": [
+                  "quadratic-equation#discriminant",
+                  "quadratic-inequality#all-real"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-simplify",
+                "used_basis": [
+                  "equality-properties#identity"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": "skill-inequality-transform",
+                "used_basis": [
+                  "inequality-properties#multiplication"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 12,
+            "method": "method-discriminant",
+            "step": "solve",
+            "case_path": [
+              "nondegenerate"
+            ],
+            "calls": [
+              {
+                "public_ref": "quadratic-inequality-solve",
+                "used_basis": [],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "method-discriminant#solve"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "method-discriminant#solve"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              },
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "method-discriminant#solve",
+                  "quadratic-inequality#all-real"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 13,
+            "method": "quadratic-inequality-solve",
+            "step": "normalize",
+            "case_path": [
+              "nondegenerate"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 14,
+            "method": "quadratic-inequality-solve",
+            "step": "roots",
+            "case_path": [
+              "nondegenerate"
+            ],
+            "calls": [
+              {
+                "public_ref": "skill-solve-quadratic",
+                "used_basis": [
+                  "quadratic-equation#roots"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 15,
+            "method": "quadratic-inequality-solve",
+            "step": "signs",
+            "case_path": [
+              "nondegenerate"
+            ],
+            "calls": [
+              {
+                "public_ref": "skill-quadratic-sign",
+                "used_basis": [
+                  "quadratic-inequality#signs"
+                ],
+                "case_path": [
+                  "nondegenerate"
+                ],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 16,
+            "method": "quadratic-inequality-solve",
+            "step": "solution",
+            "case_path": [
+              "nondegenerate"
+            ],
+            "calls": []
+          },
+          {
+            "seq": 17,
+            "method": "method-discriminant",
+            "step": "merge",
+            "case_path": [],
+            "calls": [
+              {
+                "public_ref": null,
+                "used_basis": [
+                  "method-discriminant#merge"
+                ],
+                "case_path": [],
+                "postconditions": [
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  },
+                  {
+                    "passed": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "seq": 18,
+            "method": "method-domain-parameter",
+            "step": "verify",
+            "case_path": [],
+            "calls": []
+          }
+        ],
+        "finalization": [
+          {
+            "index": 0,
+            "record": {}
+          },
+          {
+            "index": 1,
+            "record": {}
+          },
+          {
+            "index": 2,
+            "record": {
+              "public_ref": null,
+              "used_basis": [
+                "function-concept#elements",
+                "quantifiers#universal"
+              ],
+              "postconditions": [
+                {
+                  "passed": true
+                }
+              ]
+            }
+          },
+          {
+            "index": 3,
+            "record": {}
+          }
+        ]
+      }
+    ],
+    "interactions": [
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "b5026cd2d61a35a24ecc114f",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "91f944a4823a7b8aba7e9ea5b2eb4eb629d8dd6ab7d912477009268dc1253908",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "平方根允许被开方数为 0，但不允许为负，应保留非负条件。"
+            },
+            "id": "b5026cd2d61a35a24ecc114f#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "平方根允许被开方数为 0，但不允许为负，应保留非负条件。",
+                  "label": "$k x^{2} + 2 x + 1 \\neq 0$",
+                  "value": "o3"
+                },
+                {
+                  "label": "$k x^{2} + 2 x + 1 \\geq 0$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "平方根允许被开方数为 0，但不允许为负，应保留非负条件。",
+                  "label": "$k x^{2} + 2 x + 1 > 0$",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "原式为 $\\sqrt{k\\cdot x^{2}+2\\cdot x+1}$。根号对被开方数要求什么条件？",
+            "submit_label": "确认判断",
+            "title": "列出根式有意义的条件"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "138dfd2e7d57f9a3ccc539c434445c17cfccb47d8c3a6ba54892bfdeed436117",
+            "step_id": "39e5646dcb-domain-parameter-001-domain_parameter_conditions"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "1dc6a5998c1c1de2146bc466",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "f3b1e2dd4dced3ccc56a257e23add628575dec160c6ea1db0912fa0e3b608aa9",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "定义域恰为全体实数，要求条件对每一个实数输入恒成立；只找到某个合法输入还不够。"
+            },
+            "id": "1dc6a5998c1c1de2146bc466#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "定义域恰为全体实数，要求条件对每一个实数输入恒成立；只找到某个合法输入还不够。",
+                  "label": "只需找到一个实数 $x$ 使原式有意义",
+                  "value": "o2"
+                },
+                {
+                  "label": "每一个实数 $x$ 都应使原式有意义",
+                  "value": "o1"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "原式有意义的条件为 $k x^{2} + 2 x + 1 \\geq 0$。题目要求定义域恰为 $\\mathbb{R}$，按照定义域的含义，应检查哪些实数输入？",
+            "submit_label": "确认判断",
+            "title": "转化为恒成立问题"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "3879becb5543f6d688eff20fde261abcb673c49867ebe76c819cfc205e4b866e",
+            "step_id": "39e5646dcb-domain-parameter-002-domain_parameter_universal"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "0125fa006bb9db9574af32a9",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "e38ad53245f6131c8912b5323c57c398d90dc281adfb3095ab0430f8f70539d5",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "alternatives": {},
+            "effects": {
+              "log": "借用已学方法：判别式法。",
+              "nodes": [
+                "rule-quadratic-method",
+                "method-discriminant"
+              ]
+            },
+            "expected_answer": {
+              "cell": [
+                "real",
+                "free"
+              ],
+              "method": "discriminant"
+            },
+            "feedback": {
+              "method": "这种方法不在这一格里，请从这一格列出的方法中选一种。",
+              "method_choice": "本题沿定义域求参路线借用判别式法；其它适用方法不在本路线展开。",
+              "x": "再看横轴：$x$ 取遍全体实数。",
+              "y": "再看纵轴：$k$ 是所求参数。"
+            },
+            "id": "0125fa006bb9db9574af32a9#1",
+            "interaction": {
+              "methods": [
+                {
+                  "cells": [
+                    [
+                      "real",
+                      "free"
+                    ]
+                  ],
+                  "label": "判别式法",
+                  "route": "domain-parameter",
+                  "route_plan": "planned",
+                  "target": "method-discriminant",
+                  "value": "discriminant"
+                },
+                {
+                  "cells": [
+                    [
+                      "interval",
+                      "free"
+                    ]
+                  ],
+                  "label": "区间最值法",
+                  "target": "method-interval-extremum",
+                  "value": "interval"
+                },
+                {
+                  "cells": [
+                    [
+                      "interval",
+                      "free"
+                    ]
+                  ],
+                  "label": "分离参数法",
+                  "target": "method-separation",
+                  "value": "separation"
+                },
+                {
+                  "cells": [
+                    [
+                      "interval",
+                      "given"
+                    ],
+                    [
+                      "real",
+                      "given"
+                    ]
+                  ],
+                  "label": "更换主元法",
+                  "target": "method-variable-swap",
+                  "value": "swap"
+                }
+              ],
+              "title": "方法坐标图",
+              "type": "plane",
+              "x": {
+                "label": "$x$ 取全体实数吗？",
+                "options": [
+                  {
+                    "label": "否",
+                    "note": "$x$ 在给定范围内",
+                    "value": "interval"
+                  },
+                  {
+                    "label": "是",
+                    "note": "$x\\in\\mathbb R$",
+                    "value": "real"
+                  }
+                ]
+              },
+              "y": {
+                "label": "参数 $k$ 有给定范围吗？",
+                "options": [
+                  {
+                    "label": "有",
+                    "note": "给定 $k$ 的范围，求 $x$ 的范围",
+                    "value": "given"
+                  },
+                  {
+                    "label": "没有",
+                    "note": "要求的就是参数 $k$",
+                    "value": "free"
+                  }
+                ]
+              }
+            },
+            "question": "当前子问题是：对所有实数 $x$，都有 $k x^{2} + 2 x + 1 \\geq 0$。本题落在选法坐标的哪一格？应借用哪一种已学方法？",
+            "submit_label": "用这种方法解题",
+            "title": "选择已学方法"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "760af358b45dabb541331566aba63a2bee88ecc7a127c6ff41402119ca385b88",
+            "step_id": "39e5646dcb-domain-parameter-003-domain_parameter_borrow"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "ce8fdd7795305d5e3ad845b5",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "b4188bfbebf8ea449ae82a7a14a3e8a3d76277ea082d7b56f4447e83c09240ee",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "令二次项系数为零，再分别检查这些参数值对应的一次式或常数。"
+            },
+            "id": "ce8fdd7795305d5e3ad845b5#1",
+            "interaction": {
+              "field": "ce8fdd7795305d5e3ad845b5#1",
+              "options": [
+                {
+                  "label": "$k = 0$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "退化指二次项消失，系数必须等于零；正负只决定开口方向。",
+                  "label": "$k > 0$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "退化指二次项消失，系数必须等于零；正负只决定开口方向。",
+                  "label": "$k \\neq 0$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "退化指二次项消失，系数必须等于零；正负只决定开口方向。",
+                  "label": "$k < 0$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "二次项系数为 $k$。要使二次项消失，参数必须满足哪个条件？",
+            "submit_label": "确认分类",
+            "title": "判断二次项系数是否为 0"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "c59eb166c6909b13aca0db9fe5f2684d2cb397930638c4b980c1cc0a25cfa3ce",
+            "step_id": "39e5646dcb-domain-parameter-004-case_basis"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "27cd4dd9907043bf64d7477e",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "907edff57343e66f211fb634333a4fa6bc52afe944823370f0f569ef242fb28d",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "expected_answer": {
+              "terms": [
+                "s1o1"
+              ]
+            },
+            "feedback": {
+              "terms": "一次项系数非零时，一次式在全体实数上既无上界也无下界；退化为常数时直接判断常数关系。"
+            },
+            "id": "27cd4dd9907043bf64d7477e#1",
+            "interaction": {
+              "slots": [
+                {
+                  "label": "代入后是否满足原题的全称条件？",
+                  "options": [
+                    {
+                      "label": "不能对所有实数成立，排除本情况",
+                      "value": "s1o1"
+                    },
+                    {
+                      "label": "对所有实数成立，保留本情况",
+                      "value": "s1o2"
+                    }
+                  ]
+                }
+              ],
+              "title": "检查二次项系数为 0 的情况",
+              "type": "checklist"
+            },
+            "question": "将 $k=0$ 代入后得到 $2 x + 1 \\geq 0$。这一情况能保留吗？",
+            "submit_label": "确认情况",
+            "title": "检查二次项系数为 0 的情况"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "0802ce81554f6a88a814d6b72638a367d0ec0e5387761c507ac722c4bf32a8e3",
+            "step_id": "39e5646dcb-domain-parameter-005-degenerate_case"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "ed1efc1ef051260fa8268afe",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "272692316080b5ac6b8e1ae447613554961fb0c3559c124969846a23a8db8f44",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "completion_graphs": [
+              {
+                "caption": "开口向上：完全位于横轴上方，与横轴不相交（位置示意）",
+                "kind": "quadratic",
+                "params": {
+                  "bounds": [
+                    -2,
+                    2,
+                    -2,
+                    4
+                  ],
+                  "coefficient": 1.0,
+                  "description": "完全位于横轴上方，与横轴不相交",
+                  "interval": [
+                    null,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "points": [],
+                  "showVertex": false,
+                  "title": "开口向上的二次函数位置示意",
+                  "variable": "x",
+                  "vertex": [
+                    0.0,
+                    1.0
+                  ],
+                  "vertexLabel": "",
+                  "xTicks": [],
+                  "yLabel": "1"
+                }
+              },
+              {
+                "caption": "开口向上：与横轴相切，只有一个公共点（位置示意）",
+                "kind": "quadratic",
+                "params": {
+                  "bounds": [
+                    -2,
+                    2,
+                    -2,
+                    4
+                  ],
+                  "coefficient": 1.0,
+                  "description": "与横轴相切，只有一个公共点",
+                  "interval": [
+                    null,
+                    null
+                  ],
+                  "interval_closed": [
+                    false,
+                    false
+                  ],
+                  "points": [
+                    {
+                      "x": 0.0
+                    }
+                  ],
+                  "showVertex": false,
+                  "title": "开口向上的二次函数位置示意",
+                  "variable": "x",
+                  "vertex": [
+                    0.0,
+                    0.0
+                  ],
+                  "vertexLabel": "",
+                  "xTicks": [],
+                  "yLabel": "0"
+                }
+              }
+            ],
+            "completion_group": "开口向上",
+            "expected_answer": {
+              "allowed": [
+                "o1",
+                "o2"
+              ],
+              "required": [
+                "o1",
+                "o2"
+              ]
+            },
+            "feedback": {
+              "answer": "开口向上时顶点是最低点。顶点须在横轴上方；非严格关系还允许顶点恰好落在横轴上。"
+            },
+            "id": "ed1efc1ef051260fa8268afe#2",
+            "interaction": {
+              "options": [
+                {
+                  "graph": {
+                    "kind": "quadratic",
+                    "params": {
+                      "bounds": [
+                        -2,
+                        2,
+                        -2,
+                        4
+                      ],
+                      "coefficient": 1.0,
+                      "description": "完全位于横轴上方，与横轴不相交",
+                      "interval": [
+                        null,
+                        null
+                      ],
+                      "interval_closed": [
+                        false,
+                        false
+                      ],
+                      "points": [],
+                      "showVertex": false,
+                      "title": "开口向上的二次函数位置示意",
+                      "variable": "x",
+                      "vertex": [
+                        0.0,
+                        1.0
+                      ],
+                      "vertexLabel": "",
+                      "xTicks": [],
+                      "yLabel": "1"
+                    }
+                  },
+                  "label": "完全位于横轴上方，与横轴不相交",
+                  "value": "o1"
+                },
+                {
+                  "graph": {
+                    "kind": "quadratic",
+                    "params": {
+                      "bounds": [
+                        -2,
+                        2,
+                        -2,
+                        4
+                      ],
+                      "coefficient": 1.0,
+                      "description": "与横轴相切，只有一个公共点",
+                      "interval": [
+                        null,
+                        null
+                      ],
+                      "interval_closed": [
+                        false,
+                        false
+                      ],
+                      "points": [
+                        {
+                          "x": 0.0
+                        }
+                      ],
+                      "showVertex": false,
+                      "title": "开口向上的二次函数位置示意",
+                      "variable": "x",
+                      "vertex": [
+                        0.0,
+                        0.0
+                      ],
+                      "vertexLabel": "",
+                      "xTicks": [],
+                      "yLabel": "0"
+                    }
+                  },
+                  "label": "与横轴相切，只有一个公共点",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "开口向上时顶点是最低点。顶点须在横轴上方；非严格关系还允许顶点恰好落在横轴上。",
+                  "graph": {
+                    "kind": "quadratic",
+                    "params": {
+                      "bounds": [
+                        -2,
+                        2,
+                        -2,
+                        4
+                      ],
+                      "coefficient": 1.0,
+                      "description": "穿过横轴，有两个公共点",
+                      "interval": [
+                        null,
+                        null
+                      ],
+                      "interval_closed": [
+                        false,
+                        false
+                      ],
+                      "points": [],
+                      "showVertex": false,
+                      "title": "开口向上的二次函数位置示意",
+                      "variable": "x",
+                      "vertex": [
+                        0.0,
+                        -1.0
+                      ],
+                      "vertexLabel": "",
+                      "xTicks": [],
+                      "yLabel": "-1"
+                    }
+                  },
+                  "label": "穿过横轴，有两个公共点",
+                  "value": "o3"
+                }
+              ],
+              "type": "multi"
+            },
+            "question": "研究关系 $k x^{2} + 2 x + 1 \\geq 0$。当 $k > 0$、图像开口向上时，哪些位置能使关系对所有实数成立？选出全部。图像仅表示开口向上的二次函数与横轴的相对位置。",
+            "submit_label": "确认位置",
+            "title": "判断开口向上的情况"
+          },
+          {
+            "completion_group": "开口向下",
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "开口向下时，两端的函数值趋于负无穷，不能使该关系对所有实数成立。"
+            },
+            "id": "ed1efc1ef051260fa8268afe#3",
+            "interaction": {
+              "field": "ed1efc1ef051260fa8268afe#3",
+              "options": [
+                {
+                  "label": "此开口不适合",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "开口向下时，两端的函数值趋于负无穷，不能使该关系对所有实数成立。",
+                  "label": "可继续判断图像位置",
+                  "value": "o2"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "研究关系 $k x^{2} + 2 x + 1 \\geq 0$。开口向下的情况能否满足原题要求？",
+            "submit_label": "确认判断",
+            "title": "判断开口向下的情况"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "8dafa8b4f74441294568569857f240ced6d34c84dfdb3eccde20a1169ca64a27",
+            "step_id": "39e5646dcb-domain-parameter-006-opening"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "33c10c622cdb2bcc2a7dab17",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "165ecfbb15be7f5dce7f2cb4b153fbd9fd7b7af3e572411aff0b32140c139e96",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "开口向上时顶点是最低点。顶点须在横轴上方；非严格关系还允许顶点恰好落在横轴上。"
+            },
+            "id": "33c10c622cdb2bcc2a7dab17#1",
+            "interaction": {
+              "field": "33c10c622cdb2bcc2a7dab17#1",
+              "options": [
+                {
+                  "label": "$4 - 4 k \\leq 0$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "判别式控制与横轴交点的个数；先分清原式是否允许取到零，再确定是否允许相切。",
+                  "label": "$4 - 4 k < 0$",
+                  "value": "o2"
+                },
+                {
+                  "feedback": "判别式控制与横轴交点的个数；先分清原式是否允许取到零，再确定是否允许相切。",
+                  "label": "$4 - 4 k \\geq 0$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "本步判别式为 $\\Delta=4 - 4 k$。当二次项系数大于零、图像开口向上时，要使整理后的关系对所有实数成立，应对判别式施加哪个条件？",
+            "submit_label": "确认条件",
+            "title": "开口向上：建立判别式条件"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "0f1cb65ac2732ffc48bdf92323465e97a99c9f99cacc4bfe34872ed808084f5a",
+            "step_id": "39e5646dcb-domain-parameter-007-discriminant"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "9c6c0396d6189fbd040b6d4f",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "f93e47ae8e5473b083de4aaeb84c86f18050263f199776b47f2389269fe0fc62",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o3"
+              ]
+            },
+            "feedback": {
+              "answer": "开口条件和判别式条件同时成立，取交集。"
+            },
+            "id": "9c6c0396d6189fbd040b6d4f#1",
+            "interaction": {
+              "field": "9c6c0396d6189fbd040b6d4f#1",
+              "options": [
+                {
+                  "feedback": "本步只保留当前开口方向中满足条件的参数。",
+                  "label": "$\\left(-\\infty, 1\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "把边界代入开口条件和原不等式，判断能否保留。",
+                  "label": "$\\left(1, \\infty\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "label": "$\\left[1, \\infty\\right)$",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "由 $k > 0$ 且 $4 - 4 k \\leq 0$，$k$ 的取值范围是？",
+            "submit_label": "确认范围",
+            "title": "开口向上：求参数范围"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "4145161c558091b74da8cf33297548d573ea51d8d1720bdb79682e1e1fe26eaf",
+            "step_id": "39e5646dcb-domain-parameter-008-solution"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "4353e955ab7442ab94c7ee33",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "6f62cda7913fbc041f95d8ba2e40a977485b334873d4322ae025799c2057a217",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "expected_answer": {
+              "one_of": [
+                "o3"
+              ]
+            },
+            "feedback": {
+              "answer": "分类覆盖全部参数，各情况的解集取并集。"
+            },
+            "id": "4353e955ab7442ab94c7ee33#1",
+            "interaction": {
+              "field": "4353e955ab7442ab94c7ee33#1",
+              "options": [
+                {
+                  "feedback": "各情况的结果取并集，保留满足至少一种情况的参数。",
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        0.25,
+                        1.75
+                      ],
+                      "description": "k 的取值集合：(-∞, 1)",
+                      "pieces": [
+                        {
+                          "from": null,
+                          "left_closed": false,
+                          "right_closed": false,
+                          "to": 1.0
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          1.0,
+                          "1"
+                        ]
+                      ],
+                      "title": "k 的取值范围",
+                      "variable": "k"
+                    }
+                  },
+                  "label": "$\\left(-\\infty, 1\\right)$",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "检查边界是否已在某一种情况中保留。",
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        0.25,
+                        1.75
+                      ],
+                      "description": "k 的取值集合：(1, +∞)",
+                      "pieces": [
+                        {
+                          "from": 1.0,
+                          "left_closed": false,
+                          "right_closed": false,
+                          "to": null
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          1.0,
+                          "1"
+                        ]
+                      ],
+                      "title": "k 的取值范围",
+                      "variable": "k"
+                    }
+                  },
+                  "label": "$\\left(1, \\infty\\right)$",
+                  "value": "o2"
+                },
+                {
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        0.25,
+                        1.75
+                      ],
+                      "description": "k 的取值集合：[1, +∞)",
+                      "pieces": [
+                        {
+                          "from": 1.0,
+                          "left_closed": true,
+                          "right_closed": false,
+                          "to": null
+                        }
+                      ],
+                      "points": [],
+                      "ticks": [
+                        [
+                          1.0,
+                          "1"
+                        ]
+                      ],
+                      "title": "k 的取值范围",
+                      "variable": "k"
+                    }
+                  },
+                  "label": "$\\left[1, \\infty\\right)$",
+                  "value": "o3"
+                },
+                {
+                  "feedback": "每种情况都属于原题，合并时不能遗漏某一情况。",
+                  "graph": {
+                    "kind": "number_line",
+                    "params": {
+                      "bounds": [
+                        0.25,
+                        1.75
+                      ],
+                      "description": "k 的取值集合：空集",
+                      "pieces": [],
+                      "points": [],
+                      "ticks": [
+                        [
+                          1.0,
+                          "1"
+                        ]
+                      ],
+                      "title": "k 的取值范围",
+                      "variable": "k"
+                    }
+                  },
+                  "label": "$\\emptyset$",
+                  "value": "o4"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "各情况已得到 $k$ 的范围 $\\emptyset$、$\\left[1, \\infty\\right)$。合并后是？",
+            "submit_label": "确认合并",
+            "title": "合并二次项系数为 0 和不为 0 的情况"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "15f348ed2d00cb5a2afcd06a730f56eb06e35cdb44dc500f6cb7b8d6cef4cf2d",
+            "step_id": "39e5646dcb-domain-parameter-009-merge_cases"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      },
+      {
+        "contract": "graph-step-interaction/v1",
+        "interaction_id": "45b79873b0e30077e16e26a0",
+        "interaction_revision": "71a1251184acbb3361cee133b9d14eefd2e143ac1ee342f87940a94a46df9bc1",
+        "interaction_sha256": "b6183de916e405c1e11a317138cae68f23ad49b19d73bc431bea690d1b7da25c",
+        "lesson_version": "4ccbd1bb79daa10f1483a14d6276cbfad23b00991d81f5777a4f55f762a3bd02",
+        "parts": [
+          {
+            "effects": {
+              "log": "回到定义域求参：参数范围保证定义域恰为全体实数。",
+              "nodes": [
+                "method-domain-parameter"
+              ]
+            },
+            "expected_answer": {
+              "one_of": [
+                "o1"
+              ]
+            },
+            "feedback": {
+              "answer": "子方法求出的是参数范围；它要保证原题的定义域恰为全体实数，而不是另求一个输入集合。"
+            },
+            "id": "45b79873b0e30077e16e26a0#1",
+            "interaction": {
+              "field": "answer",
+              "options": [
+                {
+                  "feedback": "子方法求出的是参数范围；它要保证原题的定义域恰为全体实数，而不是另求一个输入集合。",
+                  "label": "自变量的定义域，不再管参数 $k$",
+                  "value": "o2"
+                },
+                {
+                  "label": "使 $D_{f}=\\mathbb{R}$ 成立的参数 $k$ 的取值范围",
+                  "value": "o1"
+                },
+                {
+                  "feedback": "子方法求出的是参数范围；它要保证原题的定义域恰为全体实数，而不是另求一个输入集合。",
+                  "label": "原式在某个真子集上有意义即可",
+                  "value": "o3"
+                }
+              ],
+              "type": "choice"
+            },
+            "question": "判别式法已得到 $k\\in \\left[1, \\infty\\right)$。这个结果在原题中保证什么？",
+            "submit_label": "确认判断",
+            "title": "回到定义域求参"
+          }
+        ],
+        "route_id": "domain-parameter",
+        "run_id": "fe363ab2fae946169d32ea94fc3be965",
+        "status": "interactive",
+        "steps": [
+          {
+            "math_step_sha256": "e6ad8a10c83f8c91644ff89c4ef2ea3ccb1b57cc9c77ea6adeb2623402082bd3",
+            "step_id": "39e5646dcb-domain-parameter-010-domain_parameter_return"
+          }
+        ],
+        "target_ref": "/root/goals/0"
+      }
+    ]
+  }
+}

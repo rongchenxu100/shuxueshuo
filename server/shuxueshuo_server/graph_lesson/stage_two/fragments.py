@@ -42,11 +42,22 @@ def _domain_formula_body_matches(body, expected):
                               else "(" + inner + ")")
                 continue
             if char != "\\":
+                # Extracted original text may use canonical ASCII sqrt(...)
+                # instead of TeX. Keep that function token intact before the
+                # single-letter juxtaposition adapter below.
+                if re.match(r"sqrt\s*\(", body[index:]) and (
+                    index == 0 or not body[index - 1].isalnum()
+                ):
+                    output.append("sqrt")
+                    index += 4
+                    continue
                 mapped = {"−": "-", "（": "(", "）": ")"}.get(char, char)
-                # School TeX juxtaposes single-letter variables: kx → k*x.
+                # School TeX juxtaposes single-letter variables: kx or k x → k*x.
+                # Ignore spacing only when checking that boundary; removing all
+                # whitespace could merge distinct numeric/exponent tokens.
                 # Command expansions append multi-letter names like sqrt( in one
                 # piece, so this only fires for bare letters written one by one.
-                if mapped.isalpha() and "".join(output)[-1:].isalpha():
+                if mapped.isalpha() and "".join(output).rstrip()[-1:].isalpha():
                     output.append("*")
                 output.append(mapped)
                 index += 1

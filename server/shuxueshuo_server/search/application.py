@@ -71,14 +71,16 @@ async def maintain_search(maintenance, stopped):
                 LOGGER.exception("Search cleanup will retry")
 
 
-def install_search(app, *, settings=None):
+def install_search(app, *, settings=None, admission_config=None):
     @asynccontextmanager
     async def lifespan(app):
         product = app.state.product
         configured = settings or product.settings
         from ..product.admin.backup import require_restore_complete
         require_restore_complete(configured)
-        repository = SearchRepository(product.db, configured.root / "work/search/private-v1")
+        repository = SearchRepository(
+            product.db, configured.root / "work/search/private-v1",
+            admission_config=admission_config)
         app.state.search_repository = repository
         app.state.search_drain_path = configured.root / "locks/services-draining"
         app.state.search_accepting = False

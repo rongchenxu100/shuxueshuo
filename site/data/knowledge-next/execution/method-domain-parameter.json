@@ -74,7 +74,10 @@
             "strict": "strict",
             "goal": "goal",
             "constraint_context": "constraint_context",
-            "universal_statement": "universal_statement"
+            "universal_statement": "universal_statement",
+            "borrowed_method": "borrowed_method",
+            "denominator_domain": "denominator_domain",
+            "domain_equivalence": "domain_equivalence"
           },
           "order": 0
         }
@@ -97,7 +100,10 @@
             "universal_statement": "$universal_statement",
             "x": "$x",
             "domain": "$domain",
-            "quantifier": "$quantifier"
+            "quantifier": "$quantifier",
+            "strict": "$strict",
+            "denominator_domain": "$denominator_domain",
+            "domain_equivalence": "$domain_equivalence"
           },
           "depends_on": [
             "constraints",
@@ -106,7 +112,49 @@
             "universal_statement",
             "x",
             "domain",
-            "quantifier"
+            "quantifier",
+            "strict",
+            "denominator_domain",
+            "domain_equivalence"
+          ]
+        },
+        {
+          "id": "domain_parameter_borrow",
+          "after": "reduce",
+          "template": "domain_parameter_borrow",
+          "bindings": {
+            "before": [],
+            "after": [
+              "$universal_statement"
+            ],
+            "constraints": "$constraints",
+            "description": "$description",
+            "phase": "parameter_borrow",
+            "relation": "$relation",
+            "universal_statement": "$universal_statement",
+            "x": "$x",
+            "domain": "$domain",
+            "quantifier": "$quantifier",
+            "parameter": "$parameter",
+            "borrowed_method": "$borrowed_method",
+            "host_route": "domain-parameter",
+            "strict": "$strict",
+            "denominator_domain": "$denominator_domain",
+            "domain_equivalence": "$domain_equivalence"
+          },
+          "depends_on": [
+            "constraints",
+            "description",
+            "relation",
+            "universal_statement",
+            "x",
+            "domain",
+            "quantifier",
+            "parameter",
+            "borrowed_method",
+            "strict",
+            "denominator_domain",
+            "domain_equivalence"
           ]
         }
       ]
@@ -130,13 +178,98 @@
             "constraint_context": "$constraint_context"
           },
           "outputs": {
-            "candidate_set": "candidate_set"
+            "discriminant_set": "candidate_set"
           },
-          "order": 0
+          "order": 0,
+          "guard": {
+            "ref": "borrowed_method",
+            "equals": "method-discriminant"
+          }
+        },
+        {
+          "id": "separation",
+          "capability": "submethod",
+          "public_ref": "method-separation",
+          "inputs": {
+            "relation": "$relation",
+            "expression": "$expression",
+            "x": "$x",
+            "parameter": "$parameter",
+            "domain": "$domain",
+            "quantifier": "$quantifier",
+            "strict": "$strict",
+            "goal": "$goal",
+            "constraint_context": "$constraint_context",
+            "relation_kind": "inequality",
+            "function_name": "h"
+          },
+          "outputs": {
+            "separation_set": "candidate_set"
+          },
+          "order": 1,
+          "guard": {
+            "ref": "borrowed_method",
+            "equals": "method-separation"
+          }
         }
       ],
       "judgments": [],
-      "display_units": []
+      "display_units": [
+        {
+          "id": "domain_parameter_return",
+          "after": "return_set",
+          "template": "domain_parameter_return",
+          "bindings": {
+            "before": [],
+            "after": [
+              "$candidate_set"
+            ],
+            "candidate_set": "$candidate_set",
+            "description": "$description",
+            "parameter": "$parameter",
+            "phase": "parameter_return",
+            "domain": "$domain",
+            "borrowed_method": "$borrowed_method",
+            "denominator_domain": "$denominator_domain",
+            "domain_equivalence": "$domain_equivalence"
+          },
+          "depends_on": [
+            "candidate_set",
+            "description",
+            "parameter",
+            "domain",
+            "borrowed_method",
+            "denominator_domain",
+            "domain_equivalence"
+          ]
+        }
+      ],
+      "merges": [
+        {
+          "id": "return_set",
+          "order": 2,
+          "branches": [
+            {
+              "guard": {
+                "ref": "borrowed_method",
+                "equals": "method-discriminant"
+              },
+              "bindings": {
+                "candidate_set": "$discriminant_set"
+              }
+            },
+            {
+              "guard": {
+                "ref": "borrowed_method",
+                "equals": "method-separation"
+              },
+              "bindings": {
+                "candidate_set": "$separation_set"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "verify",

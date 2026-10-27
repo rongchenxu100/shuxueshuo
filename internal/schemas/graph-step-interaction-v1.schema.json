@@ -42,6 +42,28 @@
   ],
   "$defs": {
     "text": {"type": "string", "minLength": 1},
+    "planeAxis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "options"],
+      "properties": {
+        "label": {"$ref": "#/$defs/text"},
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["value", "label"],
+            "properties": {
+              "value": {"type": "string", "minLength": 1},
+              "label": {"$ref": "#/$defs/text"},
+              "note": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
     "option": {
       "type": "object",
       "additionalProperties": false,
@@ -842,10 +864,50 @@
           "type": "object",
           "additionalProperties": false,
           "minProperties": 1,
-          "properties": {"answer": {"type": "string"}, "terms": {"type": "string"}}
+          "properties": {
+            "answer": {"type": "string"},
+            "terms": {"type": "string"},
+            "x": {"type": "string"},
+            "y": {"type": "string"},
+            "method": {"type": "string"},
+            "method_choice": {"type": "string"}
+          }
+        },
+        "alternatives": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["message", "href"],
+            "properties": {
+              "message": {"$ref": "#/$defs/text"},
+              "href": {"type": "string", "pattern": "^/knowledge/[a-z][a-z0-9-]*/$"}
+            }
+          }
+        },
+        "effects": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "log": {"$ref": "#/$defs/text"},
+            "nodes": {
+              "type": "array",
+              "items": {"type": "string", "pattern": "^[a-z][a-z0-9-]*$"}
+            },
+            "edges": {
+              "type": "array",
+              "items": {"type": "string", "minLength": 1}
+            }
+          }
         },
         "interaction": {
           "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type"],
+              "properties": {"type": {"const": "read"}}
+            },
             {
               "type": "object",
               "additionalProperties": false,
@@ -897,21 +959,68 @@
                   }
                 }
               }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "title", "x", "y", "methods"],
+              "properties": {
+                "type": {"const": "plane"},
+                "title": {"$ref": "#/$defs/text"},
+                "x": {"$ref": "#/$defs/planeAxis"},
+                "y": {"$ref": "#/$defs/planeAxis"},
+                "methods": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["value", "label", "cells"],
+                    "properties": {
+                      "value": {"type": "string", "minLength": 1},
+                      "label": {"$ref": "#/$defs/text"},
+                      "target": {"type": "string", "minLength": 1},
+                      "cells": {
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "items": {"type": "string", "minLength": 1}
+                        }
+                      },
+                      "route": {"type": "string", "minLength": 1},
+                      "route_plan": {"type": "string", "minLength": 1}
+                    }
+                  }
+                }
+              }
             }
           ]
         },
         "expected_answer": {
           "oneOf": [
+            {"type": "object", "maxProperties": 0},
             {"type": "object", "additionalProperties": false, "required": ["one_of"],
              "properties": {"one_of": {"type": "array", "minItems": 1, "items": {"type": "string"}}}},
             {"type": "object", "additionalProperties": false, "required": ["required", "allowed"],
              "properties": {"required": {"type": "array", "items": {"type": "string"}},
                             "allowed": {"type": "array", "items": {"type": "string"}}}},
             {"type": "object", "additionalProperties": false, "required": ["terms"],
-             "properties": {"terms": {"type": "array", "minItems": 1, "items": {"type": "string"}}}}
+             "properties": {"terms": {"type": "array", "minItems": 1, "items": {"type": "string"}}}},
+            {"type": "object", "additionalProperties": false, "required": ["cell", "method"],
+             "properties": {
+               "cell": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "string", "minLength": 1}},
+               "method": {"type": "string", "minLength": 1}
+             }}
           ]
         }
-      }
+      },
+      "allOf": [{
+        "if": {"properties": {"interaction": {"properties": {"type": {"const": "read"}}}}},
+        "then": {"properties": {"expected_answer": {"maxProperties": 0}}},
+        "else": {"properties": {"expected_answer": {"minProperties": 1}}}
+      }]
     }
   }
 }

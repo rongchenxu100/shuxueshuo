@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 2,
+  "problemId": "function-concepts-q12",
+  "bundleVersion": "[\"stream\",\"e79302245eec22abb8942c64bcc615db724555b9107c0310ad648668a3e62b18\",\"17cdc07e0509ae194ca19f2c8d202d226bef76911ab14b0933e1366e07a125d0\",\"f22cf5fd45af4bb8bf354830ec32dc05\",\"/root/goals/0\"]",
+  "status": "completed",
+  "routes": [
+    "domain-parameter"
+  ],
+  "actions": [
+    {
+      "decision": "D1",
+      "answer": "/root/goals/0:goal:o0"
+    },
+    {
+      "decision": "D2",
+      "answer": "type-function-domain"
+    },
+    {
+      "decision": "D3",
+      "answer": "read"
+    },
+    {
+      "decision": "cd034f812005956084d2ad4f#1",
+      "answer": [
+        "s1o1",
+        "s2o1"
+      ]
+    },
+    {
+      "decision": "76e14699d0c24fb9848b5018#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "76e14699d0c24fb9848b5018#2",
+      "answer": "o1"
+    },
+    {
+      "decision": "9580b08c52f4559fc9a8ee11#1",
+      "answer": [
+        "real",
+        "free",
+        "discriminant"
+      ]
+    },
+    {
+      "decision": "0b0c99a6262fa8a35fbe94cb#1",
+      "answer": "o3"
+    },
+    {
+      "decision": "2313c97ccc75b0eb67726211#1",
+      "answer": [
+        "s1o1"
+      ]
+    },
+    {
+      "decision": "d8cbb78e8bb96e512061166b#2",
+      "answer": [
+        "o3"
+      ]
+    },
+    {
+      "decision": "d8cbb78e8bb96e512061166b#3",
+      "answer": "o2"
+    },
+    {
+      "decision": "23d5e440bd6efbdab66c1312#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "136872df41ad37ba81ac7c3c#1",
+      "answer": "o4"
+    },
+    {
+      "decision": "e927ab27ec860c2ff5e49545#1",
+      "answer": "o1"
+    },
+    {
+      "decision": "af8629218e0a34a493bb6068#1",
+      "answer": "o1"
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "text": "{\"original_text\":\"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\",\"root\":{\"definitions\":[\"f(x) = 1/sqrt(m*x^2-6*m*x+m+8)\"],\"facts\":[],\"goals\":[{\"kind\":\"match_domain\",\"object\":\"f\",\"domain\":\"ℝ\",\"symbol\":\"m\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+  "finish_reason": "stop",
+  "metadata": {
+    "provider": "deepseek",
+    "request_model": "deepseek-flash",
+    "response_model": "deepseek-flash",
+    "usage": {
+      "completion_tokens": 825,
+      "prompt_tokens": 9551,
+      "total_tokens": 10376,
+      "prompt_cache_hit_tokens": 9088,
+      "prompt_cache_miss_tokens": 463
+    },
+    "usage_complete": true,
+    "finish_reason": "stop",
+    "stream_terminated_at_json": false,
+    "received_output_characters": 565,
+    "thinking_mode": "enabled",
+    "reasoning_effort": "low",
+    "response_format": "search-problem-extraction/v1",
+    "temperature": null,
+    "max_output_tokens": 16384,
+    "timeout": 300,
+    "stream": false,
+    "transport_response_format": "json_object",
+    "image_detail": null,
+    "image_transport": "files",
+    "image_files": [
+      {
+        "image_id": "primary",
+        "file_id": "file-api-ae45a184-e3df-435e-8b92-74152c2e5661",
+        "sha256": "53e8568ae622fe10c115fa283afd9ae79191a9bed0bdfc460f651c15a43844f2",
+        "scope": "e272824dd5798d7eaa86a53b0cd98ed0df52eb6c526d91864e81295bdb35f376",
+        "bytes": 37844,
+        "expires_at": 1793179801,
+        "uploaded_at": 1793093401.097193
+      }
+    ],
+    "file_operations": [
+      {
+        "operation": "upload",
+        "status": "completed",
+        "sha256": "53e8568ae622fe10c115fa283afd9ae79191a9bed0bdfc460f651c15a43844f2",
+        "api_calls": 1,
+        "file_id": "file-api-ae45a184-e3df-435e-8b92-74152c2e5661",
+        "expires_at": 1793179801,
+        "elapsed_ms": 448
+      }
+    ],
+    "file_api_calls": 1,
+    "provider_attempts": [
+      {
+        "status": "completed",
+        "response_model": "deepseek-flash",
+        "finish_reason": "stop",
+        "error_code": null,
+        "provider_attempt": 1,
+        "latency_ms": 5385,
+        "visible_content": true,
+        "usage": {
+          "completion_tokens": 825,
+          "prompt_tokens": 9551,
+          "total_tokens": 10376,
+          "completion_tokens_details": {
+            "reasoning_tokens": 613
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 9088
+          },
+          "prompt_cache_hit_tokens": 9088,
+          "prompt_cache_miss_tokens": 463
+        },
+        "raw_payload": {
+          "id": "e9143c84-0484-4bfa-9101-6d9faa6af07b",
+          "object": "chat.completion",
+          "model": "deepseek-flash",
+          "usage": {
+            "completion_tokens": 825,
+            "prompt_tokens": 9551,
+            "total_tokens": 10376,
+            "completion_tokens_details": {
+              "reasoning_tokens": 613
+            },
+            "prompt_tokens_details": {
+              "cached_tokens": 9088
+            },
+            "prompt_cache_hit_tokens": 9088,
+            "prompt_cache_miss_tokens": 463
+          },
+          "created": 1793093401,
+          "choices": [
+            {
+              "index": 0,
+              "finish_reason": "stop",
+              "message": {
+                "role": "assistant",
+                "content": "{\"original_text\":\"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\",\"root\":{\"definitions\":[\"f(x) = 1/sqrt(m*x^2-6*m*x+m+8)\"],\"facts\":[],\"goals\":[{\"kind\":\"match_domain\",\"object\":\"f\",\"domain\":\"ℝ\",\"symbol\":\"m\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+                "reasoning_content": "We need extract. Problem in Chinese: 若函数 f(x)=1/√(mx^2-6mx+m+8) 的定义域为 R，则实数 m 的取值范围是 ____.\n\nNeed identify goal: known domain of concrete function equals R, find parameter m. This is match_domain goal. Function definition in definitions: f(x)=1/sqrt(m*x^2-6*m*x+m+8). Fact: domain f = ℝ? Schema match_domain has object, domain, symbol. Goal {\"kind\":\"match_domain\",\"object\":\"f\",\"domain\":\"ℝ\",\"symbol\":\"m\"}. Facts maybe none, since goal covers known domain. Could also put fact? It is condition embedded in goal domain. Better goal only. definitions function.\n\nOriginal text complete with blank. \"若函数 $f(x)=\\frac{1}{\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\mathbf{R}$，则实数 $m$ 的取值范围是______.\" Need preserve. The image likely no options. public_content scopes one root. statement same but with $…$ no blank maybe include ______. choices for goal status none, selection_mode none options [].\n\nNeed root label? none. uncertainties? The image is visible. Maybe no. Ensure math expression catalog: function definition f(x) = 1/sqrt(m*x^2-6*m*x+m+8). Note multiplication explicit: m*x^2 - 6*m*x + m + 8. denominator sqrt. Could write \"f(x) = 1/sqrt(m*x^2-6*m*x+m+8)\". Goal match_domain.\n\nPublic_content statement: \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\" Need JSON escaping backslashes double. original_text same with $...$. Use \\mathbf{R} or \\mathbb{R}; original image bold R. For root domain use ℝ. Good.\n\nCompleteness complete: whole question. privacy separated? No personal info; text only. figure not_required. root_label_role omit. choices status none.\n\nNeed original_text must preserve complete question and blank line. \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\" Check original: \"若函数f(x)=1/√(mx²−6mx+m+8)的定义域为R，则实数m的取值范围是\" and presumably blank. Use underline as printed horizontal line. Good.\n\nNeed not add answer. definitions only. Could facts include domain? But goal match_domain includes domain R, so no.\n\nRoot goal only one. No children. public scopes one statement. Ensure choices target_ref \"/root/goals/0\".\n\nNo uncertainty.",
+                "refusal": null
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "latency_ms": 5834
+  },
+  "raw_payload": {
+    "id": "e9143c84-0484-4bfa-9101-6d9faa6af07b",
+    "choices": [
+      {
+        "finish_reason": "stop",
+        "index": 0,
+        "logprobs": null,
+        "message": {
+          "content": "{\"original_text\":\"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\",\"root\":{\"definitions\":[\"f(x) = 1/sqrt(m*x^2-6*m*x+m+8)\"],\"facts\":[],\"goals\":[{\"kind\":\"match_domain\",\"object\":\"f\",\"domain\":\"ℝ\",\"symbol\":\"m\"}]},\"public_content\":{\"completeness\":\"complete\",\"privacy\":\"separated\",\"figure\":\"not_required\",\"scopes\":[{\"scope_ref\":\"/root\",\"statement\":\"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\",\"choices\":[{\"target_ref\":\"/root/goals/0\",\"status\":\"none\",\"selection_mode\":\"none\",\"options\":[]}]}]}}",
+          "refusal": null,
+          "role": "assistant",
+          "annotations": null,
+          "audio": null,
+          "function_call": null,
+          "tool_calls": null,
+          "reasoning_content": "We need extract. Problem in Chinese: 若函数 f(x)=1/√(mx^2-6mx+m+8) 的定义域为 R，则实数 m 的取值范围是 ____.\n\nNeed identify goal: known domain of concrete function equals R, find parameter m. This is match_domain goal. Function definition in definitions: f(x)=1/sqrt(m*x^2-6*m*x+m+8). Fact: domain f = ℝ? Schema match_domain has object, domain, symbol. Goal {\"kind\":\"match_domain\",\"object\":\"f\",\"domain\":\"ℝ\",\"symbol\":\"m\"}. Facts maybe none, since goal covers known domain. Could also put fact? It is condition embedded in goal domain. Better goal only. definitions function.\n\nOriginal text complete with blank. \"若函数 $f(x)=\\frac{1}{\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\mathbf{R}$，则实数 $m$ 的取值范围是______.\" Need preserve. The image likely no options. public_content scopes one root. statement same but with $…$ no blank maybe include ______. choices for goal status none, selection_mode none options [].\n\nNeed root label? none. uncertainties? The image is visible. Maybe no. Ensure math expression catalog: function definition f(x) = 1/sqrt(m*x^2-6*m*x+m+8). Note multiplication explicit: m*x^2 - 6*m*x + m + 8. denominator sqrt. Could write \"f(x) = 1/sqrt(m*x^2-6*m*x+m+8)\". Goal match_domain.\n\nPublic_content statement: \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\" Need JSON escaping backslashes double. original_text same with $...$. Use \\mathbf{R} or \\mathbb{R}; original image bold R. For root domain use ℝ. Good.\n\nCompleteness complete: whole question. privacy separated? No personal info; text only. figure not_required. root_label_role omit. choices status none.\n\nNeed original_text must preserve complete question and blank line. \"若函数 $f(x)=\\\\frac{1}{\\\\sqrt{mx^2-6mx+m+8}}$ 的定义域为 $\\\\mathbf{R}$，则实数 $m$ 的取值范围是______。\" Check original: \"若函数f(x)=1/√(mx²−6mx+m+8)的定义域为R，则实数m的取值范围是\" and presumably blank. Use underline as printed horizontal line. Good.\n\nNeed not add answer. definitions only. Could facts include domain? But goal match_domain includes domain R, so no.\n\nRoot goal only one. No children. public scopes one statement. Ensure choices target_ref \"/root/goals/0\".\n\nNo uncertainty."
+        }
+      }
+    ],
+    "created": 1793093401,
+    "model": "deepseek-flash",
+    "object": "chat.completion",
+    "service_tier": null,
+    "system_fingerprint": "e72d3c7f663d3e1383b00b3884cb4501",
+    "usage": {
+      "completion_tokens": 825,
+      "prompt_tokens": 9551,
+      "total_tokens": 10376,
+      "completion_tokens_details": {
+        "accepted_prediction_tokens": null,
+        "audio_tokens": null,
+        "reasoning_tokens": 613,
+        "rejected_prediction_tokens": null
+      },
+      "prompt_tokens_details": {
+        "audio_tokens": null,
+        "cached_tokens": 9088
+      },
+      "prompt_cache_hit_tokens": 9088,
+      "prompt_cache_miss_tokens": 463
+    }
+  },
+  "network_attempts": 1,
+  "elapsed_seconds": 5.836
+}

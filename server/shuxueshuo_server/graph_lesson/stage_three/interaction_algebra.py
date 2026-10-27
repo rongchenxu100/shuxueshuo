@@ -142,6 +142,12 @@ def register(api):
 
         def truth(expression, point):
             substituted = expression.subs(point)
+            # Frozen derivations retain constant relations with evaluate=False.
+            # Substitution does nothing to 0 <= 0 (or 1 <= 0), so explicitly
+            # decide only closed real relations. Undefined samples stay unknown.
+            if (isinstance(substituted, sp.Rel) and not substituted.free_symbols
+                    and substituted.lhs.is_real is True and substituted.rhs.is_real is True):
+                substituted = sp.Rel(substituted.lhs, substituted.rhs, substituted.rel_op)
             return True if substituted is sp.true else False if substituted is sp.false else None
 
         expected = [api.attempt(truth, relation, point) for point in points]

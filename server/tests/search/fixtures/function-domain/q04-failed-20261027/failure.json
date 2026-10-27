@@ -1,0 +1,189 @@
+{
+  "source": "local photo submission f87769d06eef",
+  "recorded_date": "2026-10-27",
+  "question_sha256": "4b88a2553d6afecfe67e530e725e0cbdde6d466657e86b68e11111c2b42b90be",
+  "notes": "Unmodified failed photo, including printed question number and handwritten answer. Responses are the exact parsed JSON model texts; transport metadata and private storage paths are omitted.",
+  "calls": [
+    {
+      "stage": "extract",
+      "response": {
+        "original_text": "4. 若函数 $y=\\sqrt{mx^2+4mx+3}$ 中 $x$ 的取值范围为 $\\mathbf{R}$，则 $m$ 的取值范围是 ______。",
+        "root": {
+          "definitions": [
+            "f(x) = sqrt(m*x^2+4*m*x+3)"
+          ],
+          "facts": [
+            "∀x∈ℝ: m*x^2+4*m*x+3 ≥ 0"
+          ],
+          "goals": [
+            {
+              "kind": "find_range",
+              "symbol": "m"
+            }
+          ]
+        },
+        "public_content": {
+          "completeness": "complete",
+          "privacy": "separated",
+          "figure": "not_required",
+          "scopes": [
+            {
+              "scope_ref": "/root",
+              "statement": "若函数 $y=\\sqrt{mx^2+4mx+3}$ 中 $x$ 的取值范围为 $\\mathbf{R}$，则 $m$ 的取值范围是 ______。",
+              "choices": [
+                {
+                  "target_ref": "/root/goals/0",
+                  "status": "none",
+                  "selection_mode": "none",
+                  "options": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "response_sha256": "89055bfd064bfa6ecb62191ad8a1b3448a4633f1209e1783648ff104a99687fb",
+      "finish_reason": "stop",
+      "network_attempts": 1
+    },
+    {
+      "stage": "review",
+      "response": {
+        "status": "correction_required",
+        "findings": [
+          {
+            "path": "/root/definitions/0",
+            "kind": "wrong_expression",
+            "source_excerpt": "若函数 $y=\\sqrt{mx^2+4mx+3}$",
+            "message": "原题中函数记作 $y$，候选却将其改写为 $f(x)$。虽然 facts 已正确展开定义域条件，但 definitions 中的函数名不应擅自改为 $f$，应保留题面的 $y$ 或删除该辅助定义。"
+          },
+          {
+            "path": "/public_content/scopes/0/statement",
+            "kind": "wrong_public_content",
+            "source_excerpt": "4. 若函数 $y=\\sqrt{mx^2+4mx+3}$ 中 $x$ 的取值范围为 $\\mathbf{R}$，则 $m$ 的取值范围是 ______。",
+            "message": "公开题干仍保留了试卷题号“4.”。题号属于可明确分离的来源信息，不应放入 public_content 的题干字段；original_text 中保留题号不受此限。"
+          }
+        ]
+      },
+      "response_sha256": "f23ba75da00f418739f41b5f2fabe4a683abd7c9592d5e7ff09e74616c1e12f9",
+      "finish_reason": "stop",
+      "network_attempts": 1
+    },
+    {
+      "stage": "repair",
+      "response": {
+        "original_text": "4. 若函数 $y=\\sqrt{mx^2+4mx+3}$ 中 $x$ 的取值范围为 $\\mathbf{R}$，则 $m$ 的取值范围是 ______。",
+        "root": {
+          "facts": [
+            "∀x∈ℝ: m*x^2+4*m*x+3 ≥ 0"
+          ],
+          "goals": [
+            {
+              "kind": "find_range",
+              "symbol": "m"
+            }
+          ]
+        },
+        "public_content": {
+          "completeness": "complete",
+          "privacy": "separated",
+          "figure": "not_required",
+          "scopes": [
+            {
+              "scope_ref": "/root",
+              "statement": "若函数 $y=\\sqrt{mx^2+4mx+3}$ 中 $x$ 的取值范围为 $\\mathbf{R}$，则 $m$ 的取值范围是 ______。",
+              "choices": [
+                {
+                  "target_ref": "/root/goals/0",
+                  "status": "none",
+                  "selection_mode": "none",
+                  "options": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "response_sha256": "d644a48231804964772cf91e73bcefb087d9ca200e8547020c40d7f3b264c98c",
+      "finish_reason": "stop",
+      "network_attempts": 1
+    },
+    {
+      "stage": "repair",
+      "response": {
+        "original_text": "4. 若函数 $y=\\sqrt{mx^2+4mx+3}$ 中 $x$ 的取值范围为 $\\mathbf{R}$，则 $m$ 的取值范围是 ______。",
+        "root": {
+          "facts": [
+            "∀x∈ℝ: m*x^2+4*m*x+3 ≥ 0"
+          ],
+          "goals": [
+            {
+              "kind": "find_range",
+              "symbol": "m"
+            }
+          ]
+        },
+        "public_content": {
+          "completeness": "complete",
+          "privacy": "separated",
+          "figure": "not_required",
+          "scopes": [
+            {
+              "scope_ref": "/root",
+              "statement": "若函数 $y=\\sqrt{mx^2+4mx+3}$ 中 $x$ 的取值范围为 $\\mathbf{R}$，则 $m$ 的取值范围是 ______。",
+              "choices": [
+                {
+                  "target_ref": "/root/goals/0",
+                  "status": "none",
+                  "selection_mode": "none",
+                  "options": []
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "response_sha256": "37c432d2aed4c62b4fb329f43d6c8c8af6cc45112979a60a65ce30ad48d3d4bd",
+      "finish_reason": "stop",
+      "network_attempts": 1
+    }
+  ],
+  "workflow": {
+    "status": "workflow.budget_exhausted",
+    "source_reviewed": false,
+    "budget": {
+      "content": 3,
+      "review": 3,
+      "semantic": 6,
+      "network": 12
+    },
+    "semantic_calls": 4,
+    "content_calls": 3,
+    "review_calls": 1,
+    "network_attempts": 4
+  },
+  "rejected_repairs": [
+    {
+      "stage": "repair",
+      "adopted": false,
+      "repair_rejected": [
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/root/definitions/0",
+          "message": "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项：分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，表达式或目标错误只能原位改正，只有新增题设可以删除。"
+        }
+      ]
+    },
+    {
+      "stage": "repair",
+      "adopted": false,
+      "repair_rejected": [
+        {
+          "code": "repair.outside_authorized_path",
+          "path": "/root/definitions/0",
+          "message": "保留没有诊断授权的题文与数学内容，只修复列出的诊断。每条诊断只授权它所指的一项：分问归属错误只能移动已有内容，遗漏条件或遗漏目标只能在所指分问追加，表达式或目标错误只能原位改正，只有新增题设可以删除。"
+        }
+      ]
+    }
+  ]
+}

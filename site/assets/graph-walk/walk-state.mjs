@@ -81,6 +81,9 @@ export function gradeDecision(decision, answer) {
       if (!method.cells.some(cell => cell[0] === x && cell[1] === y)) throw new Error(decision.feedback.method);
       const alternative = decision.alternatives?.[value];
       if (alternative) return {status: 'uncovered', message: alternative.message, href: alternative.href};
+      if (decision.expected_answer.method && value !== decision.expected_answer.method) {
+        throw new Error(decision.feedback.method_choice || decision.feedback.method);
+      }
     } else if (component.type === 'grid') {
       const [x, y] = Array.isArray(answer) && answer.length === 2 ? answer : [];
       if (!component.x.options.some(option => option.value === x) || !component.y.options.some(option => option.value === y)) {
@@ -312,7 +315,7 @@ export function projectDecision(bundle, state) {
   const decision = currentDecision(bundle, state);
   if (!decision) return null;
   const interaction = publicInteraction(decision.interaction);
-  const candidates = (decision.candidateNodes || []).map(id => bundle.graph.nodes.find(node => node.id === id)).filter(Boolean).map(node => ({
+  const candidates = decisionCandidates(decision, bundle.graph).map(id => bundle.graph.nodes.find(node => node.id === id)).filter(Boolean).map(node => ({
     id: node.id, label: node.label, kind: node.kind,
     ...(node.conditions ? {conditions: node.conditions} : {}),
     ...(node.features ? {features: copy(node.features)} : {}),
@@ -343,9 +346,31 @@ function decisionById(bundle, id) {
     Object.values(bundle.routes).flatMap(route => route.steps).find(decision => decision.id === id);
 }
 
+// A method choice can belong to the route itself or to a borrowed submethod.
+// Resolve its declared rule and method targets against real graph occurrences.
+function planeSelectionPaths(decision, nodes, edges) {
+  if (decision?.interaction.type !== 'plane') return [];
+  const rules = new Set([...(decision.effects?.nodes || []), ...(decision.candidateNodes || [])]
+    .filter(id => nodes.get(id)?.kind === 'judgment_rule'));
+  return decision.interaction.methods.flatMap(method => nodes.has(method.target)
+    ? [...edges.values()].filter(edge => edge.type === 'selects' && rules.has(edge.from) &&
+      edge.to === method.target && edge.occurrences?.some(part => part.branch === method.value))
+      .map(edge => ({method, edge})) : []);
+}
+
+function decisionCandidates(decision, graph) {
+  const nodes = new Map(graph.nodes.map(node => [node.id, node]));
+  const edges = new Map(graph.edges.map(edge => [edge.id, edge]));
+  return [...new Set([...(decision?.candidateNodes || []),
+    ...planeSelectionPaths(decision, nodes, edges).flatMap(({edge}) => [edge.from, edge.to]),
+  ])].filter(id => nodes.has(id));
+}
+
 function confirmedGraph(bundle, entries, route, runId) {
   const nodes = new Set(), edges = new Set(), usedBasis = new Set(), calls = [], logs = [];
   const selectedRoute = bundle.routes[route];
+  const graphNodes = new Map(bundle.graph.nodes.map(node => [node.id, node]));
+  const graphEdges = new Map(bundle.graph.edges.map(edge => [edge.id, edge]));
   const realEdges = new Set(bundle.graph.edges.map(edge => edge.id));
   const edge = id => { if (realEdges.has(id)) edges.add(id); };
   for (const entry of entries) {
@@ -354,8 +379,14 @@ function confirmedGraph(bundle, entries, route, runId) {
     for (const id of effects.nodes || []) nodes.add(id);
     for (const id of effects.edges || []) edge(id);
     if (effects.log) logs.push({decision: entry.decision, text: effects.log});
-    if (decision?.interaction.type === 'plane' && selectedRoute) {
-      logs.push({decision: entry.decision, text: `作答判断：选择「${selectedRoute.label}」，执行本路线的方法步骤。`});
+    if (decision?.interaction.type === 'plane') {
+      const method = decision.interaction.methods.find(item => item.value === entry.answer?.[2]);
+      if (method) {
+        logs.push({decision: entry.decision, text: `作答判断：选择「${method.label}」，执行该方法的步骤。`});
+        for (const path of planeSelectionPaths(decision, graphNodes, graphEdges)) if (path.method.value === method.value) {
+          nodes.add(path.edge.from); nodes.add(path.edge.to); edge(path.edge.id);
+        }
+      }
     }
     for (const [index, call] of entry.calls.entries()) {
       const ref = nodeId(call.ref);
@@ -372,7 +403,11 @@ function confirmedGraph(bundle, entries, route, runId) {
   if (selectedRoute) {
     const method = selectedRoute.method;
     nodes.add(method);
-    edge(`rule-quadratic-method|selects|${method}`);
+    // Archived runs retain their route but no longer carry the shared intro.
+    // Recover only that top-level choice's real selection edge, never a child's.
+    for (const path of planeSelectionPaths(methodChoice(bundle), graphNodes, graphEdges)) {
+      if (path.method.route === route && path.method.target === method) edge(path.edge.id);
+    }
   }
   return {nodes, edges, usedBasis, calls, logs};
 }
@@ -386,11 +421,15 @@ export function graphState(bundle, state) {
   for (const id of confirmed.nodes) if (id in nodes) nodes[id] = 'confirmed';
   for (const id of confirmed.edges) edges[id] = 'chosen';
   const selectedRoute = bundle.routes[state.run.route];
-  const focus = current?.candidateNodes?.length ? current.candidateNodes : selectedRoute ? [selectedRoute.method] : [];
+  const candidates = decisionCandidates(current, bundle.graph);
+  const focus = candidates.length ? candidates : selectedRoute ? [selectedRoute.method] : [];
   for (const id of focus) if (id in nodes && nodes[id] === 'idle') nodes[id] = 'candidate';
   if (current?.interaction.type === 'plane') {
-    nodes['rule-quadratic-method'] = 'active';
-    for (const edge of bundle.graph.edges.filter(edge => edge.from === 'rule-quadratic-method' && edge.type === 'selects')) {
+    const graphNodes = new Map(bundle.graph.nodes.map(node => [node.id, node]));
+    const graphEdges = new Map(bundle.graph.edges.map(edge => [edge.id, edge]));
+    for (const {edge} of planeSelectionPaths(current, graphNodes, graphEdges)) {
+      nodes[edge.from] = 'active';
+      if (nodes[edge.to] === 'idle') nodes[edge.to] = 'candidate';
       if (edges[edge.id] !== 'chosen') edges[edge.id] = 'candidate';
     }
   } else if (current?.source === 'page' && selectedRoute) {
@@ -555,7 +594,7 @@ function streamDecisions(cards, states, chunks, enabled, final) {
         stream_steps: copy(chunk.steps), stream_last_part: index === chunk.parts.length - 1,
         stream_interaction_id: chunk.interaction_id, stream_part_index: index, stream_part_count: chunk.parts.length,
         stream_group_title: members.map(member => member.title).join(' · '),
-        effects: {nodes: [], edges: [], calls: [],
+        effects: {nodes: [...(part.effects?.nodes || [])], edges: [...(part.effects?.edges || [])], calls: [],
           results: index === chunk.parts.length - 1 ? carried(members.at(-1)) : [],
           log: part.effects?.log || `完成判断：${part.title || card.title}`}})));
     } else throw new Error('stream.invalid_interaction');
@@ -735,6 +774,13 @@ export function extendStreamBundle(base, view, targetRef, fullGraph = base.graph
     if (routeState.math_complete && cards.length > 0 && resolved.size === cards.length) {
       const choice = originalChoiceDecision(routeState.completion, targetRef, id);
       if (choice) decisions.push(choice);
+    }
+    for (const decision of decisions) {
+      const paths = planeSelectionPaths(decision, nodes, edges);
+      for (const ref of [...(decision.effects?.nodes || []), ...(decision.candidateNodes || []),
+        ...paths.flatMap(({edge}) => [edge.from, edge.to])]) {
+        if (nodes.has(ref)) ids.add(ref);
+      }
     }
     for (let index = 0; index < (previous?.steps.length || 0); index++) {
       if ((!routeState.available || !routeState.completion) && previous.steps[index].source === 'original_choice') continue;

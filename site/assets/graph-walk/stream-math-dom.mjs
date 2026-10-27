@@ -94,13 +94,38 @@ function formulaLines(document, values, field) {
   });
 }
 
-/* The full derivation follows, one sentence per line; a newline also starts a line (a ∵/∴ step). */
+/* Keep mathematical blocks intact while splitting prose into sentences/lines.
+ * A standalone derivation has no sentence-ending full stop; prose still does.
+ */
+function derivationLines(explanation) {
+  const parts = explanation.split(/(\$\$[\s\S]+?\$\$|\$(?:\\[\s\S]|[^\\$])+\$|\\\[[\s\S]+?\\\]|\\\([\s\S]+?\\\))/g);
+  const lines = [];
+  let line = '', prose = '', hasMath = false;
+  const finish = () => {
+    if (line.trim()) {
+      lines.push(hasMath && /^[\s，,]*。\s*$/.test(prose) ? line.replace(/。\s*$/, '') : line);
+    }
+    line = ''; prose = ''; hasMath = false;
+  };
+  parts.forEach((part, index) => {
+    if (index % 2) { line += part; hasMath = true; return; }
+    for (const text of part.split(/(。|\n)/)) {
+      if (text === '\n') { finish(); continue; }
+      line += text; prose += text;
+      if (text === '。') finish();
+    }
+  });
+  finish();
+  return lines;
+}
+
+/* The full derivation follows, one prose sentence or mathematical derivation per line. */
 function derivationDetails(document, explanation, before = []) {
   const details = document.createElement('details');
   details.className = 'details stage-three-derivation'; details.open = true;
   details.append(text(document, 'summary', '完整推导'));
   details.append(...formulaLines(document, before, 'before'));
-  for (const sentence of explanation.split(/(?<=。)|\n/).filter(part => part.trim())) {
+  for (const sentence of derivationLines(explanation)) {
     const line = text(document, 'p', sentence, 'stage-three-explanation');
     line.dataset.mathText = 'true'; details.append(line);
   }

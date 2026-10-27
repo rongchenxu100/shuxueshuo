@@ -5,6 +5,7 @@ committed with each card; unit cases build seeds from the real capabilities.
 """
 
 from copy import deepcopy
+from pathlib import Path
 
 import pytest
 import sympy as sp
@@ -149,6 +150,22 @@ def test_interaction_code_and_rules_stay_out_of_the_mathematical_fingerprint():
                    or "interaction" in path.rsplit("/", 1)[-1] for path in paths)
     assert any(path.endswith("stage_three/presentation.py") for path in paths)
     assert len(interaction.engine_revision()) == 64
+
+
+def test_borrow_card_changes_only_the_interaction_engine_revision(monkeypatch):
+    from shuxueshuo_server.graph_lesson.stage_three import domain_borrow
+
+    source = Path(domain_borrow.__file__).resolve()
+    math_before, interaction_before = runner.fingerprint(), interaction.engine_revision()
+    read_bytes = Path.read_bytes
+
+    def changed_card(path):
+        content = read_bytes(path)
+        return content + b"\n# revised borrow card wording\n" if path.resolve() == source else content
+
+    monkeypatch.setattr(Path, "read_bytes", changed_card)
+    assert runner.fingerprint() == math_before
+    assert interaction.engine_revision() != interaction_before
 
 
 def test_override_replaces_fields_for_one_method_step(registry):

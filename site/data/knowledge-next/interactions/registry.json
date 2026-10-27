@@ -485,6 +485,10 @@
         }
       ]
     },
+    "opening_excluded": {
+      "repeat": "never",
+      "parts": []
+    },
     "case_basis": {
       "repeat": "first",
       "parts": [
@@ -1308,31 +1312,9 @@
       ]
     },
     "separated": {
-      "repeat": "never",
-      "parts": [
-        {
-          "component": "checklist",
-          "title": "移项时的方向",
-          "question": "从 ${before}$ 出发，把含参数的项与其余项移到两侧，不等号方向是否变化？",
-          "min_options": 2,
-          "max_options": 4,
-          "feedback": "移项相当于两边加减同一个式子，不改变不等号方向。",
-          "submit_label": "确认判断",
-          "rows": [
-            {
-              "seed": 0,
-              "answer": {
-                "from": "movement_direction"
-              },
-              "distractors": [
-                {
-                  "generator": "reverse_division"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "repeat": "always",
+      "compiler": "separated_read",
+      "parts": []
     },
     "numeric_range": {
       "repeat": "first",
@@ -1706,6 +1688,16 @@
       "repeat": "always",
       "compiler": "function_domain",
       "parts": []
+    },
+    "domain_parameter_borrow": {
+      "repeat": "always",
+      "compiler": "function_domain",
+      "parts": []
+    },
+    "domain_parameter_return": {
+      "repeat": "always",
+      "compiler": "function_domain",
+      "parts": []
     }
   },
   "overrides": {
@@ -1748,6 +1740,15 @@
                 "feedback": "注意原题是否允许等号。"
               }
             ]
+          }
+        ]
+      }
+    },
+    "method-separation#restore": {
+      "solution": {
+        "parts": [
+          {
+            "min_options": 2
           }
         ]
       }

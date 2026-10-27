@@ -37,12 +37,14 @@ class _LinkExpired(Exception):
 
 
 class SearchRepository:
-    def __init__(self, db, root, *, clock=None, initialize_recovery=True, admission_disabled=False):
+    def __init__(self, db, root, *, clock=None, initialize_recovery=True, admission_disabled=False,
+                 admission_config=None):
         self.db = db
         self.storage = SearchStorage(root)
         self.root = self.storage.root
         self.clock = clock or (lambda: datetime.now(UTC))
-        self.admission = None if admission_disabled else SearchAdmission(db, clock=self.clock)
+        self.admission = None if admission_disabled else SearchAdmission(
+            db, config=admission_config, clock=self.clock)
         self.recovery = RecoveryJournal(self.root)
         if initialize_recovery:
             self.recovery.initialize(db)

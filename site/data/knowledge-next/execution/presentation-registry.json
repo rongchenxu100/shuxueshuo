@@ -2254,7 +2254,7 @@
       }
     },
     "domain_parameter_universal": {
-      "title": "把定义域条件化为恒成立",
+      "title": "转化为恒成立问题",
       "explanation": "把定义域条件化为恒成立。",
       "required_bindings": [
         "before",
@@ -2266,13 +2266,82 @@
         "universal_statement",
         "x",
         "domain",
-        "quantifier"
+        "quantifier",
+        "strict",
+        "denominator_domain",
+        "domain_equivalence"
       ],
       "prepare": "domain_parameter_view",
       "render": "{domain_explanation}",
       "highlight": {
-        "caption": "把定义域条件化为恒成立",
+        "caption": "转化为恒成立问题",
         "connector": "⇔",
+        "items": [
+          {
+            "for": "domain_lines",
+            "as": "line",
+            "math": "{line.math}",
+            "label": "{line.label}"
+          }
+        ]
+      }
+    },
+    "domain_parameter_borrow": {
+      "title": "选择已学方法",
+      "explanation": "恒成立子问题按图谱选法判断借用已学方法。",
+      "required_bindings": [
+        "before",
+        "after",
+        "constraints",
+        "description",
+        "phase",
+        "relation",
+        "universal_statement",
+        "x",
+        "domain",
+        "quantifier",
+        "parameter",
+        "borrowed_method",
+        "host_route",
+        "strict",
+        "denominator_domain",
+        "domain_equivalence"
+      ],
+      "prepare": "domain_parameter_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "caption": "按选法判断借用方法",
+        "connector": "→",
+        "items": [
+          {
+            "for": "domain_lines",
+            "as": "line",
+            "math": "{line.math}",
+            "label": "{line.label}"
+          }
+        ]
+      }
+    },
+    "domain_parameter_return": {
+      "title": "回到定义域求参",
+      "explanation": "把子方法得到的参数范围收回原题目标。",
+      "required_bindings": [
+        "before",
+        "after",
+        "candidate_set",
+        "description",
+        "parameter",
+        "phase",
+        "domain",
+        "borrowed_method",
+        "denominator_domain",
+        "domain_equivalence"
+      ],
+      "prepare": "domain_parameter_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "caption": "回到定义域求参",
+        "connector": "→",
         "items": [
           {
             "for": "domain_lines",

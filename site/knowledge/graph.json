@@ -633,9 +633,10 @@
         },
         {
           "id": "solve",
-          "title": "用判别式法求参数",
+          "title": "选择已学方法求参数",
           "calls": [
-            "method-discriminant"
+            "method-discriminant",
+            "method-separation"
           ]
         },
         {
@@ -2035,6 +2036,18 @@
       "id": "method-domain-parameter|calls|method-discriminant",
       "from": "method-domain-parameter",
       "to": "method-discriminant",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "solve",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-domain-parameter|calls|method-separation",
+      "from": "method-domain-parameter",
+      "to": "method-separation",
       "type": "calls",
       "occurrences": [
         {

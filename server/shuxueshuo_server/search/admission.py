@@ -18,14 +18,19 @@ TICKETS = metadata.tables['search_admission_tickets']
 ACTIVE = ('reserved', 'running')
 PAID = ('generation', 'rerun')
 QUOTA_TIMEZONE = ZoneInfo('Asia/Shanghai')
+_DAILY_LIMIT_FIELDS = frozenset({
+    'generation_account_daily', 'rerun_account_daily',
+    'generation_global_daily', 'rerun_global_daily',
+})
 
 
 @dataclass(frozen=True)
 class SearchLimits:
-    generation_account_daily: int = 10
-    rerun_account_daily: int = 3
-    generation_global_daily: int = 100
-    rerun_global_daily: int = 50
+    # None disables that daily quota check (local development only).
+    generation_account_daily: int | None = 10
+    rerun_account_daily: int | None = 3
+    generation_global_daily: int | None = 100
+    rerun_global_daily: int | None = 50
     generation_account_concurrency: int = 1
     generation_workers: int = 2
     generation_queue_size: int = 4
@@ -36,6 +41,10 @@ class SearchLimits:
         positive = {'generation_account_concurrency', 'generation_workers', 'upload_account_limit', 'upload_global_limit'}
         for field in fields(self):
             value = getattr(self, field.name)
+            if field.name in _DAILY_LIMIT_FIELDS:
+                if value is not None and (type(value) is not int or value < 0):
+                    raise ValueError('Invalid SEARCH_' + field.name.upper())
+                continue
             if type(value) is not int or value < (1 if field.name in positive else 0):
                 raise ValueError('Invalid SEARCH_' + field.name.upper())
 
@@ -51,6 +60,16 @@ class SearchLimits:
                 except (TypeError, ValueError) as exc:
                     raise ValueError('Invalid ' + name) from exc
         return cls(**values)
+
+    @classmethod
+    def local_development(cls):
+        """Loopback-only site: no daily LLM search generation/rerun quotas."""
+        return cls(
+            generation_account_daily=None,
+            rerun_account_daily=None,
+            generation_global_daily=None,
+            rerun_global_daily=None,
+        )
 
 
 @dataclass(frozen=True)
@@ -144,9 +163,11 @@ class SearchAdmission:
                     sa.func.count().filter(TICKETS.c.user_id == owner).label('account'),
                 ).where(TICKETS.c.quota_day == quota_day, TICKETS.c.kind == kind,
                         sa.or_(TICKETS.c.consumed.is_(True), TICKETS.c.state == 'reserved'))).mappings().one()
-                if usage['account'] >= getattr(self.config, kind + '_account_daily'):
+                account_limit = getattr(self.config, kind + '_account_daily')
+                global_limit = getattr(self.config, kind + '_global_daily')
+                if account_limit is not None and usage['account'] >= account_limit:
                     raise SearchError('search.daily_' + kind + '_limit', 429)
-                if usage['total'] >= getattr(self.config, kind + '_global_daily'):
+                if global_limit is not None and usage['total'] >= global_limit:
                     raise SearchError('search.global_' + kind + '_limit', 429)
             row = current.execute(TICKETS.insert().values(
                 id=uuid4(), user_id=owner, search_id=search_id, kind=kind, request_id=request_id,

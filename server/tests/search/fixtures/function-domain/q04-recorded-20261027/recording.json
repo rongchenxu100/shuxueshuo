@@ -1,0 +1,47 @@
+{
+  "contract": "student-search-recording/v1",
+  "source": "internal/senior-high/source-images/function-concepts-q04/manifest.json",
+  "source_kind": "user_photograph_printed_question_crop_from_retained_upload_jpeg",
+  "recorded_date": "2026-10-27",
+  "historical_semantic_calls": 5,
+  "historical_network_attempts": 5,
+  "accepted_attempt": ".",
+  "attempts": [
+    {
+      "path": "attempts/01-with-source-number",
+      "status": "workflow.oscillation",
+      "source_reviewed": false,
+      "semantic_calls": 3,
+      "network_attempts": 3,
+      "cached_resume_elapsed_seconds": 0.061,
+      "initial_run_elapsed_seconds": 42.878
+    },
+    {
+      "path": ".",
+      "status": "reviewed_candidate",
+      "source_reviewed": true,
+      "semantic_calls": 2,
+      "network_attempts": 2,
+      "elapsed_seconds": 42.14
+    }
+  ],
+  "notes": "首轮保留题号，提取正确；复核误判公开字段仍含题号，修复原样返回而停止为 workflow.oscillation。第二轮仅从原图裁除题号，真实 extract+review 确认通过，未人工替换模型输出。 首轮结果文件的 elapsed_seconds=0.061 为无网络的已停止工作流重开耗时；首次真实运行耗时 42.878 秒，单列于 attempts。",
+  "files": {
+    "question.png": "8f586de0c89c7938c1924383615083b761ce05c3ca24216430fc5e63f15d038f",
+    "result.json": "c3f5c5ff875bd6c8ce9fc0b3daef476803914273574b04f0c695c8987f579db9",
+    "workflow/ledger.json": "c5f90b3e5366df14a4aefa96e5d1de8688daa8bdf78a2d556a7045e4fb1690fd",
+    "workflow/calls/01-extract/request.json": "b3b14e40e89d0494cb1a2065ec50a303fd9c5b7fbab03b98e73a7f7fbede7a47",
+    "workflow/calls/01-extract/response.json": "f2161d00aa18bc8f39cb7c4d08cc020417052256872497e94865beefa508e1b1",
+    "workflow/calls/02-review/request.json": "b3ddcbab95682d615db43adef38e94fc8bc087268ab4881c36b7b18ff978db73",
+    "workflow/calls/02-review/response.json": "4dc39a8669a2dc16789bc9fe729ef2699a8afa70e64a1539e4956830c571cff5",
+    "attempts/01-with-source-number/question.png": "ea472d82d204ca8f8a97bc48940f3ff55e731efc93f5694abac41bdf99a01812",
+    "attempts/01-with-source-number/result.json": "962faa67e4897a1debe7f293eab85f386763b9cd67903e2f54d292f6fc69d656",
+    "attempts/01-with-source-number/workflow/ledger.json": "c46a08d9467a25063f12e6b62235c094ad9d80aa2956c38ffcb549718968b24e",
+    "attempts/01-with-source-number/workflow/calls/01-extract/request.json": "b77541d7162d00736959323ead6c15404f4085acdb9e059c1235bc5911ce2202",
+    "attempts/01-with-source-number/workflow/calls/01-extract/response.json": "b5cd4da1ead781838e71455d18ffb16a839b1eb009663b6f1e898b33650dae98",
+    "attempts/01-with-source-number/workflow/calls/02-review/request.json": "a0a1cfbbd4b7311b2d09b51ff7823c50a32c3bc63c3ab4f8aa672f33490d5ae7",
+    "attempts/01-with-source-number/workflow/calls/02-review/response.json": "541321becd8daede8a4ed157fa5c9d16b980467edf045fb8bfc4cf36ca479f30",
+    "attempts/01-with-source-number/workflow/calls/03-repair/request.json": "339696b090f2561b7af20ce6e5f1e2a0678d7263ce296f0e8fa761316f11a381",
+    "attempts/01-with-source-number/workflow/calls/03-repair/response.json": "35b4b9cfe80d3c511157034cf6c52f09b5ec6a2a2bf32cf4ff19940c9a9f14d7"
+  }
+}

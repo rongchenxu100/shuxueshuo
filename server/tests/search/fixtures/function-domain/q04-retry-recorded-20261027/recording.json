@@ -1,0 +1,21 @@
+{
+  "contract": "student-search-recording/v1",
+  "source_kind": "unchanged_user_photo_retry_with_source_number_and_handwriting",
+  "recorded_date": "2026-10-27",
+  "source_submission": "f87769d06eef",
+  "retry_submission": "a2737ad9c61e",
+  "source_image_sha256": "4b88a2553d6afecfe67e530e725e0cbdde6d466657e86b68e11111c2b42b90be",
+  "historical_semantic_calls": 2,
+  "historical_network_attempts": 2,
+  "elapsed_seconds": 21.342,
+  "notes": "Fresh authenticated browser retry after shared source rules fix, same PNG bytes as q04-failed-20261027/question.png. Real extract and review responses retained without modification; no recropping, manual candidate correction or forced confirmation. The handwritten answer is ignored.",
+  "files": {
+    "question.png": "4b88a2553d6afecfe67e530e725e0cbdde6d466657e86b68e11111c2b42b90be",
+    "result.json": "2fcc71199d4fdd1ff4ceb7ca8a638aa3b337c0b0fa16f582493685b89f4abb8e",
+    "workflow/ledger.json": "0385127d7669681cc7f712bb494edc1938ec9d5399439e65cff62b5355093c2c",
+    "workflow/calls/01-extract/request.json": "b79d371023d84e283bb3308d3da8b341a8b27ba24103668caa51228c40fcb0a7",
+    "workflow/calls/01-extract/response.json": "b9c31f4d4a93057185e325933521fbb3b22ba7be7bb7fd27cab9e7df9dbe459a",
+    "workflow/calls/02-review/request.json": "76dfd5259b3666c1d410f8a18e4cf319d20c36dc61a6efd8f3f296bcdb6ce5fb",
+    "workflow/calls/02-review/response.json": "5fad8257dda8b92a71939e9c1b158e89f10a3171fe0a0157029fbc58fc6caed2"
+  }
+}

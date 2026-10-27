@@ -53,6 +53,19 @@ def test_defaults_and_env_are_validated():
                         ('SEARCH_GENERATION_ACCOUNT_DAILY', '-1'), ('SEARCH_GENERATION_QUEUE_SIZE', '1.5')):
         with pytest.raises(ValueError, match=name):
             SearchLimits.from_env({name: value})
+    unlimited = SearchLimits.local_development()
+    assert unlimited.generation_account_daily is unlimited.rerun_account_daily is None
+    assert unlimited.generation_global_daily is unlimited.rerun_global_daily is None
+
+
+def test_local_development_daily_quotas_are_unlimited(repository):
+    admission = SearchAdmission(repository.db, config=SearchLimits.local_development(), clock=repository.clock)
+    admission.set_generation_enabled(True)
+    owner = student(repository)
+    for index in range(SearchLimits().generation_account_daily + 1):
+        complete(admission, owner, 'generation', search_id=f'generation-{index}')
+    for index in range(SearchLimits().rerun_account_daily + 1):
+        complete(admission, owner, 'rerun', search_id=f'rerun-{index}')
 
 
 def test_closed_by_default_and_continuation_does_not_need_daily_quota(repository):

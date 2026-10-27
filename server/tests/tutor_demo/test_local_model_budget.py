@@ -6,6 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from shuxueshuo_server.auth.config import AuthConfig
+from shuxueshuo_server.search.admission import SearchLimits
 from shuxueshuo_server.tutor_demo.api import create_router, require_tutor_user
 from tools import run_site
 
@@ -37,6 +38,20 @@ def test_local_entry_serves_both_model_routes_even_when_configured_quotas_are_ze
     response = client.post(f"{url}/events", json={
         "event_id": "hint", "revision": response.json()["revision"], "kind": "help"})
     assert response.status_code == 200 and len(explanation.calls) == 2
+
+
+def test_local_entry_installs_search_without_daily_llm_quotas(monkeypatch, tmp_path):
+    seen = {}
+
+    def capture(app, *, settings=None, admission_config=None):
+        seen["admission_config"] = admission_config
+
+    monkeypatch.setattr(run_site, "install_search", capture)
+    monkeypatch.setattr(run_site, "install_auth", lambda *_args, **_kwargs: None)
+    monkeypatch.setattr(run_site, "create_router", lambda **_kwargs: __import__("fastapi").APIRouter())
+    run_site.create_local_app(SimpleNamespace(mode="local", root=tmp_path), AuthConfig(environment="development"))
+    assert seen["admission_config"] == SearchLimits.local_development()
+    assert seen["admission_config"].generation_account_daily is None
 
 
 @pytest.mark.parametrize("mode, environment", [

@@ -48,6 +48,7 @@ def fingerprint():
         *Path(__file__).parents[2].joinpath("problem_understanding").glob("notation_*.py"),
         *Path(__file__).parent.parent.joinpath("stage_one").glob("*.py"),
         *Path(__file__).parent.parent.joinpath("stage_two").glob("*.py"),
+        Path(__file__).parent.parent / "domain_expression.py",
         *(ROOT / "site/data/knowledge-next/selection").glob("*.json"),
         *(ROOT / "site/data/knowledge-next/execution").glob("*.json"),
         *(ROOT / "site/data/knowledge-next/nodes").glob("*.json"),

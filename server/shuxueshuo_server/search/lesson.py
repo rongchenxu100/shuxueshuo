@@ -534,8 +534,14 @@ def _match_domain_d1_rows(target, fragments, known, text, *, candidate=None):
         else:
             item["source_ref"] = domain["source_ref"]
             givens.append(item)
-    summary = (f"定义域已给定为全体实数。本题要求使 ${function}({variable})$ 的定义域恰为 "
-               f"$\\mathbb R$ 的参数 ${parameter}$ 的取值范围。" if rows else "")
+    if domain.get("prescribed_domain_ast") == ["real"]:
+        summary = (f"定义域已给定为全体实数。本题要求使 ${function}({variable})$ 的定义域恰为 "
+                   f"$\\mathbb R$ 的参数 ${parameter}$ 的取值范围。")
+    else:
+        summary = (f"题面已给出函数的定义域。本题要求使 ${function}({variable})$ 的全部合法输入恰好是题给集合的 "
+                   f"参数 ${parameter}$ 的取值范围。集合内每个输入都要合法，集合外的输入都不能合法。")
+    if not rows:
+        summary = ""
     return {"rows": rows, "givens": givens, "interaction": "choice",
             "question": "题目已知定义域，实际要求确定什么？", "summary": summary}
 

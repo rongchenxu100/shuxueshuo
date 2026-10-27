@@ -43,7 +43,8 @@ FEATURE_REGISTRY = (
         "function_domain", ("goal",), "function_domain",
         ("function-concept#elements",), "具体函数的原始输入结构为 {value}",
         version=DOMAIN_VERSION,
-        supported_structures=("fixed_affine_function_domain", "domain_parameter_reals_quadratic"),
+        supported_structures=("fixed_affine_function_domain", "domain_parameter_reals_quadratic",
+                              "domain_parameter_halfline_root_ratio"),
         computation_boundary="original bound AST and exact rational affine syntax only; no condition solving",
     ),
     FeatureSpec(
@@ -468,7 +469,9 @@ def _scope_features(report, candidate, scope, ancestors, features):
                     source_refs=[target_ref, description["source_ref"]],
                 )
                 if description.get("structure_supported"):
-                    produced["function_domain"]["extractor_version"] = DOMAIN_PARAMETER_VERSION
+                    produced["function_domain"]["extractor_version"] = description.get(
+                        "structure_version", DOMAIN_PARAMETER_VERSION,
+                    )
             except (NotationError, ValueError, TypeError) as exc:
                 add(
                     "function_domain",

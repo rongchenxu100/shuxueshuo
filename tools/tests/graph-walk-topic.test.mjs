@@ -9,6 +9,8 @@ import {domainNumberLineGraph, endpointChecksHTML} from '../../site/assets/graph
 import {compileCourse, buildCourse, buildCourses} from '../build-graph-walk-topic.mjs';
 import {repoRoot, loadSources} from '../lib/public-knowledge-sources.mjs';
 import {exportContent} from '../export-public-knowledge.mjs';
+import {digest} from '../lib/public-knowledge-export.mjs';
+import {nativePracticeContract} from '../lib/graph-walk-practice.mjs';
 import {createState, currentDecision, gradeDecision, submitAnswer} from '../../site/assets/graph-walk/walk-state.mjs';
 
 const expression = variable => ['/', ['call', 'sqrt', ['-', ['name', variable], ['number', '3']]], ['-', ['name', variable], ['number', '5']]];
@@ -154,6 +156,7 @@ test('rebuilding published courses preserves their immutable native contracts', 
     'function-concepts-q15': '90ac818ed6f449351e329fa4d23060c876789badb7c30e364687d5483cf14094',
     'function-concepts-q01': 'a6247acf31a3c4e08e98c3dbabd2211e7b9ad7b1eb9b0997d1f9ff329a897847',
     'function-concepts-q22': '62f1efcb1b17c2c1455579a9ff3fc1c604890d0955e0f74c8201398e0f494b14',
+    'function-concepts-q22-v2': '0cd59a70b8c0e0e53ea7d5371181d41a5f7594a6ad19122c5c41204bd649fbd7',
   };
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'frozen-course-export-'));
   try {
@@ -167,11 +170,21 @@ test('rebuilding published courses preserves their immutable native contracts', 
     for (const id of Object.keys(publishedHashes)) {
       const source = await json(`site/data/graph-walk/${id}.source.json`);
       const {bundle} = compileCourse(source, await json(source.evidence), graph, nodes);
+      assert.equal(digest({runtime: 'graph-walk', ...nativePracticeContract(bundle)}), publishedHashes[id],
+        `${id} must retain its frozen contract even after retirement`);
       await fs.writeFile(path.join(root, 'site/data/graph-walk', `${id}.json`), JSON.stringify(bundle));
     }
     const exported = await exportContent(root);
     for (const [id, hash] of Object.entries(publishedHashes)) {
       const published = exported.practice_problems.find(row => row.id === id);
+      if (id === 'function-concepts-q22') {
+        assert.equal(published, undefined, 'retired Q22 must not be republished under its old identity');
+        const replacement = exported.practice_problems.find(row => row.id === 'function-concepts-q22-v2');
+        assert.ok(replacement);
+        assert.equal(replacement.path, '/topics/function-concepts/q22/');
+        assert.notEqual(replacement.contract_hash, hash);
+        continue;
+      }
       assert.ok(published, `${id} must remain in the formal publication`);
       assert.equal(published.problem_data._graph_walk.schema, 'graph-walk-practice/v1');
       assert.equal(published.contract_hash, hash, `${id} cannot replace its published native contract during a rebuild`);
@@ -179,19 +192,48 @@ test('rebuilding published courses preserves their immutable native contracts', 
   } finally { await fs.rm(root, {recursive: true, force: true}); }
 });
 
-test('Q22 explains the domain-to-universal reduction before its discriminant route', async () => {
-  const bundle = await json('site/data/graph-walk/function-concepts-q22.json');
-  const replay = await json('site/data/graph-walk/function-concepts-q22.replay.json');
+test('static courses retain captured method metadata when the live method gains a branch', async () => {
+  const source = await json('site/data/graph-walk/function-concepts-q04.source.json');
+  const evidence = await json(source.evidence);
+  const graph = await json('site/knowledge/graph.json');
+  const captured = evidence.lesson.goals[0].walk.bundle.graph.nodes.find(node => node.id === 'method-domain-parameter');
+  const updated = graph.nodes.find(node => node.id === captured.id);
+  updated.steps[2].title = 'A newly registered method branch';
+  updated.steps[2].calls.push('method-separation');
+  const {nodes} = await loadSources();
+  const {bundle} = compileCourse(source, evidence, graph, nodes);
+  assert.deepEqual(bundle.graph.nodes.find(node => node.id === captured.id), captured);
+});
+
+test('Q22 narrates transform, reuses selection plane to borrow discriminant, then returns', async () => {
+  const bundle = await json('site/data/graph-walk/function-concepts-q22-v2.json');
+  const replay = await json('site/data/graph-walk/function-concepts-q22-v2.replay.json');
   const steps = bundle.routes['domain-parameter'].steps;
-  assert.equal(bundle.intro.length + steps.length, 12);
-  assert.equal(replay.actions.length, 12);
+  assert.equal(bundle.intro.length + steps.length, 14);
+  assert.equal(replay.actions.length, 14);
   assert.match(bundle.intro[1].effects.results.join(' '), /全部参数/);
-  assert.deepEqual(steps.slice(0, 2).map(step => step.title),
-    ['列出根式有意义的条件', '把定义域条件化为恒成立']);
+  assert.deepEqual(steps.slice(0, 3).map(step => step.title),
+    ['列出根式有意义的条件', '转化为恒成立问题', '选择已学方法']);
+  assert.equal(steps.at(-1).title, '回到定义域求参');
+  const borrow = steps[2];
+  assert.equal(borrow.interaction.type, 'plane');
+  assert.deepEqual(borrow.expected_answer, {cell: ['real', 'free'], method: 'discriminant'});
+  assert.ok(borrow.interaction.methods.some(method => method.value === 'discriminant' && method.route === 'domain-parameter'));
+  assert.deepEqual(borrow.effects.nodes, ['rule-quadratic-method', 'method-discriminant']);
+  assert.deepEqual(steps.at(-1).effects.nodes, ['method-domain-parameter']);
   let state = createState(bundle);
   for (const action of replay.actions) {
     const decision = currentDecision(bundle, state);
-    if (steps.slice(0, 2).includes(decision)) {
+    if (decision === borrow) {
+      const cell = decision.expected_answer.cell;
+      for (const method of decision.interaction.methods) {
+        if (method.value === decision.expected_answer.method) continue;
+        if (!method.cells.some(item => item[0] === cell[0] && item[1] === cell[1])) continue;
+        const rejected = submitAnswer(bundle, state, {decision: decision.id, answer: [...cell, method.value]});
+        assert.equal(currentDecision(bundle, rejected).id, decision.id);
+        assert.equal(rejected.lastFeedback.status, 'wrong');
+      }
+    } else if ([steps[0], steps[1], steps.at(-1)].includes(decision)) {
       for (const option of decision.interaction.options) {
         if (decision.expected_answer.one_of.includes(option.value)) continue;
         const rejected = submitAnswer(bundle, state, {decision: decision.id, answer: option.value});
@@ -205,7 +247,7 @@ test('Q22 explains the domain-to-universal reduction before its discriminant rou
   const exported = await exportContent();
   const native = exported.practice_problems.find(row => row.id === bundle.problemId).problem_data._graph_walk;
   assert.equal(native.bundleVersion, replay.bundleVersion);
-  for (let index = 0; index < 2; index++) {
+  for (let index of [0, 1, 2, steps.length - 1]) {
     const published = native.routes['domain-parameter'].steps[index];
     for (const key of ['interaction', 'expected_answer', 'stream_steps']) {
       assert.deepEqual(published[key], steps[index][key]);
