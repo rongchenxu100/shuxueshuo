@@ -613,6 +613,39 @@
       ]
     },
     {
+      "id": "method-domain-parameter",
+      "kind": "method",
+      "label": "定义域求参法",
+      "summary": "已知含参具体解析式的定义域恰为给定集合时，先按原式列出有意义条件，再要求其解集恰等于该集合，从而求出参数范围。",
+      "aliases": [],
+      "steps": [
+        {
+          "id": "extract",
+          "title": "按原式列出有意义的条件",
+          "calls": [
+            "skill-expression-defined"
+          ]
+        },
+        {
+          "id": "reduce",
+          "title": "把“定义域恰为给定集合”写成全称条件",
+          "calls": []
+        },
+        {
+          "id": "solve",
+          "title": "用判别式法求参数",
+          "calls": [
+            "method-discriminant"
+          ]
+        },
+        {
+          "id": "verify",
+          "title": "核验定义域条件",
+          "calls": []
+        }
+      ]
+    },
+    {
       "id": "method-elimination",
       "kind": "skill",
       "label": "消元",
@@ -1994,6 +2027,30 @@
       "occurrences": [
         {
           "step": "solve",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-domain-parameter|calls|method-discriminant",
+      "from": "method-domain-parameter",
+      "to": "method-discriminant",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "solve",
+          "when": ""
+        }
+      ]
+    },
+    {
+      "id": "method-domain-parameter|calls|skill-expression-defined",
+      "from": "method-domain-parameter",
+      "to": "skill-expression-defined",
+      "type": "calls",
+      "occurrences": [
+        {
+          "step": "extract",
           "when": ""
         }
       ]
@@ -4078,6 +4135,15 @@
       "id": "type-function-domain|candidate|method-domain-intersection",
       "from": "type-function-domain",
       "to": "method-domain-intersection",
+      "type": "candidate",
+      "occurrences": [
+        {}
+      ]
+    },
+    {
+      "id": "type-function-domain|candidate|method-domain-parameter",
+      "from": "type-function-domain",
+      "to": "method-domain-parameter",
       "type": "candidate",
       "occurrences": [
         {}

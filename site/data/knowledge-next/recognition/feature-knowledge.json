@@ -225,6 +225,99 @@
       "fragment_kinds": [
         "expression"
       ]
+    },
+    {
+      "rule_id": "match-domain-function",
+      "ref": "function-concept#elements",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "match_domain"
+          },
+          {
+            "feature_id": "function_domain",
+            "op": "eq",
+            "path": "structure_supported",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "expression",
+        "goal"
+      ]
+    },
+    {
+      "rule_id": "match-domain-square-root",
+      "ref": "square-root-expression#meaning",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "match_domain"
+          },
+          {
+            "feature_id": "function_domain",
+            "op": "eq",
+            "path": "has_radical",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "expression"
+      ]
+    },
+    {
+      "rule_id": "match-domain-quantifiers",
+      "ref": "quantifiers#universal",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "match_domain"
+          },
+          {
+            "feature_id": "function_domain",
+            "op": "eq",
+            "path": "structure_supported",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "goal"
+      ]
+    },
+    {
+      "rule_id": "match-domain-quadratic",
+      "ref": "quadratic-inequality#signs",
+      "conditions": {
+        "all": [
+          {
+            "feature_id": "goal",
+            "op": "eq",
+            "path": "kind",
+            "expected": "match_domain"
+          },
+          {
+            "feature_id": "function_domain",
+            "op": "eq",
+            "path": "has_quadratic_condition",
+            "expected": true
+          }
+        ]
+      },
+      "fragment_kinds": [
+        "expression"
+      ]
     }
   ]
 }

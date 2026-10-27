@@ -1,7 +1,19 @@
 {
   "schema_version": "graph-direct-method-selection/v1",
   "type": "type-function-domain",
-  "method": "method-domain-intersection",
-  "route_id": "domain-intersection",
-  "admission": "function_domain"
+  "admission": "function_domain_routes",
+  "routes": [
+    {
+      "method": "method-domain-intersection",
+      "route_id": "domain-intersection",
+      "admission": "function_domain",
+      "label": "列条件求交集法"
+    },
+    {
+      "method": "method-domain-parameter",
+      "route_id": "domain-parameter",
+      "admission": "function_domain_parameter",
+      "label": "定义域求参法"
+    }
+  ]
 }

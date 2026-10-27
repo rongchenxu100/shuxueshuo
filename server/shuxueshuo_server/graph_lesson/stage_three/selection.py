@@ -19,7 +19,13 @@ def load_contract(primary):
         contract = json.loads(direct.read_text())
         schema = json.loads((DATA.parents[2] / "internal/schemas/graph-direct-method-selection-v1.schema.json").read_text())
         Draft202012Validator(schema).validate(contract)
-        if (contract['type'] != primary or contract['method'] not in nodes[primary].get('methods', [])
+        methods = nodes[primary].get('methods', [])
+        if contract.get('admission') == 'function_domain_routes':
+            route_methods = [row['method'] for row in contract.get('routes', [])]
+            if (contract['type'] != primary or nodes[primary].get('rules')
+                    or not route_methods or any(method not in methods for method in route_methods)):
+                raise ValueError('selection.direct_contract_node_mismatch')
+        elif (contract['type'] != primary or contract.get('method') not in methods
                 or nodes[primary].get('rules')):
             raise ValueError('selection.direct_contract_node_mismatch')
         return contract
@@ -105,28 +111,60 @@ def evaluate_goal(candidate, target_ref, features, primary):
     if contract['schema_version'] == 'graph-direct-method-selection/v1':
         # Schema expansion alone must not silently reuse this admission check.
         # New direct categories need an explicit runtime implementation as well.
-        if contract.get('admission') != 'function_domain':
+        admission = contract.get('admission')
+        if admission not in ('function_domain', 'function_domain_routes'):
             raise ValueError('selection.unsupported_direct_admission')
         from .context import build_context
-        from .function_domain import admitted
+        from .function_domain import admitted, admitted_parameter
+        context = build_context(candidate, target_ref)
         # Re-read the candidate. A supplied type/feature/method override never
         # grants admission to a different mathematical category.
-        allowed = admitted(build_context(candidate, target_ref))
-        branch = {'branch': 'direct', 'target': contract['method'], 'route_id': contract['route_id'],
-                  'trigger': 'triggered', 'applicability': 'applicable' if allowed else 'not_applicable',
-                  'recommendation': 'preferred' if allowed else None,
-                  'route_plan': 'capability_gap' if allowed else 'not_planned',
-                  'checks': [{'check_id': 'original_function_domain', 'status': 'holds' if allowed else 'fails'}],
-                  'missing_capabilities': [f"execution:{contract['method']}"] if allowed else []}
+        checks = {
+            'function_domain': admitted,
+            'function_domain_parameter': admitted_parameter,
+        }
+        if admission == 'function_domain':
+            routes = [{'method': contract['method'], 'route_id': contract['route_id'],
+                       'admission': 'function_domain', 'label': '列条件求交集法'}]
+        else:
+            routes = contract['routes']
+        chosen = None
+        for route in routes:
+            guard = checks.get(route['admission'])
+            if guard is None:
+                raise ValueError('selection.unsupported_direct_admission')
+            if guard(context):
+                if chosen is not None:
+                    raise ValueError('selection.ambiguous_direct_route')
+                chosen = route
+        if chosen is None:
+            selection = {'kind': 'direct_method', 'rule': None, 'branches': [],
+                         'recommendation_rule': None, 'recommendation_checks': []}
+            return {'status': 'no_applicable_method', 'selection': selection,
+                    'd3': None, 'd4': None, 'diagnostics': []}
+        label = chosen.get('label') or (
+            '定义域求参法' if chosen['admission'] == 'function_domain_parameter' else '列条件求交集法'
+        )
+        branch = {'branch': 'direct', 'target': chosen['method'], 'route_id': chosen['route_id'],
+                  'trigger': 'triggered', 'applicability': 'applicable',
+                  'recommendation': 'preferred',
+                  'route_plan': 'capability_gap',
+                  'checks': [{'check_id': 'original_function_domain', 'status': 'holds'}],
+                  'missing_capabilities': [f"execution:{chosen['method']}"]}
         selection = {'kind': 'direct_method', 'rule': None, 'branches': [branch],
-                     'recommendation_rule': 'direct_admission' if allowed else None, 'recommendation_checks': []}
-        d3 = {'id': 'D3', 'title': '选择解题方法', 'question': '按原式列出有意义的条件，分别求解，再取交集。',
+                     'recommendation_rule': 'direct_admission', 'recommendation_checks': []}
+        question = (
+            '已知定义域恰为给定集合，列出有意义条件并化为参数范围。'
+            if chosen['admission'] == 'function_domain_parameter'
+            else '按原式列出有意义的条件，分别求解，再取交集。'
+        )
+        d3 = {'id': 'D3', 'title': '选择解题方法', 'question': question,
               'query': {'op': 'methods', 'from': primary}, 'interaction': {'type': 'read'},
-              'expected_answer': {}, 'verdicts': {}, 'submit_label': '用列条件求交集法解题'} if allowed else None
+              'expected_answer': {}, 'verdicts': {}, 'submit_label': f'用{label}解题'}
         d4 = {'id': 'D4', 'title': '解题路线', 'options': [{
             'route_id': branch['route_id'], 'branch': 'direct', 'method': branch['target'],
-            'recommendation': 'preferred', 'route_plan': branch['route_plan'], 'message': '开始解题'}]} if allowed else None
-        return {'status': 'no_verified_route' if allowed else 'no_applicable_method', 'selection': selection,
+            'recommendation': 'preferred', 'route_plan': branch['route_plan'], 'message': '开始解题'}]}
+        return {'status': 'no_verified_route', 'selection': selection,
                 'd3': d3, 'd4': d4, 'diagnostics': []}
     selected = [row for row in features if row.get("target_ref") == target_ref]
     indexed = {row["feature_id"]: row for row in selected}

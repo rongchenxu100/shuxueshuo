@@ -2227,6 +2227,61 @@
           }
         ]
       }
+    },
+    "domain_parameter_conditions": {
+      "title": "列出根式有意义的条件",
+      "explanation": "列出根式有意义的条件。",
+      "required_bindings": [
+        "before",
+        "after",
+        "constraints",
+        "description",
+        "phase"
+      ],
+      "prepare": "domain_parameter_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "caption": "列出根式有意义的条件",
+        "connector": "→",
+        "items": [
+          {
+            "for": "domain_lines",
+            "as": "line",
+            "math": "{line.math}",
+            "label": "{line.label}"
+          }
+        ]
+      }
+    },
+    "domain_parameter_universal": {
+      "title": "把定义域条件化为恒成立",
+      "explanation": "把定义域条件化为恒成立。",
+      "required_bindings": [
+        "before",
+        "after",
+        "constraints",
+        "description",
+        "phase",
+        "relation",
+        "universal_statement",
+        "x",
+        "domain",
+        "quantifier"
+      ],
+      "prepare": "domain_parameter_view",
+      "render": "{domain_explanation}",
+      "highlight": {
+        "caption": "把定义域条件化为恒成立",
+        "connector": "⇔",
+        "items": [
+          {
+            "for": "domain_lines",
+            "as": "line",
+            "math": "{line.math}",
+            "label": "{line.label}"
+          }
+        ]
+      }
     }
   },
   "boundary_steps": {
@@ -2234,7 +2289,8 @@
     "method-separation": "restore",
     "method-interval-extremum": "verify",
     "method-variable-swap": "merge",
-    "method-domain-intersection": "verify"
+    "method-domain-intersection": "verify",
+    "method-domain-parameter": "verify"
   },
   "case_prefix": "在 ${condition}$ 的情况下，"
 }

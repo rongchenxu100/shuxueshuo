@@ -6,7 +6,7 @@ from copy import deepcopy
 import sympy as sp
 
 from .capabilities.cases import _relation_set, exact_set_equal
-from .domain_presentation import condition_label
+from .domain_presentation import condition_label, parameter_view
 from .domain_visuals import endpoint_checks, number_lines
 from .math_values import latex
 from .trajectory import decode_value
@@ -45,6 +45,8 @@ def _set_options(correct, candidates, prefix="o"):
 def compile_domain(seeds, interaction_id):
     (seed,) = seeds
     values = decode_value(seed["values"])
+    if values["phase"] in ("parameter_conditions", "parameter_universal"):
+        return compile_parameter(values, interaction_id)
     rows, description, phase = (
         values["constraints"],
         values["description"],
@@ -254,4 +256,48 @@ def compile_domain(seeds, interaction_id):
         randomizer.shuffle(part["interaction"]["options"])
     for slot in part["interaction"].get("slots", []):
         randomizer.shuffle(slot["options"])
+    return {"parts": [part], "diagnostics": diagnostics}
+
+
+def compile_parameter(values, interaction_id):
+    """Two choices from checked M6 extraction/reduction, before parameter solving."""
+    parameter_view(values)  # Validate the source binding and certified reduction.
+    description = values["description"]
+    condition = values["constraints"][0]["condition"]
+    part = {"id": interaction_id + "#1", "submit_label": "确认判断"}
+    if values["phase"] == "parameter_conditions":
+        # Compare the square-root rule on a generic real radicand, rather than
+        # solving the still-unknown parameter range to invent distractors.
+        radicand = sp.Dummy("radicand", real=True)
+        constructors = [sp.Ge, sp.Gt, sp.Ne]
+        meanings = [_relation_set(make(radicand, 0, evaluate=False), radicand)[0]
+                    for make in constructors]
+        witnesses = [_set_mismatch(meanings[0], meaning) for meaning in meanings[1:]]
+        if any(witness is None for witness in witnesses):
+            raise ValueError("domain.parameter_condition_options_equivalent")
+        feedback = "平方根允许被开方数为 0，但不允许为负，应保留非负条件。"
+        options = [{"value": f"o{index}", "label": _math(make(condition.lhs, 0, evaluate=False)),
+                    **({"feedback": feedback} if index != 1 else {})}
+                   for index, make in enumerate(constructors, 1)]
+        part.update(
+            title="列出根式有意义的条件",
+            question=f"原式为 ${description['expression_latex']}$。根号对被开方数要求什么条件？",
+        )
+        diagnostics = [{"kind": "radicand_rule_distinct", "witness": str(point)} for point in witnesses]
+    else:
+        variable, relation = latex(values["x"]), latex(values["universal_statement"])
+        feedback = "定义域恰为全体实数，要求每一个实数输入都合法；只找到某个合法输入还不够。"
+        options = [
+            {"value": "o1", "label": f"每一个实数 ${variable}$ 都应使原式有意义"},
+            {"value": "o2", "label": f"只需找到一个实数 ${variable}$ 使原式有意义", "feedback": feedback},
+        ]
+        part.update(
+            title="把定义域条件化为恒成立",
+            question=(f"原式有意义的条件为 ${relation}$。题目说定义域为 $\\mathbb{{R}}$，"
+                      "按照定义域的含义，应检查哪些实数输入？"),
+        )
+        diagnostics = [{"kind": "checked_domain_equality_quantifier", "quantifier": values["quantifier"]}]
+    random.Random(interaction_id).shuffle(options)
+    part.update(interaction={"type": "choice", "field": "answer", "options": options},
+                expected_answer={"one_of": ["o1"]}, feedback={"answer": feedback})
     return {"parts": [part], "diagnostics": diagnostics}

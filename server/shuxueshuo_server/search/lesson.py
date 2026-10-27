@@ -109,7 +109,7 @@ def _goal(goal, features, text, candidate=None):
         return section
     known = {key: row["value"] for key, row in features.items() if row.get("status") == "known"}
     section["d1"] = d1_rows(goal["target_ref"], goal["d1"]["fragments"], known, text, candidate=candidate)
-    if known.get("goal", {}).get("kind") == "find_domain":
+    if known.get("goal", {}).get("kind") in ("find_domain", "match_domain"):
         # The domain locator proves the original arithmetic tree separately
         # from the generic polynomial reader (which can reject valid \frac).
         diagnostics = [item for item in goal["d1"].get("diagnostics", [])
@@ -378,6 +378,8 @@ def d1_rows(target, fragments, known, text, *, candidate=None):
     """Rows of the reading checklist; see docs/student-problem-search-design.md 3.7."""
     if known.get("goal", {}).get("kind") == "find_domain":
         return _domain_d1_rows(target, fragments, known, text, candidate=candidate)
+    if known.get("goal", {}).get("kind") == "match_domain":
+        return _match_domain_d1_rows(target, fragments, known, text, candidate=candidate)
     transform, diagnostics = transformation(target, fragments, known, tex, text=text, candidate=candidate)
     extra = {"transformation": transform} if transform else {}
     if diagnostics:
@@ -496,6 +498,46 @@ def _domain_d1_rows(target, fragments, known, text, *, candidate=None):
         summary += "题设另给的输入范围也要同时满足。"
     return {"rows": rows, "givens": givens, "interaction": "choice",
             "question": "题目要求“定义域”，也就是要确定什么？", "summary": summary}
+
+
+def _match_domain_d1_rows(target, fragments, known, text, *, candidate=None):
+    """Read Dom(f)=D → find parameter from reviewed features, without solving."""
+    domain = known.get("function_domain") or {}
+    goal = known.get("goal") or {}
+    variable, function, parameter = domain.get("variable"), domain.get("function_name"), goal.get("symbol")
+    if not domain.get("structure_supported") or not variable or not function or not parameter:
+        return {"rows": [], "summary": ""}
+    variable, function, parameter = tex(variable), tex(function), tex(parameter)
+    options = [
+        _option(f"使定义域恰为题给集合的参数 ${parameter}$ 的取值范围"),
+        _option(f"自变量 ${variable}$ 的取值范围", "goal",
+                f"题面已给出定义域，要求的是参数 ${parameter}$；不是再求自变量 ${variable}$ 的集合。"),
+    ]
+    rows, givens = [], []
+    for kind in ("expression", "goal"):
+        selected = [fragment for fragment in fragments if fragment["fragment_kind"] == kind]
+        if not selected:
+            continue
+        row_id = f"{target}:{kind}"
+        spans = [_spans([fragment], text) for fragment in selected]
+        signature = sha256(json.dumps([kind, spans, domain, goal], sort_keys=True,
+                                      ensure_ascii=False).encode()).hexdigest()[:16]
+        item = {"id": row_id, "kind": kind, "quote": spans,
+                "fragment_ids": [fragment["id"] for fragment in selected],
+                "knowledge_refs": list(dict.fromkeys(ref for fragment in selected
+                                                     for ref in fragment["knowledge_refs"])),
+                "source_refs": list(dict.fromkeys(ref for fragment in selected
+                                                  for ref in fragment.get("source_refs", []))),
+                "signature": signature}
+        if kind == "goal":
+            rows.append({**item, "options": _shuffle(row_id, options)})
+        else:
+            item["source_ref"] = domain["source_ref"]
+            givens.append(item)
+    summary = (f"定义域已给定为全体实数。本题要求使 ${function}({variable})$ 的定义域恰为 "
+               f"$\\mathbb R$ 的参数 ${parameter}$ 的取值范围。" if rows else "")
+    return {"rows": rows, "givens": givens, "interaction": "choice",
+            "question": "题目已知定义域，实际要求确定什么？", "summary": summary}
 
 
 def d2_options(goal):

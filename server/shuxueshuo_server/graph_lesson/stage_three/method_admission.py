@@ -109,8 +109,14 @@ def _function_domain(context):
     return admitted(context)
 
 
+def _function_domain_parameter(context):
+    from .function_domain import admitted_parameter
+    return admitted_parameter(context)
+
+
 CHECKS = {
     "function_domain": _function_domain,
+    "function_domain_parameter": _function_domain_parameter,
     "quantifier": _quantifier,
     "polynomial_degree": _polynomial_degree,
     "quantified_reals": _quantified_reals,

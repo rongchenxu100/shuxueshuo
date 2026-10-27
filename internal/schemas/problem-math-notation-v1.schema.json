@@ -319,6 +319,41 @@
                 },
                 "additionalProperties": false,
                 "description": "求具体函数定义域，保留函数原定义；可选input_domain仅转录题设另给的输入范围。"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "object",
+                  "domain",
+                  "symbol"
+                ],
+                "properties": {
+                  "kind": {
+                    "const": "match_domain",
+                    "description": "已知含参具体函数的定义域恰为题给集合，求参数范围"
+                  },
+                  "object": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "已定义函数的符号，如f；不填解析式或答案。"
+                  },
+                  "domain": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "题面给出的定义域集合，如ℝ；不得填写求解得到的参数范围。"
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096,
+                    "description": "所求参数符号，如k；不写中文名称或答案。"
+                  }
+                },
+                "additionalProperties": false,
+                "description": "已知定义域恰为给定集合时反求参数；domain转录题设定义域，symbol为所求参数。"
               }
             ]
           },

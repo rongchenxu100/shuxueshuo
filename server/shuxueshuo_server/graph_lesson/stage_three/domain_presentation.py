@@ -2,6 +2,8 @@
 
 from fractions import Fraction
 
+import sympy as sp
+
 from .math_values import latex
 
 
@@ -11,6 +13,49 @@ def condition_label(kind):
         "denominator_nonzero": "分母",
         "zero_power_base_nonzero": "零次幂的底数",
     }[kind]
+
+
+def parameter_view(values):
+    """Present the checked square-root condition and its supplied quantifier.
+
+    This projection does not solve for the parameter or infer a new condition.
+    Its structural checks keep a mismatched seed from explaining another tree.
+    """
+    description, rows = values["description"], values["constraints"]
+    if (description.get("task") != "match_domain" or len(rows) != 1
+            or description["expression_ast"][:2] != ["call", "sqrt"]):
+        raise ValueError("domain.parameter_single_radicand_required")
+    row = rows[0]
+    condition = row["condition"]
+    if (row["kind"] != "radicand_nonnegative" or row["ast_path"] != [2]
+            or row["source_ref"] != description["source_ref"]
+            or row["expression_ast"] != description["expression_ast"][2]
+            or not isinstance(condition, sp.GreaterThan) or condition.rhs != 0):
+        raise ValueError("domain.parameter_condition_source_mismatch")
+    expression, relation = description["expression_latex"], latex(condition)
+    if values["phase"] == "parameter_conditions":
+        return {
+            "domain_explanation": rf"原式为 ${expression}$。平方根有意义要求被开方数非负，因此须有 ${relation}$。",
+            "domain_lines": [{"label": "原式", "math": expression},
+                             {"label": "有意义的条件", "math": relation}],
+        }
+    if (values["phase"] != "parameter_universal"
+            or description.get("prescribed_domain_ast") != ["real"]
+            or values["domain"] != sp.S.Reals or values["quantifier"] != "∀"
+            or values["relation"] != condition or values["universal_statement"] != condition
+            or str(values["x"]) != description["variable"]):
+        raise ValueError("domain.parameter_universal_mismatch")
+    variable = latex(values["x"])
+    domain = r"D_{" + description["function_name"] + r"}=\mathbb{R}"
+    universal = rf"\forall {variable}\in\mathbb{{R}},\quad {relation}"
+    return {
+        "domain_explanation": (
+            rf"定义域恰为全体实数，意味着每一个实数 ${variable}$ 都使原式有意义。"
+            rf"因此 ${domain}$ 等价于 ${universal}$。接下来对这个恒成立条件求参数范围。"
+        ),
+        "domain_lines": [{"label": "已知定义域", "math": domain},
+                         {"label": "等价的全称条件", "math": universal}],
+    }
 
 
 def _has_positive_power(ast):

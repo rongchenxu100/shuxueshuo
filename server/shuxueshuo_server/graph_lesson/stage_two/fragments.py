@@ -42,7 +42,13 @@ def _domain_formula_body_matches(body, expected):
                               else "(" + inner + ")")
                 continue
             if char != "\\":
-                output.append({"−": "-", "（": "(", "）": ")"}.get(char, char))
+                mapped = {"−": "-", "（": "(", "）": ")"}.get(char, char)
+                # School TeX juxtaposes single-letter variables: kx → k*x.
+                # Command expansions append multi-letter names like sqrt( in one
+                # piece, so this only fires for bare letters written one by one.
+                if mapped.isalpha() and "".join(output)[-1:].isalpha():
+                    output.append("*")
+                output.append(mapped)
                 index += 1
                 continue
             command = re.match(r"\\([A-Za-z]+|[,;! ])", body[index:])
@@ -371,7 +377,7 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         })
 
     domain = values.get("function_domain", {})
-    if values.get("goal", {}).get("kind") == "find_domain" and domain.get("structure_supported"):
+    if values.get("goal", {}).get("kind") in ("find_domain", "match_domain") and domain.get("structure_supported"):
         # Require one matching function/argument identity, then bind its exact
         # arithmetic tree; cancellation or an unrelated RHS cannot pass.
         name, argument = re.escape(domain["function_name"]), re.escape(domain["variable"])
@@ -466,6 +472,17 @@ def build_d1(candidate: dict, target_ref: str, features: list[dict], knowledge: 
         if goal.get("kind") == "find_domain" and values.get("function_domain", {}).get("structure_supported"):
             for match in re.finditer(r"定义域", normalized):
                 add(surface, match.start(), match.end(), "goal", ["goal", "function_domain"])
+        if goal.get("kind") == "match_domain" and values.get("function_domain", {}).get("structure_supported"):
+            for match in re.finditer(r"定义域", normalized):
+                add(surface, match.start(), match.end(), "goal", ["goal", "function_domain"])
+            symbol = goal.get("symbol")
+            if isinstance(symbol, str):
+                target = rf"(?:\$\s*{re.escape(symbol)}\s*\$|{re.escape(symbol)}(?![A-Za-z0-9_]))"
+                for match in re.finditer(
+                    rf"(?:求\s*)?(?:(?:实数|参数)\s*)?{target}\s*(?:的\s*)?取值范围",
+                    normalized,
+                ):
+                    add(surface, match.start(), match.end(), "goal", ["goal", "function_domain"])
         if goal.get("kind") in ("find_range", "find_minimum", "find_maximum") and isinstance(goal.get("symbol"), str):
             symbol = re.escape(goal["symbol"])
             if goal["kind"] == "find_range":

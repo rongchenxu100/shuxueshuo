@@ -8,6 +8,7 @@ from copy import deepcopy
 from itertools import pairwise
 
 import sympy as sp
+from sympy.polys.polyerrors import BasePolynomialError
 
 from ...problem_understanding.notation_parser import NotationError
 from ...problem_understanding.notation_semantics import bounded_expand
@@ -53,7 +54,8 @@ def _poly_roots(ast, max_degree=MAX_RADICAND_DEGREE):
     return roots
 
 
-def expression(ast, variable):
+def expression(ast, variable, symbols=None):
+    symbols = symbols or {}
     if ast == ARGUMENT:
         return variable
     kind = ast[0]
@@ -61,11 +63,15 @@ def expression(ast, variable):
         return sp.Rational(ast[1])
     if kind == "infinity":
         return sp.oo
+    if kind == "ref":
+        if ast[1] in symbols:
+            return symbols[ast[1]]
+        return sp.Symbol(ast[1].rsplit(":", 1)[-1], real=True)
     if kind == "neg":
-        return -expression(ast[1], variable)
+        return -expression(ast[1], variable, symbols)
     if kind == "call" and ast[1] == "sqrt":
-        return sp.Pow(expression(ast[2], variable), sp.Rational(1, 2), evaluate=False)
-    left, right = (expression(a, variable) for a in ast[1:])
+        return sp.Pow(expression(ast[2], variable, symbols), sp.Rational(1, 2), evaluate=False)
+    left, right = (expression(a, variable, symbols) for a in ast[1:])
     return {
         "+": lambda: left + right,
         "-": lambda: left - right,
@@ -110,6 +116,38 @@ def admitted(context):
         _inspect_expression(value["expression_ast"])
         _input_domain(value["input_domain_ast"])
     except ValueError:
+        return False
+    return True
+
+
+def admitted_parameter(context):
+    """Admit first-batch match_domain goals (Dom(f)=R, single parametric radicand)."""
+    value = context.get("domain_goal", {})
+    goal = context.get("goal", {})
+    goal_ast = context.get("goal_ast", {})
+    if goal.get("kind") != "match_domain" or value.get("structure_supported") is not True:
+        return False
+    if value.get("task") != "match_domain":
+        return False
+    if goal_ast.get("domain", ["real"]) != ["real"] or value.get("prescribed_domain_ast") != ["real"]:
+        return False
+    parameter = goal_ast.get("parameter")
+    if not parameter or parameter[0] != "ref" or value.get("parameter_ref") != parameter[1]:
+        return False
+    entries = context.get("entries", [])
+    if len(entries) != 1 or entries[0]["ast"] != [
+        "function_definition",
+        goal_ast["target"],
+        value["expression_ast"],
+    ]:
+        return False
+    if entries[0]["source_ref"] != value["source_ref"]:
+        return False
+    try:
+        from ..stage_one.function_domain_parameter import _inspect_parameter_radicand
+
+        _inspect_parameter_radicand(value["expression_ast"], parameter[1])
+    except (NotationError, ValueError):
         return False
     return True
 
@@ -205,6 +243,111 @@ def extract_domain_conditions(context):
     )
 
 
+def extract_domain_parameter_conditions(context):
+    """S3 for match_domain: same location rules, with free parameter symbols kept."""
+    from .capabilities import CapabilityGap, result
+
+    if not admitted_parameter(context):
+        raise CapabilityGap("domain.parameter_structure_unsupported")
+    description = deepcopy(context["domain_goal"])
+    variable = sp.Symbol(description["variable"], real=True)
+    parameter = sp.Symbol(description["parameter"], real=True)
+    symbols = {description["parameter_ref"]: parameter}
+    rows = []
+
+    def add(ast, path, kind, basis):
+        value = expression(ast, variable, symbols)
+        condition = (
+            sp.Ge(value, 0, evaluate=False)
+            if kind == "radicand_nonnegative"
+            else sp.Ne(value, 0, evaluate=False)
+        )
+        rows.append(
+            {
+                "condition_id": f"c{len(rows) + 1}",
+                "source_ref": description["source_ref"],
+                "ast_path": list(path),
+                "expression_ast": deepcopy(ast),
+                "kind": kind,
+                "basis_refs": [basis],
+                "condition": condition,
+            }
+        )
+
+    def visit(ast, path=()):
+        if ast[:2] == ["call", "sqrt"]:
+            add(ast[2], (*path, 2), "radicand_nonnegative", "square-root-expression#meaning")
+        for index, child in enumerate(ast[1:], 1):
+            if isinstance(child, list):
+                visit(child, (*path, index))
+
+    visit(description["expression_ast"])
+    if len(rows) != 1 or rows[0]["kind"] != "radicand_nonnegative":
+        raise CapabilityGap("domain.parameter_single_radicand_required")
+    return result(
+        {
+            "constraints": rows,
+            "conditions": [row["condition"] for row in rows],
+            "description": description,
+            "variable": variable,
+            "parameter": parameter,
+            "goal": context["goal"],
+            "context": context,
+        },
+        ["domain_radicand_conditions"],
+        [
+            {
+                "kind": "original_syntax_conditions",
+                "passed": True,
+                "source_ref": description["source_ref"],
+                "expression_ast": description["expression_ast"],
+                "condition_count": len(rows),
+                "task": "match_domain",
+            }
+        ],
+    )
+
+
+def reduce_domain_equality_to_universal(constraints, description, variable, parameter, goal, context):
+    """Dom(f)=R and a single radicand ≥0 become ∀x∈R: poly(x) ≥ 0."""
+    from .capabilities import CapabilityGap, result
+
+    if not admitted_parameter(context):
+        raise CapabilityGap("domain.parameter_structure_unsupported")
+    if description.get("prescribed_domain_ast") != ["real"]:
+        raise CapabilityGap("domain.parameter_domain_must_be_reals")
+    if len(constraints) != 1 or constraints[0]["kind"] != "radicand_nonnegative":
+        raise CapabilityGap("domain.parameter_single_radicand_required")
+    relation = constraints[0]["condition"]
+    if not isinstance(relation, sp.Rel) or relation.rel_op != ">=":
+        raise CapabilityGap("domain.parameter_relation_unsupported")
+    expression_value = sp.together(relation.lhs - relation.rhs)
+    return result(
+        {
+            "relation": relation,
+            "expression": expression_value,
+            "x": variable,
+            "parameter": parameter,
+            "domain": sp.S.Reals,
+            "quantifier": "∀",
+            "strict": False,
+            "goal": goal,
+            "constraint_context": context,
+            "universal_statement": relation,
+        },
+        ["domain_equality_to_universal"],
+        [
+            {
+                "kind": "domain_equality_to_universal",
+                "passed": True,
+                "prescribed_domain": "ℝ",
+                "quantifier": "∀",
+                "relation": relation,
+            }
+        ],
+    )
+
+
 def prepare_domain_conditions(constraints, variable):
     from .capabilities import CapabilityGap, result
 
@@ -279,6 +422,189 @@ def process_context(context, candidate_set):
         if context["domain_goal"]["input_domain_source_ref"]
         else []
     )
+
+
+def process_parameter_context(context, candidate_set):
+    from .capabilities import CapabilityGap
+
+    if not admitted_parameter(context):
+        raise CapabilityGap("domain.parameter_structure_unsupported")
+    return candidate_set, [
+        {"source_ref": entry["source_ref"], "status": "original_function_domain_parameter"}
+        for entry in context["entries"]
+    ]
+
+
+def _radicand_nonnegative_certificate(value, variable):
+    """Decide the original real polynomial, including every degree degeneration."""
+    from .verification import VerificationGap, _algebraic_sign
+
+    poly = sp.Poly(bounded_expand(value), variable, domain=sp.EX)
+    if poly.degree() > 2:
+        raise VerificationGap("domain.parameter_degree_unsupported")
+    a, b, c = (poly.nth(i) for i in (2, 1, 0))
+    signs = [_algebraic_sign(coefficient) for coefficient in (a, b, c)]
+    discriminant = bounded_expand(b**2 - 4 * a * c)
+    discriminant_sign = _algebraic_sign(discriminant)
+    holds = (
+        signs[0] > 0 and discriminant_sign <= 0
+        or signs[0] == signs[1] == 0 and signs[2] >= 0
+    )
+    return holds, {
+        "degree": 2 if signs[0] else 1 if signs[1] else 0,
+        "coefficients": {name: math_value(coefficient) for name, coefficient in zip("ABC", (a, b, c), strict=True)},
+        "coefficient_signs": dict(zip("ABC", signs, strict=True)),
+        "discriminant": math_value(discriminant),
+        "discriminant_sign": discriminant_sign,
+        "criterion": "A>0 and discriminant<=0, or A=B=0 and C>=0",
+    }
+
+
+def _radicand_always_nonnegative(poly, variable):
+    return _radicand_nonnegative_certificate(poly, variable)[0]
+
+
+def _domain_parameter_problem(candidate, target_ref):
+    """Read coefficients from source notation, never from a method's bindings."""
+    from ..stage_one.function_domain_parameter import inspect_match_domain_target
+    from .verification import VerificationGap, _poly
+
+    description = inspect_match_domain_target(candidate, target_ref)
+    if description["structure_supported"] is not True:
+        raise VerificationGap(description["reason"] or "domain.parameter_structure_unsupported")
+    variable = sp.Symbol(description["variable"], real=True)
+    parameter = sp.Symbol(description["parameter"], real=True)
+    body = description["expression_ast"]
+    if body[:2] != ["call", "sqrt"]:
+        raise VerificationGap("domain.parameter_structure_unsupported")
+    radicand = bounded_expand(expression(body[2], variable, {description["parameter_ref"]: parameter}))
+    poly = sp.Poly(radicand, variable)
+    if poly.degree() != 2:
+        raise VerificationGap("domain.parameter_degree_unsupported")
+    coefficients = [poly.nth(i) for i in (2, 1, 0)]
+    if any(_poly(value, parameter).degree() > 1 for value in coefficients):
+        raise VerificationGap("domain.parameter_coefficients_unsupported")
+    return {"description": description, "variable": variable, "parameter": parameter,
+            "radicand": radicand, "coefficients": coefficients}
+
+
+def _domain_parameter_critical(problem):
+    from .verification import _critical_sources
+
+    a, b, c = problem["coefficients"]
+    sources = [(coefficient, problem["description"]["source_ref"], name)
+               for coefficient, name in zip((a, b, c), ("coefficient_A", "coefficient_B", "coefficient_C"), strict=True)]
+    sources.append((bounded_expand(b**2 - 4*a*c), problem["description"]["source_ref"], "discriminant"))
+    points, records = _critical_sources(sources, problem["parameter"])
+    for record in records:
+        record["ast_path"] = [2]
+    return points, records
+
+
+def _domain_parameter_at(problem, point):
+    value = bounded_expand(problem["radicand"].subs(problem["parameter"], point))
+    holds, certificate = _radicand_nonnegative_certificate(value, problem["variable"])
+    return holds, {"source_ref": problem["description"]["source_ref"], "ast_path": [2],
+                   "kind": "original_radicand_universally_nonnegative", "holds": holds,
+                   "polynomial": math_value(value), "certificate": certificate}
+
+
+def domain_parameter_endpoints(candidate, target_ref, feasible_set):
+    """Boundary membership of the parameter answer against Dom(f)=R."""
+    from functools import cmp_to_key
+
+    from .verification import _compare, _contains_exact, _set_boundaries, _supported_set
+
+    _supported_set(feasible_set)
+    problem = _domain_parameter_problem(candidate, target_ref)
+    critical, _ = _domain_parameter_critical(problem)
+    points = []
+    for point in sorted([*critical, *_set_boundaries(feasible_set)], key=cmp_to_key(_compare)):
+        if not points or _compare(point, points[-1]):
+            points.append(point)
+    rows = []
+    for point in points:
+        included = _contains_exact(feasible_set, point)
+        holds, evidence = _domain_parameter_at(problem, point)
+        rows.append({"point": math_value(point), "included": included, "holds": holds,
+                     "passed": included == holds, "evidence": evidence})
+    return {
+        "status": "passed" if all(row["passed"] for row in rows) else "failed",
+        "points": rows,
+    }
+
+
+def verify_domain_parameter(candidate, target_ref, constraint_context, feasible_set):
+    """Prove the entire parameter set on original-coefficient invariant cells."""
+    from .verification import (
+        ContextMismatch,
+        VerificationGap,
+        _contains_exact,
+        _rational_between,
+        _set_mismatch,
+        _supported_set,
+        check_context,
+        collect_original,
+    )
+
+    result = {"status": "capability_gap", "proof": {}, "diagnostics": []}
+    try:
+        check_context(collect_original(candidate, target_ref), constraint_context)
+        problem = _domain_parameter_problem(candidate, target_ref)
+        description = problem["description"]
+        if constraint_context.get("domain_goal") != description:
+            raise ContextMismatch("constraint_context_mismatch:domain_goal")
+        _supported_set(feasible_set)
+        points, critical = _domain_parameter_critical(problem)
+        cells, accepted = [], []
+        for index, (left, right) in enumerate(pairwise([-sp.oo, *points, sp.oo])):
+            interval = sp.Interval.open(left, right)
+            sample = _rational_between(left, right)
+            holds, evidence = _domain_parameter_at(problem, sample)
+            cells.append({"kind": "open_interval", "domain": math_value(interval),
+                          "sample": math_value(sample), "holds": holds, "evidence": evidence})
+            if holds:
+                accepted.append(interval)
+            if index < len(points):
+                point = points[index]
+                holds, evidence = _domain_parameter_at(problem, point)
+                cells.append({"kind": "critical_point", "domain": math_value(sp.FiniteSet(point)),
+                              "sample": math_value(point), "holds": holds, "evidence": evidence})
+                if holds:
+                    accepted.append(sp.FiniteSet(point))
+        reconstructed = sp.Union(*accepted)
+        result["proof"] = {
+            "category": "original-domain-parameter-complete-coefficient-partition/v1",
+            "source_refs": [description["source_ref"], target_ref],
+            "expression_ast": deepcopy(description["expression_ast"]),
+            "prescribed_domain": "ℝ",
+            "critical_polynomials": critical,
+            "critical_points": [math_value(point) for point in points],
+            "invariance": {
+                "proved": True,
+                "reason": "The signs of original A(k), B(k), C(k) and B(k)^2-4*A(k)*C(k) are constant between all their exact real roots. Every open cell and each critical point is checked using A>0 and discriminant<=0, or A=B=0 and C>=0, including affine and constant degeneration.",
+            },
+            "cells": cells,
+            "reconstructed_set": math_value(reconstructed),
+            "candidate_set": math_value(feasible_set),
+        }
+        mismatch = _set_mismatch(reconstructed, feasible_set)
+        if mismatch is None:
+            result["status"] = "verified"
+        else:
+            holds, evidence = _domain_parameter_at(problem, mismatch)
+            result.update(status="math_failed", counterexample={
+                "parameter": math_value(mismatch), "original_holds": holds,
+                "candidate_includes": _contains_exact(feasible_set, mismatch), "evidence": evidence,
+            })
+            result["diagnostics"] = [{"code": "verification.set_mismatch", "path": target_ref}]
+    except ContextMismatch as exc:
+        result.update(status="math_failed", diagnostics=[{
+            "code": "constraint_context_mismatch", "message": str(exc), "path": target_ref,
+        }])
+    except (VerificationGap, NotationError, BasePolynomialError, NotImplementedError) as exc:
+        result["diagnostics"] = [{"code": "verification_incomplete", "message": str(exc), "path": target_ref}]
+    return result
 
 
 def _original(candidate, target_ref):

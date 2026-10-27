@@ -12,7 +12,9 @@ from shuxueshuo_server.product.config import Settings
 from shuxueshuo_server.product.db import engine
 
 
-@pytest.mark.parametrize("problem_id", ["function-concepts-q15", "function-concepts-q01"])
+@pytest.mark.parametrize("problem_id", [
+    "function-concepts-q15", "function-concepts-q01", "function-concepts-q22",
+])
 def test_published_domain_course_records_each_step_and_restores(client, auth, phone, problem_id):
     settings = Settings.load("local", os.environ["PRODUCT_TEST_DATA_DIR"], os.environ["PRODUCT_TEST_INSTANCE"])
     publisher = engine(settings.url("migration"))
@@ -46,7 +48,7 @@ def test_published_domain_course_records_each_step_and_restores(client, auth, ph
         # A response retry cannot add another attempt event or change the answer.
         assert client.post(base + "/answers", json=payload).json() == attempt
     assert attempt["status"] == "completed"
-    assert len(attempt["steps"]) == len(replay["actions"]) == 7
+    assert len(attempt["steps"]) == len(replay["actions"])
     assert all(step["passed"] for step in attempt["steps"])
     restored = client.get(base)
     assert restored.status_code == 200

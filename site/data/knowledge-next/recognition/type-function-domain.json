@@ -24,6 +24,29 @@
           "student_cue": 0
         }
       ]
+    },
+    {
+      "branch_id": "domain-parameter-reals-quadratic",
+      "checks": [
+        {
+          "id": "match-domain-goal",
+          "feature_id": "goal",
+          "op": "eq",
+          "path": "kind",
+          "expected": "match_domain",
+          "role": "required",
+          "student_cue": 1
+        },
+        {
+          "id": "complete-supported-parameter-expression",
+          "feature_id": "function_domain",
+          "op": "eq",
+          "path": "structure_supported",
+          "expected": true,
+          "role": "required",
+          "student_cue": 1
+        }
+      ]
     }
   ]
 }

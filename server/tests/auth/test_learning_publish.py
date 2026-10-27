@@ -104,16 +104,16 @@ def test_direct_publishing_rejects_invalid_graph_before_transaction(invalid):
 
 
 def test_shared_export_has_complete_next_content(authored):
-    assert len(authored['practice_problems']) == 41
-    assert len(authored['practice_routes']) == 52
-    assert len(authored['practice_steps']) == 273
-    assert len(authored['knowledge_nodes']) == 93
+    assert len(authored['practice_problems']) == 42
+    assert len(authored['practice_routes']) == 53
+    assert len(authored['practice_steps']) == 285
+    assert len(authored['knowledge_nodes']) == 94
     assert len(authored['knowledge_drill_items']) == 177
     assert authored['_meta']['counts']['eligible_drill_nodes'] == 16
     assert len({q['item_id'] for q in authored['knowledge_drill_items']}) == 177
     assert len([q for q in authored['knowledge_drill_items'] if q['node_id'] == 'amgm-formula']) == 1
     assert len(set(validate_graph(authored['knowledge_nodes'], authored['knowledge_edges']).values())) == 9
-    domain_ids = {'function-concepts-q15', 'function-concepts-q01'}
+    domain_ids = {'function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22'}
     assert {row['problem_id'] for row in authored['practice_topic_problems']
             if row['topic_id'] == 'function-concepts'} == domain_ids
     for problem_id, basis in (
@@ -128,6 +128,14 @@ def test_shared_export_has_complete_next_content(authored):
         steps = [row for row in authored['practice_steps'] if row['problem_id'] == problem_id]
         assert len(steps) == 7
         assert any(basis in step['refs'] for step in steps)
+    q22 = next(row for row in authored['practice_problems'] if row['id'] == 'function-concepts-q22')
+    contract = q22['problem_data']['_graph_walk']
+    assert list(contract['routes']) == ['domain-parameter']
+    assert len(contract['routes']['domain-parameter']['steps']) == 9
+    steps = [row for row in authored['practice_steps'] if row['problem_id'] == 'function-concepts-q22']
+    assert len(steps) == 12
+    assert any(any(ref == 'method-discriminant' or ref.startswith('method-discriminant#')
+                    for ref in step['refs']) for step in steps)
 
 
 @pytest.mark.parametrize('change', ['missing_entry', 'missing_resource', 'unmapped_tip', 'wrong_method_kind', 'invalid_answer', 'version'])

@@ -130,6 +130,11 @@
     ],
     "domain_unrestricted_expression": [
       "function-concept#elements"
+    ],
+    "domain_equality_to_universal": [
+      "function-concept#elements",
+      "quantifiers#universal",
+      "square-root-expression#meaning"
     ]
   }
 }

@@ -57,10 +57,20 @@
       "submethod"
     ],
     "skill-expression-defined": [
-      "extract_domain_conditions"
+      "extract_domain_conditions",
+      "extract_domain_parameter_conditions"
+    ],
+    "method-discriminant": [
+      "submethod"
     ]
   },
   "internal": {
+    "reduce_domain_equality_to_universal": [
+      "method-domain-parameter#reduce"
+    ],
+    "extract_domain_parameter_conditions": [
+      "method-domain-parameter#extract"
+    ],
     "apply_quantifier_policy": [
       "method-separation#restore",
       "method-interval-extremum#conditions",

@@ -132,21 +132,23 @@ test('overview prefers original problem statement over short labels', () => {
   assert.ok(page.indexOf('class="bank"') < page.indexOf('id="knowledge-map"'));
 });
 
-test('real topic lists Q15 then Q01 with distinct original formulas and shared domain grouping', async () => {
-  const ids = ['function-concepts-q15', 'function-concepts-q01'];
+test('real topic lists Q15, Q01, then Q22 with distinct formulas and shared domain grouping', async () => {
+  const ids = ['function-concepts-q15', 'function-concepts-q01', 'function-concepts-q22'];
   assert.deepEqual(currentTopic.groups.find(group => group.id === 'domain').problems, ids);
   assert.deepEqual(Object.keys(currentTopic.problems).sort(), [...ids].sort());
   const page = (await generateTopicOverviews()).get('topics/function-concepts/index.html');
-  assert.equal((page.match(/data-problem-id=/g) || []).length, 2);
+  assert.equal((page.match(/data-problem-id=/g) || []).length, 3);
   assert.ok(page.indexOf(`data-problem-id="${ids[0]}"`) < page.indexOf(`data-problem-id="${ids[1]}"`));
-  for (const suffix of ['q15', 'q01']) {
+  assert.ok(page.indexOf(`data-problem-id="${ids[1]}"`) < page.indexOf(`data-problem-id="${ids[2]}"`));
+  for (const suffix of ['q15', 'q01', 'q22']) {
     assert.match(page, new RegExp(`href="/topics/function-concepts/${suffix}/"`));
     assert.equal(currentTopic.problems[`function-concepts-${suffix}`].runtime, 'graph-walk');
   }
   assert.match(page, /x\+4/);
   assert.match(page, /x\^2-1/);
   assert.match(page, /sqrt\{x-1\}/);
-  assert.match(page, /5 个题型 · 2 道题/);
+  assert.match(page, /kx\^\{2\}/);
+  assert.match(page, /5 个题型 · 3 道题/);
   assert.ok(currentTopic.groups.filter(group => group.id !== 'domain').every(group => group.problems.length === 0));
 });
 

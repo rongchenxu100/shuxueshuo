@@ -50,13 +50,17 @@ def _seed_values(value):
     return value
 
 
-def record_seed(state, fragment, *, template, values):
+def record_seed(state, fragment, *, template, values, frame_bindings=None):
     """Freeze already checked exact inputs for the interaction compiler.
 
     Selection and encoding only: no new mathematics. The route's visible
     constraint context is copied verbatim so witnesses can respect the known
     conditions. A seed that cannot be encoded is recorded as missing so the
     card still counts for repetition.
+
+    Submethod frames pass their live bindings so nested methods (e.g. discriminant
+    under domain-parameter) keep domain/quantifier/x/parameter in the seed context
+    instead of the parent's sparse top-level inputs.
     """
     seed = {
         "contract": SEED_CONTRACT,
@@ -69,7 +73,8 @@ def record_seed(state, fragment, *, template, values):
         if key in fragment:
             seed[key] = deepcopy(fragment[key])
     try:
-        context = {key: value for key, value in decode_value(state.get("input_values", {})).items()
+        source = frame_bindings if frame_bindings is not None else decode_value(state.get("input_values", {}))
+        context = {key: value for key, value in source.items()
                    if isinstance(value, (sp.Basic, str))}
         seed.update(status="ready", values=encode_value(_seed_values(values)), context=encode_value(context),
                     constraint_context=deepcopy(state.get("trajectory", {}).get("constraint_context")))
@@ -200,12 +205,20 @@ def append_boundary(state, evidence, *, feasible_set=None):
     index = len(records)
     records.append(operation)
     updated["trajectory"]["finalization"] = deepcopy(records)
-    if updated["trajectory"].get("constraint_context", {}).get("goal", {}).get("kind") == "find_domain":
+    goal_kind = updated["trajectory"].get("constraint_context", {}).get("goal", {}).get("kind")
+    if goal_kind == "find_domain":
         operation["used_basis"] = ["function-concept#elements", "interval-notation#finite"]
         records[index] = deepcopy(operation)
         updated["trajectory"]["finalization"] = deepcopy(records)
         from .domain_presentation import append_verified_intersection
         return append_verified_intersection(updated, feasible_set, evidence, index)
+    if goal_kind == "match_domain":
+        # Parameter-range closure keeps endpoint evidence in finalization only;
+        # nested discriminant cards already cover the interactive teaching path.
+        operation["used_basis"] = ["function-concept#elements", "quantifiers#universal"]
+        records[index] = deepcopy(operation)
+        updated["trajectory"]["finalization"] = deepcopy(records)
+        return updated
     specification = read("presentation-registry")["templates"]["boundary"]
     bindings = {"before": [], "after": [], "checks": checks, "parameter": _parameter(updated),
                 "feasible": feasible_set}
@@ -264,7 +277,7 @@ def append_goal_finalization(state, answer, evidence):
     updated = deepcopy(state)
     records = updated.setdefault("finalization", deepcopy(updated["trajectory"]["finalization"]))
     kind = answer.get("kind")
-    if kind in ("find_range", "find_domain"):
+    if kind in ("find_range", "find_domain", "match_domain"):
         if answer.get("status") != "set":
             raise ValueError("presentation.goal_answer_invalid")
         records.append({"capability": "finalize_goal", "answer": deepcopy(answer)})

@@ -1,0 +1,177 @@
+{
+  "schema_version": "graph-method-execution/v1",
+  "method": "method-domain-parameter",
+  "inputs": {
+    "context": {
+      "role": "constraint_context"
+    }
+  },
+  "steps": [
+    {
+      "id": "extract",
+      "calls": [
+        {
+          "id": "extract",
+          "capability": "extract_domain_parameter_conditions",
+          "public_ref": "skill-expression-defined",
+          "inputs": {
+            "context": "$context"
+          },
+          "outputs": {
+            "constraints": "constraints",
+            "conditions": "conditions",
+            "description": "description",
+            "variable": "variable",
+            "parameter": "parameter",
+            "goal": "goal",
+            "context": "context"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "domain_parameter_conditions",
+          "after": "extract",
+          "template": "domain_parameter_conditions",
+          "bindings": {
+            "before": [],
+            "after": [],
+            "constraints": "$constraints",
+            "description": "$description",
+            "phase": "parameter_conditions"
+          },
+          "depends_on": [
+            "constraints",
+            "description"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reduce",
+      "calls": [
+        {
+          "id": "reduce",
+          "capability": "reduce_domain_equality_to_universal",
+          "public_ref": null,
+          "inputs": {
+            "constraints": "$constraints",
+            "description": "$description",
+            "variable": "$variable",
+            "parameter": "$parameter",
+            "goal": "$goal",
+            "context": "$context"
+          },
+          "outputs": {
+            "relation": "relation",
+            "expression": "expression",
+            "x": "x",
+            "parameter": "parameter",
+            "domain": "domain",
+            "quantifier": "quantifier",
+            "strict": "strict",
+            "goal": "goal",
+            "constraint_context": "constraint_context",
+            "universal_statement": "universal_statement"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": [
+        {
+          "id": "domain_parameter_universal",
+          "after": "reduce",
+          "template": "domain_parameter_universal",
+          "bindings": {
+            "before": [],
+            "after": [
+              "$universal_statement"
+            ],
+            "constraints": "$constraints",
+            "description": "$description",
+            "phase": "parameter_universal",
+            "relation": "$relation",
+            "universal_statement": "$universal_statement",
+            "x": "$x",
+            "domain": "$domain",
+            "quantifier": "$quantifier"
+          },
+          "depends_on": [
+            "constraints",
+            "description",
+            "relation",
+            "universal_statement",
+            "x",
+            "domain",
+            "quantifier"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "solve",
+      "calls": [
+        {
+          "id": "discriminant",
+          "capability": "submethod",
+          "public_ref": "method-discriminant",
+          "inputs": {
+            "relation": "$relation",
+            "expression": "$expression",
+            "x": "$x",
+            "parameter": "$parameter",
+            "domain": "$domain",
+            "quantifier": "$quantifier",
+            "strict": "$strict",
+            "goal": "$goal",
+            "constraint_context": "$constraint_context"
+          },
+          "outputs": {
+            "candidate_set": "candidate_set"
+          },
+          "order": 0
+        }
+      ],
+      "judgments": [],
+      "display_units": []
+    },
+    {
+      "id": "verify",
+      "calls": [],
+      "judgments": [],
+      "display_units": []
+    }
+  ],
+  "outputs": {
+    "candidate_set": "$candidate_set"
+  },
+  "exits": {
+    "capability_gap": {
+      "status": "capability_gap"
+    },
+    "math_failed": {
+      "status": "math_failed"
+    },
+    "execution_error": {
+      "status": "execution_error"
+    }
+  },
+  "admission": {
+    "bindings": {
+      "context": {
+        "resolver": "constraint_context"
+      }
+    },
+    "checks": [
+      {
+        "function": "function_domain_parameter",
+        "inputs": {
+          "context": "$context"
+        }
+      }
+    ]
+  }
+}

@@ -2178,6 +2178,27 @@
       "conditions": {}
     },
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "discriminant",
@@ -2282,6 +2303,13 @@
       "problem": "function-concepts-q01",
       "route": "domain-intersection",
       "step": "a74a6c6291a12d04fdc31818#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "54b7ab8304ba16e47c1ae3d6#1",
       "conditions": {}
     },
     {
@@ -2549,6 +2577,27 @@
       "problem": "basic-inequality-q14",
       "route": "homogeneous",
       "step": "rewrite",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "54b7ab8304ba16e47c1ae3d6#1",
       "conditions": {}
     },
     {
@@ -2898,6 +2947,13 @@
       "conditions": {}
     },
     {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "89d08d69f6fee4b9ad8de1ba#1",
+      "conditions": {}
+    },
+    {
       "topic": "quadratic-always",
       "problem": "quadratic-always-q01",
       "route": "discriminant",
@@ -2981,6 +3037,10 @@
     {
       "topic": "function-concepts",
       "problem": "function-concepts-q01"
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22"
     }
   ],
   "function-concept": [
@@ -2995,6 +3055,13 @@
       "topic": "function-concepts",
       "problem": "function-concepts-q01",
       "route": "domain-intersection",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
       "step": "D1",
       "conditions": {}
     }
@@ -3020,6 +3087,13 @@
       "topic": "function-concepts",
       "problem": "function-concepts-q15",
       "route": "domain-intersection",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
       "step": "D1",
       "conditions": {}
     }
@@ -3112,6 +3186,13 @@
       "route": "domain-intersection",
       "step": "a74a6c6291a12d04fdc31818#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "9b7c0b2ab3f67920b5552808#1",
+      "conditions": {}
     }
   ],
   "rational-expression#meaning": [
@@ -3179,6 +3260,20 @@
       "route": "domain-intersection",
       "step": "7447f26b4132dc87eecebede#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "9b7c0b2ab3f67920b5552808#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "632bbaa252456e2654cd4756#1",
+      "conditions": {}
     }
   ],
   "method-domain-intersection#solve": [
@@ -3224,6 +3319,20 @@
       "problem": "function-concepts-q01",
       "route": "domain-intersection",
       "step": "a74a6c6291a12d04fdc31818#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#3",
       "conditions": {}
     }
   ],
@@ -3287,6 +3396,13 @@
       "route": "domain-intersection",
       "step": "a74a6c6291a12d04fdc31818#1",
       "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "632bbaa252456e2654cd4756#1",
+      "conditions": {}
     }
   ],
   "interval-notation#finite": [
@@ -3334,6 +3450,453 @@
       "problem": "function-concepts-q01",
       "route": "domain-intersection",
       "step": "a74a6c6291a12d04fdc31818#1",
+      "conditions": {}
+    }
+  ],
+  "quantifiers": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q01",
+      "route": "extremum",
+      "step": "e_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q04",
+      "route": "interval",
+      "step": "i_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q04",
+      "route": "extremum",
+      "step": "e_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q05",
+      "route": "interval",
+      "step": "i_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q05",
+      "route": "extremum",
+      "step": "e_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q06",
+      "route": "extremum",
+      "step": "e_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q06",
+      "route": "interval",
+      "step": "i_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q07",
+      "route": "extremum",
+      "step": "e_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q07",
+      "route": "interval",
+      "step": "i_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q08",
+      "route": "variable",
+      "step": "v_condition",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q09",
+      "route": "variable",
+      "step": "v_condition",
+      "conditions": {}
+    }
+  ],
+  "quadratic-inequality": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "D1",
+      "conditions": {}
+    }
+  ],
+  "method-domain-parameter": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "D3",
+      "conditions": {}
+    }
+  ],
+  "method-domain-parameter#extract": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "9b7c0b2ab3f67920b5552808#1",
+      "conditions": {}
+    }
+  ],
+  "method-domain-parameter#reduce": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "632bbaa252456e2654cd4756#1",
+      "conditions": {}
+    }
+  ],
+  "quantifiers#universal": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "632bbaa252456e2654cd4756#1",
+      "conditions": {}
+    }
+  ],
+  "method-discriminant#degree": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "70031a1ae2d6a6d069094137#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "77906ab6a89c394d1ae04ad5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_degenerate",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_degenerate",
+      "conditions": {}
+    }
+  ],
+  "linear-interval-extremum": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "77906ab6a89c394d1ae04ad5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_degenerate",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_degenerate",
+      "conditions": {}
+    }
+  ],
+  "quadratic-function-properties#definition": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "77906ab6a89c394d1ae04ad5#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_degenerate",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_degenerate",
+      "conditions": {}
+    }
+  ],
+  "method-discriminant#conditions": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q01",
+      "route": "discriminant",
+      "step": "d_delta",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_delta",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_delta",
+      "conditions": {}
+    }
+  ],
+  "equality-properties#identity": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "conditions": {}
+    }
+  ],
+  "skill-quadratic-sign": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "conditions": {}
+    }
+  ],
+  "quadratic-function-properties#zeros": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q01",
+      "route": "discriminant",
+      "step": "d_position",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q01",
+      "route": "discriminant",
+      "step": "d_delta",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_position",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_delta",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_position",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_delta",
+      "conditions": {}
+    }
+  ],
+  "quadratic-inequality#all-real": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#2",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "b3ac3c028022688ccaf81b1e#3",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "89d08d69f6fee4b9ad8de1ba#1",
+      "conditions": {}
+    }
+  ],
+  "quadratic-equation#discriminant": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "54b7ab8304ba16e47c1ae3d6#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q01",
+      "route": "discriminant",
+      "step": "d_delta",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_delta",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_delta",
+      "conditions": {}
+    }
+  ],
+  "method-discriminant#solve": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "89d08d69f6fee4b9ad8de1ba#1",
+      "conditions": {}
+    }
+  ],
+  "method-discriminant#merge": [
+    {
+      "topic": "function-concepts",
+      "problem": "function-concepts-q22",
+      "route": "domain-parameter",
+      "step": "8ed39522d9673ab1e8b9fcf8#1",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q02",
+      "route": "discriminant",
+      "step": "d_merge",
+      "conditions": {}
+    },
+    {
+      "topic": "quadratic-always",
+      "problem": "quadratic-always-q03",
+      "route": "discriminant",
+      "step": "d_merge",
       "conditions": {}
     }
   ],
@@ -3436,96 +3999,6 @@
       "problem": "quadratic-always-q03",
       "route": "discriminant",
       "step": "d_position",
-      "conditions": {}
-    }
-  ],
-  "quadratic-function-properties#zeros": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q01",
-      "route": "discriminant",
-      "step": "d_position",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q01",
-      "route": "discriminant",
-      "step": "d_delta",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_position",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_delta",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_position",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_delta",
-      "conditions": {}
-    }
-  ],
-  "quadratic-equation#discriminant": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q01",
-      "route": "discriminant",
-      "step": "d_delta",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_delta",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_delta",
-      "conditions": {}
-    }
-  ],
-  "method-discriminant#conditions": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q01",
-      "route": "discriminant",
-      "step": "d_delta",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_delta",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_delta",
       "conditions": {}
     }
   ],
@@ -3751,149 +4224,6 @@
       "problem": "quadratic-always-q09",
       "route": "variable",
       "step": "v_condition",
-      "conditions": {}
-    }
-  ],
-  "quantifiers": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q01",
-      "route": "extremum",
-      "step": "e_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q04",
-      "route": "interval",
-      "step": "i_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q04",
-      "route": "extremum",
-      "step": "e_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q05",
-      "route": "interval",
-      "step": "i_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q05",
-      "route": "extremum",
-      "step": "e_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q06",
-      "route": "extremum",
-      "step": "e_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q06",
-      "route": "interval",
-      "step": "i_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q07",
-      "route": "extremum",
-      "step": "e_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q07",
-      "route": "interval",
-      "step": "i_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q08",
-      "route": "variable",
-      "step": "v_condition",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q09",
-      "route": "variable",
-      "step": "v_condition",
-      "conditions": {}
-    }
-  ],
-  "method-discriminant#degree": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_degenerate",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_degenerate",
-      "conditions": {}
-    }
-  ],
-  "linear-interval-extremum": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_degenerate",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_degenerate",
-      "conditions": {}
-    }
-  ],
-  "quadratic-function-properties#definition": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_degenerate",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_degenerate",
-      "conditions": {}
-    }
-  ],
-  "method-discriminant#merge": [
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q02",
-      "route": "discriminant",
-      "step": "d_merge",
-      "conditions": {}
-    },
-    {
-      "topic": "quadratic-always",
-      "problem": "quadratic-always-q03",
-      "route": "discriminant",
-      "step": "d_merge",
       "conditions": {}
     }
   ],

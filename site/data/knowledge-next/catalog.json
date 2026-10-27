@@ -8,7 +8,7 @@
     "section": 9,
     "knowledge": 27,
     "skill": 21,
-    "method": 15,
+    "method": 16,
     "problem_type": 14,
     "judgment_rule": 2,
     "collection": 1
@@ -418,6 +418,8 @@
     "method-solution-inverse": "method-solution-inverse",
     "method-rational-inequality": "method-rational-inequality",
     "method-amgm-parameter": "method-amgm-parameter",
+    "method-domain-intersection": "method-domain-intersection",
+    "method-domain-parameter": "method-domain-parameter",
     "type-expression-comparison": "type-expression-comparison",
     "type-sum-product-extremum": "type-sum-product-extremum",
     "type-binary-quadratic-range": "type-binary-quadratic-range",

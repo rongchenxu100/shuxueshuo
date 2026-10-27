@@ -40,13 +40,20 @@
             "find_range",
             "find_minimum",
             "find_maximum",
-            "find_domain"
+            "find_domain",
+            "match_domain"
           ]
         },
         "symbol": {
           "type": "string",
           "minLength": 1,
           "pattern": "\\S"
+        },
+        "object": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "match_domain 时的函数符号；其他目标可省略。"
         }
       },
       "additionalProperties": false
@@ -429,6 +436,27 @@
         },
         "has_quadratic_condition": {
           "type": "boolean"
+        },
+        "task": {
+          "enum": [
+            "find_domain",
+            "match_domain"
+          ],
+          "description": "子任务；缺省视为 find_domain 以兼容旧录制。"
+        },
+        "parameter": {
+          "type": "string",
+          "description": "match_domain 时所求参数名。"
+        },
+        "parameter_ref": {
+          "type": "string"
+        },
+        "prescribed_domain_ast": {
+          "type": "array",
+          "description": "match_domain 时题给定义域 AST；find_domain 可省略。"
+        },
+        "structure_version": {
+          "type": "string"
         }
       },
       "additionalProperties": false

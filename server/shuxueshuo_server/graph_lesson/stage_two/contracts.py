@@ -144,7 +144,11 @@ def validate_input(value, admission="acceptance"):
         # feature is mandatory for that new goal, but cannot invalidate older
         # reviewed goals that never used it. Present rows still receive every
         # ordinary shape/source check above.
-        required = registry if expected[target]["goal"]["kind"] == "find_domain" else registry - {"function_domain"}
+        required = (
+            registry
+            if expected[target]["goal"]["kind"] in ("find_domain", "match_domain")
+            else registry - {"function_domain"}
+        )
         if missing := required - found:
             issue("input.features_incomplete", target, "缺少阶段①特征：" + ", ".join(sorted(missing)))
     return {"ok": not diagnostics, "diagnostics": diagnostics}

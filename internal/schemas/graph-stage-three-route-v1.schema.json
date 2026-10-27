@@ -303,7 +303,7 @@
           ],
           "properties": {
             "kind": {
-              "enum": ["find_range", "find_domain"]
+              "enum": ["find_range", "find_domain", "match_domain"]
             },
             "status": {
               "const": "set"

@@ -1696,6 +1696,16 @@
       "repeat": "always",
       "compiler": "function_domain",
       "parts": []
+    },
+    "domain_parameter_conditions": {
+      "repeat": "always",
+      "compiler": "function_domain",
+      "parts": []
+    },
+    "domain_parameter_universal": {
+      "repeat": "always",
+      "compiler": "function_domain",
+      "parts": []
     }
   },
   "overrides": {

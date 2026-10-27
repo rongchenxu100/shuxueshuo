@@ -235,6 +235,9 @@ def apply_visible_constraints(constraint_context, feasible_set):
     if constraint_context.get("goal", {}).get("kind") == "find_domain":
         from .function_domain import process_context
         return process_context(constraint_context, feasible_set)
+    if constraint_context.get("goal", {}).get("kind") == "match_domain":
+        from .function_domain import process_parameter_context
+        return process_parameter_context(constraint_context, feasible_set)
     algebra = _RouteArithmetic(constraint_context)
     atoms = _context_atoms(constraint_context)
     quantified = [ast for _, ast in atoms if ast[0] == "quantifier"]

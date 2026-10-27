@@ -950,10 +950,34 @@ class NotationValidator:
                     "find_equation": ("curve", "function"),
                     "find_range": ("scalar",),
                     "find_domain": ("function",),
+                    "match_domain": ("function",),
                     "find_count": ("set",),
                 }.get(goal["kind"], ("scalar", "length", "angle", "area"))
                 if typ not in expected:
                     raise NotationError("type.goal_target")
+                # match_domain binds the function via object; symbol is the
+                # sought parameter and domain is the prescribed Dom(f).
+                if goal["kind"] == "match_domain":
+                    if target != "object" or "symbol" not in goal or "domain" not in goal:
+                        raise NotationError("type.goal_match_domain_fields")
+                    value = env.bind(parse(goal["object"]))
+                    if typecheck(value) != "function":
+                        raise NotationError("type.goal_target")
+                    parameter = env.bind(parse(goal["symbol"]))
+                    if typecheck(parameter) != "scalar":
+                        raise NotationError("type.goal_parameter")
+                    domain = env.bind(parse(goal["domain"]))
+                    if domain[0] == "tuple":
+                        domain = node("interval", False, False, *domain[1:])
+                    if typecheck(domain) not in ("domain", "set"):
+                        raise NotationError("type.goal_input_domain")
+                    goals.append({
+                        "kind": "match_domain",
+                        "target": value,
+                        "parameter": parameter,
+                        "domain": domain,
+                    })
+                    continue
                 result = {"kind": goal["kind"], "target": value}
                 if "input_domain" in goal:
                     domain = env.bind(parse(goal["input_domain"]))

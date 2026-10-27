@@ -16,6 +16,8 @@ from ...problem_understanding.notation_semantics import Canonical, bounded_expan
 from . import contracts
 from .function_domain import VERSION as DOMAIN_VERSION
 from .function_domain import describe_domain_goal
+from .function_domain_parameter import VERSION as DOMAIN_PARAMETER_VERSION
+from .function_domain_parameter import describe_match_domain_goal
 
 SCHEMA_VERSION = "graph-stage-one-features/v1"
 EXTRACTOR_VERSION = "structural-polynomial/v1"
@@ -41,7 +43,7 @@ FEATURE_REGISTRY = (
         "function_domain", ("goal",), "function_domain",
         ("function-concept#elements",), "具体函数的原始输入结构为 {value}",
         version=DOMAIN_VERSION,
-        supported_structures=("fixed_affine_function_domain",),
+        supported_structures=("fixed_affine_function_domain", "domain_parameter_reals_quadratic"),
         computation_boundary="original bound AST and exact rational affine syntax only; no condition solving",
     ),
     FeatureSpec(
@@ -434,6 +436,48 @@ def _scope_features(report, candidate, scope, ancestors, features):
             for spec in FEATURE_REGISTRY:
                 if spec.feature_id not in produced:
                     add(spec.feature_id, diagnostic={"code": "feature.not_quantified_domain_goal"}, source_refs=[target_ref])
+            continue
+        if goal["kind"] == "match_domain":
+            parameter = goal.get("parameter")
+            if (
+                goal_ast[0] != "ref"
+                or goal_ast[2] != "function"
+                or not parameter
+                or parameter[0] != "ref"
+                or parameter[2] != "scalar"
+            ):
+                diagnostic = {"code": "feature.unsupported_goal", "path": target_ref}
+                for spec in FEATURE_REGISTRY:
+                    add(spec.feature_id, diagnostic=diagnostic, source_refs=[target_ref])
+                continue
+            add(
+                "goal",
+                {
+                    "kind": "match_domain",
+                    "symbol": objects[parameter[1]]["name"],
+                    "object": objects[goal_ast[1]]["name"],
+                },
+                source_refs=[target_ref],
+            )
+            produced["goal"]["knowledge_refs"] = ["function-concept#elements", "quantifiers#universal"]
+            try:
+                description = describe_match_domain_goal(report, scope, ancestors, goal_index)
+                add(
+                    "function_domain",
+                    description,
+                    source_refs=[target_ref, description["source_ref"]],
+                )
+                if description.get("structure_supported"):
+                    produced["function_domain"]["extractor_version"] = DOMAIN_PARAMETER_VERSION
+            except (NotationError, ValueError, TypeError) as exc:
+                add(
+                    "function_domain",
+                    diagnostic={"code": getattr(exc, "code", "domain.invalid_structure")},
+                    source_refs=[target_ref],
+                )
+            for spec in FEATURE_REGISTRY:
+                if spec.feature_id not in produced:
+                    add(spec.feature_id, diagnostic={"code": "feature.not_match_domain_goal"}, source_refs=[target_ref])
             continue
         if (
             goal["kind"] not in ("find_range", "find_minimum", "find_maximum")

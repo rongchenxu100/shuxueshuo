@@ -294,6 +294,9 @@ class Canonical:
             goal = {"kind": g["kind"], "target": target}
             if g["kind"] == "find_domain":
                 goal["input_domain"] = self.tree(g.get("input_domain", ["real"]))
+            if g["kind"] == "match_domain":
+                goal["parameter"] = self.tree(g["parameter"])
+                goal["domain"] = self.tree(g["domain"])
             if "in_terms_of" in g:
                 goal["in_terms_of"] = sorted(
                     [self.tree(x) for x in g["in_terms_of"]], key=key

@@ -773,7 +773,8 @@
             "kind": {
               "enum": [
                 "find_range",
-                "find_domain"
+                "find_domain",
+                "match_domain"
               ]
             },
             "status": {

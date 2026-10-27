@@ -149,10 +149,11 @@ test('native topic publication derives its steps from the verified course withou
 
 test('rebuilding published courses preserves their immutable native contracts', async () => {
   // These are published identities, not regenerable snapshots. Changed teaching
-  // contracts need a new problem ID instead of replacing either frozen course.
+  // contracts need a new problem ID instead of replacing a frozen course.
   const publishedHashes = {
     'function-concepts-q15': '90ac818ed6f449351e329fa4d23060c876789badb7c30e364687d5483cf14094',
     'function-concepts-q01': 'a6247acf31a3c4e08e98c3dbabd2211e7b9ad7b1eb9b0997d1f9ff329a897847',
+    'function-concepts-q22': '62f1efcb1b17c2c1455579a9ff3fc1c604890d0955e0f74c8201398e0f494b14',
   };
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'frozen-course-export-'));
   try {
@@ -176,6 +177,40 @@ test('rebuilding published courses preserves their immutable native contracts', 
       assert.equal(published.contract_hash, hash, `${id} cannot replace its published native contract during a rebuild`);
     }
   } finally { await fs.rm(root, {recursive: true, force: true}); }
+});
+
+test('Q22 explains the domain-to-universal reduction before its discriminant route', async () => {
+  const bundle = await json('site/data/graph-walk/function-concepts-q22.json');
+  const replay = await json('site/data/graph-walk/function-concepts-q22.replay.json');
+  const steps = bundle.routes['domain-parameter'].steps;
+  assert.equal(bundle.intro.length + steps.length, 12);
+  assert.equal(replay.actions.length, 12);
+  assert.match(bundle.intro[1].effects.results.join(' '), /全部参数/);
+  assert.deepEqual(steps.slice(0, 2).map(step => step.title),
+    ['列出根式有意义的条件', '把定义域条件化为恒成立']);
+  let state = createState(bundle);
+  for (const action of replay.actions) {
+    const decision = currentDecision(bundle, state);
+    if (steps.slice(0, 2).includes(decision)) {
+      for (const option of decision.interaction.options) {
+        if (decision.expected_answer.one_of.includes(option.value)) continue;
+        const rejected = submitAnswer(bundle, state, {decision: decision.id, answer: option.value});
+        assert.equal(currentDecision(bundle, rejected).id, decision.id);
+        assert.equal(rejected.lastFeedback.status, 'wrong');
+      }
+    }
+    state = submitAnswer(bundle, state, action);
+  }
+  assert.equal(state.done, true);
+  const exported = await exportContent();
+  const native = exported.practice_problems.find(row => row.id === bundle.problemId).problem_data._graph_walk;
+  assert.equal(native.bundleVersion, replay.bundleVersion);
+  for (let index = 0; index < 2; index++) {
+    const published = native.routes['domain-parameter'].steps[index];
+    for (const key of ['interaction', 'expected_answer', 'stream_steps']) {
+      assert.deepEqual(published[key], steps[index][key]);
+    }
+  }
 });
 
 

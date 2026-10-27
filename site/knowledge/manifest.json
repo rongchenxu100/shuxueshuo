@@ -1,5 +1,5 @@
 {
-  "contentVersion": "a9f5556f6b6d4419a33da1b1a32312a372d96bf9e73ef3868fc003a85414d68c",
+  "contentVersion": "b9820eed2fc41204edeed14c689741ac39f9bf59d0616637b473e55dd2d5c2bf",
   "generator": "tools/build-public-knowledge-graph.mjs",
   "schemaVersion": 1,
   "nodeCounts": {
@@ -8,7 +8,7 @@
     "section": 9,
     "knowledge": 27,
     "skill": 21,
-    "method": 15,
+    "method": 16,
     "problem_type": 14,
     "judgment_rule": 2,
     "collection": 1
@@ -51,6 +51,7 @@
     "method-difference-comparison/index.html",
     "method-discriminant/index.html",
     "method-domain-intersection/index.html",
+    "method-domain-parameter/index.html",
     "method-elimination/index.html",
     "method-fraction-split/index.html",
     "method-homogeneous/index.html",
@@ -133,6 +134,7 @@
     "teaching/nodes/method-difference-comparison.json",
     "teaching/nodes/method-discriminant.json",
     "teaching/nodes/method-domain-intersection.json",
+    "teaching/nodes/method-domain-parameter.json",
     "teaching/nodes/method-elimination.json",
     "teaching/nodes/method-fraction-split.json",
     "teaching/nodes/method-homogeneous.json",
@@ -225,6 +227,7 @@
     "teaching/problems/basic-inequality-q30.json",
     "teaching/problems/function-concepts-q01.json",
     "teaching/problems/function-concepts-q15.json",
+    "teaching/problems/function-concepts-q22.json",
     "teaching/problems/quadratic-always-q01.json",
     "teaching/problems/quadratic-always-q02.json",
     "teaching/problems/quadratic-always-q03.json",

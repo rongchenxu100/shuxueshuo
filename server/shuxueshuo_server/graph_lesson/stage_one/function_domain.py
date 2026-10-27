@@ -257,36 +257,39 @@ _PREC_POW = 3
 _PREC_ATOM = 4
 
 
-def expression_latex(ast, variable, parent=_PREC_SUM):
+def expression_latex(ast, variable, parent=_PREC_SUM, names=None):
     """Readable LaTeX for the source tree; parentheses follow precedence only."""
+    names = names or {}
     if ast == ARGUMENT:
         return variable
     if ast[0] == "number":
         return ast[1]
+    if ast[0] == "ref":
+        return names.get(ast[1], ast[1].rsplit(":", 1)[-1])
     if ast[0] == "neg":
-        body = "-" + expression_latex(ast[1], variable, _PREC_POW)
+        body = "-" + expression_latex(ast[1], variable, _PREC_POW, names)
         return f"({body})" if parent > _PREC_SUM else body
     if ast[:2] == ["call", "sqrt"]:
-        return r"\sqrt{" + expression_latex(ast[2], variable, _PREC_SUM) + "}"
+        return r"\sqrt{" + expression_latex(ast[2], variable, _PREC_SUM, names) + "}"
     if ast[0] == "/":
         return (
             r"\frac{"
-            + expression_latex(ast[1], variable, _PREC_SUM)
+            + expression_latex(ast[1], variable, _PREC_SUM, names)
             + "}{"
-            + expression_latex(ast[2], variable, _PREC_SUM)
+            + expression_latex(ast[2], variable, _PREC_SUM, names)
             + "}"
         )
     if ast[0] == "^":
-        base = expression_latex(ast[1], variable, _PREC_POW + 1)
-        expo = expression_latex(ast[2], variable, _PREC_SUM)
+        base = expression_latex(ast[1], variable, _PREC_POW + 1, names)
+        expo = expression_latex(ast[2], variable, _PREC_SUM, names)
         body = f"{base}^{{{expo}}}"
         return f"({body})" if parent > _PREC_POW else body
     if ast[0] in ("+", "-", "*"):
         prec = _PREC_PROD if ast[0] == "*" else _PREC_SUM
         # Left-associative: the right child of - needs a stricter bind so
         # a-(b-c) keeps parentheses without wrapping every atom.
-        left = expression_latex(ast[1], variable, prec)
-        right = expression_latex(ast[2], variable, prec + (0 if ast[0] == "+" else 1))
+        left = expression_latex(ast[1], variable, prec, names)
+        right = expression_latex(ast[2], variable, prec + (0 if ast[0] == "+" else 1), names)
         op = r"\cdot " if ast[0] == "*" else ast[0]
         body = left + op + right
         return f"({body})" if parent > prec else body

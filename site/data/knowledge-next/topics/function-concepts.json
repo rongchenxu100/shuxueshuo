@@ -30,7 +30,8 @@
       "description": "结合题设范围与表达式有意义的条件，确定允许的输入。",
       "problems": [
         "function-concepts-q15",
-        "function-concepts-q01"
+        "function-concepts-q01",
+        "function-concepts-q22"
       ]
     },
     {
@@ -77,6 +78,15 @@
       "path": "/topics/function-concepts/q01/",
       "runtime": "graph-walk",
       "bundle": "/data/graph-walk/function-concepts-q01.json",
+      "types": [
+        "type-function-domain"
+      ]
+    },
+    "function-concepts-q22": {
+      "label": "定义域求参 · Q22",
+      "path": "/topics/function-concepts/q22/",
+      "runtime": "graph-walk",
+      "bundle": "/data/graph-walk/function-concepts-q22.json",
       "types": [
         "type-function-domain"
       ]

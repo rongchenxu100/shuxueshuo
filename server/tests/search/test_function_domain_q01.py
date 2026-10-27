@@ -41,6 +41,9 @@ def test_real_q01_recording_binds_y_formula_and_power_knowledge(tmp_path):
     ("a/(b/c)", "a*c/b", False),
     (r"x^{1}2", "x^12", False),
     (r"\unknown{(x+4)^0}\frac{x^2-1}{x-1}", "(x+4)^0*(x^2-1)/(x-1)", False),
+    (r"\sqrt{kx^{2}+2x+1}", "sqrt(k*x^2+2*x+1)", True),
+    (r"\sqrt{k*x^{2}+2*x+1}", "sqrt(k*x^2+2*x+1)", True),
+    (r"\sqrt{kx^{2}+2x+1}", "sqrt(k*x^2+2*x+2)", False),
 ])
 def test_display_product_grouping_preserves_powers_and_each_original_divisor(display, expected, matches):
     assert _domain_formula_body_matches(display, expected) is matches

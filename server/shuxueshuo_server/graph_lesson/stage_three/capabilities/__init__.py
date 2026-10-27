@@ -355,12 +355,20 @@ from .variable_swap import (
     solve_variable_conditions,
 )
 
-from ..function_domain import extract_domain_conditions, prepare_domain_conditions, intersect_domain
+from ..function_domain import (
+    extract_domain_conditions,
+    extract_domain_parameter_conditions,
+    prepare_domain_conditions,
+    intersect_domain,
+    reduce_domain_equality_to_universal,
+)
 
 REGISTRY = {
     fn.__name__: fn
     for fn in (
         extract_domain_conditions,
+        extract_domain_parameter_conditions,
+        reduce_domain_equality_to_universal,
         prepare_domain_conditions,
         intersect_domain,
         normalize_to_zero,

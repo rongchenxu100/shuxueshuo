@@ -288,7 +288,9 @@ def _publish(state, frame, step, action, bindings):
             state, frame, step, unit, display_bindings, sources, basis, premise_refs
         )
         state["fragments"].append(fragment)
-        record_seed(state, fragment, template=unit["template"], values=seed_values)
+        record_seed(
+            state, fragment, template=unit["template"], values=seed_values, frame_bindings=bindings
+        )
         state["trajectory"]["math_steps"].append(
             {
                 "step_id": fragment["step_id"],
